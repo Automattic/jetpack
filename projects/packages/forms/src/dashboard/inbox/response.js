@@ -60,7 +60,7 @@ const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
 	);
 };
 
-const FileField = ( { file, onClick, key } ) => {
+const FileField = ( { file, onClick } ) => {
 	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
 	const fileType = file.type.split( '/' )[ 0 ];
 
@@ -96,7 +96,7 @@ const FileField = ( { file, onClick, key } ) => {
 	const iconType = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
 	const iconClass = clsx( 'file-field__icon', 'icon-' + iconType );
 	return (
-		<div key={ key } className="file-field__item">
+		<div className="file-field__item">
 			<div className="file-field__info">
 				<div className={ iconClass }></div>
 				<div className="file-field__name">
@@ -174,12 +174,16 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			return (
 				<div className="file-field">
 					{ value.files?.length
-						? value.files.map( ( file, index ) => {
+						? value.files.map( file => {
 								if ( ! file || ! file.name ) {
 									return null;
 								}
 								return (
-									<FileField file={ file } onClick={ handleFilePreview( file ) } key={ index } />
+									<FileField
+										file={ file }
+										onClick={ handleFilePreview( file ) }
+										key={ file.file_id }
+									/>
 								);
 						  } )
 						: '-' }
