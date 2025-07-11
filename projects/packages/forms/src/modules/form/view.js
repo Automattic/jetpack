@@ -295,6 +295,10 @@ const { state } = store( NAMESPACE, {
 					wrapper.dispatchEvent( new CustomEvent( 'jetpack-form-reset', { bubbles: false } ) );
 				} );
 			}
+
+			if ( context.isMultiStep ) {
+				context.currentStep = 1;
+			}
 		},
 
 		onFormSubmit: withSyncEvent( function* ( event ) {
