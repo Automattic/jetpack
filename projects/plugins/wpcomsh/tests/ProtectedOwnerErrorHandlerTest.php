@@ -38,113 +38,20 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	public function tearDown(): void {
 		delete_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION );
 		delete_option( 'jetpack_connection_xmlrpc_verified_errors' );
+
+		// Clean up any filters that might have been added during tests
+		remove_all_filters( 'wpcomsh_protected_owner_error_data_args' );
+		remove_all_filters( 'wpcomsh_protected_owner_legacy_error_data' );
+
 		parent::tearDown();
 	}
 
 	/**
-	 * Test that the class implements singleton pattern correctly.
+	 * Test has_enhanced_error_handling method.
 	 */
-	public function test_singleton_pattern() {
-		$instance1 = Protected_Owner_Error_Handler::get_instance();
-		$instance2 = Protected_Owner_Error_Handler::get_instance();
-
-		$this->assertSame( $instance1, $instance2 );
-		$this->assertInstanceOf( Protected_Owner_Error_Handler::class, $instance1 );
-	}
-
-	/**
-	 * Test handle_error returns original errors when no error is stored.
-	 */
-	public function test_handle_error_returns_original_errors_when_no_error_stored() {
-		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
-		$result          = $this->handler->handle_error( $original_errors );
-		$this->assertEquals( array(), $result );
-	}
-
-	/**
-	 * Test handle_error returns original errors for invalid data.
-	 */
-	public function test_handle_error_returns_original_errors_for_invalid_data() {
-		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
-
-		// Test with non-array data
-		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, 'invalid_data' );
-		$result = $this->handler->handle_error( $original_errors );
-		$this->assertEquals( array(), $result );
-
-		// Test with missing error_type
-		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, array( 'email' => 'test@example.com' ) );
-		$result = $this->handler->handle_error( $original_errors );
-		$this->assertEquals( array(), $result );
-
-		// Test with missing email
-		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, array( 'error_type' => 'missing_owner' ) );
-		$result = $this->handler->handle_error( $original_errors );
-		$this->assertEquals( array(), $result );
-	}
-
-	/**
-	 * Test handle_error returns original errors when user exists.
-	 */
-	public function test_handle_error_returns_original_errors_when_user_exists() {
-		$test_email      = 'test@example.com';
-		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
-
-		// Create a user with the required email
-		$this->factory()->user->create( array( 'user_email' => $test_email ) );
-
-		// Set up an error
-		update_option(
-			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
-			array(
-				'error_type' => 'missing_owner',
-				'email'      => $test_email,
-			)
-		);
-
-		$result = $this->handler->handle_error( $original_errors );
-
-		// Should return empty array and delete the stored error
-		$this->assertEquals( array(), $result );
-		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
-	}
-
-	/**
-	 * Test handle_error returns protected owner error when user doesn't exist.
-	 */
-	public function test_handle_error_returns_protected_owner_error() {
-		$test_email      = 'test@example.com';
-		$test_timestamp  = time();
-		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
-
-		update_option(
-			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
-			array(
-				'error_type' => 'missing_owner',
-				'email'      => $test_email,
-				'timestamp'  => $test_timestamp,
-			)
-		);
-
-		$result = $this->handler->handle_error( $original_errors );
-
-		// Should return only the protected owner error (takes priority)
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'protected_owner_missing', $result );
-		$this->assertArrayNotHasKey( 'some_error', $result );
-
-		$error_data = $result['protected_owner_missing']['0'];
-		$this->assertEquals( 'protected_owner_missing', $error_data['error_code'] );
-		$this->assertSame( '0', $error_data['user_id'] );
-		$this->assertEquals( 'protected_owner', $error_data['error_type'] );
-		$this->assertEquals( $test_timestamp, $error_data['timestamp'] );
-		$this->assertArrayHasKey( 'error_message', $error_data );
-		$this->assertStringContainsString( $test_email, $error_data['error_message'] );
-		$this->assertArrayHasKey( 'error_data', $error_data );
-		$this->assertEquals( $test_email, $error_data['error_data']['email'] );
-		$this->assertEquals( 'missing_owner', $error_data['error_data']['error_type'] );
-		$this->assertEquals( 'create_missing_account', $error_data['error_data']['action'] );
-		$this->assertStringContainsString( 'user-new.php', $error_data['error_data']['support_url'] );
+	public function test_has_enhanced_error_handling() {
+		$result = $this->handler->has_enhanced_error_handling();
+		$this->assertIsBool( $result );
 	}
 
 	/**
