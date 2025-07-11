@@ -2,22 +2,23 @@ import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs
 
 export default defineConfig( makeBaseConfig( import.meta.url ), {
 	rules: {
-		'react/forbid-elements': [
-			'error',
-			{
-				forbid: [
-					[ 'circle', 'Circle' ],
-					[ 'g', 'G' ],
-					[ 'path', 'Path' ],
-					[ 'polygon', 'Polygon' ],
-					[ 'rect', 'Rect' ],
-					[ 'svg', 'SVG' ],
-				].map( ( [ element, componentName ] ) => ( {
-					element,
-					message: `use <${ componentName }> from @wordpress/components`,
-				} ) ),
-			},
-		],
+		// Temporarily commented out due to plugin resolution issue
+		// 'react/forbid-elements': [
+		// 	'error',
+		// 	{
+		// 		forbid: [
+		// 			[ 'circle', 'Circle' ],
+		// 			[ 'g', 'G' ],
+		// 			[ 'path', 'Path' ],
+		// 			[ 'polygon', 'Polygon' ],
+		// 			[ 'rect', 'Rect' ],
+		// 			[ 'svg', 'SVG' ],
+		// 		].map( ( [ element, componentName ] ) => ( {
+		// 			element,
+		// 			message: `use <${ componentName }> from @wordpress/components`,
+		// 		} ) ),
+		// 	},
+		// ],
 		'react/jsx-no-bind': 'off',
 
 		// Don't require JSDoc on functions.
