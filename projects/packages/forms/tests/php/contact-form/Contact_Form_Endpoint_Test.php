@@ -195,6 +195,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertArrayHasKey( 'version', $integration );
 			$this->assertArrayHasKey( 'details', $integration );
 			$this->assertArrayHasKey( 'needsConnection', $integration );
+			$this->assertArrayHasKey( 'marketingUrl', $integration );
 
 			// Verify expected data types
 			$this->assertIsString( $integration['id'] );
@@ -208,6 +209,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertTrue( $integration['pluginFile'] === null || is_string( $integration['pluginFile'] ) );
 			$this->assertTrue( $integration['version'] === null || is_string( $integration['version'] ) );
 			$this->assertIsArray( $integration['details'] );
+			$this->assertTrue( $integration['marketingUrl'] === null || is_string( $integration['marketingUrl'] ) );
 		}
 	}
 
