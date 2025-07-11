@@ -53,7 +53,7 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertInstanceOf( Feedback::class, $response );
 	}
 
-	public function test_Feedback_is_matches_empty_data() {
+	public function test_feedback_is_matches_empty_data() {
 		$form             = new Contact_Form( array() );
 		$_post_data       = array();
 		$response         = Feedback::from_submission( $_post_data, $form );
@@ -65,7 +65,7 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( $response->get_fields(), $saved_response->get_fields(), 'Fields data does not match' );
 	}
 
-	public function test_Feedback_is_matches_submission_data() {
+	public function test_feedback_is_matches_submission_data() {
 		$name    = 'John Doe';
 		$email   = 'john@example.com';
 		$message = 'Test message';
@@ -98,11 +98,11 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( $response->get_fields(), $saved_response->get_fields() );
 
 		foreach ( $response->get_fields() as $field ) {
-			$this->assertInstanceOf( Response_Field::class, $field );
+			$this->assertInstanceOf( Feedback_Field::class, $field );
 		}
 
 		foreach ( $saved_response->get_fields() as $field ) {
-			$this->assertInstanceOf( Response_Field::class, $field );
+			$this->assertInstanceOf( Feedback_Field::class, $field );
 		}
 
 		foreach ( $saved_response->get_fields() as $field_key => $field ) {
@@ -145,7 +145,7 @@ class Feedback_Test extends BaseTestCase {
 
 		$field = $response->get_fields()['1_field'];
 
-		$this->assertInstanceOf( Response_Field::class, $field );
+		$this->assertInstanceOf( Feedback_Field::class, $field );
 		$this->assertEquals( '1_field', $field->get_key() );
 		$this->assertEquals( 'field', $field->get_label() );
 		$this->assertEquals( 'value1', $field->render_value() );
@@ -156,7 +156,7 @@ class Feedback_Test extends BaseTestCase {
 	 *
 	 * It should be non empty and match the post slug.
 	 */
-	public function test_Feedback_computed_feedback_id() {
+	public function test_feedback_computed_feedback_id() {
 		$name    = 'John Doe';
 		$email   = 'john@example.com';
 		$message = 'Test message';

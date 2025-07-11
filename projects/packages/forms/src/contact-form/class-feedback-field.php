@@ -1,6 +1,6 @@
 <?php
 /**
- * Response_Field class.
+ * Feedback_Field class.
  *
  * @package automattic/jetpack-forms
  */
@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
  *
  * Represents the submitted form data of an invividual field.
  */
-class Response_Field {
+class Feedback_Field {
 
 	/**
 	 * The key of the field.
@@ -237,11 +237,11 @@ class Response_Field {
 		);
 	}
 	/**
-	 * Create a Response_Field object from serialized data.
+	 * Create a Feedback_Field object from serialized data.
 	 *
 	 * @param array $data The serialized data.
 	 *
-	 * @return Response_Field|null Returns a Response_Field object or null if the data is invalid.
+	 * @return Feedback_Field|null Returns a Feedback_Field object or null if the data is invalid.
 	 */
 	public static function from_serialized( $data ) {
 		if ( ! is_array( $data ) || ! isset( $data['key'] ) || ! isset( $data['value'] ) || ! isset( $data['label'] ) ) {
