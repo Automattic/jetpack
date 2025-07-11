@@ -292,10 +292,23 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 */
 	public function can_module_run( $module ) {
 		$website_public = Config::is_website_public();
+		$can_module_run = true;
+
+		// If the module requires the website to be public and it's not, don't allow it to run.
 		if ( $module->feature instanceof Needs_Website_To_Be_Public && ! $website_public ) {
-			return false;
+			$can_module_run = false;
 		}
 
-		return true;
+		/**
+		 * Filter to allow modules to run even if the website is not public.
+		 * This is useful for debugging purposes.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool   $can_module_run Whether the module should be disabled.
+		 * @param Module $module         The module to check.
+		 * @param bool   $website_public Whether the website is public.
+		 */
+		return apply_filters( 'jetpack_boost_can_module_run', $can_module_run, $module, $website_public );
 	}
 }
