@@ -13,6 +13,7 @@ use Jetpack_Tracks_Event;
 use PHPMailer\PHPMailer\PHPMailer;
 use WP_Block;
 use WP_Error;
+use WP_Post;
 
 /**
  * Class for the contact-form shortcode.
