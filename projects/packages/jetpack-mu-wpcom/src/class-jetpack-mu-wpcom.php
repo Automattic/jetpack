@@ -682,11 +682,12 @@ class Jetpack_Mu_Wpcom {
 		( function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() ) )
 		) {
 			if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
+				$host = new \Automattic\Jetpack\Status\Host();
 				if ( ! isset( $data['site']['host'] ) ) {
-					$data['site']['host'] = ( new \Automattic\Jetpack\Status\Host() )->get_known_host_guess();
+					$data['site']['host'] = $host->get_known_host_guess();
 				}
 				if ( ! isset( $data['site']['is_wpcom_platform'] ) ) {
-					$data['site']['is_wpcom_platform'] = ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform();
+					$data['site']['is_wpcom_platform'] = $host->is_wpcom_platform();
 				}
 			}
 		}
