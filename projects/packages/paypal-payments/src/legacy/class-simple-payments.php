@@ -758,8 +758,19 @@ class Simple_Payments {
 		if ( ! self::is_enabled_jetpack_simple_payments() ) {
 			return;
 		}
+		$transient  = 'jetpack_simple_payments_widget::is_active';
+		$has_widget = get_transient( $transient );
 
-		register_widget( 'Automattic\Jetpack\Paypal_Payments\Widgets\Simple_Payments_Widget' );
+		if ( ! $has_widget ) {
+			$is_active_widget = is_active_widget( false, false, 'jetpack_simple_payments_widget' );
+			$has_widget       = (int) ! empty( $is_active_widget );
+			set_transient( $transient, $has_widget, HOUR_IN_SECONDS );
+		}
+
+		// [DEPRECATION]: Only register widget if active widget exists already
+		if ( $has_widget ) {
+			register_widget( 'Automattic\Jetpack\Paypal_Payments\Widgets\Simple_Payments_Widget' );
+		}
 	}
 }
 Simple_Payments::get_instance();
