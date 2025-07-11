@@ -29,6 +29,11 @@
 		"typecheck": "pnpm --recursive --if-present --no-bail run typecheck",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
+	"dependencies": {
+		"@wordpress/eslint-plugin": "22.12.0",
+		"eslint-plugin-react": "7.37.5",
+		"eslint-plugin-react-hooks": "5.2.0"
+	},
 	"devDependencies": {
 		"eslint": "9.30.1",
 		"husky": "9.1.7",
