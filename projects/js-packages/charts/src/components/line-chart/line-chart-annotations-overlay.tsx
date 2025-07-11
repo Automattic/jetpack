@@ -1,12 +1,11 @@
 import { DataContext } from '@visx/xychart';
 import { useEffect, useState, useCallback } from 'react';
-import { useChartContext } from '../../providers/chart-context';
+import { useLineChartContext } from './line-chart-context';
 import styles from './line-chart.module.scss';
 import type { AxisScale } from '@visx/axis';
 import type { FC, ReactNode } from 'react';
 
 interface LineChartAnnotationsProps {
-	chartId: string;
 	children?: ReactNode;
 }
 
@@ -15,17 +14,8 @@ interface ScaleData {
 	yScale: AxisScale< number >;
 }
 
-const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( { chartId, children } ) => {
-	const { getChartData } = useChartContext();
-
-	let chartData = null;
-	if ( chartId ) {
-		chartData = getChartData( chartId );
-	}
-
-	const chartRef = chartData?.chartRef;
-	const chartWidth = chartData?.chartWidth || 0;
-	const chartHeight = chartData?.chartHeight || 0;
+const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( { children } ) => {
+	const { chartRef, chartWidth, chartHeight } = useLineChartContext();
 
 	const [ scales, setScales ] = useState< ScaleData | null >( null );
 	const [ scalesStable, setScalesStable ] = useState< boolean >( false );

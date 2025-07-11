@@ -1,6 +1,5 @@
+import React from 'react';
 import LineChart from '../line-chart';
-import LineChartAnnotation from '../line-chart-annotation';
-import LineChartAnnotationsOverlay from '../line-chart-annotations-overlay';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import sampleData from './sample-data';
 import type { LineChartAnnotationProps } from '../line-chart-annotation';
@@ -20,26 +19,26 @@ const createAnnotationTemplate =
 	( annotationArgs?: Array< Partial< LineChartAnnotationProps > > ): StoryFn< typeof LineChart > =>
 	args => (
 		<LineChart { ...args }>
-			<LineChartAnnotationsOverlay>
-				<LineChartAnnotation
+			<LineChart.AnnotationsOverlay>
+				<LineChart.Annotation
 					datum={ sampleData[ 0 ].data[ 10 ] }
 					title="Notable event"
 					subtitle="This is a notable event"
 					{ ...( annotationArgs?.[ 0 ] || {} ) }
 				/>
-				<LineChartAnnotation
+				<LineChart.Annotation
 					datum={ sampleData[ 1 ].data[ sampleData[ 1 ].data.length - 10 ] }
 					title="Another notable event"
 					subtitle="This is another notable event"
 					{ ...( annotationArgs?.[ 1 ] || {} ) }
 				/>
-				<LineChartAnnotation
+				<LineChart.Annotation
 					datum={ sampleData[ 2 ].data[ sampleData[ 2 ].data.length - 51 ] }
 					title="Concerning event"
 					subtitle="This is a concerning event"
 					{ ...( annotationArgs?.[ 2 ] || {} ) }
 				/>
-			</LineChartAnnotationsOverlay>
+			</LineChart.AnnotationsOverlay>
 		</LineChart>
 	);
 

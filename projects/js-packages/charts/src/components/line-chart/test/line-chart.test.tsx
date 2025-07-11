@@ -7,7 +7,8 @@ import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
-import LineChart, { LineChartRef, LineChartUnwrapped } from '../line-chart';
+import LineChart, { LineChartUnresponsive } from '../line-chart';
+import type { LineChartRef } from '../line-chart-context';
 
 const customTheme = {
 	...jetpackTheme,
@@ -67,7 +68,7 @@ describe( 'LineChart', () => {
 		return render(
 			<ThemeProvider theme={ theme }>
 				{ /* @ts-expect-error TODO Fix the missing props */ }
-				<LineChartUnwrapped { ...defaultProps } { ...props } ref={ ref } />
+				<LineChartUnresponsive { ...defaultProps } { ...props } ref={ ref } />
 			</ThemeProvider>
 		);
 	};

@@ -14,12 +14,7 @@ export const useChartRegistration = (
 	theme: ChartTheme,
 	chartType: string,
 	isDataValid: boolean,
-	metadata?: Record< string, unknown >,
-	chartContext?: {
-		chartRef?: import('react').RefObject< unknown >;
-		chartWidth?: number;
-		chartHeight?: number;
-	}
+	metadata?: Record< string, unknown >
 ): void => {
 	const { registerChart, unregisterChart } = useChartContext();
 
@@ -34,9 +29,6 @@ export const useChartRegistration = (
 				theme,
 				chartType,
 				metadata: memoizedMetadata,
-				chartRef: chartContext?.chartRef,
-				chartWidth: chartContext?.chartWidth,
-				chartHeight: chartContext?.chartHeight,
 			} );
 		}
 
@@ -52,8 +44,5 @@ export const useChartRegistration = (
 		isDataValid,
 		registerChart,
 		unregisterChart,
-		chartContext?.chartRef,
-		chartContext?.chartWidth,
-		chartContext?.chartHeight,
 	] );
 };
