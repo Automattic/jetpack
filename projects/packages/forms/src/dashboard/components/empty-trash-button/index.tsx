@@ -3,10 +3,10 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Modal } from '@wordpress/components';
+import { Button, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
 import { dispatch } from '@wordpress/data';
-import { useState, useCallback, createInterpolateElement } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
@@ -14,8 +14,6 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { store as dashboardStore } from '../../store';
-
-import './style.scss';
 
 type CoreStore = typeof coreStore & {
 	invalidateResolutionForStore: ( store: typeof dashboardStore ) => void;
@@ -42,7 +40,7 @@ const EmptyTrashButton = (): JSX.Element => {
 	const openModal = useCallback( () => setOpen( true ), [] );
 	const closeModal = useCallback( () => setOpen( false ), [] );
 
-	const onButtonClickHandler = useCallback( async () => {
+	const onConfirmEmptying = useCallback( async () => {
 		if ( isLoading || isEmpty ) {
 			return;
 		}
@@ -109,37 +107,20 @@ const EmptyTrashButton = (): JSX.Element => {
 			>
 				{ __( 'Empty trash', 'jetpack-forms' ) }
 			</Button>
-			{ isOpen && (
-				<Modal
-					title={ __( 'Confirm permanent deletion', 'jetpack-forms' ) }
-					onRequestClose={ closeModal }
-				>
-					<p>
-						{ createInterpolateElement(
-							__(
-								'Are you sure you want to empty the all responses in the trash? <strong>This action cannot be undone.</strong>',
-								'jetpack-forms'
-							),
-							{
-								strong: <strong />,
-							}
-						) }
-					</p>
-					<div className="jp-forms__empty-trash-modal-actions">
-						<Button variant="secondary" onClick={ closeModal }>
-							{ __( 'Cancel', 'jetpack-forms' ) }
-						</Button>
-						<Button
-							variant="primary"
-							isBusy={ isLoading }
-							isDestructive
-							onClick={ onButtonClickHandler }
-						>
-							{ __( 'Empty trash', 'jetpack-forms' ) }
-						</Button>
-					</div>
-				</Modal>
-			) }
+			<ConfirmDialog
+				onCancel={ closeModal }
+				onConfirm={ onConfirmEmptying }
+				isOpen={ isOpen }
+				confirmButtonText={ __( 'Delete forever', 'jetpack-forms' ) }
+			>
+				<h3>{ __( 'Delete forever?', 'jetpack-forms' ) }</h3>
+				<p>
+					{ __(
+						'All responses in trash will be deleted forever. This cannot be undone.',
+						'jetpack-forms'
+					) }
+				</p>
+			</ConfirmDialog>
 		</>
 	);
 };
