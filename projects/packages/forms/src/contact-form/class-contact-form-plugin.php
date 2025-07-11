@@ -2214,6 +2214,57 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Returns an array of feedback data for export.
+	 *
+	 * @param array $feedback_ids Array of feedback IDs to fetch the data for.
+	 *
+	 * @return array
+	 */
+	public static function get_export_feedback_data( $feedback_ids ) {
+		$feedback_data = array();
+		$field_names   = array();
+		$results       = array();
+
+		foreach ( $feedback_ids as $feedback_id ) {
+			$feedback_data[ $feedback_id ] = Feedback::get( $feedback_id );
+			$field_names                   = array_merge( $field_names, $feedback_data[ $feedback_id ]->get_csv_field_names() );
+		}
+
+		/**
+		 * Make sure the field names are unique, because we don't want duplicate data.
+		 */
+		$field_names = array_unique( $field_names );
+		foreach ( $feedback_data as $feedback_id => $feedback ) {
+
+			if ( ! $feedback instanceof Feedback ) {
+				continue; // Skip if the feedback is not an instance of Feedback.
+			}
+			$results[ __( 'ID', 'jetpack-forms' ) ][]     = $feedback_id;
+			$results[ __( 'Date', 'jetpack-forms' ) ][]   = $feedback->get_time();
+			$results[ __( 'Title', 'jetpack-forms' ) ][]  = $feedback->get_entry_title();
+			$results[ __( 'Source', 'jetpack-forms' ) ][] = $feedback->get_entry_short_permalink();
+			/**
+			 * Go through all the possible fields and check if the field is available
+			 * in the current feedback.
+			 *
+			 * If it is - add the data as a value.
+			 * If it is not - add an empty string, which is just a placeholder in the CSV.
+			 */
+			foreach ( $field_names as $single_field_name ) {
+				if ( ! isset( $results[ $single_field_name ] ) ) {
+					$results[ $single_field_name ] = array();
+				}
+				$results[ $single_field_name ][] = $feedback->get_field_value_by_label( $single_field_name );
+			}
+
+			$results[ __( 'Consent', 'jetpack-forms' ) ][]    = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+			$results[ __( 'IP Address', 'jetpack-forms' ) ][] = $feedback->get_ip_address();
+
+		}
+		return $results;
+	}
+
+	/**
 	 * Prepares feedback post data for CSV export.
 	 *
 	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
@@ -2221,134 +2272,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_export_data_for_posts( $post_ids ) {
-
-		$posts_data  = array();
-		$field_names = array();
-		$result      = array();
-
-		/**
-		 * Fetch posts and get the possible field names for later use
-		 */
-		foreach ( $post_ids as $post_id ) {
-
-			/**
-			 * Fetch post main data, because we need the subject and author data for the feedback form.
-			 */
-			$post_real_data = $this->get_parsed_field_contents_of_post( $post_id );
-
-			/**
-			 * Whether the feedback post has JSON data or not.
-			 * This is used as optional parameter on legacy functions.
-			 */
-			$post_has_json_data = $this->has_json_data( $post_id );
-
-			/**
-			 * If `$post_real_data` is not an array or there is no `_feedback_subject` set,
-			 * then something must be wrong with the feedback post. Skip it.
-			 */
-			if ( ! is_array( $post_real_data ) || ! isset( $post_real_data['_feedback_subject'] ) ) {
-				continue;
-			}
-
-			/**
-			 * Fetch main post comment. This is from the default textarea fields.
-			 * If it is non-empty, then we add it to data, otherwise skip it.
-			 */
-			$post_comment_content = $this->get_post_content_for_csv_export( $post_id );
-			if ( ! empty( $post_comment_content ) ) {
-				$post_real_data['_feedback_main_comment'] = $post_comment_content;
-			}
-
-			/**
-			 * Map parsed fields to proper field names
-			 */
-			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data, ! $post_has_json_data );
-
-			/**
-			 * Fetch post meta data.
-			 */
-			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id, $post_has_json_data );
-
-			/**
-			 * If `$post_meta_data` is not an array or if it is empty, then there is no
-			 * extra feedback to work with. Create an empty array.
-			 */
-			if ( ! is_array( $post_meta_data ) || empty( $post_meta_data ) ) {
-				$post_meta_data = array();
-			}
-
-			/**
-			 * Prepend the feedback subject to the list of fields.
-			 */
-			$post_meta_data = array_merge(
-				$mapped_fields,
-				$post_meta_data
-			);
-
-			/**
-			 * Save post metadata for later usage.
-			 */
-			$posts_data[ $post_id ] = $post_meta_data;
-
-			/**
-			 * Save field names, so we can use them as header fields later in the CSV.
-			 */
-			$field_names = array_merge( $field_names, array_keys( $post_meta_data ) );
-		}
-
-		/**
-		 * Make sure the field names are unique, because we don't want duplicate data.
-		 */
-		$field_names = array_unique( $field_names );
-
-		/**
-		 * Sort the field names by the field id number
-		 */
-		sort( $field_names, SORT_NUMERIC );
-
-		$well_known_column_names = $this->get_well_known_column_names();
-		$result                  = array();
-
-		/**
-		 * Loop through every post, which is essentially CSV row.
-		 */
-		foreach ( $posts_data as $post_id => $single_post_data ) {
-			/**
-			 * Go through all the possible fields and check if the field is available
-			 * in the current post.
-			 *
-			 * If it is - add the data as a value.
-			 * If it is not - add an empty string, which is just a placeholder in the CSV.
-			 */
-			foreach ( $field_names as $single_field_name ) {
-				$renamed_field = isset( $well_known_column_names[ $single_field_name ] )
-					? $well_known_column_names[ $single_field_name ]
-					: $single_field_name;
-
-				/**
-				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
-				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
-				 * TODO: to return fieldnames based on field label, we need to work both field names and post data:
-				 * unique -> sort -> unique/rename
-				 * $renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
-				 */
-
-				if ( ! isset( $result[ $renamed_field ] ) ) {
-					$result[ $renamed_field ] = array();
-				}
-
-				if (
-					isset( $single_post_data[ $single_field_name ] )
-					&& ! empty( $single_post_data[ $single_field_name ] )
-				) {
-					$result[ $renamed_field ][] = trim( $single_post_data[ $single_field_name ] );
-				} else {
-					$result[ $renamed_field ][] = '';
-				}
-			}
-		}
-
-		return $result;
+		return self::get_export_feedback_data( $post_ids );
 	}
 
 	/**
@@ -2440,23 +2364,7 @@ class Contact_Form_Plugin {
 
 		$feedbacks = get_posts( $args );
 
-		if ( empty( $feedbacks ) ) {
-			return;
-		}
-
-		/**
-		 * Prepare data for export.
-		 */
-		$data = $this->get_export_data_for_posts( $feedbacks );
-
-		/**
-		 * If `$data` is empty, there's nothing we can do below.
-		 */
-		if ( ! is_array( $data ) || empty( $data ) ) {
-			return;
-		}
-
-		return $data;
+		return self::get_export_feedback_data( $feedbacks );
 	}
 
 	/**

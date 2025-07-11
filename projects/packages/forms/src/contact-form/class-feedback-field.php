@@ -60,7 +60,7 @@ class Feedback_Field {
 	 */
 	public function __construct( $key, $label, $value, $type = 'basic', $meta = array() ) {
 		$this->key   = $key;
-		$this->label = $label;
+		$this->label = mb_convert_encoding( $label, 'UTF-8', 'HTML-ENTITIES' );
 		$this->value = $value;
 		$this->type  = $type;
 		$this->meta  = $meta;

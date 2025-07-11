@@ -15,7 +15,6 @@ use DOMElement;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 use WP_Block;
@@ -1792,508 +1791,6 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_export_data_for_posts with fully vaid data input.
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_fully_valid_data() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-					'has_json_data',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array(
-				15,
-				false,
-				array(
-					'key1' => 'value1',
-					'key2' => 'value2',
-					'key3' => 'value3',
-					'key4' => 'value4',
-
-				),
-			),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'has_json_data' )
-			->willReturn( false );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'key1'         => array( 'value1', '' ),
-			'key2'         => array( 'value2', '' ),
-			'key3'         => array( 'value3', 'value3' ),
-			'key4'         => array( 'value4', 'value4' ),
-			'key5'         => array( '', 'value5' ),
-			'key6'         => array( '', 'value6' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with single invalid entry for post meta
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_invalid_single_entry_meta() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 * */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array( 15, false, null ),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		// Even though there is no post meta for the first, we don't stop the cycle
-		// and each mock expects two calls.
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'key3'         => array( '', 'value3' ),
-			'key4'         => array( '', 'value4' ),
-			'key5'         => array( '', 'value5' ),
-			'key6'         => array( '', 'value6' ),
-			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with invalid all entries for post meta
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_invalid_all_entries_meta() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array( 15, false, null ),
-			array( 16, false, null ),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with single invalid entry for parsed fields.
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_single_invalid_entry_for_parse_fields() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 * */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array(
-				15,
-				false,
-				array(
-					'key1' => 'value1',
-					'key2' => 'value2',
-					'key3' => 'value3',
-					'key4' => 'value4',
-
-				),
-			),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array() ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->once() )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->once() )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->once() )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj2' ),
-			'key3'         => array( 'value3' ),
-			'key4'         => array( 'value4' ),
-			'key5'         => array( 'value5' ),
-			'key6'         => array( 'value6' ),
-			'Comment'      => array( 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_all_entries_for_parse_fields_invalid() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array() ),
-			array( 16, array() ),
-		);
-
-		$mock->expects( $this->never() )
-			->method( 'get_post_meta_for_csv_export' );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array();
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test map_parsed_field_contents_of_post_to_field_names
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_map_parsed_field_contents_of_post_to_field_names() {
-
-		$input_data = array(
-			'test_field'             => 'moonstruck',
-			'_feedback_subject'      => 'This is my form',
-			'_feedback_author_email' => '',
-			'_feedback_author'       => 'John Smith',
-			'_feedback_author_url'   => 'http://example.com',
-			'_feedback_main_comment' => 'This is my comment!',
-			'another_field'          => 'thunderstruck',
-		);
-
-		$plugin = Contact_Form_Plugin::init();
-
-		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
-
-		$expected_result = array(
-			'1_Name'    => 'John Smith',
-			'3_Website' => 'http://example.com',
-			'4_Comment' => 'This is my comment!',
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
 	 * Tests the functionality of 'Contact_Form_Plugin::personal_data_exporter'.
 	 *
 	 * @author jaswrks
@@ -2358,6 +1855,42 @@ class Contact_Form_Test extends BaseTestCase {
 			$this->assertSame( true, ! empty( $data['item_id'] ), 'has item_id key' );
 			$this->assertCount( 10, $data['data'], 'has total expected data keys' );
 		}
+	}
+
+	public function test_export_legacy_data() {
+		global $post;
+		$post_ids        = array();
+		$post_ids[]      = Utility::create_legacy_feedback(
+			array(
+				'1_field_A' => 'value1',
+				'2_field_B' => 'value2',
+			)
+		);
+		$post_ids[]      = Utility::create_legacy_feedback(
+			array(
+				'1_field_A' => 'value1',
+				'2_field_C' => 'value2',
+			)
+		);
+		$current_time    = current_time( 'mysql' );
+		$default_consent = 'No';
+		$ip              = 'https://127.0.0.1';
+
+		$this->assertEquals(
+			array(
+				'ID'         => array( $post_ids[0], $post_ids[1] ),
+				'Date'       => array( $current_time, $current_time ),
+				'Title'      => array( $post->post_title, $post->post_title ),
+				'field_A'    => array( 'value1', 'value1' ),
+				'field_B'    => array( 'value2', '' ),
+				'field_C'    => array( '', 'value2' ),
+				'Source'     => array( '/?p=' . $post->ID, '/?p=' . $post->ID ),
+				'Consent'    => array( $default_consent, $default_consent ),
+				'IP Address' => array( $ip, $ip ),
+
+			),
+			Contact_Form_Plugin::get_export_feedback_data( $post_ids )
+		);
 	}
 
 	/**
