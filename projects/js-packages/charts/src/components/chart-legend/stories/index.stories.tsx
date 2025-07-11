@@ -233,3 +233,33 @@ export const CustomShape: Story = {
 		},
 	},
 };
+
+// Story showing standalone legend using chartId to automatically get data from context
+const StandaloneLegendWithChartIdComponent = () => {
+	return (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
+			{ /* Chart with legend hidden but still registering data */ }
+			<LineChart
+				chartId="standalone-legend-chart"
+				data={ lineChartData }
+				showLegend={ false }
+				width={ 400 }
+				height={ 200 }
+			/>
+			{ /* Standalone legend that automatically gets data from chart context */ }
+			<ChartLegend chartId="standalone-legend-chart" orientation="horizontal" />
+		</div>
+	);
+};
+
+export const StandaloneLegendWithChartId: Story = {
+	render: () => <StandaloneLegendWithChartIdComponent />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'ChartLegend component automatically retrieving legend data from chart context using chartId. The chart has showLegend=false but the standalone legend still works.',
+			},
+		},
+	},
+};

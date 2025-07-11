@@ -10,6 +10,6 @@ export interface ChartLegendOptions {
 }
 
 export interface ChartLegendProps extends Omit< LegendProps, 'items' > {
-	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
+	items?: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
 	chartId?: string;
 }
