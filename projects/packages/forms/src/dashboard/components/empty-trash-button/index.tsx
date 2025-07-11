@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
-import { dispatch } from '@wordpress/data';
+import { useSelect, dispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
@@ -26,26 +26,35 @@ type CoreStore = typeof coreStore & {
  */
 const EmptyTrashButton = (): JSX.Element => {
 	const [ isOpen, setOpen ] = useState( false );
-	const [ isLoading, setIsLoading ] = useState( false );
+	const [ isEmptying, setIsEmptying ] = useState( false );
 
 	const { createSuccessNotice, createErrorNotice } = dispatch( noticesStore );
 	const { invalidateResolutionForStore } = dispatch( coreStore ) as unknown as CoreStore;
 
-	const { totalItems } = useEntityRecords( 'postType', 'feedback', {
-		status: 'trash',
-	} );
+	const selectedResponsesCount = useSelect(
+		select => select( dashboardStore ).getSelectedResponsesCount(),
+		[]
+	);
 
-	const isEmpty = totalItems === 0;
+	const { isResolving: isTotalItemsResolving, totalItems } = useEntityRecords(
+		'postType',
+		'feedback',
+		{
+			status: 'trash',
+		}
+	);
+
+	const isEmpty = ! isTotalItemsResolving && totalItems === 0;
 
 	const openModal = useCallback( () => setOpen( true ), [] );
 	const closeModal = useCallback( () => setOpen( false ), [] );
 
 	const onConfirmEmptying = useCallback( async () => {
-		if ( isLoading || isEmpty ) {
+		if ( isEmptying || isEmpty ) {
 			return;
 		}
 
-		setIsLoading( true );
+		setIsEmptying( true );
 
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_empty_trash_click' );
 
@@ -69,26 +78,25 @@ const EmptyTrashButton = (): JSX.Element => {
 								deleted
 						  );
 				createSuccessNotice( successMessage, { type: 'snackbar', id: 'empty-trash' } );
-				setIsLoading( false );
 			} )
 			.catch( () => {
 				createErrorNotice( __( 'Could not empty trash.', 'jetpack-forms' ), {
 					type: 'snackbar',
 					id: 'empty-trash-error',
 				} );
-				setIsLoading( false );
 			} )
 			.finally( () => {
+				setIsEmptying( false );
 				invalidateResolutionForStore( dashboardStore );
 				closeModal();
 			} );
 	}, [
-		isLoading,
-		isEmpty,
-		invalidateResolutionForStore,
-		createSuccessNotice,
-		createErrorNotice,
 		closeModal,
+		createErrorNotice,
+		createSuccessNotice,
+		invalidateResolutionForStore,
+		isEmpty,
+		isEmptying,
 	] );
 
 	return (
@@ -97,9 +105,9 @@ const EmptyTrashButton = (): JSX.Element => {
 				__next40pxDefaultSize
 				accessibleWhenDisabled
 				className="jp-forms__button--large-green"
-				disabled={ isEmpty || isLoading }
+				disabled={ isEmpty || isEmptying }
 				icon={ trash }
-				isBusy={ isLoading }
+				isBusy={ isEmptying }
 				label={ isEmpty ? __( 'Trash is already empty.', 'jetpack-forms' ) : '' }
 				onClick={ openModal }
 				showTooltip={ isEmpty }
@@ -115,10 +123,21 @@ const EmptyTrashButton = (): JSX.Element => {
 			>
 				<h3>{ __( 'Delete forever', 'jetpack-forms' ) }</h3>
 				<p>
-					{ __(
-						'All responses in trash will be deleted forever. This action cannot be undone.',
-						'jetpack-forms'
-					) }
+					{ selectedResponsesCount > 0
+						? sprintf(
+								// translators: placeholder is a number of trash total
+								_n(
+									'%d response in trash will be deleted forever. This action cannot be undone.',
+									'All %d responses in trash will be deleted forever. This action cannot be undone.',
+									totalItems || 0,
+									'jetpack-forms'
+								),
+								totalItems
+						  )
+						: __(
+								'All responses in trash will be deleted forever. This action cannot be undone.',
+								'jetpack-forms'
+						  ) }
 				</p>
 			</ConfirmDialog>
 		</>
