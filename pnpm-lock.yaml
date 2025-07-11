@@ -853,8 +853,8 @@ importers:
   projects/js-packages/eslint-config-target-es:
     dependencies:
       '@mdn/browser-compat-data':
-        specifier: 6.0.15
-        version: 6.0.15
+        specifier: 6.0.31
+        version: 6.0.31
       browserslist:
         specifier: ^4.17.6
         version: 4.24.5
@@ -7214,8 +7214,8 @@ packages:
     resolution: {integrity: sha512-Es6WcD0nO5l+2BOQS4uLfNPYQaNDfbot3X1XUoloz+x0mPDS3eeORZJl06HXjwBG1fOGwCRnzK88LMdxKRrd6Q==}
     engines: {node: '>=6.0.0'}
 
-  '@mdn/browser-compat-data@6.0.15':
-    resolution: {integrity: sha512-f5R+fOk6bFbjw6Pu/jDJC9SC3mYiYG+ok+t2cQqgvjKHhID/9WiisnhJFzqNSP+i/EAfaN5xrwuj4VHnZhHwxw==}
+  '@mdn/browser-compat-data@6.0.31':
+    resolution: {integrity: sha512-27LnrPwLUNaVROOe5GF2tZ8kiNuK3/TdVvKpZ1j040gwieAEnYZ9gnOHITdu4UDeq/C/GP0sbvdKDYqzlvEgQQ==}
 
   '@mdx-js/react@3.1.0':
     resolution: {integrity: sha512-QjHtSaoameoalGnKDT3FoIl4+9RwyTmo9ZJGBdLOks/YOiWHoRDI3PUwEzOE7kEmGcV3AFcp9K6dYu9rEuKLAQ==}
@@ -18471,7 +18471,7 @@ snapshots:
 
   '@mapbox/whoots-js@3.1.0': {}
 
-  '@mdn/browser-compat-data@6.0.15': {}
+  '@mdn/browser-compat-data@6.0.31': {}
 
   '@mdx-js/react@3.1.0(@types/react@18.3.23)(react@18.3.1)':
     dependencies:

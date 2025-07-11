@@ -101,8 +101,8 @@ module.exports = {
 	],
 	'no-class-private-fields': 'javascript.classes.private_class_fields',
 	'no-class-private-methods': 'javascript.classes.private_class_methods',
-	'no-class-static-fields': 'javascript.classes.static_class_fields',
-	'no-class-static-block': 'javascript.classes.static_initialization_blocks',
+	'no-class-static-fields': 'javascript.classes.static.class_fields',
+	'no-class-static-block': 'javascript.classes.static.initialization_blocks',
 	'no-error-cause': [
 		'javascript.builtins.Error.Error.options_cause_parameter',
 		'javascript.builtins.Error.cause',
