@@ -112,6 +112,9 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( $name, $response->get_fields()['1_Name']->get_value(), 'Response field value should match' );
 		$this->assertEquals( $name, $saved_response->get_fields()['1_Name']->get_value(), 'Saved response field value should match' );
 
+		$this->assertEquals( $name, $response->get_field_value_by_label( 'Name' ), 'Response field value should match' );
+		$this->assertEquals( $name, $saved_response->get_field_value_by_label( 'Name' ), 'Saved response field value should match' );
+
 		$this->assertEquals( 'Name', $response->get_fields()['1_Name']->get_label(), 'Name response field label should match' );
 		$this->assertEquals( 'Name', $saved_response->get_fields()['1_Name']->get_label(), 'Saved response field label should match' );
 		$this->assertEquals( 'name', $response->get_fields()['1_Name']->get_type(), 'Response field type should match' );
