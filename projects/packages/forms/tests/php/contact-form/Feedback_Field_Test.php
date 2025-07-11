@@ -17,10 +17,8 @@ use WorDBless\BaseTestCase;
  *
  * @covers \Automattic\Jetpack\Forms\ContactForm\Feedback_Field
  * @covers \Automattic\Jetpack\Forms\ContactForm\Feedback
- * @covers \Automattic\Jetpack\Forms\ContactForm\Form_Response
  */
 #[CoversClass( Feedback_Field::class )]
-#[CoversClass( Form_Response::class )]
 #[CoversClass( Feedback::class )]
 class Feedback_Field_Test extends BaseTestCase {
 	/**
