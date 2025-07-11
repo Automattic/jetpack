@@ -19,6 +19,14 @@ jest.mock( '@wordpress/components', () => ( {
 			</button>
 		);
 	},
+	__experimentalConfirmDialog: ( { children, onCancel, onConfirm, isOpen, confirmButtonText } ) =>
+		isOpen ? (
+			<div data-testid="confirm-dialog">
+				{ children }
+				<button onClick={ onCancel }>Cancel</button>
+				<button onClick={ onConfirm }>{ confirmButtonText }</button>
+			</div>
+		) : null,
 } ) );
 
 jest.mock( '@wordpress/icons', () => ( {
@@ -28,13 +36,6 @@ jest.mock( '@wordpress/icons', () => ( {
 jest.mock( '@wordpress/core-data', () => ( {
 	useEntityRecords: jest.fn(),
 	store: 'core',
-} ) );
-
-jest.mock( '@wordpress/data', () => ( {
-	dispatch: jest.fn(),
-	store: {
-		noticesStore: 'notices',
-	},
 } ) );
 
 jest.mock( '@wordpress/notices', () => ( {
@@ -53,6 +54,35 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 jest.mock( '../../../../../src/dashboard/store', () => ( {
 	store: 'dashboard',
 } ) );
+
+// Mock WordPress data
+jest.mock( '@wordpress/data', () => {
+	const mockDispatch = {
+		createSuccessNotice: jest.fn(),
+		createErrorNotice: jest.fn(),
+		invalidateResolutionForStore: jest.fn(),
+	};
+
+	const mockSelect = {
+		getSelectedResponsesCount: jest.fn().mockReturnValue( 0 ),
+	};
+
+	return {
+		useDispatch: jest.fn( store => {
+			if ( store === 'notices' ) {
+				return mockDispatch;
+			}
+			if ( store === 'core' ) {
+				return { invalidateResolutionForStore: mockDispatch.invalidateResolutionForStore };
+			}
+			return {};
+		} ),
+		useSelect: jest.fn( callback => callback( () => mockSelect ) ),
+		store: {
+			noticesStore: 'notices',
+		},
+	};
+} );
 
 // Disable console.error for specific known warnings
 /* eslint-disable no-console */
@@ -76,16 +106,9 @@ afterAll( () => {
 /* eslint-enable no-console */
 
 describe( 'EmptyTrashButton', () => {
-	const mockDispatch = {
-		createSuccessNotice: jest.fn(),
-		createErrorNotice: jest.fn(),
-		invalidateResolutionForStore: jest.fn(),
-	};
-
 	beforeEach( () => {
 		// Reset all mocks before each test
 		jest.clearAllMocks();
-		require( '@wordpress/data' ).dispatch.mockReturnValue( mockDispatch );
 		require( '@wordpress/core-data' ).useEntityRecords.mockReturnValue( { totalItems: 1 } );
 	} );
 
@@ -107,18 +130,39 @@ describe( 'EmptyTrashButton', () => {
 		expect( button ).toHaveAttribute( 'aria-label', 'Trash is already empty.' );
 	} );
 
-	// eslint-disable-next-line jest/no-disabled-tests
-	it.skip( 'shows loading state while emptying trash', async () => {
+	it( 'shows confirmation dialog when clicked', async () => {
 		render( <EmptyTrashButton /> );
 
 		const button = screen.getByText( 'Empty trash' );
 		await userEvent.click( button );
 
-		expect( button ).toBeDisabled();
+		const dialog = screen.getByTestId( 'confirm-dialog' );
+		expect( dialog ).toBeInTheDocument();
+		expect( screen.getByText( 'Delete forever' ) ).toBeInTheDocument();
+	} );
 
-		// Wait for the API call to complete
-		await expect( screen.findByText( 'Empty trash' ) ).resolves.toBeInTheDocument();
+	it( 'empties trash when confirmed', async () => {
+		const apiFetch = require( '@wordpress/api-fetch' );
+		const { useDispatch } = require( '@wordpress/data' );
+		const mockDispatch = useDispatch( 'notices' );
 
+		render( <EmptyTrashButton /> );
+
+		// Click empty trash button
+		const button = screen.getByText( 'Empty trash' );
+		await userEvent.click( button );
+
+		// Click confirm button
+		const confirmButton = screen.getByText( 'Delete' );
+		await userEvent.click( confirmButton );
+
+		// Verify API call
+		expect( apiFetch ).toHaveBeenCalledWith( {
+			method: 'DELETE',
+			path: '/wp/v2/feedback/trash',
+		} );
+
+		// Verify success notice
 		expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
 			'Response deleted permanently.',
 			{ type: 'snackbar', id: 'empty-trash' }
