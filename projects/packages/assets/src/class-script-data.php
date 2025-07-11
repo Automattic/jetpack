@@ -87,17 +87,20 @@ class Script_Data {
 		self::$did_render_script_data = true;
 
 		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
-		$script_data = wp_json_encode(
-			$script_data,
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
-		);
 
-		if ( is_admin() || did_action( 'enqueue_block_editor_assets' ) ) {
-			// For admin/editor contexts (including P2 frontend editing), use wp_add_inline_script with the existing script
-			wp_add_inline_script( self::SCRIPT_HANDLE, sprintf( 'window.JetpackScriptData = %s;', $script_data ), 'before' );
-		} else {
-			// For public pages, we directly print the script tag.
-			wp_print_inline_script_tag( sprintf( 'window.JetpackScriptData = %s;', $script_data ) );
+		if ( ! empty( $script_data ) ) {
+			$script_data = wp_json_encode(
+				$script_data,
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+			);
+
+			if ( is_admin() || did_action( 'enqueue_block_editor_assets' ) ) {
+				// For admin/editor contexts (including P2 frontend editing), use wp_add_inline_script with the existing script
+				wp_add_inline_script( self::SCRIPT_HANDLE, sprintf( 'window.JetpackScriptData = %s;', $script_data ), 'before' );
+			} else {
+				// For public pages, we directly print the script tag.
+				wp_print_inline_script_tag( sprintf( 'window.JetpackScriptData = %s;', $script_data ) );
+			}
 		}
 	}
 
@@ -160,12 +163,7 @@ class Script_Data {
 	 */
 	protected static function get_public_script_data() {
 
-		$data = array(
-			'site' => array(
-				'icon'  => self::get_site_icon(),
-				'title' => self::get_site_title(),
-			),
-		);
+		$data = array();
 
 		// if site site is a P2 site, then add the host information
 		$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );  // @phan-suppress-current-line PhanUndeclaredFunction -- We only call the function if it exists.
