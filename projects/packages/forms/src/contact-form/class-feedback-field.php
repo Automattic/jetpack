@@ -115,7 +115,7 @@ class Feedback_Field {
 					// this shouldn't happen, todo: log this
 					continue;
 				}
-				$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
+				$file_name = $file['name'] ?? __( 'Attached file', 'jetpack-forms' );
 				$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
 				$files[]   = $file_name . ' (' . $file_size . ')';
 			}
@@ -205,21 +205,26 @@ class Feedback_Field {
 	}
 
 	/**
-	 * Get the meta of the field.
+	 * Get the meta array of the field.
 	 *
-	 * @param string|null $meta_key The key of the meta to retrieve. If null, returns all meta.
-	 *
-	 * @return string
+	 * @return array
 	 */
-	public function get_meta( $meta_key = null ) {
-
-		if ( $meta_key ) {
-			if ( isset( $this->meta[ $meta_key ] ) ) {
-				return $this->meta[ $meta_key ];
-			}
-			return null;
-		}
+	public function get_meta() {
 		return $this->meta;
+	}
+
+	/**
+	 * Get a specific meta value by key.
+	 *
+	 * @param string $meta_key The key of the meta to retrieve.
+	 *
+	 * @return mixed|null Returns the value of the meta key if it exists, null otherwise.
+	 */
+	public function get_meta_key_value( $meta_key ) {
+		if ( isset( $this->meta[ $meta_key ] ) ) {
+			return $this->meta[ $meta_key ];
+		}
+		return null;
 	}
 
 	/**

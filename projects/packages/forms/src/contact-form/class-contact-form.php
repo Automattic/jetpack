@@ -837,7 +837,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 			$message      = wp_kses( $raw_message, $allowed_html );
 		} else {
-			$compiled_form = self::get_compiled_form( $feedback_id, $form );
+			$compiled_form = self::get_compiled_form( $feedback_id );
 			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
 		}
 
