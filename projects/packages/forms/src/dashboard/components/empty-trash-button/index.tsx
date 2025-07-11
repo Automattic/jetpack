@@ -54,6 +54,7 @@ const EmptyTrashButton = (): JSX.Element => {
 			return;
 		}
 
+		closeConfirmDialog();
 		setIsEmptying( true );
 
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_empty_trash_click' );
@@ -88,7 +89,6 @@ const EmptyTrashButton = (): JSX.Element => {
 			.finally( () => {
 				setIsEmptying( false );
 				invalidateResolutionForStore( dashboardStore );
-				closeConfirmDialog();
 			} );
 	}, [
 		closeConfirmDialog,
