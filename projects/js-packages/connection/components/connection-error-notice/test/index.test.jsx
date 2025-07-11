@@ -88,4 +88,24 @@ describe( 'ConnectionErrorNotice', () => {
 		expect( screen.getByText( 'First Action' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Second Action' ) ).toBeInTheDocument();
 	} );
+
+	it( 'should render primary and secondary buttons', () => {
+		const actions = [
+			{
+				label: 'Primary Action',
+				onClick: jest.fn(),
+				variant: 'primary',
+			},
+			{
+				label: 'Secondary Action',
+				onClick: jest.fn(),
+				variant: 'secondary',
+			},
+		];
+
+		render( <ConnectionErrorNotice message="Testing secondary button" actions={ actions } /> );
+
+		expect( screen.getByText( 'Primary Action' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Secondary Action' ) ).toBeInTheDocument();
+	} );
 } );

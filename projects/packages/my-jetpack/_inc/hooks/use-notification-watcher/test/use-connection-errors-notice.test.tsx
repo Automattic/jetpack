@@ -323,4 +323,155 @@ describe( 'useConnectionErrorsNotice', () => {
 			expect( setNoticeCall.message ).toBeDefined();
 		} );
 	} );
+
+	describe( 'when there is a custom error with secondary button', () => {
+		const mockActionHandler = jest.fn();
+		const mockSecondaryHandler = jest.fn();
+
+		beforeEach( () => {
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'A custom error with secondary action',
+				connectionError: {
+					error_code: 'custom_error',
+					error_message: 'A custom error with secondary action',
+					error_type: 'custom',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+					error_data: {
+						action: 'primary_action',
+						action_label: 'Primary Action',
+						action_variant: 'primary',
+						tracking_event: 'jetpack_primary_action_attempt',
+						secondary_action: 'secondary_action',
+						secondary_action_label: 'Secondary Action',
+						secondary_action_variant: 'secondary',
+						secondary_tracking_event: 'jetpack_secondary_action_attempt',
+					},
+				},
+				connectionErrors: {},
+			} );
+		} );
+
+		it( 'should set a notice with both primary and secondary actions', async () => {
+			const actionHandlers = {
+				primary_action: mockActionHandler,
+				secondary_action: mockSecondaryHandler,
+			};
+			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
+				wrapper: ( { children }: { children: ReactNode } ) => (
+					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
+				),
+			} );
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalledWith( {
+					message: 'A custom error with secondary action',
+					options: {
+						id: 'connection-error-notice',
+						level: 'error',
+						actions: [
+							{
+								label: 'Primary Action',
+								onClick: expect.any( Function ),
+								noDefaultClasses: true,
+							},
+							{
+								label: 'Secondary Action',
+								onClick: expect.any( Function ),
+								noDefaultClasses: true,
+								variant: 'secondary',
+							},
+						],
+						priority: 300,
+					},
+				} );
+			} );
+		} );
+
+		it( 'should call secondary action handler when secondary button is clicked', async () => {
+			const actionHandlers = {
+				primary_action: mockActionHandler,
+				secondary_action: mockSecondaryHandler,
+			};
+			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
+				wrapper: ( { children }: { children: ReactNode } ) => (
+					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
+				),
+			} );
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
+			const secondaryAction = setNoticeCall.options.actions[ 1 ];
+
+			// Simulate clicking the secondary action button
+			secondaryAction.onClick();
+
+			expect( mockSecondaryHandler ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					error_code: 'custom_error',
+					error_message: 'A custom error with secondary action',
+				} )
+			);
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_secondary_action_attempt', {} );
+		} );
+	} );
+
+	describe( 'when there is a custom error with secondary URL action', () => {
+		beforeEach( () => {
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'A custom error with secondary URL',
+				connectionError: {
+					error_code: 'custom_url_error',
+					error_message: 'A custom error with secondary URL',
+					error_type: 'custom',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+					error_data: {
+						action_url: 'https://example.com/primary',
+						action_label: 'Primary Action',
+						tracking_event: 'jetpack_primary_url_action_attempt',
+						secondary_action_url: 'https://example.com/secondary',
+						secondary_action_label: 'Secondary Action',
+						secondary_tracking_event: 'jetpack_secondary_url_action_attempt',
+					},
+				},
+				connectionErrors: {},
+			} );
+		} );
+
+		it( 'should set a notice with both primary and secondary URL actions', async () => {
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalledWith( {
+					message: 'A custom error with secondary URL',
+					options: {
+						id: 'connection-error-notice',
+						level: 'error',
+						actions: [
+							{
+								label: 'Primary Action',
+								onClick: expect.any( Function ),
+								noDefaultClasses: true,
+							},
+							{
+								label: 'Secondary Action',
+								onClick: expect.any( Function ),
+								noDefaultClasses: true,
+								variant: 'secondary',
+							},
+						],
+						priority: 300,
+					},
+				} );
+			} );
+		} );
+	} );
 } );
