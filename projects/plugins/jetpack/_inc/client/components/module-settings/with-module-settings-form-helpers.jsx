@@ -1,4 +1,4 @@
-import { each, get, omit } from 'lodash';
+import { get, omit } from 'lodash';
 import { Component } from 'react';
 import { connectModuleOptions } from 'components/module-settings/connect-module-options';
 import analytics from 'lib/analytics';
@@ -121,12 +121,9 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 				.then( () => {
 					// Track it
 
-					const saneOptions = {};
-
-					each( this.state.options, ( value, key ) => {
-						key = key.replace( /-/, '_' );
-						saneOptions[ key ] = value;
-					} );
+					const saneOptions = Object.fromEntries(
+						Object.entries( this.state.options ).map( ( [ k, v ] ) => [ k.replace( /-/, '_' ), v ] )
+					);
 
 					this.trackFormSubmission( saneOptions );
 

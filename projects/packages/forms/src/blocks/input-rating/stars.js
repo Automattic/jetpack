@@ -1,5 +1,4 @@
 import { useCallback } from '@wordpress/element';
-import { range } from 'lodash';
 
 /**
  * Interactive star-rating row.
@@ -21,7 +20,7 @@ export default function Stars( { max, value = 0, onChange = () => {} } ) {
 
 	return (
 		<div className="jetpack-field-rating__wrapper">
-			{ range( 1, max + 1 ).map( position => (
+			{ Array.from( Array( max ), ( _, i ) => i + 1 ).map( position => (
 				<span
 					key={ position }
 					className="jetpack-field-rating__button"

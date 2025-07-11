@@ -1,4 +1,3 @@
-import { forEach } from 'lodash';
 import { PureComponent } from 'react';
 import Search from 'components/search';
 import SectionNav from 'components/section-nav';
@@ -63,7 +62,7 @@ class SectionNavigation extends PureComponent {
 	render() {
 		const demoSections = {};
 
-		forEach( this.props, ( prop, key ) => {
+		for ( const [ key, prop ] of Object.entries( this.props ) ) {
 			demoSections[ key ] = [];
 
 			prop.forEach( function ( item, index ) {
@@ -78,7 +77,7 @@ class SectionNavigation extends PureComponent {
 					</NavItem>
 				);
 			}, this );
-		} );
+		}
 
 		return (
 			<div className="design-assets__group">

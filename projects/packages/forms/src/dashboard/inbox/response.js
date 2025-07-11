@@ -17,7 +17,6 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import clsx from 'clsx';
-import { map } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -290,7 +289,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 				<div className="jp-forms__inbox-response-separator" />
 
 				<div className="jp-forms__inbox-response-data">
-					{ map( response.fields, ( value, key ) => (
+					{ Object.entries( response.fields ).map( ( [ key, value ] ) => (
 						<div key={ key } className="jp-forms__inbox-response-item">
 							<div className="jp-forms__inbox-response-data-label">
 								{ key.endsWith( '?' ) ? key : `${ key }:` }

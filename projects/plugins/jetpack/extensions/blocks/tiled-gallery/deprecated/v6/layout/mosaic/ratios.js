@@ -1,18 +1,7 @@
-import {
-	every,
-	isEqual,
-	map,
-	overEvery,
-	some,
-	sum,
-	take,
-	takeRight,
-	takeWhile,
-	zipWith,
-} from 'lodash';
+import { isEqual, overEvery, sum, takeWhile, zipWith } from 'lodash';
 
 export function imagesToRatios( images ) {
-	return map( images, ratioFromImage );
+	return images.map( ratioFromImage );
 }
 
 export function ratioFromImage( { height, width } ) {
@@ -177,7 +166,7 @@ export function ratiosToMosaicRows( ratios, { isWide } = {} ) {
 			isWide &&
 			( toProcess.length === 5 || ( toProcess.length !== 10 && toProcess.length > 6 ) ) &&
 			fiveIsNotRecent( processed ) &&
-			sum( take( toProcess, 5 ) ) < 5
+			sum( toProcess.slice( 0, 5 ) ) < 5
 		) {
 			next = [ 1, 1, 1, 1, 1 ];
 		} else if (
@@ -218,7 +207,7 @@ export function ratiosToMosaicRows( ratios, { isWide } = {} ) {
 }
 
 function isThreeValidCandidate( processed, toProcess, isWide ) {
-	const ratio = sum( take( toProcess, 3 ) );
+	const ratio = sum( toProcess.slice( 0, 3 ) );
 	return (
 		toProcess.length >= 3 &&
 		toProcess.length !== 4 &&
@@ -234,7 +223,7 @@ function isThreeValidCandidate( processed, toProcess, isWide ) {
 }
 
 function isFourValidCandidate( processed, toProcess ) {
-	const ratio = sum( take( toProcess, 4 ) );
+	const ratio = sum( toProcess.slice( 0, 4 ) );
 	return (
 		( fourIsNotRecent( processed ) && ratio < 3.5 && toProcess.length > 5 ) ||
 		( ratio < 7 && toProcess.length === 4 )
@@ -243,13 +232,13 @@ function isFourValidCandidate( processed, toProcess ) {
 
 function isNotRecentShape( shape, numRecents ) {
 	return recents =>
-		! some( takeRight( recents, numRecents ), recentShape => isEqual( recentShape, shape ) );
+		! recents.slice( -numRecents ).some( recentShape => isEqual( recentShape, shape ) );
 }
 
 function checkNextRatios( shape ) {
 	return ratios =>
 		ratios.length >= shape.length &&
-		every( zipWith( shape, ratios.slice( 0, shape.length ), ( f, r ) => f( r ) ) );
+		zipWith( shape, ratios.slice( 0, shape.length ), ( f, r ) => f( r ) ).every( Boolean );
 }
 
 function isLandscape( ratio ) {

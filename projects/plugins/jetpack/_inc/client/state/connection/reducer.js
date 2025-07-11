@@ -1,4 +1,4 @@
-import { get, includes, merge } from 'lodash';
+import { get, merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
@@ -396,7 +396,7 @@ export function isInIdentityCrisis( state ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresConnection( state, slug ) {
-	return includes( getModulesThatRequireConnection( state ).concat( [ 'backups', 'scan' ] ), slug );
+	return getModulesThatRequireConnection( state ).concat( [ 'backups', 'scan' ] ).includes( slug );
 }
 
 /**
@@ -418,7 +418,7 @@ export function isUnavailableInOfflineMode( state, module ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresUserConnection( state, slug ) {
-	return includes( getModulesThatRequireUserConnection( state ), slug );
+	return getModulesThatRequireUserConnection( state ).includes( slug );
 }
 
 /**

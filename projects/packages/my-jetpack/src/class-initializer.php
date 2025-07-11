@@ -701,6 +701,14 @@ class Initializer {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		// Don't show any red bubbles when Jetpack is disconnected
+		// Users can't act on most alerts without a connection
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() ) {
+			return;
+		}
+
 		$rbn = new Red_Bubble_Notifications();
 
 		// filters for the items in this file
