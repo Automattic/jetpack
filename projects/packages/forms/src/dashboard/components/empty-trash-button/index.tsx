@@ -4,8 +4,8 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
@@ -13,10 +13,10 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
-import { store as dashboardStore } from '../../store';
+import useInboxData from '../../hooks/use-inbox-data';
 
 type CoreStore = typeof coreStore & {
-	invalidateResolutionForStore: ( store: typeof dashboardStore ) => void;
+	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 };
 
 /**
@@ -29,22 +29,11 @@ const EmptyTrashButton = (): JSX.Element => {
 	const [ isEmptying, setIsEmptying ] = useState( false );
 
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { invalidateResolutionForStore } = useDispatch( coreStore ) as unknown as CoreStore;
+	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
 
-	const selectedResponsesCount = useSelect(
-		select => select( dashboardStore ).getSelectedResponsesCount(),
-		[]
-	);
+	const { selectedResponsesCount, currentQuery, totalItemsTrash, isLoadingData } = useInboxData();
 
-	const { isResolving: isTotalItemsResolving, totalItems } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			status: 'trash',
-		}
-	);
-
-	const isEmpty = ! isTotalItemsResolving && totalItems === 0;
+	const isEmpty = ! isLoadingData && totalItemsTrash === 0;
 
 	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
 	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
@@ -88,15 +77,23 @@ const EmptyTrashButton = (): JSX.Element => {
 			} )
 			.finally( () => {
 				setIsEmptying( false );
-				invalidateResolutionForStore( dashboardStore );
+				// invalidate items list
+				invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', currentQuery ] );
+				// invalidate total items value
+				invalidateResolution( 'getEntityRecords', [
+					'postType',
+					'feedback',
+					{ ...currentQuery, per_page: 1, _fields: 'id' },
+				] );
 			} );
 	}, [
 		closeConfirmDialog,
 		createErrorNotice,
 		createSuccessNotice,
-		invalidateResolutionForStore,
+		invalidateResolution,
 		isEmpty,
 		isEmptying,
+		currentQuery,
 	] );
 
 	return (
@@ -129,10 +126,10 @@ const EmptyTrashButton = (): JSX.Element => {
 								_n(
 									'%d response in trash will be deleted forever. This action cannot be undone.',
 									'All %d responses in trash will be deleted forever. This action cannot be undone.',
-									totalItems || 0,
+									totalItemsTrash || 0,
 									'jetpack-forms'
 								),
-								totalItems
+								totalItemsTrash
 						  )
 						: __(
 								'All responses in trash will be deleted forever. This action cannot be undone.',
