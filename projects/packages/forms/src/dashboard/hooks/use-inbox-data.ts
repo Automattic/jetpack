@@ -2,6 +2,7 @@ import { useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useSearchParams } from 'react-router';
 import { store as dashboardStore } from '../store';
+import type { FormResponse } from '../../types';
 
 /**
  * Helper function to get the status filter to apply from the URL.
@@ -18,11 +19,31 @@ function getStatusFilter( urlStatus ) {
 }
 
 /**
- * Hook to get the total number of form responses for each status.
- *
- * @return {object} The total number of form responses for each status.
+ * Interface for the return value of the useInboxData hook.
  */
-export default function useInboxData() {
+interface UseInboxDataReturn {
+	totalItemsInbox: number;
+	totalItemsSpam: number;
+	totalItemsTrash: number;
+	records: FormResponse[];
+	isLoadingData: boolean;
+	totalItems: number;
+	totalPages: number;
+	selectedResponsesCount: number;
+	setSelectedResponses: ( responses: string[] ) => void;
+	statusFilter: string;
+	currentStatus: string;
+	currentQuery: Record< string, unknown >;
+	setCurrentQuery: ( query: Record< string, unknown > ) => void;
+	filterOptions: Record< string, unknown >;
+}
+
+/**
+ * Hook to get all inbox related data.
+ *
+ * @return {UseInboxDataReturn} The inbox related data.
+ */
+export default function useInboxData(): UseInboxDataReturn {
 	const [ searchParams ] = useSearchParams();
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const urlStatus = searchParams.get( 'status' );
@@ -39,11 +60,13 @@ export default function useInboxData() {
 	);
 
 	const {
-		records,
+		records: rawRecords,
 		isResolving: isLoadingData,
 		totalItems,
 		totalPages,
 	} = useEntityRecords( 'postType', 'feedback', currentQuery );
+
+	const records = ( rawRecords || [] ) as FormResponse[];
 
 	const { totalItems: totalItemsInbox } = useEntityRecords( 'postType', 'feedback', {
 		page: 1,
