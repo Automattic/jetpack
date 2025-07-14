@@ -203,7 +203,6 @@ add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
  */
 function wpcom_add_jetpack_submenu() {
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$is_atomic_site          = ! $is_simple_site;
 	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
 	$blog_id = Connection_Manager::get_site_id();
@@ -217,11 +216,6 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
-
-	// Do not add submenu items that link to WP.com for local users.
-	if ( $is_atomic_site && ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) ) {
-		return;
-	}
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
