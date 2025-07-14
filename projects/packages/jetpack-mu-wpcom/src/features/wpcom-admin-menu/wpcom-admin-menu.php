@@ -9,7 +9,6 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 /**
@@ -207,20 +206,26 @@ function wpcom_add_jetpack_submenu() {
 	$is_atomic_site          = ! $is_simple_site;
 	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
-	if ( $is_atomic_site && ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) ) {
+	$blog_id = Connection_Manager::get_site_id();
+	if ( is_wp_error( $blog_id ) ) {
 		return;
 	}
 
-	$blog_id = Connection_Manager::get_site_id();
-	if ( is_wp_error( $blog_id ) ) {
+	// Hide submenu items that link to Jetpack Cloud.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+
+	// Do not add submenu items that link to WP.com for local users.
+	if ( $is_atomic_site && ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) ) {
 		return;
 	}
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	// Jetpack > Scan.
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 	add_submenu_page(
 		'jetpack',
 		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
@@ -231,7 +236,6 @@ function wpcom_add_jetpack_submenu() {
 	);
 
 	// Jetpack > Backup.
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	add_submenu_page(
 		'jetpack',
 		esc_attr__( 'Backup', 'jetpack-mu-wpcom' ),
@@ -253,7 +257,6 @@ function wpcom_add_jetpack_submenu() {
 
 	if ( $uses_wp_admin_interface ) {
 		// Jetpack > Activity Log.
-		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
 		add_submenu_page(
 			'jetpack',
 			__( 'Activity Log', 'jetpack-mu-wpcom' ),
@@ -265,7 +268,6 @@ function wpcom_add_jetpack_submenu() {
 
 		// Jetpack > Subscribers.
 		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-			wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 			add_submenu_page(
 				'jetpack',
 				__( 'Subscribers', 'jetpack-mu-wpcom' ),
