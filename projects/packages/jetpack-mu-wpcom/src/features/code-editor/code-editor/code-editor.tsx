@@ -261,89 +261,97 @@ const cm_lazy = ( cm_module: typeof import('@a8cCodeEditor/codemirror-bundle') )
 			} )
 		);
 
-		React.useEffect( () => {
-			if ( viewRef.current ) {
-				return;
-			}
+		React.useEffect(
+			() => {
+				if ( viewRef.current ) {
+					return;
+				}
 
-			viewRef.current = new View.EditorView( {
-				doc: initialValue,
-				extensions: [
-					View.EditorView.theme( theme ),
-					View.EditorView.theme( {
-						'&': {
-							fontSize: '16px',
-						},
-						'&.cm-focused': {
-							boxShadow:
-								'0 0 0 var(--wp-admin-border-width-focus, 2px) var(--wp-admin-theme-color, #3858e9)',
-						},
-						'& .cm-gutterElement': {
-							lineHeight: 2.4,
-						},
-						'& .cm-content': {
-							padding: '16px 0',
-							lineHeight: 2.4,
-						},
-						'& .cm-line': { padding: '0 16px' },
-					} ),
-					View.EditorView.lineWrapping,
-					View.lineNumbers(),
-					View.highlightActiveLineGutter(),
-					View.highlightSpecialChars(),
-					Commands.history(),
-					Language.foldGutter(),
-					View.drawSelection(),
-					View.dropCursor(),
-					State.EditorState.allowMultipleSelections.of( true ),
-					Language.indentOnInput(),
-					Language.syntaxHighlighting( syntaxHighlightingStyle ),
-					Language.bracketMatching(),
-					Autocomplete.closeBrackets(),
-					Autocomplete.autocompletion(),
-					View.rectangularSelection(),
-					View.crosshairCursor(),
-					View.highlightActiveLine(),
-					Search.highlightSelectionMatches(),
-					View.keymap.of( [
-						...Autocomplete.closeBracketsKeymap,
-						...Commands.defaultKeymap,
-						...Search.searchKeymap,
-						...Commands.historyKeymap,
-						...Language.foldKeymap,
-						...Autocomplete.completionKeymap,
-						...Lint.lintKeymap,
-						Commands.indentWithTab,
-					] ),
+				viewRef.current = new View.EditorView( {
+					doc: initialValue,
+					extensions: [
+						View.EditorView.theme( theme ),
+						View.EditorView.theme( {
+							'&': {
+								fontSize: '16px',
+							},
+							'&.cm-focused': {
+								boxShadow:
+									'0 0 0 var(--wp-admin-border-width-focus, 2px) var(--wp-admin-theme-color, #3858e9)',
+							},
+							'& .cm-gutterElement': {
+								lineHeight: 2.4,
+							},
+							'& .cm-content': {
+								padding: '16px 0',
+								lineHeight: 2.4,
+							},
+							'& .cm-line': { padding: '0 16px' },
+						} ),
+						View.EditorView.lineWrapping,
+						View.lineNumbers(),
+						View.highlightActiveLineGutter(),
+						View.highlightSpecialChars(),
+						Commands.history(),
+						Language.foldGutter(),
+						View.drawSelection(),
+						View.dropCursor(),
+						State.EditorState.allowMultipleSelections.of( true ),
+						Language.indentOnInput(),
+						Language.syntaxHighlighting( syntaxHighlightingStyle ),
+						Language.bracketMatching(),
+						Autocomplete.closeBrackets(),
+						Autocomplete.autocompletion(),
+						View.rectangularSelection(),
+						View.crosshairCursor(),
+						View.highlightActiveLine(),
+						Search.highlightSelectionMatches(),
+						View.keymap.of( [
+							...Autocomplete.closeBracketsKeymap,
+							...Commands.defaultKeymap,
+							...Search.searchKeymap,
+							...Commands.historyKeymap,
+							...Language.foldKeymap,
+							...Autocomplete.completionKeymap,
+							...Lint.lintKeymap,
+							Commands.indentWithTab,
+						] ),
 
-					updateListener.current,
-					HtmlLanguage.html( {
-						autoCloseTags: true,
-						matchClosingTags: true,
-						extraGlobalAttributes: {
-							'data-wp-namespace': [ '' ],
-						},
-					} ),
-				],
-				parent: ref.current!,
-			} );
-			return () => {
-				viewRef.current?.destroy();
-				viewRef.current = undefined;
-			};
-		}, [
-			Autocomplete,
-			Commands,
-			HtmlLanguage,
-			Language,
-			Lint.lintKeymap,
-			Search,
-			State.EditorState.allowMultipleSelections,
-			View,
-			initialValue,
-			syntaxHighlightingStyle,
-			theme,
-		] );
+						updateListener.current,
+						HtmlLanguage.html( {
+							autoCloseTags: true,
+							matchClosingTags: true,
+							extraGlobalAttributes: {
+								'data-wp-namespace': [ '' ],
+							},
+						} ),
+					],
+					parent: ref.current!,
+				} );
+				return () => {
+					viewRef.current?.destroy();
+					viewRef.current = undefined;
+				};
+			},
+
+			// The initialValue is not included here. It is only used to initialize the editor.
+			// From that point, the editor has control of the post content and pushes changes
+			// to the store.
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+			[
+				Autocomplete,
+				Commands,
+				HtmlLanguage,
+				Language,
+				Lint.lintKeymap,
+				Search,
+				State.EditorState.allowMultipleSelections,
+				View,
+				syntaxHighlightingStyle,
+				theme,
+				id,
+			]
+		);
 
 		return <div ref={ ref } />;
 	};
