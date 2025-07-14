@@ -95,6 +95,16 @@ export default function Edit( { attributes, setAttributes } ) {
 	const [ rawHeadCode, setRawHeadCode ] = useState( '' );
 	const [ rawBodyCode, setRawBodyCode ] = useState( '' );
 
+	// Extract instruction strings to avoid ternary operator in i18n
+	const stackedInstructions = __(
+		'Stacked Buttons (Recommended): This option lets you present all of your product information and PayPal payment method upfront on your website.',
+		'jetpack-paypal-payments'
+	);
+	const singleInstructions = __(
+		'Single Button: This option lets you quickly paste a single button on your site, with no product information.',
+		'jetpack-paypal-payments'
+	);
+
 	// Initialize raw code when valid extracted values exist
 	useEffect( () => {
 		if ( ! rawHeadCode && scriptSrc ) {
@@ -166,17 +176,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				icon={ PayPalIcon }
 				label={ __( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ) }
 				isColumnLayout
-				instructions={
-					buttonType === 'stacked'
-						? __(
-								'Stacked Buttons (Recommended): This option lets you present all of your product information and PayPal payment method upfront on your website.',
-								'jetpack-paypal-payments'
-						  )
-						: __(
-								'Single Button: This option lets you quickly paste a single button on your site, with no product information.',
-								'jetpack-paypal-payments'
-						  )
-				}
+				instructions={ buttonType === 'stacked' ? stackedInstructions : singleInstructions }
 				notices={ notice }
 			>
 				<ToggleGroupControl
