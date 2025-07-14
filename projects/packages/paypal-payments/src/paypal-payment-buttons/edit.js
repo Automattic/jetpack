@@ -98,26 +98,52 @@ const validButtonText = buttonText =>
  * @param {object}   props               - Properties passed to the function.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to update block attributes.
- * @param {boolean}  props.isSelected    - Whether the block is selected.
  * @return {Element}                     Element to render.
  */
-export default function Edit( { attributes, setAttributes, isSelected } ) {
+export default function Edit( { attributes, setAttributes } ) {
 	const { buttonType, scriptSrc, hostedButtonId, buttonText } = attributes;
 	const [ notice, setNotice ] = useState( null );
+	const [ rawHeadCode, setRawHeadCode ] = useState( '' );
+	const [ rawBodyCode, setRawBodyCode ] = useState( '' );
+
+	// Initialize raw code when valid extracted values exist
+	useEffect( () => {
+		if ( ! rawHeadCode && scriptSrc ) {
+			setRawHeadCode( generateHeadCode( scriptSrc ) );
+		}
+	}, [ scriptSrc, rawHeadCode ] );
 
 	useEffect( () => {
-		if ( isSelected ) {
-			setNotice( null );
-			return;
+		if ( ! rawBodyCode && hostedButtonId ) {
+			setRawBodyCode( generateBodyCode( hostedButtonId ) );
+		}
+	}, [ hostedButtonId, rawBodyCode ] );
+
+	useEffect( () => {
+		// Check if user has pasted invalid code that couldn't be extracted
+		if ( 'stacked' === buttonType && rawHeadCode && rawHeadCode.trim() && ! scriptSrc ) {
+			return setNotice(
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						'Invalid PayPal script URL. Please paste code from PayPal.com.',
+						'jetpack-paypal-payments'
+					) }
+				</Notice>
+			);
 		}
 
-		// Only validate if we have data to validate
-		if ( ! scriptSrc && ! hostedButtonId ) {
-			setNotice( null );
-			return;
+		if ( rawBodyCode && rawBodyCode.trim() && ! hostedButtonId ) {
+			return setNotice(
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						'Invalid PayPal button code. Please paste code from PayPal.com.',
+						'jetpack-paypal-payments'
+					) }
+				</Notice>
+			);
 		}
 
-		// Validate script src for stacked buttons
+		// Validate extracted values
 		if ( 'stacked' === buttonType && scriptSrc && ! validScriptSrc( scriptSrc ) ) {
 			return setNotice(
 				<Notice status="error" isDismissible={ false }>
@@ -126,7 +152,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			);
 		}
 
-		// Validate hosted button ID
 		if ( hostedButtonId && ! validHostedButtonId( hostedButtonId ) ) {
 			return setNotice(
 				<Notice status="error" isDismissible={ false }>
@@ -135,7 +160,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			);
 		}
 
-		// Validate button text for single buttons
 		if ( 'single' === buttonType && buttonText && ! validButtonText( buttonText ) ) {
 			return setNotice(
 				<Notice status="error" isDismissible={ false }>
@@ -145,7 +169,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		}
 
 		setNotice( null );
-	}, [ buttonType, scriptSrc, hostedButtonId, buttonText, isSelected ] );
+	}, [ buttonType, scriptSrc, hostedButtonId, buttonText, rawHeadCode, rawBodyCode ] );
 
 	return (
 		<div { ...useBlockProps() }>
@@ -204,8 +228,9 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 				</ToggleGroupControl>
 				{ 'stacked' === buttonType && (
 					<PlainText
-						value={ generateHeadCode( scriptSrc ) }
+						value={ rawHeadCode }
 						onChange={ code => {
+							setRawHeadCode( code );
 							const extractedSrc = extractScriptSrc( code );
 							setAttributes( {
 								scriptSrc: extractedSrc,
@@ -217,8 +242,9 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					/>
 				) }
 				<PlainText
-					value={ generateBodyCode( hostedButtonId ) }
+					value={ rawBodyCode }
 					onChange={ code => {
+						setRawBodyCode( code );
 						const extractedButtonId = extractHostedButtonId( code );
 						const extractedButtonText = extractButtonText( code );
 						setAttributes( {

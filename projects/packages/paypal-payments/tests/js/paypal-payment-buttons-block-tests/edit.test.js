@@ -288,7 +288,7 @@ describe( 'Edit', () => {
 			).toBeInTheDocument();
 		} );
 
-		it( 'does not show notice when block is selected', () => {
+		it( 'shows validation errors even when block is selected', () => {
 			render(
 				<Edit
 					attributes={ {
@@ -301,7 +301,8 @@ describe( 'Edit', () => {
 				/>
 			);
 
-			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
 		} );
 	} );
 
