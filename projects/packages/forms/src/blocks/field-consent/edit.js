@@ -48,11 +48,6 @@ export default function ConsentFieldEdit( props ) {
 					),
 					isStandalone: true,
 					hideInput: true,
-					style: {
-						typography: {
-							textTransform: 'none',
-						},
-					},
 				},
 			],
 		],
