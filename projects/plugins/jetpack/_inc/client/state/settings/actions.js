@@ -1,6 +1,5 @@
 import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_SETTINGS_FETCH,
@@ -177,7 +176,7 @@ function mapUpdateSettingsResponseFromApi( success, requestedValues ) {
 	let values = requestedValues;
 
 	// Adapt messages and data when regenerating Post by Email address
-	if ( get( requestedValues, 'post_by_email_address' ) === 'regenerate' ) {
+	if ( requestedValues?.post_by_email_address === 'regenerate' ) {
 		values = {
 			post_by_email_address: success.post_by_email_address,
 		};

@@ -15,7 +15,7 @@ const SyncedAttributeContext = createContext( [ {}, () => {} ] );
  *
  * @param {object} props          - Component props.
  * @param {object} props.children - Child components to render within the provider.
- * @return {JSX.Element}          The provider component.
+ * @return {import('react').JSX.Element}          The provider component.
  */
 export function SyncedAttributeProvider( { children } ) {
 	const value = useReducer( ( state, action ) => {

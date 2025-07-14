@@ -7,6 +7,8 @@ module.exports = {
 	'no-disposablestack': 'javascript.builtins.DisposableStack.DisposableStack',
 	'no-error-iserror': 'javascript.builtins.Error.isError',
 	'no-suppressederror': 'javascript.builtins.SuppressedError.SuppressedError',
+	'no-symbol-asyncdispose': 'javascript.builtins.Symbol.asyncDispose',
+	'no-symbol-dispose': 'javascript.builtins.Symbol.dispose',
 	'no-using-declarations': 'javascript.statements.using',
 
 	// ES2025
@@ -99,8 +101,8 @@ module.exports = {
 	],
 	'no-class-private-fields': 'javascript.classes.private_class_fields',
 	'no-class-private-methods': 'javascript.classes.private_class_methods',
-	'no-class-static-fields': 'javascript.classes.static_class_fields',
-	'no-class-static-block': 'javascript.classes.static_initialization_blocks',
+	'no-class-static-fields': 'javascript.classes.static.class_fields',
+	'no-class-static-block': 'javascript.classes.static.initialization_blocks',
 	'no-error-cause': [
 		'javascript.builtins.Error.Error.options_cause_parameter',
 		'javascript.builtins.Error.cause',
@@ -147,6 +149,7 @@ module.exports = {
 	'no-promise-all-settled': 'javascript.builtins.Promise.allSettled',
 	'no-regexp-unicode-property-escapes-2020': false, // No support data in MDN separate from no-regexp-unicode-property-escapes. https://github.com/mdn/browser-compat-data/issues/19631
 	'no-string-prototype-matchall': 'javascript.builtins.String.matchAll',
+	'no-symbol-matchall': 'javascript.builtins.Symbol.matchAll',
 
 	// ES2019
 	'no-array-prototype-flat': [

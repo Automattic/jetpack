@@ -13,7 +13,7 @@ import { useCallback } from '@wordpress/element';
  * @param {number}   [props.value=0]       - Currently selected rating.
  * @param {Function} [props.onChange=noop] - Handler called with the new rating.
  *
- * @return {JSX.Element}  Wrapping <div> containing the interactive stars.
+ * @return {import('react').JSX.Element}  Wrapping <div> containing the interactive stars.
  */
 export default function Stars( { max, value = 0, onChange = () => {} } ) {
 	const handleSelect = useCallback( position => () => onChange( position ), [ onChange ] );

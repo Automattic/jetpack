@@ -4,7 +4,7 @@ import { ExternalLink, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -137,7 +137,7 @@ export class DashStats extends Component {
 	 * @return {object|boolean} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
-		return get( this.props.statsData, [ 'general', 'errors' ], false );
+		return this.props.statsData?.general?.errors ?? false;
 	}
 
 	renderStatsChart( chartData ) {
