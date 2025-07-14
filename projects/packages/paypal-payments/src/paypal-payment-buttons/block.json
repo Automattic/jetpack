@@ -14,10 +14,10 @@
 			"enum": [ "stacked", "single" ],
 			"default": "stacked"
 		},
-		"codeHead": {
+		"scriptSrc": {
 			"type": "string"
 		},
-		"codeBody": {
+		"hostedButtonId": {
 			"type": "string"
 		}
 	},

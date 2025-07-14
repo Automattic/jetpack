@@ -43,79 +43,61 @@ class PayPal_Payment_Buttons {
 	 * @return string|void
 	 */
 	public static function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$button_type = $attributes['buttonType'] ?? '';
-		$code_head   = $attributes['codeHead'] ?? '';
-		$code_body   = $attributes['codeBody'] ?? '';
+		$button_type      = $attributes['buttonType'] ?? '';
+		$script_src       = $attributes['scriptSrc'] ?? '';
+		$hosted_button_id = $attributes['hostedButtonId'] ?? '';
 
-		if ( empty( $button_type ) || empty( $code_body ) ) {
+		if ( empty( $button_type ) || empty( $hosted_button_id ) ) {
 			return;
 		}
 
-		if ( 'stacked' === $button_type && ! empty( $code_head ) ) {
-			if ( preg_match( '/src="(https:\/\/(www\.)?(sandbox\.)?paypal\.com\/sdk\/js\?client-id=.+)"/', $code_head, $matches ) ) {
-				$script_url = esc_url( $matches[1] );
-				if ( ! empty( $script_url ) ) {
-					// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
-					wp_enqueue_script( 'paypal-payment-buttons-block-head', $script_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-					add_filter(
-						'script_loader_tag',
-						function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-							if ( 'paypal-payment-buttons-block-head' === $handle ) {
-								if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
-									$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="WooNCPS_Ecom_Wordpress" src=$2', $tag );
-								}
-							}
-							return $tag;
-						},
-						10,
-						3
-					);
-				}
-			}
+		// For stacked buttons, we need both scriptSrc and hostedButtonId
+		if ( 'stacked' === $button_type && empty( $script_src ) ) {
+			return;
 		}
 
+		if ( 'stacked' === $button_type ) {
+			$script_url = esc_url( $script_src );
+			// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
+			wp_enqueue_script( 'paypal-payment-buttons-block-head', $script_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			add_filter(
+				'script_loader_tag',
+				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+					if ( 'paypal-payment-buttons-block-head' === $handle ) {
+						if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
+							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="WooNCPS_Ecom_Wordpress" src=$2', $tag );
+						}
+					}
+					return $tag;
+				},
+				10,
+				3
+			);
+
+			// Generate the button HTML and inline script
+			$container_id = 'paypal-container-' . esc_attr( $hosted_button_id );
+			$button_html  = '<div id="' . $container_id . '"></div>';
+
+			$inline_script = sprintf(
+				'paypal.HostedButtons({
+					hostedButtonId: "%s",
+				}).render("#%s");',
+				esc_js( $hosted_button_id ),
+				esc_js( $container_id )
+			);
+
+			wp_add_inline_script( 'paypal-payment-buttons-block-head', $inline_script );
+
+			return $button_html;
+		}
+
+		// Single button type - for now, we'll treat it the same as stacked
+		// but without requiring a separate script (since it might be a simple form)
 		if ( 'single' === $button_type ) {
-			self::register_hooks();
-			$code_body = str_replace( 'inline-grid', 'grid', $code_body );
-			$attr_code = 'at_code=WooNCPS_Ecom_Wordpress';
-			if ( preg_match( '/\s+action=[\'"]([^\'"]+)[\'"]/', $code_body, $matches ) ) {
-				$action = esc_url( $matches[1] );
-				if ( ! empty( $action ) && false === strpos( $action, $attr_code ) ) {
-					$action    = add_query_arg( 'at_code', 'WooNCPS_Ecom_Wordpress', $action );
-					$code_body = preg_replace( '/(\s+action=[\'"])[^\'"]+([\'"])/', '$1' . $action . '$2', $code_body );
-				}
-			}
+			// Generate the button HTML similar to stacked
+			$container_id = 'paypal-container-' . esc_attr( $hosted_button_id );
+			return '<div id="' . esc_attr( $container_id ) . '"></div>';
 		}
-
-		$allow_html = 'single' === $button_type ? array(
-			'style'   => array(),
-			'form'    => array(
-				'action' => array(),
-				'method' => array(),
-				'style'  => array(),
-			),
-			'input'   => array(
-				'class' => array(),
-				'type'  => array(),
-				'value' => array(),
-			),
-			'img'     => array(
-				'src'   => array(),
-				'alt'   => array(),
-				'style' => array(),
-			),
-			'section' => array(
-				'style' => array(),
-			),
-		) : array(
-			'div'    => array(
-				'id' => array(),
-			),
-			'script' => array(),
-		);
-
-		$code_body = wp_kses( $code_body, $allow_html );
-		return $code_body;
 	}
 
 	/**

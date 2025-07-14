@@ -19,19 +19,48 @@ import { __, _x } from '@wordpress/i18n';
 import PayPalIcon from './icon';
 import './editor.scss';
 
-const validCodeBody = ( buttonType, codeBody ) => {
-	if ( buttonType === 'stacked' ) {
-		return /paypal-container-/.test( codeBody );
-	}
-
-	if ( buttonType === 'single' ) {
-		return codeBody.match( /paypal\.com|paypalobjects\.com/g )?.length === 3;
-	}
-
-	return false;
+const extractScriptSrc = codeHead => {
+	const match = codeHead.match(
+		/src="(https:\/\/(www\.)?(sandbox\.)?paypal\.com\/sdk\/js\?[^"]+)"/
+	);
+	return match ? match[ 1 ] : '';
 };
 
-const validCodeHead = codeHead => /src=".*\/sdk\/js\?client-id=/.test( codeHead );
+const extractHostedButtonId = codeBody => {
+	// Try to extract from hostedButtonId property first
+	const hostedButtonMatch = codeBody.match( /hostedButtonId:\s*["']([^"']+)["']/ );
+	if ( hostedButtonMatch ) {
+		return hostedButtonMatch[ 1 ];
+	}
+
+	// Fallback to extracting from container ID
+	const containerMatch = codeBody.match( /paypal-container-([^"']+)/ );
+	return containerMatch ? containerMatch[ 1 ] : '';
+};
+
+const generateHeadCode = scriptSrc => {
+	if ( ! scriptSrc ) {
+		return '';
+	}
+	return `<script src="${ scriptSrc }"></script>`;
+};
+
+const generateBodyCode = hostedButtonId => {
+	if ( ! hostedButtonId ) {
+		return '';
+	}
+	return `<div id="paypal-container-${ hostedButtonId }"></div>
+<script>
+  paypal.HostedButtons({
+    hostedButtonId: "${ hostedButtonId }",
+  }).render("#paypal-container-${ hostedButtonId }")
+</script>`;
+};
+
+const validScriptSrc = scriptSrc =>
+	/^https:\/\/(www\.)?(sandbox\.)?paypal\.com\/sdk\/js\?client-id=/.test( scriptSrc );
+
+const validHostedButtonId = hostedButtonId => /^[A-Z0-9]+$/.test( hostedButtonId );
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -46,36 +75,41 @@ const validCodeHead = codeHead => /src=".*\/sdk\/js\?client-id=/.test( codeHead 
  * @return {Element}                     Element to render.
  */
 export default function Edit( { attributes, setAttributes, isSelected } ) {
-	const { buttonType, codeHead, codeBody } = attributes;
+	const { buttonType, scriptSrc, hostedButtonId } = attributes;
 	const [ notice, setNotice ] = useState( null );
 
 	useEffect( () => {
-		if ( ! codeBody || isSelected ) {
+		if ( isSelected ) {
 			setNotice( null );
 			return;
 		}
 
-		if ( ! validCodeBody( buttonType, codeBody ) ) {
+		// Only validate if we have data to validate
+		if ( ! scriptSrc && ! hostedButtonId ) {
+			setNotice( null );
+			return;
+		}
+
+		// Validate script src for stacked buttons
+		if ( 'stacked' === buttonType && scriptSrc && ! validScriptSrc( scriptSrc ) ) {
 			return setNotice(
 				<Notice status="error" isDismissible={ false }>
-					{ __( 'This does not look like a valid PayPal button.', 'jetpack-paypal-payments' ) }
+					{ __( 'Invalid PayPal script URL.', 'jetpack-paypal-payments' ) }
 				</Notice>
 			);
 		}
 
-		if ( 'stacked' === buttonType && ! validCodeHead( codeHead ) ) {
+		// Validate hosted button ID
+		if ( hostedButtonId && ! validHostedButtonId( hostedButtonId ) ) {
 			return setNotice(
-				<Notice status="warning" isDismissible={ false }>
-					{ __(
-						"Missing PayPal head script. If you've already added it to your header, you can safely ignore this.",
-						'jetpack-paypal-payments'
-					) }
+				<Notice status="error" isDismissible={ false }>
+					{ __( 'Invalid PayPal button ID.', 'jetpack-paypal-payments' ) }
 				</Notice>
 			);
 		}
 
 		setNotice( null );
-	}, [ buttonType, codeHead, codeBody, isSelected ] );
+	}, [ buttonType, scriptSrc, hostedButtonId, isSelected ] );
 
 	return (
 		<div { ...useBlockProps() }>
@@ -134,16 +168,26 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 				</ToggleGroupControl>
 				{ 'stacked' === buttonType && (
 					<PlainText
-						value={ codeHead }
-						onChange={ code => setAttributes( { codeHead: code } ) }
+						value={ generateHeadCode( scriptSrc ) }
+						onChange={ code => {
+							const extractedSrc = extractScriptSrc( code );
+							setAttributes( {
+								scriptSrc: extractedSrc,
+							} );
+						} }
 						placeholder={ __( 'Paste the head code here…', 'jetpack-paypal-payments' ) }
 						aria-label={ __( 'PayPal button head code', 'jetpack-paypal-payments' ) }
 						name="paypal-payment-buttons-code-head"
 					/>
 				) }
 				<PlainText
-					value={ codeBody }
-					onChange={ codeBody => setAttributes( { codeBody } ) } // eslint-disable-line no-shadow
+					value={ generateBodyCode( hostedButtonId ) }
+					onChange={ code => {
+						const extractedButtonId = extractHostedButtonId( code );
+						setAttributes( {
+							hostedButtonId: extractedButtonId,
+						} );
+					} }
 					placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }
 					aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
 					name="paypal-payment-buttons-code-body"

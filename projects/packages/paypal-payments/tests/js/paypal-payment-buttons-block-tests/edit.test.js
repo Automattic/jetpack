@@ -94,8 +94,8 @@ describe( 'Edit', () => {
 	const defaultProps = {
 		attributes: {
 			buttonType: 'stacked',
-			codeHead: '',
-			codeBody: '',
+			scriptSrc: '',
+			hostedButtonId: '',
 		},
 		setAttributes: jest.fn(),
 	};
@@ -149,7 +149,7 @@ describe( 'Edit', () => {
 		} );
 	} );
 
-	it( 'updates codeHead when text is entered', () => {
+	it( 'updates scriptSrc when head code is entered', () => {
 		const setAttributes = jest.fn();
 		render(
 			<Edit attributes={ { ...defaultProps.attributes } } setAttributes={ setAttributes } />
@@ -159,15 +159,15 @@ describe( 'Edit', () => {
 		// First input should be the head code for stacked buttons
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.change( inputs[ 0 ], {
-			target: { value: '<script src="test"></script>' },
+			target: { value: '<script src="https://www.paypal.com/sdk/js?client-id=test"></script>' },
 		} );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			codeHead: '<script src="test"></script>',
+			scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
 		} );
 	} );
 
-	it( 'updates codeBody when text is entered', () => {
+	it( 'updates hostedButtonId when body code is entered', () => {
 		const setAttributes = jest.fn();
 		render(
 			<Edit attributes={ { ...defaultProps.attributes } } setAttributes={ setAttributes } />
@@ -177,22 +177,25 @@ describe( 'Edit', () => {
 		// For stacked buttons, body code is the second input
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.change( inputs[ 1 ], {
-			target: { value: '<div id="paypal-container"></div>' },
+			target: {
+				value:
+					'paypal.HostedButtons({ hostedButtonId: "ABC123DEF", }).render("#paypal-container-ABC123DEF")',
+			},
 		} );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			codeBody: '<div id="paypal-container"></div>',
+			hostedButtonId: 'ABC123DEF',
 		} );
 	} );
 
 	describe( 'Validation Notices', () => {
-		it( 'shows error notice for invalid stacked button code', () => {
+		it( 'shows error notice for invalid script URL', () => {
 			render(
 				<Edit
 					attributes={ {
 						buttonType: 'stacked',
-						codeBody: '<button>Invalid PayPal Button</button>',
-						codeHead: '',
+						scriptSrc: 'https://invalid-url.com/script.js',
+						hostedButtonId: 'ABC123',
 					} }
 					setAttributes={ jest.fn() }
 					isSelected={ false }
@@ -201,18 +204,16 @@ describe( 'Edit', () => {
 
 			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
-			expect(
-				screen.getByText( 'This does not look like a valid PayPal button.' )
-			).toBeInTheDocument();
+			expect( screen.getByText( 'Invalid PayPal script URL.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'shows no notice for valid stacked button code', () => {
+		it( 'shows no notice for valid stacked button data', () => {
 			render(
 				<Edit
 					attributes={ {
 						buttonType: 'stacked',
-						codeBody: '<div id="paypal-container-test"></div>',
-						codeHead: '<script src="https://www.paypal.com/sdk/js?client-id=test"></script>',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
 					} }
 					setAttributes={ jest.fn() }
 					isSelected={ false }
@@ -222,37 +223,13 @@ describe( 'Edit', () => {
 			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'shows warning notice for stacked button missing SDK script', () => {
+		it( 'shows error notice for invalid hosted button ID', () => {
 			render(
 				<Edit
 					attributes={ {
 						buttonType: 'stacked',
-						codeBody: '<div id="paypal-container-test"></div>',
-						codeHead: 'missing sdk script',
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
-				/>
-			);
-
-			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'warning' );
-			expect( screen.getByText( /Missing PayPal head script/ ) ).toBeInTheDocument();
-		} );
-
-		it( 'shows error notice for single button not containing three PayPal domains', () => {
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'single',
-						codeBody: `
-                            <form action="https://www.sandbox.example.com/ncp/payment/123" method="post">
-                                <input type="submit" value="Buy Now" />
-                                <img src="https://www.paypalobjects.com/image1.svg" />
-                                <img src="https://www.paypalobjects.com/image2.svg" />
-                            </form>
-                        `,
-						codeHead: '',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'invalid-button-id-123',
 					} }
 					setAttributes={ jest.fn() }
 					isSelected={ false }
@@ -261,28 +238,7 @@ describe( 'Edit', () => {
 
 			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
-		} );
-
-		it( 'shows no notice for valid single button containing three PayPal domains', () => {
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'single',
-						codeBody: `
-                            <form action="https://www.paypal.com/123" method="post">
-                                <input type="submit" value="Buy Now" />
-                                <img src="https://www.paypalobjects.com/image.svg" />
-                                <section>Powered by <img src="https://www.paypalobjects.com/logo.svg" /></section>
-                            </form>
-                        `,
-						codeHead: '',
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
-				/>
-			);
-
-			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Invalid PayPal button ID.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'does not show notice when block is selected', () => {
@@ -290,8 +246,8 @@ describe( 'Edit', () => {
 				<Edit
 					attributes={ {
 						buttonType: 'stacked',
-						codeBody: '<button>Invalid PayPal Button</button>', // Invalid code
-						codeHead: '',
+						scriptSrc: 'https://invalid-url.com/script.js', // Invalid URL
+						hostedButtonId: 'ABC123',
 					} }
 					setAttributes={ jest.fn() }
 					isSelected={ true } // Block is selected
