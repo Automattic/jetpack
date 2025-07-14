@@ -17,8 +17,7 @@ window.jetpackModules.models = ( function ( window, $, Backbone ) {
 				items = Object.values( this.get( 'raw' ) ),
 				m_filter = $( '.button-group.filter-active .active' ),
 				m_sort = $( '.button-group.sort .active' ),
-				m_search = $( '#srch-term-search-input' ).val().toLowerCase(),
-				groups;
+				m_search = $( '#srch-term-search-input' ).val().toLowerCase();
 
 			// If a module filter has been selected, filter it!
 			if ( ! subsubsub.closest( 'li' ).hasClass( 'all' ) ) {
@@ -58,10 +57,8 @@ window.jetpackModules.models = ( function ( window, $, Backbone ) {
 			}
 
 			// Sort unavailable modules to the end if the user is running in local mode.
-			groups = Object.groupBy( items, item => item.available );
-			if ( Object.hasOwn( groups, 'false' ) ) {
-				items = [].concat( groups.true, groups.false );
-			}
+			// JS sort is supposed to be stable since 2019, and is in browsers we care about, so this is safe.
+			items.sort( ( a, b ) => b.available - a.available );
 
 			// Now shove it back in.
 			this.set( 'items', items );
