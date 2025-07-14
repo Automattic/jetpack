@@ -118,7 +118,7 @@
 		"resize-observer-polyfill": "1.5.1",
 		"sass-embedded": "1.87.0",
 		"social-logos": "workspace:*",
-		"swiper": "11.2.8",
+		"swiper": "11.2.10",
 		"tinycolor2": "1.4.2",
 		"tus-js-client": "4.2.3",
 		"webpack": "5.94.0",

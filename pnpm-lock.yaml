@@ -4784,8 +4784,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
       swiper:
-        specifier: 11.2.8
-        version: 11.2.8
+        specifier: 11.2.10
+        version: 11.2.10
       tinycolor2:
         specifier: 1.4.2
         version: 1.4.2
@@ -15341,6 +15341,10 @@ packages:
   sweetalert2@7.33.1:
     resolution: {integrity: sha512-69KYtyhtxejFG0HDb8aVhAwbpAWPSTZwaL5vxDHgojErD2KeFxTmRgmkbiLtMC8UdTFXRmvTPtZTF4459MUb7w==}
     engines: {node: '>=0.10.0'}
+
+  swiper@11.2.10:
+    resolution: {integrity: sha512-RMeVUUjTQH+6N3ckimK93oxz6Sn5la4aDlgPzB+rBrG/smPdCTicXyhxa+woIpopz+jewEloiEE3lKo1h9w2YQ==}
+    engines: {node: '>= 4.7.0'}
 
   swiper@11.2.8:
     resolution: {integrity: sha512-S5FVf6zWynPWooi7pJ7lZhSUe2snTzqLuUzbd5h5PHUOhzgvW0bLKBd2wv0ixn6/5o9vwc/IkQT74CRcLJQzeg==}
@@ -30319,6 +30323,8 @@ snapshots:
       cheerio: 1.0.0-rc.10
 
   sweetalert2@7.33.1: {}
+
+  swiper@11.2.10: {}
 
   swiper@11.2.8: {}
 
