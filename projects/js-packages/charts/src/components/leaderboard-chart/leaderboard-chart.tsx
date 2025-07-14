@@ -173,6 +173,18 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 		...style,
 	} as React.CSSProperties;
 
+	// Handle empty or undefined data
+	if ( ! data || data.length === 0 ) {
+		return (
+			<div
+				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+				style={ chartStyle }
+			>
+				<div className={ styles.emptyState }>{ loading ? 'Loading...' : 'No data available' }</div>
+			</div>
+		);
+	}
+
 	return (
 		<div
 			className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
