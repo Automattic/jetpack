@@ -6,8 +6,8 @@ import clsx from 'clsx';
 import { useId, useMemo, useContext, useState, useRef, useEffect } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
-import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
-import { Legend } from '../legend';
+import { BaseLegend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -458,7 +458,7 @@ const LineChartInternal: FC< LineChartProps > = ( {
 			</XYChart>
 
 			{ showLegend && (
-				<Legend
+				<BaseLegend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }

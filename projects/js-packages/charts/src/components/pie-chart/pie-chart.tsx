@@ -4,8 +4,8 @@ import clsx from 'clsx';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
-import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
-import { Legend } from '../legend';
+import { BaseLegend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -233,7 +233,7 @@ const PieChartInternal = ( {
 			</svg>
 
 			{ showLegend && (
-				<Legend
+				<BaseLegend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }

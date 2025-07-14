@@ -4,8 +4,8 @@ import clsx from 'clsx';
 import { useCallback, useId, useState, useRef } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
-import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
-import { Legend } from '../legend';
+import { BaseLegend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
@@ -331,7 +331,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			</XYChart>
 
 			{ showLegend && (
-				<Legend
+				<BaseLegend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
