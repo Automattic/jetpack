@@ -4,7 +4,6 @@ import { format } from 'util';
 import { parse as grammarParse } from '@wordpress/block-serialization-default-parser';
 import { parse, serialize, registerBlockType, setCategories } from '@wordpress/blocks';
 import { __, sprintf } from '@wordpress/i18n';
-import { omit } from 'lodash';
 
 let FIXTURES_DIR;
 
@@ -292,7 +291,7 @@ function normalizeParsedBlocks( blocks ) {
 		// Clone and remove React-instance-specific stuff; also, attribute
 		// values that equal `undefined` will be removed. Validation issues
 		// add too much noise so they get removed as well.
-		block = JSON.parse( JSON.stringify( omit( block, 'validationIssues' ) ) );
+		block = JSON.parse( JSON.stringify( { ...block, validationIssues: undefined } ) );
 
 		// Change client IDs to a predictable value
 		block.clientId = '_clientId_' + index;

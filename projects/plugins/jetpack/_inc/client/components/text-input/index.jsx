@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { omit } from 'lodash';
 import { createRef, Component } from 'react';
 
 import './style.scss';
@@ -21,13 +20,12 @@ export default class TextInput extends Component {
 	};
 
 	render() {
-		const { className, selectOnFocus } = this.props;
+		const { className, selectOnFocus, isError, isValid, ...forwardedProps } = this.props;
 		const classes = clsx( className, {
 			'dops-text-input': true,
-			'is-error': this.props.isError,
-			'is-valid': this.props.isValid,
+			'is-error': isError,
+			'is-valid': isValid,
 		} );
-		const forwardedProps = omit( this.props, 'selectOnFocus', 'isError', 'isValid' );
 		return (
 			<input
 				{ ...forwardedProps }
