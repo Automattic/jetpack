@@ -20,6 +20,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import CopyClipboardButton from '../components/copy-clipboard-button';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
 import { getPath } from './utils';
 
@@ -60,7 +61,7 @@ const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
 	);
 };
 
-const FileField = ( { file, onClick, key } ) => {
+const FileField = ( { file, onClick } ) => {
 	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
 	const fileType = file.type.split( '/' )[ 0 ];
 
@@ -96,7 +97,7 @@ const FileField = ( { file, onClick, key } ) => {
 	const iconType = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
 	const iconClass = clsx( 'file-field__icon', 'icon-' + iconType );
 	return (
-		<div key={ key } className="file-field__item">
+		<div className="file-field__item">
 			<div className="file-field__info">
 				<div className={ iconClass }></div>
 				<div className="file-field__name">
@@ -132,7 +133,6 @@ const FileField = ( { file, onClick, key } ) => {
 };
 
 const InboxResponse = ( { response, loading, onModalStateChange } ) => {
-	const [ emailCopied, setEmailCopied ] = useState( false );
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
@@ -174,12 +174,16 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			return (
 				<div className="file-field">
 					{ value.files?.length
-						? value.files.map( ( file, index ) => {
+						? value.files.map( file => {
 								if ( ! file || ! file.name ) {
 									return null;
 								}
 								return (
-									<FileField file={ file } onClick={ handleFilePreview( file ) } key={ index } />
+									<FileField
+										file={ file }
+										onClick={ handleFilePreview( file ) }
+										key={ file.file_id }
+									/>
 								);
 						  } )
 						: '-' }
@@ -190,7 +194,12 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		// Emails
 		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 		if ( emailRegex.test( value ) ) {
-			return <a href={ `mailto:${ value }` }>{ value }</a>;
+			return (
+				<div className="email-field">
+					<a href={ `mailto:${ value }` }>{ value }</a>
+					<CopyClipboardButton text={ value } />
+				</div>
+			);
 		}
 
 		return value;
@@ -203,12 +212,6 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 
 		ref.current.scrollTop = 0;
 	}, [ response ] );
-
-	const copyEmail = useCallback( async () => {
-		await window.navigator.clipboard.writeText( response.author_email );
-		setEmailCopied( true );
-		setTimeout( () => setEmailCopied( false ), 3000 );
-	}, [ response, setEmailCopied ] );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );
@@ -246,11 +249,8 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 				<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
 				{ response.author_email && getDisplayName( response ) !== response.author_email && (
 					<p className="jp-forms__inbox-response-subtitle">
-						{ response.author_email }
-						<Button variant="secondary" onClick={ copyEmail }>
-							{ ! emailCopied && __( 'Copy', 'jetpack-forms' ) }
-							{ emailCopied && __( '✓ Copied', 'jetpack-forms' ) }
-						</Button>
+						<a href={ `mailto:${ response.author_email }` }>{ response.author_email }</a>
+						<CopyClipboardButton text={ response.author_email } />
 					</p>
 				) }
 
@@ -285,8 +285,6 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 						<span className="jp-forms__inbox-response-meta-value">{ response.ip }</span>
 					</div>
 				</div>
-
-				<div className="jp-forms__inbox-response-separator" />
 
 				<div className="jp-forms__inbox-response-data">
 					{ Object.entries( response.fields ).map( ( [ key, value ] ) => (

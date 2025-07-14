@@ -1,5 +1,4 @@
 import { __, _x } from '@wordpress/i18n';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -84,8 +83,8 @@ export const SettingsCard = inprops => {
 
 	const module = props.module ? props.getModule( props.module ) : false,
 		vpData = props.vaultPressData,
-		backupsEnabled = get( vpData, [ 'data', 'features', 'backups' ], false ),
-		scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
+		backupsEnabled = vpData?.data?.features?.backups ?? false,
+		scanEnabled = vpData?.data?.features?.security ?? false;
 
 	// Non admin users only get Publicize and Post by Email settings.
 	if (

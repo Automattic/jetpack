@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-const { get, merge } = require( 'lodash' );
+const { merge } = require( 'lodash' );
 
-const envVars = get( global, 'process.env', {} );
+const envVars = global?.process?.env ?? {};
 
 const {
 	AUTH_COOKIE_NAME,

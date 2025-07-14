@@ -11,7 +11,11 @@ const MailPoetDashboardCard = ( {
 	data,
 	refreshStatus,
 }: SingleIntegrationCardProps ) => {
-	const { isConnected: mailpoetActiveWithKey = false, settingsUrl = '' } = data || {};
+	const {
+		isConnected: mailpoetActiveWithKey = false,
+		settingsUrl = '',
+		marketingUrl = '',
+	} = data || {};
 
 	const cardData: IntegrationCardData = {
 		...data,
@@ -25,7 +29,7 @@ const MailPoetDashboardCard = ( {
 				'jetpack-forms'
 			),
 			{
-				a: <ExternalLink href={ 'https://wordpress.org/plugins/mailpoet/' } />,
+				a: <ExternalLink href={ marketingUrl } />,
 			}
 		),
 		notActivatedMessage: __(

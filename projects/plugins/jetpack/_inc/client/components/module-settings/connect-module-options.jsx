@@ -1,5 +1,4 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked } from 'state/connection';
 import {
@@ -30,7 +29,7 @@ export function connectModuleOptions( Component ) {
 		( state, ownProps ) => {
 			return {
 				validValues: ( option_name, module_slug = '' ) => {
-					if ( 'string' === typeof get( ownProps, [ 'module', 'module' ] ) ) {
+					if ( 'string' === typeof ownProps?.module?.module ) {
 						module_slug = ownProps.module.module;
 					}
 					return getModuleOptionValidValues( state, module_slug, option_name );

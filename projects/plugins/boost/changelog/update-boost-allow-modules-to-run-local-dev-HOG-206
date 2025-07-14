@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality.

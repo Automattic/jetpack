@@ -22,7 +22,11 @@ const AkismetDashboardCard = ( {
 	data,
 	refreshStatus,
 }: SingleIntegrationCardProps ) => {
-	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
+	const {
+		isConnected: akismetActiveWithKey = false,
+		settingsUrl = '',
+		marketingUrl = '',
+	} = data || {};
 	const navigate = useNavigate();
 
 	const cardData: IntegrationCardData = {
@@ -37,7 +41,7 @@ const AkismetDashboardCard = ( {
 				'jetpack-forms'
 			),
 			{
-				a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
+				a: <ExternalLink href={ marketingUrl } />,
 			}
 		),
 		notActivatedMessage: __(

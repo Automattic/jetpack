@@ -3,7 +3,7 @@
  */
 import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
@@ -24,7 +24,7 @@ const JetpackCRMDashboardCard = ( {
 	data,
 	refreshStatus,
 }: SingleIntegrationCardProps ) => {
-	const { settingsUrl = '', version = '', details = {} } = data || {};
+	const { settingsUrl = '', marketingUrl = '', version = '', details = {} } = data || {};
 	const { hasExtension = false, canActivateExtension = false } = details;
 
 	const crmVersion = semver.coerce( version );
@@ -36,9 +36,14 @@ const JetpackCRMDashboardCard = ( {
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_crm_click',
-		notInstalledMessage: __(
-			'You can save your form contacts in Jetpack CRM. To get started, please install the plugin.',
-			'jetpack-forms'
+		notInstalledMessage: createInterpolateElement(
+			__(
+				'You can save your form contacts in <a>Jetpack CRM</a>. To get started, please install the plugin.',
+				'jetpack-forms'
+			),
+			{
+				a: <ExternalLink href={ marketingUrl } />,
+			}
 		),
 		notActivatedMessage: __(
 			'Jetpack CRM is installed. To start saving contacts, simply activate the plugin.',

@@ -1,4 +1,5 @@
 import { TabPanel } from '@wordpress/components';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
@@ -87,7 +88,11 @@ export function MyJetpackTabPanel() {
 	return (
 		<TabPanel
 			key={ tabKey }
-			className={ styles[ 'tab-panel' ] }
+			className={ clsx(
+				styles[ 'tab-panel' ],
+				styles[ 'my-jetpack-tab-panel--full-width' ],
+				'jetpack-my-jetpack-tab-panel'
+			) }
 			initialTabName={ currentTab }
 			onSelect={ onTabSelect }
 			children={ tabRenderer }

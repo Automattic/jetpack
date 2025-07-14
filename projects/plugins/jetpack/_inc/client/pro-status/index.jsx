@@ -1,6 +1,5 @@
 import { Status, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _n, _x } from '@wordpress/i18n';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -174,8 +173,8 @@ class ProStatus extends Component {
 		}
 
 		const hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
-			usingVPBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
-			usingVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
+			usingVPBackups = vpData?.data?.features?.backups ?? false,
+			usingVPScan = vpData?.data?.features?.security ?? false;
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {

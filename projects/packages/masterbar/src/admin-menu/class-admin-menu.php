@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Masterbar;
 use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
-use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/class-base-admin-menu.php';
 
@@ -413,18 +412,6 @@ class Admin_Menu extends Base_Admin_Menu {
 			null,
 			2
 		);
-
-		Jetpack_Admin_UI_Admin::add_menu(
-			esc_attr__( 'Backup', 'jetpack-masterbar' ),
-			__( 'Backup', 'jetpack-masterbar' ),
-			'manage_options',
-			'https://wordpress.com/backup/' . $this->domain,
-			/**
-			 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			 */
-			null,
-			3
-		);
 	}
 
 	/**
@@ -448,7 +435,6 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
 			$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
-			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 		}
 
 		if ( ! $is_menu_updated ) {

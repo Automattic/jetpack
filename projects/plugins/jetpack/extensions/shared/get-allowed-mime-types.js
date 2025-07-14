@@ -1,5 +1,5 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
-import { get, pickBy } from 'lodash';
+import { pickBy } from 'lodash';
 
 /**
  * Return an object with the allowed mime types for the site,
@@ -41,7 +41,7 @@ export function pickFileExtensionsFromMimeTypes( mimeTypesObject ) {
  * @return {object} Allowed Mime Types.
  */
 export default function getAllowedMimeTypesBySite() {
-	return get( getJetpackData(), [ 'allowedMimeTypes' ], [] );
+	return getJetpackData()?.allowedMimeTypes ?? [];
 }
 
 /**

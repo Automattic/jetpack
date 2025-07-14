@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	STATS_SWITCH_TAB,
@@ -271,7 +270,7 @@ export function isCheckingAkismetKey( state ) {
  * @return {boolean} True if Akismet API key is valid.
  */
 export function isAkismetKeyValid( state ) {
-	return get( state.jetpack.dashboard, [ 'akismet', 'validKey' ], false );
+	return state.jetpack.dashboard?.akismet?.validKey ?? false;
 }
 
 /**
@@ -334,7 +333,7 @@ export function getVaultPressData( state ) {
  * @return {number} The number of current security threats found by VaultPress
  */
 export function getVaultPressScanThreatCount( state ) {
-	return get( state.jetpack.dashboard.vaultPressData, 'data.security.notice_count', 0 );
+	return state.jetpack.dashboard.vaultPressData?.data?.security?.notice_count ?? 0;
 }
 
 /**
