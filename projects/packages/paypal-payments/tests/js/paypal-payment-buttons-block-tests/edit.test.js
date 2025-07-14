@@ -335,7 +335,7 @@ describe( 'Edit', () => {
 			render( <Edit { ...defaultProps } /> );
 			const items = screen.getAllByTestId( 'item' );
 
-			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your Payment Button code.' );
+			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your button code' );
 			expect( items[ 1 ] ).toHaveTextContent(
 				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
 			);
@@ -354,7 +354,7 @@ describe( 'Edit', () => {
 			);
 			const items = screen.getAllByTestId( 'item' );
 
-			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your Payment Button code.' );
+			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your button code' );
 			expect( items[ 1 ] ).toHaveTextContent(
 				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
 			);
