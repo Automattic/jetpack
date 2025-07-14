@@ -2,7 +2,7 @@ import { createContext, useContext, useCallback, useRef, useMemo } from 'react';
 import type { ChartContextValue, ChartRegistration } from './types';
 import type { FC, ReactNode } from 'react';
 
-const ChartContext = createContext< ChartContextValue | null >( null );
+export const ChartContext = createContext< ChartContextValue | null >( null );
 
 export interface ChartProviderProps {
 	children: ReactNode;
