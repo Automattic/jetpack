@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useState, useMemo } from 'react';
+import { createContext, useContext, useCallback, useRef, useState, useMemo } from 'react';
 import type { ChartContextValue, ChartRegistration } from './types';
 import type { FC, ReactNode } from 'react';
 
@@ -9,39 +9,32 @@ export interface ChartProviderProps {
 }
 
 export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
-	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( new Map() );
+	const chartsRef = useRef< Map< string, ChartRegistration > >( new Map() );
+	const [ version, setVersion ] = useState( 0 );
 
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
-		setCharts( prev => {
-			const newMap = new Map( prev );
-			newMap.set( id, data );
-			return newMap;
-		} );
+		chartsRef.current.set( id, data );
+		setVersion( prev => prev + 1 );
 	}, [] );
 
 	const unregisterChart = useCallback( ( id: string ) => {
-		setCharts( prev => {
-			const newMap = new Map( prev );
-			newMap.delete( id );
-			return newMap;
-		} );
+		chartsRef.current.delete( id );
+		setVersion( prev => prev + 1 );
 	}, [] );
 
-	const getChartData = useCallback(
-		( id: string ) => {
-			return charts.get( id );
-		},
-		[ charts ]
-	);
+	const getChartData = useCallback( ( id: string ) => {
+		return chartsRef.current.get( id );
+	}, [] );
 
 	const value: ChartContextValue = useMemo(
 		() => ( {
-			charts,
+			charts: chartsRef.current,
 			registerChart,
 			unregisterChart,
 			getChartData,
 		} ),
-		[ charts, registerChart, unregisterChart, getChartData ]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[ version, registerChart, unregisterChart, getChartData ]
 	);
 
 	return <ChartContext.Provider value={ value }>{ children }</ChartContext.Provider>;
