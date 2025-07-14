@@ -2484,9 +2484,6 @@ importers:
       '@wordpress/dataviews':
         specifier: 4.17.0
         version: 4.17.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
-      '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 6.26.0
-        version: 6.26.0(webpack@5.94.0)
       '@wordpress/dom-ready':
         specifier: 4.25.0
         version: 4.25.0
