@@ -15,7 +15,7 @@ import {
 	__experimentalItem as Item,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import PayPalIcon from './icon';
 import './editor.scss';
 
@@ -183,26 +183,13 @@ export default function Edit( { attributes, setAttributes } ) {
 								'Stacked Buttons (Recommended): This option lets you present all of your product information and PayPal payment method upfront on your website.',
 								'jetpack-paypal-payments'
 						  )
-						: _x(
+						: __(
 								'Single Button: This option lets you quickly paste a single button on your site, with no product information.',
-								'jetpack-paypal-payments',
 								'jetpack-paypal-payments'
 						  )
 				}
 				notices={ notice }
 			>
-				<Text>
-					<strong>Instructions:</strong>
-				</Text>
-				<ItemGroup>
-					<Item>1. Go to PayPal to get your Payment Button code.</Item>
-					<Item>
-						2. After login, choose <em>Payment Buttons</em>. Enter your product or service details,
-						and build the buttons. Copy the button code for Stacked Buttons (copy html code) or
-						Single Button.{ ' ' }
-					</Item>
-					<Item>3. Paste the code below.</Item>
-				</ItemGroup>
 				<ToggleGroupControl
 					label={ __( 'Button type', 'jetpack-paypal-payments' ) }
 					value={ buttonType }
@@ -226,6 +213,26 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Single Button', 'jetpack-paypal-payments' ) }
 					/>
 				</ToggleGroupControl>
+				<Text>
+					<strong>{ __( 'Instructions:', 'jetpack-paypal-payments' ) }</strong>
+				</Text>
+				<ItemGroup>
+					<Item>
+						1.{ ' ' }
+						<ExternalLink
+							href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }
+						>
+							{ __( 'Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
+						</ExternalLink>
+					</Item>
+					<Item>
+						{ __(
+							'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.',
+							'jetpack-paypal-payments'
+						) }
+					</Item>
+					<Item>{ __( '3. Paste the code below.', 'jetpack-paypal-payments' ) }</Item>
+				</ItemGroup>
 				{ 'stacked' === buttonType && (
 					<PlainText
 						value={ rawHeadCode }
@@ -256,9 +263,6 @@ export default function Edit( { attributes, setAttributes } ) {
 					aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
 					name="paypal-payment-buttons-code-body"
 				/>
-				<ExternalLink href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }>
-					{ __( 'Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
-				</ExternalLink>
 			</Placeholder>
 		</div>
 	);
