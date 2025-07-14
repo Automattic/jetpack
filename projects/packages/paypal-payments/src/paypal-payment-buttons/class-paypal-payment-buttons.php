@@ -70,7 +70,7 @@ class PayPal_Payment_Buttons {
 				'script_loader_tag',
 				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 					if ( 'paypal-payment-buttons-block-head' === $handle ) {
-						if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
+						if ( ! str_contains( $tag, 'data-paypal-partner-attribution-id' ) ) {
 							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="WooNCPS_Ecom_Wordpress" src=$2', $tag );
 						}
 					}
