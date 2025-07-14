@@ -19,6 +19,9 @@
 		},
 		"hostedButtonId": {
 			"type": "string"
+		},
+		"buttonText": {
+			"type": "string"
 		}
 	},
 	"supports": {

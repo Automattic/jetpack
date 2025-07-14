@@ -27,15 +27,39 @@ const extractScriptSrc = codeHead => {
 };
 
 const extractHostedButtonId = codeBody => {
-	// Try to extract from hostedButtonId property first
+	// Try to extract from hostedButtonId property first (stacked buttons)
 	const hostedButtonMatch = codeBody.match( /hostedButtonId:\s*["']([^"']+)["']/ );
 	if ( hostedButtonMatch ) {
 		return hostedButtonMatch[ 1 ];
 	}
 
-	// Fallback to extracting from container ID
+	// Try to extract from container ID (stacked buttons)
 	const containerMatch = codeBody.match( /paypal-container-([^"']+)/ );
-	return containerMatch ? containerMatch[ 1 ] : '';
+	if ( containerMatch ) {
+		return containerMatch[ 1 ];
+	}
+
+	// Try to extract from form action URL (single buttons)
+	const actionMatch = codeBody.match(
+		/action=["']https:\/\/www\.paypal\.com\/ncp\/payment\/([^"']+)["']/
+	);
+	if ( actionMatch ) {
+		return actionMatch[ 1 ];
+	}
+
+	// Try to extract from CSS class (single buttons)
+	const cssMatch = codeBody.match( /\.pp-([A-Z0-9]+)/ );
+	if ( cssMatch ) {
+		return cssMatch[ 1 ];
+	}
+
+	return '';
+};
+
+const extractButtonText = codeBody => {
+	// Extract button text from input value attribute (single buttons)
+	const inputMatch = codeBody.match( /<input[^>]*value=["']([^"']+)["'][^>]*\/>/ );
+	return inputMatch ? inputMatch[ 1 ] : '';
 };
 
 const generateHeadCode = scriptSrc => {
@@ -62,6 +86,9 @@ const validScriptSrc = scriptSrc =>
 
 const validHostedButtonId = hostedButtonId => /^[A-Z0-9]+$/.test( hostedButtonId );
 
+const validButtonText = buttonText =>
+	buttonText && buttonText.trim().length > 0 && buttonText.length <= 50;
+
 /**
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
@@ -75,7 +102,7 @@ const validHostedButtonId = hostedButtonId => /^[A-Z0-9]+$/.test( hostedButtonId
  * @return {Element}                     Element to render.
  */
 export default function Edit( { attributes, setAttributes, isSelected } ) {
-	const { buttonType, scriptSrc, hostedButtonId } = attributes;
+	const { buttonType, scriptSrc, hostedButtonId, buttonText } = attributes;
 	const [ notice, setNotice ] = useState( null );
 
 	useEffect( () => {
@@ -108,8 +135,17 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			);
 		}
 
+		// Validate button text for single buttons
+		if ( 'single' === buttonType && buttonText && ! validButtonText( buttonText ) ) {
+			return setNotice(
+				<Notice status="error" isDismissible={ false }>
+					{ __( 'Button text must be between 1 and 50 characters.', 'jetpack-paypal-payments' ) }
+				</Notice>
+			);
+		}
+
 		setNotice( null );
-	}, [ buttonType, scriptSrc, hostedButtonId, isSelected ] );
+	}, [ buttonType, scriptSrc, hostedButtonId, buttonText, isSelected ] );
 
 	return (
 		<div { ...useBlockProps() }>
@@ -184,8 +220,10 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					value={ generateBodyCode( hostedButtonId ) }
 					onChange={ code => {
 						const extractedButtonId = extractHostedButtonId( code );
+						const extractedButtonText = extractButtonText( code );
 						setAttributes( {
 							hostedButtonId: extractedButtonId,
+							buttonText: extractedButtonText,
 						} );
 					} }
 					placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }

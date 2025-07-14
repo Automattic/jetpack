@@ -96,6 +96,7 @@ describe( 'Edit', () => {
 			buttonType: 'stacked',
 			scriptSrc: '',
 			hostedButtonId: '',
+			buttonText: '',
 		},
 		setAttributes: jest.fn(),
 	};
@@ -185,6 +186,32 @@ describe( 'Edit', () => {
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			hostedButtonId: 'ABC123DEF',
+			buttonText: '',
+		} );
+	} );
+
+	it( 'extracts payment ID and button text from single button code', () => {
+		const setAttributes = jest.fn();
+		render(
+			<Edit
+				attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+
+		const inputs = screen.getAllByTestId( 'plain-text' );
+		// For single buttons, there's only one input (no head code)
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.change( inputs[ 0 ], {
+			target: {
+				value:
+					'<form action="https://www.paypal.com/ncp/payment/9J2U2LUWM4SUY" method="post"><input type="submit" value="Pay Now" /></form>',
+			},
+		} );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			hostedButtonId: '9J2U2LUWM4SUY',
+			buttonText: 'Pay Now',
 		} );
 	} );
 
@@ -239,6 +266,26 @@ describe( 'Edit', () => {
 			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
 			expect( screen.getByText( 'Invalid PayPal button ID.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'shows error notice for invalid button text', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: 'This is a really long button text that exceeds the maximum length allowed',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
+			expect(
+				screen.getByText( 'Button text must be between 1 and 50 characters.' )
+			).toBeInTheDocument();
 		} );
 
 		it( 'does not show notice when block is selected', () => {

@@ -46,6 +46,7 @@ class PayPal_Payment_Buttons {
 		$button_type      = $attributes['buttonType'] ?? '';
 		$script_src       = $attributes['scriptSrc'] ?? '';
 		$hosted_button_id = $attributes['hostedButtonId'] ?? '';
+		$button_text      = $attributes['buttonText'] ?? '';
 
 		if ( empty( $button_type ) || empty( $hosted_button_id ) ) {
 			return;
@@ -53,6 +54,11 @@ class PayPal_Payment_Buttons {
 
 		// For stacked buttons, we need both scriptSrc and hostedButtonId
 		if ( 'stacked' === $button_type && empty( $script_src ) ) {
+			return;
+		}
+
+		// For single buttons, we need buttonText
+		if ( 'single' === $button_type && empty( $button_text ) ) {
 			return;
 		}
 
@@ -91,12 +97,27 @@ class PayPal_Payment_Buttons {
 			return $button_html;
 		}
 
-		// Single button type - for now, we'll treat it the same as stacked
-		// but without requiring a separate script (since it might be a simple form)
+		// Single button type - generate the complete form HTML
 		if ( 'single' === $button_type ) {
-			// Generate the button HTML similar to stacked
-			$container_id = 'paypal-container-' . esc_attr( $hosted_button_id );
-			return '<div id="' . esc_attr( $container_id ) . '"></div>';
+			self::register_hooks();
+
+			$payment_id          = esc_attr( $hosted_button_id );
+			$button_text_escaped = esc_attr( $button_text );
+			$action_url          = esc_url( 'https://www.paypal.com/ncp/payment/' . $payment_id . '?at_code=WooNCPS_Ecom_Wordpress' );
+
+			$button_html = sprintf(
+				'<style>.pp-%1$s{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>
+<form action="%2$s" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
+  <input class="pp-%1$s" type="submit" value="%3$s" />
+  <img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards" />
+  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
+</form>',
+				$payment_id,
+				$action_url,
+				$button_text_escaped
+			);
+
+			return $button_html;
 		}
 	}
 
