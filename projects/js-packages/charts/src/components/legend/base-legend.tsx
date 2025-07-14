@@ -6,7 +6,7 @@ import { forwardRef, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
-import type { LegendProps } from './types';
+import type { BaseLegendProps } from './types';
 
 const orientationToFlexDirection = {
 	horizontal: 'row' as const,
@@ -17,7 +17,7 @@ const orientationToFlexDirection = {
  * Base legend component that displays color-coded items with labels based on visx LegendOrdinal.
  * We avoid using LegendOrdinal directly to enable support for advanced features such as interactivity.
  */
-export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
+export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 	(
 		{
 			items,
