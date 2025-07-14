@@ -326,18 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9-a.1 - 2025-07-07
+### 14.9-a.3 - 2025-07-14
 #### Enhancements
-- Forms: Update the date picker to remove jQuery and add a more performant version with keyboard navigation.
+- Forms: Add "Empty trash" button.
+- Forms: Add link to disconnect Google.
+- Forms: Add tip that spam will automatically be deleted after 15 days.
+- Forms: Improve email copy-to-clipboard visually and make it less hidden.
+- Forms: Refresh look of responses in dashboard.
+- Forms: Update integration links.
+- Use the `view_stats` cap for the Jetpack Stats menu item instead of `manage_options`.
 
 #### Improved compatibility
-- Blocks: Prevent PHP errors when `jetpack_set_available_extensions` filter returns an unexpected data type.
-
-#### Bug fixes
-- Accessibility: Remove deprecated `clip` property from screen reader text with `clip-path`.
-- Blocks: Return an error when a filter returns a non-array.
-- Sharing: Display correct Open Graph meta tags when a page uses a Query Loop block.
-- VideoPress: Fix video row action button clickability by properly hiding stats on hover.
+- Sync: Ignore the ActivityPub Outbox CPT.
 
 --------
 
