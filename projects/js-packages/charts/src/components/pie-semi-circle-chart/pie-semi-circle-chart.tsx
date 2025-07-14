@@ -7,7 +7,8 @@ import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
-import { Legend } from '../legend';
+import { validateSemiCircleData } from '../../utils/validation';
+import { BaseLegend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -45,31 +46,6 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 }
 
 type ArcData = PieArcDatum< DataPointPercentage >;
-
-/**
- * Validates the semi-circle pie chart data
- * @param data - The data to validate
- * @return Object containing validation result and error message
- */
-const validateData = ( data: DataPointPercentage[] ) => {
-	if ( ! data.length ) {
-		return { isValid: false, message: 'No data available' };
-	}
-
-	// Check for negative values
-	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
-	if ( hasNegativeValues ) {
-		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
-	}
-
-	// Validate total percentage is greater than 0
-	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
-	if ( totalPercentage <= 0 ) {
-		return { isValid: false, message: 'Invalid percentage total: Must be greater than 0' };
-	}
-
-	return { isValid: true, message: '' };
-};
 
 const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
@@ -119,7 +95,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 
 	// Validate data first to get validation result
-	const { isValid, message } = validateData( data );
+	const { isValid, message } = validateSemiCircleData( data );
 
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
@@ -274,7 +250,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			) }
 
 			{ showLegend && (
-				<Legend
+				<BaseLegend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }

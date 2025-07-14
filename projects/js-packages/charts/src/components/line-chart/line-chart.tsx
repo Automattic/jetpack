@@ -1,13 +1,14 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
+import { XYChart, AreaSeries, Grid, Axis, DataContext, TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
-import { useId, useMemo, useContext, useState, useRef } from 'react';
+import { useId, useMemo, useContext, useState, useRef, useEffect } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
-import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
-import { Legend } from '../legend';
+import { validateSeriesData } from '../../utils/validation';
+import { BaseLegend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -161,20 +162,35 @@ const formatDateTick = ( timestamp: number ) => {
 	} );
 };
 
-const validateData = ( data: SeriesData[] ) => {
-	if ( ! data?.length ) return 'No data available';
+const HighlightTooltip: React.FC< {
+	series: SeriesData[];
+	selectedIndex: number | undefined;
+} > = ( { series, selectedIndex } ) => {
+	const tooltipContext = useContext( TooltipContext );
 
-	const hasInvalidData = data.some( series =>
-		series.data.some(
-			( point: DataPointDate | DataPoint ) =>
-				isNaN( point.value as number ) ||
-				point.value === null ||
-				point.value === undefined ||
-				( 'date' in point && point.date && isNaN( point.date.getTime() ) )
-		)
-	);
+	useEffect( () => {
+		if ( ! series ) return;
 
-	if ( hasInvalidData ) return 'Invalid data';
+		if ( selectedIndex === undefined ) {
+			tooltipContext?.hideTooltip();
+			return;
+		}
+
+		series.forEach( ( s, index ) => {
+			if ( selectedIndex < s.data.length ) {
+				const datum = s.data[ selectedIndex ];
+
+				tooltipContext?.showTooltip( {
+					datum,
+					key: s.label,
+					index,
+				} );
+			}
+		} );
+
+		// Don't include tooltipContext in the dependency array to avoid loop.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ selectedIndex, series ] );
 	return null;
 };
 
@@ -270,7 +286,7 @@ const LineChartInternal: FC< LineChartProps > = ( {
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
-	const error = validateData( dataSorted );
+	const error = validateSeriesData( dataSorted );
 	const isDataValid = ! error;
 
 	// Create legend items using the reusable hook
@@ -426,7 +442,7 @@ const LineChartInternal: FC< LineChartProps > = ( {
 			</XYChart>
 
 			{ showLegend && (
-				<Legend
+				<BaseLegend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
