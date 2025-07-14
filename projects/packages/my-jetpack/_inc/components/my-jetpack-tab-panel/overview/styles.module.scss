@@ -11,7 +11,7 @@
 
 .footer {
 	width: 100vw;
-	margin-left: calc( -50vw + 50% );
+	margin-inline-start: calc( -50vw + 50% );
 	background: var(--studio-white, #fff);
 
 	/* Center the content within the full-width background */
