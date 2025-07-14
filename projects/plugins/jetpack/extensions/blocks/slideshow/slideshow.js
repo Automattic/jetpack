@@ -214,7 +214,9 @@ class Slideshow extends Component {
 						  }
 						: false,
 				effect: this.props.effect,
-				loop: true,
+				// Initially disable loop to prevent warnings during initialization
+				// See also: https://stackoverflow.com/a/78680695
+				loop: false,
 				initialSlide,
 				followFinger: false,
 				navigation: {

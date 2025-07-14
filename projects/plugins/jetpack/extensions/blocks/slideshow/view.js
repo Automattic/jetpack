@@ -40,7 +40,7 @@ if ( typeof window !== 'undefined' ) {
 					effect,
 					init: true,
 					initialSlide: 0,
-					loop: true,
+					loop: false,
 					keyboard: {
 						enabled: true,
 						onlyInViewport: true,
