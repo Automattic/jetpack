@@ -32,6 +32,13 @@
 		},
 
 		generateSessionId: function () {
+			// Use crypto.getRandomValues for cryptographically secure random numbers
+			if ( window.crypto && window.crypto.getRandomValues ) {
+				const array = new Uint32Array( 2 );
+				window.crypto.getRandomValues( array );
+				return 'jp_' + Date.now() + '_' + array[ 0 ].toString( 36 ) + array[ 1 ].toString( 36 );
+			}
+			// Fallback to Math.random for environments without crypto API
 			return 'jp_' + Date.now() + '_' + Math.random().toString( 36 ).substring( 2, 11 );
 		},
 
