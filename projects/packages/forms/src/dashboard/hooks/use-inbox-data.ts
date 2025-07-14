@@ -1,7 +1,16 @@
+/**
+ * External dependencies
+ */
 import { useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useSearchParams } from 'react-router';
+/**
+ * Internal dependencies
+ */
 import { store as dashboardStore } from '../store';
+/**
+ * Types
+ */
 import type { FormResponse } from '../../types';
 
 /**
