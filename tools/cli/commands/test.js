@@ -10,7 +10,7 @@ import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
-import { readComposerJson } from '../helpers/json.js';
+import { readComposerJson, readPackageJson } from '../helpers/json.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects } from '../helpers/projectHelpers.js';
@@ -29,7 +29,7 @@ export async function builder( yargs ) {
 	return yargs
 		.positional( 'test', {
 			describe:
-				'Test to run. Typically "js", "php", or "coverage", but available tests depend on the project.',
+				'Test to run. Typically "js", "php", "coverage", or "typecheck", but available tests depend on the project.',
 			type: 'string',
 		} )
 		.positional( 'project', {
@@ -251,17 +251,31 @@ export async function runTests( argv, opts ) {
 		const { promise, resolve } = Promise.withResolvers();
 		promises.push( promise );
 
-		// Composer install.
-		tasks.push( {
-			title: `Checking ${ project }`,
-			skip: async () => {
+		let skip;
+		if ( argv.test === 'typecheck' ) {
+			skip = async () => {
+				const packageJson = await readPackageJson( project );
+				if ( ! packageJson?.scripts?.typecheck ) {
+					resolve();
+					return `No typecheck script in package.json`;
+				}
+				return false;
+			};
+		} else {
+			skip = async () => {
 				const composerJson = await readComposerJson( project );
 				if ( ! composerJson?.scripts?.[ `test-${ argv.test }` ] ) {
 					resolve();
 					return `No test-${ argv.test } script in composer.json`;
 				}
 				return false;
-			},
+			};
+		}
+
+		// Composer install.
+		tasks.push( {
+			title: `Checking ${ project }`,
+			skip,
 			task: async () => {
 				const subtasks = [];
 
@@ -292,14 +306,24 @@ export async function runTests( argv, opts ) {
 							await fs.mkdir( env.COVERAGE_DIR, { recursive: true } );
 						}
 
-						if ( argv.v ) {
-							sstdout.write( `Executing composer run test-${ argv.test }\n` );
+						let cmd;
+						if ( argv.test === 'typecheck' ) {
+							if ( argv.v ) {
+								sstdout.write( `Executing pnpm run typecheck\n` );
+							}
+							cmd = [ 'pnpm', [ 'run', 'typecheck' ] ];
+						} else {
+							if ( argv.v ) {
+								sstdout.write( `Executing composer run test-${ argv.test }\n` );
+							}
+							cmd = [ 'composer', [ 'run', '--timeout=0', `test-${ argv.test }` ] ];
 						}
-						const proc = execa( 'composer', [ 'run', '--timeout=0', `test-${ argv.test }` ], {
+						cmd[ 2 ] = {
 							cwd,
 							stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
 							env,
-						} );
+						};
+						const proc = execa( ...cmd );
 						if ( argv.v ) {
 							proc.stdout.pipe( sstdout, { end: false } );
 							proc.stderr.pipe( sstderr, { end: false } );
@@ -469,9 +493,13 @@ export async function runTests( argv, opts ) {
 export async function promptForTest( argv ) {
 	const project = argv.project[ 0 ];
 	const composerJson = await readComposerJson( project );
+	const packageJson = await readPackageJson( project );
 	const tests = Object.keys( composerJson.scripts ?? {} )
 		.filter( test => test.startsWith( 'test-' ) )
 		.map( test => test.substring( 5 ) );
+	if ( packageJson?.scripts?.typecheck ) {
+		tests.push( 'typecheck' );
+	}
 	if ( tests.length === 0 ) {
 		console.log( chalk.red( `No tests found in ${ project }'s composer.json file!` ) );
 		process.exit( 1 );
