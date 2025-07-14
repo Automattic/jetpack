@@ -1,12 +1,12 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import React from 'react';
+import { PureComponent } from 'react';
 import SelectDropdown from 'components/select-dropdown';
 import DropdownItem from 'components/select-dropdown/item';
 import DropdownLabel from 'components/select-dropdown/label';
 import DropdownSeparator from 'components/select-dropdown/separator';
 
-class SelectDropdownDemo extends React.PureComponent {
+class SelectDropdownDemo extends PureComponent {
 	static displayName = 'SelectDropdown';
 
 	state = {

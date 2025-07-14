@@ -1,4 +1,5 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
@@ -61,7 +62,6 @@
 
 			&.wp-block-jetpack-button {
 				flex-basis: auto;
-				align-self: flex-end; // Ensure button is aligned with the bottom of the previous field when on a same row
 			}
 
 			&.jetpack-field__width-25,
@@ -630,7 +630,6 @@
 
 	:where(.wp-block-jetpack-option) {
 		font-size: 13px;
-		text-transform: uppercase;
 	}
 }
 
@@ -1079,6 +1078,16 @@
 	margin-bottom: 0;
 }
 
+.block-editor-block-inspector .components-base-control.jetpack-forms-field-controls__input-error {
+
+	.components-text-control__input,
+	.components-text-control__input[type="text"],
+	.components-text-control__input[type="text"]:focus,
+	.components-text-control__input:focus {
+		border-color: var( --wp--preset--color--vivid-red, #f00 );
+	}
+}
+
 .is-style-outlined .jetpack-field.is-selected .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
 .is-style-outlined .jetpack-field.has-placeholder .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
     font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
@@ -1141,4 +1150,39 @@
 
 .jetpack-field-dropdown__option:hover .jetpack-field-dropdown__option-remove {
 	visibility: visible;
+}
+
+/* Hide form step placeholder when has content. */
+.block-editor-block-list__block.wp-block-jetpack-form-step {
+
+	&.has-child-blocks {
+
+		> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+
+			> .block-editor-inserter,
+			> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+				display: none;
+			}
+		}
+	}
+}
+
+// Rating field
+.jetpack-field-rating__wrapper {
+	font-family: "IBM Plex Sans JP", sans-serif;
+	cursor: pointer;
+	
+	.jetpack-field-rating__button:not(:first-of-type) {
+		margin-left: 8px;
+	}
+
+	.is-rating-filled,
+	.is-rating-unfilled {
+		-webkit-text-stroke: 2px #8c8f94;
+
+	}
+
+	.is-rating-unfilled {
+		color: transparent;
+	}
 }

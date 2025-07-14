@@ -50,6 +50,7 @@ class Script_Data {
 		$hook = is_admin() ? 'admin_print_scripts' : 'wp_print_scripts';
 		add_action( $hook, array( self::class, 'render_script_data' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( self::class, 'render_script_data' ), 1 );
+		add_action( 'wp_enqueue_scripts', array( self::class, 'render_script_data' ), 1 );
 	}
 
 	/**
@@ -86,17 +87,18 @@ class Script_Data {
 		self::$did_render_script_data = true;
 
 		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
-
 		$script_data = wp_json_encode(
 			$script_data,
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
 		);
 
-		wp_add_inline_script(
-			self::SCRIPT_HANDLE,
-			sprintf( 'window.JetpackScriptData = %s;', $script_data ),
-			'before'
-		);
+		if ( is_admin() || did_action( 'enqueue_block_editor_assets' ) ) {
+			// For admin/editor contexts (including P2 frontend editing), use wp_add_inline_script with the existing script
+			wp_add_inline_script( self::SCRIPT_HANDLE, sprintf( 'window.JetpackScriptData = %s;', $script_data ), 'before' );
+		} else {
+			// For public pages, we directly print the script tag.
+			wp_print_inline_script_tag( sprintf( 'window.JetpackScriptData = %s;', $script_data ) );
+		}
 	}
 
 	/**
@@ -114,6 +116,7 @@ class Script_Data {
 				'date_format'       => get_option( 'date_format' ),
 				'icon'              => self::get_site_icon(),
 				'is_multisite'      => is_multisite(),
+				'host'              => ( new Host() )->get_known_host_guess(),
 				'is_wpcom_platform' => ( new Host() )->is_wpcom_platform(),
 				'plan'              => array(
 					// The properties here should be updated by the consumer package/plugin.
@@ -159,8 +162,10 @@ class Script_Data {
 
 		$data = array(
 			'site' => array(
-				'icon'  => self::get_site_icon(),
-				'title' => self::get_site_title(),
+				'icon'              => self::get_site_icon(),
+				'title'             => self::get_site_title(),
+				'host'              => ( new Host() )->get_known_host_guess(),
+				'is_wpcom_platform' => ( new Host() )->is_wpcom_platform(),
 			),
 		);
 

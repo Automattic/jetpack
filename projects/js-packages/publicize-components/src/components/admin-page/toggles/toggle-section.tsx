@@ -1,7 +1,7 @@
 import { Container, Text } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
-import React from 'react';
 import styles from './styles.module.scss';
+import type { FC, ReactNode } from 'react';
 
 type ToggleSectionProps = {
 	/**
@@ -32,7 +32,7 @@ type ToggleSectionProps = {
 	/**
 	 * Children to be rendered inside the toggle.
 	 */
-	children: React.ReactNode;
+	children: ReactNode;
 
 	/**
 	 * Whether to hide the toggle.
@@ -49,7 +49,7 @@ type ToggleSectionProps = {
  * @param {ToggleSectionProps} props - The properties that define the behavior and appearance of the component.
  * @return {JSX.Element} The rendered ToggleSection component.
  */
-const ToggleSection: React.FC< ToggleSectionProps > = ( {
+const ToggleSection: FC< ToggleSectionProps > = ( {
 	title,
 	beta,
 	onChange,

@@ -1,7 +1,7 @@
 import { Button, Dashicon, TextareaControl, TextControl } from '@wordpress/components';
 import { Children, Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { assign, debounce, get } from 'lodash';
+import { debounce } from 'lodash';
 import {
 	getLoadContext,
 	loadBlockEditorAssets,
@@ -36,10 +36,10 @@ export class MapBoxComponent extends Component {
 		const { points, admin, children, markerColor } = this.props;
 		const { map, activeMarker, mapboxgl } = this.state;
 		const { onMarkerClick, deleteActiveMarker, updateActiveMarker } = this;
-		const currentPoint = get( activeMarker, 'props.point' ) || {};
+		const currentPoint = activeMarker?.props?.point || {};
 		const { title, caption } = currentPoint;
 		const addPoint = Children.map( children, child => {
-			const tagName = get( child, 'props.tagName' );
+			const tagName = child?.props?.tagName;
 			if ( 'AddPoint' === tagName ) {
 				return child;
 			}
@@ -187,7 +187,7 @@ export class MapBoxComponent extends Component {
 		const { index } = activeMarker.props;
 		const newPoints = points.slice( 0 );
 
-		assign( newPoints[ index ], updates );
+		Object.assign( newPoints[ index ], updates );
 		this.props.onSetPoints( newPoints );
 	};
 	deleteActiveMarker = () => {

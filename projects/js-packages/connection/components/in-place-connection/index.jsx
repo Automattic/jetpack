@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import './style.scss';
 
@@ -18,7 +18,7 @@ import './style.scss';
  * @param {Function}      props.onComplete                 -- The callback to be called upon complete of the connection process.
  * @param {Function}      props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
  * @param {string}        props.location                   -- Component location identifier passed to WP.com.
- * @return {React.Component} The in-place connection component.
+ * @return {import('react').Component} The in-place connection component.
  */
 const InPlaceConnection = props => {
 	const {

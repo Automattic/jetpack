@@ -10,7 +10,6 @@ import { useResizeObserver } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { concat } from 'lodash';
 import { useWindowDimensions, View } from 'react-native';
 import { getActiveStyleName } from '../../shared/block-styles';
 import metadata from './block.json';
@@ -112,7 +111,10 @@ const TiledGalleryEdit = props => {
 			} );
 		} );
 
-		replaceInnerBlocks( clientId, replace ? newBlocks : concat( innerBlockImages, newBlocks ) );
+		replaceInnerBlocks(
+			clientId,
+			replace ? newBlocks : ( innerBlockImages ?? [] ).concat( newBlocks )
+		);
 	};
 
 	useEffect( () => {

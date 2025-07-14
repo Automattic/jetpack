@@ -16,7 +16,8 @@ test.describe( 'Cache module', () => {
 				'page_cache', // Make sure it's inactive.
 			] )
 			.withCleanEnv()
-			.withConnection( true )
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
 			.build();
 
 		// Page Cache needs a pretty permalink structure to work properly.
@@ -31,8 +32,6 @@ test.describe( 'Cache module', () => {
 	} );
 
 	test.afterAll( async () => {
-		// Reset the environment for any other tests.
-		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
 		await page.close();
 	} );
 
@@ -75,7 +74,7 @@ test.describe( 'Cache module', () => {
 		await permalinksPage.usePlainStructure();
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		await jetpackBoostPage.toggleModule( 'page_cache' );
+		await jetpackBoostPage.toggleModule( 'page_cache', true );
 		expect(
 			await jetpackBoostPage.waitForPageCachePermalinksErrorVisibility(),
 			'Page Cache should show permalink error message when using plain permalink structure'
@@ -89,7 +88,7 @@ test.describe( 'Cache module', () => {
 
 		// Activate the module.
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		await jetpackBoostPage.toggleModule( 'page_cache' );
+		await jetpackBoostPage.toggleModule( 'page_cache', true );
 
 		expect(
 			await jetpackBoostPage.waitForPageCacheMetaInfoVisibility(),

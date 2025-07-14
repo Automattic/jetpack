@@ -1,6 +1,4 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
-import React from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked } from 'state/connection';
 import {
@@ -23,15 +21,15 @@ import {
  * High order component that connects to Jetpack modules'options
  * redux state selectors and action creators.
  *
- * @param {React.Component} Component - The component to be connected to the state
- * @return {[React.Component]} The component with some props connected to the state
+ * @param {import('react').Component} Component - The component to be connected to the state
+ * @return {[import('react').Component]} The component with some props connected to the state
  */
 export function connectModuleOptions( Component ) {
 	return connect(
 		( state, ownProps ) => {
 			return {
 				validValues: ( option_name, module_slug = '' ) => {
-					if ( 'string' === typeof get( ownProps, [ 'module', 'module' ] ) ) {
+					if ( 'string' === typeof ownProps?.module?.module ) {
 						module_slug = ownProps.module.module;
 					}
 					return getModuleOptionValidValues( state, module_slug, option_name );

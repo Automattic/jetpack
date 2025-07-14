@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 4.1.0
+ * Version: 4.1.2
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die( 0 );
 }
 
-define( 'JETPACK_BOOST_VERSION', '4.1.0' );
+define( 'JETPACK_BOOST_VERSION', '4.1.2' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -221,7 +221,7 @@ function include_compatibility_files() {
 		require_once __DIR__ . '/compatibility/web-stories.php';
 	}
 
-	if ( defined( '\Elementor\TemplateLibrary\Source_Local::CPT' ) || defined( '\Elementor\Modules\LandingPages\Module::CPT' ) ) {
+	if ( defined( '\Elementor\TemplateLibrary\Source_Local::CPT' ) || defined( '\Elementor\Modules\LandingPages\Module::CPT' ) || defined( '\Elementor\Modules\FloatingButtons\Module::CPT_FLOATING_BUTTONS' ) ) {
 		require_once __DIR__ . '/compatibility/elementor.php';
 	}
 
@@ -239,6 +239,16 @@ function include_compatibility_files() {
 
 	if ( function_exists( 'aioseo' ) ) {
 		require_once __DIR__ . '/compatibility/aioseo.php';
+	}
+
+	// Exclude Beaver Builder custom post types.
+	if ( class_exists( 'FLBuilderLoader' ) ) {
+		require_once __DIR__ . '/compatibility/beaver-builder.php';
+	}
+
+	// Exclude Breakdance custom post types.
+	if ( defined( 'BREAKDANCE_ALL_EDITABLE_POST_TYPES' ) ) {
+		require_once __DIR__ . '/compatibility/breakdance.php';
 	}
 
 	// Exclude known scripts that causes problem when concatenated.

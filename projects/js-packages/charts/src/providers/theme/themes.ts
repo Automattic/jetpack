@@ -19,6 +19,20 @@ const defaultTheme: ChartTheme = {
 	legendLabelStyles: {
 		color: 'var(--jp-gray-80, #2c3338)',
 	},
+	annotationStyles: {
+		label: {
+			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
+			backgroundFill: '#fff',
+		},
+		connector: {
+			stroke: 'var(--jp-gray-80, #2c3338)',
+		},
+		circleSubject: {
+			stroke: 'transparent',
+			fill: 'var(--jp-gray-80, #2c3338)',
+			radius: 5,
+		},
+	},
 };
 
 /**
@@ -39,6 +53,20 @@ const jetpackTheme: ChartTheme = {
 	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 	legendLabelStyles: {
 		color: 'var(--jp-gray-80, #2c3338)',
+	},
+	annotationStyles: {
+		label: {
+			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
+			backgroundFill: '#fff',
+		},
+		connector: {
+			stroke: 'var(--jp-gray-80, #2c3338)',
+		},
+		circleSubject: {
+			stroke: 'transparent',
+			fill: 'var(--jp-gray-80, #2c3338)',
+			radius: 5,
+		},
 	},
 };
 
@@ -65,6 +93,20 @@ const wooTheme: ChartTheme = {
 	},
 	legendContainerStyles: {
 		gap: '8px',
+	},
+	annotationStyles: {
+		label: {
+			anchorLineStroke: 'black',
+			backgroundFill: '#fff',
+		},
+		connector: {
+			stroke: 'black',
+		},
+		circleSubject: {
+			stroke: 'transparent',
+			fill: 'black',
+			radius: 5,
+		},
 	},
 };
 

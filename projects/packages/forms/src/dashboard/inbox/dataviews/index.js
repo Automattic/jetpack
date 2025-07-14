@@ -8,21 +8,19 @@ import {
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
-import { useEntityRecords } from '@wordpress/core-data';
-import { useSelect, useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { isArray, isEmpty, join } from 'lodash';
-import React, { useEffect } from 'react';
+import { isEmpty } from 'lodash';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
 import InboxStatusToggle from '../../components/inbox-status-toggle';
-import { store as dashboardStore } from '../../store';
+import useInboxData from '../../hooks/use-inbox-data';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
@@ -52,30 +50,16 @@ const formatFieldName = fieldName => {
 const formatFieldValue = fieldValue => {
 	if ( isEmpty( fieldValue ) ) {
 		return '-';
-	} else if ( isArray( fieldValue ) ) {
-		return join( fieldValue, ', ' );
+	} else if ( Array.isArray( fieldValue ) ) {
+		return fieldValue.join( ', ' );
 	}
 	return fieldValue;
 };
 
 /**
- * Helper function to get the status filter to apply from the URL.
- * This is the only way to filter the data by `status` as intentionally
- * we don't want to have a `status` filter in the UI.
- *
- * @param {string} urlStatus - The current status from the URL.
- * @return {string} The status filter to apply.
- */
-function getStatusFilter( urlStatus ) {
-	// Only allow specific status values.
-	const statusFilter = [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
-	return statusFilter === 'inbox' ? 'draft,publish' : statusFilter;
-}
-
-/**
  * The DataViews implementation.
  *
- * @return {React.JSX.Element} The DataViews component.
+ * @return {import('react').JSX.Element} The DataViews component.
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();
@@ -91,11 +75,19 @@ export default function InboxView() {
 		{ box: 'border-box' }
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
-	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const selectedResponses = searchParams.get( 'r' );
-	const urlStatus = searchParams.get( 'status' );
-	const statusFilter = getStatusFilter( urlStatus );
-	const filterOptions = useSelect( select => select( dashboardStore ).getFilters(), [] );
+
+	const {
+		setCurrentQuery,
+		setSelectedResponses,
+		statusFilter,
+		filterOptions,
+		records,
+		isLoadingData,
+		totalItems,
+		totalPages,
+	} = useInboxData();
+
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
 			if ( ! value ) {
@@ -128,12 +120,6 @@ export default function InboxView() {
 		// rendering different ones.
 		setQueryArgs( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
-	const {
-		records,
-		isResolving: isLoadingData,
-		totalItems,
-		totalPages,
-	} = useEntityRecords( 'postType', 'feedback', queryArgs );
 	const data = useMemo(
 		() =>
 			records?.map( record => ( {
@@ -293,7 +279,7 @@ export default function InboxView() {
 
 	return (
 		<HStack
-			spacing={ 5 }
+			spacing={ 0 }
 			alignment="top"
 			justify="flex-start"
 			ref={ containerRef }

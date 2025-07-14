@@ -2,6 +2,45 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.1.13] - 2025-07-10
+### Changed
+- Update package dependencies. [#44219]
+
+## [1.1.12] - 2025-07-08
+### Changed
+- Update dependencies.
+
+## [1.1.11] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+### Fixed
+- Fix config to include all the TypeScript files for type checking. [#44177]
+
+## [1.1.10] - 2025-07-07
+### Changed
+- Internal updates.
+
+## [1.1.9] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [1.1.8] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.1.7] - 2025-06-30
+### Changed
+- Update dependencies.
+
+## [1.1.6] - 2025-06-24
+### Changed
+- Update dependencies.
+
+## [1.1.5] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
 ## [1.1.4] - 2025-06-19
 ### Changed
 - Update dependencies.
@@ -1438,6 +1477,15 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.1.13]: https://github.com/Automattic/jetpack-components/compare/1.1.12...1.1.13
+[1.1.12]: https://github.com/Automattic/jetpack-components/compare/1.1.11...1.1.12
+[1.1.11]: https://github.com/Automattic/jetpack-components/compare/1.1.10...1.1.11
+[1.1.10]: https://github.com/Automattic/jetpack-components/compare/1.1.9...1.1.10
+[1.1.9]: https://github.com/Automattic/jetpack-components/compare/1.1.8...1.1.9
+[1.1.8]: https://github.com/Automattic/jetpack-components/compare/1.1.7...1.1.8
+[1.1.7]: https://github.com/Automattic/jetpack-components/compare/1.1.6...1.1.7
+[1.1.6]: https://github.com/Automattic/jetpack-components/compare/1.1.5...1.1.6
+[1.1.5]: https://github.com/Automattic/jetpack-components/compare/1.1.4...1.1.5
 [1.1.4]: https://github.com/Automattic/jetpack-components/compare/1.1.3...1.1.4
 [1.1.3]: https://github.com/Automattic/jetpack-components/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/Automattic/jetpack-components/compare/1.1.1...1.1.2

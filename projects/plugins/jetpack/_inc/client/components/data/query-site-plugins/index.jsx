@@ -1,8 +1,8 @@
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { fetchPluginsData, isFetchingPluginsData } from 'state/site/plugins';
 
-export class QuerySitePlugins extends React.Component {
+export class QuerySitePlugins extends Component {
 	UNSAFE_componentWillMount() {
 		if ( ! this.props.isFetchingPluginsData ) {
 			this.props.fetchPluginsData();

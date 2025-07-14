@@ -1,8 +1,5 @@
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getBlockIconComponent,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { Placeholder, Button, ExternalLink } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import metadata from './block.json';
@@ -11,10 +8,9 @@ import {} from './utils';
 const icon = getBlockIconComponent( metadata );
 
 const EmbedForm = ( { className, noticeUI, editedUrl, onChange, onSubmit } ) => {
-	const supportLink =
-		isSimpleSite() || isAtomicSite()
-			? 'http://support.wordpress.com/wordpress-editor/blocks/eventbrite-block/'
-			: 'https://jetpack.com/support/jetpack-blocks/eventbrite-block/';
+	const supportLink = isWpcomPlatformSite()
+		? 'http://support.wordpress.com/wordpress-editor/blocks/eventbrite-block/'
+		: 'https://jetpack.com/support/jetpack-blocks/eventbrite-block/';
 
 	return (
 		<div className={ className }>

@@ -269,7 +269,7 @@ class Manager {
 			// Hack to preserve $HTTP_RAW_POST_DATA.
 			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
-		} elseif ( $has_connected_owner && ! $is_signed ) {
+		} elseif ( $has_connected_owner ) {
 			// The jetpack.authorize method should be available for unauthenticated users on a site with an
 			// active Jetpack connection, so that additional users can link their account.
 			$callback = array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' );
@@ -651,8 +651,7 @@ class Manager {
 
 			$has_blog_id = (bool) \Jetpack_Options::get_option( 'id' );
 			if ( $has_blog_id ) {
-				$has_blog_token     = (bool) $this->get_tokens()->get_access_token();
-				self::$is_connected = ( $has_blog_id && $has_blog_token );
+				self::$is_connected = (bool) $this->get_tokens()->get_access_token();
 			} else {
 				// Short-circuit, no need to check for tokens if there's no blog ID.
 				self::$is_connected = false;
@@ -1652,7 +1651,7 @@ class Manager {
 	 *
 	 * @since 1.7.0
 	 * @since-jetpack 5.4.0
-	 * @param Integer $min_timeout the minimum timeout value.
+	 * @param int $min_timeout the minimum timeout value.
 	 **/
 	public function set_min_time_limit( $min_timeout ) {
 		$timeout = $this->get_max_execution_time();

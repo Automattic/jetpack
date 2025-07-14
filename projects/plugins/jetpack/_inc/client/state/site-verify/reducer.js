@@ -1,4 +1,3 @@
-import { assign, get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH,
@@ -15,16 +14,16 @@ export const google = (
 ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetching: true,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetching: false,
 				error: action.error,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetching: false,
 				verified: action.verified,
 				isOwner: action.isOwner,
@@ -34,11 +33,11 @@ export const google = (
 				error: null,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_REQUEST:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				verifying: true,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_REQUEST_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				verifying: false,
 				verified: action.verified,
 				isOwner: action.isOwner,
@@ -47,7 +46,7 @@ export const google = (
 				error: null,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				verifying: false,
 				verified: false,
 				error: action.error,
@@ -69,7 +68,7 @@ export const reducer = combineReducers( {
  * @return {boolean}       Whether settings are being requested
  */
 export function isFetchingGoogleSiteVerify( state ) {
-	return get( state, 'jetpack.siteVerify.google.fetching', false );
+	return state?.jetpack?.siteVerify?.google?.fetching ?? false;
 }
 
 /**
@@ -80,7 +79,7 @@ export function isFetchingGoogleSiteVerify( state ) {
  * @return {boolean}       Whether settings is being verified
  */
 export function isVerifyingGoogleSite( state ) {
-	return get( state, 'jetpack.siteVerify.google.verifying', false );
+	return state?.jetpack?.siteVerify?.google?.verifying ?? false;
 }
 
 /**
@@ -92,7 +91,7 @@ export function isVerifyingGoogleSite( state ) {
 export function isConnectedToGoogleSiteVerificationAPI( state ) {
 	return (
 		! isFetchingGoogleSiteVerify( state ) &&
-		get( state, 'jetpack.siteVerify.google.error.code', null ) !== 'no_token_for_user'
+		state?.jetpack?.siteVerify?.google?.error?.code !== 'no_token_for_user'
 	);
 }
 
@@ -103,7 +102,7 @@ export function isConnectedToGoogleSiteVerificationAPI( state ) {
  * @return {boolean}       Whether the site is verified.
  */
 export function isSiteVerifiedWithGoogle( state ) {
-	return get( state, 'jetpack.siteVerify.google.verified', false );
+	return state?.jetpack?.siteVerify?.google?.verified ?? false;
 }
 
 /**
@@ -113,7 +112,7 @@ export function isSiteVerifiedWithGoogle( state ) {
  * @return {object|null}   Error data.
  */
 export function getGoogleSiteVerificationError( state ) {
-	return get( state, 'jetpack.siteVerify.google.error', null );
+	return state?.jetpack?.siteVerify?.google?.error ?? null;
 }
 
 /**
@@ -123,7 +122,7 @@ export function getGoogleSiteVerificationError( state ) {
  * @return {string|null} URL.
  */
 export function getGoogleSearchConsoleUrl( state ) {
-	return get( state, 'jetpack.siteVerify.google.searchConsoleUrl', null );
+	return state?.jetpack?.siteVerify?.google?.searchConsoleUrl ?? null;
 }
 
 /**
@@ -133,7 +132,7 @@ export function getGoogleSearchConsoleUrl( state ) {
  * @return {string|null} URL.
  */
 export function getGoogleVerificationConsoleUrl( state ) {
-	return get( state, 'jetpack.siteVerify.google.verificationConsoleUrl', null );
+	return state?.jetpack?.siteVerify?.google?.verificationConsoleUrl ?? null;
 }
 
 /**
@@ -143,5 +142,5 @@ export function getGoogleVerificationConsoleUrl( state ) {
  * @return {boolean}       Whether this is the site owner.
  */
 export function isGoogleSiteVerificationOwner( state ) {
-	return get( state, 'jetpack.siteVerify.google.isOwner', false );
+	return state?.jetpack?.siteVerify?.google?.isOwner ?? false;
 }

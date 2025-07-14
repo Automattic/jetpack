@@ -25,21 +25,21 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@mdn/browser-compat-data": "6.0.15",
+		"@mdn/browser-compat-data": "6.0.31",
 		"browserslist": "^4.17.6",
 		"debug": "^4.3.2",
 		"semver": "^7.3.5"
 	},
 	"devDependencies": {
-		"@wordpress/browserslist-config": "6.25.0",
-		"eslint": "9.25.1",
-		"eslint-plugin-es-x": "8.6.2",
+		"@wordpress/browserslist-config": "6.26.0",
+		"eslint": "9.30.1",
+		"eslint-plugin-es-x": "9.0.0",
 		"globals": "16.0.0",
-		"jest": "30.0.0"
+		"jest": "30.0.4"
 	},
 	"peerDependencies": {
 		"eslint": ">=4.19.1",
-		"eslint-plugin-es-x": "^8.0.0",
+		"eslint-plugin-es-x": "^8.0.0 || ^9.0.0",
 		"globals": ">=15.4.0"
 	},
 	"peerDependenciesMeta": {

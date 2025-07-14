@@ -38,6 +38,16 @@ class Help_Center {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
+		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
+	}
+
+	/**
+	 * We prefer to use the Help Center instead of the Help tab.
+	 */
+	public function jetpack_remove_core_help_tab() {
+		?>
+			<style>#contextual-help-link-wrap { display: none; }</style>
+		<?php
 	}
 
 	/**
@@ -305,6 +315,10 @@ class Help_Center {
 
 		require_once __DIR__ . '/class-wp-rest-help-center-email-support-enabled.php';
 		$controller = new WP_REST_Help_Center_Email_Support_Enabled();
+		$controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-help-center-ticket-csat.php';
+		$controller = new WP_REST_Help_Center_Ticket_CSAT();
 		$controller->register_rest_route();
 	}
 

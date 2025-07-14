@@ -1,5 +1,4 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import React from 'react';
 
 // import '@wordpress/components/build-style/style.css';
 
@@ -13,21 +12,27 @@ const preview = {
 	parameters: {
 		backgrounds: {
 			default: 'Jetpack Dashboard',
-			values: [
-				{
+			options: {
+				'jetpack-dashboard': {
 					name: 'Jetpack Dashboard',
 					value: 'var(--jp-white-off)',
 				},
-				{
+				dark: {
 					name: 'Dark',
 					value: 'rgb(51, 51, 51)',
 				},
-				{
+				light: {
 					name: 'Light',
 					value: '#FFF',
 				},
-			],
+			},
 		},
+		docs: {
+			codePanel: true,
+		},
+	},
+	initialGlobals: {
+		backgrounds: { value: 'jetpack-dashboard' },
 	},
 	decorators: [
 		Story => (
@@ -36,5 +41,6 @@ const preview = {
 			</ThemeProvider>
 		),
 	],
+	tags: [ 'autodocs' ],
 };
 export default preview;

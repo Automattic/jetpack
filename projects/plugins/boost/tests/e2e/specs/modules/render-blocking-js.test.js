@@ -10,7 +10,16 @@ test.describe( 'Render Blocking JS module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withTestContent( [ testPostTitle ] ).build();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
+			.withTestContent( [ testPostTitle ] )
+			.build();
+	} );
+
+	test.afterAll( async () => {
+		await page.close();
 	} );
 
 	test( 'JavaScript on a post should be at its original position in the document when the module is inactive', async () => {

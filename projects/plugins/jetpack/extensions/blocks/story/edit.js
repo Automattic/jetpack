@@ -5,7 +5,7 @@ import { withNotices } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { get, pick } from 'lodash';
+import { pick } from 'lodash';
 import metadata from './block.json';
 import Controls from './controls';
 import StoryPlayer from './player';
@@ -28,10 +28,10 @@ export const pickRelevantMediaFiles = media => {
 		'height',
 	] );
 	mediaProps.url =
-		get( media, [ 'media_details', 'original', 'url' ] ) ||
-		get( media, [ 'media_details', 'videopress', 'original' ] ) ||
-		get( media, [ 'media_details', 'sizes', 'large', 'source_url' ] ) ||
-		get( media, [ 'sizes', 'large', 'url' ] ) ||
+		media?.media_details?.original?.url ||
+		media?.media_details?.videopress?.original ||
+		media?.media_details?.sizes?.large?.source_url ||
+		media?.sizes?.large?.url ||
 		media.url;
 	mediaProps.type = media.media_type || media.type;
 	mediaProps.mime = media.mime_type || media.mime;

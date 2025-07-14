@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
+import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
-	isSimpleSite,
-	isAtomicSite,
 	getJetpackExtensionAvailability,
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
@@ -13,12 +12,8 @@ import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
 import {
-	PluginPrePublishPane as DeprecatedPluginPrePublishPanel,
-	PluginPostPublishPanel as DeprecatedPluginPostPublishPanel,
-} from '@wordpress/edit-post';
-import {
-	PluginPrePublishPanel as EditorPluginPrePublishPanel,
-	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+	PluginPrePublishPanel,
+	PluginPostPublishPanel,
 	store as editorStore,
 } from '@wordpress/editor';
 import { useEffect, useRef } from '@wordpress/element';
@@ -42,9 +37,6 @@ import SeoTitlePanel from './title-panel';
 import './editor.scss';
 
 export const name = 'seo';
-
-const PluginPrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
-const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
 
 // On P2 this function is not available, causing an error
 const supportsPublishSidebar =
@@ -103,7 +95,7 @@ const Seo = () => {
 	}
 
 	const requiredPlan = getRequiredPlan( 'advanced-seo' );
-	const canShowUpsell = isAtomicSite() || isSimpleSite();
+	const canShowUpsell = isWpcomPlatformSite();
 	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
 
 	const jetpackSeoPanelProps = {

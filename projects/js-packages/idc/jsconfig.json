@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"jsx": "react"
+		"jsx": "react-jsx"
 	},
 	// List all sources and source-containing subdirs.
 	"include": [ "./index.jsx", "./components", "./hooks", "./state", "./tools" ]

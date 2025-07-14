@@ -98,6 +98,28 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test DELETE feedback/trash
+	 */
+	public function test_empty_trash_returns_200() {
+		$request  = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'deleted', $data );
+	}
+
+	/**
+	 * Test DELETE feedback/trash unautorized.
+	 */
+	public function test_empty_trash_returns_401() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
 	 * Test item schema.
 	 */
 	public function test_item_schema() {
@@ -140,6 +162,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'creative-mail-by-constant-contact', $data );
 		$this->assertArrayHasKey( 'zero-bs-crm', $data );
 		$this->assertArrayHasKey( 'google-drive', $data );
+		$this->assertArrayHasKey( 'mailpoet', $data );
 
 		// Verify structure of one integration
 		$this->assertArrayHasKey( 'type', $data['akismet'] );
@@ -179,6 +202,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertContains( 'creative-mail-by-constant-contact', $integration_ids );
 		$this->assertContains( 'zero-bs-crm', $integration_ids );
 		$this->assertContains( 'google-drive', $integration_ids );
+		$this->assertContains( 'mailpoet', $integration_ids );
 
 		// Verify structure of each integration
 		foreach ( $data as $integration ) {
@@ -193,6 +217,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertArrayHasKey( 'version', $integration );
 			$this->assertArrayHasKey( 'details', $integration );
 			$this->assertArrayHasKey( 'needsConnection', $integration );
+			$this->assertArrayHasKey( 'marketingUrl', $integration );
 
 			// Verify expected data types
 			$this->assertIsString( $integration['id'] );
@@ -206,6 +231,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertTrue( $integration['pluginFile'] === null || is_string( $integration['pluginFile'] ) );
 			$this->assertTrue( $integration['version'] === null || is_string( $integration['version'] ) );
 			$this->assertIsArray( $integration['details'] );
+			$this->assertTrue( $integration['marketingUrl'] === null || is_string( $integration['marketingUrl'] ) );
 		}
 	}
 

@@ -1,9 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { includes } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -68,20 +67,17 @@ export class DashItem extends Component {
 
 		if ( '' !== this.props.module ) {
 			toggle =
-				( includes(
-					[
-						'monitor',
-						'protect',
-						'photon',
-						'vaultpress',
-						'scan',
-						'backups',
-						'akismet',
-						'search',
-						'videopress',
-					],
-					this.props.module
-				) &&
+				( [
+					'monitor',
+					'protect',
+					'photon',
+					'vaultpress',
+					'scan',
+					'backups',
+					'akismet',
+					'search',
+					'videopress',
+				].includes( this.props.module ) &&
 					this.props.isOfflineMode ) ||
 				this.props.noToggle ||
 				// Avoid toggle for manage as it's no longer a module

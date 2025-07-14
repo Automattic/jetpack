@@ -1,5 +1,5 @@
 {
-	extends: [ 'config:recommended', 'group:definitelyTyped' ],
+	extends: [ 'config:recommended', 'abandonments:recommended', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
 	reviewers: [ 'team:jetpack-monorepo' ],
 	prHourlyLimit: 1,
@@ -65,7 +65,11 @@
 		},
 		{
 			groupName: 'Size-limit',
-			matchPackageNames: [ 'size-limit', '@size-limit/preset-app' ],
+			matchSourceUrls: [ 'https://github.com/ai/size-limit' ],
+		},
+		{
+			groupName: 'Fullcalendar monorepo',
+			matchSourceUrls: [ 'https://github.com/fullcalendar/fullcalendar' ],
 		},
 		// These aren't a monorepo, but we may as well do them all together anyway.
 		{

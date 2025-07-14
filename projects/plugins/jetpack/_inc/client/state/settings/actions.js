@@ -1,6 +1,5 @@
 import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-import { get, some } from 'lodash';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_SETTINGS_FETCH,
@@ -101,7 +100,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		// Adapt message for above options, since it needs to reload.
 		if (
 			'object' === typeof newOptionValues &&
-			some( reloadForOptionValues, optionValue => optionValue in newOptionValues )
+			reloadForOptionValues.some( optionValue => optionValue in newOptionValues )
 		) {
 			messages.success = __( 'Updated settings. Refreshing page…', 'jetpack' );
 		}
@@ -116,7 +115,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		];
 		if (
 			'object' === typeof newOptionValues &&
-			! some( suppressNoticeFor, optionValue => optionValue in newOptionValues )
+			! suppressNoticeFor.some( optionValue => optionValue in newOptionValues )
 		) {
 			dispatch( createNotice( 'is-info', messages.progress, { id: 'module-setting-update' } ) );
 		}
@@ -140,7 +139,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 				dispatch( removeNotice( 'module-setting-update-success' ) );
 				if (
 					'object' === typeof newOptionValues &&
-					! some( suppressNoticeFor, optionValue => optionValue in newOptionValues )
+					! suppressNoticeFor.some( optionValue => optionValue in newOptionValues )
 				) {
 					dispatch(
 						createNotice( 'is-success', messages.success, {
@@ -177,7 +176,7 @@ function mapUpdateSettingsResponseFromApi( success, requestedValues ) {
 	let values = requestedValues;
 
 	// Adapt messages and data when regenerating Post by Email address
-	if ( get( requestedValues, 'post_by_email_address' ) === 'regenerate' ) {
+	if ( requestedValues?.post_by_email_address === 'regenerate' ) {
 		values = {
 			post_by_email_address: success.post_by_email_address,
 		};

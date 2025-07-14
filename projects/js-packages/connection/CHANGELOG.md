@@ -2,6 +2,42 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.2.13] - 2025-07-10
+### Changed
+- Update package dependencies. [#44219]
+
+## [1.2.12] - 2025-07-08
+### Changed
+- Update dependencies.
+
+## [1.2.11] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.2.10] - 2025-07-07
+### Changed
+- Update dependencies.
+
+## [1.2.9] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [1.2.8] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.2.7] - 2025-06-30
+### Changed
+- Update dependencies.
+
+## [1.2.6] - 2025-06-24
+### Changed
+- Update dependencies.
+
+## [1.2.5] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
 ## [1.2.4] - 2025-06-19
 ### Changed
 - Update dependencies.
@@ -1068,6 +1104,15 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.2.13]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.12...v1.2.13
+[1.2.12]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.11...v1.2.12
+[1.2.11]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.10...v1.2.11
+[1.2.10]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.9...v1.2.10
+[1.2.9]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.8...v1.2.9
+[1.2.8]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.7...v1.2.8
+[1.2.7]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.6...v1.2.7
+[1.2.6]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.5...v1.2.6
+[1.2.5]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.1...v1.2.2

@@ -15,6 +15,9 @@ const sharedWebpackConfig = {
 	entry: {
 		editor: './src/blocks/contact-form/editor.js',
 		view: './src/blocks/contact-form/view.js',
+		'form-progress-indicator/style': './src/blocks/form-progress-indicator/style.scss',
+		'form-step-navigation/style': './src/blocks/form-step-navigation/style.scss',
+		'field-rating/style': './src/blocks/field-rating/style.scss',
 	},
 	output: {
 		...jetpackWebpackConfig.output,

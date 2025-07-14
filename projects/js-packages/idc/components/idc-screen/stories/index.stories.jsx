@@ -1,4 +1,3 @@
-import React from 'react';
 import IDCScreenVisual from '../visual';
 
 export default {

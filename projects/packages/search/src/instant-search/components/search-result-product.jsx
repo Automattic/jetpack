@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
-import React, { Component } from 'react';
+import * as React from 'react';
+import { Component } from 'react';
 import Gridicon from './gridicon';
 import PhotonImage from './photon-image';
 import ProductPrice from './product-price';

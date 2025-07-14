@@ -46,6 +46,19 @@ class Contact_Form_Block {
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
+		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'register_feature' ) );
+	}
+	/**
+	 * Register the contact form block feature flag.
+	 *
+	 * @param array $features - the features array.
+	 *
+	 * @return array
+	 */
+	public static function register_feature( $features ) {
+		// Register the contact form block feature flag.
+		$features['multistep-form'] = Blocks::get_variation() === 'beta';
+		return $features;
 	}
 
 	/**
@@ -207,6 +220,23 @@ class Contact_Form_Block {
 				),
 			)
 		);
+
+		if ( Blocks::get_variation() === 'beta' ) {
+			Blocks::jetpack_register_block(
+				'jetpack/rating-input',
+				array(
+					'supports' => array(
+						'color'      => array(
+							'text'       => true,
+							'background' => false,
+						),
+						'typography' => array(
+							'fontSize' => true,
+						),
+					),
+				)
+			);
+		}
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
@@ -335,6 +365,18 @@ class Contact_Form_Block {
 			)
 		);
 
+		if ( Blocks::get_variation() === 'beta' ) {
+			Blocks::jetpack_register_block(
+				'jetpack/field-rating',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
+					'provides_context' => array(
+						'jetpack/field-required' => 'required',
+					),
+				)
+			);
+		}
+
 		// Paid file field block
 		add_action(
 			'jetpack_register_gutenberg_extensions',
@@ -363,6 +405,31 @@ class Contact_Form_Block {
 				'name'  => 'button',
 				'label' => __( 'Button', 'jetpack-forms' ),
 			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-navigation',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step_navigation' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-progress-indicator',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_progress_indicator' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-container'
 		);
 	}
 

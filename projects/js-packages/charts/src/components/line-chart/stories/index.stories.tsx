@@ -1,4 +1,3 @@
-import React from 'react';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
 import largeValuesData from './large-values-sample';
@@ -69,7 +68,13 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<LineChart width={ 300 } height={ 200 } data={ [] } />
+				<LineChart
+					width={ 300 }
+					height={ 200 }
+					data={ [] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
 			</div>
 			<div>
 				<h3>Invalid Date Values</h3>
@@ -86,6 +91,8 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 							options: {},
 						},
 					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
 				/>
 			</div>
 			<div>
@@ -103,6 +110,8 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 							options: {},
 						},
 					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
 				/>
 			</div>
 			<div>
@@ -117,6 +126,8 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 							options: {},
 						},
 					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
 				/>
 			</div>
 		</div>
@@ -172,8 +183,8 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 						height={ 200 }
 						data={ curveData }
 						curveType="linear"
-						showLegend={ false }
 						withGradientFill={ false }
+						withLegendGlyph={ false }
 					/>
 				</div>
 				<div>
@@ -183,8 +194,8 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 						height={ 200 }
 						data={ curveData }
 						curveType="smooth"
-						showLegend={ false }
 						withGradientFill={ false }
+						withLegendGlyph={ false }
 					/>
 				</div>
 				<div>
@@ -194,8 +205,8 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 						height={ 200 }
 						data={ curveData }
 						curveType="monotone"
-						showLegend={ false }
 						withGradientFill={ false }
+						withLegendGlyph={ false }
 					/>
 				</div>
 			</div>
@@ -215,8 +226,6 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 export const SmartFormatting: StoryObj< typeof LineChart > = Template.bind( {} );
 SmartFormatting.args = {
 	data: largeValuesData,
-	showLegend: true,
-	legendOrientation: 'horizontal',
 	withGradientFill: false,
 	smoothing: true,
 	options: {
@@ -246,7 +255,6 @@ BrokenLine.args = {
 	margin: {
 		bottom: 40,
 	},
-	showLegend: true,
 	data: [
 		{
 			...webTrafficData[ 0 ],
@@ -289,6 +297,7 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 					},
 				] }
 				withGradientFill={ false }
+				withLegendGlyph={ false }
 			/>
 		);
 	},

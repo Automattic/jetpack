@@ -1,6 +1,6 @@
-import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
-import { range } from 'lodash';
 import photon from 'photon';
 import isOfflineMode from '../../../../../shared/is-offline-mode';
 import { PHOTON_MAX_RESIZE } from '../constants';
@@ -36,7 +36,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		isBlobURL( img.url ) ||
 		/^https?:\/\/localhost/.test( img.url ) ||
 		/^https?:\/\/.*\.local\//.test( img.url ) ||
-		( isAtomicSite() && isPrivateSite() )
+		( isWoASite() && isPrivateSite() )
 	) {
 		return { src: img.url };
 	}
@@ -74,36 +74,35 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const step = 300;
 	const srcsetMinWith = 600;
 
-	let srcSet;
+	let srcSet = [];
 	if ( isSquareishLayout( layoutStyle ) ) {
 		const minWidth = Math.min( srcsetMinWith, width, height );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width, height );
 
-		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
-				const srcsetSrc = photonImplementation( url, {
-					resize: `${ srcsetWidth },${ srcsetWidth }`,
-					strip: 'info',
-				} );
-				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
-			} )
-			.filter( Boolean )
-			.join( ',' );
+		for ( let srcsetWidth = minWidth; srcsetWidth < maxWidth; srcsetWidth += step ) {
+			const srcsetSrc = photonImplementation( url, {
+				resize: `${ srcsetWidth },${ srcsetWidth }`,
+				strip: 'info',
+			} );
+			if ( srcsetSrc ) {
+				srcSet.push( `${ srcsetSrc } ${ srcsetWidth }w` );
+			}
+		}
 	} else {
 		const minWidth = Math.min( srcsetMinWith, width );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width );
 
-		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
-				const srcsetSrc = photonImplementation( url, {
-					strip: 'info',
-					width: srcsetWidth,
-				} );
-				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
-			} )
-			.filter( Boolean )
-			.join( ',' );
+		for ( let srcsetWidth = minWidth; srcsetWidth < maxWidth; srcsetWidth += step ) {
+			const srcsetSrc = photonImplementation( url, {
+				strip: 'info',
+				width: srcsetWidth,
+			} );
+			if ( srcsetSrc ) {
+				srcSet.push( `${ srcsetSrc } ${ srcsetWidth }w` );
+			}
+		}
 	}
+	srcSet = srcSet.join( ',' );
 
 	return Object.assign( { src }, srcSet && { srcSet } );
 }

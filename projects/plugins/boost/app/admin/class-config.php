@@ -32,7 +32,7 @@ class Config {
 			'site'                => array(
 				'url'      => get_home_url(),
 				'domain'   => ( new Status() )->get_site_suffix(),
-				'online'   => ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site(),
+				'online'   => self::is_website_public(),
 				'host'     => $this->get_hosting_provider(),
 				'hasCache' => Cache_Compatibility::has_cache(),
 			),
@@ -113,5 +113,14 @@ class Config {
 		}
 
 		return 'other';
+	}
+
+	/**
+	 * Checks if the website is publicly accessible.
+	 *
+	 * @return bool True if the website is public, false otherwise.
+	 */
+	public static function is_website_public() {
+		return ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site();
 	}
 }

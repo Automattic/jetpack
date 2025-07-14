@@ -188,6 +188,20 @@ class Concatenate_JS extends WP_Scripts {
 				}
 			}
 
+			/** This filter is documented in wp-includes/class-wp-scripts.php */
+			$js_url = esc_url_raw( apply_filters( 'script_loader_src', $js_url, $handle ) );
+			if ( ! $js_url ) {
+				$do_concat = false;
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					printf( "\n<!-- No Concat JS %s => No URL -->\n", esc_html( $handle ) );
+				}
+			} elseif ( 'module' === $this->get_script_type( $handle, $js_url ) ) {
+				$do_concat = false;
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					printf( "\n<!-- No Concat JS %s => Module Script -->\n", esc_html( $handle ) );
+				}
+			}
+
 			/**
 			 * Filter that allows plugins to disable concatenation of certain scripts.
 			 *
@@ -324,6 +338,40 @@ class Concatenate_JS extends WP_Scripts {
 		do_action( 'js_concat_did_items', $javascripts );
 
 		return $this->done;
+	}
+
+	/**
+	 * Returns the type of the script.
+	 * module, text/javascript, etc. False if the script tag is invalid,
+	 * or the type is not set.
+	 *
+	 * @since 4.1.2
+	 *
+	 * @param string $handle The script's registered handle.
+	 * @param string $src The script's source URL.
+	 *
+	 * @return string|false The type of the script. False if the script tag is invalid,
+	 * or the type is not set.
+	 */
+	private function get_script_type( $handle, $src ) {
+		$script_tag_attr = array(
+			'src' => $src,
+			'id'  => "$handle-js",
+		);
+
+		// Get the script tag and allow plugins to filter it.
+		$script_tag = wp_get_script_tag( $script_tag_attr );
+
+		// This is a workaround to get the type of the script without outputting it.
+		$script_tag = apply_filters( 'script_loader_tag', $script_tag, $handle, $src );
+		$processor  = new \WP_HTML_Tag_Processor( $script_tag );
+
+		// If for some reason the script tag isn't valid, bail.
+		if ( ! $processor->next_tag() ) {
+			return false;
+		}
+
+		return $processor->get_attribute( 'type' );
 	}
 
 	public function __isset( $key ) {

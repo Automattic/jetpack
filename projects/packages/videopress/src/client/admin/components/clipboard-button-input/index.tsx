@@ -10,21 +10,21 @@ import { useState } from 'react';
  */
 import styles from './style.module.scss';
 import { ClipboardButtonInputProps } from './types';
-import type React from 'react';
+import type { FC, MouseEvent, ReactNode } from 'react';
 
 /**
  * ClipboardButtionInput component
  *
  * @param {ClipboardButtonInput} props - Component props.
- * @return {React.ReactNode} - ClipboardButtonInput react component.
+ * @return {ReactNode} - ClipboardButtonInput react component.
  */
-const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
+const ClipboardButtonInput: FC< ClipboardButtonInputProps > = ( {
 	text,
 	value,
 	onCopy,
 	resetTime = 3000,
 } ) => {
-	const onClickInputHandler = ( event: React.MouseEvent< HTMLInputElement > ) => {
+	const onClickInputHandler = ( event: MouseEvent< HTMLInputElement > ) => {
 		event.currentTarget.select();
 	};
 	const copiedLabel = __( 'Copied!', 'jetpack-videopress-pkg' );

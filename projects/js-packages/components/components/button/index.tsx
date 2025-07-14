@@ -1,22 +1,17 @@
-/**
- * External dependencies
- */
 import { Button as WPButton, Spinner, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { forwardRef } from 'react';
-/**
- * Internal dependencies
- */
+import { forwardRef } from 'react';
 import styles from './style.module.scss';
 import type { ButtonProps } from './types.ts';
+import type { ReactNode } from 'react';
 
 /**
  * Button component
  *
  * @param {ButtonProps} props - Component Props
- * @return {React.ReactNode} Rendered button
+ * @return {ReactNode} Rendered button
  */
 const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 	const {

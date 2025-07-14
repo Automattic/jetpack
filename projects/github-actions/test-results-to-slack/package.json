@@ -21,7 +21,7 @@
 	},
 	"devDependencies": {
 		"@vercel/ncc": "0.36.1",
-		"jest": "30.0.0",
+		"jest": "30.0.4",
 		"undici": "5.29.0"
 	},
 	"scripts": {

@@ -1,7 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Related posts
- * Module Description: Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
+ * Module Description: Automatically display related articles to keep visitors reading longer.
  * First Introduced: 2.9
  * Sort Order: 29
  * Recommendation Order: 9

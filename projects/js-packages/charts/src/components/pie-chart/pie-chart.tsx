@@ -1,14 +1,17 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
+import { useMemo } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
+import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
-import type { SVGProps, MouseEvent } from 'react';
+import type { SVGProps, MouseEvent, ReactNode } from 'react';
 
 type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
 
@@ -45,7 +48,7 @@ interface PieChartProps extends OmitBaseChartProps {
 	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 }
 
 /**
@@ -80,12 +83,15 @@ const validateData = ( data: DataPointPercentage[] ) => {
  * @param {PieChartProps} props - Component props
  * @return {JSX.Element} The rendered chart component
  */
-const PieChart = ( {
+const PieChartInternal = ( {
 	data,
+	chartId: providedChartId,
 	withTooltips = false,
 	className,
 	showLegend,
 	legendOrientation,
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	legendShape = 'circle',
 	size,
 	thickness = 1,
@@ -95,12 +101,32 @@ const PieChart = ( {
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
+	const chartId = useChartId( providedChartId );
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
 		useChartMouseHandler( {
 			withTooltips,
 		} );
 
 	const { isValid, message } = validateData( data );
+
+	// Create legend items (hooks must be called in same order every render)
+	const legendItems = useMemo(
+		() =>
+			data.map( ( item, index ) => ( {
+				label: item.label,
+				value: item.value.toString(),
+				color: providerTheme.colors[ index % providerTheme.colors.length ],
+			} ) ),
+		[ data, providerTheme.colors ]
+	);
+
+	// Register chart with context only if data is valid
+	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, {
+		thickness,
+		gapScale,
+		cornerScale,
+	} );
 
 	if ( ! isValid ) {
 		return (
@@ -116,15 +142,16 @@ const PieChart = ( {
 	// Calculate radius based on width/height
 	const radius = Math.min( width, height ) / 2;
 
-	// Center the chart in the available space
+	// Center the chart in the available space, adjusting for legend position
 	const centerX = width / 2;
-	const centerY = height / 2;
+	const legendOffset = showLegend && legendAlignmentVertical === 'top' ? legendHeight / 2 : 0;
+	const centerY = height / 2 + legendOffset;
 
 	// Calculate the angle between each
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
 
 	const outerRadius = radius - padding;
-	const innerRadius = outerRadius * ( 1 - thickness );
+	const innerRadius = thickness === 0 ? 0 : outerRadius * ( 1 - thickness );
 
 	const maxCornerRadius = ( outerRadius - innerRadius ) / 2;
 	const cornerRadius = cornerScale ? Math.min( cornerScale * outerRadius, maxCornerRadius ) : 0;
@@ -142,15 +169,15 @@ const PieChart = ( {
 			d?.color || providerTheme.colors[ d.index ],
 	};
 
-	// Create legend items from data
-	const legendItems = data.map( ( item, index ) => ( {
-		label: item.label,
-		value: item.value.toString(),
-		color: providerTheme.colors[ index % providerTheme.colors.length ],
-	} ) );
-
 	return (
-		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
+		<div
+			className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
+			style={ {
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+			} }
+		>
 			<svg
 				viewBox={ `0 0 ${ size } ${ size }` }
 				preserveAspectRatio="xMidYMid meet"
@@ -215,8 +242,11 @@ const PieChart = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'pie-chart-legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 
@@ -233,6 +263,12 @@ const PieChart = ( {
 		</div>
 	);
 };
+
+const PieChart = ( props: PieChartProps ) => (
+	<ChartProvider>
+		<PieChartInternal { ...props } />
+	</ChartProvider>
+);
 
 PieChart.displayName = 'PieChart';
 export default withResponsive< PieChartProps >( PieChart );

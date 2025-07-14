@@ -11,7 +11,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -77,7 +76,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_woocommerce_installation_menu();
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -269,27 +267,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		} else {
 			parent::add_jetpack_menu();
 		}
-
-		$scan_position = $this->get_submenu_item_count( 'jetpack' ) - 1;
-
-		global $submenu;
-		if ( isset( $submenu['jetpack'] ) ) {
-			$backup_submenu_label = __( 'Backup', 'jetpack-masterbar' );
-			$submenu_labels       = array_column( $submenu['jetpack'], 3 );
-			$backup_position      = array_search( $backup_submenu_label, $submenu_labels, true );
-			$scan_position        = $backup_position !== false ? $backup_position + 1 : $this->get_submenu_item_count( 'jetpack' ) - 1;
-		}
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack-masterbar' ), __( 'Scan', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $scan_position );
-
-		/**
-		 * Prevent duplicate menu items that link to Jetpack Backup.
-		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.
-		 *
-		 * @see https://github.com/Automattic/jetpack/pull/33955
-		 */
-		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	}
 
 	/**

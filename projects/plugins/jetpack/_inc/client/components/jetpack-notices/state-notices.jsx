@@ -3,7 +3,7 @@ import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
@@ -16,7 +16,7 @@ import {
 	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
 
-class JetpackStateNotices extends React.Component {
+class JetpackStateNotices extends Component {
 	static displayName = 'JetpackStateNotices';
 	state = { showNotice: true };
 

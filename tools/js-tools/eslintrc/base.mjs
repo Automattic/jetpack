@@ -20,7 +20,12 @@ import eslintJson from '@eslint/json';
 import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import { defaultConditionNames } from 'eslint-import-resolver-typescript';
+import {
+	defaultConditionNames,
+	defaultExtensions,
+	defaultExtensionAlias,
+	defaultMainFields,
+} from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
 import eslintPluginN from 'eslint-plugin-n';
@@ -121,6 +126,9 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
+	const envConditionNames =
+		process.env.npm_config_jetpack_webpack_config_resolve_conditions?.split( ',' ) ?? [];
+
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
 
@@ -176,14 +184,19 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			settings: {
+				'import/extensions': javascriptFiles
+					.map( v => v.replace( '**/*', '' ) )
+					.filter( v => v !== '.svelte' ),
+				'import/internal-regex': '^jetpack-js-tools/',
 				'import/resolver': {
 					typescript: {
 						project: tsconfigPath,
-						conditionNames: process.env.npm_config_jetpack_webpack_config_resolve_conditions
-							? process.env.npm_config_jetpack_webpack_config_resolve_conditions
-									.split( ',' )
-									.concat( defaultConditionNames )
-							: defaultConditionNames,
+						conditionNames: [ ...envConditionNames, ...defaultConditionNames ],
+						alias: {
+							// These somehow confuse import/named (maybe they're outdated or incomplete?), alias them to nothing.
+							'@types/lodash': [ null ],
+							'@types/wordpress__block-editor': [ null ],
+						},
 					},
 				},
 				jsdoc: {
@@ -220,6 +233,23 @@ export function makeBaseConfig( configurl, opts = {} ) {
 					},
 				],
 
+				'import/no-extraneous-dependencies': [
+					'error',
+					{
+						peerDependencies: true,
+					},
+				],
+				'import/no-unresolved': [
+					'error',
+					{
+						ignore: [
+							// Jest dummy package.
+							'^@jest/globals$',
+						],
+					},
+				],
+				'import/default': 'warn',
+				'import/named': 'warn',
 				'import/order': [
 					'error',
 					{
@@ -292,6 +322,41 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			},
 		},
 
+		// React Native files need adjustments to the import plugin configuration.
+		{
+			name: 'React native overrides',
+			files: [ '**/*.native.[jt]s' ],
+			settings: {
+				'import/resolver': {
+					typescript: {
+						extensions: [ '.native.ts', '.native.js', ...defaultExtensions ],
+						extensionAlias: {
+							'.scss': [ '.native.scss', '.scss' ],
+							...Object.fromEntries(
+								Object.entries( defaultExtensionAlias ).map( ( [ k, v ] ) => [
+									k,
+									[ ...v, ...v.map( vv => '.native' + vv ) ],
+								] )
+							),
+						},
+						conditionNames: [ ...envConditionNames, 'react-native', ...defaultConditionNames ],
+						mainFields: [ 'react-native', ...defaultMainFields ],
+					},
+				},
+			},
+			rules: {
+				'import/no-unresolved': [
+					'error',
+					{
+						ignore: [
+							// Since we don't build React Native, we don't include these deps.
+							'^(react-native|@react-navigation/native|@wordpress/react-native-bridge)$',
+						],
+					},
+				],
+			},
+		},
+
 		// Allow commonjs globals in .js and .cjs files.
 		// (unfortunately we can't easily determine if any particular nested directory has `"type":"module"` or not)
 		{
@@ -331,6 +396,8 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				'jsdoc/require-property-type': 'off',
 				// Let us use TS return type for better inference
 				'jsdoc/require-returns-type': 'off',
+				// TS should handle this too.
+				'import/named': 'off',
 			},
 		},
 

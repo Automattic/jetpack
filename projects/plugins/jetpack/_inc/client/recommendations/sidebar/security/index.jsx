@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';

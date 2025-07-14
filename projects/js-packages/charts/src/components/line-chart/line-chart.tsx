@@ -4,27 +4,30 @@ import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import clsx from 'clsx';
 import { useId, useMemo, useContext, useState, useRef } from 'react';
+import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
-import { parseAsLocalDate } from '../shared/date-parsing';
 import { DefaultGlyph } from '../shared/default-glyph';
+import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
+import LineChartAnnotation from './line-chart-annotation';
 import styles from './line-chart.module.scss';
+import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, SVGProps } from 'react';
 
 type CurveType = 'smooth' | 'linear' | 'monotone';
 
 const X_TICK_WIDTH = 100;
 
 export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
-	glyphStyle?: React.SVGProps< SVGCircleElement >;
+	glyphStyle?: SVGProps< SVGCircleElement >;
 };
 
 const defaultRenderGlyph = < Datum extends object >(
@@ -47,7 +50,7 @@ const StartGlyph: FC< {
 		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
 		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
 	};
-	glyphStyle?: React.SVGProps< SVGCircleElement >;
+	glyphStyle?: SVGProps< SVGCircleElement >;
 } > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	if ( ! xScale || ! yScale ) return null;
@@ -108,12 +111,13 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	withStartGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphStyle?: React.SVGProps< SVGCircleElement >;
+	glyphStyle?: SVGProps< SVGCircleElement >;
 	withLegendGlyph: boolean;
 	withTooltipCrosshairs?: {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
 	};
+	annotations?: LineChartAnnotationProps[];
 }
 
 type TooltipDatum = {
@@ -161,11 +165,11 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			point =>
+			( point: DataPointDate | DataPoint ) =>
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
-				isNaN( point.date.getTime() )
+				( 'date' in point && point.date && isNaN( point.date.getTime() ) )
 		)
 	);
 
@@ -173,8 +177,9 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-const LineChart: FC< LineChartProps > = ( {
+const LineChartInternal: FC< LineChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	width,
 	height,
 	className,
@@ -183,6 +188,8 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltipCrosshairs,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	renderGlyph = defaultRenderGlyph,
 	glyphStyle = {},
 	legendShape = 'line',
@@ -193,6 +200,7 @@ const LineChart: FC< LineChartProps > = ( {
 	renderTooltip = renderDefaultTooltip,
 	withStartGlyphs = false,
 	options = {},
+	annotations,
 	onPointerDown = undefined,
 	onPointerUp = undefined,
 	onPointerMove = undefined,
@@ -200,25 +208,14 @@ const LineChart: FC< LineChartProps > = ( {
 } ) => {
 	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
-	const chartId = useId(); // Ensure unique ids for gradient fill.
+	const internalChartId = useId(); // Ensure unique ids for gradient fill.
+	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
-	const dataSorted = useMemo(
-		() =>
-			data.map( series => ( {
-				...series,
-				data: series.data
-					.map( point => ( {
-						...point,
-						date: point.date ? point.date : parseAsLocalDate( point.dateString ),
-					} ) )
-					.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
-			} ) ),
-		[ data ]
-	);
+	const dataSorted = useChartDataTransform( data );
 
 	// Use the keyboard navigation hook
 	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -272,22 +269,46 @@ const LineChart: FC< LineChartProps > = ( {
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
-	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = dataSorted.map( ( group, index ) => ( {
-		label: group.label, // Label for each unique group
-		value: '', // Empty string since we don't want to show a specific value
-		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
-		shapeStyle: group?.options?.legendShapeStyle,
-		renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-		glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
-	} ) );
+	const error = validateData( dataSorted );
+	const isDataValid = ! error;
+
+	// Create legend items (hooks must be called in same order every render)
+	const legendItems = useMemo(
+		() =>
+			dataSorted.map( ( group, index ) => ( {
+				label: group.label, // Label for each unique group
+				value: '', // Empty string since we don't want to show a specific value
+				color:
+					group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
+				shapeStyle: group?.options?.legendShapeStyle,
+				renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
+				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+			} ) ),
+		[
+			dataSorted,
+			providerTheme.colors,
+			providerTheme.glyphs,
+			withLegendGlyph,
+			renderGlyph,
+			glyphStyle?.radius,
+		]
+	);
+
+	// Register chart with context only if data is valid
+	useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
+		withGradientFill,
+		smoothing,
+		curveType,
+		withStartGlyphs,
+		withLegendGlyph,
+	} );
 
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d?.date,
 		yAccessor: ( d: DataPointDate ) => d?.value,
 	};
 
-	const error = validateData( dataSorted );
+	// Create a custom renderTooltip that includes focus capability
 	if ( error ) {
 		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}
@@ -301,6 +322,9 @@ const LineChart: FC< LineChartProps > = ( {
 			style={ {
 				width,
 				height,
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
 			} }
 			tabIndex={ 0 }
 			onKeyDown={ onChartKeyDown }
@@ -311,8 +335,14 @@ const LineChart: FC< LineChartProps > = ( {
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height - legendHeight }
-				margin={ { ...defaultMargin, ...margin } }
+				height={ height - ( showLegend ? legendHeight : 0 ) }
+				margin={ {
+					...defaultMargin,
+					...margin,
+					...( showLegend && legendAlignmentVertical === 'top'
+						? { top: ( defaultMargin.top || 0 ) + legendHeight }
+						: {} ),
+				} }
 				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
@@ -347,7 +377,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 							{ withGradientFill && (
 								<LinearGradient
-									id={ `area-gradient-${ chartId }-${ index + 1 }` }
+									id={ `area-gradient-${ internalChartId }-${ index + 1 }` }
 									from={ stroke }
 									fromOpacity={ 0.4 }
 									toOpacity={ 0.1 }
@@ -363,7 +393,7 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								fill={
 									withGradientFill
-										? `url(#area-gradient-${ chartId }-${ index + 1 })`
+										? `url(#area-gradient-${ internalChartId }-${ index + 1 })`
 										: 'transparent'
 								}
 								renderLine={ true }
@@ -391,12 +421,30 @@ const LineChart: FC< LineChartProps > = ( {
 						series={ dataSorted }
 					/>
 				) }
+
+				{ annotations?.length &&
+					annotations.map(
+						( { datum, title, subtitle, subjectType, styles: datumStyles }, index ) =>
+							datum ? (
+								<LineChartAnnotation
+									key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
+									testId={ `annotation-${ index }` }
+									datum={ datum }
+									title={ title }
+									subtitle={ subtitle }
+									subjectType={ subjectType }
+									styles={ datumStyles }
+								/>
+							) : null
+					) }
 			</XYChart>
 
 			{ showLegend && (
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }
@@ -405,5 +453,13 @@ const LineChart: FC< LineChartProps > = ( {
 		</div>
 	);
 };
+
+const LineChart: FC< LineChartProps > = props => (
+	<ChartProvider>
+		<LineChartInternal { ...props } />
+	</ChartProvider>
+);
+
+LineChart.displayName = 'LineChart';
 
 export default withResponsive< LineChartProps >( LineChart );

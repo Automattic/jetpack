@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.36] - 2025-07-14
+### Changed
+- Update dependencies. [#44229]
+
+## [0.25.35] - 2025-07-07
+### Changed
+- Update dependencies. [#44161]
+- Update package dependencies. [#44148] [#44151]
+
+### Removed
+- Utilities: Remove post editor fallback as we no longer need to ensure compatibility. [#44164]
+
+## [0.25.34] - 2025-06-30
+### Changed
+- Update dependencies. [#44052]
+
+## [0.25.33] - 2025-06-24
+### Changed
+- Update dependencies. [#44052]
+
+## [0.25.32] - 2025-06-23
+### Changed
+- Update dependencies. [#44052]
+
+## [0.25.31] - 2025-06-23
+### Changed
+- Update dependencies. [#44002]
+- Update package dependencies. [#44020]
+
 ## [0.25.30] - 2025-06-16
 ### Changed
 - Update dependencies. [#43878]
@@ -613,6 +642,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.25.36]: https://github.com/automattic/jetpack-blaze/compare/v0.25.35...v0.25.36
+[0.25.35]: https://github.com/automattic/jetpack-blaze/compare/v0.25.34...v0.25.35
+[0.25.34]: https://github.com/automattic/jetpack-blaze/compare/v0.25.33...v0.25.34
+[0.25.33]: https://github.com/automattic/jetpack-blaze/compare/v0.25.32...v0.25.33
+[0.25.32]: https://github.com/automattic/jetpack-blaze/compare/v0.25.31...v0.25.32
+[0.25.31]: https://github.com/automattic/jetpack-blaze/compare/v0.25.30...v0.25.31
 [0.25.30]: https://github.com/automattic/jetpack-blaze/compare/v0.25.29...v0.25.30
 [0.25.29]: https://github.com/automattic/jetpack-blaze/compare/v0.25.28...v0.25.29
 [0.25.28]: https://github.com/automattic/jetpack-blaze/compare/v0.25.27...v0.25.28

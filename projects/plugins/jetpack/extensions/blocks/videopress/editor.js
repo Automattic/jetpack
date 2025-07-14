@@ -2,9 +2,8 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
-	isAtomicSite,
-	isSimpleSite,
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
 } from '@automattic/jetpack-shared-extension-utils';
@@ -19,7 +18,6 @@ import { mediaUpload, store as editorStore } from '@wordpress/editor';
 import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import { every } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -178,8 +176,7 @@ const addVideoPressSupport = ( settings, name ) => {
 	const { deprecated, edit, save, supports, transforms } = settings;
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 	const isNotAvailable =
-		( isSimpleSite() || isAtomicSite() ) &&
-		[ 'missing_plan', 'unknown' ].includes( unavailableReason );
+		isWpcomPlatformSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason );
 
 	const resumableUploadEnabled = !! window.videoPressResumableEnabled;
 
@@ -316,7 +313,7 @@ const addVideoPressSupport = ( settings, name ) => {
 				from: [
 					{
 						type: 'files',
-						isMatch: files => every( files, file => file.type.indexOf( 'video/' ) === 0 ),
+						isMatch: files => files.every( file => file.type.indexOf( 'video/' ) === 0 ),
 						// We define a higher priority (lower number) than the default of 10. This ensures that this
 						// transformation prevails over the core video block default transformations.
 						priority: 9,

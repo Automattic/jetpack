@@ -326,18 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8-a.5 - 2025-06-16
+### 14.9-a.3 - 2025-07-14
 #### Enhancements
-- AI Assistant: Add support for file upload field on Forms extension.
-- Forms: Add Akismet refresh status button.
-- Forms: Stop translate product name in the sidebar.
-- Forms: Show central integrations dashboard.
-- Forms: Use interactivity API for form validation.
-- Forms: Make it possible to preview file by visiting the URL.
+- Forms: Add "Empty trash" button.
+- Forms: Add link to disconnect Google.
+- Forms: Add tip that spam will automatically be deleted after 15 days.
+- Forms: Improve email copy-to-clipboard visually and make it less hidden.
+- Forms: Refresh look of responses in dashboard.
+- Forms: Update integration links.
+- Use the `view_stats` cap for the Jetpack Stats menu item instead of `manage_options`.
 
-#### Bug fixes
-- Endpoints: Prevent warnings in logs when attempting to add external media from some sources.
-- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist.
+#### Improved compatibility
+- Sync: Ignore the ActivityPub Outbox CPT.
 
 --------
 

@@ -95,3 +95,18 @@
 		color: #000 !important;
 	}
 }
+
+// daterangepicker style overrides
+.daterangepicker {
+
+	.calendar-table select {
+		min-height: inherit;
+		-webkit-appearance: auto;
+		background: none;
+	}
+
+	.ranges li.active, td.active, td.active:hover, .btn-primary {
+		background-color: var(--jp-black);
+		border-color: var(--jp-black);
+	}
+}

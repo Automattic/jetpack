@@ -2,12 +2,13 @@ import { __, sprintf } from '@wordpress/i18n';
 import { StepLabel } from 'crm/components/automations-admin/components/step-label';
 import { Trigger } from 'crm/state/automations-admin/types';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
 type TriggerInfoProps = {
 	trigger: Trigger;
 };
 
-export const TriggerInfo: React.FC< TriggerInfoProps > = ( { trigger } ) => {
+export const TriggerInfo: FC< TriggerInfoProps > = ( { trigger } ) => {
 	return (
 		<div className={ styles.container }>
 			<div className={ styles.title }>

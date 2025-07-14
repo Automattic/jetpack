@@ -37,7 +37,11 @@ infrastructureFileSets.build = new Set( [
 ] );
 infrastructureFileSets.e2e = {
 	has( f ) {
-		return infrastructureFileSets.base.has( f ) || f.startsWith( 'tools/e2e-commons/' );
+		return (
+			infrastructureFileSets.base.has( f ) ||
+			f.startsWith( 'tools/e2e-commons/' ) ||
+			f.startsWith( 'tools/docker/' )
+		);
 	},
 };
 

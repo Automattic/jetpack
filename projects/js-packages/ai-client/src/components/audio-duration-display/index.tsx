@@ -5,7 +5,7 @@ import { formatTime } from './lib/media.ts';
 /*
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 type AudioDurationDisplayProps = {
 	duration: number;
@@ -16,11 +16,11 @@ type AudioDurationDisplayProps = {
  * AudioDurationDisplay component.
  *
  * @param {AudioDurationDisplayProps} props - Component props.
- * @return {React.ReactElement}              Rendered component.
+ * @return {ReactElement}              Rendered component.
  */
 export default function AudioDurationDisplay( {
 	duration,
 	className,
-}: AudioDurationDisplayProps ): React.ReactElement {
+}: AudioDurationDisplayProps ): ReactElement {
 	return <span className={ className }>{ formatTime( duration, { addDecimalPart: false } ) }</span>;
 }

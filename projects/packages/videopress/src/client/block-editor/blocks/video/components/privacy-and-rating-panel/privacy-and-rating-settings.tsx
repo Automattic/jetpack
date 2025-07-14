@@ -19,20 +19,20 @@ import {
  * Types
  */
 import type { PrivacyAndRatingPanelProps } from '../../types';
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 /**
  * React component that renders the settings within the privacy and ratings panel.
  *
  * @param {PrivacyAndRatingPanelProps} props - Component props.
- * @return {React.ReactElement}               Settings to change video's privacy and ratings.
+ * @return {ReactElement}               Settings to change video's privacy and ratings.
  */
 export default function PrivacyAndRatingSettings( {
 	attributes,
 	setAttributes,
 	privateEnabledForSite,
 	videoBelongToSite,
-}: PrivacyAndRatingPanelProps ): React.ReactElement {
+}: PrivacyAndRatingPanelProps ): ReactElement {
 	const { privacySetting, rating, allowDownload, displayEmbed } = attributes;
 
 	const privacyLabels = {

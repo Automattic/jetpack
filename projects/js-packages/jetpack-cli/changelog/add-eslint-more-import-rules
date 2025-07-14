@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Disable eslint `import/no-unresolved` rule, doesn't work here because this isn't part of the pnpm workspace. No change to functionality.
+
+

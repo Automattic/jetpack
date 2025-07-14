@@ -5,7 +5,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
-import React from 'react';
+import { createElement } from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
 import LineChart from '../line-chart';
 
@@ -13,10 +13,10 @@ const customTheme = {
 	...jetpackTheme,
 	glyphs: [
 		props =>
-			React.createElement(
+			createElement(
 				'g',
 				{ 'data-testid': 'custom-glyph-diamond' },
-				React.createElement( GlyphDiamond, {
+				createElement( GlyphDiamond, {
 					key: props.key,
 					top: props.y,
 					left: props.x,
@@ -355,6 +355,76 @@ describe( 'LineChart', () => {
 		} );
 	} );
 
+	describe( 'Annotations', () => {
+		test( 'renders annotations when an annotations list is provided', () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+						title: 'Annotation 1',
+						subtitle: 'Annotation 1 subtitle',
+					},
+					{
+						datum: { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						title: 'Annotation 2',
+					},
+				],
+			} );
+
+			expect( screen.getByText( 'Annotation 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Annotation 1 subtitle' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+		} );
+
+		test( 'skips rendering an annotation when it is malformed', () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						title: 'Annotation 1',
+						subtitle: 'Annotation 1 subtitle',
+					},
+					{
+						datum: { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						title: 'Annotation 2',
+					},
+				],
+			} );
+
+			expect( screen.queryByText( 'Annotation 1' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Annotation 1 subtitle' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+		} );
+
+		test( 'does not render annotations when no annotations list is provided', () => {
+			renderWithTheme( {} );
+
+			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'does not render annotations when an empty annotations list is provided', () => {
+			renderWithTheme( {
+				annotations: [],
+			} );
+
+			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders annotations with zero values', () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						datum: { date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' },
+						title: 'Zero Value Annotation',
+						subtitle: 'This point has a value of 0',
+					},
+				],
+			} );
+
+			expect( screen.getByText( 'Zero Value Annotation' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'This point has a value of 0' ) ).toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'Keyboard Navigation Accessibility', () => {
 		describe( 'Chart Focus and Accessibility Attributes', () => {
 			test( 'chart container has proper accessibility attributes', () => {
@@ -405,15 +475,15 @@ describe( 'LineChart', () => {
 
 				// Single tab should focus on the first tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
 
 				// Second tab should focus on the second tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
-				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
 			} );
 
 			test( 'left arrow key navigates to previous data point', async () => {
@@ -444,21 +514,21 @@ describe( 'LineChart', () => {
 
 				// Right arrow key should focus on the first tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
 
 				// Right arrow key should focus on the second tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
-				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
 
 				// Left arrow key should focus on the first tooltip.
 				await user.keyboard( '{ArrowLeft}' );
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
 			} );
 		} );
 
@@ -494,8 +564,8 @@ describe( 'LineChart', () => {
 
 				// Clicking tab should not open any tooltips.
 				await user.tab();
-				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
-				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
 				// Chart should no longer be in focus.
 				expect( chart ).not.toHaveFocus();
 			} );
@@ -516,8 +586,8 @@ describe( 'LineChart', () => {
 
 			// Click on right arrow key to focus on the first tooltip.
 			await user.keyboard( '{ArrowRight}' );
-			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
+			expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
+			expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
 
 			const customTooltip = screen.getByTestId( 'custom-tooltip' );
 			expect( customTooltip ).toBeInTheDocument();
