@@ -4,6 +4,7 @@ export { LineChart } from './components/line-chart';
 export { PieChart } from './components/pie-chart';
 export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
 export { BarListChart } from './components/bar-list-chart';
+export { LeaderboardChart } from './components/leaderboard-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
@@ -33,3 +34,10 @@ export type {
 export type { LineStyles, GridStyles } from '@visx/xychart';
 
 export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
+
+// LeaderboardChart types
+export type { LeaderboardChartProps, LeaderboardEntry } from './components/leaderboard-chart';
+
+// LeaderboardChart utilities
+export { buildLeaderboardData, calculateDelta } from './components/leaderboard-chart/utils';
+export type { LeaderboardDataItem } from './components/leaderboard-chart/utils';
