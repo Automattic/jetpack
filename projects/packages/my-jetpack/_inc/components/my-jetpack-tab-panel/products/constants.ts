@@ -28,7 +28,7 @@ export const JETPACK_PRODUCTS = [
 	...JETPACK_PRODUCTS_WITHOUT_CARD,
 ] as const;
 
-export const JETPACK_PRODUCTS_NOT_4_MULTISITE: Array< ( typeof JETPACK_PRODUCTS )[ number ] > = [
+export const JETPACK_PRODUCTS_NOT_FOR_MULTISITE: Array< ( typeof JETPACK_PRODUCTS )[ number ] > = [
 	'backup',
 	'scan',
 ];

@@ -2,7 +2,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { ProductCamelCase } from '../../../data/types';
 import { MyJetpackModule } from '../../types';
-import { JETPACK_PRODUCTS_NOT_4_MULTISITE } from './constants';
+import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from './constants';
 import { ProductFilter, ProductSection } from './types';
 
 /**
@@ -129,8 +129,8 @@ export function getProductStatus( product: ProductCamelCase ) {
 
 	// If the product is not supported on multisite, we set the available to false and provide a reason.
 	if ( getScriptData().site.is_multisite ) {
-		isAvailable = ! JETPACK_PRODUCTS_NOT_4_MULTISITE.includes(
-			product.slug as ( typeof JETPACK_PRODUCTS_NOT_4_MULTISITE )[ number ]
+		isAvailable = ! JETPACK_PRODUCTS_NOT_FOR_MULTISITE.includes(
+			product.slug as ( typeof JETPACK_PRODUCTS_NOT_FOR_MULTISITE )[ number ]
 		);
 
 		if ( ! isAvailable ) {

@@ -2,7 +2,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { MyJetpackModule } from '../types';
 
-export const JETPACK_MODULES_NOT_4_MULTISITE = [ 'waf', 'wordads' ];
+export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'waf', 'wordads' ];
 
 /**
  * Check if a module is supported on the current site.
@@ -16,8 +16,8 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 	let reason: string | undefined;
 	// If the module is not supported on multisite, we set the availability to false and provide a reason.
 	if ( getScriptData().site.is_multisite ) {
-		isAvailable = ! JETPACK_MODULES_NOT_4_MULTISITE.includes(
-			$module.module as ( typeof JETPACK_MODULES_NOT_4_MULTISITE )[ number ]
+		isAvailable = ! JETPACK_MODULES_NOT_FOR_MULTISITE.includes(
+			$module.module as ( typeof JETPACK_MODULES_NOT_FOR_MULTISITE )[ number ]
 		);
 
 		if ( ! isAvailable ) {
