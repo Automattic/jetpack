@@ -118,7 +118,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 * @return array Widget types hidden from the Legacy Widget block
 		 */
 		public function hide_simple_payment_widget( $widget_types ) {
-			$widget_types[] = 'jetpack_simple_payments_widget';
+			$widget_types[] = 'simple_payments_widget';
 			return $widget_types;
 		}
 

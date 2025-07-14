@@ -153,9 +153,16 @@ class PayPal_Payments_Currencies {
 	 * @return string           Formatted price.
 	 */
 	public static function format_price( $price, $currency, $symbol = true ) {
-		// Add some basic formatting for the price.
-		$formatted_number = new NumberFormatter( get_locale(), NumberFormatter::DECIMAL );
-		$price            = (float) $formatted_number->parse( $price );
+		$price = floatval( $price );
+
+		// Try to parse using NumberFormatter if available
+		if ( class_exists( 'NumberFormatter' ) ) {
+			$formatter = new NumberFormatter( get_locale(), NumberFormatter::DECIMAL );
+			$parsed    = $formatter->parse( (string) $price );
+			if ( false !== $parsed ) {
+				$price = (float) $parsed;
+			}
+		}
 
 		// Fall back to unspecified currency symbol like `¤1,234.05`.
 		// @link https://en.wikipedia.org/wiki/Currency_sign_(typography).
