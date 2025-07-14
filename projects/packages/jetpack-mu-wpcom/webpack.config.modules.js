@@ -3,7 +3,6 @@
  */
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 
 const { mode, devtool, output, optimization, resolve } = jetpackWebpackConfig;
 
@@ -35,17 +34,16 @@ module.exports = {
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: false,
+			DependencyExtractionPlugin: {
+				requestToExternalModule( request ) {
+					if ( request === '@a8cCodeEditor/codemirror-bundle' ) {
+						return true;
+					}
+				},
+				combineAssets: true,
+			},
 			I18nLoaderPlugin: false,
 			I18nCheckPlugin: false,
-		} ),
-		new DependencyExtractionWebpackPlugin( {
-			requestToExternalModule( request ) {
-				if ( request === '@a8cCodeEditor/codemirror-bundle' ) {
-					return true;
-				}
-			},
-			combineAssets: true,
 		} ),
 	],
 

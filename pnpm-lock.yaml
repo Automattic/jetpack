@@ -2857,9 +2857,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.23)
-      '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 6.26.0
-        version: 6.26.0(webpack@5.94.0)
       babel-plugin-transform-rename-properties:
         specifier: 0.1.0
         version: 0.1.0(@babel/core@7.27.7)
