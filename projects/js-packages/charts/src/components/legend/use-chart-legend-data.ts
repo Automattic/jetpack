@@ -5,14 +5,15 @@ import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from 
 export interface ChartLegendOptions {
 	withGlyph?: boolean;
 	glyphSize?: number;
-	renderGlyph?: React.ComponentType< any >;
+	renderGlyph?: React.ComponentType< unknown >;
 	showValues?: boolean;
 }
 
 /**
  * Formats the value for a data point based on its type
- * @param point
- * @param showValues
+ * @param point      - The data point to format
+ * @param showValues - Whether to show values or return empty string
+ * @return Formatted value string
  */
 function formatPointValue(
 	point: DataPointDate | DataPointPercentage,
@@ -33,9 +34,10 @@ function formatPointValue(
 
 /**
  * Creates a base legend item with common properties
- * @param label
- * @param value
- * @param color
+ * @param label - The label for the legend item
+ * @param value - The value for the legend item
+ * @param color - The color for the legend item
+ * @return Base legend item object
  */
 function createBaseLegendItem(
 	label: string,
@@ -51,12 +53,13 @@ function createBaseLegendItem(
 
 /**
  * Processes SeriesData into legend items
- * @param seriesData
- * @param theme
- * @param showValues
- * @param withGlyph
- * @param glyphSize
- * @param renderGlyph
+ * @param seriesData  - The series data to process
+ * @param theme       - The chart theme for colors
+ * @param showValues  - Whether to show values in legend
+ * @param withGlyph   - Whether to include glyph rendering
+ * @param glyphSize   - Size of the glyph
+ * @param renderGlyph - Component to render the glyph
+ * @return Array of processed legend items
  */
 function processSeriesData(
 	seriesData: SeriesData[],
@@ -64,7 +67,7 @@ function processSeriesData(
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
-	renderGlyph?: React.ComponentType< any >
+	renderGlyph?: React.ComponentType< unknown >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( series: SeriesData, index: number ) => {
 		const baseItem = createBaseLegendItem(
@@ -89,12 +92,13 @@ function processSeriesData(
 
 /**
  * Processes point data into legend items
- * @param pointData
- * @param theme
- * @param showValues
- * @param withGlyph
- * @param glyphSize
- * @param renderGlyph
+ * @param pointData   - The point data to process
+ * @param theme       - The chart theme for colors
+ * @param showValues  - Whether to show values in legend
+ * @param withGlyph   - Whether to include glyph rendering
+ * @param glyphSize   - Size of the glyph
+ * @param renderGlyph - Component to render the glyph
+ * @return Array of processed legend items
  */
 function processPointData(
 	pointData: ( DataPointDate | DataPointPercentage )[],
@@ -102,7 +106,7 @@ function processPointData(
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
-	renderGlyph?: React.ComponentType< any >
+	renderGlyph?: React.ComponentType< unknown >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( point: DataPointDate | DataPointPercentage, index: number ) => {
 		const baseItem = createBaseLegendItem(
@@ -127,9 +131,10 @@ function processPointData(
 
 /**
  * Hook to transform chart data into legend items
- * @param data
- * @param theme
- * @param options
+ * @param data    - The chart data to transform
+ * @param theme   - The chart theme for colors
+ * @param options - Configuration options for legend generation
+ * @return Array of legend items ready for display
  */
 export function useChartLegendData<
 	T extends SeriesData[] | DataPointDate[] | DataPointPercentage[],
