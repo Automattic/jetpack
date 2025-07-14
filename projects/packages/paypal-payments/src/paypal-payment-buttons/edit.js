@@ -89,17 +89,6 @@ const validHostedButtonId = hostedButtonId => /^[A-Z0-9]+$/.test( hostedButtonId
 const validButtonText = buttonText =>
 	buttonText && buttonText.trim().length > 0 && buttonText.length <= 50;
 
-/**
- * The edit function describes the structure of your block in the context of the
- * editor. This represents what the editor will render when the block is used.
- *
- * @see    https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
- *
- * @param {object}   props               - Properties passed to the function.
- * @param {object}   props.attributes    - Block attributes.
- * @param {Function} props.setAttributes - Function to update block attributes.
- * @return {Element}                     Element to render.
- */
 export default function Edit( { attributes, setAttributes } ) {
 	const { buttonType, scriptSrc, hostedButtonId, buttonText } = attributes;
 	const [ notice, setNotice ] = useState( null );
