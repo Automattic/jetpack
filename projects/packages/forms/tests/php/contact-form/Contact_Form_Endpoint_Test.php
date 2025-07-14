@@ -283,4 +283,52 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
 	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint with default status
+	 */
+	public function test_delete_feedback_trash_default_status() {
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify response code
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify response structure
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'deleted', $data );
+		$this->assertIsInt( $data['deleted'] );
+	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint with spam status
+	 */
+	public function test_delete_feedback_trash_spam_status() {
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$request->set_param( 'status', 'spam' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify response code
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify response structure
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'deleted', $data );
+		$this->assertIsInt( $data['deleted'] );
+	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint unauthorized access
+	 */
+	public function test_delete_feedback_trash_unauthorized() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
 }
