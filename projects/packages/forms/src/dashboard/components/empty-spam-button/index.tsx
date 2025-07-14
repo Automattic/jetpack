@@ -22,9 +22,9 @@ type CoreStore = typeof coreStore & {
 /**
  * Renders a button to empty form responses.
  *
- * @return {JSX.Element} The empty trash button.
+ * @return {JSX.Element} The empty spam button.
  */
-const EmptyTrashButton = (): JSX.Element => {
+const EmptySpamButton = (): JSX.Element => {
 	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
 
@@ -141,4 +141,4 @@ const EmptyTrashButton = (): JSX.Element => {
 	);
 };
 
-export default EmptyTrashButton;
+export default EmptySpamButton;
