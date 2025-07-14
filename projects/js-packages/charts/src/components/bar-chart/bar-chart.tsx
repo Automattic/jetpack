@@ -166,6 +166,44 @@ const BarChart: FC< BarChartProps > = ( {
 		[ chartId ]
 	);
 
+	const createKeyboardHighlightStyle = useCallback( () => {
+		if ( selectedIndex === undefined ) return '';
+
+		// Calculate which bar should be highlighted based on selectedIndex
+		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
+		const maxDataPoints = Math.max( ...data.map( s => s.data.length ) );
+		const dataPointIndex = Math.floor( selectedIndex / data.length );
+		const seriesIndex = selectedIndex % data.length;
+
+		// Only highlight if we're within valid bounds
+		if ( dataPointIndex >= maxDataPoints || seriesIndex >= data.length ) {
+			return '';
+		}
+
+		const seriesData = data[ seriesIndex ];
+		if ( dataPointIndex >= seriesData.data.length ) {
+			return '';
+		}
+
+		// Based on the DOM structure analysis:
+		// - All bars are in a single .visx-bar-group
+		// - Bars are ordered as: [series1[0], series1[1], series2[0], series2[1], ...]
+		// - So we need to calculate the actual bar index in the DOM
+		const actualBarIndex = seriesIndex * maxDataPoints + dataPointIndex;
+
+		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
+		const generatedStyles = `
+			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
+				actualBarIndex + 1
+			}) {
+				stroke: #005fcc;
+				stroke-width: 2px;
+			}
+		`;
+
+		return generatedStyles;
+	}, [ selectedIndex, data, chartId ] );
+
 	// Validate data using the same pattern as LineChart
 	const error = validateData( data );
 	if ( error ) {
@@ -181,6 +219,7 @@ const BarChart: FC< BarChartProps > = ( {
 	} ) );
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
+	const highlightedBarStyle = createKeyboardHighlightStyle();
 
 	return (
 		<div
@@ -197,6 +236,7 @@ const BarChart: FC< BarChartProps > = ( {
 			onFocus={ onChartFocus }
 			onBlur={ onChartBlur }
 			ref={ chartRef }
+			data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
 		>
 			<XYChart
 				theme={ theme }
@@ -228,6 +268,8 @@ const BarChart: FC< BarChartProps > = ( {
 						</style>
 					</>
 				) }
+
+				{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
 				<BarGroup padding={ chartOptions.barGroup.padding }>
 					{ data.map( ( seriesData, index ) => (

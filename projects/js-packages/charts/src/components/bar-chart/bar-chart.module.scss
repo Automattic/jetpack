@@ -5,7 +5,13 @@
 		overflow: visible;
 	}
 
-	&-legend {
+	&__legend {
 		margin-top: 1rem;
+	}
+
+	&__keyboard-highlight {
+		stroke: #1e40af !important;
+		stroke-width: 3px !important;
+		stroke-dasharray: none !important;
 	}
 }
