@@ -11,6 +11,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
+import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import ExportResponsesButton from '../../inbox/export-responses';
 import { config } from '../../index';
@@ -36,6 +37,7 @@ const Layout = () => {
 	);
 
 	const isResponsesTrashView = currentStatus.includes( 'trash' );
+	const isResponsesSpamView = currentStatus.includes( 'spam' );
 
 	useEffect( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_dashboard_page_view', {
@@ -106,13 +108,15 @@ const Layout = () => {
 				{ isSm ? (
 					<>
 						{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
+						{ isResponsesTab && isResponsesSpamView && <EmptySpamButton /> }
 						<ActionsDropdownMenu exportData={ { show: isResponsesTab } } />
 					</>
 				) : (
 					<div className="jp-forms__layout-header-actions">
 						{ isResponsesTab && <ExportResponsesButton /> }
 						{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
-						{ ! isResponsesTrashView && (
+						{ isResponsesTab && isResponsesSpamView && <EmptySpamButton /> }
+						{ ! isResponsesTrashView && ! isResponsesSpamView && (
 							<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
 						) }
 					</div>
