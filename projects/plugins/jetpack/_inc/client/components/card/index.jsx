@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component, createElement } from 'react';
 import Gridicon from '../gridicon';
@@ -101,7 +100,12 @@ class Card extends Component {
 
 		return createElement(
 			this.props.href ? 'a' : this.props.tagName,
-			Object.assign( omit( this.props, omitProps ), { className } ),
+			{
+				...Object.fromEntries(
+					Object.entries( this.props ).filter( ( [ k ] ) => ! omitProps.includes( k ) )
+				),
+				className,
+			},
 			fancyTitle,
 			this.props.children,
 			linkIndicator

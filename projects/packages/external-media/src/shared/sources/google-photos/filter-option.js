@@ -2,7 +2,6 @@ import { NumberControl } from '@automattic/jetpack-components';
 import { SelectControl, Button } from '@wordpress/components';
 import { useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { omit } from 'lodash';
 import {
 	GOOGLE_PHOTOS_CATEGORIES,
 	GOOGLE_PHOTOS_DATE_PRESETS,
@@ -209,13 +208,19 @@ function getUpdatedFilters( existing, key, value ) {
 function GoogleFilterOption( { filters, setFilters, canChangeMedia } ) {
 	const options = Object.keys( filters )
 		.filter( item => canChangeMedia || item !== 'mediaType' )
-		.map( key => (
-			<FilterOption key={ key } removeFilter={ () => setFilters( omit( filters, key ) ) }>
-				{ getFilterOption( key, filters[ key ], value =>
-					setFilters( getUpdatedFilters( filters, key, value ) )
-				) }
-			</FilterOption>
-		) );
+		.map( key => {
+			const removeFilter = () => {
+				const { [ key ]: _, ...filtersExceptKey } = filters;
+				return setFilters( filtersExceptKey );
+			};
+			return (
+				<FilterOption key={ key } removeFilter={ removeFilter }>
+					{ getFilterOption( key, filters[ key ], value =>
+						setFilters( getUpdatedFilters( filters, key, value ) )
+					) }
+				</FilterOption>
+			);
+		} );
 
 	if ( options.length === 0 ) {
 		return null;
