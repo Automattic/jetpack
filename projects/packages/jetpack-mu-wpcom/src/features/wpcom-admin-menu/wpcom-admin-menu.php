@@ -210,16 +210,11 @@ function wpcom_add_jetpack_submenu() {
 		return;
 	}
 
-	// Hide submenu items that link to Jetpack Cloud.
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
-
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	// Jetpack > Scan.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 	add_submenu_page(
 		'jetpack',
 		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
@@ -230,6 +225,7 @@ function wpcom_add_jetpack_submenu() {
 	);
 
 	// Jetpack > Backup.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	add_submenu_page(
 		'jetpack',
 		esc_attr__( 'Backup', 'jetpack-mu-wpcom' ),
@@ -251,6 +247,7 @@ function wpcom_add_jetpack_submenu() {
 
 	if ( $uses_wp_admin_interface ) {
 		// Jetpack > Activity Log.
+		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
 		add_submenu_page(
 			'jetpack',
 			__( 'Activity Log', 'jetpack-mu-wpcom' ),
@@ -262,6 +259,7 @@ function wpcom_add_jetpack_submenu() {
 
 		// Jetpack > Subscribers.
 		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+			wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 			add_submenu_page(
 				'jetpack',
 				__( 'Subscribers', 'jetpack-mu-wpcom' ),
