@@ -1,4 +1,4 @@
-import { registerJetpackBlockFromMetadata } from '../utils/register-jetpack-block';
+import { registerJetpackBlockFromMetadata } from '../block/register-jetpack-block';
 import metadata from './block.json';
 import edit from './edit';
 import PayPalIcon from './icon';
