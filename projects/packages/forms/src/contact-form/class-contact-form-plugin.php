@@ -3103,12 +3103,13 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
-		// Extract min and max from the jetpack/slider-input child block, similar to number field logic.
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
 			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
 				if ( 'jetpack/slider-input' === ( $inner_block['blockName'] ?? '' ) ) {
-					$atts['min'] = $inner_block['attrs']['min'] ?? '';
-					$atts['max'] = $inner_block['attrs']['max'] ?? '';
+					$attrs                 = $inner_block['attrs'] ?? array();
+					$atts['min']           = isset( $attrs['min'] ) && $attrs['min'] !== '' ? $attrs['min'] : 0;
+					$atts['max']           = isset( $attrs['max'] ) && $attrs['max'] !== '' ? $attrs['max'] : 100;
+					$atts['startingValue'] = isset( $attrs['startingValue'] ) && $attrs['startingValue'] !== '' ? $attrs['startingValue'] : 50;
 				}
 			}
 		}

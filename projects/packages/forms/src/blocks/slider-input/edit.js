@@ -1,20 +1,11 @@
 import './editor.scss';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export default function SliderInputEdit( props ) {
 	const { attributes, setAttributes } = props;
 	const { min, max, value, startingValue } = attributes;
-
-	// Ensure min, max, value, and defaultValue are always set and saved
-	useEffect( () => {
-		if ( min === undefined ) setAttributes( { min: 0 } );
-		if ( max === undefined ) setAttributes( { max: 100 } );
-		if ( value === undefined ) setAttributes( { value: 50 } );
-		if ( startingValue === undefined ) setAttributes( { startingValue: 50 } );
-	}, [ min, max, value, startingValue, setAttributes ] );
 
 	const onChange = event => {
 		setAttributes( { value: Number( event.target.value ) } );

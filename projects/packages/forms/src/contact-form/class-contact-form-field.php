@@ -2215,8 +2215,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// translators: %d is the maximum value.
 			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
 		}
-		$min   = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : '';
-		$max   = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : '';
+		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
+		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
+		$starting_value = isset( $extra_attrs['startingValue'] ) ? $extra_attrs['startingValue'] : 50;
+		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
+
 		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
 
 		ob_start();
@@ -2229,7 +2232,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			echo wp_interactivity_data_wp_context(
 				array(
 					'fieldId'    => $id,
-					'fieldValue' => $value,
+					'fieldValue' => $current_value,
 					'fieldExtra' => array(
 						'min' => $min,
 						'max' => $max,
@@ -2244,7 +2247,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					type="range"
 					name="<?php echo esc_attr( $id ); ?>"
 					id="<?php echo esc_attr( $id ); ?>"
-					value="<?php echo esc_attr( $value ); ?>"
+					value="<?php echo esc_attr( $current_value ); ?>"
 					min="<?php echo esc_attr( $min ); ?>"
 					max="<?php echo esc_attr( $max ); ?>"
 					class="<?php echo esc_attr( $class ); ?>"
@@ -2261,7 +2264,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					class="jetpack-slider-input__value-indicator"
 					data-wp-text="state.getFieldValue"
 					data-wp-style--left="state.getIndicatorPosition"
-				><?php echo esc_html( $value ); ?></div>
+				><?php echo esc_html( $current_value ); ?></div>
 			</div>
 			<span class="jetpack-slider-input__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
