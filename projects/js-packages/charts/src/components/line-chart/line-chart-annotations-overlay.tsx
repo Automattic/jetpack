@@ -5,7 +5,7 @@ import styles from './line-chart.module.scss';
 import type { AxisScale } from '@visx/axis';
 import type { FC, ReactNode } from 'react';
 
-interface LineChartAnnotationsProps {
+export interface LineChartAnnotationsProps {
 	children?: ReactNode;
 }
 
