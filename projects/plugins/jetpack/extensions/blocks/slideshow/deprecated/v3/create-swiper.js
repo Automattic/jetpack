@@ -1,7 +1,7 @@
 import './style.scss';
 
 export default async function createSwiper(
-	container = '.wp-block-jetpack-slideshow_container',
+	container = '.swiper-container',
 	params = {},
 	callbacks = {}
 ) {

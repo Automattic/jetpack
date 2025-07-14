@@ -72,7 +72,7 @@ function render_amp( $attr ) {
 	$classes  = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr, $extras );
 
 	return sprintf(
-		'<div class="%1$s" id="wp-block-jetpack-slideshow__%2$d"><div class="wp-block-jetpack-slideshow_container swiper-container">%3$s%4$s%5$s</div></div>',
+		'<div class="%1$s" id="wp-block-jetpack-slideshow__%2$d"><div class="wp-block-jetpack-slideshow_container swiper">%3$s%4$s%5$s</div></div>',
 		esc_attr( $classes ),
 		absint( $wp_block_jetpack_slideshow_id ),
 		amp_carousel( $attr, $wp_block_jetpack_slideshow_id ),
