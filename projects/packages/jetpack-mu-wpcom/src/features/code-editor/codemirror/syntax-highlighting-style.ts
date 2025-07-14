@@ -1,17 +1,23 @@
 import { HighlightStyle } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 
-const SYNTAX_HIGHLIGHT_GRAY = '#757575';
-const SYNTAX_HIGHLIGHT_PURPLE = '#5200FF';
-const SYNTAX_HIGHLIGHT_BLUE = '#3858E9';
-const SYNTAX_HIGHLIGHT_ORANGE = '#D14900';
-const SYNTAX_HIGHLIGHT_GREEN = '#427700';
+export const SYNTAX_HIGHLIGHT_GRAY = '#757575';
+export const SYNTAX_HIGHLIGHT_GRAY_LIGHT = '#B9B9B9';
+export const SYNTAX_HIGHLIGHT_PURPLE = '#5200FF';
+export const SYNTAX_HIGHLIGHT_BLUE = '#3858E9';
+export const SYNTAX_HIGHLIGHT_ORANGE = '#D14900';
+export const SYNTAX_HIGHLIGHT_GREEN = '#427700';
 
 export const syntaxHighlightingStyle = HighlightStyle.define( [
 	/*
 	 * General
 	 */
-	{ tag: t.comment, color: SYNTAX_HIGHLIGHT_GRAY },
+	{
+		tag: t.comment,
+		// A css class name is added in order to apply different focus styles to comments.
+		// See `improved-code-editor-theme.css` for additional styling.
+		class: 'tok-comment',
+	},
 
 	/*
 	 * HTML
