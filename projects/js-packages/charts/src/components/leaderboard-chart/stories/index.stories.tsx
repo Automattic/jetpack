@@ -1,3 +1,4 @@
+import { formatMetricValue } from '../format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';
 import { sampleData, smallDataset, largeValues, negativeGrowth } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -122,5 +123,70 @@ export const NegativeGrowth: Story = {
 		loading: false,
 		primaryColor: '#3858E9',
 		secondaryColor: '#66BDFF',
+	},
+};
+
+export const CurrencyFormatting: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		primaryColor: '#3858E9',
+		secondaryColor: '#66BDFF',
+		valueFormatter: ( value: number ) =>
+			formatMetricValue( value, 'currency', {
+				useMultipliers: true,
+				decimals: 1,
+			} ),
+		deltaFormatter: ( value: number ) =>
+			formatMetricValue( value / 100, 'average', {
+				decimals: 0,
+			} ),
+	},
+};
+
+export const NumberFormatting: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		primaryColor: '#FF6B6B',
+		secondaryColor: '#4ECDC4',
+		valueFormatter: ( value: number ) =>
+			formatMetricValue( value, 'number', {
+				useMultipliers: false,
+				decimals: 0,
+			} ),
+		deltaFormatter: ( value: number ) =>
+			formatMetricValue( value / 100, 'average', {
+				decimals: 1,
+			} ),
+	},
+};
+
+export const AdvancedFormatting: Story = {
+	args: {
+		data: largeValues,
+		withComparison: true,
+		loading: false,
+		primaryColor: '#8B5CF6',
+		secondaryColor: '#06B6D4',
+		valueFormatter: ( value: number ) => {
+			if ( value >= 1000000 ) {
+				return formatMetricValue( value, 'currency', {
+					useMultipliers: true,
+					decimals: 1,
+				} );
+			}
+			return formatMetricValue( value, 'currency', {
+				useMultipliers: false,
+				decimals: 0,
+			} );
+		},
+		deltaFormatter: ( value: number ) =>
+			formatMetricValue( value / 100, 'average', {
+				decimals: 1,
+				signDisplay: 'always',
+			} ),
 	},
 };

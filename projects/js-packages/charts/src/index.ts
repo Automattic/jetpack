@@ -36,8 +36,13 @@ export type { LineStyles, GridStyles } from '@visx/xychart';
 export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
 
 // LeaderboardChart types
-export type { LeaderboardChartProps, LeaderboardEntry } from './components/leaderboard-chart';
+export type {
+	LeaderboardChartProps,
+	LeaderboardEntry,
+	MetricValueType,
+} from './components/leaderboard-chart';
 
 // LeaderboardChart utilities
 export { buildLeaderboardData, calculateDelta } from './components/leaderboard-chart/utils';
+export { formatMetricValue } from './components/leaderboard-chart';
 export type { LeaderboardDataItem } from './components/leaderboard-chart/utils';

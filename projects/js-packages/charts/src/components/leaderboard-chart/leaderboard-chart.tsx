@@ -1,8 +1,7 @@
-import { formatNumberCompact } from '@automattic/number-formatters';
 import clsx from 'clsx';
 import { Fragment, type FC } from 'react';
+import { formatMetricValue } from './format-metric-value';
 import styles from './leaderboard-chart.module.scss';
-import type { BaseChartProps } from '../../types';
 
 export interface LeaderboardEntry {
 	/**
@@ -41,7 +40,7 @@ export interface LeaderboardEntry {
 	delta: number;
 }
 
-export interface LeaderboardChartProps extends BaseChartProps {
+export interface LeaderboardChartProps {
 	/**
 	 * Array of leaderboard entries to display
 	 */
@@ -76,36 +75,42 @@ export interface LeaderboardChartProps extends BaseChartProps {
 	 * Whether the chart is in loading state
 	 */
 	loading?: boolean;
+
+	/**
+	 * Additional CSS class name for the chart container
+	 */
+	className?: string;
+
+	/**
+	 * Custom styling for the chart container
+	 */
+	style?: React.CSSProperties;
 }
 
 /**
- * Default value formatter using compact number formatting
+ * Default value formatter using formatMetricValue
  *
  * @param value - The numeric value to format
  * @return Formatted string representation of the value
  */
 const defaultValueFormatter = ( value: number ): string => {
-	return formatNumberCompact( value, {
+	return formatMetricValue( value, 'number', {
+		useMultipliers: true,
 		decimals: 1,
-		numberFormatOptions: {
-			maximumFractionDigits: 1,
-		},
 	} );
 };
 
 /**
- * Default delta formatter as percentage
+ * Default delta formatter using formatMetricValue
  *
  * @param value - The delta value to format
  * @return Formatted percentage string
  */
 const defaultDeltaFormatter = ( value: number ): string => {
-	const percentage = value / 100;
-	return new Intl.NumberFormat( 'en-US', {
-		style: 'percent',
+	return formatMetricValue( value / 100, 'average', {
+		decimals: 0,
 		signDisplay: 'exceptZero',
-		maximumFractionDigits: 0,
-	} ).format( percentage );
+	} );
 };
 
 /**
