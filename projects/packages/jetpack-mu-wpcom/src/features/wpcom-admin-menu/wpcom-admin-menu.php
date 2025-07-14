@@ -227,7 +227,7 @@ function wpcom_add_jetpack_submenu() {
 		__( 'Scan', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		'https://wordpress.com/scan/' . $domain,
-		null
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
 	// Jetpack > Backup.
@@ -238,7 +238,7 @@ function wpcom_add_jetpack_submenu() {
 		__( 'Backup', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		'https://wordpress.com/backup/' . $domain,
-		null
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
 	// Jetpack > Monetize.
@@ -248,7 +248,7 @@ function wpcom_add_jetpack_submenu() {
 		__( 'Monetize', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		'https://wordpress.com/earn/' . $domain,
-		null
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
 	if ( $uses_wp_admin_interface ) {
@@ -260,7 +260,7 @@ function wpcom_add_jetpack_submenu() {
 			__( 'Activity Log', 'jetpack-mu-wpcom' ),
 			'manage_options',
 			'https://wordpress.com/activity-log/' . $domain,
-			null
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 
 		// Jetpack > Subscribers.
@@ -272,7 +272,7 @@ function wpcom_add_jetpack_submenu() {
 				__( 'Subscribers', 'jetpack-mu-wpcom' ),
 				'manage_options',
 				'https://wordpress.com/subscribers/' . $domain,
-				null
+				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			);
 		} else {
 			$subscribers_dashboard = new Subscribers_Dashboard();
@@ -287,7 +287,7 @@ function wpcom_add_jetpack_submenu() {
 				__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				'manage_options',
 				'https://wordpress.com/settings/newsletter/' . $domain,
-				null
+				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			);
 		}
 
@@ -298,7 +298,7 @@ function wpcom_add_jetpack_submenu() {
 			__( 'Podcasting', 'jetpack-mu-wpcom' ),
 			'manage_options',
 			'https://wordpress.com/settings/podcasting/' . $domain,
-			null
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 	}
 
