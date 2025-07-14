@@ -104,6 +104,56 @@ class Jetpack_Iframe_Embed {
 			$parsed_block['attrs']['muted']    = true;
 		}
 
+		if ( 'core/video' === $parsed_block['blockName'] && isset( $parsed_block['innerHTML'] ) ) {
+			$processor = WP_HTML_Processor::create_fragment( $parsed_block['innerHTML'] );
+			while ( $processor->next_tag( 'iframe' ) ) {
+				$iframe_src = $processor->get_attribute( 'src' );
+				if ( $iframe_src ) {
+					$parsed_url = wp_parse_url( $iframe_src );
+					if ( isset( $parsed_url['query'] ) ) {
+						parse_str( $parsed_url['query'], $query_params );
+						$query_params['autoPlay'] = '0';
+						$parsed_url['query']      = http_build_query( $query_params );
+					} else {
+						$parsed_url['query'] = 'autoPlay=0';
+					}
+					$new_src = ( isset( $parsed_url['scheme'] ) ? $parsed_url['scheme'] . '://' : '' ) .
+						( isset( $parsed_url['host'] ) ? $parsed_url['host'] : '' ) .
+						( isset( $parsed_url['port'] ) ? ':' . $parsed_url['port'] : '' ) .
+						( isset( $parsed_url['path'] ) ? $parsed_url['path'] : '' ) .
+						( isset( $parsed_url['query'] ) ? '?' . $parsed_url['query'] : '' ) .
+						( isset( $parsed_url['fragment'] ) ? '#' . $parsed_url['fragment'] : '' );
+					$processor->set_attribute( 'src', $new_src );
+				}
+			}
+			$parsed_block['innerHTML'] = $processor->get_updated_html();
+		}
+
+		if ( 'core/video' === $parsed_block['blockName'] && isset( $parsed_block['innerContent'] ) && isset( $parsed_block['innerContent'][0] ) ) {
+			$processor = WP_HTML_Processor::create_fragment( $parsed_block['innerContent'][0] );
+			while ( $processor->next_tag( 'iframe' ) ) {
+				$iframe_src = $processor->get_attribute( 'src' );
+				if ( $iframe_src ) {
+					$parsed_url = wp_parse_url( $iframe_src );
+					if ( isset( $parsed_url['query'] ) ) {
+						parse_str( $parsed_url['query'], $query_params );
+						$query_params['autoPlay'] = '0';
+						$parsed_url['query']      = http_build_query( $query_params );
+					} else {
+						$parsed_url['query'] = 'autoPlay=0';
+					}
+					$new_src = ( isset( $parsed_url['scheme'] ) ? $parsed_url['scheme'] . '://' : '' ) .
+						( isset( $parsed_url['host'] ) ? $parsed_url['host'] : '' ) .
+						( isset( $parsed_url['port'] ) ? ':' . $parsed_url['port'] : '' ) .
+						( isset( $parsed_url['path'] ) ? $parsed_url['path'] : '' ) .
+						( isset( $parsed_url['query'] ) ? '?' . $parsed_url['query'] : '' ) .
+						( isset( $parsed_url['fragment'] ) ? '#' . $parsed_url['fragment'] : '' );
+					$processor->set_attribute( 'src', $new_src );
+				}
+			}
+			$parsed_block['innerContent'][0] = $processor->get_updated_html();
+		}
+
 		return $parsed_block;
 	}
 
