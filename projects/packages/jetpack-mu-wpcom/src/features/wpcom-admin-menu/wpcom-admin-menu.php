@@ -435,9 +435,6 @@ function wpcom_hide_submenu_page( string $menu_slug, string $submenu_slug ) {
 	}
 
 	foreach ( $submenu[ $menu_slug ] as $i => $item ) {
-		l( 'hey' );
-		l( $i );
-		l( $item );
 		if ( $submenu_slug !== $item[2] ) {
 			continue;
 		}
