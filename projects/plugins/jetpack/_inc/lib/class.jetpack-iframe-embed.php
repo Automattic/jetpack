@@ -35,7 +35,7 @@ class Jetpack_Iframe_Embed {
 		add_filter( 'shortcode_atts_video', array( 'Jetpack_Iframe_Embed', 'disable_autoplay' ) );
 		add_filter( 'shortcode_atts_audio', array( 'Jetpack_Iframe_Embed', 'disable_autoplay' ) );
 
-		add_filter( 'render_block_data', array( 'Jetpack_Iframe_Embed', 'disable_videopress_autoplay' ) );
+		add_filter( 'render_block_data', array( 'Jetpack_Iframe_Embed', 'disable_video_block_autoplay' ) );
 
 		$ver = sprintf( '%s-%s', gmdate( 'oW' ), defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '' );
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -88,21 +88,22 @@ class Jetpack_Iframe_Embed {
 	}
 
 	/**
-	 * Disable `autoplay` and add `muted` to all videopress blocks in
+	 * Disable `autoplay` and add `muted` to all videopress and core/video blocks in
 	 * context of an iframe.
 	 *
 	 * @param array $parsed_block An associative array of the block being rendered.
 	 * @return array The modified block data.
 	 */
-	public static function disable_videopress_autoplay( $parsed_block ) {
-		if (
-			isset( $parsed_block['blockName'] ) &&
-			isset( $parsed_block['attrs'] ) &&
-			'videopress/video' === $parsed_block['blockName']
-		) {
+	public static function disable_video_block_autoplay( $parsed_block ) {
+		if ( ! isset( $parsed_block['blockName'] ) || ! isset( $parsed_block['attrs'] ) ) {
+			return $parsed_block;
+		}
+
+		if ( 'videopress/video' === $parsed_block['blockName'] || 'core/video' === $parsed_block['blockName'] ) {
 			$parsed_block['attrs']['autoplay'] = false;
 			$parsed_block['attrs']['muted']    = true;
 		}
+
 		return $parsed_block;
 	}
 
