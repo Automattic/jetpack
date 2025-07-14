@@ -4,9 +4,8 @@ import clsx from 'clsx';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
-import { validatePercentageData } from '../../utils/validation';
-import { BaseLegend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
+import { Legend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -53,6 +52,32 @@ interface PieChartProps extends OmitBaseChartProps {
 }
 
 /**
+ * Validates the pie chart data
+ * @param data - The data to validate
+ * @return Object containing validation result and error message
+ */
+const validateData = ( data: DataPointPercentage[] ) => {
+	if ( ! data.length ) {
+		return { isValid: false, message: 'No data available' };
+	}
+
+	// Check for negative values
+	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	if ( hasNegativeValues ) {
+		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
+	}
+
+	// Validate total percentage
+	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
+	if ( Math.abs( totalPercentage - 100 ) > 0.01 ) {
+		// Using small epsilon for floating point comparison
+		return { isValid: false, message: 'Invalid percentage total: Must equal 100' };
+	}
+
+	return { isValid: true, message: '' };
+};
+
+/**
  * Renders a pie or donut chart using the provided data.
  *
  * @param {PieChartProps} props - Component props
@@ -88,7 +113,7 @@ const PieChartInternal = ( {
 		showValues: true,
 	} );
 
-	const { isValid, message } = validatePercentageData( data, true );
+	const { isValid, message } = validateData( data );
 
 	// Register chart with context only if data is valid
 	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, {
@@ -208,7 +233,7 @@ const PieChartInternal = ( {
 			</svg>
 
 			{ showLegend && (
-				<BaseLegend
+				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }

@@ -4,9 +4,8 @@ import clsx from 'clsx';
 import { useCallback, useId, useState, useRef } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
-import { validateBarChartData } from '../../utils/validation';
-import { BaseLegend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
+import { Legend } from '../legend';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
@@ -23,6 +22,25 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 }
+
+// Validation function similar to LineChart
+const validateData = ( data: SeriesData[] ) => {
+	if ( ! data?.length ) return 'No data available';
+
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			point =>
+				isNaN( point.value as number ) ||
+				point.value === null ||
+				point.value === undefined ||
+				( ! point.label &&
+					( ! ( 'date' in point && point.date ) || isNaN( point.date.getTime() ) ) )
+		)
+	);
+
+	if ( hasInvalidData ) return 'Invalid data';
+	return null;
+};
 
 const getPatternId = ( chartId: string, index: number ) => `bar-pattern-${ chartId }-${ index }`;
 
@@ -206,7 +224,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	}, [ selectedIndex, data, chartId ] );
 
 	// Validate data first
-	const error = validateBarChartData( dataSorted );
+	const error = validateData( dataSorted );
 	const isDataValid = ! error;
 
 	// Register chart with context only if data is valid
@@ -313,7 +331,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			</XYChart>
 
 			{ showLegend && (
-				<BaseLegend
+				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }

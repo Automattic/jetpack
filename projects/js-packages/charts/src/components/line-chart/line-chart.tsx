@@ -6,9 +6,8 @@ import clsx from 'clsx';
 import { useId, useMemo, useContext, useState, useRef, useEffect } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
-import { validateSeriesData } from '../../utils/validation';
-import { BaseLegend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
+import { Legend } from '../legend';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -162,6 +161,23 @@ const formatDateTick = ( timestamp: number ) => {
 	} );
 };
 
+const validateData = ( data: SeriesData[] ) => {
+	if ( ! data?.length ) return 'No data available';
+
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			( point: DataPointDate | DataPoint ) =>
+				isNaN( point.value as number ) ||
+				point.value === null ||
+				point.value === undefined ||
+				( 'date' in point && point.date && isNaN( point.date.getTime() ) )
+		)
+	);
+
+	if ( hasInvalidData ) return 'Invalid data';
+	return null;
+};
+
 const HighlightTooltip: React.FC< {
 	series: SeriesData[];
 	selectedIndex: number | undefined;
@@ -286,7 +302,7 @@ const LineChartInternal: FC< LineChartProps > = ( {
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
-	const error = validateSeriesData( dataSorted );
+	const error = validateData( dataSorted );
 	const isDataValid = ! error;
 
 	// Create legend items using the reusable hook
@@ -442,7 +458,7 @@ const LineChartInternal: FC< LineChartProps > = ( {
 			</XYChart>
 
 			{ showLegend && (
-				<BaseLegend
+				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
