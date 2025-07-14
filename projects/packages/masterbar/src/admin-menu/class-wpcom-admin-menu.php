@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 use Jetpack_Custom_CSS;
 use JITM;
 
@@ -271,12 +270,11 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$this->update_submenus( $slug, $submenus_to_update );
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack-masterbar' ), __( 'Add New User', 'jetpack-masterbar' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
+
+		// Temporary "Users > Subscribers" menu for existing users that shows a callout informing that the screen has moved to "Jetpack > Subscribers".
 		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
-		} else {
-			$subscribers_dashboard = new Subscribers_Dashboard();
-			$subscribers_dashboard->add_wp_admin_submenu();
+			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/jetpack-subscribers/' . $this->domain, null, 3 );
 		}
 	}
 
