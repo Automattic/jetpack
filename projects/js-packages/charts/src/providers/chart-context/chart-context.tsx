@@ -33,7 +33,6 @@ export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
 			unregisterChart,
 			getChartData,
 		} ),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[ version, registerChart, unregisterChart, getChartData ]
 	);
 
