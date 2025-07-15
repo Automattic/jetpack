@@ -76,10 +76,8 @@ export function ServiceItem( {
 						<span className={ styles.title }>{ service.label }</span>
 						{ service.badges?.length ? (
 							<div className={ styles.badges }>
-								{ service.badges.map( ( { text, style }, index ) => (
-									<span key={ index } className={ styles.badge } style={ style }>
-										{ text }
-									</span>
+								{ service.badges.map( ( { component }, index ) => (
+									<span key={ index }>{ component }</span>
 								) ) }
 							</div>
 						) : null }

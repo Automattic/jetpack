@@ -1249,6 +1249,9 @@ importers:
       '@automattic/social-previews':
         specifier: 2.1.0-beta.12
         version: 2.1.0-beta.12(@babel/runtime@7.27.6)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/ui':
+        specifier: 1.0.1
+        version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/annotations':
         specifier: 3.26.0
         version: 3.26.0(react@18.3.1)

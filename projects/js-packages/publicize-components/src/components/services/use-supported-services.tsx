@@ -1,8 +1,10 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
+import { Badge } from '@automattic/ui';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import '@automattic/ui/style.css';
 import connectionsFacebook from '../../assets/connections-facebook.png';
 import connectionsInstagramBusiness from '../../assets/connections-instagram-business.png';
 import connectionsLinkedin from '../../assets/connections-linkedin.png';
@@ -11,18 +13,17 @@ import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
 import { store as socialStore } from '../../social-store';
 import { ConnectionService } from '../../types';
-import type { CSSProperties, ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
-export type Badge = {
-	text: string;
-	style?: CSSProperties;
+export type BadgeConfig = {
+	component: React.ReactNode;
 };
 
 export interface SupportedService extends ConnectionService {
 	icon: ComponentType< { iconSize: number } >;
 	examples?: Array< ComponentType >;
 	needsCustomInputs?: boolean;
-	badges?: Array< Badge >;
+	badges?: Array< BadgeConfig >;
 }
 
 /**
@@ -43,15 +44,8 @@ export function useSupportedServices(): Array< SupportedService > {
 		);
 	}, [ supported_services ] );
 
-	// TODO: Use the new Badge component from @wordpress/components once it's not private.
-	// see https://wordpress.github.io/gutenberg/?path=/docs/components-badge--docs
-	const badgeNew: Badge = {
-		text: __( 'New', 'jetpack-publicize-components' ),
-		style: {
-			background: 'color-mix(in srgb, #fff 90%, var(--jp-highlight))',
-			color: 'color-mix(in srgb, #000 50%, var(--jp-highlight))',
-			fontSize: '12px',
-		},
+	const badgeNew: BadgeConfig = {
+		component: <Badge intent="info">{ __( 'New', 'jetpack-publicize-components' ) }</Badge>,
 	};
 
 	const supportedServices: Array< SupportedService > = [
