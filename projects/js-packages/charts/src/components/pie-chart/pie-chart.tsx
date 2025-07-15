@@ -1,8 +1,10 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
+import { useContext } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { BaseLegend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -258,11 +260,21 @@ const PieChartInternal = ( {
 	);
 };
 
-const PieChart = ( props: PieChartProps ) => (
-	<ChartProvider>
-		<PieChartInternal { ...props } />
-	</ChartProvider>
-);
+const PieChart = ( props: PieChartProps ) => {
+	const existingContext = useContext( ChartContext );
+
+	// If we're already in a ChartProvider context, don't create a new one
+	if ( existingContext ) {
+		return <PieChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own ChartProvider
+	return (
+		<ChartProvider>
+			<PieChartInternal { ...props } />
+		</ChartProvider>
+	);
+};
 
 PieChart.displayName = 'PieChart';
 export default withResponsive< PieChartProps >( PieChart );
