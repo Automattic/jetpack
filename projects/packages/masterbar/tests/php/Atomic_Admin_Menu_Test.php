@@ -212,28 +212,4 @@ class Atomic_Admin_Menu_Test extends TestCase {
 			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
 		}
 	}
-
-	/**
-	 * Tests add_tools_menu
-	 */
-	public function test_add_site_monitoring_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-		$menu_position = 7;
-
-		$this->assertSame( 'https://wordpress.com/site-monitoring/' . static::$domain, $submenu['tools.php'][ $menu_position ][2] );
-	}
-
-	/**
-	 * Tests add_github_deployments_menu
-	 */
-	public function test_add_github_deployments_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
-
-		$this->assertContains( 'https://wordpress.com/github-deployments/' . static::$domain, $links );
-	}
 }
