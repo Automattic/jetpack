@@ -34,8 +34,8 @@ You can also use conditional logic to determine when to show the UI:
 
 ```php
 add_filter( 'jetpack_boost_image_size_analysis_display_ui', function( $should_display ) {
-    // Show UI only for administrators
-    if ( current_user_can( 'manage_options' ) ) {
+    // Show UI only for specific user IDs
+    if ( get_current_user_id() === 5 ) {
         return true;
     }
     return false;
