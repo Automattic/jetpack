@@ -345,7 +345,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 		$this->update_submenus( 'tools.php', $submenus_to_update );
 
-		$this->hide_submenu_page( 'tools.php', 'tools.php' );
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
