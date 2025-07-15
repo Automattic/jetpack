@@ -2231,10 +2231,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method
 			echo wp_interactivity_data_wp_context(
 				array(
-					'sliderId'    => $id,
 					'sliderValue' => $current_value,
-					'sliderMin'   => $min,
-					'sliderMax'   => $max,
 				)
 			);
 			?>
