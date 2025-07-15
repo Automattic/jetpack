@@ -15,8 +15,8 @@ export default function SliderInputEdit( props ) {
 		className: 'jetpack-slider-input',
 	} );
 
-	// Mimic the Interactivity API's getIndicatorPosition logic
-	const getIndicatorPosition = () => {
+	// Mimic the Interactivity API's getSliderPosition logic
+	const getSliderPosition = () => {
 		const minNum = Number( min );
 		const maxNum = Number( max );
 		let valueNum = Number( value );
@@ -80,7 +80,7 @@ export default function SliderInputEdit( props ) {
 						/>
 						<div
 							className="jetpack-slider-input__value-indicator"
-							style={ { left: getIndicatorPosition() } }
+							style={ { left: getSliderPosition() } }
 						>
 							{ value }
 						</div>

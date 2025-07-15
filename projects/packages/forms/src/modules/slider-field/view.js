@@ -2,20 +2,19 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 
-store( 'jetpack/field-slider', {
+const NAMESPACE = 'jetpack/form';
+
+store( NAMESPACE, {
 	state: {
-		get getFieldValue() {
+		get getSliderValue() {
 			const context = getContext();
-			return context.fieldValue || context.fieldExtra?.min || 0;
+			return context.sliderValue || context.sliderMin || 0;
 		},
-		get getIndicatorPosition() {
+		get getSliderPosition() {
 			const context = getContext();
-			const min = Number( context.fieldExtra?.min ?? 0 );
-			const max = Number( context.fieldExtra?.max ?? 100 );
-			// console.log( 'context.fieldExtra?.min', context.fieldExtra?.min );
-			// console.log( 'context.fieldExtra?.max', context.fieldExtra?.max );
-			// console.log( 'context.fieldValue', context.fieldValue );
-			let value = Number( context.fieldValue ?? min );
+			const min = Number( context.sliderMin ?? 0 );
+			const max = Number( context.sliderMax ?? 100 );
+			let value = Number( context.sliderValue ?? min );
 			value = value < min ? min : value;
 			value = value > max ? max : value;
 			const percent = ( ( value - min ) * 100 ) / ( max - min );
@@ -25,9 +24,9 @@ store( 'jetpack/field-slider', {
 		},
 	},
 	actions: {
-		onFieldChange( event ) {
+		onSliderChange( event ) {
 			const context = getContext();
-			context.fieldValue = event.target.value;
+			context.sliderValue = event.target.value;
 		},
 	},
 } );

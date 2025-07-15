@@ -2226,17 +2226,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		?>
 		<div
 			class="jetpack-slider-input-row"
-			data-wp-interactive="jetpack/field-slider"
+			data-wp-interactive="jetpack/form"
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method
 			echo wp_interactivity_data_wp_context(
 				array(
-					'fieldId'    => $id,
-					'fieldValue' => $current_value,
-					'fieldExtra' => array(
-						'min' => $min,
-						'max' => $max,
-					),
+					'sliderId'    => $id,
+					'sliderValue' => $current_value,
+					'sliderMin'   => $min,
+					'sliderMax'   => $max,
 				)
 			);
 			?>
@@ -2256,14 +2254,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( $required ) :
 						?>
 						required<?php endif; ?>
-					data-wp-bind--value="state.getFieldValue"
-					data-wp-on--input="actions.onFieldChange"
+					data-wp-bind--value="state.getSliderValue"
+					data-wp-on--input="actions.onSliderChange"
 					data-wp-bind--aria-invalid="state.fieldHasErrors"
 				/>
 				<div
 					class="jetpack-slider-input__value-indicator"
-					data-wp-text="state.getFieldValue"
-					data-wp-style--left="state.getIndicatorPosition"
+					data-wp-text="state.getSliderValue"
+					data-wp-style--left="state.getSliderPosition"
 				><?php echo esc_html( $current_value ); ?></div>
 			</div>
 			<span class="jetpack-slider-input__max-label"><?php echo esc_html( $max ); ?></span>
