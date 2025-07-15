@@ -353,25 +353,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Tools menu entries.
-	 */
-	public function add_tools_menu() {
-		parent::add_tools_menu();
-
-		/**
-		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
-		 */
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack-masterbar' ), __( 'Site Monitoring', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
-
-		/**
-		 * Adds the WordPress.com GitHub Deployments submenu under the main Tools menu.
-		 */
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack-masterbar' ), __( 'GitHub Deployments', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 8 );
-	}
-
-	/**
 	 * Override the global submenu_file for theme-install.php page so the WP Admin menu item gets highlighted correctly.
 	 *
 	 * @param string $submenu_file The current pages $submenu_file global variable value.
