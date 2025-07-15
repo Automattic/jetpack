@@ -392,6 +392,7 @@ class WPCOM_Features {
 	public const MONITOR_1_MINUTE_CHECK_INTERVAL   = 'monitor-1-minute-check-interval';
 	public const MONITOR_MULTIPLE_EMAIL_RECIPIENTS = 'monitor-multiple-email-recipients';
 	public const MONITOR_SMS_NOTIFICATIONS         = 'monitor-sms-notifications';
+	public const MULTISTEP_FORM                    = 'multistep-form';
 	public const NO_ADVERTS_NO_ADVERTS_PHP         = 'no-adverts/no-adverts.php';
 	public const NO_WPCOM_BRANDING                 = 'no-wpcom-branding';
 	public const OPENTABLE                         = 'opentable';
@@ -856,7 +857,10 @@ class WPCOM_Features {
 			self::JETPACK_MONITOR_MONTHLY,
 			self::JETPACK_MONITOR_YEARLY,
 		),
-
+		self::MULTISTEP_FORM                    => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP         => array(
 			self::NO_ADS,
 			// Deliberately leaves out the Starter plan.

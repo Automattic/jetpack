@@ -63,6 +63,7 @@ class Current_Plan {
 				'core/video',
 				'core/cover',
 				'core/audio',
+				'multistep-form',
 			),
 		),
 		'personal' => array(
@@ -79,6 +80,7 @@ class Current_Plan {
 				'akismet',
 				'payments',
 				'videopress',
+				'multistep-form',
 			),
 		),
 		'premium'  => array(
@@ -98,6 +100,7 @@ class Current_Plan {
 				'vaultpress',
 				'videopress',
 				'republicize',
+				'multistep-form',
 			),
 		),
 		'security' => array(
@@ -137,6 +140,7 @@ class Current_Plan {
 			),
 			'supports' => array(
 				'ai-seo-enhancer',
+				'multistep-form',
 			),
 		),
 
@@ -148,6 +152,7 @@ class Current_Plan {
 			),
 			'supports' => array(
 				'field-file', // Forms
+				'multistep-form',
 			),
 		),
 	);
