@@ -8,7 +8,7 @@ const PAUSE_CLASS = 'wp-block-jetpack-slideshow_autoplay-paused';
 function swiperInit( swiper ) {
 	// Enable loop mode after init if we have enough slides
 	// See also: https://stackoverflow.com/a/78680695
-	if ( swiper.slides.length > 2 ) {
+	if ( swiper.slides.length > 1 ) {
 		swiper.loopDestroy();
 		swiper.params.loop = true;
 		swiper.loopCreate();
