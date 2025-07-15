@@ -1,17 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import { DEFAULT_GLYPHS } from './constants';
 import edit from './edit';
 import './style.scss';
 
 const name = 'rating-input';
-
-const glyphs = DEFAULT_GLYPHS;
-
-const stylesArray = Object.entries( glyphs ).map( ( [ key, { label } ] ) => ( {
-	name: key,
-	label,
-	isDefault: key === 'stars',
-} ) );
 
 const settings = {
 	apiVersion: 3,
@@ -38,7 +29,6 @@ const settings = {
 			},
 		},
 	},
-	styles: stylesArray,
 
 	edit,
 	save: () => null,

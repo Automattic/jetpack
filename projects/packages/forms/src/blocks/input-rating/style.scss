@@ -52,10 +52,13 @@
 	}
 }
 
-/* Hearts variation – override the default star glyph */
+/* Hearts variation – override when style class is on the input block, the field wrapper, or the rating element itself. */
+:where(.wp-block-jetpack-field-rating.is-style-hearts),
+:where(.wp-block-jetpack-field-rating.is-style-hearts-wrap) .jetpack-field-rating,
 :where(.wp-block-jetpack-rating-input.is-style-hearts),
 :where(.jetpack-field-rating.is-style-hearts),
-.contact-form .jetpack-field-rating.is-style-hearts {
+.contact-form .jetpack-field-rating.is-style-hearts,
+.contact-form .is-style-hearts .jetpack-field-rating {
 
   input[type="radio"].jetpack-field-rating__input::before {
     content: "♥";
