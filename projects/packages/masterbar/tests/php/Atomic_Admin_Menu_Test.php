@@ -154,21 +154,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_options_menu
-	 */
-	public function test_add_options_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_options_menu();
-
-		if ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC ) ) {
-			$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
-		} else {
-			$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][11][2] );
-		}
-	}
-
-	/**
 	 * Tests add_users_menu
 	 */
 	public function test_add_users_menu() {

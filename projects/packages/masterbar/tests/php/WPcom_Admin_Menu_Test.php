@@ -177,17 +177,6 @@ class WPcom_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_options_menu
-	 */
-	public function test_add_options_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_options_menu();
-
-		$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][10][2] );
-	}
-
-	/**
 	 * Tests remove_gutenberg_menu
 	 */
 	public function test_remove_gutenberg_menu() {

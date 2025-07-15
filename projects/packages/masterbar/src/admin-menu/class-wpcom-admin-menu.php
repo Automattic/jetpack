@@ -281,16 +281,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Settings menu.
-	 */
-	public function add_options_menu() {
-		parent::add_options_menu();
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Features', 'jetpack-masterbar' ), __( 'Hosting Features', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-features/' . $this->domain, null, 10 );
-	}
-
-	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
 	public function remove_gutenberg_menu() {
