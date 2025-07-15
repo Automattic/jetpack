@@ -5,6 +5,7 @@ import { XYChart, AreaSeries, Grid, Axis, DataContext, TooltipContext } from '@v
 import clsx from 'clsx';
 import { useId, useMemo, useContext, useState, useRef, useEffect } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { BaseLegend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -472,11 +473,21 @@ const LineChartInternal: FC< LineChartProps > = ( {
 	);
 };
 
-const LineChart: FC< LineChartProps > = props => (
-	<ChartProvider>
-		<LineChartInternal { ...props } />
-	</ChartProvider>
-);
+const LineChart: FC< LineChartProps > = props => {
+	const existingContext = useContext( ChartContext );
+
+	// If we're already in a ChartProvider context, don't create a new one
+	if ( existingContext ) {
+		return <LineChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own ChartProvider
+	return (
+		<ChartProvider>
+			<LineChartInternal { ...props } />
+		</ChartProvider>
+	);
+};
 
 LineChart.displayName = 'LineChart';
 
