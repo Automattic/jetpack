@@ -25,7 +25,6 @@
 		"markdown",
 		"opentable",
 		"payments",
-		"paypal-payment-buttons",
 		"pinterest",
 		"podcast-player",
 		"premium-content",
@@ -82,7 +81,8 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-list-to-table-transform"
+		"ai-list-to-table-transform",
+		"paypal-payment-buttons"
 	],
 	"experimental": [],
 	"no-post-editor": [
