@@ -5,7 +5,7 @@ import { useCallback, useContext, useId, useState, useRef } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
-import { BaseLegend } from '../legend';
+import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -332,15 +332,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			</XYChart>
 
 			{ showLegend && (
-				<BaseLegend
-					items={ legendItems }
-					orientation={ legendOrientation }
-					alignmentHorizontal={ legendAlignmentHorizontal }
-					alignmentVertical={ legendAlignmentVertical }
-					className={ styles[ 'bar-chart__legend' ] }
-					shape={ legendShape }
-					ref={ legendRef }
-				/>
+				<div ref={ legendRef }>
+					<Legend
+						items={ legendItems }
+						orientation={ legendOrientation }
+						alignmentHorizontal={ legendAlignmentHorizontal }
+						alignmentVertical={ legendAlignmentVertical }
+						className={ styles[ 'bar-chart__legend' ] }
+						shape={ legendShape }
+					/>
+				</div>
 			) }
 		</div>
 	);

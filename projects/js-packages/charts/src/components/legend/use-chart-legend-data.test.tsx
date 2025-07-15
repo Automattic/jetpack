@@ -6,7 +6,6 @@ import type { ChartTheme, SeriesData, DataPointPercentage } from '../../types';
 const mockTheme: ChartTheme = {
 	colors: [ '#ff0000', '#00ff00', '#0000ff' ],
 	backgroundColor: '#ffffff',
-	textColor: '#000000',
 	gridColor: '#e0e0e0',
 	legendLabelStyles: {},
 	seriesLineStyles: [],
