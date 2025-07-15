@@ -2,14 +2,13 @@ import { BlockControls, BlockIcon, MediaPlaceholder, MediaUpload } from '@wordpr
 import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { get } from 'lodash';
 import EditButton from './edit-button';
 
 const onSelectMedia = setAttributes => media =>
 	setAttributes( {
-		featuredMediaId: get( media, 'id', 0 ),
-		featuredMediaUrl: get( media, 'url', null ),
-		featuredMediaTitle: get( media, 'title', null ),
+		featuredMediaId: media?.id ?? 0,
+		featuredMediaUrl: media?.url ?? null,
+		featuredMediaTitle: media?.title ?? null,
 	} );
 
 export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAttributes } ) => {

@@ -204,7 +204,10 @@ while read -r GIT_SLUG; do
 				echo "::endgroup::"
 			fi
 			echo "::group::Fetching treeless commits for source repo $LAST_COMMIT and $SHA"
-			git -c protocol.version=2 fetch --filter=tree:0 --no-tags --progress --no-recurse-submodules origin "$LAST_COMMIT" "$SHA"
+			# We hit a git bug here. https://lore.kernel.org/git/20250428192320.3595509-1-jonathantanmy@google.com/
+			# Running the command twice seems to work around it.
+			git -c protocol.version=2 fetch --filter=tree:0 --no-tags --progress --no-recurse-submodules origin "$LAST_COMMIT" "$SHA" ||
+				git -c protocol.version=2 fetch --filter=tree:0 --no-tags --progress --no-recurse-submodules origin "$LAST_COMMIT" "$SHA"
 			echo "::endgroup::"
 			MB=$( git merge-base "$LAST_COMMIT" "$SHA" || true )
 			if [[ -z "$MB" ]]; then

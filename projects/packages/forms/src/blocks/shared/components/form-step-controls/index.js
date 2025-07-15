@@ -20,7 +20,7 @@ import useStepNavigation from '../../hooks/use-step-navigation';
  *
  * @param {object} props              - Component props.
  * @param {string} props.formClientId - Client ID of the root contact form block.
- * @return {JSX.Element} The rendered BlockControls component.
+ * @return {import('react').JSX.Element} The rendered BlockControls component.
  */
 export default function StepControls( { formClientId } ) {
 	const { setActiveStep, enableSingleStepMode, disableSingleStepMode } =

@@ -1,7 +1,7 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
-import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
+import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useId, useMemo } from 'react';
+import { useCallback, useId, useState, useRef, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
@@ -9,6 +9,7 @@ import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
@@ -72,6 +73,22 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	const chartRef = useRef< HTMLDivElement >( null );
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+	const [ isNavigating, setIsNavigating ] = useState( false );
+
+	const totalPoints =
+		Math.max( 0, ...data.map( series => series.data?.length || 0 ) ) * data.length;
+
+	// Use the keyboard navigation hook
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+	} );
 
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>
@@ -163,6 +180,44 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ internalChartId ]
 	);
 
+	const createKeyboardHighlightStyle = useCallback( () => {
+		if ( selectedIndex === undefined ) return '';
+
+		// Calculate which bar should be highlighted based on selectedIndex
+		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
+		const maxDataPoints = Math.max( ...data.map( s => s.data.length ) );
+		const dataPointIndex = Math.floor( selectedIndex / data.length );
+		const seriesIndex = selectedIndex % data.length;
+
+		// Only highlight if we're within valid bounds
+		if ( dataPointIndex >= maxDataPoints || seriesIndex >= data.length ) {
+			return '';
+		}
+
+		const seriesData = data[ seriesIndex ];
+		if ( dataPointIndex >= seriesData.data.length ) {
+			return '';
+		}
+
+		// Based on the DOM structure analysis:
+		// - All bars are in a single .visx-bar-group
+		// - Bars are ordered as: [series1[0], series1[1], series2[0], series2[1], ...]
+		// - So we need to calculate the actual bar index in the DOM
+		const actualBarIndex = seriesIndex * maxDataPoints + dataPointIndex;
+
+		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
+		const generatedStyles = `
+			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
+				actualBarIndex + 1
+			}) {
+				stroke: #005fcc;
+				stroke-width: 2px;
+			}
+		`;
+
+		return generatedStyles;
+	}, [ selectedIndex, data, chartId ] );
+
 	// Validate data first
 	const error = validateData( dataSorted );
 	const isDataValid = ! error;
@@ -191,12 +246,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	}
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
+	const highlightedBarStyle = createKeyboardHighlightStyle();
 
 	return (
 		<div
 			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
 			data-testid="bar-chart"
-			role="img"
+			role="grid"
 			aria-label="bar chart"
 			style={ {
 				width,
@@ -205,6 +261,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				flexDirection:
 					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
 			} }
+			tabIndex={ 0 }
+			onKeyDown={ onChartKeyDown }
+			onFocus={ onChartFocus }
+			onBlur={ onChartBlur }
+			ref={ chartRef }
+			data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
 		>
 			<XYChart
 				theme={ theme }
@@ -243,6 +305,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					</>
 				) }
 
+				{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+
 				<BarGroup padding={ chartOptions.barGroup.padding }>
 					{ dataSorted.map( ( seriesData, index ) => (
 						<BarSeries
@@ -260,11 +324,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				<Axis { ...chartOptions.axis.y } />
 
 				{ withTooltips && (
-					<Tooltip
+					<AccessibleTooltip
 						detectBounds
 						snapTooltipToDatumX
 						snapTooltipToDatumY
 						renderTooltip={ renderTooltip || renderDefaultTooltip }
+						selectedIndex={ selectedIndex }
+						tooltipRef={ tooltipRef }
+						keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
+						series={ data }
+						mode="individual"
 					/>
 				) }
 			</XYChart>

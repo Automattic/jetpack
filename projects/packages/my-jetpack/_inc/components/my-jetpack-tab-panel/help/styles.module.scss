@@ -1,4 +1,5 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use '../styles.module.scss' as parent;
 
 .description {
 	font-size: 1rem;
@@ -31,8 +32,22 @@
 }
 
 .footer {
-	padding-top: 2.5rem;
-	padding-bottom: 1.5rem;
+	width: 100vw;
+	margin-inline-start: calc(-50vw + 50%);
+	background: var(--studio-white, #fff);
+
+	/* Center the content within the full-width background */
+	display: flex;
+	justify-content: center;
+
+	// 1128 + 3rem (96px) = 1224px + 64px (no idea what that is) = 1288px
+	@media (max-width: 1288px) {
+		// I have to hardcode --max-container-width because media queries don't work with CSS variables
+		margin-inline-start: -3rem; // Match the parent's padding-inline
+		margin-inline-end: -3rem;
+		width: calc(100% + 6rem); // Compensate for the negative margins
+		padding-inline: 3rem;
+	}
 
 	section {
 		max-width: 35rem;
@@ -43,6 +58,19 @@
 		line-height: 24px;
 		font-weight: 500;
 		margin-block: 0 1.5rem;
+	}
+}
+
+.footer-inner {
+	padding-top: 2.5rem;
+	padding-bottom: 1.5rem;
+	width: 100%;
+	padding-inline: 3rem;
+
+	@include parent.full-width-container;
+
+	@media ( max-width: 1288px ) {
+		padding-inline: 0;
 	}
 }
 

@@ -114,7 +114,6 @@
 .contact-form :where(label.consent) {
 	font-size: var(--jetpack--contact-form--label--font-size, 13px);
 	font-weight: 400;
-	text-transform: uppercase;
 }
 
 .contact-form label.consent {

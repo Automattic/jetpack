@@ -9,7 +9,6 @@ import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { get } from 'lodash';
 import './util/form-styles.js';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
@@ -50,8 +49,8 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 	return (
 		<div className={ clsx( classNames, 'is-placeholder' ) }>
 			<BlockVariationPicker
-				icon={ get( blockType, [ 'icon', 'src' ] ) }
-				label={ get( blockType, [ 'title' ] ) }
+				icon={ blockType?.icon?.src }
+				label={ blockType?.title }
 				instructions={ __(
 					'Start by selecting one of these templates, or browse patterns.',
 					'jetpack-forms'

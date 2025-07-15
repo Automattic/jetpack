@@ -2,7 +2,7 @@ import { RichText, getColorClassName } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { isEmpty, omit, pick } from 'lodash';
+import { isEmpty, pick } from 'lodash';
 
 /**
  * Deprecation reasons:
@@ -134,7 +134,11 @@ export default {
 
 		const newAttributes = {
 			// Remove deprecated attributes.
-			...omit( attributes, [ 'useModal', ...deprecatedButtonAttributes ] ),
+			...Object.fromEntries(
+				Object.entries( attributes ).filter(
+					( [ k ] ) => k !== 'useModal' && ! deprecatedButtonAttributes.includes( k )
+				)
+			),
 			className: className && className.replace( 'is-style-outline', '' ),
 			style: layoutStyle,
 		};

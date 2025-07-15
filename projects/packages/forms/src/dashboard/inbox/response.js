@@ -10,6 +10,8 @@ import {
 	Icon,
 	Tip,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
@@ -20,6 +22,8 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import CopyClipboardButton from '../components/copy-clipboard-button';
+import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
 import { getPath } from './utils';
 
@@ -132,7 +136,6 @@ const FileField = ( { file, onClick } ) => {
 };
 
 const InboxResponse = ( { response, loading, onModalStateChange } ) => {
-	const [ emailCopied, setEmailCopied ] = useState( false );
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
@@ -192,9 +195,25 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		}
 
 		// Emails
-		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-		if ( emailRegex.test( value ) ) {
-			return <a href={ `mailto:${ value }` }>{ value }</a>;
+		const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+		if ( emailRegEx.test( value ) ) {
+			return (
+				<div className="email-field">
+					<a href={ `mailto:${ value }` }>{ value }</a>
+					<CopyClipboardButton text={ value } />
+				</div>
+			);
+		}
+
+		// Phone numberes
+		// No alphabetical characters but allow dots, dashes, and brackets.
+		const phoneNumberRegEx = /^[+]?[\s./0-9]*[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/;
+		if ( phoneNumberRegEx.test( value ) ) {
+			return (
+				<div className="phone-field">
+					<a href={ `tel:${ value }` }>{ value }</a>
+				</div>
+			);
 		}
 
 		return value;
@@ -208,12 +227,6 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		ref.current.scrollTop = 0;
 	}, [ response ] );
 
-	const copyEmail = useCallback( async () => {
-		await window.navigator.clipboard.writeText( response.author_email );
-		setEmailCopied( true );
-		setTimeout( () => setEmailCopied( false ), 3000 );
-	}, [ response, setEmailCopied ] );
-
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );
 	}, [ setIsImageLoading ] );
@@ -221,12 +234,6 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	if ( ! loading && ! response ) {
 		return null;
 	}
-
-	const titleClasses = clsx( 'jp-forms__inbox-response-title', {
-		'is-email': response && ! response.author_name && response.author_email,
-		'is-ip': response && ! response.author_name && ! response.author_email,
-		'is-name': response && response.author_name,
-	} );
 
 	if ( isPreviewModalOpen && ! onModalStateChange ) {
 		return (
@@ -237,26 +244,32 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			/>
 		);
 	}
+
+	const displayName = getDisplayName( response );
+
 	return (
 		<>
 			<div ref={ ref } className="jp-forms__inbox-response">
-				<div className="jp-forms__inbox-response-avatar">
-					<img
-						src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
-						alt={ __( "Respondent's gravatar", 'jetpack-forms' ) }
-					/>
+				<div className="jp-forms__inbox-response-header">
+					<HStack alignment="topLeft" spacing="3">
+						{ response.author_email && (
+							<Gravatar
+								email={ response.author_email }
+								displayName={ displayName }
+								key={ response.author_email }
+							/>
+						) }
+						<VStack spacing="0" className="jp-forms__inbox-response-header-title">
+							<h3 className="jp-forms__inbox-response-name">{ displayName }</h3>
+							{ response.author_email && displayName !== response.author_email && (
+								<p className="jp-forms__inbox-response-email">
+									<a href={ `mailto:${ response.author_email }` }>{ response.author_email }</a>
+									<CopyClipboardButton text={ response.author_email } />
+								</p>
+							) }
+						</VStack>
+					</HStack>
 				</div>
-
-				<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
-				{ response.author_email && getDisplayName( response ) !== response.author_email && (
-					<p className="jp-forms__inbox-response-subtitle">
-						{ response.author_email }
-						<Button variant="secondary" onClick={ copyEmail }>
-							{ ! emailCopied && __( 'Copy', 'jetpack-forms' ) }
-							{ emailCopied && __( '✓ Copied', 'jetpack-forms' ) }
-						</Button>
-					</p>
-				) }
 
 				<div className="jp-forms__inbox-response-meta">
 					<div className="jp-forms__inbox-response-meta-label">

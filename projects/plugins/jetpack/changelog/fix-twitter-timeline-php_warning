@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Widgets: Prevent PHP warning on legacy Twitter Timeline widget. 

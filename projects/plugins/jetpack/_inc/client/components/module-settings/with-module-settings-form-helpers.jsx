@@ -1,4 +1,3 @@
-import { get, omit } from 'lodash';
 import { Component } from 'react';
 import { connectModuleOptions } from 'components/module-settings/connect-module-options';
 import analytics from 'lib/analytics';
@@ -51,7 +50,8 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		};
 
 		resetFormStateOption = optionToReset => {
-			this.setState( { options: omit( this.state.options, [ optionToReset ] ) } );
+			const { [ optionToReset ]: _, ...optionsToKeep } = this.state.options;
+			this.setState( { options: optionsToKeep } );
 			return true;
 		};
 
@@ -144,9 +144,8 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * @return {*}                 the current value of the settings.
 		 */
 		getOptionValue = ( settingName, module = '', ignoreDisabledModules = true ) => {
-			return get(
-				this.state.options,
-				settingName,
+			return (
+				this.state.options?.[ settingName ] ??
 				this.props.getSettingCurrentValue( settingName, module, ignoreDisabledModules )
 			);
 		};

@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	SCAN_STATUS_FETCH,
@@ -65,5 +64,5 @@ export function isFetchingScanStatus( state ) {
  * @return {object}  Features
  */
 export function getScanStatus( state ) {
-	return get( state.jetpack.scan, [ 'data', 'status' ], {} );
+	return state.jetpack.scan?.data?.status ?? {};
 }
