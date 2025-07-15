@@ -169,7 +169,8 @@ function AudioPlayer( {
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
-			// throttledTimeChange.cancel(); -- Nothing to cancel when trailing is false.
+			// Equivalent to lodash `throttledTimeChange.cancel();`
+			lastTimeChange = 0;
 			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
 		};
 	}, [ audioRef, onTimeChange ] );
