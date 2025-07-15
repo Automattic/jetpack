@@ -12,8 +12,8 @@ import ResizeObserver from 'resize-observer-polyfill';
 /**
  * Internal dependencies
  */
+import { paginationCustomRender } from '../v1/pagination';
 import createSwiper from './create-swiper';
-import { paginationCustomRender } from './pagination';
 import {
 	swiperApplyAria,
 	swiperInit,
