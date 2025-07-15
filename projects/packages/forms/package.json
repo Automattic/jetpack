@@ -40,6 +40,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@gravatar-com/hovercards": "0.10.8",
+		"@tarekraafat/autocomplete.js": "10.2.9",
 		"@wordpress/base-styles": "6.2.0",
 		"@wordpress/block-editor": "14.21.0",
 		"@wordpress/blocks": "14.15.0",

@@ -153,6 +153,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionsclasses'           => null,
 				'optionsstyles'            => null,
 				'align'                    => null,
+				'autocomplete'             => null,
 			),
 			$attributes,
 			'contact-field'
@@ -1422,26 +1423,65 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$autocomplete = $this->get_attribute( 'autocomplete' );
+		$class        = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
+
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
-		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
 		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
-		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldHasErrors'>\n";
+		$field .= "\t<span class='contact-form__select-element-wrapper'>";
 
-		if ( $this->get_attribute( 'togglelabel' ) ) {
-			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
-		}
+		if ( $autocomplete ) {
+			$field .= "<input
+					name='" . esc_attr( $id ) . "'
+					id='" . esc_attr( $id ) . "'
+					class='jp-autocomplete'
+					spellcheck=false
+					autocorrect='off'
+					autocomplete='off'
+					autocapitalize='off'
+					maxlength='2048'
+					" . ( $required ? "required aria-required='true'" : '' ) . "
+					data-wp-on--change='actions.onFieldChange'
+					data-wp-bind--aria-invalid='state.fieldHasErrors'
+				/>\n";
 
-		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
-			$option = Contact_Form_Plugin::strip_tags( $option );
-			if ( is_string( $option ) && $option !== '' ) {
-				$field .= "\t\t<option"
-								. selected( $option, $value, false )
-								. " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) )
-								. "'>" . esc_html( $option )
-								. "</option>\n";
+			Assets::register_script(
+				'jp-forms-autocomplete',
+				'../../dist/contact-form/js/autocomplete.js',
+				__FILE__,
+				array(
+					'enqueue'      => true,
+					'dependencies' => array(),
+					'version'      => Constants::get_constant( 'JETPACK__VERSION' ),
+				)
+			);
+
+		} else {
+			$field .= "<select
+					name='" . esc_attr( $id ) . "'
+					id='" . esc_attr( $id ) . "'
+					" . ( $required ? "required aria-required='true'" : '' ) . "
+					data-wp-on--change='actions.onFieldChange'
+					data-wp-bind--aria-invalid='state.fieldHasErrors'
+				>\n";
+
+			if ( $this->get_attribute( 'togglelabel' ) ) {
+				$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
 			}
+
+			foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
+				$option = Contact_Form_Plugin::strip_tags( $option );
+				if ( is_string( $option ) && $option !== '' ) {
+					$field .= "\t\t<option"
+									. selected( $option, $value, false )
+									. " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) )
+									. "'>" . esc_html( $option )
+									. "</option>\n";
+				}
+			}
+			$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
 		}
-		$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
+
 		$field .= "</div>\n";
 
 		return $field . $this->get_error_div( $id, 'select' );

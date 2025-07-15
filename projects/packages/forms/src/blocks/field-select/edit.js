@@ -1,10 +1,11 @@
 import {
+	InspectorControls,
 	RichText,
 	store as blockEditorStore,
 	useBlockProps,
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
-import { Icon, Button, Flex, FlexItem } from '@wordpress/components';
+import { PanelBody, Icon, Button, Flex, FlexItem, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -189,6 +190,17 @@ export default function DropdownFieldEdit( props ) {
 				width={ width }
 				type="dropdown"
 			/>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
+					<ToggleControl
+						label={ __( 'Autocomplete', 'jetpack-forms' ) }
+						checked={ attributes.autocomplete }
+						onChange={ value => setAttributes( { autocomplete: value } ) }
+						help={ __( 'Autocomplete value from list options as users type.', 'jetpack-forms' ) }
+						__nextHasNoMarginBottom={ true }
+					/>
+				</PanelBody>
+			</InspectorControls>
 		</div>
 	);
 }

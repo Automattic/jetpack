@@ -2469,6 +2469,9 @@ importers:
       '@gravatar-com/hovercards':
         specifier: 0.10.8
         version: 0.10.8
+      '@tarekraafat/autocomplete.js':
+        specifier: 10.2.9
+        version: 10.2.9
       '@wordpress/base-styles':
         specifier: 6.2.0
         version: 6.2.0
@@ -8289,6 +8292,9 @@ packages:
     resolution: {integrity: sha512-tN+gG+eXCHYm+VpmdXUP1rfE9LUrRzgYozTkBZtJV1/WFM3vwWNKQC8G6b2RKcs+2cPg+hdToZHZfjL3bF4yIQ==}
     peerDependencies:
       react: ^18 || ^19
+
+  '@tarekraafat/autocomplete.js@10.2.9':
+    resolution: {integrity: sha512-A7OP3iJDTWeO85M3Vxu391acu9SmDguormHpMZ13khuyM180dKl9O1gAXSDA322XwkYuUU1Ad7WchW1TQNNuDw==}
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -19528,6 +19534,8 @@ snapshots:
     dependencies:
       '@tanstack/query-core': 5.75.0
       react: 18.3.1
+
+  '@tarekraafat/autocomplete.js@10.2.9': {}
 
   '@testing-library/dom@10.4.0':
     dependencies:

@@ -15,6 +15,7 @@ const settings = {
 		__( 'Choose', 'jetpack-forms' ),
 		__( 'Dropdown', 'jetpack-forms' ),
 		__( 'Option', 'jetpack-forms' ),
+		__( 'Autocomplete', 'jetpack-forms' ),
 	],
 	description: __(
 		'Add a compact select box, that when expanded, allows visitors to choose one value from the list.',
@@ -32,6 +33,10 @@ const settings = {
 	edit,
 	attributes: {
 		...defaultSettings.attributes,
+		autocomplete: {
+			type: 'boolean',
+			default: false,
+		},
 		options: {
 			type: 'array',
 			default: [ '' ],
