@@ -358,12 +358,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_tools_menu() {
 		parent::add_tools_menu();
 
-		// Link the Tools menu to Available Tools when the interface is set to wp-admin.
-		if ( $this->use_wp_admin_interface() ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'tools.php', esc_attr__( 'Available Tools', 'jetpack-masterbar' ), __( 'Available Tools', 'jetpack-masterbar' ), 'edit_posts', 'tools.php', null, 0 );
-		}
-
 		/**
 		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
