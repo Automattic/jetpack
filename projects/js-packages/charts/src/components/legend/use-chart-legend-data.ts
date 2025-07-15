@@ -143,7 +143,7 @@ export function useChartLegendData<
 	theme: ChartTheme,
 	options: ChartLegendOptions = {}
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
-	const { showValues = true, withGlyph = false, glyphSize = 8, renderGlyph } = options;
+	const { showValues = false, withGlyph = false, glyphSize = 8, renderGlyph } = options;
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
