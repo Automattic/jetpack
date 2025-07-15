@@ -110,7 +110,7 @@ const EmptySpamButton = (): JSX.Element => {
 				showTooltip={ isEmpty }
 				variant="primary"
 			>
-				{ __( 'Empty spam', 'jetpack-forms' ) }
+				{ __( 'Delete spam', 'jetpack-forms' ) }
 			</Button>
 			<ConfirmDialog
 				onCancel={ closeConfirmDialog }

@@ -123,7 +123,7 @@ describe( 'EmptySpamButton', () => {
 	it( 'renders correctly', () => {
 		render( <EmptySpamButton /> );
 
-		const button = screen.getByText( 'Empty spam' );
+		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeInTheDocument();
 		expect( button ).toHaveAttribute( 'type', 'button' );
 		expect( button ).toBeEnabled();
@@ -133,7 +133,7 @@ describe( 'EmptySpamButton', () => {
 		require( '@wordpress/core-data' ).useEntityRecords.mockReturnValue( { totalItems: 0 } );
 		render( <EmptySpamButton /> );
 
-		const button = screen.getByText( 'Empty spam' );
+		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeDisabled();
 		expect( button ).toHaveAttribute( 'aria-label', 'Spam is already empty.' );
 	} );
@@ -141,7 +141,7 @@ describe( 'EmptySpamButton', () => {
 	it( 'shows confirmation dialog when clicked', async () => {
 		render( <EmptySpamButton /> );
 
-		const button = screen.getByText( 'Empty spam' );
+		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 
 		const dialog = screen.getByTestId( 'confirm-dialog' );
@@ -157,7 +157,7 @@ describe( 'EmptySpamButton', () => {
 		render( <EmptySpamButton /> );
 
 		// Click empty trash button
-		const button = screen.getByText( 'Empty spam' );
+		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 
 		// Click confirm button
