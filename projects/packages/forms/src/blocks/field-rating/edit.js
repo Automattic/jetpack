@@ -75,7 +75,7 @@ export default function RatingFieldEdit( props ) {
 			<InspectorControls>
 				<PanelBody title={ __( 'Rating settings', 'jetpack-forms' ) }>
 					<RangeControl
-						label={ __( 'Highest rating', 'jetpack-forms' ) }
+						label={ __( 'Max value', 'jetpack-forms' ) }
 						min={ 2 }
 						max={ 10 }
 						value={ max }
