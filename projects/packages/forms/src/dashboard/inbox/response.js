@@ -195,12 +195,23 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		}
 
 		// Emails
-		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-		if ( emailRegex.test( value ) ) {
+		const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+		if ( emailRegEx.test( value ) ) {
 			return (
 				<div className="email-field">
 					<a href={ `mailto:${ value }` }>{ value }</a>
 					<CopyClipboardButton text={ value } />
+				</div>
+			);
+		}
+
+		// Phone numberes
+		// No alphabetical characters but allow dots, dashes, and brackets.
+		const phoneNumberRegEx = /^[+]?[\s./0-9]*[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/;
+		if ( phoneNumberRegEx.test( value ) ) {
+			return (
+				<div className="phone-field">
+					<a href={ `tel:${ value }` }>{ value }</a>
 				</div>
 			);
 		}
