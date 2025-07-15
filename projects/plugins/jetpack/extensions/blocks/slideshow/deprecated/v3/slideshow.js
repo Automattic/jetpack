@@ -12,14 +12,14 @@ import ResizeObserver from 'resize-observer-polyfill';
 /**
  * Internal dependencies
  */
-import createSwiper from '../v1/create-swiper';
 import { paginationCustomRender } from '../v1/pagination';
+import createSwiper from './create-swiper';
 import {
 	swiperApplyAria,
 	swiperInit,
 	swiperPaginationRender,
 	swiperResize,
-} from '../v1/swiper-callbacks';
+} from './swiper-callbacks';
 
 class Slideshow extends Component {
 	pendingRequestAnimationFrame = null;
@@ -120,28 +120,34 @@ class Slideshow extends Component {
 			return null;
 		}
 
-		const { autoplay, delay, effect, images } = this.props;
+		const { autoplay, className, delay, effect, images } = this.props;
 		// Note: React omits the data attribute if the value is null, but NOT if it is false.
 		// This is the reason for the unusual logic related to autoplay below.
 		return (
 			<div
+				className={ className }
 				data-autoplay={ autoplay || null }
 				data-delay={ autoplay ? delay : null }
 				data-effect={ effect }
+				style={ {
+					'--aspect-ratio': images[ 0 ]?.aspectRatio
+						? `calc(${ images[ 0 ].aspectRatio })`
+						: undefined,
+				} }
 			>
 				<div
 					className="wp-block-jetpack-slideshow_container swiper-container"
 					ref={ this.slideshowRef }
 				>
 					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
-						{ images.map( ( { alt, caption, id, url } ) => (
+						{ images.map( ( { alt, caption, id, url, aspectRatio }, index ) => (
 							<li
 								className={ clsx(
 									'wp-block-jetpack-slideshow_slide',
 									'swiper-slide',
 									isBlobURL( url ) && 'is-transient'
 								) }
-								key={ id ? id : url }
+								key={ id ? `${ id }-${ index }` : `${ url }-${ index }` }
 							>
 								<figure>
 									<img
@@ -150,6 +156,7 @@ class Slideshow extends Component {
 											`wp-block-jetpack-slideshow_image wp-image-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
 										}
 										data-id={ id }
+										data-aspect-ratio={ aspectRatio }
 										src={ url }
 									/>
 									{ isBlobURL( url ) && <Spinner /> }
@@ -212,6 +219,7 @@ class Slideshow extends Component {
 				effect: this.props.effect,
 				loop: true,
 				initialSlide,
+				followFinger: false,
 				navigation: {
 					nextEl: this.btnNextRef.current,
 					prevEl: this.btnPrevRef.current,

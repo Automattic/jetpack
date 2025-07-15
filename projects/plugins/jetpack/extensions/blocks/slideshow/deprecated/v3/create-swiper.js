@@ -35,9 +35,30 @@ export default async function createSwiper(
 			] )
 		),
 	};
-	const [ { default: Swiper } ] = await Promise.all( [
-		import( /* webpackChunkName: "swiper" */ 'swiper/swiper-bundle.js' ),
-		import( /* webpackChunkName: "swiper" */ 'swiper/swiper-bundle.css' ),
-	] );
+
+	let Swiper;
+	if ( window.JetpackSwiper ) {
+		// Load Swiper from window scope.
+		Swiper = window.JetpackSwiper;
+	} else {
+		const cssURL = window.Jetpack_Block_Assets_Base_Url + 'swiper.css';
+		// Load the CSS file first
+		if ( ! document.querySelector( `link[href="${ cssURL }"]` ) ) {
+			const link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.href = cssURL;
+			document.head.appendChild( link );
+		}
+
+		// Load the JS file.
+		await import( /* webpackIgnore: true */ window.Jetpack_Block_Assets_Base_Url + 'swiper.js' );
+
+		if ( ! window.JetpackSwiper ) {
+			throw new Error( 'Failed to load Jetpack Swiper bundle' );
+		}
+
+		Swiper = window.JetpackSwiper;
+	}
+
 	return new Swiper( container, { ...defaultParams, ...params } );
 }

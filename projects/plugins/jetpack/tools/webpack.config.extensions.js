@@ -192,8 +192,10 @@ const sharedWebpackConfig = {
 	},
 };
 
-// We export two configuration files: One for admin.js, and one for components.jsx.
-// The latter produces pre-rendered components HTML.
+// We export three configuration files:
+// - admin.js
+// - components.jsx, which produces pre-rendered components HTML
+// - swiper.js
 module.exports = [
 	{
 		...sharedWebpackConfig,
@@ -247,6 +249,7 @@ module.exports = [
 			new CopyBlockEditorAssetsPlugin(),
 		],
 	},
+	// Components configuration
 	{
 		...sharedWebpackConfig,
 		entry: {
@@ -290,5 +293,11 @@ module.exports = [
 				assets: [ 'components.js', 'components.js.map' ],
 			} ),
 		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: {
+			swiper: path.join( __dirname, '../extensions/blocks/slideshow/swiper-entry.js' ),
+		},
 	},
 ];
