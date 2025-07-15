@@ -1,8 +1,9 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useId, useState, useRef } from 'react';
+import { useCallback, useContext, useId, useState, useRef } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { BaseLegend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -345,11 +346,21 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 };
 
-const BarChart: FC< BarChartProps > = props => (
-	<ChartProvider>
-		<BarChartInternal { ...props } />
-	</ChartProvider>
-);
+const BarChart: FC< BarChartProps > = props => {
+	const existingContext = useContext( ChartContext );
+
+	// If we're already in a ChartProvider context, don't create a new one
+	if ( existingContext ) {
+		return <BarChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own ChartProvider
+	return (
+		<ChartProvider>
+			<BarChartInternal { ...props } />
+		</ChartProvider>
+	);
+};
 
 BarChart.displayName = 'BarChart';
 
