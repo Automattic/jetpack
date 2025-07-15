@@ -43,9 +43,15 @@ export function useSupportedServices(): Array< SupportedService > {
 		);
 	}, [ supported_services ] );
 
+	// TODO: Use the new Badge component from @wordpress/components once it's not private.
+	// see https://wordpress.github.io/gutenberg/?path=/docs/components-badge--docs
 	const badgeNew: Badge = {
 		text: __( 'New', 'jetpack-publicize-components' ),
-		style: { background: '#e9eff5', color: '#0675C4' },
+		style: {
+			background: 'color-mix(in srgb, #fff 90%, var(--jp-highlight))',
+			color: 'color-mix(in srgb, #000 50%, var(--jp-highlight))',
+			fontSize: '12px',
+		},
 	};
 
 	const supportedServices: Array< SupportedService > = [
