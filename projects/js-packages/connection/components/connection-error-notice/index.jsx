@@ -89,31 +89,32 @@ const ConnectionErrorNotice = props => {
 			}
 
 			return (
-				<a
+				<button
 					key={ index }
+					type="button"
 					onClick={ action.onClick }
 					onKeyDown={ action.onClick }
 					className={ buttonClassName }
-					href="#"
+					disabled={ action.isLoading }
 				>
 					{ action.isLoading
 						? action.loadingText || __( 'Loading…', 'jetpack-connection-js' )
 						: action.label }
-				</a>
+				</button>
 			);
 		} );
 	} else if ( restoreConnectionCallback ) {
 		// Use default restore connection action for backward compatibility
 		actionButtons = [
-			<a
+			<button
 				key="restore"
+				type="button"
 				onClick={ restoreConnectionCallback }
 				onKeyDown={ restoreConnectionCallback }
 				className={ styles.button }
-				href="#"
 			>
 				{ __( 'Restore Connection', 'jetpack-connection-js' ) }
-			</a>,
+			</button>,
 		];
 	}
 

@@ -50,7 +50,12 @@ export const ConnectionError = ( {
 
 	if ( customActions ) {
 		// Use provided custom actions function
-		actions = customActions( connectionError, { restoreConnection, isRestoringConnection } );
+		try {
+			actions = customActions( connectionError, { restoreConnection, isRestoringConnection } );
+		} catch {
+			// Silently fall back to default behavior if customActions fails
+			actions = [];
+		}
 	} else {
 		// Get action info from error data
 		const errorData = connectionError?.error_data || {};
@@ -67,10 +72,14 @@ export const ConnectionError = ( {
 				{
 					label: actionLabel,
 					onClick: () => {
-						if ( trackingCallback && trackingEvent ) {
-							trackingCallback( trackingEvent, {} );
+						try {
+							if ( trackingCallback && trackingEvent ) {
+								trackingCallback( trackingEvent, {} );
+							}
+							actionHandler( connectionError );
+						} catch {
+							// Silently fail if action handler throws
 						}
-						actionHandler( connectionError );
 					},
 					variant: actionVariant,
 				},
@@ -85,10 +94,14 @@ export const ConnectionError = ( {
 				{
 					label: actionLabel,
 					onClick: () => {
-						if ( trackingCallback && trackingEvent ) {
-							trackingCallback( trackingEvent, {} );
+						try {
+							if ( trackingCallback && trackingEvent ) {
+								trackingCallback( trackingEvent, {} );
+							}
+							window.location.href = errorData.action_url;
+						} catch {
+							// Silently fail if navigation throws
 						}
-						window.location.href = errorData.action_url;
 					},
 					variant: actionVariant,
 				},
@@ -99,10 +112,14 @@ export const ConnectionError = ( {
 				{
 					label: __( 'Restore Connection', 'jetpack-connection-js' ),
 					onClick: () => {
-						if ( trackingCallback ) {
-							trackingCallback( 'jetpack_connection_error_notice_reconnect_cta_click', {} );
+						try {
+							if ( trackingCallback ) {
+								trackingCallback( 'jetpack_connection_error_notice_reconnect_cta_click', {} );
+							}
+							restoreConnection();
+						} catch {
+							// Silently fail if restore connection throws
 						}
-						restoreConnection();
 					},
 					isLoading: isRestoringConnection,
 					loadingText: __( 'Reconnecting Jetpack…', 'jetpack-connection-js' ),
@@ -125,10 +142,14 @@ export const ConnectionError = ( {
 				actions.push( {
 					label: secondaryActionLabel,
 					onClick: () => {
-						if ( trackingCallback && secondaryTrackingEvent ) {
-							trackingCallback( secondaryTrackingEvent, {} );
+						try {
+							if ( trackingCallback && secondaryTrackingEvent ) {
+								trackingCallback( secondaryTrackingEvent, {} );
+							}
+							secondaryActionHandler( connectionError );
+						} catch {
+							// Silently fail if secondary action handler throws
 						}
-						secondaryActionHandler( connectionError );
 					},
 					variant: secondaryActionVariant,
 				} );
@@ -141,10 +162,14 @@ export const ConnectionError = ( {
 				actions.push( {
 					label: secondaryActionLabel,
 					onClick: () => {
-						if ( trackingCallback && secondaryTrackingEvent ) {
-							trackingCallback( secondaryTrackingEvent, {} );
+						try {
+							if ( trackingCallback && secondaryTrackingEvent ) {
+								trackingCallback( secondaryTrackingEvent, {} );
+							}
+							window.location.href = secondaryActionUrl;
+						} catch {
+							// Silently fail if secondary action navigation throws
 						}
-						window.location.href = secondaryActionUrl;
 					},
 					variant: secondaryActionVariant,
 				} );
