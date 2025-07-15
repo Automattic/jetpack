@@ -15,15 +15,11 @@ import { store as socialStore } from '../../social-store';
 import { ConnectionService } from '../../types';
 import type { ComponentType } from 'react';
 
-export type BadgeConfig = {
-	component: React.ReactNode;
-};
-
 export interface SupportedService extends ConnectionService {
 	icon: ComponentType< { iconSize: number } >;
 	examples?: Array< ComponentType >;
 	needsCustomInputs?: boolean;
-	badges?: Array< BadgeConfig >;
+	badges?: Array< React.ReactNode >;
 }
 
 /**
@@ -44,9 +40,7 @@ export function useSupportedServices(): Array< SupportedService > {
 		);
 	}, [ supported_services ] );
 
-	const badgeNew: BadgeConfig = {
-		component: <Badge intent="info">{ __( 'New', 'jetpack-publicize-components' ) }</Badge>,
-	};
+	const badgeNew = <Badge intent="info">{ __( 'New', 'jetpack-publicize-components' ) }</Badge>;
 
 	const supportedServices: Array< SupportedService > = [
 		{
