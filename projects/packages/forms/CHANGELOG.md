@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2025-07-14
+### Added
+- Add "Empty trash" button. [#44225]
+- Add link to disconnect Google. [#44253]
+- Add tests on component. [#44225]
+- Add tip that spam will automatically be deleted after 15 days. [#44226]
+
+### Changed
+- Improve email copy-to-clipboard visually and make it less hidden. [#44264]
+- Remove redundant "Manage responses" inspector panel from individual field blocks so it now only appears on the main Contact Form block. [#44212]
+- Set max width for integrations panel. [#44261]
+- Update integration links. [#44255] [#44258]
+- Update dashboard response look. [#44262]
+- Update package dependencies. [#44217]
+
+### Removed
+- Clean up code from dashboard. [#44244]
+
+### Fixed
+- Prevent React error by removing unneeded key when listing files. [#44263]
+
 ## [3.0.0] - 2025-07-07
 ### Added
 - Contact Form: Introduce a new "Rating" field block that allows site owners to collect star/heart/smiley/emoji ratings from visitors. [#44094]
@@ -1272,6 +1293,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[3.1.0]: https://github.com/automattic/jetpack-forms/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/automattic/jetpack-forms/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/automattic/jetpack-forms/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/automattic/jetpack-forms/compare/v2.0.0...v2.0.1

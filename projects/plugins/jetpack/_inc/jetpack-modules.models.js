@@ -1,6 +1,6 @@
 window.jetpackModules = window.jetpackModules || {};
 
-window.jetpackModules.models = ( function ( window, $, _, Backbone ) {
+window.jetpackModules.models = ( function ( window, $, Backbone ) {
 	'use strict';
 
 	var models = {};
@@ -14,27 +14,24 @@ window.jetpackModules.models = ( function ( window, $, _, Backbone ) {
 		 */
 		filter_and_sort: function () {
 			var subsubsub = $( '.subsubsub .current a' ),
-				items = this.get( 'raw' ),
+				items = Object.values( this.get( 'raw' ) ),
 				m_filter = $( '.button-group.filter-active .active' ),
 				m_sort = $( '.button-group.sort .active' ),
-				m_search = $( '#srch-term-search-input' ).val().toLowerCase(),
-				groups;
+				m_search = $( '#srch-term-search-input' ).val().toLowerCase();
 
 			// If a module filter has been selected, filter it!
 			if ( ! subsubsub.closest( 'li' ).hasClass( 'all' ) ) {
-				items = _.filter( items, function ( item ) {
-					return _.contains( item.module_tags, subsubsub.data( 'title' ) );
-				} );
+				items = items.filter( item => item.module_tags.includes( subsubsub.data( 'title' ) ) );
 			}
 
 			if ( m_filter.data( 'filter-by' ) ) {
-				items = _.filter( items, function ( item ) {
-					return item[ m_filter.data( 'filter-by' ) ] === m_filter.data( 'filter-value' );
-				} );
+				items = items.filter(
+					item => item[ m_filter.data( 'filter-by' ) ] === m_filter.data( 'filter-value' )
+				);
 			}
 
 			if ( m_search.length ) {
-				items = _.filter( items, function ( item ) {
+				items = items.filter( function ( item ) {
 					var search_text =
 						item.name +
 						' ' +
@@ -50,17 +47,18 @@ window.jetpackModules.models = ( function ( window, $, _, Backbone ) {
 			}
 
 			if ( m_sort.data( 'sort-by' ) ) {
-				items = _.sortBy( items, m_sort.data( 'sort-by' ) );
-				if ( 'reverse' === m_sort.data( 'sort-order' ) ) {
-					items.reverse();
-				}
+				const key = m_sort.data( 'sort-by' );
+				const cmpret = 'reverse' === m_sort.data( 'sort-order' ) ? -1 : 1;
+
+				items.sort( ( a, b ) =>
+					// eslint-disable-next-line no-nested-ternary
+					a[ key ] > b[ key ] ? cmpret : a[ key ] < b[ key ] ? -cmpret : 0
+				);
 			}
 
 			// Sort unavailable modules to the end if the user is running in local mode.
-			groups = _.groupBy( items, 'available' );
-			if ( _.has( groups, 'false' ) ) {
-				items = [].concat( groups.true, groups.false );
-			}
+			// JS sort is supposed to be stable since 2019, and is in browsers we care about, so this is safe.
+			items.sort( ( a, b ) => b.available - a.available );
 
 			// Now shove it back in.
 			this.set( 'items', items );
@@ -75,4 +73,4 @@ window.jetpackModules.models = ( function ( window, $, _, Backbone ) {
 	} );
 
 	return models;
-} )( window, jQuery, _, Backbone );
+} )( window, jQuery, Backbone );

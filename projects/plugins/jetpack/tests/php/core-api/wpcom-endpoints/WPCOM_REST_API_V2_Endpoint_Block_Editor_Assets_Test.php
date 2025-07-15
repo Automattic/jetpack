@@ -29,36 +29,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		parent::set_up();
 		$this->instance = new WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets();
 
-		// Mock the enqueue_block_editor_assets action to prevent loading non-existent files
+		// Remove existing actions to prevent failed loading of files that may or
+		// may not exist depending on the build output.
 		remove_all_actions( 'enqueue_block_editor_assets' );
-		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_block_editor_assets' ) );
-	}
-
-	/**
-	 * Clean up after each test.
-	 */
-	public function tear_down() {
-		// Remove our mock action
-		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_block_editor_assets' ) );
-		parent::tear_down();
-	}
-
-	/**
-	 * Mock function for block editor assets.
-	 * This provides minimal required assets without loading actual files.
-	 */
-	public function mock_block_editor_assets() {
-		// Register minimal mock assets that don't require actual files
-		wp_register_script( 'mock-editor-script', 'http://example.org/plugins/jetpack/mock-editor.js', array(), '1.0', true );
-		wp_register_style( 'mock-editor-style', 'http://example.org/plugins/jetpack/mock-editor.css', array(), '1.0' );
-		wp_register_script( 'disallowed-plugin-script', 'http://example.org/plugins/disallowed-plugin/script.js', array(), '1.0', true );
-		wp_register_script( 'disallowed-plugin-style', 'http://example.org/plugins/disallowed-plugin/style.css', array(), '1.0', true );
-
-		// Enqueue our mock assets
-		wp_enqueue_script( 'mock-editor-script' );
-		wp_enqueue_style( 'mock-editor-style' );
-		wp_enqueue_script( 'disallowed-plugin-script' );
-		wp_enqueue_style( 'disallowed-plugin-style' );
 	}
 
 	/**
@@ -178,13 +151,30 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	public function test_get_items_returns_allowed_plugin_assets() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_allowed_plugin_assets' ) );
+
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		// Verify the allowed plugin script and style are in the output
-		$this->assertStringContainsString( 'mock-editor-script', $data['scripts'] );
-		$this->assertStringContainsString( 'mock-editor-style', $data['styles'] );
+		$this->assertStringContainsString( 'jetpack-mock-script', $data['scripts'] );
+		$this->assertStringContainsString( 'jetpack-mock-style', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_allowed_plugin_assets' ) );
+	}
+
+	/**
+	 * Enqueue allowed plugin assets.
+	 */
+	public function mock_allowed_plugin_assets() {
+		// Register minimal mock assets that don't require actual files
+		wp_register_script( 'jetpack-mock-script', 'http://example.org/mock-editor.js', array(), '1.0', true );
+		wp_register_style( 'jetpack-mock-style', 'http://example.org/mock-editor.css', array(), '1.0' );
+
+		// Enqueue our mock assets
+		wp_enqueue_script( 'jetpack-mock-script' );
+		wp_enqueue_style( 'jetpack-mock-style' );
 	}
 
 	/**
@@ -193,6 +183,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	public function test_disallowed_plugin_assets_are_filtered() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_disallowed_plugin_assets' ) );
+
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -200,6 +192,19 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		// Verify the disallowed plugin script and style are not in the output
 		$this->assertStringNotContainsString( 'disallowed-plugin-script', $data['scripts'] );
 		$this->assertStringNotContainsString( 'disallowed-plugin-style', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_disallowed_plugin_assets' ) );
+	}
+
+	/**
+	 * Enqueue disallowed plugin assets.
+	 */
+	public function mock_disallowed_plugin_assets() {
+		wp_register_script( 'disallowed-plugin-script', 'http://example.org/script.js', array(), '1.0', true );
+		wp_register_style( 'disallowed-plugin-style', 'http://example.org/style.css', array(), '1.0' );
+
+		wp_enqueue_script( 'disallowed-plugin-script' );
+		wp_enqueue_style( 'disallowed-plugin-style' );
 	}
 
 	/**
@@ -214,6 +219,38 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		// Verify jQuery is in the output
 		$this->assertStringContainsString( 'jquery', $data['scripts'] );
+	}
+
+	/**
+	 * Test that WPCOM-specific Gutenberg assets are preserved.
+	 */
+	public function test_wpcom_gutenberg_assets_are_preserved() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_wpcom_gutenberg_assets' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify the WPCOM Gutenberg assets are preserved in the output
+		$this->assertStringContainsString( 'wpcom-gutenberg-script', $data['scripts'] );
+		$this->assertStringContainsString( 'wpcom-gutenberg-style', $data['styles'] );
+		$this->assertStringContainsString( 'plugins/gutenberg-core/script.js', $data['scripts'] );
+		$this->assertStringContainsString( 'plugins/gutenberg-core/style.css', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_wpcom_gutenberg_assets' ) );
+	}
+
+	/**
+	 * Enqueue assets using WPCOM's specific Gutenberg paths.
+	 */
+	public function mock_wpcom_gutenberg_assets() {
+		wp_register_script( 'wpcom-gutenberg-script', 'http://example.org/plugins/gutenberg-core/script.js', array(), '1.0', true );
+		wp_register_style( 'wpcom-gutenberg-style', 'http://example.org/plugins/gutenberg-core/style.css', array(), '1.0' );
+
+		wp_enqueue_script( 'wpcom-gutenberg-script' );
+		wp_enqueue_style( 'wpcom-gutenberg-style' );
 	}
 
 	/**
