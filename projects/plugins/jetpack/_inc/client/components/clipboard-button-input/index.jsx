@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import ClipboardButton from 'components/form/clipboard-button';
@@ -48,30 +47,30 @@ export default class ClipboardButtonInput extends Component {
 	};
 
 	render() {
-		const forwardedProps = omit(
-			this.props,
-			'className',
-			'copied',
-			'copy',
-			'isError',
-			'isValid',
-			'prompt',
-			'selectOnFocus',
-			'rna'
-		);
+		const {
+			className,
+			copied,
+			copy,
+			isError,
+			isValid,
+			prompt,
+			selectOnFocus,
+			rna,
+			...forwardedProps
+		} = this.props;
 
 		return (
-			<span className={ clsx( 'dops-clipboard-button-input', this.props.className ) }>
+			<span className={ clsx( 'dops-clipboard-button-input', className ) }>
 				<TextInput { ...forwardedProps } type="text" selectOnFocus readOnly />
 				<ClipboardButton
 					text={ this.props.value }
 					onCopy={ this.showConfirmation }
 					disabled={ this.props.disabled }
-					prompt={ this.props.prompt }
+					prompt={ prompt }
 					compact
-					rna={ this.props.rna }
+					rna={ rna }
 				>
-					{ this.state.isCopied ? this.props.copied : this.props.copy }
+					{ this.state.isCopied ? copied : copy }
 				</ClipboardButton>
 			</span>
 		);

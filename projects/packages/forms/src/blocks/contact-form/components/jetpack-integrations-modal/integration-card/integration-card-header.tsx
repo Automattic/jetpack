@@ -125,7 +125,13 @@ const IntegrationCardHeader = ( {
 						) }
 					</div>
 				</div>
-				<HStack spacing="3" alignment="center" justify="end" expanded={ false }>
+				<HStack
+					className="integration-card__header-actions"
+					spacing="3"
+					alignment="center"
+					justify="end"
+					expanded={ false }
+				>
 					{ showPluginAction && (
 						<PluginActionButton
 							slug={ cardData.slug }

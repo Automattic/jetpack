@@ -27,14 +27,17 @@ export function OverviewContent() {
 
 			<FullWidthSeparator />
 			<div className={ styles.footer }>
-				<Container horizontalSpacing={ 0 } className={ styles[ 'footer-container' ] }>
-					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						<PlansSection />
-					</Col>
-					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						<ConnectionsSection />
-					</Col>
-				</Container>
+				{ /* Needed to show different background colour */ }
+				<div className={ styles[ 'footer-inner' ] }>
+					<Container horizontalSpacing={ 0 } className={ styles[ 'footer-container' ] }>
+						<Col sm={ 4 } md={ 4 } lg={ 6 }>
+							<PlansSection />
+						</Col>
+						<Col sm={ 4 } md={ 4 } lg={ 6 }>
+							<ConnectionsSection />
+						</Col>
+					</Container>
+				</div>
 			</div>
 		</div>
 	);

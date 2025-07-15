@@ -1,6 +1,6 @@
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { isEmpty, omit } from 'lodash';
+import { isEmpty } from 'lodash';
 
 const deprecatedAttributes = [
 	'submitButtonText',
@@ -82,7 +82,9 @@ export default {
 		},
 	},
 	migrate: attributes => {
-		const newAttributes = omit( attributes, deprecatedAttributes );
+		const newAttributes = Object.fromEntries(
+			Object.entries( attributes ).filter( ( [ k ] ) => ! deprecatedAttributes.includes( k ) )
+		);
 		const buttonAttributes = migrateAttributes( attributes );
 		const newInnerBlocks = [
 			createBlock( 'jetpack/button', {
