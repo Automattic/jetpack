@@ -18,13 +18,6 @@ class Feedback {
 	const POST_TYPE = 'feedback';
 
 	/**
-	 * The Post Object of the feedback entry.
-	 *
-	 * @var WP_Post|null
-	 */
-	protected $feedback_post;
-
-	/**
 	 * The form field values.
 	 *
 	 * @var array
@@ -37,13 +30,6 @@ class Feedback {
 	 * @var bool
 	 */
 	protected $has_file = false;
-
-	/**
-	 * The original Contact_Form object, if available.
-	 *
-	 * @var Contact_Form|null
-	 */
-	protected $form;
 
 	/**
 	 * The current post object, if available.
@@ -160,69 +146,6 @@ class Feedback {
 	protected $entry;
 
 	/**
-	 * Constructor.
-	 *
-	 * @param WP_Post|null      $feedback_post The post object representing the feedback.
-	 * @param Contact_Form|null $form  The form object.
-	 * @param array|null        $post_data The $_POST recieved during the form submission.
-	 * @param WP_Post|null      $current_post The current post object, if available.
-	 * @param int               $current_page_number The current page number associated with the current post object entry.
-	 */
-	public function __construct( $feedback_post = null, $form = null, $post_data = null, $current_post = null, $current_page_number = 1 ) {
-
-		$this->entry = new Feedback_Entry( 0, '' );
-
-		$this->feedback_post = $feedback_post;
-		$this->form          = $form;
-
-		if ( $this->feedback_post instanceof WP_Post ) {
-
-			$parsed_content = $this->parse_content( $this->feedback_post->post_content, $this->feedback_post->post_mime_type );
-
-			$this->status      = $this->feedback_post->post_status;
-			$this->feedback_id = $this->feedback_post->post_name;
-
-			$this->feedback_time = $this->feedback_post->post_date;
-
-			$this->entry = new Feedback_Entry(
-				$this->feedback_post->post_parent,
-				$parsed_content['entry_title'] ?? '',
-				$parsed_content['entry_page'] ?? 1
-			);
-
-			$this->fields          = isset( $parsed_content['fields'] ) ? $parsed_content['fields'] : array();
-			$this->ip_address      = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : $this->get_first_field_of_type( 'ip' );
-			$this->subject         = isset( $parsed_content['subject'] ) ? $parsed_content['subject'] : $this->get_first_field_of_type( 'subject' );
-			$this->author          = $this->get_first_field_of_type( 'name', 'pre_comment_author_name' );
-			$this->author_email    = $this->get_first_field_of_type( 'email', 'pre_comment_author_email' );
-			$this->author_url      = $this->get_first_field_of_type( 'url', 'pre_comment_author_url' );
-			$this->comment_content = $this->get_first_field_of_type( 'textarea' );
-			$this->has_consent     = $this->get_first_field_of_type( 'consent' ) === 'Yes' ? true : false;
-
-			$this->feedback_title = $this->feedback_post->post_title ? $this->feedback_post->post_title : $this->get_author() . ' - ' . $this->feedback_post->post_date;
-
-		} elseif ( is_array( $post_data ) && ! empty( $post_data ) ) {
-
-			// If post_data is provided, use it to populate fields.
-			$this->status          = $this->status;
-			$this->fields          = $this->get_computed_fields( $post_data );
-			$this->ip_address      = Contact_Form_Plugin::get_ip_address();
-			$this->subject         = $this->get_computed_subject( $post_data );
-			$this->author          = $this->get_computer_author_info( $post_data, 'name', 'pre_comment_author_name' );
-			$this->author_email    = $this->get_computer_author_info( $post_data, 'email', 'pre_comment_author_email' );
-			$this->author_url      = $this->get_computer_author_info( $post_data, 'url', 'pre_comment_author_url' );
-			$this->comment_content = $this->get_computed_comment_content( $post_data );
-			$this->has_consent     = $this->get_computed_consent( $post_data );
-
-			$this->entry = Feedback_Entry::from_submission( $current_post, $current_page_number );
-
-			$this->feedback_time  = current_time( 'mysql' );
-			$this->feedback_title = "{$this->get_author()} - {$this->feedback_time}";
-			$this->feedback_id    = md5( $this->feedback_title );
-		}
-	}
-
-	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -235,7 +158,40 @@ class Feedback {
 			return null;
 		}
 
-		return new static( $feedback_post );
+		$instance = new self();
+		$instance->load_from_post( $feedback_post );
+		return $instance;
+	}
+
+	/**
+	 * Create a Feedback object from a feedback post.
+	 *
+	 * @param WP_Post $feedback_post The feedback post object.
+	 */
+	private function load_from_post( WP_Post $feedback_post ) {
+
+		$parsed_content = $this->parse_content( $feedback_post->post_content, $feedback_post->post_mime_type );
+
+		$this->status        = $feedback_post->post_status;
+		$this->feedback_id   = $feedback_post->post_name;
+		$this->feedback_time = $feedback_post->post_date;
+
+		$this->entry = new Feedback_Entry(
+			$feedback_post->post_parent,
+			$parsed_content['entry_title'] ?? '',
+			$parsed_content['entry_page'] ?? 1
+		);
+
+		$this->fields          = isset( $parsed_content['fields'] ) ? $parsed_content['fields'] : array();
+		$this->ip_address      = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : $this->get_first_field_of_type( 'ip' );
+		$this->subject         = isset( $parsed_content['subject'] ) ? $parsed_content['subject'] : $this->get_first_field_of_type( 'subject' );
+		$this->author          = $this->get_first_field_of_type( 'name', 'pre_comment_author_name' );
+		$this->author_email    = $this->get_first_field_of_type( 'email', 'pre_comment_author_email' );
+		$this->author_url      = $this->get_first_field_of_type( 'url', 'pre_comment_author_url' );
+		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
+		$this->has_consent     = $this->get_first_field_of_type( 'consent' ) === 'Yes' ? true : false;
+
+		$this->feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}
 
 	/**
@@ -249,7 +205,36 @@ class Feedback {
 	 * @return static
 	 */
 	public static function from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
-		return new static( null, $form, $post_data, $current_post, $current_page_number );
+		$instance = new self();
+		$instance->load_from_submission( $post_data, $form, $current_post, $current_page_number );
+		return $instance;
+	}
+
+	/**
+	 * Load from Form Submission.
+	 *
+	 * @param array        $post_data The $_POST recieved during the form submission.
+	 * @param Contact_Form $form  The form object.
+	 * @param WP_Post|null $current_post The current post object, if available.
+	 * @param int          $current_page_number The current page number associated with the current post object entry.
+	 */
+	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
+
+		$this->entry = Feedback_Entry::from_submission( $current_post, $current_page_number );
+		// If post_data is provided, use it to populate fields.
+		$this->status          = $this->status;
+		$this->fields          = $this->get_computed_fields( $post_data, $form );
+		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
+		$this->subject         = $this->get_computed_subject( $post_data, $form );
+		$this->author          = $this->get_computer_author_info( $post_data, 'name', 'pre_comment_author_name', $form );
+		$this->author_email    = $this->get_computer_author_info( $post_data, 'email', 'pre_comment_author_email', $form );
+		$this->author_url      = $this->get_computer_author_info( $post_data, 'url', 'pre_comment_author_url', $form );
+		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
+		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
+
+		$this->feedback_time  = current_time( 'mysql' );
+		$this->feedback_title = "{$this->get_author()} - {$this->feedback_time}";
+		$this->feedback_id    = md5( $this->feedback_title );
 	}
 
 	/**
@@ -686,8 +671,8 @@ class Feedback {
 			)
 		);
 
-		$this->feedback_post = get_post( $post_id );
-		return $this->feedback_post ? $this->feedback_post->ID : 0;
+		$feedback_post = get_post( $post_id );
+		return $feedback_post ?? 0;
 	}
 
 	/**
@@ -914,18 +899,19 @@ class Feedback {
 	/**
 	 * Get all the fields of the response, computed from the post data.
 	 *
-	 * @param array $post_data The post data from the form submission.
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form The form object.
 	 * @return array An array of Feedback_Field objects.
 	 */
-	private function get_computed_fields( $post_data ) {
+	private function get_computed_fields( $post_data, $form ) {
 
 		$fields = array();
 
-		$field_ids = $this->form->get_field_ids();
+		$field_ids = $form->get_field_ids();
 		// For all fields, grab label and value
 		$i = 1;
 		foreach ( $field_ids['all'] as $field_id ) {
-			$field = $this->form->fields[ $field_id ];
+			$field = $form->fields[ $field_id ];
 			$type  = $field->get_attribute( 'type' );
 			if ( ! $field->is_field_renderable( $type ) ) {
 				continue;
@@ -948,13 +934,14 @@ class Feedback {
 	/**
 	 * Gets the computed subject.
 	 *
-	 * @param array $post_data The post data from the form submission.
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form The form object.
 	 * @return string
 	 */
-	private function get_computed_subject( $post_data ) {
+	private function get_computed_subject( $post_data, $form ) {
 
-		$contact_form_subject = $this->form->get_attribute( 'subject' );
-		$field_ids            = $this->form->get_field_ids();
+		$contact_form_subject = $form->get_attribute( 'subject' );
+		$field_ids            = $form->get_field_ids();
 
 		if ( isset( $field_ids['subject'] ) ) {
 			$value = $this->get_field_value( $field_ids['subject'], $post_data );
@@ -965,16 +952,18 @@ class Feedback {
 
 		return apply_filters( 'contact_form_subject', $contact_form_subject, $this->get_all_values() );
 	}
+
 	/**
 	 * Gets the computed author.
 	 *
-	 * @param array       $post_data The post data from the form submission.
-	 * @param string      $type The type of author information to retrieve (e.g., 'name', 'email', 'url').
-	 * @param string|null $filter Optional filter to apply to the value.
+	 * @param array        $post_data The post data from the form submission.
+	 * @param string       $type The type of author information to retrieve (e.g., 'name', 'email', 'url').
+	 * @param string|null  $filter Optional filter to apply to the value.
+	 * @param Contact_Form $form The form object.
 	 * @return string
 	 */
-	private function get_computer_author_info( $post_data, $type, $filter = null ) {
-		$field_ids = $this->form->get_field_ids();
+	private function get_computer_author_info( $post_data, $type, $filter, $form ) {
+		$field_ids = $form->get_field_ids();
 		if ( isset( $field_ids[ $type ] ) ) {
 			$value = $this->get_field_value( $field_ids[ $type ], $post_data );
 			if ( is_string( $value ) ) {
@@ -995,11 +984,12 @@ class Feedback {
 	/**
 	 * Gets the computed comment content.
 	 *
-	 * @param array $post_data The post data from the form submission.
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form The form object.
 	 * @return string
 	 */
-	private function get_computed_comment_content( $post_data ) {
-		$field_ids = $this->form->get_field_ids();
+	private function get_computed_comment_content( $post_data, $form ) {
+		$field_ids = $form->get_field_ids();
 		if ( isset( $field_ids['textarea'] ) ) {
 			$value = $this->get_field_value( $field_ids['textarea'], $post_data );
 			if ( is_string( $value ) ) {
@@ -1012,11 +1002,12 @@ class Feedback {
 	/**
 	 * Gets the computed consent.
 	 *
-	 * @param array $post_data The post data from the form submission.
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form The form object.
 	 * @return string
 	 */
-	private function get_computed_consent( $post_data ) {
-		$field_ids = $this->form->get_field_ids();
+	private function get_computed_consent( $post_data, $form ) {
+		$field_ids = $form->get_field_ids();
 
 		if ( isset( $field_ids['email_marketing_consent_field'] ) && $field_ids['email_marketing_consent_field'] !== null ) {
 			return (bool) $this->get_field_value( $field_ids['email_marketing_consent_field'], $post_data );
