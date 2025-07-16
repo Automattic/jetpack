@@ -124,19 +124,19 @@ export function filterAndSortModules(
  * @return True if the product is supported, false otherwise.
  */
 export function getProductStatus( product: ProductCamelCase ) {
-	let isAvailable = true;
-	let reason: string | undefined;
-
 	// If the product is not supported on multisite, we set the available to false and provide a reason.
 	if ( getScriptData().site.is_multisite ) {
-		isAvailable = ! JETPACK_PRODUCTS_NOT_FOR_MULTISITE.includes(
-			product.slug as ( typeof JETPACK_PRODUCTS_NOT_FOR_MULTISITE )[ number ]
-		);
-
-		if ( ! isAvailable ) {
-			reason = __( 'Not available on multisite', 'jetpack-my-jetpack' );
+		if (
+			! JETPACK_PRODUCTS_NOT_FOR_MULTISITE.includes(
+				product.slug as ( typeof JETPACK_PRODUCTS_NOT_FOR_MULTISITE )[ number ]
+			)
+		) {
+			return {
+				isAvailable: false,
+				reason: __( 'Not available on multisite', 'jetpack-my-jetpack' ),
+			};
 		}
 	}
 
-	return { isAvailable, reason };
+	return { isAvailable: true };
 }
