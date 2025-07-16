@@ -16,9 +16,9 @@ The My Jetpack Error Tracker is built on the `JPJSErrorTracker` library, a light
 - **Performance Issues**: Detects long-running tasks (>50ms) that may impact user experience
 
 ### 🛡️ **Security & Privacy**
-- **Cryptographically Secure Session IDs**: Uses `crypto.getRandomValues()` for secure random number generation
-- **Fallback Support**: Gracefully degrades to `Math.random()` in environments without crypto API
+- **Unique Session IDs**: Generates unique session identifiers to correlate error events
 - **Data Sanitization**: Automatically truncates sensitive data and limits message lengths
+- **Privacy Conscious**: No personal data collection beyond standard browser context
 
 ### 📊 **Rich Context Collection**
 Each error report includes:
@@ -162,7 +162,7 @@ Each captured error includes the following properties:
 - **Feature Stability**: Monitor error rates after deployments
 
 ### 🛡️ **Reliability & Security**
-- **Secure Session Tracking**: Cryptographically secure session IDs
+- **Secure Session Tracking**: Unique session IDs for error correlation
 - **Error Isolation**: Tracking errors don't crash the application
 - **Privacy Conscious**: Data sanitization and length limits
 
@@ -170,9 +170,12 @@ Each captured error includes the following properties:
 
 ### Throttling
 ```javascript
-// Default throttle time is 1000ms
+// Default throttle time is 5000ms (5 seconds)
 // Prevents duplicate error spam
-throttleMs: 1000
+const errorTracker = new window.JPJSErrorTracker(onError, { 
+    throttleMs: 5000,
+    maxErrors: 100 
+});
 ```
 
 ### Analytics Properties
@@ -203,7 +206,7 @@ projects/packages/my-jetpack/
 
 - **Modern Browsers**: Full feature support including Performance Observer
 - **Legacy Browsers**: Graceful degradation with core error tracking
-- **Crypto API**: Uses secure random generation when available, falls back to Math.random()
+- **Session IDs**: Uses secure random generation when available, falls back to Math.random()
 - **Performance Observer**: Optional feature for performance monitoring
 
 ## Contributing
@@ -217,7 +220,7 @@ When modifying the error tracker:
 
 ## Security Considerations
 
-- Session IDs use cryptographically secure random number generation
+- Session IDs use secure random number generation when available
 - Error messages are truncated to prevent data leakage
 - No sensitive user data is collected or transmitted
 - Analytics errors are caught and logged to prevent infinite loops

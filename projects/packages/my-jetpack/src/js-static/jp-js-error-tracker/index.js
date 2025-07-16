@@ -6,9 +6,12 @@
 ( function ( global ) {
 	/**
 	 * JPJSErrorTracker constructor
-	 * @param {Function} onError - Callback function that receives error data
+	 * @param {Function} onError            - Callback function that receives error data
+	 * @param {object}   options            - Configuration options
+	 * @param {number}   options.throttleMs - Throttle time in milliseconds (default: 5000)
+	 * @param {number}   options.maxErrors  - Maximum number of errors to track (default: 100)
 	 */
-	function JPJSErrorTracker( onError ) {
+	function JPJSErrorTracker( onError, options = {} ) {
 		if ( typeof onError !== 'function' ) {
 			throw new Error( 'JPJSErrorTracker requires an onError callback function' );
 		}
@@ -18,7 +21,9 @@
 		this.pageLoadTime = Date.now();
 		this.errorCount = 0;
 		this.throttledErrors = new Map();
-		this.throttleMs = 1000; // Fixed throttle time
+		this.throttleMs = options.throttleMs || 5000;
+		this.maxErrors = options.maxErrors || 100;
+		this.errorHistory = [];
 
 		this.init();
 	}
@@ -32,14 +37,18 @@
 		},
 
 		generateSessionId: function () {
-			// Use crypto.getRandomValues for cryptographically secure random numbers
-			if ( window.crypto && window.crypto.getRandomValues ) {
-				const array = new Uint32Array( 2 );
+			const timestamp = Date.now().toString();
+			let randomPart = '';
+
+			if ( typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues ) {
+				const array = new Uint32Array( 3 );
 				window.crypto.getRandomValues( array );
-				return 'jp_' + Date.now() + '_' + array[ 0 ].toString( 36 ) + array[ 1 ].toString( 36 );
+				randomPart = array.reduce( ( acc, val ) => acc + val.toString( 36 ), '' ).substring( 0, 9 );
+			} else {
+				randomPart = Math.random().toString( 36 ).substring( 2, 11 );
 			}
-			// Fallback to Math.random for environments without crypto API
-			return 'jp_' + Date.now() + '_' + Math.random().toString( 36 ).substring( 2, 11 );
+
+			return 'jp_' + timestamp + '_' + randomPart;
 		},
 
 		setupErrorHandlers: function () {
@@ -298,6 +307,12 @@
 				},
 			};
 
+			// Add to error history with size limit
+			this.errorHistory.push( enrichedError );
+			if ( this.errorHistory.length > this.maxErrors ) {
+				this.errorHistory.shift();
+			}
+
 			// Call the callback
 			try {
 				this.onError( enrichedError );
@@ -305,6 +320,20 @@
 				// eslint-disable-next-line no-console
 				console.error( 'JPJSErrorTracker: Error in onError callback:', callbackError );
 			}
+		},
+
+		getErrorHistory: function () {
+			return this.errorHistory.slice();
+		},
+
+		getErrorCount: function () {
+			return this.errorCount;
+		},
+
+		clearErrors: function () {
+			this.errorHistory = [];
+			this.errorCount = 0;
+			this.throttledErrors.clear();
 		},
 	};
 
