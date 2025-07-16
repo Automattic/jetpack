@@ -126,7 +126,9 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 		$this->assertCount( 1, $result );
 		// The expiration should be a valid timestamp
 		$this->assertIsInt( $result[0][2] );
-		$this->assertEquals( time() + $custom_expiration, $result[0][2] );
+		// Assert that the expiration is within 1 second of the expected value to
+		// account for timing differences that may occur in the test environment.
+		$this->assertLessThanOrEqual( 1, abs( ( time() + $custom_expiration ) - $result[0][2] ) );
 	}
 
 	/**
