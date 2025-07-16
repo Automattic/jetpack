@@ -400,28 +400,30 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
  * @param int $width The width of the image.
  * @param int $height The height of the image.
  *
- * @return array The source ('src'), 'width', and 'height' of the image.
+ * @return array The source ('src'), 'width', 'height', and source type of the image.
  */
 function jetpack_og_get_fallback_social_image( $width, $height ) {
-	// Let's check if we have a cached image.
-	$fallback_image = get_transient( 'jetpack_og_fallback_social_image' );
-	if ( ! empty( $fallback_image ) ) {
-		return $fallback_image;
-	}
-
 	// Default template.
-	$template = 'edge';
+	$template   = 'edge';
+	$site_image = array(
+		'src'    => '',
+		'width'  => $width,
+		'height' => $height,
+		'type'   => 'blank',
+	);
 
 	// Let's get the site's representative image.
 	$site_image = jetpack_og_get_site_image( $width, $height );
 	if ( empty( $site_image['src'] ) ) {
 		// When using the default blank image, use a different template in Social Image Generator.
-		$template   = 'highway';
-		$site_image = array(
-			'src'    => jetpack_og_get_site_fallback_image(),
-			'width'  => $width,
-			'height' => $height,
-		);
+		$template          = 'highway';
+		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
+	}
+
+	// Let's check if we have a cached image.
+	$fallback_image = get_transient( 'jetpack_og_fallback_social_image_' . $site_image['type'] );
+	if ( ! empty( $fallback_image ) ) {
+		return $fallback_image;
 	}
 
 	/**
@@ -439,15 +441,11 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 
 	// Final fallback if everything else fails, the blank image.
 	if ( empty( $image['src'] ) ) {
-		return array(
-			'src'    => jetpack_og_get_site_fallback_image(),
-			'width'  => $width,
-			'height' => $height,
-		);
+		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
 	}
 
 	// If we have an image, cache it for a day.
-	set_transient( 'jetpack_og_fallback_social_image', $image, DAY_IN_SECONDS );
+	set_transient( 'jetpack_og_fallback_social_image_' . $site_image['type'], $image, DAY_IN_SECONDS );
 
 	return $image;
 }
@@ -460,7 +458,7 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
  * @param int $width The width of the image.
  * @param int $height The height of the image.
  *
- * @return array The source ('src'), 'width', and 'height' of the image.
+ * @return array The source ('src'), 'width', 'height', and source type of the image.
  */
 function jetpack_og_get_site_image( $width, $height ) {
 	// First fall back, blavatar.
@@ -471,6 +469,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 				'src'    => blavatar_url( $blavatar_domain, 'img', $width, false, true ),
 				'width'  => $width,
 				'height' => $height,
+				'type'   => 'blavatar',
 			);
 		}
 	}
@@ -490,6 +489,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 				'src'    => $logo[0],
 				'width'  => $logo[1],
 				'height' => $logo[2],
+				'type'   => 'site_logo',
 			);
 		}
 	}
@@ -506,6 +506,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 				'src'    => $icon[0],
 				'width'  => $icon[1],
 				'height' => $icon[2],
+				'type'   => 'site_icon',
 			);
 		}
 	}
@@ -514,6 +515,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 		'src'    => '',
 		'width'  => $width,
 		'height' => $height,
+		'type'   => 'blank',
 	);
 }
 
@@ -524,7 +526,7 @@ function jetpack_og_get_site_image( $width, $height ) {
  *
  * @return string
  */
-function jetpack_og_get_site_fallback_image() {
+function jetpack_og_get_site_fallback_blank_image() {
 	/**
 	 * Filter the default Open Graph Image tag, used when no Image can be found in a post.
 	 *
@@ -541,7 +543,7 @@ function jetpack_og_get_site_fallback_image() {
  * @param array  $representative_image The representative image of the site.
  * @param string $template The template to use.
  *
- * @return array The source ('src'), 'width', and 'height' of the image.
+ * @return array The source ('src'), 'width', and 'height'of the image.
  */
 function jetpack_og_generate_fallback_social_image( $representative_image, $template ) {
 	$site_title     = get_bloginfo( 'name' );
