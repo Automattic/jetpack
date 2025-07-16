@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Code Modernization: Replace usage of certail preg_match() checks with str_contains().
