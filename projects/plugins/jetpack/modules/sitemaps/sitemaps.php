@@ -57,6 +57,8 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
  * Governs the generation, storage, and serving of sitemaps.
  *
  * @since 4.8.0
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Sitemap_Manager {
 

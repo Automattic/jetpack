@@ -11,6 +11,8 @@ use Composer\InstalledVersions;
 
 /**
  * Handles the bootstrap.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Waf_Standalone_Bootstrap {
 

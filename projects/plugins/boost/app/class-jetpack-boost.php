@@ -56,6 +56,8 @@ use Automattic\Jetpack_Boost\REST_API\REST_API;
  *
  * @since      1.0.0
  * @author     Automattic <support@jetpack.com>
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Boost {
 

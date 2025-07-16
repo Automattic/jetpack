@@ -103,6 +103,8 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 
 /**
  * Plugins modify 1_2 Endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plugins_Modify_Endpoint { // phpcs:ignore PEAR.NamingConventions.ValidClassName.Invalid, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 

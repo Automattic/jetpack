@@ -20,6 +20,8 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
 
 /**
  * Class Speed_Score
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Speed_Score {
 

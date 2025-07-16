@@ -14,6 +14,8 @@ namespace Automattic\Jetpack\Debug_Helper;
  * It hooks into the WordPress initialization process to log details about XML-RPC requests.
  *
  * @package Automattic\Jetpack\Debug_Helper
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class XMLRPC_Logger {
 	/**

@@ -1469,6 +1469,8 @@ function jetpack_foo_is_callable_random() {
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 /**
  * Example Test Taxonomy
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class ABC_FOO_TEST_Taxonomy_Example {
 
