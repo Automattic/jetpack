@@ -824,7 +824,7 @@ class Jetpack_Carousel {
 		foreach ( $matches[0] as $image_html ) {
 			if (
 				preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id )
-				&& ! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html )
+				&& ! str_contains( $image_html, 'wp-block-jetpack-slideshow_image' )
 			) {
 				/**
 				 * Allow filtering the attachment ID used to fetch and populate metadata about an image in a gallery.
