@@ -62,7 +62,7 @@ const CornerstoneTitleSummary = () => {
 		/* translators: %s is the number of pages in the custom cornerstone pages list. */
 		__( 'Added: %s', 'jetpack-boost' ),
 		() => {
-			if ( cornerstonePages.length < 2 ) {
+			if ( cornerstonePages.length === 0 ) {
 				return __( 'Homepage', 'jetpack-boost' );
 			}
 
