@@ -32,26 +32,6 @@ class Feedback {
 	protected $has_file = false;
 
 	/**
-	 * The current post object, if available.
-	 *
-	 * Usallyt this is accostied with the global $post object.
-	 *
-	 * @var WP_Post|null
-	 */
-	protected $current_post;
-
-	/**
-	 * The current page number associated with the feedback entry.
-	 *
-	 * This is used to track the page number of the form that the feedback was submitted from.
-	 *
-	 * Usally this is accosited with the global $page number varieble.
-	 *
-	 * @var int
-	 */
-	protected $current_page_number = 1;
-
-	/**
 	 * The status of the feedback entry.
 	 *
 	 * @var string
@@ -102,25 +82,11 @@ class Feedback {
 	protected $feedback_time = '';
 
 	/**
-	 * The author of the feedback entry.
+	 * The Feedback_Author of the feedback entry.
 	 *
-	 * @var string
+	 * @var Feedback_Author
 	 */
-	protected $author = '';
-
-	/**
-	 * The author email of the feedback entry.
-	 *
-	 * @var string
-	 */
-	protected $author_email = '';
-
-	/**
-	 * The author url of the feedback entry.
-	 *
-	 * @var string
-	 */
-	protected $author_url = '';
+	protected $author_data;
 
 	/**
 	 * The comment content of the feedback entry.
@@ -176,18 +142,23 @@ class Feedback {
 		$this->feedback_id   = $feedback_post->post_name;
 		$this->feedback_time = $feedback_post->post_date;
 
+		$this->fields = isset( $parsed_content['fields'] ) ? $parsed_content['fields'] : array();
+
 		$this->entry = new Feedback_Entry(
 			$feedback_post->post_parent,
 			$parsed_content['entry_title'] ?? '',
 			$parsed_content['entry_page'] ?? 1
 		);
 
-		$this->fields          = isset( $parsed_content['fields'] ) ? $parsed_content['fields'] : array();
-		$this->ip_address      = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : $this->get_first_field_of_type( 'ip' );
-		$this->subject         = isset( $parsed_content['subject'] ) ? $parsed_content['subject'] : $this->get_first_field_of_type( 'subject' );
-		$this->author          = $this->get_first_field_of_type( 'name', 'pre_comment_author_name' );
-		$this->author_email    = $this->get_first_field_of_type( 'email', 'pre_comment_author_email' );
-		$this->author_url      = $this->get_first_field_of_type( 'url', 'pre_comment_author_url' );
+		$this->ip_address = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : $this->get_first_field_of_type( 'ip' );
+		$this->subject    = isset( $parsed_content['subject'] ) ? $parsed_content['subject'] : $this->get_first_field_of_type( 'subject' );
+
+		$this->author_data = new Feedback_Author(
+			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
+			$this->get_first_field_of_type( 'email', 'pre_comment_author_email' ),
+			$this->get_first_field_of_type( 'url', 'pre_comment_author_url' )
+		);
+
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
 		$this->has_consent     = $this->get_first_field_of_type( 'consent' ) === 'Yes' ? true : false;
 
@@ -226,9 +197,7 @@ class Feedback {
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
 		$this->subject         = $this->get_computed_subject( $post_data, $form );
-		$this->author          = $this->get_computer_author_info( $post_data, 'name', 'pre_comment_author_name', $form );
-		$this->author_email    = $this->get_computer_author_info( $post_data, 'email', 'pre_comment_author_email', $form );
-		$this->author_url      = $this->get_computer_author_info( $post_data, 'url', 'pre_comment_author_url', $form );
+		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
 		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
 		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
 
@@ -295,7 +264,7 @@ class Feedback {
 				return $field->get_render_value();
 			}
 		}
-		return null;
+		return '';
 	}
 
 	/**
@@ -458,9 +427,9 @@ class Feedback {
 	 */
 	public function get_akismet_vars() {
 		$akismet_vars = array(
-			'comment_author'       => $this->author,
-			'comment_author_email' => $this->get_author_email(),
-			'comment_author_url'   => $this->get_author_url(),
+			'comment_author'       => $this->author_data->get_name(),
+			'comment_author_email' => $this->author_data->get_email(),
+			'comment_author_url'   => $this->author_data->get_url(),
 			'contact_form_subject' => $this->get_subject(),
 			'comment_author_ip'    => $this->get_ip_address(),
 			'comment_content'      => empty( $this->get_comment_content() ) ? null : $this->get_comment_content(),
@@ -507,13 +476,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_author() {
-		if ( ! empty( $this->author ) ) {
-			return $this->author;
-		}
-		if ( ! empty( $this->author_email ) ) {
-			return $this->author_email;
-		}
-		return '';
+		return $this->author_data->get_display_name();
 	}
 
 	/**
@@ -522,7 +485,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_author_email() {
-		return $this->author_email;
+		return $this->author_data->get_email();
 	}
 
 	/**
@@ -533,11 +496,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_author_avatar() {
-		// This is a convenience method to get the author's gravatar URL.
-		if ( ! empty( $this->author_email ) ) {
-			return get_avatar_url( $this->author_email );
-		}
-		return '';
+		return $this->author_data->get_avatar_url();
 	}
 
 	/**
@@ -546,7 +505,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_author_url() {
-		return $this->author_url;
+		return $this->author_data->get_url();
 	}
 
 	/**
@@ -951,34 +910,6 @@ class Feedback {
 		}
 
 		return apply_filters( 'contact_form_subject', $contact_form_subject, $this->get_all_values() );
-	}
-
-	/**
-	 * Gets the computed author.
-	 *
-	 * @param array        $post_data The post data from the form submission.
-	 * @param string       $type The type of author information to retrieve (e.g., 'name', 'email', 'url').
-	 * @param string|null  $filter Optional filter to apply to the value.
-	 * @param Contact_Form $form The form object.
-	 * @return string
-	 */
-	private function get_computer_author_info( $post_data, $type, $filter, $form ) {
-		$field_ids = $form->get_field_ids();
-		if ( isset( $field_ids[ $type ] ) ) {
-			$value = $this->get_field_value( $field_ids[ $type ], $post_data );
-			if ( is_string( $value ) ) {
-				if ( ! empty( $filter ) ) {
-					return self::strip_tags(
-						stripslashes(
-							/** This filter is already documented in core/wp-includes/comment-functions.php */
-							apply_filters( $filter, addslashes( $value ) )
-						)
-					);
-				}
-				return self::strip_tags( stripslashes( $value ) );
-			}
-		}
-		return '';
 	}
 
 	/**
