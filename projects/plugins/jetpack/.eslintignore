@@ -1,6 +1,5 @@
 # Our standard eslint config reads .gitignore and .eslintignore to determine what to ignore.
 
-/modules/carousel/swiper-bundle.js
 /modules/custom-css/custom-css/js/core-customizer-css-preview.js
 /modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js
 /modules/custom-css/custom-css/js/core-customizer-css.js

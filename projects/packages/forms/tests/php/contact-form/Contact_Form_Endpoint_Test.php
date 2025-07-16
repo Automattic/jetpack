@@ -283,4 +283,251 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
 	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint with default status
+	 */
+	public function test_delete_feedback_trash_default_status() {
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify response code
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify response structure
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'deleted', $data );
+		$this->assertIsInt( $data['deleted'] );
+	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint with spam status
+	 */
+	public function test_delete_feedback_trash_spam_status() {
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$request->set_param( 'status', 'spam' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify response code
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify response structure
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'deleted', $data );
+		$this->assertIsInt( $data['deleted'] );
+	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint unauthorized access
+	 */
+	public function test_delete_feedback_trash_unauthorized() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test bulk actions with invalid action
+	 */
+	public function test_bulk_actions_invalid_action() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_param( 'action', 'invalid_action' );
+		$request->set_param( 'post_ids', array( 1, 2, 3 ) );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_invalid_param', $data['code'] );
+		$this->assertEquals( 'Invalid parameter(s): action', $data['message'] );
+	}
+
+	/**
+	 * Test bulk actions with invalid post_ids parameter
+	 */
+	public function test_bulk_actions_invalid_post_ids() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_param( 'action', 'mark_as_spam' );
+		$request->set_param( 'post_ids', 'not_an_array' );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_invalid_param', $data['code'] );
+		$this->assertEquals( 'Invalid parameter(s): post_ids', $data['message'] );
+	}
+
+	/**
+	 * Test bulk actions mark_as_spam
+	 */
+	public function test_bulk_actions_mark_as_spam() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_param( 'action', 'mark_as_spam' );
+		$request->set_param( 'post_ids', array( 1, 2, 3 ) );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( array(), $response->get_data() );
+	}
+
+	/**
+	 * Test bulk actions mark_as_not_spam
+	 */
+	public function test_bulk_actions_mark_as_not_spam() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_param( 'action', 'mark_as_not_spam' );
+		$request->set_param( 'post_ids', array( 1, 2, 3 ) );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( array(), $response->get_data() );
+	}
+
+	/**
+	 * Test delete posts by status with invalid status
+	 */
+	public function test_delete_posts_by_status_invalid_status() {
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$request->set_param( 'status', 'invalid_status' );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_invalid_param', $data['code'] );
+		$this->assertEquals( 'Invalid parameter(s): status', $data['message'] );
+	}
+
+	/**
+	 * Test resend email functionality
+	 */
+	public function test_resend_email() {
+		// Create a test feedback post
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'publish',
+			)
+		);
+
+		// Add test metadata
+		add_post_meta(
+			$post_id,
+			'_feedback_email',
+			array(
+				'to'      => 'test@example.com',
+				'message' => 'Test message',
+				'headers' => 'From: test@example.com',
+			)
+		);
+
+		add_post_meta( $post_id, '_feedback_subject', 'Test Subject' );
+
+		// Create test content fields
+		$content_fields = array(
+			'_feedback_author'       => 'Test Author',
+			'_feedback_author_email' => 'author@example.com',
+			'_feedback_subject'      => 'Test Subject',
+			'_feedback_all_fields'   => array(
+				'name'  => 'Test Author',
+				'email' => 'author@example.com',
+			),
+		);
+		add_post_meta( $post_id, '_feedback_all_fields', $content_fields );
+
+		// Test the update_item method which triggers resend_email
+		$request = new WP_REST_Request( 'PUT', '/wp/v2/feedback/' . $post_id );
+		$request->set_param( 'status', 'publish' );
+
+		// Mock the previous status
+		add_post_meta( $post_id, '_wp_trash_meta_status', 'spam' );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Test get_collection_params
+	 */
+	public function test_get_collection_params() {
+		$endpoint = new Contact_Form_Endpoint( 'feedback' );
+		$params   = $endpoint->get_collection_params();
+
+		$this->assertArrayHasKey( 'parent', $params );
+		$this->assertArrayHasKey( 'parent_exclude', $params );
+
+		$this->assertEquals( 'array', $params['parent']['type'] );
+		$this->assertEquals( 'array', $params['parent_exclude']['type'] );
+
+		$this->assertEquals( 'integer', $params['parent']['items']['type'] );
+		$this->assertEquals( 'integer', $params['parent_exclude']['items']['type'] );
+	}
+
+	/**
+	 * Test prepare_item_for_response with file fields
+	 */
+	public function test_prepare_item_for_response_with_files() {
+		// Create a test feedback post with file attachment
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'feedback',
+				'post_status'  => 'publish',
+				'post_content' => '
+AUTHOR: Test Author
+AUTHOR EMAIL: author@example.com
+SUBJECT: Test Subject
+IP: 127.0.0.1
+
+<!--more-->
+
+JSON_DATA{"name":"Test Author","email":"author@example.com","g1-file":{"field_id":"g1-file","files":[{"file_id":123,"name":"test.jpg","size":1024,"type":"image/jpeg"}]}}',
+			)
+		);
+
+		// Add test metadata
+		$all_fields = array(
+			'name'    => 'Test Author',
+			'email'   => 'author@example.com',
+			'g1-file' => array(
+				'field_id' => 'g1-file',
+				'files'    => array(
+					array(
+						'file_id' => 123,
+						'name'    => 'test.jpg',
+						'size'    => 1024,
+						'type'    => 'image/jpeg',
+					),
+				),
+			),
+		);
+
+		add_post_meta( $post_id, '_feedback_all_fields', $all_fields );
+		add_post_meta( $post_id, '_feedback_author', 'Test Author' );
+		add_post_meta( $post_id, '_feedback_author_email', 'author@example.com' );
+		add_post_meta( $post_id, '_feedback_subject', 'Test Subject' );
+		add_post_meta( $post_id, '_feedback_ip', '127.0.0.1' );
+
+		// Test the get_item endpoint
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		// Verify file field data in response
+		$this->assertArrayHasKey( 'fields', $data );
+		$this->assertArrayHasKey( 'g1-file', $data['fields'] );
+		$this->assertArrayHasKey( 'files', $data['fields']['g1-file'] );
+
+		$file = $data['fields']['g1-file']['files'][0];
+		$this->assertEquals( 123, $file['file_id'] );
+		$this->assertEquals( 'test.jpg', $file['name'] );
+		$this->assertEquals( '1 KB', $file['size'] );
+		$this->assertTrue( $file['is_previewable'] );
+		$this->assertTrue( $data['has_file'] );
+	}
 }

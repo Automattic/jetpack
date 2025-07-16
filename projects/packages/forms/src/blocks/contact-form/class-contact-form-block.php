@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
@@ -56,8 +57,7 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function register_feature( $features ) {
-		// Register the contact form block feature flag.
-		$features['multistep-form'] = Blocks::get_variation() === 'beta';
+		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		return $features;
 	}
 

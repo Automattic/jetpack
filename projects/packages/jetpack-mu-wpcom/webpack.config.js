@@ -1,10 +1,12 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const verbumConfig = require( './verbum.webpack.config.js' );
+const moduleConfig = require( './webpack.config.modules.js' );
 
 module.exports = async () => {
 	return [
 		...verbumConfig,
+		moduleConfig,
 		{
 			entry: {
 				'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',

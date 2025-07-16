@@ -51,7 +51,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				'_inc/build/jetpack-modules.models.min.js',
 				'_inc/jetpack-modules.models.js'
 			),
-			array( 'jquery', 'backbone', 'underscore' ),
+			array( 'jquery', 'backbone' ),
 			JETPACK__VERSION,
 			false // @todo Can this be put in the footer?
 		);
@@ -61,7 +61,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				'_inc/build/jetpack-modules.views.min.js',
 				'_inc/jetpack-modules.views.js'
 			),
-			array( 'jquery', 'backbone', 'underscore', 'wp-util' ),
+			array( 'jquery', 'backbone', 'wp-util' ),
 			JETPACK__VERSION,
 			false // @todo Can this be put in the footer?
 		);

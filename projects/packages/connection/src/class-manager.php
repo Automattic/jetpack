@@ -88,6 +88,14 @@ class Manager {
 	private static $is_connected = null;
 
 	/**
+	 * Memoized user ID of the connection owner.
+	 * If undefined or invalid, set to 0.
+	 *
+	 * @var null|int
+	 */
+	private static $connection_owner_id = null;
+
+	/**
 	 * Tracks whether connection status invalidation hooks have been added.
 	 *
 	 * @var bool
@@ -198,6 +206,7 @@ class Manager {
 		add_action( 'pre_update_jetpack_option_blog_token', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_user_token', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_user_tokens', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_master_user', array( $this, 'reset_connection_status' ) );
 		// phpcs:ignore WPCUT.SwitchBlog.SwitchBlog -- wpcom flags **every** use of switch_blog, apparently expecting valid instances to ignore or suppress the sniff.
 		add_action( 'switch_blog', array( $this, 'reset_connection_status' ) );
 
@@ -667,7 +676,8 @@ class Manager {
 	 * @since 5.0.0
 	 */
 	public function reset_connection_status() {
-		self::$is_connected = null;
+		self::$is_connected        = null;
+		self::$connection_owner_id = null;
 	}
 
 	/**
@@ -811,8 +821,14 @@ class Manager {
 	 * @return bool|int Returns the ID of the connection owner or False if no connection owner found.
 	 */
 	public function get_connection_owner_id() {
-		$owner = $this->get_connection_owner();
-		return $owner instanceof \WP_User ? $owner->ID : false;
+		// Check if the memoized value is available.
+		if ( null === self::$connection_owner_id ) {
+			$owner                     = $this->get_connection_owner();
+			self::$connection_owner_id = $owner instanceof \WP_User ? $owner->ID : 0;
+		}
+
+		// If the ID is set to 0, there's no valid connection owner.
+		return self::$connection_owner_id > 0 ? self::$connection_owner_id : false;
 	}
 
 	/**
@@ -862,9 +878,7 @@ class Manager {
 	 * @return WP_User|false False if no connection owner found.
 	 */
 	public function get_connection_owner() {
-
 		$user_id = \Jetpack_Options::get_option( 'master_user' );
-
 		if ( ! $user_id ) {
 			return false;
 		}
@@ -1053,6 +1067,9 @@ class Manager {
 
 				if ( $is_primary_user ) {
 					Jetpack_Options::delete_option( 'master_user' );
+
+					// Clear the memoized connection owner ID since it changed
+					self::$connection_owner_id = null;
 				}
 			}
 		}
@@ -1125,6 +1142,9 @@ class Manager {
 			// Update the connection owner in Jetpack only if they were successfully updated on WPCOM.
 			// This will ensure consistency with WPCOM.
 			\Jetpack_Options::update_option( 'master_user', $new_owner_id );
+
+			// Clear the memoized connection owner ID since it changed
+			self::$connection_owner_id = null;
 
 			// Track it.
 			( new Tracking() )->record_user_event( 'set_connection_owner_success' );
@@ -1814,6 +1834,9 @@ class Manager {
 				'fallback_no_verify_ssl_certs',
 			)
 		);
+
+		// Clear the memoized connection owner ID since it changed
+		self::$connection_owner_id = null;
 
 		( new Secrets() )->delete_all();
 		$this->get_tokens()->delete_all();

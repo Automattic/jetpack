@@ -123,50 +123,35 @@ $action-bar-height: 88px;
 
 }
 
-.jp-forms__inbox-response-avatar {
-	background-color: #fff;
-	border: 3px solid #fff;
-	border-radius: 50%;
-	box-sizing: border-box;
-	display: none; //Hidden for now
-	height: 74px;
-	filter: drop-shadow(0 4px 44px rgba(0, 0, 0, 0.25));
-	overflow: hidden;
-	position: absolute;
-	left: 32px;
-	top: 32px;
-	width: 74px;
-	z-index: 100;
-}
-
-.jp-forms__inbox-response-title {
-	font-size: 24px;
-	font-weight: 700;
-	line-height: normal;
+.jp-forms__inbox-response-header {
 	margin: 24px 0 0;
 	padding: 0 32px;
-
-	&.is-email,
-	&.is-ip {
-		font-size: 24px;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
 }
 
-.jp-forms__inbox-response-subtitle {
+.jp-forms__inbox-response-header-title {
+	min-height: 48px; // Same as avatar to middle-align single lines
+}
+
+.jp-forms__inbox-response-name {
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 24px;
+	margin: 0;
+	padding: 0;
+}
+
+.jp-forms__inbox-response-email {
 	align-items: center;
 	color: #646970;
 	display: flex;
 	flex-shrink: 0;
 	gap: 4px;
-	font-size: 16px;
+	font-size: 14px;
 	font-weight: 500;
-	height: 40px;
-	line-height: 40px;
+	height: 24px;
+	line-height: 24px;
 	margin: 0;
-	padding: 0 32px;
+	padding: 0;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

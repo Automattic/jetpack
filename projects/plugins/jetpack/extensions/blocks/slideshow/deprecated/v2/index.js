@@ -1,8 +1,8 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import Slideshow from './slideshow';
 
-export { default as attributes } from './attributes';
-export { default as supports } from './supports';
+export { default as attributes } from '../v1/attributes';
+export { default as supports } from './../v1/supports';
 
 export const save = ( { attributes: { align, autoplay, delay, effect, images } } ) => {
 	const blockProps = useBlockProps.save();

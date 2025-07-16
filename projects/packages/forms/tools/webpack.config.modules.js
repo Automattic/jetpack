@@ -4,7 +4,6 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const { glob } = require( 'glob' );
 
 const moduleSrcDir = path.join( __dirname, '../src/modules' );
@@ -106,11 +105,10 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 			},
 			plugins: [
 				...jetpackWebpackConfig.StandardPlugins( {
-					DependencyExtractionPlugin: false,
+					DependencyExtractionPlugin: true,
 					I18nLoaderPlugin: false,
 					I18nCheckPlugin: false,
 				} ),
-				new DependencyExtractionWebpackPlugin(),
 			],
 		};
 
