@@ -319,6 +319,9 @@ importers:
 
   projects/js-packages/charts:
     dependencies:
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../components
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../number-formatters

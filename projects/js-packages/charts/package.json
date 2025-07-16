@@ -48,6 +48,7 @@
 		"./style.css": "./dist/mjs/style.css"
 	},
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "7.27.6",
 		"@react-spring/web": "9.7.5",
