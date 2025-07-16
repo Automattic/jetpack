@@ -4,7 +4,6 @@ import { format } from 'util';
 import { parse as grammarParse } from '@wordpress/block-serialization-default-parser';
 import { parse, serialize, registerBlockType, setCategories } from '@wordpress/blocks';
 import { __, sprintf } from '@wordpress/i18n';
-import { uniq } from 'lodash';
 
 let FIXTURES_DIR;
 
@@ -366,12 +365,14 @@ function getAvailableBlockFixturesBasenames() {
 	//  - fixture.json            : blocks structure
 	//  - fixture.serialized.html : re-serialized content
 	// Get the "base" name for each fixture first.
-	return uniq(
-		fs
-			.readdirSync( FIXTURES_DIR )
-			.filter( f => /(\.html|\.json)$/.test( f ) )
-			.map( f => f.replace( /\..+$/, '' ) )
-	);
+	return [
+		...new Set(
+			fs
+				.readdirSync( FIXTURES_DIR )
+				.filter( f => /(\.html|\.json)$/.test( f ) )
+				.map( f => f.replace( /\..+$/, '' ) )
+		),
+	];
 }
 
 /**
