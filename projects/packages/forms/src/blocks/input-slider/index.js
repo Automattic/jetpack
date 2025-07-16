@@ -4,7 +4,7 @@ import edit from './edit';
 import SliderIcon from './icon';
 import save from './save';
 
-const name = 'slider-input';
+const name = 'input-slider';
 const settings = {
 	...defaultSettings,
 	title: __( 'Slider input field', 'jetpack-forms' ),

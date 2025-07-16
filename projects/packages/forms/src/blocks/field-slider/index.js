@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
+import SliderIcon from '../input-slider/icon';
 import defaultSettings from '../shared/settings';
 import { getIconColor } from '../shared/util/block-icons';
-import SliderIcon from '../slider-input/icon';
 import edit from './edit';
 import save from './save';
 
@@ -29,7 +29,7 @@ const settings = {
 				},
 			},
 			{
-				name: 'jetpack/slider-input',
+				name: 'jetpack/input-slider',
 				attributes: {
 					min: 0,
 					max: 100,

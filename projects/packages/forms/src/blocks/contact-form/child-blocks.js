@@ -28,10 +28,10 @@ import JetpackStepDivider from '../form-step-divider';
 import JetpackStepNavigation from '../form-step-navigation';
 import JetpackInput from '../input';
 import JetpackRatingInput from '../input-rating';
+import JetpackSliderInput from '../input-slider';
 import JetpackLabel from '../label';
 import JetpackOption from '../option';
 import JetpackOptions from '../options';
-import JetpackSliderInput from '../slider-input';
 
 export const childBlocks = [
 	JetpackLabel,
