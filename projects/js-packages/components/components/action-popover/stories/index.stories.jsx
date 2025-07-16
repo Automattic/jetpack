@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { action } from '@storybook/addon-actions';
 import { useState } from 'react';
+import { action } from 'storybook/actions';
 /**
  * Internal dependencies
  */

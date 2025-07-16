@@ -1,4 +1,4 @@
-import { get, includes, merge } from 'lodash';
+import { merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
@@ -60,7 +60,7 @@ export const status = (
 export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return get( action, 'initialState.connectUrl', state );
+			return action?.initialState?.connectUrl ?? state;
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
 		default:
@@ -228,8 +228,8 @@ export function isSiteRegistered( state ) {
  * @return {boolean|object} False if site is not in Offline Mode. If it is, returns an object with information about the Offline Mode.
  */
 export function getSiteOfflineMode( state ) {
-	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'offlineMode', 'isActive' ] ) ) {
-		return get( state.jetpack.connection.status, [ 'siteConnected', 'offlineMode' ] );
+	if ( state.jetpack.connection.status?.siteConnected?.offlineMode?.isActive ) {
+		return state.jetpack.connection.status.siteConnected.offlineMode;
 	}
 	return false;
 }
@@ -365,7 +365,7 @@ export function isConnectionOwnerName( state ) {
  * @return {boolean} true if the site has an owner connected, false otherwise
  */
 export function hasConnectedOwner( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'hasConnectedOwner' ], false );
+	return state.jetpack.connection.status?.siteConnected?.hasConnectedOwner ?? false;
 }
 
 /**
@@ -385,7 +385,7 @@ export function isOfflineMode( state ) {
  * @return {boolean} True if site is in IDC. False otherwise.
  */
 export function isInIdentityCrisis( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'isInIdentityCrisis' ], false );
+	return state.jetpack.connection.status?.siteConnected?.isInIdentityCrisis ?? false;
 }
 
 /**
@@ -396,7 +396,7 @@ export function isInIdentityCrisis( state ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresConnection( state, slug ) {
-	return includes( getModulesThatRequireConnection( state ).concat( [ 'backups', 'scan' ] ), slug );
+	return getModulesThatRequireConnection( state ).concat( [ 'backups', 'scan' ] ).includes( slug );
 }
 
 /**
@@ -418,7 +418,7 @@ export function isUnavailableInOfflineMode( state, module ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresUserConnection( state, slug ) {
-	return includes( getModulesThatRequireUserConnection( state ), slug );
+	return getModulesThatRequireUserConnection( state ).includes( slug );
 }
 
 /**
@@ -439,7 +439,7 @@ export function isUnavailableInSiteConnectionMode( state, module ) {
  * @return {string} Value of the JETPACK__SANDBOX_DOMAIN constant. Empty string if not sandboxed - url if so.
  */
 export function getSandboxDomain( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
+	return state.jetpack.connection.status?.siteConnected?.sandboxDomain ?? '';
 }
 
 /**

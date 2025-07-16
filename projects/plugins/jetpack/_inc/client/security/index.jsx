@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { get } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
@@ -77,8 +76,7 @@ export class Security extends Component {
 			foundAccountProtection = this.props.isModuleFound( 'account-protection' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
-			rewindActive =
-				! isSearchTerm && 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			rewindActive = ! isSearchTerm && 'active' === this.props.rewindStatus?.state,
 			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
 			foundMonitor = this.props.isModuleFound( 'monitor' );
 

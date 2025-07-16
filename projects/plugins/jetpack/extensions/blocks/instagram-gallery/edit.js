@@ -4,7 +4,7 @@ import { Button, Placeholder, RadioControl, Spinner, withNotices } from '@wordpr
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { find, isEmpty, isEqual, map, times } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import metadata from './block.json';
 import { NEW_INSTAGRAM_CONNECTION } from './constants';
@@ -98,7 +98,7 @@ const InstagramGalleryEdit = props => {
 		if ( selectedAccount && NEW_INSTAGRAM_CONNECTION !== selectedAccount ) {
 			setAttributes( {
 				accessToken: selectedAccount,
-				instagramUser: find( userConnections, { token: selectedAccount } ).username,
+				instagramUser: userConnections.find( v => v.token === selectedAccount ).username,
 			} );
 			return;
 		}
@@ -117,7 +117,7 @@ const InstagramGalleryEdit = props => {
 	const renderInstagramConnection = () => {
 		const hasUserConnections = userConnections.length > 0;
 		const radioOptions = [
-			...map( userConnections, connection => ( {
+			...userConnections.map( connection => ( {
 				label: `@${ connection.username }`,
 				value: connection.token,
 			} ) ),
@@ -190,7 +190,7 @@ const InstagramGalleryEdit = props => {
 
 			{ showGallery && (
 				<div className={ gridClasses } style={ gridStyle }>
-					{ times( isSelected ? count : unselectedCount, index => (
+					{ Array.from( Array( isSelected ? count : unselectedCount ), ( _, index ) => (
 						<span
 							className={ clsx( 'wp-block-jetpack-instagram-gallery__grid-post' ) }
 							key={ index }

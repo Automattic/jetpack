@@ -601,6 +601,11 @@ function wpcomsh_footer_rum_js() {
 	}
 
 	$rum_kv = array();
+	$rum_kv = apply_filters( 'wpcomsh_rum_kv', $rum_kv, $service );
+	if ( ! is_array( $rum_kv ) ) {
+		$rum_kv = array();
+	}
+
 	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
 	// Add user login and theme info.
 	$rum_kv['logged_in']        = is_user_logged_in() ? '1' : '0';

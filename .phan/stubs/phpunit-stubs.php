@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.2.6
+ * Stubs automatically generated from PHPUnit 12.2.7
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -1537,7 +1537,7 @@ final readonly class TestDox
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class TestDoxBuilder
+final class TestDoxBuilder
 {
     public static function fromTestCase(\PHPUnit\Framework\TestCase $testCase): \PHPUnit\Event\Code\TestDox
     {
@@ -20368,16 +20368,16 @@ final class DefaultResultCache implements \PHPUnit\Runner\ResultCache\ResultCach
     public function __construct(?string $filepath = null)
     {
     }
-    public function setStatus(string $id, \PHPUnit\Framework\TestStatus\TestStatus $status): void
+    public function setStatus(\PHPUnit\Runner\ResultCache\ResultCacheId $id, \PHPUnit\Framework\TestStatus\TestStatus $status): void
     {
     }
-    public function status(string $id): \PHPUnit\Framework\TestStatus\TestStatus
+    public function status(\PHPUnit\Runner\ResultCache\ResultCacheId $id): \PHPUnit\Framework\TestStatus\TestStatus
     {
     }
-    public function setTime(string $id, float $time): void
+    public function setTime(\PHPUnit\Runner\ResultCache\ResultCacheId $id, float $time): void
     {
     }
-    public function time(string $id): float
+    public function time(\PHPUnit\Runner\ResultCache\ResultCacheId $id): float
     {
     }
     public function mergeWith(self $other): void
@@ -20400,16 +20400,16 @@ final class DefaultResultCache implements \PHPUnit\Runner\ResultCache\ResultCach
  */
 final readonly class NullResultCache implements \PHPUnit\Runner\ResultCache\ResultCache
 {
-    public function setStatus(string $id, \PHPUnit\Framework\TestStatus\TestStatus $status): void
+    public function setStatus(\PHPUnit\Runner\ResultCache\ResultCacheId $id, \PHPUnit\Framework\TestStatus\TestStatus $status): void
     {
     }
-    public function status(string $id): \PHPUnit\Framework\TestStatus\TestStatus
+    public function status(\PHPUnit\Runner\ResultCache\ResultCacheId $id): \PHPUnit\Framework\TestStatus\TestStatus
     {
     }
-    public function setTime(string $id, float $time): void
+    public function setTime(\PHPUnit\Runner\ResultCache\ResultCacheId $id, float $time): void
     {
     }
-    public function time(string $id): float
+    public function time(\PHPUnit\Runner\ResultCache\ResultCacheId $id): float
     {
     }
     public function load(): void
@@ -20426,10 +20426,10 @@ final readonly class NullResultCache implements \PHPUnit\Runner\ResultCache\Resu
  */
 interface ResultCache
 {
-    public function setStatus(string $id, \PHPUnit\Framework\TestStatus\TestStatus $status): void;
-    public function status(string $id): \PHPUnit\Framework\TestStatus\TestStatus;
-    public function setTime(string $id, float $time): void;
-    public function time(string $id): float;
+    public function setStatus(\PHPUnit\Runner\ResultCache\ResultCacheId $id, \PHPUnit\Framework\TestStatus\TestStatus $status): void;
+    public function status(\PHPUnit\Runner\ResultCache\ResultCacheId $id): \PHPUnit\Framework\TestStatus\TestStatus;
+    public function setTime(\PHPUnit\Runner\ResultCache\ResultCacheId $id, float $time): void;
+    public function time(\PHPUnit\Runner\ResultCache\ResultCacheId $id): float;
     public function load(): void;
     public function persist(): void;
 }
@@ -20476,6 +20476,31 @@ final class ResultCacheHandler
      * @throws \PHPUnit\Framework\InvalidArgumentException
      */
     public function testFinished(\PHPUnit\Event\Test\Finished $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class ResultCacheId
+{
+    public static function fromTest(\PHPUnit\Event\Code\Test $test): self
+    {
+    }
+    public static function fromReorderable(\PHPUnit\Framework\Reorderable $reorderable): self
+    {
+    }
+    /**
+     * For use in PHPUnit tests only!
+     *
+     * @param class-string<\PHPUnit\Framework\TestCase> $class
+     */
+    public static function fromTestClassAndMethodName(string $class, string $methodName): self
+    {
+    }
+    public function asString(): string
     {
     }
 }

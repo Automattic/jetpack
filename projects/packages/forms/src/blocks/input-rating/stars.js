@@ -1,5 +1,4 @@
 import { useCallback } from '@wordpress/element';
-import { range } from 'lodash';
 
 /**
  * Interactive star-rating row.
@@ -14,14 +13,14 @@ import { range } from 'lodash';
  * @param {number}   [props.value=0]       - Currently selected rating.
  * @param {Function} [props.onChange=noop] - Handler called with the new rating.
  *
- * @return {JSX.Element}  Wrapping <div> containing the interactive stars.
+ * @return {import('react').JSX.Element}  Wrapping <div> containing the interactive stars.
  */
 export default function Stars( { max, value = 0, onChange = () => {} } ) {
 	const handleSelect = useCallback( position => () => onChange( position ), [ onChange ] );
 
 	return (
 		<div className="jetpack-field-rating__wrapper">
-			{ range( 1, max + 1 ).map( position => (
+			{ Array.from( Array( max ), ( _, i ) => i + 1 ).map( position => (
 				<span
 					key={ position }
 					className="jetpack-field-rating__button"

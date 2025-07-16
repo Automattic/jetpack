@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { find, get, merge } from 'lodash';
+import { merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	getPlanClass,
@@ -195,7 +195,7 @@ export const reducer = combineReducers( {
  * @return {object}        Error object
  */
 export function getSiteDataErrors( state ) {
-	return [ get( state.jetpack.siteData, [ 'errors' ], [] ) ];
+	return [ state.jetpack.siteData?.errors ?? [] ];
 }
 
 /**
@@ -270,7 +270,7 @@ export function isFetchingSitePurchases( state ) {
  * @return {Array}          Site products
  */
 export function getSiteProducts( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'products' ], [] );
+	return state.jetpack.siteData?.data?.products ?? [];
 }
 
 /**
@@ -280,7 +280,7 @@ export function getSiteProducts( state ) {
  * @return {object}        Site plan
  */
 export function getSitePlan( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'plan' ], {} );
+	return state.jetpack.siteData?.data?.plan ?? {};
 }
 
 /**
@@ -290,7 +290,7 @@ export function getSitePlan( state ) {
  * @return {number|null}  Storage used in megabytes or null if not found.
  */
 export function getVideoPressStorageUsed( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'options', 'videopress_storage_used' ], null );
+	return state.jetpack.siteData?.data?.options?.videopress_storage_used ?? null;
 }
 
 /**
@@ -300,7 +300,7 @@ export function getVideoPressStorageUsed( state ) {
  * @return {object}        Benefits
  */
 export function getSiteBenefits( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'site', 'benefits' ], null );
+	return state.jetpack.siteData?.data?.site?.benefits ?? null;
 }
 
 /**
@@ -310,7 +310,7 @@ export function getSiteBenefits( state ) {
  * @return {object} Discount
  */
 export function getSiteDiscount( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'site', 'discount' ], {} );
+	return state.jetpack.siteData?.data?.site?.discount ?? {};
 }
 
 /**
@@ -320,7 +320,7 @@ export function getSiteDiscount( state ) {
  * @return {object}        Features
  */
 export function getAvailableFeatures( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'available' ], {} );
+	return state.jetpack.siteData?.data?.site?.features?.available ?? {};
 }
 
 /**
@@ -330,7 +330,7 @@ export function getAvailableFeatures( state ) {
  * @return {object}        Features
  */
 export function getActiveFeatures( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'active' ], [] );
+	return state.jetpack.siteData?.data?.site?.features?.active ?? [];
 }
 
 /**
@@ -353,9 +353,7 @@ export function siteHasFeature( state, featureId ) {
  * @return {boolean}            Whether the admin interface style is set to wp-admin.
  */
 export function siteUsesWpAdminInterface( state ) {
-	return (
-		get( state.jetpack.siteData, [ 'data', 'options', 'wpcom_admin_interface' ] ) === 'wp-admin'
-	);
+	return state.jetpack.siteData?.data?.options?.wpcom_admin_interface === 'wp-admin';
 }
 
 /**
@@ -365,7 +363,7 @@ export function siteUsesWpAdminInterface( state ) {
  * @return {Array}        Purchases for the site
  */
 export function getSitePurchases( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'sitePurchases' ], [] );
+	return state.jetpack.siteData?.data?.sitePurchases ?? [];
 }
 
 /**
@@ -407,7 +405,7 @@ export function hasActiveProductPurchase( state ) {
  * @return {object}       A active security bundle on the site, undefined otherwise
  */
 export function getActiveSecurityPurchase( state ) {
-	return find( getActiveSitePurchases( state ), purchase =>
+	return getActiveSitePurchases( state ).find( purchase =>
 		isJetpackSecurityBundle( purchase.product_slug )
 	);
 }
@@ -439,7 +437,7 @@ export function hasActiveCompletePurchase( state ) {
  * @return {object}       An active Search product if one was found, undefined otherwise.
  */
 export function getActiveSearchPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackSearch( product.product_slug )
 	);
 }
@@ -461,7 +459,7 @@ export function hasActiveSearchPurchase( state ) {
  * @return {object}       An active Creator product if one was found, undefined otherwise.
  */
 export function getActiveCreatorPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackCreator( product.product_slug )
 	);
 }
@@ -473,7 +471,7 @@ export function getActiveCreatorPurchase( state ) {
  * @return {object}       An active Growth product if one was found, undefined otherwise.
  */
 export function getActiveGrowthPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackGrowth( product.product_slug )
 	);
 }
@@ -505,7 +503,7 @@ export function hasActiveGrowthPurchase( state ) {
  * @return {object}       An active Anti-Spam product if one was found, undefined otherwise.
  */
 export function getActiveAntiSpamPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackAntiSpam( product.product_slug )
 	);
 }
@@ -527,7 +525,7 @@ export function hasActiveAntiSpamPurchase( state ) {
  * @return {object}       An active Boost product if one was found, undefined otherwise.
  */
 export function getActiveBoostPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackBoost( product.product_slug )
 	);
 }
@@ -549,7 +547,7 @@ export function hasActiveBoostPurchase( state ) {
  * @return {object}       An active backup product if one was found, undefined otherwise.
  */
 export function getActiveBackupPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackBackup( product.product_slug )
 	);
 }
@@ -561,7 +559,7 @@ export function getActiveBackupPurchase( state ) {
  * @return {boolean}      True if the site has an active backup product purchase, false otherwise.
  */
 export function getActiveSocialPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackSocial( product.product_slug )
 	);
 }
@@ -593,7 +591,7 @@ export function hasActiveSocialPurchase( state ) {
  * @return {object}       An active legacy plan with security features if one was found, undefined otherwise.
  */
 export function getSecurityComparableLegacyPlan( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isSecurityComparableJetpackLegacyPlan( product.product_slug )
 	);
 }
@@ -615,7 +613,7 @@ export function hasSecurityComparableLegacyPlan( state ) {
  * @return {number}        Site ID
  */
 export function getSiteID( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'ID' ] );
+	return state.jetpack.siteData?.data?.ID;
 }
 
 /**
@@ -629,7 +627,7 @@ export function getConnectedPlugins( state ) {
 		return null;
 	}
 
-	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], [] );
+	const plugins = state.jetpack.siteData?.data?.site?.connectedPlugins ?? [];
 	return plugins.filter( plugin => 'jetpack' !== plugin.slug );
 }
 

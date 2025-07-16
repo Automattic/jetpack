@@ -14,7 +14,7 @@ import useStepContainerClientId from '../../hooks/use-step-container-client-id';
  * @param {object} props              - Component props.
  * @param {string} props.formClientId - Client ID of the root contact form block.
  * @param {string} props.clientId     - Client ID of the current block.
- * @return {JSX.Element} The rendered BlockControls component.
+ * @return {import('react').JSX.Element} The rendered BlockControls component.
  */
 export default function AddStepControls( { clientId, formClientId } ) {
 	const { setActiveStep } = useDispatch( singleStepStore );

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add memoization for connection owner ID to prevent excessive database calls.

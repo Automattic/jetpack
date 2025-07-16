@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add a workaround for [a git bug](https://lore.kernel.org/git/20250428192320.3595509-1-jonathantanmy@google.com/).

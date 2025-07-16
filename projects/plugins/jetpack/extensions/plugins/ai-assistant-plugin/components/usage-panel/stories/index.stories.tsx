@@ -3,11 +3,7 @@ import { UsagePanel } from '..';
 export default {
 	title: 'Plugins/Jetpack/Extensions/UsagePanel',
 	component: UsagePanel,
-	parameters: {
-		docs: {
-			autodocs: false,
-		},
-	},
+	tags: [ '!autodocs' ],
 };
 
 const DefaultTemplate = args => {

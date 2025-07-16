@@ -1,4 +1,4 @@
-import { get, includes, intersection } from 'lodash';
+import { intersection } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
@@ -158,7 +158,7 @@ export function isDeactivatingModule( state, name ) {
  * @return {boolean}         Whether option is being updated on the module
  */
 export function isUpdatingModuleOption( state, module_slug, option_name ) {
-	return get( state.jetpack.modules.requests.updatingOption, [ module_slug, option_name ], false );
+	return state.jetpack.modules.requests.updatingOption?.[ module_slug ]?.[ option_name ] ?? false;
 }
 
 /**
@@ -170,12 +170,7 @@ export function isUpdatingModuleOption( state, module_slug, option_name ) {
  * @return {*}         Module option value.
  */
 export function getModuleOption( state, module_slug, option_name ) {
-	return get( state.jetpack.modules.items, [
-		module_slug,
-		'options',
-		option_name,
-		'current_value',
-	] );
+	return state.jetpack.modules.items?.[ module_slug ]?.options?.[ option_name ]?.current_value;
 }
 
 /**
@@ -187,7 +182,7 @@ export function getModuleOption( state, module_slug, option_name ) {
  * @return {Array}           The list of key => value pairs.
  */
 export function getModuleOptionValidValues( state, group, setting ) {
-	return get( state.jetpack.modules.items, [ group, 'options', setting, 'enum_labels' ], false );
+	return state.jetpack.modules.items?.[ group ]?.options?.[ setting ]?.enum_labels ?? false;
 }
 
 /**
@@ -218,7 +213,7 @@ export function getActiveModules( state ) {
  * @return {object}       Module description
  */
 export function getModule( state, name ) {
-	return get( state.jetpack.modules.items, name, {} );
+	return state.jetpack.modules.items?.[ name ] ?? {};
 }
 
 /**
@@ -314,7 +309,7 @@ export function hasAnySecurityFeature( state ) {
  * @return {boolean}       Weather a module is activated
  */
 export function isModuleActivated( state, name ) {
-	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
+	return state.jetpack.modules.items?.[ name ]?.activated ? true : false;
 }
 
 /**
@@ -324,7 +319,7 @@ export function isModuleActivated( state, name ) {
  * @return {boolean}            Whether a module is available to be displayed in the dashboard.
  */
 export function isModuleAvailable( state, moduleSlug ) {
-	return includes( Object.keys( state.jetpack.modules.items ), moduleSlug );
+	return Object.keys( state.jetpack.modules.items ).includes( moduleSlug );
 }
 
 /**
@@ -339,7 +334,7 @@ export function isModuleAvailable( state, moduleSlug ) {
  * @return {boolean | string} Whether the module is overriden, and if so, how.
  */
 export function getModuleOverride( state, name ) {
-	return get( state.jetpack.modules.items, [ name, 'override' ], false );
+	return state.jetpack.modules.items?.[ name ]?.override ?? false;
 }
 
 /**
