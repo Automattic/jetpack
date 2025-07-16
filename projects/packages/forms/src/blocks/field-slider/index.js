@@ -8,7 +8,7 @@ import save from './save';
 const name = 'field-slider';
 const settings = {
 	...defaultSettings,
-	title: __( 'Slider Field', 'jetpack-forms' ),
+	title: __( 'Slider field', 'jetpack-forms' ),
 	description: __( 'Collect a value from site visitors using a slider field.', 'jetpack-forms' ),
 	icon: {
 		foreground: getIconColor(),
