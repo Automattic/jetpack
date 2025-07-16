@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-plugins
  */
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Check if the WPCom Command Palette should be loaded.
  *
@@ -59,9 +61,8 @@ function wpcom_load_command_palette() {
 			'in_footer' => true,
 		)
 	);
-	$site_id    = Jetpack_Options::get_option( 'id' );
-	$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
-	$data       = wp_json_encode(
+	$site_id = Jetpack_Options::get_option( 'id' );
+	$data    = wp_json_encode(
 		array(
 			'siteId'           => $site_id,
 			'isAtomic'         => $host->is_woa_site(),
@@ -71,7 +72,7 @@ function wpcom_load_command_palette() {
 			'isPrivate'        => $jetpack_status->is_private_site(),
 			'isComingSoon'     => $jetpack_status->is_coming_soon(),
 			'capabilities'     => get_userdata( get_current_user_id() )->allcaps,
-			'isP2'             => $is_p2_site,
+			'isP2'             => ( new Host() )->is_p2_site(),
 			'shouldUseWpAdmin' => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
 			'siteHostname'     => wpcom_get_site_slug(),
 			'siteName'         => get_option( 'blogname' ),

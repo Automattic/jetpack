@@ -9,6 +9,7 @@ namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Help_Center
@@ -430,14 +431,13 @@ class Help_Center {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
-		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
 
 		// We will show the help center icon in the admin bar when;
 		// 1. On wp-admin
 		// 2. On the front end of the site if the current user can edit posts
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
-		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) ) {
+		if ( ! is_admin() && ( ! $can_edit_posts || ( new Host() )->is_p2_site() ) ) {
 			return;
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
