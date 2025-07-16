@@ -21,7 +21,6 @@ return [
     // PhanImpossibleCondition : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
-    // PhanNoopNew : 2 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
@@ -54,7 +53,6 @@ return [
         'private-site/access-denied-preview-login-template.php' => ['PhanTypeSuspiciousEcho'],
         'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
         'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
-        'support-session.php' => ['PhanNoopNew'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/BlogTokenResilienceTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
