@@ -72,17 +72,13 @@ class Cornerstone_Pages_Test extends TestCase {
 		Functions\when( 'jetpack_boost_ds_get' )
 			->justReturn( array() );
 
-		// Mock WooCommerce function
-		Functions\when( 'wc_get_page_id' )->justReturn( false );
-
-		// Mock get_posts for Yoast cornerstone pages
-		Functions\when( 'get_posts' )->justReturn( array() );
-
 		$properties = $this->cornerstone_pages->get_properties();
 
 		$this->assertSame( 1, $properties['max_pages'] );
 		$this->assertEquals( 10, $properties['max_pages_premium'] );
 		$this->assertIsArray( $properties['default_pages'] );
+		$this->assertEmpty( $properties['default_pages'] );
+		$this->assertContains( 'https://example.com', $properties['predefined_pages'] );
 	}
 
 	public function test_get_properties_premium_tier() {
@@ -117,7 +113,8 @@ class Cornerstone_Pages_Test extends TestCase {
 		$this->assertEquals( 10, $properties['max_pages'], 'Premium tier should have 10 max pages' );
 		$this->assertEquals( 10, $properties['max_pages_premium'] );
 		$this->assertIsArray( $properties['default_pages'] );
-		$this->assertContains( 'https://example.com', $properties['default_pages'] );
+		$this->assertEmpty( $properties['default_pages'] );
+		$this->assertContains( 'https://example.com', $properties['predefined_pages'] );
 	}
 
 	public function test_add_display_post_states() {

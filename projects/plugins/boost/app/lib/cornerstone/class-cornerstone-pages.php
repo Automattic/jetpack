@@ -53,9 +53,7 @@ class Cornerstone_Pages implements Has_Setup {
 		$yoast_cornerstone_pages = $this->get_yoast_cornerstone_pages();
 		$woocommerce_pages       = $this->get_woocommerce_pages();
 
-		$homepage = array();
-
-		$urls = array_unique( array_merge( $homepage, $woocommerce_pages, $yoast_cornerstone_pages ) );
+		$urls = array_unique( array_merge( $woocommerce_pages, $yoast_cornerstone_pages ) );
 		$urls = array_map( 'untrailingslashit', $urls );
 
 		return array_slice( $urls, 0, $max_pages );
@@ -73,6 +71,7 @@ class Cornerstone_Pages implements Has_Setup {
 		);
 
 		$urls = array();
+
 		foreach ( $yoast_cornerstone_content as $post ) {
 			$permalink = get_permalink( $post->ID );
 			if ( $permalink ) {
@@ -80,7 +79,6 @@ class Cornerstone_Pages implements Has_Setup {
 				$urls[]             = $relative_permalink;
 			}
 		}
-
 		return $urls;
 	}
 
@@ -114,12 +112,20 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	public function get_properties() {
-		return array(
+		$properties = array(
 			'max_pages'         => $this->get_max_pages(),
 			'max_pages_premium' => static::PREMIUM_MAX_PAGES,
-			'default_pages'     => array_map( 'home_url', $this->default_pages() ),
+			'default_pages'     => array(),
 			'predefined_pages'  => array_map( 'home_url', Cornerstone_Utils::get_predefined_list() ),
 		);
+
+		// We need this to ensure we don't include the home page in the default pages since an empty array is returned when no default pages are found.
+		$default_pages = $this->default_pages();
+
+		if ( ! empty( $default_pages ) ) {
+			$properties['default_pages'] = array_map( 'home_url', $default_pages );
+		}
+		return $properties;
 	}
 
 	public function add_display_post_states( $post_states, $post ) {
