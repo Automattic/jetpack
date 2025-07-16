@@ -158,7 +158,7 @@ function AudioPlayer( {
 		// (doing `trailing: true` would be more complex)
 		let lastTimeChange = 0;
 		const throttledTimeChange = time => {
-			const now = new Date();
+			const now = Date.now();
 			if ( now - lastTimeChange >= 1000 ) {
 				onTimeChange( time );
 				lastTimeChange = now;
