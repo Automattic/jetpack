@@ -115,41 +115,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
 
 		// Set up the default subject and recipient for this form.
-		$default_to      = '';
-		$default_subject = '[' . get_option( 'blogname' ) . ']';
+		$default_to      = self::get_default_to( $this->current_post ? $this->current_post->post_author : null );
+		$default_subject = self::get_default_subject( $attributes );
 
 		if ( ! isset( $attributes ) || ! is_array( $attributes ) ) {
 			$attributes = array();
 		}
 
-		if ( $this->current_post ) {
-			$default_subject = sprintf(
-				// translators: the blog name and post title.
-				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack-forms' ),
-				$default_subject,
-				Contact_Form_Plugin::strip_tags( $this->current_post->post_title )
-			);
-		}
-
 		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'widget-' . $attributes['widget'];
-			// translators: the blog name (and post name, if applicable).
-			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack-forms' ), $default_subject );
 		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'block-template-' . $attributes['block_template'];
 		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
 		} elseif ( $this->current_post ) {
 			$attributes['id'] = $this->current_post->ID;
-			$post_author      = get_userdata( $this->current_post->post_author );
-			if ( is_a( $post_author, '\WP_User' ) ) {
-				$default_to .= $post_author->user_email;
-			} else {
-				$default_to .= get_option( 'admin_email' );
-			}
 		}
 
 		// When using admin-ajax.php, we don't need to add a page number to the id
