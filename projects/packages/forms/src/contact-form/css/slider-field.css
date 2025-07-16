@@ -84,7 +84,7 @@
 
 .jetpack-slider-input__value-indicator {
 	position: absolute;
-	top: -32px;
+	top: -36px;
 	left: 0;
 	transform: translateX(-50%);
 	background: var(--jetpack--contact-form--button-primary--background-color);

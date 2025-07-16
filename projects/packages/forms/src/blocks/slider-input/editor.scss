@@ -27,7 +27,6 @@
 	outline: none;
 	border-radius: 2px;
 	transition: background 0.3s;
-	margin: 0 8px;
 	width: 100%;
 	box-sizing: border-box;
 }
@@ -84,7 +83,7 @@
 
 .jetpack-slider-input__value-indicator {
 	position: absolute;
-	top: -32px; /* Adjust as needed to sit above the slider */
+	top: -36px;
 	left: 0;
 	transform: translateX(-50%);
 	background: var(--jetpack--contact-form--button-primary--background-color);
