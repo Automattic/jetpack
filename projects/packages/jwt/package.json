@@ -2,10 +2,10 @@
 	"private": true,
 	"name": "@automattic/jetpack-jwt",
 	"version": "0.1.0-alpha",
-	"description": "A Simple JWT package",
+	"description": "A JSON Web Token implementation for Jetpack.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/jwt/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Package] Jwt"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] JWT"
 	},
 	"repository": {
 		"type": "git",
@@ -14,12 +14,6 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
-	},
+	"scripts": {},
 	"devDependencies": {}
 }
