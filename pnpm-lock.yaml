@@ -2824,7 +2824,7 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       swiper:
-        specifier: 11.2.10
+        specifier: ^11.2.8
         version: 11.2.10
       wpcom-proxy-request:
         specifier: ^7.0.3
