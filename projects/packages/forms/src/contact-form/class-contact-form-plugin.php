@@ -3109,7 +3109,7 @@ class Contact_Form_Plugin {
 					$attrs                 = $inner_block['attrs'] ?? array();
 					$atts['min']           = isset( $attrs['min'] ) && $attrs['min'] !== '' ? $attrs['min'] : 0;
 					$atts['max']           = isset( $attrs['max'] ) && $attrs['max'] !== '' ? $attrs['max'] : 100;
-					$atts['startingValue'] = isset( $attrs['startingValue'] ) && $attrs['startingValue'] !== '' ? $attrs['startingValue'] : 50;
+					$atts['startingvalue'] = isset( $attrs['startingValue'] ) && $attrs['startingValue'] !== '' ? $attrs['startingValue'] : 50;
 				}
 			}
 		}
