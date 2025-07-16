@@ -230,6 +230,56 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the default recipient email address for the contact form.
+	 *
+	 * @param int|null $post_author_id The ID of the post author. If provided, will return the author's email.
+	 *
+	 * @return string The default recipient email address.
+	 */
+	public static function get_default_to( $post_author_id = null ) {
+
+		if ( $post_author_id ) {
+			$post_author = get_userdata( $post_author_id );
+			if ( ! empty( $post_author->user_email ) ) {
+				return $post_author->user_email;
+			}
+		}
+		// Get the default recipient email address.
+		$default_to = get_option( 'admin_email' );
+
+		return $default_to;
+	}
+
+	/**
+	 * Get the default subject for the contact form.
+	 *
+	 * @param array $attributes The attributes of the contact form.
+	 *
+	 * @return string The default subject for the contact form.
+	 */
+	public static function get_default_subject( $attributes ) {
+		global $post;
+		// Get the default subject for the contact form.
+		$default_subject = '[' . get_option( 'blogname' ) . ']';
+
+		if ( $post ) {
+			$default_subject = sprintf(
+				// translators: the blog name and post title.
+				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack-forms' ),
+				$default_subject,
+				Contact_Form_Plugin::strip_tags( $post->post_title )
+			);
+		}
+
+		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			// translators: '%1$s the blog name
+			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack-forms' ), $default_subject );
+		}
+
+		return $default_subject;
+	}
+
+	/**
 	 * Store shortcode content for recall later
 	 *  - used to receate shortcode when user uses do_shortcode
 	 *
