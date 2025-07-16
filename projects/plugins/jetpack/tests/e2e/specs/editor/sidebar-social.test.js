@@ -1,5 +1,5 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import logger from '_jetpack-e2e-commons/logger.js';
 import { BlockEditorPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 
