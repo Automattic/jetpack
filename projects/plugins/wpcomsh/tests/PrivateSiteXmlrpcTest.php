@@ -38,7 +38,7 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 	 * Test that get_read_access_cookies returns proper error for invalid user.
 	 */
 	public function test_get_read_access_cookies_invalid_user() {
-		$result = \Private_Site\get_read_access_cookies( array( 99999, time() + DAY_IN_SECONDS ) );
+		$result = \Private_Site\get_read_access_cookies( array( 99999, DAY_IN_SECONDS ) );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'account_not_found', $result->get_error_code() );
@@ -51,7 +51,7 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 		// Create a user without read capabilities
 		$user_id = $this->factory()->user->create( array( 'role' => '' ) );
 
-		$result = \Private_Site\get_read_access_cookies( array( $user_id, time() + DAY_IN_SECONDS ) );
+		$result = \Private_Site\get_read_access_cookies( array( $user_id, DAY_IN_SECONDS ) );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'access error', $result->get_error_code() );
@@ -64,7 +64,7 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 		// Create a user with read capabilities
 		$user_id = $this->factory()->user->create( array( 'role' => 'subscriber' ) );
 
-		$expected_expiration = time() + ( 2 * DAY_IN_SECONDS );
+		$expected_expiration = 2 * DAY_IN_SECONDS;
 
 		$result = \Private_Site\get_read_access_cookies( array( $user_id, $expected_expiration ) );
 
@@ -86,7 +86,7 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 	 */
 	public function test_get_read_access_cookies_missing_user_id() {
 		// Pass array with only expiration time, missing user ID
-		$result = \Private_Site\get_read_access_cookies( array( null, time() + DAY_IN_SECONDS ) );
+		$result = \Private_Site\get_read_access_cookies( array( null, DAY_IN_SECONDS ) );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'account_not_found', $result->get_error_code() );
@@ -96,7 +96,7 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 	 * Test that get_read_access_cookies handles invalid user ID type.
 	 */
 	public function test_get_read_access_cookies_invalid_user_id_type() {
-		$result = \Private_Site\get_read_access_cookies( array( 'invalid', time() + DAY_IN_SECONDS ) );
+		$result = \Private_Site\get_read_access_cookies( array( 'invalid', DAY_IN_SECONDS ) );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'account_not_found', $result->get_error_code() );
@@ -106,7 +106,7 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 	 * Test that get_read_access_cookies handles negative user ID.
 	 */
 	public function test_get_read_access_cookies_negative_user_id() {
-		$result = \Private_Site\get_read_access_cookies( array( -1, time() + DAY_IN_SECONDS ) );
+		$result = \Private_Site\get_read_access_cookies( array( -1, DAY_IN_SECONDS ) );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'account_not_found', $result->get_error_code() );
@@ -118,7 +118,7 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 	public function test_get_read_access_cookies_auth_cookie_expiration() {
 		$user_id = $this->factory()->user->create( array( 'role' => 'subscriber' ) );
 
-		$custom_expiration = time() + ( 5 * DAY_IN_SECONDS );
+		$custom_expiration = 5 * DAY_IN_SECONDS;
 
 		$result = \Private_Site\get_read_access_cookies( array( $user_id, $custom_expiration ) );
 
@@ -145,7 +145,7 @@ class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 			}
 		);
 
-		\Private_Site\get_read_access_cookies( array( $user_id, time() + DAY_IN_SECONDS ) );
+		\Private_Site\get_read_access_cookies( array( $user_id, DAY_IN_SECONDS ) );
 
 		// The filter should have been called and disabled
 		$this->assertTrue( $filter_called );
