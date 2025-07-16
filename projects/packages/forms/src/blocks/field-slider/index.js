@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import SliderIcon from '../input-slider/icon';
+import SliderIcon from '../input-range/icon';
 import defaultSettings from '../shared/settings';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
@@ -29,7 +29,7 @@ const settings = {
 				},
 			},
 			{
-				name: 'jetpack/input-slider',
+				name: 'jetpack/input-range',
 				attributes: {
 					min: 0,
 					max: 100,

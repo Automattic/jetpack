@@ -4,10 +4,10 @@ import edit from './edit';
 import SliderIcon from './icon';
 import save from './save';
 
-const name = 'input-slider';
+const name = 'input-range';
 const settings = {
 	...defaultSettings,
-	title: __( 'Slider input field', 'jetpack-forms' ),
+	title: __( 'Range input', 'jetpack-forms' ),
 	description: __( 'Collect a value from site visitors using a slider.', 'jetpack-forms' ),
 	icon: {
 		src: <SliderIcon />,

@@ -34,7 +34,7 @@ const JetpackField = props => {
 	const template = useMemo( () => {
 		return [
 			[ 'jetpack/label', { label, required, requiredText } ],
-			[ type === 'slider' ? 'jetpack/input-slider' : 'jetpack/input', { type } ],
+			[ type === 'slider' ? 'jetpack/input-range' : 'jetpack/input', { type } ],
 		];
 	}, [ label, required, requiredText, type ] );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {

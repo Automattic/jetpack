@@ -12,7 +12,7 @@ export default function SliderInputEdit( props ) {
 	};
 
 	const blockProps = useBlockProps( {
-		className: 'jetpack-input-slider',
+		className: 'jetpack-input-range',
 	} );
 
 	// Mimic the Interactivity API's getSliderPosition logic
@@ -67,25 +67,25 @@ export default function SliderInputEdit( props ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<div className="jetpack-input-slider-row">
-					<span className="jetpack-input-slider__min-label">{ min }</span>
-					<div className="jetpack-input-slider__input-container">
+				<div className="jetpack-input-range-row">
+					<span className="jetpack-input-range__min-label">{ min }</span>
+					<div className="jetpack-input-range__input-container">
 						<input
 							type="range"
 							min={ min }
 							max={ max }
 							value={ value }
 							onChange={ onChange }
-							className="jetpack-input-slider__range"
+							className="jetpack-input-range__range"
 						/>
 						<div
-							className="jetpack-input-slider__value-indicator"
+							className="jetpack-input-range__value-indicator"
 							style={ { left: getSliderPosition() } }
 						>
 							{ value }
 						</div>
 					</div>
-					<span className="jetpack-input-slider__max-label">{ max }</span>
+					<span className="jetpack-input-range__max-label">{ max }</span>
 				</div>
 			</div>
 		</>
