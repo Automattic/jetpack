@@ -177,15 +177,12 @@ class Protected_Owner_Error_Handler {
 	 * @return array|false Enhanced error data array or false if method not available.
 	 */
 	private function build_enhanced_error_data( $raw_error ) {
-		// Check if the new Error_Handler class and method are available
-		if ( ! class_exists( '\Automattic\Jetpack\Connection\Error_Handler' ) ) {
+		// Check if enhanced error handling is available
+		if ( ! $this->has_enhanced_error_handling() ) {
 			return false;
 		}
 
 		$error_handler = \Automattic\Jetpack\Connection\Error_Handler::get_instance();
-		if ( ! method_exists( $error_handler, 'build_action_error_data' ) ) {
-			return false;
-		}
 
 		// Build enhanced error data with improved action handling
 		$args = array(

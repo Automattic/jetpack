@@ -51,6 +51,135 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test build_enhanced_error_data method when enhanced error handling is available.
+	 */
+	public function test_build_enhanced_error_data_when_available() {
+		// Skip if enhanced error handling is not available
+		if ( ! $this->handler->has_enhanced_error_handling() ) {
+			$this->markTestSkipped( 'Enhanced error handling not available' );
+		}
+
+		$raw_error = array(
+			'error_type' => 'missing_owner',
+			'email'      => 'test@example.com',
+		);
+
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'build_enhanced_error_data' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $this->handler, $raw_error );
+
+		$this->assertIsArray( $result );
+		$this->assertEquals( 'create_missing_account', $result['action'] );
+		$this->assertEquals( 'test@example.com', $result['extra_data']['email'] );
+	}
+
+	/**
+	 * Test build_enhanced_error_data method when enhanced error handling is not available.
+	 */
+	public function test_build_enhanced_error_data_when_not_available() {
+		// Skip if enhanced error handling is available
+		if ( $this->handler->has_enhanced_error_handling() ) {
+			$this->markTestSkipped( 'Enhanced error handling is available' );
+		}
+
+		$raw_error = array(
+			'error_type' => 'missing_owner',
+			'email'      => 'test@example.com',
+		);
+
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'build_enhanced_error_data' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $this->handler, $raw_error );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test build_legacy_error_data method.
+	 */
+	public function test_build_legacy_error_data() {
+		$raw_error = array(
+			'error_type' => 'missing_owner',
+			'email'      => 'test@example.com',
+		);
+
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'build_legacy_error_data' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $this->handler, $raw_error );
+
+		$this->assertIsArray( $result );
+		$this->assertEquals( 'test@example.com', $result['email'] );
+		$this->assertEquals( 'create_missing_account', $result['action'] );
+	}
+
+	/**
+	 * Test handle_error method returns protected owner error when active error exists.
+	 */
+	public function test_handle_error_returns_protected_owner_error() {
+		$test_email = 'test@example.com';
+
+		// Set an error
+		update_option(
+			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
+			array(
+				'error_type' => 'missing_owner',
+				'email'      => $test_email,
+			)
+		);
+
+		$result = $this->handler->handle_error( array() );
+
+		$this->assertArrayHasKey( 'protected_owner_missing', $result );
+		$error_details = $result['protected_owner_missing']['0'];
+		$this->assertEquals( 'protected_owner_missing', $error_details['error_code'] );
+		$this->assertEquals( $test_email, $error_details['error_data']['email'] );
+	}
+
+	/**
+	 * Test handle_error method returns empty array when no active error exists.
+	 */
+	public function test_handle_error_returns_empty_when_no_active_error() {
+		delete_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION );
+
+		$result = $this->handler->handle_error( array() );
+
+		$this->assertEmpty( $result );
+	}
+
+	/**
+	 * Test handle_error method clears error when user exists.
+	 */
+	public function test_handle_error_clears_error_when_user_exists() {
+		$test_email = 'test@example.com';
+
+		// Create a user with the test email
+		$this->factory()->user->create( array( 'user_email' => $test_email ) );
+
+		// Set an error
+		update_option(
+			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
+			array(
+				'error_type' => 'missing_owner',
+				'email'      => $test_email,
+			)
+		);
+
+		$result = $this->handler->handle_error( array() );
+
+		$this->assertEmpty( $result );
+		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
+	}
+
+	/**
 	 * Test delete_error method.
 	 */
 	public function test_delete_error() {
