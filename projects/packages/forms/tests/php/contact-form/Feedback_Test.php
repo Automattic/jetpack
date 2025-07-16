@@ -873,58 +873,17 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertFalse( $saved_response->has_consent(), 'Has consent should match the saved form submission' );
 	}
 
-	/**
-	 * Helper function for creating the post context.
-	 * This is helpful for testing the post context.
-	 **/
-	private function create_post_context() {
-		$author_id = wp_insert_user(
-			array(
-				'user_email' => 'john@example.com',
-				'user_login' => 'test_user',
-				'user_pass'  => 'abc123',
-			)
-		);
-
-		$post_id = wp_insert_post(
-			array(
-				'post_title'   => 'POST TITLE ' . microtime(),
-				'post_content' => 'POST CONTENT',
-				'post_status'  => 'publish',
-				'post_author'  => $author_id,
-			),
-			true
-		);
-
-		global $post;
-		$post = get_post( $post_id );
-		return $post;
-	}
-
-	/**
-	 * Helper function for destroying the post context.
-	 * This is helpful cleaning up the post context after the test.
-	 **/
-	private function destroy_post_context() {
-		global $post;
-		if ( $post ) {
-			wp_delete_user( $post->post_author, true );
-			wp_delete_post( $post->ID, true );
-			$post = null;
-		}
-	}
-
 	public function test_compute_entry_ID_legacy() {
-		$current_post = $this->create_post_context();
+		$current_post = Utility::create_post_context();
 		$post_id      = Utility::create_legacy_feedback();
-		$this->destroy_post_context();
-
+		Utility::destroy_post_context();
 		$saved_response = Feedback::get( $post_id );
-		$this->assertEquals( $current_post->ID, $saved_response->get_entry_id(), 'Entry_ID should match the saved form submission' );
+
+		$this->assertSame( $current_post->ID, $saved_response->get_entry_id(), 'Entry_ID should match the saved form submission' );
 	}
 
 	public function test_compute_entry_ID() {
-		$current_post = $this->create_post_context();
+		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -945,7 +904,7 @@ class Feedback_Test extends BaseTestCase {
 
 		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
-		$this->destroy_post_context();
+		Utility::destroy_post_context();
 
 		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $current_post->ID, $response->get_entry_id(), 'Entry_ID should match the form submission' );
@@ -953,7 +912,7 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	public function test_compute_entry_title() {
-		$current_post = $this->create_post_context();
+		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -975,14 +934,14 @@ class Feedback_Test extends BaseTestCase {
 		$post_id  = $response->save();
 
 		$saved_response = Feedback::get( $post_id );
-		$this->destroy_post_context();
+		Utility::destroy_post_context();
 
 		$this->assertEquals( $current_post->post_title, $response->get_entry_title(), 'Post title should match the form submission' );
 		$this->assertEquals( $current_post->post_title, $saved_response->get_entry_title(), 'Post title should match the saved form submission' );
 	}
 
 	public function test_compute_entry_title_updated() {
-		$current_post = $this->create_post_context();
+		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -1013,13 +972,13 @@ class Feedback_Test extends BaseTestCase {
 		);
 
 		$saved_response = Feedback::get( $post_id );
-		$this->destroy_post_context();
+		Utility::destroy_post_context();
 
 		$this->assertEquals( $update_title, $saved_response->get_entry_title(), 'Post Title should match the new updated title saved form submission' );
 	}
 
 	public function test_compute_entry_title_deleted() {
-		$current_post = $this->create_post_context();
+		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -1039,7 +998,7 @@ class Feedback_Test extends BaseTestCase {
 
 		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
-		$this->destroy_post_context();
+		Utility::destroy_post_context();
 
 		$this->assertSame( '', get_the_title( $current_post->ID ), 'Post title should not be available after the post is deleted' );
 		// At this point we should have a deleted post.
@@ -1050,7 +1009,7 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	public function test_compute_entry_permalink() {
-		$current_post = $this->create_post_context();
+		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -1072,7 +1031,7 @@ class Feedback_Test extends BaseTestCase {
 		$post_id  = $response->save();
 
 		$saved_response = Feedback::get( $post_id );
-		$this->destroy_post_context();
+		Utility::destroy_post_context();
 		$current_permalink = get_the_permalink( $current_post );
 		$this->assertEquals( $current_permalink, $response->get_entry_permalink(), 'Post permalink should match the form submission' );
 
@@ -1080,7 +1039,7 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	public function test_compute_entry_permalink_deleted_post() {
-		$current_post = $this->create_post_context();
+		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -1100,13 +1059,13 @@ class Feedback_Test extends BaseTestCase {
 
 		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
-		$this->destroy_post_context(); // Destroy the post context to simulate a deleted post.
+		Utility::destroy_post_context(); // Destroy the post context to simulate a deleted post.
 		$saved_response = Feedback::get( $post_id );
 		$this->assertEmpty( $saved_response->get_entry_permalink(), 'Post permalink should match the form submission' );
 	}
 
 	public function test_compute_entry_permalink_with_page_number() {
-		$current_post = $this->create_post_context();
+		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -1128,7 +1087,7 @@ class Feedback_Test extends BaseTestCase {
 		$post_id  = $response->save();
 
 		$saved_response = Feedback::get( $post_id );
-		$this->destroy_post_context();
+		Utility::destroy_post_context();
 
 		$this->assertStringContainsString( 'page=999', $response->get_entry_permalink(), 'Post permalink should match the form submission' );
 		$this->assertStringContainsString( 'page=999', $saved_response->get_entry_permalink(), 'Post permalink should match the saved form submission' );

@@ -134,4 +134,37 @@ class Utility {
 		}
 		return $post_data;
 	}
+
+	public static function create_post_context() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'john@example.com',
+				'user_login' => 'test_user',
+				'user_pass'  => 'abc123',
+			)
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'POST TITLE ' . microtime(),
+				'post_content' => 'POST CONTENT',
+				'post_status'  => 'publish',
+				'post_author'  => $author_id,
+			),
+			true
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+		return $post;
+	}
+
+	public static function destroy_post_context() {
+		global $post;
+		if ( $post ) {
+			wp_delete_user( $post->post_author, true );
+			wp_delete_post( $post->ID, true );
+			$post = null;
+		}
+	}
 }

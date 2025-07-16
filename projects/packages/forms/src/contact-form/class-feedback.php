@@ -151,33 +151,13 @@ class Feedback {
 	protected $has_consent = false;
 
 	/**
-	 * The entry ID of the post that the feedback was submitted from.
+	 * The entry object of the post that the feedback was submitted from.
 	 *
-	 * @var int
-	 */
-	protected $entry_id = 0;
-
-	/**
-	 * The entry title of the post that the feedback was submitted from.
+	 * This is used to store the entry object of the post that the feedback was submitted from.
 	 *
-	 * @var string
+	 * @var Feedback_Entry
 	 */
-	protected $entry_title = '';
-
-	/**
-	 * The permalink of the post or page that the feedback was submitted from.
-	 * This is a computed value based on the current post.
-	 *
-	 * @var string
-	 */
-	protected $entry_permalink = '';
-
-	/**
-	 * The page number associated with the feedback entry submission.
-	 *
-	 * @var int
-	 */
-	protected $entry_page = 1;
+	protected $entry;
 
 	/**
 	 * Constructor.
@@ -190,6 +170,8 @@ class Feedback {
 	 */
 	public function __construct( $feedback_post = null, $form = null, $post_data = null, $current_post = null, $current_page_number = 1 ) {
 
+		$this->entry = new Feedback_Entry( 0, '' );
+
 		$this->feedback_post = $feedback_post;
 		$this->form          = $form;
 
@@ -197,11 +179,16 @@ class Feedback {
 
 			$parsed_content = $this->parse_content( $this->feedback_post->post_content, $this->feedback_post->post_mime_type );
 
-			$this->status        = $this->feedback_post->post_status;
-			$this->feedback_id   = $this->feedback_post->post_name;
-			$this->entry_id      = $this->feedback_post->post_parent ? (int) $this->feedback_post->post_parent : 0;
+			$this->status      = $this->feedback_post->post_status;
+			$this->feedback_id = $this->feedback_post->post_name;
+
 			$this->feedback_time = $this->feedback_post->post_date;
-			$current_post        = $this->entry_id ? get_post( $this->entry_id ) : null;
+
+			$this->entry = new Feedback_Entry(
+				$this->feedback_post->post_parent,
+				$parsed_content['entry_title'] ?? '',
+				$parsed_content['entry_page'] ?? 1
+			);
 
 			$this->fields          = isset( $parsed_content['fields'] ) ? $parsed_content['fields'] : array();
 			$this->ip_address      = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : $this->get_first_field_of_type( 'ip' );
@@ -211,9 +198,8 @@ class Feedback {
 			$this->author_url      = $this->get_first_field_of_type( 'url', 'pre_comment_author_url' );
 			$this->comment_content = $this->get_first_field_of_type( 'textarea' );
 			$this->has_consent     = $this->get_first_field_of_type( 'consent' ) === 'Yes' ? true : false;
-			$this->entry_title     = isset( $parsed_content['entry_title'] ) ? $parsed_content['entry_title'] : '';
-			$this->entry_page      = isset( $parsed_content['entry_page'] ) ? (int) $parsed_content['entry_page'] : 1;
-			$this->feedback_title  = $this->feedback_post->post_title ? $this->feedback_post->post_title : $this->get_author() . ' - ' . $this->feedback_post->post_date;
+
+			$this->feedback_title = $this->feedback_post->post_title ? $this->feedback_post->post_title : $this->get_author() . ' - ' . $this->feedback_post->post_date;
 
 		} elseif ( is_array( $post_data ) && ! empty( $post_data ) ) {
 
@@ -227,16 +213,13 @@ class Feedback {
 			$this->author_url      = $this->get_computer_author_info( $post_data, 'url', 'pre_comment_author_url' );
 			$this->comment_content = $this->get_computed_comment_content( $post_data );
 			$this->has_consent     = $this->get_computed_consent( $post_data );
-			$this->entry_id        = ! empty( $current_post ) ? (int) $current_post->ID : 0;
-			$this->entry_title     = ! empty( $current_post ) ? get_the_title( $current_post ) : '';
-			$this->entry_page      = $current_page_number;
-			$this->feedback_time   = current_time( 'mysql' );
-			$this->feedback_title  = "{$this->get_author()} - {$this->feedback_time}";
-			$this->feedback_id     = md5( $this->feedback_title );
-		}
 
-		$this->entry_title     = ! empty( $current_post ) ? get_the_title( $current_post ) : $this->entry_title;
-		$this->entry_permalink = ! empty( $current_post ) ? $this->get_computed_entry_permalink( $current_post, $this->entry_page ) : '';
+			$this->entry = Feedback_Entry::from_submission( $current_post, $current_page_number );
+
+			$this->feedback_time  = current_time( 'mysql' );
+			$this->feedback_title = "{$this->get_author()} - {$this->feedback_time}";
+			$this->feedback_id    = md5( $this->feedback_title );
+		}
 	}
 
 	/**
@@ -382,13 +365,13 @@ class Feedback {
 		// This is a convenience method to get the entry values in a simple array format.
 		$entry_values = array(
 			'email_marketing_consent' => (string) $this->has_consent,
-			'entry_title'             => $this->entry_title,
-			'entry_permalink'         => $this->entry_permalink,
+			'entry_title'             => $this->entry->get_title(),
+			'entry_permalink'         => $this->entry->get_permalink(),
 			'feedback_id'             => $this->feedback_id,
 		);
 
-		if ( $this->entry_page > 1 ) {
-			$entry_values['entry_page'] = $this->entry_page;
+		if ( $this->entry->get_page_number() > 1 ) {
+			$entry_values['entry_page'] = $this->entry->get_page_number();
 		}
 		return $entry_values;
 	}
@@ -653,7 +636,7 @@ class Feedback {
 	 * @return int|null
 	 */
 	public function get_entry_id() {
-		return $this->entry_id;
+		return $this->entry->get_id();
 	}
 
 	/**
@@ -664,7 +647,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_entry_title() {
-		return $this->entry_title;
+		return $this->entry->get_title();
 	}
 
 	/**
@@ -674,7 +657,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_entry_permalink() {
-		return $this->entry_permalink;
+		return $this->entry->get_permalink();
 	}
 	/**
 	 * Get the short permalink of a post.
@@ -682,11 +665,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_entry_short_permalink() {
-		// This is a convenience method to get the short permalink of the entry.
-		if ( ! empty( $this->entry_permalink ) ) {
-			return wp_make_link_relative( $this->entry_permalink );
-		}
-		return '';
+		return $this->entry->get_relative_permalink();
 	}
 	/**
 	 * Save the feedback entry to the database.
@@ -703,7 +682,7 @@ class Feedback {
 				'post_name'      => $this->feedback_id,
 				'post_content'   => $this->serialize(),
 				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
-				'post_parent'    => $this->entry_id,
+				'post_parent'    => $this->entry->get_id(),
 			)
 		);
 
@@ -718,11 +697,12 @@ class Feedback {
 	 */
 	public function serialize() {
 
-		$fields_to_serialize = array(
-			'subject'     => $this->subject,
-			'entry_title' => $this->entry_title,
-			'entry_page'  => $this->entry_page,
-			'ip'          => $this->ip_address,
+		$fields_to_serialize = array_merge(
+			array(
+				'subject' => $this->subject,
+				'ip'      => $this->ip_address,
+			),
+			$this->entry->serialize()
 		);
 
 		$fields_to_serialize['fields'] = array();
@@ -1043,27 +1023,5 @@ class Feedback {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Gets the permalink of post parent associated with the feedback.
-	 *
-	 * So that we can link the user to the URL that the feedback was created from.
-	 *
-	 * @param WP_Post|null $current_post The current post object, if available.
-	 * @param int          $current_page_number The current page number associated with the current post.
-	 *
-	 * @return string The permalink of the post or page that the feedback was submitted from.
-	 */
-	private function get_computed_entry_permalink( $current_post = null, $current_page_number = 1 ) {
-
-		if ( $current_post instanceof WP_Post ) {
-			$permalink = get_the_permalink( $current_post );
-			if ( $current_page_number > 1 ) {
-				$permalink = add_query_arg( 'page', $current_page_number, $permalink );
-			}
-			return $permalink;
-		}
-		return '';
 	}
 }

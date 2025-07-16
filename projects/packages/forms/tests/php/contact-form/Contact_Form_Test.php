@@ -1859,6 +1859,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 	public function test_export_csv_legacy_data() {
 		global $post;
+		$current_post    = Utility::create_post_context();
 		$post_ids        = array();
 		$post_ids[]      = Utility::create_legacy_feedback(
 			array(
@@ -1880,7 +1881,7 @@ class Contact_Form_Test extends BaseTestCase {
 			array(
 				'ID'         => array( $post_ids[0], $post_ids[1] ),
 				'Date'       => array( $current_time, $current_time ),
-				'Title'      => array( $post->post_title, $post->post_title ),
+				'Title'      => array( $current_post->post_title, $current_post->post_title ),
 				'field_A'    => array( 'value1', 'value1' ),
 				'field_B'    => array( 'value2', '' ),
 				'field_C'    => array( '', 'value2' ),
@@ -1891,6 +1892,7 @@ class Contact_Form_Test extends BaseTestCase {
 			),
 			Contact_Form_Plugin::get_export_feedback_data( $post_ids )
 		);
+		Utility::destroy_post_context();
 	}
 
 	/**
