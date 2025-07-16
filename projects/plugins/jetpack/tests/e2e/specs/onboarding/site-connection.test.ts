@@ -1,10 +1,14 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import { Onboarding } from '_jetpack-e2e-commons/flows/onboarding.ts';
+import { authenticateUser } from '_jetpack-e2e-commons/helpers/login-utils.ts';
+import { getSiteCredentials } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 
-test.beforeEach( async ( { page, admin } ) => {
-	await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
-
+test.beforeEach( async ( { page, admin, request } ) => {
+	// await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
+	await prerequisitesBuilder( page ).withCleanEnv().build();
+	await authenticateUser( request, getSiteCredentials() );
+	await admin.page.reload();
 	await admin.visitAdminPage( 'admin.php', 'page=my-jetpack' );
 } );
 
