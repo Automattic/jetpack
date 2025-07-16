@@ -30,6 +30,18 @@ class Connection_Notice_Test extends TestCase {
 	private $fake_users = array();
 
 	/**
+	 * Initialize the hooks to reset memoized connection properties.
+	 */
+	public static function setUpBeforeClass(): void {
+		// Use reflection to call the private method that sets up cache invalidation hooks.
+		$manager    = new Manager();
+		$reflection = new \ReflectionClass( $manager );
+		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
+		$method->setAccessible( true );
+		$method->invoke( $manager );
+	}
+
+	/**
 	 * Testing the "need to connect first" notice.
 	 */
 	public function test_delete_user_connect_notice() {

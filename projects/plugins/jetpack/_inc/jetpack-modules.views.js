@@ -1,6 +1,6 @@
 window.jetpackModules = window.jetpackModules || {};
 
-window.jetpackModules.views = ( function ( window, $, _, Backbone, wp ) {
+window.jetpackModules.views = ( function ( window, $, Backbone, wp ) {
 	'use strict';
 
 	var views = {};
@@ -59,4 +59,4 @@ window.jetpackModules.views = ( function ( window, $, _, Backbone, wp ) {
 	} );
 
 	return views;
-} )( window, jQuery, _, Backbone, wp );
+} )( window, jQuery, Backbone, wp );

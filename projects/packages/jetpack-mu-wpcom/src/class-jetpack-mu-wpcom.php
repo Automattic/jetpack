@@ -265,6 +265,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
+		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
@@ -290,6 +291,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
+		\Automattic\Jetpack\Code_Editor::setup();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
@@ -317,6 +319,7 @@ class Jetpack_Mu_Wpcom {
 		}
 		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
+		require_once __DIR__ . '/features/stats/stats.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';

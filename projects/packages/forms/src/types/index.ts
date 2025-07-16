@@ -24,6 +24,8 @@ export interface Integration {
 	version?: string | null;
 	/** The URL to the integration's settings page, if available. */
 	settingsUrl?: string | null;
+	/** A URL to learn about the integration, if available. */
+	marketingUrl?: string | null;
 	/** Additional details about the integration. */
 	details: Record< string, unknown >;
 }

@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	const VERSION = '6.6.0';
+	const VERSION = '6.6.1';
 
 	/**
 	 * Jetpack CRM version (used in various extensions as of January 2025).
@@ -572,9 +572,6 @@ final class ZeroBSCRM {
 
 			// urls, slugs, (post inc.)
 			$this->setupUrlsSlugsEtc();
-
-			// Install stuff
-			$this->install();
 
 			// } Initialisation
 			$this->init_hooks();

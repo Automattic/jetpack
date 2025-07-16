@@ -1,17 +1,10 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import {
-	XYChart,
-	AreaSeries,
-	Tooltip,
-	Grid,
-	Axis,
-	DataContext,
-	TooltipContext,
-} from '@visx/xychart';
+import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import clsx from 'clsx';
-import { useId, useMemo, useContext, useEffect, useState, useRef, useCallback } from 'react';
+import { useId, useMemo, useContext, useState, useRef } from 'react';
+import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { DefaultGlyph } from '../shared/default-glyph';
@@ -19,6 +12,7 @@ import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import LineChartAnnotation from './line-chart-annotation';
 import styles from './line-chart.module.scss';
 import type { LineChartAnnotationProps } from './line-chart-annotation';
@@ -171,7 +165,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			point =>
+			( point: DataPointDate | DataPoint ) =>
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
@@ -183,41 +177,9 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-const HighlightTooltip: React.FC< {
-	series: SeriesData[];
-	selectedIndex: number | undefined;
-} > = ( { series, selectedIndex } ) => {
-	const tooltipContext = useContext( TooltipContext );
-
-	useEffect( () => {
-		if ( ! series ) return;
-
-		if ( selectedIndex === undefined ) {
-			tooltipContext?.hideTooltip();
-			return;
-		}
-
-		series.forEach( ( s, index ) => {
-			if ( selectedIndex < s.data.length ) {
-				const datum = s.data[ selectedIndex ];
-
-				tooltipContext?.showTooltip( {
-					datum,
-					key: s.label,
-					index,
-				} );
-			}
-		} );
-
-		// Don't include tooltipContext in the dependency array to avoid loop.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ selectedIndex, series ] );
-
-	return null;
-};
-
-const LineChart: FC< LineChartProps > = ( {
+const LineChartInternal: FC< LineChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	width,
 	height,
 	className,
@@ -246,23 +208,24 @@ const LineChart: FC< LineChartProps > = ( {
 } ) => {
 	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
-	const chartId = useId(); // Ensure unique ids for gradient fill.
+	const internalChartId = useId(); // Ensure unique ids for gradient fill.
+	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
-	// Focus the tooltip as soon as it is rendered.
-	const tooltipRef = useCallback(
-		( element: HTMLDivElement | null ) => {
-			if ( element && selectedIndex !== undefined ) {
-				element.focus();
-			}
-		},
-		[ selectedIndex ]
-	);
-
 	const dataSorted = useChartDataTransform( data );
+
+	// Use the keyboard navigation hook
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints: dataSorted[ 0 ]?.data.length || 0,
+	} );
 
 	const chartOptions = useMemo( () => {
 		const xNumTicks = Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) );
@@ -306,15 +269,39 @@ const LineChart: FC< LineChartProps > = ( {
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
-	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = dataSorted.map( ( group, index ) => ( {
-		label: group.label, // Label for each unique group
-		value: '', // Empty string since we don't want to show a specific value
-		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
-		shapeStyle: group?.options?.legendShapeStyle,
-		renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-		glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
-	} ) );
+	const error = validateData( dataSorted );
+	const isDataValid = ! error;
+
+	// Create legend items (hooks must be called in same order every render)
+	const legendItems = useMemo(
+		() =>
+			dataSorted.map( ( group, index ) => ( {
+				label: group.label, // Label for each unique group
+				value: '', // Empty string since we don't want to show a specific value
+				color:
+					group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
+				shapeStyle: group?.options?.legendShapeStyle,
+				renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
+				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+			} ) ),
+		[
+			dataSorted,
+			providerTheme.colors,
+			providerTheme.glyphs,
+			withLegendGlyph,
+			renderGlyph,
+			glyphStyle?.radius,
+		]
+	);
+
+	// Register chart with context only if data is valid
+	useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
+		withGradientFill,
+		smoothing,
+		curveType,
+		withStartGlyphs,
+		withLegendGlyph,
+	} );
 
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d?.date,
@@ -322,88 +309,6 @@ const LineChart: FC< LineChartProps > = ( {
 	};
 
 	// Create a custom renderTooltip that includes focus capability
-	const focusableRenderTooltip = useMemo( () => {
-		return ( params: RenderTooltipParams< DataPointDate > ) => {
-			const tooltipContent = renderTooltip( params );
-
-			if ( selectedIndex !== undefined ) {
-				return (
-					<div
-						ref={ tooltipRef }
-						tabIndex={ -1 }
-						role="tooltip"
-						aria-atomic="true"
-						className={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
-						data-testid={ `line-chart-tooltip-${ selectedIndex }` }
-						key={ `line-chart-tooltip-${ selectedIndex }` }
-					>
-						{ tooltipContent }
-					</div>
-				);
-			}
-
-			return (
-				<div role="tooltip" aria-live="polite">
-					{ tooltipContent }
-				</div>
-			);
-		};
-	}, [ renderTooltip, selectedIndex, tooltipRef ] );
-
-	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active.
-	const onChartFocus = useCallback( () => {
-		if ( ! isNavigating && selectedIndex !== undefined ) {
-			setSelectedIndex( 0 );
-		}
-	}, [ isNavigating, selectedIndex ] );
-
-	// On each blur of chart, Keyboard navigation should restart from first tooltip.
-	const onChartBlur = useCallback( () => {
-		setIsNavigating( false );
-	}, [] );
-
-	const onChartKeyDown = useCallback(
-		( event: React.KeyboardEvent< HTMLDivElement > ) => {
-			const size = dataSorted[ 0 ]?.data.length || 0;
-			if ( size === 0 ) return;
-
-			// Keep focus on the chart if tab is pressed.
-			if ( event.key === 'Tab' ) {
-				chartRef.current?.focus();
-				setSelectedIndex( undefined );
-				setIsNavigating( false );
-
-				return;
-			}
-
-			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
-
-			if ( currentSelectedIndex + 1 >= size && [ 'ArrowRight' ].includes( event.key ) ) {
-				chartRef.current?.focus();
-
-				setSelectedIndex( undefined );
-				setIsNavigating( false );
-				return;
-			}
-
-			event.preventDefault();
-
-			if ( [ 'ArrowRight' ].includes( event.key ) ) {
-				setIsNavigating( true );
-				setSelectedIndex( ( currentSelectedIndex + 1 ) % size );
-			} else if ( [ 'ArrowLeft' ].includes( event.key ) ) {
-				setIsNavigating( true );
-				setSelectedIndex( ( currentSelectedIndex - 1 + size ) % size );
-			} else if ( event.key === 'Escape' ) {
-				setSelectedIndex( undefined );
-				setIsNavigating( false );
-				chartRef.current?.focus();
-			}
-		},
-		[ dataSorted, selectedIndex ]
-	);
-
-	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}
@@ -472,7 +377,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 							{ withGradientFill && (
 								<LinearGradient
-									id={ `area-gradient-${ chartId }-${ index + 1 }` }
+									id={ `area-gradient-${ internalChartId }-${ index + 1 }` }
 									from={ stroke }
 									fromOpacity={ 0.4 }
 									toOpacity={ 0.1 }
@@ -488,7 +393,7 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								fill={
 									withGradientFill
-										? `url(#area-gradient-${ chartId }-${ index + 1 })`
+										? `url(#area-gradient-${ internalChartId }-${ index + 1 })`
 										: 'transparent'
 								}
 								renderLine={ true }
@@ -500,25 +405,21 @@ const LineChart: FC< LineChartProps > = ( {
 				} ) }
 
 				{ withTooltips && (
-					<>
-						{ dataSorted && (
-							<HighlightTooltip
-								series={ dataSorted }
-								selectedIndex={ selectedIndex !== undefined ? selectedIndex : undefined }
-							/>
-						) }
-						<Tooltip
-							detectBounds
-							snapTooltipToDatumX
-							snapTooltipToDatumY
-							showSeriesGlyphs
-							renderTooltip={ focusableRenderTooltip }
-							renderGlyph={ tooltipRenderGlyph }
-							glyphStyle={ glyphStyle }
-							showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
-							showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
-						/>
-					</>
+					<AccessibleTooltip
+						detectBounds
+						snapTooltipToDatumX
+						snapTooltipToDatumY
+						showSeriesGlyphs
+						renderTooltip={ renderTooltip }
+						renderGlyph={ tooltipRenderGlyph }
+						glyphStyle={ glyphStyle }
+						showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
+						showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
+						selectedIndex={ selectedIndex }
+						tooltipRef={ tooltipRef }
+						keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
+						series={ dataSorted }
+					/>
 				) }
 
 				{ annotations?.length &&
@@ -552,5 +453,13 @@ const LineChart: FC< LineChartProps > = ( {
 		</div>
 	);
 };
+
+const LineChart: FC< LineChartProps > = props => (
+	<ChartProvider>
+		<LineChartInternal { ...props } />
+	</ChartProvider>
+);
+
+LineChart.displayName = 'LineChart';
 
 export default withResponsive< LineChartProps >( LineChart );

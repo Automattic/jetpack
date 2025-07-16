@@ -58,7 +58,7 @@ class Dashboard {
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Stats', 'jetpack-stats-admin' ),
 			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			'manage_options',
+			'view_stats',
 			'stats',
 			array( $this, 'render' )
 		);

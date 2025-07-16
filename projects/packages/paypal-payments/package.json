@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-paypal-payments",
-	"version": "0.1.0-alpha",
+	"version": "0.1.0",
 	"description": "Add PayPal, credit, and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/paypal-payments/#readme",
 	"bugs": {
@@ -15,11 +15,58 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"build": "pnpm run clean && webpack --config ./webpack.config.blocks.js",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm build",
+		"clean": "rm -rf dist/ .cache/",
+		"watch": "webpack --watch --config ./webpack.config.blocks.js",
+		"test:js": "jest --config=jest.config.js"
 	},
-	"devDependencies": {}
+	"dependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/format-currency": "1.0.1",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/remove-asset-webpack-plugin": "workspace:*",
+		"@wordpress/base-styles": "6.1.0",
+		"@wordpress/block-editor": "14.20.0",
+		"@wordpress/blocks": "14.14.0",
+		"@wordpress/components": "29.11.0",
+		"@wordpress/compose": "7.25.0",
+		"@wordpress/data": "10.25.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.25.0",
+		"@wordpress/element": "6.25.0",
+		"@wordpress/hooks": "4.25.0",
+		"@wordpress/i18n": "5.25.0",
+		"@wordpress/widgets": "4.25.0",
+		"clsx": "2.1.1",
+		"copy-webpack-plugin": "13.0.0",
+		"email-validator": "2.0.4",
+		"gridicons": "3.4.2",
+		"lodash": "4.17.21",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"webpack": "5.94.0",
+		"webpack-cli": "6.0.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@babel/core": "7.27.4",
+		"@babel/plugin-transform-react-jsx": "7.27.1",
+		"@babel/runtime": "7.27.4",
+		"@testing-library/dom": "10.4.0",
+		"@testing-library/jest-dom": "6.6.3",
+		"@testing-library/react": "16.2.0",
+		"@testing-library/user-event": "14.6.1",
+		"@wordpress/babel-plugin-import-jsx-pragma": "5.25.0",
+		"@wordpress/block-serialization-default-parser": "5.25.0",
+		"autoprefixer": "10.4.20",
+		"babel-jest": "30.0.0",
+		"jest": "30.0.0",
+		"jest-environment-jsdom": "30.0.0",
+		"postcss": "8.4.47",
+		"postcss-loader": "8.1.1",
+		"sass-embedded": "1.87.0",
+		"sass-loader": "16.0.5"
+	}
 }

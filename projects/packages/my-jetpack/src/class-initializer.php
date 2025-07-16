@@ -39,7 +39,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.17.4';
+	const PACKAGE_VERSION = '5.18.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -515,10 +515,6 @@ class Initializer {
 	public static function should_initialize() {
 		$should = true;
 
-		if ( is_multisite() ) {
-			$should = false;
-		}
-
 		// All options presented in My Jetpack require a connection to WordPress.com.
 		if ( ( new Status() )->is_offline_mode() ) {
 			$should = false;
@@ -705,6 +701,14 @@ class Initializer {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		// Don't show any red bubbles when Jetpack is disconnected
+		// Users can't act on most alerts without a connection
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() ) {
+			return;
+		}
+
 		$rbn = new Red_Bubble_Notifications();
 
 		// filters for the items in this file

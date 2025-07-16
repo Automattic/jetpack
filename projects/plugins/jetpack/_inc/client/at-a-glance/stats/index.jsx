@@ -4,7 +4,7 @@ import { ExternalLink, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { forEach, get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -71,7 +71,7 @@ export class DashStats extends Component {
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
-		forEach( statsData[ unit ].data, v => {
+		for ( const v of statsData[ unit ].data ) {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
@@ -126,7 +126,7 @@ export class DashStats extends Component {
 					},
 				],
 			} );
-		} );
+		}
 
 		return { chartData: s, totalViews: totalViews };
 	}
@@ -137,7 +137,7 @@ export class DashStats extends Component {
 	 * @return {object|boolean} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
-		return get( this.props.statsData, [ 'general', 'errors' ], false );
+		return this.props.statsData?.general?.errors ?? false;
 	}
 
 	renderStatsChart( chartData ) {

@@ -1,5 +1,5 @@
-/* global wp, _, _wpCustomizeSettings, Backbone */
-( function ( wp, $, _ ) {
+/* global wp, _wpCustomizeSettings, Backbone */
+( function ( wp, $ ) {
 	// Open closure
 
 	wp = wp || {};
@@ -373,7 +373,7 @@
 				generatePalette = $( '#generate-palette' ),
 				checkValidImage = function ( value ) {
 					const badValues = [ 'remove-header', 'random-uploaded-image', 'random-default-image' ];
-					if ( value && ! _.contains( badValues, value ) ) {
+					if ( value && ! badValues.includes( value ) ) {
 						ct.opts.headerImage = value;
 						generatePalette.show();
 						return true;
@@ -924,14 +924,15 @@
 			'click .button.background-options': 'toggleOptions',
 		},
 		initialize: function () {
-			_.bindAll(
-				this,
+			for ( const func of [
 				'updateImage',
 				'updateBgSize',
 				'updateRectangleStyle',
 				'showPickerBorder',
-				'hidePickerBorder'
-			);
+				'hidePickerBorder',
+			] ) {
+				this[ func ] = this[ func ].bind( this );
+			}
 			this.controller = this.options.controller;
 			api.bind( 'change', this.updateImage );
 			this.render();
@@ -1087,24 +1088,16 @@
 			repeat: 'repeat',
 		},
 		states: function () {
-			return _.reduce(
-				this._defaults,
-				function ( acc, val, key ) {
-					acc[ key ] = api( 'background_' + key ).get() || val;
-					return acc;
-				},
-				{}
-			);
+			return Object.entries( this._defaults ).reduce( ( acc, [ key, val ] ) => {
+				acc[ key ] = api( 'background_' + key ).get() || val;
+				return acc;
+			}, {} );
 		},
 		render: function () {
 			this.$el.html( this.template() );
-			_.each(
-				this.states(),
-				function ( value, key ) {
-					this.$el.find( 'input[name=' + key + '][value=' + value + ']' ).prop( 'checked', true );
-				},
-				this
-			);
+			for ( const [ key, value ] of Object.entries( this.states() ) ) {
+				this.$el.find( 'input[name=' + key + '][value=' + value + ']' ).prop( 'checked', true );
+			}
 			this.setupIris();
 			return this;
 		},
@@ -1173,4 +1166,4 @@
 
 	// let's use it.
 	api.controlConstructor.colorsTool = api.ColorsTool;
-} )( wp, jQuery, _ ); // Close closure. She sells sea shells.
+} )( wp, jQuery ); // Close closure. She sells sea shells.

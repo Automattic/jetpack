@@ -93,7 +93,7 @@ function handle_file_download() {
 
 	// Output file content and exit
 	echo $file['content']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Binary file data
-	exit;
+	exit( 0 );
 }
 
 /**

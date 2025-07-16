@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-const { get, isEmpty } = require( 'lodash' );
+const { isEmpty } = require( 'lodash' );
 
 /**
  * Internal dependencies
@@ -177,7 +177,7 @@ describe( 'Private Site -- Logged in Access', () => {
 
 		expect( Array.isArray( posts ) ).toBe( true );
 		expect( isEmpty( posts ) ).toBe( false );
-		const slug = get( posts[0], 'slug' );
+		const slug = posts[0]?.slug;
 		expect( slug ).toBe( 'this-is-a-test-post' );
 	} );
 

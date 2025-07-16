@@ -27,6 +27,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	redirectUri = null,
 	title = __( 'Connection', 'jetpack-my-jetpack' ),
 	onDisconnected,
+	onUnlinked,
 	connectedPlugins,
 	connectedSiteId,
 	context,
@@ -102,9 +103,9 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		( e: MouseEvent< HTMLButtonElement > ) => {
 			e && e.preventDefault();
 			setConnectionStatus( { isUserConnected: false } );
-			onDisconnected?.();
+			onUnlinked?.();
 		},
-		[ onDisconnected, setConnectionStatus ]
+		[ onUnlinked, setConnectionStatus ]
 	);
 
 	const handleConnectUser = useCallback(

@@ -5,7 +5,6 @@ import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, backup } from '@wordpress/icons';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
@@ -193,13 +192,13 @@ class DashBackups extends Component {
 			vaultPressData,
 		} = this.props;
 
-		if ( getOptionValue( 'vaultpress' ) && 'success' === get( vaultPressData, 'code', '' ) ) {
+		if ( getOptionValue( 'vaultpress' ) && 'success' === ( vaultPressData?.code ?? '' ) ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-active',
 				status: 'is-working',
 				content: (
 					<span>
-						{ get( vaultPressData, 'message', '' ) }
+						{ vaultPressData?.message ?? '' }
 						&nbsp;
 						{ createInterpolateElement( __( '<a>View backup details</a>.', 'jetpack' ), {
 							a: (

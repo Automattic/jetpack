@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "5.17.4",
+	"version": "5.18.0",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -66,7 +66,8 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.27.7",
 		"@babel/preset-env": "7.27.2",
-		"@storybook/react": "8.6.7",
+		"@storybook/addon-docs": "9.0.15",
+		"@storybook/react": "9.0.15",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/jest-dom": "6.6.3",
 		"@testing-library/react": "16.3.0",
@@ -82,7 +83,7 @@
 		"require-from-string": "2.0.2",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
-		"storybook": "8.6.7",
+		"storybook": "9.0.15",
 		"typescript": "5.8.3",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"

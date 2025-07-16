@@ -322,7 +322,7 @@
 
 .jetpack-field-label__input {
 	min-height: unset;
-    pointer-events: auto;
+	pointer-events: auto;
 	padding: 0;
 }
 
@@ -630,7 +630,6 @@
 
 	:where(.wp-block-jetpack-option) {
 		font-size: 13px;
-		text-transform: uppercase;
 	}
 }
 
@@ -1091,12 +1090,12 @@
 
 .is-style-outlined .jetpack-field.is-selected .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
 .is-style-outlined .jetpack-field.has-placeholder .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
-    font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
+	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
 }
 
 .is-style-animated .jetpack-field.is-selected .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
 .is-style-animated .jetpack-field.has-placeholder .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
-    font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
+	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
 }
 
 /* Styles for form inspector panels */
@@ -1128,7 +1127,7 @@
 .notched-label__notch,
 .notched-label__leading,
 .notched-label__trailing {
-    pointer-events: none;
+	pointer-events: none;
 }
 
 :where(.wp-block-jetpack-label) {
@@ -1172,7 +1171,7 @@
 .jetpack-field-rating__wrapper {
 	font-family: "IBM Plex Sans JP", sans-serif;
 	cursor: pointer;
-	
+
 	.jetpack-field-rating__button:not(:first-of-type) {
 		margin-left: 8px;
 	}

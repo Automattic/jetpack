@@ -85,11 +85,21 @@ const GoogleSheetsDashboardCard = ( {
 							'jetpack-forms'
 						) }
 					</p>
-					<div className="integration-card__links">
+					<HStack spacing="2" justify="start" className="integration-card__links">
 						<Button variant="link" onClick={ handleViewResponsesClick }>
 							{ __( 'View Form Responses', 'jetpack-forms' ) }
 						</Button>
-					</div>
+						<span>|</span>
+						<Button
+							variant="link"
+							onClick={ handleConnectClick }
+							target="_blank"
+							rel="noopener noreferrer"
+							disabled={ ! settingsUrl }
+						>
+							{ __( 'Disconnect Google Drive', 'jetpack-forms' ) }
+						</Button>
+					</HStack>
 				</div>
 			) }
 		</IntegrationCard>

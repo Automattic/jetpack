@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -49,6 +50,18 @@ class ManagerTest extends TestCase {
 	protected $tokens;
 
 	const DEFAULT_TEST_CAPS = array( 'default_test_caps' );
+
+	/**
+	 * Initialize the hooks to reset memoized connection properties.
+	 */
+	public static function setUpBeforeClass(): void {
+		// Use reflection to call the private method that sets up cache invalidation hooks.
+		$manager    = new Manager();
+		$reflection = new \ReflectionClass( $manager );
+		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
+		$method->setAccessible( true );
+		$method->invoke( $manager );
+	}
 
 	/**
 	 * Initialize the object before running the test method.
@@ -597,6 +610,78 @@ class ManagerTest extends TestCase {
 		$result = $this->manager->update_connection_owner( $admin_id );
 
 		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test updating the connection owner when remote call to wpcom succeeds.
+	 */
+	public function test_update_connection_owner_with_memoization_reset() {
+		// Create a fresh mock manager without the get_connection_owner_id method mocked.
+		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
+			->getMock();
+
+		// Create the first admin user.
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		// Mock the tokens to return a valid access token for any user.
+		$this->tokens->method( 'get_access_token' )
+			->willReturnCallback(
+				function ( $admin_id ) {
+					return (object) array(
+						'secret'           => 'abcd1234',
+						'external_user_id' => $admin_id,
+					);
+				}
+			);
+		$this->manager->method( 'get_tokens' )
+			->willReturn( $this->tokens );
+
+		// Mock the wpcom update call to succeed.
+		$this->manager->method( 'update_connection_owner_wpcom' )
+			->willReturn( true );
+
+		// Test first owner update and verify the cache is updated.
+		$result_update = $this->manager->update_connection_owner( $admin_id );
+		$this->assertTrue( $result_update );
+		$this->assertEquals( $admin_id, $this->manager->get_connection_owner_id() );
+
+		// Create a second admin user.
+		$admin2_id = wp_insert_user(
+			array(
+				'user_login' => 'admin2',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin2@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		// Test second owner update and verify the cache is invalidated and updated.
+		$result_update = $this->manager->update_connection_owner( $admin2_id );
+		$this->assertTrue( $result_update );
+		$this->assertEquals( $admin2_id, $this->manager->get_connection_owner_id() );
+
+		// Create a third admin user.
+		$admin3_id = wp_insert_user(
+			array(
+				'user_login' => 'admin3',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin3@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+		// Directly set the master_user option to simulate a direct database update.
+		Jetpack_Options::update_option( 'master_user', $admin3_id );
+
+		// Verify that the cache properly reflects the updated owner.
+		$this->assertEquals( $admin3_id, $this->manager->get_connection_owner_id() );
 	}
 
 	/**
