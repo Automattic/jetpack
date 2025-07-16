@@ -19,6 +19,16 @@ const FormProgressIndicatorEdit = ( { clientId, attributes, setAttributes } ) =>
 
 	const blockProps = useBlockProps();
 
+	// Accessibility attributes for the progress bar wrapper.
+	const roundedProgress = Math.round( progress );
+	const progressBarWrapperProps = {
+		...blockProps,
+		role: 'progressbar',
+		'aria-valuemin': 0,
+		'aria-valuemax': 100,
+		'aria-valuenow': roundedProgress,
+	};
+
 	// Only need to set width – colours come from core style engine variables.
 	const progressBarStyle = {
 		width: `${ progress }%`,
@@ -36,7 +46,11 @@ const FormProgressIndicatorEdit = ( { clientId, attributes, setAttributes } ) =>
 				}
 				const isCurrent = index === currentStepInfo.index;
 				return (
-					<li key={ step.clientId } className={ isCurrent ? 'is-current-step' : '' }>
+					<li
+						key={ step.clientId }
+						className={ isCurrent ? 'is-current-step' : '' }
+						aria-current={ isCurrent ? 'step' : undefined }
+					>
 						{ label }
 					</li>
 				);
@@ -57,7 +71,7 @@ const FormProgressIndicatorEdit = ( { clientId, attributes, setAttributes } ) =>
 			</InspectorControls>
 			<div className="jetpack-form-progress-indicator--wrapper">
 				{ namesList }
-				<div { ...blockProps }>
+				<div { ...progressBarWrapperProps }>
 					<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
 				</div>
 			</div>

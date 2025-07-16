@@ -6,6 +6,11 @@ store( 'jetpack/form', {
 			const context = getContext();
 			return ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 + '%';
 		},
+		// Provide numeric progress value (0-100) for aria-valuenow bindings.
+		get getStepProgressValue() {
+			const context = getContext();
+			return Math.round( ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 );
+		},
 	},
 	callbacks: {
 		initializeProgress: () => {
@@ -34,7 +39,13 @@ store( 'jetpack/form', {
 				Array.from( namesList.children ).forEach( child => {
 					const li = child;
 					const stepIdx = Number( li.dataset.stepIndex );
-					li.classList.toggle( 'is-current-step', stepIdx === currentStep );
+					const isCurrent = stepIdx === currentStep;
+					li.classList.toggle( 'is-current-step', isCurrent );
+					if ( isCurrent ) {
+						li.setAttribute( 'aria-current', 'step' );
+					} else {
+						li.removeAttribute( 'aria-current' );
+					}
 				} );
 			};
 
@@ -71,6 +82,9 @@ store( 'jetpack/form', {
 					// Store step index for easy lookup when highlighting.
 					li.dataset.stepIndex = String( idx + 1 );
 					li.classList.toggle( 'is-current-step', idx + 1 === context.currentStep );
+					if ( idx + 1 === context.currentStep ) {
+						li.setAttribute( 'aria-current', 'step' );
+					}
 					namesList.appendChild( li );
 				} );
 
