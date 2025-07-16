@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { pickBy } from 'lodash';
 import { Provider } from 'react-redux';
 import useSiteLoadingState from 'hooks/use-loading-state';
 import useSearchOptions from 'hooks/use-search-options';
@@ -47,8 +46,8 @@ export default function AppWrapper() {
 	const overlayOptions = {
 		...window[ SERVER_OBJECT_NAME ].overlayOptions,
 		// Override with defined values from Gutenberg preview.
-		...pickBy(
-			{
+		...Object.fromEntries(
+			Object.entries( {
 				colorTheme: theme,
 				defaultSort: sort,
 				enableInfScroll: infiniteScroll,
@@ -60,8 +59,7 @@ export default function AppWrapper() {
 				overlayTrigger: trigger,
 				resultFormat,
 				showPoweredBy: showLogo,
-			},
-			value => typeof value !== 'undefined'
+			} ).filter( ( [ , v ] ) => typeof v !== 'undefined' )
 		),
 	};
 	const { isLoading } = useSiteLoadingState();

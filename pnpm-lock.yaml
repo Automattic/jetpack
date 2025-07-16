@@ -3445,12 +3445,12 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      debounce:
+        specifier: 2.2.0
+        version: 2.2.0
       fast-json-stable-stringify:
         specifier: 2.1.0
         version: 2.1.0
-      lodash:
-        specifier: 4.17.21
-        version: 4.17.21
       photon:
         specifier: 4.1.1
         version: 4.1.1
@@ -10477,6 +10477,10 @@ packages:
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
+
+  debounce@2.2.0:
+    resolution: {integrity: sha512-Xks6RUDLZFdz8LIdR6q0MTH44k7FikOmnh5xkSjMig6ch45afc8sjTjRQf3P6ax8dMgcQrYO/AR2RGWURrruqw==}
+    engines: {node: '>=18'}
 
   debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
@@ -23828,6 +23832,8 @@ snapshots:
       moment: 2.30.1
 
   debounce@1.2.1: {}
+
+  debounce@2.2.0: {}
 
   debug@2.6.9:
     dependencies:
