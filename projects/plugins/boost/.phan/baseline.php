@@ -15,10 +15,9 @@ return [
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
+    // PhanUndeclaredClassConstant : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPossiblyUndeclaredVariable : 3 occurrences
-    // PhanUndeclaredClassConstant : 3 occurrences
-    // PhanNoopNew : 2 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
@@ -33,7 +32,6 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'app/admin/class-admin.php' => ['PhanNoopNew'],
         'app/admin/class-config.php' => ['PhanTypeMismatchArgument'],
         'app/data-sync/class-minify-excludes-state-entry.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/data-sync/class-performance-history-entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious'],
@@ -54,7 +52,6 @@ return [
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
-        'jetpack-boost.php' => ['PhanNoopNew'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
