@@ -2,12 +2,12 @@ import autoComplete from '@tarekraafat/autocomplete.js';
 import domReady from '@wordpress/dom-ready';
 
 domReady( () => {
-	document.querySelectorAll( '.jp-autocomplete' ).forEach( node => {
+	document.querySelectorAll( 'input[jp-autocomplete]' ).forEach( field => {
 		// https://tarekraafat.github.io/autoComplete.js/#/configuration
 		// eslint-disable-next-line new-cap
 		new autoComplete( {
-			selector: `#${ node.id }`,
-			placeHolder: 'Search for fruit...',
+			selector: `#${ field.id }`,
+			placeHolder: field.placeholder || '',
 			data: {
 				src: [ 'Orange', 'Banana', 'Melon' ],
 			},
