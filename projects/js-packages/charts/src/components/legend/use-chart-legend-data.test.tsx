@@ -7,8 +7,6 @@ const mockTheme: ChartTheme = {
 	colors: [ '#ff0000', '#00ff00', '#0000ff' ],
 	backgroundColor: '#ffffff',
 	gridColor: '#e0e0e0',
-	gridColorDark: '#666666',
-	tickLength: 5,
 	legendLabelStyles: {},
 	seriesLineStyles: [],
 	glyphs: [],
