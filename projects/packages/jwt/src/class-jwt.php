@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack;
 
-use DateTime;
 use DomainException;
 use InvalidArgumentException;
 use UnexpectedValueException;
@@ -143,7 +142,7 @@ class JWT {
 		// token can actually be used. If it's not yet that time, abort.
 		if ( isset( $payload->nbf ) && $payload->nbf > ( $timestamp + static::$leeway ) ) {
 			throw new BeforeValidException(
-				'Cannot handle token prior to ' . gmdate( DateTime::ISO8601, $payload->nbf )
+				'Cannot handle token prior to ' . gmdate( 'Y-m-d\\TH:i:sO', $payload->nbf )
 			);
 		}
 
@@ -152,7 +151,7 @@ class JWT {
 		// correctly used the nbf claim).
 		if ( isset( $payload->iat ) && $payload->iat > ( $timestamp + static::$leeway ) ) {
 			throw new BeforeValidException(
-				'Cannot handle token prior to ' . gmdate( DateTime::ISO8601, $payload->iat )
+				'Cannot handle token prior to ' . gmdate( 'Y-m-d\\TH:i:sO', $payload->iat )
 			);
 		}
 
