@@ -42,6 +42,11 @@ export default {
 				selector: 'img',
 				attribute: 'src',
 			},
+			aspectRatio: {
+				source: 'attribute',
+				selector: 'img',
+				attribute: 'data-aspect-ratio',
+			},
 		},
 	},
 	effect: {

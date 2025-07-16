@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Script Data: Ensure we only add host information on the front-end for P2 and sites using Verbum Comments.

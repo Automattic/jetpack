@@ -923,10 +923,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			),
 		);
 
-		if (
-			! is_multisite()
-				&& ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC )
-		) {
+		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) {
 			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
 		}
 

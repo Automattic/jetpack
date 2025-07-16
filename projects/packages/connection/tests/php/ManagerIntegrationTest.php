@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -27,12 +28,26 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	private $manager;
 
 	/**
+	 * Initialize the hooks to reset memoized connection properties.
+	 *
+	 * @beforeClass
+	 */
+	#[BeforeClass]
+	public static function set_up_before_class() {
+		// Use reflection to call the private method that sets up cache invalidation hooks.
+		$manager    = new Manager();
+		$reflection = new \ReflectionClass( $manager );
+		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
+		$method->setAccessible( true );
+		$method->invoke( $manager );
+	}
+
+	/**
 	 * Initialize the object before running the test method.
 	 */
 	public function set_up() {
 		$this->manager = new Manager();
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
-		$this->reset_connection_status();
 	}
 
 	/**
@@ -40,7 +55,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
-		$this->reset_connection_status();
 	}
 
 	/**
