@@ -307,7 +307,10 @@ class JWT {
 			static::handle_json_error( $errno );
 		} elseif ( null === $obj && 'null' !== $input ) {
 			throw new DomainException( 'Null result with non-null input' );
+		} elseif ( $obj === null ) {
+			throw new DomainException( 'Null result' );
 		}
+
 		return $obj;
 	}
 
@@ -378,9 +381,7 @@ class JWT {
 			JSON_ERROR_UTF8           => 'Malformed UTF-8 characters',
 		);
 		throw new DomainException(
-			isset( $messages[ $errno ] )
-			? $messages[ $errno ]
-			: 'Unknown JSON error: ' . $errno
+			$messages[ $errno ] ?? 'Unknown JSON error: ' . $errno
 		);
 	}
 
