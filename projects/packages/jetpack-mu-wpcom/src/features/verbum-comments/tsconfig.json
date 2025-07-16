@@ -10,5 +10,9 @@
 		"jsxImportSource": "preact"
 	},
 	"typeRoots": [ "./src/components", "./src/editor", "./node_modules/@types" ],
-	"include": [ "node_modules/vite/client.d.ts", "**/*" ]
+	"include": [ "node_modules/vite/client.d.ts", "**/*" ],
+	"exclude": [
+		// Linting this file makes tsc complain about a bunch of irrelevant stuff, including stuff deep inside node_modules. I don't know why.
+		"./tests/eslint.config.mjs"
+	]
 }
