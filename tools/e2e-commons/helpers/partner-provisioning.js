@@ -35,7 +35,7 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	if ( json.success ) {
 		logger.cli( 'Successful provisioning' );
 	} else {
-		throw new Error( `Jetpack Start provisioning failed: ${ json.error }` );
+		throw new Error( `Jetpack Start provisioning failed: ${ JSON.stringify( json ) }` );
 	}
 
 	await execWpCommand(
