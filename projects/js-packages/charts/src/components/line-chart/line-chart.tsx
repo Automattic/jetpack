@@ -402,8 +402,8 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 						onBlur={ onChartBlur }
 						ref={ chartRef }
 					>
-					<XYChart
-						theme={ theme }
+						<XYChart
+							theme={ theme }
 							width={ width }
 							height={ height - ( showLegend ? legendHeight : 0 ) }
 							margin={ {
@@ -478,21 +478,21 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							} ) }
 
 							{ withTooltips && (
-							<AccessibleTooltip
-										detectBounds
-										snapTooltipToDatumX
-										snapTooltipToDatumY
-										showSeriesGlyphs
-								renderTooltip={ renderTooltip }
-										renderGlyph={ tooltipRenderGlyph }
-										glyphStyle={ glyphStyle }
-										showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
-										showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
-								selectedIndex={ selectedIndex }
-								tooltipRef={ tooltipRef }
-								keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
-								series={ dataSorted }
-									/>
+								<AccessibleTooltip
+									detectBounds
+									snapTooltipToDatumX
+									snapTooltipToDatumY
+									showSeriesGlyphs
+									renderTooltip={ renderTooltip }
+									renderGlyph={ tooltipRenderGlyph }
+									glyphStyle={ glyphStyle }
+									showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
+									showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
+									selectedIndex={ selectedIndex }
+									tooltipRef={ tooltipRef }
+									keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
+									series={ dataSorted }
+								/>
 							) }
 
 							{ /* Component to expose scale data via ref */ }
