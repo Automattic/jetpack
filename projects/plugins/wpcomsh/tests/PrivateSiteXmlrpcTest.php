@@ -11,9 +11,9 @@
 class PrivateSiteXmlrpcTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
-		/**
-		 * Set up test environment before each test.
-		 */
+	/**
+	 * Set up test environment before each test.
+	 */
 	public function setUp(): void {
 		parent::setUp();
 
