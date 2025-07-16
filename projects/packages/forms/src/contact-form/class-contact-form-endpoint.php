@@ -174,8 +174,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$this->rest_base . '/trash',
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => array( $this, 'empty_trash' ),
+				'callback'            => array( $this, 'delete_posts_by_status' ),
 				'permission_callback' => array( $this, 'delete_items_permissions_check' ),
+				'args'                => array(
+					'status' => array(
+						'type'     => 'string',
+						'enum'     => array( 'trash', 'spam' ),
+						'required' => false,
+						'default'  => 'trash',
+					),
+				),
 			)
 		);
 	}
@@ -674,16 +682,27 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Handles emptying Jetpack Forms responses trash folder.
+	 * Handles emptying Jetpack Forms responses based on status.
+	 *
+	 * By default, it empties the trash, meaning it will delete all feedbacks in the trash (status = trash).
+	 * Passing a status will delete all feedbacks in the status.
+	 * The operation is non reversible and thus restricted to statuses spam and trash,
+	 * enforced by endpoint query args enum[spam, trash] but also double checked by the endpoint.
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return WP_REST_Response A response object..
 	 */
-	public function empty_trash( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function delete_posts_by_status( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$from_status = $request->get_param( 'status' );
+
+		if ( ! in_array( $from_status, array( 'spam', 'trash' ), true ) ) {
+			return new WP_REST_Response( array( 'error' => __( 'Bad request', 'jetpack-forms' ) ), 400 );
+		}
+
 		$query_args = array(
 			'post_type'      => 'feedback',
-			'post_status'    => 'trash',
+			'post_status'    => $from_status ?? 'trash',
 			'posts_per_page' => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 		);
 
@@ -694,7 +713,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		foreach ( (array) $trash_feedbacks as $feedback ) {
 			$feedback_deleted = wp_delete_post( $feedback->ID, true );
 			if ( ! $feedback_deleted ) {
-				return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+				if ( $from_status === 'trash' ) {
+					return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+				}
+
+				if ( $from_status === 'spam' ) {
+					return new WP_REST_Response( array( 'error' => __( 'Failed to empty spam.', 'jetpack-forms' ) ), 400 );
+				}
 			}
 			++$deleted;
 		}
