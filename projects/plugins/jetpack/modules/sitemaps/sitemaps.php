@@ -277,7 +277,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch sitemap index xsl.
-			if ( preg_match( $regex['index-style'], $request['sitemap_name'] ) ) {
+			if ( 'sitemap-index.xsl' === $request['sitemap_name'] ) {
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::sitemap_index_xsl()
