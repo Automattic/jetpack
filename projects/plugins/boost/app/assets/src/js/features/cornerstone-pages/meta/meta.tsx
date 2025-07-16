@@ -81,7 +81,7 @@ const CornerstonePagesContent = () => {
 		<div className={ styles.section }>
 			<p className={ styles.description }>
 				{ /* TODO: In a separate PR, we will add a tooltip to the predefined pages, including the support link for further information. */ }
-				<strong>{ __( 'Predefined:', 'jetpack-boost' ) }</strong>
+				<strong>{ __( 'Homepage:', 'jetpack-boost' ) }</strong>
 			</p>
 			<PredefinedList items={ cornerstonePagesProperties.predefined_pages } />
 			<p className={ styles.description }>
@@ -124,7 +124,7 @@ const Meta = () => {
 			<p>
 				{ createInterpolateElement(
 					__(
-						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on the first cornerstone page. <b><link>Learn More</link></b>',
+						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
 						'jetpack-boost'
 					),
 					{
