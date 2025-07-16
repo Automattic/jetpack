@@ -1,9 +1,9 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import { XYChart, AreaSeries, Grid, Axis, DataContext, TooltipContext } from '@visx/xychart';
+import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import clsx from 'clsx';
-import { useId, useMemo, useContext, useState, useRef, useEffect } from 'react';
+import { useId, useMemo, useContext, useState, useRef } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
@@ -176,38 +176,6 @@ const validateData = ( data: SeriesData[] ) => {
 	);
 
 	if ( hasInvalidData ) return 'Invalid data';
-	return null;
-};
-
-const HighlightTooltip: React.FC< {
-	series: SeriesData[];
-	selectedIndex: number | undefined;
-} > = ( { series, selectedIndex } ) => {
-	const tooltipContext = useContext( TooltipContext );
-
-	useEffect( () => {
-		if ( ! series ) return;
-
-		if ( selectedIndex === undefined ) {
-			tooltipContext?.hideTooltip();
-			return;
-		}
-
-		series.forEach( ( s, index ) => {
-			if ( selectedIndex < s.data.length ) {
-				const datum = s.data[ selectedIndex ];
-
-				tooltipContext?.showTooltip( {
-					datum,
-					key: s.label,
-					index,
-				} );
-			}
-		} );
-
-		// Don't include tooltipContext in the dependency array to avoid loop.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ selectedIndex, series ] );
 	return null;
 };
 
