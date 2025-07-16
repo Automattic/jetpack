@@ -3,7 +3,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { useEffect, useMemo, useState } from 'react';
 import styles from './meta.module.scss';
 import {
-	useCornerstonePages,
+	useCustomCornerstonePages,
 	useCornerstonePagesProperties,
 } from '../lib/stores/cornerstone-pages';
 import { createInterpolateElement } from '@wordpress/element';
@@ -48,7 +48,7 @@ export const MetaError = () => (
 
 const CornerstonePagesContent = () => {
 	const cornerstonePagesProperties = useCornerstonePagesProperties()!;
-	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
+	const [ cornerstonePages, setCornerstonePages ] = useCustomCornerstonePages();
 	const regenerateAction = useRegenerateCriticalCssAction();
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );

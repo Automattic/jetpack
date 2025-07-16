@@ -4,7 +4,7 @@ import { z } from 'zod';
 /**
  * Hook to get the Cornerstone Pages.
  */
-export function useCornerstonePages(): [
+export function useCustomCornerstonePages(): [
 	string[],
 	( newValue: string[], onSuccessCallback?: () => void ) => void,
 ] {
