@@ -27,3 +27,23 @@
 		border-radius: calc( var( --jp-form-progress-height ) / 2 );
 	}
 }
+
+.jetpack-form-progress-indicator--wrapper .jetpack-form-progress-indicator-names {
+	list-style: none;
+	margin-bottom: 0.5rem;
+	padding: 0;
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.8rem;
+
+	li {
+	    opacity: 0.4;
+	    transition: color 0.2s ease, opacity 0.2s ease;
+	}
+
+	li.is-current-step {
+	    font-weight: 700;
+	    opacity: 1;
+	    color: var(--jp-form-progress-active-color, currentColor);
+	}
+}

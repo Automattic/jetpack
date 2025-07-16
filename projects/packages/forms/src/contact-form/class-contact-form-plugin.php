@@ -656,7 +656,7 @@ class Contact_Form_Plugin {
 			$processed_content = do_blocks( $content );
 		}
 		$is_current_step_class = ( self::$step_count === 1 ? 'is-current-step' : '' );
-		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step ' . $is_current_step_class . ' " data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => self::$step_count ) ) . ' >'
+		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step ' . $is_current_step_class . ' " data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" data-step-label="' . esc_attr( isset( $atts['stepLabel'] ) ? $atts['stepLabel'] : '' ) . '" ' . wp_interactivity_data_wp_context( array( 'step' => self::$step_count ) ) . ' >'
 				. $processed_content
 			. '</div>';
 	}
@@ -778,6 +778,8 @@ class Contact_Form_Plugin {
 		$processor = new \WP_HTML_Tag_Processor( $content );
 		$processor->next_tag();
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+		$processor->set_attribute( 'data-wp-init--initializeProgress', 'callbacks.initializeProgress' );
+		$processor->set_attribute( 'data-wp-watch--highlight', 'callbacks.updateHighlight' );
 
 		while ( $processor->next_tag() ) {
 			$class = $processor->get_attribute( 'class' );

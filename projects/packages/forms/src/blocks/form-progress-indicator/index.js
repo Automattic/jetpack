@@ -56,7 +56,12 @@ export const settings = {
 	},
 	edit: edit,
 	save: save,
-	attributes: {},
+	attributes: {
+		displayStepNames: {
+			type: 'boolean',
+			default: false,
+		},
+	},
 	transforms: {},
 	example: {},
 };

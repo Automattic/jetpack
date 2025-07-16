@@ -1,11 +1,14 @@
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { PanelBody, ToggleControl } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import useStepNavigation from '../shared/hooks/use-step-navigation';
 
 import './editor.scss';
 
-const FormProgressIndicatorEdit = ( { clientId } ) => {
+const FormProgressIndicatorEdit = ( { clientId, attributes, setAttributes } ) => {
+	const { displayStepNames = false } = attributes;
 	const parentFormId = useParentFormClientId( clientId );
 	const { currentStepInfo, steps } = useStepNavigation( parentFormId );
 
@@ -21,9 +24,39 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 		width: `${ progress }%`,
 	};
 
+	const namesList = displayStepNames ? (
+		<ol className="jetpack-form-progress-indicator-names">
+			{ steps.map( ( step, index ) => {
+				let label;
+				if ( step?.attributes?.stepLabel ) {
+					label = step.attributes.stepLabel;
+				} else {
+					/* translators: %d: step number */
+					label = sprintf( __( 'Step %d', 'jetpack-forms' ), index + 1 );
+				}
+				const isCurrent = index === currentStepInfo.index;
+				return (
+					<li key={ step.clientId } className={ isCurrent ? 'is-current-step' : '' }>
+						{ label }
+					</li>
+				);
+			} ) }
+		</ol>
+	) : null;
+
 	return (
 		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Progress Indicator', 'jetpack-forms' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Display step names', 'jetpack-forms' ) }
+						checked={ displayStepNames }
+						onChange={ value => setAttributes( { displayStepNames: value } ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
 			<div className="jetpack-form-progress-indicator--wrapper">
+				{ namesList }
 				<div { ...blockProps }>
 					<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
 				</div>
