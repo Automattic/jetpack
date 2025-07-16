@@ -3105,7 +3105,7 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
 			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
-				if ( 'jetpack/slider-input' === ( $inner_block['blockName'] ?? '' ) ) {
+				if ( 'jetpack/input-range' === ( $inner_block['blockName'] ?? '' ) ) {
 					$attrs                 = $inner_block['attrs'] ?? array();
 					$atts['min']           = isset( $attrs['min'] ) && $attrs['min'] !== '' ? $attrs['min'] : 0;
 					$atts['max']           = isset( $attrs['max'] ) && $attrs['max'] !== '' ? $attrs['max'] : 100;
