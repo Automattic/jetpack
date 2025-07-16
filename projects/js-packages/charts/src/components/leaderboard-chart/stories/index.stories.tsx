@@ -4,7 +4,7 @@ import { sampleData, smallDataset, largeValues, negativeGrowth } from './sample-
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LeaderboardChart > = {
-	title: 'Charts/LeaderboardChart',
+	title: 'JS Packages/Charts/Types/Leaderboard Chart',
 	component: LeaderboardChart,
 	parameters: {
 		layout: 'centered',
