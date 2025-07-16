@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 /**
  * @jest-environment jsdom
  */
@@ -388,25 +389,41 @@ describe( 'LineChart', () => {
 	} );
 
 	describe( 'Annotations', () => {
-		test( 'renders annotations when an annotations list is provided', async () => {
+		const renderWithAnnotations = (
+			children: React.ReactNode,
+			props = {},
+			themeName = 'jetpack'
+		) => {
+			const theme = THEME_MAP[ themeName ];
+
+			return render(
+				<ThemeProvider theme={ theme }>
+					{ /* @ts-expect-error TODO Fix the missing props */ }
+					<LineChart { ...defaultProps } { ...props }>
+						{ children }
+					</LineChart>
+				</ThemeProvider>
+			);
+		};
+
+		test( 'renders annotations when using compound component pattern', async () => {
 			const width = 500;
 			const height = 300;
 
-			renderWithTheme( {
-				width,
-				height,
-				annotations: [
-					{
-						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-						title: 'Annotation 1',
-						subtitle: 'Annotation 1 subtitle',
-					},
-					{
-						datum: { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-						title: 'Annotation 2',
-					},
-				],
-			} );
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } }
+						title="Annotation 1"
+						subtitle="Annotation 1 subtitle"
+					/>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' } }
+						title="Annotation 2"
+					/>
+				</LineChart.AnnotationsOverlay>,
+				{ width, height }
+			);
 
 			const overlay = await screen.findByTestId( 'line-chart-annotations-overlay' );
 			expect( overlay ).toBeInTheDocument();
@@ -425,18 +442,16 @@ describe( 'LineChart', () => {
 		} );
 
 		test( 'skips rendering an annotation when it is malformed', async () => {
-			renderWithTheme( {
-				annotations: [
-					{
-						title: 'Annotation 1',
-						subtitle: 'Annotation 1 subtitle',
-					},
-					{
-						datum: { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-						title: 'Annotation 2',
-					},
-				],
-			} );
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					{ /* @ts-expect-error Testing malformed annotation without required datum prop */ }
+					<LineChart.Annotation title="Annotation 1" subtitle="Annotation 1 subtitle" />
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' } }
+						title="Annotation 2"
+					/>
+				</LineChart.AnnotationsOverlay>
+			);
 
 			await waitFor( () => {
 				expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
@@ -445,7 +460,7 @@ describe( 'LineChart', () => {
 			expect( screen.queryByText( 'Annotation 1 subtitle' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'does not render annotations when no annotations list is provided', async () => {
+		test( 'does not render annotations when no AnnotationsOverlay is provided', async () => {
 			renderWithTheme( {} );
 
 			await waitFor( () => {
@@ -456,24 +471,22 @@ describe( 'LineChart', () => {
 			} );
 		} );
 
-		test( 'does not render annotations when an empty annotations list is provided', () => {
-			renderWithTheme( {
-				annotations: [],
-			} );
+		test( 'does not render annotations when AnnotationsOverlay is empty', () => {
+			renderWithAnnotations( <LineChart.AnnotationsOverlay></LineChart.AnnotationsOverlay> );
 
 			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'renders annotations with zero values', async () => {
-			renderWithTheme( {
-				annotations: [
-					{
-						datum: { date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' },
-						title: 'Zero Value Annotation',
-						subtitle: 'This point has a value of 0',
-					},
-				],
-			} );
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' } }
+						title="Zero Value Annotation"
+						subtitle="This point has a value of 0"
+					/>
+				</LineChart.AnnotationsOverlay>
+			);
 
 			await waitFor( () => {
 				expect( screen.getByText( 'Zero Value Annotation' ) ).toBeInTheDocument();
@@ -484,21 +497,21 @@ describe( 'LineChart', () => {
 		} );
 
 		test( 'renders annotations with custom label renderer', async () => {
-			renderWithTheme( {
-				annotations: [
-					{
-						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-						title: 'Annotation 1',
-						subtitle: 'Annotation 1 subtitle',
-						renderLabel: ( { title, subtitle } ) => (
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } }
+						title="Annotation 1"
+						subtitle="Annotation 1 subtitle"
+						renderLabel={ ( { title, subtitle } ) => (
 							<div data-testid="custom-label">
 								{ title }
 								{ subtitle && <span>{ subtitle }</span> }
 							</div>
-						),
-					},
-				],
-			} );
+						) }
+					/>
+				</LineChart.AnnotationsOverlay>
+			);
 
 			await waitFor( () => {
 				expect( screen.getByTestId( 'custom-label' ) ).toBeInTheDocument();
@@ -506,27 +519,27 @@ describe( 'LineChart', () => {
 		} );
 
 		test( 'renders annotations with custom label popover renderer', async () => {
-			renderWithTheme( {
-				annotations: [
-					{
-						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-						title: 'Annotation 1',
-						subtitle: 'Annotation 1 subtitle',
-						renderLabel: ( { title, subtitle } ) => (
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } }
+						title="Annotation 1"
+						subtitle="Annotation 1 subtitle"
+						renderLabel={ ( { title, subtitle } ) => (
 							<div data-testid="custom-label">
 								{ title }
 								{ subtitle && <span>{ subtitle }</span> }
 							</div>
-						),
-						renderLabelPopover: ( { title, subtitle } ) => (
+						) }
+						renderLabelPopover={ ( { title, subtitle } ) => (
 							<div data-testid="custom-label-popover">
 								{ title }
 								{ subtitle && <span>{ subtitle }</span> }
 							</div>
-						),
-					},
-				],
-			} );
+						) }
+					/>
+				</LineChart.AnnotationsOverlay>
+			);
 
 			await waitFor( () => {
 				expect( screen.getByTestId( 'custom-label-popover' ) ).toBeInTheDocument();
