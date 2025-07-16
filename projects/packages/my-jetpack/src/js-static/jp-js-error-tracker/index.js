@@ -137,14 +137,14 @@
 		setupNetworkMonitoring: function () {
 			const self = this;
 
-			// Monitor fetch
-			if ( window.fetch ) {
-				const originalFetch = window.fetch;
+			// Monitor fetch - prevent double-monkeypatching
+			if ( window.fetch && ! window._jpOriginalFetch ) {
+				window._jpOriginalFetch = window.fetch;
 				window.fetch = function () {
 					const args = arguments;
 					const url = args[ 0 ];
 
-					return originalFetch.apply( this, args ).catch( function ( error ) {
+					return window._jpOriginalFetch.apply( this, args ).catch( function ( error ) {
 						self.captureError( {
 							type: 'network',
 							source: 'fetch',
@@ -161,12 +161,11 @@
 				};
 			}
 
-			// Monitor XMLHttpRequest
-			if ( window.XMLHttpRequest ) {
-				const originalXHR = window.XMLHttpRequest;
+			// Monitor XMLHttpRequest - prevent double-monkeypatching
+			if ( window.XMLHttpRequest && ! window._jpOriginalXHR ) {
+				window._jpOriginalXHR = window.XMLHttpRequest;
 				window.XMLHttpRequest = function () {
-					// eslint-disable-next-line new-cap
-					const xhr = new originalXHR();
+					const xhr = new window._jpOriginalXHR();
 					const originalOpen = xhr.open;
 					const originalSend = xhr.send;
 					let requestUrl = '';
@@ -334,6 +333,23 @@
 			this.errorHistory = [];
 			this.errorCount = 0;
 			this.throttledErrors.clear();
+		},
+
+		cleanup: function () {
+			// Restore original fetch if it was monkeypatched
+			if ( window._jpOriginalFetch ) {
+				window.fetch = window._jpOriginalFetch;
+				delete window._jpOriginalFetch;
+			}
+
+			// Restore original XMLHttpRequest if it was monkeypatched
+			if ( window._jpOriginalXHR ) {
+				window.XMLHttpRequest = window._jpOriginalXHR;
+				delete window._jpOriginalXHR;
+			}
+
+			// Clear errors
+			this.clearErrors();
 		},
 	};
 
