@@ -272,101 +272,100 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		setNotice( null );
 	}, [ buttonType, scriptSrc, hostedButtonId, buttonText, rawHeadCode, rawBodyCode ] );
 
-	// Determine if we should show the preview (only for single buttons)
-	const shouldShowPreview = () => {
-		if ( isSelected || notice ) {
-			return false;
-		}
-		return canShowPreview( attributes );
-	};
+	const blockProps = useBlockProps();
+
+	// Early return for preview rendering
+	if ( ! isSelected && ! notice && canShowPreview( attributes ) ) {
+		return (
+			<div { ...blockProps }>
+				<PayPalPreview attributes={ attributes } />
+			</div>
+		);
+	}
 
 	return (
-		<div { ...useBlockProps() }>
-			{ shouldShowPreview() ? (
-				<PayPalPreview attributes={ attributes } />
-			) : (
-				<Placeholder
-					icon={ PayPalIcon }
-					label={ __( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ) }
-					isColumnLayout
-					instructions={ buttonType === 'stacked' ? stackedInstructions : singleInstructions }
-					notices={ notice }
+		<div { ...blockProps }>
+			<Placeholder
+				icon={ PayPalIcon }
+				label={ __( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ) }
+				isColumnLayout
+				instructions={ buttonType === 'stacked' ? stackedInstructions : singleInstructions }
+				notices={ notice }
+			>
+				<ToggleGroupControl
+					label={ __( 'Button type', 'jetpack-paypal-payments' ) }
+					value={ buttonType }
+					hideLabelFromVision
+					onChange={ type => setAttributes( { buttonType: type } ) }
+					isBlock
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				>
-					<ToggleGroupControl
-						label={ __( 'Button type', 'jetpack-paypal-payments' ) }
-						value={ buttonType }
-						hideLabelFromVision
-						onChange={ type => setAttributes( { buttonType: type } ) }
-						isBlock
-						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
-					>
-						<ToggleGroupControlOption
-							value="stacked"
-							label={ __( 'Stacked Buttons (Recommended)', 'jetpack-paypal-payments' ) }
-							aria-label={ __(
-								'Stacked Buttons are the recommended option for better conversion rates.',
-								'jetpack-paypal-payments'
-							) }
-							showTooltip={ true }
-						/>
-						<ToggleGroupControlOption
-							value="single"
-							label={ __( 'Single Button', 'jetpack-paypal-payments' ) }
-						/>
-					</ToggleGroupControl>
-					<Text>
-						<strong>{ __( 'Instructions:', 'jetpack-paypal-payments' ) }</strong>
-					</Text>
-					<ItemGroup>
-						<Item>
-							1.{ ' ' }
-							<ExternalLink
-								href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }
-							>
-								{ __( 'Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
-							</ExternalLink>
-						</Item>
-						<Item>
-							{ __(
-								'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.',
-								'jetpack-paypal-payments'
-							) }
-						</Item>
-						<Item>{ __( '3. Paste the code below.', 'jetpack-paypal-payments' ) }</Item>
-					</ItemGroup>
-					{ 'stacked' === buttonType && (
-						<PlainText
-							value={ rawHeadCode }
-							onChange={ code => {
-								setRawHeadCode( code );
-								const extractedSrc = extractScriptSrc( code );
-								setAttributes( {
-									scriptSrc: extractedSrc,
-								} );
-							} }
-							placeholder={ __( 'Paste the head code here…', 'jetpack-paypal-payments' ) }
-							aria-label={ __( 'PayPal button head code', 'jetpack-paypal-payments' ) }
-							name="paypal-payment-buttons-code-head"
-						/>
-					) }
+					<ToggleGroupControlOption
+						value="stacked"
+						label={ __( 'Stacked Buttons (Recommended)', 'jetpack-paypal-payments' ) }
+						aria-label={ __(
+							'Stacked Buttons are the recommended option for better conversion rates.',
+							'jetpack-paypal-payments'
+						) }
+						showTooltip={ true }
+					/>
+					<ToggleGroupControlOption
+						value="single"
+						label={ __( 'Single Button', 'jetpack-paypal-payments' ) }
+					/>
+				</ToggleGroupControl>
+				<Text>
+					<strong>{ __( 'Instructions:', 'jetpack-paypal-payments' ) }</strong>
+				</Text>
+				<ItemGroup>
+					<Item>
+						1.{ ' ' }
+						<ExternalLink
+							href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }
+						>
+							{ __( 'Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
+						</ExternalLink>
+					</Item>
+					<Item>
+						{ __(
+							'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.',
+							'jetpack-paypal-payments'
+						) }
+					</Item>
+					<Item>{ __( '3. Paste the code below.', 'jetpack-paypal-payments' ) }</Item>
+				</ItemGroup>
+				{ 'stacked' === buttonType && (
 					<PlainText
-						value={ rawBodyCode }
+						value={ rawHeadCode }
 						onChange={ code => {
-							setRawBodyCode( code );
-							const extractedButtonId = extractHostedButtonId( code );
-							const extractedButtonText = extractButtonText( code );
+							setRawHeadCode( code );
+							const extractedSrc = extractScriptSrc( code );
 							setAttributes( {
-								hostedButtonId: extractedButtonId,
-								buttonText: extractedButtonText,
+								scriptSrc: extractedSrc,
 							} );
 						} }
-						placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }
-						aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
-						name="paypal-payment-buttons-code-body"
+						placeholder={ __( 'Paste the head code here…', 'jetpack-paypal-payments' ) }
+						aria-label={ __( 'PayPal button head code', 'jetpack-paypal-payments' ) }
+						name="paypal-payment-buttons-code-head"
 					/>
-				</Placeholder>
-			) }
+				) }
+				<PlainText
+					value={ rawBodyCode }
+					onChange={ code => {
+						setRawBodyCode( code );
+						const extractedButtonId = extractHostedButtonId( code );
+						const extractedButtonText = extractButtonText( code );
+						setAttributes( {
+							hostedButtonId: extractedButtonId,
+							buttonText: extractedButtonText,
+						} );
+					} }
+					placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }
+					aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
+					name="paypal-payment-buttons-code-body"
+				/>
+			</Placeholder>
 		</div>
 	);
 }
