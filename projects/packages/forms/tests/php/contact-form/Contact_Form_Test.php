@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Constants;
 use DOMDocument;
 use DOMElement;
 use PHPUnit\Framework\Attributes\Before;
@@ -2872,5 +2873,39 @@ EOT;
 
 		// Restore original post
 		$post = $original_post;
+	}
+
+	public function test_encode_form_to_jwt() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		$form = new Contact_Form(
+			array(
+				'to'      => 'hello@email.com',
+				'subject' => 'test subject',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+			. "[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+
+		$this->assertNotEmpty( $jwt, 'JWT should not be empty' );
+		$this->assertIsString( $jwt, 'JWT should be a string' );
+
+		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
+
+		// Decode the JWT to verify its structure
+		$to_attribute = $form_copy->get_attribute( 'to' );
+		$this->assertEquals( 'hello@email.com', $to_attribute );
+		$this->assertEquals( $form_copy->get_attributes(), $form->get_attributes(), 'Form attributes should match' );
+		$this->assertEquals( $form->get_attribute( 'to' ), $form_copy->get_attribute( 'to' ), 'Form IDs should match' );
+		$this->assertEquals( $form->get_attribute( 'id' ), $form_copy->get_attribute( 'id' ), 'Form IDs should match' );
+
+		$this->assertEquals( $form->hash, $form_copy->hash, 'Form hashes should match' );
+		$this->assertNotEmpty( $form_copy->hash, 'Form hash should not be empty' );
+
+		$this->assertEquals( $form->get_field_ids(), $form_copy->get_field_ids(), 'Field IDs should match' );
+		$this->assertNotEmpty( $form_copy->get_field_ids(), 'Fields should not be empty' );
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 } // end class
