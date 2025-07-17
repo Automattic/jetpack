@@ -54,6 +54,7 @@ const IntegrationCardHeader = ( {
 
 	const installPluginActionLabel = __( 'Plugin needs install', 'jetpack-forms' );
 	const activatePluginActionLabel = __( 'Plugin needs activation', 'jetpack-forms' );
+	const pluginActionLabel = ! isInstalled ? installPluginActionLabel : activatePluginActionLabel;
 
 	const getTooltipText = checked => {
 		if ( toggleTooltip ) {
@@ -111,8 +112,7 @@ const IntegrationCardHeader = ( {
 								intent={ isInstalled && ! isActive ? 'warning' : 'info' }
 								className="integration-card__plugin-badge"
 							>
-								{ ! isInstalled && installPluginActionLabel }
-								{ isInstalled && ! isActive && activatePluginActionLabel }
+								{ pluginActionLabel }
 							</Badge>
 						) }
 						{ showConnectedBadge && (
