@@ -591,6 +591,8 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 /**
  * Generate and create a fallback social image.
  *
+ * @since $$next-version$$
+ *
  * @param array  $representative_image The representative image of the site.
  * @param string $template The template to use.
  *
