@@ -24,7 +24,7 @@ export default function applyMiddlewares( store ) {
 	};
 	chain = middlewares.map( middleware => middleware( middlewareAPI ) );
 
-	enhancedDispatch = value => chain.reduceRight( ( a, func ) => func( a ), value );
+	enhancedDispatch = chain.reduceRight( ( a, func ) => func( a ), store.dispatch );
 
 	store.dispatch = enhancedDispatch;
 
