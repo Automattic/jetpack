@@ -382,9 +382,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
+      deepmerge:
+        specifier: 4.3.1
+        version: 4.3.1
       tslib:
         specifier: 2.5.0
         version: 2.5.0
