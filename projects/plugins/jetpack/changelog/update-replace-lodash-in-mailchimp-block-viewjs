@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Replace use of `lodash` in Mailchimp block view.js
+
+
