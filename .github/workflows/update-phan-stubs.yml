@@ -24,9 +24,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # Use the matticbot token so CI runs on the created PR.
-          token: ${{ secrets.API_TOKEN_GITHUB }}
+          token: ${{ secrets.STUB_UPDATE_TOKEN_GITHUB }}
 
       - name: Update stubs
+        env:
+          # Generic token is fine here.
+          GH_TOKEN: ${{ github.token }}
         run: tools/stubs/update-stubs.sh
 
       - name: Check for changes
