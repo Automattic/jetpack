@@ -49,6 +49,11 @@ export const setupProjects = [
 		testDir: `${ rootPath }../fixtures`,
 		testMatch: 'auth.setup.ts',
 	},
+	{
+		name: 'connection setup',
+		testDir: `${ rootPath }../fixtures`,
+		testMatch: 'connection.setup.ts',
+	},
 ];
 
 const playwrightConfig = defineConfig( {
@@ -81,14 +86,6 @@ const playwrightConfig = defineConfig( {
 		},
 	},
 	reportSlowTests: null,
-	projects: [
-		...setupProjects,
-		{
-			name: 'e2e tests',
-			use: { ...devices[ 'Desktop Chrome' ] },
-			dependencies: [ 'global authentication' ],
-		},
-	],
 } );
 
 export default playwrightConfig;

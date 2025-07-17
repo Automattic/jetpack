@@ -2,7 +2,7 @@ import config from 'config';
 import { authenticateUser } from '../helpers/login-utils.js';
 import { getSiteCredentials, resolveSiteUrl } from '../helpers/utils-helper';
 import logger from '../logger.js';
-import { DashboardPage } from '../pages/wp-admin/index.js';
+import { DashboardPage, WPLoginPage } from '../pages/wp-admin/index.js';
 import { LoginPage } from '../pages/wpcom/index.js';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
@@ -14,22 +14,22 @@ const cookie = config.get( 'storeSandboxCookieValue' );
  * @param {boolean} mockPlanData - Whether to mock plan data.
  */
 export async function loginToWpSite( page, mockPlanData ) {
-	// // Navigating to login url will always display the login form even if the user is already logged in
-	// // To prevent unnecessary log in we navigate to Dashboard and check if logged in
-	// await DashboardPage.visit( page, false );
+	// Navigating to login url will always display the login form even if the user is already logged in
+	// To prevent unnecessary log in we navigate to Dashboard and check if logged in
+	await DashboardPage.visit( page, false );
 
-	// if ( await DashboardPage.isDisplayed( page ) ) {
-	// 	logger.info( 'Already logged in' );
-	// 	return;
-	// }
+	if ( await DashboardPage.isDisplayed( page ) ) {
+		logger.info( 'Already logged in' );
+		return;
+	}
 
-	// if ( await LoginPage.isDisplayed( page ) ) {
-	// 	logger.info( 'WPCOM Login page detected' );
-	// 	await loginToWpCom( page, mockPlanData, false );
-	// 	return;
-	// }
+	if ( await LoginPage.isDisplayed( page ) ) {
+		logger.info( 'WPCOM Login page detected' );
+		await loginToWpCom( page, mockPlanData, false );
+		return;
+	}
 
-	// await ( await WPLoginPage.init( page ) ).login();
+	await ( await WPLoginPage.init( page ) ).login();
 
 	await authenticateUser( page.request, getSiteCredentials() );
 
