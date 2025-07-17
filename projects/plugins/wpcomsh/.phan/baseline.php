@@ -24,7 +24,6 @@ return [
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
-    // PhanNoopNewNoSideEffects : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
@@ -37,7 +36,6 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'custom-colors/class-palette.php' => ['PhanTypeArraySuspiciousNullable'],
-        'custom-colors/colors-api.php' => ['PhanNoopNewNoSideEffects'],
         'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable'],
         'custom-colors/core-bg-admin-notice.php' => ['PhanContextNotObject'],
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
