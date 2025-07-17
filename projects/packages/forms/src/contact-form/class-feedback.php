@@ -673,27 +673,48 @@ class Feedback {
 	 */
 	private function parse_content( $post_content = '', $version = null ) {
 		if ( $version === 'v2' ) {
-			$decoded_content = json_decode( $post_content, true );
-			if ( $decoded_content === null ) {
-				// If JSON decoding fails, try to decode the second try with stripslashes and trim.
-				// This is a workaround for some cases where the JSON data is not properly formatted.
-				$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
-			}
+			return $this->parse_content_v2( $post_content );
+		}
+		return $this->parse_legacy_content( $post_content );
+	}
 
-			if ( $decoded_content === null ) {
-				return array();
-			}
-			$fields = array();
-			foreach ( $decoded_content['fields'] as $field ) {
-				$fields[ $field['key'] ] = Feedback_Field::from_serialized( $field );
-				if ( ! $this->has_file && $fields[ $field['key'] ]->has_file() ) {
-					$this->has_file = true;
-				}
-			}
-			$decoded_content['fields'] = $fields;
-			return $decoded_content;
+	/**
+	 * Parse the content in the v2 format.
+	 *
+	 * @param string $post_content The post content to parse.
+	 *
+	 * @return array Parsed fields.
+	 */
+	private function parse_content_v2( $post_content = '' ) {
+		$decoded_content = json_decode( $post_content, true );
+		if ( $decoded_content === null ) {
+			// If JSON decoding fails, try to decode the second try with stripslashes and trim.
+			// This is a workaround for some cases where the JSON data is not properly formatted.
+			$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
 		}
 
+		if ( $decoded_content === null ) {
+			return array();
+		}
+		$fields = array();
+		foreach ( $decoded_content['fields'] as $field ) {
+			$fields[ $field['key'] ] = Feedback_Field::from_serialized( $field );
+			if ( ! $this->has_file && $fields[ $field['key'] ]->has_file() ) {
+				$this->has_file = true;
+			}
+		}
+		$decoded_content['fields'] = $fields;
+		return $decoded_content;
+	}
+
+	/**
+	 * Parse the legacy content format.
+	 *
+	 * @param string $post_content The post content to parse.
+	 *
+	 * @return array Parsed fields.
+	 */
+	private function parse_legacy_content( $post_content = '' ) {
 		// parse_feedback_content
 		$all_values      = array();
 		$content         = explode( '<!--more-->', $post_content );
