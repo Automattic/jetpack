@@ -107,13 +107,16 @@ const IntegrationCardHeader = ( {
 							<span className="integration-card__description">{ description }</span>
 						) }
 						{ showPluginAction && (
-							<Badge className="integration-card__plugin-badge" intent="info">
+							<Badge
+								intent={ isInstalled && ! isActive ? 'warning' : 'info' }
+								className="integration-card__plugin-badge"
+							>
 								{ ! isInstalled && installPluginActionLabel }
 								{ isInstalled && ! isActive && activatePluginActionLabel }
 							</Badge>
 						) }
 						{ showConnectedBadge && (
-							<Badge className="integration-card__connected-badge" intent="success">
+							<Badge intent="success" className="integration-card__connected-badge">
 								{ __( 'Enabled', 'jetpack-forms' ) }
 							</Badge>
 						) }
