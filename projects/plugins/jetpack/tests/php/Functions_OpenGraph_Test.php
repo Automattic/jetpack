@@ -418,7 +418,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 		// Clean up the filter if it was added.
 		if ( $filter_callback ) {
-			remove_all_filters( 'jetpack_open_graph_image_default' );
+			remove_filter( 'jetpack_open_graph_image_default', $filter_callback );
 		}
 	}
 
@@ -504,7 +504,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 		// Clean up the filter if it was added.
 		if ( $filter_callback ) {
-			remove_all_filters( 'jetpack_og_get_social_image_token' );
+			remove_filter( 'jetpack_og_get_social_image_token', $filter_callback );
 		}
 	}
 
