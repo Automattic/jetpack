@@ -32,16 +32,6 @@ const config = {
 		jetpackPrivateOptions: `${ tempDir }/jetpack-private-options.json`,
 		planData: `${ tempDir }/plan-data.json`,
 	},
-	consoleIgnore: [
-		'This is a global warning',
-		'A cookie associated with a cross-site resource',
-		'net::ERR_UNKNOWN_URL_SCHEME',
-		'elements with non-unique id #_wpnonce',
-		'is deprecated',
-		'SharedArrayBuffer will require cross-origin isolation as of M91, around May 2021',
-		'Warning: getDefaultProps is only used on classic React createClass definitions',
-		'Warning: A future version of React will block javascript: URLs as a security precaution',
-	],
 	repository: {
 		url: 'https://github.com/Automattic/jetpack',
 		mainBranch: 'trunk',

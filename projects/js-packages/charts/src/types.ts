@@ -277,3 +277,28 @@ export type GridProps = {
 	 */
 	top?: number;
 };
+
+/**
+ * Local type definitions for Popover API attributes and events
+ * These are used to avoid extending React module types while still getting type safety
+ * NOTE: These type definitions are only needed for React 18 and below.
+ * React 19+ includes Popover API types in the official React type definitions, so these can be removed when upgrading.
+ */
+export interface PopoverButtonAttributes {
+	popovertarget?: string;
+	popovertargetaction?: 'hide' | 'show' | 'toggle';
+}
+
+export interface PopoverElementAttributes {
+	popover?: 'auto' | 'manual' | '';
+}
+
+// Combined types for spreading into JSX elements
+export type ButtonWithPopover = PopoverButtonAttributes;
+export type PopoverElement = PopoverElementAttributes;
+
+// ToggleEvent for native Popover API
+export interface ToggleEvent extends Event {
+	newState: 'open' | 'closed';
+	oldState: 'open' | 'closed';
+}

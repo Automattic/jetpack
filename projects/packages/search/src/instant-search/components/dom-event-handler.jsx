@@ -1,7 +1,4 @@
-// NOTE: We only import the debounce function here for reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import debounce from 'lodash/debounce';
+import debounce from 'debounce';
 import { Component } from 'react';
 import { getPrefersReducedMotion } from '../lib/a11y';
 

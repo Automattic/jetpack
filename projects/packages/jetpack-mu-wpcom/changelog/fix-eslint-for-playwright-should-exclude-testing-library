@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Correctly configure eslint to lint `src/features/verbum-comments/tests/` as Playwright tests, not Testing-library.
+
+

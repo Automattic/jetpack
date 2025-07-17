@@ -6,7 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
@@ -27,13 +27,15 @@ type CoreStore = typeof coreStore & {
 const EmptySpamButton = (): JSX.Element => {
 	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
-
+	const [ isEmpty, setIsEmpty ] = useState( true );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
 
 	const { selectedResponsesCount, currentQuery, totalItemsSpam, isLoadingData } = useInboxData();
 
-	const isEmpty = ! isLoadingData && totalItemsSpam === 0;
+	useEffect( () => {
+		setIsEmpty( isLoadingData || ! totalItemsSpam );
+	}, [ totalItemsSpam, isLoadingData ] );
 
 	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
 	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
