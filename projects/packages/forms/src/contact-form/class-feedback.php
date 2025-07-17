@@ -193,7 +193,6 @@ class Feedback {
 
 		$this->entry = Feedback_Entry::from_submission( $current_post, $current_page_number );
 		// If post_data is provided, use it to populate fields.
-		$this->status          = $this->status;
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
 		$this->subject         = $this->get_computed_subject( $post_data, $form );
@@ -935,7 +934,7 @@ class Feedback {
 	 *
 	 * @param array        $post_data The post data from the form submission.
 	 * @param Contact_Form $form The form object.
-	 * @return string
+	 * @return bool
 	 */
 	private function get_computed_consent( $post_data, $form ) {
 		$field_ids = $form->get_field_ids();

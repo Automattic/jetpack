@@ -88,10 +88,6 @@ class Feedback_Field_Test extends BaseTestCase {
 
 		$this->assertNull( $unserialized );
 
-		$unserialized = Feedback_Field::from_serialized( 'howdy' );
-
-		$this->assertNull( $unserialized );
-
 		$unserialized = Feedback_Field::from_serialized( array( 'value' => 'test_value' ) );
 
 		$this->assertNull( $unserialized );

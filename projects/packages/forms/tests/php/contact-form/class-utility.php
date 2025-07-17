@@ -11,14 +11,15 @@ class Utility {
 	 *
 	 * This function creates a mock feedback post in the legacy format used by Jetpack Contact Form.
 	 *
-	 * @param array  $all_values               An associative array of field values.
-	 * @param string $comment_content          The content of the comment.
-	 * @param string $comment_author           The name of the comment author.
-	 * @param string $comment_author_email     The email of the comment author.
-	 * @param string $comment_author_url       The URL of the comment author.
-	 * @param string $comment_ip_text          The IP address of the comment author.
-	 * @param string $subject                  The subject of the feedback.
-	 * @param string $status                   The status of the post (default is 'publish').
+	 * @param array       $all_values               An associative array of field values.
+	 * @param string|null $comment_content          The content of the comment.
+	 * @param string|null $comment_author           The name of the comment author.
+	 * @param string|null $comment_author_email     The email of the comment author.
+	 * @param string|null $comment_author_url       The URL of the comment author.
+	 * @param string|null $comment_ip_text          The IP address of the comment author.
+	 * @param string|null $subject                  The subject of the feedback.
+	 * @param string|null $status                   The status of the post (default is 'publish').
+	 *
 	 * @return int|WP_Error The ID of the created post on success, or a WP_Error object on failure.
 	 */
 	public static function create_legacy_feedback(
