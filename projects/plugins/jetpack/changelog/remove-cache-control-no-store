@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove redundant setting of no-store directive on Cache-Control response header on Jetpack admin screen
