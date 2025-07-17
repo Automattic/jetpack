@@ -28,7 +28,8 @@ if ( process.env.CI ) {
 	);
 }
 
-process.env.STORAGE_STATE_PATH = `${ rootPath }../.state/storage-state.json`;
+process.env.STORAGE_STATE_DIR_PATH = `${ rootPath }../.state`;
+process.env.STORAGE_STATE_PATH = `${ process.env.STORAGE_STATE_DIR_PATH }/storage-state.json`;
 
 // Fail early if the required test site config is not defined
 // Let config lib throw by using get function on an undefined property
@@ -53,12 +54,13 @@ export const setupProjects = [
 		name: 'connection setup',
 		testDir: `${ rootPath }../fixtures`,
 		testMatch: 'connection.setup.ts',
+		dependencies: [ 'global authentication' ],
 	},
 ];
 
 const playwrightConfig = defineConfig( {
 	timeout: 300000,
-	retries: process.env.CI ? 2 : 0,
+	retries: process.env.CI ? 1 : 0,
 	workers: 1,
 	outputDir: config.get( 'dirs.results' ),
 	reporter,

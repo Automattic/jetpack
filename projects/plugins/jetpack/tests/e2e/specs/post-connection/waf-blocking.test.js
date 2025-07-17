@@ -12,10 +12,8 @@ test.describe.parallel( 'WAF Blocking', () => {
 		 * the API for now. See tools/e2e-commons/plugins/e2e-waf-data-interceptor.php for details.
 		 */
 		await prerequisitesBuilder( page )
-			.withCleanEnv()
 			.withWpComLoggedIn( true )
 			.withLoggedIn( true )
-			.withConnection( true )
 			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'waf' ] )
 			.build();

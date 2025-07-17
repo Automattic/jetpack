@@ -4,12 +4,7 @@ import logger from '_jetpack-e2e-commons/logger.js';
 import { BlockEditorPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 
 test.beforeEach( async ( { page } ) => {
-	await prerequisitesBuilder( page )
-		.withCleanEnv()
-		.withLoggedIn( true )
-		.withWpComLoggedIn( true )
-		.withConnection( true )
-		.build();
+	await prerequisitesBuilder( page ).withLoggedIn( true ).withWpComLoggedIn( true ).build();
 } );
 
 test.describe( 'Editor sidebar: Social', () => {

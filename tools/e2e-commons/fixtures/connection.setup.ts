@@ -1,9 +1,13 @@
 /**
  * Internal dependencies
  */
-import { ensureConnectedState } from '../env/prerequisites.js';
-import { test as setup } from './base-test.ts';
+import { connect, saveJetpackPrivateOptionsToStorageState } from '../utils/connection-utils.ts';
+import { expect, test } from './base-test.ts';
 
-setup( 'connect site', async () => {
-	await ensureConnectedState( true );
+test( 'connect site', async ( { restApi } ) => {
+	await connect();
+
+	expect( restApi.rest( { path: 'jetpack/v4/connection/check' } ) ).toBeDefined();
+
+	await saveJetpackPrivateOptionsToStorageState();
 } );

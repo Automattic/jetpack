@@ -19,8 +19,6 @@ test.describe.parallel( 'Compromised Password Detection', () => {
 		await prerequisitesBuilder( page )
 			.withInactiveModules( [ 'protect', 'sso' ] )
 			.withActiveModules( [ 'account-protection' ] )
-			.withCleanEnv()
-			.withConnection( true )
 			.build();
 
 		await insertTestUsers();
@@ -153,11 +151,9 @@ test.describe.parallel( 'Strong password requirements', () => {
 		const page = await browser.newPage( playwrightConfig.use );
 
 		await prerequisitesBuilder( page )
-			.withCleanEnv()
 			.withLoggedIn( true )
 			.withInactiveModules( [ 'protect', 'sso' ] )
 			.withActiveModules( [ 'account-protection' ] )
-			.withConnection( true )
 			.build();
 
 		await page.close();

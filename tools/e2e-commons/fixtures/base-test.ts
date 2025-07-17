@@ -1,20 +1,33 @@
 /**
  * External dependencies
  */
-import { test as baseTest, expect } from '@wordpress/e2e-test-utils-playwright';
+import { test as baseTest, expect, RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import { allure } from 'allure-playwright';
 /**
  * Internal dependencies
  */
-import { execWpCommand } from '../helpers/utils-helper.js';
+import { execWpCommand, getSiteCredentials } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 
 const test = baseTest.extend( {
+	// storageState: process.env.STORAGE_STATE_PATH,
+
 	page: async ( { page }, use ) => {
 		page.on( 'pageerror', exception => {
 			logger.debug( `Page error: "${ exception }"` );
 		} );
 		await use( page );
+	},
+
+	restApi: async ( {}, use ) => {
+		const creds = getSiteCredentials();
+		const requestUtils = await RequestUtils.setup( {
+			user: {
+				username: creds.username,
+				password: creds.password,
+			},
+		} );
+		await use( requestUtils );
 	},
 } );
 

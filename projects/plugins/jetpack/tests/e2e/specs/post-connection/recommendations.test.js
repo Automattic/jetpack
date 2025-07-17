@@ -1,17 +1,11 @@
-import { Plans, prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
+import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { RecommendationsPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '../../playwright.config.mjs';
 
 test.beforeAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
-	await prerequisitesBuilder( page )
-		.withCleanEnv()
-		.withLoggedIn( true )
-		.withWpComLoggedIn( true )
-		.withConnection( true )
-		.withPlan( Plans.Free )
-		.build();
+	await prerequisitesBuilder( page ).withLoggedIn( true ).withWpComLoggedIn( true ).build();
 	await page.close();
 } );
 
