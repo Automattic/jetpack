@@ -62,6 +62,10 @@ class Cornerstone_Pages implements Has_Setup {
 		$urls = array_unique( array_merge( $woocommerce_pages, $yoast_cornerstone_pages ) );
 		$urls = array_map( 'untrailingslashit', $urls );
 
+		// An empty string represents the home page.
+		// Remove it if it's in the list since the home page is a predefined page.
+		$urls = array_filter( $urls );
+
 		return array_slice( $urls, 0, $max_pages );
 	}
 
