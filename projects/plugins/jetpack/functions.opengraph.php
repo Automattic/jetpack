@@ -536,6 +536,52 @@ function jetpack_og_get_site_fallback_blank_image() {
 }
 
 /**
+ * Get available templates for Social Image Generator.
+ *
+ * @since $$next-version$$
+ *
+ * @return array The available templates.
+ */
+function jetpack_og_get_available_templates() {
+	if ( ! class_exists( '\Automattic\Jetpack\Publicize\Social_Image_Generator\Templates' ) ) {
+		return array();
+	}
+
+	return \Automattic\Jetpack\Publicize\Social_Image_Generator\Templates::TEMPLATES;
+}
+
+/**
+ * Get a social image token from Social Image Generator.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $site_title The site title.
+ * @param string $image_url The image URL.
+ * @param string $template The template to use.
+ *
+ * @return string|WP_Error The social image token, or a WP_Error if the token could not be generated.
+ */
+function jetpack_og_get_social_image_token( $site_title, $image_url, $template ) {
+	/**
+	 * Filter the social image token for testing purposes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|WP_Error|null $token The token to return, or null to use default behavior.
+	 */
+	$token = apply_filters( 'jetpack_og_get_social_image_token', null );
+	if ( null !== $token ) {
+		return $token;
+	}
+
+	if ( ! function_exists( '\Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token' ) ) {
+		return new WP_Error( 'jetpack_og_get_social_image_token_error', __( 'Social Image Generator is not available.', 'jetpack' ) );
+	}
+
+	return \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
+}
+
+/**
  * Generate and create a fallback social image.
  *
  * @param array  $representative_image The representative image of the site.
@@ -551,18 +597,11 @@ function jetpack_og_generate_fallback_social_image( $representative_image, $temp
 		'height' => $representative_image['height'],
 	);
 
-	if (
-		! function_exists( '\Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token' )
-		|| ! class_exists( '\Automattic\Jetpack\Publicize\Social_Image_Generator\Templates' )
-	) {
-		return $fallback_image;
-	}
-
 	// Ensure that we use a valid template.
 	if (
 		! in_array(
 			$template,
-			\Automattic\Jetpack\Publicize\Social_Image_Generator\Templates::TEMPLATES,
+			jetpack_og_get_available_templates(),
 			true
 		)
 	) {
@@ -570,11 +609,7 @@ function jetpack_og_generate_fallback_social_image( $representative_image, $temp
 	}
 
 	// Let's generate the token matching the image..
-	$token = \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token(
-		$site_title,
-		$representative_image['src'],
-		$template
-	);
+	$token = jetpack_og_get_social_image_token( $site_title, $representative_image['src'], $template );
 
 	if ( is_wp_error( $token ) ) {
 		return $fallback_image;
