@@ -1175,19 +1175,10 @@ on production builds, the attributes are being reordered, causing side-effects
   width: 1px;
 }
 
-.contact-form.is-ajax-form.is-submitted {
+.contact-form.is-ajax-form.submission-success {
 	display: none;
 }
 
-.contact-form-ajax-submission:not(.is-submitted) {
+.contact-form-ajax-submission:not(.submission-success) {
 	display: none;
-}
-
-.wp-block-jetpack-contact-form-container:not(.has-loaded) {
-	opacity: 0;
-}
-
-.wp-block-jetpack-contact-form-container {
-	opacity: 1;
-	transition: opacity 0.3s ease-in-out;
 }
