@@ -5,8 +5,6 @@
  * @package automattic/jetpack-mu-plugins
  */
 
-use Automattic\Jetpack\Status\Host;
-
 /**
  * Check if the WPCom Command Palette should be loaded.
  *
@@ -72,7 +70,7 @@ function wpcom_load_command_palette() {
 			'isPrivate'        => $jetpack_status->is_private_site(),
 			'isComingSoon'     => $jetpack_status->is_coming_soon(),
 			'capabilities'     => get_userdata( get_current_user_id() )->allcaps,
-			'isP2'             => ( new Host() )->is_p2_site(),
+			'isP2'             => $host->is_p2_site(),
 			'shouldUseWpAdmin' => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
 			'siteHostname'     => wpcom_get_site_slug(),
 			'siteName'         => get_option( 'blogname' ),
