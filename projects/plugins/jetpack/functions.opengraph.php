@@ -546,7 +546,7 @@ function jetpack_og_get_site_fallback_blank_image() {
 function jetpack_og_generate_fallback_social_image( $representative_image, $template ) {
 	$site_title     = get_bloginfo( 'name' );
 	$fallback_image = array(
-		'src'    => '',
+		'src'    => $representative_image['src'],
 		'width'  => $representative_image['width'],
 		'height' => $representative_image['height'],
 	);
