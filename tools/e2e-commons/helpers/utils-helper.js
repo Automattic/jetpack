@@ -56,7 +56,7 @@ export async function resetWordpressInstall() {
 /**
  * Cancel partner plan
  */
-async function cancelPartnerPlan() {
+export async function cancelPartnerPlan() {
 	logger.step( `Cancelling partner plan` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 	const cmd = `sh /usr/local/src/jetpack-monorepo/tools/partner-cancel.sh -- --partner_id=${ clientID } --partner_secret=${ clientSecret } --allow-root`;

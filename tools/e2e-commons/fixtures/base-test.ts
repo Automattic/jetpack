@@ -12,7 +12,7 @@ import logger from '../logger.js';
 const test = baseTest.extend( {
 	page: async ( { page }, use ) => {
 		page.on( 'pageerror', exception => {
-			logger.debug( `Page error: "${ exception }"` );
+			logger.error( `Page error: "${ exception }"` );
 		} );
 		await use( page );
 	},
