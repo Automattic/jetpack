@@ -3,7 +3,6 @@
 
 .jetpack-field-rating {
 	position: relative;
-	display: inline-flex;
 
 	&:not(:hover) .jetpack-field-rating__label input[type="radio"].jetpack-field-rating__input:checked,
 	.jetpack-field-rating__label:hover,
