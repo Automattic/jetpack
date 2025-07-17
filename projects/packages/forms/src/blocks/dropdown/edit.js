@@ -19,17 +19,14 @@ const BLOCKS_TEMPLATE = [
 
 export default function DropdownEdit() {
 	const blockProps = useBlockProps( { className: 'jetpack-field-dropdown__popover' } );
-	const innerBlocksProps = useInnerBlocksProps( blockProps );
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		__experimentalCaptureToolbars: true,
+		defaultBlock: DEFAULT_BLOCK,
+		directInsert: true,
+		renderAppender: InnerBlocks.DefaultBlockAppender,
+		template: BLOCKS_TEMPLATE,
+		templateLock: false,
+	} );
 
-	return (
-		<div { ...innerBlocksProps }>
-			<InnerBlocks
-				template={ BLOCKS_TEMPLATE }
-				defaultBlock={ DEFAULT_BLOCK }
-				directInsert={ true }
-				templateLock={ false }
-				renderAppender={ InnerBlocks.DefaultBlockAppender }
-			/>
-		</div>
-	);
+	return <div { ...innerBlocksProps }>{ innerBlocksProps.children }</div>;
 }
