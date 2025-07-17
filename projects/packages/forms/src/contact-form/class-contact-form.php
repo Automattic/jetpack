@@ -220,8 +220,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return Contact_Form|null The contact form instance or null if not found.
 	 */
 	public static function get_instance_from_jwt( $jwt_token ) {
+		$secret = self::get_secret();
+		if ( empty( $secret ) ) {
+			return null;
+		}
+
 		try {
-			$data = JWT::decode( $jwt_token, self::get_secret(), array( 'HS256' ) );
+			$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ) );
 		} catch ( \Exception $e ) {
 			return null;
 		}
