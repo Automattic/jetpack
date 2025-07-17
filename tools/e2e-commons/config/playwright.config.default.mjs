@@ -65,7 +65,6 @@ const playwrightConfig = defineConfig( {
 	outputDir: config.get( 'dirs.results' ),
 	reporter,
 	forbidOnly: !! process.env.CI,
-	globalSetup: `${ rootPath }/global-setup.mjs`,
 	use: {
 		baseURL: resolveSiteUrl(),
 		headless: true,
