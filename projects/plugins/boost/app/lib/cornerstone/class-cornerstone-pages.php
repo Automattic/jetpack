@@ -19,9 +19,15 @@ class Cornerstone_Pages implements Has_Setup {
 		add_action( 'init', array( $this, 'set_default_pages' ), 0 );
 	}
 
+	/**
+	 * Set the default pages for the first time Boost is running on the website.
+	 */
 	public function set_default_pages() {
-		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
-		if ( empty( $pages ) ) {
+		// Since the DS store always returns an empty array, we can't know if the user
+		// wants an empty list of pages or this is the first time Boost is running on the website
+		// and we need to actually load the default pages.
+		$raw_pages = get_option( 'jetpack_boost_ds_cornerstone_pages_list' );
+		if ( $raw_pages === false ) {
 			jetpack_boost_ds_set( 'cornerstone_pages_list', $this->default_pages() );
 		}
 	}
