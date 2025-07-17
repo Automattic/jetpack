@@ -178,7 +178,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'user-new.php', $submenu['users.php'][2][2] );
 		$this->assertSame( 'profile.php', $submenu['users.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][4][2] );
 		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][5][2] );
 	}
 

@@ -173,7 +173,6 @@ class WPcom_Admin_Menu_Test extends TestCase {
 		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][2][2] );
 	}
 
 	/**

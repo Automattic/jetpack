@@ -1,6 +1,4 @@
 import { __ } from '@wordpress/i18n';
-// eslint-disable-next-line lodash/import-scope
-import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { Fragment, useState, useEffect, useRef } from 'react';
 import { OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME } from '../lib/constants';
@@ -14,8 +12,10 @@ const stealFocusWithInput = inputElement => () => {
 };
 const restoreFocus = () => initiallyFocusedElement && initiallyFocusedElement.focus();
 
+let searchBoxCounter = 0;
+
 const SearchBox = props => {
-	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
+	const [ inputId ] = useState( () => `jetpack-instant-search__box-input-${ ++searchBoxCounter }` );
 	const inputRef = useRef( null );
 
 	useEffect( () => {

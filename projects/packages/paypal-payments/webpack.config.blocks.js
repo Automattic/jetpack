@@ -15,6 +15,7 @@ const sharedWebpackConfig = {
 	entry: {
 		'block/editor': './src/block/editor.js',
 		'legacy-simple-payments': './src/legacy/simple-payments.css',
+		'paypal-payment-buttons/editor': './src/paypal-payment-buttons/editor.js',
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -85,6 +86,11 @@ module.exports = [
 					{
 						from: 'src/block/**/block.json',
 						to: 'block/[name][ext]',
+						noErrorOnMissing: true,
+					},
+					{
+						from: 'src/paypal-payment-buttons/block.json',
+						to: 'paypal-payment-buttons/[name][ext]',
 						noErrorOnMissing: true,
 					},
 				],

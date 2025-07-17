@@ -63,6 +63,7 @@ class Current_Plan {
 				'core/video',
 				'core/cover',
 				'core/audio',
+				'multistep-form',
 			),
 		),
 		'personal' => array(
