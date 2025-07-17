@@ -1242,6 +1242,20 @@ class Contact_Form_Plugin {
 
 		return $output;
 	}
+
+	/**
+	 * Render the dropdown field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the dropdown in select field.
+	 */
+	public static function gutenblock_render_dropdown( $atts, $content ) {
+
+		return $content;
+	}
+
 	/**
 	 * Render the dropzone field.
 	 *

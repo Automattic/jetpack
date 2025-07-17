@@ -4,6 +4,7 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox';
 import DeprecatedOptionRadio from '../deprecated/field-option-radio';
+import JetpackDropdown from '../dropdown';
 import JetpackDropzone from '../dropzone';
 import JetpackCheckboxField from '../field-checkbox';
 import JetpackConsentField from '../field-consent/';
@@ -42,6 +43,7 @@ import JetpackOptions from '../options';
 export const childBlocks = [
 	JetpackLabel,
 	JetpackDropzone,
+	JetpackDropdown,
 	JetpackInput,
 	JetpackOption,
 	JetpackOptions,

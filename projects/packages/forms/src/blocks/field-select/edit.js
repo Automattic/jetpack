@@ -52,13 +52,14 @@ export default function DropdownFieldEdit( props ) {
 				'jetpack/input',
 				{ type: 'dropdown', placeholder: __( 'Select one option', 'jetpack-forms' ) },
 			],
+			[ 'jetpack/dropdown', { options, lock: { move: true, remove: true } } ],
 		];
-	}, [ required ] );
+	}, [ required, options ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-dropdown__wrapper' },
 		{
-			allowedBlocks: ALLOWED_INNER_BLOCKS,
+			allowedBlocks: [ ...ALLOWED_INNER_BLOCKS, 'jetpack/dropdown' ],
 			template,
 			templateLock: 'all',
 		}
