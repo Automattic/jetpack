@@ -3,8 +3,9 @@ import {
 	store as blockEditorStore,
 	useBlockProps,
 	useInnerBlocksProps,
+	InspectorControls,
 } from '@wordpress/block-editor';
-import { Icon, Button, Flex, FlexItem } from '@wordpress/components';
+import { PanelBody, Icon, Button, Flex, FlexItem } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,6 +17,7 @@ import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { getCaretPosition } from '../shared/util/caret';
 import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
 import setFocus from '../shared/util/set-focus';
+import { europeanUnionCountries, usStates, usStatesShort, currencies } from './lists';
 
 const noop = () => undefined;
 
@@ -148,6 +150,21 @@ export default function DropdownFieldEdit( props ) {
 		changeFocus( Math.max( index - 1, 0 ), true );
 	};
 
+	const PrefillListButton = ( { list, children } ) => (
+		<Button
+			isSecondary
+			onClick={ () => {
+				setAttributes( {
+					// Sorting is needed because translated lists might need different order from original
+					options: list.sort(),
+				} );
+				changeFocus( 0 );
+			} }
+		>
+			{ children }
+		</Button>
+	);
+
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
@@ -189,6 +206,23 @@ export default function DropdownFieldEdit( props ) {
 				width={ width }
 				type="dropdown"
 			/>
+			<InspectorControls>
+				<PanelBody title={ __( 'Lists', 'jetpack-forms' ) }>
+					<p>{ __( 'Pick pre-created lists to use', 'jetpack-forms' ) }</p>
+					<PrefillListButton list={ europeanUnionCountries }>
+						{ __( 'European union countries', 'jetpack-forms' ) }
+					</PrefillListButton>
+					<PrefillListButton list={ usStates }>
+						{ __( 'US states and territories', 'jetpack-forms' ) }
+					</PrefillListButton>
+					<PrefillListButton list={ usStatesShort }>
+						{ __( 'US states and territories (short)', 'jetpack-forms' ) }
+					</PrefillListButton>
+					<PrefillListButton list={ currencies }>
+						{ __( 'Currencies', 'jetpack-forms' ) }
+					</PrefillListButton>
+				</PanelBody>
+			</InspectorControls>
 		</div>
 	);
 }
