@@ -99,10 +99,14 @@ describe( 'Edit', () => {
 			buttonText: '',
 		},
 		setAttributes: jest.fn(),
+		isSelected: true,
 	};
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+
+		// Mock window.ajaxurl for iframe preview
+		global.window.ajaxurl = 'https://example.com/wp-admin/admin-ajax.php';
 	} );
 
 	it( 'renders without crashing', () => {
@@ -132,6 +136,7 @@ describe( 'Edit', () => {
 					buttonType: 'single',
 				} }
 				setAttributes={ defaultProps.setAttributes }
+				isSelected={ true }
 			/>
 		);
 
@@ -142,7 +147,13 @@ describe( 'Edit', () => {
 
 	it( 'updates buttonType when toggle is clicked', () => {
 		const setAttributes = jest.fn();
-		render( <Edit attributes={ defaultProps.attributes } setAttributes={ setAttributes } /> );
+		render(
+			<Edit
+				attributes={ defaultProps.attributes }
+				setAttributes={ setAttributes }
+				isSelected={ true }
+			/>
+		);
 
 		fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
 		expect( setAttributes ).toHaveBeenCalledWith( {
@@ -153,7 +164,11 @@ describe( 'Edit', () => {
 	it( 'updates scriptSrc when head code is entered', () => {
 		const setAttributes = jest.fn();
 		render(
-			<Edit attributes={ { ...defaultProps.attributes } } setAttributes={ setAttributes } />
+			<Edit
+				attributes={ { ...defaultProps.attributes } }
+				setAttributes={ setAttributes }
+				isSelected={ true }
+			/>
 		);
 
 		const inputs = screen.getAllByTestId( 'plain-text' );
@@ -171,7 +186,11 @@ describe( 'Edit', () => {
 	it( 'updates hostedButtonId when body code is entered', () => {
 		const setAttributes = jest.fn();
 		render(
-			<Edit attributes={ { ...defaultProps.attributes } } setAttributes={ setAttributes } />
+			<Edit
+				attributes={ { ...defaultProps.attributes } }
+				setAttributes={ setAttributes }
+				isSelected={ true }
+			/>
 		);
 
 		const inputs = screen.getAllByTestId( 'plain-text' );
@@ -196,6 +215,7 @@ describe( 'Edit', () => {
 			<Edit
 				attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
 				setAttributes={ setAttributes }
+				isSelected={ true }
 			/>
 		);
 
@@ -350,6 +370,7 @@ describe( 'Edit', () => {
 						buttonType: 'single',
 					} }
 					setAttributes={ defaultProps.setAttributes }
+					isSelected={ true }
 				/>
 			);
 			const items = screen.getAllByTestId( 'item' );
@@ -359,6 +380,100 @@ describe( 'Edit', () => {
 				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
 			);
 			expect( items[ 2 ] ).toHaveTextContent( '3. Paste the code below.' );
+		} );
+	} );
+
+	describe( 'Preview Functionality', () => {
+		it( 'shows no preview for stacked buttons', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'stacked',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			// Should show the configuration form since stacked button previews are disabled
+			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows direct button preview when block is not selected and has valid single button data', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: 'Buy Now',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			// Single button should render directly, not in iframe
+			const button = screen.getByDisplayValue( 'Buy Now' );
+			expect( button ).toBeInTheDocument();
+			expect( button ).toHaveAttribute( 'type', 'button' );
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows placeholder when block is not selected but data is invalid', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: '',
+						buttonText: '',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			// Should show the configuration form, not the preview
+			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows settings form when block is selected', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: 'Buy Now',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ true }
+				/>
+			);
+
+			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows preview placeholder message when data is incomplete', () => {
+			// Mock the preview component to show up, but with incomplete data
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: '', // Missing button ID
+						buttonText: '',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			// Should show the configuration form since data is incomplete
+			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );
