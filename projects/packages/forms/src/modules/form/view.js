@@ -238,6 +238,10 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			return !! context.submissionData && context.isResponseWithoutReloadEnabled;
 		},
+
+		get hasLoaded() {
+			return true;
+		},
 	},
 
 	actions: {
@@ -344,11 +348,20 @@ const { state } = store( NAMESPACE, {
 				event.preventDefault();
 				event.stopPropagation();
 
-				const { success, error, data } = yield submitForm( context.formHash );
+				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
 
 				if ( success ) {
 					context.submissionData = data;
 					context.submissionError = null;
+
+					if ( refreshArgs ) {
+						const url = new URL( window.location.href );
+						url.searchParams.set( 'contact-form-id', refreshArgs[ 'contact-form-id' ] );
+						url.searchParams.set( 'contact-form-sent', refreshArgs[ 'contact-form-sent' ] );
+						url.searchParams.set( 'contact-form-hash', refreshArgs[ 'contact-form-hash' ] );
+						url.searchParams.set( '_wpnonce', refreshArgs._wpnonce );
+						window.history.replaceState( null, '', url.toString() );
+					}
 				} else {
 					context.submissionError = error;
 					context.submissionData = null;
@@ -408,6 +421,13 @@ const { state } = store( NAMESPACE, {
 			context.submissionData = null;
 			context.submissionError = null;
 			context.hasClickedBack = true;
+			// Remove the refresh args from the URL.
+			const url = new URL( window.location.href );
+			url.searchParams.delete( 'contact-form-id' );
+			url.searchParams.delete( 'contact-form-sent' );
+			url.searchParams.delete( 'contact-form-hash' );
+			url.searchParams.delete( '_wpnonce' );
+			window.history.replaceState( null, '', url.toString() );
 		},
 	},
 

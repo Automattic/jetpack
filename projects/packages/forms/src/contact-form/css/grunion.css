@@ -226,6 +226,7 @@
 .contact-form-submission .go-back-message .link {
 	font-weight: 200;
 	color: inherit;
+	cursor: pointer;
 }
 
 .contact-form-submission .field-name {
@@ -1180,4 +1181,13 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form-ajax-submission:not(.is-submitted) {
 	display: none;
+}
+
+.wp-block-jetpack-contact-form-container:not(.has-loaded) {
+	opacity: 0;
+}
+
+.wp-block-jetpack-contact-form-container {
+	opacity: 1;
+	transition: opacity 0.3s ease-in-out;
 }
