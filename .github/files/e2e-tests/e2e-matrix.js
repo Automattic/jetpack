@@ -5,7 +5,7 @@ const projects = [
 	{
 		project: 'Jetpack onboarding',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ '--project="jetpack core onboarding e2e"' ],
+		testArgs: [ '--project=jetpack core onboarding e2e' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
 		buildGroup: 'jetpack-core',
@@ -13,7 +13,7 @@ const projects = [
 	{
 		project: 'Jetpack core',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ '--project="jetpack core e2e"' ],
+		testArgs: [ '--project=jetpack core e2e' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
 		buildGroup: 'jetpack-core',
