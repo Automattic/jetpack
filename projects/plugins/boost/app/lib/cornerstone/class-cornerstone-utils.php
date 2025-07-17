@@ -122,7 +122,7 @@ class Cornerstone_Utils {
 	 * @return string[] The processed URLs.
 	 */
 	public static function maybe_trailing_slash_urls( $urls ) {
-		$permalink_structure = get_option( 'permalink_structure' );
+		$permalink_structure = \get_option( 'permalink_structure' );
 
 		// If permalink structure ends with slash, add trailing slashes.
 		if ( $permalink_structure && substr( $permalink_structure, -1 ) === '/' ) {
