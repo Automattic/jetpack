@@ -414,12 +414,6 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
 	}
 
-	// Let's check if we have a cached image.
-	$fallback_image = get_transient( 'jetpack_og_fallback_social_image_' . $site_image['type'] );
-	if ( ! empty( $fallback_image ) ) {
-		return $fallback_image;
-	}
-
 	/**
 	 * Allow filtering the template to use with Social Image Generator.
 	 * Available templates: highway, dois, fullscreen, edge.
@@ -441,9 +435,6 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 			'height' => $height,
 		);
 	}
-
-	// If we have an image, cache it for a day.
-	set_transient( 'jetpack_og_fallback_social_image_' . $site_image['type'], $image, DAY_IN_SECONDS );
 
 	return $image;
 }
@@ -562,6 +553,15 @@ function jetpack_og_get_available_templates() {
  * @return string|WP_Error The social image token, or a WP_Error if the token could not be generated.
  */
 function jetpack_og_get_social_image_token( $site_title, $image_url, $template ) {
+	// Let's check if we have a cached token.
+	$cache_key      = md5( $site_title . $image_url . $template );
+	$transient_name = 'jetpack_og_social_image_token_' . $cache_key;
+	$cached_token   = get_transient( $transient_name );
+
+	if ( ! empty( $cached_token ) ) {
+		return $cached_token;
+	}
+
 	/**
 	 * Filter the social image token for testing purposes.
 	 *
@@ -578,7 +578,12 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 		return new WP_Error( 'jetpack_og_get_social_image_token_error', __( 'Social Image Generator is not available.', 'jetpack' ) );
 	}
 
-	return \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
+	$token = \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
+
+	// If we have a token, cache it for a day.
+	set_transient( $transient_name, $token, DAY_IN_SECONDS );
+
+	return $token;
 }
 
 /**
