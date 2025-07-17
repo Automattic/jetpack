@@ -3,20 +3,44 @@ const fs = require( 'fs' );
 
 const projects = [
 	{
-		project: 'Jetpack onboarding',
+		project: 'Jetpack Core - onboarding',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ '--project=jetpack core onboarding e2e' ],
+		testArgs: [ 'specs/onboarding' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
 		buildGroup: 'jetpack-core',
 	},
 	{
-		project: 'Jetpack core',
+		project: 'Jetpack Core - post-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ '--project=jetpack core e2e' ],
+		testArgs: [ 'specs/post-connection' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
 		buildGroup: 'jetpack-core',
+	},
+	{
+		project: 'Jetpack Core - post editor',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/editor' ],
+		targets: [ 'plugins/jetpack', 'packages/publicize' ],
+		suite: '',
+		buildGroup: 'jetpack-core',
+	},
+	{
+		project: 'Jetpack Core - forms',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/forms' ],
+		targets: [ 'plugins/jetpack', 'packages/forms' ],
+		suite: '',
+		buildGroup: 'jetpack-core',
+	},
+	{
+		project: 'Jetpack Core - sync',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/sync' ],
+		targets: [ 'packages/sync' ],
+		suite: '',
+		buildGroup: 'jetpack-sync',
 	},
 	{
 		project: 'Jetpack Boost - Base',
