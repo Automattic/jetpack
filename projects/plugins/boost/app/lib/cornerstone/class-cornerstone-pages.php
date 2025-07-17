@@ -26,7 +26,7 @@ class Cornerstone_Pages implements Has_Setup {
 		// Since the DS store always returns an empty array, we can't know if the user
 		// wants an empty list of pages or this is the first time Boost is running on the website
 		// and we need to actually load the default pages.
-		$raw_pages = get_option( 'jetpack_boost_ds_cornerstone_pages_list' );
+		$raw_pages = \get_option( 'jetpack_boost_ds_cornerstone_pages_list' );
 		if ( $raw_pages === false ) {
 			jetpack_boost_ds_set( 'cornerstone_pages_list', $this->default_pages() );
 		}
