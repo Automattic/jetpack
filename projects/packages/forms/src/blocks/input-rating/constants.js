@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { StarIcon, HeartIcon } from './icons';
 
 /**
  * Default glyph definitions.
@@ -8,11 +9,11 @@ import { __ } from '@wordpress/i18n';
  */
 export const DEFAULT_GLYPHS = {
 	stars: {
-		char: '★',
+		char: StarIcon,
 		label: __( 'Stars', 'jetpack-forms' ),
 	},
 	hearts: {
-		char: '♥',
+		char: HeartIcon,
 		label: __( 'Hearts', 'jetpack-forms' ),
 	},
 };

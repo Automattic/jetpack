@@ -1,10 +1,9 @@
 /* Rating input block – front-end styles (migrated from field-rating) */
-@import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .jetpack-field-rating {
 	position: relative;
 
-	&:not(:hover) .jetpack-field-rating__label input[type="radio"].jetpack-field-rating__input:checked,
+	&:not(:hover) .jetpack-field-rating__label:has(> input[type="radio"].jetpack-field-rating__input:checked),
 	.jetpack-field-rating__label:hover,
 	.jetpack-field-rating__label:has(~ .jetpack-field-rating__label:hover),
 	&:not(:hover) .jetpack-field-rating__label:has(~ .jetpack-field-rating__label .jetpack-field-rating__input:checked) {
@@ -21,20 +20,23 @@
 		font-style: normal;
 		color: var(--jetpack--contact-form--background-color, #fff);
 
-		// kludge to fix spacing between stars
-		.contact-form &:not(:first-of-type) input[type="radio"].jetpack-field-rating__input::before {
+		// spacing between symbols
+		&:not(:first-of-type) {
 			margin-left: 8px;
+		}
+
+		.jetpack-field-rating__icon {
+			width: 1em;
+			height: 1em;
+			display: block;
 		}
 	}
 
 	.contact-form & input[type="radio"].jetpack-field-rating__input {
-		margin: 0;
 		-webkit-appearance: none;
 		-moz-appearance: none;
 		appearance: none;
 		font-family: inherit;
-		width: auto;
-		height: auto;
 		font-size: inherit;
 		color: inherit;
 		cursor: pointer;
@@ -48,18 +50,13 @@
 			color: inherit;
 			-webkit-text-stroke: 2px var(--jetpack--contact-form--border-color, #8c8f94);
 		}
+		// Visually hide the actual radio but keep it accessible for screen readers
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+		margin: 0;
 	}
 }
 
-/* Hearts variation – override when style class is on the input block, the field wrapper, or the rating element itself. */
-:where(.wp-block-jetpack-field-rating.is-style-hearts),
-:where(.wp-block-jetpack-field-rating.is-style-hearts-wrap) .jetpack-field-rating,
-:where(.wp-block-jetpack-rating-input.is-style-hearts),
-:where(.jetpack-field-rating.is-style-hearts),
-.contact-form .jetpack-field-rating.is-style-hearts,
-.contact-form .is-style-hearts .jetpack-field-rating {
-
-  input[type="radio"].jetpack-field-rating__input::before {
-    content: "♥";
-  }
-} 
+/* Hearts variation – no extra styles needed since the heart shape is now an inline SVG */ 
