@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import config from 'config';
 import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper.js';
 
@@ -85,7 +85,10 @@ const playwrightConfig = defineConfig( {
 			// TODO - Enable strictSelectors once all tests are updated.
 			// strictSelectors: true,
 		},
-		storageState: process.env.STORAGE_STATE_PATH,
+		...devices[ 'Desktop Chrome' ],
+		storageState: fs.existsSync( process.env.STORAGE_STATE_PATH )
+			? process.env.STORAGE_STATE_PATH
+			: undefined,
 	},
 	reportSlowTests: null,
 } );
