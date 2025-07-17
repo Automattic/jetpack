@@ -594,7 +594,7 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
  * @param array  $representative_image The representative image of the site.
  * @param string $template The template to use.
  *
- * @return array The source ('src'), 'width', and 'height'of the image.
+ * @return array The source ('src'), 'width', and 'height' of the image.
  */
 function jetpack_og_generate_fallback_social_image( $representative_image, $template ) {
 	$site_title     = get_bloginfo( 'name' );
