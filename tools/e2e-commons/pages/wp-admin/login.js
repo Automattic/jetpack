@@ -1,11 +1,12 @@
-import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.js';
+import { getSiteCredentials } from '../../helpers/utils-helper.js';
 import logger from '../../logger.js';
+import pwConfig from '../../playwright.config.mjs';
 import { takeScreenshot } from '../../reporters/index.js';
 import WpPage from '../wp-page.js';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
-		const url = `${ resolveSiteUrl() }/wp-login.php`;
+		const url = `${ pwConfig.use[ 0 ].baseURL }/wp-login.php`;
 		super( page, { expectedSelectors: [ '#loginform' ], url } );
 	}
 

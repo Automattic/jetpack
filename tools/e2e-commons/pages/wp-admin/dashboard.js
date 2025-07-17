@@ -1,10 +1,10 @@
-import { resolveSiteUrl } from '../../helpers/utils-helper.js';
+import pwConfig from '../../playwright.config.mjs';
 import PageActions from '../page-actions.js';
 import WpPage from '../wp-page.js';
 
 export default class DashboardPage extends WpPage {
 	constructor( page ) {
-		const url = `${ resolveSiteUrl() }/wp-admin`;
+		const url = `${ pwConfig.use[ 0 ].baseURL }/wp-admin`;
 		super( page, { expectedSelectors: [ '#dashboard-widgets-wrap' ], url } );
 	}
 

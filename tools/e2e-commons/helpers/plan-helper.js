@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import config from 'config';
 import logger from '../logger.js';
-import { execWpCommand, resolveSiteUrl } from './utils-helper.js';
+import pwConfig from '../playwright.config.mjs';
+import { execWpCommand } from './utils-helper.js';
 
 /**
  * Persist plan data.
@@ -11,7 +12,7 @@ import { execWpCommand, resolveSiteUrl } from './utils-helper.js';
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteId = await getSiteId();
-	const planData = getPlanData( siteId, resolveSiteUrl(), planType );
+	const planData = getPlanData( siteId, pwConfig.use[ 0 ].baseURL, planType );
 	const planDatafilePath = path.resolve( config.get( 'temp.planData' ) );
 
 	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );

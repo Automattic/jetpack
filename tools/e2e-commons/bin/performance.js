@@ -4,7 +4,8 @@ import path from 'path';
 import { URL } from 'url';
 import { mergeWith } from 'lodash-es';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
-import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.js';
+import { execSyncShellCommand, execWpCommand } from '../helpers/utils-helper.js';
+import pwConfig from '../playwright.config.mjs';
 
 const __dirname = new URL( '.', import.meta.url ).pathname;
 
@@ -55,7 +56,7 @@ async function runTests( type, round ) {
 		cwd: gutenbergPath,
 		env: {
 			...process.env,
-			WP_BASE_URL: resolveSiteUrl(),
+			WP_BASE_URL: pwConfig.use[ 0 ].baseURL,
 			WP_ARTIFACTS_PATH: resultsPath,
 			RESULTS_ID: `${ type }.${ round }`,
 		},

@@ -1,9 +1,9 @@
-import { resolveSiteUrl } from '../../helpers/utils-helper.js';
+import pwConfig from '../../playwright.config.mjs';
 import WpPage from '../wp-page.js';
 
 export default class RecommendationsPage extends WpPage {
 	constructor( page ) {
-		const url = `${ resolveSiteUrl() }/wp-admin/admin.php?page=jetpack#/recommendations`;
+		const url = `${ pwConfig.use[ 0 ].baseURL }/wp-admin/admin.php?page=jetpack#/recommendations`;
 		super( page, { expectedSelectors: [ '[class^=jp-recommendations-]' ], url } );
 	}
 

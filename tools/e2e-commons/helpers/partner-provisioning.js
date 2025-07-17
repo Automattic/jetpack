@@ -3,7 +3,8 @@ import * as url from 'url';
 import config from 'config';
 import shellescape from 'shell-escape';
 import logger from '../logger.js';
-import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from './utils-helper.js';
+import pwConfig from '../playwright.config.mjs';
+import { execSyncShellCommand, execWpCommand } from './utils-helper.js';
 
 /**
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
@@ -20,7 +21,9 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	const cmd = `sh ${ path.resolve(
 		__dirname,
 		'../../partner-provision.sh'
-	) } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ resolveSiteUrl() } --wpcom_user_id=${ userId }`;
+	) } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${
+		pwConfig.use[ 0 ].baseURL
+	} --wpcom_user_id=${ userId }`;
 
 	let response;
 	// catch a command failed error so that secrets are not logged

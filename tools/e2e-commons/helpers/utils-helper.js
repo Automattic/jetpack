@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import config from 'config';
 import logger from '../logger.js';
+import pwConfig from '../playwright.config.mjs';
 const { E2E_DEBUG } = process.env;
 export const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';
 
@@ -92,7 +93,7 @@ export async function activateModule( page, module ) {
  * @return {Promise<string>} output
  */
 export async function execWpCommand( wpCmd, sendUrl = true ) {
-	const urlArgument = sendUrl ? `--url="${ resolveSiteUrl() }"` : '';
+	const urlArgument = sendUrl ? `--url="${ pwConfig.use[ 0 ].baseURL }"` : '';
 	const cmd = `${ BASE_DOCKER_CMD } wp -- ${ wpCmd } ${ urlArgument }`;
 	let result = await execShellCommand( cmd );
 
@@ -214,7 +215,7 @@ export function setWpEnvVars() {
 	const site = getConfigTestSite();
 	const storage = config.get( 'temp.storage' );
 
-	process.env.WP_BASE_URL = resolveSiteUrl();
+	process.env.WP_BASE_URL = pwConfig.use[ 0 ].baseURL;
 	process.env.WP_USERNAME = site.username;
 	process.env.WP_PASSWORD = site.password;
 	if ( storage ) {
@@ -332,13 +333,18 @@ export async function logEnvironment() {
 		}
 
 		const credentials = getSiteCredentials();
-		const plugins = await fetch( resolveSiteUrl() + '/index.php?rest_route=/wp/v2/plugins', {
-			headers: {
-				Authorization:
-					'Basic ' +
-					Buffer.from( credentials.username + ':' + credentials.apiPassword ).toString( 'base64' ),
-			},
-		} ).then( res => res.json() );
+		const plugins = await fetch(
+			pwConfig.use[ 0 ].baseURL + '/index.php?rest_route=/wp/v2/plugins',
+			{
+				headers: {
+					Authorization:
+						'Basic ' +
+						Buffer.from( credentials.username + ':' + credentials.apiPassword ).toString(
+							'base64'
+						),
+				},
+			}
+		).then( res => res.json() );
 
 		for ( const p of plugins ) {
 			env.plugins.push( {

@@ -1,12 +1,12 @@
-import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import WpPage from '_jetpack-e2e-commons/pages/wp-page.js';
+import pwConfig from '../playwright.config.mjs';
 
 export default class SearchHomepage extends WpPage {
 	static SEARCH_API_PATTERN =
 		/^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
 
 	constructor( page ) {
-		const url = `${ resolveSiteUrl() }/?result_format=expanded`;
+		const url = `${ pwConfig.use[ 0 ].baseURL }/?result_format=expanded`;
 		super( page, {
 			expectedSelectors: [ '.wp-block-search__input, .search-field' ],
 			url,

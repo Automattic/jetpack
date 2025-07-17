@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { resolveSiteUrl } from '../../../helpers/utils-helper.js';
 import logger from '../../../logger.js';
+import pwConfig from '../../../playwright.config.mjs';
 import { LoginPage, ConnectionsPage } from '../../wpcom/index.js';
 import EditorCanvas from './editor-canvas.js';
 
@@ -67,7 +67,7 @@ export default class MailchimpBlock extends EditorCanvas {
 			// Quick fix for redirect URL not working with site ID
 			const workingUrl = connectionsUrl.replace(
 				/\d+/,
-				resolveSiteUrl().replace( 'https://', '' )
+				pwConfig.use[ 0 ].baseURL.replace( 'https://', '' )
 			);
 			await wpComTab.goto( workingUrl );
 
@@ -118,7 +118,7 @@ export default class MailchimpBlock extends EditorCanvas {
 	async isMailchimpConnected() {
 		let connectionStatus = '';
 		try {
-			const url = `${ resolveSiteUrl() }/index.php?rest_route=/wpcom/v2/mailchimp&_locale=user`;
+			const url = `${ pwConfig.use[ 0 ].baseURL }/index.php?rest_route=/wpcom/v2/mailchimp&_locale=user`;
 			const res = await axios.get( url );
 			logger.debug( JSON.stringify( res.data ) );
 			connectionStatus = res.data.code;
