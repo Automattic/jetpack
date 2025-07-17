@@ -12,12 +12,14 @@ use PHPUnit\Framework\Attributes\Group;
  * @covers ::jetpack_og_get_description
  * @covers ::jetpack_og_remove_query_blocks
  * @covers ::jetpack_og_get_site_fallback_blank_image
+ * @covers ::jetpack_og_get_site_image
  * @group jetpack-opengraph
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
 #[CoversFunction( 'jetpack_og_get_description' )]
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
 #[CoversFunction( 'jetpack_og_get_site_fallback_blank_image' )]
+#[CoversFunction( 'jetpack_og_get_site_image' )]
 #[Group( 'jetpack-opengraph' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
@@ -434,5 +436,39 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 				},
 			),
 		);
+	}
+
+	/**
+	 * Test jetpack_og_get_site_image with different scenarios.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_jetpack_og_get_site_image() {
+		// Test blank fallback when no site images are set.
+		$result = jetpack_og_get_site_image( 200, 200 );
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'src', $result );
+		$this->assertArrayHasKey( 'width', $result );
+		$this->assertArrayHasKey( 'height', $result );
+		$this->assertArrayHasKey( 'type', $result );
+		$this->assertEquals( 'blank', $result['type'] );
+		$this->assertEquals( 200, $result['width'] );
+		$this->assertEquals( 200, $result['height'] );
+		$this->assertEmpty( $result['src'] );
+
+		// Test site icon with valid size.
+		update_option( 'site_icon', $this->icon_id );
+		$result = jetpack_og_get_site_image( 200, 200 );
+		$this->assertEquals( 'site_icon', $result['type'] );
+		$this->assertNotEmpty( $result['src'] );
+
+		// Test site icon with invalid size (too small).
+		$result = jetpack_og_get_site_image( 1000, 1000 );
+		$this->assertEquals( 'blank', $result['type'] );
+		$this->assertEmpty( $result['src'] );
+
+		// Clean up.
+		delete_option( 'site_icon' );
+		delete_option( 'site_logo' );
 	}
 }
