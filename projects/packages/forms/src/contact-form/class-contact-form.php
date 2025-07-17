@@ -893,7 +893,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Returns the JSON data for the form submission.
 	 *
 	 * @param int $feedback_id - the feedback ID.
-	 *
+	 * @param Contact_Form|null $form - the contact form object. This parameter is deprecated and no longer used.
 	 *
 	 * @return array $json_data
 	 */
@@ -914,7 +914,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @return array $raw_data Associative array where keys are field_index and values are arrays with 'label' and 'value'.
 	 */
-	private static function get_raw_compiled_form_data( $feedback_id ) {
+	private static function get_raw_compiled_form_data( $feedback_id, $form = null ) {
+		if ( $form ) {
+			// you are doing it wring, the $form parameter is deprecated and no longer used.
+			_deprecated_argument( __METHOD__, '$$next-version$$', 'The $form parameter is deprecated and no longer used.' );
+		}
 		$response = Feedback::get( $feedback_id );
 		return $response->get_compiled_fields();
 	}
