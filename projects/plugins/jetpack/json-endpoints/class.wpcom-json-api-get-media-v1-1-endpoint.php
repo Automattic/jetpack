@@ -50,6 +50,8 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint(
 
 /**
  * GET Media v1_1 endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { //phpcs:ignore
 	/**

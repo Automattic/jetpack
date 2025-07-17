@@ -12,6 +12,8 @@ use Automattic\Jetpack\Status\Host;
 
 /**
  * Jetpack_Carousel class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Carousel {
 	/**

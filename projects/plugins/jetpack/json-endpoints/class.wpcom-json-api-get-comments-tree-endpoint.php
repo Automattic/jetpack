@@ -30,6 +30,8 @@ new WPCOM_JSON_API_Get_Comments_Tree_Endpoint(
 );
 /**
  * GET comments tree endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

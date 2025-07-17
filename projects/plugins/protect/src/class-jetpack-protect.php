@@ -38,6 +38,8 @@ use Automattic\Jetpack\Waf\Waf_Stats;
 
 /**
  * Class Jetpack_Protect
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Protect {
 

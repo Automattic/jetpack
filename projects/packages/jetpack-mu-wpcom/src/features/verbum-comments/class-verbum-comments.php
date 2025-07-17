@@ -21,6 +21,8 @@ require_once __DIR__ . '/assets/class-verbum-block-utils.php';
  * Verbum Comments Experience
  *
  * This file loads the Verbum Comment user experience on WordPress.com and Jetpack sites.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Verbum_Comments {
 	/**

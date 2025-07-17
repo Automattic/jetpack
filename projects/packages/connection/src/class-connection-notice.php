@@ -12,6 +12,8 @@ use Automattic\Jetpack\Tracking;
 
 /**
  * Admin connection notices.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Connection_Notice {
 

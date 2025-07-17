@@ -4,6 +4,8 @@ use Automattic\Jetpack\Sync\Defaults;
 
 /**
  * Get option endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
