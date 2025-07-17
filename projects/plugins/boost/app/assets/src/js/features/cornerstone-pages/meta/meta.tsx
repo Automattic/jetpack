@@ -264,7 +264,7 @@ const List: FC< ListProps > = ( {
 			if ( pathname === siteUrl.pathname ) {
 				throw new Error(
 					__(
-						'The homepage does not need to be added to your custom list, as it is automatically included',
+						'The homepage does not need to be added to the list, as it is automatically included.',
 						'jetpack-boost'
 					)
 				);
