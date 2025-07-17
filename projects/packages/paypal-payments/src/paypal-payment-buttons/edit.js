@@ -150,6 +150,26 @@ const PayPalSingleButtonPreview = ( { buttonText } ) => {
 };
 
 /**
+ * Check if we have the required data for a preview (only single buttons)
+ *
+ * @param {object} attributes - The block attributes
+ * @return {boolean} Whether preview can be shown
+ */
+const canShowPreview = attributes => {
+	const { buttonType, hostedButtonId, buttonText } = attributes;
+
+	if ( ! hostedButtonId || ! validHostedButtonId( hostedButtonId ) ) {
+		return false;
+	}
+
+	if ( buttonType === 'single' ) {
+		return buttonText && validButtonText( buttonText );
+	}
+
+	return false;
+};
+
+/**
  * PayPal Preview component router
  *
  * @param {object} root0            - The component props
@@ -157,22 +177,9 @@ const PayPalSingleButtonPreview = ( { buttonText } ) => {
  * @return {Element|null} The PayPal preview component or null
  */
 const PayPalPreview = ( { attributes } ) => {
-	const { buttonType, hostedButtonId, buttonText } = attributes;
+	const { buttonType, buttonText } = attributes;
 
-	// Check if we have the required data for a preview (only single buttons)
-	const canShowPreview = () => {
-		if ( ! hostedButtonId || ! validHostedButtonId( hostedButtonId ) ) {
-			return false;
-		}
-
-		if ( buttonType === 'single' ) {
-			return buttonText && validButtonText( buttonText );
-		}
-
-		return false;
-	};
-
-	if ( ! canShowPreview() ) {
+	if ( ! canShowPreview( attributes ) ) {
 		return (
 			<div
 				style={ {
@@ -284,16 +291,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		if ( isSelected || notice ) {
 			return false;
 		}
-
-		if ( ! hostedButtonId || ! validHostedButtonId( hostedButtonId ) ) {
-			return false;
-		}
-
-		if ( buttonType === 'single' ) {
-			return buttonText && validButtonText( buttonText );
-		}
-
-		return false;
+		return canShowPreview( attributes );
 	};
 
 	return (
