@@ -404,13 +404,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
  */
 function jetpack_og_get_fallback_social_image( $width, $height ) {
 	// Default template.
-	$template   = 'edge';
-	$site_image = array(
-		'src'    => '',
-		'width'  => $width,
-		'height' => $height,
-		'type'   => 'blank',
-	);
+	$template = 'edge';
 
 	// Let's get the site's representative image.
 	$site_image = jetpack_og_get_site_image( $width, $height );
@@ -441,7 +435,11 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 
 	// Final fallback if everything else fails, the blank image.
 	if ( empty( $image['src'] ) ) {
-		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
+		return array(
+			'src'    => jetpack_og_get_site_fallback_blank_image(),
+			'width'  => $width,
+			'height' => $height,
+		);
 	}
 
 	// If we have an image, cache it for a day.
