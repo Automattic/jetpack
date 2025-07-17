@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Fragment, type FC } from 'react';
+import { type FC } from 'react';
 import { formatMetricValue } from '../shared/format-metric-value';
 import styles from './leaderboard-chart.module.scss';
 
@@ -195,41 +195,39 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 				const deltaColor = signColors[ colorIndex ];
 
 				return (
-					<Fragment key={ entry.id }>
-						<div className={ styles.entryContainer }>
-							<div className={ styles.labelContainer }>
-								<span className={ styles.entryLabel }>{ entry.label }</span>
+					<div key={ entry.id } className={ styles.entryContainer }>
+						<div className={ styles.labelContainer }>
+							<span className={ styles.entryLabel }>{ entry.label }</span>
 
-								<div className={ styles.progressContainer }>
-									<ProgressBar
-										value={ entry.currentShare }
-										color={ primaryColor }
-										className={ styles.primaryBar }
-									/>
-
-									{ withComparison && (
-										<ProgressBar
-											value={ entry.previousShare }
-											color={ secondaryColor }
-											className={ styles.secondaryBar }
-										/>
-									) }
-								</div>
-							</div>
-
-							<div className={ styles.valueContainer }>
-								<span className={ styles.currentValue }>
-									{ valueFormatter( entry.currentValue ) }
-								</span>
+							<div className={ styles.progressContainer }>
+								<ProgressBar
+									value={ entry.currentShare }
+									color={ primaryColor }
+									className={ styles.primaryBar }
+								/>
 
 								{ withComparison && (
-									<span className={ styles.deltaValue } style={ { color: deltaColor } }>
-										{ deltaFormatter( entry.delta ) }
-									</span>
+									<ProgressBar
+										value={ entry.previousShare }
+										color={ secondaryColor }
+										className={ styles.secondaryBar }
+									/>
 								) }
 							</div>
 						</div>
-					</Fragment>
+
+						<div className={ styles.valueContainer }>
+							<span className={ styles.currentValue }>
+								{ valueFormatter( entry.currentValue ) }
+							</span>
+
+							{ withComparison && (
+								<span className={ styles.deltaValue } style={ { color: deltaColor } }>
+									{ deltaFormatter( entry.delta ) }
+								</span>
+							) }
+						</div>
+					</div>
 				);
 			} ) }
 		</div>
