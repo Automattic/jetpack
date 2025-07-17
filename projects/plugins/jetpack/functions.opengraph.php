@@ -581,7 +581,9 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 	$token = \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
 
 	// If we have a token, cache it for a day.
-	set_transient( $transient_name, $token, DAY_IN_SECONDS );
+	if ( ! is_wp_error( $token ) ) {
+		set_transient( $transient_name, $token, DAY_IN_SECONDS );
+	}
 
 	return $token;
 }
