@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import config from 'config';
 import logger from '../logger.js';
-import pwConfig from '../playwright.config.mjs';
 const { E2E_DEBUG } = process.env;
 export const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';
 
@@ -93,7 +92,7 @@ export async function activateModule( page, module ) {
  * @return {Promise<string>} output
  */
 export async function execWpCommand( wpCmd, sendUrl = true ) {
-	const urlArgument = sendUrl ? `--url="${ pwConfig.use.baseURL }"` : '';
+	const urlArgument = sendUrl ? `--url="${ resolveSiteUrl() }"` : '';
 	const cmd = `${ BASE_DOCKER_CMD } wp -- ${ wpCmd } ${ urlArgument }`;
 	let result = await execShellCommand( cmd );
 
@@ -333,7 +332,7 @@ export async function logEnvironment() {
 		}
 
 		const credentials = getSiteCredentials();
-		const plugins = await fetch( pwConfig.use.baseURL + '/index.php?rest_route=/wp/v2/plugins', {
+		const plugins = await fetch( resolveSiteUrl() + '/index.php?rest_route=/wp/v2/plugins', {
 			headers: {
 				Authorization:
 					'Basic ' +
