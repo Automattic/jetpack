@@ -11,6 +11,13 @@ store( 'jetpack/form', {
 			const context = getContext();
 			return Math.round( ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 );
 		},
+		// Expose the current step so we can watch it from markup (data-wp-watch--highlight).
+		// Whenever `currentStep` changes, this derived getter will emit a new value and
+		// trigger the watcher.
+		get highlight() {
+			const context = getContext();
+			return context.currentStep;
+		},
 	},
 	callbacks: {
 		initializeProgress: () => {
@@ -90,16 +97,10 @@ store( 'jetpack/form', {
 
 				// Initial highlight.
 				updateHighlight();
-
-				// If after building we still have fewer items than expected, try again on next tick.
-				if ( namesList.childElementCount < context.maxSteps ) {
-					setTimeout( buildNamesList, 50 );
-				}
 			};
 
-			// Defer building list creation then attach a global watch to keep highlight in sync.
-			setTimeout( buildNamesList, 0 );
-
+			// Build the names list once on initialization.
+			buildNamesList();
 			// Expose highlight updater so it can be referenced by data-wp-watch.
 			context.updateProgressNamesHighlight = updateHighlight;
 		},
