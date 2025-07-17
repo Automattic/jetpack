@@ -95,10 +95,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		}
 
 		$checksum = new Table_Checksum( $table );
-
-		if ( $is_valid ) {
-			$this->assertInstanceOf( Table_Checksum::class, $checksum );
-		}
+		$this->assertInstanceOf( Table_Checksum::class, $checksum );
 	}
 
 	/**
@@ -131,10 +128,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ), 100 );
 
 		$checksum = new Table_Checksum( $table );
-
-		if ( $is_valid ) {
-			$this->assertInstanceOf( Table_Checksum::class, $checksum );
-		}
+		$this->assertInstanceOf( Table_Checksum::class, $checksum );
 
 		remove_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ) );
 
