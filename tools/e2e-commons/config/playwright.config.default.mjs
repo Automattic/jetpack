@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 import config from 'config';
 import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper.js';
 
