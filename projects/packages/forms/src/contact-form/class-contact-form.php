@@ -239,10 +239,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static function get_secret() {
 		$token = ( new Tokens() )->get_access_token();
 
-		if ( ! $token || ! isset( $token->secret ) ) {
-			return '';
+		if ( ! $token ) {
+			error_log( 'Error: Access token is unavailable.' );
+			return null;
 		}
 
+		if ( ! isset( $token->secret ) ) {
+			error_log( 'Error: Access token does not contain a secret.' );
+			return null;
+		}
 		// Get the secret from the Tokens class.
 		return $token->secret;
 	}
