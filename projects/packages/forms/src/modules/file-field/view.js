@@ -379,6 +379,14 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Reset the files in the context.
+		 */
+		resetFiles: () => {
+			const context = getContext();
+			context.files = [];
+		},
+
+		/**
 		 * Remove a file from the context and cancel its upload if in progress.
 		 *
 		 * @param {Event} event - The event object.
