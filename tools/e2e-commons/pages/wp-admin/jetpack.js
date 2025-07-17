@@ -4,7 +4,7 @@ import WpPage from '../wp-page.js';
 
 export default class JetpackPage extends WpPage {
 	constructor( page ) {
-		const url = pwConfig.use[ 0 ].baseURL + '/wp-admin/admin.php?page=jetpack#/';
+		const url = pwConfig.use.baseURL + '/wp-admin/admin.php?page=jetpack#/';
 		super( page, { expectedSelectors: [ '#jp-plugin-container' ], url } );
 	}
 

@@ -33,7 +33,7 @@ export async function loginToWpSite( page, mockPlanData ) {
 	if ( ! mockPlanData ) {
 		await (
 			await DashboardPage.init( page )
-		).setSandboxModeForPayments( cookie, new URL( pwConfig.use[ 0 ].baseURL ).host );
+		).setSandboxModeForPayments( cookie, new URL( pwConfig.use.baseURL ).host );
 	}
 }
 

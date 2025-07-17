@@ -56,7 +56,7 @@ async function runTests( type, round ) {
 		cwd: gutenbergPath,
 		env: {
 			...process.env,
-			WP_BASE_URL: pwConfig.use[ 0 ].baseURL,
+			WP_BASE_URL: pwConfig.use.baseURL,
 			WP_ARTIFACTS_PATH: resultsPath,
 			RESULTS_ID: `${ type }.${ round }`,
 		},

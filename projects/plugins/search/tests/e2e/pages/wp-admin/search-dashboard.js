@@ -5,7 +5,7 @@ export default class SearchDashboard extends WpPage {
 	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*jetpack\/v4\/search\/settings/;
 
 	constructor( page ) {
-		const url = `${ pwConfig.use[ 0 ].baseURL }/wp-admin/admin.php?page=jetpack-search`;
+		const url = `${ pwConfig.use.baseURL }/wp-admin/admin.php?page=jetpack-search`;
 		super( page, {
 			expectedSelectors: [ '.jp-search-dashboard-top__title' ],
 			url,

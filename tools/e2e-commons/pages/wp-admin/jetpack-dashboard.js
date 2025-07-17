@@ -4,7 +4,7 @@ import WpPage from '../wp-page.js';
 
 export default class JetpackDashboardPage extends WpPage {
 	constructor( page ) {
-		const url = pwConfig.use[ 0 ].baseURL + '/wp-admin/admin.php?page=jetpack#/dashboard';
+		const url = pwConfig.use.baseURL + '/wp-admin/admin.php?page=jetpack#/dashboard';
 		super( page, { expectedSelectors: [ '#jp-plugin-container', '.jp-at-a-glance' ], url } );
 	}
 

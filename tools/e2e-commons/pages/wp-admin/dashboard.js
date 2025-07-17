@@ -4,7 +4,7 @@ import WpPage from '../wp-page.js';
 
 export default class DashboardPage extends WpPage {
 	constructor( page ) {
-		const url = `${ pwConfig.use[ 0 ].baseURL }/wp-admin`;
+		const url = `${ pwConfig.use.baseURL }/wp-admin`;
 		super( page, { expectedSelectors: [ '#dashboard-widgets-wrap' ], url } );
 	}
 

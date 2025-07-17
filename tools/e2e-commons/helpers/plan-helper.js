@@ -12,7 +12,7 @@ import { execWpCommand } from './utils-helper.js';
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteId = await getSiteId();
-	const planData = getPlanData( siteId, pwConfig.use[ 0 ].baseURL, planType );
+	const planData = getPlanData( siteId, pwConfig.use.baseURL, planType );
 	const planDatafilePath = path.resolve( config.get( 'temp.planData' ) );
 
 	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );

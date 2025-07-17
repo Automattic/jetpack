@@ -4,7 +4,7 @@ import WpPage from '../wp-page.js';
 
 export default class JetpackMyPlanPage extends WpPage {
 	constructor( page ) {
-		const url = pwConfig.use[ 0 ].baseURL + '/wp-admin/admin.php?page=jetpack#/my-plan';
+		const url = pwConfig.use.baseURL + '/wp-admin/admin.php?page=jetpack#/my-plan';
 		super( page, { expectedSelectors: [ '#jp-plugin-container', '.jp-landing__plans' ], url } );
 	}
 

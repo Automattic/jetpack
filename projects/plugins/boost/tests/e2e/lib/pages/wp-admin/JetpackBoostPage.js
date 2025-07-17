@@ -7,7 +7,7 @@ const apiEndpointsRegex = {
 
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
-		const url = pwConfig.use[ 0 ].baseURL + '/wp-admin/admin.php?page=jetpack-boost';
+		const url = pwConfig.use.baseURL + '/wp-admin/admin.php?page=jetpack-boost';
 		super( page, { expectedSelectors: [ '#jb-dashboard' ], url } );
 	}
 

@@ -6,7 +6,7 @@ export default class SearchHomepage extends WpPage {
 		/^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
 
 	constructor( page ) {
-		const url = `${ pwConfig.use[ 0 ].baseURL }/?result_format=expanded`;
+		const url = `${ pwConfig.use.baseURL }/?result_format=expanded`;
 		super( page, {
 			expectedSelectors: [ '.wp-block-search__input, .search-field' ],
 			url,

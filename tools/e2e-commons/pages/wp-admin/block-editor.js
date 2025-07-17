@@ -3,7 +3,7 @@ import WpPage from '../wp-page.js';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
-		const url = pwConfig.use[ 0 ].baseURL + '/wp-admin/post-new.php';
+		const url = pwConfig.use.baseURL + '/wp-admin/post-new.php';
 		super( page, { expectedSelectors: [ '#editor' ], url } );
 	}
 

@@ -6,7 +6,7 @@ import WpPage from '../wp-page.js';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
-		const url = `${ pwConfig.use[ 0 ].baseURL }/wp-login.php`;
+		const url = `${ pwConfig.use.baseURL }/wp-login.php`;
 		super( page, { expectedSelectors: [ '#loginform' ], url } );
 	}
 

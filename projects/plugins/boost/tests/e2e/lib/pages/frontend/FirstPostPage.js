@@ -3,7 +3,7 @@ import pwConfig from '../../../playwright.config.mjs';
 
 export default class FirstPostPage extends WpPage {
 	constructor( page ) {
-		const url = `${ pwConfig.use[ 0 ].baseURL }/?p=1`;
+		const url = `${ pwConfig.use.baseURL }/?p=1`;
 		super( page, { url } );
 	}
 

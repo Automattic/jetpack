@@ -22,7 +22,7 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 		__dirname,
 		'../../partner-provision.sh'
 	) } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${
-		pwConfig.use[ 0 ].baseURL
+		pwConfig.use.baseURL
 	} --wpcom_user_id=${ userId }`;
 
 	let response;

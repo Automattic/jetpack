@@ -3,7 +3,7 @@ import WpPage from '../wp-page.js';
 
 export default class PostFrontendPage extends WpPage {
 	constructor( page ) {
-		const url = pwConfig.use[ 0 ].baseURL;
+		const url = pwConfig.use.baseURL;
 		super( page, { url } );
 	}
 

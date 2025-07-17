@@ -8,7 +8,7 @@ import { EditorCanvas } from './index.js';
 
 export default class SiteEditorPage extends WpPage {
 	constructor( page ) {
-		const url = pwConfig.use[ 0 ].baseURL + '/wp-admin/site-editor.php';
+		const url = pwConfig.use.baseURL + '/wp-admin/site-editor.php';
 		super( page, { expectedSelectors: [ '#site-editor' ], url } );
 
 		this.canvasPage = new EditorCanvas( page );

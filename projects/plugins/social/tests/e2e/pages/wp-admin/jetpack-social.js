@@ -4,7 +4,7 @@ import pwConfig from '../../playwright.config.mjs';
 
 export default class JetpackSocialPage extends WpPage {
 	constructor( page ) {
-		const url = pwConfig.use[ 0 ].baseURL + '/wp-admin/admin.php?page=jetpack-social';
+		const url = pwConfig.use.baseURL + '/wp-admin/admin.php?page=jetpack-social';
 		super( page, { expectedSelectors: [], url } );
 	}
 

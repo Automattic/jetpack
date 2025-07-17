@@ -24,7 +24,7 @@ function getAuthHeader() {
 async function getJetpackVersionFromSite() {
 	let response;
 	try {
-		response = await fetch( pwConfig.use[ 0 ].baseURL + '/index.php?rest_route=/wp/v2/plugins', {
+		response = await fetch( pwConfig.use.baseURL + '/index.php?rest_route=/wp/v2/plugins', {
 			headers: { Authorization: getAuthHeader() },
 		} );
 
@@ -52,7 +52,7 @@ async function getJetpackVersionFromSite() {
  */
 async function forcePluginUpdates() {
 	const response = await fetch(
-		pwConfig.use[ 0 ].baseURL + '/index.php?rest_route=/jp-e2e/v1/beta-autoupdate',
+		pwConfig.use.baseURL + '/index.php?rest_route=/jp-e2e/v1/beta-autoupdate',
 		{
 			method: 'POST',
 			headers: { Authorization: getAuthHeader() },

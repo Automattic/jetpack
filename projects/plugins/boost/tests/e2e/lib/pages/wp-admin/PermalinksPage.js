@@ -3,7 +3,7 @@ import pwConfig from '../../../playwright.config.mjs';
 
 export default class PermalinksPage extends WpPage {
 	constructor( page ) {
-		const url = `${ pwConfig.use[ 0 ].baseURL }/wp-admin/options-permalink.php`;
+		const url = `${ pwConfig.use.baseURL }/wp-admin/options-permalink.php`;
 		super( page, { expectedSelectors: [ '.permalink-structure' ], url } );
 	}
 
