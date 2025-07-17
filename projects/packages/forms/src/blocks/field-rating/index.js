@@ -36,6 +36,11 @@ const settings = {
 			default: 0,
 			role: 'content',
 		},
+		variation: {
+			type: 'string',
+			default: 'stars',
+			role: 'content',
+		},
 	},
 	styles: stylesArray,
 	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],

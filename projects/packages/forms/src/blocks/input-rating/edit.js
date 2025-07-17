@@ -1,5 +1,6 @@
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DEFAULT_GLYPHS } from './constants';
 import Symbols from './symbols';
@@ -44,6 +45,14 @@ export default function RatingInputEdit( { clientId, attributes, setAttributes }
 
 	const matchedKey =
 		glyphKeys.find( key => parentClassName.includes( `is-style-${ key }` ) ) || glyphKeys[ 0 ];
+
+	// Persist the variation attribute to both this block and the parent field wrapper.
+	useEffect( () => {
+		setAttributes( { variation: matchedKey } );
+		if ( parentClientId ) {
+			updateBlockAttributes( parentClientId, { variation: matchedKey } );
+		}
+	}, [ matchedKey, parentClientId, setAttributes, updateBlockAttributes ] );
 
 	const iconChar = glyphs[ matchedKey ].char;
 

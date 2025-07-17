@@ -14,6 +14,7 @@ const settings = {
 	attributes: {
 		max: { type: 'number', default: 5 },
 		default: { type: 'number', default: 0 },
+		variation: { type: 'string', default: 'stars' },
 	},
 	supports: {
 		reusable: false,

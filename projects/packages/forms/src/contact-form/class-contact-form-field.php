@@ -153,6 +153,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionsclasses'           => null,
 				'optionsstyles'            => null,
 				'align'                    => null,
+				'variation'                => null,
 			),
 			$attributes,
 			'contact-field'
@@ -2090,11 +2091,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
 
 		/*
-		 * Determine which icon SVG to use. The block applies an `is-style-hearts` class when the
-		 * hearts variation is selected, otherwise we default to stars. We embed the SVG inline so
-		 * the icon is part of the accessible markup and can be styled with `currentColor`.
+		 * Determine which icon SVG to use.
+		 * The heart variation adds `is-style-hearts` to the block's class attribute when saved.
+		 * We check that raw attribute first, then fall back to any runtime classes we already have.
 		 */
-		$has_hearts_style = strpos( $this->field_classes, 'is-style-hearts' ) !== false;
+		$variation_attr = $this->get_attribute( 'variation' );
+		if ( ! empty( $variation_attr ) ) {
+			$has_hearts_style = 'hearts' === $variation_attr;
+		} else {
+			// Fallback to detecting CSS classes for backwards compatibility.
+			$raw_class_attr   = $this->get_attribute( 'class' );
+			$has_hearts_style = ( false !== strpos( $raw_class_attr, 'is-style-hearts' ) ) || ( false !== strpos( $this->field_classes, 'is-style-hearts' ) );
+		}
 
 		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="currentColor" stroke="var(--jetpack--contact-form--border-color, #8c8f94)" stroke-width="2" stroke-linejoin="round"></path></svg>';
 		$heart_svg = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" stroke="var(--jetpack--contact-form--border-color, #8c8f94)" stroke-width="2" stroke-linejoin="round"></path></svg>';
