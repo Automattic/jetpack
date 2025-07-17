@@ -442,7 +442,7 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 /**
  * Get the site's representative image.
  *
- * @since $$next-version$
+ * @since $$next-version$$
  *
  * @param int $width The width of the image.
  * @param int $height The height of the image.
