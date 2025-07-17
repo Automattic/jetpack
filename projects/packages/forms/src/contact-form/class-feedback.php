@@ -715,46 +715,136 @@ class Feedback {
 	 * @return array Parsed fields.
 	 */
 	private function parse_legacy_content( $post_content = '' ) {
-		// parse_feedback_content
-		$all_values      = array();
+		$content_parts   = $this->split_legacy_content( $post_content );
+		$comment_content = $content_parts['comment_content'];
+		$field_content   = $content_parts['field_content'];
+
+		$all_values = $this->extract_legacy_values( $field_content );
+		$lines      = $this->extract_legacy_lines( $field_content );
+
+		$decoded_fields           = array();
+		$decoded_fields['fields'] = array();
+
+		// Process lines for specific field types
+		$this->process_legacy_lines( $lines, $decoded_fields );
+
+		// Process all other values
+		$this->process_legacy_values( $all_values, $decoded_fields );
+
+		// Add comment content field
+		$this->add_comment_content_field( $comment_content, $decoded_fields );
+
+		return $decoded_fields;
+	}
+
+	/**
+	 * Split legacy content into comment and field sections.
+	 *
+	 * @param string $post_content The post content to parse.
+	 * @return array Array with 'comment_content' and 'field_content' keys.
+	 */
+	private function split_legacy_content( $post_content ) {
 		$content         = explode( '<!--more-->', $post_content );
-		$lines           = array();
 		$comment_content = '';
+		$field_content   = '';
+
 		if ( count( $content ) > 1 ) {
 			$comment_content = $content[0];
-			$content         = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-
-			if ( str_contains( $content, 'JSON_DATA' ) ) {
-				$chunks = explode( "\nJSON_DATA", $content );
-
-				$all_values = json_decode( $chunks[1], true );
-
-				if ( $all_values === null ) {
-					// If JSON decoding fails, try to decode the second try with stripslashes and trim.
-					// This is a workaround for some cases where the JSON data is not properly formatted.
-					$all_values = json_decode( stripslashes( trim( $chunks[1] ) ), true );
-				}
-				$lines = array_filter( explode( "\n", $chunks[0] ) );
-			} else {
-				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
-
-				// This line of code is used to parse a string containing key-value pairs formatted as [Key] => Value and extract the keys and values into an array.
-				// The regular expression ensures that each key-value pair is correctly identified and captured.
-				// Given an input string
-				// [Key1] => Value1
-				// [Key2] => Value2
-				// it  $matches[1]: The keys (e.g., Key1, Key2 ).
-				// and $matches[2]: The values (e.g., Value1, Value2 ).
-				preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
-
-				if ( count( $matches ) > 1 ) {
-					$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
-				}
-
-				$lines = array_filter( explode( "\n", $content ) );
-			}
+			$field_content   = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
 		}
 
+		return array(
+			'comment_content' => $comment_content,
+			'field_content'   => $field_content,
+		);
+	}
+
+	/**
+	 * Extract values from legacy field content.
+	 *
+	 * @param string $field_content The field content to parse.
+	 * @return array Extracted values.
+	 */
+	private function extract_legacy_values( $field_content ) {
+		$all_values = array();
+
+		if ( str_contains( $field_content, 'JSON_DATA' ) ) {
+			$all_values = $this->parse_json_data( $field_content );
+		} else {
+			$all_values = $this->parse_array_format( $field_content );
+		}
+
+		// Ensure all_values is always an array
+		if ( ! is_array( $all_values ) ) {
+			$all_values = array();
+		}
+
+		return $all_values;
+	}
+
+	/**
+	 * Extract lines from legacy field content.
+	 *
+	 * @param string $field_content The field content to parse.
+	 * @return array Filtered lines.
+	 */
+	private function extract_legacy_lines( $field_content ) {
+		if ( str_contains( $field_content, 'JSON_DATA' ) ) {
+			$chunks = explode( "\nJSON_DATA", $field_content );
+			return array_filter( explode( "\n", $chunks[0] ) );
+		} else {
+			return array_filter( explode( "\n", $field_content ) );
+		}
+	}
+
+	/**
+	 * Parse JSON data from field content.
+	 *
+	 * @param string $field_content The field content containing JSON data.
+	 * @return array Parsed JSON data.
+	 */
+	private function parse_json_data( $field_content ) {
+		$chunks    = explode( "\nJSON_DATA", $field_content );
+		$json_data = $chunks[1];
+
+		$all_values = json_decode( $json_data, true );
+
+		if ( $all_values === null ) {
+			// Fallback for improperly formatted JSON
+			$all_values = json_decode( stripslashes( trim( $json_data ) ), true );
+		}
+
+		return $all_values === null ? array() : $all_values;
+	}
+
+	/**
+	 * Parse array format from field content.
+	 *
+	 * @param string $field_content The field content in array format.
+	 * @return array Parsed array data.
+	 */
+	private function parse_array_format( $field_content ) {
+		$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $field_content );
+
+		// Parse key-value pairs formatted as [Key] => Value
+		preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
+
+		if ( count( $matches ) > 1 ) {
+			return array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
+		}
+
+		return array();
+	}
+
+	/**
+	 * Process legacy lines into field objects.
+	 *
+	 * We do this so that we can extract specific fields but we don't display the values in the UI.
+	 *
+	 * @param array $lines The lines to process.
+	 * @param array &$decoded_fields Reference to the decoded fields array.
+	 */
+	private function process_legacy_lines( $lines, &$decoded_fields ) {
 		$var_map = array(
 			'AUTHOR'       => array(
 				'type'  => 'name',
@@ -778,25 +868,37 @@ class Feedback {
 			),
 		);
 
-		$decoded_fields = array();
-
 		foreach ( $lines as $line ) {
+			$line_parts = explode( ': ', $line, 2 );
 
-			list( $key, $value ) = explode( ': ', $line, 2 );
+			if ( count( $line_parts ) !== 2 ) {
+				continue;
+			}
 
-			if ( ! empty( $key ) ) {
-				if ( isset( $var_map[ $key ] ) ) {
-					$map_to_field                     = $var_map[ $key ];
-					$value                            = self::strip_tags( trim( $value ) );
-					$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $map_to_field['label'], $value, $map_to_field['type'], array( 'render' => false ) );
-				}
+			list( $key, $value ) = $line_parts;
+
+			if ( ! empty( $key ) && isset( $var_map[ $key ] ) ) {
+				$map_to_field = $var_map[ $key ];
+				$value        = self::strip_tags( trim( $value ) );
+
+				$decoded_fields['fields'][ $key ] = new Feedback_Field(
+					$key,
+					$map_to_field['label'],
+					$value,
+					$map_to_field['type'],
+					array( 'render' => false )
+				);
 			}
 		}
-		// All fields should always be an array, even if empty.
-		if ( ! is_array( $all_values ) ) {
-			$all_values = array();
-		}
+	}
 
+	/**
+	 * Process legacy values into field objects.
+	 *
+	 * @param array $all_values The values to process.
+	 * @param array &$decoded_fields Reference to the decoded fields array.
+	 */
+	private function process_legacy_values( $all_values, &$decoded_fields ) {
 		$non_user_fields = array(
 			'email_marketing_consent',
 			'entry_title',
@@ -808,18 +910,27 @@ class Feedback {
 		foreach ( $all_values as $key => $value ) {
 			$key   = wp_strip_all_tags( $key );
 			$label = self::extract_label_from_key( $key );
+
 			if ( in_array( $key, $non_user_fields, true ) ) {
 				$decoded_fields[ $key ] = $value;
-				// Skip fields that are not user-submitted.
 				continue;
 			}
+
 			$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $label, $value );
 
 			if ( ! $this->has_file && $decoded_fields['fields'][ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
 		}
+	}
 
+	/**
+	 * Add comment content as a field.
+	 *
+	 * @param string $comment_content The comment content.
+	 * @param array  &$decoded_fields Reference to the decoded fields array.
+	 */
+	private function add_comment_content_field( $comment_content, &$decoded_fields ) {
 		$decoded_fields['fields']['comment_content'] = new Feedback_Field(
 			'comment_content',
 			'Comment Content',
@@ -827,8 +938,6 @@ class Feedback {
 			'textarea',
 			array( 'render' => false )
 		);
-
-		return $decoded_fields;
 	}
 
 	/**
