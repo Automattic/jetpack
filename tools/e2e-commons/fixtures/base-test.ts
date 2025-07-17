@@ -10,8 +10,6 @@ import { execWpCommand, getSiteCredentials } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 
 const test = baseTest.extend( {
-	// storageState: process.env.STORAGE_STATE_PATH,
-
 	page: async ( { page }, use ) => {
 		page.on( 'pageerror', exception => {
 			logger.debug( `Page error: "${ exception }"` );

@@ -86,6 +86,7 @@ const playwrightConfig = defineConfig( {
 			// TODO - Enable strictSelectors once all tests are updated.
 			// strictSelectors: true,
 		},
+		storageState: process.env.STORAGE_STATE_PATH,
 	},
 	reportSlowTests: null,
 } );
