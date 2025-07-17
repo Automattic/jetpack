@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @covers ::jetpack_og_remove_query_blocks
  * @covers ::jetpack_og_get_site_fallback_blank_image
  * @covers ::jetpack_og_get_site_image
+ * @covers ::jetpack_og_generate_fallback_social_image
  * @group jetpack-opengraph
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
@@ -20,6 +21,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
 #[CoversFunction( 'jetpack_og_get_site_fallback_blank_image' )]
 #[CoversFunction( 'jetpack_og_get_site_image' )]
+#[CoversFunction( 'jetpack_og_generate_fallback_social_image' )]
 #[Group( 'jetpack-opengraph' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
@@ -470,5 +472,90 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		// Clean up.
 		delete_option( 'site_icon' );
 		delete_option( 'site_logo' );
+	}
+
+	/**
+	 * Test jetpack_og_generate_fallback_social_image with different scenarios.
+	 *
+	 * @dataProvider jetpack_og_generate_fallback_social_image_data_provider
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array         $representative_image The representative image array.
+	 * @param array         $expected_result Expected result array.
+	 * @param callable|null $filter_callback Optional filter callback to mock token generation.
+	 */
+	#[DataProvider( 'jetpack_og_generate_fallback_social_image_data_provider' )]
+	public function test_jetpack_og_generate_fallback_social_image( $representative_image, $expected_result, $filter_callback = null ) {
+		// Add filter if provided.
+		if ( $filter_callback ) {
+			add_filter( 'jetpack_og_get_social_image_token', $filter_callback );
+		}
+
+		$result = jetpack_og_generate_fallback_social_image( $representative_image, 'edge' );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'src', $result );
+		$this->assertArrayHasKey( 'width', $result );
+		$this->assertArrayHasKey( 'height', $result );
+		$this->assertEquals( $expected_result['src'], $result['src'] );
+		$this->assertEquals( $expected_result['width'], $result['width'] );
+		$this->assertEquals( $expected_result['height'], $result['height'] );
+
+		// Clean up the filter if it was added.
+		if ( $filter_callback ) {
+			remove_all_filters( 'jetpack_og_get_social_image_token' );
+		}
+	}
+
+	/**
+	 * Data provider for jetpack_og_generate_fallback_social_image tests.
+	 */
+	public static function jetpack_og_generate_fallback_social_image_data_provider() {
+		return array(
+			'fallback_when_social_image_generator_unavailable' => array(
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				null, // No filter, so it will fall back to representative image
+			),
+			'successful_generation_with_valid_token' => array(
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				array(
+					'src'    => 'https://s0.wp.com/_si/?t=test_token_12345',
+					'width'  => 1200,
+					'height' => 630,
+				),
+				function () {
+					return 'test_token_12345';
+				},
+			),
+			'wp_error_returns_fallback_image'        => array(
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				function () {
+					return new WP_Error( 'test_error', 'Test error message' );
+				},
+			),
+		);
 	}
 }
