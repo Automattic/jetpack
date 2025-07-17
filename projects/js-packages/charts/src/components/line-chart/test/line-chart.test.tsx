@@ -1,13 +1,15 @@
+/* eslint-disable react/jsx-no-bind */
 /**
  * @jest-environment jsdom
  */
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
-import { createElement } from 'react';
+import { createElement, createRef } from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
-import LineChart from '../line-chart';
+import LineChart, { LineChartUnresponsive } from '../line-chart';
+import type { LineChartRef } from '../line-chart-context';
 
 const customTheme = {
 	...jetpackTheme,
@@ -57,6 +59,17 @@ describe( 'LineChart', () => {
 			<ThemeProvider theme={ theme }>
 				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<LineChart { ...defaultProps } { ...props } />
+			</ThemeProvider>
+		);
+	};
+
+	const renderUnwrappedWithTheme = ( props = {}, themeName = 'jetpack', ref = undefined ) => {
+		const theme = THEME_MAP[ themeName ];
+
+		return render(
+			<ThemeProvider theme={ theme }>
+				{ /* @ts-expect-error TODO Fix the missing props */ }
+				<LineChartUnresponsive { ...defaultProps } { ...props } ref={ ref } />
 			</ThemeProvider>
 		);
 	};
@@ -355,73 +368,182 @@ describe( 'LineChart', () => {
 		} );
 	} );
 
-	describe( 'Annotations', () => {
-		test( 'renders annotations when an annotations list is provided', () => {
-			renderWithTheme( {
-				annotations: [
-					{
-						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-						title: 'Annotation 1',
-						subtitle: 'Annotation 1 subtitle',
-					},
-					{
-						datum: { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-						title: 'Annotation 2',
-					},
-				],
-			} );
+	describe( 'Chart Ref Interface', () => {
+		test( 'exposes getScales method via ref', () => {
+			const ref = createRef< LineChartRef >();
+			renderUnwrappedWithTheme( {}, 'jetpack', ref );
 
-			expect( screen.getByText( 'Annotation 1' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Annotation 1 subtitle' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+			expect( ref.current?.getScales() ).toBeDefined();
+			expect( ref.current?.getScales()?.xScale ).toBeDefined();
+			expect( ref.current?.getScales()?.yScale ).toBeDefined();
 		} );
 
-		test( 'skips rendering an annotation when it is malformed', () => {
-			renderWithTheme( {
-				annotations: [
-					{
-						title: 'Annotation 1',
-						subtitle: 'Annotation 1 subtitle',
-					},
-					{
-						datum: { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-						title: 'Annotation 2',
-					},
-				],
-			} );
+		test( 'exposes getChartDimensions method via ref', () => {
+			const ref = createRef< LineChartRef >();
+			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'jetpack', ref );
 
+			const dimensions = ref.current?.getChartDimensions();
+			expect( dimensions?.width ).toBe( 800 );
+			expect( dimensions?.height ).toBe( 400 );
+		} );
+	} );
+
+	describe( 'Annotations', () => {
+		const renderWithAnnotations = (
+			children: React.ReactNode,
+			props = {},
+			themeName = 'jetpack'
+		) => {
+			const theme = THEME_MAP[ themeName ];
+
+			return render(
+				<ThemeProvider theme={ theme }>
+					{ /* @ts-expect-error TODO Fix the missing props */ }
+					<LineChart { ...defaultProps } { ...props }>
+						{ children }
+					</LineChart>
+				</ThemeProvider>
+			);
+		};
+
+		test( 'renders annotations when using compound component pattern', async () => {
+			const width = 500;
+			const height = 300;
+
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } }
+						title="Annotation 1"
+						subtitle="Annotation 1 subtitle"
+					/>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' } }
+						title="Annotation 2"
+					/>
+				</LineChart.AnnotationsOverlay>,
+				{ width, height }
+			);
+
+			const overlay = await screen.findByTestId( 'line-chart-annotations-overlay' );
+			expect( overlay ).toBeInTheDocument();
+			expect( overlay ).toHaveAttribute( 'width', width.toString() );
+			expect( overlay ).toHaveAttribute( 'height', height.toString() );
+
+			await waitFor( () => {
+				expect( screen.getByText( 'Annotation 1' ) ).toBeInTheDocument();
+			} );
+			await waitFor( () => {
+				expect( screen.getByText( 'Annotation 1 subtitle' ) ).toBeInTheDocument();
+			} );
+			await waitFor( () => {
+				expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+			} );
+		} );
+
+		test( 'skips rendering an annotation when it is malformed', async () => {
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					{ /* @ts-expect-error Testing malformed annotation without required datum prop */ }
+					<LineChart.Annotation title="Annotation 1" subtitle="Annotation 1 subtitle" />
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' } }
+						title="Annotation 2"
+					/>
+				</LineChart.AnnotationsOverlay>
+			);
+
+			await waitFor( () => {
+				expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+			} );
 			expect( screen.queryByText( 'Annotation 1' ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Annotation 1 subtitle' ) ).not.toBeInTheDocument();
-			expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
 		} );
 
-		test( 'does not render annotations when no annotations list is provided', () => {
+		test( 'does not render annotations when no AnnotationsOverlay is provided', async () => {
 			renderWithTheme( {} );
 
+			await waitFor( () => {
+				expect( screen.queryByTestId( 'line-chart-annotations-overlay' ) ).not.toBeInTheDocument();
+			} );
+			await waitFor( () => {
+				expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
+			} );
+		} );
+
+		test( 'does not render annotations when AnnotationsOverlay is empty', () => {
+			renderWithAnnotations( <LineChart.AnnotationsOverlay></LineChart.AnnotationsOverlay> );
+
 			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'does not render annotations when an empty annotations list is provided', () => {
-			renderWithTheme( {
-				annotations: [],
-			} );
+		test( 'renders annotations with zero values', async () => {
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' } }
+						title="Zero Value Annotation"
+						subtitle="This point has a value of 0"
+					/>
+				</LineChart.AnnotationsOverlay>
+			);
 
-			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
+			await waitFor( () => {
+				expect( screen.getByText( 'Zero Value Annotation' ) ).toBeInTheDocument();
+			} );
+			await waitFor( () => {
+				expect( screen.getByText( 'This point has a value of 0' ) ).toBeInTheDocument();
+			} );
 		} );
 
-		test( 'renders annotations with zero values', () => {
-			renderWithTheme( {
-				annotations: [
-					{
-						datum: { date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' },
-						title: 'Zero Value Annotation',
-						subtitle: 'This point has a value of 0',
-					},
-				],
-			} );
+		test( 'renders annotations with custom label renderer', async () => {
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } }
+						title="Annotation 1"
+						subtitle="Annotation 1 subtitle"
+						renderLabel={ ( { title, subtitle } ) => (
+							<div data-testid="custom-label">
+								{ title }
+								{ subtitle && <span>{ subtitle }</span> }
+							</div>
+						) }
+					/>
+				</LineChart.AnnotationsOverlay>
+			);
 
-			expect( screen.getByText( 'Zero Value Annotation' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'This point has a value of 0' ) ).toBeInTheDocument();
+			await waitFor( () => {
+				expect( screen.getByTestId( 'custom-label' ) ).toBeInTheDocument();
+			} );
+		} );
+
+		test( 'renders annotations with custom label popover renderer', async () => {
+			renderWithAnnotations(
+				<LineChart.AnnotationsOverlay>
+					<LineChart.Annotation
+						datum={ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } }
+						title="Annotation 1"
+						subtitle="Annotation 1 subtitle"
+						renderLabel={ ( { title, subtitle } ) => (
+							<div data-testid="custom-label">
+								{ title }
+								{ subtitle && <span>{ subtitle }</span> }
+							</div>
+						) }
+						renderLabelPopover={ ( { title, subtitle } ) => (
+							<div data-testid="custom-label-popover">
+								{ title }
+								{ subtitle && <span>{ subtitle }</span> }
+							</div>
+						) }
+					/>
+				</LineChart.AnnotationsOverlay>
+			);
+
+			await waitFor( () => {
+				expect( screen.getByTestId( 'custom-label-popover' ) ).toBeInTheDocument();
+			} );
 		} );
 	} );
 
@@ -475,15 +597,15 @@ describe( 'LineChart', () => {
 
 				// Single tab should focus on the first tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 
 				// Second tab should focus on the second tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 			} );
 
 			test( 'left arrow key navigates to previous data point', async () => {
@@ -514,21 +636,21 @@ describe( 'LineChart', () => {
 
 				// Right arrow key should focus on the first tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 
 				// Right arrow key should focus on the second tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 
 				// Left arrow key should focus on the first tooltip.
 				await user.keyboard( '{ArrowLeft}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 			} );
 		} );
 
@@ -564,8 +686,8 @@ describe( 'LineChart', () => {
 
 				// Clicking tab should not open any tooltips.
 				await user.tab();
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
-				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 				// Chart should no longer be in focus.
 				expect( chart ).not.toHaveFocus();
 			} );
@@ -586,8 +708,8 @@ describe( 'LineChart', () => {
 
 			// Click on right arrow key to focus on the first tooltip.
 			await user.keyboard( '{ArrowRight}' );
-			expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-			expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
 
 			const customTooltip = screen.getByTestId( 'custom-tooltip' );
 			expect( customTooltip ).toBeInTheDocument();

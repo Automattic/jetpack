@@ -1,4 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';

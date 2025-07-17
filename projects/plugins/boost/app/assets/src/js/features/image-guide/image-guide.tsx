@@ -1,4 +1,5 @@
 import { useSingleModuleState } from '$features/module/lib/stores';
+import { useIsaUIState } from '$features/image-size-analysis/lib/stores/isa-ui-state';
 import Module from '$features/module/module';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { Notice } from '@automattic/jetpack-components';
@@ -6,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 
 const ImageGuide = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+	const [ { data: isaUIState } ] = useIsaUIState();
 	const { canResizeImages } = Jetpack_Boost;
 
 	/**
@@ -29,7 +31,7 @@ const ImageGuide = () => {
 							'jetpack-boost'
 						) }
 					</p>
-					{ ! isaState?.available && (
+					{ ! isaState?.available && isaUIState?.should_display_ui && (
 						<InterstitialModalCTA
 							identifier="image-guide"
 							description={ __(

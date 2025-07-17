@@ -135,10 +135,7 @@ class Slideshow extends Component {
 						: undefined,
 				} }
 			>
-				<div
-					className="wp-block-jetpack-slideshow_container swiper-container"
-					ref={ this.slideshowRef }
-				>
+				<div className="wp-block-jetpack-slideshow_container swiper" ref={ this.slideshowRef }>
 					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
 						{ images.map( ( { alt, caption, id, url, aspectRatio }, index ) => (
 							<li
@@ -217,7 +214,9 @@ class Slideshow extends Component {
 						  }
 						: false,
 				effect: this.props.effect,
-				loop: true,
+				// Initially disable loop to prevent warnings during initialization
+				// See also: https://stackoverflow.com/a/78680695
+				loop: false,
 				initialSlide,
 				followFinger: false,
 				navigation: {

@@ -65,14 +65,12 @@ $allowed = array(
 		'wp-element',
 	),
 	'podcast-player' => array(
-		'lodash',
 		'wp-compose',
 		'wp-data',
 		'wp-element',
 		'wp-primitives',
 	),
 	'story'          => array(
-		'lodash',
 		'react',
 		'wp-compose',
 		'wp-data',

@@ -1,5 +1,5 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { connect } from '../flows/index.js';
 import { JetpackSocialPage } from '../pages/index.js';
 

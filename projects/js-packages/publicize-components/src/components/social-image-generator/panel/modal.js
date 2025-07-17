@@ -19,6 +19,14 @@ import styles from './styles.module.scss';
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
 const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack-publicize-components' );
 
+const getLocalImageType = ( featuredImageId, defaultImageId ) => {
+	if ( ! featuredImageId && defaultImageId ) {
+		return 'default';
+	}
+
+	return 'featured';
+};
+
 const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 	const {
 		customText,
@@ -32,7 +40,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 
 	const [ localImageId, setEditedImageId ] = useState( imageId );
 	const [ localImageType, setEditedImageType ] = useState(
-		imageType || ( featuredImageId ? 'featured' : 'default' )
+		imageType || getLocalImageType( featuredImageId, defaultImageId )
 	);
 	const [ localCustomText, setEditedCustomText ] = useState( customText );
 	const [ localTemplate, setEditedTemplate ] = useState( template );
@@ -70,7 +78,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 				/>
 				<SelectControl
 					label={ __( 'Image Type', 'jetpack-publicize-components' ) }
-					value={ localImageType || ( featuredImageId ? 'featured' : 'default' ) }
+					value={ localImageType || getLocalImageType( featuredImageId, defaultImageId ) }
 					options={ [
 						...( defaultImageId
 							? [

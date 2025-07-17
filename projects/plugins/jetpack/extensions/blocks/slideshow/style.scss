@@ -102,7 +102,7 @@
 	}
 
 	// When the slideshow transition is set to "fade", hide all slides that are not active.
-	.swiper-container-fade .wp-block-jetpack-slideshow_slide:not(.swiper-slide-active) {
+	.swiper-fade .wp-block-jetpack-slideshow_slide:not(.swiper-slide-active) {
 		opacity: 0 !important;
 	}
 
@@ -157,25 +157,25 @@
 
 	// Prevent swiper button pseudo-element content displaying duplicate arrows.
 	.swiper-button-prev::after,
-	.swiper-container-rtl .swiper-button-next::after {
+	.swiper-rtl .swiper-button-next::after {
 		content: "";
 	}
 
 	.swiper-button-next::after,
-	.swiper-container-rtl .swiper-button-prev::after {
+	.swiper-rtl .swiper-button-prev::after {
 		content: "";
 	}
 
-	&.swiper-container-rtl .swiper-button-prev.swiper-button-white,
-	&.swiper-container-rtl .wp-block-jetpack-slideshow_button-prev,
+	&.swiper-rtl .swiper-button-prev.swiper-button-white,
+	&.swiper-rtl .wp-block-jetpack-slideshow_button-prev,
 	.swiper-button-next.swiper-button-white,
 	.wp-block-jetpack-slideshow_button-next,
 	.amp-carousel-button-next {
 		background-image: url( data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNSAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bWFzayBpZD0ibWFza05leHQiIG1hc2stdHlwZT0iYWxwaGEiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjgiIHk9IjYiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIj48cGF0aCBkPSJNOC41OTgxNCAxNi41OUwxMy4xNTU3IDEyTDguNTk4MTQgNy40MUwxMC4wMDEyIDZMMTUuOTcxOCAxMkwxMC4wMDEyIDE4TDguNTk4MTQgMTYuNTlaIiBmaWxsPSJ3aGl0ZSIvPjwvbWFzaz48ZyBtYXNrPSJ1cmwoI21hc2tOZXh0KSI+PHJlY3QgeD0iMC4zNDM3NSIgd2lkdGg9IjIzLjg4MjIiIGhlaWdodD0iMjQiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+ );
 	}
 
-	&.swiper-container-rtl .swiper-button-next.swiper-button-white,
-	&.swiper-container-rtl .wp-block-jetpack-slideshow_button-next,
+	&.swiper-rtl .swiper-button-next.swiper-button-white,
+	&.swiper-rtl .wp-block-jetpack-slideshow_button-next,
 	.swiper-button-prev.swiper-button-white,
 	.wp-block-jetpack-slideshow_button-prev,
 	.amp-carousel-button-prev {

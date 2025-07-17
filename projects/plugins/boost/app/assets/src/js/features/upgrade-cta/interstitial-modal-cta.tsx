@@ -38,7 +38,6 @@ const InterstitialModalCTA = ( {
 			) }
 			features={ [
 				__( 'Automated Critical CSS Generation', 'jetpack-boost' ),
-				__( 'Automated Image Scanning', 'jetpack-boost' ),
 				__( 'In-depth Performance Insights', 'jetpack-boost' ),
 				__( 'Customizable Image Optimization', 'jetpack-boost' ),
 				__( 'Expert Support With Personal Assistance Available', 'jetpack-boost' ),

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.16.2",
+	"version": "0.17.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -48,6 +48,7 @@
 		"./style.css": "./dist/mjs/style.css"
 	},
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "7.27.6",
 		"@react-spring/web": "9.7.5",
@@ -68,7 +69,7 @@
 		"@visx/xychart": "^3.12.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
-		"lodash": "^4.17.21",
+		"deepmerge": "4.3.1",
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {

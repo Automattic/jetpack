@@ -1,3 +1,11 @@
+/*
+ * External dependencies
+ */
+import { getConfig } from '@wordpress/interactivity';
+
+const NAMESPACE = 'jetpack/form';
+const config = getConfig( NAMESPACE );
+
 const getForm = formHash => {
 	return document.getElementById( 'jp-form-' + formHash );
 };
@@ -40,7 +48,9 @@ export const submitForm = async formHash => {
 
 	try {
 		const formData = new FormData( form );
-		const url = form.getAttribute( 'action' );
+
+		const adminAjaxUrl = config?.admin_ajax_url || '/wp-admin/admin-ajax.php';
+		const url = `${ adminAjaxUrl }?action=grunion-contact-form`;
 
 		const response = await fetch( url, {
 			method: 'POST',

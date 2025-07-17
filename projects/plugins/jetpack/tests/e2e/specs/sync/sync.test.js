@@ -1,5 +1,5 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
 import {

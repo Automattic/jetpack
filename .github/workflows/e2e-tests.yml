@@ -306,7 +306,7 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ success() || failure() }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
     needs: [e2e-tests]
 
     steps:
@@ -357,7 +357,7 @@ jobs:
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
-    if: ${{ success() || failure() }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
     needs: [e2e-tests]
 
     steps:

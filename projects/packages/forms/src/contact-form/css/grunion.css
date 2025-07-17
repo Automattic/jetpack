@@ -114,7 +114,6 @@
 .contact-form :where(label.consent) {
 	font-size: var(--jetpack--contact-form--label--font-size, 13px);
 	font-weight: 400;
-	text-transform: uppercase;
 }
 
 .contact-form label.consent {
@@ -1173,4 +1172,12 @@ on production builds, the attributes are being reordered, causing side-effects
   position: absolute;
   white-space: nowrap;
   width: 1px;
+}
+
+.contact-form.is-ajax-form.is-submitted {
+	display: none;
+}
+
+.contact-form-ajax-submission:not(.is-submitted) {
+	display: none;
 }
