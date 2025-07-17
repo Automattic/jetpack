@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Block;
+use WP_Error;
 
 /**
  * Test class for Contact_Form_Plugin
@@ -533,5 +534,71 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				'type'         => 'checkbox-multiple',
 			),
 		);
+	}
+
+	public function test_process_from_with_jwt() {
+		global $post;
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Contact Form',
+				'post_content' => '<!-- wp:jetpack/contact-form {"id":"test-contact-form"} /-->',
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+			)
+		);
+
+		$previous_post = $post;
+		$post          = get_post( $post_id );
+
+		$form                              = new Contact_Form( array( 'to' => 'test@example.com' ), "[contact-field label='Name' type='name' required='1'/]" );
+		$_POST['jetpack_contact_form_jwt'] = $form->get_jwt();
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['contact-form-id']          = $post_id;
+		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
+
+		unset( $_POST['contact-form-hash'] );
+		unset( $_POST['jetpack_contact_form_jwt'] );
+		unset( $_POST['contact-form-id'] );
+		$post = $previous_post; // Restore the previous post.
+		wp_delete_post( $post_id, true ); // Clean up the test post.
+	}
+
+	public function test_process_from_with_fake_jwt() {
+		global $post;
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Contact Form',
+				'post_content' => '<!-- wp:jetpack/contact-form {"id":"test-contact-form"} /-->',
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+			)
+		);
+
+		$previous_post = $post;
+		$post          = get_post( $post_id );
+
+		$form                              = new Contact_Form( array( 'to' => 'test@example.com' ), "[contact-field label='Name' type='name' required='1'/]" );
+		$_POST['jetpack_contact_form_jwt'] = 'fake-jwt-token';
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['contact-form-id']          = $post_id;
+		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertFalse( $result, 'Expected a WP_Error when processing the form submission.' );
+
+		unset( $_POST['contact-form-hash'] );
+		unset( $_POST['jetpack_contact_form_jwt'] );
+		unset( $_POST['contact-form-id'] );
+		$post = $previous_post; // Restore the previous post.
+		wp_delete_post( $post_id, true ); // Clean up the test post.
+	}
+
+	public function return_error_for_test() {
+		return new WP_Error( 'check_spam', 'check_spam form submission.' );
 	}
 }

@@ -1233,6 +1233,10 @@ class Contact_Form_Plugin {
 		$form = false;
 		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) {
 			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
+			if ( ! $form ) { // fail early if the JWT is invalid.
+				// If the JWT is invalid, we can't process the form.
+				return false;
+			}
 		}
 
 		if ( $is_widget ) {
