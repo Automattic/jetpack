@@ -18,7 +18,7 @@ class Cornerstone_Utils {
 	/**
 	 * Gets the list of Cornerstone Pages that the user has added to the custom list.
 	 *
-	 * @return string[] The relative URLs of the cornerstone pages.
+	 * @return string[] The absolute URLs of the cornerstone pages.
 	 *
 	 * @since $$next-version$$
 	 */
@@ -30,25 +30,18 @@ class Cornerstone_Utils {
 			return array();
 		}
 
-		$permalink_structure = get_option( 'permalink_structure' );
-
-		// If permalink structure ends with slash, add trailing slashes
-		if ( $permalink_structure && substr( $permalink_structure, -1 ) === '/' ) {
-			$pages = array_map( 'trailingslashit', $pages );
-		}
-
-		return $pages;
+		return self::maybe_trailing_slash_urls( $pages );
 	}
 
 	/**
 	 * Gets the list of Cornerstone Pages that the user cannot remove.
 	 *
-	 * @return string[] The relative URLs of the cornerstone pages.
+	 * @return string[] The absolute URLs of the cornerstone pages.
 	 *
 	 * @since $$next-version$$
 	 */
 	public static function get_predefined_list() {
-		return array( '' ); // Empty string represents homepage in relative form
+		return self::maybe_trailing_slash_urls( array( home_url() ) );
 	}
 
 	/**
@@ -120,5 +113,22 @@ class Cornerstone_Utils {
 	 */
 	public static function is_cornerstone_page( $post_id ) {
 		return self::is_cornerstone_page_by_url( get_permalink( $post_id ) );
+	}
+
+	/**
+	 * Adds trailing slashes to URLs if the current permalink structure requires it.
+	 *
+	 * @param string[] $urls The URLs to process.
+	 * @return string[] The processed URLs.
+	 */
+	public static function maybe_trailing_slash_urls( $urls ) {
+		$permalink_structure = get_option( 'permalink_structure' );
+
+		// If permalink structure ends with slash, add trailing slashes.
+		if ( $permalink_structure && substr( $permalink_structure, -1 ) === '/' ) {
+			$urls = array_map( 'trailingslashit', $urls );
+		}
+
+		return $urls;
 	}
 }

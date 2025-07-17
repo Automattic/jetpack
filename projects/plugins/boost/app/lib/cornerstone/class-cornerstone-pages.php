@@ -122,7 +122,7 @@ class Cornerstone_Pages implements Has_Setup {
 			'max_pages'         => $this->get_max_pages(),
 			'max_pages_premium' => static::PREMIUM_MAX_PAGES,
 			'default_pages'     => array(),
-			'predefined_pages'  => array_map( 'home_url', Cornerstone_Utils::get_predefined_list() ),
+			'predefined_pages'  => Cornerstone_Utils::get_predefined_list(),
 		);
 
 		// We need this to ensure we don't include the home page in the default pages since an empty array is returned when no default pages are found.
