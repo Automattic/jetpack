@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
+Comment: Phan: Clean up PhanUndeclaredFunction instances.
 
-Phan: Clean up PhanUndeclaredFunction instances.

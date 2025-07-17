@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Phan: Clean up PhanNoopNew instances.
+Comment: Phan: Clean up PhanNoopNew instances.
