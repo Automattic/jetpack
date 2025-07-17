@@ -201,12 +201,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				[contact-field label="' . __( 'Message', 'jetpack-forms' ) . '" type="textarea" /]';
 
 			$this->parse_content( $default_form );
-
-			// Store the shortcode.
-			$this->store_shortcode( $default_form, $attributes, $this->hash );
-		} else {
-			// Store the shortcode.
-			$this->store_shortcode( $content, $attributes, $this->hash );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
@@ -1478,8 +1472,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
-		} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || $this->current_post->ID !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-			return false;
 		}
 
 		$field_ids = $this->get_field_ids();
