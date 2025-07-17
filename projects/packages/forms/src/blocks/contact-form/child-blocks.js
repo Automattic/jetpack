@@ -5,6 +5,7 @@ import {
 import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox';
 import DeprecatedOptionRadio from '../deprecated/field-option-radio';
 import JetpackDropdown from '../dropdown';
+import JetpackDropdownOption from '../dropdown-option';
 import JetpackDropzone from '../dropzone';
 import JetpackCheckboxField from '../field-checkbox';
 import JetpackConsentField from '../field-consent/';
@@ -44,6 +45,7 @@ export const childBlocks = [
 	JetpackLabel,
 	JetpackDropzone,
 	JetpackDropdown,
+	JetpackDropdownOption,
 	JetpackInput,
 	JetpackOption,
 	JetpackOptions,

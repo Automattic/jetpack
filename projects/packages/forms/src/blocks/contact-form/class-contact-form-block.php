@@ -445,6 +445,20 @@ class Contact_Form_Block {
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/dropdown',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_dropdown' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/dropdown-option',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_dropdown_option' ),
+			)
+		);
+
 		if ( Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-hidden',

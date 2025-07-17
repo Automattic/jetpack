@@ -1244,7 +1244,7 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Render the dropdown field.
+	 * Render the dropdown.
 	 *
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
@@ -1252,7 +1252,18 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the dropdown in select field.
 	 */
 	public static function gutenblock_render_dropdown( $atts, $content ) {
+		return $content;
+	}
 
+	/**
+	 * Render the dropdown option.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the dropdown option in select field.
+	 */
+	public static function gutenblock_render_dropdown_option( $atts, $content ) {
 		return $content;
 	}
 

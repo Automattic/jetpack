@@ -10,7 +10,7 @@ const settings = {
 	title: __( 'Dropdown', 'jetpack-forms' ),
 	description: __( 'Options for dropdown fields.', 'jetpack-forms' ),
 	parent: [ 'jetpack/field-select' ],
-	allowedBlocks: [ 'core/paragraph' ],
+	allowedBlocks: [ 'jetpack/dropdown-option' ],
 	category: 'contact-form',
 	icon: {
 		foreground: getIconColor(),
@@ -20,8 +20,8 @@ const settings = {
 		style: {
 			type: 'object',
 			default: {
-				dimensions: {
-					maxHeight: '350px',
+				spacing: {
+					margin: { top: '10px' },
 				},
 			},
 		},
