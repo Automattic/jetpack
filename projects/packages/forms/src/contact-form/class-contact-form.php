@@ -96,6 +96,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $current_post;
 
 	/**
+	 * Whether the form has a verified JWT token.
+	 *
+	 * @var bool
+	 */
+	public $has_verified_jwt = false;
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -225,9 +232,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return null;
 		}
 
-		$attributes = (array) $data->attributes;
-		$form       = new self( $attributes, $data->content, empty( $attributes['id'] ) );
-		$form->hash = $data->hash;
+		$attributes             = (array) $data->attributes;
+		$form                   = new self( $attributes, $data->content, empty( $attributes['id'] ) );
+		$form->hash             = $data->hash;
+		$form->has_verified_jwt = true;
 		return $form;
 	}
 	/**
@@ -1459,17 +1467,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$to = get_option( 'admin_email' );
 		}
 
-		// Make sure we're processing the form we think we're processing... probably a redundant check.
-		if ( $widget ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
-			}
-		} elseif ( $block_template ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
-			}
-		} elseif ( $block_template_part ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+		if ( ! $this->has_verified_jwt ) {
+			// Make sure we're processing the form we think we're processing... probably a redundant check.
+			if ( $widget ) {
+				if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+					return false;
+				}
+			} elseif ( $block_template ) {
+				if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+					return false;
+				}
+			} elseif ( $block_template_part ) {
+				if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+					return false;
+				}
+			} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || $this->current_post->ID !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
 		}
