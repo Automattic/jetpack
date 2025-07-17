@@ -69,10 +69,20 @@ const generateHeadCode = scriptSrc => {
 	return `<script src="${ scriptSrc }"></script>`;
 };
 
-const generateBodyCode = hostedButtonId => {
+const generateBodyCode = ( hostedButtonId, buttonType = 'stacked', buttonText = '' ) => {
 	if ( ! hostedButtonId ) {
 		return '';
 	}
+
+	if ( buttonType === 'single' ) {
+		return `<style>.pp-${ hostedButtonId }{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>
+<form action="https://www.paypal.com/ncp/payment/${ hostedButtonId }" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
+  <input class="pp-${ hostedButtonId }" type="submit" value="${ buttonText || 'Pay Now' }" />
+  <img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards" />
+  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
+</form>`;
+	}
+
 	return `<div id="paypal-container-${ hostedButtonId }"></div>
 <script>
   paypal.HostedButtons({
@@ -213,9 +223,9 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 
 	useEffect( () => {
 		if ( ! rawBodyCode && hostedButtonId ) {
-			setRawBodyCode( generateBodyCode( hostedButtonId ) );
+			setRawBodyCode( generateBodyCode( hostedButtonId, buttonType, buttonText ) );
 		}
-	}, [ hostedButtonId, rawBodyCode ] );
+	}, [ hostedButtonId, rawBodyCode, buttonType, buttonText ] );
 
 	useEffect( () => {
 		// Check if user has pasted invalid code that couldn't be extracted
