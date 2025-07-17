@@ -246,28 +246,6 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
-			// Catch sitemap xml.
-			if ( preg_match( $regex['sitemap'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						$request['sitemap_name'],
-						JP_PAGE_SITEMAP_TYPE
-					)
-				);
-			}
-
-			// Catch sitemap index xml.
-			if ( preg_match( $regex['index'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						$request['sitemap_name'],
-						JP_PAGE_SITEMAP_INDEX_TYPE
-					)
-				);
-			}
-
 			// Catch sitemap xsl.
 			if ( 'sitemap.xsl' === $request['sitemap_name'] ) {
 				$this->serve_raw_and_die(
@@ -284,55 +262,11 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
-			// Catch image sitemap xml.
-			if ( preg_match( $regex['image'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						$request['sitemap_name'],
-						JP_IMAGE_SITEMAP_TYPE
-					)
-				);
-			}
-
-			// Catch image sitemap index xml.
-			if ( preg_match( $regex['image-index'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						$request['sitemap_name'],
-						JP_IMAGE_SITEMAP_INDEX_TYPE
-					)
-				);
-			}
-
 			// Catch image sitemap xsl.
 			if ( 'image-sitemap.xsl' === $request['sitemap_name'] ) {
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::image_sitemap_xsl()
-				);
-			}
-
-			// Catch video sitemap xml.
-			if ( preg_match( $regex['video'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						$request['sitemap_name'],
-						JP_VIDEO_SITEMAP_TYPE
-					)
-				);
-			}
-
-			// Catch video sitemap index xml.
-			if ( preg_match( $regex['video-index'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						$request['sitemap_name'],
-						JP_VIDEO_SITEMAP_INDEX_TYPE
-					)
 				);
 			}
 
@@ -358,6 +292,72 @@ class Jetpack_Sitemap_Manager {
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::news_sitemap_xsl()
+				);
+			}
+
+			// Catch sitemap xml.
+			if ( preg_match( $regex['sitemap'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_PAGE_SITEMAP_TYPE
+					)
+				);
+			}
+
+			// Catch sitemap index xml.
+			if ( preg_match( $regex['index'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_PAGE_SITEMAP_INDEX_TYPE
+					)
+				);
+			}
+
+			// Catch image sitemap xml.
+			if ( preg_match( $regex['image'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_IMAGE_SITEMAP_TYPE
+					)
+				);
+			}
+
+			// Catch image sitemap index xml.
+			if ( preg_match( $regex['image-index'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_IMAGE_SITEMAP_INDEX_TYPE
+					)
+				);
+			}
+
+			// Catch video sitemap xml.
+			if ( preg_match( $regex['video'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_VIDEO_SITEMAP_TYPE
+					)
+				);
+			}
+
+			// Catch video sitemap index xml.
+			if ( preg_match( $regex['video-index'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_VIDEO_SITEMAP_INDEX_TYPE
+					)
 				);
 			}
 		}
