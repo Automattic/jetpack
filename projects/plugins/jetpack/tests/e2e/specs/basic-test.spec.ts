@@ -3,7 +3,10 @@ import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 test.use( { storageState: process.env.STORAGE_STATE_PATH } );
 
 test.describe( 'Start test', () => {
-	test( 'smoke test', async ( { page, admin } ) => {
+	test( 'smoke test', async ( { page, admin, requestUtils } ) => {
+		const r = await requestUtils.rest( { path: 'jetpack/v4/connection/check' } );
+		console.log( 'Connection check response:', r );
+
 		await admin.visitAdminPage( 'index.php' );
 
 		expect( await page.title() ).toContain( 'Dashboard' );

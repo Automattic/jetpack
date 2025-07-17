@@ -17,7 +17,7 @@ const test = baseTest.extend( {
 		await use( page );
 	},
 
-	restApi: async ( {}, use ) => {
+	requestUtils: async ( {}, use ) => {
 		const creds = getSiteCredentials();
 		const requestUtils = await RequestUtils.setup( {
 			user: {
