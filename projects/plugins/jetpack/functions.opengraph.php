@@ -554,7 +554,7 @@ function jetpack_og_get_available_templates() {
  */
 function jetpack_og_get_social_image_token( $site_title, $image_url, $template ) {
 	// Let's check if we have a cached token.
-	$cache_key      = md5( $site_title . $image_url . $template );
+	$cache_key      = wp_hash( $site_title . $image_url . $template );
 	$transient_name = 'jetpack_og_social_image_token_' . $cache_key;
 	$cached_token   = get_transient( $transient_name );
 
