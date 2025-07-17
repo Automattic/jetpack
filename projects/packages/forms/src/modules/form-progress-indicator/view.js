@@ -1,43 +1,23 @@
 import { getContext, store, getElement } from '@wordpress/interactivity';
 
 store( 'jetpack/form', {
-	state: {
-		get getStepProgress() {
-			const context = getContext();
-			return ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 + '%';
-		},
-		// Provide numeric progress value (0-100) for aria-valuenow bindings.
-		get getStepProgressValue() {
-			const context = getContext();
-			return Math.round( ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 );
-		},
-		// Expose the current step so we can watch it from markup (data-wp-watch--highlight).
-		// Whenever `currentStep` changes, this derived getter will emit a new value and
-		// trigger the watcher.
-		get highlight() {
-			const context = getContext();
-			return context.currentStep;
-		},
-	},
+	// progress-indicator module only needs callbacks; progress-related state
+	// has been moved to the shared form store.
 	callbacks: {
 		initializeProgress: () => {
-			const context = getContext();
-
-			// Ensure a valid transition value.
-			if (
-				! context.transition ||
-				! [ 'none', 'fade', 'slide', 'fade-slide' ].includes( context.transition )
-			) {
-				context.transition = 'fade-slide';
-			}
-
 			const elementInfo = getElement();
 			if ( ! elementInfo?.ref ) {
 				return; // Element not yet available
 			}
+
+			const context = getContext();
+
+			// Previously ensured a valid transition value, but multiple transitions
+			// are not yet implemented. Removing for now to simplify logic.
+
 			const wrapper = elementInfo.ref;
 
-			const updateHighlight = () => {
+			const updateProgressHighlight = () => {
 				const namesList = wrapper.querySelector( '.jetpack-form-progress-indicator-names' );
 				if ( ! namesList ) {
 					return;
@@ -82,11 +62,19 @@ store( 'jetpack/form', {
 					return;
 				}
 
-				stepNodes.forEach( ( stepNode, idx ) => {
-					const label = stepNode.getAttribute( 'data-step-label' ) || `Step ${ idx + 1 }`;
+				let labels = store( 'jetpack/form' ).state.stepLabels;
+				if ( ! Array.isArray( labels ) || labels.length === 0 ) {
+					// Fallback: derive labels from DOM if not provided.
+					labels = [];
+					stepNodes.forEach( ( stepNode, idx ) => {
+						const l = stepNode.getAttribute( 'data-step-label' ) || `Step ${ idx + 1 }`;
+						labels.push( l );
+					} );
+				}
+
+				labels.forEach( ( label, idx ) => {
 					const li = document.createElement( 'li' );
 					li.textContent = label;
-					// Store step index for easy lookup when highlighting.
 					li.dataset.stepIndex = String( idx + 1 );
 					li.classList.toggle( 'is-current-step', idx + 1 === context.currentStep );
 					if ( idx + 1 === context.currentStep ) {
@@ -96,19 +84,19 @@ store( 'jetpack/form', {
 				} );
 
 				// Initial highlight.
-				updateHighlight();
+				updateProgressHighlight();
 			};
 
 			// Build the names list once on initialization.
 			buildNamesList();
 			// Expose highlight updater so it can be referenced by data-wp-watch.
-			context.updateProgressNamesHighlight = updateHighlight;
+			context.updateProgressHighlight = updateProgressHighlight;
 		},
-		updateHighlight: () => {
+		updateProgressHighlight: () => {
 			// Exposed for data-wp-watch in markup.
 			const context = getContext();
-			if ( typeof context.updateProgressNamesHighlight === 'function' ) {
-				context.updateProgressNamesHighlight();
+			if ( typeof context.updateProgressHighlight === 'function' ) {
+				context.updateProgressHighlight();
 			}
 		},
 	},

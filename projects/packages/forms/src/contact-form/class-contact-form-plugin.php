@@ -779,7 +779,7 @@ class Contact_Form_Plugin {
 		$processor->next_tag();
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
 		$processor->set_attribute( 'data-wp-init--initializeProgress', 'callbacks.initializeProgress' );
-		$processor->set_attribute( 'data-wp-watch--highlight', 'callbacks.updateHighlight' );
+		$processor->set_attribute( 'data-wp-watch--currentStep', 'callbacks.updateProgressHighlight' );
 		// Accessibility attributes for the progress bar.
 		$processor->set_attribute( 'role', 'progressbar' );
 		$processor->set_attribute( 'aria-valuemin', '0' );

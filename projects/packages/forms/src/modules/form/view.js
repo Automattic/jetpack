@@ -6,6 +6,7 @@ import {
 	store,
 	getConfig,
 	withSyncEvent as originalWithSyncEvent,
+	getElement,
 } from '@wordpress/interactivity';
 /*
  * Internal dependencies
@@ -203,9 +204,39 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			return context.submissionError || '';
 		},
+
+		// Returns an array of step labels for multi-step forms. Populated during initialization.
+		get stepLabels() {
+			const context = getContext();
+			return context.stepLabels || [];
+		},
+
+		// Progress indicator helpers
+		get getStepProgress() {
+			const context = getContext();
+			return ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 + '%';
+		},
+
+		// Provide numeric progress value (0-100) for aria-valuenow bindings.
+		get getStepProgressValue() {
+			const context = getContext();
+			return Math.round( ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 );
+		},
+
+		// Expose the current step so markup can watch it via data-wp-watch.
+		get currentStep() {
+			const context = getContext();
+			return context.currentStep;
+		},
 	},
 
 	actions: {
+		// Stores the ordered list of step labels so other components (progress indicator,
+		// navigation, etc.) can reuse them without querying the DOM again.
+		setStepLabels: labels => {
+			const context = getContext();
+			context.stepLabels = labels;
+		},
 		updateFieldValue: ( fieldId, value ) => {
 			updateField( fieldId, value );
 		},
@@ -342,6 +373,26 @@ const { state } = store( NAMESPACE, {
 	},
 
 	callbacks: {
+		// Runs once for the <form> element. Reads step labels injected by PHP and
+		// stores them in the shared form store so all components can reuse them.
+		initializeForm() {
+			const elementInfo = getElement();
+			if ( ! elementInfo?.ref ) {
+				return;
+			}
+
+			const labelsAttr = elementInfo.ref.dataset.stepLabels || '[]';
+			let labels = [];
+			try {
+				labels = JSON.parse( labelsAttr );
+			} catch {
+				// If parsing fails, leave labels empty.
+			}
+
+			if ( Array.isArray( labels ) && labels.length ) {
+				store( NAMESPACE ).actions.setStepLabels( labels );
+			}
+		},
 		initializeField() {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;

@@ -451,13 +451,33 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$context = array_merge( $context, $multistep_context );
 			}
 
+			$step_labels_json = '[]';
+			if ( $is_multistep ) {
+				$step_labels      = array();
+				$step_index       = 1;
+				$processor_labels = new \WP_HTML_Tag_Processor( $content );
+				while ( $processor_labels->next_tag() ) {
+					$class = $processor_labels->get_attribute( 'class' );
+					if ( $class && str_contains( $class, 'jetpack-form-step' ) ) {
+						$label = $processor_labels->get_attribute( 'data-step-label' );
+						/* translators: %d is the step index shown to the user when no custom label is provided. */
+						$step_labels[] = $label ? $label : sprintf( __( 'Step %d', 'jetpack-forms' ), $step_index );
+						++$step_index;
+					}
+				}
+				$step_labels_json = wp_json_encode( $step_labels );
+			}
+
 			$context = is_array( $context ) ? array_merge( $default_context, $context ) : $default_context;
 
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='jp-form-" . esc_attr( $form->hash ) . "'
 				method='post'
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
-				data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . "
+				data-step-labels='" . esc_attr( $step_labels_json ) . "'
+				data-wp-interactive=\"jetpack/form\"
+				data-wp-init--initializeForm=\"callbacks.initializeForm\"
+				" . wp_interactivity_data_wp_context( $context ) . "
 				data-wp-on--submit=\"actions.onFormSubmit\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
