@@ -142,7 +142,7 @@ class Feedback {
 		$this->feedback_id   = $feedback_post->post_name;
 		$this->feedback_time = $feedback_post->post_date;
 
-		$this->fields = isset( $parsed_content['fields'] ) ? $parsed_content['fields'] : array();
+		$this->fields = $parsed_content['fields'] ?? array();
 
 		$this->entry = new Feedback_Entry(
 			$feedback_post->post_parent,
@@ -150,8 +150,8 @@ class Feedback {
 			$parsed_content['entry_page'] ?? 1
 		);
 
-		$this->ip_address = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : $this->get_first_field_of_type( 'ip' );
-		$this->subject    = isset( $parsed_content['subject'] ) ? $parsed_content['subject'] : $this->get_first_field_of_type( 'subject' );
+		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
+		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
@@ -160,7 +160,7 @@ class Feedback {
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
-		$this->has_consent     = $this->get_first_field_of_type( 'consent' ) === 'Yes' ? true : false;
+		$this->has_consent     = ( $this->get_first_field_of_type( 'consent' ) === 'Yes' );
 
 		$this->feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}

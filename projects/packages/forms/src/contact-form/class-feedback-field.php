@@ -257,8 +257,8 @@ class Feedback_Field {
 			$data['key'],
 			$data['label'],
 			$data['value'],
-			isset( $data['type'] ) ? $data['type'] : 'basic',
-			isset( $data['meta'] ) ? $data['meta'] : array()
+			$data['type'] ?? 'basic',
+			$data['meta'] ?? array()
 		);
 	}
 

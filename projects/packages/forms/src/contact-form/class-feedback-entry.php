@@ -83,9 +83,9 @@ class Feedback_Entry {
 			return new self( 0, '', $current_page_number );
 		}
 
-		$title = isset( $current_post->post_title ) ? $current_post->post_title : '';
+		$title = $current_post->post_title ?? '';
 
-		return new self( $id, $title, $current_page_number, $current_post );
+		return new self( $id, $title, $current_page_number );
 	}
 
 	/**
