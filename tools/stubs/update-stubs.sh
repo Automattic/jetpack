@@ -64,7 +64,7 @@ function fetch_plugin {
 function fetch_repo {
 	local repo=$1
 
-	local json=$(curl -L --fail "https://api.github.com/repos/$repo/releases/latest")
+	local json=$(gh api "/repos/$repo/releases/latest")
 
 	if ! jq -e '.tag_name // ""' <<<"$json" &>/dev/null; then
 		error "Unexpected response from GitHub API for $repo"

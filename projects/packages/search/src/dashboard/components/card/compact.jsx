@@ -1,4 +1,3 @@
-/*eslint lodash/import-scope: [2, "method"]*/
 import clsx from 'clsx';
 import { Component } from 'react';
 import Card from 'components/card';

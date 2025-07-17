@@ -1,4 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { DashboardPage, PluginsPage, Sidebar } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';

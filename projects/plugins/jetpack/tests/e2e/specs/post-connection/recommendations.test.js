@@ -1,5 +1,5 @@
 import { Plans, prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { RecommendationsPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '../../playwright.config.mjs';
 
