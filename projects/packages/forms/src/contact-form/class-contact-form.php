@@ -242,17 +242,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string|null The secret from the Tokens class or null if not available.
 	 */
 	private static function get_secret() {
-		$token = ( new Tokens() )->get_access_token();
-
-		if ( ! $token ) {
-			error_log( 'Error: Access token is unavailable.' );
-			return null;
-		}
-
+		$token          = ( new Tokens() )->get_access_token();
+		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION );
 		if ( ! isset( $token->secret ) ) {
-			error_log( 'Error: Access token does not contain a secret.' );
-			return null;
+			return $default_secret;
 		}
+
 		// Get the secret from the Tokens class.
 		return $token->secret;
 	}
@@ -273,7 +268,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public function get_jwt() {
 		$attributes = $this->attributes;
-
 		return JWT::encode(
 			array(
 				'attributes' => $attributes,
