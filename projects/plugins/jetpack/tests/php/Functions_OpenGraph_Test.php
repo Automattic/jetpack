@@ -11,11 +11,13 @@ use PHPUnit\Framework\Attributes\Group;
  * @covers ::jetpack_og_get_image
  * @covers ::jetpack_og_get_description
  * @covers ::jetpack_og_remove_query_blocks
+ * @covers ::jetpack_og_get_site_fallback_blank_image
  * @group jetpack-opengraph
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
 #[CoversFunction( 'jetpack_og_get_description' )]
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
+#[CoversFunction( 'jetpack_og_get_site_fallback_blank_image' )]
 #[Group( 'jetpack-opengraph' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
@@ -386,5 +388,51 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		$this->assertStringContainsString( 'Some text before', $result );
 		$this->assertStringContainsString( 'Some text after', $result );
 		$this->assertStringNotContainsString( 'Query content', $result );
+	}
+
+	/**
+	 * Test jetpack_og_get_site_fallback_blank_image with different scenarios.
+	 *
+	 * @dataProvider jetpack_og_get_site_fallback_blank_image_data_provider
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string        $expected_url Expected image URL.
+	 * @param callable|null $filter_callback Optional filter callback to add.
+	 */
+	#[DataProvider( 'jetpack_og_get_site_fallback_blank_image_data_provider' )]
+	public function test_jetpack_og_get_site_fallback_blank_image( $expected_url, $filter_callback = null ) {
+		// Add filter if provided.
+		if ( $filter_callback ) {
+			add_filter( 'jetpack_open_graph_image_default', $filter_callback );
+		}
+
+		$image_url = jetpack_og_get_site_fallback_blank_image();
+
+		$this->assertIsString( $image_url );
+		$this->assertEquals( $expected_url, $image_url );
+
+		// Clean up the filter if it was added.
+		if ( $filter_callback ) {
+			remove_all_filters( 'jetpack_open_graph_image_default' );
+		}
+	}
+
+	/**
+	 * Data provider for jetpack_og_get_site_fallback_blank_image tests.
+	 */
+	public static function jetpack_og_get_site_fallback_blank_image_data_provider() {
+		return array(
+			'default_image' => array(
+				'https://s0.wp.com/i/blank.jpg',
+				null,
+			),
+			'custom_image'  => array(
+				'https://example.com/custom-image.jpg',
+				function () {
+					return 'https://example.com/custom-image.jpg';
+				},
+			),
+		);
 	}
 }
