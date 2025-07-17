@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { Fragment, type FC } from 'react';
-import { formatMetricValue } from './format-metric-value';
+import { formatMetricValue } from '../shared/format-metric-value';
 import styles from './leaderboard-chart.module.scss';
 
 export interface LeaderboardEntry {

@@ -1,4 +1,4 @@
-import { formatMetricValue } from '../format-metric-value';
+import { formatMetricValue } from '../../shared/format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';
 import { sampleData, smallDataset, largeValues, negativeGrowth } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
