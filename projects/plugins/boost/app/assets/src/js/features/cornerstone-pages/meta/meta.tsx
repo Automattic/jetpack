@@ -80,7 +80,6 @@ const CornerstonePagesContent = () => {
 	return (
 		<div className={ styles.section }>
 			<p className={ styles.description }>
-				{ /* TODO: In a separate PR, we will add a tooltip to the predefined pages, including the support link for further information. */ }
 				<strong>{ __( 'Homepage:', 'jetpack-boost' ) }</strong>
 			</p>
 			<PredefinedList items={ cornerstonePagesProperties.predefined_pages } />
