@@ -1,4 +1,6 @@
-import { TextControl, BaseControl, ExternalLink, Icon } from '@wordpress/components';
+import { Badge } from '@automattic/ui';
+import '@automattic/ui/style.css';
+import { TextControl, BaseControl, ExternalLink } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import SalesforceIcon from '../../../../icons/salesforce';
@@ -66,12 +68,7 @@ const SalesforceCard = ( {
 		toggleDisabledTooltip: ! isValidSalesforceOrgId( salesforceData.organizationId )
 			? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )
 			: undefined,
-		setupBadge: (
-			<span className="integration-card__setup-badge">
-				<Icon icon="info-outline" size={ 12 } />
-				{ __( 'Enter organization ID', 'jetpack-forms' ) }
-			</span>
-		),
+		setupBadge: <Badge intent="default">{ __( 'Enter organization ID', 'jetpack-forms' ) }</Badge>,
 	};
 
 	return (

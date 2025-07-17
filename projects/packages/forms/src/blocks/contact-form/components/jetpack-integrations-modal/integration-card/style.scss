@@ -79,52 +79,7 @@
 	&__plugin-badge,
 	&__connected-badge,
 	&__setup-badge {
-		font-size: 12px;
-		padding: 4px 8px;
-		border-radius: 3px;
-		font-weight: 400;
-		line-height: 16px;
 		order: 2;
-
-		@media (max-width: 782px) {
-			order: 3;
-		}
-	}
-
-	&__plugin-badge {
-		background: #F0F0F0;
-		color: #646970;
-	}
-
-	&__connected-badge {
-		background: #E5F5E8;
-		color: #008710;
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		order: 2;
-
-		.components-icon {
-			color: #93c692;
-		}
-
-		@media (max-width: 782px) {
-			order: 3;
-		}
-	}
-
-	&__setup-badge {
-		// copy of how Badge (private api yet) is styled
-		background: color(sRGB 0.921961 0.93451 0.991373);
-		color: color(sRGB 0.109804 0.172549 0.456863);
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		order: 2;
-
-		.components-icon {
-			color: #93c692;
-		}
 
 		@media (max-width: 782px) {
 			order: 3;
