@@ -180,21 +180,7 @@ const PayPalPreview = ( { attributes } ) => {
 	const { buttonType, buttonText } = attributes;
 
 	if ( ! canShowPreview( attributes ) ) {
-		return (
-			<div
-				style={ {
-					padding: '40px 20px',
-					textAlign: 'center',
-					color: '#666',
-					fontStyle: 'italic',
-					border: '2px dashed #ddd',
-					borderRadius: '4px',
-					backgroundColor: '#f9f9f9',
-				} }
-			>
-				{ __( 'Configure PayPal button settings to see preview', 'jetpack-paypal-payments' ) }
-			</div>
-		);
+		return null;
 	}
 
 	// Only render preview for single button type
