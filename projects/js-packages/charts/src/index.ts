@@ -43,6 +43,4 @@ export type {
 } from './components/leaderboard-chart';
 
 // LeaderboardChart utilities
-export { buildLeaderboardData, calculateDelta } from './components/leaderboard-chart/utils';
 export { formatMetricValue } from './components/leaderboard-chart';
-export type { LeaderboardDataItem } from './components/leaderboard-chart/utils';

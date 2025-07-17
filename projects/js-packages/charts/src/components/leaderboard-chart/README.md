@@ -62,23 +62,30 @@ function CustomFormattedChart() {
 }
 ```
 
-### Using with Raw Data
+### Preparing Your Data
+
+The LeaderboardChart expects pre-processed data. You'll need to transform your raw data into the required format:
 
 ```typescript
-import { LeaderboardChart, buildLeaderboardData } from '@automattic/charts';
+import { LeaderboardChart } from '@automattic/charts';
 
-const rawData = [
-  {
-    id: 'direct',
-    name: 'Direct',
-    current_period: { value: 12500 },
-    previous_period: { value: 10000 },
-  },
-  // ... more raw data
-];
+// Transform your raw data into LeaderboardEntry format
+function transformRawData(rawData) {
+  const maxValue = Math.max(...rawData.map(item => item.current_period.value));
+  
+  return rawData.map(item => ({
+    id: item.id,
+    label: item.name,
+    currentValue: item.current_period.value,
+    previousValue: item.previous_period.value,
+    currentShare: (item.current_period.value / maxValue) * 100,
+    previousShare: (item.previous_period.value / maxValue) * 100,
+    delta: ((item.current_period.value - item.previous_period.value) / item.previous_period.value) * 100,
+  }));
+}
 
 function ProcessedDataChart() {
-  const processedData = buildLeaderboardData(rawData, 4);
+  const processedData = transformRawData(rawData);
   
   return (
     <LeaderboardChart
@@ -119,38 +126,9 @@ interface LeaderboardEntry {
 }
 ```
 
-## Utility Functions
+## Data Transformation
 
-### buildLeaderboardData
-
-Processes raw data into the format expected by LeaderboardChart.
-
-```typescript
-function buildLeaderboardData(
-  data: LeaderboardDataItem[],
-  maxItems?: number
-): LeaderboardEntry[]
-```
-
-**Parameters:**
-- `data`: Array of raw data items
-- `maxItems`: Maximum number of items to return (default: 4)
-
-**Returns:** Processed and sorted array of LeaderboardEntry objects
-
-### calculateDelta
-
-Calculates percentage change between two values.
-
-```typescript
-function calculateDelta(current: number, previous: number): number
-```
-
-**Parameters:**
-- `current`: Current period value
-- `previous`: Previous period value
-
-**Returns:** Percentage change as a number
+Since the LeaderboardChart expects pre-processed data, you'll need to handle data transformation in your application. This gives you full control over how your specific data structures are converted and allows for custom business logic.
 
 ## Styling
 
@@ -189,11 +167,11 @@ const salesData = [
 ### Traffic Sources
 
 ```typescript
-const trafficData = buildLeaderboardData([
-  { id: 'direct', name: 'Direct', current_period: { value: 15420 }, previous_period: { value: 13200 } },
-  { id: 'search', name: 'Search Engines', current_period: { value: 12350 }, previous_period: { value: 11800 } },
-  { id: 'social', name: 'Social Networks', current_period: { value: 8760 }, previous_period: { value: 9200 } },
-]);
+const trafficData = [
+  { id: 'direct', label: 'Direct', currentValue: 15420, previousValue: 13200, currentShare: 100, previousShare: 86, delta: 17 },
+  { id: 'search', label: 'Search Engines', currentValue: 12350, previousValue: 11800, currentShare: 80, previousShare: 77, delta: 5 },
+  { id: 'social', label: 'Social Networks', currentValue: 8760, previousValue: 9200, currentShare: 57, previousShare: 60, delta: -5 },
+];
 
 <LeaderboardChart data={trafficData} withComparison={true} />
 ```
@@ -206,7 +184,7 @@ The component includes comprehensive tests covering:
 - Comparison functionality
 - Custom formatters
 - Loading states
-- Utility functions
+- Empty data handling
 
 Run tests with:
 ```bash

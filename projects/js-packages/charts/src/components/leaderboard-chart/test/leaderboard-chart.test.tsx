@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { LeaderboardChart } from '../leaderboard-chart';
-import { buildLeaderboardData, calculateDelta } from '../utils';
 import type { LeaderboardEntry } from '../leaderboard-chart';
 
 const mockData: LeaderboardEntry[] = [
@@ -105,74 +104,5 @@ describe( 'LeaderboardChart', () => {
 		render( <LeaderboardChart data={ [] } /> );
 
 		expect( screen.queryByText( 'Direct' ) ).not.toBeInTheDocument();
-	} );
-} );
-
-describe( 'Utils', () => {
-	describe( 'calculateDelta', () => {
-		it( 'calculates positive delta correctly', () => {
-			expect( calculateDelta( 120, 100 ) ).toBe( 20 );
-		} );
-
-		it( 'calculates negative delta correctly', () => {
-			expect( calculateDelta( 80, 100 ) ).toBe( -20 );
-		} );
-
-		it( 'handles zero previous value', () => {
-			expect( calculateDelta( 100, 0 ) ).toBe( 100 );
-			expect( calculateDelta( 0, 0 ) ).toBe( 0 );
-		} );
-
-		it( 'handles invalid inputs', () => {
-			expect( calculateDelta( NaN, 100 ) ).toBe( 0 );
-			expect( calculateDelta( 100, NaN ) ).toBe( 0 );
-		} );
-	} );
-
-	describe( 'buildLeaderboardData', () => {
-		const rawData = [
-			{
-				id: 'a',
-				name: 'Item A',
-				current_period: { value: 100 },
-				previous_period: { value: 80 },
-			},
-			{
-				id: 'b',
-				name: 'Item B',
-				current_period: { value: 200 },
-				previous_period: { value: 160 },
-			},
-		];
-
-		it( 'processes raw data correctly', () => {
-			const result = buildLeaderboardData( rawData );
-
-			expect( result ).toHaveLength( 2 );
-			expect( result[ 0 ] ).toMatchObject( {
-				id: 'b',
-				label: 'Item B',
-				currentValue: 200,
-				previousValue: 160,
-			} );
-		} );
-
-		it( 'sorts by current value descending', () => {
-			const result = buildLeaderboardData( rawData );
-
-			expect( result[ 0 ].currentValue ).toBeGreaterThan( result[ 1 ].currentValue );
-		} );
-
-		it( 'limits results to maxItems', () => {
-			const result = buildLeaderboardData( rawData, 1 );
-
-			expect( result ).toHaveLength( 1 );
-		} );
-
-		it( 'handles empty data', () => {
-			const result = buildLeaderboardData( [] );
-
-			expect( result ).toHaveLength( 0 );
-		} );
 	} );
 } );
