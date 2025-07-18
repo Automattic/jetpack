@@ -120,7 +120,7 @@ input[type="url"] {
 	line-height: 1.5;
 	border: 1px solid #c8d7e1;
 	background-color: #fff;
-	transition: all .15s ease-in-out;
+	transition: all 0.15s ease-in-out;
 	box-shadow: none;
 }
 
@@ -196,7 +196,7 @@ textarea {
 	line-height: 1.5;
 	border: 1px solid #c8d7e1;
 	background-color: #fff;
-	transition: all .15s ease-in-out;
+	transition: all 0.15s ease-in-out;
 	box-shadow: none;
 }
 
@@ -258,7 +258,7 @@ input[type="checkbox"] {
 	text-align: center;
 	vertical-align: middle;
 	appearance: none;
-	transition: all .15s ease-in-out;
+	transition: all 0.15s ease-in-out;
 	clear: none;
 	cursor: pointer;
 }
@@ -328,7 +328,7 @@ input[type="radio"] {
 	font-size: 16px;
 	border: 1px solid #c8d7e1;
 	background-color: #fff;
-	transition: all .15s ease-in-out;
+	transition: all 0.15s ease-in-out;
 	box-sizing: border-box;
 	-webkit-appearance: none;
 	clear: none;
@@ -377,7 +377,7 @@ input[type="radio"]:checked::before {
 	background: #00aadc;
 	vertical-align: middle;
 	border-radius: 50%;
-	animation: grow .2s ease-in-out;
+	animation: grow 0.2s ease-in-out;
 }
 
 .radio-button:disabled,

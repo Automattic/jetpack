@@ -101,7 +101,7 @@
 		font-weight: 400;
 		font-size: typography.$font-body-small;
 		text-decoration: underline;
-		transition-duration: .05s;
+		transition-duration: 0.05s;
 		transition-property: border, background, color;
 		transition-timing-function: ease-in-out;
 		background: none;
@@ -189,7 +189,7 @@
 }
 
 .jp-dash-item__disabled {
-	opacity: .5;
+	opacity: 0.5;
 	position: relative;
 
 	&::before {

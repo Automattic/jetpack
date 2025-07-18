@@ -15,7 +15,7 @@
 	}
 
 	.jp-form-google-separator {
-		padding: .5rem 0;
+		padding: 0.5rem 0;
 
 		@include mixin_breakpoint.breakpoint( '<660px' ) {
 			margin: 25px 0 0;

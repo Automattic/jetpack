@@ -31,7 +31,7 @@
 
 @mixin break-small-down() {
 
-	@media ( max-width: #{ ( variables.$break-sm - .02px ) } ) {
+	@media ( max-width: #{ ( variables.$break-sm - 0.02px ) } ) {
 		@content;
 	}
 }
@@ -45,7 +45,7 @@
 
 @mixin break-medium-down() {
 
-	@media ( max-width: #{ ( variables.$break-md - .02px ) } ) {
+	@media ( max-width: #{ ( variables.$break-md - 0.02px ) } ) {
 		@content;
 	}
 }
@@ -59,7 +59,7 @@
 
 @mixin break-large-down() {
 
-	@media ( max-width: #{ ( variables.$break-lg - .02px ) } ) {
+	@media ( max-width: #{ ( variables.$break-lg - 0.02px ) } ) {
 		@content;
 	}
 }

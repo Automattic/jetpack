@@ -7,7 +7,7 @@
 
 .button,
 .download-jetpack {
-	transition: all .1s ease-in-out;
+	transition: all 0.1s ease-in-out;
 }
 
 .jp-button,
@@ -19,7 +19,7 @@
 	font-weight: 700;
 	font-size: 0.9285714286em; // 13/14
 	line-height: 1;
-	text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 	background: #6f7476;
 	border-radius: 3px;
 
@@ -77,7 +77,7 @@
 	border-radius: 6px;
 	box-shadow:
 		0 6px 0 #3e6c20,
-		0 6px 3px rgba(0, 0, 0, .4);
+		0 6px 3px rgba(0, 0, 0, 0.4);
 
 	&:visited {
 		color: #fff;
@@ -89,14 +89,14 @@
 		background: #57972d;
 		box-shadow:
 			0 6px 0 #3e6c20,
-			0 6px 3px rgba(0, 0, 0, .4);
+			0 6px 3px rgba(0, 0, 0, 0.4);
 	}
 
 	&:active {
 		top: 6px;
 		box-shadow:
 			0 0 0 #3e6c20,
-			0 0 0 rgba(0, 0, 0, .4);
+			0 0 0 rgba(0, 0, 0, 0.4);
 
 		&::after {
 			// fixes buggy clicks

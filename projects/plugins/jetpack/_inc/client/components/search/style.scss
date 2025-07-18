@@ -74,7 +74,7 @@
 	.dops-search__close-icon {
 		color: var(--jp-black);
 		opacity: 0;
-		transition: opacity .2s ease-in;
+		transition: opacity 0.2s ease-in;
 	}
 
 	.accessible-focus &.has-focus {

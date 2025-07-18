@@ -38,7 +38,7 @@
 		--verbum-background-color: rgba(255, 255, 255, 0.6);
 		--verbum-wrapper-background-color: rgba(255, 255, 255, 0.6);
 		--verbum-content-background-color: rgba(255, 255, 255, 0.6);
-		--verbum-element-opacity: .9;
+		--verbum-element-opacity: 0.9;
 		--wp--preset--color--primary: var(--verbum-font-color);
 		--verbum-focus-color: #0675c4;
 		--verbum-focus-background-color: #fff;
@@ -346,10 +346,10 @@
 
 									&:not(.active) {
 										background-color: #5C5C5C;
-										opacity: .6;
+										opacity: 0.6;
 
 										svg {
-											opacity: .8;
+											opacity: 0.8;
 										}
 									}
 								}

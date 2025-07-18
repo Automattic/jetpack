@@ -54,7 +54,7 @@ html {
 
 	#{$snow_selector}:after {
 		margin-left: math.div(-$grid_width, 3) + px;
-		opacity: .4;
+		opacity: 0.4;
 		animation-duration: $snow_speed * 2;
 		animation-direction: reverse;
 		filter: blur(3px);
@@ -64,7 +64,7 @@ html {
 		animation-duration: $snow_speed * 3;
 		animation-direction: reverse;
 		margin-left: math.div(-$grid_width, 2) + px;
-		opacity: .65;
+		opacity: 0.65;
 		filter: blur(1.5px);
 	}
 

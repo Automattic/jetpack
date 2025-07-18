@@ -86,7 +86,7 @@ div.jx-arrow {
 	bottom: 0;
 	width: 0;
 	height: 0;
-	transition: all .2s ease;
+	transition: all 0.2s ease;
 }
 
 .vertical div.jx-arrow {
@@ -96,7 +96,7 @@ div.jx-arrow {
 	right: 0;
 	width: 0;
 	height: 0;
-	transition: all .2s ease;
+	transition: all 0.2s ease;
 }
 
 div.jx-arrow.jx-left {
@@ -221,12 +221,12 @@ div.jx-image.jx-right img {
 
 div.jx-image div.jx-label {
 	font-size: 1em;
-	padding: .25em .75em;
+	padding: 0.25em 0.75em;
 	position: relative;
 	display: inline-block;
 	top: 0;
 	background-color: #000; /* IE 8 */
-	background-color: rgba(0, 0, 0, .7);
+	background-color: rgba(0, 0, 0, 0.7);
 	color: #fff;
 	z-index: 10;
 	white-space: nowrap;
@@ -257,19 +257,19 @@ div.jx-image.jx-right div.jx-label {
 
 /* Animation */
 div.jx-image.transition {
-	transition: width .5s ease;
+	transition: width 0.5s ease;
 }
 
 div.jx-handle.transition {
-	transition: left .5s ease;
+	transition: left 0.5s ease;
 }
 
 .vertical div.jx-image.transition {
-	transition: height .5s ease;
+	transition: height 0.5s ease;
 }
 
 .vertical div.jx-handle.transition {
-	transition: top .5s ease;
+	transition: top 0.5s ease;
 }
 
 /* keyboard accessibility */

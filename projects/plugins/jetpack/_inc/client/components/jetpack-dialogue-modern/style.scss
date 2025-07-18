@@ -10,7 +10,7 @@
 	bottom: 0;
 	left: 0;
 	z-index: 1000; // to sit over other elements
-	background: rgba(colors.$gray-light, .95);
+	background: rgba(colors.$gray-light, 0.95);
 	padding: 1rem 0 0 0;
 	height: 100%;
 	overflow: auto;
@@ -132,12 +132,12 @@ a.jp-dialogue-modern__note {
 	position: absolute;
 	right: 0;
 	top: rem.convert(80px);
-	opacity: .90;
+	opacity: 0.9;
 }
 
 .jp-dialogue-modern-full__svg-stars {
 	position: absolute;
 	left: rem.convert(100px);
 	top: rem.convert(100px);
-	opacity: .90;
+	opacity: 0.9;
 }

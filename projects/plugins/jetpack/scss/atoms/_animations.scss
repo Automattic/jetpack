@@ -13,7 +13,7 @@
 	}
 
 	60% {
-		transform: scale(.95);
+		transform: scale(0.95);
 	}
 
 	100% {
@@ -24,7 +24,7 @@
 @keyframes jetpack-loading-fade {
 
 	0% {
-		opacity: .5;
+		opacity: 0.5;
 	}
 
 	50% {
@@ -32,7 +32,7 @@
 	}
 
 	100% {
-		opacity: .5;
+		opacity: 0.5;
 	}
 }
 

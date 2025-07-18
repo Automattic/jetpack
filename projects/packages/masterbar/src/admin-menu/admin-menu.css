@@ -322,7 +322,7 @@ a.screen-switcher__button {
 	color: var(--color-text);
 	cursor: pointer;
 	display: inline-block;
-	font-size: .75rem;
+	font-size: 0.75rem;
 	line-height: normal;
 	text-decoration: none;
 	padding: 8px;

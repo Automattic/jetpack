@@ -61,7 +61,7 @@
 
 .jetpack-form-file-field__dropzone.is-dropping {
 	cursor: pointer;
-	transition: .2s;
+	transition: 0.2s;
 	opacity: 1;
 	filter: invert(0.1);
 }
@@ -133,7 +133,7 @@
 
 	.jetpack-form-file-field__preview-wrap.is-active .jetpack-form-file-field__preview {
 		opacity: 0;
-		animation: jpShowFileField 0.35s cubic-bezier(.21, 1.02, .73, 1) forwards;
+		animation: jpShowFileField 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
 	}
 
 	/* Animation for the fade out effect */
@@ -351,8 +351,8 @@
 @keyframes jpShowFileField {
 
 	0% {
-		transform: translate3d(0, -10px, 0) scale(.90);
-		opacity: .5;
+		transform: translate3d(0, -10px, 0) scale(0.9);
+		opacity: 0.5;
 	}
 
 	100% {

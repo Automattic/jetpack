@@ -548,12 +548,12 @@
 			}
 
 			tr {
-				border: 1px solid rgba(0, 0, 0, .2);
+				border: 1px solid rgba(0, 0, 0, 0.2);
 			}
 
 			td {
 				border: none;
-				border-bottom: 1px solid rgba(0, 0, 0, .1);
+				border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 				position: relative;
 				padding-left: 50%;
 			}
@@ -578,7 +578,7 @@
 	.zbs-multi-group-item {
 		margin-bottom: 30px;
 		padding: 10px;
-		border-left: 5px solid rgba(0, 0, 0, .1);
+		border-left: 5px solid rgba(0, 0, 0, 0.1);
 	}
 
 	.zerobs-proposal-body {
@@ -600,7 +600,7 @@
 
 	#zbs-nav-tabs li {
 		list-style: none;
-		border: 1px solid rgba(0, 0, 0, .1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
 		border-bottom-width: 0;
 		white-space: nowrap;
 	}
@@ -611,11 +611,11 @@
 
 	#zbs-nav-tabs a {
 		display: block;
-		padding: .5em 1em;
+		padding: 0.5em 1em;
 	}
 
 	#zbs-nav-tabs .fa {
-		margin-right: .5em;
+		margin-right: 0.5em;
 	}
 
 	.zbs-portal-content .alert {
@@ -623,7 +623,7 @@
 		background: var(--jp-green-20);
 		text-align: center;
 		padding: 1em;
-		border-radius: .5em;
+		border-radius: 0.5em;
 	}
 
 	.zbs-portal-content .alert a {

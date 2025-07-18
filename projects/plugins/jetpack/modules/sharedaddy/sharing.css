@@ -7,7 +7,7 @@
 
 /* Master container */
 #jp-post-flair {
-	padding-top: .5em;
+	padding-top: 0.5em;
 }
 
 
@@ -27,11 +27,11 @@ div.sharedaddy h3.sd-title {
 }
 
 body.highlander-light h3.sd-title::before {
-	border-top: 1px solid rgba(0, 0, 0, .2);
+	border-top: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 body.highlander-dark h3.sd-title::before {
-	border-top: 1px solid rgba(255, 255, 255, .4);
+	border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 
@@ -61,7 +61,7 @@ body.highlander-dark h3.sd-title::before {
 }
 
 .sd-block.sd-gplus {
-	margin: 0 0 .5em 0;
+	margin: 0 0 0.5em 0;
 }
 
 .sd-gplus .sd-content {
@@ -178,7 +178,7 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 .sd-social-icon-text .sd-content ul li a.sd-button:active,
 .sd-social-official .sd-content > ul > li > a.sd-button:active,
 .sd-social-official .sd-content > ul > li .digg_button > a:active {
-	box-shadow: inset 0 1px 0 rgba(0, 0, 0, .16);
+	box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.16);
 }
 
 /* All icons */
@@ -587,7 +587,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	border: 1px solid #ccc;
 	padding: 10px;
 	background: #fff;
-	box-shadow: 0 5px 20px rgba(0, 0, 0, .2);
+	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 	border-radius: 2px;
 	margin-top: 5px;
 	max-width: 400px;
@@ -659,7 +659,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 .sd-social-icon .sd-content ul li[class*='share-'] a:hover,
 .sd-social-icon .sd-content ul li[class*='share-'] div.option a:hover {
 	border: none;
-	opacity: .6;
+	opacity: 0.6;
 }
 
 
