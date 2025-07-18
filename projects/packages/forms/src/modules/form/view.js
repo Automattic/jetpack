@@ -21,6 +21,7 @@ const withSyncEvent =
 
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
+let errorTimeout = null;
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
@@ -192,7 +193,7 @@ const { state } = store( NAMESPACE, {
 		get showSubmissionError() {
 			const context = getContext();
 
-			return !! context.submissionError;
+			return !! context.submissionError && ! state.showFormErrors;
 		},
 
 		get getFormErrorMessage() {
@@ -358,6 +359,15 @@ const { state } = store( NAMESPACE, {
 					}
 				} else {
 					context.submissionError = error;
+
+					if ( errorTimeout ) {
+						clearTimeout( errorTimeout );
+					}
+
+					errorTimeout = setTimeout( () => {
+						context.submissionError = null;
+					}, 5000 );
+
 					setSubmissionData( [] );
 				}
 
