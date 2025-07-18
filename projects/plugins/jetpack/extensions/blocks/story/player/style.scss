@@ -390,7 +390,7 @@
 	&.wp-story-app {
 		position: fixed;
 		// can force redraw on mobile safari
-		transform: translate3d(0,0,0);
+		transform: translate3d(0, 0, 0);
 		top: 0;
 		bottom: 0;
 		left: 0;
@@ -468,8 +468,8 @@
 
 			@media ( max-width: gb.$break-medium ) {
 				padding: 16px;
-				background: rgb(0,0,0);
-				background: linear-gradient(180deg, rgba(0,0,0,0.63) 0%, rgba(0,0,0,0) 100%);
+				background: rgb(0, 0, 0);
+				background: linear-gradient(180deg, rgba(0, 0, 0, 0.63) 0%, rgba(0, 0, 0, 0) 100%);
 			}
 
 			.wp-story-icon {

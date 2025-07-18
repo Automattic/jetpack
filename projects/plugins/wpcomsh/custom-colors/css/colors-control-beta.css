@@ -44,7 +44,7 @@
 	background-size: cover;
 	border: 2px solid #fff;
 	border-radius: 50%;
-	box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+	box-shadow: inset 0 -1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .disable-background .color-grid.main li,
@@ -61,7 +61,7 @@
 	position: relative;
 	background-size: 100% 100%;
 	border-radius: 2%;
-	box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+	box-shadow: inset 0 -1px 4px rgba(0, 0, 0, 0.1);
 	height: 55px;
 	margin-bottom: 0;
 	width: 100%;
@@ -91,7 +91,7 @@
 
 .color-grid li {
 	background: #f1f1f1;
-	border: 5px solid rgba(0,0,0,0.1);
+	border: 5px solid rgba(0, 0, 0, 0.1);
 	border-width: 1px 1px 5px;
 	font-size: 0;
 	box-sizing: border-box;
@@ -144,7 +144,7 @@
 	position: relative;
 	left: 14px;
 	top: 20px;
-	text-shadow: 0 0 2px rgba(0,0,0,0.4);
+	text-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
 }
 
 .color-grid.main .selected {
@@ -282,7 +282,7 @@ a.button.right-pill {
 
 .color-suggestions li {
 	background: #f1f1f1;
-	border: 3px solid rgba(0,0,0,0.1);
+	border: 3px solid rgba(0, 0, 0, 0.1);
 	font-size: 0;
 	margin: 0 10px 15px;
 	float: left;
@@ -634,7 +634,7 @@ input#iris {
 	background-repeat: repeat;
 	background-size: 100% 100%;
 	border-radius: 2%;
-	box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+	box-shadow: inset 0 -1px 4px rgba(0, 0, 0, 0.1);
 	width: 260px;
 	height: 55px;
 	margin-bottom: 8px;

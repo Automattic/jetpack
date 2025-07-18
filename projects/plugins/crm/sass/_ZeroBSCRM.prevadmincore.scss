@@ -1026,14 +1026,14 @@ output {
 	background-image: none;
 	border: 1px solid #ccc;
 	border-radius: 4px;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
 	transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s
 }
 
 .form-control:focus {
 	border-color: #66afe9;
 	outline: 0;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075),0 0 8px rgba(102, 175, 233, .6)
 }
 
 .form-control:-moz-placeholder {
@@ -1223,12 +1223,12 @@ textarea.input-lg {
 
 .has-success .form-control {
 	border-color: #3c763d;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075)
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
 }
 
 .has-success .form-control:focus {
 	border-color: #2b542c;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 6px #67b168
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075),0 0 6px #67b168
 }
 
 .has-success .input-group-addon {
@@ -1252,12 +1252,12 @@ textarea.input-lg {
 
 .has-warning .form-control {
 	border-color: #8a6d3b;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075)
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
 }
 
 .has-warning .form-control:focus {
 	border-color: #66512c;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 6px #c0a16b
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075),0 0 6px #c0a16b
 }
 
 .has-warning .input-group-addon {
@@ -1281,12 +1281,12 @@ textarea.input-lg {
 
 .has-error .form-control {
 	border-color: #a94442;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075)
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
 }
 
 .has-error .form-control:focus {
 	border-color: #843534;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 6px #ce8483
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075),0 0 6px #ce8483
 }
 
 .has-error .input-group-addon {
@@ -1440,7 +1440,7 @@ textarea.input-lg {
 .btn:active {
 	outline: 0;
 	background-image: none;
-	box-shadow: inset 0 3px 5px rgba(0,0,0,.125)
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125)
 }
 
 .btn.disabled,
@@ -1852,9 +1852,9 @@ input[type="submit"].btn-block {
 	list-style: none;
 	font-size: 14px;
 	background-color: #fff;
-	border: 1px solid rgba(0,0,0,.15);
+	border: 1px solid rgba(0, 0, 0, .15);
 	border-radius: 4px;
-	box-shadow: 0 6px 12px rgba(0,0,0,.175);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
 	background-clip: padding-box
 }
 
@@ -2094,7 +2094,7 @@ input[type="submit"].btn-block {
 }
 
 .btn-group.open .dropdown-toggle {
-	box-shadow: inset 0 3px 5px rgba(0,0,0,.125)
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125)
 }
 
 .btn-group.open .dropdown-toggle.btn-link {
@@ -2586,7 +2586,7 @@ input[type="submit"].btn-block {
 	padding-right: 15px;
 	padding-left: 15px;
 	border-top: 1px solid transparent;
-	box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1);
 	-webkit-overflow-scrolling: touch
 }
 
@@ -2820,7 +2820,7 @@ input[type="submit"].btn-block {
 	padding: 10px 15px;
 	border-top: 1px solid transparent;
 	border-bottom: 1px solid transparent;
-	box-shadow: inset 0 1px 0 rgba(255,255,255,.1),0 1px 0 rgba(255,255,255,.1);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1),0 1px 0 rgba(255, 255, 255, .1);
 	margin-top: 8px;
 	margin-bottom: 8px
 }
@@ -3656,7 +3656,7 @@ a.list-group-item-danger.active:hover {
 	background-color: #fff;
 	border: 1px solid transparent;
 	border-radius: 4px;
-	box-shadow: 0 1px 1px rgba(0,0,0,.05)
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .05)
 }
 
 .panel-body {
@@ -4027,11 +4027,11 @@ a.list-group-item-danger.active:hover {
 	background-color: #f5f5f5;
 	border: 1px solid #e3e3e3;
 	border-radius: 4px;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.05)
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05)
 }
 
 .well blockquote {
-	border-color: rgba(0,0,0,.15)
+	border-color: rgba(0, 0, 0, .15)
 }
 
 .close {
@@ -4081,12 +4081,12 @@ button.close {
 }
 
 .modal.fade .modal-dialog {
-	transform: translate(0,-25%);
+	transform: translate(0, -25%);
 	transition: transform .3s ease-out
 }
 
 .modal.in .modal-dialog {
-	transform: translate(0,0)
+	transform: translate(0, 0)
 }
 
 .modal-dialog {
@@ -4098,9 +4098,9 @@ button.close {
 .modal-content {
 	position: relative;
 	background-color: #fff;
-	border: 1px solid rgba(0,0,0,.2);
+	border: 1px solid rgba(0, 0, 0, .2);
 	border-radius: 6px;
-	box-shadow: 0 3px 9px rgba(0,0,0,.5);
+	box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
 	background-clip: padding-box;
 	outline: 0
 }
@@ -4183,7 +4183,7 @@ button.close {
 	}
 
 	.modal-content {
-		box-shadow: 0 5px 15px rgba(0,0,0,.5)
+		box-shadow: 0 5px 15px rgba(0, 0, 0, .5)
 	}
 
 	.modal-sm {
@@ -4320,9 +4320,9 @@ button.close {
 	text-align: left;
 	background-color: #fff;
 	background-clip: padding-box;
-	border: 1px solid rgba(0,0,0,.2);
+	border: 1px solid rgba(0, 0, 0, .2);
 	border-radius: 6px;
-	box-shadow: 0 5px 10px rgba(0,0,0,.2);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
 	white-space: normal
 }
 
@@ -4380,7 +4380,7 @@ button.close {
 	left: 50%;
 	margin-left: -11px;
 	border-bottom-width: 0;
-	border-top-color: rgba(0,0,0,.25);
+	border-top-color: rgba(0, 0, 0, .25);
 	bottom: -11px
 }
 
@@ -4397,7 +4397,7 @@ button.close {
 	left: -11px;
 	margin-top: -11px;
 	border-left-width: 0;
-	border-right-color: rgba(0,0,0,.25)
+	border-right-color: rgba(0, 0, 0, .25)
 }
 
 .popover.right .arrow::after {
@@ -4412,7 +4412,7 @@ button.close {
 	left: 50%;
 	margin-left: -11px;
 	border-top-width: 0;
-	border-bottom-color: rgba(0,0,0,.25);
+	border-bottom-color: rgba(0, 0, 0, .25);
 	top: -11px
 }
 
@@ -4429,7 +4429,7 @@ button.close {
 	right: -11px;
 	margin-top: -11px;
 	border-right-width: 0;
-	border-left-color: rgba(0,0,0,.25)
+	border-left-color: rgba(0, 0, 0, .25)
 }
 
 .popover.left .arrow::after {
@@ -4734,15 +4734,15 @@ table [class*="span"],
 	vertical-align: middle;
 	cursor: pointer;
 	color: #333;
-	text-shadow: 0 1px 1px rgba(255,255,255,0.75);
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
 	background-color: #f5f5f5;
-	background-image: linear-gradient(to bottom,#fff,#e6e6e6);
+	background-image: linear-gradient(to bottom, #fff, #e6e6e6);
 	background-repeat: repeat-x;
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 	border: 1px solid #bbb;
 	border-bottom-color: #a2a2a2;
 	border-radius: 4px;
-	box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 #ZeroBSCRMAdminPage .btn:hover,
@@ -4780,7 +4780,7 @@ table [class*="span"],
 	background-color: #d9d9d9 \9;
 	background-image: none;
 	outline: 0;
-	box-shadow: inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05);
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15),0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 #ZeroBSCRMAdminPage .btn.disabled,
@@ -4844,17 +4844,17 @@ input[type="button"]#ZeroBSCRMAdminPage .btn-block {
 #ZeroBSCRMAdminPage .btn-success.active,
 #ZeroBSCRMAdminPage .btn-info.active,
 #ZeroBSCRMAdminPage .btn-inverse.active {
-	color: rgba(255,255,255,0.75);
+	color: rgba(255, 255, 255, 0.75);
 }
 
 #ZeroBSCRMAdminPage .btn-primary {
 	color: #fff;
-	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-	background-image: linear-gradient(to bottom,#08c,#04c);
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-image: linear-gradient(to bottom, #08c, #04c);
 	background-repeat: repeat-x;
 	background-color: #04c;
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-	border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 }
 
 #ZeroBSCRMAdminPage .btn-primary:hover,
@@ -4873,12 +4873,12 @@ input[type="button"]#ZeroBSCRMAdminPage .btn-block {
 
 #ZeroBSCRMAdminPage .btn-warning {
 	color: #fff;
-	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-	background-image: linear-gradient(to bottom,#fbb450,#f89406);
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-image: linear-gradient(to bottom, #fbb450, #f89406);
 	background-repeat: repeat-x;
 	background-color: #f89406;
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-	border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 }
 
 #ZeroBSCRMAdminPage .btn-warning:hover,
@@ -4897,12 +4897,12 @@ input[type="button"]#ZeroBSCRMAdminPage .btn-block {
 
 #ZeroBSCRMAdminPage .btn-danger {
 	color: #fff;
-	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-	background-image: linear-gradient(to bottom,#ee5f5b,#bd362f);
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-image: linear-gradient(to bottom, #ee5f5b, #bd362f);
 	background-repeat: repeat-x;
 	background-color: #bd362f;
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-	border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 }
 
 #ZeroBSCRMAdminPage .btn-danger:hover,
@@ -4921,12 +4921,12 @@ input[type="button"]#ZeroBSCRMAdminPage .btn-block {
 
 #ZeroBSCRMAdminPage .btn-success {
 	color: #fff;
-	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-	background-image: linear-gradient(to bottom,#62c462,#51a351);
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-image: linear-gradient(to bottom, #62c462, #51a351);
 	background-repeat: repeat-x;
 	background-color: #51a351;
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-	border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 }
 
 #ZeroBSCRMAdminPage .btn-success:hover,
@@ -4945,12 +4945,12 @@ input[type="button"]#ZeroBSCRMAdminPage .btn-block {
 
 #ZeroBSCRMAdminPage .btn-info {
 	color: #fff;
-	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-	background-image: linear-gradient(to bottom,#5bc0de,#2f96b4);
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-image: linear-gradient(to bottom, #5bc0de, #2f96b4);
 	background-repeat: repeat-x;
 	background-color: #2f96b4;
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-	border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 }
 
 #ZeroBSCRMAdminPage .btn-info:hover,
@@ -4969,12 +4969,12 @@ input[type="button"]#ZeroBSCRMAdminPage .btn-block {
 
 #ZeroBSCRMAdminPage .btn-inverse {
 	color: #fff;
-	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-	background-image: linear-gradient(to bottom,#444,#222);
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-image: linear-gradient(to bottom, #444, #222);
 	background-repeat: repeat-x;
 	background-color: #222;
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-	border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 }
 
 #ZeroBSCRMAdminPage .btn-inverse:hover,
@@ -5042,8 +5042,8 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn .btn-mini {
 	background: 0;
 	border-radius: 30px;
 	border: 5px solid #000;
-	box-shadow: 0 1px 3px rgba(000,000,000,0.5),inset 0 0 1px rgba(255,255,255,0.7);
-	text-shadow: 0 -1px 0 rgba(000,000,000,0.4),0 1px 0 rgba(255,255,255,0.3);
+	box-shadow: 0 1px 3px rgba(000, 000, 000, 0.5),inset 0 0 1px rgba(255, 255, 255, 0.7);
+	text-shadow: 0 -1px 0 rgba(000, 000, 000, 0.4),0 1px 0 rgba(255, 255, 255, 0.3);
 	padding: 10px 20px;
 }
 
@@ -5054,8 +5054,8 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn .btn-mini {
 	background: 0;
 	border-radius: 0;
 	border: 1px solid #376304;
-	box-shadow: 0 1px 3px rgba(051,051,051,0.5),inset 0 0 2px rgba(255,255,255,0.7);
-	text-shadow: 0 -1px 0 rgba(015,015,015,0.4),0 1px 0 rgba(255,255,255,0.3);
+	box-shadow: 0 1px 3px rgba(051, 051, 051, 0.5),inset 0 0 2px rgba(255, 255, 255, 0.7);
+	text-shadow: 0 -1px 0 rgba(015, 015, 015, 0.4),0 1px 0 rgba(255, 255, 255, 0.3);
 	padding: 10px 20px;
 }
 
@@ -5066,8 +5066,8 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn .btn-mini {
 	background: 0;
 	border-radius: 11px;
 	border: 1px solid #7d0000;
-	box-shadow: 14px 1px 3px rgba(000,000,000,0),inset 0 0 2px rgba(255,255,255,0.7);
-	text-shadow: 0 -1px 0 rgba(000,000,000,0.4),0 1px 0 rgba(255,255,255,0.3);
+	box-shadow: 14px 1px 3px rgba(000, 000, 000, 0),inset 0 0 2px rgba(255, 255, 255, 0.7);
+	text-shadow: 0 -1px 0 rgba(000, 000, 000, 0.4),0 1px 0 rgba(255, 255, 255, 0.3);
 	padding: 10px 20px;
 }
 
@@ -5361,7 +5361,7 @@ th.column-ID {
 		background: #c8fbe9;
 		text-align: center;
 		border-radius: 5px;
-		box-shadow: 0 2px 17px -4px rgba(0,0,0,0.52);
+		box-shadow: 0 2px 17px -4px rgba(0, 0, 0, 0.52);
 
 		.zbs-co-img {
 

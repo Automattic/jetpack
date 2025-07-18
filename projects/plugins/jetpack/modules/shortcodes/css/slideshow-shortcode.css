@@ -106,8 +106,8 @@ body div.jetpack-slideshow-window * img {
 
 body div div.jetpack-slideshow-controls a,
 body div div.jetpack-slideshow-controls a:hover {
-	border: 2px solid rgba(255,255,255,0.1) !important;
-	background-color: rgba(0,0,0,0.6) !important;
+	border: 2px solid rgba(255, 255, 255, 0.1) !important;
+	background-color: rgba(0, 0, 0, 0.6) !important;
 	background-image: url(../img/slideshow-controls.png) !important;
 	background-repeat: no-repeat;
 	background-size: 142px 16px !important;
@@ -134,7 +134,7 @@ body div div.jetpack-slideshow-controls a:hover {
 }
 
 body div div.jetpack-slideshow-controls a:hover {
-	border-color: rgba(255,255,255,1) !important;
+	border-color: rgba(255, 255, 255, 1) !important;
 }
 
 body div div.jetpack-slideshow-controls a:first-child {
