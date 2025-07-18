@@ -74,16 +74,14 @@ $scanner = Block_Scanner::create( $post_content );
 
 // Find the first image block
 while ( $scanner->next_delimiter() ) {
-    if ( ! $scanner->is_block_type( 'image' ) ) {
+    if ( ! $scanner->opens_block( 'image' ) ) {
         continue;
     }
     
-    if ( $scanner->opens_block() ) {
-        $attributes = $scanner->allocate_and_return_parsed_attributes();
-        if ( isset( $attributes['id'] ) ) {
-            echo "Found image with ID: " . $attributes['id'];
-            break;
-        }
+    $attributes = $scanner->allocate_and_return_parsed_attributes();
+    if ( isset( $attributes['id'] ) ) {
+        echo "Found image with ID: " . $attributes['id'];
+        break;
     }
 }
 ```
