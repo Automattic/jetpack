@@ -40,11 +40,11 @@
 }
 
 .color-grid.main li {
-  height: 55px;
-  width: 55px;
-  background-position: center center;
-  background-size: cover;
-  border-radius: 50%;
+	height: 55px;
+	width: 55px;
+	background-position: center center;
+	background-size: cover;
+	border-radius: 50%;
 	background-image: none;
 	border: none;
 	box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2), inset 0 -2px 0 rgba(255, 255, 255, 0.1);
@@ -52,22 +52,22 @@
 
 .disable-background .color-grid.main li,
 .enable-background .color-grid.main li {
-  display: inline-block;
-  float: none;
+	display: inline-block;
+	float: none;
 }
 
 .color-grid.main li:not(:last-child) {
-  margin-left: 7px;
+	margin-left: 7px;
 }
 
 .enable-background .color-grid.main li.bg {
-  position: relative;
-  background-size: 100% 100%;
-  border-radius: 2%;
-  box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
-  height: 55px;
-  margin-bottom: 20px;
-  width: 100%;
+	position: relative;
+	background-size: 100% 100%;
+	border-radius: 2%;
+	box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+	height: 55px;
+	margin-bottom: 20px;
+	width: 100%;
 }
 
 .enable-background .color-grid.main .text-placeholder {
@@ -172,7 +172,7 @@ a.revert {
 }
 
 .color-grid .bg .change-background {
-  position: absolute;
+	position: absolute;
 	bottom: 11px;
 	left: 15px;
 }
@@ -216,7 +216,7 @@ a.revert {
 	line-height: 15px;
 	padding: 8px 18px;
 	position: relative;
-		top: -10px;
+	top: -10px;
 	text-align: center;
 }
 
@@ -412,9 +412,9 @@ a.revert {
 	font-size: 10px;
 	opacity: 0.7;
 	position: absolute;
-		bottom: 5px;
-		left: 0;
-		right: 0;
+	bottom: 5px;
+	left: 0;
+	right: 0;
 	text-indent: 5px;
 	line-height: 1.5;
 	padding-bottom: 1px;
@@ -526,10 +526,10 @@ input#iris {
 	background: #191919;
 	padding: 40px 20px;
 	position: absolute;
-		top: 0;
-		right: 0;
-		left: 0;
-		bottom: 0;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
 	z-index: 5;
 }
 
