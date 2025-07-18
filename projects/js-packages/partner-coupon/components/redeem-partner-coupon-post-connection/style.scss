@@ -24,8 +24,8 @@
 			display: grid;
 			grid-template-columns: auto 34%;
 			grid-template-areas:
-"content aside"
-"subcontent aside";
+				"content aside"
+				"subcontent aside";
 		}
 	}
 
@@ -92,7 +92,7 @@
 		}
 	}
 
-  &__heading {
+	&__heading {
 		font-style: normal;
 		font-weight: 700;
 		font-size: 36px;

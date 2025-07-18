@@ -1,5 +1,5 @@
 .components-surface.components-card {
-  border-radius: var(--jp-border-radius-rna);
+	border-radius: var(--jp-border-radius-rna);
 }
 
 .upsell-banner {
@@ -9,11 +9,11 @@
 	background: rgb(249, 249, 246);
 	background: linear-gradient(133deg, rgb(206, 217, 242) 0%, rgb(249, 249, 246) 10%, rgb(249, 249, 246) 80%, rgb(245, 230, 179) 100%);
   
-    @media screen and (min-width: 660px) {
+	@media screen and (min-width: 660px) {
 		flex-direction: row;
 	}
 
-    &.components-card__body.components-card-body {
+	&.components-card__body.components-card-body {
 		border-radius: var(--jp-border-radius-rna);
 		padding: 36px;
 	}
@@ -25,7 +25,7 @@
 		margin-right: 0;
 		margin-top: 16px;
 
-      @media screen and (min-width: 660px) {
+		@media screen and (min-width: 660px) {
 			align-items: center;
 			margin-bottom: 0;
 			margin-right: 28px;
@@ -39,7 +39,7 @@
 		flex: 1;
 		justify-content: space-between;
 
-        @media screen and (min-width: 660px) {
+		@media screen and (min-width: 660px) {
 			flex-direction: row;
 		}
 
@@ -67,7 +67,7 @@
 			margin-top: 16px;
 			margin-left: 0;
 
-            @media screen and (min-width: 660px) {
+			@media screen and (min-width: 660px) {
 				margin-top: 0;
 				margin-left: 16px;
 			}
@@ -78,7 +78,7 @@
 				font-weight: 400;
 				padding: 8px 16px;
               
-                &.secondary {
+				&.secondary {
 					background-color: var( --jp-white );
 					color: var( --jp-black );
 				}
