@@ -56,45 +56,46 @@ const baseConfig = {
 			},
 		],
 
-		'@stylistic/at-rule-name-space-after': null,
-		'@stylistic/block-closing-brace-newline-after': null,
-		'@stylistic/block-closing-brace-newline-before': null,
-		'@stylistic/block-opening-brace-newline-after': null,
-		'@stylistic/block-opening-brace-space-before': null,
-		'@stylistic/color-hex-case': null,
-		'@stylistic/declaration-bang-space-after': null,
-		'@stylistic/declaration-bang-space-before': null,
-		'@stylistic/declaration-block-semicolon-newline-after': null,
-		'@stylistic/declaration-block-semicolon-space-before': null,
-		'@stylistic/declaration-block-trailing-semicolon': null,
-		'@stylistic/declaration-colon-newline-after': null,
-		'@stylistic/declaration-colon-space-after': null,
-		'@stylistic/declaration-colon-space-before': null,
-		'@stylistic/function-comma-space-after': null,
-		'@stylistic/function-comma-space-before': null,
-		'@stylistic/function-parentheses-space-inside': null,
-		'@stylistic/function-whitespace-after': null,
-		'@stylistic/indentation': null,
-		'@stylistic/max-empty-lines': null,
-		'@stylistic/max-line-length': null,
-		'@stylistic/media-feature-colon-space-after': null,
-		'@stylistic/media-feature-colon-space-before': null,
-		'@stylistic/no-eol-whitespace': null,
-		'@stylistic/no-extra-semicolons': null,
-		'@stylistic/no-missing-end-of-source-newline': null,
-		'@stylistic/number-leading-zero': null,
-		'@stylistic/number-no-trailing-zeros': null,
-		'@stylistic/property-case': null,
-		'@stylistic/selector-attribute-brackets-space-inside': null,
-		'@stylistic/selector-combinator-space-after': null,
-		'@stylistic/selector-combinator-space-before': null,
-		'@stylistic/selector-list-comma-newline-after': null,
-		'@stylistic/selector-list-comma-space-before': null,
-		'@stylistic/selector-max-empty-lines': null,
-		'@stylistic/selector-pseudo-class-parentheses-space-inside': null,
-		'@stylistic/string-quotes': null,
-		'@stylistic/value-list-comma-newline-after': null,
-		'@stylistic/value-list-comma-space-after': null,
+		// Total stylistic violations remaining: 30996
+		'@stylistic/at-rule-name-space-after': null, // 15
+		'@stylistic/block-closing-brace-newline-after': null, // 7
+		'@stylistic/block-closing-brace-newline-before': null, // 464
+		'@stylistic/block-opening-brace-newline-after': null, // 425
+		'@stylistic/block-opening-brace-space-before': null, // 900
+		'@stylistic/color-hex-case': null, // 283
+		'@stylistic/declaration-bang-space-after': null, // 4
+		'@stylistic/declaration-bang-space-before': null, // 35
+		'@stylistic/declaration-block-semicolon-newline-after': null, // 78
+		'@stylistic/declaration-block-semicolon-space-before': null, // 6
+		'@stylistic/declaration-block-trailing-semicolon': null, // 774
+		'@stylistic/declaration-colon-newline-after': null, // 50
+		'@stylistic/declaration-colon-space-after': null, // 2925
+		'@stylistic/declaration-colon-space-before': null, // 5
+		'@stylistic/function-comma-space-after': null, // 634
+		'@stylistic/function-comma-space-before': null, // 2
+		'@stylistic/function-parentheses-space-inside': null, // 5893
+		'@stylistic/function-whitespace-after': null, // 1
+		'@stylistic/indentation': null, // 11061
+		'@stylistic/max-empty-lines': null, // 70
+		'@stylistic/max-line-length': null, // 267
+		'@stylistic/media-feature-colon-space-after': null, // 35
+		'@stylistic/media-feature-colon-space-before': null, // 2
+		'@stylistic/no-eol-whitespace': null, // 405
+		'@stylistic/no-extra-semicolons': null, // 38
+		'@stylistic/no-missing-end-of-source-newline': null, // 111
+		'@stylistic/number-leading-zero': null, // 276
+		'@stylistic/number-no-trailing-zeros': null, // 13
+		'@stylistic/property-case': null, // 3
+		'@stylistic/selector-attribute-brackets-space-inside': null, // 4
+		'@stylistic/selector-combinator-space-after': null, // 1430
+		'@stylistic/selector-combinator-space-before': null, // 1433
+		'@stylistic/selector-list-comma-newline-after': null, // 1421
+		'@stylistic/selector-list-comma-space-before': null, // 2
+		'@stylistic/selector-max-empty-lines': null, // 1
+		'@stylistic/selector-pseudo-class-parentheses-space-inside': null, // 216
+		'@stylistic/string-quotes': null, // 1620
+		'@stylistic/value-list-comma-newline-after': null, // 49
+		'@stylistic/value-list-comma-space-after': null, // 49
 	},
 };
 
