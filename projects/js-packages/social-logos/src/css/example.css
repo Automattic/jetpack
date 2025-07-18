@@ -113,16 +113,16 @@
 	}
 
 	input:checked + .handle {
-		border-color: #3AA662;
+		border-color: #3aa662;
 	}
 
 	input:checked + .handle::before {
-		background: #3AA662;
+		background: #3aa662;
 		transform: translateX(20px);
 	}
 
 	input:focus + .handle {
-		box-shadow: 0 0 3px #2196F3;
+		box-shadow: 0 0 3px #2196f3;
 	}
 
 

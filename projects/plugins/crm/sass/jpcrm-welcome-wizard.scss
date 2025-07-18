@@ -1,13 +1,13 @@
 /* stylelint-disable no-duplicate-selectors -- Disabled due to copied styles from Bootstrap. */
 @use 'sass:color';
 
-$jetpack_green: #069E08;
+$jetpack_green: #069e08;
 $jetpack_hover: #007017;
-$background: #069E08;
+$background: #069e08;
 
 
-$cta_background: #F0F2EB;
-$wiz_background: #E5E5E5;
+$cta_background: #f0f2eb;
+$wiz_background: #e5e5e5;
 
 /* Copied from Bootstrap 3.4.1 and distilled */
 * {
@@ -650,7 +650,7 @@ $darkenColor: color.adjust($activeColor, $lightness: -20%);
 }
 
 #zbs-lead-header {
-	color: #CCC;
+	color: #ccc;
 }
 
 p.lead {
@@ -719,7 +719,7 @@ p.lead {
 }
 
 .zbs-extra a {
-	border-bottom: 2px #FFF dotted;
+	border-bottom: 2px #fff dotted;
 }
 
 

@@ -237,7 +237,7 @@
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
-	outline: 1 solid var(--jetpack--contact-form--button-primary--text-color, #FFF);
+	outline: 1 solid var(--jetpack--contact-form--button-primary--text-color, #fff);
 	background-color: var(--jetpack--contact-form--border-color, #333);
 	border-radius: 50%;
 	outline-offset: 0;
@@ -331,7 +331,7 @@
 }
 
 .jetpack-form-file-field__success {
-	color: #008A20;
+	color: #008a20;
 	display: none;
 }
 

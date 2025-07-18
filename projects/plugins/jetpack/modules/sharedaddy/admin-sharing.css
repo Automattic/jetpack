@@ -86,7 +86,7 @@ body.settings_page_sharing ul.services-hidden {
 /* Generic style */
 #available-services .service,
 #enabled-services .service {
-	color: #2C3338 !important;
+	color: #2c3338 !important;
 	display: inline-block;
 	font-family: "Open Sans", sans-serif;
 	font-size: 13px;

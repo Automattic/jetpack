@@ -532,7 +532,7 @@ Helpers
 /* --- Trial period notice --- */
 .trial-notice {
 	clear: both;
-	background: #FBFBDF;
+	background: #fbfbdf;
 	padding: 1px 25px;
 	margin: 0 20px 20px 0;
 	border-radius: 4px;
@@ -561,7 +561,7 @@ Helpers
 	margin: 0 20px 20px 0;
 	padding: 0 25px 0 68px;
 	border-radius: 4px;
-	background: #FBFBDF;
+	background: #fbfbdf;
 	-webkit-background-clip: padding-box;
 	overflow: hidden;
 }
@@ -835,7 +835,7 @@ Progress Bars
 
 .vp_graphs {
 	background: #333;
-	color: #FFF;
+	color: #fff;
 	float: left;
 	width: 380px;
 	padding: 0;
@@ -862,7 +862,7 @@ Progress Bars
 }
 
 .vp_graphs h1 {
-	color: #FFF;
+	color: #fff;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
 	padding: 20px 30px 20px 30px;
 	margin: 0;
@@ -963,7 +963,7 @@ Progress Bars
 	position: relative;
 	top: 10px;
 	font-size: 12px;
-	color: #CCC;
+	color: #ccc;
 }
 
 .vp_progress-description {

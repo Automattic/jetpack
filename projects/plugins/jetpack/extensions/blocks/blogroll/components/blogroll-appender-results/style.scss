@@ -56,7 +56,7 @@
 				cursor: pointer;
 
 				&[disabled] {
-					background: var(--wp-gray-gray-0, #F6F7F7);
+					background: var(--wp-gray-gray-0, #f6f7f7);
 					cursor: not-allowed;
 
 					> * {

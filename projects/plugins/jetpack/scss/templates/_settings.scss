@@ -96,7 +96,7 @@
 	select#bulk-action-selector-top {
 		width: 180px;
 		height: 40px;
-		border: 1px solid #DCDCDE;
+		border: 1px solid #dcdcde;
 		border-radius: 4px;
 		padding: 8px 16px;
 		margin-right: 8px;
@@ -489,11 +489,11 @@ tr.jetpack-module {
 }
 
 tr.jetpack-module.unavailable {
-	background: #F9F9F6;
+	background: #f9f9f6;
 }
 
 tr.jetpack-module.active {
-	background: #F9F9F6;
+	background: #f9f9f6;
 
 	.column-name .info {
 		font-weight: 700;

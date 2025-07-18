@@ -115,7 +115,7 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 
 #likes-other-gravatars ul.wpl-avatars li a span {
 	font-size: 12px;
-	color: #2C3338;
+	color: #2c3338;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -172,7 +172,7 @@ div.sd-box {
 }
 
 .comment-likes-widget-placeholder::before {
-	color: #2EA2CC;
+	color: #2ea2cc;
 	width: 16px;
 	height: 16px;
 	content: '';
@@ -200,7 +200,7 @@ div.sd-box {
 	padding-left: 5px;
 	margin-top: 4px;
 	align-self: center;
-	color: #4E4E4E;
+	color: #4e4e4e;
 }
 
 /* Like Special cases (display on it's own) */

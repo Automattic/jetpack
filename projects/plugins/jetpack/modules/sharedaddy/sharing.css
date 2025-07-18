@@ -97,7 +97,7 @@ body.highlander-dark h3.sd-title::before {
 	font-family: "Open Sans", sans-serif;
 	font-weight: 500;
 	border-radius: 4px;
-	color: #2C3338 !important;
+	color: #2c3338 !important;
 	background: #fff;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
 	text-shadow: none;
@@ -390,7 +390,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 }
 
 .sd-social-official .sd-content li.share-mastodon a::before {
-	color: #563ACC;
+	color: #563acc;
 }
 
 .sd-social-icon .sd-content ul a.share-more::before,
@@ -431,11 +431,11 @@ body .sd-content ul li.share-custom.no-icon a span {
 }
 
 .sd-social-official .sd-content li.share-nextdoor a::before {
-	color: #8ED500;
+	color: #8ed500;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-nextdoor a.sd-button {
-	background: #8ED500;
+	background: #8ed500;
 	color: #fff !important;
 }
 
@@ -751,7 +751,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-mastodon a.sd-button {
-	background: linear-gradient(to top, #563ACC 0%, #6364FF 100%);
+	background: linear-gradient(to top, #563acc 0%, #6364ff 100%);
 	color: #fff !important;
 }
 

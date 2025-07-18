@@ -233,8 +233,8 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 			top: 0;
 			bottom: 30px;
 			position: absolute;
-			border-top: 3px solid #CCD5DB;
-			border-bottom: 3px solid #CCD5DB;
+			border-top: 3px solid #ccd5db;
+			border-bottom: 3px solid #ccd5db;
 		}
 
 		&::after {

@@ -229,7 +229,7 @@
 .jp-at-a-glance__stats-summary-today {
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
-	border-color: #DCDCDE;
+	border-color: #dcdcde;
 
 	@include breakpoints.breakpoint( '<660px' ) {
 		margin-top: rem.convert(-1px);
@@ -239,7 +239,7 @@
 .jp-at-a-glance__stats-summary-bestday {
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
-	border-color: #DCDCDE;
+	border-color: #dcdcde;
 
 	@include breakpoints.breakpoint( '>660px' ) {
 		margin: 0 rem.convert(1px);
@@ -249,13 +249,13 @@
 .jp-at-a-glance__stats-summary-alltime-views {
 	border-width: 1px 0;
 	border-style: solid;
-	border-color: #DCDCDE;
+	border-color: #dcdcde;
 }
 
 .jp-at-a-glance__stats-summary-alltime-comments {
 	border-width: 1px 0 1px 1px;
 	border-style: solid;
-	border-color: #DCDCDE;
+	border-color: #dcdcde;
 }
 
 .jp-at-a-glance__stats-summary-bestday,
