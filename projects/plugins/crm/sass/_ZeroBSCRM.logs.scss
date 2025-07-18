@@ -13,7 +13,7 @@
 
 	button#zbscrmAddLog,
 	button#zbscrmEditLog {
-		
+
 		float: right;
 		margin: 4px;
 		margin-right: 8px;
@@ -47,7 +47,7 @@
 
 				font-size: 20px;
 			}
-		    
+
 
 		}
 
@@ -78,11 +78,11 @@
 				text-align: left;
 				margin-top: 10px;
 			}
-			
+
 			text-align: right;
 
 			button {
-				
+
 				margin-left: 10px;
 				margin-top: 10px;
 
@@ -90,7 +90,7 @@
 
 		}
 
- 
+
 	}
 
 
@@ -117,7 +117,7 @@
 
 				font-size: 20px;
 			}
-		    
+
 
 		}
 
@@ -148,11 +148,11 @@
 				text-align: left;
 				margin-top: 10px;
 			}
-			
+
 			text-align: right;
 
 			button {
-				
+
 				margin-left: 10px;
 				margin-top: 10px;
 
@@ -160,11 +160,11 @@
 
 		}
 
- 
+
 	}
 
 	.zbsLogOut {
-	
+
 		margin: 10px;
 		border: 1px solid rgba(161, 236, 187, 0.15);
 		padding: 12px;
@@ -194,10 +194,10 @@
 				background: #FFF;
 
 				.fa {
-							    	
+
 					color: var(--jp-gray-20);
 					padding: 4px;
-				    
+
 
 				}
 
@@ -241,11 +241,11 @@
 			text-align: right;
 
 			i.fa {
-			
+
 				font-size: 20px;
-			
+
 			}
-		
+
 		}
 
 		.zbsLogOutCreated {
@@ -278,7 +278,7 @@
 		.jpcrm_log_unpin {
 			display: inline-block;
 		}
-	    
+
 	}
 
 }

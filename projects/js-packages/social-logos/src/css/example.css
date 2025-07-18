@@ -30,7 +30,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		
+
 		div {
 			width: 64px;
 			height: 64px;
@@ -130,5 +130,5 @@
 		text-align: center;
 		margin-bottom: 2em;
 	}
-	
+
 }

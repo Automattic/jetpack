@@ -114,7 +114,7 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 
 // timeline title styling
 .zbs-timeline-title {
-    	
+
 	letter-spacing: -1px;
 
 	i.fa {
@@ -197,7 +197,7 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 // ... happens with log types which have no title.
 .zbs-timeline-item-notitle {
 
-	// fix for style break 
+	// fix for style break
 	margin-top: -10px;
 
 }
@@ -213,7 +213,7 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 }
 
 /*----- TIMELINE PERIOD -----*/
-    
+
 .period {
 	padding: 0;
 
@@ -383,7 +383,7 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 /*----------------------------------------------
         MOD: MARKER OUTLINE
     ----------------------------------------------*/
-        
+
 .marker-outline {
 
 	.zbs-timeline-marker {

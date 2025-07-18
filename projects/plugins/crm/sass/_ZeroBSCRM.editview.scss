@@ -10,13 +10,13 @@
 	#zbs-contact-edit-avatar {
 
 		text-align: center !important;
-		margin-bottom: 1em;   
+		margin-bottom: 1em;
 
 		// round avatars
 		.ui.circular.segment h2 img {
 			border-radius: 50% !important;
 		}
-		// removed for gravatars, 2.97.7 on ms request ZBS-619 
+		// removed for gravatars, 2.97.7 on ms request ZBS-619
 		.ui.segment h2 img.zbs-gravatar {
 			border-radius: none !important;
 		}
@@ -54,11 +54,11 @@
 
 	// NOTE this is also in contact single! copy any changes if made:
 	.action-wrap {
-		
+
 		display: block;
 		position: relative;
 		text-align: center;
-	    
+
 	}
 
 	// using actual .button breaks the css.. for now, hackily putting htis in here to simulate basic button
@@ -155,19 +155,19 @@
 	margin: 2em;
 	margin-top: 1em;
 	margin-bottom: 0;
-	
+
 }
 
 
 // err msg fix
 #zbs-edit-warnings-wrap .ui.message {
-	
+
 	max-width: 80%;
 	margin-bottom: 5em;
 	margin-top: 4em;
 	margin-left: auto;
 	margin-right: auto;
-    
+
 }
 
 //.zbs-generic-save-wrap (save, update etc. boxes for our objs)

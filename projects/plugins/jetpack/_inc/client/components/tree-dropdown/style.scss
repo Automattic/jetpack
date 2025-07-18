@@ -130,7 +130,7 @@
 			display: grid;
 			grid-template-rows: 1fr;
 			transition: grid-template-rows 500ms;
-			  
+
 			&.hide {
 				grid-template-rows: 0fr;
 			}
@@ -170,7 +170,7 @@
 					overflow-y: auto;
 				}
 			}
-			
+
 			ul.jp-tree-items {
 				overflow-y: hidden;
 				max-height: 370px;

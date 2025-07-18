@@ -25,10 +25,10 @@
 		flex-direction: column;
 		gap: 5px;
 		justify-content: center;
-		
+
 		&.has-iframe {
 			background-color: transparent;
-	
+
 			.verbum-simple-subscribe-modal__close-button-container {
 				display: none !important;
 			}
@@ -88,7 +88,7 @@
 			border-style: solid !important;
 			outline: none;
 			color: var(--wp--preset--color--primary) !important;
-			
+
 			&::placeholder {
 				color: currentColor;
 				opacity: .5;

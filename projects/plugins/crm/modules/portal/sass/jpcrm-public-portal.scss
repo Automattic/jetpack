@@ -6,13 +6,13 @@
  *
  * Date: 22/08/22
  */
-  
+
 // theme compatibility fixes
 @use '../../../sass/ZeroBSCRM.ThemeCompat';
 
 // Import JS CSS vars
 @use '../../../sass/emerald/jp_vars';
- 
+
 .zbs-client-portal-wrap {
 	position: relative;
 	min-height: 650px !important;
@@ -70,7 +70,7 @@
 		max-width: 50%;
 		height: 100px;
 	}
-	// alerts, e.g. admin 'viewing as user' 
+	// alerts, e.g. admin 'viewing as user'
 	.alert {
 		margin: 2em;
 		background: #38b6dc;
@@ -87,7 +87,7 @@
 			text-decoration: underline;
 		}
 	}
-  
+
 	.container {
 		width: 100%;
 		margin-left: auto;
@@ -183,7 +183,7 @@
 			font-weight: 400;
 		}
 	}
-	// edit pages radio custom fields 
+	// edit pages radio custom fields
 	.zbs-field-radio-wrap {
 		// overall padding margin: 0.5em 1em 1em;
 		text-align: left;
@@ -265,7 +265,7 @@
 		margin: auto;
 		margin-bottom: 50px;
 		margin-top: 20px;
-    
+
 		input[type="text"],
 		input[type="password"] {
 			width: 100%;
@@ -321,7 +321,7 @@
 }
 
 .zbs-single-invoice-portal {
- 
+
 	.zbs-invoice-pull-left {
 		float: left;
 		width: 50%;
@@ -373,18 +373,14 @@
 	}
 
 	.zbs-invoice-portal-inner .zbs-invoice-box table,
- 
 	.zbs-invoice-portal-inner .zbs-invoice-box td,
- 
 	.zbs-invoice-portal-inner .zbs-invoice-box th {
 		table-layout: auto;
 		border: none;
 	}
 
 	.zbs-invoice-portal-inner .zbs-invoice-box table .dz,
- 
 	.zbs-invoice-portal-inner .zbs-invoice-box td .dz,
- 
 	.zbs-invoice-portal-inner .zbs-invoice-box th .dz {
 		font-size: 13px;
 		font-style: italic;
@@ -485,11 +481,11 @@
 	margin-top: 2em;
 }
 
-//hide the title from the Portal Page 
+//hide the title from the Portal Page
 .entry-title {
 	display: none !important;
 }
-//for the invoice hashes. No portal nav for these. 
+//for the invoice hashes. No portal nav for these.
 .fullW {
 	width: 100% !important;
 }
@@ -737,7 +733,6 @@ i.icon.child::before {
 }
 
 .client-portal-file-upload,
- 
 .client-portal-file-upload-remove {
 	border: 1px solid #ccc;
 	display: inline-block !important;
@@ -747,7 +742,6 @@ i.icon.child::before {
 }
 
 .client-portal-file-upload:hover,
- 
 .client-portal-file-upload-remove:hover {
 	border: 1px solid #999;
 }

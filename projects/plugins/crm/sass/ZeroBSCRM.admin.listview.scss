@@ -35,7 +35,7 @@
 	margin-right: 1em;
 
 	#zbs-column-manager-current-cols {
-		
+
 		// needed to drop into empty list:
 		min-height: 34px;
 
@@ -77,16 +77,16 @@
 			margin-bottom: 0;
 
 		}
-	
+
 	}
 
 }
 
 // blue labels = white text
 .zbs-select-tag.ui.label.blue .ui.checkbox label {
- 	
+
 	color: #FFF;
- 	   
+
 }
 
 
@@ -110,7 +110,7 @@
 
 }
 
-// avatar's fixed size 
+// avatar's fixed size
 .jpcrm-listview-table {
 
 	.jpcrm_name_and_avatar {
@@ -137,13 +137,13 @@
 
 // err msg fix
 #zbs-list-warnings-wrap .ui.message {
-	
+
 	max-width: 80%;
 	margin-bottom: 5em;
 	margin-top: 4em;
 	margin-left: auto;
 	margin-right: auto;
-    
+
 }
 
 // drop target for col manager
@@ -158,7 +158,7 @@
 	min-height: 2em;
 }
 
-/* 
+/*
 		INLINE Editing
 */
 .jpcrm-listview-table td.zbs-inline-edit:hover {

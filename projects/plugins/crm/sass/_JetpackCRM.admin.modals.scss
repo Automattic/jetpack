@@ -49,7 +49,7 @@
 
 	// ui grid
 	.jpcrm-modal-body {
-    
+
 		// eight wide column
 		.jpcrm-modal-cta-group {
 
@@ -57,7 +57,7 @@
 			padding-right: 50px;
 
 			.jpcrm-modal-title {
-        
+
 				font-size: 36px;
 				font-weight: 700;
 				line-height: 40px;
@@ -70,18 +70,18 @@
 				font-size: 16px;
 				line-height: 24px;
 				margin-bottom: 12px;
-        
+
 			}
 
 			.jpcrm-modal-actions {
 
 				.ui.button {
-          
+
 					margin-top: 12px;
 					margin-right: 24px;
 
 				}
-        
+
 			}
 
 		}
@@ -103,7 +103,7 @@
         max-height: 515px;
 
         40%
-        
+
         */
 				max-width: 438px;
 				max-height: 412px;
@@ -127,14 +127,14 @@
 		background-color: #F9F9F6;
 		padding-top: 50px;
 		padding-bottom: 50px;
-    
+
 		.jpcrm-modal-learn-footer {
 
 			padding-left: 80px;
 			padding-right: 50px;
 
 			.jpcrm-modal-learn-footer-title {
-        
+
 				display: flex;
 				align-items: center;
 				font-size: 16px;
@@ -170,7 +170,7 @@
 					text-decoration: underline;
 
 					img {
-            
+
 						margin-right: 8px;
 
 					}
@@ -281,14 +281,14 @@
 
 	// show mobile elements
 	.jpcrm-modal-mobile-only {
-    
+
 		display: block !important;
 		margin: 0;
 		padding: 0;
 
 		// replacement img
 		img {
-      
+
 			max-width: 220px;
 			margin-top: 24px;
 
@@ -324,12 +324,12 @@
 			line-height: 24px;
 			margin-bottom: 16px;
 			text-align: center;
-        
+
 		}
 
 		// add contact button full width
 		.jpcrm-modal-action-add {
-        
+
 			width: 100%;
 
 		}
@@ -337,14 +337,14 @@
 	}
 
 	.jpcrm-modal-illustration img {
-    
+
 		margin: 0 !important;
 
 	}
 
 	// specifics
 	.jpcrm-modal-mobile-watch-videos-link {
-    
+
 		text-align: center;
 		margin-top: 24px;
 		width: 100%;
@@ -362,9 +362,7 @@
 
 	// hide these
 	.jpcrm-modal-body .jpcrm-modal-illustration,
- 
 	.ui.modals.page .jpcrm-modal-footer,
- 
 	.jpcrm-modal-body .jpcrm-modal-actions .jpcrm-modal-action-import {
 
 		display: none !important;

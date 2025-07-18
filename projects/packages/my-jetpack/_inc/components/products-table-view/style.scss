@@ -10,50 +10,50 @@ div.dataviews-wrapper {
 	div.dataviews-filters__container {
 		padding-left: 24px;
 	}
-    
+
 	svg.table-view-icon {
 		width: 52px;
 		height: 52px;
 	}
-    
+
 	button[aria-controls^="dataviews-view-config-dropdown-"] {
 		display: none;
 	}
-    
+
 	div.dataviews__view-actions {
 		padding-left: 24px;
 		padding-right: 24px;
 		justify-content: flex-start;
 		align-items: center;
 	}
-    
+
 	button.components-button.is-secondary {
 		padding: calc(var(--spacing-base) / 2) var(--spacing-base);
 		font-weight: 400;
 	}
-    
+
 	div.components-base-control__field {
 		margin-bottom: 0;
 	}
-    
+
 	div.components-toggle-group-control {
 		padding: 0;
 		min-height: 32px;
 	}
-    
+
 	div.dataviews-title-field {
 		font-size: var(--font-title-small);
 	}
-    
+
 	span.dataviews-view-list__field-value {
 		font-size: var(--font-body-small);
 	}
-    
+
 	div.dataviews-view-list {
 
 		div[role="row"] {
 			border: none;
-    
+
 			.dataviews-view-list__fields {
 				justify-content: space-between;
 				flex-wrap: nowrap;
@@ -67,11 +67,11 @@ div.dataviews-wrapper {
 					margin-right: 0;
 				}
 			}
-    
+
 			&:not(.is-selected).is-hovered,
 			&:not(.is-selected):hover {
 				background-color: transparent;
-    
+
 				.dataviews-view-list__fields {
 					color: #757575;
 				}

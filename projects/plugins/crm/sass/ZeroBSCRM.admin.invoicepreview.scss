@@ -607,20 +607,20 @@
 
 // customer filters gui
 @include meta.load-css('ZeroBSCRM.customerfilters');
- 
+
 // Import form styles
 @include meta.load-css('ZeroBSCRM.forms');
 
-// Import "Log" styles 
+// Import "Log" styles
 @include meta.load-css('ZeroBSCRM.logs');
 
-// Import "Typeahead" styles  
+// Import "Typeahead" styles
 @include meta.load-css('ZeroBSCRM.typeahead');
 
-// Import "Spinner" styles  
+// Import "Spinner" styles
 @include meta.load-css('ZeroBSCRM.spinners');
 
-// Import "Admin Pages" styles  
+// Import "Admin Pages" styles
 @include meta.load-css('ZeroBSCRM.adminpages');
 
 // Import "Hide WP Features" styles

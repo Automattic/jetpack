@@ -112,14 +112,14 @@
 				box-shadow: none;
 				outline-width: 0;
 			}
-		
+
 			&:focus-visible {
 				border-radius: 2px;
 				outline-offset: 3px;
 				outline: 1.5px solid var(--jp-black);
 				box-shadow: none;
 			}
-		
+
 			&:hover {
 				text-decoration: underline;
 				text-decoration-thickness: 1.5px;

@@ -22,11 +22,11 @@
 #zbs-customer-panel,
 #zbs-company-panel {
 
-	// THIS shouldn't really be here, it's too VAGUE - it affects other default avatars in 
-	// the vitals box. 
+	// THIS shouldn't really be here, it's too VAGUE - it affects other default avatars in
+	// the vitals box.
 	// Refine this specifically for an ID (later)
 	.zbs-default-avatar {
-		
+
 		font-size: 3em;
 		margin: 0.3em;
 		margin-top: 0.5em;
@@ -35,7 +35,7 @@
 	.three.wide.column img {
 		max-width: 100%;
 	}
-	
+
 	//these allow for wrapping td content
 	tr.wraplines {
 		white-space: normal;
@@ -72,7 +72,7 @@
 
 	// NOTE this is also in contact edit metabox! copy any changes if made:
 	.action-wrap {
-		
+
 		display: block;
 		position: relative;
 		text-align: right;
@@ -188,7 +188,7 @@ i.zbs-hide-longdesc {
 #zbs-company-panel {
 
 	#zbs-company-view-vitals-contacts .zbs-default-avatar {
-		
+
 		font-size: 1em !important;
 
 		// this needs to match [.ui.label>.icon] in semantic ui :)
@@ -264,7 +264,7 @@ i.zbs-hide-longdesc {
 }
 
 .jpcrm-pinned-logs {
-	
+
 	margin-bottom: 1em !important;
 
 	.jpcrm-pinned-log {

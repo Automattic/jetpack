@@ -85,7 +85,7 @@
 .add-button {
 	width: 100%;
 	justify-content: center;
-	
+
 	&:global(.is-primary):disabled {
 		opacity: 1;
 		background-color: var(--jp-black);
