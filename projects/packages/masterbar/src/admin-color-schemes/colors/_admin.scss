@@ -5,10 +5,10 @@
  * 2. An import of the overrides necessary to match Calypso color schemes.
  */
 
-@use 'sass:color';
-@use 'sass:string';
+@use "sass:color";
+@use "sass:string";
 @use "sass:meta";
-@use 'mixins';
+@use "mixins";
 
 // external variables
 $color-primary: $--a-value-must-be-set-via-with-- !default;
@@ -97,7 +97,7 @@ $menu-nudge-cta-background-hover: null !default;
 
 @function url-friendly-colour( $color ) {
 
-	@return '%23' + string.slice( '#{ $color }', 2, -1 );
+	@return "%23" + string.slice( "#{ $color }", 2, -1 );
 }
 
 body {
@@ -867,7 +867,7 @@ div#wp-responsive-toggle a::before {
 }
 
 /* Overrides */
-@include meta.load-css('overrides', $with: (
+@include meta.load-css("overrides", $with: (
 	masterbar-active-background: $masterbar-active-background,
 	masterbar-background: $masterbar-background,
 	masterbar-highlight-background: $masterbar-highlight-background,
@@ -882,12 +882,12 @@ div#wp-responsive-toggle a::before {
 ));
 
 /* Gutenberg Support */
-@include meta.load-css('gutenberg', $with: (
+@include meta.load-css("gutenberg", $with: (
 	highlight-color: $highlight-color
 ));
 
 /* Inline Help Support */
-@include meta.load-css('inline-help', $with: (
+@include meta.load-css("inline-help", $with: (
 	color-primary: $color-primary,
 	color-primary-dark: $color-primary-dark,
 	color-primary-light: $color-primary-light,

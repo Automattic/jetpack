@@ -950,7 +950,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .grunion-field-wrap input.radio:checked::before {
 	background: currentColor;
 	border-radius: 50%;
-	content: '';
+	content: "";
 
 	/* Inherit the font size from the parent element. This allows the input to scale with the font size
 	   set from global styles or from block styles */
@@ -1032,7 +1032,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-color: currentColor;
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	box-sizing: initial;
-	content: '';
+	content: "";
 	display: block;
 	height: 100%;
 	left: calc(var(--jetpack--contact-form--button-outline--border-size) * -1);

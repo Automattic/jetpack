@@ -1,5 +1,5 @@
 /* stylelint-disable no-duplicate-selectors -- Disabled due to copied styles from Bootstrap. */
-@use 'sass:color';
+@use "sass:color";
 
 $jetpack_green: #069e08;
 $jetpack_hover: #007017;
@@ -267,7 +267,7 @@ input[type="radio"] {
 
 	/* divider image */
 	background: #f9f9f9;
-	font-family: 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
+	font-family: "Helvetica Neue", Helvetica, Arial, Verdana, sans-serif;
 	line-height: 1.5;
 	overflow: hidden;
 	color: #666;
@@ -288,7 +288,7 @@ input[type="radio"] {
 
 .ck_form.ck_minimal h4 {
 	text-align: center;
-	font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+	font-family: "Open Sans", Helvetica, Arial, sans-serif;
 	text-transform: uppercase;
 	font-size: 18px;
 	font-weight: 400;
@@ -540,7 +540,7 @@ $darkenColor: color.adjust($activeColor, $lightness: -20%);
 	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 
 	&::after {
-		content: 'OFF' !important;
+		content: "OFF" !important;
 		color: #000 !important;
 		position: absolute !important;
 		right: 10px !important;
@@ -551,7 +551,7 @@ $darkenColor: color.adjust($activeColor, $lightness: -20%);
 	}
 
 	&::before {
-		content: 'ON';
+		content: "ON";
 		color: $activeColor !important;
 		position: absolute !important;
 		left: 10px !important;

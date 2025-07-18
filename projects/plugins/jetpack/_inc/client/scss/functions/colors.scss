@@ -21,7 +21,7 @@ https://github.com/thoughtbot/bourbon
 
 // Add percentage of white to a color
 // Copyright © 2011–2015 thoughtbot. See CREDITS.md#L3
-@use 'sass:color';
+@use "sass:color";
 
 @function tint($color, $percent) {
 

@@ -8,7 +8,7 @@
 
 /* From https://github.com/una/CSSgram/blob/0.1.12/source/scss/_shared.scss */
 @mixin pseudo-elem {
-	content: '';
+	content: "";
 	display: block;
 	height: 100%;
 	width: 100%;

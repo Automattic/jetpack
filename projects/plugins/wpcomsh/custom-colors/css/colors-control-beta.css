@@ -136,7 +136,7 @@
 
 .color-grid .unavailable::before {
 	color: #fff;
-	content: '\f406';
+	content: "\f406";
 	font-family: Noticons;
 	font-size: 40px;
 	opacity: 0.4;
@@ -323,7 +323,7 @@ a.button.right-pill {
 }
 
 #the-bg-picker-prompt::after {
-	content: '.';
+	content: ".";
 	display: block;
 	height: 0;
 	clear: both;
@@ -441,7 +441,7 @@ a.button.right-pill {
 
 /* Theme featured palettes */
 .colour-lovers.featured::before {
-	content: 'Featured';
+	content: "Featured";
 	background: #000;
 	color: #fff;
 	display: block;
@@ -495,7 +495,7 @@ a.button.right-pill {
 }
 
 #colourlovers-patterns::after {
-	content: '.';
+	content: ".";
 	display: block;
 	height: 0;
 	clear: both;

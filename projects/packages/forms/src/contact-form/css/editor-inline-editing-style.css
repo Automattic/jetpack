@@ -265,7 +265,7 @@ input[type="checkbox"] {
 
 .checkbox:checked::before,
 input[type="checkbox"]:checked::before {
-	content: '\f147';
+	content: "\f147";
 	font-family: dashicons;
 	margin: -3px 0 0 -4px;
 	float: left;
@@ -369,7 +369,7 @@ input[type="radio"]:focus::-ms-clear {
 input[type="radio"]:checked::before {
 	float: left;
 	display: inline-block;
-	content: '\2022';
+	content: "\2022";
 	margin: 3px;
 	width: 8px;
 	height: 8px;

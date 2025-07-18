@@ -175,7 +175,7 @@
 }
 
 .dp-cal-nav::before {
-	content: '';
+	content: "";
 	border: 2px solid;
 	width: 6px;
 	height: 6px;
@@ -198,7 +198,7 @@
 }
 
 .dp-cal-dropdown::after {
-	content: '';
+	content: "";
 	border: 2px solid;
 	border-right: 0;
 	border-bottom: 0;

@@ -10,12 +10,12 @@
 			margin-top: 0;
 		}
 
-		&[data-post-count='3'] .jp-related-posts-i2__post {
+		&[data-post-count="3"] .jp-related-posts-i2__post {
 			max-width: calc(33.33333333% - 20px);
 		}
 
-		&[data-post-count='2'] .jp-related-posts-i2__post,
-		&[data-post-count='1'] .jp-related-posts-i2__post {
+		&[data-post-count="2"] .jp-related-posts-i2__post,
+		&[data-post-count="1"] .jp-related-posts-i2__post {
 			max-width: calc(50% - 20px);
 		}
 	}
@@ -75,7 +75,7 @@
 
 /* List view */
 
-.jp-relatedposts-i2[data-layout='list'] {
+.jp-relatedposts-i2[data-layout="list"] {
 
 	.jp-related-posts-i2__row {
 		margin: 0;

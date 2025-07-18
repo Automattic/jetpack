@@ -1,7 +1,7 @@
 @use "sass:math";
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use '../../../shared/styles/jetpack-variables';
-@use 'variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../../../shared/styles/jetpack-variables";
+@use "variables";
 
 .wp-story-display-contents {
 	display: contents;
@@ -665,7 +665,7 @@
 		@supports not (backdrop-filter: none) {
 			filter: blur(18px);
 			filter: url(#gaussian-blur-18);
-			filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='18');
+			filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius="18");
 		}
 	}
 

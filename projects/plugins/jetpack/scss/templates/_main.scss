@@ -7,7 +7,7 @@
 // ==========================================================================
 // Main Layout
 // ==========================================================================
-@use 'sass:color';
+@use "sass:color";
 
 .configure .frame.top.fixed {
 
@@ -115,7 +115,7 @@
 
 			// needs to be cleaned up and removed - jeffgolenski
 			&::before {
-				content: '';
+				content: "";
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -198,7 +198,7 @@
 		right: 0;
 		font: 300 typography-functions.em(24px) Genericons !important;
 		color: #777;
-		content: '\f405';
+		content: "\f405";
 		display: inline-block;
 		padding: typography-functions.em(4px) typography-functions.em(10px) typography-functions.em(6px);
 		z-index: 5;
@@ -350,7 +350,7 @@
 
 	&::before,
 	&::after {
-		content: '';
+		content: "";
 		position: absolute;
 		left: 0;
 		pointer-events: none;
@@ -509,7 +509,7 @@
 		outline: 0;
 
 		&::after {
-			content: 'A';
+			content: "A";
 			position: absolute;
 			top: 2px;
 			right: -9999px;
@@ -605,7 +605,7 @@
 
 		&::before {
 			color: #fff;
-			content: '\f418';
+			content: "\f418";
 			font-family: Genericons;
 			font-size: 33px;
 			height: 33px;
@@ -640,7 +640,7 @@
 
 	&.error .squeezer::before,
 	&.jetpack-err .squeezer::before {
-		content: '\f414';
+		content: "\f414";
 	}
 }
 

@@ -143,7 +143,7 @@
 }
 
 .jetpack-form-file-field__preview::before {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -209,7 +209,7 @@
 .jetpack-form-file-field__remove::after {
 	position: absolute;
 	left: 16px;
-	content: ' ';
+	content: " ";
 	height: 18px;
 	width: 1px;
 	top: 7px;
@@ -232,7 +232,7 @@
 }
 
 .jetpack-form-file-field__image {
-	content: '';
+	content: "";
 	aspect-ratio: 1 / 1;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -273,7 +273,7 @@
 }
 
 .jetpack-form-file-field__progress-bar {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -288,7 +288,7 @@
 }
 
 .jetpack-form-file-field__progress-bar::after {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 3px;
 	bottom: 3px;

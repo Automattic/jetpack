@@ -1,6 +1,6 @@
 @use "../../scss/mixins/breakpoints";
 @use "../../scss/variables/colors";
-@use '../../scss/functions/rem';
+@use "../../scss/functions/rem";
 
 .jp-form-legend,
 .jp-form-label-wide {
@@ -80,7 +80,7 @@
 		padding: rem.convert(8px) rem.convert(14px);
 		white-space: nowrap;
 
-		@include breakpoints.breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			display: block;
 			text-align: left;
 		}
@@ -89,16 +89,16 @@
 	input[type="text"] {
 		width: 100%;
 
-		@include breakpoints.breakpoint( '>660px' ) {
+		@include breakpoints.breakpoint( ">660px" ) {
 			border-left: 0;
 		}
 
-		@include breakpoints.breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			border-top: 0;
 		}
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: block;
 		box-sizing: border-box;
 	}

@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .wp-block-jetpack-contact-form {
@@ -99,8 +99,8 @@
 				}
 			}
 
-			&[data-type='jetpack/field-checkbox'],
-			&[data-type='jetpack/field-consent'] {
+			&[data-type="jetpack/field-checkbox"],
+			&[data-type="jetpack/field-consent"] {
 				align-self: center;
 			}
 
@@ -412,7 +412,7 @@
 			border-style: solid;
 			border-width: 1px;
 			box-sizing: border-box;
-			content: ' ';
+			content: " ";
 			display: flex;
 			font-weight: 700;
 			height: 1em;

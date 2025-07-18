@@ -1,7 +1,7 @@
 /**
  * Editor styles for the form-step block
  */
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@import "@automattic/jetpack-base-styles/gutenberg-base-styles";
 
 .jetpack-form-step__break {
 	display: flex;
@@ -12,7 +12,7 @@
 	// Horizontal lines on both sides, similar to paywall block.
 	&::before,
 	&::after {
-		content: '';
+		content: "";
 		flex: 1;
 		height: 1px;
 		background: currentColor;

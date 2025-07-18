@@ -144,7 +144,7 @@ i.alternate {
 	outline: none;
 	border: none;
 	vertical-align: baseline;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	margin: 0 0.25em 0 0;
 	padding: 0.78571429em 1.5em 0.78571429em;
 	text-transform: none;
@@ -161,7 +161,7 @@ i.alternate {
 	-ms-user-select: none;
 	user-select: none;
 	transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
-	will-change: '';
+	will-change: "";
 	-webkit-tap-highlight-color: transparent;
 	height: auto;
 }
@@ -184,4 +184,4 @@ i.alternate {
 
 // pull in modal css
 /* stylelint-disable-next-line no-invalid-position-at-import-rule -- this is an intentional override */
-@include meta.load-css('JetpackCRM.admin.modals');
+@include meta.load-css("JetpackCRM.admin.modals");

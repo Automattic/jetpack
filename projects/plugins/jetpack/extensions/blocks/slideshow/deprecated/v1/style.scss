@@ -1,11 +1,11 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use '../../../../shared/styles/jetpack-variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../../../../shared/styles/jetpack-variables";
 
 .wp-block-jetpack-slideshow {
 	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 	position: relative;
 
-	[tabindex='-1']:focus {
+	[tabindex="-1"]:focus {
 		outline: 0;
 	}
 
@@ -183,7 +183,7 @@
 		background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M8%205v14l11-7z'%20fill='black'/%3E%3Cpath%20d='M0 0h24v24H0z'%20fill='none'/%3E%3C/svg%3E");
 	}
 
-	&[data-autoplay='true'] .wp-block-jetpack-slideshow_button-pause {
+	&[data-autoplay="true"] .wp-block-jetpack-slideshow_button-pause {
 		display: block;
 	}
 
@@ -208,7 +208,7 @@
 		}
 	}
 
-	&[data-autoplay='true'] .wp-block-jetpack-slideshow_caption.gallery-caption {
+	&[data-autoplay="true"] .wp-block-jetpack-slideshow_caption.gallery-caption {
 		max-height: calc(100% - 68px);
 	}
 

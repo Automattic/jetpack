@@ -34,7 +34,7 @@
 		line-height: 1.333;
 		width: 100%;
 
-		@include breakpoints.breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			flex-direction: column;
 			align-items: flex-start;
 		}
@@ -55,12 +55,12 @@
 	.jp-footer__logo {
 		margin-right: 32px;
 
-		@include breakpoints.breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			margin-right: 0;
 			margin-bottom: 24px;
 		}
 
-		@include breakpoints.breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			margin-bottom: 48px;
 		}
 	}
@@ -79,11 +79,11 @@
 	.jp-footer__menu {
 		display: flex;
 
-		@include breakpoints.breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			margin-bottom: 24px;
 		}
 
-		@include breakpoints.breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			flex-direction: column;
 			align-items: flex-start;
 			margin-bottom: 48px;
@@ -142,7 +142,7 @@
 	.jp-footer__a8c-logo {
 		margin-left: auto;
 
-		@include breakpoints.breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			margin-left: 0;
 		}
 	}

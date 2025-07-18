@@ -1,6 +1,6 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use './variables' as vars;
-@use './view';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "./variables" as vars;
+@use "./view";
 
 // inspired by from assets/shared/_animations loading-fade
 @keyframes tiled-gallery-img-placeholder {

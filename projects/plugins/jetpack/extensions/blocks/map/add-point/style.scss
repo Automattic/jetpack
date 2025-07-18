@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .component__add-point {
 	position: absolute;
@@ -14,7 +14,7 @@
 	box-shadow: none;
 	background-color: transparent;
 
-	&.components-button:not(:disabled):not([aria-disabled='true']):focus {
+	&.components-button:not(:disabled):not([aria-disabled="true"]):focus {
 		background-color: transparent;
 		box-shadow: none;
 	}
@@ -27,7 +27,7 @@
 
 .component__add-point__popover {
 
-	.components-button:not(:disabled):not([aria-disabled='true']):focus {
+	.components-button:not(:disabled):not([aria-disabled="true"]):focus {
 		background-color: transparent;
 		box-shadow: none;
 	}

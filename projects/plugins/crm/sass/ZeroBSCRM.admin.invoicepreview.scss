@@ -4,7 +4,7 @@
  * Jetpack CRM
  * https://jetpackcrm.com
  */
-@use '@automattic/color-studio/dist/color-variables' as *;
+@use "@automattic/color-studio/dist/color-variables" as *;
 
 // The invoice preview CSS
 .previnvzbs {
@@ -594,34 +594,34 @@
 // Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
 /* stylelint-disable no-invalid-position-at-import-rule -- these are intentional overrides */
 
-@include meta.load-css('ZeroBSCRM.genericeditpages');
+@include meta.load-css("ZeroBSCRM.genericeditpages");
 
 // Import "core" styles
-@include meta.load-css('ZeroBSCRM.prevadmincore');
+@include meta.load-css("ZeroBSCRM.prevadmincore");
 
 // Daterangepicker styles
-@include meta.load-css('daterangepicker/daterangepicker');
+@include meta.load-css("daterangepicker/daterangepicker");
 
 // menu mods
-@include meta.load-css('ZeroBSCRM.adminmenu');
+@include meta.load-css("ZeroBSCRM.adminmenu");
 
 // customer filters gui
-@include meta.load-css('ZeroBSCRM.customerfilters');
+@include meta.load-css("ZeroBSCRM.customerfilters");
 
 // Import form styles
-@include meta.load-css('ZeroBSCRM.forms');
+@include meta.load-css("ZeroBSCRM.forms");
 
 // Import "Log" styles
-@include meta.load-css('ZeroBSCRM.logs');
+@include meta.load-css("ZeroBSCRM.logs");
 
 // Import "Typeahead" styles
-@include meta.load-css('ZeroBSCRM.typeahead');
+@include meta.load-css("ZeroBSCRM.typeahead");
 
 // Import "Spinner" styles
-@include meta.load-css('ZeroBSCRM.spinners');
+@include meta.load-css("ZeroBSCRM.spinners");
 
 // Import "Admin Pages" styles
-@include meta.load-css('ZeroBSCRM.adminpages');
+@include meta.load-css("ZeroBSCRM.adminpages");
 
 // Import "Hide WP Features" styles
-@include meta.load-css('ZeroBSCRM.hidewpfeatures');
+@include meta.load-css("ZeroBSCRM.hidewpfeatures");

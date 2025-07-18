@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 // Hack to hide the Image dropdown when the media modal is open
 body.modal-open .poster-panel__dropdown {

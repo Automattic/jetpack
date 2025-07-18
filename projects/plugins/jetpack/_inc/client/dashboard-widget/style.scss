@@ -1,5 +1,5 @@
 @use "../scss/variables/colors";
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/root-variables";
 
 @mixin emerald-button-colors() {
 	background: var(--jp-black);
@@ -151,15 +151,15 @@
 		display: grid;
 		row-gap: 1em;
 		grid-template-areas:
-			'header'
-			'content';
+			"header"
+			"content";
 		grid-template-rows: min-content min-content;
 	}
 
 	.stats-info-content {
 		grid-area: content;
 		display: grid;
-		grid-template-areas: 'posts searches';
+		grid-template-areas: "posts searches";
 		grid-template-columns: 1fr 1fr;
 		column-gap: 1em;
 

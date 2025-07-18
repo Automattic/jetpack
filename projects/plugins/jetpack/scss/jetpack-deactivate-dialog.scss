@@ -1,7 +1,7 @@
-@use 'sass:color';
-@use '../_inc/client/scss/variables/colors';
-@use '../_inc/client/scss/functions/colors' as colorfuncs;
-@use '../_inc/client/scss/calypso-colors';
+@use "sass:color";
+@use "../_inc/client/scss/variables/colors";
+@use "../_inc/client/scss/functions/colors" as colorfuncs;
+@use "../_inc/client/scss/calypso-colors";
 
 #TB_window.jetpack-disconnect-modal {
 
@@ -83,7 +83,7 @@
 		top: 22px;
 
 		&::after {
-			content: '\f335';
+			content: "\f335";
 			font: 400 32px/29px dashicons;
 			-webkit-font-smoothing: antialiased;
 			-moz-osx-font-smoothing: grayscale;

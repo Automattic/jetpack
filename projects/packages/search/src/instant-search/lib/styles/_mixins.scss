@@ -1,6 +1,6 @@
-@use 'sass:map';
-@use 'sass:string';
-@use 'variables';
+@use "sass:map";
+@use "sass:string";
+@use "variables";
 
 // Mixins
 
@@ -11,7 +11,7 @@
 
 	$predicate: max-width;
 
-	@if string.slice( $breakpoint-string, 1, 1 ) == '>' {
+	@if string.slice( $breakpoint-string, 1, 1 ) == ">" {
 		$predicate: min-width;
 	} @else {
 		$breakpoint: $breakpoint - 0.02px;
@@ -78,7 +78,7 @@
 	}
 }
 
-$customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
+$customberg-container-selector: ".jp-search-configure-app-wrapper" !default;
 
 // NOTE: Only works if first breakpoint is more restrictive than the customberg breakpoint.
 //       E.g. multiple-breaks-for-customberg( '<l', '<xl' );

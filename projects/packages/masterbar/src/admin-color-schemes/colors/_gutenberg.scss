@@ -4,7 +4,7 @@
  *
  * @see https://github.com/WordPress/gutenberg/blob/HEAD/packages/base-styles/_mixins.scss
  */
-@use 'sass:color';
+@use "sass:color";
 
 $highlight-color: $--a-value-must-be-set-via-with-- !default;
 

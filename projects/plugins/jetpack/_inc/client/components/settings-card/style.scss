@@ -1,5 +1,5 @@
 @use "../../scss/mixins/breakpoints";
-@use '../../scss/functions/rem';
+@use "../../scss/functions/rem";
 
 .jp-form-settings-card {
 	margin-bottom: rem.convert(24px);

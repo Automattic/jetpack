@@ -1,8 +1,8 @@
 // This document contains styles that influence the styles of Stats & At a Glance, overall.
 // For more precise styles, dig into the styles of each component. ie. dash-item
-@use 'sass:color';
-@use '../scss/functions/rem';
-@use '../scss/calypso-colors';
+@use "sass:color";
+@use "../scss/functions/rem";
+@use "../scss/calypso-colors";
 @use "../scss/mixins/breakpoints";
 @use "../scss/mixins/ui";
 @use "../scss/typography";
@@ -95,7 +95,7 @@
 .jp-at-a-glance__stats-inactive {
 	padding: rem.convert(16px);
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		display: flex;
 		flex-wrap: nowrap;
 		flex-direction: row;
@@ -108,7 +108,7 @@
 	display: flex;
 	flex-grow: 0;
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: none;
 	}
 }
@@ -129,11 +129,11 @@
 		color: colors.$black;
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		padding: 0 0 rem.convert(16px);
 	}
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-basis: 50%;
 		padding: 0 rem.convert(16px);
 	}
@@ -152,7 +152,7 @@
 		}
 	}
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-grow: 0;
 		margin-left: 64px;
 	}
@@ -173,7 +173,7 @@
 .jp-at-a-glance__stats-bottom {
 	margin: rem.convert(8px) 0 0;
 
-	@include breakpoints.breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		box-shadow: 0 0 0 1px calypso-colors.$light-gray-700;
 	}
 }
@@ -207,13 +207,13 @@
 .jp-at-a-glance__stats-summary {
 	text-align: center;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-wrap: nowrap;
 		display: flex;
 		flex-direction: row;
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: block;
 	}
 }
@@ -231,7 +231,7 @@
 	border-style: solid;
 	border-color: #dcdcde;
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		margin-top: rem.convert(-1px);
 	}
 }
@@ -241,7 +241,7 @@
 	border-style: solid;
 	border-color: #dcdcde;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		margin: 0 rem.convert(1px);
 	}
 }
@@ -262,7 +262,7 @@
 .jp-at-a-glance__stats-summary-alltime-views,
 .jp-at-a-glance__stats-summary-alltime-comments {
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		margin-top: rem.convert(1px);
 	}
 }
@@ -270,21 +270,21 @@
 .jp-at-a-glance__stats-cta {
 	padding: rem.convert(12px);
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
 		align-items: center;
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: block;
 	}
 }
 
 .jp-at-a-glance__stats-cta-description {
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-basis: 30%;
 	}
 }
@@ -311,12 +311,12 @@
 	align-items: center;
 	justify-content: flex-end;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		text-align: right;
 		flex-basis: 70%;
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		text-align: center;
 		flex-direction: column;
 
@@ -352,7 +352,7 @@
 		outline: 0;
 	}
 
-	@include breakpoints.breakpoint('<480px') {
+	@include breakpoints.breakpoint("<480px") {
 		margin-left: 0;
 		margin-right: rem.convert(16px);
 	}
@@ -387,7 +387,7 @@
 .jp-at-a-glance__item-grid {
 	display: flex;
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: block; // don't need flexbox on smaller screens
 	}
 }
@@ -397,12 +397,12 @@
 	display: flex;
 	min-width: 0;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-basis: 50%;
 		margin-bottom: rem.convert(16px);
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		margin-bottom: rem.convert(12px);
 	}
 
@@ -436,7 +436,7 @@
 				margin-left: 0;
 				padding-left: 0;
 
-				@include breakpoints.breakpoint( '<480px' ) {
+				@include breakpoints.breakpoint( "<480px" ) {
 					text-transform: none;
 				}
 			}
@@ -455,7 +455,7 @@
 .jp-at-a-glance__left {
 	display: flex;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		margin-right: rem.convert(16px);
 
 		&:last-child {
@@ -519,7 +519,7 @@
 	max-width: 635px;
 	min-height: 400px;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		min-height: auto;
 	}
 }

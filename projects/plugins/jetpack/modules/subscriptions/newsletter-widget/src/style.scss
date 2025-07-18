@@ -1,6 +1,6 @@
-@use 'sass:math';
-@use '@wordpress/base-styles/colors';
-@use '@wordpress/base-styles/variables';
+@use "sass:math";
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 $spacing-xs: variables.$grid-unit-05;      // 4px
 $spacing-sm: variables.$grid-unit-10;      // 8px

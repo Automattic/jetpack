@@ -1,13 +1,13 @@
 // Chart
 // Life is a statistical anomaly
 
-@use 'sass:color';
-@use '../../scss/z-index';
-@use '../../scss/calypso-colors';
-@use '../../scss/layout';
-@use '../../scss/mixin_clear-fix';
-@use '../../scss/mixin_long-content-fade';
-@use '../../scss/mixin_icons';
+@use "sass:color";
+@use "../../scss/z-index";
+@use "../../scss/calypso-colors";
+@use "../../scss/layout";
+@use "../../scss/mixin_clear-fix";
+@use "../../scss/mixin_long-content-fade";
+@use "../../scss/mixin_icons";
 
 .dops-chart {
 	position: relative;
@@ -40,7 +40,7 @@
 // Y-axis marker lines inside each chart__bar
 // (This is needed so that bars overlap correctly)
 .dops-chart__bar-marker {
-	z-index: z-index.z-index('root', '.dops-chart__bar-marker');
+	z-index: z-index.z-index("root", ".dops-chart__bar-marker");
 	position: absolute;
 	top: 0;
 	width: 100%;
@@ -109,7 +109,7 @@
 // (vertical thin grey bar)
 
 .dops-chart__x-axis-label::before {
-	content: '';
+	content: "";
 	display: block;
 	position: absolute;
 	top: -4px;
@@ -178,7 +178,7 @@
 	right: 16%; // 1
 	bottom: 0; // 1
 	left: 16%; // 1
-	z-index: z-index.z-index('root', '.dops-chart__bar-section');
+	z-index: z-index.z-index("root", ".dops-chart__bar-section");
 
 	.dops-chart__bar:hover &.is-bar {
 		background-color: var(--jp-green-40);
@@ -189,7 +189,7 @@
 	}
 
 	&.is-spacer {
-		z-index: z-index.z-index('root', '.dops-chart__bar-section.is-spacer');
+		z-index: z-index.z-index("root", ".dops-chart__bar-section.is-spacer");
 		background-color: calypso-colors.$transparent;
 	}
 
@@ -200,7 +200,7 @@
 		top: 160px;
 		bottom: 0;
 		left: 0;
-		z-index: z-index.z-index('root', '.dops-chart__bar-section.is-ghost::after');
+		z-index: z-index.z-index("root", ".dops-chart__bar-section.is-ghost::after");
 		width: 100%;
 		height: 40px;
 		background-image: linear-gradient(to bottom, calypso-colors.$transparent, rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.5)); // TODO: needs to use default color for gradient
@@ -329,7 +329,7 @@
 	font-size: 14px;
 	line-height: 24px;
 	clear: both;
-	z-index: z-index.z-index('root', '.dops-chart__empty');
+	z-index: z-index.z-index("root", ".dops-chart__empty");
 }
 
 .dops-chart__empty_notice {
@@ -354,7 +354,7 @@
 		&::before {
 
 			@include mixin_icons.noticons;
-			content: '\f456';
+			content: "\f456";
 			position: absolute;
 			top: 23px;
 			left: 20px;
@@ -488,7 +488,7 @@
 			min-width: 0;
 
 			&::before {
-				content: '';
+				content: "";
 				position: relative;
 				background-image: linear-gradient(to right, rgba(61, 89, 109, 0) 0%, rgba(61, 89, 109, 0.5), rgba(61, 89, 109, 1));
 				left: -30px;

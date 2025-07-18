@@ -1,5 +1,5 @@
 @use "../../scss/mixins/breakpoints";
-@use '../../scss/functions/rem';
+@use "../../scss/functions/rem";
 
 .jp-module-settings__external-link {
 	font-size: rem.convert(14px);

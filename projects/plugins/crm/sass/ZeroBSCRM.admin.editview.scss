@@ -7,7 +7,7 @@
 @charset "UTF-8";
 
 // main
-@use 'ZeroBSCRM.editview';
+@use "ZeroBSCRM.editview";
 
 // sub: Contact
-@use 'ZeroBSCRM.editcontact' as ZeroBSCRM2;
+@use "ZeroBSCRM.editcontact" as ZeroBSCRM2;

@@ -67,7 +67,7 @@
 }
 
 // Disable the juxtaposition effect until the block itself is selected.
-[data-type='jetpack/image-compare']:not(.is-selected) .image-compare__comparison {
+[data-type="jetpack/image-compare"]:not(.is-selected) .image-compare__comparison {
 	pointer-events: none;
 }
 
@@ -90,7 +90,7 @@
 	}
 
 	&::before {
-		content: '';
+		content: "";
 		display: block;
 		position: absolute;
 		z-index: 2;

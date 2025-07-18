@@ -23,7 +23,7 @@ $white: #fff;
 		 */
 		&::after {
 			position: absolute;
-			content: '';
+			content: "";
 			display: block;
 			width: 2px;
 			height: 100%;
@@ -42,7 +42,7 @@ $white: #fff;
 	&__annotation {
 
 		&::after {
-			content: '';
+			content: "";
 			width: 0;
 			height: 0;
 			border-left: 8px solid transparent;

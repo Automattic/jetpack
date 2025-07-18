@@ -95,7 +95,7 @@
 
 .wpcom-gifting-banner__more-info-button::before {
 	background: url(../images/gridicons-help-outline.svg) no-repeat center;
-	content: '';
+	content: "";
 	height: 16px;
 	width: 16px;
 	position: absolute;

@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 /**
  * Editor styles for Jetpack AI Assistant
@@ -109,7 +109,7 @@
 		}
 	}
 
-	table[style*='border-top-color'] {
+	table[style*="border-top-color"] {
 
 		> *,
 		tr:first-child {
@@ -126,7 +126,7 @@
 		}
 	}
 
-	table[style*='border-right-color'] {
+	table[style*="border-right-color"] {
 
 		> *,
 		tr,
@@ -136,7 +136,7 @@
 		}
 	}
 
-	table[style*='border-bottom-color'] {
+	table[style*="border-bottom-color"] {
 
 		> *,
 		tr:last-child {
@@ -158,7 +158,7 @@
 		}
 	}
 
-	table[style*='border-left-color'] {
+	table[style*="border-left-color"] {
 
 		> *,
 		tr,
@@ -168,7 +168,7 @@
 		}
 	}
 
-	table[style*='border-style'] {
+	table[style*="border-style"] {
 
 		> *,
 		tr,
@@ -178,7 +178,7 @@
 		}
 	}
 
-	table[style*='border-width'] {
+	table[style*="border-width"] {
 
 		> *,
 		tr,

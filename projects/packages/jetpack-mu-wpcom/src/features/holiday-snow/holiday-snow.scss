@@ -5,13 +5,13 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-@use 'sass:list';
-@use 'sass:math';
+@use "sass:list";
+@use "sass:math";
 
 $grid_width: 600;
 $snow_density: 10;
 $snow_speed: 9s;
-$snow_selector: '#jetpack-holiday-snow';
+$snow_selector: "#jetpack-holiday-snow";
 
 // Random numbers, to replace the `random` function so we can have reproducable builds.
 // Needs $snow_density entries. Intergers 3-6.

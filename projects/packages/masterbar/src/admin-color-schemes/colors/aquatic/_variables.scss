@@ -1,6 +1,6 @@
 // make use of color studio variables for consistency across products
 @use "@automattic/color-studio/dist/color-variables" as studio;
-@use '../deprecated-color-variables';
+@use "../deprecated-color-variables";
 
 // core variables (core _variables.scss)
 $base-color: deprecated-color-variables.$deprecated-studio-blue-80; // Calypso --color-masterbar-background

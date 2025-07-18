@@ -1,4 +1,4 @@
-@use '@wordpress/base-styles/colors';
+@use "@wordpress/base-styles/colors";
 @use "@wordpress/base-styles/mixins";
 @use "@wordpress/base-styles/variables";
 
@@ -67,7 +67,7 @@
 
 		// This border appears in Windows High Contrast mode instead of the box-shadow.
 		&::before {
-			content: '';
+			content: "";
 			position: absolute;
 			top: 0;
 			bottom: 1px;

@@ -1,5 +1,5 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@automattic/jetpack-base-styles/root-variables";
 
 .jetpack-onboarding-testimonial {
 	--tag-color: #daffdc;
@@ -41,7 +41,7 @@
 	&--3 {
 
 		&::before {
-			content: '';
+			content: "";
 			position: absolute;
 			top: 0;
 			left: 0;
@@ -62,12 +62,12 @@
 		font-family:
 			-apple-system,
 			BlinkMacSystemFont,
-			'Segoe UI',
+			"Segoe UI",
 			Roboto,
 			Oxygen-Sans,
 			Ubuntu,
 			Cantarell,
-			'Helvetica Neue',
+			"Helvetica Neue",
 			sans-serif;
 
 		@include gb.break-xlarge {

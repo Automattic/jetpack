@@ -1,4 +1,4 @@
-@use 'sass:meta';
+@use "sass:meta";
 
 .trigger-wrapper {
 	padding-block: 1rem;
@@ -79,7 +79,7 @@
 	// Use :global scope to avoid CSS encapsulation
 	:global {
 
-		@include meta.load-css( '@wordpress/dataviews/build-style/style' );
+		@include meta.load-css( "@wordpress/dataviews/build-style/style" );
 	}
 
 	// Hide the table actions

@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 .jp-connection__manage-dialog {
 	--spacing-base: 8px;
@@ -85,7 +85,7 @@
 		}
 
 		&.disabled::before {
-			content: '';
+			content: "";
 			display: block;
 			position: absolute;
 			top: 0;

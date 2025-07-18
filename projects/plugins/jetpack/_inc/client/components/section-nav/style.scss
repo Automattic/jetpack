@@ -1,9 +1,9 @@
-@use 'sass:color';
-@use '../../scss/z-index';
-@use '../../scss/calypso-colors';
-@use '../../scss/mixin_breakpoint';
-@use '../../scss/mixin_icons';
-@use '../../scss/typography';
+@use "sass:color";
+@use "../../scss/z-index";
+@use "../../scss/calypso-colors";
+@use "../../scss/mixin_breakpoint";
+@use "../../scss/mixin_icons";
+@use "../../scss/typography";
 
 /**
  * Section Nav
@@ -66,7 +66,7 @@
 	&::after {
 
 		@include mixin_icons.dashicons;
-		content: '\f347';
+		content: "\f347";
 		line-height: 16px;
 		color: rgba(calypso-colors.$gray, 0.5);
 	}
@@ -76,7 +76,7 @@
 		&::after {
 
 			@include mixin_icons.dashicons;
-			content: '\f343';
+			content: "\f343";
 		}
 	}
 
@@ -397,11 +397,11 @@
 // -------- Nav Tabs - dropdowns --------
 .dops-section-nav-tabs__dropdown {
 	position: relative;
-	z-index: z-index.z-index('dops-section-nav-tabs__dropdown-parent', '.dops-section-nav-tabs__dropdown');
+	z-index: z-index.z-index("dops-section-nav-tabs__dropdown-parent", ".dops-section-nav-tabs__dropdown");
 	width: 100%;
 
 	&.is-open {
-		z-index: z-index.z-index('dops-section-nav-tabs__dropdown-parent', '.dops-section-nav-tabs__dropdown.is-open');
+		z-index: z-index.z-index("dops-section-nav-tabs__dropdown-parent", ".dops-section-nav-tabs__dropdown.is-open");
 	}
 
 	.dops-select-dropdown__container {

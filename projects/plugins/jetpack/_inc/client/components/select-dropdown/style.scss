@@ -1,7 +1,7 @@
-@use 'sass:color';
-@use '../../scss/z-index';
-@use '../../scss/calypso-colors';
-@use '../../scss/mixin_icons';
+@use "sass:color";
+@use "../../scss/z-index";
+@use "../../scss/calypso-colors";
+@use "../../scss/mixin_icons";
 
 /**
  * Select Dropdown
@@ -30,12 +30,12 @@
 	max-width: 100%;
 
 	.dops-select-dropdown.is-open & {
-		z-index: z-index.z-index('root', '.dops-select-dropdown.is-open .dops-select-dropdown__container');
+		z-index: z-index.z-index("root", ".dops-select-dropdown.is-open .dops-select-dropdown__container");
 	}
 
 	.dops-accessible-focus &:focus,
 	.dops-accessible-focus .dops-select-dropdown.is-open & {
-		z-index: z-index.z-index('root', '.dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container');
+		z-index: z-index.z-index("root", ".dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container");
 		box-shadow: 0 0 0 2px calypso-colors.$blue-light;
 
 		.select-dropdown__header {
@@ -70,7 +70,7 @@
 	&::after {
 
 		@include mixin_icons.dashicons;
-		content: '\f347';
+		content: "\f347";
 		position: absolute;
 		right: 13px;
 		top: 12px;
@@ -108,7 +108,7 @@
 		&::after {
 
 			@include mixin_icons.dashicons;
-			content: '\f343';
+			content: "\f343";
 		}
 	}
 
@@ -251,7 +251,7 @@
 
 		.dops-accessible-focus &:focus,
 		.dops-accessible-focus .dops-select-dropdown.is-open & {
-			z-index: z-index.z-index('root', '.dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container');
+			z-index: z-index.z-index("root", ".dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container");
 			box-shadow: 0 0 0 2px var(--jp-green-30);
 
 			.select-dropdown__header {
