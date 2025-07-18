@@ -5538,9 +5538,6 @@ importers:
       '@octokit/rest':
         specifier: 21.1.1
         version: 21.1.1
-      '@stylistic/stylelint-plugin':
-        specifier: 3.1.3
-        version: 3.1.3(stylelint@16.19.1(typescript@5.8.3))
       '@tanstack/eslint-plugin-query':
         specifier: 5.74.7
         version: 5.74.7(eslint@9.31.0)(typescript@5.8.3)
