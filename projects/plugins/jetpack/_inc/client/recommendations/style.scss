@@ -10,7 +10,7 @@
 	border: 1px solid calypso-colors.$gray-lighten-20;
 	background: var( --jp-white );
 
-	a:not( [type="button"] ) {
+	a:not([type="button"]) {
 		// $has-focus-state: false - as we don't need a focus state for navigation links
 		@include rna.rna-link( $has-focus-state: false );
 	}

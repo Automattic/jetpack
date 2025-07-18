@@ -35,7 +35,7 @@
 		background-position: center;
 	}
 
-	&:focus:not( :disabled ) {
+	&:focus:not(:disabled) {
 		box-shadow:
 			0 0 0 var( --wp-admin-border-width-focus )
 			var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );

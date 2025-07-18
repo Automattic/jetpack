@@ -29,7 +29,7 @@
 	transform: translate( -50%, -50% );
 	z-index: 9000;
 
-	&:not( .active ) {
+	&:not(.active) {
 		display: none;
 	}
 }

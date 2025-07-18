@@ -22,7 +22,7 @@
 	width: 100%;
 }
 
-.is-content-justification-space-between .wp-block-jetpack-button:has( .is-next, .is-submit ) {
+.is-content-justification-space-between .wp-block-jetpack-button:has(.is-next, .is-submit) {
 	margin-left: auto;
 }
 

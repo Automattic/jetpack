@@ -63,7 +63,7 @@
 		z-index: 1;
 	}
 
-	&:not( .is-small ) {
+	&:not(.is-small) {
 
 		> img {
 			border-radius: var( --jp-border-radius );

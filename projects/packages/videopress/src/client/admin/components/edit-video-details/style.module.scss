@@ -1,7 +1,7 @@
 
 .header-wrapper {
 
-	&:not( .small ) {
+	&:not(.small) {
 		display: flex;
 		align-items: center;
 	}
@@ -27,7 +27,7 @@
 		align-items: center;
 		color: var( --jp-gray-40 );
 
-		&:not( .small ) {
+		&:not(.small) {
 			margin-left: var( --spacing-base );
 		}
 	}

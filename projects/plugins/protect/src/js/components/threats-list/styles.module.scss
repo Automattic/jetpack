@@ -65,7 +65,7 @@
 		grid-column: 1 / 7;
 	}
 
-	> span:not( :first-child ) {
+	> span:not(:first-child) {
 		text-align: center;
 	}
 }

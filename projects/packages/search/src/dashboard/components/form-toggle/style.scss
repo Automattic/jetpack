@@ -73,7 +73,7 @@
 		background: color.adjust( calypso-colors.$gray, $lightness: 10% );
 	}
 
-	&:not( :disabled ) {
+	&:not(:disabled) {
 
 		+ .form-toggle__switch:hover {
 			background: color.adjust( calypso-colors.$gray, $lightness: 20% );
@@ -91,7 +91,7 @@
 		}
 	}
 
-	&:checked:not( :disabled ) {
+	&:checked:not(:disabled) {
 
 		+ .form-toggle__switch:hover {
 			background: calypso-colors.$blue-light;

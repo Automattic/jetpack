@@ -22,7 +22,7 @@
 	margin-left: var( --spacing-base );
 	display: inline-flex;
 
-	:global( .components-tooltip.components-popover .components-popover__content ) {
+	:global(.components-tooltip.components-popover .components-popover__content) {
 		min-width: auto;
 		max-width: 256px;
 		width: 256px;

@@ -35,7 +35,7 @@
 		grid-column: 9;
 	}
 
-	>:not( :first-child ) {
+	>:not(:first-child) {
 		margin: auto;
 	}
 
@@ -167,16 +167,16 @@
 			grid-row: 1;
 		}
 
-		>:nth-child( 2 ) {
+		>:nth-child(2) {
 			padding-left: calc( var( --spacing-base ) * 4 ); // 32px
 			grid-row: 2;
 		}
 
-		>:nth-child( 3 ) {
+		>:nth-child(3) {
 			grid-row: 2;
 		}
 
-		>:nth-child( 3 ) span {
+		>:nth-child(3) span {
 			position: absolute;
 			margin-top: var( --spacing-base ); // 8px
 		}

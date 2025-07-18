@@ -3,7 +3,7 @@
 
 	max-width: var( --video-thumbnail-selector-modal-thumbnail-width );
 
-	&:not( .is-small ) {
+	&:not(.is-small) {
 		width: var( --video-thumbnail-selector-modal-thumbnail-width );
 	}
 

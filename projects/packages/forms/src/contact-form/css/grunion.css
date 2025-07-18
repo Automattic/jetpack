@@ -40,7 +40,7 @@
 	display: block;
 }
 
-.contact-form .wp-block-jetpack-button:has( button.is-hidden ) {
+.contact-form .wp-block-jetpack-button:has(button.is-hidden) {
 	display: none;
 }
 
@@ -153,14 +153,14 @@
 }
 
 /* Ensure global styles can ovewrite the default border and padding. */
-:where( .contact-form .grunion-checkbox-multiple-options ),
-:where( .contact-form .grunion-radio-options ) {
+:where(.contact-form .grunion-checkbox-multiple-options),
+:where(.contact-form .grunion-radio-options) {
 	border: none;
 	padding: 0;
 }
 
-:where( .contact-form .is-style-outlined .grunion-checkbox-multiple-options ),
-:where( .contact-form .is-style-outlined .grunion-radio-options ) {
+:where(.contact-form .is-style-outlined .grunion-checkbox-multiple-options),
+:where(.contact-form .is-style-outlined .grunion-radio-options) {
 	border: solid 1px var( --jetpack--contact-form--border-color );
 }
 
@@ -293,14 +293,14 @@
 	box-sizing: border-box;
 }
 
-:where( .wp-block-jetpack-contact-form .wp-block-separator ) {
+:where(.wp-block-jetpack-contact-form .wp-block-separator) {
 	max-width: var( --wp--preset--spacing--80, 100px );
 	margin-top: 0;
 	margin-bottom: 0;
 }
 
-:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
-:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+:where(.wp-block-jetpack-contact-form .wp-block-separator.is-style-wide),
+:where(.wp-block-jetpack-contact-form .wp-block-separator.is-style-dots) {
 	max-width: inherit;
 }
 
@@ -451,7 +451,7 @@
 	z-index: 1;
 }
 
-.contact-form :where( .contact-form__select-wrapper ) {
+.contact-form :where(.contact-form__select-wrapper) {
 	background-color: var(--jetpack--contact-form--input-background);
 	border: var(--jetpack--contact-form--border);
 	border-color: var(--jetpack--contact-form--border-color);
@@ -467,8 +467,8 @@
 	display: flex;
 }
 
-.contact-form :where( .contact-form__select-element-wrapper ),
-.contact-form :where( .contact-form__select-wrapper select ) {
+.contact-form :where(.contact-form__select-element-wrapper),
+.contact-form :where(.contact-form__select-wrapper select) {
 	border: 0 !important;
 	background: inherit !important;
 	border-radius: inherit !important;
@@ -563,7 +563,7 @@
 }
 
 
-:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__leading {
+:where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__leading {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
@@ -578,7 +578,7 @@
 	background-color: var(--jetpack--contact-form--input-background);
 }
 
-:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__notch {
+:where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__notch {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
@@ -591,7 +591,7 @@
 	background-color: var(--jetpack--contact-form--input-background);
 }
 
-:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__filler {
+:where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__filler {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
@@ -603,7 +603,7 @@
 	background-color: var(--jetpack--contact-form--input-background);
 }
 
-:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__trailing {
+:where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__trailing {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
@@ -624,7 +624,7 @@
 	background-color: var(--jetpack--contact-form--input-background);
 }
 
-:where( .wp-block-jetpack-contact-form.is-style-outlined ) .wp-block-jetpack-options {
+:where(.wp-block-jetpack-contact-form.is-style-outlined) .wp-block-jetpack-options {
 	background-color: var(--jetpack--contact-form--input-background);
 }
 

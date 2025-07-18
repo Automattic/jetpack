@@ -3,7 +3,7 @@
 
 	// This keeps images at their intrinsic size (eg. a 50px
 	// image will never be wider than 50px).
-	:global( .components-responsive-wrapper__content ) {
+	:global(.components-responsive-wrapper__content) {
 		width: auto;
 	}
 }
@@ -21,7 +21,7 @@
 	margin: 16px 0 8px 0;
 	padding-right: 8px;
 
-	:global( .components-base-control__label ) + & {
+	:global(.components-base-control__label) + & {
 		margin-top: 0;
 	}
 

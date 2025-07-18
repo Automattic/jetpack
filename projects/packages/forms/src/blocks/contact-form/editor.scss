@@ -104,14 +104,14 @@
 				align-self: center;
 			}
 
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator ) {
+			&:where(.wp-block-jetpack-contact-form .wp-block-separator) {
 				max-width: var( --wp--preset--spacing--80, 100px );
 				margin-left: auto;
 				margin-right: auto;
 			}
 
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+			&:where(.wp-block-jetpack-contact-form .wp-block-separator.is-style-wide),
+			&:where(.wp-block-jetpack-contact-form .wp-block-separator.is-style-dots) {
 				max-width: inherit;
 			}
 
@@ -339,18 +339,18 @@
 	}
 
 	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where( .jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle ) {
+	:where(.jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle) {
 		font: inherit;
 		border: 1px solid #8c8f94;
 		border-radius: 0;
 	}
 
-	:where( .jetpack-field-dropdown__toggle ) {
+	:where(.jetpack-field-dropdown__toggle) {
 		background-color: var(--jetpack--contact-form--input-background);
 	}
 
 	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where( .jetpack-field__textarea ) {
+	:where(.jetpack-field__textarea) {
 		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
 		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
 		border-style: var(--jetpack--contact-form--border-style, solid);
@@ -977,7 +977,7 @@
 	background-color: var(--jetpack--contact-form--input-background);
 }
 
-:where( .wp-block-jetpack-contact-form.is-style-outlined ) {
+:where(.wp-block-jetpack-contact-form.is-style-outlined) {
 
 	.notched-label__leading {
 		border-color: var(--jetpack--contact-form--border-color);
@@ -1102,10 +1102,10 @@
 
 	&.has-child-blocks {
 
-		> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+		> .block-editor-block-list__block-edit > div:not(.block-editor-inner-blocks) {
 
 			> .block-editor-inserter,
-			> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+			> .block-editor-block-list__block-edit > div:not(.block-editor-inner-blocks) {
 				display: none;
 			}
 		}

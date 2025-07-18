@@ -121,7 +121,7 @@
 			}
 		}
 
-		tr:not( :first-child ) {
+		tr:not(:first-child) {
 			border-top-color: currentColor;
 		}
 	}
@@ -153,7 +153,7 @@
 		// have a bottom border matching the color of the table's border.
 		// This style gives the best visual appearance and most expected result
 		// until we can control individual table rows or cells via inner blocks.
-		tr:not( :last-child ) {
+		tr:not(:last-child) {
 			border-bottom-color: currentColor;
 		}
 	}

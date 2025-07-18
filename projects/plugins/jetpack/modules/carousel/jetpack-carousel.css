@@ -23,8 +23,8 @@
 
 /* end of temporary fix */
 
-[data-carousel-extra]:not( .jp-carousel-wrap ) img,
-[data-carousel-extra]:not( .jp-carousel-wrap ) img + figcaption {
+[data-carousel-extra]:not(.jp-carousel-wrap) img,
+[data-carousel-extra]:not(.jp-carousel-wrap) img + figcaption {
 	cursor: pointer;
 }
 
@@ -344,7 +344,7 @@ div.jp-carousel-buttons a:hover {
 	background: var(--jp-carousel-primary-color);
 }
 
-.jp-swiper-pagination .swiper-pagination-bullet:not( .swiper-pagination-bullet-active ) {
+.jp-swiper-pagination .swiper-pagination-bullet:not(.swiper-pagination-bullet-active) {
 	background: var(--jp-carousel-primary-color);
 	opacity: 0.5;
 }

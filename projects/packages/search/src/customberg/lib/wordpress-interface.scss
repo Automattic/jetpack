@@ -302,7 +302,7 @@ html.interface-interface-skeleton__html-container {
 
 	// We intentionally hide pinned items (plugins) on mobile, and unhide them at desktop breakpoints.
 	// Otherwise the list can wreak havoc on the layout.
-	.components-button:not( :first-child ) {
+	.components-button:not(:first-child) {
 		display: none;
 
 		@include mixins.break-small() {

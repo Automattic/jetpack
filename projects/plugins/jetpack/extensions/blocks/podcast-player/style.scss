@@ -52,11 +52,11 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		color: var( --jetpack-podcast-player-secondary );
 		background-color: var( --jetpack-podcast-player-background );
 
-		&:not( .has-secondary ) {
+		&:not(.has-secondary) {
 			color: $jetpack-podcast-player-secondary;
 		}
 
-		&:not( .has-background ) {
+		&:not(.has-background) {
 			background-color: $jetpack-podcast-player-background;
 		}
 
@@ -153,7 +153,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		color: var( --jetpack-podcast-player-primary );
 
 		// Apply default color if custom primary has not been set
-		&:not( .has-primary ) {
+		&:not(.has-primary) {
 			color: $jetpack-podcast-player-primary;
 		}
 	}
@@ -182,7 +182,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		line-height: gb.$editor-line-height;
 		color: var( --jetpack-podcast-player-secondary );
 
-		&:not( .is-active ):not( .has-secondary ) {
+		&:not(.is-active):not(.has-secondary) {
 			color: $jetpack-podcast-player-secondary;
 		}
 
@@ -195,7 +195,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 			font-weight: 700;
 			color: var( --jetpack-podcast-player-primary );
 
-			&:not( .has-primary ) {
+			&:not(.has-primary) {
 				color: $jetpack-podcast-player-primary;
 			}
 		}
@@ -308,7 +308,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		> span {
 			color: var( --jetpack-podcast-player-secondary );
 
-			&:not( .has-secondary ) {
+			&:not(.has-secondary) {
 				color: $jetpack-podcast-player-secondary;
 			}
 		}

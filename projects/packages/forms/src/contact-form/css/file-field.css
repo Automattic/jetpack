@@ -4,7 +4,7 @@
 	border: 1px dashed var(--jetpack--contact-form--border-color, rgba( 125, 125, 125, 0.3 ) );
 }
 
-:where( .wp-block-jetpack-dropzone ) {
+:where(.wp-block-jetpack-dropzone) {
 	padding: 48px;
 	margin-top: 8px;
 	margin-bottom: 8px;

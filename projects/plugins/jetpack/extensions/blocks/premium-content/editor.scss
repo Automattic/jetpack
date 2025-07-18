@@ -59,7 +59,7 @@
 .editor-styles-wrapper
 .wp-block-buttons
 .wp-block[data-type='jetpack/recurring-payments']
-.wp-block-button:not( .alignleft ):not( .alignright ) {
+.wp-block-button:not(.alignleft):not(.alignright) {
 	margin: 0;
 }
 

@@ -1,12 +1,12 @@
 .jetpack-contact-form.is-previewing-step {
 
-	.wp-block-jetpack-button:has( .is-submit ),
-	&.is-last-step .wp-block-jetpack-button:has( .is-next ),
-	&.is-first-step .wp-block-jetpack-button:has( .is-previous ) {
+	.wp-block-jetpack-button:has(.is-submit),
+	&.is-last-step .wp-block-jetpack-button:has(.is-next),
+	&.is-first-step .wp-block-jetpack-button:has(.is-previous) {
 		display: none;
 	}
 
-	&.is-last-step .wp-block-jetpack-button:has( .is-submit ) {
+	&.is-last-step .wp-block-jetpack-button:has(.is-submit) {
 		display: inline-block;
 	}
 }

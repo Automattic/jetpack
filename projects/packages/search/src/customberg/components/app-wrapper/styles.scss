@@ -25,7 +25,7 @@
 		}
 
 		// Disables opening search results without disabling the sort option selector.
-		a:not( .jetpack-instant-search__search-sort-option ) {
+		a:not(.jetpack-instant-search__search-sort-option) {
 			pointer-events: none;
 		}
 	}

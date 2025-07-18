@@ -11,7 +11,7 @@
 		transform: translateY( -50% );
 		overflow: visible;
 
-		&:not( :disabled )::before {
+		&:not(:disabled)::before {
 
 			@include mixin_long-content-fade.long-content-fade( $size: 16px );
 			right: calc( 100% + 1px );

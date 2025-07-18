@@ -7,8 +7,8 @@
 
 	&:not(:hover) .jetpack-field-rating__label input[type="radio"].jetpack-field-rating__input:checked,
 	.jetpack-field-rating__label:hover,
-	.jetpack-field-rating__label:has( ~ .jetpack-field-rating__label:hover ),
-	&:not(:hover) .jetpack-field-rating__label:has( ~ .jetpack-field-rating__label .jetpack-field-rating__input:checked ) {
+	.jetpack-field-rating__label:has(~ .jetpack-field-rating__label:hover),
+	&:not(:hover) .jetpack-field-rating__label:has(~ .jetpack-field-rating__label .jetpack-field-rating__input:checked) {
 		color: var( --jetpack--contact-form--rating-star-color, var( --jetpack--contact-form--primary-color, #333 ) );
 	}
 
