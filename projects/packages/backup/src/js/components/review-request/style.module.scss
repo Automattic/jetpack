@@ -10,10 +10,10 @@
 	text-align: left;
 	background: none;
 	margin: 0;
-	text-decoration:none;
+	text-decoration: none;
 
 	svg {
-		display:none;
+		display: none;
 	}
 
 	&:focus,
@@ -46,7 +46,7 @@
 .emojisPseudo {
 
 	&::after {
-		font-size:xx-large;
+		font-size: xx-large;
 		content: "\01F600"; // 😀
 	}
 

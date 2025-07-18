@@ -9,7 +9,7 @@
 
 	#zbs-contact-edit-avatar {
 
-		text-align:center !important;
+		text-align: center !important;
 		margin-bottom: 1em;   
 
 		// round avatars
@@ -23,20 +23,20 @@
 
 		.ui.segment {
 
-			margin-left:auto;
-			margin-right:auto;
-			display:inline-block;
+			margin-left: auto;
+			margin-right: auto;
+			display: inline-block;
 
 			i.icon,
 			img {
-				margin-top:0 !important;
-				margin-right:0 !important;
+				margin-top: 0 !important;
+				margin-right: 0 !important;
 				width: auto;
 				max-width: 100px;
 			}
 
 			h2.header {
-				margin-bottom:0 !important;
+				margin-bottom: 0 !important;
 			}
 
 			button.ui.circular {
@@ -107,7 +107,7 @@
 
 	#zbs-tags-wrap {
 
-		margin-top:1em;
+		margin-top: 1em;
 
 
 		.ui.label {
@@ -144,7 +144,7 @@
 
 		#zbs-tag-suggestions-more-wrap {
 
-			display:none; // init
+			display: none; // init
 
 		}
 	}
@@ -181,7 +181,7 @@
 }
 
 .zbs-objedit-actions-bottom {
-	margin-top:1em;
+	margin-top: 1em;
 
 	.zbs-objedit-actions-delete {
 		margin-top: 0.6em;
@@ -202,7 +202,7 @@
 
 	.zbs-hide,
 	tr.zbs-field-group-tr .zbs-field-group.zbs-hide {
-		display:none !important;
+		display: none !important;
 	}
 }
 

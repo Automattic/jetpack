@@ -515,18 +515,18 @@ Helpers
 /* Clearfix */
 .clearfix,
 .clrfix {
-	zoom:1;
+	zoom: 1;
 }
 
 .clearfix::after,
 .clrfix::after {
-	content:".";
-	display:block;
-	height:0;
-	width:0;
-	line-height:0;
-	clear:both;
-	visibility:hidden;
+	content: ".";
+	display: block;
+	height: 0;
+	width: 0;
+	line-height: 0;
+	clear: both;
+	visibility: hidden;
 }
 
 /* --- Trial period notice --- */

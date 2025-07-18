@@ -11,7 +11,7 @@
 #zerobs-invoice-edit-box {
 
 	.clear {
-		clear:both;
+		clear: both;
 	}
 
 	.zbs-inv-no {
@@ -26,11 +26,11 @@
 	}
 
 	#zbs_invoice {
-		min-height:500px;
+		min-height: 500px;
 	}
 
 	.twitter-typeahead {
-		width:100%;
+		width: 100%;
 	}
 
 	.zbs-add-new-js-assign-to {
@@ -45,8 +45,8 @@
 	}
 
 	#billing-to {
-		width:90% !important;
-		float:left;
+		width: 90% !important;
+		float: left;
 
 		.inv-to-form {
 			float: left;
@@ -58,17 +58,17 @@
 		}
 
 		.inv-to-input {
-			float:left;
-			width:100%;
-			margin-bottom:20px;
-			margin-left:5%;
+			float: left;
+			width: 100%;
+			margin-bottom: 20px;
+			margin-left: 5%;
 		}
 
 		.edit-c {
-			float:left;
+			float: left;
 			font-size: 12px;
 			margin-bottom: 16px;
-			display:none;
+			display: none;
 		}
 
 		// fix for typeahead splaying out
@@ -79,9 +79,9 @@
 		}
 
 		th {
-			vertical-align:middle;
-			font-size:18px;
-			font-weight:100;
+			vertical-align: middle;
+			font-size: 18px;
+			font-weight: 100;
 		}
 	}
 
@@ -95,17 +95,17 @@
 	}
 
 	.tax-select {
-		height:35px;
+		height: 35px;
 	}
 
 	.row-amount {
-		line-height:35px;
+		line-height: 35px;
 	}
 
 
 	.invoice-grand-total-wrapper,
 	#zbs-invoice-partial-payments {
-		margin-top:5px !important;
+		margin-top: 5px !important;
 
 		.due-row {
 			background: #f5f5f5;
@@ -115,7 +115,7 @@
 		.partial-row,
 		.due-row,
 		.partial-row-tab {
-			padding:15px;
+			padding: 15px;
 			border-top: 1px solid #ddd;
 			border-left: 1px solid #ddd;
 			border-right: 1px solid #ddd;
@@ -123,56 +123,56 @@
 			overflow-x: auto;
 
 			.zlabel {
-				font-weight:900;
+				font-weight: 900;
 			}
 
 			.third {
-				float:left;
-				width:32%;
-				margin-right:1%;
+				float: left;
+				width: 32%;
+				margin-right: 1%;
 			}
 
 			.invoice-discount-total {
-				margin-top:-9px;
+				margin-top: -9px;
 			}
 
 			#invoice_discount_total {
-				float:left;
+				float: left;
 				width: 32% !important;
 			}
 
 			#invoice_postage_total {
 				width: 32%;
-				float:right;
+				float: right;
 			}
 
 			.half {
-				width:50%;
-				float:left;
+				width: 50%;
+				float: left;
 			}
 
 			.one-four {
-				width:25%;
-				float:left;
+				width: 25%;
+				float: left;
 			}
 
 			.two-four {
-				width:50%;
-				float:left;
+				width: 50%;
+				float: left;
 			}
 
 			.ri {
-				text-align:right;
+				text-align: right;
 			}
 
 			.half::after {
-				clear:both;
+				clear: both;
 			}
 		}
 
 
 		.partial-row-tab {
-			font-weight:900;
+			font-weight: 900;
 			padding-bottom: 13px !important;
 			background: #f5f5f5;
 		}
@@ -198,65 +198,65 @@
 			}
 
 			.zbs-heavy {
-				font-weight:900;
+				font-weight: 900;
 			}
 
 			.pbot30 {
-				padding-bottom:30px;
+				padding-bottom: 30px;
 			}
 
 			.total-row {
-				padding:15px;
+				padding: 15px;
 				border-top: 1px solid #ddd;
 				border-left: 1px solid #ddd;
 				border-right: 1px solid #ddd;
-				padding-bottom:30px;
+				padding-bottom: 30px;
 
 				.zlabel {
-					font-weight:900;
+					font-weight: 900;
 				}
 
 				.third {
-					float:left;
-					width:32%;
-					margin-right:1%;
+					float: left;
+					width: 32%;
+					margin-right: 1%;
 				}
 
 				.invoice-discount-total {
-					margin-top:-9px;
+					margin-top: -9px;
 				}
 
 				#invoice_discount_total {
-					float:left;
+					float: left;
 					width: 32% !important;
 				}
 
 				#invoice_postage_total {
 					width: 32%;
-					float:right;
+					float: right;
 				}
 
 				.half {
-					width:50%;
-					float:left;
+					width: 50%;
+					float: left;
 				}
 
 				.one-four {
-					width:25%;
-					float:left;
+					width: 25%;
+					float: left;
 				}
 
 				.two-four {
-					width:50%;
-					float:left;
+					width: 50%;
+					float: left;
 				}
 
 				.ri {
-					text-align:right;
+					text-align: right;
 				}
 
 				.half::after {
-					clear:both;
+					clear: both;
 				}
 			}
 		}
@@ -264,14 +264,14 @@
 		#tax-total-block {
 
 			.total-row {
-				padding-bottom:30px;
+				padding-bottom: 30px;
 
 				.zlabel {
-					font-weight:900;
+					font-weight: 900;
 				}
 
 				.ri {
-					text-align:right;
+					text-align: right;
 				}
 			}
 		}
@@ -281,10 +281,10 @@
 	.zbs-invoice-row {
 		padding: 5px;
 		border: 2px solid #ddd;
-		margin-top:10px;
+		margin-top: 10px;
 
 		.remove-row {
-			font-size:15px;
+			font-size: 15px;
 			margin-top: 10px;
 			color: #000;
 		}
@@ -295,31 +295,31 @@
 	}
 
 	.sug-wrap {
-		font-size:15px;
+		font-size: 15px;
 
 		.ico {
-			width:20px;
-			float:left;
-			margin-top:5px;
+			width: 20px;
+			float: left;
+			margin-top: 5px;
 		}
 
 		.inner {
-			float:left;
-			margin-left:10px;
+			float: left;
+			margin-left: 10px;
 
 			.name {
-				font-weight:900;
+				font-weight: 900;
 			}
 
 			.email {
 				font-size: 13px;
 				font-weight: 300;
-				margin-top:-9px;
+				margin-top: -9px;
 			}
 		}
 
 		.inner::after {
-			clear:both;
+			clear: both;
 		}
 	}
 
@@ -340,30 +340,30 @@
 	}
 
 	.hide {
-		display:none;
+		display: none;
 	}
 
 	#zbs_invoice_preview {
-		text-decoration:none;
+		text-decoration: none;
 	}
 
 	#zbs_top_wrapper {
-		position:relative;
+		position: relative;
 
 		.zbs-invoice-topper {
-			width:50%;
-			float:right;
+			width: 50%;
+			float: right;
 			min-width: 335px;
 
 			input,
 			select {
 				// WH: changed for symmetry with rest of page width:80%;
-				width:100%;
-				float:left;
+				width: 100%;
+				float: left;
 			}
 
 			th {
-				text-align:right;
+				text-align: right;
 			}
 		}
 	}
@@ -373,37 +373,37 @@
 	}
 
 	#assign-to {
-		width:50%;
-		float:right;
+		width: 50%;
+		float: right;
 
 		.zbs-controls {
-			float:left;
+			float: left;
 		}
 
 		select {
-			width:90%;
+			width: 90%;
 		}
 
 		th {
-			vertical-align:middle;
-			font-size:18px;
-			font-weight:100;
+			vertical-align: middle;
+			font-size: 18px;
+			font-weight: 100;
 		}
 	}
 
 	#zbs_invoice_alerts {
-		position:absolute;
-		margin-top:-64px;
+		position: absolute;
+		margin-top: -64px;
 		width: 100%;
 		margin-left: -13px;
 
 		#zbs_success {
-			display:none;
+			display: none;
 			background: #008000;
-			padding:10px;
+			padding: 10px;
 			color: #fff;
-			font-weight:100;
-			font-size:14px;
+			font-weight: 100;
+			font-size: 14px;
 
 			.fa {
 				color: #00a700;
@@ -421,12 +421,12 @@
 
 		#zbs_success,
 		#zbs_test_success {
-			display:none;
+			display: none;
 			background: #008000;
-			padding:10px;
+			padding: 10px;
 			color: #fff;
-			font-weight:100;
-			font-size:14px;
+			font-weight: 100;
+			font-size: 14px;
 
 			.fa {
 				color: #00a700;
@@ -440,8 +440,8 @@
 	// here we split into two, so headers can match
 	.business-info-toggle,
 	.billing-to-title {
-		font-size:20px;
-		font-weight:100;
+		font-size: 20px;
+		font-weight: 100;
 
 		.fa {
 			color: #428bca;
@@ -459,11 +459,11 @@
 		margin-bottom: 1em;
 
 		.business-info-toggle {
-			cursor:pointer;
+			cursor: pointer;
 		}
 
 		.business-info {
-			display:none;
+			display: none;
 
 			.zbs-table {
 				margin-top: 9px;
@@ -474,13 +474,13 @@
 				.top-pad {
 
 					td {
-						padding-top:20px;
+						padding-top: 20px;
 					}
 				}
 
 				td {
-					border:0;
-					padding:0;
+					border: 0;
+					padding: 0;
 				}
 			}
 
@@ -512,12 +512,12 @@
 	.top-row {
 
 		.row-amount {
-			padding-top:12px;
+			padding-top: 12px;
 		}
 	}
 
 	#partials {
-		margin-top:20px;
+		margin-top: 20px;
 	}
 
 	#invoice_totals,
@@ -541,37 +541,37 @@
 		}
 
 		.tax_total {
-			display:none;
+			display: none;
 		}
 
 		._1 {
-			display:block;
+			display: block;
 		}
 
 		tr {
-			height:35px;
+			height: 35px;
 		}
 
 		.hide {
-			display:none;
+			display: none;
 		}
 
 		.bord {
 
 			input {
-				text-align:right;
-				float:right;
-				box-shadow:none;
+				text-align: right;
+				float: right;
+				box-shadow: none;
 			}
 		}
 
 		.bord-l {
-			text-align:right;
+			text-align: right;
 			border-left: 2px solid #ccc !important;
 		}
 
 		td.bord {
-			padding:5px;
+			padding: 5px;
 			border: 1px solid #ccc;
 		}
 
@@ -579,8 +579,8 @@
 			background: #f5f5f5;
 			color: #000;
 			font-weight: 400;
-			height:20px;
-			text-align:right;
+			height: 20px;
+			text-align: right;
 			border-right: 2px solid #ccc !important;
 		}
 	}
@@ -588,7 +588,7 @@
 	#zbs-invoice-items {
 
 		.first {
-			width:60%;
+			width: 60%;
 		}
 
 		.second,
@@ -599,10 +599,10 @@
 		}
 
 		.zbs-item-block {
-			position:relative;
+			position: relative;
 
 			tr {
-				width:90%;
+				width: 90%;
 			}
 
 			textarea {
@@ -610,7 +610,7 @@
 			}
 
 			row-amount {
-				padding-top:12px;
+				padding-top: 12px;
 			}
 
 			.tapad {
@@ -628,28 +628,28 @@
 		.row-amount {
 			background: #f5f5f5;
 			color: #000;
-			font-weight:800;
-			text-align:right;
-			height:35px;
+			font-weight: 800;
+			text-align: right;
+			height: 35px;
 		}
 
 		.zbs-row-actions {
-			cursor:pointer;
+			cursor: pointer;
 			border: 1px solid #ccc;
 			color: #999;
 			font-size: 13px;
 			font-weight: 100;
-			text-align:center;
+			text-align: center;
 		}
 
 		.padding {
-			height:15px;
+			height: 15px;
 		}
 
 		#tblock1 {
 
 			.remove-row {
-				display:none;
+				display: none;
 			}
 		}
 
@@ -707,12 +707,12 @@
 		margin-right: -12px;
 		margin-top: -6px;
 		border-bottom: 1px solid #eee;
-		text-align:right;
+		text-align: right;
 		height: 65px;
 
 		.zbs-invoice-status {
-			margin-top:-2px;
-			float:left;
+			margin-top: -2px;
+			float: left;
 			padding: 10px;
 
 			.draft {
@@ -753,7 +753,7 @@
 		}
 
 		button {
-			margin-right:2px;
+			margin-right: 2px;
 		}
 
 		.btn-primary {
@@ -779,26 +779,26 @@
 	}
 
 	#zbs_invoice_logos {
-		float:left;
-		width:30%;
+		float: left;
+		width: 30%;
 
 		.hide {
-			display:none !important;
+			display: none !important;
 		}
 
 		.show {
-			display:block !important;
+			display: block !important;
 		}
 	}
 
 	#publish {
-		display:none;
+		display: none;
 	}
 
 	#submitdiv {
 
 		span {
-			display:none;
+			display: none;
 		}
 
 		.handlediv {
@@ -808,12 +808,12 @@
 	}
 
 	#postbox-container-1 {
-		margin-top:20px;
+		margin-top: 20px;
 	}
 
 	.zbs-memo-box {
-		width:50%;
-		display:none;
+		width: 50%;
+		display: none;
 	}
 
 	.zbs-plus {
@@ -823,53 +823,53 @@
 	}
 
 	.zbs-memo-ta {
-		width:40%;
+		width: 40%;
 	}
 
 	.zbs-memo-hide {
-		font-size:12px;
-		font-weight:100;
+		font-size: 12px;
+		font-weight: 100;
 		color: #428bca;
-		cursor:pointer;
+		cursor: pointer;
 	}
 
 	.zbs-memo-hide:hover {
-		text-decoration:underline;
+		text-decoration: underline;
 	}
 
 	.zbs-add-memo-trigger {
-		cursor:pointer;
+		cursor: pointer;
 	}
 
 	.zbs-italic {
-		font-style:italic;
-		font-weight:100;
+		font-style: italic;
+		font-weight: 100;
 	}
 
 	.zbs-file-types {
-		text-transform:uppercase;
-		font-weight:900;
+		text-transform: uppercase;
+		font-weight: 900;
 	}
 
 	.wh-logo-set {
-		width:100%;
-		position:relative;
-		display:none;
+		width: 100%;
+		position: relative;
+		display: none;
 		margin-top: 20px;
 		margin-bottom: 20px;
 		margin-left: 12px;
 
 		.zbs-remove,
 		.zbs-update {
-			cursor:pointer;
+			cursor: pointer;
 		}
 
 		img {
-			max-width:80%;
+			max-width: 80%;
 		}
 
 		.zbs-logo-options {
-			display:none;
+			display: none;
 			position: absolute;
 			top: 0.5em;
 			left: 0.5em;
@@ -887,7 +887,7 @@
 	.wh-logo-set:hover {
 
 		.zbs-logo-options {
-			display:block;
+			display: block;
 		}
 	}
 
@@ -899,14 +899,14 @@
 		margin-bottom: 20px;
 		border-radius: 4px;
 		border: 1px dashed var(--jp-gray-20);
-		cursor:pointer;
+		cursor: pointer;
 
 		.fa {
 			color: #000;
-			margin-right:5px;
-			margin-bottom:10px;
-			font-size:40px;
-			font-weight:100;
+			margin-right: 5px;
+			margin-bottom: 10px;
+			font-size: 40px;
+			font-weight: 100;
 		}
 
 		.wh-logo-text {
@@ -938,7 +938,7 @@
 
 //Invoicing custom fields styling
 .wh-metatab {
-	margin-bottom:10px !important;
+	margin-bottom: 10px !important;
 
 	.wh-large {
 
@@ -967,16 +967,16 @@
 
 	.zbsCloseThisAndLog {
 			
-		position:absolute;
-		top:0;
-		left:5px;
-		font-size:16px;
+		position: absolute;
+		top: 0;
+		left: 5px;
+		font-size: 16px;
 
 	}
 
 	.zbsCloseThisAndLog:hover {
 
-		cursor:pointer;
+		cursor: pointer;
 		color: #008000;
 
 	}
@@ -998,7 +998,7 @@
 }
 
 .zbs-actions-side {
-	margin-top:15px;
+	margin-top: 15px;
 }
 
 .zbs-what {
@@ -1017,8 +1017,8 @@
 }
 
 #zbs-modal-invoice-test {
-	margin-top:10px;
-	margin-bottom:13px;
+	margin-top: 10px;
+	margin-bottom: 13px;
 }
 
 
@@ -1030,14 +1030,14 @@
 // send inv via email modal box:
 .zbs-invoice-email-modal-field {
 	
-	display:block;
-	margin-top:0.7em;
+	display: block;
+	margin-top: 0.7em;
 
 	#zbs_invoice_email_modal_toemail {
 
 		// adapted from .form-control
 		display: inline-block;
-		margin-left:0.7em;
+		margin-left: 0.7em;
 		width: 250px;
 		height: 34px;
 		padding: 6px 12px;
@@ -1059,13 +1059,13 @@
 	}
 
 	label {
-		margin-bottom:0;
+		margin-bottom: 0;
 	}
 }
 
 @media screen and (max-width: 782px) {
 
 	div.zbs-invoice-topper th {
-		text-align:left !important;
+		text-align: left !important;
 	}
 }

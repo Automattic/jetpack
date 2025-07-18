@@ -11,7 +11,7 @@
 .wp-core-ui .button,
 .wp-core-ui .button-primary,
 .wp-core-ui .button-secondary {
-	height:auto;
+	height: auto;
 }
 
 // undo semantic change of menu font
@@ -25,7 +25,7 @@
 #wpfooter {
 	// WH modified 11/10/18, trying putting back 
 	//display:none;
-	clear:both;
+	clear: both;
 	position: relative;
 	margin-top: 2em;
 }
@@ -33,12 +33,12 @@
 // annoying bg colour
 .quicktags.icon,
 .search.icon {
-	background-color:transparent !important;
+	background-color: transparent !important;
 }
 
 // menu padding fixes
 .ui.menu {
-	padding-top:0 !important;
+	padding-top: 0 !important;
 }
 
 // match wp menu bg colour to page (white)
@@ -80,11 +80,11 @@ i.card {
 
 //https://stackoverflow.com/questions/12514915/semantic-html-and-clear-both
 .ui.zbsclear::after {
-	clear:both;
-	content:".";
-	display:block;
-	height:0;
-	visibility:hidden;
+	clear: both;
+	content: ".";
+	display: block;
+	height: 0;
+	visibility: hidden;
 }
 
 // centered big ico segment
@@ -115,7 +115,7 @@ div [class*="right floated"] {
 .button-primary.right,
 .button-secondary.right,
 .button.right {
-	float:none;
+	float: none;
 }
 
 // remove background on .alternate for icons (and other stuff?)
@@ -128,7 +128,7 @@ i.alternate {
 
 	// init
 	.hidden.content {
-		display:block !important;
+		display: block !important;
 	}
 
 }
@@ -163,7 +163,7 @@ i.alternate {
 	transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
 	will-change: '';
 	-webkit-tap-highlight-color: transparent;
-	height:auto;
+	height: auto;
 }
 
 

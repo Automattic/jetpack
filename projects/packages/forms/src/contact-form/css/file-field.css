@@ -120,7 +120,7 @@
 	gap: 1em;
 	padding: 16px;
 	position: relative;
-	justify-content:start;
+	justify-content: start;
 	border-radius: var( --jetpack--contact-form--border-radius, 0 );
 	background-color: var(--jetpack--contact-form--input-background, #fff);
 	color: var(--jetpack--contact-form--text-color, #333);
@@ -240,7 +240,7 @@
 	outline: 1 solid var( --jetpack--contact-form--button-primary--text-color, #FFF );
 	background-color: var(--jetpack--contact-form--border-color, #333 );
 	border-radius: 50%;
-	outline-offset:0;
+	outline-offset: 0;
 	width: 40px;
 	min-width: 40px;
 	left: 3px;
@@ -273,7 +273,7 @@
 }
 
 .jetpack-form-file-field__progress-bar {
-	content:'';
+	content: '';
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -358,12 +358,12 @@
 
 	0% {
 		transform: translate3d(0,-10px, 0) scale(.90);
-		opacity:.5;
+		opacity: .5;
 	}
 
 	100% {
 		transform: translate3d(0,0,0) scale(1);
-		opacity:1;
+		opacity: 1;
 	}
 }
 

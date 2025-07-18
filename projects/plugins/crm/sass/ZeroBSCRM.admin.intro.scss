@@ -40,7 +40,7 @@
 		height: 80px;
 		margin-left: 7px;
 		margin-top: -4px;
-		width:auto;
+		width: auto;
 	}
 
 	.intro .block {
@@ -71,34 +71,34 @@
 	}
 
 	#first-customer img {
-		max-width:80%;
+		max-width: 80%;
 	}
 
 	a:focus {
-		outline:none;
+		outline: none;
 		box-shadow: none;
 	}
 
 	#first-customer a:focus {
-		outline:none;
+		outline: none;
 		box-shadow: none;
 	}
 
 	#action-buttons {
-		padding:20px;
+		padding: 20px;
 		background: #fff;
-		min-height:175px;
+		min-height: 175px;
 		border-left: 2px solid #e1e1e1;
 		border-right: 2px solid #e1e1e1;
 		border-bottom: 2px solid #e1e1e1;
 	}
 
 	#action-buttons h6 {
-		margin-bottom:20px;
+		margin-bottom: 20px;
 	}
 
 	.zbs-button-wrap {
-		text-align:center;
+		text-align: center;
 	}
 
 	.zbs-button-wrap .btn-cta {
@@ -114,8 +114,8 @@
 	}
 
 	.zbs-button-wrap .btn-bta {
-		background-color:   #21BA45;
-		border-color:  #21BA45;
+		background-color: #21BA45;
+		border-color: #21BA45;
 		color: #fff;
 	}
 
@@ -138,16 +138,16 @@
 	}
 
 	.clear {
-		clear:both;
+		clear: both;
 	}
 
 	.margin-top30 {
-		margin-top:30px !important;
+		margin-top: 30px !important;
 	}
 
 	.zbs-features {
 		padding-top: 0 !important;
-		padding-bottom:30px !important;
+		padding-bottom: 30px !important;
 		border-bottom: 2px solid #e1e1e1;
 	}
 
@@ -155,7 +155,7 @@
 		color: #222;
 		font-size: 16px;
 		margin: 0 0 8px 0;
-		font-weight:900;
+		font-weight: 900;
 	}
 
 	.zbs-features p {
@@ -196,8 +196,8 @@
 	#zbs-welcome .upgrade-cta {
 		border-top: 0;
 		border-bottom: 0;
-		margin-top:25px;
-		margin-bottom:25px;
+		margin-top: 25px;
+		margin-bottom: 25px;
 		text-align: center;
 
 		.upgrade-cta__features {
@@ -231,7 +231,7 @@
 		color: #000;
 		font-size: 20px;
 		margin: 0 0 8px 0;
-		text-align:center;
+		text-align: center;
 	}
 
 	.upgrade-cta .right h2 span {
@@ -242,11 +242,11 @@
 
 	.upgrade-cta .right .price {
 		padding: 26px 0;
-		text-align:center;
+		text-align: center;
 	}
 
 	.price .dollar {
-		font-size:12px;
+		font-size: 12px;
 	}
 
 	.upgrade-cta .right .price .amount {
@@ -283,18 +283,18 @@
 		color: #9c9c9c;
 		font-size: 11px;
 		margin-top: 13px;
-		margin-bottom:10px;
+		margin-bottom: 10px;
 	}
 
 	.elite-package {
 		background-color: #21BA45;
 		border-color: #21BA45;
 		color: #fff;
-		padding:5px;
-		font-size:13px;
-		border-radius:3px;
-		margin-top:15px;
-		font-weight:500;
+		padding: 5px;
+		font-size: 13px;
+		border-radius: 3px;
+		margin-top: 15px;
+		font-weight: 500;
 	}
 
 	.elite-package:hover {
@@ -309,7 +309,7 @@
 	}
 
 	.testimonial-block {
-		margin-bottom:50px;
+		margin-bottom: 50px;
 	}
 
 	.testimonial-block p {
@@ -332,7 +332,7 @@
 	}
 
 	.final-block .zbs-button-wrap {
-		margin-top:40px;
+		margin-top: 40px;
 	}
 
 }

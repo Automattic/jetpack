@@ -19,11 +19,11 @@
 	}
 
 	.zbs-page-wrap {
-		padding:20px;
+		padding: 20px;
 	}
 
 	.zbs-page-wrap .segment {
-		padding:0;
+		padding: 0;
 	}
 
 	.bullie {
@@ -31,35 +31,35 @@
 		border: 1px solid #ccc;
 		border-radius: 3px;
 		padding: 5px;
-		height:60px;
+		height: 60px;
 	}
 
 	.bullie-wrap {
-		margin-top:-5px;
+		margin-top: -5px;
 	}
 
 	.bullie img {
 		height: 50px;
 		margin-left: 7px;
 		width: auto;
-		float:left;
+		float: left;
 		margin-right: 10px;
 	}
 
 	.upgrade {
-		font-weight:900;
-		line-height:50px;
-		float:left;
+		font-weight: 900;
+		line-height: 50px;
+		float: left;
 	}
 
 	.clear {
-		clear:both;
+		clear: both;
 	}
 
 	.premium-box {
-		margin-top:10px !important;
+		margin-top: 10px !important;
 		border-bottom: 0 !important;
-		height:52px;
+		height: 52px;
 	}
 
 	.upgrade-bullie-box {
@@ -71,16 +71,16 @@
 	}
 
 	.free-box {
-		margin-top:10px !important;
+		margin-top: 10px !important;
 	}
 
 	.free-ext-area .free-ext-img {
-		text-align:center;
+		text-align: center;
 	}
 
 	.free-ext-area .free-ext-img img {
 		height: 50px;
-		width:auto;
+		width: auto;
 	}
 
 	.free-block-wrap {
@@ -98,7 +98,7 @@
 		background: #efefef;
 		color: #b9b9b9;
 		opacity: 0.7;
-		display:none;
+		display: none;
 	}
 
 	.hover-link {
@@ -110,37 +110,37 @@
 		text-align: center;
 		line-height: 90px;
 		color: #b9b9b9;
-		display:none;
+		display: none;
 	}
 
 	.ext-desc:hover .hover,
 	.ext-desc:hover .hover-link {
-		display:block;
+		display: block;
 	}
 
 	.thinner {
-		padding-left:25% !important; /* WH added for v3rc2, for some reason necessary */
-		padding-right:25% !important; /* WH added for v3rc2, for some reason necessary */
+		padding-left: 25% !important; /* WH added for v3rc2, for some reason necessary */
+		padding-right: 25% !important; /* WH added for v3rc2, for some reason necessary */
 	}
 
 	.single-info-start {
-		margin-top:-35px !important;
+		margin-top: -35px !important;
 	}
 
 	.full-size-image {
-		width:60%;
-		margin-left:20%;
+		width: 60%;
+		margin-left: 20%;
 	}
 
 	.full-size-image img {
 		width: 60%;
 		margin-left: 20%;
-		margin-top:5%;
-		margin-bottom:5%;
+		margin-top: 5%;
+		margin-bottom: 5%;
 	}
 
 	.below-main-image {
-		margin-bottom:10px;
+		margin-bottom: 10px;
 		border-top: 1px solid #dededf;
 	}
 
@@ -149,7 +149,7 @@
 		width: 100%;
 		padding: 10px;
 		border-bottom: 1px solid #dededf;
-		position:relative;
+		position: relative;
 	}
 
 	.back a {
@@ -165,7 +165,7 @@
 	}
 
 	.extension-description {
-		padding:20px;
+		padding: 20px;
 	}
 
 	.top-info-block {
@@ -188,15 +188,15 @@
 	}
 
 	.main-talk img {
-		max-width:100% !important;
-		height:auto;
-		text-align:center;
-		padding:20px;
+		max-width: 100% !important;
+		height: auto;
+		text-align: center;
+		padding: 20px;
 	}
 
 	.extension-main-proposition {
-		font-size:20px;
-		font-weight:900;
+		font-size: 20px;
+		font-weight: 900;
 	}
 
 	.extension-section {
@@ -215,10 +215,10 @@
 
 	.extension-section h3 {
 		color: #000;
-		font-size:20px;
+		font-size: 20px;
 		font-weight: 900;
-		padding-top:20px;
-		padding-bottom:10px;
+		padding-top: 20px;
+		padding-bottom: 10px;
 	}
 
 	.extension-section .fa {
@@ -233,18 +233,18 @@
 	}
 
 	.box-title {
-		float:left;
+		float: left;
 	}
 
 	.guides {
-		float:right;
+		float: right;
 	}
 
 	.actions-block {
 		float: right;
 		padding: 10px;
 		margin-top: 12px;
-		text-align:center;
+		text-align: center;
 	}
 
 	.install-ext {
@@ -252,41 +252,41 @@
 	}
 
 	.install-ext .button {
-		width:100%;
-		margin-bottom:5px;
+		width: 100%;
+		margin-bottom: 5px;
 	}
 
 	.install-ext .label {
-		width:100%;
-		margin-bottom:5px;
+		width: 100%;
+		margin-bottom: 5px;
 	}
 
 	.docs-url {
-		margin-top:10px;
+		margin-top: 10px;
 	}
 
 	.back a:focus,
 	.docs-url:focus,
 	.by-url:focus {
-		outline:none;
-		box-shadow:none;
+		outline: none;
+		box-shadow: none;
 	}
 
 	.module-img {
-		padding:20px;
-		text-align:center;
+		padding: 20px;
+		text-align: center;
 	}
 
 	.module-start {
-		margin-top:5px !important;
-		position:relative;
+		margin-top: 5px !important;
+		position: relative;
 	}
 
 	.module-desc {
-		text-align:center;
-		font-size:16px !important;
-		font-weight:100 !important;
-		padding:15px;
+		text-align: center;
+		font-size: 16px !important;
+		font-weight: 100 !important;
+		padding: 15px;
 	}
 
 	.module-active {

@@ -56,24 +56,24 @@
 }
 
 .zbs_overlay p {
-	font-size:16px;
+	font-size: 16px;
 }
 
 .zbs_overlay p a {
 	color: #ffa500;
-	text-decoration:underline;
+	text-decoration: underline;
 }
 
 .close_nag_modal {
 	position: absolute;
-	top:10px;
+	top: 10px;
 	right: 10px;
-	cursor:pointer;
+	cursor: pointer;
 }
 
 .zbs-message-body {
-	width:400px;
-	line-height:30px;
+	width: 400px;
+	line-height: 30px;
 }
 
 .jpcrm-promo.ui.segment {
@@ -81,22 +81,22 @@
 	justify-content: space-between;
 	align-items: center;
 
-	position:relative;
+	position: relative;
 	margin-right: 20px;
 
 	border-left: 5px solid #069E09;
 
 	#jpcrm-dismiss {
-		position:absolute;
-		right:5px;
-		top:10px;
+		position: absolute;
+		right: 5px;
+		top: 10px;
 		color: #000;
-		font-weight:500;
-		margin-top:5px;
+		font-weight: 500;
+		margin-top: 5px;
 	}
 
 	.notice-dismiss {
-		margin-top:5px;
+		margin-top: 5px;
 	}
 
 	.button {

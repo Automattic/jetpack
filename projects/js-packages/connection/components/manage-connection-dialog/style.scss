@@ -34,11 +34,11 @@
 
 	&__actions {
 		background: var( --jp-white );
-		margin:0 !important;
+		margin: 0 !important;
 		border-top: 1px solid var( --jp-gray );
 		max-width: 1200px !important;
 		padding: calc( var( --spacing-base ) * 4 ) calc( var( --spacing-base ) * 5 );
-		align-items:center;
+		align-items: center;
 		position: sticky;
 		bottom: 0;
 		box-sizing: border-box;
@@ -58,7 +58,7 @@
 	}
 
 	&__button-wrap button {
-		float:right;
+		float: right;
 	}
 
 	&__action-card {
@@ -81,7 +81,7 @@
 		}
 
 		&__icon {
-			float:right;
+			float: right;
 		}
 
 		&.disabled::before {
@@ -99,7 +99,7 @@
 
 		.transfer,
 		.unlink {
-			color:var( --jp-black );
+			color: var( --jp-black );
 			fill: var( --jp-black );
 		}
 
@@ -130,7 +130,7 @@
 
 		&__content {
 			margin: 0;
-			padding:0;
+			padding: 0;
 		}
 	}
 }

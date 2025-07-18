@@ -57,7 +57,7 @@
 
 
 		.field.error {
-			display:block; // fix because default wp hides all .error's
+			display: block; // fix because default wp hides all .error's
 		}
 
 		.field>label {
@@ -74,8 +74,8 @@
 			//margin-bottom: 1.6em;
 
 			// this works better with error class
-			padding-top:1em;
-			padding-bottom:1em;
+			padding-top: 1em;
+			padding-bottom: 1em;
 		}
 
 		// style matching,
@@ -105,7 +105,7 @@
 		}
 
 		.centered-group {
-			text-align:center;
+			text-align: center;
 
 			select {
 
@@ -118,8 +118,8 @@
 
 
 		.jog-on {
-			text-align:center;
-			margin-top:1em;
+			text-align: center;
+			margin-top: 1em;
 		}
 
 
@@ -136,7 +136,7 @@
 			.zbs-segment-edit-condition-remove:hover,
 			.zbs-segment-edit-condition-remove i:hover {
 
-				cursor:pointer;
+				cursor: pointer;
 			}
 
 			input.zbs-segment-pair-input {
@@ -151,11 +151,11 @@
 
 			// warning triangles for condition lines which have no matching type
 			i.icon.red {
-				margin-top:0.6em;
+				margin-top: 0.6em;
 			}
 
 			.hidden {
-				display:none;
+				display: none;
 			}
 
 			// descriptions ui:
@@ -193,7 +193,7 @@
 		#zbs-segment-edit-preview {
 
 			h2.ui.header {
-				margin-left:0;
+				margin-left: 0;
 			}
 
 		}
@@ -202,8 +202,8 @@
 
 	// when a segment condition has gone rogue.
 	.segment-condition-errored {
-		max-width:25%;
-		color:#CCC;
+		max-width: 25%;
+		color: #CCC;
 	}
 }
 

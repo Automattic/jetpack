@@ -11,7 +11,7 @@ a:visited {
 }
 
 a:focus {
-	outline:none;
+	outline: none;
 }
 
 .progress {
@@ -23,9 +23,9 @@ a:focus {
 }
 
 .img-rounded {
-	border-radius:50%;
-	float:left;
-	margin-right:5px;
+	border-radius: 50%;
+	float: left;
+	margin-right: 5px;
 }
 
 .jpcrm-avatar-small {
@@ -86,8 +86,8 @@ body ::-webkit-scrollbar-track {
 			padding-left: 10px;
 			display: flex;
 			align-items: center;
-			margin-bottom:10px;
-			margin-top:10px;
+			margin-bottom: 10px;
+			margin-top: 10px;
 
 			.ui.avatar.img.img-rounded {
 				margin-right: 10px;

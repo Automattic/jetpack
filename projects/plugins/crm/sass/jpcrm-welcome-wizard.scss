@@ -151,7 +151,7 @@ body {
 	&:hover {
 		color: #fff;
 	}
-	font-size:16px;
+	font-size: 16px;
 }
 
 .stepwizard {
@@ -181,7 +181,7 @@ body {
 	display: table-cell;
 	text-align: center;
 	position: relative;
-	width:25%;
+	width: 25%;
 }
 
 .btn-circle {
@@ -204,16 +204,16 @@ body {
 .stepwizard-step .btn-primary {
 	color: #fff !important;
 	background: $jetpack_green !important;
-	border-color:$jetpack_green;
+	border-color: $jetpack_green;
 }
 
 .form-control:focus {
-	border-color:$jetpack_green;
+	border-color: $jetpack_green;
 	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px #2780e3;
 }
 
 .hide {
-	display:none;
+	display: none;
 }
 
 .btn-primary {
@@ -229,30 +229,30 @@ body {
 }
 
 #zbscrm-logo {
-	margin-top:-50px;
+	margin-top: -50px;
 }
 
 #zbs_other_details {
-	display:none;
-	height:150px;
-	margin-bottom:20px;
+	display: none;
+	height: 150px;
+	margin-bottom: 20px;
 }
 
 .setup-content textarea {
-	width:90%;
+	width: 90%;
 }
 
 input[type="checkbox"],
 input[type="radio"] {
-	width:20px;
+	width: 20px;
 }
 
 .clear {
-	clear:both;
+	clear: both;
 }
 
 .pos-rel {
-	position:relative;
+	position: relative;
 }
 
 #crm-name {
@@ -346,7 +346,7 @@ input[type="radio"] {
 .ck_form.ck_minimal .ck_subscribe_button {
 	color: #fff;
 	margin: 0;
-	padding:  11px 0;
+	padding: 11px 0;
 	font-size: 18px;
 	background: $jetpack_green;
 	border-radius: 3px; /* border radius */
@@ -455,7 +455,7 @@ input[type="radio"] {
 .setup-content h3 {
 	font-size: 22px;
 	margin-bottom: 26px;
-	margin-top:10px !important;
+	margin-top: 10px !important;
 }
 
 .setup-content select {
@@ -489,12 +489,12 @@ h2.sbhomep {
 }
 
 p.sbhomep {
-	text-align:center;
+	text-align: center;
 }
 
 #sbSubPage {
   
-	max-width:100% !important;
+	max-width: 100% !important;
 
 	div img {
 
@@ -620,19 +620,19 @@ $darkenColor: color.adjust($activeColor, $lightness: -20%);
 	display: inline-block;
 	margin-left: 1%;
 	text-align: center;
-	padding:7px 0;
-	padding-top:12px;
-	margin-bottom:10px;
+	padding: 7px 0;
+	padding-top: 12px;
+	margin-bottom: 10px;
 	border-radius: 4px;
 }
 
 .zbs-menu-opt:hover {
-	cursor:pointer;
-	background:#d9e5fb;
+	cursor: pointer;
+	background: #d9e5fb;
 }
 
 .zbs-menu-opt img {
-	max-height:280px;
+	max-height: 280px;
 }
 
 .zbs-menu-opt-desc {
@@ -650,19 +650,19 @@ $darkenColor: color.adjust($activeColor, $lightness: -20%);
 }
 
 #zbs-lead-header {
-	color:#CCC;
+	color: #CCC;
 }
 
 p.lead {
-	font-size:18px;
-	color:#000;
+	font-size: 18px;
+	color: #000;
 }
 
 .zbs-eb-callout {
-	width:50%;
-	float:left;
+	width: 50%;
+	float: left;
 	margin-top: 17px;
-	padding-left:15px;
+	padding-left: 15px;
 }
 
 .zbs-sync-wrap {
@@ -671,21 +671,21 @@ p.lead {
 	background: $cta_background;
 	border-radius: 4px;
 	color: #000;
-	display:inline-block;
-	height:290px;
+	display: inline-block;
+	height: 290px;
 
 	h3 {
-		color:#000;
+		color: #000;
 		margin-top: 8px !important;
 		margin-bottom: 14px !important;
-		text-align:left;
-		font-size:18px;
+		text-align: left;
+		font-size: 18px;
 	}
 
 	.zbs-sync-img {
 		text-align: center;
 		width: 50%;
-		float:right;
+		float: right;
 		margin-top: -39px;
 	}
 
@@ -724,7 +724,7 @@ p.lead {
 
 
 .switchbox-right {
-	width:20%;
-	float:right;
-	text-align:right;
+	width: 20%;
+	float: right;
+	text-align: right;
 }

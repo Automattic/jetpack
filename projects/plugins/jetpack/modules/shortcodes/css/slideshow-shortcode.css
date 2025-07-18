@@ -91,22 +91,22 @@ body div.jetpack-slideshow-window * img {
 	margin: auto;
 	text-align: center;
 	width: 100%;
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
 	opacity: 0.5;
 
 	/*rtl:ignore*/
-	direction:ltr;
+	direction: ltr;
 	transition: 300ms opacity ease-out;
 }
 
 .jetpack-slideshow-window:hover .jetpack-slideshow-controls {
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
 	opacity: 1;
 }
 
 body div div.jetpack-slideshow-controls a,
 body div div.jetpack-slideshow-controls a:hover {
-	border:2px solid rgba(255,255,255,0.1) !important;
+	border: 2px solid rgba(255,255,255,0.1) !important;
 	background-color: rgba(0,0,0,0.6) !important;
 	background-image: url(../img/slideshow-controls.png) !important;
 	background-repeat: no-repeat;

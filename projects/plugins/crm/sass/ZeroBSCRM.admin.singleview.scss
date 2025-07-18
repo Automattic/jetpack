@@ -13,7 +13,7 @@
 
 // hide these, they look bad/inaccessible on this page:
 #wpwrap .update-nag {
-	display:none !important;
+	display: none !important;
 }
 
 
@@ -33,7 +33,7 @@
 	}
 
 	.three.wide.column img {
-		max-width:100%;
+		max-width: 100%;
 	}
 	
 	//these allow for wrapping td content
@@ -64,10 +64,10 @@
 	.zbs-sentence {
 		padding-top: 0.2em;
 		padding-bottom: 0.2em;
-		padding-left:0;
+		padding-left: 0;
 		color: #000;
-		margin-top:5px;
-		font-size:14px;
+		margin-top: 5px;
+		font-size: 14px;
 	}
 
 	// NOTE this is also in contact edit metabox! copy any changes if made:
@@ -117,19 +117,19 @@
 }
 
 .zbs-view-vital-label {
-	width:160px;
-	text-align:right !important;
+	width: 160px;
+	text-align: right !important;
 }
 
 .zbs-view-vital-customfields-label {
-	min-width:160px;
-	text-align:right !important;
+	min-width: 160px;
+	text-align: right !important;
 }
 
 .zbs-view-tags {
-	text-align:center;
-	margin-top:2em;
-	margin-bottom:2em;
+	text-align: center;
+	margin-top: 2em;
+	margin-bottom: 2em;
 }
 
 
@@ -148,7 +148,7 @@
 // activity log -> long desc (hidden until shown)
 .zbs-long-desc {
 
-	display:none; // init
+	display: none; // init
 	padding: 0.5em;
 	background: var(--jp-gray-0);
 	margin-right: 2em;
@@ -163,7 +163,7 @@ i.zbs-hide-longdesc {
 
 i.zbs-show-longdesc:hover,
 i.zbs-hide-longdesc:hover {
-	cursor:pointer;
+	cursor: pointer;
 }
 
 .zbs-long-desc-show .zbs-long-desc {
@@ -171,15 +171,15 @@ i.zbs-hide-longdesc:hover {
 }
 
 i.zbs-hide-longdesc {
-	display:none; // init
+	display: none; // init
 }
 
 .zbs-long-desc-show i.zbs-hide-longdesc {
-	display:inline-block;
+	display: inline-block;
 }
 
 .zbs-long-desc-show i.zbs-show-longdesc {
-	display:none;
+	display: none;
 }
 
 
@@ -198,7 +198,7 @@ i.zbs-hide-longdesc {
 
 // Tweak for activity logs on contact/co view page:
 .zbs-last-item .zbs-timeline-content {
-	padding-bottom:0;
+	padding-bottom: 0;
 }
 
 
@@ -209,15 +209,15 @@ i.zbs-hide-longdesc {
 }
 
 .zbs-social-buttons .zbs-social-acc {
-	float:left;
-	margin:5px;
-	width:30px;
+	float: left;
+	margin: 5px;
+	width: 30px;
 }
 
 .zbs-social-buttons .icon {
 	margin: 0 !important;
 	color: #fff;
-	font-size:14px;
+	font-size: 14px;
 }
 
 .zbs-social-buttons a:hover {
@@ -226,12 +226,12 @@ i.zbs-hide-longdesc {
 }
 
 #contact-tab-social {
-	display:none !important;
+	display: none !important;
 }
 
 .zbs-sentence {
 	line-height: 21px;
-	width:80%;
+	width: 80%;
 }
 
 .zbs-contact-owner {
@@ -246,7 +246,7 @@ i.zbs-hide-longdesc {
 }
 
 .zbs-view-tags a {
-	margin-bottom:3px !important;
+	margin-bottom: 3px !important;
 }
 
 .actvity-feed-view-box {
@@ -254,8 +254,8 @@ i.zbs-hide-longdesc {
 }
 
 .zbs-mini-tag {
-	margin-top:10px !important;
-	margin-right:10px !important;
+	margin-top: 10px !important;
+	margin-right: 10px !important;
 }
 
 // === Pinned notes

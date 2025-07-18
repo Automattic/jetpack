@@ -457,7 +457,7 @@
 	border-color: var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-width:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
+	border-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 	color: var(--jetpack--contact-form--text-color);
 	font-family: var(--jetpack--contact-form--font-family);
 	font-size: var(--jetpack--contact-form--font-size);
@@ -864,7 +864,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
-	margin-left:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
+	margin-left: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 }
 
 /* fields with multiple options */

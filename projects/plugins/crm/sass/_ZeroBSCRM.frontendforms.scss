@@ -15,7 +15,7 @@
 		border: 1px solid #e5e5e5;
 		box-shadow: 0 1px 1px rgba(0,0,0,.04);
 		background: #fff;
-		padding:10px;
+		padding: 10px;
 
 		h1 {
 			margin-top: 5px;
@@ -38,13 +38,13 @@
 		border-radius: 4px;
 
 		p {
-			text-align:center;
-			margin:0;
+			text-align: center;
+			margin: 0;
 		}
 
 		.shorty {
 			font-weight: 900;
-			margin-top:5px;
+			margin-top: 5px;
 		}
 	}
 
@@ -57,14 +57,14 @@
 
 	.welcomeh1 {
 		font-size: 26px;
-		text-align:center;
+		text-align: center;
 		padding: 5px;
 		font-weight: 900;
 	}
 
 	.welcomeh3 {
 		font-size: 15px;
-		text-align:center;
+		text-align: center;
 		color: #999;
 		text-transform: uppercase;
 		font-weight: 100;
@@ -74,7 +74,7 @@
 	}
 
 	#zbs-field-chooser {
-		width:50%;
+		width: 50%;
 	}
 
 	#zbs-form-pre {
@@ -85,13 +85,13 @@
 	}
 
 	pre {
-		display:block;
-		font:400 12px/22px Monaco,monospace !important;
-		color:#CFDBEC;
-		background-color:#2f2f2f;
-		background-image:repeating-linear-gradient(top, #444 0, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-		padding:0 1em;
-		overflow:auto;
+		display: block;
+		font: 400 12px/22px Monaco,monospace !important;
+		color: #CFDBEC;
+		background-color: #2f2f2f;
+		background-image: repeating-linear-gradient(top, #444 0, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+		padding: 0 1em;
+		overflow: auto;
 	}
 
 	.zbs_msg {
@@ -101,15 +101,15 @@
 	}
 
 	.hide {
-		display:none;
+		display: none;
 	}
 
 
 	.third {
 		width: 30%;
-		margin-left:1.5%;
-		margin-right:1.5%;
-		float:left;
+		margin-left: 1.5%;
+		margin-right: 1.5%;
+		float: left;
 		cursor: pointer;
 
 		.selected {
@@ -123,14 +123,14 @@
 		}
 
 		.cgrab {
-			position:relative;
+			position: relative;
 
 			.blobby {
 
 				p {
 					color: #ddd;
 					background: #ddd;
-					line-height:15px;
+					line-height: 15px;
 				}
 
 				.br {
@@ -145,8 +145,8 @@
 				border: 1px solid #ccc;
 				padding-top: 17px;
 				margin: 0 auto;
-				position:relative;
-				text-align:center;
+				position: relative;
+				text-align: center;
 				margin-bottom: 8px;
 
 				h1 {
@@ -169,29 +169,29 @@
 					margin-left: 6%;
 
 					.input {
-						width:90%;
-						float:left;
-						margin-right:2%;
+						width: 90%;
+						float: left;
+						margin-right: 2%;
 						border: 1px solid #ddd;
 						padding: 5px;
-						text-align:left;
+						text-align: left;
 						color: #ccc;
 						font-weight: 100;
 						background: #fff;
 					}
 
 					.textarea {
-						width:90%;
-						float:left;
-						margin-right:2%;
+						width: 90%;
+						float: left;
+						margin-right: 2%;
 						border: 1px solid #ddd;
 						padding: 5px;
-						text-align:left;
+						text-align: left;
 						color: #ccc;
 						font-weight: 100;
 						background: #fff;
 						height: 200px;
-						margin-bottom:10px;
+						margin-bottom: 10px;
 					}
 
 					.send {
@@ -199,9 +199,9 @@
 						background: #0d6db8;
 						color: #fff;
 						height: 30px;
-						float:left;
+						float: left;
 						text-align: center;
-						line-height:30px;
+						line-height: 30px;
 					}
 				}
 
@@ -214,19 +214,19 @@
 
 			}
 			padding: 10px;
-			min-height:100px;
+			min-height: 100px;
 
 		}
 
 		.simple {
-			position:relative;
+			position: relative;
 
 			.blobby {
 
 				p {
 					color: #ddd;
 					background: #ddd;
-					line-height:15px;
+					line-height: 15px;
 				}
 
 				.br {
@@ -241,8 +241,8 @@
 				border: 1px solid #ccc;
 				padding-top: 17px;
 				margin: 0 auto;
-				position:relative;
-				text-align:center;
+				position: relative;
+				text-align: center;
 				margin-bottom: 8px;
 
 				h1 {
@@ -265,12 +265,12 @@
 					margin-left: 6%;
 
 					.input {
-						width:70%;
-						float:left;
-						margin-right:2%;
+						width: 70%;
+						float: left;
+						margin-right: 2%;
 						border: 1px solid #ddd;
 						padding: 5px;
-						text-align:left;
+						text-align: left;
 						color: #ccc;
 						font-weight: 100;
 						background: #fff;
@@ -281,9 +281,9 @@
 						background: #0d6db8;
 						color: #fff;
 						height: 30px;
-						float:left;
+						float: left;
 						text-align: center;
-						line-height:30px;
+						line-height: 30px;
 					}
 				}
 
@@ -296,20 +296,20 @@
 
 			}
 			padding: 10px;
-			min-height:100px;
+			min-height: 100px;
 
 		}
 
 
 		.naked {
-			position:relative;
+			position: relative;
 
 			.blobby {
 
 				p {
 					color: #ddd;
 					background: #ddd;
-					line-height:15px;
+					line-height: 15px;
 				}
 
 				.br {
@@ -319,9 +319,9 @@
 			}
 
 			.content {
-				padding-bottom:45px;
+				padding-bottom: 45px;
 				margin: 0 auto;
-				position:relative;
+				position: relative;
 
 				.form-wrapper {
 					margin: 0 auto;
@@ -329,9 +329,9 @@
 					margin-left: 3%;
 
 					.input {
-						width:33%;
-						float:left;
-						margin-right:2%;
+						width: 33%;
+						float: left;
+						margin-right: 2%;
 						border: 1px solid #ddd;
 						padding: 5px;
 						color: #ccc;
@@ -343,14 +343,14 @@
 						background: #0d6db8;
 						color: #fff;
 						height: 30px;
-						float:left;
+						float: left;
 						text-align: center;
-						line-height:30px;
+						line-height: 30px;
 					}
 				}
 			}
 			padding: 10px;
-			min-height:100px;
+			min-height: 100px;
 
 		}
 	}
@@ -377,18 +377,18 @@
 		}
 
 		.zbsForm_success {
-			display:none;
+			display: none;
 		}
 
 		.simple {
-			position:relative;
+			position: relative;
 
 			.blobby {
 
 				p {
 					color: #ddd;
 					background: #ddd;
-					line-height:16px;
+					line-height: 16px;
 				}
 
 				.br {
@@ -403,8 +403,8 @@
 				border: 1px solid #ccc;
 				padding-top: 17px;
 				margin: 0 auto;
-				position:relative;
-				text-align:center;
+				position: relative;
+				text-align: center;
 				margin-bottom: 8px;
 
 				h1 {
@@ -422,7 +422,7 @@
 				}
 
 				br {
-					display:none;
+					display: none;
 				}
 
 				.form-wrapper {
@@ -431,12 +431,12 @@
 					margin-left: 6%;
 
 					.input {
-						width:70%;
-						float:left;
-						margin-right:2%;
+						width: 70%;
+						float: left;
+						margin-right: 2%;
 						border: 1px solid #ddd;
 						padding: 5px;
-						text-align:left;
+						text-align: left;
 						font-weight: 100;
 						background: #fff;
 					}
@@ -447,9 +447,9 @@
 						background: #0d6db8;
 						color: #fff;
 						height: 33px;
-						float:left;
+						float: left;
 						text-align: center;
-						line-height:12px;
+						line-height: 12px;
 						border: 0;
 					}
 				}
@@ -463,20 +463,20 @@
 
 			}
 			padding: 10px;
-			min-height:100px;
+			min-height: 100px;
 
 		}
 
 
 		.cgrab {
-			position:relative;
+			position: relative;
 
 			.blobby {
 
 				p {
 					color: #ddd;
 					background: #ddd;
-					line-height:16px;
+					line-height: 16px;
 				}
 
 				.br {
@@ -491,8 +491,8 @@
 				border: 1px solid #ccc;
 				padding-top: 17px;
 				margin: 0 auto;
-				position:relative;
-				text-align:center;
+				position: relative;
+				text-align: center;
 				margin-bottom: 8px;
 
 				h1 {
@@ -515,27 +515,27 @@
 					margin-left: 6%;
 
 					.input {
-						width:90%;
-						float:left;
-						margin-right:2%;
+						width: 90%;
+						float: left;
+						margin-right: 2%;
 						border: 1px solid #ddd;
 						padding: 5px;
-						text-align:left;
+						text-align: left;
 						font-weight: 100;
 						background: #fff;
 					}
 
 					.textarea {
-						width:90%;
-						float:left;
-						margin-right:2%;
+						width: 90%;
+						float: left;
+						margin-right: 2%;
 						border: 1px solid #ddd;
 						padding: 5px;
-						text-align:left;
+						text-align: left;
 						font-weight: 100;
 						background: #fff;
 						height: 200px;
-						margin-bottom:10px;
+						margin-bottom: 10px;
 					}
 
 					.send,
@@ -544,9 +544,9 @@
 						background: #0d6db8;
 						color: #fff;
 						height: 33px;
-						float:left;
+						float: left;
 						text-align: center;
-						line-height:12px;
+						line-height: 12px;
 						border: 0;
 					}
 				}
@@ -560,7 +560,7 @@
 
 			}
 			padding: 10px;
-			min-height:100px;
+			min-height: 100px;
 
 		}
 
@@ -577,14 +577,14 @@
 				margin-top: 10px;
 				font-size: 14px;
 			}
-			position:relative;
+			position: relative;
 
 			.blobby {
 
 				p {
 					color: #ddd;
 					background: #ddd;
-					line-height:16px;
+					line-height: 16px;
 				}
 
 				.br {
@@ -594,9 +594,9 @@
 			}
 
 			.content {
-				padding-bottom:45px;
+				padding-bottom: 45px;
 				margin: 0 auto;
-				position:relative;
+				position: relative;
 
 				.form-wrapper {
 					margin: 0 auto;
@@ -604,9 +604,9 @@
 					margin-left: 3%;
 
 					.input {
-						width:33%;
-						float:left;
-						margin-right:2%;
+						width: 33%;
+						float: left;
+						margin-right: 2%;
 						border: 1px solid #ddd;
 						padding: 5px;
 						font-weight: 100;
@@ -618,21 +618,21 @@
 						background: #0d6db8;
 						color: #fff;
 						height: 33px;
-						float:left;
+						float: left;
 						text-align: center;
-						line-height:12px;
+						line-height: 12px;
 						border: 0;
 					}
 				}
 			}
 			padding: 10px;
-			min-height:100px;
+			min-height: 100px;
 
 		}
 	}
 
 	.clear {
-		clear:both;
+		clear: both;
 	}
 
 }

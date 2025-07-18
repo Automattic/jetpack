@@ -12,7 +12,7 @@
 .zbs-infobox {  
 
 	// init
-	display:none;
+	display: none;
 
 	// fade in
 	transition: all 1s ease-in-out;
@@ -22,19 +22,19 @@
 .zbs-infobox.zbs-live {
 
 	//show it
-	display:inline-block;
+	display: inline-block;
 
 	// size etc.
-	position:relative;
-	color:#000;
-	padding:4px 6px;
-	text-align:center;
+	position: relative;
+	color: #000;
+	padding: 4px 6px;
+	text-align: center;
 
 	// ico
 	i.zbs-help-ico {
-		font-size:18px;
-		font-weight:800;
-		opacity:0.6;
+		font-size: 18px;
+		font-weight: 800;
+		opacity: 0.6;
 	}
 
 }
@@ -44,25 +44,25 @@
 .zbs-infobox-detail {
 
 	// init
-	display:none;
+	display: none;
 
 	position: absolute;
-	top:24px;
-	left:0;
+	top: 24px;
+	left: 0;
 	z-index: 10001;
 
-	min-width:300px;
-	max-width:500px;
-	max-height:500px;
-	overflow-x:hidden;
-	overflow-y:auto;
-	font-size:14px;
-	font-weight:400;
-	background:#FFF;
-	border:1px solid #CCC;
-	border-radius:5px;
-	padding:8px 10px;
-	text-align:left;
+	min-width: 300px;
+	max-width: 500px;
+	max-height: 500px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	font-size: 14px;
+	font-weight: 400;
+	background: #FFF;
+	border: 1px solid #CCC;
+	border-radius: 5px;
+	padding: 8px 10px;
+	text-align: left;
 
 
 	// standout div
@@ -130,7 +130,7 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 	}
 
 	tr.zbs-field-group-tr .form-table th {
-		width:auto !important;
+		width: auto !important;
 	}
 
 }

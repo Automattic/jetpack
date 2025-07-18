@@ -1,12 +1,12 @@
 html,
 body {
 	height: 100vh;
-	max-height:100vh;
+	max-height: 100vh;
 }
 
 .zbs-email-thread,
 #zbs_send_email_thread_ifr {
-	height:130px !important;
+	height: 130px !important;
 }
 
 
@@ -23,7 +23,7 @@ body {
 
 .inbox-wrap,
 .inbox-nav {
-	min-height:100%;
+	min-height: 100%;
 	height: calc(100vh - 110px);
 	padding-bottom: 0 !important;
 	margin-bottom: 0 !important;
@@ -45,14 +45,14 @@ body {
 }
 
 #wpbody-content {
-	padding-bottom:0;
+	padding-bottom: 0;
 }
 
 .ui.vertical.menu {
 	width: 15%;
 	border-radius: 0;
-	float:left;
-	position:relative;
+	float: left;
+	position: relative;
 }
 
 .zbs-email-list {
@@ -72,7 +72,7 @@ body {
 	width: 40%;
 	float: left;
 	height: calc(100vh - 350px);
-	position:relative;
+	position: relative;
 }
 
 
@@ -81,7 +81,7 @@ body {
 	float: left;
 	height: auto;//calc(100vh - 110px);
 	background: #fff;
-	display:none;
+	display: none;
 	border-left: 1px solid #dededf;
 }
 
@@ -91,26 +91,26 @@ body {
 
 .zbs-email-list img,
 .zbs-email-list .zbs-default-avatar {
-	width:25px;
-	border-radius:50%;
-	float:left;
-	margin-right:5px;
-	height:auto;
+	width: 25px;
+	border-radius: 50%;
+	float: left;
+	margin-right: 5px;
+	height: auto;
 }
 
 .zbs-email-list-item {
-	max-height:100px;
-	height:100px;
-	cursor:pointer;
+	max-height: 100px;
+	height: 100px;
+	cursor: pointer;
 	padding-top: 10px !important;
 	padding-bottom: 10px;
-	position:relative;
+	position: relative;
 	border-top: 0 solid #fff !important;
 	border-bottom: 1px solid #dededf;
 }
 
 .zbs-email-list .item {
-	border-left:7px solid #fff;
+	border-left: 7px solid #fff;
 }
 
 .zbs-email-list .active:hover,
@@ -137,7 +137,7 @@ input[type="radio"] {
 	height: 30px;
 
 	.zbs-open {
-		float:right;
+		float: right;
 	}
 }
 
@@ -178,19 +178,19 @@ input[type="radio"] {
 }
 
 .starred-email-list {
-	display:none;
-	width:25%;
+	display: none;
+	width: 25%;
 }
 
 .spinner-gif {
-	display:none;
-	margin-top:-55px;
+	display: none;
+	margin-top: -55px;
 }
 
 .click-email-to-load {
 	color: #ccc;
-	font-size:18px;
-	margin-top:-50px;
+	font-size: 18px;
+	margin-top: -50px;
 }
 
 .zbs-click-email-icon {
@@ -200,8 +200,8 @@ input[type="radio"] {
 }
 
 .click-email {
-	font-size:20px;
-	margin-top:-10px;
+	font-size: 20px;
+	margin-top: -10px;
 }
 
 .zbs-email-list::-webkit-scrollbar,
@@ -217,20 +217,20 @@ input[type="radio"] {
 }
 
 .customer-panel-header {
-	text-align:center;
+	text-align: center;
 }
 
 .customer-panel-header img,
 .customer-panel-header .zbs-default-avatar {
-	padding:20px;
-	border-radius:50%;
-	width:100px;
-	height:auto;
+	padding: 20px;
+	border-radius: 50%;
+	width: 100px;
+	height: auto;
 }
 
 #panel-name {
-	font-weight:900;
-	margin-top:-15px;
+	font-weight: 900;
+	margin-top: -15px;
 }
 
 .Customer {
@@ -253,21 +253,21 @@ input[type="radio"] {
 }
 
 .total-paid-wrap .cell {
-	width:50%;
-	float:left;
-	border-right:1px solid #dededf;
+	width: 50%;
+	float: left;
+	border-right: 1px solid #dededf;
 	color: #000;
 	font-weight: 900;
 }
 
 .simple-actions {
 	color: #fff !important;
-	margin-top:15px;
+	margin-top: 15px;
 }
 
 .simple-actions .label {
 	background: #ccc;
-	margin-left:10px;
+	margin-left: 10px;
 }
 
 .simple-actions .label .icon {
@@ -277,17 +277,17 @@ input[type="radio"] {
 }
 
 .panel-h4 {
-	margin-left:0;
-	margin-top:20px;
+	margin-left: 0;
+	margin-top: 20px;
 	color: #ccc;
-	text-transform:uppercase;
-	font-size:15px;
+	text-transform: uppercase;
+	font-size: 15px;
 }
 
 .customer-panel-task-summary {
-	text-align:center;
-	margin-top:20px;
-	margin-bottom:20px;
+	text-align: center;
+	margin-top: 20px;
+	margin-bottom: 20px;
 }
 
 .task-cell {
@@ -296,9 +296,9 @@ input[type="radio"] {
 }
 
 .the-number {
-	font-weight:900;
+	font-weight: 900;
 	color: #000;
-	font-size:18px;
+	font-size: 18px;
 }
 
 .the-type {
@@ -308,18 +308,18 @@ input[type="radio"] {
 .cell .heading {
 	color: #798b98;
 	font-size: 14px;
-	font-weight:300;
+	font-weight: 300;
 }
 
 .the-tasks {
-	text-align:left;
-	padding-left:20px;
+	text-align: left;
+	padding-left: 20px;
 }
 
 .insert-canned-reply {
 	color: #c5c5c5;
 	padding: 5px;
-	cursor:pointer;
+	cursor: pointer;
 }
 
 .no-emails {
@@ -331,7 +331,7 @@ input[type="radio"] {
 
 
 #zbs-email-body {
-	display:none;
+	display: none;
 	padding: 20px;
 	min-height: 100%;
 	height: calc(100vh - 350px);
@@ -340,8 +340,8 @@ input[type="radio"] {
 	border-top: 1px solid #dededf;
 
 	img {
-		max-width:90%;
-		margin-left:5%;
+		max-width: 90%;
+		margin-left: 5%;
 	}
 
 	.zbs-email-date {
@@ -349,11 +349,11 @@ input[type="radio"] {
 	}
 
 	.zbs-email-subject {
-		font-size:24px;
+		font-size: 24px;
 		color: #000;
-		margin-top:0;
-		font-weight:900;
-		display:none;
+		margin-top: 0;
+		font-weight: 900;
+		display: none;
 	}
 
 	.zbs-email-body-content {
@@ -362,8 +362,8 @@ input[type="radio"] {
 		margin-top: 10px;
 		color: #787e7d;
 		font-weight: 100;
-		position:relative;
-		min-height:40px;
+		position: relative;
+		min-height: 40px;
 	}
 
 	.zbs-email-read-date {
@@ -389,28 +389,28 @@ input[type="radio"] {
 
 
 		.icon {
-			cursor:pointer;
+			cursor: pointer;
 		}
 	}
 
 	.em-sub-0 {
-		display:block;
+		display: block;
 	}
 }
 
 .zbs-email-thread {
 
 	.zbs-message {
-		position:relative;
+		position: relative;
 	}
 
 	.sent {
 		background: #efefef;
-		padding:5px;
-		border-radius:3px;
+		padding: 5px;
+		border-radius: 3px;
 		width: 90%;
 		float: right;
-		padding-left:10px;
+		padding-left: 10px;
 	}
 
 	.avatar-inbox {
@@ -448,8 +448,8 @@ input[type="radio"] {
 	.email-avatar {
 
 		img {
-			border-radius:50%;
-			max-width:100% !important;
+			border-radius: 50%;
+			max-width: 100% !important;
 		}
 	}
 }
@@ -467,8 +467,8 @@ input[type="radio"] {
 
 
 #zbs-email-send-message-thread {
-	position:relative;
-	display:none;
+	position: relative;
+	display: none;
 
 	// wp editor, remove border:
 	#wp-zbs_send_email_thread-editor-container {
@@ -477,29 +477,29 @@ input[type="radio"] {
 	}
 
 	.zbs-send-email-thread-button {
-		margin-top:5px;
-		position:absolute;
-		right:5px;
+		margin-top: 5px;
+		position: absolute;
+		right: 5px;
 	}
 }
 
 
 #zbs-send-single-email-ui {
-	display:none;
+	display: none;
 }
 
 
 #zbs-send-single-email .input {
-	width:100% !important;
+	width: 100% !important;
 }
 
 .mce-content-body {
-	font-size:13px !important;
+	font-size: 13px !important;
 }
 
 .reply-sent {
-	font-size:30px;
-	margin-top:-60px;
+	font-size: 30px;
+	margin-top: -60px;
 
 	h3 {
 		font-size: 18px;
@@ -517,8 +517,8 @@ input[type="radio"] {
 }
 
 .panel-left-info {
-	text-align:left;
-	padding-left:20px;
+	text-align: left;
+	padding-left: 20px;
 	color: #798b95;
 
 	.icon {
@@ -560,11 +560,11 @@ input[type="radio"] {
 }
 
 .zbsreadsent {
-	font-size:13px;
-	text-align:right;
+	font-size: 13px;
+	text-align: right;
 	color: #ccc;
 
 	.bold {
-		font-weight:900;
+		font-weight: 900;
 	}
 }

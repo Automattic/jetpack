@@ -15,15 +15,15 @@
 
 	#misc-publishing-actions,
 	#minor-publishing {
-		display:none;
+		display: none;
 	}
 
 	#postbox-container-2 {
-		margin-top:0;
+		margin-top: 0;
 	}
 	// also add customer image/featured image centering:
 	#postimagediv .inside p {
-		text-align:center;
+		text-align: center;
 	}
 }
 
@@ -38,7 +38,7 @@ ul#adminmenu {
 
 		a.wp-has-current-submenu::after,
 		ul#adminmenu>li.current>a.current::after {
-			display:none !important;
+			display: none !important;
 		}
 
 	}

@@ -33,11 +33,11 @@
 	text-align: center;
 
 	h2 {
-		font-size:20px;
+		font-size: 20px;
 	}
 
 	p {
-		font-size:18px;
+		font-size: 18px;
 	}
 }
 
@@ -48,8 +48,8 @@
 .zbscrm-csvimport-wrap {
 
 	h2 {
-		text-align:center;
-		font-size:20px;
+		text-align: center;
+		font-size: 20px;
 	}
 
 	// Stage 0: upload
@@ -134,8 +134,8 @@
 				border: 1px solid #E0DEE6;
 				border-radius: 5px;
 				background: #FFF;
-				margin-left:auto;
-				margin-right:auto;
+				margin-left: auto;
+				margin-right: auto;
 
 				// span label
 				span {
@@ -161,7 +161,7 @@
 					font-size: 16px;
 					font-style: normal;
 					margin-bottom: 10px;
-					display:inline-block;
+					display: inline-block;
 
 				}
 				
@@ -178,7 +178,7 @@
 						margin-bottom: 10px;
 						line-height: 34px;
 						height: 34px;
-						display:inline-block;
+						display: inline-block;
 					}
 
 				}
@@ -210,14 +210,14 @@
 		// form
 		.zbscrm-csv-import-form {
 
-			width:440px;
+			width: 440px;
 			padding: 7px 10px;
 			margin: 10px;
 			border: 1px solid #E0DEE6;
 			border-radius: 5px;
 			background: #FFF;
-			margin-left:auto;
-			margin-right:auto;
+			margin-left: auto;
+			margin-right: auto;
 
 			// field list
 			.zbscrm-impcsv-map {
@@ -225,15 +225,15 @@
 				// from
 				.zbscrm-impcsv-from {
 						
-					width:30%;
-					height:20px;
-					line-height:20px;
-					margin-top:20px;
-					margin-bottom:20px;
-					display:inline-block;
+					width: 30%;
+					height: 20px;
+					line-height: 20px;
+					margin-top: 20px;
+					margin-bottom: 20px;
+					display: inline-block;
 
-					font-weight:800;
-					text-align:right;
+					font-weight: 800;
+					text-align: right;
 					color: #555d66;
 
 				}
@@ -241,15 +241,15 @@
 				// to 
 				.zbscrm-impcsv-to {
 						
-					width:30%;
-					height:20px;
-					line-height:20px;
-					margin-top:20px;
-					margin-bottom:20px;
-					display:inline-block;
+					width: 30%;
+					height: 20px;
+					line-height: 20px;
+					margin-top: 20px;
+					margin-bottom: 20px;
+					display: inline-block;
 
-					font-weight:400;
-					text-align:left;
+					font-weight: 400;
+					text-align: left;
 					color: #555d66;
 
 
@@ -258,16 +258,16 @@
 				// arrow between
 				.zbscrm-impcsv-arrow {
 						
-					width:30%;
-					height:20px;
-					line-height:20px;
-					margin-top:20px;
-					margin-bottom:20px;
-					display:inline-block;
+					width: 30%;
+					height: 20px;
+					line-height: 20px;
+					margin-top: 20px;
+					margin-bottom: 20px;
+					display: inline-block;
 
-					font-weight:800;
-					text-align:center;
-					color:#CCC;
+					font-weight: 800;
+					text-align: center;
+					color: #CCC;
 
 
 				}
@@ -287,7 +287,7 @@
 		// debug log
 		.zbscrm-import-log {
 
-			width:600px;
+			width: 600px;
 			padding: 7px 10px;
 			margin: 10px;
 			border: 1px solid #E0DEE6;

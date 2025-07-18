@@ -18,8 +18,8 @@
 
 // button margin
 #zbsQuoteBuilderStep2 {
-	margin-top:10px;
-	padding:0 12px !important;
+	margin-top: 10px;
+	padding: 0 12px !important;
 }
 
 
@@ -29,24 +29,24 @@
 #wpzbscsub_quotecontent, // <DAL3
 #wpzbscsub_quoteactions { // <DAL3
 
-	display:none;
+	display: none;
 
 }
 // final actions
 .zbsEmailOrShare {
 
-	width:30%;
-	padding:40px 20px;
-	text-align:center;
+	width: 30%;
+	padding: 40px 20px;
+	text-align: center;
 	display: inline-block !important;
 	vertical-align: top;
 	border: 1px solid #CCC;
-	border-radius:4px;
-	min-height:197px;
+	border-radius: 4px;
+	min-height: 197px;
 
 
 	.small {
-		font-size:11px;
+		font-size: 11px;
 	}
 
 }
@@ -55,14 +55,14 @@
 // send inv via email modal box:
 .jpcrm-send-email-modal-field {
     
-	display:block;
-	margin-top:0.7em;
+	display: block;
+	margin-top: 0.7em;
 
 	#jpcrm_quote_email_modal_toemail {
 
 		// adapted from .form-control
 		display: inline-block;
-		margin-left:0.7em;
+		margin-left: 0.7em;
 		width: 250px;
 		height: 34px;
 		padding: 6px 12px;
@@ -84,7 +84,7 @@
 	}
 
 	label {
-		margin-bottom:0;
+		margin-bottom: 0;
 	}
 }
 

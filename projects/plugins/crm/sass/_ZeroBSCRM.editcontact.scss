@@ -10,7 +10,7 @@
 .post-type-zerobs_customer {
 
 	.zbs-hide-add {
-		display:none;
+		display: none;
 	}
 }
 
@@ -45,8 +45,8 @@
 		font-size: 14px;
 		margin-bottom: 0.4em;
 		clear: both;
-		width:100%;
-		text-align:left;
+		width: 100%;
+		text-align: left;
 		line-height: 20px;
 
 	}
@@ -54,7 +54,7 @@
 	button.ui.mini {
 
 		// default
-		display:none;
+		display: none;
 
 	}
 
@@ -63,9 +63,9 @@
 .zbs-aka-alias.hovering button.ui.mini.zbs-aka-alias-remove {
 
 	// default
-	display:inline-block !important;
+	display: inline-block !important;
 
-	float:right;
+	float: right;
 	margin-right: 0;
 	height: 20px;
 	line-height: 6px;
@@ -74,7 +74,7 @@
 }
 
 #zbs-aka-alias-input-wrap {
-	text-align:center;
+	text-align: center;
 }
 
 .zbs-aka-alias-input {
@@ -83,28 +83,28 @@
 	height: 36px !important;
 	max-width: 100%;
 	width: 100%;
-	margin-bottom:0.4em;
+	margin-bottom: 0.4em;
 }
 
 
 // portal access
 .zbs-customerportal-activeuser,
 .zbs-customerportal-activeuser-actions {
-	text-align:center;
-	margin-bottom:1em;
-	margin-top:1em;
+	text-align: center;
+	margin-bottom: 1em;
+	margin-top: 1em;
 }
 
 .zbs-customerportal-activeuser-actions button.ui {
-	margin-top:0.5em;
+	margin-top: 0.5em;
 }
 
 
 // Customer Single view:
 
 .zbs-customer-vital-label {
-	width:160px;
-	text-align:right;
+	width: 160px;
+	text-align: right;
 }
 
 

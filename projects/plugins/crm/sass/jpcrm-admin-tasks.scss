@@ -14,11 +14,11 @@
 }
 
 .jpcrm-task-editor-wrap {
-	margin-top:-1em;
+	margin-top: -1em;
 }
 
 .zbs-task-clear {
-	margin-bottom:1em;
+	margin-bottom: 1em;
 }
 
 
@@ -62,14 +62,14 @@
 }
 
 img.jpcrm-avatar {
-	border-radius:50%;
+	border-radius: 50%;
 }
 
 #zbs-add-task-ui {
 	width: 39%;
 	float: right;
 	margin-right: 1%;
-	display:none;
+	display: none;
 }
 
 .zbs-adding-task {
@@ -84,7 +84,7 @@ img.jpcrm-avatar {
 }
 
 .clear {
-	clear:both;
+	clear: both;
 }
 
 #zbs-task-title-row {
@@ -109,7 +109,7 @@ img.jpcrm-avatar {
 		flex: 0 1 auto;
 
 		button {
-			width:100%;
+			width: 100%;
 
 			&.hidden {
 				display: none;
@@ -138,8 +138,8 @@ img.jpcrm-avatar {
 	font-size: 14px;
 	color: #ccc;
 	border: 1px solid #ccc;
-	margin:0;
-	padding:4px;
+	margin: 0;
+	padding: 4px;
 }
 
 .show-on-calendar,
@@ -175,7 +175,7 @@ img.jpcrm-avatar {
 }
 
 #zbse_desc {
-	font-size:14px;
+	font-size: 14px;
 	padding: 0.5em;
 }
 
@@ -187,7 +187,7 @@ img.jpcrm-avatar {
 
 .show-on-calendar span,
 .remind_task span {
-	margin-left:5px;
+	margin-left: 5px;
 }
 
 .no-owner {
@@ -199,7 +199,7 @@ img.jpcrm-avatar {
 }
 
 .no-task-date {
-	float:right;
+	float: right;
 }
 
 .zbs-task-desc textarea {
@@ -208,7 +208,7 @@ img.jpcrm-avatar {
 	@extend %zbs-tasks-field;
 
 	width: 100%;
-	height:200px;
+	height: 200px;
 }
 
 ::placeholder {
@@ -217,11 +217,11 @@ img.jpcrm-avatar {
 
 #titlewrap,
 #post-body-content {
-	display:none;
+	display: none;
 }
 
 .ui.segment {
-	margin-top:0;
+	margin-top: 0;
 }
 
 .no-owner .dn {
@@ -248,20 +248,20 @@ img.jpcrm-avatar {
 	box-sizing: border-box;
 
 	.icon {
-		margin:0 !important;
+		margin: 0 !important;
 	}
 }
 
 .zbs-comp-1 {
-	display:none !important;
+	display: none !important;
 }
 
 .zbs-task-for-help {
-	line-height:31px;
+	line-height: 31px;
 	float: left;
 	margin-right: 5px;
 	width: 18%;
-	min-width:134px;
+	min-width: 134px;
 	color: #000;
 	padding-left: 0.3em;
 }
@@ -272,7 +272,7 @@ img.jpcrm-avatar {
 	float: left;
 	padding: 0;
 	margin-top: -11px;
-	position:relative;
+	position: relative;
 
 	// right floated contact button when assigned
 	.zbs-view-contact {
