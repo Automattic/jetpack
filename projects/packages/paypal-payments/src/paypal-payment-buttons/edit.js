@@ -286,12 +286,12 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 	const bodyCodeLabel =
 		'stacked' === buttonType
 			? __( 'Part 2 code', 'jetpack-paypal-payments' )
-			: __( 'PayPal button code', 'jetpack-paypal-payments' );
+			: __( 'Single button code', 'jetpack-paypal-payments' );
 
 	const bodyCodePlaceholder =
 		'stacked' === buttonType
 			? __( 'Paste the part 2 code here…', 'jetpack-paypal-payments' )
-			: __( 'Paste the PayPal button code here…', 'jetpack-paypal-payments' );
+			: __( 'Paste the single button code here…', 'jetpack-paypal-payments' );
 
 	return (
 		<div { ...blockProps }>
