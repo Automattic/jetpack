@@ -197,7 +197,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 	const [ rawHeadCode, setRawHeadCode ] = useState( '' );
 	const [ rawBodyCode, setRawBodyCode ] = useState( '' );
 
-	// Extract instruction strings to avoid ternary operator in i18n
 	const stackedInstructions = __(
 		'Stacked Buttons (Recommended): This option lets you present all of your product information and PayPal payment method upfront on your website.',
 		'jetpack-paypal-payments'
@@ -283,15 +282,17 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		);
 	}
 
-	const bodyCodeLabel =
-		'stacked' === buttonType
-			? __( 'Part 2 code', 'jetpack-paypal-payments' )
-			: __( 'Single button code', 'jetpack-paypal-payments' );
+	const stackedButtonCodeLabel = __( 'Part 2 code', 'jetpack-paypal-payments' );
+	const stackedButtonCodePlaceholder = __(
+		'Paste the part 2 code here…',
+		'jetpack-paypal-payments'
+	);
 
-	const bodyCodePlaceholder =
-		'stacked' === buttonType
-			? __( 'Paste the part 2 code here…', 'jetpack-paypal-payments' )
-			: __( 'Paste the single button code here…', 'jetpack-paypal-payments' );
+	const singleButtonCodeLabel = __( 'Single button code', 'jetpack-paypal-payments' );
+	const singleButtonCodePlaceholder = __(
+		'Paste the single button code here…',
+		'jetpack-paypal-payments'
+	);
 
 	return (
 		<div { ...blockProps }>
@@ -371,8 +372,10 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 							buttonText: extractedButtonText,
 						} );
 					} }
-					placeholder={ bodyCodePlaceholder }
-					aria-label={ bodyCodeLabel }
+					placeholder={
+						'stacked' === buttonType ? stackedButtonCodePlaceholder : singleButtonCodePlaceholder
+					}
+					aria-label={ 'stacked' === buttonType ? stackedButtonCodeLabel : singleButtonCodeLabel }
 					name="paypal-payment-buttons-code-body"
 				/>
 			</Placeholder>
