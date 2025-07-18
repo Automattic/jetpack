@@ -128,7 +128,7 @@ Paragraph with font size: small
 
 ### Counting Block Types
 
-Get a summary of all block types in a document:
+Get a count of all block types in a document:
 
 ```php
 use Automattic\Block_Scanner;
@@ -149,33 +149,33 @@ $post_content = '<!-- wp:heading {"level":2} -->
 <ul><li>Item 1</li><li>Item 2</li></ul>
 <!-- /wp:list -->';
 
-function get_block_types_in( string $html ): array {
-    $block_types = [];
+function count_block_types_in( string $html ): array {
+    $block_counts = [];
     $scanner = Block_Scanner::create( $html );
     
     while ( $scanner->next_delimiter() ) {
         if ( $scanner->opens_block() ) {
-            $block_types[ $scanner->get_block_type() ] = true;
+            $block_type = $scanner->get_block_type();
+            $block_counts[ $block_type ] = ( $block_counts[ $block_type ] ?? 0 ) + 1;
         }
     }
     
-    $block_types = array_keys( $block_types );
-    sort( $block_types );
-    return $block_types;
+    ksort( $block_counts );
+    return $block_counts;
 }
 
-$block_types = get_block_types_in( $post_content );
-print_r( $block_types );
+$block_counts = count_block_types_in( $post_content );
+print_r( $block_counts );
 ```
 
 **Output:**
 ```
 Array
 (
-    [0] => core/heading
-    [1] => core/image
-    [2] => core/list
-    [3] => core/paragraph
+    [core/heading] => 1
+    [core/image] => 1
+    [core/list] => 1
+    [core/paragraph] => 2
 )
 ```
 
@@ -341,7 +341,7 @@ Paragraph with font size: small
 
 ### Counting Block Types
 
-Get a summary of all block types in a document:
+Get a count of all block types in a document:
 
 ```php
 use Automattic\Block_Delimiter;
@@ -362,32 +362,32 @@ $post_content = '<!-- wp:heading {"level":2} -->
 <ul><li>Item 1</li><li>Item 2</li></ul>
 <!-- /wp:list -->';
 
-function get_block_types_in( string $html ): array {
-    $block_types = [];
+function count_block_types_in( string $html ): array {
+    $block_counts = [];
     
     foreach ( Block_Delimiter::scan_delimiters( $html ) as $delimiter ) {
         if ( Block_Delimiter::OPENER === $delimiter->get_delimiter_type() ) {
-            $block_types[ $delimiter->allocate_and_return_block_type() ] = true;
+            $block_type = $delimiter->allocate_and_return_block_type();
+            $block_counts[ $block_type ] = ( $block_counts[ $block_type ] ?? 0 ) + 1;
         }
     }
     
-    $block_types = array_keys( $block_types );
-    sort( $block_types );
-    return $block_types;
+    ksort( $block_counts );
+    return $block_counts;
 }
 
-$block_types = get_block_types_in( $post_content );
-print_r( $block_types );
+$block_counts = count_block_types_in( $post_content );
+print_r( $block_counts );
 ```
 
 **Output:**
 ```
 Array
 (
-    [0] => core/heading
-    [1] => core/image
-    [2] => core/list
-    [3] => core/paragraph
+    [core/heading] => 1
+    [core/image] => 1
+    [core/list] => 1
+    [core/paragraph] => 2
 )
 ```
 
