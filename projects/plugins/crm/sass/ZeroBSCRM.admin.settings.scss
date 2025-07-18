@@ -3,7 +3,7 @@
  * https://jetpackcrm.com
  */
 
- // Specifically for admin settings pages
+// Specifically for admin settings pages
 
 .zbs-explainer-ico {
 	margin-top: 1em;margin-bottom: 1em;
@@ -37,27 +37,27 @@
 
 	text-align:center;
 	line-height: 20px;
-    font-size: 1.2em;
-    font-weight: 800;
+	font-size: 1.2em;
+	font-weight: 800;
 
 	img {
 
-	    max-width: 30px !important;
-	    background: #000;
-	    display: inline-block !important;
-    	margin-left: -0.5em !important;
-	    float:left;
+		max-width: 30px !important;
+		background: #000;
+		display: inline-block !important;
+		margin-left: -0.5em !important;
+		float:left;
 	}
 }
 // fix for menu weirdness
 #zbs-settings-menu .item a.item.zbs-settings-head {
 	margin-bottom: -1em;
-    padding: 0;
+	padding: 0;
 }
 
 #zbs-settings-menu.ui.vertical.menu .item a.item.zbs-settings-head.active.item {
 	color: #2185D0 !important;
-    background: rgba(0, 0, 0, 0);
+	background: rgba(0, 0, 0, 0);
 }
 
 
@@ -70,7 +70,7 @@
 	}
 
 	.zbscrm-cf-settings-wrap {
-	    padding: 0.7em;
+		padding: 0.7em;
 	}
 
 	.zbs-generic-hide{
@@ -84,12 +84,12 @@
 	}
 
 	.zbs-cf-type-autonumber-input-wrap {
-	    margin-bottom: 0.5em;
+		margin-bottom: 0.5em;
 
-	    // pretty up these
-	    .ui.label {
-		    min-width: 120px;
-		    text-align: right;
+		// pretty up these
+		.ui.label {
+			min-width: 120px;
+			text-align: right;
 		}
 	}
 	// ui fix
@@ -108,28 +108,28 @@
 // v3.0 migration blocker - do not remove :) won't see, but it'll break for old migraters:
 #zbs-migration-blocker {
 	display: block;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 10000;
-    background-color: #FFF;
-    margin-top: 0.5em;
-    opacity: 0.92;
-    border-radius: 0.2em;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 10000;
+	background-color: #FFF;
+	margin-top: 0.5em;
+	opacity: 0.92;
+	border-radius: 0.2em;
 }
 
 #zbs-migration-settings-notice {
-    z-index: 10001;
-    position: absolute;
-    top: 7em;
-    left: 0;
-    width: 100%;
-    text-align:center;
+	z-index: 10001;
+	position: absolute;
+	top: 7em;
+	left: 0;
+	width: 100%;
+	text-align:center;
 
-    .ui.message {
-	    max-width: 700px;
-	    margin-left: auto;
-	    margin-right: auto;
+	.ui.message {
+		max-width: 700px;
+		margin-left: auto;
+		margin-right: auto;
 	}
 }
 

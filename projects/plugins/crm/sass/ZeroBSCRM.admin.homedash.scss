@@ -3,32 +3,32 @@
  * https://jetpackcrm.com
  */
 
- // this file is referenced in Mike's new ZBS dash
+// this file is referenced in Mike's new ZBS dash
 
 a, a:visited{
-  text-decoration: none;
+	text-decoration: none;
 }
 
 a:focus{
-  outline:none;
+	outline:none;
 }
 
 .progress {
-    background-color: #f5f5f5;
-    box-shadow: none !important;
-    height: 10px;
-    margin-bottom: 18px;
-    overflow: hidden;
+	background-color: #f5f5f5;
+	box-shadow: none !important;
+	height: 10px;
+	margin-bottom: 18px;
+	overflow: hidden;
 }
 
 .img-rounded{
-  border-radius:50%;
-  float:left;
-  margin-right:5px;
+	border-radius:50%;
+	float:left;
+	margin-right:5px;
 }
 
 .jpcrm-avatar-small {
-  width: 25px;
+	width: 25px;
 }
 
 .dashboard-custom-choices {
@@ -39,7 +39,7 @@ a:focus{
 }
 
 body ::-webkit-scrollbar-track{
-background: #fff;
+	background: #fff;
 }
 
 .jpcrm-dashcard-header {
@@ -87,7 +87,7 @@ background: #fff;
 			margin-top:10px;
 
 			.ui.avatar.img.img-rounded {
-					margin-right: 10px;
+				margin-right: 10px;
 			}
 		}
 	}

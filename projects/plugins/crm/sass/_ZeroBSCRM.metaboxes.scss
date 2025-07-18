@@ -9,13 +9,13 @@
 
 #normal-sortables.zbs-metaboxes,
 #zbs-normal-sortables.zbs-metaboxes {
-    padding-top: 1em;
+	padding-top: 1em;
 }
 
 #side-sortables.zbs-metaboxes,
 #zbs-side-sortables.zbs-metaboxes {
-    padding-top: 1em;
-    padding-right: 1em;
+	padding-top: 1em;
+	padding-right: 1em;
 }
 
 // this allows for the screen options tab :)
@@ -26,11 +26,11 @@
 .zbs-metabox {  
 
 	position:relative;
-    margin-bottom: 1em;
+	margin-bottom: 1em;
 
-    .zbs-metabox-head:hover {
-    	cursor:move;
-    }
+	.zbs-metabox-head:hover {
+		cursor:move;
+	}
 
 	// blocker (for when being dragdropped)
 	.zbs-metabox-block {
@@ -38,36 +38,36 @@
 		display: none;
 
 		position:absolute;
-    	border-radius: 4px;
+		border-radius: 4px;
 		top:0;
 		left:0;
 		width:100%;
 		height:100%;
-    	background: rgba(255, 255, 255, 0.7);
+		background: rgba(255, 255, 255, 0.7);
 
-    	// title
-    	div {
+		// title
+		div {
 
-    		border-radius: 4px;
-		    padding-top: 1em;
-		    padding-bottom: 1em;
-		    font-size: 1.5em;
-		    text-align: center;
-		    text-shadow: 1px 1px 9px #848ca5;
-		    background: #FFF;
+			border-radius: 4px;
+			padding-top: 1em;
+			padding-bottom: 1em;
+			font-size: 1.5em;
+			text-align: center;
+			text-shadow: 1px 1px 9px #848ca5;
+			background: #FFF;
 
-    	}
+		}
 
-    	// drag drop handle
-    	.icon {
+		// drag drop handle
+		.icon {
 
-		    font-size: 1.5em;
-		    background: none;
-		    position: absolute;
-		    top: 1em;
-		    right: 1em;
+			font-size: 1.5em;
+			background: none;
+			position: absolute;
+			top: 1em;
+			right: 1em;
 
-    	}
+		}
 
 	}
 
@@ -79,10 +79,10 @@
 
 	.zbs-metabox {
 
-	    max-height: 300px;
-	    overflow: hidden;
-	    margin-bottom: 1em;
-    	opacity: 0.5;
+		max-height: 300px;
+		overflow: hidden;
+		margin-bottom: 1em;
+		opacity: 0.5;
 
 		// blocker  - show
 		.zbs-metabox-block {
@@ -94,15 +94,15 @@
 	}
 
 	.zbs-metabox:hover {
-    	cursor: move;
+		cursor: move;
 	}
 
 	.zbs-metabox-landing-pad {
-	    border: 2px dashed #969893;
-	    border-radius: 6px;
-	    background: #dde8dc;
-	    height: 7em;
-	    margin-bottom: 1em;
+		border: 2px dashed #969893;
+		border-radius: 6px;
+		background: #dde8dc;
+		height: 7em;
+		margin-bottom: 1em;
 	}
 
 }
@@ -123,9 +123,9 @@
 
 		.caret.icon:hover {
 			cursor: pointer;
-		    color: #FFF;
-		    border-radius: 2px;
-		    background: #000;
+			color: #FFF;
+			border-radius: 2px;
+			background: #000;
 		}
 
 	}
