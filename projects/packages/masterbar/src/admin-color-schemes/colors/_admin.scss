@@ -868,15 +868,15 @@ div#wp-responsive-toggle a::before {
 @include meta.load-css('overrides', $with: (
 	masterbar-active-background: $masterbar-active-background,
 	masterbar-background: $masterbar-background,
-  masterbar-highlight-background: $masterbar-highlight-background,
-  masterbar-submenu-background: $masterbar-submenu-background,
-  masterbar-submenu-background-alt: $masterbar-submenu-background-alt,
-  menu-current-text: $menu-current-text,
-  menu-highlight-text: $menu-highlight-text,
-  menu-submenu-current-text: $menu-submenu-current-text,
-  menu-submenu-focus-text: $menu-submenu-focus-text,
-  menu-submenu-text: $menu-submenu-text,
-  nav-unification-sidebar-border: $nav-unification-sidebar-border
+	masterbar-highlight-background: $masterbar-highlight-background,
+	masterbar-submenu-background: $masterbar-submenu-background,
+	masterbar-submenu-background-alt: $masterbar-submenu-background-alt,
+	menu-current-text: $menu-current-text,
+	menu-highlight-text: $menu-highlight-text,
+	menu-submenu-current-text: $menu-submenu-current-text,
+	menu-submenu-focus-text: $menu-submenu-focus-text,
+	menu-submenu-text: $menu-submenu-text,
+	nav-unification-sidebar-border: $nav-unification-sidebar-border
 ));
 
 /* Gutenberg Support */
@@ -888,6 +888,6 @@ div#wp-responsive-toggle a::before {
 @include meta.load-css('inline-help', $with: (
 	color-primary: $color-primary,
 	color-primary-dark: $color-primary-dark,
-  color-primary-light: $color-primary-light,
-  color-surface: $color-surface
+	color-primary-light: $color-primary-light,
+	color-surface: $color-surface
 ));
