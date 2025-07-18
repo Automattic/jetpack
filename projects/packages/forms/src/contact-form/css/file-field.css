@@ -280,10 +280,7 @@
 	left: 0;
 	right: 0;
 	border-radius: 50%;
-	background:
-		conic-gradient(var(--jetpack--contact-form--text-color, #333)
-		calc(var(--progress, 3) * 1%), transparent calc(var(--progress, 3) * 1%));
-
+	background: conic-gradient(var(--jetpack--contact-form--text-color, #333) calc(var(--progress, 3) * 1%), transparent calc(var(--progress, 3) * 1%));
 	z-index: -1;
 	opacity: 0.8;
 	width: 46px;
