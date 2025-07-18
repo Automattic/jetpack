@@ -6,7 +6,7 @@
 	width: 1200px;
 	border-radius: 3px;
 
-	&__content{
+	&__content {
 		background: var( --jp-white-off );
 		padding: 80px;
 		text-align: center;
@@ -32,7 +32,7 @@
 		font-size: 1.25rem;
 	}
 
-	&__actions{
+	&__actions {
 		background: var( --jp-white );
 		margin:0 !important;
 		border-top: 1px solid var( --jp-gray );
@@ -57,7 +57,7 @@
 		}
 	}
 
-	&__button-wrap button{
+	&__button-wrap button {
 		float:right;
 	}
 

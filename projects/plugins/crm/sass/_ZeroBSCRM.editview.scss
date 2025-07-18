@@ -130,8 +130,7 @@
 			margin-bottom: 0.4em;
 		}
 
-		.zbsTagSuggestion:hover
-		 {
+		.zbsTagSuggestion:hover {
 			cursor: pointer;
 			color: #000 !important;
 		}
@@ -199,7 +198,7 @@
 
 // fix for zbs-hide not working at high res's
 // JIRA-ZBS-960
-@media (min-width: 1500px){
+@media (min-width: 1500px) {
 
 	.zbs-hide,
 	tr.zbs-field-group-tr .zbs-field-group.zbs-hide {

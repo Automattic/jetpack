@@ -143,7 +143,7 @@
 	}
 }
 
-@media screen and (min-width: 782px) and (max-width: 960px){
+@media screen and (min-width: 782px) and (max-width: 960px) {
 
 	.auto-fold #adminmenu .toplevel_page_site-notices .wp-menu-image {
 		display: block;

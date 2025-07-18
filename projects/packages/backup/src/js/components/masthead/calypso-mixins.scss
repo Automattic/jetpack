@@ -56,7 +56,7 @@ $sidebar-width:	269px;
 
 $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding a new breakpoint
 
-@mixin breakpoint( $size ){
+@mixin breakpoint( $size ) {
 
 	@if meta.type-of($size) == string {
 		$approved-value: 0;
@@ -267,7 +267,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 }
 
-@mixin debug(){
+@mixin debug() {
 	box-shadow: 0 0 10px $alert-red inset;
 }
 
@@ -327,7 +327,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		width: auto;
 	}
 
-	@if $direction == 'left'{
+	@if $direction == 'left' {
 		background: linear-gradient( to left, rgba( $color, 0 ), $color 90% );
 		top: $edge;
 		left: $edge;

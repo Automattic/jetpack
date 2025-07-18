@@ -127,7 +127,7 @@
 		height: 100%;
 	}
 
-	@include breakpoint.breakpoint(large-desktop){
+	@include breakpoint.breakpoint(large-desktop) {
 		font-size: typography-functions.em(18px);
 
 		&::before {
@@ -137,14 +137,14 @@
 		}
 	}
 
-	@include breakpoint.breakpoint(desktop){
+	@include breakpoint.breakpoint(desktop) {
 
 		&:active {
 			top: 0;
 		}
 	}
 
-	@include breakpoint.breakpoint(large-phone){
+	@include breakpoint.breakpoint(large-phone) {
 		font-size: typography-functions.em(17px);
 		font-weight: 600;
 

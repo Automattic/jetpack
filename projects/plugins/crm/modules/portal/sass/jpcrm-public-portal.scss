@@ -41,22 +41,22 @@
 				box-shadow:none;
 			}
 
-			a:hover{
+			a:hover {
 				box-shadow:none;
 				background: #000;
 				color: #fff;
 			}
 		}
 
-		a{
+		a {
 			color: #ccc;
 		}
 
-		a:hover{
+		a:hover {
 			color:#ccc !important;
 		}
 
-		.fa{
+		.fa {
 			margin-right: 0.5em;
 		}
 	}
@@ -94,7 +94,7 @@
 		margin-right: auto;
 	}
 
-	.zbs-portal-wrapper{
+	.zbs-portal-wrapper {
 		padding:20px;
 		box-shadow: 1px 1px 1px 1px #ccc;
 		border-radius: 0 7px 7px 0;
@@ -228,7 +228,7 @@
 	}
 
 	/* Fixes for Astra Theme and general poor display on WP.org themes */
-	label{
+	label {
 		clear: left;
 	}
 }
@@ -451,26 +451,26 @@
 }
 
 .zbs-fieldgroup-main_address,
-.zbs-fieldgroup-second_address{
+.zbs-fieldgroup-second_address {
 	width: 48%;
 	float: left;
 	margin-right: 2%;
 
-	table{
+	table {
 		width:100%;
 	}
 }
 
 .zbs-fieldgroup-main_address_100w,
-#wptbpMetaBoxGroup-main_address_100w{
+#wptbpMetaBoxGroup-main_address_100w {
 	width:100%;
 }
 
-.zbs-hide{
+.zbs-hide {
 	display:none;
 }
 
-.zbs-fieldgroup-main_address::after{
+.zbs-fieldgroup-main_address::after {
 	content: "";
 	display: table;
 	clear: both;
@@ -486,11 +486,11 @@
 }
 
 //hide the title from the Portal Page 
-.entry-title{
+.entry-title {
 	display:none !important;
 }
 //for the invoice hashes. No portal nav for these. 
-.fullW{
+.fullW {
 	width: 100% !important;
 }
 
@@ -499,7 +499,7 @@
 	font-weight: 800;
 }
 
-.portal-invoice-to{
+.portal-invoice-to {
 	margin-bottom:20px;
 }
 
@@ -695,11 +695,11 @@
 	margin-top: 10px;
 }
 
-.sgr-recaptcha{
+.sgr-recaptcha {
 	transform:scale(1);
 }
 
-.sgr-recaptcha div{
+.sgr-recaptcha div {
 	margin:auto;
 }
 

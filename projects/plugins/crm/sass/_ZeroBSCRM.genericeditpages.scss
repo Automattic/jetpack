@@ -5,7 +5,7 @@
 
 // Generic edit page css
 
-.users-php .zerobs_customer{
+.users-php .zerobs_customer {
 	background: none !important;
 }
 
@@ -88,7 +88,7 @@ span.wh-info {
 	width:100%;
 }
 
-textarea.form-control{
+textarea.form-control {
 	width:100%;
 	height:120px;
 }
@@ -103,7 +103,7 @@ textarea.form-control{
 
 }
 
-.zbscrm-cf-n{
+.zbscrm-cf-n {
 	width:200px;
 	text-align:center !important;
 }
@@ -118,7 +118,7 @@ textarea.form-control{
 	border-radius: 3px;
 
 	// header
-	.jpcrm-external-source-group-header.ui.header{
+	.jpcrm-external-source-group-header.ui.header {
 		margin-bottom: 0.2em;
 	}
 
@@ -149,7 +149,7 @@ textarea.form-control{
 
 }
 
-#jpcrm-external-sources-metabox .jpcrm-external-source-group:not(:first-child){
+#jpcrm-external-sources-metabox .jpcrm-external-source-group:not(:first-child) {
 
 	margin-top: 1em; // margin top for those groups after first
 
@@ -163,7 +163,7 @@ textarea.form-control{
 
 
 .wh-large select,
-.wh-large input{
+.wh-large input {
 	font-size: 14px;
 	height: 30px;
 }
@@ -237,7 +237,7 @@ textarea.form-control{
 	}
 
 	// this fixed a bug where you could still somehow click them?!
-	input[type="checkbox"]{
+	input[type="checkbox"] {
 		display:none;
 	}
 

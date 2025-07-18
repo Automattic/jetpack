@@ -104,7 +104,7 @@
 				align-self: center;
 			}
 
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator ) {
 				max-width: var( --wp--preset--spacing--80, 100px );
 				margin-left: auto;
 				margin-right: auto;
@@ -879,8 +879,7 @@
 
 			.jetpack-field__input,
 			.jetpack-field__textarea,
-			.jetpack-field-dropdown__toggle
-			{
+			.jetpack-field-dropdown__toggle {
 				padding-top: 1.4em;
 				padding-left: var(--jetpack--contact-form--animated-left-offset);
 			}

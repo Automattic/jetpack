@@ -7,7 +7,7 @@
 
 $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding a new breakpoint
 
-@mixin breakpoint( $size ){
+@mixin breakpoint( $size ) {
 
 	@if meta.type-of($size) == string {
 		$approved-value: 0;

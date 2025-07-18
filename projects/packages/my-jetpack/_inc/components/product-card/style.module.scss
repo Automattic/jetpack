@@ -122,17 +122,17 @@ $status-size: 8px;
 	padding: 0;
 }
 
-@keyframes blink-animation{
+@keyframes blink-animation {
 
-	0%{
+	0% {
 		opacity: 0;
 	}
 
-	50%{
+	50% {
 		opacity: 0.5;
 	}
 
-	100%{
+	100% {
 		opacity: 0;
 	}
 }

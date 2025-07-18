@@ -6,11 +6,11 @@
 // this file is referenced in Mike's new ZBS dash
 
 a,
-a:visited{
+a:visited {
 	text-decoration: none;
 }
 
-a:focus{
+a:focus {
 	outline:none;
 }
 
@@ -22,7 +22,7 @@ a:focus{
 	overflow: hidden;
 }
 
-.img-rounded{
+.img-rounded {
 	border-radius:50%;
 	float:left;
 	margin-right:5px;
@@ -39,7 +39,7 @@ a:focus{
 	}
 }
 
-body ::-webkit-scrollbar-track{
+body ::-webkit-scrollbar-track {
 	background: #fff;
 }
 

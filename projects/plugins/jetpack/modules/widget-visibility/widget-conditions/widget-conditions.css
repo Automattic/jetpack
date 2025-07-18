@@ -3,7 +3,7 @@
 	box-sizing: border-box;
 }
 
-.wp-customizer  .expanded .widget-conditional .form{
+.wp-customizer  .expanded .widget-conditional .form {
 	overflow: scroll;
 	margin-bottom: 20px;
 }
@@ -28,7 +28,7 @@
 	margin-top: 10px;
 }
 
-.widget-conditional .conditions{
+.widget-conditional .conditions {
 	margin-bottom: 12px;
 }
 

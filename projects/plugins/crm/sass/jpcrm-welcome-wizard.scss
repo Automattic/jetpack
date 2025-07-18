@@ -125,7 +125,7 @@ img {
 
 /* End copy from Bootstrap */
 
-html{
+html {
 	background: $wiz_background;
 }
 
@@ -144,11 +144,11 @@ body {
 	display: table-row;
 }
 
-.btn-jetpack{
+.btn-jetpack {
 	background: $jetpack_green;
 	color: #fff;
 
-	&:hover{
+	&:hover {
 		color: #fff;
 	}
 	font-size:16px;
@@ -194,25 +194,25 @@ body {
 	border-radius: 15px;
 }
 
-.stepwizard-step .btn-default{
+.stepwizard-step .btn-default {
 	color: $jetpack_green!important;
 	border-color: $jetpack_green;
 	background: #fff;
 	opacity: 1;
 }
 
-.stepwizard-step .btn-primary{
+.stepwizard-step .btn-primary {
 	color: #fff !important;
 	background: $jetpack_green !important;
 	border-color:$jetpack_green;
 }
 
-.form-control:focus{
+.form-control:focus {
 	border-color:$jetpack_green;
 	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px #2780e3;
 }
 
-.hide{
+.hide {
 	display:none;
 }
 
@@ -228,34 +228,34 @@ body {
 	border-color: $jetpack_hover;
 }
 
-#zbscrm-logo{
+#zbscrm-logo {
 	margin-top:-50px;
 }
 
-#zbs_other_details{
+#zbs_other_details {
 	display:none;
 	height:150px;
 	margin-bottom:20px;
 }
 
-.setup-content textarea{
+.setup-content textarea {
 	width:90%;
 }
 
 input[type="checkbox"],
-input[type="radio"]{
+input[type="radio"] {
 	width:20px;
 }
 
-.clear{
+.clear {
 	clear:both;
 }
 
-.pos-rel{
+.pos-rel {
 	position:relative;
 }
 
-#crm-name{
+#crm-name {
 	position: absolute;
 	top: 7px;
 	left: 30px;
@@ -395,7 +395,7 @@ input[type="radio"]{
 .ck_slide_up,
 .ck_modal,
 .ck_slide_up .ck_minimal,
-.ck_modal .ck_minimal  {
+.ck_modal .ck_minimal {
 	min-width: 400px;
 }
 
@@ -649,7 +649,7 @@ $darkenColor: color.adjust($activeColor, $lightness: -20%);
 	color: #000;
 }
 
-#zbs-lead-header{
+#zbs-lead-header {
 	color:#CCC;
 }
 
@@ -658,7 +658,7 @@ p.lead {
 	color:#000;
 }
 
-.zbs-eb-callout{
+.zbs-eb-callout {
 	width:50%;
 	float:left;
 	margin-top: 17px;
@@ -674,7 +674,7 @@ p.lead {
 	display:inline-block;
 	height:290px;
 
-	h3{
+	h3 {
 		color:#000;
 		margin-top: 8px !important;
 		margin-bottom: 14px !important;
@@ -682,7 +682,7 @@ p.lead {
 		font-size:18px;
 	}
 
-	.zbs-sync-img{
+	.zbs-sync-img {
 		text-align: center;
 		width: 50%;
 		float:right;

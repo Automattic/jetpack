@@ -8,32 +8,32 @@
 
 //this is for the new invoicing design
 .post-type-zerobs_invoice,
-#zerobs-invoice-edit-box{
+#zerobs-invoice-edit-box {
 
-	.clear{
+	.clear {
 		clear:both;
 	}
 
-	.zbs-inv-no{
+	.zbs-inv-no {
 		width: 80%;
 		float: left;
 		font-size: 14px;
 	}
 
-	.zbs-inv-ref{
+	.zbs-inv-ref {
 		font-size: 22px;
 		color: #15b717;
 	}
 
-	#zbs_invoice{
+	#zbs_invoice {
 		min-height:500px;
 	}
 
-	.twitter-typeahead{
+	.twitter-typeahead {
 		width:100%;
 	}
 
-	.zbs-add-new-js-assign-to{
+	.zbs-add-new-js-assign-to {
 		padding: 10px;
 		background: #f1f1f1;
 		// wh removed, as now links color: #4699d5;
@@ -44,11 +44,11 @@
 		}
 	}
 
-	#billing-to{
+	#billing-to {
 		width:90% !important;
 		float:left;
 
-		.inv-to-form{
+		.inv-to-form {
 			float: left;
 			font-weight: 900;
 			margin-top: 5px;
@@ -57,14 +57,14 @@
 
 		}
 
-		.inv-to-input{
+		.inv-to-input {
 			float:left;
 			width:100%;
 			margin-bottom:20px;
 			margin-left:5%;
 		}
 
-		.edit-c{
+		.edit-c {
 			float:left;
 			font-size: 12px;
 			margin-bottom: 16px;
@@ -78,14 +78,14 @@
 			max-width: 100%;
 		}
 
-		th{
+		th {
 			vertical-align:middle;
 			font-size:18px;
 			font-weight:100;
 		}
 	}
 
-	#zbs-add-new-row{
+	#zbs-add-new-row {
 		padding: 8px;
 		background: #f5f5f5;
 		color: #000;
@@ -94,27 +94,27 @@
 		border: 1px solid #ddd;
 	}
 
-	.tax-select{
+	.tax-select {
 		height:35px;
 	}
 
-	.row-amount{
+	.row-amount {
 		line-height:35px;
 	}
 
 
 	.invoice-grand-total-wrapper,
-	#zbs-invoice-partial-payments{
+	#zbs-invoice-partial-payments {
 		margin-top:5px !important;
 
-		.due-row{
+		.due-row {
 			background: #f5f5f5;
 			border-bottom: 1px solid #ddd;
 		}
 
 		.partial-row,
 		.due-row,
-		.partial-row-tab{
+		.partial-row-tab {
 			padding:15px;
 			border-top: 1px solid #ddd;
 			border-left: 1px solid #ddd;
@@ -122,155 +122,155 @@
 			//padding-bottom:30px; */
 			overflow-x: auto;
 
-			.zlabel{
+			.zlabel {
 				font-weight:900;
 			}
 
-			.third{
+			.third {
 				float:left;
 				width:32%;
 				margin-right:1%;
 			}
 
-			.invoice-discount-total{
+			.invoice-discount-total {
 				margin-top:-9px;
 			}
 
-			#invoice_discount_total{
+			#invoice_discount_total {
 				float:left;
 				width: 32% !important;
 			}
 
-			#invoice_postage_total{
+			#invoice_postage_total {
 				width: 32%;
 				float:right;
 			}
 
-			.half{
+			.half {
 				width:50%;
 				float:left;
 			}
 
-			.one-four{
+			.one-four {
 				width:25%;
 				float:left;
 			}
 
-			.two-four{
+			.two-four {
 				width:50%;
 				float:left;
 			}
 
-			.ri{
+			.ri {
 				text-align:right;
 			}
 
-			.half::after{
+			.half::after {
 				clear:both;
 			}
 		}
 
 
-		.partial-row-tab{
+		.partial-row-tab {
 			font-weight:900;
 			padding-bottom: 13px !important;
 			background: #f5f5f5;
 		}
 
 
-		.inv-totals{
+		.inv-totals {
 
-			.inv-amount{
+			.inv-amount {
 				background: #f5f5f5;
 			}
 
-			.grand-total{
+			.grand-total {
 				background: #f5f5f5;
 				border-bottom: 1px solid #ddd;
 			}
 
-			.topmm5{
+			.topmm5 {
 				margin-top: -5px;
 			}
 
-			.topmm10{
+			.topmm10 {
 				margin-top: -10px;
 			}
 
-			.zbs-heavy{
+			.zbs-heavy {
 				font-weight:900;
 			}
 
-			.pbot30{
+			.pbot30 {
 				padding-bottom:30px;
 			}
 
-			.total-row{
+			.total-row {
 				padding:15px;
 				border-top: 1px solid #ddd;
 				border-left: 1px solid #ddd;
 				border-right: 1px solid #ddd;
 				padding-bottom:30px;
 
-				.zlabel{
+				.zlabel {
 					font-weight:900;
 				}
 
-				.third{
+				.third {
 					float:left;
 					width:32%;
 					margin-right:1%;
 				}
 
-				.invoice-discount-total{
+				.invoice-discount-total {
 					margin-top:-9px;
 				}
 
-				#invoice_discount_total{
+				#invoice_discount_total {
 					float:left;
 					width: 32% !important;
 				}
 
-				#invoice_postage_total{
+				#invoice_postage_total {
 					width: 32%;
 					float:right;
 				}
 
-				.half{
+				.half {
 					width:50%;
 					float:left;
 				}
 
-				.one-four{
+				.one-four {
 					width:25%;
 					float:left;
 				}
 
-				.two-four{
+				.two-four {
 					width:50%;
 					float:left;
 				}
 
-				.ri{
+				.ri {
 					text-align:right;
 				}
 
-				.half::after{
+				.half::after {
 					clear:both;
 				}
 			}
 		}
 
-		#tax-total-block{
+		#tax-total-block {
 
-			.total-row{
+			.total-row {
 				padding-bottom:30px;
 
-				.zlabel{
+				.zlabel {
 					font-weight:900;
 				}
 
-				.ri{
+				.ri {
 					text-align:right;
 				}
 			}
@@ -278,57 +278,57 @@
 	}
 
 
-	.zbs-invoice-row{
+	.zbs-invoice-row {
 		padding: 5px;
 		border: 2px solid #ddd;
 		margin-top:10px;
 
-		.remove-row{
+		.remove-row {
 			font-size:15px;
 			margin-top: 10px;
 			color: #000;
 		}
 
-		.third{
+		.third {
 			width: 200px !important;
 		}
 	}
 
-	.sug-wrap{
+	.sug-wrap {
 		font-size:15px;
 
-		.ico{
+		.ico {
 			width:20px;
 			float:left;
 			margin-top:5px;
 		}
 
-		.inner{
+		.inner {
 			float:left;
 			margin-left:10px;
 
-			.name{
+			.name {
 				font-weight:900;
 			}
 
-			.email{
+			.email {
 				font-size: 13px;
 				font-weight: 300;
 				margin-top:-9px;
 			}
 		}
 
-		.inner::after{
+		.inner::after {
 			clear:both;
 		}
 	}
 
-	.sug-wrap:hover{
+	.sug-wrap:hover {
 		background: #f1f1f1;
 		color: #4699d5;
 	}
 
-	.mark-as-paid{
+	.mark-as-paid {
 		margin-left: 10px;
 		background-color: #008000;
 		color: #fff;
@@ -339,65 +339,65 @@
 		cursor: pointer;
 	}
 
-	.hide{
+	.hide {
 		display:none;
 	}
 
-	#zbs_invoice_preview{
+	#zbs_invoice_preview {
 		text-decoration:none;
 	}
 
-	#zbs_top_wrapper{
+	#zbs_top_wrapper {
 		position:relative;
 
-		.zbs-invoice-topper{
+		.zbs-invoice-topper {
 			width:50%;
 			float:right;
 			min-width: 335px;
 
 			input,
-			select{
+			select {
 				// WH: changed for symmetry with rest of page width:80%;
 				width:100%;
 				float:left;
 			}
 
-			th{
+			th {
 				text-align:right;
 			}
 		}
 	}
 
-	#zbs_invoice_send_test2:focus{
+	#zbs_invoice_send_test2:focus {
 		outline: 0 !important;
 	}
 
-	#assign-to{
+	#assign-to {
 		width:50%;
 		float:right;
 
-		.zbs-controls{
+		.zbs-controls {
 			float:left;
 		}
 
-		select{
+		select {
 			width:90%;
 		}
 
-		th{
+		th {
 			vertical-align:middle;
 			font-size:18px;
 			font-weight:100;
 		}
 	}
 
-	#zbs_invoice_alerts{
+	#zbs_invoice_alerts {
 		position:absolute;
 		margin-top:-64px;
 		width: 100%;
 		margin-left: -13px;
 
-		#zbs_success{
+		#zbs_success {
 			display:none;
 			background: #008000;
 			padding:10px;
@@ -405,7 +405,7 @@
 			font-weight:100;
 			font-size:14px;
 
-			.fa{
+			.fa {
 				color: #00a700;
 				font-size: 20px;
 				margin-right: 10px;
@@ -413,14 +413,14 @@
 		}
 	}
 
-	#zbs_invoice_test_alerts{
+	#zbs_invoice_test_alerts {
 		position: relative;
 		width: 99%;
 		margin-bottom: 20px;
 		margin-top: 15px;
 
 		#zbs_success,
-		#zbs_test_success{
+		#zbs_test_success {
 			display:none;
 			background: #008000;
 			padding:10px;
@@ -428,7 +428,7 @@
 			font-weight:100;
 			font-size:14px;
 
-			.fa{
+			.fa {
 				color: #00a700;
 				font-size: 20px;
 				margin-right: 10px;
@@ -439,11 +439,11 @@
 
 	// here we split into two, so headers can match
 	.business-info-toggle,
-	.billing-to-title{
+	.billing-to-title {
 		font-size:20px;
 		font-weight:100;
 
-		.fa{
+		.fa {
 			color: #428bca;
 			margin-right: 10px;
 			font-size: 20px;
@@ -451,40 +451,40 @@
 		}
 	}
 
-	#zbs-business-info-wrapper{
+	#zbs-business-info-wrapper {
 
 		/* WH removed, seems to look better without ? */
 		//width: 30%;
 		//margin-top: -35px;
 		margin-bottom: 1em;
 
-		.business-info-toggle{
+		.business-info-toggle {
 			cursor:pointer;
 		}
 
-		.business-info{
+		.business-info {
 			display:none;
 
-			.zbs-table{
+			.zbs-table {
 				margin-top: 9px;
 				font-size: 14px;
 				font-weight: 100;
 				margin-left: 33px;
 
-				.top-pad{
+				.top-pad {
 
-					td{
+					td {
 						padding-top:20px;
 					}
 				}
 
-				td{
+				td {
 					border:0;
 					padding:0;
 				}
 			}
 
-			.edit-or-add{
+			.edit-or-add {
 				font-weight: 100;
 				margin-left: 33px;
 			}
@@ -492,7 +492,7 @@
 
 	}
 
-	#zbs-invoice-customiser{
+	#zbs-invoice-customiser {
 		padding: 15px 10px 15px 10px;
 		background: #f5f5f5;
 		margin-left: -12px;
@@ -500,7 +500,7 @@
 		margin-top: -6px;
 		border-bottom: 1px solid #eee;
 
-		.header{
+		.header {
 			float: left;
 			font-size: 18px;
 			line-height: 34px;
@@ -509,30 +509,30 @@
 		}
 	}
 
-	.top-row{
+	.top-row {
 
-		.row-amount{
+		.row-amount {
 			padding-top:12px;
 		}
 	}
 
-	#partials{
+	#partials {
 		margin-top:20px;
 	}
 
 	#invoice_totals,
-	#partials{
+	#partials {
 		width: 100%;
 		border-top: 2px solid #ccc;
 		border-right: 2px solid #ccc;
 
-		.zbs_grand_total{
+		.zbs_grand_total {
 
-			.bord-l{
+			.bord-l {
 				border-left: 2px solid #ccc;
 			}
 
-			.bord{
+			.bord {
 				background: #f5f5f5;
 				color: #000;
 				font-weight: 800;
@@ -540,42 +540,42 @@
 			}
 		}
 
-		.tax_total{
+		.tax_total {
 			display:none;
 		}
 
-		._1{
+		._1 {
 			display:block;
 		}
 
-		tr{
+		tr {
 			height:35px;
 		}
 
-		.hide{
+		.hide {
 			display:none;
 		}
 
-		.bord{
+		.bord {
 
-			input{
+			input {
 				text-align:right;
 				float:right;
 				box-shadow:none;
 			}
 		}
 
-		.bord-l{
+		.bord-l {
 			text-align:right;
 			border-left: 2px solid #ccc !important;
 		}
 
-		td.bord{
+		td.bord {
 			padding:5px;
 			border: 1px solid #ccc;
 		}
 
-		.row-amount{
+		.row-amount {
 			background: #f5f5f5;
 			color: #000;
 			font-weight: 400;
@@ -585,35 +585,35 @@
 		}
 	}
 
-	#zbs-invoice-items{
+	#zbs-invoice-items {
 
-		.first{
+		.first {
 			width:60%;
 		}
 
 		.second,
 		.third,
 		.forth,
-		.fifth{
+		.fifth {
 			width: 10%;
 		}
 
-		.zbs-item-block{
+		.zbs-item-block {
 			position:relative;
 
-			tr{
+			tr {
 				width:90%;
 			}
 
-			textarea{
+			textarea {
 				width: 100%;
 			}
 
-			row-amount{
+			row-amount {
 				padding-top:12px;
 			}
 
-			.tapad{
+			.tapad {
 				padding: 0 0 0 10px;
 			}
 
@@ -625,7 +625,7 @@
 			}
 		}
 
-		.row-amount{
+		.row-amount {
 			background: #f5f5f5;
 			color: #000;
 			font-weight:800;
@@ -633,7 +633,7 @@
 			height:35px;
 		}
 
-		.zbs-row-actions{
+		.zbs-row-actions {
 			cursor:pointer;
 			border: 1px solid #ccc;
 			color: #999;
@@ -642,18 +642,18 @@
 			text-align:center;
 		}
 
-		.padding{
+		.padding {
 			height:15px;
 		}
 
-		#tblock1{
+		#tblock1 {
 
-			.remove-row{
+			.remove-row {
 				display:none;
 			}
 		}
 
-		.zbs-item-name{
+		.zbs-item-name {
 			width: 100%;
 			height: 28px;
 			border: 0;
@@ -661,28 +661,28 @@
 		}
 
 		.top-row,
-		.bottom-row{
+		.bottom-row {
 			border-left: 2px solid #ccc;
 			border-right: 2px solid #ccc;
 		}
 
 		.bottom-row,
-		.row-amount{
+		.row-amount {
 			border-bottom: 2px solid #ccc;
 			border-right: 2px solid #ccc;
 		}
 
-		.selected{
+		.selected {
 
 			.top-row,
-			.bottom-row{
+			.bottom-row {
 				border-left: 4px solid #428bca;
 			}
 		}
 
-		.top-row{
+		.top-row {
 
-			td{
+			td {
 				border-bottom: 1px dashed #ddd !important;
 			}
 		}
@@ -692,16 +692,16 @@
 		.table > tfoot > tr > td,
 		.table > tfoot > tr > th,
 		.table > thead > tr > td,
-		.table > thead > tr > th{
+		.table > thead > tr > th {
 			border-top: 0 solid #fff !important;
 		}
 
-		.add-row{
+		.add-row {
 			border-left: 0 solid #fff;
 		}
 	}
 
-	#zbs_invoice_actions{
+	#zbs_invoice_actions {
 		padding: 15px 10px 15px 10px;
 		margin-left: -12px;
 		margin-right: -12px;
@@ -710,12 +710,12 @@
 		text-align:right;
 		height: 65px;
 
-		.zbs-invoice-status{
+		.zbs-invoice-status {
 			margin-top:-2px;
 			float:left;
 			padding: 10px;
 
-			.draft{
+			.draft {
 				background-color: #ddd;
 				text-transform: uppercase;
 				color: #fff;
@@ -724,7 +724,7 @@
 				font-size: 25px;
 			}
 
-			.unpaid{
+			.unpaid {
 				background-color: #ffd800;
 				text-transform: uppercase;
 				color: #fff;
@@ -733,7 +733,7 @@
 				font-size: 25px;
 			}
 
-			.paid{
+			.paid {
 				background-color: #008000;
 				text-transform: uppercase;
 				color: #fff;
@@ -742,7 +742,7 @@
 				font-size: 25px;
 			}
 
-			.overdue{
+			.overdue {
 				background-color: #f00;
 				text-transform: uppercase;
 				color: #fff;
@@ -752,11 +752,11 @@
 			}
 		}
 
-		button{
+		button {
 			margin-right:2px;
 		}
 
-		.btn-primary{
+		.btn-primary {
 			color: #fff;
 			background-color: #428bca;
 			border: 1px solid #428bca;
@@ -767,7 +767,7 @@
 			border-radius: 4px;
 		}
 
-		.btn-secondary{
+		.btn-secondary {
 			background: #ddd;
 			border: 1px solid #ddd;
 			border-width: 0;
@@ -778,26 +778,26 @@
 		}
 	}
 
-	#zbs_invoice_logos{
+	#zbs_invoice_logos {
 		float:left;
 		width:30%;
 
-		.hide{
+		.hide {
 			display:none !important;
 		}
 
-		.show{
+		.show {
 			display:block !important;
 		}
 	}
 
-	#publish{
+	#publish {
 		display:none;
 	}
 
-	#submitdiv{
+	#submitdiv {
 
-		span{
+		span {
 			display:none;
 		}
 
@@ -807,51 +807,51 @@
 		}
 	}
 
-	#postbox-container-1{
+	#postbox-container-1 {
 		margin-top:20px;
 	}
 
-	.zbs-memo-box{
+	.zbs-memo-box {
 		width:50%;
 		display:none;
 	}
 
-	.zbs-plus{
+	.zbs-plus {
 		font-size: 21px;
 		font-weight: 100;
 		color: #428bca;
 	}
 
-	.zbs-memo-ta{
+	.zbs-memo-ta {
 		width:40%;
 	}
 
-	.zbs-memo-hide{
+	.zbs-memo-hide {
 		font-size:12px;
 		font-weight:100;
 		color: #428bca;
 		cursor:pointer;
 	}
 
-	.zbs-memo-hide:hover{
+	.zbs-memo-hide:hover {
 		text-decoration:underline;
 	}
 
-	.zbs-add-memo-trigger{
+	.zbs-add-memo-trigger {
 		cursor:pointer;
 	}
 
-	.zbs-italic{
+	.zbs-italic {
 		font-style:italic;
 		font-weight:100;
 	}
 
-	.zbs-file-types{
+	.zbs-file-types {
 		text-transform:uppercase;
 		font-weight:900;
 	}
 
-	.wh-logo-set{
+	.wh-logo-set {
 		width:100%;
 		position:relative;
 		display:none;
@@ -860,15 +860,15 @@
 		margin-left: 12px;
 
 		.zbs-remove,
-		.zbs-update{
+		.zbs-update {
 			cursor:pointer;
 		}
 
-		img{
+		img {
 			max-width:80%;
 		}
 
-		.zbs-logo-options{
+		.zbs-logo-options {
 			display:none;
 			position: absolute;
 			top: 0.5em;
@@ -884,14 +884,14 @@
 		}
 	}
 
-	.wh-logo-set:hover{
+	.wh-logo-set:hover {
 
-		.zbs-logo-options{
+		.zbs-logo-options {
 			display:block;
 		}
 	}
 
-	.wh-logo{
+	.wh-logo {
 		margin-top: 20px;
 		padding: 30px;
 		width: 100%;
@@ -901,7 +901,7 @@
 		border: 1px dashed var(--jp-gray-20);
 		cursor:pointer;
 
-		.fa{
+		.fa {
 			color: #000;
 			margin-right:5px;
 			margin-bottom:10px;
@@ -909,7 +909,7 @@
 			font-weight:100;
 		}
 
-		.wh-logo-text{
+		.wh-logo-text {
 			font-weight: 300;
 			color: #000;
 			font-size: 18px;
@@ -937,12 +937,12 @@
 }
 
 //Invoicing custom fields styling
-.wh-metatab{
+.wh-metatab {
 	margin-bottom:10px !important;
 
-	.wh-large{
+	.wh-large {
 
-		label{
+		label {
 			font-size: 18px;
 			font-weight: 100;
 		}
@@ -985,7 +985,7 @@
 
 
 //ZBS invoice actions
-.zbs-invoice-actions-bottom{
+.zbs-invoice-actions-bottom {
 	margin-top: 20px;
 	padding: 2px;
 	margin-left: -12px;
@@ -997,17 +997,17 @@
 	padding-top: 10px;
 }
 
-.zbs-actions-side{
+.zbs-actions-side {
 	margin-top:15px;
 }
 
-.zbs-what{
+.zbs-what {
 	font-size: 15px;
 	line-height: 26px;
 }
 
 
-#zbs-send-test{
+#zbs-send-test {
 	width: 60%;
 	margin-left: 20%;
 	margin-top: 100px;
@@ -1016,7 +1016,7 @@
 	border-radius: 6px;
 }
 
-#zbs-modal-invoice-test{
+#zbs-modal-invoice-test {
 	margin-top:10px;
 	margin-bottom:13px;
 }
@@ -1052,7 +1052,7 @@
 		transition: border-color ease-in-out 0.15s,box-shadow ease-in-out 0.15s;
 	}
 
-	input[type="checkbox"]{
+	input[type="checkbox"] {
 		margin-right: 0.7em;
 		vertical-align: middle;
 		line-height: 1;

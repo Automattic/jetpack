@@ -5,7 +5,7 @@
 
 //wrap all in our page bodyclass so to not clash anywhere else. Is also only enqueue on that one page
 
-.admin_page_zerobscrm-plugin{
+.admin_page_zerobscrm-plugin {
 
 	#zbs-welcome .container {
 		margin: 0 auto;
@@ -36,7 +36,7 @@
 		margin-left: -55px;
 	}
 
-	.bullie img{
+	.bullie img {
 		height: 80px;
 		margin-left: 7px;
 		margin-top: -4px;
@@ -62,7 +62,7 @@
 		margin: 0;
 	}
 
-	#zbs-welcome #first-customer{
+	#zbs-welcome #first-customer {
 		border-left: 2px solid #e1e1e1;
 		border-right: 2px solid #e1e1e1;
 		text-align: center;
@@ -70,21 +70,21 @@
 		padding-bottom: 20px;
 	}
 
-	#first-customer img{
+	#first-customer img {
 		max-width:80%;
 	}
 
-	a:focus{
+	a:focus {
 		outline:none;
 		box-shadow: none;
 	}
 
-	#first-customer a:focus{
+	#first-customer a:focus {
 		outline:none;
 		box-shadow: none;
 	}
 
-	#action-buttons{
+	#action-buttons {
 		padding:20px;
 		background: #fff;
 		min-height:175px;
@@ -93,72 +93,72 @@
 		border-bottom: 2px solid #e1e1e1;
 	}
 
-	#action-buttons h6{
+	#action-buttons h6 {
 		margin-bottom:20px;
 	}
 
-	.zbs-button-wrap{
+	.zbs-button-wrap {
 		text-align:center;
 	}
 
-	.zbs-button-wrap .btn-cta{
+	.zbs-button-wrap .btn-cta {
 		background-color: #00b1ff;
 		border-color: #00b1ff;
 		color: #fff;
 	}
 
-	.zbs-button-wrap .btn-hta{
+	.zbs-button-wrap .btn-hta {
 		background-color: #eee;
 		border-color: #eee;
 		color: #666;
 	}
 
-	.zbs-button-wrap .btn-bta{
+	.zbs-button-wrap .btn-bta {
 		background-color:   #21BA45;
 		border-color:  #21BA45;
 		color: #fff;
 	}
 
-	.zbs-button-wrap .btn{
+	.zbs-button-wrap .btn {
 		font-size: 16px;
 		font-weight: 600;
 		padding: 16px 28px;
 	}
 
-	.left{
+	.left {
 		float: left;
 		width: 60%;
 		padding-right: 10px;
 	}
 
-	.right{
+	.right {
 		float: right;
 		width: 40%;
 		padding-left: 10px;
 	}
 
-	.clear{
+	.clear {
 		clear:both;
 	}
 
-	.margin-top30{
+	.margin-top30 {
 		margin-top:30px !important;
 	}
 
-	.zbs-features{
+	.zbs-features {
 		padding-top: 0 !important;
 		padding-bottom:30px !important;
 		border-bottom: 2px solid #e1e1e1;
 	}
 
-	.zbs-features h5{
+	.zbs-features h5 {
 		color: #222;
 		font-size: 16px;
 		margin: 0 0 8px 0;
 		font-weight:900;
 	}
 
-	.zbs-features p{
+	.zbs-features p {
 		font-size: 14px;
 		margin-left: 68px !important;
 	}
@@ -245,7 +245,7 @@
 		text-align:center;
 	}
 
-	.price .dollar{
+	.price .dollar {
 		font-size:12px;
 	}
 
@@ -261,7 +261,7 @@
 		display: inline-block;
 	}
 
-	.pro{
+	.pro {
 		font-size: 10px;
 		background: #00b2ff;
 		margin-left: 5px;
@@ -270,7 +270,7 @@
 		border-radius: 2px;
 	}
 
-	.pro-elite{
+	.pro-elite {
 		font-size: 10px;
 		background: #21BA45;
 		margin-left: 5px;
@@ -279,14 +279,14 @@
 		border-radius: 2px;
 	}
 
-	.go-elite{
+	.go-elite {
 		color: #9c9c9c;
 		font-size: 11px;
 		margin-top: 13px;
 		margin-bottom:10px;
 	}
 
-	.elite-package{
+	.elite-package {
 		background-color: #21BA45;
 		border-color: #21BA45;
 		color: #fff;
@@ -297,18 +297,18 @@
 		font-weight:500;
 	}
 
-	.elite-package:hover{
+	.elite-package:hover {
 		color: #fff;
 	}
 
-	.testimonial-block img{
+	.testimonial-block img {
 		border-radius: 50%;
 		float: left;
 		max-width: 80px;
 		box-shadow: 0 0 18px rgba(0,0,0,0.2);
 	}
 
-	.testimonial-block{
+	.testimonial-block {
 		margin-bottom:50px;
 	}
 
@@ -320,18 +320,18 @@
 		color: #868686;
 	}
 
-	.who{
+	.who {
 		color: #000 !important;
 	}
 
-	.final-block{
+	.final-block {
 		background: #eee;
 		min-height: 140px;
 		border: 2px solid #e1e1e1;
 		padding: 40px;
 	}
 
-	.final-block .zbs-button-wrap{
+	.final-block .zbs-button-wrap {
 		margin-top:40px;
 	}
 

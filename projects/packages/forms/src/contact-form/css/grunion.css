@@ -160,7 +160,7 @@
 }
 
 :where( .contact-form .is-style-outlined .grunion-checkbox-multiple-options ),
-:where( .contact-form .is-style-outlined .grunion-radio-options )  {
+:where( .contact-form .is-style-outlined .grunion-radio-options ) {
 	border: solid 1px var( --jetpack--contact-form--border-color );
 }
 
@@ -518,8 +518,7 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options
-{
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
 	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
 	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)))
@@ -695,16 +694,14 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
-{
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch {
 	border-top-color: transparent !important;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
-{
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label {
 	top: calc(var(--jetpack--contact-form--border-size) * -1);
 	transform: translateY(-50%);
 }
@@ -769,8 +766,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > input,
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > textarea,
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select
-{
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select {
 	padding-top: 1.4em;
 	padding-left: var(--field-padding);
 	padding-right: var(--field-padding);
@@ -822,8 +818,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder),
-.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
-{
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label {
 	transform: translateY(0);
 	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
@@ -831,16 +826,14 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
-.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-text
-{
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-text {
 	font-size: 0.75em;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
-.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-required
-{
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-required {
 
 	/*
 	 * The required text is always 85% of the label font size.

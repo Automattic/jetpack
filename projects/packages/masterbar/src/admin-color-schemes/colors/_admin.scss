@@ -243,7 +243,7 @@ textarea:focus {
 
 		.button.hover,
 		.button:hover,
-		.button-secondary:hover{
+		.button-secondary:hover {
 			border-color: color.adjust($highlight-color, $lightness: -10%);
 			color: color.adjust($highlight-color, $lightness: -10%);
 		}

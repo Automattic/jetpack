@@ -42,7 +42,7 @@
 		display: none;
 	}
 
-	.dops-accessible-focus &:focus{
+	.dops-accessible-focus &:focus {
 		box-shadow: 0 0 0 2px calypso-colors.$blue-medium;
 	}
 }
@@ -80,7 +80,7 @@
 		}
 	}
 
-	&:checked{
+	&:checked {
 
 		+ .form-toggle__label .form-toggle__switch {
 			background: calypso-colors.$blue-medium;

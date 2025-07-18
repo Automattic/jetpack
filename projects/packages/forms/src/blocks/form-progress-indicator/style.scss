@@ -12,7 +12,7 @@
 	background-color: var( --wp--style--color--background, var( --wp--preset--color--secondary, var( --jp-form-progress-bg-color ) ) );
 
 	// Progress bar element - rendered as a child element to match the frontend
-	.jetpack-form-progress-indicator-bar  {
+	.jetpack-form-progress-indicator-bar {
 		content: '';
 		display: block;
 		position: absolute;

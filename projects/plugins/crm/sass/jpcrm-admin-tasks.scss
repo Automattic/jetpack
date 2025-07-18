@@ -65,25 +65,25 @@ img.jpcrm-avatar {
 	border-radius:50%;
 }
 
-#zbs-add-task-ui{
+#zbs-add-task-ui {
 	width: 39%;
 	float: right;
 	margin-right: 1%;
 	display:none;
 }
 
-.zbs-adding-task{
+.zbs-adding-task {
 	width: 60%;
 	float: left;
 }
 
-.close-add-task{
+.close-add-task {
 	color: #767676;
 	float: right;
 	cursor: pointer;
 }
 
-.clear{
+.clear {
 	clear:both;
 }
 
@@ -118,7 +118,7 @@ img.jpcrm-avatar {
 	}
 }
 
-.zbs-show{
+.zbs-show {
 	border: 1px solid #ddd;
 	background: #fff;
 }
@@ -129,7 +129,7 @@ img.jpcrm-avatar {
 .task-reminders,
 .no-contact,
 .show-on-calendar,
-.remind_task{
+.remind_task {
 
 	// take general rounding etc. from this
 	@extend %zbs-tasks-field;
@@ -143,7 +143,7 @@ img.jpcrm-avatar {
 }
 
 .show-on-calendar,
-.remind_task{
+.remind_task {
 	color: #000;
 
 	div input {
@@ -157,12 +157,12 @@ img.jpcrm-avatar {
 	}
 }
 
-.remind_task{
+.remind_task {
 	padding: 10px 4px;
 	position: relative;
 }
 
-.remind_task a{
+.remind_task a {
 	font-size: 14px;
 	position: absolute;
 	top: 5px;
@@ -170,7 +170,7 @@ img.jpcrm-avatar {
 }
 
 .no-owner,
-.no-task-date{
+.no-task-date {
 	width: 48%;
 }
 
@@ -180,17 +180,17 @@ img.jpcrm-avatar {
 }
 
 .show-on-calendar input[type="checkbox"],
-.remind_task input[type="checkbox"]{
+.remind_task input[type="checkbox"] {
 	margin: -2px 0 0;
 	line-height: normal;
 }
 
 .show-on-calendar span,
-.remind_task span{
+.remind_task span {
 	margin-left:5px;
 }
 
-.no-owner{
+.no-owner {
 	float: left;
 	position: relative;
 	border: 1px solid #ccc;
@@ -198,11 +198,11 @@ img.jpcrm-avatar {
 	z-index: 0;
 }
 
-.no-task-date{
+.no-task-date {
 	float:right;
 }
 
-.zbs-task-desc textarea{
+.zbs-task-desc textarea {
 
 	// take general rounding etc. from this
 	@extend %zbs-tasks-field;
@@ -211,12 +211,12 @@ img.jpcrm-avatar {
 	height:200px;
 }
 
-::placeholder{
+::placeholder {
 	color: #ccc;
 }
 
 #titlewrap,
-#post-body-content{
+#post-body-content {
 	display:none;
 }
 
@@ -224,7 +224,7 @@ img.jpcrm-avatar {
 	margin-top:0;
 }
 
-.no-owner .dn{
+.no-owner .dn {
 	color: #000;
 	line-height: 30px;
 	vertical-align: middle;
@@ -233,13 +233,13 @@ img.jpcrm-avatar {
 
 }
 
-.no-owner .avatar{
+.no-owner .avatar {
 	border-radius: 50%;
 	margin-right: 10px;
 	float: left;
 }
 
-.zbs-unassigned{
+.zbs-unassigned {
 	font-size: 25px !important;
 	margin-top: 9px !important;
 }
@@ -252,11 +252,11 @@ img.jpcrm-avatar {
 	}
 }
 
-.zbs-comp-1{
+.zbs-comp-1 {
 	display:none !important;
 }
 
-.zbs-task-for-help{
+.zbs-task-for-help {
 	line-height:31px;
 	float: left;
 	margin-right: 5px;
@@ -267,7 +267,7 @@ img.jpcrm-avatar {
 }
 
 .zbs-task-for,
-.zbs-task-for-company{
+.zbs-task-for-company {
 	width: 80%;
 	float: left;
 	padding: 0;
@@ -300,11 +300,11 @@ img.jpcrm-avatar {
 	padding-bottom: 0;
 }
 
-.zbs-task-for-who{
+.zbs-task-for-who {
 	color: #000;
 }
 
-.outlook-event{
+.outlook-event {
 	border: 1px solid #ccc;
 	width: 100%;
 	padding: 10px;
