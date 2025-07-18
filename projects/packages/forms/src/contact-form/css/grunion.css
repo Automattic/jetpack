@@ -522,7 +522,7 @@
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
 	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
-	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)))
+	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)));
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label {

@@ -250,7 +250,7 @@
 
 /* Upcoming Events Widget */
 .widget_upcoming_events_widget .upcoming-events li {
-	margin-bottom: 0.875em
+	margin-bottom: 0.875em;
 }
 
 /**
@@ -780,7 +780,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	}
 
 	.widget_upcoming_events_widget .upcoming-events li {
-		margin-bottom: 1.076923077em
+		margin-bottom: 1.076923077em;
 	}
 
 	.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {

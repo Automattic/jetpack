@@ -3,7 +3,7 @@
 body.no-js .tablenav select[name^="action"],
 body.no-js #doaction,
 body.no-js #doaction2 {
-	display: none
+	display: none;
 }
 
 .column-feedback_from img {
