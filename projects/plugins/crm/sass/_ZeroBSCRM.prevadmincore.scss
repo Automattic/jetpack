@@ -209,10 +209,10 @@ th {
 @media print {
 
 	* {
-		text-shadow:none!important;
-		color:#000!important;
-		background:transparent!important;
-		box-shadow:none!important
+		text-shadow:none !important;
+		color:#000 !important;
+		background:transparent !important;
+		box-shadow:none !important
 	}
 
 	a,
@@ -249,7 +249,7 @@ th {
 	}
 
 	img {
-		max-width:100%!important
+		max-width:100% !important
 	}
 
 	h2,
@@ -265,7 +265,7 @@ th {
 	}
 
 	select {
-		background:#fff!important
+		background:#fff !important
 	}
 
 	.navbar {
@@ -274,12 +274,12 @@ th {
 
 	.table td,
 	.table th {
-		background-color:#fff!important
+		background-color:#fff !important
 	}
 
 	.btn>.caret,
 	.dropup>.btn>.caret {
-		border-top-color:#000!important
+		border-top-color:#000 !important
 	}
 
 	.label {
@@ -287,12 +287,12 @@ th {
 	}
 
 	.table {
-		border-collapse:collapse!important
+		border-collapse:collapse !important
 	}
 
 	.table-bordered td,
 	.table-bordered th {
-		border:1px solid #ddd!important
+		border:1px solid #ddd !important
 	}
 }
 
@@ -2613,10 +2613,10 @@ input[type="submit"].btn-block {
 	}
 
 	.navbar-collapse.collapse {
-		display:block!important;
-		height:auto!important;
+		display:block !important;
+		height:auto !important;
 		padding-bottom:0;
-		overflow:visible!important
+		overflow:visible !important
 	}
 
 	.navbar-collapse.in {
@@ -2806,11 +2806,11 @@ input[type="submit"].btn-block {
 @media (min-width:768px) {
 
 	.navbar-left {
-		float:left!important
+		float:left !important
 	}
 
 	.navbar-right {
-		float:right!important
+		float:right !important
 	}
 }
 

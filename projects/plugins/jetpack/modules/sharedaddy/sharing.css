@@ -756,7 +756,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 #jetpack-source_f_name {
-	display: none!important;
+	display: none !important;
 	position: absolute !important;
 	left: -9000px;
 }
