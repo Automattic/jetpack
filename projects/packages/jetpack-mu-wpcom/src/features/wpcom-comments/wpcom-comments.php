@@ -14,8 +14,6 @@ if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ( ! defined( 'IS_ATOMIC' ) || 
  * WPCom Comments Likes functionality in a singleton pattern.
  */
 class WPCom_Comments_Likes {
-	const CACHE_EXPIRATION = 900; // 15 minutes in seconds.
-
 	/**
 	 * Singleton instance.
 	 *
@@ -95,54 +93,29 @@ class WPCom_Comments_Likes {
 	}
 
 	/**
-	 * Get cache key for comment like status.
-	 *
-	 * @param int $comment_id The comment ID.
-	 * @param int $user_id    The user ID.
-	 * @return string The cache key.
-	 */
-	public static function get_cache_key( $comment_id, $user_id ) {
-		return "comment_like_{$comment_id}_{$user_id}";
-	}
-
-	/**
 	 * Do a comment like API request.
 	 *
 	 * @param int $blog_id    The blog ID.
-	 * @param int $user_id    The user ID.
 	 * @param int $comment_id The comment ID.
 	 * @return bool|WP_Error True if the comment is liked, false otherwise, or a WP_Error if the request fails.
 	 */
-	private function do_comment_like_api_request( $blog_id, $user_id, $comment_id ) {
-		$cache_key = self::get_cache_key( $comment_id, $user_id );
+	private function do_comment_like_api_request( $blog_id, $comment_id ) {
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			"/sites/$blog_id/comments/$comment_id/likes",
+			'v1.1',
+			array( 'method' => 'GET' ),
+			null,
+			'rest'
+		);
 
-		$cached_result = get_transient( $cache_key );
-
-		if ( false !== $cached_result ) {
-			$liked = $cached_result;
-		} else {
-			$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-				"/sites/$blog_id/comments/$comment_id/likes",
-				'v1.1',
-				array( 'method' => 'GET' ),
-				null,
-				'rest'
-			);
-
-			// If the request fails, simply return the unmodified classes.
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
-
-			$response_data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-			$liked = empty( $response_data['i_like'] ) ? 'no' : 'yes';
-
-			// Cache the result.
-			set_transient( $cache_key, $liked, self::CACHE_EXPIRATION );
+		// If the request fails, simply return the unmodified classes.
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
 
-		return $liked;
+		$response_data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return ! empty( $response_data['i_like'] ?? false );
 	}
 
 	/**
@@ -159,17 +132,12 @@ class WPCom_Comments_Likes {
 			$liked   = Likes::comment_like_current_user_likes( $blog_id, $comment_id );
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
-			$user_id = get_current_user_id();
 
-			$liked = $this->do_comment_like_api_request( $blog_id, $user_id, $comment_id );
+			$liked = $this->do_comment_like_api_request( $blog_id, $comment_id );
 
 			if ( is_wp_error( $liked ) ) {
 				return $classes;
 			}
-
-			// We use 'yes' and 'no' when we store the transient to minimize unexpected casting.
-			// So, we cast to boolean here.
-			$liked = 'yes' === $liked;
 		}
 
 		// Append the 'liked' class if the comment is liked.

@@ -73,9 +73,6 @@ class WP_REST_Comment_Like extends WP_REST_Controller {
 		$comment_id = $request->get_param( 'comment_id' );
 		$blog_id    = \Jetpack_Options::get_option( 'id' );
 
-		$cache_key = WPCom_Comments_Likes::get_cache_key( $comment_id, get_current_user_id() );
-		delete_transient( $cache_key );
-
 		// Call WPCom remote API to record a new like.
 		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 			"/sites/$blog_id/comments/$comment_id/likes/new",
@@ -98,9 +95,6 @@ class WP_REST_Comment_Like extends WP_REST_Controller {
 	public function delete_like( WP_REST_Request $request ) {
 		$comment_id = $request->get_param( 'comment_id' );
 		$blog_id    = \Jetpack_Options::get_option( 'id' );
-
-		$cache_key = WPCom_Comments_Likes::get_cache_key( $comment_id, get_current_user_id() );
-		delete_transient( $cache_key );
 
 		// Call WPCom remote API to delete the current user's like.
 		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
