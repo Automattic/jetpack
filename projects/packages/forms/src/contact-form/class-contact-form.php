@@ -684,6 +684,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</template>
 				</ul>';
 		$html .= '</div>';
+
+		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError"></div>';
 		return $html;
 	}
 

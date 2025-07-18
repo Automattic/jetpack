@@ -189,6 +189,12 @@ const { state } = store( NAMESPACE, {
 			return ! state.isFormValid && context.showErrors;
 		},
 
+		get showSubmissionError() {
+			const context = getContext();
+
+			return !! context.submissionError;
+		},
+
 		get getFormErrorMessage() {
 			if ( state.isFormEmpty ) {
 				const context = getContext();
@@ -228,11 +234,6 @@ const { state } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 			return field?.value || '';
-		},
-
-		get getSubmissionError() {
-			const context = getContext();
-			return context.submissionError || '';
 		},
 	},
 
@@ -339,12 +340,12 @@ const { state } = store( NAMESPACE, {
 			if ( context.isResponseWithoutReloadEnabled ) {
 				event.preventDefault();
 				event.stopPropagation();
+				context.submissionError = null;
 
 				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
 
 				if ( success ) {
 					setSubmissionData( data );
-					context.submissionError = null;
 					context.submissionSuccess = true;
 
 					if ( refreshArgs ) {
