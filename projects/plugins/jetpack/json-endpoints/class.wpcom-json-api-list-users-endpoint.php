@@ -84,6 +84,8 @@ new WPCOM_JSON_API_List_Users_Endpoint(
  * List users endpoint class.
  *
  * /sites/%s/users/ -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 

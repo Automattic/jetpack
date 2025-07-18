@@ -9,13 +9,11 @@
  */
 return [
     // # Issue statistics:
-    // PhanNoopNew : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'jetpack-social.php' => ['PhanNoopNew'],
         'src/class-jetpack-social.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-note.php' => ['PhanTypeMismatchArgument'],
     ],

@@ -38,6 +38,8 @@ new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint(
  * Render embed reversal class.
  *
  * /sites/%s/embeds/reversal -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Render_Endpoint {
 	/**

@@ -54,7 +54,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		// We need to manually load the class under the context of tests since it won't get loaded
 		// on 'plugins_loaded' because it needs a Jetpack Connection.
-		// @phan-suppress-next-line PhanNoopNew
 		new WPCOM_REST_API_V2_Endpoint_Memberships();
 
 		// `rest_api_init` action needs to be triggered after manually loading the endpoint.

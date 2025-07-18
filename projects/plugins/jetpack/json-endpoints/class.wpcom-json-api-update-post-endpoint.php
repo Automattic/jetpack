@@ -197,6 +197,8 @@ new WPCOM_JSON_API_Update_Post_Endpoint(
 
 /**
  * Update post endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 	/**

@@ -56,6 +56,8 @@ new Jetpack_JSON_API_Plugins_Install_Endpoint(
  * Plugins install enedpoint class.
  *
  * POST /sites/%s/plugins/%s/install
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
