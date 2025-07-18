@@ -2071,8 +2071,9 @@ EOT;
 			return array();
 		}
 
-		// If the current post don't contain a Related Posts block, don't get the related posts.
-		if ( ! has_block( 'jetpack/related-posts' ) ) {
+		// If the current post doesn't contain a Related Posts block, and we're also on an admin page, don't get the related posts.
+		// This will ensure that if the feature is enabled, we can still retrieve Related Posts via the REST API.
+		if ( ! has_block( 'jetpack/related-posts' ) && is_admin() ) {
 			return array();
 		}
 
