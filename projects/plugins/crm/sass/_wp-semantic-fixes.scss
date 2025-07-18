@@ -43,7 +43,7 @@
 
 // match wp menu bg colour to page (white)
 ul#adminmenu a.wp-has-current-submenu::after,
-ul#adminmenu>li.current>a.current::after {
+ul#adminmenu > li.current > a.current::after {
 
 	border-right-color: none !important;
 
@@ -169,7 +169,7 @@ i.alternate {
 
 // ===== WordPress 5.3 introduced some styles which broke some semantic ui overrides:
 .ui[class*="right labeled"].input input,
-.ui.fluid.input>input {
+.ui.fluid.input > input {
 	height: auto !important;
 }
 

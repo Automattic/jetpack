@@ -608,7 +608,7 @@ ul#adminmenu > li.current > a.current::after {
 	color: $adminbar-recovery-exit-text;
 }
 
-#wpadminbar .ab-top-menu > #wp-admin-bar-recovery-mode.hover >.ab-item,
+#wpadminbar .ab-top-menu > #wp-admin-bar-recovery-mode.hover > .ab-item,
 #wpadminbar.nojq .quicklinks .ab-top-menu > #wp-admin-bar-recovery-mode > .ab-item:focus,
 #wpadminbar:not(.mobile) .ab-top-menu > #wp-admin-bar-recovery-mode:hover > .ab-item,
 #wpadminbar:not(.mobile) .ab-top-menu > #wp-admin-bar-recovery-mode > .ab-item:focus {

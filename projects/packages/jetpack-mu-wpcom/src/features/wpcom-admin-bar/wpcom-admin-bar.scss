@@ -45,7 +45,7 @@
 /**
  * Hamburger menu
  */
-#wpadminbar #wp-admin-bar-menu-toggle>.ab-item .ab-icon {
+#wpadminbar #wp-admin-bar-menu-toggle > .ab-item .ab-icon {
 
 	@media (max-width: 480px) {
 		width: 48px;
@@ -55,7 +55,7 @@
 /**
  * WP logo menu
  */
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item {
 	padding: 0 10px;
 
 	@media (max-width: 782px) {
@@ -63,7 +63,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon {
 	margin-right: 0 !important;
 
 	@media (max-width: 480px) {
@@ -71,7 +71,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon::before {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon::before {
 	display: flex;
 	content: "";
 	width: 20px;

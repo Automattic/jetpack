@@ -187,7 +187,7 @@ $jp-gray-20:             #a7aaad;
 }
 
 // if JITM appears directly below WordPress "help" menu adjust margins
-#screen-meta-links+.jitm-card {
+#screen-meta-links + .jitm-card {
 	margin: rem.convert( 40px ) 1.5385em 0 auto;
 }
 

@@ -64,8 +64,8 @@
 	width: 42px;
 }
 
-.a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon>use:first-child,
-.a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon>g:first-child {
+.a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon > use:first-child,
+.a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon > g:first-child {
 	transform: none;
 }
 

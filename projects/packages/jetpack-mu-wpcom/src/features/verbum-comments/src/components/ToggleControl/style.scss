@@ -37,16 +37,16 @@
 		position: absolute;
 		transform: scale(0);
 
-		&:checked+.verbum-toggle-control__button {
+		&:checked + .verbum-toggle-control__button {
 			background: var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
 			border-color: transparent;
 		}
 
-		&:focus+.verbum-toggle-control__button {
+		&:focus + .verbum-toggle-control__button {
 			outline: 1px solid var(--wp-components-color-accent, var(--verbum-focus-color, #0675c4));
 		}
 
-		&:checked+.verbum-toggle-control__button::after {
+		&:checked + .verbum-toggle-control__button::after {
 			left: calc(100% - 2px);
 			transform: translateX(-100%);
 			background: #fff;

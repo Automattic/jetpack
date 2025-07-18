@@ -133,53 +133,53 @@
 			}
 		}
 
-		.ui.grid>.row>[class*="eight wide"].column,
-		.ui.grid>.column.row>[class*="eight wide"].column,
-		.ui.grid>[class*="eight wide"].column,
-		.ui.column.grid>[class*="eight wide"].column {
+		.ui.grid > .row > [class*="eight wide"].column,
+		.ui.grid > .column.row > [class*="eight wide"].column,
+		.ui.grid > [class*="eight wide"].column,
+		.ui.column.grid > [class*="eight wide"].column {
 			width: 100% !important;
 			overflow: hidden;
 		}
 
-		.ui.grid>.row>[class*="five wide"].column,
-		.ui.grid>.column.row>[class*="five wide"].column,
-		.ui.grid>[class*="five wide"].column,
-		.ui.column.grid>[class*="five wide"].column {
+		.ui.grid > .row > [class*="five wide"].column,
+		.ui.grid > .column.row > [class*="five wide"].column,
+		.ui.grid > [class*="five wide"].column,
+		.ui.column.grid > [class*="five wide"].column {
 			width: 100% !important;
 		}
 
-		.ui.grid>.row>[class*="eleven wide"].column,
-		.ui.grid>.column.row>[class*="eleven wide"].column,
-		.ui.grid>[class*="eleven wide"].column,
-		.ui.column.grid>[class*="eleven wide"].column {
+		.ui.grid > .row > [class*="eleven wide"].column,
+		.ui.grid > .column.row > [class*="eleven wide"].column,
+		.ui.grid > [class*="eleven wide"].column,
+		.ui.column.grid > [class*="eleven wide"].column {
 			width: 100% !important;
 		}
 
-		.ui.grid>.row>[class*="twelve wide"].column,
-		.ui.grid>.column.row>[class*="twelve wide"].column,
-		.ui.grid>[class*="twelve wide"].column,
-		.ui.column.grid>[class*="twelve wide"].column {
+		.ui.grid > .row > [class*="twelve wide"].column,
+		.ui.grid > .column.row > [class*="twelve wide"].column,
+		.ui.grid > [class*="twelve wide"].column,
+		.ui.column.grid > [class*="twelve wide"].column {
 			width: 100% !important;
 		}
 
-		.ui.grid>.row>[class*="four wide"].column,
-		.ui.grid>.column.row>[class*="four wide"].column,
-		.ui.grid>[class*="four wide"].column,
-		.ui.column.grid>[class*="four wide"].column {
+		.ui.grid > .row > [class*="four wide"].column,
+		.ui.grid > .column.row > [class*="four wide"].column,
+		.ui.grid > [class*="four wide"].column,
+		.ui.column.grid > [class*="four wide"].column {
 			width: 100% !important;
 		}
 
-		.ui.grid>.row>[class*="thirteen wide"].column,
-		.ui.grid>.column.row>[class*="thirteen wide"].column,
-		.ui.grid>[class*="thirteen wide"].column,
-		.ui.column.grid>[class*="thirteen wide"].column {
+		.ui.grid > .row > [class*="thirteen wide"].column,
+		.ui.grid > .column.row > [class*="thirteen wide"].column,
+		.ui.grid > [class*="thirteen wide"].column,
+		.ui.column.grid > [class*="thirteen wide"].column {
 			width: 100% !important;
 		}
 
-		.ui.grid>.row>[class*="three wide"].column,
-		.ui.grid>.column.row>[class*="three wide"].column,
-		.ui.grid>[class*="three wide"].column,
-		.ui.column.grid>[class*="three wide"].column {
+		.ui.grid > .row > [class*="three wide"].column,
+		.ui.grid > .column.row > [class*="three wide"].column,
+		.ui.grid > [class*="three wide"].column,
+		.ui.column.grid > [class*="three wide"].column {
 			width: 100% !important;
 		}
 
@@ -215,8 +215,8 @@
 		overflow: hidden;
 	}
 
-	.ui.divided.grid:not([class*="vertically divided"])>.column:not(.row),
-	.ui.divided.grid:not([class*="vertically divided"])>.row>.column {
+	.ui.divided.grid:not([class*="vertically divided"]) > .column:not(.row),
+	.ui.divided.grid:not([class*="vertically divided"]) > .row > .column {
 		box-shadow: 0;
 	}
 
@@ -307,39 +307,39 @@
 			}
 		}
 
-		.ui.grid>.row>[class*="eight wide"].column,
-		.ui.grid>.column.row>[class*="eight wide"].column,
-		.ui.grid>[class*="eight wide"].column,
-		.ui.column.grid>[class*="eight wide"].column {
+		.ui.grid > .row > [class*="eight wide"].column,
+		.ui.grid > .column.row > [class*="eight wide"].column,
+		.ui.grid > [class*="eight wide"].column,
+		.ui.column.grid > [class*="eight wide"].column {
 			width: 100% !important;
 			overflow: hidden;
 		}
 
-		.ui.grid>.row>[class*="five wide"].column,
-		.ui.grid>.column.row>[class*="five wide"].column,
-		.ui.grid>[class*="five wide"].column,
-		.ui.column.grid>[class*="five wide"].column {
+		.ui.grid > .row > [class*="five wide"].column,
+		.ui.grid > .column.row > [class*="five wide"].column,
+		.ui.grid > [class*="five wide"].column,
+		.ui.column.grid > [class*="five wide"].column {
 			width: 100% !important;
 		}
 
-		.ui.grid>.row>[class*="eleven wide"].column,
-		.ui.grid>.column.row>[class*="eleven wide"].column,
-		.ui.grid>[class*="eleven wide"].column,
-		.ui.column.grid>[class*="eleven wide"].column {
+		.ui.grid > .row > [class*="eleven wide"].column,
+		.ui.grid > .column.row > [class*="eleven wide"].column,
+		.ui.grid > [class*="eleven wide"].column,
+		.ui.column.grid > [class*="eleven wide"].column {
 			width: 100% !important;
 		}
 
-		.ui.grid>.row>[class*="twelve wide"].column,
-		.ui.grid>.column.row>[class*="twelve wide"].column,
-		.ui.grid>[class*="twelve wide"].column,
-		.ui.column.grid>[class*="twelve wide"].column {
+		.ui.grid > .row > [class*="twelve wide"].column,
+		.ui.grid > .column.row > [class*="twelve wide"].column,
+		.ui.grid > [class*="twelve wide"].column,
+		.ui.column.grid > [class*="twelve wide"].column {
 			width: 100% !important;
 		}
 
-		.ui.grid>.row>[class*="four wide"].column,
-		.ui.grid>.column.row>[class*="four wide"].column,
-		.ui.grid>[class*="four wide"].column,
-		.ui.column.grid>[class*="four wide"].column {
+		.ui.grid > .row > [class*="four wide"].column,
+		.ui.grid > .column.row > [class*="four wide"].column,
+		.ui.grid > [class*="four wide"].column,
+		.ui.column.grid > [class*="four wide"].column {
 			width: 100% !important;
 		}
 
@@ -373,8 +373,8 @@
 		overflow: hidden;
 	}
 
-	.ui.divided.grid:not([class*="vertically divided"])>.column:not(.row),
-	.ui.divided.grid:not([class*="vertically divided"])>.row>.column {
+	.ui.divided.grid:not([class*="vertically divided"]) > .column:not(.row),
+	.ui.divided.grid:not([class*="vertically divided"]) > .row > .column {
 		box-shadow: 0;
 	}
 

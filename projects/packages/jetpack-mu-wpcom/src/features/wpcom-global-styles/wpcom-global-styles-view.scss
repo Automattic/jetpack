@@ -68,7 +68,7 @@
 	flex-grow: 1;
 }
 
-.launch-banner-section.bar-controls>* {
+.launch-banner-section.bar-controls > * {
 	border-left: 1px solid #424446;
 }
 
@@ -77,7 +77,7 @@
 	font-weight: 500;
 }
 
-.launch-banner-section.bar-controls> :last-child {
+.launch-banner-section.bar-controls > :last-child {
 	border-right: 1px solid #424446;
 }
 
@@ -112,7 +112,7 @@
 		display: block;
 	}
 
-	.launch-banner-content .bar-controls>* {
+	.launch-banner-content .bar-controls > * {
 		border-left: none;
 	}
 
@@ -120,7 +120,7 @@
 		padding: 0 12px;
 	}
 
-	.launch-banner-section.bar-controls> :last-child {
+	.launch-banner-section.bar-controls > :last-child {
 		border-right: none;
 	}
 }

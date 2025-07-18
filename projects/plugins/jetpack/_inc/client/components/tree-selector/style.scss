@@ -20,7 +20,7 @@ li.jp-tree-item {
 		color: var( --jp-gray-40 );
 	}
 
-	input:disabled+label {
+	input:disabled + label {
 		color: var( --jp-gray-20 );
 	}
 

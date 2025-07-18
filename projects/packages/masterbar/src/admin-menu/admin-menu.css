@@ -222,8 +222,8 @@
 
 @media screen and (max-width: 782px) {
 
-	#adminmenu li.menu-top .wp-submenu>li>a,
-	.auto-fold #adminmenu li.menu-top .wp-submenu>li>a {
+	#adminmenu li.menu-top .wp-submenu > li > a,
+	.auto-fold #adminmenu li.menu-top .wp-submenu > li > a {
 		padding-left: 42px;
 	}
 
@@ -265,7 +265,7 @@
 	}
 
 	ul#adminmenu a.wp-has-current-submenu::after,
-	ul#adminmenu>li.current>a.current::after,
+	ul#adminmenu > li.current > a.current::after,
 	ul#adminmenu li:hover a.wp-has-current-submenu::after,
 	.auto-fold ul#adminmenu li:hover a.wp-has-current-submenu::after {
 		display: none;

@@ -88,9 +88,9 @@ body.highlander-dark h3.sd-title::before {
 .sd-content ul li.preview-item div.option.option-smart-off a,
 .sd-content ul li.advanced a.share-more,
 .sd-social-icon-text .sd-content ul li a.sd-button,
-.sd-social-official .sd-content>ul>li>a.sd-button,
+.sd-social-official .sd-content > ul > li > a.sd-button,
 #sharing_email .sharing_send,
-.sd-social-official .sd-content>ul>li .digg_button >a {		/* official Digg button no longer works, needs cleaning */
+.sd-social-official .sd-content > ul > li .digg_button > a {		/* official Digg button no longer works, needs cleaning */
 	text-decoration: none !important;
 	display: inline-block;
 	font-size: 13px;
@@ -121,19 +121,19 @@ body.highlander-dark h3.sd-title::before {
 	top: 2px;
 }
 
-.sd-content ul li a.sd-button>span,
+.sd-content ul li a.sd-button > span,
 .sd-content ul li .option a.share-ustom span,	/* Ugh. */
 .sd-content ul li.preview-item div.option.option-smart-off a span,
 .sd-content ul li.advanced a.share-more span,
-.sd-social-icon-text .sd-content ul li a.sd-button>span,
-.sd-social-official .sd-content>ul>li>a.sd-button span,
-.sd-social-official .sd-content>ul>li .digg_button >a span {		/* official Digg button no longer works, needs cleaning */
+.sd-social-icon-text .sd-content ul li a.sd-button > span,
+.sd-social-official .sd-content > ul > li > a.sd-button span,
+.sd-social-official .sd-content > ul > li .digg_button > a span {		/* official Digg button no longer works, needs cleaning */
 	line-height: 23px;
 	margin-left: 6px;
 }
 
 /* Icon Only */
-.sd-social-icon .sd-content ul li a.sd-button>span {
+.sd-social-icon .sd-content ul li a.sd-button > span {
 	margin-left: 0;
 }
 
@@ -146,17 +146,17 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 	margin-left: 3px;
 }
 
-.sd-social-official .sd-content ul li a.sd-button>span,
+.sd-social-official .sd-content ul li a.sd-button > span,
 .sd-social-official .sd-content ul li.preview-item div.option.option-smart-off a span {
 	line-height: 12px;
 	margin-left: 3px;
 }
 
 
-.sd-social-official .sd-content>ul>li>a.sd-button::before,
-.sd-social-official .sd-content>ul>li .digg_button>a::before,
-.sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button::before,
-.sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a::before {
+.sd-social-official .sd-content > ul > li > a.sd-button::before,
+.sd-social-official .sd-content > ul > li .digg_button > a::before,
+.sd-social-official .sd-content .sharing-hidden .inner > ul > li > a.sd-button::before,
+.sd-social-official .sd-content .sharing-hidden .inner > ul > li .digg_button > a::before {
 	margin-bottom: -1px;
 }
 
@@ -166,18 +166,18 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 .sd-social-text .sd-content ul li a.sd-button:active,
 .sd-social-icon-text .sd-content ul li a.sd-button:hover,
 .sd-social-icon-text .sd-content ul li a.sd-button:active,
-.sd-social-official .sd-content>ul>li>a.sd-button:hover,
-.sd-social-official .sd-content>ul>li>a.sd-button:active,
-.sd-social-official .sd-content>ul>li .digg_button>a:hover,
-.sd-social-official .sd-content>ul>li .digg_button>a:active {
+.sd-social-official .sd-content > ul > li > a.sd-button:hover,
+.sd-social-official .sd-content > ul > li > a.sd-button:active,
+.sd-social-official .sd-content > ul > li .digg_button > a:hover,
+.sd-social-official .sd-content > ul > li .digg_button > a:active {
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
 .sd-social-icon .sd-content ul li a.sd-button:active,
 .sd-social-text .sd-content ul li a.sd-button:active,
 .sd-social-icon-text .sd-content ul li a.sd-button:active,
-.sd-social-official .sd-content>ul>li>a.sd-button:active,
-.sd-social-official .sd-content>ul>li .digg_button>a:active {
+.sd-social-official .sd-content > ul > li > a.sd-button:active,
+.sd-social-official .sd-content > ul > li .digg_button > a:active {
 	box-shadow: inset 0 1px 0 rgba(0, 0, 0, .16);
 }
 
@@ -477,7 +477,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	line-height: 1;
 }
 
-.sd-social-official .sd-content>ul>li>a.sd-button span {
+.sd-social-official .sd-content > ul > li > a.sd-button span {
 	line-height: 1;
 }
 
@@ -498,12 +498,12 @@ body .sd-content ul li.share-custom.no-icon a span {
 	margin: 0 0 5px 0;
 }
 
-.sd-social-official .sd-content ul>li {
+.sd-social-official .sd-content ul > li {
 	display: flex;
 	max-height: 18px;
 }
 
-.sd-social-official .sd-content ul>li .option-smart-off {
+.sd-social-official .sd-content ul > li .option-smart-off {
 	margin-right: 8px;
 }
 
@@ -520,11 +520,11 @@ body .sd-content ul li.share-custom.no-icon a span {
 .pocket_button iframe,
 .pinterest_button,
 .twitter_button,
-.linkedin_button>span {
+.linkedin_button > span {
 	margin: 0 !important;
 }
 
-.linkedin_button>span,
+.linkedin_button > span,
 .pinterest_button a {
 	display: block !important;
 }
@@ -546,7 +546,7 @@ body .sd-social-official li.share-press-this a {
 
 
 /* Custom icons */
-body .sd-social-icon .sd-content li.share-custom>a {
+body .sd-social-icon .sd-content li.share-custom > a {
 	padding: 2px 3px 0 3px;
 	position: relative;
 	top: 4px;
@@ -597,7 +597,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	margin: 0 !important;
 }
 
-.sd-social-official .sd-content .sharing-hidden ul>li.share-end {
+.sd-social-official .sd-content .sharing-hidden ul > li.share-end {
 	clear: both;
 	margin: 0 !important;
 	height: 0 !important;
@@ -651,7 +651,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	max-width: 32px;
 }
 
-.sd-social-icon .sd-content ul li[class*='share-'] a.sd-button>span,
+.sd-social-icon .sd-content ul li[class*='share-'] a.sd-button > span,
 .sd-social-icon .sd-content ul li[class*='share-'] div.option a span {
 	line-height: 1;
 }
