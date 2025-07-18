@@ -4,9 +4,9 @@ import { ColProps } from '../types.ts';
 import styles from './style.module.scss';
 import type { FC, ReactElement } from 'react';
 
-const smCols = Number( styles.smCols );
-const mdCols = Number( styles.mdCols );
-const lgCols = Number( styles.lgCols );
+const smCols = Number( styles.smcols );
+const mdCols = Number( styles.mdcols );
+const lgCols = Number( styles.lgcols );
 
 /**
  * The basic Col component.
