@@ -398,6 +398,13 @@ class JWT {
 		}
 		return strlen( $str );
 	}
+
+	/**
+	 * Dummy test function.
+	 */
+	public static function test() {
+		return 'test';
+	}
 }
 
 // phpcs:disable
