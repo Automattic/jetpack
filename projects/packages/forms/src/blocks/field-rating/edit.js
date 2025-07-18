@@ -2,17 +2,28 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 	InspectorControls,
+	BlockControls,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import { PanelBody, RangeControl } from '@wordpress/components';
+import { PanelBody, RangeControl, ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { plus, lineSolid } from '@wordpress/icons';
+import { StarIcon, HeartIcon } from '../input-rating/icons';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function RatingFieldEdit( props ) {
 	const { attributes, setAttributes, clientId } = props;
-	const { max, default: defaultValue, required, id, width } = attributes;
+	const {
+		max,
+		default: defaultValue,
+		required,
+		id,
+		width,
+		variation = 'stars',
+		className: classNameAttr = '',
+	} = attributes;
 
 	// Retrieve the clientId of the child rating-input block so we can sync its attributes.
 	const ratingInputClientId = useSelect(
@@ -45,6 +56,27 @@ export default function RatingFieldEdit( props ) {
 		}
 	};
 
+	// Helper to update style variation (stars / hearts)
+	const updateVariation = newVariation => {
+		if ( newVariation === variation ) {
+			return;
+		}
+
+		// Remove previous is-style-* class if present
+		const cleanedClassName = ( classNameAttr || '' ).replace( /is-style-[^\s]+/g, '' ).trim();
+
+		const newClassName = `${ cleanedClassName } ${ `is-style-${ newVariation }` }`.trim();
+
+		setAttributes( {
+			variation: newVariation,
+			className: newClassName,
+		} );
+
+		if ( ratingInputClientId ) {
+			updateBlockAttributes( ratingInputClientId, { variation: newVariation } );
+		}
+	};
+
 	useFormWrapper( props );
 
 	const blockProps = useBlockProps( {
@@ -70,6 +102,38 @@ export default function RatingFieldEdit( props ) {
 
 	return (
 		<>
+			{ /* Toolbar controls */ }
+			<BlockControls>
+				<ToolbarGroup>
+					{ /* Style toggles */ }
+					<ToolbarButton
+						icon={ StarIcon }
+						label={ __( 'Transform to stars', 'jetpack-forms' ) }
+						isPressed={ variation === 'stars' }
+						onClick={ () => updateVariation( 'stars' ) }
+					/>
+					<ToolbarButton
+						icon={ HeartIcon }
+						label={ __( 'Transform to hearts', 'jetpack-forms' ) }
+						isPressed={ variation === 'hearts' }
+						onClick={ () => updateVariation( 'hearts' ) }
+					/>
+					{ /* Rating count controls */ }
+					<ToolbarButton
+						icon={ plus }
+						label={ __( 'Add star', 'jetpack-forms' ) }
+						onClick={ () => updateMax( Math.min( 10, max + 1 ) ) }
+						disabled={ max >= 10 }
+					/>
+					<ToolbarButton
+						icon={ lineSolid }
+						label={ __( 'Remove star', 'jetpack-forms' ) }
+						onClick={ () => updateMax( Math.max( 2, max - 1 ) ) }
+						disabled={ max <= 2 }
+					/>
+				</ToolbarGroup>
+			</BlockControls>
+
 			<div { ...innerBlocksProps } />
 
 			<InspectorControls>
