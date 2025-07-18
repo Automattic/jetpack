@@ -17,11 +17,11 @@ li.jp-tree-item {
 	}
 
 	small {
-		color: var( --jp-gray-40 );
+		color: var(--jp-gray-40);
 	}
 
 	input:disabled + label {
-		color: var( --jp-gray-20 );
+		color: var(--jp-gray-20);
 	}
 
 	.components-base-control__field,

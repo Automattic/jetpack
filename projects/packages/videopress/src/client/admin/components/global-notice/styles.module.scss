@@ -4,7 +4,7 @@
 
 	// notice itself on error status
 	&:global(.is-error) {
-		background-color: var( --jp-red-0 );
+		background-color: var(--jp-red-0);
 	}
 
 	// notice content
@@ -16,13 +16,13 @@
 
 		// left icon
 		> svg {
-			fill: var( --jp-red-60 );
+			fill: var(--jp-red-60);
 		}
 	}
 
 	// action button
 	:global(.is-link) {
-		color: var( --jp-black );
+		color: var(--jp-black);
 		font-size: 16px;
 		font-weight: 600;
 	}
@@ -33,26 +33,26 @@
 	}
 
 	&.is-warning {
-		color: var( --jp-yellow-40 );
+		color: var(--jp-yellow-40);
 
 		.icon {
-			fill: var( --jp-yellow-40 );
+			fill: var(--jp-yellow-40);
 		}
 	}
 
 	&.is-info {
-		color: var( --jp-blue-40 );
+		color: var(--jp-blue-40);
 
 		.icon {
-			fill: var( --jp-blue-40 );
+			fill: var(--jp-blue-40);
 		}
 	}
 
 	&.is-success {
-		color: var( --jp-green );
+		color: var(--jp-green);
 
 		.icon {
-			fill: var( --jp-green );
+			fill: var(--jp-green);
 		}
 	}
 

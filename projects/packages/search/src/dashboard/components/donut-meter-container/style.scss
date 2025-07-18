@@ -65,7 +65,7 @@
 
 		// To overwrite `margin-bottom`
 		.icon-tooltip-title {
-			font-size: var( --font-title-small );
+			font-size: var(--font-title-small);
 			font-weight: 500;
 			margin-bottom: 16px;
 		}
@@ -77,14 +77,14 @@
 	}
 
 	.icon-tooltip-content {
-		font-size: var( --font-body );
+		font-size: var(--font-body);
 	}
 
 	.upgrade-tooltip-actions {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		color: var( --jp-gray-60 );
+		color: var(--jp-gray-60);
 		margin-top: 24px;
 	}
 }

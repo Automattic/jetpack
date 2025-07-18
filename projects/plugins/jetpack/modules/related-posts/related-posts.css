@@ -29,7 +29,7 @@
 	flex-direction: column;
 
 	/* Default: 2 items by row */
-	flex-basis: calc( ( 100% - var(--hgap) ) / 2 );
+	flex-basis: calc(( 100% - var(--hgap) ) / 2);
 }
 
 /* Quantity qeuries: see https://alistapart.com/article/quantity-queries-for-css/ */
@@ -37,14 +37,14 @@
 .jp-related-posts-i2__post:nth-last-child(n+3):first-child ~ * {
 
 	/* From 3 total items on, 3 items by row */
-	flex-basis: calc( ( 100% - var(--hgap) * 2 ) / 3 );
+	flex-basis: calc(( 100% - var(--hgap) * 2 ) / 3);
 }
 
 .jp-related-posts-i2__post:nth-last-child(4):first-child,
 .jp-related-posts-i2__post:nth-last-child(4):first-child ~ * {
 
 	/* Exception for 4 total items: 2 items by row */
-	flex-basis: calc( ( 100% - var(--hgap) ) / 2 );
+	flex-basis: calc(( 100% - var(--hgap) ) / 2);
 }
 
 .jp-related-posts-i2__post-link {

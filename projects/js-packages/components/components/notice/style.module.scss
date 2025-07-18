@@ -2,11 +2,11 @@
 	display: flex;
 	align-items: flex-start;
 
-	font-size: var( --font-body );
+	font-size: var(--font-body);
 
-	border: 1px solid var( --jp-black );
+	border: 1px solid var(--jp-black);
 	border-radius: 4px;
-	border-color: var( --jp-gray-5 );
+	border-color: var(--jp-gray-5);
 	border-left-width: 6px;
 
 	padding: 24px 31px 27px 18px;
@@ -14,8 +14,8 @@
 
 .icon-wrapper {
 	margin-right: 20px;
-	width: calc( var( --spacing-base ) * 3 );
-	height: calc( var( --spacing-base ) * 3 );
+	width: calc(var(--spacing-base) * 3);
+	height: calc(var(--spacing-base) * 3);
 }
 
 .close-button {
@@ -78,7 +78,7 @@
 		&:hover,
 		&:active,
 		&:focus {
-			color: var( --jp-black );
+			color: var(--jp-black);
 		}
 	}
 
@@ -88,33 +88,33 @@
 }
 
 .is-error {
-	border-left-color: var( --jp-red );
+	border-left-color: var(--jp-red);
 
 	.icon {
-		fill: var( --jp-red );
+		fill: var(--jp-red);
 	}
 }
 
 .is-warning {
-	border-left-color: var( --jp-yellow-20 );
+	border-left-color: var(--jp-yellow-20);
 
 	.icon {
-		fill: var( --jp-yellow-20 );
+		fill: var(--jp-yellow-20);
 	}
 }
 
 .is-info {
-	border-left-color: var( --black );
+	border-left-color: var(--black);
 
 	.icon {
-		fill: var( --black );
+		fill: var(--black);
 	}
 }
 
 .is-success {
-	border-left-color: var( --jp-green );
+	border-left-color: var(--jp-green);
 
 	.icon {
-		fill: var( --jp-green );
+		fill: var(--jp-green);
 	}
 }

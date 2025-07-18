@@ -13,8 +13,8 @@
 }
 
 .heading-icon {
-	margin-left: var( --spacing-base ); // 8px
-	margin-bottom: calc( var( --spacing-base ) / 2 * -1 ); // -4px
+	margin-left: var(--spacing-base); // 8px
+	margin-bottom: calc(var(--spacing-base) / 2 * -1); // -4px
 }
 
 .subheading {
@@ -22,5 +22,5 @@
 }
 
 .connection-error-col {
-	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
+	margin-top: calc(var(--spacing-base) * 3 + 1px); // 25px
 }

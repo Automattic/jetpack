@@ -10,11 +10,11 @@
 	text-align: left;
 	padding: 1rem;
 	position: relative;
-	box-shadow: 0 0 15px var( --jp-gray-off );
+	box-shadow: 0 0 15px var(--jp-gray-off);
 
 	&--selected {
-		border-color: var( --jp-black );
-		background: var( --jp-gray-off );
+		border-color: var(--jp-black);
+		background: var(--jp-gray-off);
 	}
 
 	&::after {
@@ -25,9 +25,9 @@
 		position: absolute;
 		top: 50%;
 		right: 1.5rem;
-		border-top: 2px solid var( --jp-black );
-		border-right: 2px solid var( --jp-black );
-		transform: translateY( -50% ) rotate( 45deg );
+		border-top: 2px solid var(--jp-black);
+		border-right: 2px solid var(--jp-black);
+		transform: translateY(-50%) rotate(45deg);
 	}
 
 	&:hover {
@@ -38,7 +38,7 @@
 	&:focus {
 
 		&:not(.jp-disconnect-survey-card--selected) {
-			border-color: var( --jp-black-80 )
+			border-color: var(--jp-black-80)
 		}
 	}
 
@@ -54,8 +54,8 @@ input.jp-connect__disconnect-survey-card__input {
 	-webkit-appearance: none;
 	border: none;
 	background-color: transparent;
-	color: var( --jp-black-80 );
+	color: var(--jp-black-80);
 	flex-grow: 1;
 	padding-right: 40px;
-	max-width: calc( 100% - 40px );
+	max-width: calc(100% - 40px);
 }

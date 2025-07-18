@@ -49,13 +49,13 @@
 	right: 0;
 	left: 0;
 	top: 0;
-	padding: rem.convert( 10px );
+	padding: rem.convert(10px);
 	text-align: right;
 	background: colors.$white;
-	font-size: rem.convert( 12px );
+	font-size: rem.convert(12px);
 	font-style: italic;
 	color: colors.$gray;
-	border-bottom: 1px color.adjust( colors.$gray, $lightness: 30% ) solid;
+	border-bottom: 1px color.adjust(colors.$gray, $lightness: 30%) solid;
 
 	@include breakpoints.breakpoint( "<660px" ) {
 		display: none;
@@ -96,15 +96,15 @@
 .jp-lower {
 	margin: 32px auto 0;
 	text-align: left;
-	max-width: rem.convert( 1040px );
+	max-width: rem.convert(1040px);
 
 	&.jp-licensing-screen {
-		max-width: rem.convert( 1128px );
+		max-width: rem.convert(1128px);
 	}
 
 	&.jp-main-connect-screen,
 	&.jp-user-connect-screen, {
-		max-width: rem.convert( 1128px );
+		max-width: rem.convert(1128px);
 		box-sizing: content-box;
 	}
 
@@ -120,13 +120,13 @@
 
 .is-placeholder {
 	animation: pulse-light 0.8s ease-in-out infinite;
-	background: color.adjust( colors.$gray, $lightness: 20% );
+	background: color.adjust(colors.$gray, $lightness: 20%);
 }
 
 @keyframes pulse-light {
 
 	50% {
-		background-color: color.adjust( colors.$gray, $lightness: 30% );
+		background-color: color.adjust(colors.$gray, $lightness: 30%);
 	}
 }
 

@@ -49,7 +49,7 @@ h2.dops-card-title {
 
 // Clickable Card
 .dops-card__link-indicator {
-	color: color.adjust( calypso-colors.$gray, $lightness: 20% );
+	color: color.adjust(calypso-colors.$gray, $lightness: 20%);
 	display: block;
 	height: 100%;
 	position: absolute;
@@ -60,7 +60,7 @@ h2.dops-card-title {
 a.dops-card:hover {
 
 	.dops-card__link-indicator {
-		color: color.adjust( calypso-colors.$gray, $lightness: 10% );
+		color: color.adjust(calypso-colors.$gray, $lightness: 10%);
 	}
 }
 

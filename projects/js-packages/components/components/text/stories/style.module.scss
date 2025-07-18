@@ -1,10 +1,10 @@
 .instance {
 
 	span {
-		color: var( --jp-gray-40 );
+		color: var(--jp-gray-40);
 		display: inline-block;
 		width: 100%;
-		background-color: var( --jp-white-off );
+		background-color: var(--jp-white-off);
 	}
 }
 
@@ -25,7 +25,7 @@
 
 	&::after {
 		content: " ";
-		border: 1px dashed rgba( 0, 0, 0, 0.6 );
+		border: 1px dashed rgba(0, 0, 0, 0.6);
 		display: block;
 		position: absolute;
 		top: 0;
@@ -40,7 +40,7 @@
 
 		&::after {
 			content: " ";
-			border: 1px dashed rgba( 0, 0, 0, 0.6 );
+			border: 1px dashed rgba(0, 0, 0, 0.6);
 			display: block;
 			position: absolute;
 			top: 0;
@@ -59,7 +59,7 @@
 
 			&::after {
 				content: " ";
-				border: 1px dashed rgba( 0, 0, 0, 0.4 );
+				border: 1px dashed rgba(0, 0, 0, 0.4);
 				display: block;
 				position: absolute;
 				top: 0;

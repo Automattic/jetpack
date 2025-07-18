@@ -169,14 +169,14 @@
 
 				&#jetpack_deactivation_dialog_content__button-deactivate {
 					background: colors.$alert-red;
-					border-color: color.adjust( colors.$alert-red, $lightness: -20% );
+					border-color: color.adjust(colors.$alert-red, $lightness: -20%);
 					color: colors.$white;
 					margin-bottom: 0;
 
 					&[disabled],
 					&:disabled {
-						background: color.adjust( colors.$alert-red, $lightness: 20% );
-						border-color: colorfuncs.tint( colors.$alert-red, 30% );
+						background: color.adjust(colors.$alert-red, $lightness: 20%);
+						border-color: colorfuncs.tint(colors.$alert-red, 30%);
 					}
 				}
 			}

@@ -4,7 +4,7 @@
 /// @link https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/form-toggle
 .toggle {
 	--base-width: 8px;
-	--track-width: calc( var(--base-width) * 6 );
+	--track-width: calc(var(--base-width) * 6);
 
 	&.is-small {
 		--base-width: 6px;
@@ -17,17 +17,17 @@
 	:global {
 
 		.components-form-toggle {
-			--wp-admin-theme-color: var( --jp-green-40 );
-			height: calc( var(--base-width) * 3 );
+			--wp-admin-theme-color: var(--jp-green-40);
+			height: calc(var(--base-width) * 3);
 
 
 			&__input:focus + .components-form-toggle__track {
-				box-shadow: 0 0 0 2px var( --jp-white ), 0 0 0 4px var( --jp-green-50 );
+				box-shadow: 0 0 0 2px var(--jp-white), 0 0 0 4px var(--jp-green-50);
 			}
 
 			.components-form-toggle__track {
-				width: var( --track-width );
-				height: calc( var(--base-width) * 3 );
+				width: var(--track-width);
+				height: calc(var(--base-width) * 3);
 				border-radius: 12px;
 				border-width: 2px;
 			}
@@ -40,12 +40,12 @@
 			}
 
 			&.is-checked .components-form-toggle__thumb {
-				transform: translateX( calc( var(--base-width) * 3 ) );
+				transform: translateX(calc(var(--base-width) * 3));
 			}
 		}
 		
 		.components-toggle-control__help {
-			margin-inline-start: calc( var( --track-width ) + var( --spacing-base ) );
+			margin-inline-start: calc(var(--track-width) + var(--spacing-base));
 		}
 	}
 }

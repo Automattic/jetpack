@@ -96,7 +96,7 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 			Fix: minimum width of 0
 			See: https://css-tricks.com/preventing-a-grid-blowout/
 		*/
-		grid-template-columns: repeat( 3, minmax(0, 1fr) );
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 }
 

@@ -14,7 +14,7 @@ $myjetpack-connection-avatar-overlap: 8px;
 	.status {
 		display: flex;
 		align-items: center;
-		gap: var( --spacing-base );
+		gap: var(--spacing-base);
 		margin-bottom: 1rem;
 
 		.avatar-wrapper {
@@ -33,7 +33,7 @@ $myjetpack-connection-avatar-overlap: 8px;
 		.avatar {
 			width: $myjetpack-connection-avatar-width;
 			position: absolute;
-			margin-inline-start: -( $myjetpack-connection-avatar-overlap );
+			margin-inline-start: -($myjetpack-connection-avatar-overlap);
 			border-radius: 50%;
 		}
 
@@ -45,16 +45,16 @@ $myjetpack-connection-avatar-overlap: 8px;
 		}
 
 		.error {
-			background-color: var( --jp-red );
+			background-color: var(--jp-red);
 		}
 
 		.warning {
-			background-color: var( --jp-yellow-50 );
+			background-color: var(--jp-yellow-50);
 		}
 	}
 
 	.info {
-		transform: rotate( 180deg );
+		transform: rotate(180deg);
 	}
 
 	.list-item {
@@ -68,19 +68,19 @@ $myjetpack-connection-avatar-overlap: 8px;
 			gap: var(--spacing-base);
 
 			&.error {
-				color: var( --jp-red );
-				fill: var( --jp-red );
+				color: var(--jp-red);
+				fill: var(--jp-red);
 			}
 
 			&.warning {
-				color: var( --jp-yellow-50 );
-				fill: var( --jp-yellow-50 );
+				color: var(--jp-yellow-50);
+				fill: var(--jp-yellow-50);
 			}
 
 			&.success {
 
 				svg {
-					fill: var( --jp-green-50 );
+					fill: var(--jp-green-50);
 				}
 			}
 		}

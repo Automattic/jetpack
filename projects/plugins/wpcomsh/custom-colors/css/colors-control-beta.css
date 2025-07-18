@@ -39,7 +39,7 @@
 .color-grid.main li {
 	height: 55px;
 	width: 55px;
-	background-image: radial-gradient( center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80% );
+	background-image: radial-gradient(center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80%);
 	background-position: center center;
 	background-size: cover;
 	border: 2px solid #fff;

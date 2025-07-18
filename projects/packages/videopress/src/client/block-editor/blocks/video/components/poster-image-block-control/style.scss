@@ -10,8 +10,8 @@
 .current-media {
 	border-top: gb.$border-width solid gb.$gray-900;
 	margin-top: gb.$grid-unit-10;
-	margin-right: -( gb.$grid-unit-10 );
-	margin-left: -( gb.$grid-unit-10 );
+	margin-right: -(gb.$grid-unit-10);
+	margin-left: -(gb.$grid-unit-10);
 	padding: gb.$grid-unit-20 gb.$grid-unit-20 0;
 }
 

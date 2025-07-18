@@ -36,7 +36,7 @@ body {
 	font-size: 16px;
 	// 32px = wpadminbar height
 	// 65px = wpfooter height
-	min-height: calc( 100vh - 65px - 32px );
+	min-height: calc(100vh - 65px - 32px);
 
 	@include variables.for-phone-down {
 		font-size: 14px;

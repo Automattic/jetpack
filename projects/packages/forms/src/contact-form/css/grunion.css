@@ -161,7 +161,7 @@
 
 :where(.contact-form .is-style-outlined .grunion-checkbox-multiple-options),
 :where(.contact-form .is-style-outlined .grunion-radio-options) {
-	border: solid 1px var( --jetpack--contact-form--border-color );
+	border: solid 1px var(--jetpack--contact-form--border-color);
 }
 
 .contact-form .is-style-animated .grunion-checkbox-multiple-options legend,
@@ -294,7 +294,7 @@
 }
 
 :where(.wp-block-jetpack-contact-form .wp-block-separator) {
-	max-width: var( --wp--preset--spacing--80, 100px );
+	max-width: var(--wp--preset--spacing--80, 100px);
 	margin-top: 0;
 	margin-bottom: 0;
 }
@@ -339,22 +339,22 @@
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
-	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	flex: 1 1 calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 25%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-33-wrap {
-	flex: 1 1 calc( 33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	flex: 1 1 calc(33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 33.33%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
-	flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	flex: 1 1 calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 50%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
-	flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	flex: 1 1 calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 75%;
 }
 
@@ -711,7 +711,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-field-select.wp-block-jetpack-input-wrap .notched-label .notched-label__label {
-	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
+	top: calc(var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1);
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-text,
@@ -812,7 +812,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
 	transform: unset;
-	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size, 1px)));
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
@@ -820,7 +820,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label {
 	transform: translateY(0);
-	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size, 1px)));
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-text,
@@ -1098,7 +1098,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	opacity: 0;
 	max-height: 0;
 	overflow: hidden;
-	transform: translateY( -0.33em );
+	transform: translateY(-0.33em);
 	transition: max-height 200ms cubic-bezier(0.34, 0.8, 0.34, 1), opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 100ms cubic-bezier(0.34, 0.8, 0.34, 1);
 }
 

@@ -11,12 +11,12 @@
 		}
 
 		&[data-post-count='3'] .jp-related-posts-i2__post {
-			max-width: calc( 33.33333333% - 20px );
+			max-width: calc(33.33333333% - 20px);
 		}
 
 		&[data-post-count='2'] .jp-related-posts-i2__post,
 		&[data-post-count='1'] .jp-related-posts-i2__post {
-			max-width: calc( 50% - 20px );
+			max-width: calc(50% - 20px);
 		}
 	}
 
@@ -67,8 +67,8 @@
 
 		&-icon {
 			position: absolute;
-			top: calc( 50% - 12px );
-			left: calc( 50% - 12px );
+			top: calc(50% - 12px);
+			left: calc(50% - 12px);
 		}
 	}
 }

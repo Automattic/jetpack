@@ -19,11 +19,11 @@
 }
 
 .connection_status--connected {
-	color: var( --jp-green-50 );
+	color: var(--jp-green-50);
 }
 
 .connection_status--disconnected {
-	color: var( --jp-red-50 );
+	color: var(--jp-red-50);
 }
 
 .disconnect_site_trigger {
@@ -37,7 +37,7 @@
 }
 
 .disconnect_modal__error {
-	color: var( --jp-red-50 );
+	color: var(--jp-red-50);
 	text-align: end;
 	margin-bottom: 0;
 }

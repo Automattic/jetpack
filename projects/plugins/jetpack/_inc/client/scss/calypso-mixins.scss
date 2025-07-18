@@ -242,7 +242,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	width: $size;
 	height: $size;
 	overflow: hidden;
-	background: color.adjust( $gray, $lightness: 20% );
+	background: color.adjust($gray, $lightness: 20%);
 
 	&::before {
 		content: '\f475';
@@ -284,7 +284,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 }
 
 @mixin hide-content-accessibly {
-	clip: rect( 1px, 1px, 1px, 1px );
+	clip: rect(1px, 1px, 1px, 1px);
 	height: 1px;
 	overflow: hidden;
 	position: absolute;
@@ -310,7 +310,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 
 	@if $direction == 'bottom' {
-		background: linear-gradient( to top, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to top, rgba($color, 0), $color 90%);
 		left: $edge;
 		right: $edge;
 		top: $edge;
@@ -319,7 +319,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 
 	@if $direction == 'top' {
-		background: linear-gradient( to bottom, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to bottom, rgba($color, 0), $color 90%);
 		top: calc(100% - $size);
 		left: $edge;
 		right: $edge;
@@ -328,7 +328,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 
 	@if $direction == 'left' {
-		background: linear-gradient( to left, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to left, rgba($color, 0), $color 90%);
 		top: $edge;
 		left: $edge;
 		bottom: $edge;
@@ -338,7 +338,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 
 	@if $direction == 'right' {
-		background: linear-gradient( to right, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to right, rgba($color, 0), $color 90%);
 		top: $edge;
 		bottom: $edge;
 		right: $edge;
@@ -350,7 +350,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 @mixin placeholder( $lighten-percentage: 30% ) {
 	animation: loading-fade 1.6s ease-in-out infinite;
-	background-color: color.adjust( $gray, $lightness: $lighten-percentage );
+	background-color: color.adjust($gray, $lightness: $lighten-percentage);
 	color: transparent;
 
 	&::after {

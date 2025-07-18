@@ -75,13 +75,13 @@
 	}
 
 	+ .form-toggle__label .form-toggle__switch {
-		background: color.adjust( calypso-colors.$gray, $lightness: 10% );
+		background: color.adjust(calypso-colors.$gray, $lightness: 10%);
 	}
 
 	&:not(:disabled) {
 
 		+ .form-toggle__label:hover .form-toggle__switch {
-			background: color.adjust( calypso-colors.$gray, $lightness: 20% );
+			background: color.adjust(calypso-colors.$gray, $lightness: 20%);
 		}
 	}
 
@@ -122,7 +122,7 @@
 	&:checked {
 
 		+ .form-toggle__label .form-toggle__switch {
-			background: color.adjust( calypso-colors.$gray, $lightness: 20% );
+			background: color.adjust(calypso-colors.$gray, $lightness: 20%);
 		}
 	}
 }

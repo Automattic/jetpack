@@ -35,11 +35,11 @@
 		.components-button {
 			pointer-events: none;
 			cursor: not-allowed;
-			filter: grayscale( 0.8 );
+			filter: grayscale(0.8);
 		}
 
 		.components-circular-option-picker__option-wrapper:hover {
-			transform: scale( 1 );
+			transform: scale(1);
 		}
 	}
 }

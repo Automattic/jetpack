@@ -91,7 +91,7 @@ button.dops-foldable-card__action {
 }
 
 .dops-foldable-card__main {
-	max-width: calc( 100% - 36px );
+	max-width: calc(100% - 36px);
 	display: block;
 	align-items: center;
 	width: 100%;
@@ -122,7 +122,7 @@ button.dops-foldable-card__action {
 		transition: transform .15s cubic-bezier(0.175, .885, .32, 1.275), color .20s ease-in;
 
 		.dops-foldable-card.is-expanded & {
-			transform: rotate( 180deg );
+			transform: rotate(180deg);
 		}
 	}
 
@@ -140,15 +140,15 @@ button.dops-foldable-card__action {
 }
 
 .dops-foldable-card__header-text {
-	font-size: rem.convert( 18px );
+	font-size: rem.convert(18px);
 	width: 100%;
 }
 
 .dops-foldable-card__subheader {
-	margin-top: rem.convert( 2px );
-	margin-bottom: rem.convert( 2px );
-	font-size: rem.convert( 14px );
-	color: color.adjust( calypso-colors.$gray, $lightness: -20% );
+	margin-top: rem.convert(2px);
+	margin-bottom: rem.convert(2px);
+	font-size: rem.convert(14px);
+	color: color.adjust(calypso-colors.$gray, $lightness: -20%);
 }
 
 .dops-foldable-card__content {

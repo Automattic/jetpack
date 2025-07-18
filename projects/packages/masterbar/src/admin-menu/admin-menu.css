@@ -47,7 +47,7 @@
 	}
 
 	.global-notices {
-		max-width: calc( 100% - 48px - 272px );
+		max-width: calc(100% - 48px - 272px);
 	}
 }
 
@@ -172,7 +172,7 @@
 	position: absolute;
 	right: 20px;
 	top: 50%;
-	transform: translateY( -50% );
+	transform: translateY(-50%);
 	opacity: 0.8;
 }
 

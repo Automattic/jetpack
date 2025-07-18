@@ -31,7 +31,7 @@
 .jp-recommendations-product-card-upsell__heading {
 	margin: 0;
 
-	color: var( --jp-gray-100 );
+	color: var(--jp-gray-100);
 
 	font-size: typography.$font-title-large;
 	font-weight: typography.$bold;
@@ -64,7 +64,7 @@
 
 	margin-inline-end: 0.75rem;
 
-	color: var( --jp-gray-20 );
+	color: var(--jp-gray-20);
 
 	&::before {
 		content: "";
@@ -77,14 +77,14 @@
 		width: 100%;
 		height: 3px;
 
-		background-color: var( --jp-pink );
+		background-color: var(--jp-pink);
 	}
 }
 
 .jp-recommendations-product-card-upsell__final-price {
 	margin-inline-end: 1rem;
 	
-	color: var( --jp-gray-100 );
+	color: var(--jp-gray-100);
 }
 
 .jp-recommendations-product-card-upsell__currency-symbol {
@@ -112,7 +112,7 @@
 .jp-recommendations-product-card-upsell__billing-time-frame {
 	margin-top: 0.5rem;
 
-	color: var( --jp-gray-40 );
+	color: var(--jp-gray-40);
 }
 
 .jp-recommendations-product-card-upsell__cta-button {

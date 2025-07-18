@@ -35,7 +35,7 @@
 
 .jetpack-ai-assistant__error {
 	margin: 0 0 8px 0;
-	color: var( --wp--preset--color--black );
+	color: var(--wp--preset--color--black);
 }
 
 .jetpack-ai-assistant__accept {
@@ -215,13 +215,13 @@
 		}
 
 		.components-button.is-primary {
-			background-color: var( --jp-white );
-			color: var( --jp-black );
+			background-color: var(--jp-white);
+			color: var(--jp-black);
 			margin-top: 8px;
 			margin-bottom: 8px;
 
 			&:hover {
-				background-color: var( --jp-gray-0 );
+				background-color: var(--jp-gray-0);
 			}
 		}
 	}

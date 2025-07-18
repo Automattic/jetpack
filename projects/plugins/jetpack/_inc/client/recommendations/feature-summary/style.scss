@@ -30,7 +30,7 @@
 .jp-summary-text-link {
 	display: flex;
 	align-items: center;
-	color: var( --jp-gray-50 );
+	color: var(--jp-gray-50);
 
 	&.is-hidden {
 		visibility: hidden;
@@ -43,7 +43,7 @@
 		height: $size;
 		margin-left: 0.25rem;
 		font-size: $size;
-		transform: translateY( 1px );
+		transform: translateY(1px);
 	}
 }
 
@@ -82,7 +82,7 @@
 }
 
 .jp-recommendations-summary .jp-recommendations-feature-summary__display-name {
-	color: var( --jp-gray-100 );
+	color: var(--jp-gray-100);
 }
 
 .jp-recommendations-feature-summary__display-name-text {

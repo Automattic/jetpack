@@ -50,13 +50,13 @@
 		border: none;
 		// Make a stacking context that keeps all descendents behind the sticky header
 		position: relative;
-		z-index: z-index.z-index( '.interface-complementary-area .components-panel' );
+		z-index: z-index.z-index('.interface-complementary-area .components-panel');
 	}
 
 	.components-panel__header {
 		position: sticky;
 		top: 0;
-		z-index: z-index.z-index( '.interface-complementary-area .components-panel__header' );
+		z-index: z-index.z-index('.interface-complementary-area .components-panel__header');
 
 		&.edit-post-sidebar__panel-tabs {
 			top: variables.$panel-header-height;
@@ -109,7 +109,7 @@ body.js.is-fullscreen-mode {
 		// Reset the html.wp-topbar padding.
 		// Because this uses negative margins, we have to compensate for the height.
 		margin-top: -1 * variables.$admin-bar-height;
-		height: calc( 100% + #{variables.$admin-bar-height} );
+		height: calc(100% + #{variables.$admin-bar-height});
 
 		#adminmenumain,
 		#wpadminbar {
@@ -174,7 +174,7 @@ html.interface-interface-skeleton__html-container {
 	display: block;
 	flex-shrink: 0;
 	position: absolute;
-	z-index: z-index.z-index( '.interface-interface-skeleton__sidebar' );
+	z-index: z-index.z-index('.interface-interface-skeleton__sidebar');
 	top: 0;
 	right: 0;
 	bottom: 0;
@@ -185,7 +185,7 @@ html.interface-interface-skeleton__html-container {
 	// On Mobile the header is fixed to keep HTML as scrollable.
 	@include mixins.break-medium() {
 		position: relative !important;
-		z-index: z-index.z-index( '.interface-interface-skeleton__sidebar {greater than small}' );
+		z-index: z-index.z-index('.interface-interface-skeleton__sidebar {greater than small}');
 		width: auto; // Keep the sidebar width flexible.
 	}
 }
@@ -209,7 +209,7 @@ html.interface-interface-skeleton__html-container {
 	flex-shrink: 0;
 	height: auto; // Keep the height flexible.
 	border-bottom: variables.$border-width solid colors.$gray-200;
-	z-index: z-index.z-index( '.interface-interface-skeleton__header' );
+	z-index: z-index.z-index('.interface-interface-skeleton__header');
 	color: colors.$gray-900;
 }
 
@@ -223,7 +223,7 @@ html.interface-interface-skeleton__html-container {
 	left: 0;
 	width: 100%;
 	background-color: colors.$white;
-	z-index: z-index.z-index( '.interface-interface-skeleton__footer' );
+	z-index: z-index.z-index('.interface-interface-skeleton__footer');
 
 	// On Mobile the footer is hidden
 	display: none;
@@ -233,7 +233,7 @@ html.interface-interface-skeleton__html-container {
 	}
 
 	.block-editor-block-breadcrumb {
-		z-index: z-index.z-index( '.edit-post-layout__footer' );
+		z-index: z-index.z-index('.edit-post-layout__footer');
 		display: flex;
 		background: colors.$white;
 		height: variables.$button-size-small;
@@ -244,7 +244,7 @@ html.interface-interface-skeleton__html-container {
 }
 
 .interface-interface-skeleton__actions {
-	z-index: z-index.z-index( '.interface-interface-skeleton__actions' );
+	z-index: z-index.z-index('.interface-interface-skeleton__actions');
 	position: fixed !important; // Need to override the default relative positioning
 	top: -9999em;
 	bottom: auto;
@@ -293,7 +293,7 @@ html.interface-interface-skeleton__html-container {
 }
 
 .components-popover.interface-more-menu-dropdown__content {
-	z-index: z-index.z-index( '.components-popover.interface-more-menu__content' );
+	z-index: z-index.z-index('.components-popover.interface-more-menu__content');
 }
 
 // pinned-items

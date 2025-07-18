@@ -1,15 +1,15 @@
 .wp-block-jetpack-dropzone {
 	display: flex;
 	flex-direction: column;
-	border: 1px dashed var(--jetpack--contact-form--border-color, rgba( 125, 125, 125, 0.3 ) );
+	border: 1px dashed var(--jetpack--contact-form--border-color, rgba(125, 125, 125, 0.3));
 }
 
 :where(.wp-block-jetpack-dropzone) {
 	padding: 48px;
 	margin-top: 8px;
 	margin-bottom: 8px;
-	background-color: var( --jetpack--contact-form--input-background );
-	border-radius: var( --jetpack--contact-form--border-radius, 0 );
+	background-color: var(--jetpack--contact-form--input-background);
+	border-radius: var(--jetpack--contact-form--border-radius, 0);
 }
 
 .wp-block-jetpack-dropzone.is-content-justification-right {
@@ -121,10 +121,10 @@
 	padding: 16px;
 	position: relative;
 	justify-content: start;
-	border-radius: var( --jetpack--contact-form--border-radius, 0 );
+	border-radius: var(--jetpack--contact-form--border-radius, 0);
 	background-color: var(--jetpack--contact-form--input-background, #fff);
 	color: var(--jetpack--contact-form--text-color, #333);
-	border: var(--jetpack--contact-form--border-size, 1px) var( --jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333 );
+	border: var(--jetpack--contact-form--border-size, 1px) var(--jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333);
 	font-size: 12px;
 	line-height: 18px;
 }
@@ -192,7 +192,7 @@
 .jetpack-form-file-field__remove.jetpack-form-file-field__remove:hover {
 	cursor: pointer;
 	border-radius: 50%;
-	background-color: var(--jetpack--contact-form--input-background, #fff );
+	background-color: var(--jetpack--contact-form--input-background, #fff);
 	filter: invert(0.1);
 	box-shadow: none;
 	border: none;
@@ -213,7 +213,7 @@
 	height: 18px;
 	width: 1px;
 	top: 7px;
-	background-color: var(--jetpack--contact-form--text-color, #333 );
+	background-color: var(--jetpack--contact-form--text-color, #333);
 }
 
 .jetpack-form-file-field__remove::before {
@@ -237,8 +237,8 @@
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
-	outline: 1 solid var( --jetpack--contact-form--button-primary--text-color, #FFF );
-	background-color: var(--jetpack--contact-form--border-color, #333 );
+	outline: 1 solid var(--jetpack--contact-form--button-primary--text-color, #FFF);
+	background-color: var(--jetpack--contact-form--border-color, #333);
 	border-radius: 50%;
 	outline-offset: 0;
 	width: 40px;
@@ -253,7 +253,7 @@
 	background-size: auto;
 	mask-repeat: no-repeat;
 	mask-position: center;
-	background-color: var( --jetpack--contact-form--text-color, #333 );
+	background-color: var(--jetpack--contact-form--text-color, #333);
 }
 
 .jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {
@@ -281,10 +281,8 @@
 	right: 0;
 	border-radius: 50%;
 	background:
-		conic-gradient(
-			var( --jetpack--contact-form--text-color, #333 )
-			calc(var(--progress, 3) * 1%), transparent calc(var(--progress, 3) * 1%)
-		);
+		conic-gradient(var(--jetpack--contact-form--text-color, #333)
+		calc(var(--progress, 3) * 1%), transparent calc(var(--progress, 3) * 1%));
 
 	z-index: -1;
 	opacity: 0.8;
@@ -300,7 +298,7 @@
 	left: 3px;
 	right: 3px;
 	border-radius: 50%;
-	background-color: var(--jetpack--contact-form--border-color, #333 );
+	background-color: var(--jetpack--contact-form--border-color, #333);
 	filter: invert(0.7);
 }
 
@@ -321,7 +319,7 @@
 
 .jetpack-form-file-field__preview.is-error .has-icon .jetpack-form-file-field__progress-bar,
 .jetpack-form-file-field__preview.is-complete .has-icon .jetpack-form-file-field__progress-bar {
-	background: var(--jetpack--contact-form--border-color, #333 );
+	background: var(--jetpack--contact-form--border-color, #333);
 	opacity: 1;
 }
 

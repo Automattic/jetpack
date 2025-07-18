@@ -28,7 +28,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 				&.columns-#{$cols} {
 
 					.tiled-gallery__col {
-						width: calc( ( 100% - #{ variables.$tiled-gallery-gutter * ( $cols - 1 ) } ) / #{$cols} );
+						width: calc(( 100% - #{ variables.$tiled-gallery-gutter * ( $cols - 1 ) } ) / #{$cols});
 					}
 				}
 			}
@@ -95,11 +95,11 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	flex-grow: 1;
 
 	&.filter__black-and-white {
-		filter: grayscale( 100% );
+		filter: grayscale(100%);
 	}
 
 	&.filter__sepia {
-		filter: sepia( 100% );
+		filter: sepia(100%);
 	}
 
 	&.filter__1977 {
@@ -123,11 +123,11 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 
 	&:focus-within {
 		overflow: visible;
-		box-shadow: 0 0 0 2px  var( --wp-admin-theme-color);
+		box-shadow: 0 0 0 2px  var(--wp-admin-theme-color);
 	}
 
 	> img {
-		background-color: rgba( 0, 0, 0, 0.1 );
+		background-color: rgba(0, 0, 0, 0.1);
 	}
 
 	> a,

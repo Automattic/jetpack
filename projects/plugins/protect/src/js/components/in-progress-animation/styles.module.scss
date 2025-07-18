@@ -8,7 +8,7 @@
 .inProgressAnimation__el {
 	position: relative;
 	animation: inprogress 4s ease-in-out 0.8s infinite normal forwards;
-	transform: translateY( 24px );
+	transform: translateY(24px);
 	opacity: 0;
 }
 
@@ -24,27 +24,27 @@
 
 	0% {
 		opacity: 0;
-		transform: translateY( 24px );
+		transform: translateY(24px);
 	}
 
 	20% {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 
 	50% {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 
 	60% {
 		opacity: 0;
-		transform: translateY( -48px );
+		transform: translateY(-48px);
 	}
 
 	100% {
 		opacity: 0;
-		transform: translateY( -48px );
+		transform: translateY(-48px);
 	}
 }
 

@@ -30,9 +30,9 @@
 
 .backup__card {
 	padding: 24px;
-	background: var( --jp-white );
-	box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
-	border-radius: var( --jp-border-radius );
+	background: var(--jp-white);
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: var(--jp-border-radius);
 }
 
 .backup__card-details-items {
@@ -42,6 +42,6 @@
 
 .backup__card-details-amount {
 	margin-bottom: -12px;
-	font-size: var( --font-title-large );
+	font-size: var(--font-title-large);
 	font-weight: 600;
 }

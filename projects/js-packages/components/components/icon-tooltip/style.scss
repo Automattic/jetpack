@@ -1,6 +1,6 @@
 @use '@automattic/jetpack-base-styles/style';
 
-$arrow-color: var( --jp-gray );
+$arrow-color: var(--jp-gray);
 
 // Fix arrow color
 .components-popover:not(.is-without-arrow)::before {
@@ -72,7 +72,7 @@ $arrow-color: var( --jp-gray );
 .icon-tooltip-wrapper {
 	display: inline-block;
 	position: relative;
-	color: var( --jp-black );
+	color: var(--jp-black);
 
 	.components-button.is-link:focus:not(:disabled) {
 		box-shadow: none;
