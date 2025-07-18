@@ -2230,7 +2230,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		?>
 		<div
 			class="jetpack-slider-input-row"
-			data-wp-interactive="jetpack/form"
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method
 			echo wp_interactivity_data_wp_context(
@@ -2269,7 +2268,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		</div>
 		<?php
 		$field .= ob_get_clean();
-		return $field;
+		return $field . $this->get_error_div( $id, 'slider' );
 	}
 
 	/**
