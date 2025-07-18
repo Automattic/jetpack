@@ -83,7 +83,7 @@ $no_boost_score_size: 28px;
 
 		@media (min-width: 768px) {
 			width: calc(100% + #{math.div($bar-height, 2)});
-			margin-left: math.div(-$bar_height, 2) ;
+			margin-left: math.div(-$bar_height, 2);
 		}
 	}
 
