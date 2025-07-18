@@ -523,9 +523,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 
 			// `bumps_stats_extra` only exists on .com
 			if ( function_exists( 'bump_stats_extras' ) && function_exists( 'require_lib' ) ) {
-				/* @phan-suppress-next-line PhanUndeclaredFunction */
 				require_lib( 'tracks/client' );
-				/* @phan-suppress-next-line PhanUndeclaredFunction */
 				tracks_record_event( $current_user, 'simple_payments_button_' . $event_action, $event_properties );
 				/** This action is documented in modules/widgets/social-media-icons.php */
 				do_action( 'jetpack_bump_stats_extra', 'simple_payments', $stat_name );

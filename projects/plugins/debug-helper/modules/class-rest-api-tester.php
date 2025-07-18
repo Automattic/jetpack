@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Debug_Helper;
 
 /**
  * REST_API_Tester to test REST API endpoints.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class REST_API_Tester {
 

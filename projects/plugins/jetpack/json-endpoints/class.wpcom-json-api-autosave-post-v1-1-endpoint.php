@@ -48,6 +48,8 @@ new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint(
 
 /**
  * Class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
 

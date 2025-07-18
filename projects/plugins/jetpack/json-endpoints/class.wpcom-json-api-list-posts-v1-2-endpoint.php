@@ -71,6 +71,8 @@ new WPCOM_JSON_API_List_Posts_v1_2_Endpoint(
  * List posts v1_2 endpoint.
  *
  * /sites/%s/posts/ -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_v1_1_Endpoint { // phpcs:ignore
 

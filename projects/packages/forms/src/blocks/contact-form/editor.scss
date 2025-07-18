@@ -74,10 +74,6 @@
 			&.jetpack-field__width-25 {
 				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 				max-width: 25%;
-
-				.jetpack-option__input.jetpack-option__input.jetpack-option__input {
-					width: 70px;
-				}
 			}
 
 			&.jetpack-field__width-33 {
@@ -510,28 +506,6 @@
 	}
 }
 
-// TODO - See if we can find usage of this class. It's possibly a dead style.
-.jetpack-field-multiple .jetpack-field-multiple__add-option {
-	margin: 0;
-	padding: 0;
-
-	.dashicon {
-		width: 1rem;
-		height: 1rem;
-		display: flex;
-		margin-left: 0;
-		margin-right: 0.75rem;
-
-		&::before {
-			font-size: 1rem;
-		}
-	}
-
-	svg {
-		margin-right: 12px;
-	}
-}
-
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-field-multiple__list.jetpack-field-multiple__list {
 	list-style-type: none;
@@ -555,14 +529,6 @@
 	&:empty {
 		display: none;
 	}
-
-	// TODO - This looks like dead code, it looks like field select can't contain a multiple list.
-	// TODO: make this a class, @enej
-	[data-type='jetpack/field-select'] & {
-		border: 1px solid rgba( 0, 0, 0, 0.4 );
-		border-radius: 4px;
-		padding: 4px;
-	}
 }
 
 // Ensure global styles can ovewrite the default border color.
@@ -576,36 +542,8 @@
 	margin: 0;
 }
 
-// TODO - This looks like dead code, along with the `JetpackOption` component.
-// Duplicated to elevate specificity in order to overwrite core styles
-.jetpack-option__input.jetpack-option__input.jetpack-option__input {
-	color: inherit;
-	background: transparent;
-	border: none;
-	border-radius: 0;
-	flex-grow: 1;
-	line-height: 1.5;
-	font-size: inherit;
-	padding: 0;
-
-	&:hover {
-		border-color: #357cb5;
-	}
-
-	&:focus {
-		box-shadow: none;
-	}
-}
-
 .jetpack-field-multiple.components-base-control {
 	font-size: inherit;
-}
-
-// TODO - This is possibly dead CSS.
-// Duplicated to elevate specificity in order to overwrite calypso styles
-.jetpack-option__remove.jetpack-option__remove {
-	padding: 6px;
-	vertical-align: bottom;
 }
 
 .jetpack-field .components-base-control__label {

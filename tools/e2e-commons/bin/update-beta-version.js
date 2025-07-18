@@ -1,8 +1,9 @@
 import { fileURLToPath } from 'url';
+import pwConfig from '../playwright.config.mjs';
 
 // Below call should be BEFORE requiring config, so library wil pick it up.
 process.env.NODE_CONFIG_DIR = fileURLToPath( new URL( '../config', import.meta.url ) );
-const { resolveSiteUrl, getSiteCredentials } = await import( '../helpers/utils-helper.js' );
+const { getSiteCredentials } = await import( '../helpers/utils-helper.js' );
 
 /**
  * Get HTTP Authentication header value
@@ -23,7 +24,7 @@ function getAuthHeader() {
 async function getJetpackVersionFromSite() {
 	let response;
 	try {
-		response = await fetch( resolveSiteUrl() + '/index.php?rest_route=/wp/v2/plugins', {
+		response = await fetch( pwConfig.use.baseURL + '/index.php?rest_route=/wp/v2/plugins', {
 			headers: { Authorization: getAuthHeader() },
 		} );
 
@@ -51,7 +52,7 @@ async function getJetpackVersionFromSite() {
  */
 async function forcePluginUpdates() {
 	const response = await fetch(
-		resolveSiteUrl() + '/index.php?rest_route=/jp-e2e/v1/beta-autoupdate',
+		pwConfig.use.baseURL + '/index.php?rest_route=/jp-e2e/v1/beta-autoupdate',
 		{
 			method: 'POST',
 			headers: { Authorization: getAuthHeader() },

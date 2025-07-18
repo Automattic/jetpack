@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: eslint: Suppress a bunch of testing-library/no-node-access false positives.
+
+
