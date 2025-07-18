@@ -415,7 +415,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Initial data used to render the success message when the page is reloaded after a successful submission
 		// Don't show the feedback details unless the nonce matches
 		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'], $form ) : null;
-		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : null;
+		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
 
 		$default_context = array(
@@ -657,16 +657,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array The formatted submission data.
 	 */
 	private static function format_submission_data( $data ) {
-		$submission_data = array();
+		$formatted_submission_data = array();
 
 		foreach ( $data as $field_data ) {
-			$submission_data[] = array(
+			$formatted_submission_data[] = array(
 				'label' => self::maybe_add_colon_to_label( $field_data['label'] ),
 				'value' => self::maybe_transform_value( $field_data['value'] ),
 			);
 		}
 
-		return $submission_data;
+		return $formatted_submission_data;
 	}
 
 	/**
