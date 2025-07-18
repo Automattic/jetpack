@@ -49,6 +49,7 @@ export const setupProjects = [
 		name: 'global authentication',
 		testDir: `${ rootPath }../fixtures`,
 		testMatch: 'auth.setup.ts',
+		storageState: undefined,
 	},
 	{
 		name: 'connection setup',
