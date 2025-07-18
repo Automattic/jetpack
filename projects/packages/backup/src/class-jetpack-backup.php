@@ -351,6 +351,17 @@ class Jetpack_Backup {
 			)
 		);
 
+		// Get site size estimate (local calculation)
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/size/estimate',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_size_estimate',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
 		// Get backup schedule time
 		register_rest_route(
 			'jetpack/v4',
@@ -825,6 +836,22 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			json_decode( $response['body'], true )
 		);
+	}
+
+	/**
+	 * Get site backup size estimate (local calculation)
+	 *
+	 * @return array|WP_Error A JSON object with the estimated site size if successful, or a WP_Error otherwise.
+	 */
+	public static function get_site_backup_size_estimate() {
+		$estimator = new Jetpack_Backup_Size_Estimator();
+		$result    = $estimator->estimate_size();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	/**
