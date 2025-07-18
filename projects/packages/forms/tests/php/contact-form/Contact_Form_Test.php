@@ -2901,6 +2901,9 @@ EOT;
 		$this->assertEquals( $form->get_attribute( 'to' ), $form_copy->get_attribute( 'to' ), 'Form IDs should match' );
 		$this->assertEquals( $form->get_attribute( 'id' ), $form_copy->get_attribute( 'id' ), 'Form IDs should match' );
 
+		$this->assertTrue( $form_copy->has_verified_jwt, 'Form copy should have verified JWT' );
+		$this->assertFalse( $form->has_verified_jwt, 'Original form should not have verified JWT' );
+
 		$this->assertEquals( $form->hash, $form_copy->hash, 'Form hashes should match' );
 		$this->assertNotEmpty( $form_copy->hash, 'Form hash should not be empty' );
 
