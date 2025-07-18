@@ -4,6 +4,10 @@ test.use( { storageState: process.env.STORAGE_STATE_PATH } );
 
 test.describe( 'Start test', () => {
 	test( 'smoke test', async ( { page, admin, requestUtils } ) => {
+		await page.goto( 'https://wordpress.com' );
+
+		expect( await page.title() ).toContain( 'WordPress.com' );
+
 		const r = await requestUtils.rest( { path: 'jetpack/v4/connection/check' } );
 		console.log( 'Connection check response:', r );
 
