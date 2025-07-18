@@ -147,11 +147,24 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ data, accessors ]
 	);
 
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			thickness,
+			clockwise,
+		} ),
+		[ thickness, clockwise ]
+	);
+
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'pie-semi-circle', isValid, {
-		thickness,
-		clockwise,
-	} );
+	useChartRegistration(
+		chartId,
+		legendItems,
+		providerTheme,
+		'pie-semi-circle',
+		isValid,
+		chartMetadata
+	);
 
 	if ( ! isValid ) {
 		return (
