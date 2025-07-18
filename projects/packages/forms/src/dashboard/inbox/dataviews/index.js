@@ -280,7 +280,13 @@ export default function InboxView() {
 	}, [ isMobile, onChangeSelection, selection ] );
 
 	return (
-		<VStack className="jp-forms__inbox__dataviews">
+		<VStack
+			className="jp-forms__inbox__dataviews"
+			spacing={ 0 }
+			alignment="stretch"
+			direction="column"
+			wrap={ false }
+		>
 			<DataViews
 				actions={ actions }
 				data={ data || EMPTY_ARRAY }
