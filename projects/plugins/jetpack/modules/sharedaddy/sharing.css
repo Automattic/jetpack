@@ -198,7 +198,7 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 }
 
 /* Make it look great in Chrome and Safari */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
 
 	.sd-content ul li a.sd-button::before {
 		position: relative;
@@ -212,7 +212,7 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 }
 
 /* Make it look great in Chrome and Safari */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
 
 	.sd-social-official ul li a.sd-button::before {
 		top: 0;
@@ -249,7 +249,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	top: -4px;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
 
 	.sd-social-icon .sd-content ul li a.share-more {
 		top: 2px;

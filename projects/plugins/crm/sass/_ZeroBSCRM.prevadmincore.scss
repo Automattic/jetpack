@@ -434,7 +434,7 @@ p {
 	line-height: 1.4
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.lead {
 		font-size: 21px
@@ -600,7 +600,7 @@ dd {
 	margin-left: 0
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.dl-horizontal dt {
 		float: left;
@@ -904,7 +904,7 @@ table th[class*="col-"] {
 	background-color: #ebcccc
 }
 
-@media (max-width:767px) {
+@media (max-width: 767px) {
 
 	.table-responsive {
 		width: 100%;
@@ -1310,7 +1310,7 @@ textarea.input-lg {
 	color: #737373
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.form-inline .form-group,
 	.navbar-form .form-group {
@@ -1391,7 +1391,7 @@ textarea.input-lg {
 	padding-top: 7px
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.form-horizontal .control-label {
 		text-align: right
@@ -1965,7 +1965,7 @@ input[type="submit"].btn-block {
 	margin-bottom: 1px
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-right .dropdown-menu {
 		right: 0;
@@ -2473,7 +2473,7 @@ input[type="submit"].btn-block {
 	left: auto
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.nav-justified>li,
 	.nav-tabs.nav-justified>li {
@@ -2507,7 +2507,7 @@ input[type="submit"].btn-block {
 	border: 1px solid #ddd
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.nav-tabs-justified>li>a,
 	.nav-tabs.nav-justified>li>a {
@@ -2556,7 +2556,7 @@ input[type="submit"].btn-block {
 	clear: both
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar {
 		border-radius: 4px
@@ -2573,7 +2573,7 @@ input[type="submit"].btn-block {
 	clear: both
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-header {
 		float: left
@@ -2604,7 +2604,7 @@ input[type="submit"].btn-block {
 	overflow-y: auto
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-collapse {
 		width: auto;
@@ -2639,7 +2639,7 @@ input[type="submit"].btn-block {
 	margin-left: -15px
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.container-fluid>.navbar-collapse,
 	.container-fluid>.navbar-header,
@@ -2655,7 +2655,7 @@ input[type="submit"].btn-block {
 	border-width: 0 0 1px
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-static-top {
 		border-radius: 0
@@ -2670,7 +2670,7 @@ input[type="submit"].btn-block {
 	z-index: 1030
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-fixed-bottom,
 	.navbar-fixed-top {
@@ -2702,7 +2702,7 @@ input[type="submit"].btn-block {
 	text-decoration: none
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar>.container .navbar-brand,
 	.navbar>.container-fluid .navbar-brand {
@@ -2738,7 +2738,7 @@ input[type="submit"].btn-block {
 	margin-top: 4px
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-toggle {
 		display: none
@@ -2755,7 +2755,7 @@ input[type="submit"].btn-block {
 	line-height: 20px
 }
 
-@media (max-width:767px) {
+@media (max-width: 767px) {
 
 	.navbar-nav .open .dropdown-menu {
 		position: static;
@@ -2782,7 +2782,7 @@ input[type="submit"].btn-block {
 	}
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-nav {
 		float: left;
@@ -2803,7 +2803,7 @@ input[type="submit"].btn-block {
 	}
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-left {
 		float: left !important
@@ -2825,14 +2825,14 @@ input[type="submit"].btn-block {
 	margin-bottom: 8px
 }
 
-@media (max-width:767px) {
+@media (max-width: 767px) {
 
 	.navbar-form .form-group {
 		margin-bottom: 5px
 	}
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-form {
 		width: auto;
@@ -2882,7 +2882,7 @@ input[type="submit"].btn-block {
 	margin-bottom: 15px
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.navbar-text {
 		float: left;
@@ -2960,7 +2960,7 @@ input[type="submit"].btn-block {
 	color: #555
 }
 
-@media (max-width:767px) {
+@media (max-width: 767px) {
 
 	.navbar-default .navbar-nav .open .dropdown-menu>li>a {
 		color: #777
@@ -3060,7 +3060,7 @@ input[type="submit"].btn-block {
 	color: #fff
 }
 
-@media (max-width:767px) {
+@media (max-width: 767px) {
 
 	.navbar-inverse .navbar-nav .open .dropdown-menu>.dropdown-header {
 		border-color: #090909
@@ -4175,7 +4175,7 @@ button.close {
 	margin-left: 0
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
 
 	.modal-dialog {
 		width: 600px;
