@@ -1,6 +1,6 @@
 import config from 'config';
 import { authenticateUser } from '../helpers/login-utils.js';
-import { getSiteCredentials, resolveSiteUrl } from '../helpers/utils-helper';
+import { getSiteCredentials } from '../helpers/utils-helper';
 import logger from '../logger.js';
 import { DashboardPage, WPLoginPage } from '../pages/wp-admin/index.js';
 import { LoginPage } from '../pages/wpcom/index.js';
