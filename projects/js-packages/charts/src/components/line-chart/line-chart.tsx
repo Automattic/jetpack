@@ -12,7 +12,12 @@ import {
 	useState,
 	useRef,
 } from 'react';
-import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import {
+	ChartProvider,
+	ChartContext,
+	useChartId,
+	useChartRegistration,
+} from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -257,7 +262,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		const theme = useXYChartTheme( data );
 		const internalChartId = useId(); // Ensure unique ids for gradient fill.
 		const chartId = useChartId( providedChartId );
-		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+		const [ , legendHeight ] = useElementHeight< HTMLDivElement >();
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
@@ -500,7 +505,6 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }
-							ref={ legendRef }
 						/>
 					) }
 
@@ -518,11 +522,21 @@ type LineChartComponent = React.ForwardRefExoticComponent<
 	Annotation: typeof LineChartAnnotation;
 };
 
-const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => (
-	<ChartProvider>
-		<LineChartInternal { ...props } ref={ ref } />
-	</ChartProvider>
-) ) as LineChartComponent;
+const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => {
+	const existingContext = useContext( ChartContext );
+
+	// If we're already in a ChartProvider context, don't create a new one
+	if ( existingContext ) {
+		return <LineChartInternal { ...props } ref={ ref } />;
+	}
+
+	// Otherwise, create our own ChartProvider
+	return (
+		<ChartProvider>
+			<LineChartInternal { ...props } ref={ ref } />
+		</ChartProvider>
+	);
+} ) as LineChartComponent;
 
 LineChart.displayName = 'LineChart';
 LineChart.AnnotationsOverlay = LineChartAnnotationsOverlay;
