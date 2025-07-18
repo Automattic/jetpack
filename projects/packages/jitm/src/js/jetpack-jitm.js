@@ -220,6 +220,7 @@ domReady( function() {
                         method: 'POST',
                         headers: {
                             'X-WP-Nonce': el.dataset.nonce,
+                            'Content-Type': 'application/json',
                         },
                         credentials: 'same-origin'
                     }
