@@ -2532,6 +2532,9 @@ importers:
       copy-webpack-plugin:
         specifier: 13.0.0
         version: 13.0.0(webpack@5.94.0)
+      debug:
+        specifier: 4.4.1
+        version: 4.4.1
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
