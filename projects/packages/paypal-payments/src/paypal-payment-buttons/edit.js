@@ -283,6 +283,16 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		);
 	}
 
+	const bodyCodeLabel =
+		'stacked' === buttonType
+			? __( 'Part 2 code', 'jetpack-paypal-payments' )
+			: __( 'PayPal button code', 'jetpack-paypal-payments' );
+
+	const bodyCodePlaceholder =
+		'stacked' === buttonType
+			? __( 'Paste the part 2 code here…', 'jetpack-paypal-payments' )
+			: __( 'Paste the PayPal button code here…', 'jetpack-paypal-payments' );
+
 	return (
 		<div { ...blockProps }>
 			<Placeholder
@@ -345,8 +355,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 								scriptSrc: extractedSrc,
 							} );
 						} }
-						placeholder={ __( 'Paste the head code here…', 'jetpack-paypal-payments' ) }
-						aria-label={ __( 'PayPal button head code', 'jetpack-paypal-payments' ) }
+						placeholder={ __( 'Paste the part 1 code here…', 'jetpack-paypal-payments' ) }
+						aria-label={ __( 'Part 1 code', 'jetpack-paypal-payments' ) }
 						name="paypal-payment-buttons-code-head"
 					/>
 				) }
@@ -361,8 +371,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 							buttonText: extractedButtonText,
 						} );
 					} }
-					placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }
-					aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
+					placeholder={ bodyCodePlaceholder }
+					aria-label={ bodyCodeLabel }
 					name="paypal-payment-buttons-code-body"
 				/>
 			</Placeholder>
