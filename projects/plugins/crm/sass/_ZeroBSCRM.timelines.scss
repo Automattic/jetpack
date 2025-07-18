@@ -72,7 +72,8 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 		top: 4px;
 		left: 0;
 		width: 15px;
-		transition: background 0.3s ease-in-out,
+		transition:
+			background 0.3s ease-in-out,
 			border 0.3s ease-in-out;
 	}
 
@@ -158,7 +159,8 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 			top: 4px;
 			left: 2px;
 			width: 10px;
-			transition: background 0.3s ease-in-out,
+			transition:
+				background 0.3s ease-in-out,
 				border 0.3s ease-in-out;
 			z-index: 10000;
 		}

@@ -18,7 +18,8 @@
 	--font-body-small: 14px;
 
 	/* Declare commonly used variables */
-	--wpsc-header-font: Corbel,
+	--wpsc-header-font:
+		Corbel,
 		-apple-system,
 		BlinkMacSystemFont,
 		"Segoe UI",

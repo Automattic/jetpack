@@ -2,7 +2,8 @@
 @font-face {
 	font-family: vaultpressregular;
 	src: url(fonts/vaultpress-regular.eot);
-	src: url(fonts/vaultpress-regular.eot?#iefix) format('embedded-opentype'),
+	src:
+		url(fonts/vaultpress-regular.eot?#iefix) format('embedded-opentype'),
 		url(fonts/vaultpress-regular.woff) format('woff'),
 		url(fonts/vaultpress-regular.ttf) format('truetype'),
 		url(fonts/vaultpress-regular.svg#vaultpressregular) format('svg');

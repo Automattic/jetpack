@@ -19,9 +19,10 @@
 	--border: 1px solid #ddd;
 
 	// Table Columns: Headers
-	--table-header-image: calc(
-		var( --table-column-title ) + var( --thumbnail-size ) + var( --gap )
-	);
+	--table-header-image:
+		calc(
+			var( --table-column-title ) + var( --thumbnail-size ) + var( --gap )
+		);
 	--table-header-device: 10%;
 	--table-header-potential-size: 15%;
 

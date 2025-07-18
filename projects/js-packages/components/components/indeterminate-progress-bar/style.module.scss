@@ -11,13 +11,14 @@
 
 	pointer-events: none;
 	background-size: 68px 100%;
-	background-image: linear-gradient(
-		-45deg,
-		var(--jp-indeterminate-progress-bar__light-color) 33%,
-		var(--jp-indeterminate-progress-bar__dark-color) 33%,
-		var(--jp-indeterminate-progress-bar__dark-color) 71%,
-		var(--jp-indeterminate-progress-bar__light-color) 71%
-	);
+	background-image:
+		linear-gradient(
+			-45deg,
+			var(--jp-indeterminate-progress-bar__light-color) 33%,
+			var(--jp-indeterminate-progress-bar__dark-color) 33%,
+			var(--jp-indeterminate-progress-bar__dark-color) 71%,
+			var(--jp-indeterminate-progress-bar__light-color) 71%
+		);
 	display: inline-block;
 }
 

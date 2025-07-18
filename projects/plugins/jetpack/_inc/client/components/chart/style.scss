@@ -343,7 +343,8 @@
 	font-size: 14px;
 	line-height: 1.4285;
 	animation: appear .3s ease-in-out;
-	box-shadow: 0 0 0 1px color.adjust( calypso-colors.$gray, $lightness: 20%, $alpha: -.5 ),
+	box-shadow:
+		0 0 0 1px color.adjust( calypso-colors.$gray, $lightness: 20%, $alpha: -.5 ),
 		0 1px 2px color.adjust( calypso-colors.$gray, $lightness: 30% );
 
 	@include layout.breakpoint( ">660px" ) {
