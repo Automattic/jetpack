@@ -14,6 +14,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Request;
+
 /**
  * Transforms the $atts array into a string that the old functions expected
  *
@@ -40,6 +42,21 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 	}
 
 	return str_replace( array( '&amp;', '&#038;' ), '&', $str );
+}
+
+/**
+ * Determine if shortcodes should hook on pre_kses.
+ *
+ * @return bool True if shortcodes should hook on pre_kses, false otherwise.
+ */
+function jetpack_shortcodes_should_hook_pre_kses() {
+	static $is_frontend;
+
+	if ( null === $is_frontend ) {
+		$is_frontend = Request::is_frontend( false );
+	}
+
+	return ! $is_frontend;
 }
 
 /**

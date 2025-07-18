@@ -26,8 +26,10 @@ function jetpack_getty_enable_embeds() {
 	wp_oembed_add_provider( '#https?://www\.gettyimages\.com/detail/.*#i', 'https://embed.gettyimages.com/oembed/', true );
 	wp_oembed_add_provider( '#https?://(www\.)?gty\.im/.*#i', 'https://embed.gettyimages.com/oembed/', true );
 
-	// Allow iframes to be filtered to short code (so direct copy+paste can be done).
-	add_filter( 'pre_kses', 'wpcom_shortcodereverse_getty' );
+	if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+		// Allow iframes to be filtered to short code (so direct copy+paste can be done).
+		add_filter( 'pre_kses', 'wpcom_shortcodereverse_getty' );
+	}
 
 	// Actually display the Getty Embed.
 	add_shortcode( 'getty', 'jetpack_getty_shortcode' );

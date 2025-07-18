@@ -261,4 +261,7 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'jetpack_soundcloud_embed_reversal' );
+
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'jetpack_soundcloud_embed_reversal' );
+}

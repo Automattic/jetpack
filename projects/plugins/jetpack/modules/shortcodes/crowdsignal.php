@@ -58,7 +58,10 @@ if (
 			add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
 			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
 
-			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
+			if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+				add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
+			}
+
 			add_action( 'infinite_scroll_render', array( $this, 'crowdsignal_shortcode_infinite' ), 11 );
 		}
 

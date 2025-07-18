@@ -17,9 +17,11 @@ class Request {
 	 * Determine whether the current request is for accessing the frontend.
 	 * Also update Vary headers to indicate that the response may vary by Accept header.
 	 *
+	 * @param bool $send_vary_headers Whether to send Vary headers.
+	 *
 	 * @return bool True if it's a frontend request, false otherwise.
 	 */
-	public static function is_frontend() {
+	public static function is_frontend( $send_vary_headers = true ) {
 		$is_frontend        = true;
 		$is_varying_request = true;
 
@@ -45,7 +47,7 @@ class Request {
 		* Check existing headers for the request.
 		* If there is no existing Vary Accept header, add one.
 		*/
-		if ( $is_varying_request && ! headers_sent() ) {
+		if ( $send_vary_headers && $is_varying_request && ! headers_sent() ) {
 			$headers           = headers_list();
 			$vary_header_parts = self::get_vary_headers( $headers );
 
@@ -59,7 +61,7 @@ class Request {
 		 *
 		 * @param bool $is_frontend Whether the current request is for accessing the frontend.
 		 */
-		return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
+		return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend, $send_vary_headers );
 	}
 
 	/**

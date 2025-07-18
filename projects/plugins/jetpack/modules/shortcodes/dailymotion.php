@@ -60,7 +60,6 @@ function dailymotion_embed_to_shortcode( $content ) {
 	}
 	return $content;
 }
-add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
 
 /**
  * DailyMotion shortcode
@@ -335,7 +334,6 @@ function dailymotion_channel_reversal( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
 
 /**
  * Dailymotion Embed Reversal (with new iframe code as of 17.09.2014)
@@ -382,4 +380,9 @@ function jetpack_dailymotion_embed_reversal( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'jetpack_dailymotion_embed_reversal' );
+
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
+	add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
+	add_filter( 'pre_kses', 'jetpack_dailymotion_embed_reversal' );
+}

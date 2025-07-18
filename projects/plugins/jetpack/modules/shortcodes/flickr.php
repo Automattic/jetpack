@@ -101,7 +101,9 @@ function jetpack_flickr_video_to_shortcode( $content ) {
 	return '[flickr video="' . $video_src . '" ' . $width . ' ' . $height . ' controls="' . $controls . '" autoplay="' . $autoplay . '"]';
 }
 
-add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
+}
 
 /**
  * Flickr Shortcode handler.
