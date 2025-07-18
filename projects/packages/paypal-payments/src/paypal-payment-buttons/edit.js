@@ -209,10 +209,10 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 
 	// Initialize raw code when valid extracted values exist
 	useEffect( () => {
-		if ( ! rawHeadCode && scriptSrc ) {
+		if ( ! rawHeadCode && scriptSrc && buttonType === 'stacked' ) {
 			setRawHeadCode( generateHeadCode( scriptSrc ) );
 		}
-	}, [ scriptSrc, rawHeadCode ] );
+	}, [ scriptSrc, rawHeadCode, buttonType ] );
 
 	useEffect( () => {
 		if ( ! rawBodyCode && hostedButtonId ) {
@@ -296,7 +296,17 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					label={ __( 'Button type', 'jetpack-paypal-payments' ) }
 					value={ buttonType }
 					hideLabelFromVision
-					onChange={ type => setAttributes( { buttonType: type } ) }
+					onChange={ type => {
+						const newAttributes = { buttonType: type };
+						newAttributes.scriptSrc = '';
+						newAttributes.buttonText = '';
+						newAttributes.hostedButtonId = '';
+
+						setRawHeadCode( '' );
+						setRawBodyCode( '' );
+
+						setAttributes( newAttributes );
+					} }
 					isBlock
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
