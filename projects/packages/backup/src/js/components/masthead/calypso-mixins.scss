@@ -47,7 +47,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 @mixin breakpoint( $size ){
 
 	@if meta.type-of($size) == string {
-	  $approved-value: 0;
+		$approved-value: 0;
 
 		@each $breakpoint in $breakpoints {
 			$and-larger: ">" + $breakpoint;
@@ -171,8 +171,8 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		content: ' ';
 		height: 0;
 		position: absolute;
-			top: -12px;
-			left: 73px;
+		top: -12px;
+		left: 73px;
 		width: 0;
 	}
 

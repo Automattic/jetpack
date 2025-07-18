@@ -49,12 +49,12 @@
 	allowing themes to easily override these styles
  */
 :where(
-	.contact-form input[type="text"],
-	.contact-form input[type="email"],
-	.contact-form input[type="tel"],
-	.contact-form input[type="url"],
-	.contact-form input[type="number"],
-	.contact-form textarea
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"],
+.contact-form input[type="url"],
+.contact-form input[type="number"],
+.contact-form textarea
 ) {
 	box-sizing: border-box;
 	width: 100%;
@@ -168,10 +168,10 @@
 .contact-form .is-style-animated .grunion-radio-options legend,
 .contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
 .contact-form .is-style-outlined .grunion-radio-options legend {
-    margin: 0 0 -0.75em;
-    padding: 0 0.25em 10px 0.25em;
-    cursor: text;
-    pointer-events: auto;
+	margin: 0 0 -0.75em;
+	padding: 0 0.25em 10px 0.25em;
+	cursor: text;
+	pointer-events: auto;
 }
 
 .wp-block-jetpack-contact-form.is-style-outlined .wp-block-jetpack-options legend {
@@ -420,7 +420,7 @@
 	 * Remove padding set on .grunion-field. We want the nested input to have no space around it.
 	 * Instead the padding is added to the `select` element itself.
 	 */
-	 padding: 0;
+	padding: 0;
 }
 
 .contact-form .contact-form__select-wrapper .jetpack-field-dropdown__icon {
@@ -622,7 +622,7 @@
 /* Preserve the background color for the checkbox multiple and radio wrap when using the old checkbox multiple and radio blocks. */
 .contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap:not(.wp-block-jetpack-field-checkbox-multiple),
 .contact-form .is-style-outlined .grunion-field-radio-wrap:not(.wp-block-jetpack-field-radio) {
-    background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--input-background);
 }
 
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) .wp-block-jetpack-options {
@@ -927,7 +927,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	appearance: none;
 	border: solid 1px currentColor;
-    color: currentColor;
+	color: currentColor;
 	outline-offset: 4px;
 	transform: translateY(0.15em);
 }
@@ -950,7 +950,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	line-height: 1;
 
-  transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
 }
 
 .contact-form .grunion-field-wrap input.radio:checked::before {
@@ -1165,13 +1165,13 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .visually-hidden {
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
 }
 
 .contact-form.is-ajax-form.is-submitted {
