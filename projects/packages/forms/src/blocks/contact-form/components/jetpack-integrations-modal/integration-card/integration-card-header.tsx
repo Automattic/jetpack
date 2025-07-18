@@ -104,25 +104,23 @@ const IntegrationCardHeader = ( {
 						/>
 					</div>
 					<div className="integration-card__title-section">
-						<div className="integration-card__title-row">
-							<h3 className="integration-card__title">{ title }</h3>
-							{ showPluginAction && (
-								<span className="integration-card__plugin-badge">
-									{ ! isInstalled && installPluginActionLabel }
-									{ isInstalled && ! isActive && activatePluginActionLabel }
-								</span>
-							) }
-							{ showConnectedBadge && (
-								<span className="integration-card__connected-badge">
-									<Icon icon="yes-alt" size={ 12 } />
-									{ __( 'Enabled', 'jetpack-forms' ) }
-								</span>
-							) }
-							{ showPendingBadge && <>{ pendingBadge }</> }
-						</div>
+						<h3 className="integration-card__title">{ title }</h3>
 						{ description && (
 							<span className="integration-card__description">{ description }</span>
 						) }
+						{ showPluginAction && (
+							<span className="integration-card__plugin-badge">
+								{ ! isInstalled && installPluginActionLabel }
+								{ isInstalled && ! isActive && activatePluginActionLabel }
+							</span>
+						) }
+						{ showConnectedBadge && (
+							<span className="integration-card__connected-badge">
+								<Icon icon="yes-alt" size={ 12 } />
+								{ __( 'Enabled', 'jetpack-forms' ) }
+							</span>
+						) }
+						{ showPendingBadge && <>{ pendingBadge }</> }
 					</div>
 				</div>
 				<HStack
