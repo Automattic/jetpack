@@ -33,8 +33,9 @@ export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
 			unregisterChart,
 			getChartData,
 		} ),
+		// Only depend on version - the functions are stable from useCallback with empty deps
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ version, registerChart, unregisterChart, getChartData ]
+		[ version ]
 	);
 
 	return <ChartContext.Provider value={ value }>{ children }</ChartContext.Provider>;
