@@ -334,27 +334,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Store shortcode content for recall later
 	 *  - used to receate shortcode when user uses do_shortcode
 	 *
-	 * @param string $content - the content.
-	 * @param array  $attributes - the attributes.
-	 * @param string $hash - the hash.
+	 * @deprecated $$next-version$$
 	 */
-	public static function store_shortcode( $content = null, $attributes = null, $hash = null ) {
-
-		if ( $content && isset( $attributes['id'] ) ) {
-
-			if ( empty( $hash ) ) {
-				$hash = sha1( wp_json_encode( $attributes ) . $content );
-			}
-
-			$shortcode_meta = (string) get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
-
-			if ( $shortcode_meta !== '' || $shortcode_meta !== $content ) {
-				update_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", $content );
-
-				// Save attributes to post_meta for later use. They're not available later in do_shortcode situations.
-				update_post_meta( $attributes['id'], "_g_feedback_shortcode_atts_{$hash}", $attributes );
-			}
-		}
+	public static function store_shortcode() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Contact_Form_Plugin::store_shortcode()' );
 	}
 
 	/**
