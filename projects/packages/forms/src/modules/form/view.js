@@ -183,7 +183,7 @@ const { state } = store( NAMESPACE, {
 			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
 		},
 
-		get showFromErrors() {
+		get showFormErrors() {
 			const context = getContext();
 
 			return ! state.isFormValid && context.showErrors;
