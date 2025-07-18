@@ -87,18 +87,18 @@ export class DashStats extends Component {
 			totalViews += views;
 
 			if ( 'day' === unit ) {
-				chartLabel = dateI18n( shortMonthFormat, date );
-				tooltipLabel = dateI18n( longMonthFormat, date );
+				chartLabel = dateI18n( shortMonthFormat, date, true );
+				tooltipLabel = dateI18n( longMonthFormat, date, true );
 			} else if ( 'week' === unit ) {
-				chartLabel = dateI18n( shortMonthFormat, date );
+				chartLabel = dateI18n( shortMonthFormat, date, true );
 				tooltipLabel = sprintf(
 					/* translators: placeholder is a date. */
 					__( 'Week of %s', 'jetpack' ),
-					dateI18n( longMonthFormat, date )
+					dateI18n( longMonthFormat, date, true )
 				);
 			} else if ( 'month' === unit ) {
-				chartLabel = dateI18n( 'M', date );
-				tooltipLabel = dateI18n( longMonthYearFormat, date );
+				chartLabel = dateI18n( 'M', date, true );
+				tooltipLabel = dateI18n( longMonthYearFormat, date, true );
 			}
 
 			s.push( {
