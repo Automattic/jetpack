@@ -72,7 +72,9 @@
 		}
 
 		// fix for typeahead splaying out
-		.wh-large select, .wh-large input, input.typeahead {
+		.wh-large select,
+		.wh-large input,
+		input.typeahead {
 			max-width: 100%;
 		}
 
@@ -101,7 +103,8 @@
 	}
 
 
-	.invoice-grand-total-wrapper, #zbs-invoice-partial-payments{
+	.invoice-grand-total-wrapper,
+	#zbs-invoice-partial-payments{
 		margin-top:5px !important;
 
 		.due-row{
@@ -109,7 +112,9 @@
 			border-bottom: 1px solid #ddd;
 		}
 
-		.partial-row, .due-row, .partial-row-tab{
+		.partial-row,
+		.due-row,
+		.partial-row-tab{
 			padding:15px;
 			border-top: 1px solid #ddd;
 			border-left: 1px solid #ddd;
@@ -350,7 +355,8 @@
 			float:right;
 			min-width: 335px;
 
-			input, select{
+			input,
+			select{
 				// WH: changed for symmetry with rest of page width:80%;
 				width:100%;
 				float:left;
@@ -413,7 +419,8 @@
 		margin-bottom: 20px;
 		margin-top: 15px;
 
-		#zbs_success, #zbs_test_success{
+		#zbs_success,
+		#zbs_test_success{
 			display:none;
 			background: #008000;
 			padding:10px;
@@ -431,7 +438,8 @@
 
 
 	// here we split into two, so headers can match
-	.business-info-toggle, .billing-to-title{
+	.business-info-toggle,
+	.billing-to-title{
 		font-size:20px;
 		font-weight:100;
 
@@ -512,7 +520,8 @@
 		margin-top:20px;
 	}
 
-	#invoice_totals, #partials{
+	#invoice_totals,
+	#partials{
 		width: 100%;
 		border-top: 2px solid #ccc;
 		border-right: 2px solid #ccc;
@@ -582,7 +591,10 @@
 			width:60%;
 		}
 
-		.second, .third, .forth, .fifth{
+		.second,
+		.third,
+		.forth,
+		.fifth{
 			width: 10%;
 		}
 
@@ -648,19 +660,22 @@
 			box-shadow: none;
 		}
 
-		.top-row, .bottom-row{
+		.top-row,
+		.bottom-row{
 			border-left: 2px solid #ccc;
 			border-right: 2px solid #ccc;
 		}
 
-		.bottom-row, .row-amount{
+		.bottom-row,
+		.row-amount{
 			border-bottom: 2px solid #ccc;
 			border-right: 2px solid #ccc;
 		}
 
 		.selected{
 
-			.top-row, .bottom-row{
+			.top-row,
+			.bottom-row{
 				border-left: 4px solid #428bca;
 			}
 		}
@@ -672,7 +687,12 @@
 			}
 		}
 
-		.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th{
+		.table > tbody > tr > td,
+		.table > tbody > tr > th,
+		.table > tfoot > tr > td,
+		.table > tfoot > tr > th,
+		.table > thead > tr > td,
+		.table > thead > tr > th{
 			border-top: 0 solid #fff !important;
 		}
 
@@ -839,7 +859,8 @@
 		margin-bottom: 20px;
 		margin-left: 12px;
 
-		.zbs-remove, .zbs-update{
+		.zbs-remove,
+		.zbs-update{
 			cursor:pointer;
 		}
 

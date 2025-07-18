@@ -1,6 +1,8 @@
 .container {
 
-	a, a:active, a:hover {
+	a,
+	a:active,
+	a:hover {
 		color: var( --jp-black );
 	}
 
@@ -60,7 +62,9 @@
 
 .actions-list-item {
 
-	&, a, * {
+	&,
+	a,
+	* {
 		font-size: 0.8125rem; // 13px
 		line-height: 20px;
 		font-weight: 400;

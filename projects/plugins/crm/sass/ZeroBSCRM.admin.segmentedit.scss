@@ -80,7 +80,8 @@
 
 		// style matching,
 		// partly taken from .wp-core-ui select
-		select, input {
+		select,
+		input {
 			margin-right: 0.8em;
 			font-size: 14px;
 			line-height: 2;
@@ -125,13 +126,15 @@
 		// segment conditions
 		.zbs-segment-edit-condition {
 		    
-			select, input {
+			select,
+			input {
 				display: inline-block;
 				width: auto;
 				margin-right: 0.6em;
 			}
 
-			.zbs-segment-edit-condition-remove:hover,.zbs-segment-edit-condition-remove i:hover {
+			.zbs-segment-edit-condition-remove:hover,
+			.zbs-segment-edit-condition-remove i:hover {
 
 				cursor:pointer;
 			}
@@ -156,7 +159,8 @@
 			}
 
 			// descriptions ui:
-			.jpcrm-expand-info:hover, .jpcrm-hide-info:hover {
+			.jpcrm-expand-info:hover,
+			.jpcrm-hide-info:hover {
 
 				cursor: pointer;
 

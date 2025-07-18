@@ -410,7 +410,8 @@ textarea:focus {
 #adminmenu .wp-has-current-submenu.opensub .wp-submenu a {
 	color: $menu-submenu-text;
 
-	&:focus, &:hover {
+	&:focus,
+	&:hover {
 		color: $menu-submenu-focus-text;
 	}
 }
@@ -423,7 +424,8 @@ textarea:focus {
 #adminmenu .wp-has-current-submenu.opensub .wp-submenu li.current a {
 	color: $menu-submenu-current-text;
 
-	&:hover, &:focus {
+	&:hover,
+	&:focus {
 		color: $menu-submenu-focus-text;
 	}
 }

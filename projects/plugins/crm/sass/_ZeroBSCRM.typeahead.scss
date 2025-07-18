@@ -11,7 +11,8 @@
 	padding-top: 10px;
 	padding-bottom: 10px;
 
-	.zbstypeahead, .zbstypeaheadco {
+	.zbstypeahead,
+	.zbstypeaheadco {
 
 		height: 40px !important;
 		line-height: 40px !important;
@@ -30,7 +31,8 @@
 		width:100%;
 	}
 
-	.zbstypeahead, .zbstypeaheadco {
+	.zbstypeahead,
+	.zbstypeaheadco {
 
 		// overrides (smaller)
 		font-size: 14px !important;
@@ -79,11 +81,13 @@
 	outline: none;
 }
 
-.zbstypeahead, .zbstypeaheadco{
+.zbstypeahead,
+.zbstypeaheadco{
 	background-color: #fff;
 }
 
-.zbstypeahead:focus, .zbstypeaheadco:focus {
+.zbstypeahead:focus,
+.zbstypeaheadco:focus {
 	border: 2px solid #0097cf;
 }
 

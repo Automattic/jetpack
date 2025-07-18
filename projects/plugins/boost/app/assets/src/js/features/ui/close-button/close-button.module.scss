@@ -14,7 +14,8 @@
 		opacity: 1;
 	}
 
-	&::before, &::after {
+	&::before,
+	&::after {
 		position: absolute;
 		left: 9px;
 		content: ' ';

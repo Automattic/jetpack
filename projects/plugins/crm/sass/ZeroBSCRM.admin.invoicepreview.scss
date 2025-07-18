@@ -69,7 +69,12 @@
 
 	}
 
-	.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+	.table > tbody > tr > td,
+	.table > tbody > tr > th,
+	.table > tfoot > tr > td,
+	.table > tfoot > tr > th,
+	.table > thead > tr > td,
+	.table > thead > tr > th {
 		padding: 8px;
 		line-height: 1.42857;
 		vertical-align: top;
@@ -100,7 +105,8 @@
 			width:50%;
 			float:right;
 
-			input, select{
+			input,
+			select{
 				width:90%;
 				float:left;
 			}
@@ -249,7 +255,8 @@
 		margin-top:20px;
 	}
 
-	#invoice_totals, #partials{
+	#invoice_totals,
+	#partials{
 		width: 100%;
 		border-top: 2px solid #ccc;
 		border-right: 2px solid #ccc;
@@ -377,7 +384,8 @@
 			box-shadow: none;
 		}
 
-		.bottom-row, .row-amount{
+		.bottom-row,
+		.row-amount{
 			border-bottom: 1px solid #ccc;
 		}
 	}
@@ -527,7 +535,8 @@
 		margin-bottom: 20px;
 		margin-left: 12px;
 
-		.zbs-remove, .zbs-update{
+		.zbs-remove,
+		.zbs-update{
 			cursor:pointer;
 		}
 

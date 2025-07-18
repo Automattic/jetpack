@@ -8,12 +8,16 @@
 // WH fixes for clashes between wp + semantic when nested
 
 // button heights
-.wp-core-ui .button, .wp-core-ui .button-primary, .wp-core-ui .button-secondary {
+.wp-core-ui .button,
+.wp-core-ui .button-primary,
+.wp-core-ui .button-secondary {
 	height:auto;
 }
 
 // undo semantic change of menu font
-#adminmenu ul li, #adminmenu ul li a, #adminmenu div {
+#adminmenu ul li,
+#adminmenu ul li a,
+#adminmenu div {
 	font-family: sans-serif;
 }
 
@@ -27,7 +31,8 @@
 }
 
 // annoying bg colour
-.quicktags.icon, .search.icon {
+.quicktags.icon,
+.search.icon {
 	background-color:transparent !important;
 }
 
@@ -37,7 +42,8 @@
 }
 
 // match wp menu bg colour to page (white)
-ul#adminmenu a.wp-has-current-submenu::after, ul#adminmenu>li.current>a.current::after {
+ul#adminmenu a.wp-has-current-submenu::after,
+ul#adminmenu>li.current>a.current::after {
 
 	border-right-color: none !important;
 
@@ -106,7 +112,9 @@ div [class*="right floated"] {
 
 
 // right class on buttons - like this https://github.com/Semantic-Org/Semantic-UI/issues/664
-.button-primary.right, .button-secondary.right, .button.right {
+.button-primary.right,
+.button-secondary.right,
+.button.right {
 	float:none;
 }
 
@@ -160,7 +168,8 @@ i.alternate {
 
 
 // ===== WordPress 5.3 introduced some styles which broke some semantic ui overrides:
-.ui[class*="right labeled"].input input, .ui.fluid.input>input {
+.ui[class*="right labeled"].input input,
+.ui.fluid.input>input {
 	height: auto !important;
 }
 

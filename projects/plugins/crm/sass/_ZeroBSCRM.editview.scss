@@ -27,7 +27,8 @@
 			margin-right:auto;
 			display:inline-block;
 
-			i.icon, img {
+			i.icon,
+			img {
 				margin-top:0 !important;
 				margin-right:0 !important;
 				width: auto;
@@ -118,7 +119,8 @@
 	// TAG SUGGESTION ENGINE
 	#zbs-tags-suggestions-wrap {
 
-		h4,.zbs-tags-suggestions-title {
+		h4,
+		.zbs-tags-suggestions-title {
 			margin-top: 1em;
 			margin-bottom: 0.4em;
 		}
@@ -206,7 +208,11 @@
 }
 
 //allow text wrapping in tag manager
-table#zbs-tag-manager td, table#zbs-tag-manager td .label, #zbs-tags-wrap span, .zbsTagSuggestion, .zbs-view-tags a.button {
+table#zbs-tag-manager td,
+table#zbs-tag-manager td .label,
+#zbs-tags-wrap span,
+.zbsTagSuggestion,
+.zbs-view-tags a.button {
 	white-space: normal;
 	overflow-wrap: anywhere;
 }

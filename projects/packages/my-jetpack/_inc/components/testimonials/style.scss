@@ -37,7 +37,8 @@
 	}
 
 	// This is to make the image darker and let read the text
-	&--2, &--3 {
+	&--2,
+	&--3 {
 
 		&::before {
 			content: '';

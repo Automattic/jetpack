@@ -199,7 +199,11 @@
 
 		.jp-link-button {
 
-			&, &:active, &:visited, &:hover, &:focus {
+			&,
+			&:active,
+			&:visited,
+			&:hover,
+			&:focus {
 				font-size: typography.$font-body-extra-small;
 				line-height: 1.4;
 				box-shadow: none;

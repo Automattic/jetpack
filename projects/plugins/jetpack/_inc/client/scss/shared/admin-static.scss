@@ -41,7 +41,8 @@
 			line-height: 30px;
 		}
 
-		h3, h4 {
+		h3,
+		h4 {
 			font-size: 20px;
 			font-weight: 500;
 			line-height: 30px;
@@ -58,7 +59,8 @@
 			color: calypso-colors.$gray-80;
 		}
 
-		ol, ul {
+		ol,
+		ul {
 			padding: 4px 0 8px 18px;
 			margin: 0;
 			font-size: 14px;
@@ -86,7 +88,11 @@
 			}
 		}
 
-		a, a:visited, a:active, a:hover, a:focus {
+		a,
+		a:visited,
+		a:active,
+		a:hover,
+		a:focus {
 			color: calypso-colors.$gray-80;
 			text-decoration: underline;
 		}
@@ -152,12 +158,18 @@
 
 					a {
 
-						&, &:hover, &:active, &:focus {
+						&,
+						&:hover,
+						&:active,
+						&:focus {
 							color: var( --jp-black );
 						}
 					}
 
-					.components-button, .components-button:hover, .components-button:active, .components-button:focus {
+					.components-button,
+					.components-button:hover,
+					.components-button:active,
+					.components-button:focus {
 						display: block;
 						height: auto;
 						font-size: var( --font-body );

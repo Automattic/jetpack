@@ -235,7 +235,9 @@
 		margin-left: 272px;
 	}
 
-	.auto-fold #adminmenu, .auto-fold #adminmenuback, .auto-fold #adminmenuwrap {
+	.auto-fold #adminmenu,
+	.auto-fold #adminmenuback,
+	.auto-fold #adminmenuwrap {
 		width: 272px;
 	}
 
@@ -312,7 +314,8 @@
 	color:var(--wp-admin-theme-color)
 }
 
-.screen-switcher__button, a.screen-switcher__button {
+.screen-switcher__button,
+a.screen-switcher__button {
 	background: transparent;
 	border: 1px solid #0000;
 	border-radius: 4px;
@@ -326,22 +329,28 @@
 	text-align:left
 }
 
-.screen-switcher__button:nth-child(2), a.screen-switcher__button:nth-child(2) {
+.screen-switcher__button:nth-child(2),
+a.screen-switcher__button:nth-child(2) {
 	border-color: var(--wp-admin-theme-color);
 	margin-bottom:4px
 }
 
-.screen-switcher__button:last-child, a.screen-switcher__button:last-child {
+.screen-switcher__button:last-child,
+a.screen-switcher__button:last-child {
 	margin-bottom:0
 }
 
-.screen-switcher__button strong, a.screen-switcher__button strong {
+.screen-switcher__button strong,
+a.screen-switcher__button strong {
 	display: block;
 	font-size: 13px;
 	margin-bottom:4px
 }
 
-.screen-switcher__button:focus > strong, .screen-switcher__button:hover > strong, a.screen-switcher__button:focus > strong, a.screen-switcher__button:hover > strong {
+.screen-switcher__button:focus > strong,
+.screen-switcher__button:hover > strong,
+a.screen-switcher__button:focus > strong,
+a.screen-switcher__button:hover > strong {
 	color:var(--wp-admin-theme-color)
 }
 

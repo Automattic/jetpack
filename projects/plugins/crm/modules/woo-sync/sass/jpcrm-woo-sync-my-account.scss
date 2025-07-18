@@ -78,12 +78,14 @@
 		color: #000;
 	}
 
-	#zbs-business-info-wrapper, .zbs-invoice-pull-left {
+	#zbs-business-info-wrapper,
+	.zbs-invoice-pull-left {
 		width: 50%;
 		float: left;
 	}
 
-	#zbs-customer-info-wrapper, .zbs-invoice-pull-right{
+	#zbs-customer-info-wrapper,
+	.zbs-invoice-pull-right{
 		width: 50%;
 		float: right;
 		text-align: right;

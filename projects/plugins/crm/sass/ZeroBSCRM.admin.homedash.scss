@@ -5,7 +5,8 @@
 
 // this file is referenced in Mike's new ZBS dash
 
-a, a:visited{
+a,
+a:visited{
 	text-decoration: none;
 }
 
@@ -61,11 +62,13 @@ body ::-webkit-scrollbar-track{
 	}
 }
 
-#settings_dashboard_sales_funnel_display, #settings_dashboard_recent_activity_display {
+#settings_dashboard_sales_funnel_display,
+#settings_dashboard_recent_activity_display {
 	flex: 0 1 30%;
 }
 
-#settings_dashboard_revenue_chart_display, #settings_dashboard_latest_contacts_display {
+#settings_dashboard_revenue_chart_display,
+#settings_dashboard_latest_contacts_display {
 	flex: 0 1 70%;
 }
 

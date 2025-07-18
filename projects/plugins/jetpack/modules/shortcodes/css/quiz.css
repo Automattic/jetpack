@@ -38,14 +38,16 @@ div.jetpack-quiz div.jetpack-quiz-answer div.jetpack-quiz-explanation {
 	display: none;
 }
 
-div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation, div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation {
+div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation,
+div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation {
 	display: block;
 	color: #000;
 	font-size: 90%;
 	margin-top: 1em;
 }
 
-div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation tt, div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation tt {
+div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation tt,
+div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation tt {
 	font-size: 85%;
 }
 

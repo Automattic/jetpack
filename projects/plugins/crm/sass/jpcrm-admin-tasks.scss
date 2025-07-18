@@ -36,7 +36,8 @@
 	align-items: center;
 	padding: 5px 10px;
 
-	i, img {
+	i,
+	img {
 		width: 30px;
 		flex: 0 0 0;
 		border-radius: 50%;
@@ -123,7 +124,12 @@ img.jpcrm-avatar {
 }
 
 
-.no-owner, .no-task-date, .task-reminders, .no-contact, .show-on-calendar, .remind_task{
+.no-owner,
+.no-task-date,
+.task-reminders,
+.no-contact,
+.show-on-calendar,
+.remind_task{
 
 	// take general rounding etc. from this
 	@extend %zbs-tasks-field;
@@ -136,7 +142,8 @@ img.jpcrm-avatar {
 	padding:4px;
 }
 
-.show-on-calendar, .remind_task{
+.show-on-calendar,
+.remind_task{
 	color: #000;
 
 	div input {
@@ -162,7 +169,8 @@ img.jpcrm-avatar {
 	right: 5px;
 }
 
-.no-owner, .no-task-date{
+.no-owner,
+.no-task-date{
 	width: 48%;
 }
 
@@ -171,12 +179,14 @@ img.jpcrm-avatar {
 	padding: 0.5em;
 }
 
-.show-on-calendar input[type="checkbox"], .remind_task input[type="checkbox"]{
+.show-on-calendar input[type="checkbox"],
+.remind_task input[type="checkbox"]{
 	margin: -2px 0 0;
 	line-height: normal;
 }
 
-.show-on-calendar span, .remind_task span{
+.show-on-calendar span,
+.remind_task span{
 	margin-left:5px;
 }
 
@@ -205,7 +215,8 @@ img.jpcrm-avatar {
 	color: #ccc;
 }
 
-#titlewrap, #post-body-content{
+#titlewrap,
+#post-body-content{
 	display:none;
 }
 
@@ -319,7 +330,8 @@ img.jpcrm-avatar {
 		background-color: inherit;
 	}
 
-	.fc-button-primary:not(:disabled).fc-button-active, .fc-button-primary:not(:disabled).fc-button-active:active {
+	.fc-button-primary:not(:disabled).fc-button-active,
+	.fc-button-primary:not(:disabled).fc-button-active:active {
 		color: var(--jp-white);
 		background-color: var(--jp-black);
 	}
@@ -353,7 +365,8 @@ img.jpcrm-avatar {
 		}
 	}
 
-	.fc-daygrid-event-harness, .fc-timegrid-event-harness {
+	.fc-daygrid-event-harness,
+	.fc-timegrid-event-harness {
 		overflow: hidden;
 		white-space: nowrap;
 	}

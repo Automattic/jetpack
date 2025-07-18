@@ -8,7 +8,8 @@
 // import actual form styles (shared from front end + backend)
 @use 'ZeroBSCRM.frontendforms';
 
-.widget, .mh-sidebar{
+.widget,
+.mh-sidebar{
 
 	.content{
 
@@ -31,7 +32,8 @@
 			background: #fff;
 		}
 
-		.send, input[type="submit"]{
+		.send,
+		input[type="submit"]{
 			width: 80% !important;
 			background: #0d6db8;
 			color: #fff;
@@ -56,7 +58,8 @@
     
 }
 
-.naked, .simple {
+.naked,
+.simple {
 
 	.zbscrmReCaptcha {
 		padding-top:8px;

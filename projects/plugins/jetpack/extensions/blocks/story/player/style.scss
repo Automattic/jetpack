@@ -125,7 +125,8 @@
 				align-items: center;
 			}
 
-			.wp-story-loading-spinner__outer, .wp-story-loading-spinner__inner {
+			.wp-story-loading-spinner__outer,
+			.wp-story-loading-spinner__inner {
 				margin: auto;
 				box-sizing: border-box;
 				border: 0.1em solid transparent;
@@ -151,7 +152,8 @@
 		}
 	}
 
-	.wp-story-image, .wp-story-video {
+	.wp-story-image,
+	.wp-story-video {
 		display: block;
 		height: auto;
 		width: auto;
@@ -169,7 +171,8 @@
 		}
 	}
 
-	.wp-story-meta, .wp-story-controls {
+	.wp-story-meta,
+	.wp-story-controls {
 		display: none;
 	}
 

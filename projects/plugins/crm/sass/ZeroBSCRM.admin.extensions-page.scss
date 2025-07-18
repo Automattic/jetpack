@@ -265,7 +265,9 @@
 		margin-top:10px;
 	}
 
-	.back a:focus, .docs-url:focus, .by-url:focus{
+	.back a:focus,
+	.docs-url:focus,
+	.by-url:focus{
 		outline:none;
 		box-shadow:none;
 	}

@@ -4,11 +4,13 @@
  */
 
 // Front end forms - ACTUAL FORM styles
-.post-type-zerobs_form, .zbscrmFrontEndForm, // <3.0
+.post-type-zerobs_form, // <3.0
+.zbscrmFrontEndForm, // <3.0
 .zbs-edit-wrap-form // v3+
 {
 
-	#form-embed, #form-preview{
+	#form-embed,
+	#form-preview{
 		min-height: 50px;
 		margin-bottom: 20px;
 		border: 1px solid #e5e5e5;
@@ -115,7 +117,9 @@
 			border: 4px solid #ddd !important;
 		}
 
-		.simple, .naked, .cgrab{
+		.simple,
+		.naked,
+		.cgrab{
 			border: 1px solid #ddd;
 		}
 
@@ -367,7 +371,9 @@
 			border: 4px solid #ddd !important;
 		}
 
-		.simple, .naked, .cgrab{
+		.simple,
+		.naked,
+		.cgrab{
 			border: 1px solid #ddd;
 		}
 
@@ -436,7 +442,8 @@
 						background: #fff;
 					}
 
-					.send, input[type="submit"]{
+					.send,
+					input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
 						color: #fff;
@@ -532,7 +539,8 @@
 						margin-bottom:10px;
 					}
 
-					.send, input[type="submit"]{
+					.send,
+					input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
 						color: #fff;
@@ -605,7 +613,8 @@
 						font-weight: 100;
 					}
 
-					.send, input[type="submit"]{
+					.send,
+					input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
 						color: #fff;

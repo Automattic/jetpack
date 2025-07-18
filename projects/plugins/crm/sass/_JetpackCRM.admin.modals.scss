@@ -8,7 +8,8 @@
 	z-index: 999999;
 
 	// overriding annoying jquery modal (maybe mike included? or I did ages ago)
-	.modal, .ui.modal {
+	.modal,
+	.ui.modal {
 
 		/* max-width: 500px; */
 		max-width: 1400px !important;
@@ -360,8 +361,10 @@
 	}
 
 	// hide these
-	.jpcrm-modal-body .jpcrm-modal-illustration, 
-	.ui.modals.page .jpcrm-modal-footer, 
+	.jpcrm-modal-body .jpcrm-modal-illustration,
+ 
+	.ui.modals.page .jpcrm-modal-footer,
+ 
 	.jpcrm-modal-body .jpcrm-modal-actions .jpcrm-modal-action-import {
 
 		display: none !important;

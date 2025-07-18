@@ -31,15 +31,24 @@ label {
 	font-weight: 700;
 }
 
-button, input, optgroup, select {
+button,
+input,
+optgroup,
+select {
 	font: inherit;
 }
 
-input[type="checkbox"], input[type="radio"] {
+input[type="checkbox"],
+input[type="radio"] {
 	margin: 4px 0 0;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	line-height: 1.1;
 }
 
@@ -67,7 +76,8 @@ img {
 	content: " ";
 }
 
-.col-md-12, .col-xs-12 {
+.col-md-12,
+.col-xs-12 {
 	padding-right: 15px;
 	padding-left: 15px;
 }
@@ -232,7 +242,8 @@ body {
 	width:90%;
 }
 
-input[type="checkbox"], input[type="radio"]{
+input[type="checkbox"],
+input[type="radio"]{
 	width:20px;
 }
 
@@ -289,7 +300,8 @@ input[type="checkbox"], input[type="radio"]{
 	padding: 0;
 }
 
-.ck_form, .ck_form * {
+.ck_form,
+.ck_form * {
 	box-sizing: border-box;
 }
 
@@ -311,7 +323,8 @@ input[type="checkbox"], input[type="radio"]{
 	background: #eee;
 }
 
-.ck_form.ck_minimal input[type="text"], .ck_form.ck_minimal input[type="email"] {
+.ck_form.ck_minimal input[type="text"],
+.ck_form.ck_minimal input[type="email"] {
 	font-size: 18px;
 	padding: 10px 8px;
 	width: 68%;
@@ -324,7 +337,8 @@ input[type="checkbox"], input[type="radio"]{
 	height: 42px;
 }
 
-.ck_form input[type="text"]:focus, .ck_form input[type="email"]:focus {
+.ck_form input[type="text"]:focus,
+.ck_form input[type="email"]:focus {
 	outline: none;
 	border-color: #aaa;
 }
@@ -371,13 +385,17 @@ input[type="checkbox"], input[type="radio"]{
 	background: #fff;
 }
 
-.ck_form.ck_minimal.width400 .ck_subscribe_button, .ck_form.ck_minimal.width400 input[type="email"] {
+.ck_form.ck_minimal.width400 .ck_subscribe_button,
+.ck_form.ck_minimal.width400 input[type="email"] {
 	width: 100%;
 	float: none;
 	margin-top: 5px;
 }
 
-.ck_slide_up, .ck_modal, .ck_slide_up .ck_minimal, .ck_modal .ck_minimal  {
+.ck_slide_up,
+.ck_modal,
+.ck_slide_up .ck_minimal,
+.ck_modal .ck_minimal  {
 	min-width: 400px;
 }
 
@@ -388,7 +406,10 @@ input[type="checkbox"], input[type="radio"]{
 
 
 /* v6 */
-.ck_slide_up.ck_form_v6, .ck_modal.ck_form_v6, .ck_slide_up.ck_form_v6 .ck_minimal, .ck_modal.ck_form_v6 .ck_minimal {
+.ck_slide_up.ck_form_v6,
+.ck_modal.ck_form_v6,
+.ck_slide_up.ck_form_v6 .ck_minimal,
+.ck_modal.ck_form_v6 .ck_minimal {
 	min-width: 0 !important;
 }
 

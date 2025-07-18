@@ -10,7 +10,8 @@
 		display: none;
 	}
 
-	&__left, &__right {
+	&__left,
+	&__right {
 		box-sizing: border-box;
 	}
 
@@ -45,7 +46,8 @@
 			margin-bottom: 0;
 		}
 
-		p, li {
+		p,
+		li {
 			font-style: normal;
 			font-weight: 400;
 			font-size: 16px;

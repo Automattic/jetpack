@@ -1,6 +1,7 @@
 @import url(./cssparsed.css);
 
-html, body {
+html,
+body {
 	font:0.8em Verdana,Helvetica,sans-serif;
 	background:#F8F8F6;
 }
@@ -37,7 +38,8 @@ fieldset#field_input {
 	margin:0 0.5em 1em 0;
 }
 
-fieldset#options,fieldset#code_layout {
+fieldset#options,
+fieldset#code_layout {
 	width:31em;
 }
 

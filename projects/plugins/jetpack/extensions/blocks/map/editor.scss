@@ -97,7 +97,8 @@
 		outline: none;
 		box-shadow: none;
 
-		&:focus, &:focus-within {
+		&:focus,
+		&:focus-within {
 			outline: none;
 			box-shadow: none;
 		}

@@ -11,7 +11,8 @@
 	font-display: block;
 }
 
-[class^="jp-protect-icon"], [class*=" jp-protect-icon"] {
+[class^="jp-protect-icon"],
+[class*=" jp-protect-icon"] {
 
 	/* use !important to prevent issues with browser extensions that change fonts */
 	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword -- this is a one-off icon font. */

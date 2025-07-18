@@ -40,7 +40,10 @@
 		align-self: center;
 	}
 
-	.button, .button:visited, .button:active, .button:hover {
+	.button,
+	.button:visited,
+	.button:active,
+	.button:hover {
 		color: var( --jp-white );
 		font-weight: 600;
 		font-size: 16px;
@@ -69,7 +72,10 @@
 
 	&.bigger-than-medium {
 
-		.button, .button:visited, .button:active, .button:hover {
+		.button,
+		.button:visited,
+		.button:active,
+		.button:hover {
 			margin-left: 0;
 			margin-top: 0;
 			white-space: nowrap;

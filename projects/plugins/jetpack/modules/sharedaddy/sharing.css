@@ -517,11 +517,15 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Individual official buttons */
-.pocket_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
+.pocket_button iframe,
+.pinterest_button,
+.twitter_button,
+.linkedin_button>span {
 	margin: 0 !important;
 }
 
-.linkedin_button>span, .pinterest_button a {
+.linkedin_button>span,
+.pinterest_button a {
 	display: block !important;
 }
 
@@ -601,7 +605,8 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	height: 0 !important;
 }
 
-.sharing-hidden .inner::before, .sharing-hidden .inner::after {
+.sharing-hidden .inner::before,
+.sharing-hidden .inner::after {
 	position: absolute;
 	z-index: 1;
 	top: -8px;

@@ -16,7 +16,8 @@
 	border-color: #fff;
 }
 
-.jetpack-slideshow-window, .jetpack-slideshow-window * {
+.jetpack-slideshow-window,
+.jetpack-slideshow-window * {
 	box-sizing: content-box;
 }
 

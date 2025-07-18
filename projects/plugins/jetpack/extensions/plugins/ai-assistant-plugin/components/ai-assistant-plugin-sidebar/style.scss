@@ -2,7 +2,8 @@
 	margin-bottom: 2em;
 	display: block;
 
-	p, p > * {
+	p,
+	p > * {
 		text-wrap: pretty;
 	}
 

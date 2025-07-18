@@ -132,7 +132,9 @@
 							display: inline;
 						}
 
-						&:active, &:focus, &:hover {
+						&:active,
+						&:focus,
+						&:hover {
 							text-decoration: underline;
 						}
 					}

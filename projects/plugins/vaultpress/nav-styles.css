@@ -54,7 +54,10 @@
 	color: #bbb;
 }
 
-.dops-notice.is-success .dops-notice__dismiss, .dops-notice.is-error .dops-notice__dismiss, .dops-notice.is-warning .dops-notice__dismiss, .dops-notice.is-info .dops-notice__dismiss {
+.dops-notice.is-success .dops-notice__dismiss,
+.dops-notice.is-error .dops-notice__dismiss,
+.dops-notice.is-warning .dops-notice__dismiss,
+.dops-notice.is-info .dops-notice__dismiss {
 	overflow: hidden;
 }
 
@@ -160,7 +163,8 @@
 	}
 }
 
-.dops-notice .dops-notice__dismiss:hover, .dops-notice .dops-notice__dismiss:focus {
+.dops-notice .dops-notice__dismiss:hover,
+.dops-notice .dops-notice__dismiss:focus {
 	color: #fff;
 }
 

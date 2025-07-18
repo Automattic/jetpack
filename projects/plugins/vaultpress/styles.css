@@ -227,14 +227,16 @@ Mini normalize
 	border-width: 2px 1px 1px;
 }
 
-.dops-button[disabled], .dops-button:disabled {
+.dops-button[disabled],
+.dops-button:disabled {
 	color: #eee;
 	background: #fff;
 	border-color: #eee;
 	cursor: default;
 }
 
-.dops-button[disabled]:active, .dops-button:disabled:active {
+.dops-button[disabled]:active,
+.dops-button:disabled:active {
 	border-width: 1px 1px 2px;
 }
 
@@ -262,12 +264,14 @@ Mini normalize
 	color: #fff;
 }
 
-.dops-button.is-primary:hover, .dops-button.is-primary:focus {
+.dops-button.is-primary:hover,
+.dops-button.is-primary:focus {
 	border-color: #005082;
 	color: #fff;
 }
 
-.dops-button.is-primary[disabled], .dops-button.is-primary:disabled {
+.dops-button.is-primary[disabled],
+.dops-button.is-primary:disabled {
 	background: #bceefd;
 	border-color: #8cc9e2;
 	color: #fff;
@@ -282,7 +286,8 @@ Mini normalize
 	color: #d94f4f;
 }
 
-.dops-button.is-scary:hover, .dops-button.is-scary:focus {
+.dops-button.is-scary:hover,
+.dops-button.is-scary:focus {
 	border-color: #d94f4f;
 }
 
@@ -290,7 +295,8 @@ Mini normalize
 	box-shadow: 0 0 0 2px #eba3a3;
 }
 
-.dops-button.is-scary[disabled], .dops-button.is-scary:disabled {
+.dops-button.is-scary[disabled],
+.dops-button.is-scary:disabled {
 	color: #f4cdcd;
 	border-color: #eee;
 }
@@ -484,7 +490,8 @@ Mini normalize
 	color: #888
 }
 
-.jp-footer__link:hover, .jp-footer__link:active {
+.jp-footer__link:hover,
+.jp-footer__link:active {
 	color: #272727
 }
 
