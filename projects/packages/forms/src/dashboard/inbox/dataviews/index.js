@@ -6,6 +6,8 @@ import {
 	Modal,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { DataViews } from '@wordpress/dataviews/wp';
@@ -278,36 +280,61 @@ export default function InboxView() {
 	}, [ isMobile, onChangeSelection, selection ] );
 
 	return (
-		<HStack
-			spacing={ 0 }
-			alignment="top"
-			justify="flex-start"
-			ref={ containerRef }
-			className="jp-forms__inbox__dataviews__container"
-		>
-			<div className="jp-forms__inbox__dataviews">
-				<DataViews
-					paginationInfo={ paginationInfo }
-					fields={ fields }
-					actions={ actions }
-					data={ data || EMPTY_ARRAY }
-					isLoading={ isLoadingData }
-					view={ view }
-					onChangeView={ setView }
-					selection={ selection }
-					onChangeSelection={ onChangeSelection }
-					getItemId={ getItemId }
-					defaultLayouts={ defaultLayouts }
-					header={ <InboxStatusToggle currentQuery={ queryArgs } /> }
-				/>
-			</div>
-			<SingleResponse
-				sidePanelItem={ sidePanelItem }
-				setSidePanelItem={ setSidePanelItem }
-				isLoadingData={ isLoadingData }
-				isMobile={ isMobile }
-			/>
-		</HStack>
+		<VStack className="jp-forms__inbox__dataviews">
+			<DataViews
+				actions={ actions }
+				data={ data || EMPTY_ARRAY }
+				defaultLayouts={ defaultLayouts }
+				fields={ fields }
+				getItemId={ getItemId }
+				isLoading={ isLoadingData }
+				onChangeSelection={ onChangeSelection }
+				onChangeView={ setView }
+				paginationInfo={ paginationInfo }
+				selection={ selection }
+				view={ view }
+			>
+				<HStack
+					spacing={ 2 }
+					justify="left"
+					wrap={ true }
+					className="jp-forms__inbox__dataviews__filters_container"
+				>
+					<DataViews.Search />
+					<DataViews.FiltersToggle />
+					<DataViews.Filters />
+					<div className="jp-forms__inbox__dataviews__filters-view-toggle">
+						<InboxStatusToggle currentQuery={ queryArgs } />
+					</div>
+					<DataViews.ViewConfig />
+				</HStack>
+
+				<HStack
+					spacing={ 0 }
+					alignment="stretch"
+					justify="flex-start"
+					ref={ containerRef }
+					className="jp-forms__inbox__dataviews__layout_container"
+				>
+					<DataViews.Layout className="jp-forms__inbox__dataviews-responses" />
+					<SingleResponse
+						sidePanelItem={ sidePanelItem }
+						setSidePanelItem={ setSidePanelItem }
+						isLoadingData={ isLoadingData }
+						isMobile={ isMobile }
+					/>
+				</HStack>
+				<HStack
+					spacing={ 2 }
+					justify="space-between"
+					wrap={ true }
+					className="jp-forms__inbox__dataviews__controls_container"
+				>
+					<DataViews.BulkActionToolbar />
+					<DataViews.Pagination />
+				</HStack>
+			</DataViews>
+		</VStack>
 	);
 }
 
@@ -343,7 +370,7 @@ const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMob
 	return (
 		<Modal
 			title={ __( 'View response', 'jetpack-forms' ) }
-			size="medium"
+			isFullScreen
 			onRequestClose={ onRequestClose }
 		>
 			{ contents }

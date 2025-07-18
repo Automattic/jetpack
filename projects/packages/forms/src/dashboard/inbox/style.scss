@@ -126,6 +126,7 @@ $action-bar-height: 88px;
 .jp-forms__inbox-response-header {
 	margin: 24px 0 0;
 	padding: 0 32px;
+	max-width: 600px;
 }
 
 .jp-forms__inbox-response-header-title {
@@ -165,6 +166,12 @@ $action-bar-height: 88px;
 	line-height: 20px;
 	row-gap: 4px;
 	padding: 12px 32px 24px;
+	border-bottom: 1px solid var( --jp-forms-border-color );
+
+	.gravatar {
+		flex-shrink: 0;
+		flex-grow: 0;
+	}
 }
 
 .jp-forms__inbox-response-meta-label {
@@ -198,7 +205,7 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response-data {
-	border-top: 1px solid var( --jp-forms-border-color );
+	max-width: 600px;
 	display: flex;
 	font-size: var(--jp-forms-font-size-regular);
 	flex-direction: column;
@@ -299,6 +306,54 @@ $action-bar-height: 88px;
 	margin-bottom: 0;
 }
 
+.jp-forms__inbox__dataviews__filters_container,
+.jp-forms__inbox__dataviews__controls_container {
+	background: var(--jp-white);
+	padding: 12px 48px;
+}
+
+/*
+.jp-forms__inbox__dataviews__filters_container {
+	position: sticky;
+	top: 0;
+}
+*/
+
+.jp-forms__inbox__dataviews__filters-view-toggle {
+	margin-left: auto;
+}
+
+.jp-forms__inbox__dataviews__controls_container {
+	border-top: 1px solid var(--jp-gray-5);
+	bottom: 0;
+	position: fixed;
+}
+
+.jp-forms__inbox__dataviews__container {
+	box-sizing: border-box;
+	height: 100%;
+	min-height: 400px;
+}
+
+.jp-forms__inbox__dataviews__layout_container {
+	align-items: stretch;
+	border-top: 1px solid var(--jp-gray-5);
+}
+
+.jp-forms__inbox__dataviews-responses {
+	flex: 1 1 60%;
+	max-height: 100%;
+	min-height: 100%;
+}
+
+.jp-forms__inbox__dataviews-response {
+	border-left: 1px solid var(--jp-gray-5);
+	flex: 1 0 40%;
+	min-height: 100%;
+	min-width: 300px;
+}
+
+/*
 .jp-forms__inbox__dataviews__container {
 	height: 100%;
 	box-sizing: border-box;
@@ -354,7 +409,7 @@ $action-bar-height: 88px;
 	overflow: auto;
 	flex: 1 1 40%;
 }
-
+*/
 
 /* We need to make the available canvas 100% tall. Without this, no flex values will work, they will only use the available space. */
 body[class*="_page_jetpack-forms"],
@@ -394,9 +449,9 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 .jp-forms__inbox-file-preview-container {
-  margin-bottom: 16px;
-  max-height: 70vh;
-  aspect-ratio: 16 / 9;
+	margin-bottom: 16px;
+	max-height: 70vh;
+	aspect-ratio: 16 / 9;
 }
 
 .jp-forms__inbox-file-preview-container-iframe.is-loading,
@@ -406,19 +461,19 @@ body.jetpack_page_jetpack-forms-admin {
 
 .jp-forms__inbox-file-preview-container-iframe {
 	margin-bottom: 16px;
-  	max-height: 70vh;
+	max-height: 70vh;
 }
 
 .jp-forms__inbox-file-preview-image {
-  height: 100%;
-  width: 100%;
-  max-height: 66vh;
-  object-fit: contain;
+	height: 100%;
+	width: 100%;
+	max-height: 66vh;
+	object-fit: contain;
 }
 
 .jp-forms__inbox-file-preview-iframe {
 	display: block;
-  	width: 100%;
+	width: 100%;
 	min-width: 80vw;
 	min-height: 50vh;
 	border: none;

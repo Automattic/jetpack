@@ -47,7 +47,7 @@
 		"@wordpress/compose": "7.26.0",
 		"@wordpress/core-data": "7.26.0",
 		"@wordpress/data": "10.26.0",
-		"@wordpress/dataviews": "4.17.0",
+		"@wordpress/dataviews": "5.0.1-next.719a03cbe.0",
 		"@wordpress/dom-ready": "4.26.0",
 		"@wordpress/editor": "14.26.0",
 		"@wordpress/element": "6.26.0",
