@@ -390,8 +390,7 @@ body.settings_page_sharing .advanced input[type="submit"] {
 	text-decoration: line-through;
 }
 
-@media
-	(-webkit-min-device-pixel-ratio: 1.25),
+@media (-webkit-min-device-pixel-ratio: 1.25),
 	(min-resolution: 120dpi) {
 
 	.preview-digg .option-smart-on {
