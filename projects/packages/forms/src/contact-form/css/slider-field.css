@@ -6,13 +6,13 @@
 	margin-top: 30px;
 }
 
-.jetpack-slider-input__min-label,
-.jetpack-slider-input__max-label {
+.jetpack-field-slider__min-label,
+.jetpack-field-slider__max-label {
 	font-size: .9em;
 	text-align: center;
 }
 
-.jetpack-slider-input__input-container {
+.jetpack-field-slider__input-container {
 	display: flex;
 	flex: 1 1 auto;
 	min-width: 0;
@@ -82,7 +82,7 @@
 	background: var(--jetpack--contact-form--button-primary--background-color);
 }
 
-.jetpack-slider-input__value-indicator {
+.jetpack-field-slider__value-indicator {
 	position: absolute;
 	top: -36px;
 	left: 0;

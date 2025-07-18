@@ -2239,8 +2239,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 			?>
 		>
-			<span class="jetpack-slider-input__min-label"><?php echo esc_html( $min ); ?></span>
-			<div class="jetpack-slider-input__input-container">
+			<span class="jetpack-field-slider__min-label"><?php echo esc_html( $min ); ?></span>
+			<div class="jetpack-field-slider__input-container">
 				<input
 					type="range"
 					name="<?php echo esc_attr( $id ); ?>"
@@ -2259,12 +2259,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--aria-invalid="state.fieldHasErrors"
 				/>
 				<div
-					class="jetpack-slider-input__value-indicator"
+					class="jetpack-field-slider__value-indicator"
 					data-wp-text="state.getSliderValue"
 					data-wp-style--left="state.getSliderPosition"
 				><?php echo esc_html( $current_value ); ?></div>
 			</div>
-			<span class="jetpack-slider-input__max-label"><?php echo esc_html( $max ); ?></span>
+			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
 		<?php
 		$field .= ob_get_clean();
