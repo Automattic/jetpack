@@ -22,7 +22,7 @@
 .jetpack-field-slider__range {
 	-webkit-appearance: none;
 	appearance: none;
-	height: 2px;
+	height: 4px;
 	background: var(--jetpack--contact-form--button-primary--background-color);
 	outline: none;
 	border-radius: 2px;
@@ -39,8 +39,8 @@
 .jetpack-field-slider__range::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	appearance: none;
-	width: 12px;
-	height: 12px;
+	width: 16px;
+	height: 16px;
 	background: var(--jetpack--contact-form--button-primary--background-color);
 	border-radius: 50%;
 	cursor: pointer;
@@ -48,32 +48,18 @@
 	box-shadow: 0 0 2px rgba(0,0,0,0.2);
 }
 
-.jetpack-field-slider__range:focus::-webkit-slider-thumb {
-	background: var(--jetpack--contact-form--button-primary--background-color);
-}
-
-.jetpack-field-slider__range::-moz-range-thumb {
-	width: 12px;
-	height: 12px;
-	background: var(--jetpack--contact-form--button-primary--background-color);
-	border-radius: 50%;
-	cursor: pointer;
-	transition: background 0.3s;
-}
-
-.jetpack-field-slider__range:focus::-moz-range-thumb {
-	background: var(--jetpack--contact-form--button-primary--background-color);
-}
-
+.jetpack-field-slider__range::-moz-range-thumb,
 .jetpack-field-slider__range::-ms-thumb {
-	width: 12px;
-	height: 12px;
+	width: 16px;
+	height: 16px;
 	background: var(--jetpack--contact-form--button-primary--background-color);
 	border-radius: 50%;
 	cursor: pointer;
 	transition: background 0.3s;
 }
 
+.jetpack-field-slider__range:focus::-webkit-slider-thumb, 
+.jetpack-field-slider__range:focus::-moz-range-thumb,
 .jetpack-field-slider__range::-ms-fill-lower,
 .jetpack-field-slider__range::-ms-fill-upper,
 .jetpack-field-slider__range:focus::-ms-fill-lower,
