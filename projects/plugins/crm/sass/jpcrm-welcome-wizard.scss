@@ -599,7 +599,8 @@ $darkenColor: color.adjust($activeColor, $lightness: -20%);
 	display: inline-block;
 	margin-left: 1%;
 	text-align: center;
-	padding:7px 0; padding-top:12px;
+	padding:7px 0;
+	padding-top:12px;
 	margin-bottom:10px;
 	border-radius: 4px;
 }
@@ -661,7 +662,7 @@ p.lead {
 	}
 
 	.zbs-sync-img{
-		text-align: center;         
+		text-align: center;
 		width: 50%;
 		float:right;
 		margin-top: -39px;
@@ -670,7 +671,7 @@ p.lead {
 }
 
 .zbs-sync-wrap img {
-	width: 100%; 
+	width: 100%;
 	margin-left: auto;
 	margin-right: auto;
 }

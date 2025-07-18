@@ -80,7 +80,8 @@
 	width: 1px;
 	height: 1px;
 	overflow: hidden;
-	clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;
+	clip: rect(1px, 1px, 1px, 1px);
+	white-space: nowrap;
 }
 
 .jp-related-posts-i2__post-defs dd {

@@ -14,11 +14,13 @@
 @keyframes fadeIn {
 
 	from {
-		opacity: 0; visibility: hidden;
+		opacity: 0;
+		visibility: hidden;
 	}
 
 	to {
-		opacity: 1; visibility: visible;
+		opacity: 1;
+		visibility: visible;
 	}
 }
 
