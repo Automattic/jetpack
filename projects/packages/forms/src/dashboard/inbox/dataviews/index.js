@@ -302,7 +302,7 @@ export default function InboxView() {
 			>
 				<HStack
 					spacing={ 2 }
-					justify="left"
+					justify={ containerWidth <= 430 ? 'space-between' : 'left' }
 					wrap={ true }
 					className="jp-forms__inbox__dataviews__filters_container"
 				>

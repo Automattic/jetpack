@@ -310,17 +310,17 @@ $action-bar-height: 88px;
 .jp-forms__inbox__dataviews__controls_container {
 	background: var(--jp-white);
 	padding: 12px 48px;
+
+	@media (max-width: 430px) {
+		padding: 12px 24px;
+	}
 }
 
-/*
-.jp-forms__inbox__dataviews__filters_container {
-	position: sticky;
-	top: 0;
-}
-*/
+@media (min-width: 431px) {
 
-.jp-forms__inbox__dataviews__filters-view-toggle {
-	margin-left: auto;
+	.jp-forms__inbox__dataviews__filters-view-toggle {
+		margin-left: auto;
+	}
 }
 
 .jp-forms__inbox__dataviews__controls_container {
