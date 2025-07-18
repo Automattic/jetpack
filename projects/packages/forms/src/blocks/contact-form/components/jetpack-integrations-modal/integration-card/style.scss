@@ -43,6 +43,10 @@
 		gap: 4px 12px;
 		flex-wrap: wrap;
 		align-items: center;
+
+		@media (max-width: 782px) {
+			gap: 2px 12px;
+		}
 	}
 
 	&__service-icon-container {
@@ -138,7 +142,7 @@
 		@media (max-width: 782px) {
 			text-wrap: balance;
 			order: 2;
-			padding-bottom: 4px;
+			padding-bottom: 3px;
 		}
 	}
 
