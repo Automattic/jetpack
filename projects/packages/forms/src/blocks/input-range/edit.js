@@ -5,10 +5,10 @@ import { __ } from '@wordpress/i18n';
 
 export default function SliderInputEdit( props ) {
 	const { attributes, setAttributes } = props;
-	const { min, max, value, startingValue } = attributes;
+	const { min, max, default: defaultValue } = attributes;
 
 	const onChange = event => {
-		setAttributes( { value: Number( event.target.value ) } );
+		setAttributes( { default: Number( event.target.value ) } );
 	};
 
 	const blockProps = useBlockProps( {
@@ -19,7 +19,7 @@ export default function SliderInputEdit( props ) {
 	const getSliderPosition = () => {
 		const minNum = Number( min );
 		const maxNum = Number( max );
-		let valueNum = Number( value );
+		let valueNum = Number( defaultValue );
 		valueNum = valueNum < minNum ? minNum : valueNum;
 		valueNum = valueNum > maxNum ? maxNum : valueNum;
 		const percent = ( ( valueNum - minNum ) * 100 ) / ( maxNum - minNum );
@@ -56,8 +56,8 @@ export default function SliderInputEdit( props ) {
 					<NumberControl
 						key="startingValue"
 						label={ __( 'Starting value', 'jetpack-forms' ) }
-						value={ startingValue }
-						onChange={ newStartValue => setAttributes( { startingValue: newStartValue } ) }
+						value={ defaultValue }
+						onChange={ newValue => setAttributes( { default: newValue } ) }
 						min={ min }
 						max={ max }
 						__nextHasNoMarginBottom={ true }
@@ -74,7 +74,7 @@ export default function SliderInputEdit( props ) {
 							type="range"
 							min={ min }
 							max={ max }
-							value={ value }
+							value={ defaultValue }
 							onChange={ onChange }
 							className="jetpack-field-slider__range"
 						/>
@@ -82,7 +82,7 @@ export default function SliderInputEdit( props ) {
 							className="jetpack-field-slider__value-indicator"
 							style={ { left: getSliderPosition() } }
 						>
-							{ value }
+							{ defaultValue }
 						</div>
 					</div>
 					<span className="jetpack-field-slider__max-label">{ max }</span>

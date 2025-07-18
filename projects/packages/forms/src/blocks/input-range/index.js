@@ -23,11 +23,7 @@ const settings = {
 			type: 'number',
 			default: 100,
 		},
-		value: {
-			type: 'number',
-			default: 50,
-		},
-		startingValue: {
+		default: {
 			type: 'number',
 			default: 50,
 		},

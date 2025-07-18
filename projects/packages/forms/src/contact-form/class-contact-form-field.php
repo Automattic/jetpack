@@ -145,7 +145,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionstyles'             => null,
 				'min'                      => null,
 				'max'                      => null,
-				'startingvalue'            => null,
 				'maxfiles'                 => null,
 				'fieldwrapperclasses'      => null,
 				'stylevariationattributes' => array(),
@@ -484,9 +483,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 			if ( is_numeric( $this->get_attribute( 'max' ) ) ) {
 				$extra_attrs['max'] = $this->get_attribute( 'max' );
-			}
-			if ( is_numeric( $this->get_attribute( 'startingvalue' ) ) ) {
-				$extra_attrs['startingvalue'] = $this->get_attribute( 'startingvalue' );
 			}
 		}
 
@@ -2221,7 +2217,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
 		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
-		$starting_value = isset( $extra_attrs['startingvalue'] ) ? $extra_attrs['startingvalue'] : 50;
+		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 50;
 		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
 
 		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );

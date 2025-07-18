@@ -3106,10 +3106,10 @@ class Contact_Form_Plugin {
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
 			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
 				if ( 'jetpack/input-range' === ( $inner_block['blockName'] ?? '' ) ) {
-					$attrs                 = $inner_block['attrs'] ?? array();
-					$atts['min']           = isset( $attrs['min'] ) && $attrs['min'] !== '' ? $attrs['min'] : 0;
-					$atts['max']           = isset( $attrs['max'] ) && $attrs['max'] !== '' ? $attrs['max'] : 100;
-					$atts['startingvalue'] = isset( $attrs['startingValue'] ) && $attrs['startingValue'] !== '' ? $attrs['startingValue'] : 50;
+					$attrs           = $inner_block['attrs'] ?? array();
+					$atts['min']     = isset( $attrs['min'] ) && $attrs['min'] !== '' ? $attrs['min'] : 0;
+					$atts['max']     = isset( $attrs['max'] ) && $attrs['max'] !== '' ? $attrs['max'] : 100;
+					$atts['default'] = isset( $attrs['default'] ) && $attrs['default'] !== '' ? $attrs['default'] : 50;
 				}
 			}
 		}
