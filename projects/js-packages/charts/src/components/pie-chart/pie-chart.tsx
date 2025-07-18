@@ -1,7 +1,7 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
@@ -110,19 +110,26 @@ const PieChartInternal = ( {
 			withTooltips,
 		} );
 
+	// Memoize legend options to prevent unnecessary re-calculations
+	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, providerTheme, {
-		showValues: true,
-	} );
+	const legendItems = useChartLegendData( data, providerTheme, legendOptions );
 
 	const { isValid, message } = validateData( data );
 
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			thickness,
+			gapScale,
+			cornerScale,
+		} ),
+		[ thickness, gapScale, cornerScale ]
+	);
+
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, {
-		thickness,
-		gapScale,
-		cornerScale,
-	} );
+	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, chartMetadata );
 
 	if ( ! isValid ) {
 		return (
