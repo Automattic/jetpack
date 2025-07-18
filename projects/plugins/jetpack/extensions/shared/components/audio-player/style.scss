@@ -127,13 +127,13 @@ $gutter-m: 15px !default;
 	 */
 	@function encodecolor( $string ) {
 
-			@if meta.type-of( $string ) == 'color' {
-				$hex: string.slice( color.ie-hex-str( $string ), 4 );
-				$string: string.unquote( '#{$hex}' );
-			}
-			$string: '%23' + $string;
+		@if meta.type-of( $string ) == 'color' {
+			$hex: string.slice( color.ie-hex-str( $string ), 4 );
+			$string: string.unquote( '#{$hex}' );
+		}
+		$string: '%23' + $string;
 
-			@return $string;
+		@return $string;
 	}
 
 	/**

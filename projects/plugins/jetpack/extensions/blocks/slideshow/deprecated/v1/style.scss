@@ -37,7 +37,7 @@
 			opacity: 1;
 		}
 
-	  	//overide display collision with coblocks plugin styles which causes a gap
+		//overide display collision with coblocks plugin styles which causes a gap
 		//see https://github.com/Automattic/wp-calypso/issues/63082#issuecomment-1175225512
 		&.swiper-container {
 			display: block;

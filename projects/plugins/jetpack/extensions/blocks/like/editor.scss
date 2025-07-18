@@ -1,9 +1,9 @@
 .wp-block-jetpack-like {
 
-    &__learn-more {
-        padding: 0 16px 16px 52px;
-        margin-top: -12px;
-    }
+	&__learn-more {
+		padding: 0 16px 16px 52px;
+		margin-top: -12px;
+	}
 }
 
 // Hide the Like block if it tries to load in the editor (e.g. as a part of the Query Loop block).

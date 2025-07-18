@@ -44,7 +44,7 @@
 		padding: 15px;
 	};
 
-	@include breakpoint.breakpoint(large-phone) {
+	@include				 breakpoint.breakpoint(large-phone) {
 		margin-top: typography-functions.em(24px);
 	};
 }
@@ -286,12 +286,12 @@
 		}
 	};
 
-	@include breakpoint.breakpoint(tablet){
+	@include				 breakpoint.breakpoint(tablet){
 		top: 66px;
 		margin-left: 0;
 	};
 
-	@include breakpoint.breakpoint(phablet){
+	@include				 breakpoint.breakpoint(phablet){
 		top: 10px;
 		right: 10px;
 		bottom: 10px;
@@ -371,10 +371,10 @@
 	}
 
 	@include breakpoint.minbreakpoint(large-desktop){
-			padding-bottom: 35px;
+		padding-bottom: 35px;
 	};
 
-	@include breakpoint.breakpoint(large-desktop) {
+	@include				 breakpoint.breakpoint(large-desktop) {
 		padding-top: 165px;
 		padding-bottom: 0;
 
@@ -388,20 +388,20 @@
 		}
 	};
 
-	@include breakpoint.breakpoint(desktop){
+	@include				 breakpoint.breakpoint(desktop){
 		padding-top: 146px;
 	};
 
-	@include breakpoint.breakpoint(tablet){
+	@include				 breakpoint.breakpoint(tablet){
 		margin-top: 0;
 	};
 
-	@include breakpoint.breakpoint(large-phone){
+	@include				 breakpoint.breakpoint(large-phone){
 		margin-top: 0;
 		padding-top: 135px;
 	};
 
-	@include breakpoint.breakpoint(phone){
+	@include				 breakpoint.breakpoint(phone){
 		padding-top: 76px;
 	};
 }
@@ -433,7 +433,7 @@
 		}
 	};
 
-	@include breakpoint.breakpoint(large-phone){
+	@include				 breakpoint.breakpoint(large-phone){
 
 		li {
 			display: block;
@@ -468,16 +468,16 @@
 		border-bottom: 1px solid #f0f0f1;
 	};
 
-	@include breakpoint.minbreakpoint(large-desktop){
-			margin-bottom: 0;
+	@include				 breakpoint.minbreakpoint(large-desktop){
+		margin-bottom: 0;
 	};
 
-	@include breakpoint.breakpoint(tablet){
+	@include				 breakpoint.breakpoint(tablet){
 		padding: 8px 15px 8px;
 		border-bottom: none;
 	};
 
-	@include breakpoint.breakpoint(large-phone){
+	@include				 breakpoint.breakpoint(large-phone){
 		margin: 0;
 		padding: 0;
 		border: none;
@@ -530,15 +530,15 @@
 
 .secondary {
 
-		@include breakpoint.minbreakpoint(tablet){
-			padding: 0 15px 10px 15px;
-			border-bottom: 1px solid #f0f0f1;
-		}
+	@include breakpoint.minbreakpoint(tablet){
+		padding: 0 15px 10px 15px;
+		border-bottom: 1px solid #f0f0f1;
+	}
 
-		@include breakpoint.minbreakpoint(large-desktop){
-			padding: 0 15px 10px 15px;
-			border-bottom: none;
-		}
+	@include breakpoint.minbreakpoint(large-desktop){
+		padding: 0 15px 10px 15px;
+		border-bottom: none;
+	}
 }
 
 
@@ -632,7 +632,7 @@
 			border-bottom:1px solid #D5E4BD;
 		}
 
- a:hover{
+		a:hover{
 			border-bottom:1px solid #F1F6E9;
 		}
 	}

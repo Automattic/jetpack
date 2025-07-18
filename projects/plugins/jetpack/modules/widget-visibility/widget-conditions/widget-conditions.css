@@ -170,10 +170,10 @@
  * Rules for gutenberg advanced panel
  */
 
- .widget-vis__wrapper .components-base-control,
- .widget-vis__rule .components-base-control {
-	 margin-bottom: 12px;
- }
+.widget-vis__wrapper .components-base-control,
+.widget-vis__rule .components-base-control {
+	margin-bottom: 12px;
+}
 
 .widget-vis__rule {
 	padding: 12px;
@@ -227,10 +227,10 @@
 }
 
 .widget-vis__select-multi-level select option:disabled {
-    font-size: 18px;
-    font-weight: 600;
+	font-size: 18px;
+	font-weight: 600;
 }
 
 .widget-vis__delete-rule .components-button.is-secondary {
 	margin-top: 8px;
- }
+}

@@ -34,33 +34,33 @@
 	font-size: typography.$font-body-small;
 }
 
-	.jetpack-pagestyles a {
-		text-decoration: none;
+.jetpack-pagestyles a {
+	text-decoration: none;
 
-		&.components-external-link .components-external-link__icon {
-			margin-left: 5px;
-		}
+	&.components-external-link .components-external-link__icon {
+		margin-left: 5px;
 	}
+}
 
-	// Hello Dolly positioning overwrite
-	.jetpack-pagestyles #dolly {
-		float: none;
-		position: relative;
-		right: 0;
-		left: 0;
-		top: 0;
-		padding: rem.convert( 10px );
-		text-align: right;
-		background: colors.$white;
-		font-size: rem.convert( 12px );
-		font-style: italic;
-		color: colors.$gray;
-		border-bottom: 1px color.adjust( colors.$gray, $lightness: 30% ) solid;
+// Hello Dolly positioning overwrite
+.jetpack-pagestyles #dolly {
+	float: none;
+	position: relative;
+	right: 0;
+	left: 0;
+	top: 0;
+	padding: rem.convert( 10px );
+	text-align: right;
+	background: colors.$white;
+	font-size: rem.convert( 12px );
+	font-style: italic;
+	color: colors.$gray;
+	border-bottom: 1px color.adjust( colors.$gray, $lightness: 30% ) solid;
 
-		@include breakpoints.breakpoint( "<660px" ) {
-			display: none;
-		}
+	@include breakpoints.breakpoint( "<660px" ) {
+		display: none;
 	}
+}
 
 .dops-notice__text a {
 	text-decoration: underline;
@@ -99,7 +99,7 @@
 	max-width: rem.convert( 1040px );
 
 	&.jp-licensing-screen {
-		 max-width: rem.convert( 1128px );
+		max-width: rem.convert( 1128px );
 	}
 
 	&.jp-main-connect-screen,
@@ -129,9 +129,9 @@
 }
 
 .blur {
-  -webkit-filter: blur(5px);
-  -moz-filter: blur(5px);
-  -o-filter: blur(5px);
-  -ms-filter: blur(5px);
-  filter: blur(5px);
+	-webkit-filter: blur(5px);
+	-moz-filter: blur(5px);
+	-o-filter: blur(5px);
+	-ms-filter: blur(5px);
+	filter: blur(5px);
 }
