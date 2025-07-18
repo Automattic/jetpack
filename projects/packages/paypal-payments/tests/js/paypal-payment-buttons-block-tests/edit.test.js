@@ -104,9 +104,6 @@ describe( 'Edit', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-
-		// Mock window.ajaxurl for iframe preview
-		global.window.ajaxurl = 'https://example.com/wp-admin/admin-ajax.php';
 	} );
 
 	it( 'renders without crashing', () => {
