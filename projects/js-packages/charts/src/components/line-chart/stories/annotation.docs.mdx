@@ -14,19 +14,19 @@ Annotations allow you to highlight specific data points or events on your line c
 The Line Chart component supports a compound component pattern for annotations, providing flexibility and declarative syntax:
 
 <Source
-  language="jsx"
-  code={`import { LineChart } from '@automattic/jetpack-charts';
+	language="jsx"
+	code={ `import { LineChart } from '@automattic/jetpack-charts';
 
-<LineChart data={ data }>
-	<LineChart.AnnotationsOverlay>
-		<LineChart.Annotation
-			datum={ { date: new Date( '2024-01-01' ), value: 100 } }
-			title="Product Launch"
-			subtitle="Version 2.0 released"
-		/>
-	</LineChart.AnnotationsOverlay>
-</LineChart>
-`} />
+	<LineChart data={ data }>
+		<LineChart.AnnotationsOverlay>
+			<LineChart.Annotation
+				datum={ { date: new Date( '2024-01-01' ), value: 100 } }
+				title="Product Launch"
+				subtitle="Version 2.0 released"
+			/>
+		</LineChart.AnnotationsOverlay>
+	</LineChart>` }
+/>
 
 ## Basic Usage
 
@@ -39,14 +39,14 @@ The simplest annotation requires only a `datum`, `title`, and optionally a `subt
 <Source
 	language="jsx"
 	code={ `<LineChart data={data}>
-  <LineChart.AnnotationsOverlay>
-    <LineChart.Annotation
-      datum={sampleData[0].data[10]}
-      title="Notable event"
-      subtitle="This is a notable event"
-    />
-  </LineChart.AnnotationsOverlay>
-</LineChart>` }
+		<LineChart.AnnotationsOverlay>
+			<LineChart.Annotation
+				datum={sampleData[0].data[10]}
+				title="Notable event"
+				subtitle="This is a notable event"
+			/>
+		</LineChart.AnnotationsOverlay>
+	</LineChart>` }
 />
 
 ### Required Props
@@ -79,11 +79,11 @@ Vertical lines span the entire chart height at the data point's x-coordinate:
 <Source
 	language="jsx"
 	code={ `<LineChart.Annotation
-  datum={dataPoint}
-  title="Deployment"
-  subtitle="Version 1.5 deployed"
-  subjectType="line-vertical"
-/>` }
+		datum={dataPoint}
+		title="Deployment"
+		subtitle="Version 1.5 deployed"
+		subjectType="line-vertical"
+	/>` }
 />
 
 ### Horizontal Line Annotations
@@ -95,11 +95,11 @@ Horizontal lines span the entire chart width at the data point's y-coordinate:
 <Source
 	language="jsx"
 	code={ `<LineChart.Annotation
-  datum={dataPoint}
-  title="Target Threshold"
-  subtitle="Performance benchmark"
-  subjectType="line-horizontal"
-/>` }
+		datum={dataPoint}
+		title="Target Threshold"
+		subtitle="Performance benchmark"
+		subjectType="line-horizontal"
+	/>` }
 />
 
 ### Mixed Annotations
@@ -119,34 +119,35 @@ Override default colors using the `styles` prop:
 <Source
 	language="jsx"
 	code={ `<LineChart.Annotation
-  datum={dataPoint}
-  title="Alert"
-  subtitle="Threshold exceeded"
-  styles={{
-    circleSubject: {
-      fill: 'var(--jp-red)',
-    },
-    connector: {
-      stroke: 'var(--jp-red)',
-    },
-    label: {
-      backgroundFill: 'var(--jp-red)',
-      fontColor: '#fff',
-      showAnchorLine: false,
-    },
-  }}
-/>` }
+		datum={dataPoint}
+		title="Alert"
+		subtitle="Threshold exceeded"
+		styles={{
+			circleSubject: {
+				fill: 'var(--jp-red)',
+			},
+			connector: {
+				stroke: 'var(--jp-red)',
+			},
+			label: {
+				backgroundFill: 'var(--jp-red)',
+				fontColor: '#fff',
+				showAnchorLine: false,
+			},
+		}}
+	/>` }
 />
 
 ### Styling Options
 
-The `styles` prop accepts the following nested objects:
+The `styles` prop accepts the following nested objects, based on the [visx annotation types](https://airbnb.io/visx/docs/annotation):
 
 #### `circleSubject`
 
 Controls the appearance of circle annotations:
 
-- `fill`: Circle color
+- `className`: Circle class name
+- `fill`: Circle background color
 - `stroke`: Circle border color
 - `radius`: Circle size
 
@@ -154,24 +155,44 @@ Controls the appearance of circle annotations:
 
 Controls vertical and horizontal line appearance:
 
+- `className`: Line class name
 - `stroke`: Line color
 - `strokeWidth`: Line thickness
-- `strokeDasharray`: Dash pattern
+- `orientation`: Line orientation (`'vertical'`, `'horizontal'`)
+- `min`: The minimum coordinate of the line
+- `max`: The maximum coordinate of the line
 
 #### `connector`
 
 Controls the line connecting the annotation to its label:
 
+- `className`: Connector class name
+- `type`: Connector type (`'line'`, `'elbow'`)
 - `stroke`: Connector color
-- `strokeWidth`: Connector thickness
+- `pathProps`: Optional additional props
 
 #### `label`
 
 Controls the text label appearance:
 
-- `backgroundFill`: Label background color
-- `fontColor`: Text color
-- `showAnchorLine`: Whether to show the anchor line
+- `anchorLineStroke`: Stroke color of anchor line
+- `backgroundFill`: Background color of label
+- `backgroundPadding`: Padding of text from background
+- `backgroundProps`: Additional props to be passed to background SVGRectElement
+- `className`: Optional class name to apply to container
+- `fontColor`: Color of title and subtitle text
+- `horizontalAnchor`: Whether the label is horizontally anchored to the start, middle, or end of its x position
+- `resizeObserverPolyfill`: Optionally inject a ResizeObserver polyfill, else this *must* be globally available
+- `showAnchorLine`: Whether to render a line indicating label text anchor
+- `showBackground`: Whether to render a label background
+- `subtitleFontSize`: Optional subtitle font size
+- `subtitleFontWeight`: Optional subtitle font weight
+- `subtitleDy`: The vertical offset of the subtitle from the title
+- `titleFontSize`: Optional title font size
+- `titleFontWeight`: Optional title font weight
+- `titleProps`: Optional title Text props (to override color, etc.)
+- `verticalAnchor`: Whether the label is vertically anchored to the start, middle, or end of its y position
+- `width`: Width of annotation, including background, for text wrapping
 - `maxWidth`: Maximum label width
 - `x` / `y`: Position overrides (`'start'`, `'end'`, or number)
 
@@ -186,21 +207,21 @@ Annotations inherit styling from your chart theme. Default themes provide consis
 <Source
 	language="jsx"
 	code={ `const customTheme = {
-  ...jetpackTheme,
-  annotationStyles: {
-    label: {
-      backgroundFill: '#f0f8ff',
-      anchorLineStroke: '#0066cc',
-    },
-    circleSubject: {
-      fill: '#0066cc',
-      radius: 6,
-    },
-    connector: {
-      stroke: '#0066cc',
-    },
-  },
-};` }
+		...jetpackTheme,
+		annotationStyles: {
+			label: {
+				backgroundFill: '#f0f8ff',
+				anchorLineStroke: '#0066cc',
+			},
+			circleSubject: {
+				fill: '#0066cc',
+				radius: 6,
+			},
+			connector: {
+				stroke: '#0066cc',
+			},
+		},
+	};` }
 />
 
 ## Custom Annotations
@@ -209,36 +230,38 @@ Annotations inherit styling from your chart theme. Default themes provide consis
 
 Create fully custom annotation labels using the `renderLabel` prop:
 
+**Important**: When using `renderLabel`, smart positioning is disabled. The annotation will be positioned exactly at the data point coordinates without automatic boundary adjustments.
+
 <Canvas of={ AnnotationStories.Custom } />
 
 <Source
-  language="jsx"
-  code={`const DeployIcon = () => (
-  <span style={{
-    background: 'black',
-    color: 'white',
-    width: '24px',
-    height: '24px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%'
-  }}>
-    D
-  </span>
-);
-
-<LineChart.Annotation
-	datum={ dataPoint }
-	title="Deployed"
-	subjectType="line-vertical"
-	renderLabel={ () => (
-		<span style={ { transform: 'translate(0, 6px)' } }>
-			<DeployIcon />
+	language="jsx"
+	code={`const DeployIcon = () => (
+		<span style={{
+			background: 'black',
+			color: 'white',
+			width: '24px',
+			height: '24px',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			borderRadius: '50%'
+		}}>
+			D
 		</span>
-	) }
+	);
+
+	<LineChart.Annotation
+		datum={ dataPoint }
+		title="Deployed"
+		subjectType="line-vertical"
+		renderLabel={ () => (
+			<span style={ { transform: 'translate(0, 6px)' } }>
+				<DeployIcon />
+			</span>
+		) }
+	/>` }
 />
-`} />
 
 ### Interactive Popovers
 
@@ -247,25 +270,25 @@ Add rich interactive content with `renderLabelPopover`:
 <Source
 	language="jsx"
 	code={ `<LineChart.Annotation
-  datum={dataPoint}
-  title="Deployment"
-  renderLabel={() => <DeployIcon />}
-  renderLabelPopover={({ title, subtitle }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px'
-      }}>
-        <DeployIcon />
-        <strong>Deploy finished</strong>
-      </div>
-      <p style={{ margin: 0 }}>
-        Thu. Apr 24, 2025. 09:57:23 UTC
-      </p>
-    </div>
-  )}
-/>` }
+		datum={dataPoint}
+		title="Deployment"
+		renderLabel={() => <DeployIcon />}
+		renderLabelPopover={({ title, subtitle }) => (
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+				<div style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: '6px'
+				}}>
+					<DeployIcon />
+					<strong>Deploy finished</strong>
+				</div>
+				<p style={{ margin: 0 }}>
+					Thu. Apr 24, 2025. 09:57:23 UTC
+				</p>
+			</div>
+		)}
+	/>` }
 />
 
 When both `renderLabel` and `renderLabelPopover` are provided, the label becomes clickable and opens the popover content.
@@ -274,11 +297,13 @@ When both `renderLabel` and `renderLabelPopover` are provided, the label becomes
 
 ### Smart Positioning
 
-Annotations automatically adjust their position to stay within chart boundaries:
+**Basic annotations** (without custom `renderLabel`) automatically adjust their position to stay within chart boundaries:
 
 - **Horizontal overflow**: Labels flip to the left when approaching the right edge
 - **Vertical overflow**: Labels reposition above or below to avoid clipping
 - **Multi-line content**: Height is measured dynamically for accurate positioning
+
+**Note**: Smart positioning is **not available** for custom annotations using `renderLabel`. Custom annotations are positioned at the exact data point coordinates with `dx: 0, dy: 0` offset.
 
 ### Label Positioning
 
@@ -287,14 +312,14 @@ Control label placement with positioning options:
 <Source
 	language="jsx"
 	code={ `// Position at chart edges
-<LineChart.Annotation
-  styles={{
-    label: {
-      x: 'start', // 'start', 'end', or number
-      y: 'start', // 'start', 'end', or number
-    }
-  }}
-/>` }
+	<LineChart.Annotation
+		styles={{
+			label: {
+				x: 'start', // 'start', 'end', or number
+				y: 'start', // 'start', 'end', or number
+			}
+		}}
+	/>` }
 />
 
 ### Zero Value Support
@@ -304,10 +329,10 @@ Annotations work correctly with zero values (unlike some chart libraries that tr
 <Source
 	language="jsx"
 	code={ `<LineChart.Annotation
-  datum={{ date: new Date('2024-01-01'), value: 0 }}
-  title="Baseline"
-  subtitle="Starting point"
-/>` }
+		datum={{ date: new Date('2024-01-01'), value: 0 }}
+		title="Baseline"
+		subtitle="Starting point"
+	/>` }
 />
 
 ## Accessibility
@@ -320,13 +345,12 @@ Annotations work correctly with zero values (unlike some chart libraries that tr
 
 ### Screen Reader Support
 
-- Annotations have appropriate ARIA labels
-- Popover content is announced when opened
-- Interactive elements have proper roles and descriptions
+- Interactive annotation buttons have `aria-label` attributes
+- Close buttons have descriptive labels
+- **Note**: Custom popover content does not currently have explicit ARIA roles or `aria-describedby` relationships. Content relies on the native Popover API's built-in accessibility features.
 
 ### Focus Management
 
-- Focus is trapped within open popovers
 - Focus returns to the annotation trigger when closed
 - Visual focus indicators are provided
 
@@ -338,7 +362,7 @@ Due to [Safari's foreignObject positioning bug](https://bugs.webkit.org/show_bug
 
 ### Popover API Support
 
-The component uses the native Popover API where available, with progressive enhancement for browsers without support.
+The component uses the native [HTML Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) with `popovertarget` and `popover` attributes. This provides built-in show/hide behavior, focus management, and accessibility features. The implementation includes fallback handling for test environments and browsers that don't support the `:popover-open` pseudo-class.
 
 ## API Reference
 
@@ -356,16 +380,16 @@ Individual annotation component.
 
 **Props:**
 
-| Prop                 | Type                                               | Default    | Description                          |
+| Prop								 | Type																							 | Default		| Description													|
 | -------------------- | -------------------------------------------------- | ---------- | ------------------------------------ |
-| `datum`              | `DataPointDate`                                    | -          | **Required.** Data point to annotate |
-| `title`              | `string`                                           | -          | **Required.** Main annotation text   |
-| `subtitle`           | `string`                                           | -          | Additional descriptive text          |
-| `subjectType`        | `'circle' \| 'line-vertical' \| 'line-horizontal'` | `'circle'` | Visual annotation style              |
-| `styles`             | `AnnotationStyles`                                 | -          | Custom styling options               |
-| `renderLabel`        | `FC<{title: string, subtitle?: string}>`           | -          | Custom label component               |
-| `renderLabelPopover` | `FC<{title: string, subtitle?: string}>`           | -          | Interactive popover content          |
-| `testId`             | `string`                                           | -          | Test identifier                      |
+| `datum`							| `DataPointDate`																		| -					| **Required.** Data point to annotate |
+| `title`							| `string`																					 | -					| **Required.** Main annotation text	 |
+| `subtitle`					 | `string`																					 | -					| Additional descriptive text					|
+| `subjectType`				| `'circle' \| 'line-vertical' \| 'line-horizontal'` | `'circle'` | Visual annotation style							|
+| `styles`						 | `AnnotationStyles`																 | -					| Custom styling options							 |
+| `renderLabel`				| `FC<{title: string, subtitle?: string}>`					 | -					| Custom label component. **Disables smart positioning.** |
+| `renderLabelPopover` | `FC<{title: string, subtitle?: string}>`					 | -					| Interactive popover content					|
+| `testId`						 | `string`																					 | -					| Test identifier											|
 
 ### DataPointDate Type
 
@@ -423,17 +447,17 @@ type AnnotationStyles = {
 If you're upgrading from the deprecated `annotations` prop:
 
 <Source
-  language="jsx"
-  code={`// Old API (deprecated)
+	language="jsx"
+	code={`// Old API (deprecated)
 <LineChart
-  data={data}
-  annotations={[
-    {
-      datum: dataPoint,
-      title: "Event",
-      subjectType: "circle"
-    }
-  ]}
+	data={data}
+	annotations={[
+		{
+			datum: dataPoint,
+			title: "Event",
+			subjectType: "circle"
+		}
+	]}
 />
 
 // New API
