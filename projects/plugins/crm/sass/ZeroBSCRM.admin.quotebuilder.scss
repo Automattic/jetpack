@@ -24,10 +24,11 @@
 
 
 //  initially hidden, content box
-#zerobs-quote-content-edit, // DAL3
-#zerobs-quote-nextstep, // DAL3
-#wpzbscsub_quotecontent, // <DAL3
-#wpzbscsub_quoteactions { // <DAL3
+// First two are DAL3, second two are <DAL3
+#zerobs-quote-content-edit,
+#zerobs-quote-nextstep,
+#wpzbscsub_quotecontent,
+#wpzbscsub_quoteactions {
 
 	display: none;
 
