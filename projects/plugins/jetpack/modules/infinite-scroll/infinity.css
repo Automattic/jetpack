@@ -22,9 +22,13 @@
  */
 @keyframes spinner-inner {
 
-	0% { opacity: 1 }
+	0% {
+		opacity: 1
+	}
 
-	100% { opacity: 0 }
+	100% {
+		opacity: 0
+	}
 }
 
 .infinite-loader .spinner-inner div {
@@ -289,8 +293,11 @@
 	position: absolute;
 	overflow: hidden;
 	clip: rect(0 0 0 0);
-	height: 1px; width: 1px;
-	margin: -1px; padding: 0; border: 0;
+	height: 1px;
+	width: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
 }
 
 /**

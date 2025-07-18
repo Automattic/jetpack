@@ -50,13 +50,15 @@
 	.dops-notice {
 		margin-bottom: 0;
 
-		&, .dops-notice__icon-wrapper {
+		&,
+		.dops-notice__icon-wrapper {
 			border-radius: 0;
 		}
 
 		.dops-notice__text {
 
-			&, a {
+			&,
+			a {
 				color: var(--jp-white);
 			}
 		}

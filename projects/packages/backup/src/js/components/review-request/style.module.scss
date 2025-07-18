@@ -16,7 +16,8 @@
 		display:none;
 	}
 
-	&:focus, &:active {
+	&:focus,
+	&:active {
 		outline-color: var(--jp-black);
 	}
 

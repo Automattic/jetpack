@@ -108,7 +108,8 @@ $myjetpack-connection-avatar-overlap: 8px;
 				background: transparent;
 			}
 
-			&:focus, &:active {
+			&:focus,
+			&:active {
 				outline: none;
 				box-shadow: none;
 			}

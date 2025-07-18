@@ -37,7 +37,8 @@
 	}
 
 	// This is to make the image darker and let read the text
-	&--2, &--3 {
+	&--2,
+	&--3 {
 
 		&::before {
 			content: '';
@@ -58,8 +59,16 @@
 		text-align: left;
 		position: relative;
 		margin-bottom: 10px;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu,
-			Cantarell, 'Helvetica Neue', sans-serif;
+		font-family:
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Oxygen-Sans,
+			Ubuntu,
+			Cantarell,
+			'Helvetica Neue',
+			sans-serif;
 
 		@include gb.break-xlarge {
 			padding-inline: 3rem;

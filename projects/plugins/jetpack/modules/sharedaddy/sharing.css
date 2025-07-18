@@ -220,7 +220,9 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 }
 
 /* Add more pading on touch devices */
-.jp-sharing-input-touch .sd-content ul li { padding-left: 10px; }
+.jp-sharing-input-touch .sd-content ul li {
+	padding-left: 10px;
+}
 
 .sd-content ul li.preview-item.no-icon a.sd-button span {
 	margin-left: 0;
@@ -515,11 +517,15 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Individual official buttons */
-.pocket_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
+.pocket_button iframe,
+.pinterest_button,
+.twitter_button,
+.linkedin_button>span {
 	margin: 0 !important;
 }
 
-.linkedin_button>span, .pinterest_button a {
+.linkedin_button>span,
+.pinterest_button a {
 	display: block !important;
 }
 
@@ -599,7 +605,8 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	height: 0 !important;
 }
 
-.sharing-hidden .inner::before, .sharing-hidden .inner::after {
+.sharing-hidden .inner::before,
+.sharing-hidden .inner::after {
 	position: absolute;
 	z-index: 1;
 	top: -8px;
@@ -656,7 +663,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	border: none;
 	opacity: .6;
 }
-
 
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button::before {

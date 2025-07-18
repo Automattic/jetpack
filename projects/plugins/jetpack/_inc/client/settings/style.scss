@@ -3,7 +3,9 @@
 
 .jp-settings-container {
 
-	a, a:link, a:visited {
+	a,
+	a:link,
+	a:visited {
 		color: var( --jp-black-80 );
 		text-decoration: underline;
 
@@ -12,7 +14,8 @@
 		}
 	}
 
-	a:hover, a:active {
+	a:hover,
+	a:active {
 		color: var( --jp-black );
 		text-decoration-thickness: var( --jp-underline-thickness );
 

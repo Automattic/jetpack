@@ -11,7 +11,8 @@
 
 	}
 
-	button#zbscrmAddLog, button#zbscrmEditLog {
+	button#zbscrmAddLog,
+	button#zbscrmEditLog {
 		
 		float:right;
 		margin:4px;
@@ -91,7 +92,6 @@
 
  
 	}
-
 
 
 	// edit form
@@ -182,7 +182,8 @@
 			// edit icos
 			.zbsLogOutEdits {
 
-				display: inline-block; display:none; // init
+				display: inline-block;
+				display:none; // init
 				margin-left: 12px;
 				color: #000;
 				font-size: 17px;

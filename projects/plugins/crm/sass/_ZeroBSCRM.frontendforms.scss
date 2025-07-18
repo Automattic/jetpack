@@ -4,11 +4,13 @@
  */
 
 // Front end forms - ACTUAL FORM styles
-.post-type-zerobs_form, .zbscrmFrontEndForm, // <3.0
+.post-type-zerobs_form, // <3.0
+.zbscrmFrontEndForm, // <3.0
 .zbs-edit-wrap-form // v3+
 {
 
-	#form-embed, #form-preview{
+	#form-embed,
+	#form-preview{
 		min-height: 50px;
 		margin-bottom: 20px;
 		border: 1px solid #e5e5e5;
@@ -66,7 +68,7 @@
 		text-align:center;
 		color: #999;
 		text-transform: uppercase;
-		font-weight: 100;	
+		font-weight: 100;
 		padding: 0;
 		margin: 0;
 		margin-bottom: 24px;
@@ -115,7 +117,9 @@
 			border: 4px solid #ddd !important;
 		}
 
-		.simple, .naked, .cgrab{
+		.simple,
+		.naked,
+		.cgrab{
 			border: 1px solid #ddd;
 		}
 
@@ -186,9 +190,9 @@
 						text-align:left;
 						color: #ccc;
 						font-weight: 100;
-						background: #fff;		
+						background: #fff;
 						height: 200px;
-						margin-bottom:10px;				
+						margin-bottom:10px;
 					}
 
 					.send{
@@ -357,8 +361,6 @@
 	}
 
 
-
-
 	.embed{
 
 		.zbs_poweredby{
@@ -369,7 +371,9 @@
 			border: 4px solid #ddd !important;
 		}
 
-		.simple, .naked, .cgrab{
+		.simple,
+		.naked,
+		.cgrab{
 			border: 1px solid #ddd;
 		}
 
@@ -438,7 +442,8 @@
 						background: #fff;
 					}
 
-					.send, input[type="submit"]{
+					.send,
+					input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
 						color: #fff;
@@ -462,8 +467,6 @@
 			min-height:100px;
 
 		}
-
-
 
 
 		.cgrab{
@@ -531,12 +534,13 @@
 						padding: 5px;
 						text-align:left;
 						font-weight: 100;
-						background: #fff;		
+						background: #fff;
 						height: 200px;
-						margin-bottom:10px;				
+						margin-bottom:10px;
 					}
 
-					.send, input[type="submit"]{
+					.send,
+					input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
 						color: #fff;
@@ -609,7 +613,8 @@
 						font-weight: 100;
 					}
 
-					.send, input[type="submit"]{
+					.send,
+					input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
 						color: #fff;
@@ -630,8 +635,5 @@
 	.clear{
 		clear:both;
 	}
-
-
-
 
 }

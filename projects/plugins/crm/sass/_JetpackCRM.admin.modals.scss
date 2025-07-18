@@ -8,7 +8,8 @@
 	z-index: 999999;
 
 	// overriding annoying jquery modal (maybe mike included? or I did ages ago)
-	.modal, .ui.modal {
+	.modal,
+	.ui.modal {
 
 		/* max-width: 500px; */
 		max-width: 1400px !important;
@@ -234,7 +235,6 @@
 }
 
 
-
 // Woo variant of first use dashboard:
 #jpcrm-first-use-dash.woovariant {
 
@@ -361,8 +361,10 @@
 	}
 
 	// hide these
-	.jpcrm-modal-body .jpcrm-modal-illustration, 
-	.ui.modals.page .jpcrm-modal-footer, 
+	.jpcrm-modal-body .jpcrm-modal-illustration,
+ 
+	.ui.modals.page .jpcrm-modal-footer,
+ 
 	.jpcrm-modal-body .jpcrm-modal-actions .jpcrm-modal-action-import {
 
 		display: none !important;
@@ -402,7 +404,7 @@
 	@supports (-webkit-appearance:none) {
 
 		// fixed footer was borked in safari
-		.jpcrm-modal-footer { 
+		.jpcrm-modal-footer {
 
 			position: relative !important;
 			margin-top: 80px !important;
@@ -426,7 +428,8 @@
 
 		}
 
-	}}
+	}
+}
 
 // Semantic UI modals and hopscotch jockey for a high z-index position. The below prevents
 // the welcome tour from being in front of the first-use dash modal.

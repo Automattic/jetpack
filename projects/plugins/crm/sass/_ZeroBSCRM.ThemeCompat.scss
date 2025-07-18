@@ -34,10 +34,12 @@
 		}
 	}
 
-	.zbs-field-group, .zbs-field-group table {
+	.zbs-field-group,
+	.zbs-field-group table {
 		box-sizing: border-box;
 
-		td div.zbs-text-input, td select {
+		td div.zbs-text-input,
+		td select {
 			width:214px;
 		}
 	}
@@ -78,7 +80,6 @@
 
 // =========== / TwentyNineteen ================
 // =============================================
-
 
 
 // ==============================================
@@ -210,14 +211,14 @@
 // =============================================
 
 
-
 // =============================================
 // =========== Twenty Twenty-Two ==================
 
 .zbs-theme-support-2022 {
 
 	/* hide page title and subsequent hr */
-	.wp-block-post-title, .wp-block-post-title + hr {
+	.wp-block-post-title,
+	.wp-block-post-title + hr {
 		display: none;
 	}
 
@@ -232,7 +233,8 @@
 			width: 100%;
 		}
 
-		th, td {
+		th,
+		td {
 			border: 1px solid;
 			padding: 10px;
 		}

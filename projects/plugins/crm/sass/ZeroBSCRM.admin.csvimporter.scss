@@ -48,7 +48,8 @@
 .zbscrm-csvimport-wrap {
 
 	h2 {
-		text-align:center;font-size:20px;
+		text-align:center;
+		font-size:20px;
 	}
 
 	// Stage 0: upload
@@ -190,7 +191,6 @@
 	}
 
 
-
 	// Stage 2: Confirm
 	.zbscrm-confirmimport-csv {
 
@@ -205,7 +205,6 @@
 			text-align: center;
 
 		}
-
 
 
 		// form
@@ -300,7 +299,8 @@
 			.zbscrm-import-log-line {
 
 				// accent ico's
-				i.fa, span {
+				i.fa,
+				span {
 					color: #008000;
 				}
 

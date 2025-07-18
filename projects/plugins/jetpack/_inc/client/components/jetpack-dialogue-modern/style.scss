@@ -118,7 +118,8 @@ h1.jp-dialogue-modern__title {
 
 /** legacy classes below this point **/
 
-.jp-dialogue-modern__note, a.jp-dialogue-modern__note {
+.jp-dialogue-modern__note,
+a.jp-dialogue-modern__note {
 	margin: 0;
 	padding: rem.convert( 16px ) 0 0;
 	font-size: rem.convert( 14px );

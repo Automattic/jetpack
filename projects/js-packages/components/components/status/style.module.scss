@@ -22,7 +22,8 @@
 
 	&.is-active {
 
-		span, a {
+		span,
+		a {
 			color: var(--jp-green-50);
 		}
 
@@ -33,7 +34,8 @@
 
 	&.is-inactive {
 
-		span, a {
+		span,
+		a {
 			color: var(--jp-gray-50);
 		}
 
@@ -44,7 +46,8 @@
 
 	&.is-error {
 
-		span, a {
+		span,
+		a {
 			color: var(--jp-red-50);
 		}
 
@@ -55,7 +58,8 @@
 
 	&.is-action {
 
-		span, a {
+		span,
+		a {
 			color: var(--jp-yellow-30);
 		}
 
@@ -66,7 +70,8 @@
 
 	&.is-initializing {
 
-		span, a {
+		span,
+		a {
 			color: var(--jp-blue-40);
 		}
 

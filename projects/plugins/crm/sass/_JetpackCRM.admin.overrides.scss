@@ -27,7 +27,7 @@ $bottom_border: #dededf;
 // dash
 .panel,
 // contact view:;
-.ui.grid.segment, 
+.ui.grid.segment,
 .ui[class*="top attached"].menu,
 .ui.segment[class*="bottom attached"],
 .ui.tabular.menu .active.item {
@@ -46,7 +46,8 @@ $bottom_border: #dededf;
 	background-color: #007cba;
 }
 
-.ui.icon.buttons .button, .ui.icon.button {
+.ui.icon.buttons .button,
+.ui.icon.button {
 	font-size: 14px;
 }
 
@@ -105,7 +106,10 @@ $bottom_border: #dededf;
 		background: none;
 	}
 
-	.ranges li.active, td.active, td.active:hover, .btn-primary {
+	.ranges li.active,
+	td.active,
+	td.active:hover,
+	.btn-primary {
 		background-color: var(--jp-black);
 		border-color: var(--jp-black);
 	}

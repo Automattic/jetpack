@@ -18,7 +18,9 @@
 	align-items:center;
 }
 
-.wpl-likebox,.wpl-follow a,.wpl-count a {
+.wpl-likebox,
+.wpl-follow a,
+.wpl-count a {
 	font-size:11px!important;
 	font-family:"Open Sans",sans-serif!important;
 }
@@ -104,17 +106,22 @@
 	background-image:url("data:image/svg+xml,%3Csvg fill='none' height='16' viewBox='0 0 18 16' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m1 0h16v16h-16z' fill='%23fff'/%3E%3Cpath d='m16.0163 5.56587-1.4511-1.43412v8.99325c0 .7597-.6226 1.375-1.3913 1.375h-4.86955v-1.375h4.86955v-8.99325l-1.4511 1.43412-.9837-.97212 3.1305-3.09375 3.1304 3.09375zm-11.19021 6.30243v-8.9933h4.86956v-1.375h-4.86956c-.7687 0-1.39131.61531-1.39131 1.375v8.9933l-1.45113-1.4342-.98365.9721 3.13043 3.0938 3.13044-3.0938-.98365-.9721z' fill='%230675c4' stroke='%230675c4' stroke-width='.14'/%3E%3C/svg%3E");
 }
 
-.rtl .wpl-button.like a::before,.rtl .wpl-button.liked a::before {
+.rtl .wpl-button.like a::before,
+.rtl .wpl-button.liked a::before {
 	margin-right:0;
 	margin-left:-1px;
 }
 
-.wpl-button.like a span,.wpl-button.liked a span,.wpl-button.reblog a span {
+.wpl-button.like a span,
+.wpl-button.liked a span,
+.wpl-button.reblog a span {
 	margin-left:5px;
 	text-wrap:nowrap;
 }
 
-.rtl .wpl-button.like a span,.rtl .wpl-button.liked a span,.rtl .wpl-button.reblog a span {
+.rtl .wpl-button.like a span,
+.rtl .wpl-button.liked a span,
+.rtl .wpl-button.reblog a span {
 	margin-right:5px;
 }
 
@@ -128,7 +135,10 @@
 	line-height:1.6;
 }
 
-.wpl-likebox .wpl-count,.wpl-likebox .wpl-count a,.wpl-likebox .wpl-count-text,.wpl-likebox .wpl-count-text a {
+.wpl-likebox .wpl-count,
+.wpl-likebox .wpl-count a,
+.wpl-likebox .wpl-count-text,
+.wpl-likebox .wpl-count-text a {
 	font-size:12px!important;
 }
 
@@ -172,7 +182,8 @@
 	border:0;
 }
 
-span.wpl-follow,span.wpl-comment {
+span.wpl-follow,
+span.wpl-comment {
 	margin-left:5px;
 }
 
@@ -191,12 +202,15 @@ a.comment-like-link::before {
 	background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%232EA2CC' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-a.comment-like-link:hover::before,a.comment-liked::before,div.comment-liked a.comment-like-link::before {
+a.comment-like-link:hover::before,
+a.comment-liked::before,
+div.comment-liked a.comment-like-link::before {
 	// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 	background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%23f1831e' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-a.comment-liked:hover::before,div.comment-liked a.comment-like-link:hover::before {
+a.comment-liked:hover::before,
+div.comment-liked a.comment-like-link:hover::before {
 	// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 	background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%23ff9a00' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
 }
@@ -224,7 +238,8 @@ a.comment-like-link.loading::before {
 	min-width:30px;
 }
 
-.wpl-likebox .wpl-avatars li,.rtl .wpl-likebox .wpl-avatars li {
+.wpl-likebox .wpl-avatars li,
+.rtl .wpl-likebox .wpl-avatars li {
 	margin-bottom:1px;
 	margin-top:1px;
 }

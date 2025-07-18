@@ -35,7 +35,7 @@ $spacing-lg: variables.$grid-unit-20;      // 16px
 		columns: 2;
 	}
 
-	&__stat-label {	
+	&__stat-label {
 		margin-left: $spacing-xs;
 		text-decoration: none;
 	}
@@ -59,7 +59,7 @@ $spacing-lg: variables.$grid-unit-20;      // 16px
 
 	&__stat-item {
 		display: flex;
-		align-items: center; 
+		align-items: center;
 		gap: $spacing-xs;
 		text-decoration: none;
 	}

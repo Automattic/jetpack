@@ -363,7 +363,8 @@
 					background: calypso-colors.$black;
 					padding: 2px 6px;
 
-					a, .count {
+					a,
+					.count {
 						color: colors.$white;
 						text-decoration: none;
 						font-weight: 700;
@@ -481,7 +482,8 @@ tr.jetpack-module {
 		width: auto;
 	}
 
-	a, p {
+	a,
+	p {
 		text-decoration: none;
 	}
 }

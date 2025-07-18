@@ -28,7 +28,8 @@
 			0 1px 1px 1px  rgba(0,0,0,.04);
 
 		&.is-open {
-			box-shadow: 0 0 0 1px calypso-colors.$gray,
+			box-shadow:
+				0 0 0 1px calypso-colors.$gray,
 				0 2px 4px color.adjust( calypso-colors.$gray, $lightness: 20% );
 		}
 	}

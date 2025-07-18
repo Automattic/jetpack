@@ -205,7 +205,7 @@
 
 		// stuff to modify our sales page html pulled into the zbs ext subpage
 		// (improve how this html renders on pages like /admin.php?page=zerobscrm-extensions&extension_id=20570)
-		.wul {          
+		.wul {
 			padding: 1em;
 			margin: 0.5em;
 		}
@@ -229,7 +229,7 @@
 	.main-header-img .full-size-image{
 		width: 100%;
 		margin-left: 0;
-		margin-bottom: -4px;     
+		margin-bottom: -4px;
 	}
 
 	.box-title{
@@ -265,7 +265,9 @@
 		margin-top:10px;
 	}
 
-	.back a:focus, .docs-url:focus, .by-url:focus{
+	.back a:focus,
+	.docs-url:focus,
+	.by-url:focus{
 		outline:none;
 		box-shadow:none;
 	}

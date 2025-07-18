@@ -22,7 +22,8 @@
 			border-radius: 2px;
 
 			// Using checked here too, because WPAdmin applies styles for checked
-			&:checked::before, &::before {
+			&:checked::before,
+			&::before {
 				content: "";
 				width: 18px;
 				height: 18px;

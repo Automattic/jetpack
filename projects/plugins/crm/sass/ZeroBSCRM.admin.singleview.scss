@@ -12,7 +12,9 @@
 @use 'ZeroBSCRM.timelines';
 
 // hide these, they look bad/inaccessible on this page:
-#wpwrap .update-nag {display:none !important;}
+#wpwrap .update-nag {
+	display:none !important;
+}
 
 
 // Customer Single view:
@@ -131,7 +133,8 @@
 }
 
 
-.ui.menu,.ui.menu .menu {
+.ui.menu,
+.ui.menu .menu {
 	opacity: 1;
 	z-index: 1;
 }
@@ -178,7 +181,6 @@ i.zbs-hide-longdesc {
 .zbs-long-desc-show i.zbs-show-longdesc {
 	display:none;
 }
-
 
 
 // ++====== SPECIFICS: Company view:

@@ -24,11 +24,13 @@ li.jp-tree-item {
 		color: var( --jp-gray-20 );
 	}
 
-	.components-base-control__field, .components-checkbox-control__input-container {
+	.components-base-control__field,
+	.components-checkbox-control__input-container {
 		margin: 0;
 	}
 
-	.components-checkbox-control__input[type="checkbox"]:checked, .components-checkbox-control__input[type="checkbox"]:indeterminate {
+	.components-checkbox-control__input[type="checkbox"]:checked,
+	.components-checkbox-control__input[type="checkbox"]:indeterminate {
 		background: var(--jp-green);
 		border-color: var(--jp-green);
 	}

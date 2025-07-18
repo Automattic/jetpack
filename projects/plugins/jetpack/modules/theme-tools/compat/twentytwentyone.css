@@ -58,7 +58,7 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 
 #infinite-handle span {
 	color: var(--global--color-background);
-	background-color: var(--global--color-secondary);;
+	background-color: var(--global--color-secondary);
 	font-family: var(--global--font-primary);
 	font-size: var(--global--font-size-base);
 	font-weight: 500;

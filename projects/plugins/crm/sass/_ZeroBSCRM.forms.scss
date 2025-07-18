@@ -31,7 +31,7 @@
 	text-align:center;
 
 	// ico
-	i.zbs-help-ico {		
+	i.zbs-help-ico {
 		font-size:18px;
 		font-weight:800;
 		opacity:0.6;
@@ -48,7 +48,7 @@
 
 	position: absolute;
 	top:24px;
-	left:0;	
+	left:0;
 	z-index: 10001;
 
 	min-width:300px;
@@ -124,7 +124,8 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 		width: 100% !important;
 	}
 
-	tr.wh-large.zbs-field-group-tr th, tr.wh-large.zbs-field-group-tr td {
+	tr.wh-large.zbs-field-group-tr th,
+	tr.wh-large.zbs-field-group-tr td {
 		padding: 6px 16px !important;
 	}
 
@@ -136,18 +137,19 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 
 // Needed for custom contact avatars add/edit pages
 .jpcrm-customer-file-upload::before {
-	content: "\f0ee"; 
+	content: "\f0ee";
 	display: inline-block;
 	font-family: FontAwesome;
 }
 
 .jpcrm-customer-file-upload-remove::before {
-	content: "\f00d"; 
+	content: "\f00d";
 	display: inline-block;
 	font-family: FontAwesome;
 }
 
-.jpcrm-customer-file-upload, 
+.jpcrm-customer-file-upload,
+ 
 .jpcrm-customer-file-upload-remove {
 	border: 1px solid #ccc;
 	display: inline-block !important;
@@ -157,7 +159,8 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 	font-weight: 500;
 }
 
-.jpcrm-customer-file-upload:hover, 
+.jpcrm-customer-file-upload:hover,
+ 
 .jpcrm-customer-file-upload-remove:hover {
 	border: 1px solid #999;
 }

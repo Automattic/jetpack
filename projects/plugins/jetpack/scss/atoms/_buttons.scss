@@ -10,7 +10,8 @@
 	transition: all .1s ease-in-out;
 }
 
-.jp-button, %jp-button {
+.jp-button,
+%jp-button {
 	display: inline-block;
 	position: relative;
 	padding: typography-functions.em(10px, 13px) typography-functions.em(19px, 13px);

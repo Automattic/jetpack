@@ -10,7 +10,8 @@
 .configure-module p {
 	font-size: 14px;
 
-	&.success, &.error {
+	&.success,
+	&.error {
 		color: colors.$white;
 		padding: 10px;
 	}

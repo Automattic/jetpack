@@ -430,7 +430,8 @@ a.button.right-pill {
 	padding-top: 3px;
 }
 
-.color-picker #colourlovers-palettes-container .previous, .color-picker #colourlovers-palettes-container .next {
+.color-picker #colourlovers-palettes-container .previous,
+.color-picker #colourlovers-palettes-container .next {
 	margin-top: 10px;
 }
 
@@ -502,7 +503,8 @@ a.button.right-pill {
 	zoom: 1;
 }
 
-#more-patterns, #less-patterns {
+#more-patterns,
+#less-patterns {
 	margin-bottom: 10px;
 }
 
@@ -774,7 +776,6 @@ input#iris {
 .nux #customize-control-background_color {
 	display: block !important;
 }
-
 
 
 .media-modal {

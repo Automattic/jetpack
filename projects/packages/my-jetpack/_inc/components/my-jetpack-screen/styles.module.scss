@@ -120,7 +120,8 @@
 	a {
 		color: var( --jp-black );
 
-		&:hover, &:focus {
+		&:hover,
+		&:focus {
 			text-decoration: underline;
 			text-decoration-thickness: 2px;
 		}

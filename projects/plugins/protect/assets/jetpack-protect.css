@@ -1,7 +1,8 @@
 @font-face {
 	font-family: jetpack-protect;
 	src:  url(fonts/jetpack-protect.eot?31wpn);
-	src:  url(fonts/jetpack-protect.eot?31wpn#iefix) format('embedded-opentype'),
+	src:
+		url(fonts/jetpack-protect.eot?31wpn#iefix) format('embedded-opentype'),
 		url(fonts/jetpack-protect.ttf?31wpn) format('truetype'),
 		url(fonts/jetpack-protect.woff?31wpn) format('woff'),
 		url(fonts/jetpack-protect.svg?31wpn#jetpack-protect) format('svg');
@@ -10,7 +11,8 @@
 	font-display: block;
 }
 
-[class^="jp-protect-icon"], [class*=" jp-protect-icon"] {
+[class^="jp-protect-icon"],
+[class*=" jp-protect-icon"] {
 
 	/* use !important to prevent issues with browser extensions that change fonts */
 	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword -- this is a one-off icon font. */

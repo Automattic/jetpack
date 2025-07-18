@@ -149,7 +149,8 @@ div.sd-box {
 	display: none;
 }
 
-.entry-content .post-likes-widget, .post-likes-widget,
+.entry-content .post-likes-widget,
+.post-likes-widget,
 .comment-likes-widget {
 	margin: 0;
 	border-width: 0;

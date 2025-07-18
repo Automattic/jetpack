@@ -28,11 +28,15 @@
 		flex-direction: column;
 	}
 
-	&__post-heading, &__post-img-link, &__post-date, &__post-context {
+	&__post-heading,
+	&__post-img-link,
+	&__post-date,
+	&__post-context {
 		flex-direction: row;
 	}
 
-	&__post-img-link, &__post-image-placeholder {
+	&__post-img-link,
+	&__post-image-placeholder {
 		order: -1;
 	}
 

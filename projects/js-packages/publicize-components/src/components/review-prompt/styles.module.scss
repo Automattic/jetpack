@@ -13,7 +13,8 @@
 	text-decoration: none;
 	color: var( --jp-gray-90 );
 
-	&:focus, &:active {
+	&:focus,
+	&:active {
 		outline-color: var( --jp-black );
 	}
 

@@ -15,7 +15,8 @@ tr.wh-large label {
 	font-size: 14px;
 }
 
-tr.wh-large select, tr.wh-large input {
+tr.wh-large select,
+tr.wh-large input {
 	font-size:14px;
 	line-height: 1.4;
 }
@@ -25,7 +26,8 @@ tr.wh-large input[type="radio"] {
 	height:16px !important;
 }
 
-tr.wh-large th, tr.wh-large td {
+tr.wh-large th,
+tr.wh-large td {
 	padding: 6px 20px;
 	color: #000;
 }
@@ -35,7 +37,8 @@ table.wh-metatab tr th label {
 	color: #000;
 }
 
-table.wh-metatab tr.wh-large th label, table.wh-metatab tr.wh-large td label {
+table.wh-metatab tr.wh-large th label,
+table.wh-metatab tr.wh-large td label {
 	padding:0;
 }
 
@@ -72,7 +75,8 @@ span.wh-info {
 	width:100%;
 }
 
-.jpcrm-date, .zbs-date {
+.jpcrm-date,
+.zbs-date {
 	width: 132px;
 }
 
@@ -114,7 +118,7 @@ textarea.form-control{
 	border-radius: 3px;
 
 	// header
-	.jpcrm-external-source-group-header.ui.header{    
+	.jpcrm-external-source-group-header.ui.header{
 		margin-bottom: 0.2em;
 	}
 
@@ -158,9 +162,8 @@ textarea.form-control{
 }
 
 
-
-
-.wh-large select, .wh-large input{
+.wh-large select,
+.wh-large input{
 	font-size: 14px;
 	height: 30px;
 }
@@ -197,10 +200,10 @@ textarea.form-control{
 
 
 // date fields
-.form-control.jpcrm-date, .form-control.zbs-date {
+.form-control.jpcrm-date,
+.form-control.zbs-date {
 	display: inline-block;
 }
-
 
 
 // id fields + autonumbers
@@ -226,7 +229,8 @@ textarea.form-control{
 		padding-left:0 !important;
 	}
 
-	.ui.checkbox label, .ui.checkbox+label {
+	.ui.checkbox label,
+	.ui.checkbox+label {
 		font-size: 16px !important;
 		color: #555;
 		font-weight: 400;

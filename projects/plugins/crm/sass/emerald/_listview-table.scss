@@ -19,7 +19,8 @@
 			color: var(--jp-grey-80);
 		}
 
-		th, td {
+		th,
+		td {
 			text-align: left;
 			padding: 10px;
 		}
@@ -36,7 +37,8 @@
 		}
 
 		/* min-width except for checkbox column */
-		th:not(:first-child), td:not(:first-child) {
+		th:not(:first-child),
+		td:not(:first-child) {
 			min-width: 120px;
 		}
 

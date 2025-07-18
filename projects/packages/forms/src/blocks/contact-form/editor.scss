@@ -329,7 +329,8 @@
 
 .jetpack-field {
 
-	.jetpack-field__input, .jetpack-field__textarea {
+	.jetpack-field__input,
+	.jetpack-field__textarea {
 		width: 100%;
 		box-sizing: border-box;
 		box-shadow: unset;
@@ -396,7 +397,8 @@
 		// with the font size.
 		font-size: inherit;
 
-		&::after, &::before {
+		&::after,
+		&::before {
 			all: initial;
 			color: inherit;
 			font-size: inherit;
@@ -685,12 +687,14 @@
 
 	.jetpack-field {
 
-		.jetpack-field__input, .jetpack-field__textarea {
+		.jetpack-field__input,
+		.jetpack-field__textarea {
 			color: #787c82; //Simulates a placeholder color
 		}
 	}
 
-	.is-style-outlined &, .is-style-animated & {
+	.is-style-outlined &,
+	.is-style-animated & {
 
 		.jetpack-field {
 			position: relative;
@@ -793,7 +797,8 @@
 				transform: unset;
 			}
 
-			&.is-selected, &.has-placeholder {
+			&.is-selected,
+			&.has-placeholder {
 
 				.notched-label__notch {
 					border-top-color: transparent !important;
@@ -836,7 +841,10 @@
 				}
 			}
 
-			.jetpack-field-multiple__list, .jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle {
+			.jetpack-field-multiple__list,
+			.jetpack-field__input,
+			.jetpack-field__textarea,
+			.jetpack-field-dropdown__toggle {
 				display: flex;
 
 				/*

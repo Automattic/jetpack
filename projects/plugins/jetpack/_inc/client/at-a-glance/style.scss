@@ -626,7 +626,11 @@ a.jp-dash-item__manage-in-wpcom,
 .dops-banner__description .jp-link-button,
 .jp-at-a-glance__stats-inactive-text a.components-external-link {
 
-	&, &:active, &:visited, &:hover, &:focus {
+	&,
+	&:active,
+	&:visited,
+	&:hover,
+	&:focus {
 		cursor: pointer;
 		font-weight: 400;
 		font-size: typography.$font-body-small;
@@ -650,7 +654,11 @@ a.jp-dash-item__manage-in-wpcom,
 
 .jp-connection-settings__actions a {
 
-	&, &:active, &:visited, &:hover, &:focus {
+	&,
+	&:active,
+	&:visited,
+	&:hover,
+	&:focus {
 		color: calypso-colors.$gray-80;
 	}
 }

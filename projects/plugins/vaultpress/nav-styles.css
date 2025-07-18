@@ -2,7 +2,8 @@
 @font-face {
 	font-family: vaultpressregular;
 	src: url(fonts/vaultpress-regular.eot);
-	src: url(fonts/vaultpress-regular.eot?#iefix) format('embedded-opentype'),
+	src:
+		url(fonts/vaultpress-regular.eot?#iefix) format('embedded-opentype'),
 		url(fonts/vaultpress-regular.woff) format('woff'),
 		url(fonts/vaultpress-regular.ttf) format('truetype'),
 		url(fonts/vaultpress-regular.svg#vaultpressregular) format('svg');
@@ -53,7 +54,10 @@
 	color: #bbb;
 }
 
-.dops-notice.is-success .dops-notice__dismiss, .dops-notice.is-error .dops-notice__dismiss, .dops-notice.is-warning .dops-notice__dismiss, .dops-notice.is-info .dops-notice__dismiss {
+.dops-notice.is-success .dops-notice__dismiss,
+.dops-notice.is-error .dops-notice__dismiss,
+.dops-notice.is-warning .dops-notice__dismiss,
+.dops-notice.is-info .dops-notice__dismiss {
 	overflow: hidden;
 }
 
@@ -159,7 +163,8 @@
 	}
 }
 
-.dops-notice .dops-notice__dismiss:hover, .dops-notice .dops-notice__dismiss:focus {
+.dops-notice .dops-notice__dismiss:hover,
+.dops-notice .dops-notice__dismiss:focus {
 	color: #fff;
 }
 

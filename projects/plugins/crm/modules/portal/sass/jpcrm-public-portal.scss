@@ -114,7 +114,8 @@
 	font-family: helvetica, sans-serif;
 	border-radius: 0.5em;
 
-	img, a img {
+	img,
+	a img {
 		margin-top: 1em;
 		border: 0;
 	}
@@ -176,7 +177,8 @@
 			padding-left:0 !important;
 		}
 
-		.zbs-cf-checkbox label, .zbs-cf-checkbox+label {
+		.zbs-cf-checkbox label,
+		.zbs-cf-checkbox+label {
 			font-size: 16px !important;
 			font-weight: 400;
 		}
@@ -204,7 +206,20 @@
 	}
 
 	/* Few tweaks as provided by Alvaro in slack ... wh selectively added those which made sense for multi-theme userbase JIRA-ZBS-531 */
-	.zbs-portal-login .login-form input[type="text"], .zbs-portal-login .login-form input[type="password"], .form-control.widetext, .form-control.zbs-tel, .form-control.zbs-email, .form-control.zbs-date, input[type="text"], input[type="password"], input[type="tel"], input[type="email"], input.text, input.title, textarea, select {
+	.zbs-portal-login .login-form input[type="text"],
+	.zbs-portal-login .login-form input[type="password"],
+	.form-control.widetext,
+	.form-control.zbs-tel,
+	.form-control.zbs-email,
+	.form-control.zbs-date,
+	input[type="text"],
+	input[type="password"],
+	input[type="tel"],
+	input[type="email"],
+	input.text,
+	input.title,
+	textarea,
+	select {
 		padding-left: 1em;
 		padding-right: 1em;
 		margin-bottom: 1em;
@@ -239,7 +254,7 @@
 	margin-bottom: 10px;
 }
 
-.zbs-portal-login { 
+.zbs-portal-login {
 
 	.login-form {
 		width: 500px;
@@ -251,7 +266,8 @@
 		margin-bottom: 50px;
 		margin-top: 20px;
     
-		input[type="text"], input[type="password"] {
+		input[type="text"],
+		input[type="password"] {
 			width: 100%;
 		}
 
@@ -356,15 +372,19 @@
 		font-weight: 900;
 	}
 
-	.zbs-invoice-portal-inner .zbs-invoice-box table, 
-	.zbs-invoice-portal-inner .zbs-invoice-box td, 
+	.zbs-invoice-portal-inner .zbs-invoice-box table,
+ 
+	.zbs-invoice-portal-inner .zbs-invoice-box td,
+ 
 	.zbs-invoice-portal-inner .zbs-invoice-box th {
 		table-layout: auto;
 		border: none;
 	}
 
-	.zbs-invoice-portal-inner .zbs-invoice-box table .dz, 
-	.zbs-invoice-portal-inner .zbs-invoice-box td .dz, 
+	.zbs-invoice-portal-inner .zbs-invoice-box table .dz,
+ 
+	.zbs-invoice-portal-inner .zbs-invoice-box td .dz,
+ 
 	.zbs-invoice-portal-inner .zbs-invoice-box th .dz {
 		font-size: 13px;
 		font-style: italic;
@@ -430,7 +450,8 @@
 
 }
 
-.zbs-fieldgroup-main_address, .zbs-fieldgroup-second_address{
+.zbs-fieldgroup-main_address,
+.zbs-fieldgroup-second_address{
 	width: 48%;
 	float: left;
 	margin-right: 2%;
@@ -440,7 +461,8 @@
 	}
 }
 
-.zbs-fieldgroup-main_address_100w, #wptbpMetaBoxGroup-main_address_100w{
+.zbs-fieldgroup-main_address_100w,
+#wptbpMetaBoxGroup-main_address_100w{
 	width:100%;
 }
 
@@ -460,7 +482,7 @@
 }
 
 .zerobs-proposal-poweredby {
-	margin-top:2em 
+	margin-top:2em
 }
 
 //hide the title from the Portal Page 
@@ -516,7 +538,12 @@
 
 		@media (max-width: 1100px) {
 
-			table, thead, tbody, th, td, tr {
+			table,
+			thead,
+			tbody,
+			th,
+			td,
+			tr {
 				display: block;
 			}
 
@@ -623,13 +650,16 @@
 		margin: 0;
 	}
 
-	.zbs-radio label, .zbs-cf-checkbox label {
+	.zbs-radio label,
+	.zbs-cf-checkbox label {
 		white-space: nowrap !important;
 		padding: 2px;
 	}
 
-	.zbs-radio label span, .zbs-cf-checkbox label span,
-	.zbs-radio label input, .zbs-cf-checkbox label input {
+	.zbs-radio label span,
+	.zbs-cf-checkbox label span,
+	.zbs-radio label input,
+	.zbs-cf-checkbox label input {
 		vertical-align: middle;
 	}
 
@@ -637,11 +667,16 @@
 		margin-top: 2rem;
 	}
 
-	input:not([type="checkbox"]):not([type="radio"]), select, textarea, .jpcrm-inline-file-input {
+	input:not([type="checkbox"]):not([type="radio"]),
+	select,
+	textarea,
+	.jpcrm-inline-file-input {
 		width: 95%;
 	}
 
-	tr, td, th {
+	tr,
+	td,
+	th {
 		word-break: keep-all;
 	}
 }
@@ -701,7 +736,8 @@ i.icon.child::before {
 	width: initial;
 }
 
-.client-portal-file-upload, 
+.client-portal-file-upload,
+ 
 .client-portal-file-upload-remove {
 	border: 1px solid #ccc;
 	display: inline-block !important;
@@ -710,7 +746,8 @@ i.icon.child::before {
 	width: initial;
 }
 
-.client-portal-file-upload:hover, 
+.client-portal-file-upload:hover,
+ 
 .client-portal-file-upload-remove:hover {
 	border: 1px solid #999;
 }
@@ -738,11 +775,14 @@ i.icon.child::before {
 		text-wrap: balance;
 	}
 
-	a, a:visited, a:active {
+	a,
+	a:visited,
+	a:active {
 		color: var(--jp-black);
 		text-decoration: underline;
 
-		&:hover, &:focus {
+		&:hover,
+		&:focus {
 			color: var(--jp-gray-80);
 		}
 	}

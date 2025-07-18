@@ -18,7 +18,12 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 	padding: 0;
 	width: 100%;
 
-	h1, h2, h3, h4, h5, h6 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		line-height: inherit;
 	}
 }
@@ -56,7 +61,9 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 
 .zbs-timeline-marker {
 	position: absolute;
-	top: 0; bottom: 0; left: 0;
+	top: 0;
+	bottom: 0;
+	left: 0;
 	width: 15px;
 
 	&::before {
@@ -67,9 +74,11 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 		display: block;
 		height: 15px;
 		position: absolute;
-		top: 4px; left: 0;
+		top: 4px;
+		left: 0;
 		width: 15px;
-		transition: background 0.3s ease-in-out,
+		transition:
+			background 0.3s ease-in-out,
 			border 0.3s ease-in-out;
 	}
 
@@ -79,7 +88,9 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 		background: #d7d7d8;
 		display: block;
 		position: absolute;
-		top: 24px; bottom: 0; left: 6px;
+		top: 24px;
+		bottom: 0;
+		left: 6px;
 	}
 
 	.zbs-timeline-item:last-child &::after {
@@ -136,7 +147,9 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 
 	.zbs-timeline-marker {
 		position: absolute;
-		top: 0; bottom: 0; left: 0;
+		top: 0;
+		bottom: 0;
+		left: 0;
 		width: 15px;
 
 		&::before {
@@ -148,9 +161,11 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 			display: block;
 			height: 10px;
 			position: absolute;
-			top: 4px; left: 2px;
+			top: 4px;
+			left: 2px;
 			width: 10px;
-			transition: background 0.3s ease-in-out,
+			transition:
+				background 0.3s ease-in-out,
 				border 0.3s ease-in-out;
 			z-index: 10000;
 		}
@@ -161,7 +176,9 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 			background: #d7d7d8;
 			display: block;
 			position: absolute;
-			top: 0; bottom: 0; left: 6px;
+			top: 0;
+			bottom: 0;
+			left: 6px;
 		}
 
 		.zbs-timeline-item:last-child &::after {
@@ -326,7 +343,7 @@ $primary-color-hover: color.scale($primary-color, $lightness: 32%);
 			float: right;
 			text-align: left;
 			padding-left: 30px;
-		}    
+		}
 
 		> .zbs-timeline-item:nth-child(even) .zbs-timeline-info {
 			float: right;

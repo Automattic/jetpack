@@ -1,5 +1,6 @@
 /* NOAUTORTL */
-.for-codemirror, .CodeMirror {
+.for-codemirror,
+.CodeMirror {
 	font-family: Consolas, Monaco, monospace;
 	font-size: 12px;
 	line-height: 16px;
