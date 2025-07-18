@@ -216,8 +216,8 @@
 		}
 	}
 
-	&[ disabled ]:hover,
-	&[ disabled ]:focus {
+	&[disabled]:hover,
+	&[disabled]:focus {
 		background: transparent;
 		cursor: default;
 	}
