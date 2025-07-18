@@ -1,7 +1,7 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useContext, useId, useState, useRef } from 'react';
+import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
@@ -228,11 +228,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const error = validateData( dataSorted );
 	const isDataValid = ! error;
 
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			orientation,
+			withPatterns,
+		} ),
+		[ orientation, withPatterns ]
+	);
+
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'bar', isDataValid, {
-		orientation,
-		withPatterns,
-	} );
+	useChartRegistration( chartId, legendItems, providerTheme, 'bar', isDataValid, chartMetadata );
 
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
