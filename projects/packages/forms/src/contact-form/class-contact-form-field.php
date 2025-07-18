@@ -2224,17 +2224,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		ob_start();
 		?>
-		<div
-			class="jetpack-slider-input-row"
-			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method
-			echo wp_interactivity_data_wp_context(
-				array(
-					'sliderValue' => $current_value,
-				)
-			);
-			?>
-		>
+		<div class="jetpack-field-slider__input-row">
 			<span class="jetpack-field-slider__min-label"><?php echo esc_html( $min ); ?></span>
 			<div class="jetpack-field-slider__input-container">
 				<input

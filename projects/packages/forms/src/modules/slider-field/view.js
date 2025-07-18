@@ -23,12 +23,12 @@ store( NAMESPACE, {
 		get getSliderValue() {
 			const context = getContext();
 			const { min } = getSliderMinMax( context );
-			return context.sliderValue || min || 0;
+			return context.fieldValue || min || 0;
 		},
 		get getSliderPosition() {
 			const context = getContext();
 			const { min, max } = getSliderMinMax( context );
-			let value = Number( context.sliderValue ?? min );
+			let value = Number( context.fieldValue ?? min );
 			value = value < min ? min : value;
 			value = value > max ? max : value;
 			const percent = ( ( value - min ) * 100 ) / ( max - min );
@@ -40,7 +40,7 @@ store( NAMESPACE, {
 	actions: {
 		onSliderChange( event ) {
 			const context = getContext();
-			context.sliderValue = event.target.value;
+			context.fieldValue = event.target.value;
 		},
 	},
 } );
