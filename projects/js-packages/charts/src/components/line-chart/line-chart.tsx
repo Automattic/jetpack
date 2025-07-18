@@ -337,21 +337,33 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		const error = validateData( dataSorted );
 		const isDataValid = ! error;
 
+		// Memoize legend options to prevent unnecessary re-calculations
+		const legendOptions = useMemo(
+			() => ( {
+				withGlyph: withLegendGlyph,
+				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+				renderGlyph,
+			} ),
+			[ withLegendGlyph, glyphStyle?.radius, renderGlyph ]
+		);
+
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, providerTheme, {
-			withGlyph: withLegendGlyph,
-			glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
-			renderGlyph,
-		} );
+		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions );
+
+		// Memoize metadata to prevent unnecessary re-registration
+		const chartMetadata = useMemo(
+			() => ( {
+				withGradientFill,
+				smoothing,
+				curveType,
+				withStartGlyphs,
+				withLegendGlyph,
+			} ),
+			[ withGradientFill, smoothing, curveType, withStartGlyphs, withLegendGlyph ]
+		);
 
 		// Register chart with context only if data is valid
-		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
-			withGradientFill,
-			smoothing,
-			curveType,
-			withStartGlyphs,
-			withLegendGlyph,
-		} );
+		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, chartMetadata );
 
 		const accessors = {
 			xAccessor: ( d: DataPointDate ) => d?.date,
