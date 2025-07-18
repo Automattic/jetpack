@@ -69,10 +69,20 @@ const generateHeadCode = scriptSrc => {
 	return `<script src="${ scriptSrc }"></script>`;
 };
 
-const generateBodyCode = hostedButtonId => {
+const generateBodyCode = ( hostedButtonId, buttonType = 'stacked', buttonText = '' ) => {
 	if ( ! hostedButtonId ) {
 		return '';
 	}
+
+	if ( buttonType === 'single' ) {
+		return `<style>.pp-${ hostedButtonId }{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>
+<form action="https://www.paypal.com/ncp/payment/${ hostedButtonId }" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
+  <input class="pp-${ hostedButtonId }" type="submit" value="${ buttonText || 'Pay Now' }" />
+  <img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards" />
+  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
+</form>`;
+	}
+
 	return `<div id="paypal-container-${ hostedButtonId }"></div>
 <script>
   paypal.HostedButtons({
@@ -89,7 +99,99 @@ const validHostedButtonId = hostedButtonId => /^[A-Z0-9]+$/.test( hostedButtonId
 const validButtonText = buttonText =>
 	buttonText && buttonText.trim().length > 0 && buttonText.length <= 50;
 
-export default function Edit( { attributes, setAttributes } ) {
+/**
+ * PayPal Single Button Preview component (rendered directly)
+ *
+ * @param {object} root0            - The component props
+ * @param {string} root0.buttonText - The button text
+ * @return {Element} The PayPal single button preview component
+ */
+const PayPalSingleButtonPreview = ( { buttonText } ) => {
+	const paypalButtonStyles = {
+		textAlign: 'center',
+		border: 'none',
+		borderRadius: '0.25rem',
+		minWidth: '11.625rem',
+		padding: '0 2rem',
+		height: '2.625rem',
+		fontWeight: 'bold',
+		backgroundColor: '#FFD140',
+		color: '#000000',
+		fontFamily: '"Helvetica Neue", Arial, sans-serif',
+		fontSize: '1rem',
+		lineHeight: '1.25rem',
+		cursor: 'pointer',
+		pointerEvents: 'none', // Prevent clicking in editor
+	};
+
+	return (
+		<div style={ { textAlign: 'center' } }>
+			<form
+				style={ {
+					display: 'inline-grid',
+					justifyItems: 'center',
+					alignContent: 'start',
+					gap: '0.5rem',
+				} }
+			>
+				<input type="button" value={ buttonText } style={ paypalButtonStyles } />
+				<img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards" />
+				<section style={ { fontSize: '0.75rem' } }>
+					Powered by{ ' ' }
+					<img
+						src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg"
+						alt="paypal"
+						style={ { height: '0.875rem', verticalAlign: 'middle' } }
+					/>
+				</section>
+			</form>
+		</div>
+	);
+};
+
+/**
+ * Check if we have the required data for a preview (only single buttons)
+ *
+ * @param {object} attributes - The block attributes
+ * @return {boolean} Whether preview can be shown
+ */
+const canShowPreview = attributes => {
+	const { buttonType, hostedButtonId, buttonText } = attributes;
+
+	if ( ! hostedButtonId || ! validHostedButtonId( hostedButtonId ) ) {
+		return false;
+	}
+
+	if ( buttonType === 'single' ) {
+		return buttonText && validButtonText( buttonText );
+	}
+
+	return false;
+};
+
+/**
+ * PayPal Preview component router
+ *
+ * @param {object} root0            - The component props
+ * @param {object} root0.attributes - The block attributes
+ * @return {Element|null} The PayPal preview component or null
+ */
+const PayPalPreview = ( { attributes } ) => {
+	const { buttonType, buttonText } = attributes;
+
+	if ( ! canShowPreview( attributes ) ) {
+		return null;
+	}
+
+	// Only render preview for single button type
+	if ( buttonType === 'single' ) {
+		return <PayPalSingleButtonPreview buttonText={ buttonText } />;
+	}
+
+	return null;
+};
+
+export default function Edit( { attributes, setAttributes, isSelected } ) {
 	const { buttonType, scriptSrc, hostedButtonId, buttonText } = attributes;
 	const [ notice, setNotice ] = useState( null );
 	const [ rawHeadCode, setRawHeadCode ] = useState( '' );
@@ -114,9 +216,9 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	useEffect( () => {
 		if ( ! rawBodyCode && hostedButtonId ) {
-			setRawBodyCode( generateBodyCode( hostedButtonId ) );
+			setRawBodyCode( generateBodyCode( hostedButtonId, buttonType, buttonText ) );
 		}
-	}, [ hostedButtonId, rawBodyCode ] );
+	}, [ hostedButtonId, rawBodyCode, buttonType, buttonText ] );
 
 	useEffect( () => {
 		// Check if user has pasted invalid code that couldn't be extracted
@@ -170,8 +272,19 @@ export default function Edit( { attributes, setAttributes } ) {
 		setNotice( null );
 	}, [ buttonType, scriptSrc, hostedButtonId, buttonText, rawHeadCode, rawBodyCode ] );
 
+	const blockProps = useBlockProps();
+
+	// Early return for preview rendering
+	if ( ! isSelected && ! notice && canShowPreview( attributes ) ) {
+		return (
+			<div { ...blockProps }>
+				<PayPalPreview attributes={ attributes } />
+			</div>
+		);
+	}
+
 	return (
-		<div { ...useBlockProps() }>
+		<div { ...blockProps }>
 			<Placeholder
 				icon={ PayPalIcon }
 				label={ __( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ) }
