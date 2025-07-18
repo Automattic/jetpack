@@ -1,7 +1,7 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
 import { ExternalLink, Spinner } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
+import { gmdateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
@@ -87,18 +87,18 @@ export class DashStats extends Component {
 			totalViews += views;
 
 			if ( 'day' === unit ) {
-				chartLabel = dateI18n( shortMonthFormat, date, true );
-				tooltipLabel = dateI18n( longMonthFormat, date, true );
+				chartLabel = gmdateI18n( shortMonthFormat, date );
+				tooltipLabel = gmdateI18n( longMonthFormat, date );
 			} else if ( 'week' === unit ) {
-				chartLabel = dateI18n( shortMonthFormat, date, true );
+				chartLabel = gmdateI18n( shortMonthFormat, date );
 				tooltipLabel = sprintf(
 					/* translators: placeholder is a date. */
 					__( 'Week of %s', 'jetpack' ),
-					dateI18n( longMonthFormat, date, true )
+					gmdateI18n( longMonthFormat, date )
 				);
 			} else if ( 'month' === unit ) {
-				chartLabel = dateI18n( 'M', date, true );
-				tooltipLabel = dateI18n( longMonthYearFormat, date, true );
+				chartLabel = gmdateI18n( 'M', date );
+				tooltipLabel = gmdateI18n( longMonthYearFormat, date );
 			}
 
 			s.push( {
