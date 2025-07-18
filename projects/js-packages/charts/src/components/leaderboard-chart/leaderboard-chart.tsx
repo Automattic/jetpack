@@ -1,8 +1,8 @@
+import { ProgressBar } from '@wordpress/components';
 import clsx from 'clsx';
 import { type FC } from 'react';
 import { formatMetricValue } from '../shared/format-metric-value';
 import styles from './leaderboard-chart.module.scss';
-
 export interface LeaderboardEntry {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
@@ -114,31 +114,6 @@ const defaultDeltaFormatter = ( value: number ): string => {
 };
 
 /**
- * Progress bar component
- *
- * @param props           - Component props
- * @param props.value     - Progress value as percentage (0-100)
- * @param props.className - Additional CSS class name
- * @param props.color     - Progress bar color
- * @return JSX element representing the progress bar
- */
-const ProgressBar: FC< {
-	value: number;
-	className?: string;
-	color?: string;
-} > = ( { value, className, color } ) => (
-	<div
-		className={ clsx( styles.progressBar, className ) }
-		style={ { '--progress-color': color } as React.CSSProperties }
-	>
-		<div
-			className={ styles.progressBarFill }
-			style={ { width: `${ Math.max( 0, Math.min( 100, value ) ) }%` } }
-		/>
-	</div>
-);
-
-/**
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
  *
@@ -202,15 +177,13 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 							<div className={ styles.progressContainer }>
 								<ProgressBar
 									value={ entry.currentShare }
-									color={ primaryColor }
-									className={ styles.primaryBar }
+									className={ clsx( styles.progressBar, styles.primaryBar ) }
 								/>
 
 								{ withComparison && (
 									<ProgressBar
 										value={ entry.previousShare }
-										color={ secondaryColor }
-										className={ styles.secondaryBar }
+										className={ clsx( styles.progressBar, styles.secondaryBar ) }
 									/>
 								) }
 							</div>

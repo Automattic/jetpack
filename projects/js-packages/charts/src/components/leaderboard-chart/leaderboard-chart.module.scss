@@ -40,34 +40,26 @@
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
-}
 
-.progressBar {
-	width: 100%;
-	height: 6px;
-	border-radius: 2px;
-	background-color: transparent;
-	overflow: hidden;
-}
+	.progressBar {
+		width: 100%;
+		height: 6px;
+		border-radius: 2px;
+		background-color: transparent;
+		overflow: hidden;
+		transition: width 0.3s ease-in-out;	
 
-.progressBarFill {
-	height: 100%;
-	border-radius: 2px;
-	background-color: var(--progress-color, #3858e9);
-	transition: width 0.3s ease-in-out;
-}
-
-.primaryBar {
-
-	.progressBarFill {
-		background-color: var(--primary-color, #3858e9);
+		> div {
+			background-color: var(--progress-color, #3858e9);
+		}
 	}
-}
 
-.secondaryBar {
-
-	.progressBarFill {
-		background-color: var(--secondary-color, #66bdff);
+	.primaryBar {
+		--progress-color: var(--primary-color, #3858e9);
+	}
+	
+	.secondaryBar {
+		--progress-color: var(--secondary-color, #66bdff);
 	}
 }
 

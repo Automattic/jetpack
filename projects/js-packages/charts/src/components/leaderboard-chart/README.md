@@ -1,6 +1,6 @@
 # LeaderboardChart Component
 
-A flexible and accessible leaderboard chart component for displaying ranked data with progress bars and optional comparison values.
+A flexible and accessible leaderboard chart component for displaying ranked data with WordPress ProgressBar components and optional comparison values.
 
 ## Features
 
