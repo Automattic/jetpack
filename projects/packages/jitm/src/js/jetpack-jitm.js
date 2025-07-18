@@ -269,8 +269,8 @@ domReady( function() {
                 })
                 .then(response => {
                     if (response.ok) {
-                        templateEl.style.opacity = '0';
                         templateEl.style.transition = 'opacity 0.5s';
+                        templateEl.style.opacity = '0';
                         setTimeout(() => {
                             templateEl.style.display = 'none';
                         }, 500);
