@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Shortcodes: Update embed reversal code to only run when content is inserted in the admin.
