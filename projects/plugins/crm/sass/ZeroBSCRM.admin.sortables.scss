@@ -11,13 +11,13 @@
 
 		li {
 			
-		    padding: 6px 10px;
-		    margin-top: 4px;
-		    margin-bottom: 4px;
-		    border: 1px solid #d1cfee;
-		    border-radius: 4px;
-		    background: #f2f4ff;
-		    cursor: move;
+			padding: 6px 10px;
+			margin-top: 4px;
+			margin-bottom: 4px;
+			border: 1px solid #d1cfee;
+			border-radius: 4px;
+			background: #f2f4ff;
+			cursor: move;
 
 		}
 
@@ -26,7 +26,7 @@
 
 			font-family: FontAwesome;
 			content: '\f0c9';
-    		margin: 0 10px 0 0;
+			margin: 0 10px 0 0;
 			color: #ddd;
 
 		}
@@ -36,7 +36,7 @@
 
 			font-family: FontAwesome;
 			content: '\f0c9';
-    		margin: 0 10px 0 0;
+			margin: 0 10px 0 0;
 			color: #000;
 
 		}
@@ -49,24 +49,24 @@
 
 .zbsSortableFieldList li .zbs-showhide-field {
 	    
-	    float: right;
-	    text-align: right;
-	    line-height: 1;
-	    margin-top: -7px;
+	float: right;
+	text-align: right;
+	line-height: 1;
+	margin-top: -7px;
 
-	    label {
-	    	    vertical-align: middle;
-	    		padding-top: 11px;
-	    		padding-right: 6px;
+	label {
+		vertical-align: middle;
+		padding-top: 11px;
+		padding-right: 6px;
 
-	    }
+	}
 
-	    input {
+	input {
 
-		    line-height: 1;
-		    display: inline-block;
-		    vertical-align: middle;
+		line-height: 1;
+		display: inline-block;
+		vertical-align: middle;
 		    
-	    }
+	}
 
 }

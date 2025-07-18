@@ -4,18 +4,18 @@
  */
 
 // generic blocker
- .zbsSpinnerBlocker {
+.zbsSpinnerBlocker {
  	
- 	position:absolute;
- 	top: 0; left: 0;
+	position:absolute;
+	top: 0; left: 0;
 	width: 100%;height:100%;
 	background:transparent;
 	z-index:100;
 
 	.zbsSpinnerBG {
 
-	 	position:absolute;
-	 	top: 0; left: 0;
+		position:absolute;
+		top: 0; left: 0;
 		width: 100%;height:100%;
 		background:#FFF;
 		z-index:100;

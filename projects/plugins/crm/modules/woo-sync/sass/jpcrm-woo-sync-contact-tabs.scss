@@ -4,14 +4,14 @@
  * V1.0
  */
 
- .woo-sync-subs, .woo-sync-mem, .woo-sync-book{
+.woo-sync-subs, .woo-sync-mem, .woo-sync-book{
 
-     .label{
-        text-transform: capitalize !important;
-     }
+	.label{
+		text-transform: capitalize !important;
+	}
 
-     .active, .paid, .completed{
-         color:#fff !important;
-         background: #21ba46 !important;
-     }
- }
+	.active, .paid, .completed{
+		color:#fff !important;
+		background: #21ba46 !important;
+	}
+}

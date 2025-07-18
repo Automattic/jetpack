@@ -39,8 +39,8 @@
 
 	@include breakpoints.breakpoint( ">480px" ) {
 		position: absolute;
-			right: rem.convert( 16px );
-			bottom: rem.convert( 16px );
+		right: rem.convert( 16px );
+		bottom: rem.convert( 16px );
 	}
 }
 

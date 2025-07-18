@@ -134,14 +134,14 @@
 			width: 23px;
 			height: 23px;
 		}
-	};
+	}
 
 	@include breakpoint.breakpoint(desktop){
 
 		&:active {
 			top: 0;
 		}
-	};
+	}
 
 	@include breakpoint.breakpoint(large-phone){
 		font-size: typography-functions.em(17px);
@@ -152,5 +152,5 @@
 			height: 19px;
 			margin-right: 9px;
 		}
-	};
+	}
 }

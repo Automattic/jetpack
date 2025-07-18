@@ -397,15 +397,15 @@
 
 @media (max-width: 782px) {
 
-		// Fix to override particular wp-list-table changes in core - July 2015
-		.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
-			padding: 11px 10px;
-			display: block;
-		}
+	// Fix to override particular wp-list-table changes in core - July 2015
+	.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
+		padding: 11px 10px;
+		display: block;
+	}
 
-		.manage-right.show .subsubsub li {
-				padding: 5px;
-			}
+	.manage-right.show .subsubsub li {
+		padding: 5px;
+	}
 
 } // < 782
 
@@ -419,14 +419,14 @@
 
 @media (max-width: 430px) {
 
-		// Hide activate / config links on really small screens. Users can still utlize these actions by tapping on the title of the module
-		.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
-			display: none;
-		}
+	// Hide activate / config links on really small screens. Users can still utlize these actions by tapping on the title of the module
+	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+		display: none;
+	}
 
-		.table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
-			display: block;
-		}
+	.table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
+		display: block;
+	}
 } // < 430
 
 // Modules page hacks

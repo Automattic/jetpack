@@ -13,7 +13,7 @@
 
 	@include breakpoint.breakpoint(tablet){
 		padding-left: 0;
-	};
+	}
 }
 
 // ==========================================================================
@@ -34,7 +34,7 @@
 
 	@include breakpoint.breakpoint(large-phone){
 		margin-top: 0;
-	};
+	}
 }
 
 .wrap.inner {
@@ -42,11 +42,11 @@
 	@include breakpoint.breakpoint(large-desktop) {
 		background: colors.$clouds;
 		padding: 15px;
-	};
+	}
 
 	@include breakpoint.breakpoint(large-phone) {
 		margin-top: typography-functions.em(24px);
-	};
+	}
 }
 
 .page-content.about {
@@ -56,14 +56,14 @@
 	@include breakpoint.breakpoint(large-desktop){
 		background: colors.$clouds;
 		padding: 15px;
-	};
+	}
 }
 
 .page-content.configure {
 
 	@include breakpoint.breakpoint(large-desktop){
 		background: colors.$clouds;
-	};
+	}
 }
 
 .footer nav {
@@ -141,7 +141,7 @@
 
 	@include breakpoint.breakpoint(desktop){
 		font-size: 13px;
-	};
+	}
 }
 
 // Help tab
@@ -239,7 +239,7 @@
 
 		@include breakpoint.breakpoint(large-phone){
 			font-size: 26px;
-		};
+		}
 	}
 
 	h5 {
@@ -284,12 +284,12 @@
 		.content {
 			top: 38px;
 		}
-	};
+	}
 
 	@include breakpoint.breakpoint(tablet){
 		top: 66px;
 		margin-left: 0;
-	};
+	}
 
 	@include breakpoint.breakpoint(phablet){
 		top: 10px;
@@ -316,7 +316,7 @@
 	@include breakpoint.breakpoint(tablet){
 		float: none;
 		margin: 0 0 15px;
-	};
+	}
 }
 
 .content-container.modal-footer {
@@ -371,8 +371,8 @@
 	}
 
 	@include breakpoint.minbreakpoint(large-desktop){
-			padding-bottom: 35px;
-	};
+		padding-bottom: 35px;
+	}
 
 	@include breakpoint.breakpoint(large-desktop) {
 		padding-top: 165px;
@@ -386,24 +386,24 @@
 			float: none;
 			overflow: hidden; // Clears the float
 		}
-	};
+	}
 
 	@include breakpoint.breakpoint(desktop){
 		padding-top: 146px;
-	};
+	}
 
 	@include breakpoint.breakpoint(tablet){
 		margin-top: 0;
-	};
+	}
 
 	@include breakpoint.breakpoint(large-phone){
 		margin-top: 0;
 		padding-top: 135px;
-	};
+	}
 
 	@include breakpoint.breakpoint(phone){
 		padding-top: 76px;
-	};
+	}
 }
 
 // stylelint-disable-next-line no-duplicate-selectors -- This is part of the larger footer nav section.
@@ -431,7 +431,7 @@
 				color: colors.$green;
 			}
 		}
-	};
+	}
 
 	@include breakpoint.breakpoint(large-phone){
 
@@ -447,7 +447,7 @@
 			padding: 0 16px;
 			line-height: 44px;
 		}
-	};
+	}
 }
 
 .primary {
@@ -466,16 +466,16 @@
 		padding: 8px 15px 10px;
 		margin-bottom: 30px;
 		border-bottom: 1px solid #f0f0f1;
-	};
+	}
 
 	@include breakpoint.minbreakpoint(large-desktop){
-			margin-bottom: 0;
-	};
+		margin-bottom: 0;
+	}
 
 	@include breakpoint.breakpoint(tablet){
 		padding: 8px 15px 8px;
 		border-bottom: none;
-	};
+	}
 
 	@include breakpoint.breakpoint(large-phone){
 		margin: 0;
@@ -486,7 +486,7 @@
 		a {
 			border-top: 1px solid #f0f0f1;
 		}
-	};
+	}
 }
 
 .footer .a8c-attribution {
@@ -530,15 +530,15 @@
 
 .secondary {
 
-		@include breakpoint.minbreakpoint(tablet){
-			padding: 0 15px 10px 15px;
-			border-bottom: 1px solid #f0f0f1;
-		}
+	@include breakpoint.minbreakpoint(tablet){
+		padding: 0 15px 10px 15px;
+		border-bottom: 1px solid #f0f0f1;
+	}
 
-		@include breakpoint.minbreakpoint(large-desktop){
-			padding: 0 15px 10px 15px;
-			border-bottom: none;
-		}
+	@include breakpoint.minbreakpoint(large-desktop){
+		padding: 0 15px 10px 15px;
+		border-bottom: none;
+	}
 }
 
 
@@ -632,7 +632,7 @@
 			border-bottom:1px solid #D5E4BD;
 		}
 
- a:hover{
+		a:hover{
 			border-bottom:1px solid #F1F6E9;
 		}
 	}
@@ -667,7 +667,7 @@
 			width: 100%;
 		}
 	}
-};
+}
 
 // ==========================================================================
 // Custom Breakpoints

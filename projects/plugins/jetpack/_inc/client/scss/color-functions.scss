@@ -4,12 +4,12 @@
 
 @function tint($color, $percent){
 
-  @return color.mix(white, $color, $percent);
+	@return color.mix(white, $color, $percent);
 }
 
 // Add percentage of black to a color
 // Copyright © 2011–2015 thoughtbot. See CREDITS.md#L3
 @function shade($color, $percent){
 
-  @return color.mix(black, $color, $percent);
+	@return color.mix(black, $color, $percent);
 }

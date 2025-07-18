@@ -71,10 +71,10 @@
 	background-color: color.adjust( colors.$gray, $lightness: 35% );
 	padding: rem.convert( 16px );
 
-		@include breakpoints.breakpoint( "<660px" ) {
-			background: colors.$white;
-			margin-top: rem.convert( 16px );
-			padding: 0 rem.convert( 16px );
+	@include breakpoints.breakpoint( "<660px" ) {
+		background: colors.$white;
+		margin-top: rem.convert( 16px );
+		padding: 0 rem.convert( 16px );
 	}
 }
 

@@ -29,7 +29,7 @@
 /**
  * Fixes Gutenberg in not fullscreen mode.
  */
- @media (min-width: 783px) {
+@media (min-width: 783px) {
 
 	.interface-interface-skeleton,
 	.edit-post-layout .components-editor-notices__snackbar {

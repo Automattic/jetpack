@@ -196,10 +196,10 @@ $jp-gray-20:             #a7aaad;
 	margin-right: 0;
 }
 
- // if JITM appears inside of the jetpack dashboard adjust margins
- .jp-lower .jitm-card {
-   margin: 0 0 rem.convert( 24px );
- }
+// if JITM appears inside of the jetpack dashboard adjust margins
+.jp-lower .jitm-card {
+	margin: 0 0 rem.convert( 24px );
+}
 
 .jitm-banner.jitm-card {
 	display: flex;
@@ -532,5 +532,5 @@ $jp-gray-20:             #a7aaad;
 
 // if JITM appears directly below WordPress hello dolly adjust margins
 #dolly + .jitm-card {
-  margin: 3rem 1rem 0 auto;
+	margin: 3rem 1rem 0 auto;
 }

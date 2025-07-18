@@ -82,15 +82,15 @@
 			 * Remove arrows from the number input
 			 * backward compatibility for Firefox, Safari, and Chrome
 			 */
-			 &::-webkit-outer-spin-button,
-			 &::-webkit-inner-spin-button {
-				 -webkit-appearance: none;
-			 }
+			&::-webkit-outer-spin-button,
+			&::-webkit-inner-spin-button {
+				-webkit-appearance: none;
+			}
  
-			 &[type="number"] {
-				 appearance: textfield;
-				 -moz-appearance: textfield;
-			 }
+			&[type="number"] {
+				appearance: textfield;
+				-moz-appearance: textfield;
+			}
 		}
 
 		.components-input-control__backdrop {

@@ -24,7 +24,7 @@
 }
 
 .tiled-gallery .gallery-row {
-	 overflow: hidden;
+	overflow: hidden;
 }
 
 .tiled-gallery .tiled-gallery-item a { /* Needs to reset some properties for theme compatibility */
@@ -56,7 +56,7 @@
 	overflow: hidden;
 	padding: 10px 0;
 	position: absolute;
-		bottom: 0;
+	bottom: 0;
 	text-indent: 10px;
 	text-overflow: ellipsis;
 	width: 100%;

@@ -22,7 +22,7 @@
 
 @for $i from 1 through 6 {
 	.wp-block-jetpack-instagram-gallery__grid-columns-#{$i}
-		.wp-block-jetpack-instagram-gallery__grid-post {
+	.wp-block-jetpack-instagram-gallery__grid-post {
 		width: calc( 100% / #{$i} );
 	}
 }
@@ -30,7 +30,7 @@
 @media ( max-width: gb.$break-small ) {
 
 	.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile
-		.wp-block-jetpack-instagram-gallery__grid-post {
+	.wp-block-jetpack-instagram-gallery__grid-post {
 		width: 100%;
 	}
 }

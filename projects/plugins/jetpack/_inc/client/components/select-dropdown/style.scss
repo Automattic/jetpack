@@ -72,8 +72,8 @@
 		@include mixin_icons.dashicons;
 		content: '\f347';
 		position: absolute;
-			right: 13px;
-			top: 12px;
+		right: 13px;
+		top: 12px;
 
 		.is-compact & {
 			right: 4px;
@@ -209,8 +209,8 @@
 	padding-right: 16px;
 	box-sizing: border-box;
 	position: absolute;
-		top: 0;
-		left: 0;
+	top: 0;
+	left: 0;
 
 	width: 100%;
 	white-space: nowrap;

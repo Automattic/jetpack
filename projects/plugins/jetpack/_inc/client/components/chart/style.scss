@@ -23,15 +23,15 @@
 
 .dops-chart .dops-chart__y-axis-markers {
 	position: absolute;
-		top: 8px; // 1
-		left: 0;
-		right: 0;
+	top: 8px; // 1
+	left: 0;
+	right: 0;
 	height: 200px;
 }
 
 .dops-chart .dops-chart__y-axis-marker {
 	position: absolute;
-		top: 0;
+	top: 0;
 	width: 100%;
 	height: 1px;
 	border-top: 1px solid color.adjust( calypso-colors.$gray, $lightness: 30% );
@@ -42,7 +42,7 @@
 .dops-chart__bar-marker {
 	z-index: z-index.z-index( 'root', '.dops-chart__bar-marker' );
 	position: absolute;
-		top: 0;
+	top: 0;
 	width: 100%;
 	height: 1px;
 	border-top: 1px solid rgba( color.adjust( calypso-colors.$gray, $lightness: 30% ), .1 );
@@ -76,8 +76,8 @@
 
 .dops-chart__y-axis-label {
 	position: absolute;
-		top: 0;
-		right: 20px; // 1
+	top: 0;
+	right: 20px; // 1
 	text-align: right;
 }
 
@@ -112,8 +112,8 @@
 	content: '';
 	display: block;
 	position: absolute;
-		top: -4px;
-		left: 50%;
+	top: -4px;
+	left: 50%;
 	margin-left: -.5px;
 	width: 1px;
 	height: 5px;
@@ -174,10 +174,10 @@
 	display: inline-block;
 	background-color: calypso-colors.$black;
 	position: absolute;
-		top: 0; // 2
-		right: 16%; // 1
-		bottom: 0; // 1
-		left: 16%; // 1
+	top: 0; // 2
+	right: 16%; // 1
+	bottom: 0; // 1
+	left: 16%; // 1
 	z-index: z-index.z-index( 'root', '.dops-chart__bar-section' );
 
 	.dops-chart__bar:hover &.is-bar {
@@ -197,9 +197,9 @@
 		content: "";
 		display: block;
 		position: absolute;
-			top: 160px;
-			bottom: 0;
-			left: 0;
+		top: 160px;
+		bottom: 0;
+		left: 0;
 		z-index: z-index.z-index( 'root', '.dops-chart__bar-section.is-ghost::after' );
 		width: 100%;
 		height: 40px;
@@ -214,9 +214,9 @@
 .dops-chart__bar-section-inner {
 	background: color.adjust( calypso-colors.$blue-dark, $lightness: -5% );
 	position: absolute;
-		right: 23.33%;
-		bottom: 0;
-		left: 23.33%;
+	right: 23.33%;
+	bottom: 0;
+	left: 23.33%;
 
 	.dops-chart__bar.is-selected & {
 		background-color: calypso-colors.$orange-fire;
@@ -321,10 +321,10 @@
 
 .dops-chart__empty {
 	position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 	text-align: center;
 	font-size: 14px;
 	line-height: 24px;
@@ -334,7 +334,7 @@
 
 .dops-chart__empty_notice {
 	position: relative;
-		top: 97px;
+	top: 97px;
 	padding: 11px 24px;
 	margin-bottom: 24px;
 	border-radius: 1px;
@@ -355,8 +355,8 @@
 			@include mixin_icons.noticons;
 			content: '\f456';
 			position: absolute;
-				top: 23px;
-				left: 20px;
+			top: 23px;
+			left: 20px;
 			margin: -12px 0 0 -8px;
 			font-size: 24px;
 			line-height: 1;

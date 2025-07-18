@@ -394,9 +394,9 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 .jp-forms__inbox-file-preview-container {
-  margin-bottom: 16px;
-  max-height: 70vh;
-  aspect-ratio: 16 / 9;
+	margin-bottom: 16px;
+	max-height: 70vh;
+	aspect-ratio: 16 / 9;
 }
 
 .jp-forms__inbox-file-preview-container-iframe.is-loading,
@@ -406,19 +406,19 @@ body.jetpack_page_jetpack-forms-admin {
 
 .jp-forms__inbox-file-preview-container-iframe {
 	margin-bottom: 16px;
-  	max-height: 70vh;
+	max-height: 70vh;
 }
 
 .jp-forms__inbox-file-preview-image {
-  height: 100%;
-  width: 100%;
-  max-height: 66vh;
-  object-fit: contain;
+	height: 100%;
+	width: 100%;
+	max-height: 66vh;
+	object-fit: contain;
 }
 
 .jp-forms__inbox-file-preview-iframe {
 	display: block;
-  	width: 100%;
+	width: 100%;
 	min-width: 80vw;
 	min-height: 50vh;
 	border: none;
@@ -449,7 +449,7 @@ body.jetpack_page_jetpack-forms-admin {
 
 // Make sure backdrop is below the file preview modal but above the response modal
 .components-modal__screen-overlay:nth-of-type(2) {
-  z-index: 100005;
+	z-index: 100005;
 }
 
 .jp-forms__inbox-file-loading {

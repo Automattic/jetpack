@@ -136,11 +136,11 @@
 		}
 	}
 
-.jp-footer__a8c-logo {
-	margin-left: auto;
+	.jp-footer__a8c-logo {
+		margin-left: auto;
 
-	@include breakpoints.breakpoint( '<960px' ) {
-		margin-left: 0;
+		@include breakpoints.breakpoint( '<960px' ) {
+			margin-left: 0;
+		}
 	}
-}
 }

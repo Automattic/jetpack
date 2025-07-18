@@ -25,12 +25,12 @@
 
 	.components-toggle-control__label,
 	.components-base-control__label {
-	  	// Sets labels to 13px for consistency in the Site Editor.
-	  	// The Site Editor iframe doesn't include common styles,
-	  	// from which the font size of the labels are inherited.
-	  	// https://github.com/WordPress/gutenberg/blob/3da717b8d0ac7d7821fc6d0475695ccf3ae2829f/packages/base-styles/_variables.scss#L16
+		// Sets labels to 13px for consistency in the Site Editor.
+		// The Site Editor iframe doesn't include common styles,
+		// from which the font size of the labels are inherited.
+		// https://github.com/WordPress/gutenberg/blob/3da717b8d0ac7d7821fc6d0475695ccf3ae2829f/packages/base-styles/_variables.scss#L16
 		font-size: gb.$default-font-size;
-	 }
+	}
 
 	.components-base-control__field {
 		margin-bottom: 0;

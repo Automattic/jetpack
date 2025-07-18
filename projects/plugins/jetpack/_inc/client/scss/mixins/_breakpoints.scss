@@ -10,7 +10,7 @@ $breakpoints: 480px, 660px, 782px, 960px, 1040px; // Think very carefully before
 @mixin breakpoint( $size ){
 
 	@if meta.type-of($size) == string {
-	  $approved-value: 0;
+		$approved-value: 0;
 
 		@each $breakpoint in $breakpoints {
 			$and-larger: ">" + $breakpoint;

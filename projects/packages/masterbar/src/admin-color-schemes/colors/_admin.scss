@@ -430,7 +430,7 @@ textarea:focus {
 
 ul#adminmenu a.wp-has-current-submenu::after,
 ul#adminmenu > li.current > a.current::after {
-    border-inline-end-color: $body-background;
+	border-inline-end-color: $body-background;
 }
 
 #adminmenu li.current a.menu-top,
@@ -472,12 +472,12 @@ ul#adminmenu > li.current > a.current::after {
 /* Admin Menu: collapse button */
 
 #collapse-button {
-    color: $menu-collapse-text;
+	color: $menu-collapse-text;
 }
 
 #collapse-button:hover,
 #collapse-button:focus {
-    color: $menu-submenu-focus-text;
+	color: $menu-submenu-focus-text;
 }
 
 /* Admin Bar */
@@ -866,28 +866,28 @@ div#wp-responsive-toggle a::before {
 
 /* Overrides */
 @include meta.load-css('overrides', $with: (
-  masterbar-active-background: $masterbar-active-background,
-  masterbar-background: $masterbar-background,
-  masterbar-highlight-background: $masterbar-highlight-background,
-  masterbar-submenu-background: $masterbar-submenu-background,
-  masterbar-submenu-background-alt: $masterbar-submenu-background-alt,
-  menu-current-text: $menu-current-text,
-  menu-highlight-text: $menu-highlight-text,
-  menu-submenu-current-text: $menu-submenu-current-text,
-  menu-submenu-focus-text: $menu-submenu-focus-text,
-  menu-submenu-text: $menu-submenu-text,
-  nav-unification-sidebar-border: $nav-unification-sidebar-border
+	masterbar-active-background: $masterbar-active-background,
+	masterbar-background: $masterbar-background,
+	masterbar-highlight-background: $masterbar-highlight-background,
+	masterbar-submenu-background: $masterbar-submenu-background,
+	masterbar-submenu-background-alt: $masterbar-submenu-background-alt,
+	menu-current-text: $menu-current-text,
+	menu-highlight-text: $menu-highlight-text,
+	menu-submenu-current-text: $menu-submenu-current-text,
+	menu-submenu-focus-text: $menu-submenu-focus-text,
+	menu-submenu-text: $menu-submenu-text,
+	nav-unification-sidebar-border: $nav-unification-sidebar-border
 ));
 
 /* Gutenberg Support */
 @include meta.load-css('gutenberg', $with: (
-  highlight-color: $highlight-color
+	highlight-color: $highlight-color
 ));
 
 /* Inline Help Support */
 @include meta.load-css('inline-help', $with: (
-  color-primary: $color-primary,
-  color-primary-dark: $color-primary-dark,
-  color-primary-light: $color-primary-light,
-  color-surface: $color-surface
+	color-primary: $color-primary,
+	color-primary-dark: $color-primary-dark,
+	color-primary-light: $color-primary-light,
+	color-surface: $color-surface
 ));

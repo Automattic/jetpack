@@ -4,26 +4,26 @@ code#copytext {
 }
 
 .at {
-color: #00008b;
+	color: #00008b;
 }
 
 .format {
-color: #808080;
+	color: #808080;
 }
 
 .property {
-color:#008000;
+	color:#008000;
 }
 
 .selector {
-color: #00f;
+	color: #00f;
 }
 
 .value {
-color:#f00;
-left: 500px;
+	color:#f00;
+	left: 500px;
 }
 
 .comment {
-color: #ffa500;
+	color: #ffa500;
 }

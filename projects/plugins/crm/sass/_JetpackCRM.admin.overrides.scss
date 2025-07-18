@@ -9,11 +9,11 @@
  */
 
 
- // variables
- $body_bg: #f1f1f1;
- $page_title: #2a323c;
- $menu_hover: #f7f7f7;
- $bottom_border: #dededf;
+// variables
+$body_bg: #f1f1f1;
+$page_title: #2a323c;
+$menu_hover: #f7f7f7;
+$bottom_border: #dededf;
 
 // square off + shadow as per Jetpack proper
 @mixin jetpackBox {
@@ -38,8 +38,8 @@
 
 .ui.attached.tabular.menu {
 
-    border: 0;
-    box-shadow: none !important;
+	border: 0;
+	box-shadow: none !important;
 }
 
 .ui.blue.button {

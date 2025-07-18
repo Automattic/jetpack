@@ -14,18 +14,18 @@
 		img {
 
 			max-width: 100%;
-    		max-height: 400px;
-		    border-radius: 4px;
-		    box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
+			max-height: 400px;
+			border-radius: 4px;
+			box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
 
 		}
 
 		// stop glitch
 		a:focus{
 
-		    color: transparent;
-		    box-shadow: none;
-		    outline: 0;
+			color: transparent;
+			box-shadow: none;
+			outline: 0;
 
 		}
 
@@ -39,8 +39,8 @@
 
 			text-align: center;
 			font-size: 1.1em;
-    		color: #079e08;
-    		font-weight: 800;
+			color: #079e08;
+			font-weight: 800;
 
 			i {
 

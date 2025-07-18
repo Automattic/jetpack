@@ -49,7 +49,7 @@
 	position: absolute;
 	top:24px;
 	left:0;	
-    z-index: 10001;
+	z-index: 10001;
 
 	min-width:300px;
 	max-width:500px;
@@ -68,8 +68,8 @@
 	// standout div
 	div.greenhighlight {
 
-	    color: #008000;
-	    padding: 4px 10px;
+		color: #008000;
+		padding: 4px 10px;
 	    
 	}
 
@@ -80,22 +80,22 @@
 // This is a prominent txt str/input
 input.zbs-prominent {
 
-    font-size: 14px !important;
-    color: #008000 !important;
-    line-height: 1.4;
-    height: 38px !important;
+	font-size: 14px !important;
+	color: #008000 !important;
+	line-height: 1.4;
+	height: 38px !important;
 }
 
 // second address / main addr
 tr.zbs-field-group-tr .zbs-field-group {
-    border-left: 3px solid var(--jp-gray-20) !important;
-    padding-left: 2% !important;
+	border-left: 3px solid var(--jp-gray-20) !important;
+	padding-left: 2% !important;
 }
 
 tr.zbs-field-group-tr label.zbs-field-group-label {
 
-    font-weight: 800 !important;
-    margin-top: 12px !important;
+	font-weight: 800 !important;
+	margin-top: 12px !important;
 
 }
 
@@ -105,27 +105,27 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 
 	// 2 inline addr fields
 	tr.zbs-field-group-tr .zbs-field-group {
-	    width: 44% !important;
-	    margin-right: 2% !important;
-	    display: inline-block !important;
-	    border-left: 3px solid var(--jp-gray-20) !important;
-	    padding-left: 2% !important;
+		width: 44% !important;
+		margin-right: 2% !important;
+		display: inline-block !important;
+		border-left: 3px solid var(--jp-gray-20) !important;
+		padding-left: 2% !important;
 	}
 
 	tr.zbs-field-group-tr label.zbs-field-group-label {
 
-	    font-weight: 800 !important;
-	    margin-top: 12px !important;
+		font-weight: 800 !important;
+		margin-top: 12px !important;
 
 	}
 
 	tr.zbs-field-group-tr table.wh-metatab {
-	    min-width: 100% !important;
-	    width: 100% !important;
+		min-width: 100% !important;
+		width: 100% !important;
 	}
 
 	tr.wh-large.zbs-field-group-tr th, tr.wh-large.zbs-field-group-tr td {
-	    padding: 6px 16px !important;
+		padding: 6px 16px !important;
 	}
 
 	tr.zbs-field-group-tr .form-table th {
@@ -136,30 +136,30 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 
 // Needed for custom contact avatars add/edit pages
 .jpcrm-customer-file-upload::before {
-  content: "\f0ee"; 
-  display: inline-block;
-  font-family: FontAwesome;
+	content: "\f0ee"; 
+	display: inline-block;
+	font-family: FontAwesome;
 }
 
 .jpcrm-customer-file-upload-remove::before {
-  content: "\f00d"; 
-  display: inline-block;
-  font-family: FontAwesome;
+	content: "\f00d"; 
+	display: inline-block;
+	font-family: FontAwesome;
 }
 
 .jpcrm-customer-file-upload, 
 .jpcrm-customer-file-upload-remove {
-    border: 1px solid #ccc;
-    display: inline-block !important;
-    padding: 6px 12px !important;
-    cursor: pointer;
-	 width: initial;
-	 font-weight: 500;
+	border: 1px solid #ccc;
+	display: inline-block !important;
+	padding: 6px 12px !important;
+	cursor: pointer;
+	width: initial;
+	font-weight: 500;
 }
 
 .jpcrm-customer-file-upload:hover, 
 .jpcrm-customer-file-upload-remove:hover {
-    border: 1px solid #999;
+	border: 1px solid #999;
 }
 
 .jpcrm-customer-input-file {
@@ -167,17 +167,17 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 }
 
 .jpcrm-customer-profile-picture {
-  max-width: 150px;
-  height: auto;
-  display: inline-block;
+	max-width: 150px;
+	height: auto;
+	display: inline-block;
 }
 
 .jpcrm-customer-profile-picture-container {
-  display: inline-block;
-  text-align: center;
+	display: inline-block;
+	text-align: center;
 }
 
 #zbs-add-tag-value {
-  font-size: 14px;
-  line-height: 1.4;
+	font-size: 14px;
+	line-height: 1.4;
 }

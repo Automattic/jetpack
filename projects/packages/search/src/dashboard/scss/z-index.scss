@@ -28,7 +28,7 @@
  * For a refresher on stacking contexts see:
  * https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning/Understanding_z_index/The_stacking_context
  */
- @use 'sass:map';
+@use 'sass:map';
 
 $z-layers: (
 	'root': (
@@ -187,7 +187,8 @@ $z-layers: (
 		'.editor-media-modal-gallery__preview-toggle': 100,
 		'.editor-contact-form-modal .section-nav': 10
 	),
-	'.following-edit': ( //aka 'main'
+	// aka 'main'
+	'.following-edit': (
 		'.following-edit__subscribe-form .gridicons-add-outline': 23,
 		'.following-edit__subscribe-form .card.is-search-result': 35
 	),

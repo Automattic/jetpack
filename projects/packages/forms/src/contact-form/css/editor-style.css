@@ -486,7 +486,7 @@ input[type="submit"] {
 	padding: 7px 14px 9px;
 	-webkit-appearance: none;
 	-moz-appearance: none;
-			 appearance: none;
+	appearance: none;
 }
 
 input[type="submit"]:hover {
