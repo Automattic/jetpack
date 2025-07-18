@@ -1179,7 +1179,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			// 1. Jetpack Status
 			WP_CLI::log( WP_CLI::colorize( '%Y--- Jetpack Status ---%n' ) );
 			$jetpack_result = WP_CLI::runcommand(
-				'jetpack status',
+				'jetpack status full',
 				array(
 					'launch'     => false,
 					'return'     => 'all',
