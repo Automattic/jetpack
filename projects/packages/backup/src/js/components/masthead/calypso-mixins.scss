@@ -13,13 +13,16 @@ $sidebar-width:	269px;
 
 	@if $width == full-width {
 
-		@media only screen and (max-width: $full-width) { @content; }
+		@media only screen and (max-width: $full-width) { @content;
+		}
 	} @else if $width == one-col {
 
-		@media only screen and (max-width: $one-col) { @content; }
+		@media only screen and (max-width: $one-col) { @content;
+		}
 	} @else if $width == mobile {
 
-		@media only screen and (max-width: $mobile) { @content; }
+		@media only screen and (max-width: $mobile) { @content;
+		}
 	}
 }
 
@@ -27,13 +30,16 @@ $sidebar-width:	269px;
 
 	@if $width == full-width {
 
-		@media only screen and (min-width: $one-col) { @content; }
+		@media only screen and (min-width: $one-col) { @content;
+		}
 	} @else if $width == full-width-really {
 
-		@media only screen and (min-width: $full-width) { @content; }
+		@media only screen and (min-width: $full-width) { @content;
+		}
 	} @else if $width == one-col {
 
-		@media only screen and (min-width: $mobile) { @content; }
+		@media only screen and (min-width: $mobile) { @content;
+		}
 	}
 }
 

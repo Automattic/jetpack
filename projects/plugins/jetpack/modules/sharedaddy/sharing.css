@@ -220,7 +220,8 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 }
 
 /* Add more pading on touch devices */
-.jp-sharing-input-touch .sd-content ul li { padding-left: 10px; }
+.jp-sharing-input-touch .sd-content ul li { padding-left: 10px;
+}
 
 .sd-content ul li.preview-item.no-icon a.sd-button span {
 	margin-left: 0;

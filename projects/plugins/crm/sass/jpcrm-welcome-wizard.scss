@@ -199,7 +199,7 @@ body {
 
 .form-control:focus{
 	border-color:$jetpack_green;
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px #2780e3; 
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px #2780e3;
 }
 
 .hide{
@@ -427,7 +427,7 @@ input[type="checkbox"], input[type="radio"]{
     
 	margin-top: 8px;
 	font-size: 18px;
-	color: $jetpack_green; 
+	color: $jetpack_green;
 
 }
 
@@ -561,7 +561,7 @@ $darkenColor: color.adjust($activeColor, $lightness: -20%);
 		&:checked + label {
 			left: 43px !important;
 		}
-	}    
+	}
 }
 
 /* end .switchCheckbox */
@@ -657,7 +657,7 @@ p.lead {
 		margin-top: 8px !important;
 		margin-bottom: 14px !important;
 		text-align:left;
-		font-size:18px;     
+		font-size:18px;
 	}
 
 	.zbs-sync-img{

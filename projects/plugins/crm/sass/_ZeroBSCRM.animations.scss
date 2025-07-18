@@ -10,15 +10,20 @@
 
 @keyframes zbs-shake {
 
-	0%, 100% {transform: translateX(0) rotate(0deg) translateY(0);}
+	0%, 100% {transform: translateX(0) rotate(0deg) translateY(0);
+	}
 
-	15%, 35%, 55%, 75%, 95% {transform: translateX(-1px) rotate(-2deg) ;}
+	15%, 35%, 55%, 75%, 95% {transform: translateX(-1px) rotate(-2deg) ;
+	}
 
-	25%, 45%, 65%, 85% {transform: translateX(1px) rotate(2deg); }
+	25%, 45%, 65%, 85% {transform: translateX(1px) rotate(2deg);
+	}
 
-	10%, 30%, 50%, 70%, 90% {transform: translateY(1px);}
+	10%, 30%, 50%, 70%, 90% {transform: translateY(1px);
+	}
 
-	20%, 40%, 60%, 80% {transform: translateY(-1px); }  
+	20%, 40%, 60%, 80% {transform: translateY(-1px);
+	}
 }
 
 .zbs-shake {
@@ -26,5 +31,5 @@
 	animation-duration: 2s;
 	animation-fill-mode: both;
 	animation-iteration-count: infinite;
-	transition-timing-function:linear;    
+	transition-timing-function:linear;
 }

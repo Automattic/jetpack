@@ -49,39 +49,56 @@ a.jetpack-sharing-button__button {
 		margin-bottom: 0;
 		color: #fff;
 
-		&.share-bluesky { background: var( --color-bluesky ); }
+		&.share-bluesky { background: var( --color-bluesky );
+		}
 
-		&.share-x { background: #000; }
+		&.share-x { background: #000;
+		}
 
-		&.share-print { background: #c5c2c2; }
+		&.share-print { background: #c5c2c2;
+		}
 
-		&.share-reddit { background: var( --color-reddit ); }
+		&.share-reddit { background: var( --color-reddit );
+		}
 
-		&.share-facebook { background: var( --color-facebook ); }
+		&.share-facebook { background: var( --color-facebook );
+		}
 
-		&.share-linkedin { background: var( --color-linkedin ); }
+		&.share-linkedin { background: var( --color-linkedin );
+		}
 
-		&.share-mail { background: #c5c2c2; }
+		&.share-mail { background: #c5c2c2;
+		}
 
-		&.share-twitter { background: var( --color-twitter ); }
+		&.share-twitter { background: var( --color-twitter );
+		}
 
-		&.share-tumblr { background: var( --color-tumblr ); }
+		&.share-tumblr { background: var( --color-tumblr );
+		}
 
-		&.share-pinterest { background: var( --color-pinterest ); }
+		&.share-pinterest { background: var( --color-pinterest );
+		}
 
-		&.share-pocket { background: var( --color-pocket ); }
+		&.share-pocket { background: var( --color-pocket );
+		}
 
-		&.share-telegram { background: var( --color-telegram ); }
+		&.share-telegram { background: var( --color-telegram );
+		}
 
-		&.share-threads { background: var( --color-threads ); }
+		&.share-threads { background: var( --color-threads );
+		}
 
-		&.share-whatsapp { background: var( --color-whatsapp ); }
+		&.share-whatsapp { background: var( --color-whatsapp );
+		}
 
-		&.share-mastodon { background: var( --color-mastodon ); }
+		&.share-mastodon { background: var( --color-mastodon );
+		}
 
-		&.share-nextdoor { background: var( --color-nextdoor ); }
+		&.share-nextdoor { background: var( --color-nextdoor );
+		}
 
-		&.share-share { background: #000; }
+		&.share-share { background: #000;
+		}
 	}
 
 	&.style-icon.is-custom {
