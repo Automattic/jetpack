@@ -3080,8 +3080,6 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the rating field.
 	 *
-	 * @since $$next-version$$
-	 *
 	 * @param array    $atts - the block attributes.
 	 * @param string   $content - html content.
 	 * @param WP_Block $block - the block instance object.

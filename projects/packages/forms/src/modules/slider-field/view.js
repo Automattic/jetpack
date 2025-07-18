@@ -1,5 +1,3 @@
-// Jetpack Slider Field Interactivity (empty for now)
-
 import { store, getContext } from '@wordpress/interactivity';
 
 const NAMESPACE = 'jetpack/form';
