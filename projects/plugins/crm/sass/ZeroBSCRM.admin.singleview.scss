@@ -12,7 +12,8 @@
 @use 'ZeroBSCRM.timelines';
 
 // hide these, they look bad/inaccessible on this page:
-#wpwrap .update-nag {display:none !important;
+#wpwrap .update-nag {
+	display:none !important;
 }
 
 

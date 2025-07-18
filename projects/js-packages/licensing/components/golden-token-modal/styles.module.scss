@@ -126,13 +126,16 @@ $tablet-width: 760px;
  */
 @keyframes videoMove {
 
-	20%  { transform: translateY(0)   scale(1);
+	20%  {
+		transform: translateY(0)   scale(1);
 	}
 
-	65%  { transform: translateY(16%) scale(1.4);
+	65%  {
+		transform: translateY(16%) scale(1.4);
 	}
 
-	100% { transform: translateY(0)   scale(1);
+	100% {
+		transform: translateY(0)   scale(1);
 	}
 }
 

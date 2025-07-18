@@ -212,7 +212,8 @@
 		background-color: var( --jp-white-off );
 		border-radius: calc( var( --spacing-base ) / 2 );
 
-		iframe { border-radius: inherit; // so VP embeds also take it
+		iframe {
+			border-radius: inherit; // so VP embeds also take it
 		}
 	}
 

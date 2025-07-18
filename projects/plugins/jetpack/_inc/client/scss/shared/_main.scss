@@ -125,7 +125,8 @@
 
 @keyframes pulse-light {
 
-	50% { background-color: color.adjust( colors.$gray, $lightness: 30% );
+	50% {
+		background-color: color.adjust( colors.$gray, $lightness: 30% );
 	}
 }
 

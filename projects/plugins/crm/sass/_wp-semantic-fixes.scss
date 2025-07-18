@@ -73,7 +73,8 @@ i.card {
 }
 
 //https://stackoverflow.com/questions/12514915/semantic-html-and-clear-both
-.ui.zbsclear::after { clear:both; content:"."; display:block; height:0; visibility:hidden;
+.ui.zbsclear::after {
+	clear:both; content:"."; display:block; height:0; visibility:hidden;
 }
 
 // centered big ico segment
