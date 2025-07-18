@@ -1,8 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
+import domReady from '@wordpress/dom-ready';
 import { addQueryArgs } from '@wordpress/url';
 import '../css/jetpack-admin-jitm.scss';
 
-document.addEventListener('DOMContentLoaded', function() {
+domReady( function() {
+
     // Site ID will be automatically added to the request.
     const JITM_ENDPOINT_URL = `/wpcom/v3/jitm`;
 
@@ -161,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         response.url = response.url + '&redirect=' + encodeURIComponent(redirect);
 
         const templateEl = templates[template](response);
-        
+
         // Add dismiss event handler
         const dismissButton = templateEl.querySelector('.jitm-banner__dismiss');
         if (dismissButton) {
@@ -183,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const adminNotices = document.getElementById('jp-admin-notices');
         if (adminNotices) {
             // Add to Jetpack notices within the Jetpack settings app
-            
+
             // If we already have a message, replace it
             const existingCard = adminNotices.querySelector('.jitm-card');
             if (existingCard) {
@@ -202,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (activateButton) {
             activateButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                
+
                 // Do not allow any requests if the button is disabled
                 if (activateButton.hasAttribute('disabled')) {
                     return false;
@@ -213,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.jitm_config.api_root +
                     'jetpack/v4/module/' +
                     activateButton.dataset.module +
-                    '/active', 
+                    '/active',
                     {
                         method: 'POST',
                         headers: {
@@ -230,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (activateButton.dataset.settings_link) {
                             const settingsEl = document.getElementById('jitm-banner__settings');
                             const activateEl = document.getElementById('jitm-banner__activate');
-                            
+
                             if (settingsEl) settingsEl.style.display = 'block';
                             if (activateEl) activateEl.style.display = 'none';
                             return;
@@ -255,11 +257,11 @@ document.addEventListener('DOMContentLoaded', function() {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
                 button.setAttribute('disabled', true);
-                
+
                 const formData = new FormData();
                 formData.append('action', button.dataset.ajaxAction);
                 formData.append('_nonce', el.dataset.ajaxNonce);
-                
+
                 fetch(window.ajaxurl, {
                     method: 'POST',
                     credentials: 'same-origin',
