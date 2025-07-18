@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import { useMemo } from 'react';
 import { ChartProvider, useChartContext } from './chart-context';
 import { useChartId, useChartRegistration } from './utils';
 import type { ChartContextValue } from './types';
@@ -103,7 +104,9 @@ describe( 'ChartContext', () => {
 				const chartId = useChartId( 'test-chart' );
 				contextValue = useChartContext();
 
-				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar', true, { test: true } );
+				// Memoize metadata to prevent infinite loop
+				const metadata = useMemo( () => ( { test: true } ), [] );
+				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar', true, metadata );
 
 				return <div>Test</div>;
 			};
