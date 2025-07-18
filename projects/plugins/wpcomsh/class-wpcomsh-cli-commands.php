@@ -1163,16 +1163,9 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		/**
 		 * Runs comprehensive site diagnostics including Jetpack status, admin users, plugins, purchases, and PHP errors
 		 *
-		 * ## OPTIONS
-		 *
-		 * [--interactive]
-		 * : Run through the diagnostics interactively, pausing between each section
-		 *
 		 * @subcommand diagnostic
 		 */
-		public function diagnostic( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
-			$interactive = WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false );
-
+		public function diagnostic( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			WP_CLI::log( WP_CLI::colorize( '%B=== SITE DIAGNOSTICS ===%n' ) );
 			WP_CLI::log( '' );
 
@@ -1192,12 +1185,6 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			} else {
 				WP_CLI::log( WP_CLI::colorize( '%RJetpack status command failed:%n' ) );
 				WP_CLI::log( $jetpack_result->stderr );
-			}
-
-			if ( $interactive ) {
-				WP_CLI::log( '' );
-				WP_CLI::log( 'Press Enter to continue...' );
-				fgets( STDIN );
 			}
 
 			WP_CLI::log( '' );
@@ -1220,12 +1207,6 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				WP_CLI::log( $admin_users_result->stderr );
 			}
 
-			if ( $interactive ) {
-				WP_CLI::log( '' );
-				WP_CLI::log( 'Press Enter to continue...' );
-				fgets( STDIN );
-			}
-
 			WP_CLI::log( '' );
 
 			// 3. Plugin Status
@@ -1244,12 +1225,6 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			} else {
 				WP_CLI::log( WP_CLI::colorize( '%RPlugin status command failed:%n' ) );
 				WP_CLI::log( $plugin_status_result->stderr );
-			}
-
-			if ( $interactive ) {
-				WP_CLI::log( '' );
-				WP_CLI::log( 'Press Enter to continue...' );
-				fgets( STDIN );
 			}
 
 			WP_CLI::log( '' );
@@ -1293,12 +1268,6 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				WP_CLI::log( $purchases_result->stderr );
 			}
 
-			if ( $interactive ) {
-				WP_CLI::log( '' );
-				WP_CLI::log( 'Press Enter to continue...' );
-				fgets( STDIN );
-			}
-
 			WP_CLI::log( '' );
 
 			// 5. PHP Errors (filtered to recent fatals and errors)
@@ -1315,30 +1284,56 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			if ( 0 === $php_errors_result->return_code ) {
 				$error_lines     = explode( "\n", trim( $php_errors_result->stdout ) );
 				$filtered_errors = array();
-				$today           = gmdate( 'Y-m-d' );
-				$yesterday       = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
+
+				$recent_dates = array(
+					gmdate( 'd-M-Y' ),
+					gmdate( 'd-M-Y', strtotime( '-1 day' ) ),
+					gmdate( 'd-M-Y', strtotime( '-2 days' ) ),
+				);
 
 				foreach ( $error_lines as $line ) {
 					if ( empty( trim( $line ) ) ) {
 						continue;
 					}
 
-					// Filter for recent errors (today and yesterday) and fatals
-					if ( strpos( $line, $today ) !== false || strpos( $line, $yesterday ) !== false ) {
-						if ( strpos( $line, 'Fatal error' ) !== false || strpos( $line, 'PHP Fatal error' ) !== false ) {
-							$filtered_errors[] = $line;
+					$is_recent = false;
+					foreach ( $recent_dates as $date ) {
+						if ( strpos( $line, $date ) !== false ) {
+							$is_recent = true;
+							break;
+						}
+					}
+
+					if ( $is_recent ) {
+						// Check for various types of critical/fatal errors
+						$critical_patterns = array(
+							'Fatal error',
+							'PHP Fatal error',
+							'Parse error',
+							'Uncaught Error',
+							'Uncaught Exception',
+							'TypeError',
+							'ArgumentCountError',
+							'Compile error',
+						);
+
+						foreach ( $critical_patterns as $pattern ) {
+							if ( strpos( $line, $pattern ) !== false ) {
+								$filtered_errors[] = $line;
+								break;
+							}
 						}
 					}
 				}
 
 				if ( ! empty( $filtered_errors ) ) {
-					WP_CLI::log( WP_CLI::colorize( '%RRecent Fatal PHP Errors:%n' ) );
+					WP_CLI::log( WP_CLI::colorize( '%RRecent Critical PHP Errors:%n' ) );
 					foreach ( $filtered_errors as $error ) {
 						WP_CLI::log( $error );
 					}
 				} else {
-					// Show last 10 errors of any type if no recent fatals
-					WP_CLI::log( WP_CLI::colorize( '%GNo recent fatal errors found. Last 10 PHP errors:%n' ) );
+					// Show last 10 errors of any type if no recent critical errors
+					WP_CLI::log( WP_CLI::colorize( '%GNo recent critical errors found. Last 10 PHP errors:%n' ) );
 					$recent_errors = array_slice( $error_lines, -10 );
 					foreach ( $recent_errors as $error ) {
 						if ( ! empty( trim( $error ) ) ) {
