@@ -153,8 +153,6 @@ i.alternate {
 }
 
 
-
-
 // ===== WordPress 5.3 introduced some styles which broke some semantic ui overrides:
 .ui[class*="right labeled"].input input, .ui.fluid.input>input {
 	height: auto !important;
@@ -165,7 +163,6 @@ i.alternate {
     padding: 6px 12px !important;
     line-height: 1.42857 !important;
 } */
-
 
 
 // ==== Everywhere we want semantic overrides, we also want modal overrides (small addition)
