@@ -294,11 +294,12 @@ class Contact_Form_Plugin {
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		$config = array(
-			'error_types' => array(
+			'error_types'    => array(
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 			),
+			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
 		);
 		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(

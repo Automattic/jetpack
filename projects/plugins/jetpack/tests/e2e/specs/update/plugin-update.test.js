@@ -1,18 +1,17 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
 	execShellCommand,
-	resolveSiteUrl,
 	execContainerShellCommand,
 } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { PluginsPage, JetpackDashboardPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 
-test.skip( 'Update Jetpack plugin', async ( { page } ) => {
+test.skip( 'Update Jetpack plugin', async ( { page, baseURL } ) => {
 	const binPath = '/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/update/';
 
 	// Prepare for update
 	await execShellCommand( `./bin/update/prepare-zip.sh` );
-	await execContainerShellCommand( `${ binPath }prepare-update.sh ${ resolveSiteUrl() }` );
+	await execContainerShellCommand( `${ binPath }prepare-update.sh ${ baseURL }` );
 
 	// Update
 	await prerequisitesBuilder( page ).withLoggedIn( true ).withConnection( true ).build();
@@ -24,7 +23,7 @@ test.skip( 'Update Jetpack plugin', async ( { page } ) => {
 	} );
 
 	// Capture Jetpack status before update
-	await execContainerShellCommand( `${ binPath }pre-update.sh ${ resolveSiteUrl() }` );
+	await execContainerShellCommand( `${ binPath }pre-update.sh ${ baseURL }` );
 
 	await test.step( 'Can update Jetpack', async () => {
 		await pluginsPage.updateJetpack();

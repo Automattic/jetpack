@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Memberships
  * This introduces V2 endpoints.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 

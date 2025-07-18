@@ -2741,4 +2741,136 @@ EOT;
 
 		$this->assertEquals( $form1->defaults['to'], get_option( 'admin_email' ), 'The default to address should equal the admin email.' );
 	}
+
+	/**
+	 * Tests get_default_to method with valid post author.
+	 */
+	public function test_get_default_to_with_valid_post_author() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'author@example.com',
+				'user_login' => 'test_author',
+				'user_pass'  => 'password123',
+			)
+		);
+
+		$result = Contact_Form::get_default_to( $author_id );
+
+		$this->assertEquals( 'author@example.com', $result );
+
+		wp_delete_user( $author_id );
+	}
+
+	/**
+	 * Tests get_default_to method with invalid post author ID.
+	 */
+	public function test_get_default_to_with_invalid_post_author() {
+		$result = Contact_Form::get_default_to( 99999 ); // Non-existent user ID
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+	}
+
+	/**
+	 * Tests get_default_to method with null post author ID.
+	 */
+	public function test_get_default_to_with_null_post_author() {
+		$result = Contact_Form::get_default_to( null );
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+	}
+
+	/**
+	 * Tests get_default_to method with post author that has empty email.
+	 */
+	public function test_get_default_to_with_empty_author_email() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => '',
+				'user_login' => 'test_author_no_email',
+				'user_pass'  => 'password123',
+			)
+		);
+
+		$result = Contact_Form::get_default_to( $author_id );
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+
+		wp_delete_user( $author_id );
+	}
+
+	/**
+	 * Tests get_default_subject method with post.
+	 */
+	public function test_get_default_subject_with_post() {
+		global $post;
+
+		$attributes = array();
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$expected = '[' . get_option( 'blogname' ) . '] ' . Contact_Form_Plugin::strip_tags( $post->post_title );
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Tests get_default_subject method with widget attribute.
+	 */
+	public function test_get_default_subject_with_widget() {
+		global $post;
+
+		$attributes = array( 'widget' => true );
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$blog_name = get_option( 'blogname' );
+		$expected  = '[' . $blog_name . '] ' . Contact_Form_Plugin::strip_tags( $post->post_title ) . ' Sidebar';
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Tests get_default_subject method with widget attribute set to false.
+	 */
+	public function test_get_default_subject_with_widget_false() {
+		global $post;
+
+		$attributes = array( 'widget' => false );
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$expected = '[' . get_option( 'blogname' ) . '] ' . Contact_Form_Plugin::strip_tags( $post->post_title );
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Tests get_default_subject method without post.
+	 */
+	public function test_get_default_subject_without_post() {
+		global $post;
+		$original_post = $post;
+		$post          = null;
+
+		$attributes = array();
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$expected = '[' . get_option( 'blogname' ) . ']';
+		$this->assertEquals( $expected, $result );
+
+		// Restore original post
+		$post = $original_post;
+	}
+
+	/**
+	 * Tests get_default_subject method without post but with widget.
+	 */
+	public function test_get_default_subject_without_post_with_widget() {
+		global $post;
+		$original_post = $post;
+		$post          = null;
+
+		$attributes = array( 'widget' => true );
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$expected = '[' . get_option( 'blogname' ) . '] Sidebar';
+		$this->assertEquals( $expected, $result );
+
+		// Restore original post
+		$post = $original_post;
+	}
 } // end class

@@ -1184,6 +1184,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--dragleave="actions.dragLeave"
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
+			data-wp-on--jetpack-form-reset="actions.resetFiles"
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
@@ -1888,7 +1889,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$interactivity_attrs = ''; // Reset interactivity attributes for the field wrapper.
 		}
 
-		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
+		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':

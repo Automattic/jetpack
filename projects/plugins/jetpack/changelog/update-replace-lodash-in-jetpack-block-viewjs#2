@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Podcast player block: improve page load performance by removing use of `lodash`.

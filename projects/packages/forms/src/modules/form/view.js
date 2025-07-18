@@ -77,6 +77,25 @@ const getError = field => {
 	return config.error_types && config.error_types[ field.error ];
 };
 
+const maybeAddColonToLabel = label => {
+	const formattedLabel = label ? label : null;
+
+	if ( ! formattedLabel ) {
+		return null;
+	}
+
+	return formattedLabel.endsWith( '?' ) ? formattedLabel : formattedLabel.replace( /:$/, '' ) + ':';
+};
+
+const maybeTransformValue = value => {
+	// For file upload fields, we want to show the file name and size
+	if ( value?.name && value?.size ) {
+		return value.name + ' (' + value.size + ')';
+	}
+
+	return value;
+};
+
 const { state } = store( NAMESPACE, {
 	state: {
 		get fieldHasErrors() {
@@ -196,12 +215,28 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
-			return field.value;
+			return field?.value || '';
 		},
 
-		get submissionError() {
+		get getSubmissionError() {
 			const context = getContext();
 			return context.submissionError || '';
+		},
+
+		get getSubmissionData() {
+			const context = getContext();
+
+			const data = context.submissionData ? Object.values( context.submissionData ) : [];
+
+			return data.map( item => ( {
+				label: maybeAddColonToLabel( item.label ),
+				value: maybeTransformValue( item.value ),
+			} ) );
+		},
+
+		get hasSubmitted() {
+			const context = getContext();
+			return !! context.submissionData && context.isResponseWithoutReloadEnabled;
 		},
 	},
 
@@ -255,6 +290,26 @@ const { state } = store( NAMESPACE, {
 			updateField( context.fieldId, event.target.value, true );
 		},
 
+		onFormReset: () => {
+			const context = getContext();
+			context.fields = [];
+
+			// Dispatch custom events to reset all fields
+			const formElement = document.getElementById( context.elementId );
+
+			if ( formElement ) {
+				const fieldWrappers = formElement.querySelectorAll( '[data-wp-on--jetpack-form-reset]' );
+
+				fieldWrappers.forEach( wrapper => {
+					wrapper.dispatchEvent( new CustomEvent( 'jetpack-form-reset', { bubbles: false } ) );
+				} );
+			}
+
+			if ( context.isMultiStep ) {
+				context.currentStep = 1;
+			}
+		},
+
 		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
 
@@ -283,15 +338,21 @@ const { state } = store( NAMESPACE, {
 				return;
 			}
 
-			// Set submitting state
 			context.isSubmitting = true;
 
-			if ( context.isAjaxSubmissionEnabled ) {
+			if ( context.isResponseWithoutReloadEnabled ) {
 				event.preventDefault();
 				event.stopPropagation();
 
-				// TODO: Get the data and update the page
-				yield submitForm( context.formHash );
+				const { success, error, data } = yield submitForm( context.formHash );
+
+				if ( success ) {
+					context.submissionData = data;
+					context.submissionError = null;
+				} else {
+					context.submissionError = error;
+					context.submissionData = null;
+				}
 
 				context.isSubmitting = false;
 			}
@@ -339,6 +400,15 @@ const { state } = store( NAMESPACE, {
 				event.preventDefault();
 			}
 		} ),
+
+		goBack: () => {
+			const context = getContext();
+			const form = document.getElementById( context.elementId );
+			form?.reset?.();
+			context.submissionData = null;
+			context.submissionError = null;
+			context.hasClickedBack = true;
+		},
 	},
 
 	callbacks: {
@@ -346,6 +416,16 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
 			registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		},
+
+		scrollToWrapper() {
+			const context = getContext();
+
+			if ( state.hasSubmitted || context.hasClickedBack ) {
+				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
+				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
+				context.hasClickedBack = false;
+			}
 		},
 	},
 } );

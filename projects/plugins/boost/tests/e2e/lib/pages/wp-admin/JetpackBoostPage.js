@@ -1,5 +1,5 @@
-import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import WpPage from '_jetpack-e2e-commons/pages/wp-page.js';
+import pwConfig from '../../../playwright.config.mjs';
 
 const apiEndpointsRegex = {
 	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
@@ -7,7 +7,7 @@ const apiEndpointsRegex = {
 
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
-		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
+		const url = pwConfig.use.baseURL + '/wp-admin/admin.php?page=jetpack-boost';
 		super( page, { expectedSelectors: [ '#jb-dashboard' ], url } );
 	}
 

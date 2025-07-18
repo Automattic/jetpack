@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Story block: improve page load performance by removing use of `lodash`.

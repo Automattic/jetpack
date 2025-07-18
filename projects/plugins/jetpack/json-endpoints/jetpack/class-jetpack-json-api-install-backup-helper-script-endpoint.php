@@ -11,6 +11,8 @@ use Automattic\Jetpack\Backup\V0005\Helper_Script_Manager;
 /**
  * API endpoint /sites/%s/install-backup-helper-script
  * This API endpoint installs a Helper Script to assist Jetpack Backup fetch data
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**

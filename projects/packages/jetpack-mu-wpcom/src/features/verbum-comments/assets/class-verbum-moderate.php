@@ -13,6 +13,8 @@ require_once __DIR__ . '/class-verbum-asset-loader.php';
 
 /**
  * Verbum_Moderate is responsible for moderating Verbum comments in wp-admin.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Verbum_Moderate {
 

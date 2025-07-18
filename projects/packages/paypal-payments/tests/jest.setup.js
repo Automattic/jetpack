@@ -1,22 +1,3 @@
-// Mock Jetpack Connection initial state
-window.JP_CONNECTION_INITIAL_STATE = {
-	userConnectionData: {
-		currentUser: {
-			wpcomUser: { Id: 99999, login: 'bobsacramento', display_name: 'Bob Sacrmaneto' },
-		},
-	},
-};
-
-// Mock WordPress globals
-global.wp = {
-	i18n: {
-		__: jest.fn( text => text ),
-		_x: jest.fn( text => text ),
-		_n: jest.fn( ( single, plural, number ) => ( number === 1 ? single : plural ) ),
-		sprintf: jest.fn( format => format ),
-	},
-};
-
 // Mock window.matchMedia
 Object.defineProperty( window, 'matchMedia', {
 	writable: true,
@@ -45,37 +26,18 @@ global.IntersectionObserver = class IntersectionObserver {
 	}
 };
 
-// Work around WordPress data store registration conflicts
-jest.mock( '@wordpress/data', () => {
-	const ret = {};
-	for ( const [ k, v ] of Object.entries(
-		Object.getOwnPropertyDescriptors( jest.requireActual( '@wordpress/data' ) )
-	) ) {
-		Object.defineProperty( ret, k, { ...v, configurable: true } );
+// Suppress console errors from WordPress store registration conflicts
+/* eslint-disable no-console */
+const originalConsoleError = console.error;
+console.error = ( ...args ) => {
+	// Suppress specific WordPress store registration errors and Jetpack Connection package errors
+	if (
+		typeof args[ 0 ] === 'string' &&
+		( args[ 0 ].includes( 'is already registered' ) ||
+			args[ 0 ].includes( 'Initial state is missing' ) )
+	) {
+		return;
 	}
-	return ret;
-} );
-
-// Mock @wordpress/block-editor to prevent alignment property errors
-jest.mock( '@wordpress/block-editor', () => {
-	const useBlockProps = ( props = {} ) => {
-		return {
-			className: '',
-			style: {},
-			...props,
-		};
-	};
-
-	useBlockProps.save = ( props = {} ) => {
-		return {
-			className: '',
-			style: {},
-			...props,
-		};
-	};
-
-	return {
-		...jest.requireActual( '@wordpress/block-editor' ),
-		useBlockProps,
-	};
-} );
+	originalConsoleError.apply( console, args );
+};
+/* eslint-enable no-console */

@@ -1,6 +1,5 @@
 import { Plans, prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
-import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { WpPage } from '_jetpack-e2e-commons/pages/index.js';
 import { enableAutomaticRules, generateRules } from '../../helpers/waf-helper.js';
 import playwrightConfig from '../../playwright.config.mjs';
@@ -24,11 +23,11 @@ test.describe.parallel( 'WAF Blocking', () => {
 		await page.close();
 	} );
 
-	test( 'Block a simple request', async ( { page } ) => {
+	test( 'Block a simple request', async ( { page, baseURL } ) => {
 		await test.step( 'Block it', async () => {
 			const blockedPage = new WpPage( page, { pageName: 'Blocked request' } );
 
-			const response = await blockedPage.goto( `${ resolveSiteUrl() }/?blubb=<script>` );
+			const response = await blockedPage.goto( `${ baseURL }/?blubb=<script>` );
 			expect( response.status() ).toStrictEqual( 403 );
 
 			/*

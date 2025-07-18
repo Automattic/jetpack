@@ -148,6 +148,8 @@ new WPCOM_JSON_API_Update_Comment_Endpoint(
 
 /**
  * Update comments endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
 	/**

@@ -32,6 +32,8 @@ new WPCOM_JSON_API_GET_Site_Endpoint(
 
 /**
  * GET Site endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
@@ -1053,7 +1055,9 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint(
 );
 
 /**
- * List Post Formates endpoint class.
+ * List Post Formats endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint { // phpcs:ignore
 	/**
@@ -1119,6 +1123,8 @@ new WPCOM_JSON_API_List_Page_Templates_Endpoint(
 
 /**
  * List page templates endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoint { // phpcs:ignore
 	/**

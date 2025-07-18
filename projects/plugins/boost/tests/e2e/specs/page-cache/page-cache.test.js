@@ -1,5 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
-import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
@@ -46,13 +45,14 @@ test.describe( 'Cache module', () => {
 	// Make sure there's no cache header when module is disabled.
 	test( 'Page Cache header should not be present when module is inactive', async ( {
 		browser,
+		baseURL,
 	} ) => {
 		// Ensure default storageState is empty.
 		const newContext = await browser.newContext( { storageState: {} } );
 		const newPage = await newContext.newPage();
 
 		newPage.on( 'response', response => {
-			if ( response.url().replace( /\/$/, '' ) !== resolveSiteUrl().replace( /\/$/, '' ) ) {
+			if ( response.url().replace( /\/$/, '' ) !== baseURL.replace( /\/$/, '' ) ) {
 				return;
 			}
 
@@ -97,7 +97,10 @@ test.describe( 'Cache module', () => {
 	} );
 
 	// Make sure there's a cache header when module is enabled.
-	test( 'Page Cache header should be present when module is active', async ( { browser } ) => {
+	test( 'Page Cache header should be present when module is active', async ( {
+		browser,
+		baseURL,
+	} ) => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
 
 		// Ensure default storageState is empty.
@@ -107,7 +110,7 @@ test.describe( 'Cache module', () => {
 		let totalVisits = 0;
 
 		newPage.on( 'response', response => {
-			if ( response.url().replace( /\/$/, '' ) !== resolveSiteUrl().replace( /\/$/, '' ) ) {
+			if ( response.url().replace( /\/$/, '' ) !== baseURL.replace( /\/$/, '' ) ) {
 				return;
 			}
 

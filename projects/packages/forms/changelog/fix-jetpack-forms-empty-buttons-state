@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: invert default disabled state on empty buttons for a cleaner transition to being available, they will only become enabled when it makes sense (not loading data, total items be a truthy value)

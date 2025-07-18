@@ -5,6 +5,8 @@
  *
  * POST /sites/%s/core
  * POST /sites/%s/core/update
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Core_Endpoint extends Jetpack_JSON_API_Endpoint {
 

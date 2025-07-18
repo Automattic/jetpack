@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
@@ -56,8 +57,7 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function register_feature( $features ) {
-		// Register the contact form block feature flag.
-		$features['multistep-form'] = Blocks::get_variation() === 'beta';
+		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		return $features;
 	}
 
@@ -494,6 +494,7 @@ class Contact_Form_Block {
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
+		global $post;
 		// Bail early if the user cannot manage the block.
 		if ( ! self::can_manage_block() ) {
 			return;
@@ -516,8 +517,6 @@ class Contact_Form_Block {
 
 		// Create a Contact_Form instance to get the default values
 		$dashboard_view_switch   = new Dashboard_View_Switch();
-		$contact_form            = new Contact_Form( array() );
-		$defaults                = $contact_form->defaults;
 		$form_responses_url      = $dashboard_view_switch->get_forms_admin_url();
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
@@ -525,8 +524,8 @@ class Contact_Form_Block {
 
 		$data = array(
 			'defaults' => array(
-				'to'                   => $defaults['to'],
-				'subject'              => $defaults['subject'],
+				'to'                   => Contact_Form::get_default_to( $post ? $post->post_author : null ),
+				'subject'              => Contact_Form::get_default_subject( array() ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,

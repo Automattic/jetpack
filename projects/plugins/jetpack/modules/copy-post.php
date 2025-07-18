@@ -19,6 +19,8 @@ use Automattic\Jetpack\Assets\Logo;
 
 /**
  * Copy Post class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Copy_Post {
 	/**
