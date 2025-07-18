@@ -5,7 +5,7 @@
 
 // Generic edit page css
 
-.users-php .zerobs_customer{
+.users-php .zerobs_customer {
 	background: none !important;
 }
 
@@ -17,13 +17,13 @@ tr.wh-large label {
 
 tr.wh-large select,
 tr.wh-large input {
-	font-size:14px;
+	font-size: 14px;
 	line-height: 1.4;
 }
 // fixes radio buttons + checkbox heights (which above breaks!)
 tr.wh-large input[type="radio"] {
-	width:16px !important;
-	height:16px !important;
+	width: 16px !important;
+	height: 16px !important;
 }
 
 tr.wh-large th,
@@ -39,12 +39,12 @@ table.wh-metatab tr th label {
 
 table.wh-metatab tr.wh-large th label,
 table.wh-metatab tr.wh-large td label {
-	padding:0;
+	padding: 0;
 }
 
 /* table general tweaks */
 table.wh-metatab {
-	min-width:620px;
+	min-width: 620px;
 }
 
 table.wh-metatab tr.wh-hr td {
@@ -53,7 +53,7 @@ table.wh-metatab tr.wh-hr td {
 
 table.wh-metatab tr.wh-hr hr {
 	border-top: 1px solid #D4DBF0;
-	border-bottom:0;
+	border-bottom: 0;
 }
 
 
@@ -72,7 +72,7 @@ span.wh-info {
 }
 
 .widetext {
-	width:100%;
+	width: 100%;
 }
 
 .jpcrm-date,
@@ -81,16 +81,16 @@ span.wh-info {
 }
 
 .zbs-tel {
-	width:200px;
+	width: 200px;
 }
 
 .zbs-email {
-	width:100%;
+	width: 100%;
 }
 
-textarea.form-control{
-	width:100%;
-	height:120px;
+textarea.form-control {
+	width: 100%;
+	height: 120px;
 }
 
 
@@ -98,14 +98,14 @@ textarea.form-control{
 .zbscrm-cf select {
 
 	width: auto;
-	max-width:200px;
+	max-width: 200px;
 	display: inline-block;
 
 }
 
-.zbscrm-cf-n{
-	width:200px;
-	text-align:center !important;
+.zbscrm-cf-n {
+	width: 200px;
+	text-align: center !important;
 }
 
 
@@ -118,7 +118,7 @@ textarea.form-control{
 	border-radius: 3px;
 
 	// header
-	.jpcrm-external-source-group-header.ui.header{
+	.jpcrm-external-source-group-header.ui.header {
 		margin-bottom: 0.2em;
 	}
 
@@ -149,7 +149,7 @@ textarea.form-control{
 
 }
 
-#jpcrm-external-sources-metabox .jpcrm-external-source-group:not(:first-child){
+#jpcrm-external-sources-metabox .jpcrm-external-source-group:not(:first-child) {
 
 	margin-top: 1em; // margin top for those groups after first
 
@@ -157,13 +157,13 @@ textarea.form-control{
 
 
 .zbsDelFile:hover {
-	cursor:pointer;
-	font-weight:800;
+	cursor: pointer;
+	font-weight: 800;
 }
 
 
 .wh-large select,
-.wh-large input{
+.wh-large input {
 	font-size: 14px;
 	height: 30px;
 }
@@ -226,19 +226,19 @@ textarea.form-control{
 	}
 
 	.ui.checkbox:first-of-type {
-		padding-left:0 !important;
+		padding-left: 0 !important;
 	}
 
 	.ui.checkbox label,
-	.ui.checkbox+label {
+	.ui.checkbox + label {
 		font-size: 16px !important;
 		color: #555;
 		font-weight: 400;
 	}
 
 	// this fixed a bug where you could still somehow click them?!
-	input[type="checkbox"]{
-		display:none;
+	input[type="checkbox"] {
+		display: none;
 	}
 
 }
@@ -247,7 +247,7 @@ textarea.form-control{
 .zbs-field-radio-wrap {
 
 	.zbs-radio:first-of-type {
-		padding-left:0 !important;
+		padding-left: 0 !important;
 	}
 
 	.zbs-radio {

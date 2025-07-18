@@ -12,13 +12,13 @@
 			&__input[type="radio"] {
 
 				&:checked {
-					background: var( --jp-green-40 );
-					border-color: var( --jp-green-40 );
+					background: var(--jp-green-40);
+					border-color: var(--jp-green-40);
 				}
 
 				&:focus {
-					border-color: var( --jp-green-50 );
-					box-shadow: 0 0 0 2px var( --jp-white ), 0 0 0 4px var( --jp-green-50 );
+					border-color: var(--jp-green-50);
+					box-shadow: 0 0 0 2px var(--jp-white), 0 0 0 4px var(--jp-green-50);
 				}
 			}
 		}

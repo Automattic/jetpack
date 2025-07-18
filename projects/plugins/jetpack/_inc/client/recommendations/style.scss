@@ -6,11 +6,11 @@
 
 .jp-recommendations-question__main {
 	min-height: 480px;
-	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.03 ), 0 1px 2px rgba( 0, 0, 0, 0.03 );
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
 	border: 1px solid calypso-colors.$gray-lighten-20;
-	background: var( --jp-white );
+	background: var(--jp-white);
 
-	a:not( [type="button"] ) {
+	a:not([type="button"]) {
 		// $has-focus-state: false - as we don't need a focus state for navigation links
 		@include rna.rna-link( $has-focus-state: false );
 	}
@@ -18,11 +18,11 @@
 
 .jp-recommendations-question__main--with-sidebar {
 	display: grid;
-	grid-template-columns: repeat( 2, 1fr );
+	grid-template-columns: repeat(2, 1fr);
 
 	@include mixin_breakpoint.breakpoint( '<1040px' ) {
 		grid-template-columns: auto;
-		background: var( --jp-white );
+		background: var(--jp-white);
 	}
 }
 
@@ -33,8 +33,8 @@
 .jp-recommendations__new-badge {
 	display: inline-block;
 	padding: 2px 8px;
-	color: var( --jp-green-30 );
-	border: 1px solid var( --jp-green-30 );
+	color: var(--jp-green-30);
+	border: 1px solid var(--jp-green-30);
 	text-transform: uppercase;
 	font-weight: 500;
 	border-radius: 3px;
@@ -76,20 +76,20 @@
 		&:hover,
 		&:link,
 		&:visited {
-			color: var( --jp-black );
+			color: var(--jp-black);
 			text-decoration: underline;
 		}
 
 		&:focus {
 			border-radius: 2px;
 			outline-offset: 3px;
-			outline: 1.5px solid var( --jp-black );
+			outline: 1.5px solid var(--jp-black);
 			box-shadow: none;
 			text-decoration: none;
 		}
 	
 		&:hover {
-			text-decoration-thickness: var( --jp-underline-thickness );
+			text-decoration-thickness: var(--jp-underline-thickness);
 		}
 
 		&:hover:focus {

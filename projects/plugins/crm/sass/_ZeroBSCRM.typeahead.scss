@@ -28,7 +28,7 @@
 .zbstypeaheadwrap.zbsbtypeaheadfullwidth {
 
 	span {
-		width:100%;
+		width: 100%;
 	}
 
 	.zbstypeahead,
@@ -47,7 +47,7 @@
 	.tt-menu {
 
 		// overrides (smaller)
-		font-size:15px !important;
+		font-size: 15px !important;
 		line-height: 17px !important;
 		min-height: 24px !important;
 		max-width: 100%;
@@ -58,7 +58,7 @@
 
 	.tt-suggestion {
 
-		font-size:15px !important;
+		font-size: 15px !important;
 		line-height: 17px !important;
 
 	}
@@ -82,7 +82,7 @@
 }
 
 .zbstypeahead,
-.zbstypeaheadco{
+.zbstypeaheadco {
 	background-color: #fff;
 }
 
@@ -106,7 +106,7 @@
 	background-color: #fff;
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	border-radius: 8px;
-	box-shadow: 0 5px 10px rgba(0,0,0,.2);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
 }
 
 .tt-suggestion {

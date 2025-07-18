@@ -18,7 +18,7 @@
 
 #jp-plugin-container .wrap {
 	margin: 0 auto;
-	max-width:45rem;
+	max-width: 45rem;
 	padding: 0 1.5rem;
 
 	.jp-static-block {
@@ -130,16 +130,16 @@
 			}
 
 			&.notice-error {
-				border-left-color: var( --jp-red );
+				border-left-color: var(--jp-red);
 			}
 
 			.notice-icon-wrapper {
 				margin-right: 20px;
-				width: calc( var( --spacing-base ) * 3 );
-				height: calc( var( --spacing-base ) * 3 );
+				width: calc(var(--spacing-base) * 3);
+				height: calc(var(--spacing-base) * 3);
 
 				svg {
-					fill: var( --jp-red );
+					fill: var(--jp-red);
 				}
 			}
 
@@ -162,7 +162,7 @@
 						&:hover,
 						&:active,
 						&:focus {
-							color: var( --jp-black );
+							color: var(--jp-black);
 						}
 					}
 
@@ -172,11 +172,11 @@
 					.components-button:focus {
 						display: block;
 						height: auto;
-						font-size: var( --font-body );
+						font-size: var(--font-body);
 						line-height: 24px;
 						padding: 8px 24px;
-						background: var( --jp-black );
-						color: var( --jp-white );
+						background: var(--jp-black);
+						color: var(--jp-white);
 						text-decoration: none;
 					}
 

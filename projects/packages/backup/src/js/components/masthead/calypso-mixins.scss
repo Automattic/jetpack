@@ -56,7 +56,7 @@ $sidebar-width:	269px;
 
 $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding a new breakpoint
 
-@mixin breakpoint( $size ){
+@mixin breakpoint( $size ) {
 
 	@if meta.type-of($size) == string {
 		$approved-value: 0;
@@ -175,7 +175,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	width: auto;
 	z-index: 1;
 	box-sizing: border-box;
-	box-shadow: 0 0 2px rgba(0,0,0,0.15), 0 3px 8px rgba(0,0,0,0.1);
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.15), 0 3px 8px rgba(0, 0, 0, 0.1);
 
 	&::after {
 		border: 6px solid transparent;
@@ -194,7 +194,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 		a,
 		a.selected {
-			border-bottom: 1px solid rgba(0,0,0,0.1);
+			border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 			color: $blue-wordpress;
 			display: block;
 			float: none;
@@ -204,7 +204,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 			text-align: left;
 
 			&:hover {
-				border-bottom: 1px solid rgba(0,0,0,0.1);
+				border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 				background: none; // Remove inherited background color
 				color: $link-highlight;
 				box-shadow: none; // Remove inherited box shadow
@@ -242,7 +242,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	width: $size;
 	height: $size;
 	overflow: hidden;
-	background: color.adjust( $gray, $lightness: 20% );
+	background: color.adjust($gray, $lightness: 20%);
 
 	&::before {
 		content: '\f475';
@@ -267,7 +267,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 }
 
-@mixin debug(){
+@mixin debug() {
 	box-shadow: 0 0 10px $alert-red inset;
 }
 
@@ -284,7 +284,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 }
 
 @mixin hide-content-accessibly {
-	clip: rect( 1px, 1px, 1px, 1px );
+	clip: rect(1px, 1px, 1px, 1px);
 	height: 1px;
 	overflow: hidden;
 	position: absolute;
@@ -310,7 +310,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 
 	@if $direction == 'bottom' {
-		background: linear-gradient( to top, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to top, rgba($color, 0), $color 90%);
 		left: $edge;
 		right: $edge;
 		top: $edge;
@@ -319,7 +319,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 
 	@if $direction == 'top' {
-		background: linear-gradient( to bottom, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to bottom, rgba($color, 0), $color 90%);
 		top: calc(100% - $size);
 		left: $edge;
 		right: $edge;
@@ -327,8 +327,8 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		width: auto;
 	}
 
-	@if $direction == 'left'{
-		background: linear-gradient( to left, rgba( $color, 0 ), $color 90% );
+	@if $direction == 'left' {
+		background: linear-gradient(to left, rgba($color, 0), $color 90%);
 		top: $edge;
 		left: $edge;
 		bottom: $edge;
@@ -338,7 +338,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 
 	@if $direction == 'right' {
-		background: linear-gradient( to right, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to right, rgba($color, 0), $color 90%);
 		top: $edge;
 		bottom: $edge;
 		right: $edge;
@@ -350,7 +350,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 @mixin placeholder( $lighten-percentage: 30% ) {
 	animation: loading-fade 1.6s ease-in-out infinite;
-	background-color: color.adjust( $gray, $lightness: $lighten-percentage );
+	background-color: color.adjust($gray, $lightness: $lighten-percentage);
 	color: transparent;
 
 	&::after {

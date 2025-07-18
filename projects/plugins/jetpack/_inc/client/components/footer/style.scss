@@ -3,7 +3,7 @@
 .jp-footer {
 	--jp-white: #fff;
 
-	background-color: var( --jp-white );
+	background-color: var(--jp-white);
 	padding: 22px 0;
 	margin-top: 48px;
 }
@@ -27,10 +27,10 @@
 
 	.jp-footer__container {
 		align-items: center;
-		color: var( --jp-black );
+		color: var(--jp-black);
 		display: flex;
 		flex-wrap: wrap;
-		font-size: var( --font-body-extra-small );
+		font-size: var(--font-body-extra-small);
 		line-height: 1.333;
 		width: 100%;
 
@@ -47,7 +47,7 @@
 		&:hover,
 		&:visited,
 		&:active {
-			color: var( --jp-black );
+			color: var(--jp-black);
 			text-decoration: none;
 		}
 	}
@@ -100,7 +100,7 @@
 
 		.jp-footer__menu-item {
 			position: relative;
-			color: var( --jp-black );
+			color: var(--jp-black);
 			margin-right: 16px;
 			text-decoration: none;
 
@@ -116,7 +116,7 @@
 			&:focus-visible {
 				border-radius: 2px;
 				outline-offset: 3px;
-				outline: 1.5px solid var( --jp-black );
+				outline: 1.5px solid var(--jp-black);
 				box-shadow: none;
 			}
 		

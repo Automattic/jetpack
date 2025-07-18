@@ -19,7 +19,7 @@
 }
 
 .widget_wpcom_social_media_icons_widget .screen-reader-text {
-	clip-path: inset( 50% );
+	clip-path: inset(50%);
 	position: absolute !important;
 	height: 1px;
 	width: 1px;

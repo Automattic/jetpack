@@ -25,11 +25,11 @@
 
 .zbs-metabox {
 
-	position:relative;
+	position: relative;
 	margin-bottom: 1em;
 
 	.zbs-metabox-head:hover {
-		cursor:move;
+		cursor: move;
 	}
 
 	// blocker (for when being dragdropped)
@@ -37,12 +37,12 @@
 
 		display: none;
 
-		position:absolute;
+		position: absolute;
 		border-radius: 4px;
-		top:0;
-		left:0;
-		width:100%;
-		height:100%;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
 		background: rgba(255, 255, 255, 0.7);
 
 		// title
@@ -114,11 +114,11 @@
 	.zbs-metabox-minimise {
 
 		.caret.up.icon {
-			display:block;
+			display: block;
 		}
 
 		.caret.down.icon {
-			display:none;
+			display: none;
 		}
 
 		.caret.icon:hover {
@@ -136,18 +136,18 @@
 	.zbs-metabox-minimise {
 
 		.caret.up.icon {
-			display:none;
+			display: none;
 		}
 
 		.caret.down.icon {
-			display:block;
+			display: block;
 		}
 
 	}
 
 	// hide body
 	.zbs-metabox-body {
-		display:none;
+		display: none;
 	}
 
 }

@@ -12,7 +12,7 @@ code#copytext {
 }
 
 .property {
-	color:#008000;
+	color: #008000;
 }
 
 .selector {
@@ -20,7 +20,7 @@ code#copytext {
 }
 
 .value {
-	color:#f00;
+	color: #f00;
 	left: 500px;
 }
 

@@ -20,8 +20,8 @@
 
 		input {
 
-			margin-top:-5px;
-			margin-right:6px;
+			margin-top: -5px;
+			margin-right: 6px;
 
 		}
 	}
@@ -30,13 +30,13 @@
 
 
 #poststuff.zbs-settings-page {
-	padding-top:0;
-	min-width:auto !important;
+	padding-top: 0;
+	min-width: auto !important;
 }
 
 #zbs-settings-menu .branding.item {
 
-	text-align:center;
+	text-align: center;
 	line-height: 20px;
 	font-size: 1.2em;
 	font-weight: 800;
@@ -47,7 +47,7 @@
 		background: #000;
 		display: inline-block !important;
 		margin-left: -0.5em !important;
-		float:left;
+		float: left;
 	}
 }
 // fix for menu weirdness
@@ -66,21 +66,21 @@
 .zbs-settings-custom-fields {
 
 	.zbscrm-cf-fieldtype-label {
-		margin-right:0.7em;
+		margin-right: 0.7em;
 	}
 
 	.zbscrm-cf-settings-wrap {
 		padding: 0.7em;
 	}
 
-	.zbs-generic-hide{
-		display:none; // initially
+	.zbs-generic-hide {
+		display: none; // initially
 	}
 
 	// make autonumber inputs look okay
 	.zbs-cf-type-autonumber-wrap .ui.labeled.input {
-		max-width:200px;
-		clear:both;
+		max-width: 200px;
+		clear: both;
 	}
 
 	.zbs-cf-type-autonumber-input-wrap {
@@ -93,7 +93,7 @@
 		}
 	}
 	// ui fix
-	.ui.labeled.input>.label:not(.corner) {
+	.ui.labeled.input > .label:not(.corner) {
 		padding-top: 0.6em !important;
 	}
 
@@ -102,7 +102,7 @@
 
 // license page, license info show
 .zbs-license-full-info {
-	display:none;
+	display: none;
 }
 
 // v3.0 migration blocker - do not remove :) won't see, but it'll break for old migraters:
@@ -124,7 +124,7 @@
 	top: 7em;
 	left: 0;
 	width: 100%;
-	text-align:center;
+	text-align: center;
 
 	.ui.message {
 		max-width: 700px;
@@ -135,7 +135,7 @@
 
 
 // tax table editor 
-.zbs-taxtable-line td:first-child{
+.zbs-taxtable-line td:first-child {
 	width: 60%;
 	max-width: 400px;
 }

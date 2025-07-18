@@ -6,7 +6,7 @@
 @keyframes tiled-gallery-img-placeholder {
 
 	0% {
-		background-color: var( --color-neutral-0 );
+		background-color: var(--color-neutral-0);
 	}
 
 	50% {
@@ -14,7 +14,7 @@
 	}
 
 	100% {
-		background-color: var( --color-neutral-0 );
+		background-color: var(--color-neutral-0);
 	}
 }
 
@@ -201,7 +201,7 @@
 		top: 50%;
 		left: 50%;
 		margin: 0;
-		transform: translate( -50%, -50% );
+		transform: translate(-50%, -50%);
 	}
 
 	// Hide upload buttons in style picker preview

@@ -29,7 +29,7 @@
 			max-width: 100%;
 
 			&:disabled {
-				color: hsla( 0, 0%, 100%, 0.4 );
+				color: hsla(0, 0%, 100%, 0.4);
 			}
 
 			@media ( max-width: breakpoints.$break-medium ) {

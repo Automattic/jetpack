@@ -10,14 +10,14 @@
 
 .zerobs-proposal-actions {
 
-	text-align:center;
+	text-align: center;
 	margin: 30px 10px;
 	padding: 24px;
 
 	.zerobs-proposal-fielderr {
 
-		display:none; // init
-		text-align:center;
+		display: none; // init
+		text-align: center;
 		font-size: 0.8em;
 		color: #ffa500;
 
@@ -26,14 +26,14 @@
 	// err fields
 	.zerobs-proposal-highlight {
 
-		border:2px solid #ffa500 !important;
+		border: 2px solid #ffa500 !important;
 
 	}
 
 	// input
 	input[type="text"] {
 
-		margin-bottom:14px;
+		margin-bottom: 14px;
 
 	}
 
@@ -41,8 +41,8 @@
 
 .zerobs-proposal-fini {
 
-	display:none; // init
-	text-align:center;
+	display: none; // init
+	text-align: center;
 	margin: 30px 10px;
 	padding: 24px;
 	
@@ -50,8 +50,8 @@
 
 .zerobs-proposal-err {
 
-	display:none; // init
-	text-align:center;
+	display: none; // init
+	text-align: center;
 	color: #ffa500;
 	margin: 30px 10px;
 	padding: 24px;
@@ -61,15 +61,15 @@
 
 .zerobs-proposal-poweredby {
 
-	text-align:center;
+	text-align: center;
 	margin: 20px 5px;
 	padding: 14px;
-	font-size:0.9em;
+	font-size: 0.9em;
 
 	img {
-		max-width:32px;
-		display:inline-block !important;
-		vertical-align:middle;
+		max-width: 32px;
+		display: inline-block !important;
+		vertical-align: middle;
 	}
 
 }

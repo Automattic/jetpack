@@ -55,12 +55,12 @@
 
 #wpsc-callout ul,
 #wpsc-callout ol,
-#wpsc-callout>p:last-child {
+#wpsc-callout > p:last-child {
 	font-size: var(--font-body-small);
 }
 
-#wpsc-dashboard>.header,
-#wpsc-dashboard>.footer,
+#wpsc-dashboard > .header,
+#wpsc-dashboard > .footer,
 #wpsc-dashboard .wpsc-body-content,
 #wpsc-dashboard .wpsc-nav {
 	max-width: var(--max-container-width);

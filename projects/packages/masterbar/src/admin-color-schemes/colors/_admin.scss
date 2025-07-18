@@ -24,7 +24,7 @@ $nav-unification-sidebar-border: $--a-value-must-be-set-via-with-- !default;
 
 $text-color: #fff !default;
 $base-color: #23282d !default;
-$icon-color: hsl( color.channel( $base-color, "hue", $space: oklch ), 7%, 95% ) !default;
+$icon-color: hsl(color.channel($base-color, "hue", $space: oklch), 7%, 95%) !default;
 $highlight-color: #0073aa !default;
 $notification-color: #d54e21 !default;
 
@@ -34,7 +34,7 @@ $notification-color: #d54e21 !default;
 $body-background: #f1f1f1 !default;
 
 $link: #0073aa !default;
-$link-focus: color.adjust( $link, $lightness: 10% ) !default;
+$link-focus: color.adjust($link, $lightness: 10%) !default;
 
 $button-color: $highlight-color !default;
 $button-text-color: $text-color !default;
@@ -55,9 +55,9 @@ $menu-current-text: $menu-highlight-text !default;
 $menu-current-icon: $menu-highlight-icon !default;
 $menu-current-background: $menu-highlight-background !default;
 
-$menu-submenu-text: color.mix( $base-color, $text-color, 30% ) !default;
-$menu-submenu-background: color.adjust( $base-color, $lightness: -7% ) !default;
-$menu-submenu-background-alt: color.adjust( $menu-background, $lightness: 7%, $saturation: -7% ) !default;
+$menu-submenu-text: color.mix($base-color, $text-color, 30%) !default;
+$menu-submenu-background: color.adjust($base-color, $lightness: -7%) !default;
+$menu-submenu-background-alt: color.adjust($menu-background, $lightness: 7%, $saturation: -7%) !default;
 
 $menu-submenu-focus-text: $highlight-color !default;
 $menu-submenu-current-text: $text-color !default;
@@ -72,21 +72,21 @@ $menu-collapse-icon: $menu-icon !default;
 $menu-collapse-focus-text: $text-color !default;
 $menu-collapse-focus-icon: $menu-highlight-icon !default;
 
-$adminbar-avatar-frame: color.adjust( $menu-background, $lightness: 7% ) !default;
-$adminbar-input-background: color.adjust( $menu-background, $lightness: 7% ) !default;
+$adminbar-avatar-frame: color.adjust($menu-background, $lightness: 7%) !default;
+$adminbar-input-background: color.adjust($menu-background, $lightness: 7%) !default;
 
 $adminbar-recovery-exit-text: $menu-bubble-text !default;
 $adminbar-recovery-exit-background: $menu-bubble-background !default;
 $adminbar-recovery-exit-background-alt: color.mix(#000, $adminbar-recovery-exit-background, 10%) !default;
 
-$menu-customizer-text: color.mix( $base-color, $text-color, 40% ) !default;
+$menu-customizer-text: color.mix($base-color, $text-color, 40%) !default;
 
 $low-contrast-theme: "false" !default;
 
 // Add defaults for the admin bar submenus. In most cases these can match the
 // admin menu submenus, but some schemes may be different.
 $masterbar-submenu-background: $menu-submenu-background !default;
-$masterbar-submenu-background-alt: color.adjust( $menu-submenu-background, $lightness: 5% ) !default;
+$masterbar-submenu-background-alt: color.adjust($menu-submenu-background, $lightness: 5%) !default;
 
 // Unused here, used in _upsell-banner.scss.
 $menu-nudge-text-color: null !default;
@@ -204,20 +204,20 @@ textarea:focus {
 	.button:hover,
 	.button.focus,
 	.button:focus {
-		border-color: color.adjust( #7e8993, $lightness: -5% );
-		color: color.adjust( #32373c, $lightness: -5% );
+		border-color: color.adjust(#7e8993, $lightness: -5%);
+		color: color.adjust(#32373c, $lightness: -5%);
 	}
 
 	.button.focus,
 	.button:focus {
 		border-color: #7e8993;
-		color: color.adjust( #32373c, $lightness: -5% );
+		color: color.adjust(#32373c, $lightness: -5%);
 		box-shadow: 0 0 0 1px #32373c;
 	}
 
 	.button:active {
 		border-color: #7e8993;
-		color: color.adjust( #32373c, $lightness: -5% );
+		color: color.adjust(#32373c, $lightness: -5%);
 		box-shadow: none;
 	}
 
@@ -225,7 +225,7 @@ textarea:focus {
 	.button.active:focus,
 	.button.active:hover {
 		border-color: $button-color;
-		color: color.adjust( #32373c, $lightness: -5% );
+		color: color.adjust(#32373c, $lightness: -5%);
 		box-shadow: inset 0 2px 5px -3px $button-color;
 	}
 
@@ -243,7 +243,7 @@ textarea:focus {
 
 		.button.hover,
 		.button:hover,
-		.button-secondary:hover{
+		.button-secondary:hover {
 			border-color: color.adjust($highlight-color, $lightness: -10%);
 			color: color.adjust($highlight-color, $lightness: -10%);
 		}
@@ -608,7 +608,7 @@ ul#adminmenu > li.current > a.current::after {
 	color: $adminbar-recovery-exit-text;
 }
 
-#wpadminbar .ab-top-menu > #wp-admin-bar-recovery-mode.hover >.ab-item,
+#wpadminbar .ab-top-menu > #wp-admin-bar-recovery-mode.hover > .ab-item,
 #wpadminbar.nojq .quicklinks .ab-top-menu > #wp-admin-bar-recovery-mode > .ab-item:focus,
 #wpadminbar:not(.mobile) .ab-top-menu > #wp-admin-bar-recovery-mode:hover > .ab-item,
 #wpadminbar:not(.mobile) .ab-top-menu > #wp-admin-bar-recovery-mode > .ab-item:focus {
@@ -640,7 +640,7 @@ ul#adminmenu > li.current > a.current::after {
 
 .wp-pointer .wp-pointer-content h3 {
 	background-color: $highlight-color;
-	border-color: color.adjust($highlight-color, $lightness: -5% );
+	border-color: color.adjust($highlight-color, $lightness: -5%);
 }
 
 .wp-pointer .wp-pointer-content h3::before {

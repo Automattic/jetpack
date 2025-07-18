@@ -7,7 +7,7 @@
 	Global styles for ZBS Licensing Nag
 */
 
-.zbs_nf{
+.zbs_nf {
 	position: fixed;
 	bottom: 0;
 	width: 100%;
@@ -23,7 +23,7 @@
 	border-top: 5px solid #de1b1b;
 }
 
-.zbs_overlay{
+.zbs_overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -47,56 +47,56 @@
 
 }
 
-.close_nag_modal a{
+.close_nag_modal a {
 	color: #fff;
 }
 
-.zbs-message h3{
+.zbs-message h3 {
 	color: #fff;
 }
 
-.zbs_overlay p{
-	font-size:16px;
+.zbs_overlay p {
+	font-size: 16px;
 }
 
-.zbs_overlay p a{
+.zbs_overlay p a {
 	color: #ffa500;
-	text-decoration:underline;
+	text-decoration: underline;
 }
 
-.close_nag_modal{
+.close_nag_modal {
 	position: absolute;
-	top:10px;
+	top: 10px;
 	right: 10px;
-	cursor:pointer;
+	cursor: pointer;
 }
 
-.zbs-message-body{
-	width:400px;
-	line-height:30px;
+.zbs-message-body {
+	width: 400px;
+	line-height: 30px;
 }
 
-.jpcrm-promo.ui.segment{
+.jpcrm-promo.ui.segment {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 
-	position:relative;
+	position: relative;
 	margin-right: 20px;
 
 	border-left: 5px solid #069E09;
 
-	#jpcrm-dismiss{
-		position:absolute;
-		right:5px;
-		top:10px;
+	#jpcrm-dismiss {
+		position: absolute;
+		right: 5px;
+		top: 10px;
 		color: #000;
-		font-weight:500;
-		margin-top:5px;
+		font-weight: 500;
+		margin-top: 5px;
 	}
 
-	.notice-dismiss{
-		margin-top:5px;
+	.notice-dismiss {
+		margin-top: 5px;
 	}
 
 	.button {
@@ -106,7 +106,7 @@
 }
 
 
-.jpcrm-error.ui.segment{
+.jpcrm-error.ui.segment {
 	margin-right: 20px;
 	border-left: 5px solid #cf0606;
 }

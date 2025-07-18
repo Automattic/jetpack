@@ -12,19 +12,19 @@
 	border-radius: 0.28571429rem !important;
 }
 
-.ui.simple.dropdown:hover>.menu>.item:hover>.left {
+.ui.simple.dropdown:hover > .menu > .item:hover > .left {
 	left: auto !important;
 }
 
 //company contact images
 .zbs-co-img {
-	float:left;
+	float: left;
 
-	img{
-		border-radius:50%;
-		max-width:30px;
-		height:auto;
-		margin-right:5px;
+	img {
+		border-radius: 50%;
+		max-width: 30px;
+		height: auto;
+		margin-right: 5px;
 	}
 }
 
@@ -32,15 +32,15 @@
 
 	margin-bottom: 46px;
 	margin-top: 16px;
-	margin-right:1em;
+	margin-right: 1em;
 
 	#zbs-column-manager-current-cols {
 		
 		// needed to drop into empty list:
-		min-height:34px;
+		min-height: 34px;
 
 		.ui.basic.button {
-			margin-top:4px;
+			margin-top: 4px;
 		}
 
 	}
@@ -48,10 +48,10 @@
 	#zbs-column-manager-available-cols {
 
 		// needed to drop into empty list:
-		min-height:34px;
+		min-height: 34px;
 
 		.ui.basic.button {
-			margin-top:4px;
+			margin-top: 4px;
 		}
 
 	}
@@ -95,16 +95,16 @@
 //ui header stuff
 // company list contacts HTML..
 
-.zero-bs-crm_page_manage-companies-crm{
+.zero-bs-crm_page_manage-companies-crm {
 
-	.zbs-co-img{
+	.zbs-co-img {
 
-		img{
-			width:30px;
-			height:auto;
-			float:left;
-			margin-right:2px;
-			border-radius:50%;
+		img {
+			width: 30px;
+			height: auto;
+			float: left;
+			margin-right: 2px;
+			border-radius: 50%;
 		}
 	}
 
@@ -148,14 +148,14 @@
 
 // drop target for col manager
 .zbs-column-manager-droptarget {
-	width:90px;
-	height:26px !important;
-	margin-top:4px !important;
+	width: 90px;
+	height: 26px !important;
+	margin-top: 4px !important;
 	vertical-align: top;
 }
 // always ready for drop
 .zbs-column-manager-connected {
-	min-height:2em;
+	min-height: 2em;
 }
 
 /* 
@@ -163,7 +163,7 @@
 */
 .jpcrm-listview-table td.zbs-inline-edit:hover {
 	border-bottom: 2px dashed #8bb7de;
-	cursor:pointer;
+	cursor: pointer;
 }
 // when editing:
 .jpcrm-listview-table td.zbs-inline-editing {
@@ -177,6 +177,6 @@
 	margin-bottom: 10px;
 }
 
-.jpcrm-listview-table-container .jpcrm-listview-table a.name{
+.jpcrm-listview-table-container .jpcrm-listview-table a.name {
 	font-weight: 700;
 }

@@ -14,16 +14,16 @@
 .post-type-zerobs_quo_template {
 
 	#misc-publishing-actions,
-	#minor-publishing{
-		display:none;
+	#minor-publishing {
+		display: none;
 	}
 
-	#postbox-container-2{
-		margin-top:0;
+	#postbox-container-2 {
+		margin-top: 0;
 	}
 	// also add customer image/featured image centering:
 	#postimagediv .inside p {
-		text-align:center;
+		text-align: center;
 	}
 }
 
@@ -37,8 +37,8 @@ ul#adminmenu {
 	#toplevel_page_zerobscrm-logout {
 
 		a.wp-has-current-submenu::after,
-		ul#adminmenu>li.current>a.current::after {
-			display:none !important;
+		ul#adminmenu > li.current > a.current::after {
+			display: none !important;
 		}
 
 	}

@@ -15,48 +15,48 @@
  
 .zbs-client-portal-wrap {
 	position: relative;
-	min-height:650px !important;
+	min-height: 650px !important;
 	display: flex;
 
 	#zbs-nav-tabs {
 		list-style-type: none;
 		width: 30%;
 		float: left;
-		min-height:650px;
+		min-height: 650px;
 		margin: 0;
-		padding-left:0;
+		padding-left: 0;
 		box-shadow: 0 1px 0 1px #ccc;
 		border-radius: 7px 0 0 7px;
-		padding-top:7px;
+		padding-top: 7px;
 		flex: 1;
 
 		li {
 			list-style: none;
 			position: relative;
-			padding:0;
+			padding: 0;
 
 			a {
 				display: block;
-				padding:10px;
-				box-shadow:none;
+				padding: 10px;
+				box-shadow: none;
 			}
 
-			a:hover{
-				box-shadow:none;
+			a:hover {
+				box-shadow: none;
 				background: #000;
 				color: #fff;
 			}
 		}
 
-		a{
+		a {
 			color: #ccc;
 		}
 
-		a:hover{
-			color:#ccc !important;
+		a:hover {
+			color: #ccc !important;
 		}
 
-		.fa{
+		.fa {
 			margin-right: 0.5em;
 		}
 	}
@@ -74,17 +74,17 @@
 	.alert {
 		margin: 2em;
 		background: #38b6dc;
-		text-align:center;
+		text-align: center;
 		padding: 1em;
 		border-radius: 0.5em;
 
 		a {
-			color:#000 !important;
-			font-weight:800;
+			color: #000 !important;
+			font-weight: 800;
 		}
 
 		a:hover {
-			text-decoration:underline;
+			text-decoration: underline;
 		}
 	}
   
@@ -94,12 +94,12 @@
 		margin-right: auto;
 	}
 
-	.zbs-portal-wrapper{
-		padding:20px;
+	.zbs-portal-wrapper {
+		padding: 20px;
 		box-shadow: 1px 1px 1px 1px #ccc;
 		border-radius: 0 7px 7px 0;
-		min-height:650px !important;
-		position:relative;
+		min-height: 650px !important;
+		position: relative;
 		flex: 1;
 		flex-grow: 3;
 	}
@@ -107,7 +107,7 @@
 
 .zbs-client-portal-pro-note {
 	background: #000;
-	text-align:center;
+	text-align: center;
 	color: #FFF;
 	padding: 1em;
 	margin: 2em;
@@ -121,24 +121,24 @@
 	}
 
 	a {
-		color:#FFF !important;
-		font-weight:800;
+		color: #FFF !important;
+		font-weight: 800;
 	}
 
 	a:hover {
-		text-decoration:underline;
+		text-decoration: underline;
 	}
 
 	.small {
-		margin-top:1em;
-		font-size:0.7em;
+		margin-top: 1em;
+		font-size: 0.7em;
 
 		span {
 			color: #00f;
 		}
 
 		span:hover {
-			cursor:pointer;
+			cursor: pointer;
 		}
 	}
 }
@@ -174,11 +174,11 @@
 		}
 
 		.zbs-cf-checkbox:first-of-type {
-			padding-left:0 !important;
+			padding-left: 0 !important;
 		}
 
 		.zbs-cf-checkbox label,
-		.zbs-cf-checkbox+label {
+		.zbs-cf-checkbox + label {
 			font-size: 16px !important;
 			font-weight: 400;
 		}
@@ -186,7 +186,7 @@
 	// edit pages radio custom fields 
 	.zbs-field-radio-wrap {
 		// overall padding margin: 0.5em 1em 1em;
-		text-align:left;
+		text-align: left;
 
 		.zbs-radio {
 			margin: 0;
@@ -224,11 +224,11 @@
 		padding-right: 1em;
 		margin-bottom: 1em;
 		width: 100%;
-		height:50px;
+		height: 50px;
 	}
 
 	/* Fixes for Astra Theme and general poor display on WP.org themes */
-	label{
+	label {
 		clear: left;
 	}
 }
@@ -304,20 +304,20 @@
 		background: #999;
 		color: #fff;
 		font-weight: 700;
-		line-height:21px;
+		line-height: 21px;
 	}
 
 	.overdue {
 		background: #f00;
 		color: #fff;
 		font-weight: 700;
-		line-height:21px;
+		line-height: 21px;
 	}
 
 }
 
 .zbs-invoice-thanks {
-	text-align:center;
+	text-align: center;
 }
 
 .zbs-single-invoice-portal {
@@ -451,26 +451,26 @@
 }
 
 .zbs-fieldgroup-main_address,
-.zbs-fieldgroup-second_address{
+.zbs-fieldgroup-second_address {
 	width: 48%;
 	float: left;
 	margin-right: 2%;
 
-	table{
-		width:100%;
+	table {
+		width: 100%;
 	}
 }
 
 .zbs-fieldgroup-main_address_100w,
-#wptbpMetaBoxGroup-main_address_100w{
-	width:100%;
+#wptbpMetaBoxGroup-main_address_100w {
+	width: 100%;
 }
 
-.zbs-hide{
-	display:none;
+.zbs-hide {
+	display: none;
 }
 
-.zbs-fieldgroup-main_address::after{
+.zbs-fieldgroup-main_address::after {
 	content: "";
 	display: table;
 	clear: both;
@@ -482,15 +482,15 @@
 }
 
 .zerobs-proposal-poweredby {
-	margin-top:2em
+	margin-top: 2em
 }
 
 //hide the title from the Portal Page 
-.entry-title{
-	display:none !important;
+.entry-title {
+	display: none !important;
 }
 //for the invoice hashes. No portal nav for these. 
-.fullW{
+.fullW {
 	width: 100% !important;
 }
 
@@ -499,8 +499,8 @@
 	font-weight: 800;
 }
 
-.portal-invoice-to{
-	margin-bottom:20px;
+.portal-invoice-to {
+	margin-bottom: 20px;
 }
 
 .zbs-entry-content {
@@ -552,12 +552,12 @@
 			}
 
 			tr {
-				border: 1px solid rgba(0,0,0,.2);
+				border: 1px solid rgba(0, 0, 0, .2);
 			}
 
 			td {
 				border: none;
-				border-bottom: 1px solid rgba(0,0,0,.1);
+				border-bottom: 1px solid rgba(0, 0, 0, .1);
 				position: relative;
 				padding-left: 50%;
 			}
@@ -582,7 +582,7 @@
 	.zbs-multi-group-item {
 		margin-bottom: 30px;
 		padding: 10px;
-		border-left : 5px solid rgba(0,0,0,.1);
+		border-left: 5px solid rgba(0, 0, 0, .1);
 	}
 
 	.zerobs-proposal-body {
@@ -604,7 +604,7 @@
 
 	#zbs-nav-tabs li {
 		list-style: none;
-		border: 1px solid rgba(0,0,0,.1);
+		border: 1px solid rgba(0, 0, 0, .1);
 		border-bottom-width: 0;
 		white-space: nowrap;
 	}
@@ -635,9 +635,9 @@
 	}
 
 	.zbs-portal-grid-footer {
-		clear:both;
-		position:relative;
-		margin-top:50px;
+		clear: both;
+		position: relative;
+		margin-top: 50px;
 	}
 
 	p {
@@ -695,12 +695,12 @@
 	margin-top: 10px;
 }
 
-.sgr-recaptcha{
-	transform:scale(1);
+.sgr-recaptcha {
+	transform: scale(1);
 }
 
-.sgr-recaptcha div{
-	margin:auto;
+.sgr-recaptcha div {
+	margin: auto;
 }
 
 .zbs-default-avatar {

@@ -3,7 +3,7 @@
 	align-items: center;
 	justify-content: space-between;
 	margin-top: 1rem;
-	color: var( --jp-black );
+	color: var(--jp-black);
 
 	.main-stats {
 		display: flex;
@@ -19,7 +19,7 @@
 		font-size: var(--font-body-small);
 	}
 
-	.visual-stat{
+	.visual-stat {
 		display: flex;
 		align-items: center;
 		gap: 2px;
@@ -37,7 +37,7 @@
 	align-items: center;
 	gap: 0.25rem;
 	margin-top: 1rem;
-	color: var( --jp-black );
+	color: var(--jp-black);
 
 	.summary {
 		font-size: var(--font-body-small);
@@ -54,7 +54,7 @@
 }
 
 .time {
-	color: var( --jp-gray-40 );
+	color: var(--jp-gray-40);
 }
 
 .backupWarning {
@@ -64,7 +64,7 @@
 	font-weight: 500;
 
 	svg.iconError {
-		fill: var( --jp-red-60 );
+		fill: var(--jp-red-60);
 	}
 }
 
@@ -77,15 +77,15 @@
 	color: var(--jp-gray-50);
 
 	.iconContainer {
-		padding-top: calc( var( --jp-underline-thickness) * 2 );
+		padding-top: calc(var(--jp-underline-thickness) * 2);
 
 		> svg {
-			fill: var( --jp-red );
+			fill: var(--jp-red);
 		}
 	}
 
 	.errorDescription {
-		font-size: var( --font-label );
+		font-size: var(--font-label);
 		font-weight: 400;
 		line-height: 20px;
 	}

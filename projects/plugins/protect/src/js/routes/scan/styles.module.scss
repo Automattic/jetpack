@@ -4,10 +4,10 @@
 
 .product-section,
 .info-section {
-	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
-	margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+	margin-top: calc(var(--spacing-base) * 7); // 56px
+	margin-bottom: calc(var(--spacing-base) * 7); // 56px
 }
 
 .scan-navigation {
-	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+	margin-top: calc(var(--spacing-base) * 3); // 24px
 }

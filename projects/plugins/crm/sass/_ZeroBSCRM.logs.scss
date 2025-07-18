@@ -14,14 +14,14 @@
 	button#zbscrmAddLog,
 	button#zbscrmEditLog {
 		
-		float:right;
-		margin:4px;
-		margin-right:8px;
+		float: right;
+		margin: 4px;
+		margin-right: 8px;
 	}
 
 	// for emphasizing stuff in longs
 	.zbsEmphasis {
-		font-weight:800;
+		font-weight: 800;
 		color: #191680;
 	}
 
@@ -45,7 +45,7 @@
 
 			i.fa {
 
-				font-size:20px;
+				font-size: 20px;
 			}
 		    
 
@@ -74,12 +74,12 @@
 		div#zbsAddLogActions {
 
 			div#zbsAddLogUpdateMsg {
-				float:left;
-				text-align:left;
-				margin-top:10px;
+				float: left;
+				text-align: left;
+				margin-top: 10px;
 			}
 			
-			text-align:right;
+			text-align: right;
 
 			button {
 				
@@ -97,7 +97,7 @@
 	// edit form
 	#zbsEditLogForm {
 
-		display:none; // initially
+		display: none; // initially
 
 		margin: 10px;
 		border: 1px solid #b0a1ec;
@@ -115,7 +115,7 @@
 
 			i.fa {
 
-				font-size:20px;
+				font-size: 20px;
 			}
 		    
 
@@ -144,12 +144,12 @@
 		div#zbsEditLogActions {
 
 			div#zbsEditLogUpdateMsg {
-				float:left;
-				text-align:left;
-				margin-top:10px;
+				float: left;
+				text-align: left;
+				margin-top: 10px;
 			}
 			
-			text-align:right;
+			text-align: right;
 
 			button {
 				
@@ -183,7 +183,7 @@
 			.zbsLogOutEdits {
 
 				display: inline-block;
-				display:none; // init
+				display: none; // init
 				margin-left: 12px;
 				color: #000;
 				font-size: 17px;
@@ -204,12 +204,12 @@
 				.fa:hover {
 
 					color: #000;
-					cursor:pointer;
+					cursor: pointer;
 
 				}
 
 				.fa.last {
-					margin-left:4px;
+					margin-left: 4px;
 				}
 
 				// "deleting" msg

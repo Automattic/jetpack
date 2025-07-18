@@ -126,7 +126,7 @@
 }
 
 /* Flickr */
-.widget_flickr .flickr-size-thumbnail .flickr-images  {
+.widget_flickr .flickr-size-thumbnail .flickr-images {
 	justify-content: left;
 }
 
@@ -232,7 +232,7 @@
 	}
 }
 
-#jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post  {
+#jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post {
 	padding-right: 0;
 }
 

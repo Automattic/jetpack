@@ -228,7 +228,7 @@ $z-layers: (
 			@warn "No layer found for `#{$key}` of `[#{ $keys }]` in $z-layers map. Property omitted.";
 			@return map.get( $map, $key );
 		}
-		$map: map.get( $map, $key );
+		$map: map.get($map, $key);
 	}
 
 	@return $map;

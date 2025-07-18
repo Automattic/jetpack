@@ -297,7 +297,7 @@
 	}
 
 	// widen
-	#jpcrm-modal-cta-group{
+	#jpcrm-modal-cta-group {
 
 		width: 100% !important;
 		padding: 0 !important;
@@ -373,7 +373,7 @@
 
 	// Woo variant of first use dashboard:
 	// bigger button needs even even more space
-	#jpcrm-first-use-dash.woovariant{
+	#jpcrm-first-use-dash.woovariant {
 
 		.jpcrm-modal-cta-group {
 
@@ -398,8 +398,7 @@
 // Safari workarounds
 
 /* Safari 10.1+ (alternate method) */
-@media not all and (min-resolution:.001dpcm)
-{
+@media not all and (min-resolution: .001dpcm) {
 
 	@supports (-webkit-appearance:none) {
 
@@ -424,7 +423,7 @@
 		// when in modals in safari the jpcrm top bar logo shows on top of the modal, this hides it
 		body.dimmed #zbs-main-logo-cube-wrap {
 
-			display:none;
+			display: none;
 
 		}
 

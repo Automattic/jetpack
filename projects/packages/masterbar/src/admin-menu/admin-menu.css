@@ -47,7 +47,7 @@
 	}
 
 	.global-notices {
-		max-width: calc( 100% - 48px - 272px );
+		max-width: calc(100% - 48px - 272px);
 	}
 }
 
@@ -143,7 +143,7 @@
 	}
 }
 
-@media screen and (min-width: 782px) and (max-width: 960px){
+@media screen and (min-width: 782px) and (max-width: 960px) {
 
 	.auto-fold #adminmenu .toplevel_page_site-notices .wp-menu-image {
 		display: block;
@@ -172,7 +172,7 @@
 	position: absolute;
 	right: 20px;
 	top: 50%;
-	transform: translateY( -50% );
+	transform: translateY(-50%);
 	opacity: 0.8;
 }
 
@@ -222,8 +222,8 @@
 
 @media screen and (max-width: 782px) {
 
-	#adminmenu li.menu-top .wp-submenu>li>a,
-	.auto-fold #adminmenu li.menu-top .wp-submenu>li>a {
+	#adminmenu li.menu-top .wp-submenu > li > a,
+	.auto-fold #adminmenu li.menu-top .wp-submenu > li > a {
 		padding-left: 42px;
 	}
 
@@ -265,7 +265,7 @@
 	}
 
 	ul#adminmenu a.wp-has-current-submenu::after,
-	ul#adminmenu>li.current>a.current::after,
+	ul#adminmenu > li.current > a.current::after,
 	ul#adminmenu li:hover a.wp-has-current-submenu::after,
 	.auto-fold ul#adminmenu li:hover a.wp-has-current-submenu::after {
 		display: none;
@@ -279,7 +279,7 @@
 }
 
 .screen-options-tab__wrapper {
-	position:relative
+	position: relative
 }
 
 .screen-options-tab__dropdown {
@@ -291,7 +291,7 @@
 	position: absolute;
 	right: 20px;
 	top: 37px;
-	width:215px;
+	width: 215px;
 	z-index: 9999;
 }
 
@@ -311,7 +311,7 @@
 }
 
 .screen-switcher:not(:hover) .screen-switcher__button:nth-child(2) > strong {
-	color:var(--wp-admin-theme-color)
+	color: var(--wp-admin-theme-color)
 }
 
 .screen-switcher__button,
@@ -326,32 +326,32 @@ a.screen-switcher__button {
 	line-height: normal;
 	text-decoration: none;
 	padding: 8px;
-	text-align:left
+	text-align: left
 }
 
 .screen-switcher__button:nth-child(2),
 a.screen-switcher__button:nth-child(2) {
 	border-color: var(--wp-admin-theme-color);
-	margin-bottom:4px
+	margin-bottom: 4px
 }
 
 .screen-switcher__button:last-child,
 a.screen-switcher__button:last-child {
-	margin-bottom:0
+	margin-bottom: 0
 }
 
 .screen-switcher__button strong,
 a.screen-switcher__button strong {
 	display: block;
 	font-size: 13px;
-	margin-bottom:4px
+	margin-bottom: 4px
 }
 
 .screen-switcher__button:focus > strong,
 .screen-switcher__button:hover > strong,
 a.screen-switcher__button:focus > strong,
 a.screen-switcher__button:hover > strong {
-	color:var(--wp-admin-theme-color)
+	color: var(--wp-admin-theme-color)
 }
 
 /** Add new site button **/

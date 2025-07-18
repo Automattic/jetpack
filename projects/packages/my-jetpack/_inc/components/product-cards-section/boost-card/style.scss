@@ -5,8 +5,8 @@ $border_radius: math.div($bar-height, 2);
 
 .mj-boost-speed-score {
 	// Increase the area to trigger the hover.
-	padding: calc( var( --spacing-base ) ); // 8px;
-	margin: calc( var( --spacing-base ) * -1 );
+	padding: calc(var(--spacing-base)); // 8px;
+	margin: calc(var(--spacing-base) * -1);
 	margin-bottom: 0;
 }
 
@@ -30,7 +30,7 @@ $border_radius: math.div($bar-height, 2);
 		cursor: pointer;
 
 		&:focus {
-			outline: 1px dotted var( --jp-black );
+			outline: 1px dotted var(--jp-black);
 		}
 	}
 }

@@ -2,15 +2,15 @@
 @use '../../scss/functions/rem';
 
 .jp-module-settings__external-link {
-	font-size: rem.convert( 14px );
+	font-size: rem.convert(14px);
 }
 
 .jp-module-settings__read-more {
 	clear: both;
-	margin-top: rem.convert( 16px );
+	margin-top: rem.convert(16px);
 
 	@include breakpoints.breakpoint( ">480px" ) {
-		margin-top: rem.convert( 32px );
+		margin-top: rem.convert(32px);
 	}
 
 	.dops-button.is-compact.is-borderless,
@@ -22,8 +22,8 @@
 // Related Posts Preview styles
 .jp-related-posts-preview {
 	position: relative;
-	margin-top: rem.convert( 8px );
-	padding: rem.convert( 16px ) rem.convert( 8px );
+	margin-top: rem.convert(8px);
+	padding: rem.convert(16px) rem.convert(8px);
 	width: 100%;
 	background: #f6f6f6;
 	box-sizing: border-box;
@@ -31,26 +31,26 @@
 }
 
 .jp-related-posts-settings__preview-label {
-	margin-bottom: rem.convert( 8px );
-	margin-top: rem.convert( 24px );
-	font-size: rem.convert( 14px );
+	margin-bottom: rem.convert(8px);
+	margin-top: rem.convert(24px);
+	font-size: rem.convert(14px);
 	font-weight: 600;
 }
 
 .jp-related-posts-preview__title {
-	margin: 0 0 rem.convert( 11px ) rem.convert( 8px );
-	font-size: rem.convert( 11px );
+	margin: 0 0 rem.convert(11px) rem.convert(8px);
+	font-size: rem.convert(11px);
 	font-weight: 600;
 }
 
 .jp-related-posts-preview__post-title {
-	font-size: rem.convert( 15px );
+	font-size: rem.convert(15px);
 	font-weight: 400;
 	margin: 0;
 }
 
 .jp-related-posts-preview__post-context {
-	font-size: rem.convert( 15px );
+	font-size: rem.convert(15px);
 	opacity: .6;
 	margin: 0;
 }
@@ -59,7 +59,7 @@
 	box-sizing: border-box;
 	display: inline-block;
 	width: 33.33%;
-	padding: rem.convert( 8px );
+	padding: rem.convert(8px);
 	vertical-align: top;
 
 	@include breakpoints.breakpoint( "<480px" ) {
@@ -68,6 +68,6 @@
 
 	img {
 		max-width: 100%;
-		margin-bottom: rem.convert( 8px );
+		margin-bottom: rem.convert(8px);
 	}
 }

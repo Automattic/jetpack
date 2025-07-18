@@ -1,11 +1,11 @@
 .videopress-card__video-count {
 	display: flex;
 
-	font-size: calc( var( --font-headline-small ) - 4px );
-	color: var( --jp-gray-90 );
+	font-size: calc(var(--font-headline-small) - 4px);
+	color: var(--jp-gray-90);
 	line-height: 1.125;
 
-	margin-top: calc( var( --spacing-base ) / 2 );
+	margin-top: calc(var(--spacing-base) / 2);
 
 	.videopress-card__tooltip {
 		height: 18px;
@@ -13,8 +13,8 @@
 }
 
 p.description {
-	color: var( --jp-gray-70 );
-	font-size: var( --font-body-small );
+	color: var(--jp-gray-70);
+	font-size: var(--font-body-small);
 	margin: 0 0 1rem;
 }
 
@@ -36,8 +36,8 @@ p.description {
 	}
 
 	&__value {
-		font-size: calc( var( --font-headline-small ) - 4px );
-		color: var( --jp-gray-90 );
+		font-size: calc(var(--font-headline-small) - 4px);
+		color: var(--jp-gray-90);
 		line-height: 1;
 	}
 
@@ -45,7 +45,7 @@ p.description {
 		display: flex;
 		align-items: center;
 
-		font-size: var( --font-body-extra-small );
+		font-size: var(--font-body-extra-small);
 		line-height: 18px;
 		font-weight: 600;
 	}
@@ -53,16 +53,16 @@ p.description {
 	&__previous-value.increase {
 
 		* {
-			color: var( --jp-green-50 );
-			fill: var( --jp-green-50 );
+			color: var(--jp-green-50);
+			fill: var(--jp-green-50);
 		}
 	}
 
 	&__previous-value.decrease {
 
 		* {
-			color: var( --jp-red-50 );
-			fill: var( --jp-red-50 );
+			color: var(--jp-red-50);
+			fill: var(--jp-red-50);
 		}
 	}
 

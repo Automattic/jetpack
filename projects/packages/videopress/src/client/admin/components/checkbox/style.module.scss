@@ -6,13 +6,13 @@
 	cursor: pointer;
 	height: 20px;
 	line-height: 20px;
-	margin-top: var( --spacing-base );
+	margin-top: var(--spacing-base);
 
 	.checkbox {
 
 		&[type="checkbox"] {
 			all: unset;
-			border: 1px solid var( --jp-green-40 );
+			border: 1px solid var(--jp-green-40);
 			margin: 0 10px 0;
 			position: relative;
 			display: flex;
@@ -31,7 +31,7 @@
 			}
 
 			&:checked::before {
-				background: var( --jp-green-40 );
+				background: var(--jp-green-40);
 			}
 
 			&:not(:checked) + .checkbox-checkmark {
@@ -60,9 +60,9 @@
 			top: 2px;
 			width: 5px;
 			height: 11px;
-			border: solid var( --jp-white );
+			border: solid var(--jp-white);
 			border-width: 0 1.5px 1.5px 0;
-			transform: rotate( 37deg );
+			transform: rotate(37deg);
 			content: "";
 		}
 	}

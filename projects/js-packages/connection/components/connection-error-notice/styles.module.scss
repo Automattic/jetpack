@@ -5,18 +5,18 @@
 .notice {
 	box-sizing: border-box;
 	margin: 0;
-	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ); // 16px | 24px | 16px | 24px
+	padding: calc(var(--spacing-base) * 2) calc(var(--spacing-base) * 3) calc(var(--spacing-base) * 2) calc(var(--spacing-base) * 3); // 16px | 24px | 16px | 24px
 	font-size: 16px;
 	line-height: 22px;
-	color: var( --jp-gray-80 );
-	border: 1px solid var( --jp-gray );
-	border-left: 6px solid var( --jp-red-50 );
-	border-radius: var( --jp-border-radius );
+	color: var(--jp-gray-80);
+	border: 1px solid var(--jp-gray);
+	border-left: 6px solid var(--jp-red-50);
+	border-radius: var(--jp-border-radius);
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.06);
 
 	// notice itself on error status
 	&:global(.is-error) {
-		background-color: var( --jp-white );
+		background-color: var(--jp-white);
 	}
 
 	// notice content
@@ -30,7 +30,7 @@
 
 	// action button
 	:global(.is-link) {
-		color: var( --jp-black );
+		color: var(--jp-black);
 		font-size: 16px;
 		font-weight: 600;
 	}
@@ -44,7 +44,7 @@
 	.button:visited,
 	.button:active,
 	.button:hover {
-		color: var( --jp-white );
+		color: var(--jp-white);
 		font-weight: 600;
 		font-size: 16px;
 		line-height: 24px;
@@ -54,19 +54,19 @@
 		justify-content: center;
 		align-items: center;
 		padding: 8px 24px;
-		margin-left: calc( var( --spacing-base ) * 2 + 24px ); // 40px
+		margin-left: calc(var(--spacing-base) * 2 + 24px); // 40px
 		margin-top: 24px;
 		background: #000;
-		border-radius: var( --jp-border-radius );
+		border-radius: var(--jp-border-radius);
 
 		&.primary {
-			background: var( --jp-green-50 );
+			background: var(--jp-green-50);
 		}
 	}
 
 	.actions {
 		display: flex;
-		gap: calc( var( --spacing-base ) * 2 ); // 16px
+		gap: calc(var(--spacing-base) * 2); // 16px
 		flex-wrap: wrap;
 	}
 
@@ -93,7 +93,7 @@
 }
 
 .message {
-	margin-right: var( --spacing-base ); // 8px
+	margin-right: var(--spacing-base); // 8px
 	flex-grow: 1;
 	display: flex;
 
@@ -101,10 +101,10 @@
 	> svg {
 		flex-shrink: 0;
 		align-self: flex-start;
-		margin-right: calc( var( --spacing-base ) * 2 ); // 16px
+		margin-right: calc(var(--spacing-base) * 2); // 16px
 	}
 
 	:global(.jp-components-spinner) {
-		margin-right: calc( var( --spacing-base ) * 2 ); // 16px
+		margin-right: calc(var(--spacing-base) * 2); // 16px
 	}
 }

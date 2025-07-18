@@ -9,7 +9,7 @@ $tour-footer-spacing: 16px;
 		border-radius: 8px; // maintain the same border radius for all breakpoints
 
 		.myjetpack-onboarding-welcome-tour__image {
-			background: var( --jp-green-60);
+			background: var(--jp-green-60);
 			margin: 0 0 10px;
 
 			> img {
@@ -88,11 +88,11 @@ $tour-footer-spacing: 16px;
 			}
 
 			&.is-primary {
-				background-color: var( --jp-green-60);
+				background-color: var(--jp-green-60);
 
 				&:hover,
 				&:active {
-					background-color: var( --jp-green-70);
+					background-color: var(--jp-green-70);
 				}
 			}
 

@@ -4,8 +4,8 @@
  */
 
 // global hider :)
-.zbs-hide{
-	display:none !important;
+.zbs-hide {
+	display: none !important;
 }
 
 // woody added wp button override classes
@@ -17,10 +17,10 @@
 }
 
 //for the admin field slug label (needs margin top 5px;
-.zbscrm-cf{
+.zbscrm-cf {
 
-	.label{
-		margin-top:5px;
+	.label {
+		margin-top: 5px;
 	}
 }
 
@@ -28,7 +28,7 @@
 #zbsDeletionPage {
 
 	position: relative;
-	width:100%;
+	width: 100%;
 	margin-top: 30px;
 	min-height: 400px;
 
@@ -49,7 +49,7 @@
 
 			.fa {
 
-				font-size:80px;
+				font-size: 80px;
 				color: #008000;
 				margin-bottom: 8px;
 
@@ -73,7 +73,7 @@
 
 			button {
 
-				font-size:16px;
+				font-size: 16px;
 
 			}
 
@@ -83,20 +83,20 @@
 
 }
 
-.zbs-settings_page_zerobscrm-plugin-settings{
+.zbs-settings_page_zerobscrm-plugin-settings {
 
-	.wfieldname{
-		text-align:left !important;
-		width:30%;
+	.wfieldname {
+		text-align: left !important;
+		width: 30%;
 	}
 
-	.wtab th.wmid{
-		text-align:left !important;
+	.wtab th.wmid {
+		text-align: left !important;
 	}
 
 }
 
-#notes{
+#notes {
 	font-size: 14px;
 }
 
@@ -104,7 +104,7 @@
 #zbsNoAccessPage {
 
 	position: relative;
-	width:100%;
+	width: 100%;
 	margin-top: 30px;
 	min-height: 400px;
 
@@ -125,7 +125,7 @@
 
 			.fa {
 
-				font-size:80px;
+				font-size: 80px;
 				color: #008000;
 				margin-bottom: 8px;
 
@@ -149,7 +149,7 @@
 
 			button {
 
-				font-size:16px;
+				font-size: 16px;
 
 			}
 
@@ -161,27 +161,27 @@
 
 
 // upsell / feedback boxes from func zeroBSCRM_UI2_squareFeedbackUpsell
-.zbs-upgrade-banner{
+.zbs-upgrade-banner {
 	background: #000;
 	color: #fff;
-	padding:20px;
-	text-align:center;
+	padding: 20px;
+	text-align: center;
 }
 
-.zbs-upgrade-banner h4{
+.zbs-upgrade-banner h4 {
 	font-weight: 600;
 	color: #f3f3f3;
 	text-transform: uppercase;
 }
 
-.zbs-upgrade-banner p{
+.zbs-upgrade-banner p {
 	color: #999;
 }
 
-.zbs-upgrade-banner .btn{
-	margin-top:20px;
-	margin-bottom:20px;
-	padding:10px;
+.zbs-upgrade-banner .btn {
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding: 10px;
 	color: #fff;
 	background: #1a6ecc;
 }
@@ -214,12 +214,12 @@ div.ui.learn.button {
 	}
 }
 
-.item:focus{
+.item:focus {
 	outline: none;
 	box-shadow: none !important;
 }
 
-.popover.right .arrow{
+.popover.right .arrow {
 	top: 50%;
 	left: 25px !important;
 	margin-top: -11px;
@@ -244,48 +244,48 @@ div.ui.learn.button {
 }
 
 //TEAM STUFF BELOW HERE
-#zbs-team-user-table{
+#zbs-team-user-table {
 
-	.dn{
-		line-height:30px;
-		float:left;
+	.dn {
+		line-height: 30px;
+		float: left;
 	}
 
-	img{
-		border-radius:50%;
-		margin-right:5px;
-		float:left;
+	img {
+		border-radius: 50%;
+		margin-right: 5px;
+		float: left;
 	}
 }
 
-#zbs-team-mechanics{
-	padding:10px;
+#zbs-team-mechanics {
+	padding: 10px;
 }
 
-#zbs-team-mechanics::after{
-	clear:both;
+#zbs-team-mechanics::after {
+	clear: both;
 }
 
-.clear{
-	clear:both;
+.clear {
+	clear: both;
 }
 
 // File Edit page
 .zbs-cp-file-edit-page {
 
-	margin-right:1em !important;
+	margin-right: 1em !important;
 
 	.zbs-file-thumb {
-		float:right;
-		margin:0.5em;
-		max-width:50px;
-		box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+		float: right;
+		margin: 0.5em;
+		max-width: 50px;
+		box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
 
 	}
 
 	// not for normal file type imgs
 	.zbs-file-thumb.zbs-cp-file-img-default {
-		box-shadow:none !important;
+		box-shadow: none !important;
 	}
 
 }
@@ -300,8 +300,8 @@ div.ui.learn.button {
 }
 
 //UI tweak for contact fiew
-#zbs-vitals-box .item{
-	cursor:pointer;
+#zbs-vitals-box .item {
+	cursor: pointer;
 }
 
 
@@ -317,7 +317,7 @@ div.ui.learn.button {
 // these are toggled by js once x has loaded :)
 // see func "zeroBSCRMJS_genericLoaded()"
 .zbs-generic-loaded {
-	display:none;
+	display: none;
 }
 
 
@@ -374,7 +374,7 @@ div.ui.learn.button {
 
 	.state-complete {
 
-		display:none;
+		display: none;
 
 	}
 
@@ -391,7 +391,7 @@ div.ui.learn.button {
 
 	.state-incomplete {
 
-		display:none;
+		display: none;
 		
 	}
 
@@ -422,12 +422,12 @@ table#zbsFilesTable td {
 }
 
 // https://stackoverflow.com/questions/34520569/sweetalert-change-modal-width
-.swal-wide{
-	width:550px !important;
+.swal-wide {
+	width: 550px !important;
 }
 
-.swal-wider{
-	width:850px !important;
+.swal-wider {
+	width: 850px !important;
 }
 
 .jpcrm-external-link-icon {

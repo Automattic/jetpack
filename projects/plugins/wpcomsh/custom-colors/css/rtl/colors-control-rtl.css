@@ -64,7 +64,7 @@
 	position: relative;
 	background-size: 100% 100%;
 	border-radius: 2%;
-	box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+	box-shadow: inset 0 -1px 4px rgba(0, 0, 0, 0.1);
 	height: 55px;
 	margin-bottom: 20px;
 	width: 100%;
@@ -93,7 +93,7 @@
 
 .color-grid li {
 	background: #f1f1f1;
-	border: 5px solid rgba(0,0,0,0.1);
+	border: 5px solid rgba(0, 0, 0, 0.1);
 	font-size: 0;
 	box-sizing: border-box;
 	display: block;
@@ -143,7 +143,7 @@
 	opacity: 0.4;
 	float: right;
 	position: relative;
-	text-shadow: 0 0 2px rgba(0,0,0,0.4);
+	text-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
 	font-size: 20px;
 	right: 17px;
 	top: 20px;
@@ -252,7 +252,7 @@ a.revert {
 
 .color-suggestions li {
 	background: #f1f1f1;
-	border: 3px solid rgba(0,0,0,0.1);
+	border: 3px solid rgba(0, 0, 0, 0.1);
 	font-size: 0;
 	margin: 0 3px 15px;
 	float: right;
@@ -625,7 +625,7 @@ input#iris {
 	background-repeat: repeat;
 	background-size: 100% 100%;
 	border-radius: 2%;
-	box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+	box-shadow: inset 0 -1px 4px rgba(0, 0, 0, 0.1);
 	width: 260px;
 	height: 55px;
 	margin-bottom: 8px;

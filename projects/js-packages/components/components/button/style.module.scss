@@ -11,9 +11,9 @@
 
 	// Icon Button
 	&.is-icon-button {
-		padding: var( --spacing-base );
-		width: calc( var( --spacing-base ) * 5 );
-		height: calc( var( --spacing-base ) * 5 );
+		padding: var(--spacing-base);
+		width: calc(var(--spacing-base) * 5);
+		height: calc(var(--spacing-base) * 5);
 
 		> svg:first-child {
 			margin: 0;
@@ -21,10 +21,10 @@
 		}
 
 		&.small {
-			padding: calc( var( --spacing-base ) / 2 );
-			width: calc( var( --spacing-base ) * 4 );
-			min-width: calc( var( --spacing-base ) * 4 );
-			height: calc( var( --spacing-base ) * 4 );
+			padding: calc(var(--spacing-base) / 2);
+			width: calc(var(--spacing-base) * 4);
+			min-width: calc(var(--spacing-base) * 4);
+			height: calc(var(--spacing-base) * 4);
 		}
 	}
 
@@ -33,11 +33,11 @@
 		height: auto;
 		font-size: var(--font-body);
 		line-height: 24px;
-		padding: var(--spacing-base) calc( var(--spacing-base) * 3); // 8px - 24px
+		padding: var(--spacing-base) calc(var(--spacing-base) * 3); // 8px - 24px
 
 		// With icon
 		&.icon {
-			padding: var(--spacing-base) calc( var(--spacing-base) * 2); // 8px - 16px
+			padding: var(--spacing-base) calc(var(--spacing-base) * 2); // 8px - 16px
 		}
 	}
 
@@ -46,10 +46,10 @@
 		height: auto;
 		font-size: var(--font-body-extra-small);
 		line-height: 20px;
-		padding: calc( var(--spacing-base) / 2 ) var(--spacing-base); // 4px - 8px
+		padding: calc(var(--spacing-base) / 2) var(--spacing-base); // 4px - 8px
 
 		&.icon > svg:first-child {
-			margin-right: calc( var(--spacing-base) / 2 ); // 4px
+			margin-right: calc(var(--spacing-base) / 2); // 4px
 		}
 
 		// With Spinner
@@ -210,5 +210,5 @@
 }
 
 .external-icon {
-	margin-left: calc( var(--spacing-base) / 2 ); // 4px
+	margin-left: calc(var(--spacing-base) / 2); // 4px
 }

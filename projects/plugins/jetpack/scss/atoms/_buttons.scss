@@ -19,7 +19,7 @@
 	font-weight: 700;
 	font-size: 0.9285714286em; // 13/14
 	line-height: 1;
-	text-shadow: 0 1px 1px rgba(0,0,0,.2);
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
 	background: #6f7476;
 	border-radius: 3px;
 
@@ -77,7 +77,7 @@
 	border-radius: 6px;
 	box-shadow:
 		0 6px 0 #3e6c20,
-		0 6px 3px rgba(0,0,0,.4);
+		0 6px 3px rgba(0, 0, 0, .4);
 
 	&:visited {
 		color: #fff;
@@ -89,14 +89,14 @@
 		background: #57972d;
 		box-shadow:
 			0 6px 0 #3e6c20,
-			0 6px 3px rgba(0,0,0,.4);
+			0 6px 3px rgba(0, 0, 0, .4);
 	}
 
 	&:active {
 		top: 6px;
 		box-shadow:
 			0 0 0 #3e6c20,
-			0 0 0 rgba(0,0,0,.4);
+			0 0 0 rgba(0, 0, 0, .4);
 
 		&::after {
 			// fixes buggy clicks
@@ -127,7 +127,7 @@
 		height: 100%;
 	}
 
-	@include breakpoint.breakpoint(large-desktop){
+	@include breakpoint.breakpoint(large-desktop) {
 		font-size: typography-functions.em(18px);
 
 		&::before {
@@ -137,14 +137,14 @@
 		}
 	}
 
-	@include breakpoint.breakpoint(desktop){
+	@include breakpoint.breakpoint(desktop) {
 
 		&:active {
 			top: 0;
 		}
 	}
 
-	@include breakpoint.breakpoint(large-phone){
+	@include breakpoint.breakpoint(large-phone) {
 		font-size: typography-functions.em(17px);
 		font-weight: 600;
 
