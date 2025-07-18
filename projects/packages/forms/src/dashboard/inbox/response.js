@@ -22,6 +22,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import ActionsModal from '../components/actions-modal';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
@@ -247,6 +248,9 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 
 	const displayName = getDisplayName( response );
 
+	// eslint-disable-next-line no-console
+	console.log( response );
+
 	return (
 		<>
 			<div ref={ ref } className="jp-forms__inbox-response">
@@ -321,6 +325,8 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 						title={ decodeEntities( previewFile.name ) }
 						onRequestClose={ closePreviewModal }
 						className="jp-forms__inbox-file-preview-modal"
+						isFullScreen
+						headerActions={ <ActionsModal response={ response } /> }
 					>
 						<PreviewFile
 							file={ previewFile }
