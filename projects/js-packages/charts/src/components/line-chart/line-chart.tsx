@@ -544,9 +544,12 @@ LineChart.Annotation = LineChartAnnotation;
 // Export unwrapped component for testing
 export { LineChart as LineChartUnresponsive };
 
-const ResponsiveLineChart = Object.assign( withResponsive< LineChartProps >( LineChart ), {
-	AnnotationsOverlay: LineChartAnnotationsOverlay,
-	Annotation: LineChartAnnotation,
-} );
+const ResponsiveLineChart: LineChartComponent = Object.assign(
+	withResponsive< LineChartProps >( LineChart ) as LineChartComponent,
+	{
+		AnnotationsOverlay: LineChartAnnotationsOverlay,
+		Annotation: LineChartAnnotation,
+	}
+);
 
 export default ResponsiveLineChart;

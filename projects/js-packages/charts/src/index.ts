@@ -17,19 +17,10 @@ export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
 
 // Types
-export type {
-	DataPoint,
-	DataPointDate,
-	SeriesData,
-	MultipleDataPointsDate,
-	DataPointPercentage,
-	ChartTheme,
-	BaseChartProps,
-	GridProps,
-	Optional,
-	OrientationType,
-} from './types';
+export type * from './types';
+export type * from './visx-types';
 
-export type { LineStyles, GridStyles } from '@visx/xychart';
-
-export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
+// Export some often used visx components directly
+export { LineShape, CircleShape, RectShape } from '@visx/legend';
+export { Group } from '@visx/group';
+export { Text, useText, getStringWidth } from '@visx/text';
