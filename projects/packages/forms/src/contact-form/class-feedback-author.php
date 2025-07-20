@@ -57,9 +57,9 @@ class Feedback_Author {
 	 */
 	public static function from_submission( $post_data, $form ) {
 		return new self(
-			self::get_computer_author_info( $post_data, 'name', 'pre_comment_author_name', $form ),
-			self::get_computer_author_info( $post_data, 'email', 'pre_comment_author_email', $form ),
-			self::get_computer_author_info( $post_data, 'url', 'pre_comment_author_url', $form )
+			self::get_computed_author_info( $post_data, 'name', 'pre_comment_author_name', $form ),
+			self::get_computed_author_info( $post_data, 'email', 'pre_comment_author_email', $form ),
+			self::get_computed_author_info( $post_data, 'url', 'pre_comment_author_url', $form )
 		);
 	}
 
@@ -73,7 +73,7 @@ class Feedback_Author {
 	 *
 	 * @return string Filter value for the author information.
 	 */
-	private static function get_computer_author_info( $post_data, $type, $filter, $form ) {
+	private static function get_computed_author_info( $post_data, $type, $filter, $form ) {
 		$field_ids = $form->get_field_ids();
 		if ( isset( $field_ids[ $type ] ) ) {
 			$key   = $field_ids[ $type ];
