@@ -1009,6 +1009,160 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
 	}
 
+	public function test_get_all_values() {
+		// Test that the get_all_values method returns all values from the form submission.
+
+		$current_post = Utility::create_post_context();
+		$form_id      = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'email' => 'email@email.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$response            = Feedback::from_submission( $_post_data, $form, $current_post );
+		$post_id             = $response->save();
+		$response_all_values = $response->get_all_values();
+		$saved_response      = Feedback::get( $post_id );
+		Utility::destroy_post_context( $current_post );
+		$saved_all_values = $saved_response->get_all_values();
+
+		$this->assertEquals(
+			$response_all_values,
+			$saved_all_values,
+			'All values from the form submission should match the saved form submission'
+		);
+
+		$keys = array(
+			'1_Email',
+			'email_marketing_consent',
+			'entry_title',
+			'entry_permalink',
+			'feedback_id',
+		);
+
+		foreach ( $keys as $key ) {
+			$this->assertArrayHasKey( $key, $response_all_values, "Key '$key' should be present in the all values array" );
+			$this->assertArrayHasKey( $key, $saved_all_values, "Key '$key' should be present in the saved all values array" );
+		}
+		$this->assertArrayNotHasKey( 'entry_page', $response_all_values, 'Key entry_page should not be present in the all values array' );
+	}
+
+	public function test_get_all_values_with_page_number() {
+		// Test that the get_all_values method returns all values from the form submission.
+
+		$current_post = Utility::create_post_context();
+		$form_id      = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'email' => 'email@email.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$response            = Feedback::from_submission( $_post_data, $form, $current_post, 888 );
+		$post_id             = $response->save();
+		$response_all_values = $response->get_all_values();
+		$saved_response      = Feedback::get( $post_id );
+		Utility::destroy_post_context( $current_post );
+		$saved_all_values = $saved_response->get_all_values();
+
+		$this->assertEquals(
+			$response_all_values,
+			$saved_all_values,
+			'All values from the form submission should match the saved form submission'
+		);
+
+		$keys = array(
+			'1_Email',
+			'email_marketing_consent',
+			'entry_title',
+			'entry_permalink',
+			'feedback_id',
+			'entry_page',
+		);
+
+		foreach ( $keys as $key ) {
+			$this->assertArrayHasKey( $key, $response_all_values, "Key '$key' should be present in the all values array" );
+			$this->assertArrayHasKey( $key, $saved_all_values, "Key '$key' should be present in the saved all values array" );
+		}
+		$this->assertEquals( 888, $response_all_values['entry_page'], 'Key entry_page should be present in the all values array' );
+		$this->assertEquals( 888, $saved_all_values['entry_page'], 'Key entry_page should be present in the saved all values array' );
+
+		$this->assertStringContainsString(
+			'page=888',
+			$response_all_values['entry_permalink'],
+			'Entry permalink should contain the page number'
+		);
+	}
+
+	public function test_get_akismet_vars() {
+		// Test that the get_akismet_vars method returns the correct variables for Akismet.
+
+		$current_post = Utility::create_post_context();
+		$form_id      = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'email' => 'email@email.com',
+				'name'  => 'Test User',
+				'text'  => 'This is a test message.',
+				'url'   => 'https://www.example.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Url' type='url' required='1'/][contact-field label='Text' type='text' required='1'/][contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form, $current_post );
+		$post_id  = $response->save();
+
+		$saved_response = Feedback::get( $post_id );
+		Utility::destroy_post_context( $current_post );
+
+		$this->assertNotEmpty( $response->get_akismet_vars(), 'Akismet vars should not be empty for the form submission' );
+		$this->assertEquals( $saved_response->get_akismet_vars(), $response->get_akismet_vars(), 'Post ID should match the form submission' );
+		$assert_keys = array(
+			'comment_author',
+			'comment_author_email',
+			'comment_author_url',
+			'contact_form_subject',
+			'comment_author_ip',
+			'comment_content',
+			'contact_form_field_text',
+		);
+
+		foreach ( $assert_keys as $key ) {
+			$this->assertArrayHasKey( $key, $response->get_akismet_vars(), "Akismet vars should contain '$key'" );
+			$this->assertArrayHasKey( $key, $saved_response->get_akismet_vars(), "Akismet vars should contain '$key'" );
+		}
+	}
+
 	public function test_compute_entry_permalink() {
 		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();

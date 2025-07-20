@@ -989,7 +989,7 @@ class Feedback {
 			}
 		}
 
-		return apply_filters( 'contact_form_subject', $contact_form_subject, $this->get_compiled_fields( 'default', 'key-value' ) );
+		return apply_filters( 'contact_form_subject', $contact_form_subject, $this->get_all_values() );
 	}
 
 	/**
