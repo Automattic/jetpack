@@ -1610,4 +1610,41 @@ class Feedback_Test extends BaseTestCase {
 
 		$this->assertEquals( $expected, $compiled_fields, $message );
 	}
+
+	/**
+	 *
+	 * Test file uploads in feedback
+	 */
+	public function test_file_uploads() {
+
+		$file = array(
+			'file_id' => 1234,
+			'name'    => 'test-file.txt',
+			'size'    => 1234,
+			'type'    => 'text/plain',
+		);
+
+		$url     = 'https://wordpress.com';
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'file upload' => array(
+					'field_id' => 'file_upload',
+					'files'    => array( $file ),
+				),
+			),
+			null,
+			null,
+			null,
+			$url
+		);
+
+		$saved_response = Feedback::get( $post_id );
+		$this->assertEquals( 'test-file.txt (1 KB)', $saved_response->get_field_value_by_label( 'file upload' ) );
+
+		foreach ( $saved_response->get_fields() as $field ) {
+			if ( $field->get_label() === 'file upload' ) {
+				$this->assertEquals( 'file', $field->get_type() );
+			}
+		}
+	}
 }

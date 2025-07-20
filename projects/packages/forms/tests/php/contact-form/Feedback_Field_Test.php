@@ -115,10 +115,23 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( 'value1, value2', $field->get_render_value() );
 		$this->assertEquals( array( 'value1', 'value2' ), $field->get_value() );
 
-		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ) );
+		// EMPTY FILE FIELD
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file' );
 		$this->assertSame( '', $field->get_render_value() );
 		$this->assertEquals(
-			array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ),
+			array( 'files' => array() ),
+			$field->get_value()
+		);
+		$file  = array(
+			'name'    => 'file1.jpg',
+			'type'    => 'image/jpeg',
+			'file_id' => 123,
+			'size'    => 123456789,
+		);
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( $file ) ), 'file' );
+		$this->assertSame( 'file1.jpg (118 MB)', $field->get_render_value() );
+		$this->assertEquals(
+			array( 'files' => array( $file ) ),
 			$field->get_value()
 		);
 	}
@@ -135,18 +148,18 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertStringContainsString( size_format( $file['size'] ), $field->get_render_value() );
 	}
 
-	public function test_is_file_field() {
-		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ) );
-		$this->assertTrue( $field->is_file_field() );
-
+	public function test_is_of_type() {
 		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
-		$this->assertFalse( $field->is_file_field() );
+		$this->assertFalse( $field->is_of_type( 'file' ) );
 
-		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ) );
-		$this->assertTrue( $field->is_file_field() );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ), 'file' );
+		$this->assertTrue( $field->is_of_type( 'file' ) );
 
-		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ), 'file' );
-		$this->assertTrue( $field->is_file_field() );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'hello' ) );
+		$this->assertTrue(
+			$field->is_of_type( 'basic' ),
+			'Basic field should not be a file field'
+		);
 	}
 
 	public function test_has_file() {
@@ -156,26 +169,27 @@ class Feedback_Field_Test extends BaseTestCase {
 			array(
 				'files' => array(
 					array(
-						'name'    => 'file1.jpg',
+						'name'    => 'file1 . jpg',
 						'file_id' => 123,
 						'size'    => 123456789,
 					),
 				),
-			)
+			),
+			'file'
 		);
 		$this->assertTrue( $field->has_file() );
 
-		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ), 'file' );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1 . jpg' ) ), 'file' );
 		$this->assertTrue( $field->has_file() );
 
-		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file' );
 		$this->assertFalse( $field->has_file() );
 
 		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertFalse( $field->has_file(), 'basic field should not be a file field' );
 
 		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file' );
-		$this->assertFalse( $field->has_file(), 'empty file field should not be non-empty' );
+		$this->assertFalse( $field->has_file(), 'empty file field should not be non - empty' );
 	}
 
 	public function test_get_render_api_value() {
@@ -183,7 +197,10 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( 'test_value', $field->get_render_value( 'api' ) );
 
 		$field = new Feedback_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
-		$this->assertEquals( 'value1, value2', $field->get_render_value( 'api' ) );
+		$this->assertEquals(
+			'value1, value2',
+			$field->get_render_value( 'api' )
+		);
 
 		$expected = array(
 			'files' => array(
@@ -207,7 +224,8 @@ class Feedback_Field_Test extends BaseTestCase {
 						'size'    => 123456789,
 					),
 				),
-			)
+			),
+			'file'
 		);
 
 		add_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
@@ -221,7 +239,8 @@ class Feedback_Field_Test extends BaseTestCase {
 				'files' => array(
 					array(),
 				),
-			)
+			),
+			'file'
 		);
 
 		add_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
