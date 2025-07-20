@@ -123,6 +123,18 @@ class Feedback_Field_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_render_file_field() {
+		$file = array(
+			'name'    => 'file1.jpg',
+			'file_id' => 123,
+			'size'    => 123456789,
+		);
+
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( $file ) ), 'file' );
+		$this->assertStringContainsString( $file['name'], $field->get_render_value() );
+		$this->assertStringContainsString( size_format( $file['size'] ), $field->get_render_value() );
+	}
+
 	public function test_is_file_field() {
 		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ) );
 		$this->assertTrue( $field->is_file_field() );
@@ -200,6 +212,20 @@ class Feedback_Field_Test extends BaseTestCase {
 
 		add_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 		$this->assertSame( $expected, $field->get_render_value( 'api' ) );
+		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
+
+		$field = new Feedback_Field(
+			'test_key',
+			'test_label',
+			array(
+				'files' => array(
+					array(),
+				),
+			)
+		);
+
+		add_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
+		$this->assertSame( array( 'files' => array() ), $field->get_render_value( 'api' ) );
 		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 	}
 	/**
