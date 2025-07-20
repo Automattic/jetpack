@@ -152,8 +152,10 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertInstanceOf( Feedback_Field::class, $field );
 		$this->assertEquals( '1_field', $field->get_key() );
 		$this->assertEquals( 'field', $field->get_label() );
-		$this->assertEquals( 'value1', $field->render_value() );
+		$this->assertEquals( 'value1', $field->get_value() );
+
 		$this->assertEquals( 'basic', $field->get_type() ); // Assuming 'basic' is the default type for a simple text field.
+		$this->assertEquals( 'value1', $field->get_render_value() );
 	}
 	/**
 	 * Tests that the feedback ID is computed correctly when saving a from response.
