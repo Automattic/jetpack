@@ -2000,32 +2000,41 @@ class Contact_Form_Plugin {
 		$post_ids    = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
 
 		foreach ( $post_ids as $post_id ) {
-			$post_fields = $this->get_parsed_field_contents_of_post( $post_id );
-
-			if ( ! is_array( $post_fields ) || empty( $post_fields['_feedback_subject'] ) ) {
-				continue; // Corrupt data.
-			}
-
-			$post_fields['_feedback_main_comment'] = $this->get_post_content_for_csv_export( $post_id );
-			$post_fields                           = $this->map_parsed_field_contents_of_post_to_field_names( $post_fields );
-
-			if ( ! is_array( $post_fields ) || empty( $post_fields ) ) {
-				continue; // No fields to export.
-			}
-
-			$post_meta = $this->get_post_meta_for_csv_export( $post_id );
-			$post_meta = is_array( $post_meta ) ? $post_meta : array();
-
 			$post_export_data = array();
-			$post_data        = array_merge( $post_fields, $post_meta );
-			ksort( $post_data );
+			$feedback         = Feedback::get( $post_id );
 
-			foreach ( $post_data as $post_data_key => $post_data_value ) {
+			$fields             = $feedback->get_compiled_fields( 'personal_export', 'all' );
+			$post_export_data[] = array(
+				'name'  => __( 'Date', 'jetpack-forms' ),
+				'value' => $feedback->get_time(),
+			);
+
+			$post_export_data[] = array(
+				'name'  => __( 'Source Title', 'jetpack-forms' ),
+				'value' => $feedback->get_entry_title(),
+			);
+
+			$post_export_data[] = array(
+				'name'  => __( 'Source URL:', 'jetpack-forms' ),
+				'value' => $feedback->get_entry_permalink(),
+			);
+
+			foreach ( $fields as $field ) {
 				$post_export_data[] = array(
-					'name'  => preg_replace( '/^[0-9]+_/', '', $post_data_key ),
-					'value' => $post_data_value,
+					'name'  => $field['label'],
+					'value' => $field['value'],
 				);
 			}
+
+			$post_export_data[] = array(
+				'name'  => __( 'Consent', 'jetpack-forms' ),
+				'value' => $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' ),
+			);
+
+			$post_export_data[] = array(
+				'name'  => __( 'IP Address', 'jetpack-forms' ),
+				'value' => $feedback->get_ip_address(),
+			);
 
 			$export_data[] = array(
 				'group_id'    => 'feedback',
