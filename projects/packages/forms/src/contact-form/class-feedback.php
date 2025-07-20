@@ -255,7 +255,7 @@ class Feedback {
 		foreach ( $this->fields as $field ) {
 			if ( $field->get_type() === $type ) {
 				if ( $filter ) {
-					return self::strip_tags(
+					return Contact_Form_Plugin::strip_tags(
 						stripslashes(
 							/** This filter is already documented in core/wp-includes/comment-functions.php */
 							\apply_filters( $filter, addslashes( $field->get_render_value( $context ) ) )
@@ -830,7 +830,7 @@ class Feedback {
 
 			if ( ! empty( $key ) && isset( $var_map[ $key ] ) ) {
 				$map_to_field = $var_map[ $key ];
-				$value        = self::strip_tags( trim( $value ) );
+				$value        = Contact_Form_Plugin::strip_tags( trim( $value ) );
 
 				$decoded_fields['fields'][ $key ] = new Feedback_Field(
 					$key,
@@ -909,7 +909,7 @@ class Feedback {
 		$decoded_fields['fields']['comment_content'] = new Feedback_Field(
 			'comment_content',
 			'Comment Content',
-			trim( self::strip_tags( $comment_content ) ),
+			trim( Contact_Form_Plugin::strip_tags( $comment_content ) ),
 			'textarea',
 			array( 'render' => false )
 		);
@@ -928,35 +928,6 @@ class Feedback {
 		}
 		// If no number prefix, return the key as is
 		return $key;
-	}
-
-	/**
-	 * Strips HTML tags from input.  Output is NOT HTML safe.
-	 *
-	 * @param mixed $data_with_tags - data we're stripping HTML tags from.
-	 * @return mixed
-	 */
-	public static function strip_tags( $data_with_tags ) {
-		$data_without_tags = array();
-		if ( is_array( $data_with_tags ) ) {
-			foreach ( $data_with_tags as $index => $value ) {
-				if ( is_array( $value ) ) {
-					$data_without_tags[ $index ] = self::strip_tags( $value );
-					continue;
-				}
-
-				$index = sanitize_text_field( (string) $index );
-				$value = wp_kses_post( (string) $value );
-				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
-
-				$data_without_tags[ $index ] = $value;
-			}
-		} else {
-			$data_without_tags = wp_kses_post( (string) $data_with_tags );
-			$data_without_tags = str_replace( '&amp;', '&', $data_without_tags ); // undo damage done by wp_kses_normalize_entities()
-		}
-
-		return $data_without_tags;
 	}
 
 	/**
@@ -1028,7 +999,7 @@ class Feedback {
 		if ( isset( $field_ids['textarea'] ) ) {
 			$value = $this->get_field_value( $field_ids['textarea'], $post_data );
 			if ( is_string( $value ) ) {
-				return trim( self::strip_tags( stripslashes( $value ) ) );
+				return trim( Contact_Form_Plugin::strip_tags( stripslashes( $value ) ) );
 			}
 		}
 		return '';

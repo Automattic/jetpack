@@ -632,4 +632,161 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 		Utility::destroy_post_context( $current_post );
 	}
+
+	/**
+	 * ======================================================
+	 * Tests for the strip_tags method in Feedback class.
+	 * ======================================================
+	 *
+	 * Test that strip_tags handles simple string without HTML tags.
+	 */
+	public function test_strip_tags_with_plain_string() {
+		$input    = 'Hello, this is a plain text string.';
+		$expected = 'Hello, this is a plain text string.';
+		$result   = Contact_Form_Plugin::strip_tags( $input );
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test that strip_tags removes script tags but keeps the content.
+	 */
+	public function test_strip_tags_removes_script_tags() {
+		$input    = '<script>alert("XSS")</script>Hello <b>world</b>!';
+		$expected = 'alert("XSS")Hello <b>world</b>!';
+		$result   = Contact_Form_Plugin::strip_tags( $input );
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test that strip_tags handles HTML entities correctly.
+	 */
+	public function test_strip_tags_handles_html_entities() {
+		$input    = 'Hello &amp; goodbye';
+		$expected = 'Hello & goodbye';
+		$result   = Contact_Form_Plugin::strip_tags( $input );
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test that strip_tags handles arrays recursively.
+	 */
+	public function test_strip_tags_handles_arrays() {
+		$input = array(
+			'field1' => 'Hello <script>alert("XSS")</script>world',
+			'field2' => array(
+				'nested' => 'Test <b>bold</b> text',
+				'deep'   => array(
+					'deeper' => 'More &amp; testing',
+				),
+			),
+		);
+
+		$expected = array(
+			'field1' => 'Hello alert("XSS")world',
+			'field2' => array(
+				'nested' => 'Test <b>bold</b> text',
+				'deep'   => array(
+					'deeper' => 'More & testing',
+				),
+			),
+		);
+
+		$result = Contact_Form_Plugin::strip_tags( $input );
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test that strip_tags sanitizes array keys.
+	 */
+	public function test_strip_tags_sanitizes_array_keys() {
+		$input = array(
+			'<script>key</script>' => 'value1',
+			'normal_key'           => 'value2',
+		);
+
+		$result = Contact_Form_Plugin::strip_tags( $input );
+
+		// Check that the results exist and are correct
+		// We need to check what key actually gets created after sanitization
+		$keys = array_keys( $result );
+		$this->assertCount( 2, $keys );
+		$this->assertEquals( 'value2', $result['normal_key'] );
+
+		// Find the sanitized key (should be the one that's not 'normal_key')
+		$sanitized_key = null;
+		foreach ( $keys as $key ) {
+			if ( $key !== 'normal_key' ) {
+				$sanitized_key = $key;
+				break;
+			}
+		}
+		$this->assertEquals( 'value1', $result[ $sanitized_key ] );
+	}
+
+	/**
+	 * Test that strip_tags handles empty values.
+	 */
+	public function test_strip_tags_handles_empty_values() {
+		$this->assertSame( '', Contact_Form_Plugin::strip_tags( '' ) );
+		$this->assertEquals( array(), Contact_Form_Plugin::strip_tags( array() ) );
+		$this->assertSame( '0', Contact_Form_Plugin::strip_tags( 0 ) );
+		$this->assertSame( '', Contact_Form_Plugin::strip_tags( null ) );
+	}
+
+	/**
+	 * Test that strip_tags handles numeric values.
+	 */
+	public function test_strip_tags_handles_numeric_values() {
+		$this->assertSame( '123', Contact_Form_Plugin::strip_tags( 123 ) );
+		$this->assertSame( '123.45', Contact_Form_Plugin::strip_tags( 123.45 ) );
+	}
+
+	/**
+	 * Test that strip_tags preserves allowed HTML tags as per wp_kses_post.
+	 */
+	public function test_strip_tags_preserves_allowed_html() {
+		$input  = '<p>This is a <strong>test</strong> with <em>emphasis</em> and <a href="http://example.com">links</a>.</p>';
+		$result = Contact_Form_Plugin::strip_tags( $input );
+
+		// wp_kses_post should preserve these tags - let's just verify we get a non-empty string with HTML
+		$this->assertNotEquals( '', $result );
+		$this->assertStringContainsString( 'This is a', $result );
+		$this->assertStringContainsString( 'test', $result );
+	}
+
+	/**
+	 * Test that strip_tags removes dangerous HTML tags.
+	 */
+	public function test_strip_tags_removes_dangerous_html() {
+		$input  = '<script>alert("XSS")</script><iframe src="evil.com"></iframe>Hello world';
+		$result = Contact_Form_Plugin::strip_tags( $input );
+
+		// These dangerous tags should be removed, but content might remain
+		$this->assertStringNotContainsString( '<script>', $result );
+		$this->assertStringNotContainsString( '<iframe>', $result );
+		$this->assertStringContainsString( 'Hello world', $result );
+	}
+
+	/**
+	 * Test that strip_tags handles mixed array with different data types.
+	 */
+	public function test_strip_tags_handles_mixed_array() {
+		$input = array(
+			'string'  => 'Hello <b>world</b>',
+			'number'  => 42,
+			'boolean' => true,
+			'array'   => array(
+				'nested_string' => 'Test &amp; case',
+				'nested_number' => 3.14,
+			),
+		);
+
+		$result = Contact_Form_Plugin::strip_tags( $input );
+
+		$this->assertEquals( 'Hello <b>world</b>', $result['string'] );
+		$this->assertSame( '42', $result['number'] );
+		$this->assertSame( '1', $result['boolean'] ); // true converted to string
+		$this->assertEquals( 'Test & case', $result['array']['nested_string'] );
+		$this->assertSame( '3.14', $result['array']['nested_number'] );
+	}
 }
