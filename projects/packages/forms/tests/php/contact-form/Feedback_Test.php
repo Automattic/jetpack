@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 require_once __DIR__ . '/class-utility.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -1308,5 +1309,148 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertSame( '1', $result['boolean'] ); // true converted to string
 		$this->assertEquals( 'Test & case', $result['array']['nested_string'] );
 		$this->assertSame( '3.14', $result['array']['nested_number'] );
+	}
+
+	/**
+	 * ======================================================
+	 * Tests for the get_compiled_fields method in Feedback class.
+	 * ======================================================
+	 *
+	 * Test that get_compiled_fields returns empty array for feedback without fields.
+	 */
+	public function test_get_compiled_fields_returns_default_fields_for_empty_form() {
+		// default form will have email, name, url, message fields
+		$form       = new Contact_Form( array() );
+		$_post_data = array();
+		$response   = Feedback::from_submission( $_post_data, $form );
+
+		$compiled_fields = $response->get_compiled_fields();
+
+		$default_form = array(
+			'1_Name'    => array(
+				'label' => 'Name',
+				'value' => '',
+			),
+			'2_Email'   => array(
+				'label' => 'Email',
+				'value' => '',
+			),
+			'3_Website' => array(
+				'label' => 'Website',
+				'value' => '',
+			),
+			'4_Message' => array(
+				'label' => 'Message',
+				'value' => '',
+			),
+		);
+
+		$this->assertEquals( $default_form, $compiled_fields );
+	}
+
+	/**
+	 * Data provider for get_compiled_fields test cases.
+	 *
+	 * @return array Test data with different field format expectations.
+	 */
+	public static function get_compiled_fields_data_provider() {
+		$test_name    = 'John Smith';
+		$test_email   = 'john.smith@example.com';
+		$test_website = 'https://johnsmith.dev';
+		$test_message = 'Hello, this is a test message from our contact form.';
+
+		return array(
+			'all_format'       => array(
+				'format'   => 'all',
+				'expected' => array(
+					'1_Name'    => array(
+						'label' => 'Name',
+						'value' => $test_name,
+					),
+					'2_Email'   => array(
+						'label' => 'Email',
+						'value' => $test_email,
+					),
+					'3_Website' => array(
+						'label' => 'Website',
+						'value' => $test_website,
+					),
+					'4_Message' => array(
+						'label' => 'Message',
+						'value' => $test_message,
+					),
+				),
+				'message'  => 'Compiled fields should match the default form structure with all field data.',
+			),
+			'key_value_format' => array(
+				'format'   => 'key-value',
+				'expected' => array(
+					'1_Name'    => $test_name,
+					'2_Email'   => $test_email,
+					'3_Website' => $test_website,
+					'4_Message' => $test_message,
+				),
+				'message'  => 'Compiled fields should return key-value pairs only.',
+			),
+			'value_format'     => array(
+				'format'   => 'value',
+				'expected' => array(
+					$test_name,
+					$test_email,
+					$test_website,
+					$test_message,
+				),
+				'message'  => 'Compiled fields should return only values as indexed array.',
+			),
+			'label_format'     => array(
+				'format'   => 'label',
+				'expected' => array(
+					'Name',
+					'Email',
+					'Website',
+					'Message',
+				),
+				'message'  => 'Compiled fields should return only labels as indexed array.',
+			),
+		);
+	}
+
+	/**
+	 * Test get_compiled_fields with different output formats.
+	 *
+	 * @dataProvider get_compiled_fields_data_provider
+	 *
+	 * @param string $format   The format parameter for get_compiled_fields.
+	 * @param array  $expected The expected output.
+	 * @param string $message  The assertion message.
+	 */
+	#[DataProvider( 'get_compiled_fields_data_provider' )]
+	public function test_get_compiled_fields_shapes( $format, $expected, $message ) {
+		// Test data
+		$test_name    = 'John Smith';
+		$test_email   = 'john.smith@example.com';
+		$test_website = 'https://johnsmith.dev';
+		$test_message = 'Hello, this is a test message from our contact form.';
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => $test_name,
+				'email'   => $test_email,
+				'website' => $test_website,
+				'message' => $test_message,
+			),
+			'g' . $form_id
+		);
+
+		// Test that get_compiled_fields returns the correct structure for a default form
+		$form     = new Contact_Form( array() );
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		// Test the specified format
+		$compiled_fields = $response->get_compiled_fields( 'default', $format );
+
+		$this->assertEquals( $expected, $compiled_fields, $message );
 	}
 }

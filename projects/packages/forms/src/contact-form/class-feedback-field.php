@@ -105,9 +105,26 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for rendering.
 	 *
+	 * @param string $context The context in which the value is being rendered (default is 'default').
+	 *
 	 * @return string
 	 */
-	public function get_render_value() {
+	public function get_render_value( $context = 'default' ) {
+		switch ( $context ) {
+			case 'api':
+				return $this->get_render_api_value();
+			case 'default':
+			default:
+				return $this->get_render_default_value();
+		}
+	}
+
+	/**
+	 * Get the default value of the field for rendering.
+	 *
+	 * @return string
+	 */
+	private function get_render_default_value() {
 		if ( $this->is_file_field() ) {
 			$files = array();
 			foreach ( $this->value['files'] as &$file ) {
@@ -119,14 +136,13 @@ class Feedback_Field {
 				$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
 				$files[]   = $file_name . ' (' . $file_size . ')';
 			}
-			$this->value = $files;
-			// If the value is a file field, we can return it as a JSON string
+			return implode( ', ', $files );
 		}
+
 		if ( is_array( $this->value ) ) {
-			// If the value is an array, we can return it as a JSON string.
 			return implode( ', ', $this->value );
 		}
-		// This method is deprecated, use render_value instead.
+
 		return $this->value;
 	}
 
@@ -135,7 +151,7 @@ class Feedback_Field {
 	 *
 	 * @return string
 	 */
-	public function get_render_api_value() {
+	private function get_render_api_value() {
 
 		if ( $this->is_file_field() ) {
 			$files = array();
@@ -180,6 +196,15 @@ class Feedback_Field {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check if the field should be compiled.
+	 *
+	 * @return bool
+	 */
+	public function compile_field() {
+		return $this->get_meta_key_value( 'render' ) === false;
 	}
 
 	/**

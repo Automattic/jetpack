@@ -341,49 +341,41 @@ class Feedback {
 	}
 
 	/**
-	 * Get the field values for the API Response.
+	 * Return the compiled fields for the given context.
 	 *
-	 * @return array
+	 * @param string $context The context in which the fields are compiled.
+	 * @param string $array_shape The shape of the array to return. Can be 'all', 'value', 'label', or 'key-value'.
+	 *
+	 * @return array An array of compiled fields with labels and values.
 	 */
-	public function get_api_fields_values() {
-		// This is a legacy method to maintain compatibility with older code.
-		// It returns the same values as get_all_values() but is kept for backward compatibility.
-		return array_merge( $this->get_api_all_values() );
-	}
-
-	/**
-	 * Get the computed fields
-	 *
-	 * Computed fields is an array of fields that have a label and a value.
-	 *
-	 * @return array
-	 */
-	public function get_compiled_fields() {
+	public function get_compiled_fields( $context = 'default', $array_shape = 'all' ) {
 		$compiled_fields = array();
 		foreach ( $this->fields as $field ) {
-			if ( $field->get_meta_key_value( 'render' ) === false ) {
+			if ( $field->compile_field( $context ) ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
-			$compiled_fields[ $field->get_key() ] = array(
-				'label' => $field->get_label(),
-				'value' => $field->get_render_value(),
-			);
-		}
-		return $compiled_fields;
-	}
 
-	/**
-	 * Get all the values of the response for API.
-	 */
-	private function get_api_all_values() {
-		$values = array();
-		foreach ( $this->fields as $field ) {
-			if ( $field->get_meta_key_value( 'render' ) === false ) {
-				continue; // Skip fields that are not meant to be rendered.
+			// Compile the field based on the requested shape.
+			switch ( $array_shape ) {
+				case 'all':
+					$compiled_fields[ $field->get_key() ] = array(
+						'label' => $field->get_label( $context ),
+						'value' => $field->get_render_value( $context ),
+					);
+					break;
+				case 'value':
+					$compiled_fields[] = $field->get_render_value( $context );
+					break;
+				case 'label':
+					$compiled_fields[] = $field->get_label( $context );
+					break;
+				case 'key-value':
+					$compiled_fields[ $field->get_key() ] = $field->get_render_value( $context );
+					break;
 			}
-			$values[ $field->get_key() ] = $field->get_render_api_value();
 		}
-		return $values;
+
+		return $compiled_fields;
 	}
 
 	/**
