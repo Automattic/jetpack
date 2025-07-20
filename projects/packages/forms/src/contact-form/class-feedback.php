@@ -276,22 +276,6 @@ class Feedback {
 	}
 
 	/**
-	 * Get the field name for the CSV export.
-	 *
-	 * @return array An array of field names.
-	 */
-	public function get_csv_field_names() {
-		$values = array();
-		foreach ( $this->fields as $field ) {
-			if ( $field->get_meta_key_value( 'render' ) === false ) {
-				continue; // Skip fields that are not meant to be rendered.
-			}
-			$values[] = $field->get_label();
-		}
-		return $values;
-	}
-
-	/**
 	 * Get the values related to where the form was submitted from.
 	 *
 	 * @return array An array of entry values.
@@ -620,9 +604,6 @@ class Feedback {
 
 		$fields_to_serialize['fields'] = array();
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Feedback_Field ) {
-				continue;
-			}
 			$fields_to_serialize['fields'][] = $field->serialize();
 		}
 

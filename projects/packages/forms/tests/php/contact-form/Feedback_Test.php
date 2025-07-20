@@ -1092,6 +1092,7 @@ class Feedback_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'page=999', $response->get_entry_permalink(), 'Post permalink should match the form submission' );
 		$this->assertStringContainsString( 'page=999', $saved_response->get_entry_permalink(), 'Post permalink should match the saved form submission' );
+		$this->assertStringContainsString( 'page=999', $saved_response->get_entry_short_permalink(), 'Post short relative path permalink should match the saved form submission' );
 	}
 
 	public function test_feedback_title() {
