@@ -20,7 +20,7 @@ class Utility {
 	 * @param string|null $subject                  The subject of the feedback.
 	 * @param string|null $status                   The status of the post (default is 'publish').
 	 *
-	 * @return int|WP_Error The ID of the created post on success, or a WP_Error object on failure.
+	 * @return int|\WP_Error The ID of the created post on success, or a WP_Error object on failure.
 	 */
 	public static function create_legacy_feedback(
 		$all_values = array(),
@@ -93,8 +93,18 @@ class Utility {
 		}
 	}
 
+	/**
+	 * Gets the form ID from the attributes.
+	 *
+	 * @param array $attributes The form attributes.
+	 * @return string The form ID.
+	 */
 	public static function get_form_id( $attributes = array() ) {
 		global $post, $page;
+		// Ensure 'id' exists in $attributes before trying to use it
+		if ( ! isset( $attributes['id'] ) ) {
+			$attributes['id'] = '';
+		}
 
 		$count = Contact_Form::get_forms_count();
 
@@ -110,11 +120,6 @@ class Utility {
 		}
 
 		if ( $count ) {
-			// Ensure 'id' exists in $attributes before trying to modify it
-			if ( ! isset( $attributes['id'] ) ) {
-				$attributes['id'] = '';
-			}
-
 			// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
 			$page_num = max( 1, intval( $page ) );
 
@@ -159,13 +164,17 @@ class Utility {
 		$post = get_post( $post_id );
 		return $post;
 	}
-
-	public static function destroy_post_context() {
-		global $post;
+	/**
+	 * Destroys the post context.
+	 *
+	 * @param \WP_Post $post The post object to destroy.
+	 */
+	public static function destroy_post_context( $post ) {
 		if ( $post ) {
-			wp_delete_user( $post->post_author, true );
+			if ( is_int( $post->post_author ) ) {
+				wp_delete_user( (int) $post->post_author );
+			}
 			wp_delete_post( $post->ID, true );
-			$post = null;
 		}
 	}
 }
