@@ -4,6 +4,8 @@ export { LineChart } from './components/line-chart';
 export { PieChart } from './components/pie-chart';
 export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
 export { BarListChart } from './components/bar-list-chart';
+export { Text, useText, getStringWidth } from './components/text';
+export { Group } from './components/group';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
@@ -19,8 +21,3 @@ export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler
 // Types
 export type * from './types';
 export type * from './visx-types';
-
-// Export some often used visx components directly
-export { LineShape, CircleShape, RectShape } from '@visx/legend';
-export { Group } from '@visx/group';
-export { Text, useText, getStringWidth } from '@visx/text';
