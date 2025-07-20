@@ -57,20 +57,20 @@ class Feedback {
 	/**
 	 * Feedback ID of the feedback entry.
 	 *
-	 * @todo: figure out how this is used if at all.
+	 * Marked as legacy because it is not used in the new feedback system.
 	 *
 	 * @var string
 	 */
-	protected $feedback_id = '';
+	protected $legacy_feedback_id = '';
 
 	/**
 	 * The title of the feedback entry.
 	 *
-	 * This is used to store the title of the feedback entry.
+	 * Marked as legacy because it is not used in the new feedback system.
 	 *
 	 * @var string
 	 */
-	protected $feedback_title = '';
+	protected $legacy_feedback_title = '';
 
 	/**
 	 * The time of the feedback entry.
@@ -138,9 +138,9 @@ class Feedback {
 
 		$parsed_content = $this->parse_content( $feedback_post->post_content, $feedback_post->post_mime_type );
 
-		$this->status        = $feedback_post->post_status;
-		$this->feedback_id   = $feedback_post->post_name;
-		$this->feedback_time = $feedback_post->post_date;
+		$this->status             = $feedback_post->post_status;
+		$this->legacy_feedback_id = $feedback_post->post_name;
+		$this->feedback_time      = $feedback_post->post_date;
 
 		$this->fields = $parsed_content['fields'] ?? array();
 
@@ -162,7 +162,7 @@ class Feedback {
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
 		$this->has_consent     = ( $this->get_first_field_of_type( 'consent' ) === 'Yes' );
 
-		$this->feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
+		$this->legacy_feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}
 
 	/**
@@ -200,9 +200,9 @@ class Feedback {
 		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
 		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
 
-		$this->feedback_time  = current_time( 'mysql' );
-		$this->feedback_title = "{$this->get_author()} - {$this->feedback_time}";
-		$this->feedback_id    = md5( $this->feedback_title );
+		$this->feedback_time         = current_time( 'mysql' );
+		$this->legacy_feedback_title = "{$this->get_author()} - {$this->feedback_time}";
+		$this->legacy_feedback_id    = md5( $this->legacy_feedback_title );
 	}
 
 	/**
@@ -286,7 +286,7 @@ class Feedback {
 			'email_marketing_consent' => (string) $this->has_consent,
 			'entry_title'             => $this->entry->get_title(),
 			'entry_permalink'         => $this->entry->get_permalink(),
-			'feedback_id'             => $this->feedback_id,
+			'feedback_id'             => $this->legacy_feedback_id,
 		);
 
 		if ( $this->entry->get_page_number() > 1 ) {
@@ -351,7 +351,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_feedback_id() {
-		return $this->feedback_id;
+		return $this->legacy_feedback_id;
 	}
 
 	/**
@@ -362,7 +362,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_title() {
-		return $this->feedback_title;
+		return $this->legacy_feedback_title;
 	}
 
 	/**
@@ -574,9 +574,9 @@ class Feedback {
 			array(
 				'post_type'      => self::POST_TYPE,
 				'post_status'    => $this->status,
-				'post_title'     => $this->feedback_title,
+				'post_title'     => $this->legacy_feedback_title,
 				'post_date'      => $this->feedback_time,
-				'post_name'      => $this->feedback_id,
+				'post_name'      => $this->legacy_feedback_id,
 				'post_content'   => $this->serialize(),
 				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
 				'post_parent'    => $this->entry->get_id(),
