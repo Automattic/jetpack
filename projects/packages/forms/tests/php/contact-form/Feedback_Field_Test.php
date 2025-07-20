@@ -162,10 +162,10 @@ class Feedback_Field_Test extends BaseTestCase {
 
 	public function test_get_render_api_value() {
 		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
-		$this->assertEquals( 'test_value', $field->get_render_api_value() );
+		$this->assertEquals( 'test_value', $field->get_render_value( 'api' ) );
 
 		$field = new Feedback_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
-		$this->assertEquals( 'value1, value2', $field->get_render_api_value() );
+		$this->assertEquals( 'value1, value2', $field->get_render_value( 'api' ) );
 
 		$expected = array(
 			'files' => array(
@@ -193,7 +193,7 @@ class Feedback_Field_Test extends BaseTestCase {
 		);
 
 		add_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
-		$this->assertSame( $expected, $field->get_render_api_value() );
+		$this->assertSame( $expected, $field->get_render_value( 'api' ) );
 		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 	}
 	/**
