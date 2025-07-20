@@ -228,14 +228,15 @@ class Feedback {
 	 * Get the computed fields from the post data.
 	 *
 	 * @param string $label The label of the field to look for.
+	 * @param string $context The context in which the value is being rendered (default is 'default').
 	 *
 	 * @return string The Value of the field.
 	 */
-	public function get_field_value_by_label( $label ) {
+	public function get_field_value_by_label( $label, $context = 'default' ) {
 		// This method is used to get the value of a field by its label.
 		foreach ( $this->fields as $field ) {
 			if ( $field->get_label() === $label ) {
-				return $field->get_render_value();
+				return $field->get_render_value( $context );
 			}
 		}
 		return '';
@@ -245,10 +246,11 @@ class Feedback {
 	 *
 	 * @param string      $type The type of the field to look for.
 	 * @param string|null $filter Optional filter to apply to the value.
+	 * @param string      $context The context in which the value is being rendered (default is 'default').
 	 *
 	 * @return string The value of the first field of the specified type, or an empty string if not found.
 	 */
-	private function get_first_field_of_type( $type, $filter = null ) {
+	private function get_first_field_of_type( $type, $filter = null, $context = 'default' ) {
 		// This method is used to get the first field of a specific type.
 		foreach ( $this->fields as $field ) {
 			if ( $field->get_type() === $type ) {
@@ -256,11 +258,11 @@ class Feedback {
 					return self::strip_tags(
 						stripslashes(
 							/** This filter is already documented in core/wp-includes/comment-functions.php */
-							\apply_filters( $filter, addslashes( $field->get_render_value() ) )
+							\apply_filters( $filter, addslashes( $field->get_render_value( $context ) ) )
 						)
 					);
 				}
-				return $field->get_render_value();
+				return $field->get_render_value( $context );
 			}
 		}
 		return '';
@@ -271,26 +273,6 @@ class Feedback {
 	 */
 	public function get_fields() {
 		return $this->fields;
-	}
-
-	/**
-	 * Get all the values of the response.
-	 *
-	 * This is a convenience method to get all values in a simple array format.
-	 *
-	 * This is done for backwards compatibility. Use `get_fields()` instead.
-	 *
-	 * @return array
-	 */
-	private function get_all_values() {
-		$values = array();
-		foreach ( $this->fields as $field ) {
-			if ( $field->get_meta_key_value( 'render' ) === false ) {
-				continue; // Skip fields that are not meant to be rendered.
-			}
-			$values[ $field->get_key() ] = $field->get_render_value();
-		}
-		return $values;
 	}
 
 	/**
@@ -332,12 +314,11 @@ class Feedback {
 	/**
 	 * Get all values of the response.
 	 *
-	 * @return array
+	 * @return array An array of all values, including fields and entry values.
 	 */
-	public function get_old_all_values() {
+	public function get_all_values() {
 		// This is a legacy method to maintain compatibility with older code.
-		// It returns the same values as get_all_values() but is kept for backward compatibility.
-		return array_merge( $this->get_all_values(), $this->get_entry_values() );
+		return array_merge( $this->get_compiled_fields( 'default', 'key-value' ), $this->get_entry_values() );
 	}
 
 	/**
@@ -426,14 +407,11 @@ class Feedback {
 			'comment_content'      => empty( $this->get_comment_content() ) ? null : $this->get_comment_content(),
 		);
 
-		$field_ids = $this->form->get_field_ids();
-
-		foreach ( array_merge( $field_ids['all'], $field_ids['extra'] ) as $field_id ) {
-			$field = $this->form->fields[ $field_id ];
+		foreach ( $this->fields as $field ) {
 
 			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
 			// from a spam-filtering point of view.
-			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
+			if ( in_array( $field->get_type(), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
 				continue;
 			}
 
@@ -442,12 +420,12 @@ class Feedback {
 				preg_replace(   // Normalize everything to a-z0-9_-
 					'/[^a-z0-9_]+/',
 					'-',
-					strtolower( $field->get_attribute( 'label' ) ) // Lowercase
+					strtolower( $field->get_label() ) // Lowercase
 				),
 				'-'
 			);
 
-			$field_value = ( is_array( $field->value ) ) ? trim( implode( ', ', $field->value ) ) : trim( $field->value );
+			$field_value = $field->get_render_value( 'akismet' );
 
 			// Skip any values that are already in the array we're sending.
 			if ( $field_value && in_array( $field_value, $akismet_vars, true ) ) {
@@ -1030,7 +1008,7 @@ class Feedback {
 			}
 		}
 
-		return apply_filters( 'contact_form_subject', $contact_form_subject, $this->get_all_values() );
+		return apply_filters( 'contact_form_subject', $contact_form_subject, $this->get_compiled_fields( 'default', 'key-value' ) );
 	}
 
 	/**
