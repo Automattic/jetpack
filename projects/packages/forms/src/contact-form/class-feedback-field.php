@@ -94,15 +94,6 @@ class Feedback_Field {
 	}
 
 	/**
-	 * Get the value of the field.
-	 *
-	 * @return mixed
-	 */
-	public function render_value() {
-		return $this->value;
-	}
-
-	/**
 	 * Get the value of the field for rendering.
 	 *
 	 * @param string $context The context in which the value is being rendered (default is 'default').
