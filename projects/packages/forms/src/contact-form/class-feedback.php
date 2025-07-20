@@ -844,6 +844,22 @@ class Feedback {
 	}
 
 	/**
+	 * Check if the field is a legacy file upload.
+	 *
+	 * @param array $field The field to check.
+	 *
+	 * @return bool True if it's a legacy file upload, false otherwise.
+	 */
+	private function is_legacy_file_upload( $field ) {
+		return (
+			is_array( $field ) &&
+			! empty( $field['field_id'] ) &&
+			isset( $field['files'] ) &&
+			is_array( $field['files'] )
+		);
+	}
+
+	/**
 	 * Process legacy values into field objects.
 	 *
 	 * @param array $all_values The values to process.
@@ -867,10 +883,18 @@ class Feedback {
 				continue;
 			}
 
-			$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $label, $value );
-
-			if ( ! $this->has_file && $decoded_fields['fields'][ $key ]->has_file() ) {
-				$this->has_file = true;
+			// check for file upload data and then set it as a file type field.
+			if ( $this->is_legacy_file_upload( $value ) ) {
+				// If the value is a file upload, we need to handle it differently.
+				$decoded_fields['fields'][ $key ] = new Feedback_Field(
+					$key,
+					$label,
+					$value,
+					'file'
+				);
+				$this->has_file                   = ! empty( $value['files'] ); // Set has_file to true if any file upload is found.
+			} else {
+				$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $label, $value );
 			}
 		}
 	}

@@ -116,7 +116,7 @@ class Feedback_Field {
 	 * @return string
 	 */
 	private function get_render_default_value() {
-		if ( $this->is_file_field() ) {
+		if ( $this->is_of_type( 'file' ) ) {
 			$files = array();
 			foreach ( $this->value['files'] as &$file ) {
 				if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
@@ -144,7 +144,7 @@ class Feedback_Field {
 	 */
 	private function get_render_api_value() {
 
-		if ( $this->is_file_field() ) {
+		if ( $this->is_of_type( 'file' ) ) {
 			$files = array();
 			foreach ( $this->value['files'] as &$file ) {
 				if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
@@ -169,24 +169,15 @@ class Feedback_Field {
 		// This method is deprecated, use render_value instead.
 		return $this->value;
 	}
-
 	/**
-	 * Check if the field is a file field.
+	 * Check if the field is of a specific type.
 	 *
-	 * @return bool
+	 * @param string $type The type to check against.
+	 *
+	 * @return bool True if the field is of the specified type, false otherwise.
 	 */
-	public function is_file_field() {
-		if ( 'file' === $this->type ) {
-			return true;
-		}
-		if ( 'basic' === $this->type ) {
-			// If the type is basic, we can check if the value is an array and contains files.
-			if ( is_array( $this->value ) && isset( $this->value['files'] ) && is_array( $this->value['files'] ) ) {
-				return true;
-			}
-		}
-
-		return false;
+	public function is_of_type( $type ) {
+		return $this->type === $type;
 	}
 
 	/**
@@ -196,19 +187,6 @@ class Feedback_Field {
 	 */
 	public function compile_field() {
 		return $this->get_meta_key_value( 'render' ) === false;
-	}
-
-	/**
-	 * Check if the field has a file
-	 *
-	 * @return bool
-	 */
-	public function has_file() {
-		if ( $this->is_file_field() ) {
-			return count( $this->value['files'] ) > 0;
-		}
-
-		return false;
 	}
 
 	/**
@@ -276,6 +254,19 @@ class Feedback_Field {
 			$data['type'] ?? 'basic',
 			$data['meta'] ?? array()
 		);
+	}
+
+	/**
+	 * Check if the field has a file
+	 *
+	 * @return bool
+	 */
+	public function has_file() {
+		if ( $this->is_of_type( 'file' ) ) {
+			return count( $this->value['files'] ) > 0;
+		}
+
+		return false;
 	}
 
 	/**
