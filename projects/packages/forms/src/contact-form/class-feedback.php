@@ -294,7 +294,7 @@ class Feedback {
 	/**
 	 * Get the values related to where the form was submitted from.
 	 *
-	 * @return $array
+	 * @return array An array of entry values.
 	 */
 	private function get_entry_values() {
 		// This is a convenience method to get the entry values in a simple array format.

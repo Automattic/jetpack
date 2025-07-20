@@ -1858,7 +1858,7 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	public function test_export_csv_legacy_data() {
-		global $post;
+
 		$current_post    = Utility::create_post_context();
 		$post_ids        = array();
 		$post_ids[]      = Utility::create_legacy_feedback(
@@ -1885,14 +1885,14 @@ class Contact_Form_Test extends BaseTestCase {
 				'field_A'    => array( 'value1', 'value1' ),
 				'field_B'    => array( 'value2', '' ),
 				'field_C'    => array( '', 'value2' ),
-				'Source'     => array( '/?p=' . $post->ID, '/?p=' . $post->ID ),
+				'Source'     => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
 				'Consent'    => array( $default_consent, $default_consent ),
 				'IP Address' => array( $ip, $ip ),
 
 			),
 			Contact_Form_Plugin::get_export_feedback_data( $post_ids )
 		);
-		Utility::destroy_post_context();
+		Utility::destroy_post_context( $current_post );
 	}
 
 	/**
