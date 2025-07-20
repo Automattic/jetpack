@@ -2254,7 +2254,7 @@ class Contact_Form_Plugin {
 				if ( ! isset( $results[ $single_field_name ] ) ) {
 					$results[ $single_field_name ] = array();
 				}
-				$results[ $single_field_name ][] = $feedback->get_field_value_by_label( $single_field_name );
+				$results[ $single_field_name ][] = $feedback->get_field_value_by_label( $single_field_name, 'csv' );
 			}
 
 			$results[ __( 'Consent', 'jetpack-forms' ) ][]    = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
