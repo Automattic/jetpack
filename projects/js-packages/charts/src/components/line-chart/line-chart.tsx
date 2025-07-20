@@ -19,13 +19,13 @@ import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
+import { ResponsiveConfig, withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import LineChartAnnotation from './line-chart-annotation';
 import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
 import { LineChartContext, type LineChartRef } from './line-chart-context';
 import styles from './line-chart.module.scss';
-import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
+import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
@@ -525,11 +525,13 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 );
 
 type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartProps & React.RefAttributes< LineChartRef >
+	Optional< LineChartProps, 'width' | 'height' | 'size' > & React.RefAttributes< LineChartRef >
 > & {
 	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
 	Annotation: typeof LineChartAnnotation;
 };
+
+type LineChartReponsiveComponent = LineChartComponent & ResponsiveConfig;
 
 const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => (
 	<ChartProvider>
@@ -544,8 +546,8 @@ LineChart.Annotation = LineChartAnnotation;
 // Export unwrapped component for testing
 export { LineChart as LineChartUnresponsive };
 
-const ResponsiveLineChart: LineChartComponent = Object.assign(
-	withResponsive< LineChartProps >( LineChart ) as LineChartComponent,
+const ResponsiveLineChart: LineChartReponsiveComponent = Object.assign(
+	withResponsive< LineChartProps >( LineChart ) as LineChartReponsiveComponent,
 	{
 		AnnotationsOverlay: LineChartAnnotationsOverlay,
 		Annotation: LineChartAnnotation,
