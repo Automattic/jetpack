@@ -109,12 +109,18 @@ class Feedback_Field_Test extends BaseTestCase {
 	public function test_get_render_value() {
 		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertEquals( 'test_value', $field->get_render_value() );
+		$this->assertEquals( 'test_value', $field->get_value() );
 
 		$field = new Feedback_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
 		$this->assertEquals( 'value1, value2', $field->get_render_value() );
+		$this->assertEquals( array( 'value1', 'value2' ), $field->get_value() );
 
 		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ) );
 		$this->assertSame( '', $field->get_render_value() );
+		$this->assertEquals(
+			array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ),
+			$field->get_value()
+		);
 	}
 
 	public function test_is_file_field() {
