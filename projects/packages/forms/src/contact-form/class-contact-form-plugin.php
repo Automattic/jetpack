@@ -2227,7 +2227,7 @@ class Contact_Form_Plugin {
 
 		foreach ( $feedback_ids as $feedback_id ) {
 			$feedback_data[ $feedback_id ] = Feedback::get( $feedback_id );
-			$field_names                   = array_merge( $field_names, $feedback_data[ $feedback_id ]->get_csv_field_names() );
+			$field_names                   = array_merge( $field_names, $feedback_data[ $feedback_id ]->get_compiled_fields( 'csv', 'label' ) );
 		}
 
 		/**
