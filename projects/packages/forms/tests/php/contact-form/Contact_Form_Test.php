@@ -2527,4 +2527,14 @@ EOT;
 
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
+
+	public function test_get_forms_count() {
+
+		$count = Contact_Form::get_forms_count();
+		// Create a new form.
+		new Contact_Form( array() );
+		$new_count = Contact_Form::get_forms_count();
+
+		$this->assertEquals( $count + 1, $new_count, 'The count should increase by 1 after creating a new form.' );
+	}
 } // end class
