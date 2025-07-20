@@ -45,6 +45,10 @@
 			"import": "./dist/mjs/components/*/index.js",
 			"require": "./dist/cjs/components/*/index.js"
 		},
+		"./visx/*": {
+			"import": "./dist/mjs/visx/*/index.js",
+			"require": "./dist/cjs/visx/*/index.js"
+		},
 		"./style.css": "./dist/mjs/style.css"
 	},
 	"dependencies": {
