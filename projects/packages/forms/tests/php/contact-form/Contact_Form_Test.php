@@ -2494,9 +2494,11 @@ EOT;
 
 		$count = Contact_Form::get_forms_count();
 		// Create a new form.
-		new Contact_Form( array() );
-		$new_count = Contact_Form::get_forms_count();
+		$form = new Contact_Form( array() );
+		$id   = $form->get_attribute( 'id' ); // This will ensure the form is created and saved.
 
+		$new_count = Contact_Form::get_forms_count();
+		$this->assertNotEmpty( $id, 'The form ID should not be empty after creation.' );
 		$this->assertEquals( $count + 1, $new_count, 'The count should increase by 1 after creating a new form.' );
 	}
 } // end class
