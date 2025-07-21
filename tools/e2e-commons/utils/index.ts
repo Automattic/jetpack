@@ -1,6 +1,9 @@
 export {
 	connect,
 	saveJetpackPrivateOptionsToStorageState,
+	disconnectUser,
+	disconnectSite,
 	disconnect,
-	isConnected,
+	isUserConnected,
+	isSiteConnected,
 } from './connection-utils.ts';

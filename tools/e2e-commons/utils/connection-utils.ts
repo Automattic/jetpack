@@ -34,8 +34,43 @@ export async function saveJetpackPrivateOptionsToStorageState() {
  */
 export async function disconnect( requestUtils: RequestUtils ) {
 	// await execWpCommand( 'jetpack disconnect blog' );
+	await disconnectUser( requestUtils );
+	await disconnectSite( requestUtils );
+}
 
-	if ( ! ( await isConnected( requestUtils ) ) ) {
+/**
+ * Disconnect user from WordPress.com.
+ * @param  requestUtils - RequestUtils instance.
+ * @return {Promise<void>} Resolves when the disconnect is complete.
+ */
+export async function disconnectUser( requestUtils: RequestUtils ) {
+	if ( ! ( await isUserConnected( requestUtils ) ) ) {
+		logger.debug( 'User is not connected, no need to disconnect.' );
+		return;
+	}
+
+	// Unlink current user from the related WordPress.com account.
+	// `linked` as `false` will disconnect the site.
+	const r = await requestUtils.rest( {
+		method: 'POST',
+		path: '/jetpack/v4/connection/user',
+		data: {
+			'disconnect-all-users': true,
+			force: true,
+			linked: false,
+		},
+	} );
+
+	logger.debug( `User disconnection response: ${ r }` );
+}
+
+/**
+ * Disconnect Jetpack installation from WordPress.com.
+ * @param  requestUtils - RequestUtils instance.
+ * @return {Promise<void>} Resolves when the disconnect is complete.
+ */
+export async function disconnectSite( requestUtils: RequestUtils ) {
+	if ( ! ( await isSiteConnected( requestUtils ) ) ) {
 		logger.debug( 'Site is not connected, no need to disconnect.' );
 		return;
 	}
@@ -48,7 +83,7 @@ export async function disconnect( requestUtils: RequestUtils ) {
 		},
 	} );
 
-	logger.debug( 'Disconnect response:', r );
+	logger.debug( `Site disconnection response: ${ r }` );
 }
 
 /**
@@ -56,13 +91,29 @@ export async function disconnect( requestUtils: RequestUtils ) {
  * @return {Promise<boolean>} True if connected, false otherwise.
  * @param  requestUtils - RequestUtils instance.
  */
-export async function isConnected( requestUtils: RequestUtils ): Promise< boolean > {
+export async function isSiteConnected( requestUtils: RequestUtils ): Promise< boolean > {
 	try {
 		const r = await requestUtils.rest( { path: 'jetpack/v4/connection' } );
-		logger.debug( 'Connection check response:', r );
+		logger.debug( `Site connection check response: ${ r }` );
 		return r.isActive;
 	} catch ( error ) {
-		logger.error( 'Error checking connection:', error );
+		logger.error( `Error checking site connection: ${ error }` );
+		return false;
+	}
+}
+
+/**
+ * Check if the user is connected.
+ * @return {Promise<boolean>} True if connected, false otherwise.
+ * @param  requestUtils - RequestUtils instance.
+ */
+export async function isUserConnected( requestUtils: RequestUtils ): Promise< boolean > {
+	try {
+		const r = await requestUtils.rest( { path: 'jetpack/v4/connection/data' } );
+		logger.debug( `User connection check response: ${ r }` );
+		return r.currentUser.isConnected;
+	} catch ( error ) {
+		logger.error( `Error checking user connection: ${ error }` );
 		return false;
 	}
 }
