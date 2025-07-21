@@ -525,14 +525,22 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 	}
 );
 
-type LineChartComponent = React.ForwardRefExoticComponent<
-	Optional< LineChartProps, 'width' | 'height' | 'size' > & React.RefAttributes< LineChartRef >
-> & {
+type LineChartAnnotationComponents = {
 	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
 	Annotation: typeof LineChartAnnotation;
 };
 
-type LineChartResponsiveComponent = LineChartComponent & ResponsiveConfig;
+type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
+
+type LineChartComponent = React.ForwardRefExoticComponent<
+	LineChartBaseProps & React.RefAttributes< LineChartRef >
+> &
+	LineChartAnnotationComponents;
+
+type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< LineChartRef >
+> &
+	LineChartAnnotationComponents;
 
 const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => (
 	<ChartProvider>
