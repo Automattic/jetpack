@@ -48,6 +48,10 @@ const settings = {
 			},
 		],
 	},
+	styles: [
+		{ name: 'list', label: __( 'List', 'jetpack-forms' ), isDefault: true },
+		{ name: 'browser', label: __( 'Browser', 'jetpack-forms' ) },
+	],
 };
 
 export default {
