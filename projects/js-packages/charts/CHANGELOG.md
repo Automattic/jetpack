@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2025-07-21
+### Added
+- Added more exports for Woo Analytics to get rid of visx dependencies [#44390]
+
 ## [0.18.0] - 2025-07-21
 ### Added
 - Add keyboard navigation support for bar and line charts. [#44036]
@@ -296,6 +300,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.19.0]: https://github.com/Automattic/charts/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Automattic/charts/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/Automattic/charts/compare/v0.16.2...v0.17.0
 [0.16.2]: https://github.com/Automattic/charts/compare/v0.16.1...v0.16.2

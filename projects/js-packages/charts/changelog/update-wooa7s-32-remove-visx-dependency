@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added more exports for Woo Analytics to get rid of visx dependencies
