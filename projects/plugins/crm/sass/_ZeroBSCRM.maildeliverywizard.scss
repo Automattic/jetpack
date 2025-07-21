@@ -4,77 +4,77 @@
  */
 
 
-    #zbs-mail-delivery-wrap {
+#zbs-mail-delivery-wrap {
 
-        #zbs-mail-delivery-account-list-wrap {
+	#zbs-mail-delivery-account-list-wrap {
 
-        		table {
-      			    max-width: 800px;
-      			    margin-left: auto;
-      			    margin-right: auto;
-      			}
+		table {
+			max-width: 800px;
+			margin-left: auto;
+			margin-right: auto;
+		}
 
 
-            .zbs-mail-delivery-detail {
+		.zbs-mail-delivery-detail {
 
-              color:#CCC;
+			color: #CCC;
 
-            }
+		}
 
-        }
+	}
 
-        #zbs-mail-delivery-wizard-wrap {
+	#zbs-mail-delivery-wizard-wrap {
       
-          .ui.inverted.zbsdarkgradient.segment {
+		.ui.inverted.zbsdarkgradient.segment {
         
-              background:#2185D0;
-              background-image: linear-gradient(-134deg,#464C5A 0,#28263A 100%);
+			background: #2185D0;
+			background-image: linear-gradient(-134deg, #464C5A 0, #28263A 100%);
 
-          }
+		}
 
-        }
+	}
 
-        #zbs-mail-delivery-wizard-steps-wrap {
+	#zbs-mail-delivery-wizard-steps-wrap {
 
-        	.zbs-step {
+		.zbs-step {
 
-  		    max-width: 600px;
-  		    margin-left: auto;
-  		    margin-right: auto;
-  		    margin-bottom: 2em;
+			max-width: 600px;
+			margin-left: auto;
+			margin-right: auto;
+			margin-bottom: 2em;
 
-        	}
+		}
     
-          h1.ui.header {
+		h1.ui.header {
     
-              text-align: center;
-              margin-top: 0.8em;
-              margin-bottom: 0.6em;
+			text-align: center;
+			margin-top: 0.8em;
+			margin-bottom: 0.6em;
 
-          }
+		}
 
-          .ui.very.padded.borderless.segment p {
+		.ui.very.padded.borderless.segment p {
 
-      		font-size: 1.3em;
+			font-size: 1.3em;
 
-          }
+		}
 
-          #zbs-mail-delivery-wizard-validate-console-wrap {
+		#zbs-mail-delivery-wizard-validate-console-wrap {
   		 
-  		    padding-top: 1em;
-  		    font-size: 1.2em;
+			padding-top: 1em;
+			font-size: 1.2em;
 
-      		}
+		}
 
-      		// final validated email str (says in middle at end wiz)
-      		.zbs-validated {
+		// final validated email str (says in middle at end wiz)
+		.zbs-validated {
 
-      			color: #008000;
-      			text-align:center;
-      			font-size:1.1em;
+			color: #008000;
+			text-align: center;
+			font-size: 1.1em;
 
-      		}
+		}
 
-        } // /mail delivery steps wrap
+	} // /mail delivery steps wrap
 
-    }
+}

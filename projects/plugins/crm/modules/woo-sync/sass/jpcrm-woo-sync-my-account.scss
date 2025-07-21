@@ -5,93 +5,95 @@
 // Daterangepicker styles
 @use 'daterangepicker/daterangepicker';
 
- .zbs-invoice-list{
+.zbs-invoice-list {
 
-    .paid {
-        background: #008000;
-    }
+	.paid {
+		background: #008000;
+	}
 
-    .draft {
-        background: #999;
-    }
+	.draft {
+		background: #999;
+	}
 
-    .overdue {
-        background: #f00;
-    }
+	.overdue {
+		background: #f00;
+	}
 
-    .unpaid {
-        background: #d0d012;
-    }
+	.unpaid {
+		background: #d0d012;
+	}
 
-    .status {
-        padding: 5px;
-        color: #fff;
-        font-weight: 700;
-    }
+	.status {
+		padding: 5px;
+		color: #fff;
+		font-weight: 700;
+	}
 
-    .tools .fa {
-        color: #a3210b;
-    }
+	.tools .fa {
+		color: #a3210b;
+	}
 }
 
 
- .zbs-invoice-box {
-    padding: 50px;
-    border: 1px solid #ddd;
-    margin-bottom: 15px;
-    background: #fff;
-    position: relative;
+.zbs-invoice-box {
+	padding: 50px;
+	border: 1px solid #ddd;
+	margin-bottom: 15px;
+	background: #fff;
+	position: relative;
 
-    .zbs-portal-label {
-        border-bottom: 3px solid #383838;
-        display:inline;
-    }
+	.zbs-portal-label {
+		border-bottom: 3px solid #383838;
+		display: inline;
+	}
 
-    .zbs-portal-value {
-        font-size: 40px;
-        color: #000;
-        font-weight: 900;
-    }
+	.zbs-portal-value {
+		font-size: 40px;
+		color: #000;
+		font-weight: 900;
+	}
 
-    .zbs-invoice-paid {
-        position: absolute;
-        right: 0;
-        top: 0;
-        padding: 30px;
-        margin-right: 10px;
-        color: #038d24;
-        background: #92e9a7;
-        text-transform: uppercase;
-        font-weight: 900;
-        margin-top: 10px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
+	.zbs-invoice-paid {
+		position: absolute;
+		right: 0;
+		top: 0;
+		padding: 30px;
+		margin-right: 10px;
+		color: #038d24;
+		background: #92e9a7;
+		text-transform: uppercase;
+		font-weight: 900;
+		margin-top: 10px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
 
-    .zbs-portal-inv-deets {
-        text-align: right;
-    }
+	.zbs-portal-inv-deets {
+		text-align: right;
+	}
 
-    .pay-to-name {
-        font-size: 22px;
-        font-weight: 800;
-        color: #000;
-    }
+	.pay-to-name {
+		font-size: 22px;
+		font-weight: 800;
+		color: #000;
+	}
 
-    #zbs-business-info-wrapper, .zbs-invoice-pull-left {
-        width: 50%;
-        float: left;
-    }
+	#zbs-business-info-wrapper,
+	.zbs-invoice-pull-left {
+		width: 50%;
+		float: left;
+	}
 
-    #zbs-customer-info-wrapper, .zbs-invoice-pull-right{
-        width: 50%;
-        float: right;
-        text-align: right;
-    }
+	#zbs-customer-info-wrapper,
+	.zbs-invoice-pull-right {
+		width: 50%;
+		float: right;
+		text-align: right;
+	}
 
 }
 
-.zbs-logo-portal{
-    padding-top: 15px;
-    min-height: 130px;
+.zbs-logo-portal {
+	padding-top: 15px;
+	min-height: 130px;
 }

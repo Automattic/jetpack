@@ -39,6 +39,18 @@ const updateField = ( fieldId, value, showFieldError = false ) => {
 	}
 };
 
+const setSubmissionData = ( data = [] ) => {
+	const context = getContext();
+
+	context.submissionData = data;
+
+	// This cannot be a derived state because it needs to be defined on the backend for first render to avoid hydration errors.
+	context.formattedSubmissionData = data.map( item => ( {
+		label: maybeAddColonToLabel( item.label ),
+		value: maybeTransformValue( item.value ),
+	} ) );
+};
+
 const registerField = (
 	fieldId,
 	type,
@@ -222,22 +234,6 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			return context.submissionError || '';
 		},
-
-		get getSubmissionData() {
-			const context = getContext();
-
-			const data = context.submissionData ? Object.values( context.submissionData ) : [];
-
-			return data.map( item => ( {
-				label: maybeAddColonToLabel( item.label ),
-				value: maybeTransformValue( item.value ),
-			} ) );
-		},
-
-		get hasSubmitted() {
-			const context = getContext();
-			return !! context.submissionData && context.isResponseWithoutReloadEnabled;
-		},
 	},
 
 	actions: {
@@ -344,14 +340,24 @@ const { state } = store( NAMESPACE, {
 				event.preventDefault();
 				event.stopPropagation();
 
-				const { success, error, data } = yield submitForm( context.formHash );
+				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
 
 				if ( success ) {
-					context.submissionData = data;
+					setSubmissionData( data );
 					context.submissionError = null;
+					context.submissionSuccess = true;
+
+					if ( refreshArgs ) {
+						const url = new URL( window.location.href );
+						url.searchParams.set( 'contact-form-id', refreshArgs[ 'contact-form-id' ] );
+						url.searchParams.set( 'contact-form-sent', refreshArgs[ 'contact-form-sent' ] );
+						url.searchParams.set( 'contact-form-hash', refreshArgs[ 'contact-form-hash' ] );
+						url.searchParams.set( '_wpnonce', refreshArgs._wpnonce );
+						window.history.replaceState( null, '', url.toString() );
+					}
 				} else {
 					context.submissionError = error;
-					context.submissionData = null;
+					setSubmissionData( [] );
 				}
 
 				context.isSubmitting = false;
@@ -403,11 +409,22 @@ const { state } = store( NAMESPACE, {
 
 		goBack: () => {
 			const context = getContext();
+
 			const form = document.getElementById( context.elementId );
+
 			form?.reset?.();
-			context.submissionData = null;
+			setSubmissionData( [] );
 			context.submissionError = null;
 			context.hasClickedBack = true;
+			context.submissionSuccess = false;
+
+			// Remove the refresh args from the URL.
+			const url = new URL( window.location.href );
+			url.searchParams.delete( 'contact-form-id' );
+			url.searchParams.delete( 'contact-form-sent' );
+			url.searchParams.delete( 'contact-form-hash' );
+			url.searchParams.delete( '_wpnonce' );
+			window.history.replaceState( null, '', url.toString() );
 		},
 	},
 
@@ -421,7 +438,7 @@ const { state } = store( NAMESPACE, {
 		scrollToWrapper() {
 			const context = getContext();
 
-			if ( state.hasSubmitted || context.hasClickedBack ) {
+			if ( context.submissionSuccess || context.hasClickedBack ) {
 				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
 				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
 				context.hasClickedBack = false;

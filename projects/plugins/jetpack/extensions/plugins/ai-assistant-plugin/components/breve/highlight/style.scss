@@ -36,7 +36,7 @@
 			align-items: flex-start;
 
 			.jetpack-ai-breve__suggestions-container {
-				max-height: calc( 200px - 32px ); // 32px is the height of the helper buttons wrapper
+				max-height: calc(200px - 32px); // 32px is the height of the helper buttons wrapper
 				overflow-y: auto;
 				overflow-x: hidden;
 				padding: 3px 0; // Space for the focus highlight
@@ -146,7 +146,7 @@
 			justify-content: space-between;
 			align-items: center;
 			gap: 8px;
-			width: calc( 100% - 8px );
+			width: calc(100% - 8px);
 
 			.jetpack-ai-breve__helper-buttons-wrapper {
 				display: flex;
@@ -168,12 +168,12 @@
 				&__selection {
 
 					.components-button:not(:disabled):hover {
-						color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #3858e9 ) );
+						color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
 					}
 				}
 
 				&__thumb-selected {
-					color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #3858e9 ) );
+					color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
 				}
 			}
 		}

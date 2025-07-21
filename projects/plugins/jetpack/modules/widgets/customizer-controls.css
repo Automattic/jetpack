@@ -3,4 +3,6 @@
  */
 
 /* My Community */
-#available-widgets [class*="community"] .widget-title::before { content: "\f307"; }
+#available-widgets [class*="community"] .widget-title::before {
+	content: "\f307";
+}

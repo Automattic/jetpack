@@ -51,9 +51,9 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.27.4",
+		"@babel/core": "7.28.0",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
-		"@babel/runtime": "7.27.4",
+		"@babel/runtime": "7.27.6",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/jest-dom": "6.6.3",
 		"@testing-library/react": "16.3.0",
