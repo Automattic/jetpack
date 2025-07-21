@@ -19,7 +19,7 @@ import {
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
-import { Legend } from '../legend';
+import { Legend, ChartLegend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
@@ -537,8 +537,9 @@ type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' 
 
 type LineChartComponent = React.ForwardRefExoticComponent<
 	LineChartBaseProps & React.RefAttributes< LineChartRef >
-> &
-	LineChartAnnotationComponents;
+> & {
+	Legend: typeof ChartLegend;
+} & LineChartAnnotationComponents;
 
 type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
 	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< LineChartRef >
@@ -562,18 +563,17 @@ const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => 
 } ) as LineChartComponent;
 
 LineChart.displayName = 'LineChart';
+LineChart.Legend = ChartLegend;
 LineChart.AnnotationsOverlay = LineChartAnnotationsOverlay;
 LineChart.Annotation = LineChartAnnotation;
 
 // Export unwrapped component for testing
 export { LineChart as LineChartUnresponsive };
 
-const ResponsiveLineChart: LineChartResponsiveComponent = Object.assign(
-	withResponsive< LineChartProps >( LineChart ) as LineChartResponsiveComponent,
-	{
-		AnnotationsOverlay: LineChartAnnotationsOverlay,
-		Annotation: LineChartAnnotation,
-	}
-);
+const ResponsiveLineChart = Object.assign( withResponsive< LineChartProps >( LineChart ), {
+	Legend: ChartLegend,
+	AnnotationsOverlay: LineChartAnnotationsOverlay,
+	Annotation: LineChartAnnotation,
+} );
 
 export default ResponsiveLineChart;
