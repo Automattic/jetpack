@@ -5,7 +5,8 @@ import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
-import { Legend } from '../legend';
+import { attachSubComponents } from '../../utils/create-chart-composition';
+import { Legend, ChartLegend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -30,7 +31,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			point =>
+			( point: DataPointDate ) =>
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
@@ -353,7 +354,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 };
 
-const BarChart: FC< BarChartProps > = props => {
+const BarChartBase: FC< BarChartProps > = props => {
 	const existingContext = useContext( ChartContext );
 
 	// If we're already in a ChartProvider context, don't create a new one
@@ -369,6 +370,17 @@ const BarChart: FC< BarChartProps > = props => {
 	);
 };
 
-BarChart.displayName = 'BarChart';
+BarChartBase.displayName = 'BarChart';
 
+// Create composition type
+type BarChartComponent = FC< BarChartProps > & {
+	Legend: typeof ChartLegend;
+};
+
+// Attach subcomponents to create composition API
+const BarChart = attachSubComponents( BarChartBase, {
+	Legend: ChartLegend,
+} ) as BarChartComponent;
+
+export { BarChart };
 export default withResponsive< BarChartProps >( BarChart );
