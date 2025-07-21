@@ -191,11 +191,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		parent::__construct( $attributes, $content );
 
-		// Convert it boolean.
-		if ( isset( $this->attributes['jetpackCRM'] ) && is_string( $this->attributes['jetpackCRM'] ) ) {
-			$this->attributes['jetpackCRM'] = ! empty( $this->attributes['jetpackCRM'] );
-		}
-
 		// There were no fields in the contact form. The form was probably just [contact-form /]. Build a default form.
 		if ( empty( $this->fields ) ) {
 			// same as the original Grunion v1 form.

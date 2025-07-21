@@ -2944,7 +2944,6 @@ EOT;
 			'widget'                 => 'string',    // Not exposed to the user. Works with Contact_Form_Plugin::widget_atts()
 			'block_template'         => null, // Not exposed to the user. Works with template_loader
 			'block_template_part'    => null, // Not exposed to the user. Works with Contact_Form::parse()
-			'id'                     => null, // Not exposed to the user. Set above.
 			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => 'message', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
@@ -2960,8 +2959,13 @@ EOT;
 				'hiddenField2' => 'value2',
 			), // Hidden fields to include in the form.
 			'stepTransition'         => 'fade-slide',
-
 		);
+		// Add a widget ID to the attributes for testing.
+		$expected_attributes                        = $attributes;
+		$expected_attributes['jetpackCRM']          = '1';
+		$expected_attributes['block_template']      = '';
+		$expected_attributes['block_template_part'] = '';
+		$expected_attributes['id']                  = 'widget-string';
 
 		$form = new Contact_Form(
 			$attributes,
@@ -2981,7 +2985,7 @@ EOT;
 		$this->assertArrayHasKey( 'organizationId', $form_copy->get_attribute( 'salesforceData' ), 'salesforceData should contain organizationId' );
 		$this->assertSame( '12345', $form_copy->get_attribute( 'salesforceData' )['organizationId'], 'organizationId should match' );
 
-		$this->assertTrue( $form_copy->get_attribute( 'jetpackCRM' ), 'jetpackCRM should be true' );
+		$this->assertEquals( $expected_attributes, $form_copy->get_attributes(), 'jetpackCRM should be true' );
 	}
 
 	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {
