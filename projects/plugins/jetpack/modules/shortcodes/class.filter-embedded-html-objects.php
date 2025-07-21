@@ -324,7 +324,7 @@ class Filter_Embedded_HTML_Objects {
 		foreach ( self::$failed_embeds as $entry ) {
 			$html = sprintf( '<a href="%s">%s</a>', esc_url( $entry['src'] ), esc_url( $entry['src'] ) );
 			// Check if the string doesn't contain iframe, before replace.
-			if ( ! preg_match( '/<iframe /', $string ) ) {
+			if ( ! str_contains( $string, '<iframe ' ) ) {
 				$string = str_replace( $entry['match'], $html, $string );
 			}
 		}

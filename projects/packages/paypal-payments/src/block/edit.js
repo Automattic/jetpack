@@ -14,7 +14,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
 import clsx from 'clsx';
 import { validate as emailValidatorValidate } from 'email-validator';
-import { get, isEmpty, pick, trimEnd } from 'lodash';
+import { isEmpty, pick, trimEnd } from 'lodash';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 import { PanelControls } from './controls';
 import FeaturedMedia from './featured-media';
@@ -84,15 +84,15 @@ export const SimplePaymentsEdit = ( {
 		}
 
 		setAttributes( {
-			content: get( simplePayment, [ 'content', 'raw' ], content ),
-			currency: get( simplePayment, [ 'meta', 'spay_currency' ], currency ),
-			email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
-			featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
-			featuredMediaUrl: get( featuredMedia, 'url', featuredMediaUrl ),
-			featuredMediaTitle: get( featuredMedia, 'title', featuredMediaTitle ),
-			multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
-			price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
-			title: get( simplePayment, [ 'title', 'raw' ], title ),
+			content: simplePayment?.content?.raw ?? content,
+			currency: simplePayment?.meta?.spay_currency ?? currency,
+			email: simplePayment?.meta?.spay_email ?? email,
+			featuredMediaId: simplePayment?.featured_media ?? featuredMediaId,
+			featuredMediaUrl: featuredMedia?.url ?? featuredMediaUrl,
+			featuredMediaTitle: featuredMedia?.title ?? featuredMediaTitle,
+			multiple: Boolean( simplePayment?.meta?.spay_multiple ?? multiple ),
+			price: simplePayment?.meta?.spay_price ?? ( price || undefined ),
+			title: simplePayment?.title?.raw ?? title,
 		} );
 
 		shouldInjectPaymentAttributes.current = false;
@@ -573,7 +573,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 
 	return {
 		block: select( 'core/block-editor' ).getBlock( props.clientId ),
-		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
+		hasPublishAction: !! post?._links?.[ 'wp:action-publish' ],
 		isSaving: getDirtyEntityRecords().some( record =>
 			isSavingEntityRecord( record.kind, record.name, record.key )
 		),

@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via filter.

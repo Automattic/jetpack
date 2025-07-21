@@ -3,7 +3,8 @@
 	grid-template-columns: 1fr;
 }
 
-.import-php .wrap > h1, .wrap > p:first-of-type {
+.import-php .wrap > h1,
+.wrap > p:first-of-type {
 	order: 2; /* h1 and p are placed after the banner */
 }
 

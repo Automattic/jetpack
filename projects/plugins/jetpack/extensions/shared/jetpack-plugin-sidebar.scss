@@ -26,7 +26,7 @@
 
 	.components-button.has-icon {
 
-		&:not( .is-toggled ),
+		&:not(.is-toggled),
 		&:hover,
 		&.is-toggled,
 		&.is-toggled:hover {
@@ -38,7 +38,7 @@
 			}
 
 			.jetpack-logo__icon-circle {
-				fill: var( --color-jetpack ) !important;
+				fill: var(--color-jetpack) !important;
 			}
 
 			.jetpack-logo__icon-triangle {

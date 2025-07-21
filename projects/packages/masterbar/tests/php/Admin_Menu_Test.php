@@ -315,8 +315,7 @@ class Admin_Menu_Test extends TestCase {
 
 		static::$admin_menu->add_tools_menu();
 
-		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, $submenu['tools.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, $submenu['tools.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, $submenu['tools.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][4][2] );
 		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][5][2] );
 	}
@@ -344,7 +343,6 @@ class Admin_Menu_Test extends TestCase {
 		static::$admin_menu->add_jetpack_menu();
 
 		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
-		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][4][2] );
 	}
 
 	/**

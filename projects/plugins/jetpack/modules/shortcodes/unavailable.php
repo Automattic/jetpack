@@ -10,6 +10,8 @@
 
 /**
  * Class Jetpack_Shortcode_Unavailable
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Shortcode_Unavailable {
 	/**

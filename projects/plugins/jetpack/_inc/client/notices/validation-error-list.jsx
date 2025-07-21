@@ -1,5 +1,4 @@
 import { _n } from '@wordpress/i18n';
-import { map } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 
@@ -22,7 +21,7 @@ export default class ValidationErrorList extends Component {
 					) }
 				</p>
 				<ul>
-					{ map( this.props.messages, function ( message, index ) {
+					{ this.props.messages.map( function ( message, index ) {
 						return <li key={ index }>{ message }</li>;
 					} ) }
 				</ul>

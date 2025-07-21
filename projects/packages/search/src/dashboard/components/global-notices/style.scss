@@ -6,7 +6,7 @@
 	text-align: right;
 	pointer-events: none;
 
-	z-index: z-index.z-index( 'root', '.global-notices' );
+	z-index: z-index.z-index('root', '.global-notices');
 	position: fixed;
 	top: auto;
 	right: 0;
@@ -20,7 +20,7 @@
 		left: auto;
 
 		/* `36px` being the width of the collapsed WP-admin sidebar */
-		max-width: calc( 100% - 32px - 36px );
+		max-width: calc(100% - 32px - 36px);
 	}
 
 	@include calypso-mixins.breakpoint( ">960px" ) {
@@ -28,14 +28,14 @@
 		right: 24px;
 
 		/* `160px` being the width of the WP-admin sidebar */
-		max-width: calc( 100% - 48px - 160px );
+		max-width: calc(100% - 48px - 160px);
 	}
 
 	@include calypso-mixins.breakpoint( ">1040px" ) {
 		right: 32px;
 
 		/* `160px` being the width of the WP-admin sidebar */
-		max-width: calc( 100% - 64px - 160px );
+		max-width: calc(100% - 64px - 160px);
 	}
 }
 
@@ -45,8 +45,9 @@
 	text-align: left;
 	pointer-events: auto;
 	border-radius: 0;
-	box-shadow: 0 2px 5px rgba( 0, 0, 0, 0.2 ),
-	0 0 56px rgba( 0, 0, 0, 0.15 );
+	box-shadow:
+		0 2px 5px rgba(0, 0, 0, 0.2),
+		0 0 56px rgba(0, 0, 0, 0.15);
 
 	.dops-notice__icon-wrapper {
 		border-radius: 0;

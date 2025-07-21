@@ -5,7 +5,6 @@
 import clsx from 'clsx';
 import { createFocusTrap } from 'focus-trap';
 import jQuery from 'jquery';
-import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 
@@ -107,8 +106,7 @@ class Modal extends Component {
 	render() {
 		let containerStyle;
 
-		const { style, className, width, title, ...other } = this.props;
-		const { forwardedProps } = omit( other, 'onRequestClose' );
+		const { style, className, width, title, onRequestClose, ...forwardedProps } = this.props;
 		switch ( width ) {
 			case 'wide':
 				containerStyle = { maxWidth: 'inherit', width: 'inherit' };

@@ -7,7 +7,7 @@
 // @breakpoint is a string prefixed with < or > followed by a breakpoint size.
 // (e.g. ">sm" or "<large").
 @mixin break( $breakpoint-string ) {
-	$breakpoint: map.get( variables.$breakpoints, string.to-lower-case( string.slice( $breakpoint-string, 2 ) ) );
+	$breakpoint: map.get(variables.$breakpoints, string.to-lower-case(string.slice($breakpoint-string, 2)));
 
 	$predicate: max-width;
 

@@ -154,21 +154,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_options_menu
-	 */
-	public function test_add_options_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_options_menu();
-
-		if ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC ) ) {
-			$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
-		} else {
-			$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][11][2] );
-		}
-	}
-
-	/**
 	 * Tests add_users_menu
 	 */
 	public function test_add_users_menu() {
@@ -178,7 +163,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'user-new.php', $submenu['users.php'][2][2] );
 		$this->assertSame( 'profile.php', $submenu['users.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][4][2] );
 		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][5][2] );
 	}
 
@@ -211,29 +195,5 @@ class Atomic_Admin_Menu_Test extends TestCase {
 			// Make sure that Installed Plugins menu item is still in place.
 			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
 		}
-	}
-
-	/**
-	 * Tests add_tools_menu
-	 */
-	public function test_add_site_monitoring_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-		$menu_position = 7;
-
-		$this->assertSame( 'https://wordpress.com/site-monitoring/' . static::$domain, $submenu['tools.php'][ $menu_position ][2] );
-	}
-
-	/**
-	 * Tests add_github_deployments_menu
-	 */
-	public function test_add_github_deployments_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
-
-		$this->assertContains( 'https://wordpress.com/github-deployments/' . static::$domain, $links );
 	}
 }

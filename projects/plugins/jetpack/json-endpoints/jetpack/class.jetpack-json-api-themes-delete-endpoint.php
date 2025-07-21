@@ -3,6 +3,8 @@
 /**
  * Themes delete endpoint class.
  * POST  /sites/%s/plugins/%s/delete
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Themes_Delete_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 

@@ -13,7 +13,7 @@
 	box-shadow: 0 12px 20px rgba(0, 0, 0, 0.05);
 
 	&.with-illustration {
-		background: linear-gradient( to bottom, #E6F2E8, 115px, var( --jp-white ) 115px );
+		background: linear-gradient(to bottom, #E6F2E8, 115px, var(--jp-white) 115px);
 	}
 }
 
@@ -67,7 +67,7 @@
 	padding: 8px;
 	background: colors.$white;
 	border-radius: 3px;
-	box-shadow: 0 0 24px rgba( 0, 0, 0, 0.16 );
+	box-shadow: 0 0 24px rgba(0, 0, 0, 0.16);
 }
 
 .jp-recommendations-sidebar-card__features {

@@ -3,7 +3,6 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { get } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import ClipboardButtonInput from 'components/clipboard-button-input';
@@ -37,8 +36,8 @@ export class Sitemaps extends Component {
 
 	render() {
 		const sitemaps = this.props.getModule( 'sitemaps' ),
-			sitemap_url = get( sitemaps, [ 'extra', 'sitemap_url' ], '' ),
-			news_sitemap_url = get( sitemaps, [ 'extra', 'news_sitemap_url' ], '' );
+			sitemap_url = sitemaps?.extra?.sitemap_url ?? '',
+			news_sitemap_url = sitemaps?.extra?.news_sitemap_url ?? '';
 
 		const searchEngineVisibilityClasses = clsx( {
 			'jp-form-setting-explanation': true,

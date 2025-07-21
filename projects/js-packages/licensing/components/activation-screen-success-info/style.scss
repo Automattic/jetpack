@@ -1,7 +1,7 @@
 @use '@automattic/jetpack-base-styles/style';
 
 .jp-license-activation-screen-success-info {
-	background: var( --jp-white );
+	background: var(--jp-white);
 	padding: 32px;
 	display: flex;
 	flex-direction: column;
@@ -28,7 +28,7 @@
 
 	label {
 		font-weight: 600;
-		font-size: var( --font-body );
+		font-size: var(--font-body);
 	}
 
 	@media screen and ( min-width: 780px ) {

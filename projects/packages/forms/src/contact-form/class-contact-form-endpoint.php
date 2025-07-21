@@ -24,40 +24,55 @@ use WP_REST_Response;
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 	/**
-	 * Supported integrations configuration
+	 * Supported integrations configuration.
+	 *
+	 * Each integration array supports the following keys:
+	 * - type (string)                  : 'plugin' or 'service'
+	 * - file (string|null)             : Plugin file path (for plugins), or null for services
+	 * - settings_url (string|null)     : Relative admin URL for settings, or null if none
+	 * - marketing_redirect_slug (string|null) : Slug for Redirect::get_url() for marketing links, or null if none
+	 *
+	 * For marketing_redirect_slug, you'll need to add those here first:
+	 * https://mc.a8c.com/jetpack-crew/redirects/
 	 *
 	 * @var array
 	 */
 	private $supported_integrations = array(
 		'akismet'                           => array(
-			'type'         => 'plugin',
-			'file'         => 'akismet/akismet.php',
-			'settings_url' => 'admin.php?page=akismet-key-config',
+			'type'                    => 'plugin',
+			'file'                    => 'akismet/akismet.php',
+			'settings_url'            => 'admin.php?page=akismet-key-config',
+			'marketing_redirect_slug' => 'org-spam',
 		),
 		'creative-mail-by-constant-contact' => array(
-			'type'         => 'plugin',
-			'file'         => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
-			'settings_url' => 'admin.php?page=creativemail',
+			'type'                    => 'plugin',
+			'file'                    => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
+			'settings_url'            => 'admin.php?page=creativemail',
+			'marketing_redirect_slug' => 'creative-mail',
 		),
 		'zero-bs-crm'                       => array(
-			'type'         => 'plugin',
-			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
-			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
+			'type'                    => 'plugin',
+			'file'                    => 'zero-bs-crm/ZeroBSCRM.php',
+			'settings_url'            => 'admin.php?page=zerobscrm-plugin-settings',
+			'marketing_redirect_slug' => 'org-crm',
 		),
 		'salesforce'                        => array(
-			'type'         => 'service',
-			'file'         => null,
-			'settings_url' => null,
+			'type'                    => 'service',
+			'file'                    => null,
+			'settings_url'            => null,
+			'marketing_redirect_slug' => null,
 		),
 		'google-drive'                      => array(
-			'type'         => 'service',
-			'file'         => null,
-			'settings_url' => null,
+			'type'                    => 'service',
+			'file'                    => null,
+			'settings_url'            => null,
+			'marketing_redirect_slug' => null,
 		),
 		'mailpoet'                          => array(
-			'type'         => 'plugin',
-			'file'         => 'mailpoet/mailpoet.php',
-			'settings_url' => 'admin.php?page=mailpoet-homepage',
+			'type'                    => 'plugin',
+			'file'                    => 'mailpoet/mailpoet.php',
+			'settings_url'            => 'admin.php?page=mailpoet-homepage',
+			'marketing_redirect_slug' => 'org-mailpoet',
 		),
 	);
 
@@ -149,6 +164,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'type'     => 'array',
 						'items'    => array( 'type' => 'integer' ),
 						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/trash',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'delete_posts_by_status' ),
+				'permission_callback' => array( $this, 'delete_items_permissions_check' ),
+				'args'                => array(
+					'status' => array(
+						'type'     => 'string',
+						'enum'     => array( 'trash', 'spam' ),
+						'required' => false,
+						'default'  => 'trash',
 					),
 				),
 			)
@@ -649,6 +682,52 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Handles emptying Jetpack Forms responses based on status.
+	 *
+	 * By default, it empties the trash, meaning it will delete all feedbacks in the trash (status = trash).
+	 * Passing a status will delete all feedbacks in the status.
+	 * The operation is non reversible and thus restricted to statuses spam and trash,
+	 * enforced by endpoint query args enum[spam, trash] but also double checked by the endpoint.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response A response object..
+	 */
+	public function delete_posts_by_status( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$from_status = $request->get_param( 'status' );
+
+		if ( ! in_array( $from_status, array( 'spam', 'trash' ), true ) ) {
+			return new WP_REST_Response( array( 'error' => __( 'Bad request', 'jetpack-forms' ) ), 400 );
+		}
+
+		$query_args = array(
+			'post_type'      => 'feedback',
+			'post_status'    => $from_status ?? 'trash',
+			'posts_per_page' => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+		);
+
+		$query           = new \WP_Query( $query_args );
+		$trash_feedbacks = $query->get_posts();
+
+		$deleted = 0;
+		foreach ( (array) $trash_feedbacks as $feedback ) {
+			$feedback_deleted = wp_delete_post( $feedback->ID, true );
+			if ( ! $feedback_deleted ) {
+				if ( $from_status === 'trash' ) {
+					return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+				}
+
+				if ( $from_status === 'spam' ) {
+					return new WP_REST_Response( array( 'error' => __( 'Failed to empty spam.', 'jetpack-forms' ) ), 400 );
+				}
+			}
+			++$deleted;
+		}
+
+		return new WP_REST_Response( array( 'deleted' => $deleted ), 200 );
+	}
+
+	/**
 	 * Performs the Akismet action to mark all feedback posts matching the given IDs as spam.
 	 *
 	 * @param  array $post_ids Array of post IDs.
@@ -685,7 +764,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Check whether a given request has proper authorization to view feedback items.
+	 * Check whether a given request has proper authorization to view and edit feedback items.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -698,10 +777,37 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			return false;
 		}
+
 		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 			return new WP_Error(
 				'rest_cannot_view',
 				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack-forms' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check whether a given request has proper authorization to delete feedback items.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|boolean
+	 */
+	public function delete_items_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( is_super_admin() ) {
+			return true;
+		}
+
+		if ( ! current_user_can( 'delete_posts' ) ) {
+			return false;
+		}
+
+		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+			return new WP_Error(
+				'rest_user_cannot_delete_post',
+				esc_html__( 'Sorry, you cannot delete this resource.', 'jetpack-forms' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -789,7 +895,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return array Service status data.
 	 */
 	private function get_service_status( $slug ) {
-		$config = $this->get_supported_integrations()[ $slug ];
+		$config                  = $this->get_supported_integrations()[ $slug ];
+		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
 
 		// Default response for all integrations
 		$response = array(
@@ -798,6 +905,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'needsConnection' => true,
 			'isConnected'     => false,
 			'settingsUrl'     => $config['settings_url'] ?? null,
+			'marketingUrl'    => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
 			'pluginFile'      => null,
 			'isInstalled'     => false,
 			'isActive'        => false,
@@ -838,8 +946,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$integrations  = $this->get_supported_integrations();
-		$plugin_config = $integrations[ $plugin_slug ];
+		$integrations            = $this->get_supported_integrations();
+		$plugin_config           = $integrations[ $plugin_slug ];
+		$marketing_redirect_slug = $plugin_config['marketing_redirect_slug'] ?? null;
 
 		$installed_plugins = get_plugins();
 		$is_installed      = isset( $installed_plugins[ $plugin_config['file'] ] );
@@ -855,6 +964,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'isConnected'     => false,
 			'version'         => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
 			'settingsUrl'     => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
+			'marketingUrl'    => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
 			'details'         => array(),
 		);
 

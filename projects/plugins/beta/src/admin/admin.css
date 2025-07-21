@@ -26,7 +26,7 @@ html {
 .jetpack-beta__bleeding-edge-head {
 	background-color: #fff;
 	text-align: center;
-	box-shadow: 0 1px 0 rgba( 200, 215, 225, 0.5 ), 0 1px 2px #e9eff3;
+	box-shadow: 0 1px 0 rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 	padding: 0 1.25rem;
 }
 
@@ -97,7 +97,7 @@ html {
 	padding: 1rem;
 	box-sizing: border-box;
 	background: #fff;
-	box-shadow: 0 0 0 1px rgba( 200, 215, 225, 0.5 ), 0 1px 2px #e9eff3;
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
 .dops-card::after {
@@ -536,7 +536,7 @@ button.dops-foldable-card__action {
 }
 
 .dops-foldable-card__main {
-	max-width: calc( 100% - 36px );
+	max-width: calc(100% - 36px);
 	display: block;
 	-ms-flex-align: center;
 	align-items: center;
@@ -565,11 +565,11 @@ button.dops-foldable-card__action {
 	align-items: center;
 	width: 100%;
 	vertical-align: middle;
-	transition: transform 0.15s cubic-bezier( 0.175, 0.885, 0.32, 1.275 ), color 0.2s ease-in;
+	transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease-in;
 }
 
 .dops-foldable-card.is-expanded .dops-foldable-card__expand .gridicon {
-	transform: rotate( 180deg );
+	transform: rotate(180deg);
 }
 
 .dops-foldable-card__expand .gridicon:hover {
@@ -838,7 +838,7 @@ button.dops-foldable-card__action {
 	position: absolute;
 	top: 50%;
 	left: 30px;
-	transform: translate( -50%, -50% );
+	transform: translate(-50%, -50%);
 }
 
 @media ( max-width: 660px ) {
@@ -875,7 +875,7 @@ button.dops-foldable-card__action {
 	margin: 0 0 1px 0;
 	background: #fff;
 	box-sizing: border-box;
-	box-shadow: 0 0 0 1px rgba( 200, 215, 225, 0.5 ), 0 1px 2px #e9eff3;
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
 .dops-section-nav.is-empty .dops-section-nav__panel {
@@ -929,7 +929,7 @@ button.dops-foldable-card__action {
 	font: 400 16px/1 dashicons;
 	content: '\F347';
 	line-height: 16px;
-	color: rgba( 135, 166, 188, 0.5 );
+	color: rgba(135, 166, 188, 0.5);
 }
 
 .dops-section-nav.is-open .dops-section-nav__mobile-header::after {
@@ -987,7 +987,7 @@ button.dops-foldable-card__action {
 	.dops-section-nav.is-open .dops-section-nav__panel {
 		padding-bottom: 15px;
 		border-top: solid 1px #c8d7e1;
-		background: linear-gradient( to bottom, #f3f6f8 0%, #fff 4px );
+		background: linear-gradient(to bottom, #f3f6f8 0%, #fff 4px);
 	}
 }
 
@@ -1295,5 +1295,5 @@ button.dops-foldable-card__action {
 }
 
 .branch-card-active .dops-foldable-card__secondary .dops-foldable-card__summary::before {
-	content: attr( data-active );
+	content: attr(data-active);
 }

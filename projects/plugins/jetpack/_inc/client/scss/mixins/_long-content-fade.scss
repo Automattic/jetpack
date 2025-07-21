@@ -22,7 +22,7 @@
 	}
 
 	@if $direction == 'bottom' {
-		background: linear-gradient( to top, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to top, rgba($color, 0), $color 90%);
 		left: $edge;
 		right: $edge;
 		top: $edge;
@@ -31,7 +31,7 @@
 	}
 
 	@if $direction == 'top' {
-		background: linear-gradient( to bottom, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to bottom, rgba($color, 0), $color 90%);
 		top: calc(100% - $size);
 		left: $edge;
 		right: $edge;
@@ -40,7 +40,7 @@
 	}
 
 	@if $direction == 'left' {
-		background: linear-gradient( to left, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to left, rgba($color, 0), $color 90%);
 		top: $edge;
 		left: $edge;
 		bottom: $edge;
@@ -50,7 +50,7 @@
 	}
 
 	@if $direction == 'right' {
-		background: linear-gradient( to right, rgba( $color, 0 ), $color 90% );
+		background: linear-gradient(to right, rgba($color, 0), $color 90%);
 		top: $edge;
 		bottom: $edge;
 		right: $edge;

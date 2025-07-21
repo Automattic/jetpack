@@ -1,8 +1,10 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
+import { Badge } from '@automattic/ui';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import '@automattic/ui/style.css';
 import connectionsFacebook from '../../assets/connections-facebook.png';
 import connectionsInstagramBusiness from '../../assets/connections-instagram-business.png';
 import connectionsLinkedin from '../../assets/connections-linkedin.png';
@@ -11,18 +13,13 @@ import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
 import { store as socialStore } from '../../social-store';
 import { ConnectionService } from '../../types';
-import type { CSSProperties, ComponentType } from 'react';
-
-export type Badge = {
-	text: string;
-	style?: CSSProperties;
-};
+import type { ComponentType } from 'react';
 
 export interface SupportedService extends ConnectionService {
 	icon: ComponentType< { iconSize: number } >;
 	examples?: Array< ComponentType >;
 	needsCustomInputs?: boolean;
-	badges?: Array< Badge >;
+	badges?: Array< React.ReactNode >;
 }
 
 /**
@@ -43,10 +40,7 @@ export function useSupportedServices(): Array< SupportedService > {
 		);
 	}, [ supported_services ] );
 
-	const badgeNew: Badge = {
-		text: __( 'New', 'jetpack-publicize-components' ),
-		style: { background: '#e9eff5', color: '#0675C4' },
-	};
+	const badgeNew = <Badge intent="info">{ __( 'New', 'jetpack-publicize-components' ) }</Badge>;
 
 	const supportedServices: Array< SupportedService > = [
 		{

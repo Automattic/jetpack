@@ -9,19 +9,19 @@
 
 	h2.ui.header {
 
-	    background: #FFF;
-	    margin-top: 0 !important;
-	    margin-left: -30px;
+		background: #FFF;
+		margin-top: 0 !important;
+		margin-left: -30px;
 		padding-top: 0.7em;
-	    padding-bottom: 1em;
-	    padding-left: 1.3em;
+		padding-bottom: 1em;
+		padding-left: 1.3em;
 	    
-	    border-bottom: #eaeaea 1px solid;
-	    box-shadow: 0 1px 6px 0 #efefef;
+		border-bottom: #eaeaea 1px solid;
+		box-shadow: 0 1px 6px 0 #efefef;
 
-	    .head-ico {
-	    	padding-top: 0;
-	    }
+		.head-ico {
+			padding-top: 0;
+		}
 
 	}
 
@@ -48,39 +48,40 @@
 
 	.ui.centralsimple {
 
-	    max-width: 800px;
-	    margin-left: auto;
-	    margin-right: auto;
-	    margin-top: 2.5em;
-	    font-size: 1.14285714rem;
-    	position: relative;
+		max-width: 800px;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 2.5em;
+		font-size: 1.14285714rem;
+		position: relative;
 
 
-	    .field.error {
-	    	display:block; // fix because default wp hides all .error's
-	    }
-
-	    .field>label {
-		    color: #000;
-		    font-size: 1em;
-   		}
-
-   		.ui p {
-		    font-size: 0.9em;
+		.field.error {
+			display: block; // fix because default wp hides all .error's
 		}
 
-	    .field {
-		    //margin: 0 0 1em;
-		    //margin-bottom: 1.6em;
+		.field > label {
+			color: #000;
+			font-size: 1em;
+		}
 
-		    // this works better with error class
-		    padding-top:1em;
-		    padding-bottom:1em;
+		.ui p {
+			font-size: 0.9em;
+		}
+
+		.field {
+			//margin: 0 0 1em;
+			//margin-bottom: 1.6em;
+
+			// this works better with error class
+			padding-top: 1em;
+			padding-bottom: 1em;
 		}
 
 		// style matching,
 		// partly taken from .wp-core-ui select
-		select, input {
+		select,
+		input {
 			margin-right: 0.8em;
 			font-size: 14px;
 			line-height: 2;
@@ -92,72 +93,74 @@
 		}
 
 		select.autowidth {
-		    display: inline-block;
-		    width: auto;
+			display: inline-block;
+			width: auto;
 		}
 
-	    .max500 {
-    		max-width: 500px;
+		.max500 {
+			max-width: 500px;
 			margin-left: auto;
 			margin-right: auto;
 			display: block;
-	    }
+		}
 
-	    .centered-group {
-	    	text-align:center;
+		.centered-group {
+			text-align: center;
 
-	    	select {
+			select {
 
-			    width: 200px;
-			    font-size: 14px;
-    			display: inline-block;
+				width: 200px;
+				font-size: 14px;
+				display: inline-block;
 
-	    	}
-	    }
-
-
-
-	    .jog-on {
-	    	text-align:center;
-	    	margin-top:1em;
-	    }
+			}
+		}
 
 
-	    // segment conditions
-	    .zbs-segment-edit-condition {
+		.jog-on {
+			text-align: center;
+			margin-top: 1em;
+		}
+
+
+		// segment conditions
+		.zbs-segment-edit-condition {
 		    
-		    select, input {
-		    	display: inline-block;
-		    	width: auto;
-    			margin-right: 0.6em;
-		    }
-
-		    .zbs-segment-edit-condition-remove:hover,.zbs-segment-edit-condition-remove i:hover {
-
-		    	cursor:pointer;
-		    }
-
-		    input.zbs-segment-pair-input {
-				max-width: 100px !important;
-				min-width: 60px !important;
-	      		margin-right: 0.2em;
+			select,
+			input {
+				display: inline-block;
+				width: auto;
+				margin-right: 0.6em;
 			}
 
-		    span {
-	      		margin-right: 0.2em;
+			.zbs-segment-edit-condition-remove:hover,
+			.zbs-segment-edit-condition-remove i:hover {
+
+				cursor: pointer;
+			}
+
+			input.zbs-segment-pair-input {
+				max-width: 100px !important;
+				min-width: 60px !important;
+				margin-right: 0.2em;
+			}
+
+			span {
+				margin-right: 0.2em;
 			}
 
 			// warning triangles for condition lines which have no matching type
 			i.icon.red {
-				margin-top:0.6em;
+				margin-top: 0.6em;
 			}
 
 			.hidden {
-				display:none;
+				display: none;
 			}
 
 			// descriptions ui:
-			.jpcrm-expand-info:hover, .jpcrm-hide-info:hover {
+			.jpcrm-expand-info:hover,
+			.jpcrm-hide-info:hover {
 
 				cursor: pointer;
 
@@ -165,9 +168,9 @@
 
 			.jpcrm-condition-info {
 
-			    padding-left: 2em;
-			    padding-top: 0.7em;
-			    color: #728b9f;
+				padding-left: 2em;
+				padding-top: 0.7em;
+				color: #728b9f;
 
 			}
 
@@ -180,9 +183,9 @@
 		// match type select
 		#zbs-segment-edit-var-matchtype {
 		 
-		    width: auto;
-		    margin-left: auto;
-		    margin-right: auto;
+			width: auto;
+			margin-left: auto;
+			margin-right: auto;
 
 		}
 
@@ -190,7 +193,7 @@
 		#zbs-segment-edit-preview {
 
 			h2.ui.header {
-				margin-left:0;
+				margin-left: 0;
 			}
 
 		}
@@ -199,8 +202,8 @@
 
 	// when a segment condition has gone rogue.
 	.segment-condition-errored {
-		max-width:25%;
-		color:#CCC;
+		max-width: 25%;
+		color: #CCC;
 	}
 }
 

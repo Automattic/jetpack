@@ -810,6 +810,8 @@ new WPCOM_JSON_API_Menus_New_Menu_Endpoint(
 
 /**
  * New menu endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Menus_New_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 
@@ -874,6 +876,8 @@ new WPCOM_JSON_API_Menus_Update_Menu_Endpoint(
 
 /**
  * Update menu endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 
@@ -1037,6 +1041,8 @@ new WPCOM_JSON_API_Menus_List_Menus_Endpoint(
 
 /**
  * List menus endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Menus_List_Menus_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 
@@ -1111,6 +1117,8 @@ new WPCOM_JSON_API_Menus_Get_Menu_Endpoint(
 
 /**
  * Get menu endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Menus_Get_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 
@@ -1175,6 +1183,8 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint(
 
 /**
  * Delete menu endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Menus_Delete_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 

@@ -22,7 +22,11 @@ const AkismetDashboardCard = ( {
 	data,
 	refreshStatus,
 }: SingleIntegrationCardProps ) => {
-	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
+	const {
+		isConnected: akismetActiveWithKey = false,
+		settingsUrl = '',
+		marketingUrl = '',
+	} = data || {};
 	const navigate = useNavigate();
 
 	const cardData: IntegrationCardData = {
@@ -37,7 +41,7 @@ const AkismetDashboardCard = ( {
 				'jetpack-forms'
 			),
 			{
-				a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
+				a: <ExternalLink href={ marketingUrl } />,
 			}
 		),
 		notActivatedMessage: __(
@@ -93,7 +97,7 @@ const AkismetDashboardCard = ( {
 					<p className="integration-card__description">
 						{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }
 					</p>
-					<div className="integration-card__links">
+					<HStack spacing="2" justify="start" className="integration-card__links">
 						<Button variant="link" onClick={ handleViewSpamClick }>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
@@ -105,7 +109,7 @@ const AkismetDashboardCard = ( {
 						<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 							{ __( 'Learn about Akismet', 'jetpack-forms' ) }
 						</ExternalLink>
-					</div>
+					</HStack>
 				</div>
 			) }
 		</IntegrationCard>

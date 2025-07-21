@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
 
@@ -23,5 +22,5 @@ export const reducer = combineReducers( {
  * @return {string}  Url to connect to the service or null.
  */
 export function getExternalServiceConnectUrl( state, serviceName ) {
-	return get( state.jetpack.publicize.connectUrls, serviceName, null );
+	return state.jetpack.publicize.connectUrls?.[ serviceName ] ?? null;
 }

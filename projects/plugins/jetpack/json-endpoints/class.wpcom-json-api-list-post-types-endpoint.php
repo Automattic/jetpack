@@ -33,6 +33,8 @@ new WPCOM_JSON_API_List_Post_Types_Endpoint(
  * List Post types endpoint class.
  *
  * /sites/%s/post-types -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 

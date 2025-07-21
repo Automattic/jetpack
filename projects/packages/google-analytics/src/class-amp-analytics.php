@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Google_Analytics;
 
 /**
  * AMP_Analytics class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class AMP_Analytics {
 	/**

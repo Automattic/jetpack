@@ -3,7 +3,7 @@
 	justify-content: space-evenly;
 
 	> * + * {
-		margin-left: calc( var( --spacing-base ) * 3 );
+		margin-left: calc(var(--spacing-base) * 3);
 	}
 
 	@media ( min-width: 600px ) {
@@ -15,9 +15,9 @@
 	display: flex;
 	flex-direction: column;
 	background: #fff;
-	box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
-	padding: calc( var( --spacing-base ) * 3 );
+	padding: calc(var(--spacing-base) * 3);
 	flex: 0 1 auto;
 	width: 100%;
 	
@@ -28,7 +28,7 @@
 
 .label {
 	font-weight: 600;
-	margin-top: calc( var( --spacing-base ) * 2 );
+	margin-top: calc(var(--spacing-base) * 2);
 
 	a {
 		color: inherit;
@@ -36,7 +36,7 @@
 }
 
 .spinner {
-	margin-top: calc( var( --spacing-base ) * 2 );
+	margin-top: calc(var(--spacing-base) * 2);
 	align-self: flex-start;
 }
 

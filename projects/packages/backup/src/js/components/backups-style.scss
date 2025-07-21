@@ -10,9 +10,9 @@
 
 .backup__card {
 	padding: 24px;
-	background: var( --jp-white );
-	box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
-	border-radius: var( --jp-border-radius );
+	background: var(--jp-white);
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: var(--jp-border-radius);
 }
 
 .backup__card-details-items {
@@ -22,7 +22,7 @@
 
 .backup__card-details-amount {
 	margin-bottom: -12px;
-	font-size: var( --font-title-large );
+	font-size: var(--font-title-large);
 	font-weight: 600;
 }
 
@@ -81,7 +81,7 @@
 .backup__progress-bar {
 	position: relative;
 	width: 100%;
-	background: var( --jp-gray-off );
+	background: var(--jp-gray-off);
 }
 
 .backup__progress-bar-actual {
@@ -89,7 +89,7 @@
 	top: 0;
 	left: 0;
 	width: 0%;
-	background: var( --jp-green-primary );
+	background: var(--jp-green-primary);
 }
 
 .jp-content .backup__latest {
@@ -102,14 +102,15 @@
 		min-height: 32px;
 	}
 
-	svg.warning-icon, img.warning-icon { 
+	svg.warning-icon,
+	img.warning-icon {
 		min-width: 24px;
 		min-height: 24px;
 	}
 
 	h2 {
-		color: var( --jp-gray-80 );
-		font-size: var( --font-body );
+		color: var(--jp-gray-80);
+		font-size: var(--font-body);
 		font-weight: 400;
 		line-height: 24px;
 		margin: 0.5em;
@@ -190,27 +191,27 @@
 
 	0% {
 		opacity: 0;
-		transform: translateY( 32px );
+		transform: translateY(32px);
 	}
 
 	20% {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 
 	50% {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 
 	60% {
 		opacity: 0;
-		transform: translateY( -96px );
+		transform: translateY(-96px);
 	}
 
 	100% {
 		opacity: 0;
-		transform: translateY( -96px );
+		transform: translateY(-96px);
 	}
 }
 
@@ -218,27 +219,27 @@
 
 	0% {
 		opacity: 0;
-		transform: translateY( 64px );
+		transform: translateY(64px);
 	}
 
 	20% {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 
 	50% {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 
 	60% {
 		opacity: 0;
-		transform: translateY( -96px );
+		transform: translateY(-96px);
 	}
 
 	100% {
 		opacity: 0;
-		transform: translateY( -96px );
+		transform: translateY(-96px);
 	}
 }
 
@@ -246,27 +247,27 @@
 
 	0% {
 		opacity: 0;
-		transform: translateY( 44px );
+		transform: translateY(44px);
 	}
 
 	20% {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 
 	50% {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 
 	60% {
 		opacity: 0;
-		transform: translateY( -84px );
+		transform: translateY(-84px);
 	}
 
 	100% {
 		opacity: 0;
-		transform: translateY( -84px );
+		transform: translateY(-84px);
 	}
 }
 

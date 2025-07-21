@@ -135,4 +135,12 @@ class Data_Sync_Schema {
 			)
 		);
 	}
+
+	public static function image_size_analysis_ui_state() {
+		return Schema::as_assoc_array(
+			array(
+				'should_display_ui' => Schema::as_boolean()->fallback( false ),
+			)
+		);
+	}
 }

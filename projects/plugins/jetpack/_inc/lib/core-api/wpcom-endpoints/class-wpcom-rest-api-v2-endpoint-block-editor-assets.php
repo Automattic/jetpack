@@ -14,18 +14,16 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	const CACHE_BUSTER = '2025-02-28';
 
 	/**
-	 * List of allowed plugins whose assets should be preserved.
-	 * Each entry should be a unique identifier that appears in the asset URL.
+	 * List of allowed plugin handle prefixes whose assets should be preserved.
+	 * Each entry should be a handle prefix that identifies assets from allowed plugins.
 	 *
 	 * @var array
 	 */
-	const ALLOWED_PLUGINS = array(
-		'/plugins/gutenberg/', // Default plugin location
-		'/plugins/gutenberg-core/', // WPCOM Simple site location
-		'/plugins/jetpack/', // Default plugin location
-		'/plugins/jetpack-dev/', // Used for loading in-progress work
-		'/mu-plugins/jetpack-mu-wpcom-plugin/', // WPCOM Simple site location
-		'/mu-plugins/wpcomsh/', // WoA helpers, including Jetpack assets in vendor directories
+	const ALLOWED_PLUGIN_HANDLE_PREFIXES = array(
+		'jetpack-', // E.g., jetpack-blocks-editor, jetpack-connection
+		'jp-', // E.g., jp-forms-blocks
+		'videopress-', // E.g., videopress-add-resumable-upload-support
+		'wp-', // E.g., wp-block-styles, wp-jp-i18n-loader
 	);
 
 	/**
@@ -277,11 +275,11 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// Unregister disallowed plugin scripts
 		foreach ( $wp_scripts->registered as $handle => $script ) {
 			// Skip core scripts and protected handles
-			if ( $this->is_core_asset( $script->src ) || $this->is_protected_handle( $handle ) ) {
+			if ( $this->is_core_or_gutenberg_asset( $script->src ) || $this->is_protected_handle( $handle ) ) {
 				continue;
 			}
 
-			if ( ! $this->is_allowed_plugin_asset( $script->src ) ) {
+			if ( ! $this->is_allowed_plugin_handle( $handle ) ) {
 				unset( $wp_scripts->registered[ $handle ] );
 			}
 		}
@@ -289,23 +287,23 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// Unregister disallowed plugin styles
 		foreach ( $wp_styles->registered as $handle => $style ) {
 			// Skip core styles and protected handles
-			if ( $this->is_core_asset( $style->src ) || $this->is_protected_handle( $handle ) ) {
+			if ( $this->is_core_or_gutenberg_asset( $style->src ) || $this->is_protected_handle( $handle ) ) {
 				continue;
 			}
 
-			if ( ! $this->is_allowed_plugin_asset( $style->src ) ) {
+			if ( ! $this->is_allowed_plugin_handle( $handle ) ) {
 				unset( $wp_styles->registered[ $handle ] );
 			}
 		}
 	}
 
 	/**
-	 * Check if an asset is a core asset.
+	 * Check if an asset is a core or Gutenberg asset.
 	 *
 	 * @param string $src The asset source URL.
-	 * @return bool True if the asset is a core asset, false otherwise.
+	 * @return bool True if the asset is a core or Gutenberg asset, false otherwise.
 	 */
-	private function is_core_asset( $src ) {
+	private function is_core_or_gutenberg_asset( $src ) {
 		if ( ! is_string( $src ) ) {
 			return false;
 		}
@@ -313,7 +311,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		return empty( $src ) ||
 			$src[0] === '/' ||
 			strpos( $src, 'wp-includes/' ) !== false ||
-			strpos( $src, 'wp-admin/' ) !== false;
+			strpos( $src, 'wp-admin/' ) !== false ||
+			strpos( $src, 'plugins/gutenberg/' ) !== false ||
+			strpos( $src, 'plugins/gutenberg-core/' ) !== false; // WPCOM-specific path
 	}
 
 	/**
@@ -327,18 +327,18 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
-	 * Check if an asset is from an allowed plugin.
+	 * Check if a handle is from an allowed plugin.
 	 *
-	 * @param string $src The asset source URL.
-	 * @return bool True if the asset is from an allowed plugin, false otherwise.
+	 * @param string $handle The asset handle.
+	 * @return bool True if the handle is from an allowed plugin, false otherwise.
 	 */
-	private function is_allowed_plugin_asset( $src ) {
-		if ( ! is_string( $src ) || empty( $src ) ) {
+	private function is_allowed_plugin_handle( $handle ) {
+		if ( ! is_string( $handle ) || empty( $handle ) ) {
 			return false;
 		}
 
-		foreach ( self::ALLOWED_PLUGINS as $allowed_plugin ) {
-			if ( strpos( $src, $allowed_plugin ) !== false ) {
+		foreach ( self::ALLOWED_PLUGIN_HANDLE_PREFIXES as $allowed_prefix ) {
+			if ( strpos( $handle, $allowed_prefix ) === 0 ) {
 				return true;
 			}
 		}
