@@ -13,7 +13,6 @@ const mainConfig = {
 	output: [
 		{
 			dir: './dist/cjs/',
-			exports: 'named',
 			format: 'cjs',
 			preserveModules: true,
 			preserveModulesRoot: 'src',
@@ -22,7 +21,6 @@ const mainConfig = {
 		},
 		{
 			dir: './dist/mjs/',
-			exports: 'named',
 			format: 'esm',
 			preserveModules: true,
 			preserveModulesRoot: 'src',
