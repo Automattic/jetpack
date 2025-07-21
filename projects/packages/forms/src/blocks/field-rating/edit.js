@@ -104,32 +104,32 @@ export default function RatingFieldEdit( props ) {
 		<>
 			{ /* Toolbar controls */ }
 			<BlockControls>
+				{ /* Variation toggle group */ }
 				<ToolbarGroup>
-					{ /* Style toggles */ }
 					<ToolbarButton
-						icon={ StarIcon }
-						label={ __( 'Transform to stars', 'jetpack-forms' ) }
-						isPressed={ variation === 'stars' }
-						onClick={ () => updateVariation( 'stars' ) }
+						icon={ variation === 'stars' ? HeartIcon : StarIcon }
+						label={
+							variation === 'stars'
+								? __( 'Transform to hearts', 'jetpack-forms' )
+								: __( 'Transform to stars', 'jetpack-forms' )
+						}
+						onClick={ () => updateVariation( variation === 'stars' ? 'hearts' : 'stars' ) }
 					/>
-					<ToolbarButton
-						icon={ HeartIcon }
-						label={ __( 'Transform to hearts', 'jetpack-forms' ) }
-						isPressed={ variation === 'hearts' }
-						onClick={ () => updateVariation( 'hearts' ) }
-					/>
-					{ /* Rating count controls */ }
-					<ToolbarButton
-						icon={ plus }
-						label={ __( 'Add star', 'jetpack-forms' ) }
-						onClick={ () => updateMax( Math.min( 10, max + 1 ) ) }
-						disabled={ max >= 10 }
-					/>
+				</ToolbarGroup>
+
+				{ /* Rating count controls group */ }
+				<ToolbarGroup>
 					<ToolbarButton
 						icon={ lineSolid }
 						label={ __( 'Remove star', 'jetpack-forms' ) }
 						onClick={ () => updateMax( Math.max( 2, max - 1 ) ) }
 						disabled={ max <= 2 }
+					/>
+					<ToolbarButton
+						icon={ plus }
+						label={ __( 'Add star', 'jetpack-forms' ) }
+						onClick={ () => updateMax( Math.min( 10, max + 1 ) ) }
+						disabled={ max >= 10 }
 					/>
 				</ToolbarGroup>
 			</BlockControls>
