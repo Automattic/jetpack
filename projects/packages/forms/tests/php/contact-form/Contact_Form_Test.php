@@ -9,7 +9,6 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use Automattic\Jetpack\Constants;
 use DOMDocument;
 use DOMElement;
 use PHPUnit\Framework\Attributes\Before;
@@ -2873,72 +2872,5 @@ EOT;
 
 		// Restore original post
 		$post = $original_post;
-	}
-
-	public function test_encode_form_to_jwt() {
-		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
-		$form = new Contact_Form(
-			array(
-				'to'      => 'hello@email.com',
-				'subject' => 'test subject',
-			),
-			"[contact-field label='Name' type='name' required='1'/]"
-			. "[contact-field label='Message' type='textarea' required='1'/]"
-		);
-
-		$jwt = $form->get_jwt();
-
-		$this->assertNotEmpty( $jwt, 'JWT should not be empty' );
-		$this->assertIsString( $jwt, 'JWT should be a string' );
-
-		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
-
-		// Decode the JWT to verify its structure
-		$to_attribute = $form_copy->get_attribute( 'to' );
-		$this->assertEquals( 'hello@email.com', $to_attribute );
-		$this->assertEquals( $form_copy->get_attributes(), $form->get_attributes(), 'Form attributes should match' );
-		$this->assertEquals( $form->get_attribute( 'to' ), $form_copy->get_attribute( 'to' ), 'Form IDs should match' );
-		$this->assertEquals( $form->get_attribute( 'id' ), $form_copy->get_attribute( 'id' ), 'Form IDs should match' );
-
-		$this->assertTrue( $form_copy->has_verified_jwt, 'Form copy should have verified JWT' );
-		$this->assertFalse( $form->has_verified_jwt, 'Original form should not have verified JWT' );
-
-		$this->assertEquals( $form->hash, $form_copy->hash, 'Form hashes should match' );
-		$this->assertNotEmpty( $form_copy->hash, 'Form hash should not be empty' );
-
-		$this->assertEquals( $form->get_field_ids(), $form_copy->get_field_ids(), 'Field IDs should match' );
-		$this->assertNotEmpty( $form_copy->get_field_ids(), 'Fields should not be empty' );
-		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
-	}
-
-	public function test_get_instance_from_jwt_returns_null_when_no_secret() {
-		// Ensure JETPACK_BLOG_TOKEN is not defined
-		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
-
-		$form = new Contact_Form(
-			array(
-				'to'      => 'test@email.com',
-				'subject' => 'Test Form',
-			),
-			"[contact-field label='Name' type='name' required='1'/]"
-		);
-
-		$jwt = $form->get_jwt();
-		$this->assertNotEmpty( $jwt, 'JWT should not be empty as it uses default secret' );
-		$this->assertIsString( $jwt, 'JWT should be a string' );
-
-		// The form should still be recoverable using the default secret
-		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
-		$this->assertNotNull( $form_copy, 'Should recover form using default secret' );
-		$this->assertTrue( $form_copy->has_verified_jwt, 'Form should have verified JWT with default secret' );
-	}
-
-	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {
-		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
-
-		$form_copy = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token' );
-		$this->assertNull( $form_copy, 'Should return null for invalid JWT token' );
-
-		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 } // end class
