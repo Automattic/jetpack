@@ -1,16 +1,16 @@
 .diff-viewer {
-	font-size: var( --font-body );
+	font-size: var(--font-body);
 	line-height: 1.5;
 }
 
 .diff-viewer__filename {
-	padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base ); // 4px | 8px
-	background-color: var( --jp-gray-10 );
+	padding: calc(var(--spacing-base) / 2) var(--spacing-base); // 4px | 8px
+	background-color: var(--jp-gray-10);
 	font-weight: 600;
 }
 
 .diff-viewer__file {
-	background-color: var( --jp-gray-0 );
+	background-color: var(--jp-gray-0);
 	display: flex;
 	font-family: "Courier 10 Pitch", Courier, monospace;
 	flex-direction: row;
@@ -19,12 +19,12 @@
 }
 
 .diff-viewer__line-numbers {
-	padding: 0 var( --spacing-base ); // 0px | 8px
+	padding: 0 var(--spacing-base); // 0px | 8px
 	display: flex;
 	flex-direction: column;
 	text-align: right;
-	background-color: var( --jp-gray-10 );
-	color: var( --jp-gray-50 );
+	background-color: var(--jp-gray-10);
+	color: var(--jp-gray-50);
 }
 
 .diff-viewer__lines {
@@ -36,17 +36,17 @@
 	div,
 	del,
 	ins {
-		padding: 0 var( --spacing-base ); // 0px | 8px
+		padding: 0 var(--spacing-base); // 0px | 8px
 		text-decoration: none;
 	}
 
 	del {
-		background-color: var( --jp-red-0 );
-		color: var( --jp-red-60 );
+		background-color: var(--jp-red-0);
+		color: var(--jp-red-60);
 	}
 
 	ins {
-		background-color: var( --jp-green-5 );
-		color: var( --jp-green-60 );
+		background-color: var(--jp-green-5);
+		color: var(--jp-green-60);
 	}
 }

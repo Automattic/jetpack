@@ -41,7 +41,7 @@
 		justify-content: center;
 		height: 3rem;
 		max-width: none;
-		border-bottom: 1px solid var( --jp-gray );
+		border-bottom: 1px solid var(--jp-gray);
 
 		.components-button {
 			outline: 0;
@@ -57,12 +57,12 @@
 
 			&.is-active::after {
 				height: 0;
-				border-bottom: 1px solid var( --jp-highlight );
+				border-bottom: 1px solid var(--jp-highlight);
 				margin-bottom: -1px;
 			}
 
-			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-secondary ):not( .is-primary ):not( .is-tertiary ):not( .is-link ):hover::after {
-				border-bottom: 1px solid var( --jp-highlight );
+			&:not(:disabled):not([aria-disabled='true']):not(.is-secondary):not(.is-primary):not(.is-tertiary):not(.is-link):hover::after {
+				border-bottom: 1px solid var(--jp-highlight);
 				margin-bottom: -1px;
 			}
 		}
@@ -86,11 +86,11 @@
 	}
 
 	@media ( min-width: gb.$break-small ) {
-		width: calc( 100vw - 40px );
+		width: calc(100vw - 40px);
 	}
 
 	@media ( min-width: gb.$break-large ) {
-		width: calc( #{gb.$break-large} - 40px );
+		width: calc(#{gb.$break-large} - 40px);
 
 		.components-tab-panel__tabs {
 

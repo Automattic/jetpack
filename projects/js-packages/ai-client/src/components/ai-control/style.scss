@@ -6,8 +6,8 @@
 }
 
 .jetpack-components-ai-control__container {
-	color: var( --jp-gray-80 );
-	background-color: var( --jp-white );
+	color: var(--jp-gray-80);
+	background-color: var(--jp-white);
 	box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.12), 0 3px 9px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.15);
 	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	border-radius: 6px;
@@ -35,7 +35,7 @@
 	align-items: center;
 
 	textarea.jetpack-components-ai-control__input {
-		background-color: var( --jp-white );
+		background-color: var(--jp-white);
 		width: 100%;
 		min-height: 20px;
 		border-radius: 2px;
@@ -44,7 +44,7 @@
 		resize: none !important;
 		border: none;
 		box-shadow: none;
-		color: var( --jp-gray-80 );
+		color: var(--jp-gray-80);
 
 		font-size: 16px;
 		font-weight: 400;
@@ -54,7 +54,7 @@
 
 		&:focus {
 			box-shadow: none;
-			color: var( --jp-gray-80 );
+			color: var(--jp-gray-80);
 		}
 
 		@media (min-width: 600px) {

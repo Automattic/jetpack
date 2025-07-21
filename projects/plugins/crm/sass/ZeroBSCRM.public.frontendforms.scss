@@ -8,58 +8,61 @@
 // import actual form styles (shared from front end + backend)
 @use 'ZeroBSCRM.frontendforms';
 
-.widget, .mh-sidebar{
+.widget,
+.mh-sidebar {
 
-	.content{
+	.content {
 
-		h3{
-			margin-top:10px !important;
-			margin-bottom:10px;
+		h3 {
+			margin-top: 10px !important;
+			margin-bottom: 10px;
 		}
 	}
 
-	.simple{
+	.simple {
 
-	    .input{
-			width:90% !important;
-			float:left;
-			margin-right:2%;
+		.input {
+			width: 90% !important;
+			float: left;
+			margin-right: 2%;
 			border: 1px solid #ddd;
 			padding: 5px;
-			text-align:left;
+			text-align: left;
 			font-weight: 100;
 			background: #fff;
 		}
 
-		.send, input[type="submit"]{
+		.send,
+		input[type="submit"] {
 			width: 80% !important;
 			background: #0d6db8;
 			color: #fff;
 			height: 33px;
-			float:left;
+			float: left;
 			text-align: center;
-			line-height:12px;
-		    border: 0;
-		    margin-top: 10px !important;
+			line-height: 12px;
+			border: 0;
+			margin-top: 10px !important;
 			margin-left: 8%;
-		}	
-	}				
+		}
+	}
 }
 
 // reCaptcha
 .zbscrmReCaptcha {
 
-    display: block;
-    width: 100%;
-    clear: both;
-    margin-bottom: 8px;
+	display: block;
+	width: 100%;
+	clear: both;
+	margin-bottom: 8px;
     
 }
 
-.naked, .simple {
+.naked,
+.simple {
 
 	.zbscrmReCaptcha {
-		padding-top:8px;
+		padding-top: 8px;
 	}
 
 }

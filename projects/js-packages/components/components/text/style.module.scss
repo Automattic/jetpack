@@ -101,18 +101,18 @@ $sides: (
 
 		/* m, p */
 		.#{$p}-#{$size} {
-			#{$prop}: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}: calc(var(--spacing-base) * #{$size});
 		}
 
 		/* mx, px */
 		.#{$p}x-#{$size} {
-			#{$prop}-left: calc( var( --spacing-base ) * #{$size} );
-			#{$prop}-right: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}-left: calc(var(--spacing-base) * #{$size});
+			#{$prop}-right: calc(var(--spacing-base) * #{$size});
 		}
 
 		.#{$p}y-#{$size} {
-			#{$prop}-top: calc( var( --spacing-base ) * #{$size} );
-			#{$prop}-bottom: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}-top: calc(var(--spacing-base) * #{$size});
+			#{$prop}-bottom: calc(var(--spacing-base) * #{$size});
 		}
 
 		/* mt, mr, mb, ml */
@@ -120,7 +120,7 @@ $sides: (
 		/* pt, pr, pb, pl */
 		@each $side, $s in $sides {
 			.#{$p}#{$s}-#{$size} {
-				#{$prop}-#{$side}: calc( var( --spacing-base ) * #{$size} );
+				#{$prop}-#{$side}: calc(var(--spacing-base) * #{$size});
 			}
 		}
 	}

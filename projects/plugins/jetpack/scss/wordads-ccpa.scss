@@ -14,7 +14,8 @@ body.admin-bar .cleanslate .components-modal__frame {
 
 	/* Modal */
 
-	.components-modal__screen-overlay, .ccpa__loading-overlay {
+	.components-modal__screen-overlay,
+	.ccpa__loading-overlay {
 		position: fixed !important;
 		top: 0 !important;
 		right: 0 !important;
@@ -174,7 +175,8 @@ body.admin-bar .cleanslate .components-modal__frame {
 
 	.components-icon-button:not(:disabled):not([aria-disabled="true"]):not(.is-default) {
 
-		&:hover, &:focus {
+		&:hover,
+		&:focus {
 			background-color: #fff !important;
 			color: #1d2327 !important;
 			box-shadow: inset 0 0 0 1px #e2e4e7, inset 0 0 0 2px #fff, 0 1px 1px rgba(25, 30, 35, 0.2) !important;
@@ -188,7 +190,8 @@ body.admin-bar .cleanslate .components-modal__frame {
 		box-shadow: inset 0 0 0 1px #c3c4c7, inset 0 0 0 2px #fff !important;
 	}
 
-	.components-icon-button[aria-disabled="true"]:focus, .components-icon-button:disabled:focus {
+	.components-icon-button[aria-disabled="true"]:focus,
+	.components-icon-button:disabled:focus {
 		box-shadow: none !important;
 	}
 
@@ -376,7 +379,8 @@ body.admin-bar .cleanslate .components-modal__frame {
 		text-shadow: 0 -1px 1px rgb(0, 93, 130), 1px 0 1px rgb(0, 93, 130), 0 1px 1px rgb(0, 93, 130), -1px 0 1px rgb(0, 93, 130) !important;
 	}
 
-	.components-button.is-primary:hover, .components-button.is-primary:focus:enabled {
+	.components-button.is-primary:hover,
+	.components-button.is-primary:focus:enabled {
 		background: rgb(0, 126, 177) !important;
 		border-color: rgb(0, 67, 93) !important;
 		color: #fff !important;
@@ -393,7 +397,10 @@ body.admin-bar .cleanslate .components-modal__frame {
 		vertical-align: top !important;
 	}
 
-	.components-button.is-primary:disabled, .components-button.is-primary:disabled:active:enabled, .components-button.is-primary[aria-disabled="true"], .components-button.is-primary[aria-disabled="true"]:active:enabled {
+	.components-button.is-primary:disabled,
+	.components-button.is-primary:disabled:active:enabled,
+	.components-button.is-primary[aria-disabled="true"],
+	.components-button.is-primary[aria-disabled="true"]:active:enabled {
 		color: rgb(102, 182, 214) !important;
 		background: rgb(0, 133, 186) !important;
 		border-color: rgb(0, 124, 173) !important;
@@ -402,12 +409,26 @@ body.admin-bar .cleanslate .components-modal__frame {
 		opacity: 1 !important;
 	}
 
-	.components-button.is-primary:disabled.is-button, .components-button.is-primary:disabled.is-button:hover, .components-button.is-primary:disabled:active:enabled, .components-button.is-primary:disabled:active:enabled.is-button, .components-button.is-primary:disabled:active:enabled.is-button:hover, .components-button.is-primary:disabled:active:enabled:active:enabled, .components-button.is-primary[aria-disabled="true"].is-button, .components-button.is-primary[aria-disabled="true"].is-button:hover, .components-button.is-primary[aria-disabled="true"]:active:enabled, .components-button.is-primary[aria-disabled="true"]:active:enabled.is-button, .components-button.is-primary[aria-disabled="true"]:active:enabled.is-button:hover, .components-button.is-primary[aria-disabled="true"]:active:enabled:active:enabled {
+	.components-button.is-primary:disabled.is-button,
+	.components-button.is-primary:disabled.is-button:hover,
+	.components-button.is-primary:disabled:active:enabled,
+	.components-button.is-primary:disabled:active:enabled.is-button,
+	.components-button.is-primary:disabled:active:enabled.is-button:hover,
+	.components-button.is-primary:disabled:active:enabled:active:enabled,
+	.components-button.is-primary[aria-disabled="true"].is-button,
+	.components-button.is-primary[aria-disabled="true"].is-button:hover,
+	.components-button.is-primary[aria-disabled="true"]:active:enabled,
+	.components-button.is-primary[aria-disabled="true"]:active:enabled.is-button,
+	.components-button.is-primary[aria-disabled="true"]:active:enabled.is-button:hover,
+	.components-button.is-primary[aria-disabled="true"]:active:enabled:active:enabled {
 		box-shadow: none !important;
 		text-shadow: none !important;
 	}
 
-	.components-button.is-primary:disabled:focus:enabled, .components-button.is-primary:disabled:active:enabled:focus:enabled, .components-button.is-primary[aria-disabled="true"]:focus:enabled, .components-button.is-primary[aria-disabled="true"]:active:enabled:focus:enabled {
+	.components-button.is-primary:disabled:focus:enabled,
+	.components-button.is-primary:disabled:active:enabled:focus:enabled,
+	.components-button.is-primary[aria-disabled="true"]:focus:enabled,
+	.components-button.is-primary[aria-disabled="true"]:active:enabled:focus:enabled {
 		color: rgb(102, 182, 214) !important;
 		border-color: rgb(0, 124, 173) !important;
 		box-shadow: 0 0 0 1px #fff, 0 0 0 3px #007cba !important;
@@ -457,7 +478,8 @@ body.admin-bar .cleanslate .components-modal__frame {
 		display: inline-block !important;
 	}
 
-	.ccpa-privacy, .ccpa-privacy:visited {
+	.ccpa-privacy,
+	.ccpa-privacy:visited {
 		color: rgb(0, 133, 186) !important;
 		text-decoration: none !important;
 	}

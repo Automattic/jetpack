@@ -19,7 +19,7 @@ $section-border: #dcdcde;
 	background: calypso-colors.$white;
 	box-shadow:
 		0 0 0 1px calypso-colors.$light-gray-700,
-		0 1px 1px 1px  rgba(0,0,0,.04);
+		0 1px 1px 1px  rgba(0, 0, 0, .04);
 
 	@include layout.clear-fix;
 
@@ -49,18 +49,18 @@ h2.dops-card-title {
 
 // Clickable Card
 .dops-card__link-indicator {
-	color: color.adjust( calypso-colors.$gray, $lightness: 20% );
+	color: color.adjust(calypso-colors.$gray, $lightness: 20%);
 	display: block;
 	height: 100%;
 	position: absolute;
-		top: 0;
-		right: 16px;
+	top: 0;
+	right: 16px;
 }
 
 a.dops-card:hover {
 
 	.dops-card__link-indicator {
-		color: color.adjust( calypso-colors.$gray, $lightness: 10% );
+		color: color.adjust(calypso-colors.$gray, $lightness: 10%);
 	}
 }
 

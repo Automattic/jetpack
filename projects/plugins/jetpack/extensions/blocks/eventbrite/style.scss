@@ -36,23 +36,23 @@
 @media (max-width: 660px) {
 
 	.eventbrite__lighbox-iframe-wrapper {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
 	}
 }
 
 @media (min-width: 661px) {
 
 	.eventbrite__lighbox-iframe-wrapper {
-	width: 95%;
-	height: 95%;
-	max-width: 1080px;
-	max-height: 720px;
-	margin: auto;
-	position: relative;
+		width: 95%;
+		height: 95%;
+		max-width: 1080px;
+		max-height: 720px;
+		margin: auto;
+		position: relative;
 	}
 }
 

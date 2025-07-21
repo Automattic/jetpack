@@ -8,7 +8,7 @@
 	ul {
 
 		@include breakpoints.breakpoint( "<480px" ) {
-			font-size: rem.convert( 12px );
+			font-size: rem.convert(12px);
 		}
 	}
 }
@@ -32,6 +32,6 @@
 
 .loading-notice {
 	height: 47px;
-    margin-bottom: 24px;
-    border-radius: 3px;
+	margin-bottom: 24px;
+	border-radius: 3px;
 }

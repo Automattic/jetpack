@@ -11,7 +11,7 @@
 }
 
 .button {
-	margin-top: calc( var( --spacing-base ) * 2 );
+	margin-top: calc(var(--spacing-base) * 2);
 	grid-column: span 2;
 	justify-self: flex-start;
 
@@ -31,7 +31,7 @@
 
 .cut {
 	grid-column: 2;
-	margin-top: var( --spacing-base );
+	margin-top: var(--spacing-base);
 
 	&.small {
 		grid-column: span 2;

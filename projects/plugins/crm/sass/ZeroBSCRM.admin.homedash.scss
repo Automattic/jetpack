@@ -3,32 +3,33 @@
  * https://jetpackcrm.com
  */
 
- // this file is referenced in Mike's new ZBS dash
+// this file is referenced in Mike's new ZBS dash
 
-a, a:visited{
-  text-decoration: none;
+a,
+a:visited {
+	text-decoration: none;
 }
 
-a:focus{
-  outline:none;
+a:focus {
+	outline: none;
 }
 
 .progress {
-    background-color: #f5f5f5;
-    box-shadow: none !important;
-    height: 10px;
-    margin-bottom: 18px;
-    overflow: hidden;
+	background-color: #f5f5f5;
+	box-shadow: none !important;
+	height: 10px;
+	margin-bottom: 18px;
+	overflow: hidden;
 }
 
-.img-rounded{
-  border-radius:50%;
-  float:left;
-  margin-right:5px;
+.img-rounded {
+	border-radius: 50%;
+	float: left;
+	margin-right: 5px;
 }
 
 .jpcrm-avatar-small {
-  width: 25px;
+	width: 25px;
 }
 
 .dashboard-custom-choices {
@@ -38,8 +39,8 @@ a:focus{
 	}
 }
 
-body ::-webkit-scrollbar-track{
-background: #fff;
+body ::-webkit-scrollbar-track {
+	background: #fff;
 }
 
 .jpcrm-dashcard-header {
@@ -61,11 +62,13 @@ background: #fff;
 	}
 }
 
-#settings_dashboard_sales_funnel_display, #settings_dashboard_recent_activity_display {
+#settings_dashboard_sales_funnel_display,
+#settings_dashboard_recent_activity_display {
 	flex: 0 1 30%;
 }
 
-#settings_dashboard_revenue_chart_display, #settings_dashboard_latest_contacts_display {
+#settings_dashboard_revenue_chart_display,
+#settings_dashboard_latest_contacts_display {
 	flex: 0 1 70%;
 }
 
@@ -83,11 +86,11 @@ background: #fff;
 			padding-left: 10px;
 			display: flex;
 			align-items: center;
-			margin-bottom:10px;
-			margin-top:10px;
+			margin-bottom: 10px;
+			margin-top: 10px;
 
 			.ui.avatar.img.img-rounded {
-					margin-right: 10px;
+				margin-right: 10px;
 			}
 		}
 	}

@@ -386,6 +386,22 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$container_classes[]      = self::get_block_alignment_class( $attributes );
 		$container_classes_string = implode( ' ', $container_classes );
 
+		$is_reload_after_success = isset( $_GET['contact-form-id'] )
+		&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
+		&& isset( $_GET['contact-form-sent'] )
+		&& isset( $_GET['contact-form-hash'] )
+		&& is_string( $_GET['contact-form-hash'] )
+		&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$feedback_id           = 0;
+		$is_reload_nonce_valid = false;
+
+		if ( $is_reload_after_success ) {
+			$feedback_id           = (int) $_GET['contact-form-sent'];
+			$is_reload_nonce_valid = isset( $_GET['_wpnonce'] )
+				&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), "contact-form-sent-{$feedback_id}" );
+		}
+
 		$max_steps = 0;
 		if ( preg_match_all( '/data-wp-context=[\'"]?{"step":(\d+)}[\'"]?/', $content, $matches ) ) {
 			if ( ! empty( $matches[1] ) ) {
@@ -396,6 +412,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$is_multistep = $max_steps > 0;
 		$element_id   = 'jp-form-' . esc_attr( $form->hash );
 
+		// Initial data used to render the success message when the page is reloaded after a successful submission
+		// Don't show the feedback details unless the nonce matches
+		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'], $form ) : null;
+		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
+		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
+
 		$default_context = array(
 			'formId'                         => $id,
 			'formHash'                       => $form->hash,
@@ -404,7 +426,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'fields'                         => array(),
 			'isMultiStep'                    => $is_multistep, // Whether the form is a multistep form.
 			'isResponseWithoutReloadEnabled' => $form->is_response_without_reload_enabled,
-			'submissionData'                 => null,
+			'submissionData'                 => $submission_data,
+			'formattedSubmissionData'        => $formatted_submission_data,
+			'submissionSuccess'              => $submission_success,
 			'submissionError'                => null,
 			'elementId'                      => $element_id,
 		);
@@ -434,7 +458,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		>\n";
 
 		if ( $form->is_response_without_reload_enabled ) {
-			$r .= self::render_ajax_success_wrapper( $form );
+			$r .= self::render_ajax_success_wrapper( $form, $submission_success, $formatted_submission_data );
 		}
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
@@ -446,14 +470,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "</ul>\n</div>\n\n";
 		}
 
-		if ( isset( $_GET['contact-form-id'] )
-			&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
-			&& isset( $_GET['contact-form-sent'] ) && isset( $_GET['contact-form-hash'] )
-			&& is_string( $_GET['contact-form-hash'] )
-			&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $is_reload_after_success && ! $form->is_response_without_reload_enabled ) {
 			// The contact form was submitted.  Show the success message/results.
-			$feedback_id = (int) $_GET['contact-form-sent'];
-
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
 			$r       .= '<div class="contact-form-submission">';
 
@@ -464,11 +482,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				"</h4>\n\n";
 
 			// Don't show the feedback details unless the nonce matches
-			if (
-				$feedback_id
-				&& isset( $_GET['_wpnonce'] )
-				&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), "contact-form-sent-{$feedback_id}" )
-			) {
+			if ( $is_reload_nonce_valid ) {
 				$r_success_message .= self::success_message( $feedback_id, $form );
 			}
 
@@ -516,9 +530,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id, $page );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
-			$post_title              = $post->post_title ?? '';
-			$form_accessible_name    = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
-			$form_aria_label         = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
+			if ( $submission_success ) {
+				$form_classes .= ' submission-success';
+			}
+			$post_title           = $post->post_title ?? '';
+			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
+			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
 			if ( $has_submit_button_block ) {
 				$form_classes .= ' wp-block-jetpack-contact-form';
@@ -530,7 +547,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
 				data-wp-on--submit=\"actions.onFormSubmit\"
 				data-wp-on--reset=\"actions.onFormReset\"
-				data-wp-class--is-submitted=\"state.hasSubmitted\"
+				data-wp-class--submission-success=\"context.submissionSuccess\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
 				data-wp-class--is-ajax-form=\"context.isResponseWithoutReloadEnabled\"
@@ -633,6 +650,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Helper function to format the submission data for the success message.
+	 *
+	 * @param array $data The submission data.
+	 *
+	 * @return array The formatted submission data.
+	 */
+	private static function format_submission_data( $data ) {
+		$formatted_submission_data = array();
+
+		foreach ( $data as $field_data ) {
+			$formatted_submission_data[] = array(
+				'label' => self::maybe_add_colon_to_label( $field_data['label'] ),
+				'value' => self::maybe_transform_value( $field_data['value'] ),
+			);
+		}
+
+		return $formatted_submission_data;
+	}
+
+	/**
 	 * Helper function that display the error wrapper.
 	 *
 	 * @return string HTML string for the error wrapper.
@@ -654,12 +691,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Renders the success wrapper after a form is submitted without reloading the page.
 	 *
 	 * @param Contact_Form $form - the contact form.
+	 * @param bool         $submission_success - whether the form has already been submitted.
+	 * @param array        $formatted_submission_data - the formatted submission data.
 	 *
 	 * @return string HTML string for the success wrapper.
 	 */
-	private static function render_ajax_success_wrapper( $form ) {
-		$html  = '<div class="contact-form-submission contact-form-ajax-submission" data-wp-class--is-submitted="state.hasSubmitted">';
-		$html .= '<p class="go-back-message"> <a class="link" href="#" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+	private static function render_ajax_success_wrapper( $form, $submission_success = false, $formatted_submission_data = array() ) {
+		$classes = 'contact-form-submission contact-form-ajax-submission';
+		if ( $submission_success ) {
+			$classes .= ' submission-success';
+		}
+		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
+		$html .= '<p class="go-back-message"> <a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
@@ -683,10 +726,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$html .= wp_kses( $raw_message, $allowed_html );
 		} else {
-			$html .= '<template data-wp-each--submission="state.getSubmissionData">
-				<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-				<div class="field-value" data-wp-text="context.submission.value"></div>
+			$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
+				<div>
+					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
+					<div class="field-value" data-wp-text="context.submission.value"></div>
+				</div>
 			</template>';
+
+			// For each entry in the submission data array, render a div with the label and value.
+			foreach ( $formatted_submission_data as $submission ) {
+				$html .= '<div data-wp-each-child>
+					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . $submission['label'] . '</div>
+					<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
+				</div>';
+			}
 		}
 
 		$html .= '</div>';
@@ -782,7 +835,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$json_data = array();
 
 		// Handle file upload field (new structure with field_id and files array)
-		foreach ( $raw_data as $field_index => $field_data ) {
+		foreach ( $raw_data as $field_data ) {
 			$value = $field_data['value'];
 			$label = $field_data['label'];
 
@@ -798,16 +851,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 						$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
 						$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
 
-						$json_data[ $field_index ]['label'] = $label;
-						$json_data[ $field_index ]['value'] = array(
-							'name' => $file_name,
-							'size' => $file_size,
+						$json_data[] = array(
+							'label' => $label,
+							'value' => array(
+								'name' => $file_name,
+								'size' => $file_size,
+							),
 						);
 					}
 				}
 			} else {
-				$json_data[ $field_index ]['label'] = $label;
-				$json_data[ $field_index ]['value'] = $value;
+				$json_data[] = array(
+					'label' => $label,
+					'value' => $value,
+				);
 			}
 		}
 
@@ -2017,6 +2074,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
 
+		$refresh_args = array(
+			'contact-form-id'   => $id,
+			'contact-form-sent' => $post_id,
+			'contact-form-hash' => $this->hash,
+			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
+		);
+
 		// If the request accepts JSON, return a JSON response instead of redirecting
 		$accepts_json = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
@@ -2025,8 +2089,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			echo wp_json_encode(
 				array(
-					'success' => true,
-					'data'    => self::get_json_data( $post_id, $this ),
+					'success'     => true,
+					'data'        => self::get_json_data( $post_id, $this ),
+					'refreshArgs' => $refresh_args,
 				)
 			);
 
@@ -2056,14 +2121,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( ! $custom_redirect ) {
 			$redirect = add_query_arg(
-				urlencode_deep(
-					array(
-						'contact-form-id'   => $id,
-						'contact-form-sent' => $post_id,
-						'contact-form-hash' => $this->hash,
-						'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
-					)
-				),
+				urlencode_deep( $refresh_args ),
 				$redirect
 			);
 		}
@@ -2354,6 +2412,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':' ) . ':';
 
 		return $formatted_label;
+	}
+
+	/**
+	 * Ensures a value is formatted as a string, taking into account file upload fields.
+	 *
+	 * @param mixed $value The value to transform.
+	 * @return mixed The transformed value.
+	 */
+	private static function maybe_transform_value( $value ) {
+		// For file upload fields, we want to show the file name and size
+		if ( is_array( $value ) && isset( $value['name'] ) && isset( $value['size'] ) ) {
+			$file_name = $value['name'];
+			$file_size = $value['size'];
+			return empty( $file_size ) ? $file_name : $file_name . ' (' . $file_size . ')';
+		}
+
+		return $value;
 	}
 
 	/**

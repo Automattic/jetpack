@@ -38,8 +38,8 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.27.7",
-		"@babel/preset-env": "7.27.2",
+		"@babel/core": "7.28.0",
+		"@babel/preset-env": "7.28.0",
 		"@babel/runtime": "7.27.6",
 		"@wordpress/browserslist-config": "6.26.0",
 		"sass-embedded": "1.87.0",

@@ -808,7 +808,7 @@ class Block_Scanner {
 		}
 
 		$json_span = substr( $this->source_text, $this->json_at, $this->json_length );
-		$parsed    = json_decode( $json_span, true, 512, JSON_OBJECT_AS_ARRAY | JSON_INVALID_UTF8_SUBSTITUTE );
+		$parsed    = json_decode( $json_span, null, 512, JSON_OBJECT_AS_ARRAY | JSON_INVALID_UTF8_SUBSTITUTE );
 
 		$last_error            = json_last_error();
 		$this->last_json_error = $last_error;

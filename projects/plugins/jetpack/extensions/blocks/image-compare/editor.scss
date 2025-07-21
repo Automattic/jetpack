@@ -13,7 +13,7 @@
 .jx-slider.jx-slider {
 	top: 1px;
 	inset-inline-start: 1px;
-	width: calc( 100% - 2px );
+	width: calc(100% - 2px);
 }
 
 .image-compare__placeholder > .components-placeholder {
@@ -67,7 +67,7 @@
 }
 
 // Disable the juxtaposition effect until the block itself is selected.
-[data-type='jetpack/image-compare']:not( .is-selected ) .image-compare__comparison {
+[data-type='jetpack/image-compare']:not(.is-selected) .image-compare__comparison {
 	pointer-events: none;
 }
 
