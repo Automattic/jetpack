@@ -102,6 +102,22 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( ALLOWED_CORE_BLOCKS ).filter(
 
 const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
+const generateUUID = () => {
+	if ( typeof crypto !== 'undefined' && crypto.randomUUID ) {
+		return crypto.randomUUID();
+	}
+
+	// on non https environments, crypto.randomUUID is not available, so we use a fallback
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
+		const r = Math.floor( Math.random() * 16 );
+		const v = c === 'x' ? r : Math.floor( r / 4 ) + 8;
+		return v.toString( 16 );
+	} );
+};
+
+const generateRandomName = () =>
+	Math.random().toString( 36 ).substring( 2, 10 ) + Math.random().toString( 36 ).substring( 2, 10 );
+
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
 	const {
 		to,
@@ -112,8 +128,24 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouRedirect,
 		formTitle,
 		variationName,
+		name: formName,
+		uuid,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
+
+	// Effect for UUID generation
+	useEffect( () => {
+		if ( ! uuid ) {
+			setAttributes( { uuid: generateUUID() } );
+		}
+	}, [ uuid, setAttributes ] );
+
+	// Effect for name generation
+	useEffect( () => {
+		if ( ! formName ) {
+			setAttributes( { name: generateRandomName() } );
+		}
+	}, [ formName, setAttributes ] );
 
 	const steps = useFormSteps( clientId );
 

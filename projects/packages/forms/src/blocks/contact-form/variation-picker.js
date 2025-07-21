@@ -55,7 +55,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					'Start by selecting one of these templates, or browse patterns.',
 					'jetpack-forms'
 				) }
-				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
+				variations={ ( variations || [] ).filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ ( nextVariation = defaultVariation ) => {
 					registry.batch( () => {
 						if ( nextVariation.attributes ) {

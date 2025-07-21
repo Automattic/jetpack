@@ -44,4 +44,12 @@ export default {
 			sendToSalesforce: false,
 		},
 	},
+	uuid: {
+		type: 'string',
+		default: '',
+	},
+	name: {
+		type: 'string',
+		default: '',
+	},
 };
