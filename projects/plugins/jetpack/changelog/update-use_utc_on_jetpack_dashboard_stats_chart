@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Use UTC for Jetpack Stats chart on Dashboard.
