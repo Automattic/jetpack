@@ -2955,7 +2955,11 @@ EOT;
 		$this->assertNotNull( $form_copy, 'Should recover form using default secret' );
 		$this->assertTrue( $form_copy->has_verified_jwt, 'Form should have verified JWT with default secret' );
 
-		$this->assertEquals( $form->get_attributes( 'salesforceData' ), $form_copy->get_attributes( 'salesforceData' ), 'Form attributes should match' );
+		$this->assertEquals( $form->get_attribute( 'salesforceData' ), $form_copy->get_attribute( 'salesforceData' ), 'Form attributes should match' );
+		$this->assertIsArray( $form_copy->get_attribute( 'salesforceData' ), 'salesforceData should be an array' );
+
+		$this->assertArrayHasKey( 'organizationId', $form_copy->get_attribute( 'salesforceData' ), 'salesforceData should contain organizationId' );
+		$this->assertSame( '12345', $form_copy->get_attribute( 'salesforceData' )['organizationId'], 'organizationId should match' );
 	}
 
 	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {
