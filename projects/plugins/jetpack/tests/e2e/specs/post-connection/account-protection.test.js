@@ -151,7 +151,6 @@ test.describe.parallel( 'Strong password requirements', () => {
 		const page = await browser.newPage( playwrightConfig.use );
 
 		await prerequisitesBuilder( page )
-			.withLoggedIn( true )
 			.withInactiveModules( [ 'protect', 'sso' ] )
 			.withActiveModules( [ 'account-protection' ] )
 			.build();

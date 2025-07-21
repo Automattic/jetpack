@@ -1,12 +1,4 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import playwrightConfig from '../../playwright.config.mjs';
-
-test.beforeAll( async ( { browser } ) => {
-	const page = await browser.newPage( playwrightConfig.use );
-	await prerequisitesBuilder( page ).withLoggedIn( true ).withWpComLoggedIn( true ).build();
-	await page.close();
-} );
 
 test.afterEach( async ( { requestUtils } ) => {
 	// List all feedback submissions.
