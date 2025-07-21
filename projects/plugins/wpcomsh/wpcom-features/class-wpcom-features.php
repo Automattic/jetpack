@@ -1626,6 +1626,21 @@ class WPCOM_Features {
 			}
 
 			$purchase_eligible_by_date = false;
+			$purchase_eligible_by_sticker = false;
+
+			// Check if sticker requirement exists.
+			$required_sticker = isset( $product_definition['required_sticker'] ) ? $product_definition['required_sticker'] : null;
+			if ( $required_sticker ) {
+				// Get blog ID from global context or purchase object if available.
+				$blog_id = isset( $purchase->blog_id ) ? $purchase->blog_id : get_current_blog_id();
+				if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( $required_sticker, $blog_id ) ) {
+					$purchase_eligible_by_sticker = true;
+				}
+				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
+				unset( $product_definition['required_sticker'] );
+			} else {
+				$purchase_eligible_by_sticker = true; // No sticker requirement, so eligible by default.
+			}
 
 			// If 'before' & 'after' are empty, this is not a legacy feature.
 			if ( empty( $product_definition['before'] ) && empty( $product_definition['after'] ) ) {
@@ -1659,8 +1674,8 @@ class WPCOM_Features {
 				}
 			}
 
-			// If the date range hurtle is cleared, check if the purchase is included in the $product_definition.
-			if ( $purchase_eligible_by_date ) {
+			// If the date range and sticker requirements are cleared, check if the purchase is included in the $product_definition.
+			if ( $purchase_eligible_by_date && $purchase_eligible_by_sticker ) {
 				if ( self::in_array_recursive( $purchase->product_slug ?? null, array( $product_definition ) ) ) {
 					return true;
 				}
