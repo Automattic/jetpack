@@ -140,6 +140,10 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	className,
 	style,
 } ) => {
+	// TODO: Integrate with ThemeProvider:
+	// 1. Use theme.colors for primaryColor/secondaryColor defaults
+	// 2. Get delta sign colors from theme instead of hardcoding
+	// 3. Add useChartTheme() hook like other chart components
 	const signColors = [ '#D63638', '#757575', '#008A20' ];
 
 	const chartStyle = {
