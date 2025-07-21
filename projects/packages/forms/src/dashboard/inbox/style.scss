@@ -125,7 +125,11 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-response-header {
 	margin: 24px 0 0;
-	padding: 0 32px;
+	padding: 0 32px 0 0;
+
+	@media (min-width: 782px) {
+		padding: 0 32px;
+	}
 }
 
 .jp-forms__inbox-response-header-title {
