@@ -95,7 +95,8 @@
 	}
 }
 
-// When a description section follows the list, remove the extra margin from the top of the description.
+// When a description section follows the list, remove
+// the extra margin from the top of the description.
 .jp-recommendations-question__description-list + .jp-recommendations-question__description {
 	margin-top: 0;
 }

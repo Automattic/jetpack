@@ -8,7 +8,7 @@
  * Date: 31/01/18
  */
 
-// Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
+// Import generic edit page styles (old legacy from taxibooker! :o to rewrite)
 @use "ZeroBSCRM.timelines";
 
 // hide these, they look bad/inaccessible on this page:
@@ -22,8 +22,8 @@
 #zbs-customer-panel,
 #zbs-company-panel {
 
-	// THIS shouldn't really be here, it's too VAGUE - it affects other default avatars in
-	// the vitals box.
+	// THIS shouldn't really be here, it's too VAGUE - it affects other default
+	// avatars in the vitals box.
 	// Refine this specifically for an ID (later)
 	.zbs-default-avatar {
 
@@ -79,7 +79,8 @@
 		margin-top: 1em;
 	}
 
-	// using actual .button breaks the css.. for now, hackily putting htis in here to simulate basic button
+	// using actual .button breaks the css...
+	// for now, hackily putting this in here to simulate basic button
 	// NOTE this is also in contact edit metabox! copy any changes if made:
 	.action-button {
 		cursor: pointer;

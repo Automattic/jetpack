@@ -410,7 +410,8 @@
 }
 
 // -------- Search --------
-// stylelint-disable-next-line no-duplicate-selectors -- This is a styling section for a distinct purpose.
+// stylelint-disable-next-line no-duplicate-selectors
+// -- This is a styling section for a distinct purpose.
 .dops-section-nav {
 
 	@include mixin_breakpoint.breakpoint( "<660px" ) {

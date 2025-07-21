@@ -1,7 +1,7 @@
 // Just in Time Messaging - message prompts
 @use "sass:color";
 
-// TODO: Switch to using the `@automattic/jetpack-base-styles` package when its ready.
+// TODO: Switch to using the `@automattic/jetpack-base-styles`.
 @use "../../../../plugins/jetpack/_inc/client/scss/functions/rem";
 @use "../../../../plugins/jetpack/_inc/client/scss/variables/colors";
 @use "../../../../plugins/jetpack/_inc/client/scss/mixins/breakpoints";
@@ -130,7 +130,8 @@ $jp-gray-20:             #a7aaad;
 		.gridicons-plus-small:last-of-type {
 			margin-left: 0;
 		}
-		// Make plus icon nudged closer to adjacent icons for add-people and add-plugin type buttons
+		// Make plus icon nudged closer to adjacent icons for
+		// add-people and add-plugin type buttons
 		.gridicons-plus-small + .gridicon {
 			margin-left: -4px;
 		}

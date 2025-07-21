@@ -49,7 +49,7 @@ ul#adminmenu > li.current > a.current::after {
 
 }
 
-// WP default sets all <p> to be tiny (13px) - this undoes that before semantic sets in :)
+// WP sets all <p> to be tiny (13px). This undoes that before Semantic sets in.
 .ui p {
 	font-size: 1em;
 }
@@ -167,7 +167,7 @@ i.alternate {
 }
 
 
-// ===== WordPress 5.3 introduced some styles which broke some semantic ui overrides:
+// WordPress 5.3 introduced some styles which broke some semantic ui overrides.
 .ui[class*="right labeled"].input input,
 .ui.fluid.input > input {
 	height: auto !important;
@@ -180,8 +180,9 @@ i.alternate {
 } */
 
 
-// ==== Everywhere we want semantic overrides, we also want modal overrides (small addition)
+// Everywhere we want semantic overrides, we also want modal overrides.
 
 // pull in modal css
-/* stylelint-disable-next-line no-invalid-position-at-import-rule -- this is an intentional override */
+/* stylelint-disable-next-line no-invalid-position-at-import-rule
+-- this is an intentional override */
 @include meta.load-css("JetpackCRM.admin.modals");

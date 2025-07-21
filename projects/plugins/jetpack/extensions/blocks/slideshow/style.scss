@@ -101,7 +101,7 @@
 		object-fit: cover;
 	}
 
-	// When the slideshow transition is set to "fade", hide all slides that are not active.
+	// When slideshow transition is set to "fade", hide slides that are not active.
 	.swiper-fade .wp-block-jetpack-slideshow_slide:not(.swiper-slide-active) {
 		opacity: 0 !important;
 	}

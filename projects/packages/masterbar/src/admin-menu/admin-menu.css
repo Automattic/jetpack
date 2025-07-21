@@ -356,7 +356,8 @@ a.screen-switcher__button:hover > strong {
 
 /** Add new site button **/
 
-/* stylelint-disable-next-line no-duplicate-selectors -- This is part of a larger section of changes. */
+/* stylelint-disable-next-line no-duplicate-selectors
+-- This is part of a larger section of changes. */
 #adminmenu {
 	display: flex;
 	flex-direction: column;

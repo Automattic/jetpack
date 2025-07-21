@@ -460,7 +460,8 @@
 						padding: 0;
 						display: flex;
 						overflow: hidden;
-						// Because of the overlap & focus we need to adjust things a bit so it looks the same
+						// Because of the overlap & focus we need to adjust
+						// things a bit so it looks the same
 						margin: -2px 0 -2px -2px;
 
 						button {
@@ -476,7 +477,7 @@
 
 							&:focus {
 								outline: 2px solid var(--verbum-focus-color);
-								// The buttons overlap so we need to add a z-index to the focussed button
+								// The buttons overlap so we need to add a z-index to focussed button
 								z-index: 1;
 							}
 						}

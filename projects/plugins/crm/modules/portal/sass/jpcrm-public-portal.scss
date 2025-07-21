@@ -205,7 +205,8 @@
 		}
 	}
 
-	/* Few tweaks as provided by Alvaro in slack ... wh selectively added those which made sense for multi-theme userbase JIRA-ZBS-531 */
+	/* Few tweaks as provided by Alvaro in slack ... wh selectively added
+	 * those which made sense for multi-theme userbase JIRA-ZBS-531 */
 	.zbs-portal-login .login-form input[type="text"],
 	.zbs-portal-login .login-form input[type="password"],
 	.form-control.widetext,
@@ -509,10 +510,10 @@
 	overflow: auto;
 
 	@media (min-width: 1100px) {
-		// puts the menu in the first column (1fr) and content in the second column in large screens
+		// menu in the first column, content in the second column on large screens
 		grid-template-columns: 1fr 3fr;
 
-		// forces the main/second address field to show in two columns (avoids wrapping)
+		// forces the main/second address field to show in two columns (no wrapping)
 		.zbs-multi-group-wrap {
 			display: flex;
 			flex-wrap: nowrap;

@@ -26,8 +26,10 @@
 		}
 	}
 
-	// In order for ratings to work in both low-fidelity non-CSS environments (email, AMP), we output emoji fallbacks and hide the SVGs by default.
-	// When this CSS file loads, however, we know that we're in a high-fidelity environment, so we hide the fallback and unhide the SVGs.
+	// In order for ratings to work in both low-fidelity non-CSS environments
+	// (e.g. email, AMP), we output emoji fallbacks and hide the SVGs by default.
+	// When this CSS file loads, however, we know that we're in a high-fidelity
+	// environment, so we hide the fallback and unhide the SVGs.
 	> p {
 		// These rules hide the element visually, but not to screen readers.
 		border: 0;
@@ -51,7 +53,7 @@
 		margin-inline-end: 0.3em;
 	}
 
-	// There are two stars in every whole stars, but they should be cropped as halves.
+	// There are two stars in every whole star, but they are cropped as halves.
 	> span span, // Frontend.
 	.jetpack-ratings-button span { // Editor.
 		flex-shrink: 0;

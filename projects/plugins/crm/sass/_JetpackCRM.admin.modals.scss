@@ -217,7 +217,8 @@
 	overflow-x: hidden;
 }
 
-/* Fix an apparent bug in Semantic UI CSS, which had the width larger than the screen min-width */
+// Fix an apparent bug in Semantic UI CSS,
+// which had the width larger than the screen min-width.
 @media only screen and (min-width: 768px) and (max-width: 1199px) {
 
 	#jpcrm-first-use-dash.ui.large.modal {
@@ -418,7 +419,8 @@
 
 		}
 
-		// when in modals in safari the jpcrm top bar logo shows on top of the modal, this hides it
+		// When in modals in Safari the jpcrm top bar logo shows on
+		// top of the modal. This hides it.
 		body.dimmed #zbs-main-logo-cube-wrap {
 
 			display: none;
@@ -428,8 +430,8 @@
 	}
 }
 
-// Semantic UI modals and hopscotch jockey for a high z-index position. The below prevents
-// the welcome tour from being in front of the first-use dash modal.
+// Semantic UI modals and hopscotch jockey for a high z-index. The below
+// prevents the welcome tour from being in front of the first-use dash modal.
 div.hopscotch-bubble.tour-zbs-welcome-tour {
 	z-index: 9999;
 }

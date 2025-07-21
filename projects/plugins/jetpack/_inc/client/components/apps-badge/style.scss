@@ -28,8 +28,8 @@
 		-ms-interpolation-mode: nearest-neighbor;
 	}
 
-	// Crops the Android badge in order to remove the transparent space around it and generate a size-equivalent image
-	// to the iOS badge.
+	// Crops the Android badge in order to remove the transparent space around
+	// it and generate a size-equivalent image to the iOS badge.
 	&.android-app-badge img {
 		transform: scale(1.13) translate(-7px, -5.1px);
 		transform-origin: left;

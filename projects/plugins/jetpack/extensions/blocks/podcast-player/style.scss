@@ -355,9 +355,10 @@ $jetpack-podcast-player-error: gb.$alert-red;
 			svg {
 
 				/**
-				* To stay consistent with the mediaelement player icons, we're using the same
-				* icon sprite for the track list playing icon. As we still keep the SVG as a
-				* fallback when CSS masks are not supported, we have to hide it when they are.
+				* To stay consistent with the mediaelement player icons, we're using the
+				* same icon sprite for the track list playing icon. As we still keep the
+				* SVG as a fallback when CSS masks are not supported, we have to hide it
+				* when they are.
 				*/
 				display: none;
 			}

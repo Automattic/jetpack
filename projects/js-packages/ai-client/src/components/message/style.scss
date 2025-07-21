@@ -32,8 +32,8 @@
 			color: var(--jp-gray-50);
 		}
 
-		// Force padding 0 in link buttons, since default Gutenberg version in WordPress doesn't use iframe and
-		// Buttons receive styles from edit-post-visual-editor.
+		// Force padding 0 in link buttons, since default Gutenberg in WordPress
+		// doesn't use iframe and Buttons receive styles from edit-post-visual-editor.
 		.components-button.is-link {
 			padding: 0;
 		}

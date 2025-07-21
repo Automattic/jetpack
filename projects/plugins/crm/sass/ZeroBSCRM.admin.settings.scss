@@ -105,7 +105,7 @@
 	display: none;
 }
 
-// v3.0 migration blocker - do not remove :) won't see, but it'll break for old migraters:
+// v3.0 migration blocker - won't see, but it'll break for old migrators
 #zbs-migration-blocker {
 	display: block;
 	position: absolute;

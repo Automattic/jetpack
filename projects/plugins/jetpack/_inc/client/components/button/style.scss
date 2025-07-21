@@ -69,7 +69,8 @@
 		.gridicons-plus-small:last-of-type {
 			margin-left: 0;
 		}
-		// Make plus icon nudged closer to adjacent icons for add-people and add-plugin type buttons
+		// Make plus icon nudged closer to adjacent icons
+		// for add-people and add-plugin type buttons
 		.gridicons-plus-small + .gridicon {
 			margin-left: -4px;
 		}

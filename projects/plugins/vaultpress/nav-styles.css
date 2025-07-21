@@ -14,7 +14,8 @@
 #toplevel_page_vaultpress div.wp-menu-image::before {
 	content: "\f219";
 	font-size: 18px !important;
-	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword -- this is a one-off icon font. */
+	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword
+	-- this is a one-off icon font. */
 	font-family: vaultpressregular !important;
 }
 
@@ -213,7 +214,8 @@ a.dops-notice__action .gridicon {
 	height: 18px;
 }
 
-/* These two avoid displaying the notice before WP core moves it below the heading */
+/* These two avoid displaying the notice
+ * before WP core moves it below the heading */
 #wpbody-content > .vp-notice.notice {
 	display: none;
 }

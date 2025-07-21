@@ -19,7 +19,7 @@ $white: #fff;
 		z-index: 1;
 
 		/*
-		 * The actual line is a pseudo element because we want to give a bigger hover area.
+		 * The actual line is a pseudo element to create a bigger hover area.
 		 */
 		&::after {
 			position: absolute;

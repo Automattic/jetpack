@@ -25,7 +25,7 @@ $tablet-width: 760px;
 	width: 90%;
 	will-change: height;
 
-	// Hacky override for to target core's modal component .components-modal__content.
+	// Override for to target core's modal component .components-modal__content.
 	> div:first-child {
 		padding: 0;
 	}
@@ -289,8 +289,8 @@ $tablet-width: 760px;
 			width: auto;
 
 			/*
-			 * We have to use !important to add additional styling compared to the Jetpack
-			 * button component.
+			 * We have to use !important to add additional styling compared to the
+			 * Jetpack button component.
 			 */
 			padding: 16px var(--jp-modal-padding-large) !important;
 		}

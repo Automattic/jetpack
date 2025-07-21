@@ -1,5 +1,6 @@
 
-// This file contains overrides to _admin.scss necessary to match Calypso color schemes
+// This file contains overrides to _admin.scss
+// necessary to match Calypso color schemes
 
 // Make wpadminbar colors differ from submenu colors
 @use "@automattic/color-studio/dist/color-variables" as studio;
@@ -108,7 +109,7 @@ $nav-unification-sidebar-border: $--a-value-must-be-set-via-with-- !default;
 	}
 }
 
-// Ensure sidebar is visually separate from the content in the Contrast color scheme
+// Ensure sidebar is visually separate from content in the Contrast color scheme
 .admin-color-contrast #adminmenuback {
 	outline: 1px solid $nav-unification-sidebar-border;
 }

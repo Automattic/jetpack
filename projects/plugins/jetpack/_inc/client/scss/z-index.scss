@@ -2,14 +2,15 @@
  * A nested map of all of our z-index values.
  *
  * Please add new values relative to their parent stacking context. For
- * example the values of 'root' are elements with a stacking context that have no
- * parents with a stacking context, other than the default html root.
+ * example the values of 'root' are elements with a stacking context that have
+ * no parents with a stacking context, other than the default html root.
  *
  * A Stacking Context is created when:
  * 1. It's the root element (HTML)
  * 2. Has a position other than static, with a z-index value
  * 3. position:fixed
- * 4. Has one of the following css properties: (transform, opacity<1, mix-blend-mode, filter)
+ * 4. Has one of the following css properties:
+ *    (transform, opacity<1, mix-blend-mode, filter)
  * 5. isolation:isolate
  * 6: -webkit-overflow-scrolling: touch
  *
@@ -194,7 +195,8 @@ $z-layers: (
 	),
 
 	// The following may be inserted into different areas.
-	// The parent stacking context may be root, or something else depending on where it is inserted.
+	// The parent stacking context may be root, or something
+	// else depending on where it is inserted.
 	"icon-parent": (
 		".sidebar__menu .gridicon.gridicons-external": 1,
 		".sidebar__menu .noticon-external": 1

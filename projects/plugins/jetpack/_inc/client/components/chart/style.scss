@@ -167,8 +167,8 @@
 // Individual bar wrapper & misc
 // 1: Positions the bar in the space as defined by .bar
 // 2: Default value for top so bars grow when they get a new value
-//    (doesn't function correctly for period switching right now, not sure why)
-//    (also doesn't work because updating the DOM is so heavy it stalls all animations)
+//   (doesn't function correctly for period switching right now, not sure why)
+//   (also doesn't work since updating DOM is so heavy it stalls all animations)
 
 .dops-chart__bar-section {
 	display: inline-block;

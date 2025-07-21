@@ -380,7 +380,10 @@ $action-bar-height: 88px;
 }
 
 
-/* We need to make the available canvas 100% tall. Without this, no flex values will work, they will only use the available space. */
+/*
+ * We need to make the available canvas 100% tall. Without this,
+ * no flex values will work, they will only use the available space.
+ */
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
 
@@ -464,7 +467,7 @@ body.jetpack_page_jetpack-forms-admin {
 	}
 }
 
-// Make sure backdrop is below the file preview modal but above the response modal
+// Ensure backdrop is below the file preview modal but above the response modal
 .components-modal__screen-overlay:nth-of-type(2) {
 	z-index: 100005;
 }

@@ -7,15 +7,15 @@
 // IT SHOULD NEVER contain any CSS itself, only includes :)
 // this'll keep it tidy and WH happy...
 
-// Mike's also made a clone of the following in \master\sass\ZeroBSCRM.admin.invoicepreview.scss
-// ... which could be updated if / when needs to be, (to largely match this... won't need all)
+// There's also a clone of this in sass/ZeroBSCRM.admin.invoicepreview.scss
+// which could be updated if / when needs to be...
 
 @use "sass:meta";
 
 // block wp notifications:]
 @include meta.load-css( "wp-hide-admin-notices" );
 
-// Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
+// Import generic edit page styles (old legacy from taxibooker! :o to rewrite)
 @include meta.load-css( "ZeroBSCRM.genericeditpages" );
 
 // Import "core" styles

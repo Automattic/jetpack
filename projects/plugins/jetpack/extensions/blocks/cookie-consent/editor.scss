@@ -14,7 +14,7 @@
 	justify-content: space-between;
 	align-items: center;
 
-	/* when users first click the block, we don't want them to select child blocks */
+	/* when users first click the block, prevent child block selection */
 	&:not(.is-selected) {
 
 		* {

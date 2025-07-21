@@ -62,7 +62,8 @@
 	background: none;
 	font-size: typography.$font-body;
 
-	// These names are managed as borderless buttons that link back to the respective steps
+	// These names are managed as borderless buttons that
+	// link back to the respective steps
 	&.is-borderless {
 		color: #000;
 

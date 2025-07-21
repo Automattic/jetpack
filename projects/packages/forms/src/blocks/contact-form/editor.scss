@@ -384,7 +384,8 @@
 		appearance: none !important;
 		outline: none !important;
 
-		/* Some classic themes set the min-widths, which gives an elliptical shape to the input. */
+		/* Some classic themes set the min-widths, which gives
+		 * an elliptical shape to the input. */
 		min-width: auto;
 	}
 
@@ -469,7 +470,8 @@
 		line-height: var(--jetpack--contact-form--button-outline--line-height);
 	}
 
-	// Increase specificity to override the `align-items: baseline` from the `jetpack-field-option` class.
+	// Increase specificity to override the `align-items: baseline`
+	// from the `jetpack-field-option` class.
 	.jetpack-field-option.jetpack-field-option {
 		align-items: center;
 	}
@@ -493,8 +495,8 @@
 		&::before {
 
 			/*
-			 * Options typically have a transform applied to line the checkbox/radio with the label.
-			 * This is not needed for the button style.
+			 * Options typically have a transform applied to align the checkbox/radio
+			 * with the label. This is not needed for the button style.
 			 */
 			transform: unset !important;
 		}
@@ -740,15 +742,17 @@
 				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
-				// For some reason, when keeping the rule below together with the above selector,
-				// on production builds, the attributes are being reordered, causing side-effects
+				// For some reason, when keeping the rule below together with the above
+				// selector, on production builds, the attributes are being reordered,
+				// causing side-effects.
 				// stylelint-disable-next-line no-duplicate-selectors
 				border-left: none !important;
 				border-right: none !important;
 				box-sizing: content-box;
 
-				// This is required to ensure the color is not overridden by the global styles.
-				// See the selector in class-contact-form-block.php for 'jetpack/input' registration.
+				// This is required to ensure the color is not overridden by global styles.
+				// See the selector in class-contact-form-block.php for
+				// 'jetpack/input' registration.
 				color: unset !important;
 			}
 
@@ -810,8 +814,8 @@
 				}
 
 				.jetpack-field-label .required {
-					// The required text is always 85% of the label font size.
-					// The label font size is reduced to 0.8em in a separate rule, so that needs to be accounted for.
+					// The required text is always 85% of the label font size. The label font
+					// size is set to 0.8em in a separate rule, so account for that.
 					// 0.85 * 0.8 = 0.68em.
 					font-size: 0.68em;
 				}
@@ -951,8 +955,9 @@
 				}
 
 				.required {
-					// The required text is usually 85% of the label font size.
-					// The label is being reduced to 0.75em in a separate rule which doesn't apply to the required text font size.
+					// The required text is usually 85% of the label font size. The label is
+					// reduced to 0.75em in a separate rule which doesn't apply to the required
+					// text font size.
 					// Thus we take into account here - 0.85 * 0.75 = 0.6375em.
 					font-size: 0.6375em;
 				}
@@ -993,8 +998,9 @@
 		border-radius: unset !important;
 		padding: 0 4px;
 		transition: border 150ms linear;
-		// For some reason, when keeping the rule below together with the above selector,
-		// on production builds, the attributes are being reordered, causing side-effects
+		// For some reason, when keeping the rule below together with the above
+		// selector, on production builds, the attributes are being reordered,
+		// causing side-effects
 		border-left: none !important;
 		border-right: none !important;
 	}

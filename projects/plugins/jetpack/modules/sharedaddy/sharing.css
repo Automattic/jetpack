@@ -256,7 +256,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	}
 }
 
-/* Firefox specific hack to make the share more button look better on Firefox. */
+/* Hack to make the share more button look better on Firefox. */
 @-moz-document url-prefix() {
 
 	.sd-social-icon .sd-content ul li a.share-more {

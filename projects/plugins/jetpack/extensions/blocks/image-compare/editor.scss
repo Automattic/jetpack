@@ -9,7 +9,7 @@
 	}
 }
 
-// The positioning in the editor crops the selection focus. This accounts for that.
+// The positioning in the editor crops the selection focus. This is the fix.
 .jx-slider.jx-slider {
 	top: 1px;
 	inset-inline-start: 1px;

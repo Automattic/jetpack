@@ -6,7 +6,8 @@
 	}
 }
 
-// Hide the Like block if it tries to load in the editor (e.g. as a part of the Query Loop block).
+// Hide the Like block if it tries to load in the editor
+// (e.g. as a part of the Query Loop block)
 .wp-block-jetpack-like .sharedaddy {
 	display: none;
 }
@@ -279,7 +280,7 @@ a.comment-like-link.loading::before {
 	white-space: nowrap;
 }
 
-// stylelint-disable no-duplicate-selectors -- Overrides to fix CSS conflicts within editor.
+// stylelint-disable no-duplicate-selectors -- Override CSS conflicts in editor.
 .wpl-likebox {
 	// Prevents color and outline conflict by
 	// .wp-block-post-content a:where(:not(.wp-element-button))

@@ -164,7 +164,7 @@
 		column-gap: 1em;
 
 		.stats-section {
-			// Make sure the stats section doesn't overflow the container, which makes ellipsis work.
+			// Make sure stats section doesn't overflow container so the ellipsis works.
 			min-width: 0;
 		}
 	}

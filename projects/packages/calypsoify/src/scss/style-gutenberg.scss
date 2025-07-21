@@ -1,8 +1,8 @@
 /**
  * Hide Fullscreen option from post-editor
  *
- * The entire menu group is not rendered on smaller screens so we need a media query.
- * Hide the last item of the first group when the screen is big enough.
+ * The entire menu group is not rendered on smaller screens so we need a media
+ * query. Hide the last item of the first group when the screen is big enough.
  */
 @media (min-width: 782px) {
 
