@@ -71,7 +71,7 @@ class JWT {
 	 *                                     Supported algorithms are 'HS256', 'HS384', 'HS512' and 'RS256'.
 	 * @param bool         $as_array Whether to return the result as an associative array.
 	 *
-	 * @return object The JWT's payload as a PHP object
+	 * @return object|array The JWT's payload as a PHP object or array.
 	 *
 	 * @throws UnexpectedValueException     Provided JWT was invalid.
 	 * @throws SignatureInvalidException    Provided JWT was invalid because the signature verification failed.
@@ -310,7 +310,7 @@ class JWT {
 	 * @param string $input JSON string.
 	 * @param bool   $as_array Whether to return the result as an associative array.
 	 *
-	 * @return object Object representation of JSON string
+	 * @return object|array Object or Array representation of JSON string
 	 *
 	 * @throws DomainException Provided string was invalid JSON.
 	 */
