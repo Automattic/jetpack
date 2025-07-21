@@ -1,1 +1,1 @@
-export { default as BarListChart } from './bar-list-chart';
+export { BarListChart, default } from './bar-list-chart';

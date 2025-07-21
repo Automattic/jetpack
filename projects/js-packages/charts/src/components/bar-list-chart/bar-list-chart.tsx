@@ -3,7 +3,9 @@ import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
 import { useMemo } from 'react';
+import { attachSubComponents } from '../../utils/create-chart-composition';
 import { BarChart } from '../bar-chart';
+import { ChartLegend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
 import type { SeriesData } from '../..';
 import type { ScaleOptions } from '../../types';
@@ -210,7 +212,7 @@ const getDefaultYOffset = (
 	return -( barThickness + GAP_BETWEEN_BARS );
 };
 
-const BarListChart: FC< BarListChartProps > = ( {
+const BarListChartBase: FC< BarListChartProps > = ( {
 	data,
 	width,
 	height,
@@ -292,4 +294,15 @@ const BarListChart: FC< BarListChartProps > = ( {
 	);
 };
 
+// Create composition type
+type BarListChartComponent = FC< BarListChartProps > & {
+	Legend: typeof ChartLegend;
+};
+
+// Attach subcomponents to create composition API
+const BarListChart = attachSubComponents( BarListChartBase, {
+	Legend: ChartLegend,
+} ) as BarListChartComponent;
+
+export { BarListChart };
 export default withResponsive< BarListChartProps >( BarListChart );
