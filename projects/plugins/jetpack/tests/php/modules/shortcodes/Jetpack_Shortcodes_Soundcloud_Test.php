@@ -120,6 +120,11 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_soundcloud_reversal_embed() {
+		// Hook onto the filter explicitly, as it's not loaded in the front-end.
+		add_filter( 'pre_kses', 'jetpack_soundcloud_embed_reversal' );
+		add_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'filter' ), 11 );
+		add_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'maybe_create_links' ), 100 ); // See WPCom_Embed_Stats::init().
+
 		$content = '<object height="81" width="100%">
 				<param name="movie" value="https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773" />
 				<param name="allowscriptaccess" value="always" />

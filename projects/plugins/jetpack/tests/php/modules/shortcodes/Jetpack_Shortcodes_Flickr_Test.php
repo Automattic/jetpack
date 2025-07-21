@@ -203,6 +203,9 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			self::markTestSkipped( 'This test only runs on WPCOM' );
 		}
+		// Hook onto the filter explicitly, as it's not loaded in the front-end.
+		add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
+
 		$content = '<iframe src="https://www.flickr.com/photos/batmoo/5265478228/player/" height="500" width="375" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>';
 
 		$shortcode_content = wp_kses_post( $content );
@@ -214,6 +217,9 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 	 * Shortcode reversals.
 	 */
 	public function test_shortcodes_flickr_reversal_video_to_shortcode() {
+		// Hook onto the filter explicitly, as it's not loaded in the front-end.
+		add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
+
 		$content = '<div class="flickr_video" style="max-width: 100%;width: 500px;height: 300px;"><video src="https://www.flickr.com/photos/kalakeli/49931239842/play/360p/183f75d545/" controls autoplay /></div>';
 
 		$shortcode_content = wp_kses_post( $content );
