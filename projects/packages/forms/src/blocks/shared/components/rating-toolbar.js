@@ -18,11 +18,7 @@ export default function RatingToolbar( { variation, max, onUpdateVariation, onUp
 		<>
 			<ToolbarGroup>
 				<ToolbarButton
-					icon={
-						<span style={ { filter: 'brightness(0) opacity(0.6)' } }>
-							{ variation === 'stars' ? HeartIcon : StarIcon }
-						</span>
-					}
+					icon={ variation === 'stars' ? HeartIcon : StarIcon }
 					label={
 						variation === 'stars'
 							? __( 'Transform to hearts', 'jetpack-forms' )
