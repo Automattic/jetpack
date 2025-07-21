@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Line chart: Add support for custom interactive annotations. Includes a breaking change to the annotations API, from an `annotations` prop to a compound component pattern.

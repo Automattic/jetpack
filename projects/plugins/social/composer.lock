@@ -126,7 +126,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/assets",
-				"reference": "de727d5b798d543ded18322d80812988facccfcf"
+				"reference": "0a42fa643d1ae105ac1398fd8eeff46d6dce7004"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -152,7 +152,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.1.x-dev"
+					"dev-trunk": "4.2.x-dev"
 				}
 			},
 			"autoload": {
@@ -520,7 +520,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "3ada7720732bef274f53a977f81b23617106224b"
+				"reference": "aa43a422bbb20d041365e2d52e8ab6f7561cbf29"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -556,7 +556,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.14.x-dev"
+					"dev-trunk": "6.15.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1038,7 +1038,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "254c9942d3aa9df70c4dae2632d7ea13b6c55f84"
+				"reference": "154b0cb39e1dd3c951b2c53a0bd50edbca2f3b81"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1077,7 +1077,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "5.18.x-dev"
+					"dev-trunk": "5.19.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1193,7 +1193,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plans",
-				"reference": "8336af6815cea248ed38cd238c181a606c19b3fe"
+				"reference": "781f78eb3303aab7be574e82a0da7d0b22ab6b66"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1217,7 +1217,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.8.x-dev"
+					"dev-trunk": "0.9.x-dev"
 				}
 			},
 			"autoload": {
