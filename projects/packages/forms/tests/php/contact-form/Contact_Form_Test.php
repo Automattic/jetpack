@@ -2954,6 +2954,8 @@ EOT;
 		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
 		$this->assertNotNull( $form_copy, 'Should recover form using default secret' );
 		$this->assertTrue( $form_copy->has_verified_jwt, 'Form should have verified JWT with default secret' );
+
+		$this->assertEquals( $form->get_attributes( 'salesforceData' ), $form_copy->get_attributes( 'salesforceData' ), 'Form attributes should match' );
 	}
 
 	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {

@@ -147,6 +147,7 @@ class Contact_Form_Shortcode {
 			return array_map( array( $this, 'unesc_attr' ), $value );
 		}
 
+		// Due to the JWT conversion we may have an object here instead of an array. Let's handle that.
 		if ( is_object( $value ) ) {
 			$value = (array) $value;
 			return array_map( array( $this, 'unesc_attr' ), $value );
