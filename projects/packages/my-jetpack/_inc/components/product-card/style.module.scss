@@ -7,7 +7,7 @@ $status-size: 8px;
 
 	&.has-error {
 		border-width: 1px;
-		border-color: var( --jp-red-50 );
+		border-color: var(--jp-red-50);
 	}
 
 	&.has-warning {
@@ -27,7 +27,7 @@ $status-size: 8px;
 	justify-content: space-between;
 	width: 100%;
 	margin-top: auto; // align to the bottom
-	padding-top: calc( var( --spacing-base ) * 3 ); // 16px
+	padding-top: calc(var(--spacing-base) * 3); // 16px
 	min-height: $actions-size;
 	flex-wrap: wrap;
 }
@@ -35,16 +35,16 @@ $status-size: 8px;
 .buttons {
 	display: flex;
 	justify-content: flex-start;
-	gap: var( --spacing-base );
+	gap: var(--spacing-base);
 }
 
 .title {
 	width: 100%;
 	display: flex;
-	gap: var( --spacing-base );
+	gap: var(--spacing-base);
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: calc( var( --spacing-base ) * 0.5 ); // 4px
+	margin-bottom: calc(var(--spacing-base) * 0.5); // 4px
 
 	h3 {
 		font-weight: 700;
@@ -86,7 +86,7 @@ $status-size: 8px;
 		display: inline-block;
 		width: $status-size;
 		height: $status-size;
-		margin-right: var( --spacing-base );
+		margin-right: var(--spacing-base);
 		border-radius: 50%;
 	}
 
@@ -99,7 +99,7 @@ $status-size: 8px;
 	);
 
 	@each $status, $var in $statuses {
-		$color: var( #{$var} );
+		$color: var(#{$var});
 
 		&.#{$status} {
 			color: $color;
@@ -122,17 +122,17 @@ $status-size: 8px;
 	padding: 0;
 }
 
-@keyframes blink-animation{
+@keyframes blink-animation {
 
-	0%{
+	0% {
 		opacity: 0;
 	}
 
-	50%{
+	50% {
 		opacity: 0.5;
 	}
 
-	100%{
+	100% {
 		opacity: 0;
 	}
 }

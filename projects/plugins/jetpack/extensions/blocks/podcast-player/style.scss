@@ -20,7 +20,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	clip: rect( 1px, 1px, 1px, 1px );
+	clip: rect(1px, 1px, 1px, 1px);
 	white-space: nowrap; /* added line */
 }
 
@@ -49,14 +49,14 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		 */
 		padding-top: 0;
 		padding-bottom: 0;
-		color: var( --jetpack-podcast-player-secondary );
-		background-color: var( --jetpack-podcast-player-background );
+		color: var(--jetpack-podcast-player-secondary);
+		background-color: var(--jetpack-podcast-player-background);
 
-		&:not( .has-secondary ) {
+		&:not(.has-secondary) {
 			color: $jetpack-podcast-player-secondary;
 		}
 
-		&:not( .has-background ) {
+		&:not(.has-background) {
 			background-color: $jetpack-podcast-player-background;
 		}
 
@@ -83,7 +83,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		a:focus {
 			outline: 1px solid;
 			outline-color: $jetpack-podcast-player-secondary;
-			outline-color: var( --jetpack-podcast-player-secondary );
+			outline-color: var(--jetpack-podcast-player-secondary);
 			outline-offset: 2px;
 		}
 
@@ -98,7 +98,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 			&:hover,
 			&:focus {
 				color: inherit;
-				color: var( --jetpack-podcast-player-primary );
+				color: var(--jetpack-podcast-player-primary);
 			}
 		}
 	}
@@ -150,10 +150,10 @@ $jetpack-podcast-player-error: gb.$alert-red;
 	.jetpack-podcast-player__current-track-title {
 		font-size: $current-track-title-font-size;
 		margin: 0 0 $gutter-s;
-		color: var( --jetpack-podcast-player-primary );
+		color: var(--jetpack-podcast-player-primary);
 
 		// Apply default color if custom primary has not been set
-		&:not( .has-primary ) {
+		&:not(.has-primary) {
 			color: $jetpack-podcast-player-primary;
 		}
 	}
@@ -180,9 +180,9 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		margin: 0;
 		font-size: gb.$editor-font-size;
 		line-height: gb.$editor-line-height;
-		color: var( --jetpack-podcast-player-secondary );
+		color: var(--jetpack-podcast-player-secondary);
 
-		&:not( .is-active ):not( .has-secondary ) {
+		&:not(.is-active):not(.has-secondary) {
 			color: $jetpack-podcast-player-secondary;
 		}
 
@@ -193,9 +193,9 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		 */
 		&.is-active {
 			font-weight: 700;
-			color: var( --jetpack-podcast-player-primary );
+			color: var(--jetpack-podcast-player-primary);
 
-			&:not( .has-primary ) {
+			&:not(.has-primary) {
 				color: $jetpack-podcast-player-primary;
 			}
 		}
@@ -259,7 +259,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		&:hover,
 		&:focus {
 			color: inherit;
-			color: var( --jetpack-podcast-player-secondary );
+			color: var(--jetpack-podcast-player-secondary);
 		}
 
 		svg {
@@ -306,9 +306,9 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		color: $jetpack-podcast-player-error;
 
 		> span {
-			color: var( --jetpack-podcast-player-secondary );
+			color: var(--jetpack-podcast-player-secondary);
 
-			&:not( .has-secondary ) {
+			&:not(.has-secondary) {
 				color: $jetpack-podcast-player-secondary;
 			}
 		}
@@ -341,7 +341,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 				content: '';
 				width: 100%;
 				height: 100%;
-				background-color: var( --jetpack-podcast-player-primary );
+				background-color: var(--jetpack-podcast-player-primary);
 				background-image: none;
 				// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 				mask: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='18' height='18' version='1.1' viewBox='0 0 4.7625 4.7625' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform='translate(-189.69 -71.078)'%3E%3Cpath class='st0' d='m191.34 72.282c-0.1323 0.10583-0.3175 0.15875-0.47625 0.15875h-0.84667c-0.15875 0-0.26458 0.10583-0.26458 0.26458v1.5081c0 0.15875 0.10583 0.26458 0.26458 0.26458h1.1112c0.0794 0.05292 0.13229 0.10583 0.21167 0.15875l0.92604 0.68792c0.10583 0.07937 0.21166 0.02646 0.21166-0.10583v-3.5454c0-0.13229-0.10583-0.18521-0.21166-0.10583z' stroke-width='.26458'/%3E%3Cpath class='st1' d='m193.17 71.408s1.0319-0.21167 1.0319 2.0373-1.0319 2.0638-1.0319 2.0638' fill='none' stroke='%23000' stroke-linecap='round' stroke-width='.39688'/%3E%3Cpath class='st1' d='m192.82 72.44s0.68792-0.10583 0.68792 1.0054-0.68792 1.0319-0.68792 1.0319' fill='none' stroke='%23000' stroke-linecap='round' stroke-width='.39688'/%3E%3C/g%3E%3C/svg%3E%0A");
@@ -380,5 +380,4 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		}
 	}
 }
-
 

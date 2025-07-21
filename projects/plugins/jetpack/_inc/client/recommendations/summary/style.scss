@@ -8,9 +8,9 @@
 	display: grid;
 	grid-template-columns: 54% 46%;
 
-	background: var( --jp-white-off );
+	background: var(--jp-white-off);
 
-	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.03 ), 0 1px 2px rgba( 0, 0, 0, 0.03 );
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
 	border: 1px solid calypso-colors.$gray-lighten-20;
 
 	@include mixin_breakpoint.breakpoint( '<782px' ) {
@@ -44,13 +44,13 @@
 	h1 {
 		font-size: typography.$font-title-medium;
 
-		color: var( --jp-gray-80 );
+		color: var(--jp-gray-80);
 	}
 
 	h2 {
 		margin: 2rem 0 1rem 0;
 
-		color: var( --jp-gray-100 );
+		color: var(--jp-gray-100);
 
 		font-size: typography.$font-body;
 	}
@@ -59,7 +59,7 @@
 .jp-recommendations-summary__recommendation-notice {
 	font-size: typography.$font-body-small;
 
-	color: var( --jp-gray-50 );
+	color: var(--jp-gray-50);
 }
 
 .jp-recommendations-summary__sidebar {
@@ -99,12 +99,12 @@
 
 	padding: 1.5rem 0;
 
-	border-bottom: 1px solid var( --jp-gray-5 );
+	border-bottom: 1px solid var(--jp-gray-5);
 
 	font-size: 1rem;
 
 	.jp-recommendations-summary__reco-link {
-		color: var( --jp-black );
+		color: var(--jp-black);
 
 		text-align: right;
 		text-decoration: underline;
@@ -120,7 +120,7 @@
 	display: flex;
 	flex-direction: column;
 
-	color: var( --jp-gray-60 );
+	color: var(--jp-gray-60);
 
 	font-size: 0.875rem;
 }
@@ -139,7 +139,7 @@
 	margin-top: 0.625rem;
 	margin-bottom: 0;
 
-	color: var( --jp-gray-30 );
+	color: var(--jp-gray-30);
 
 	font-size: typography.$font-body-small;
 	text-align: center;

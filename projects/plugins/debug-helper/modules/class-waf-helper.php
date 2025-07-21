@@ -11,6 +11,8 @@ use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Helps debug WAF
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Waf_Helper {
 

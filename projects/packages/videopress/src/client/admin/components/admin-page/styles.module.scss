@@ -6,11 +6,11 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: calc( var(--spacing-base) * 4 );
+		margin-bottom: calc(var(--spacing-base) * 4);
 	}
 
 	.total-sm {
-		margin-bottom: calc( var(--spacing-base) * 3 );
+		margin-bottom: calc(var(--spacing-base) * 3);
 	}
 
 	.filter-wrapper {
@@ -32,12 +32,12 @@
 	}
 
 	.filter-section {
-		margin-bottom: calc( var(--spacing-base) * 4 );
+		margin-bottom: calc(var(--spacing-base) * 4);
 	}
 
 	.pagination {
 		align-self: center;
-		margin-top: calc( var(--spacing-base) * 4 );
+		margin-top: calc(var(--spacing-base) * 4);
 	}
 }
 
@@ -53,15 +53,15 @@
 }
 
 .upgrade-trigger {
-	margin-top: calc( var( --spacing-base ) * 3 ); // 24px;
+	margin-top: calc(var(--spacing-base) * 3); // 24px;
 }
 
 .storage-meter {
-	margin-bottom: calc( var( --spacing-base ) * 4 );
+	margin-bottom: calc(var(--spacing-base) * 4);
 }
 
 .storage-meter__progress-bar {
-	background-color: var( --jp-gray );
+	background-color: var(--jp-gray);
 }
 
 .query-no-results {
@@ -82,13 +82,13 @@
 	}
 
 	.drop-text {
-		color: var( --jp-white );
+		color: var(--jp-white);
 		display: none;
 	}
 
 	&.hover {
-		background-color: rgba( 22, 137, 219, 0.7 ); // --jp-blue-40;
-		border: 2px dashed var( --jp-white );
+		background-color: rgba(22, 137, 219, 0.7); // --jp-blue-40;
+		border: 2px dashed var(--jp-white);
 		display: flex;
 		justify-content: center;
 		align-items: center;

@@ -50,19 +50,19 @@
 	margin-right: 0;
 }
 
-@media screen and (max-width:768px) {
+@media screen and (max-width: 768px) {
 
-	.testimonial-entry-mobile-first-item-row{
+	.testimonial-entry-mobile-first-item-row {
 		margin-right: 4%;
 		width: 48%;
-		clear:both;
+		clear: both;
 	}
 
 	.testimonial-entry-first-item-row {
-		clear:none;
+		clear: none;
 	}
 
-	.testimonial-entry-mobile-last-item-row{
+	.testimonial-entry-mobile-last-item-row {
 		width: 48%;
 		margin-right: 0;
 	}

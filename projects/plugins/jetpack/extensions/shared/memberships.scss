@@ -39,7 +39,8 @@ body.jetpack-memberships-modal-open {
 dialog.jetpack-memberships-modal {
 	opacity: 1;
 
-	&, iframe {
+	&,
+	iframe {
 		position: fixed;
 		margin: 0;
 		padding: 0;
@@ -62,7 +63,8 @@ dialog.jetpack-memberships-modal {
 
 	&.is-loading {
 
-		&, &::backdrop {
+		&,
+		&::backdrop {
 			opacity: 0;
 		}
 	}

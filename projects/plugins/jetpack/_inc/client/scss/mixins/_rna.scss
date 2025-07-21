@@ -8,7 +8,7 @@
 	$resting-shadow: 0 1px 0 0 currentColor;
 	$hover-shadow: 0 3px 0 0 currentColor;
 
-	color: var( --jp-black );
+	color: var(--jp-black);
 
 	text-decoration: none;
 
@@ -52,7 +52,7 @@
 			position: absolute;
 			top: 50%;
 			left: 100%;
-			transform: translateY( -0.5em );
+			transform: translateY(-0.5em);
 		}
 	}
 
@@ -68,7 +68,7 @@
 
 	&:disabled,
 	&.disabled {
-		color: var( --jp-gray-20);
+		color: var(--jp-gray-20);
 
 		pointer-events: none;
 	}

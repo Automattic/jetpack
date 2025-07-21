@@ -42,6 +42,8 @@ new WPCOM_JSON_API_Get_Post_v1_1_Endpoint(
 
 /**
  * Get Post v1_1 endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint { // phpcs:ignore
 	/**

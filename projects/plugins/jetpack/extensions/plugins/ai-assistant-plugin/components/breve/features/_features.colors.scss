@@ -2,10 +2,10 @@
 @use 'sass:string';
 
 $features-colors: (
-	'complex-words': rgb( 240, 184, 73 ),
-	'unconfident-words': rgb( 9, 181, 133 ),
-	'long-sentences': rgb( 122, 0, 223 ),
-	'spelling-mistakes': rgb( 214, 54, 56 ),
+	'complex-words': rgb(240, 184, 73),
+	'unconfident-words': rgb(9, 181, 133),
+	'long-sentences': rgb(122, 0, 223),
+	'spelling-mistakes': rgb(214, 54, 56),
 );
 
 @mixin properties( $feature, $color, $properties, $opacity: false ) {
@@ -14,7 +14,7 @@ $features-colors: (
 		@each $property in $properties {
 
 			@if $opacity {
-				#{$property}: rgba( $color, $opacity );
+				#{$property}: rgba($color, $opacity);
 			} @else {
 				#{$property}: $color;
 			}

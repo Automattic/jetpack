@@ -15,19 +15,19 @@
 	height: 100%;
 	padding: 0.875rem 1rem;
 	// Box padding + icon width + icon/text padding
-	padding-inline-end: calc( 1rem + 18px + 0.5rem);
+	padding-inline-end: calc(1rem + 18px + 0.5rem);
 
-	background: var( --jp-white );
-	border: 1px solid var( --jp-gray-5 );
-	border-radius: var( --jp-border-radius );
-	color: var( --jp-gray-100 );
+	background: var(--jp-white);
+	border: 1px solid var(--jp-gray-5);
+	border-radius: var(--jp-border-radius);
+	color: var(--jp-gray-100);
 
 	&:focus-within {
 		border-color: currentColor;
 	}
 
 	&.checked {
-		background: var( --jp-gray-0 );
+		background: var(--jp-gray-0);
 	}
 }
 
@@ -40,25 +40,26 @@
 	height: 100%;
 	padding: 0.875rem 1rem;
 	// Box padding + icon width + icon/text padding
-	padding-inline-end: calc( 1rem + 18px + 0.5rem);
+	padding-inline-end: calc(1rem + 18px + 0.5rem);
 
-	background: var( --jp-white );
-	border: 1px solid var( --jp-gray-5 );
-	border-radius: var( --jp-border-radius );
-	color: var( --jp-gray-100 );
+	background: var(--jp-white);
+	border: 1px solid var(--jp-gray-5);
+	border-radius: var(--jp-border-radius);
+	color: var(--jp-gray-100);
 
 	&:focus-within {
 		border-color: currentColor;
 	}
 
 	&.checked {
-		background: var( --jp-gray-0 );
+		background: var(--jp-gray-0);
 	}
 }
 
 .jp-checkbox-answer__checkbox-input {
 
-	&[type="checkbox"], &[type="radio"] {
+	&[type="checkbox"],
+	&[type="radio"] {
 		width: 20px;
 		min-width: 20px;
 		height: 20px;
@@ -73,7 +74,7 @@
 			height: 18px;
 			margin: 0;
 
-			background-color: var( --jp-black );
+			background-color: var(--jp-black);
 			content: url(data:image/svg+xml,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M14.7791%204.00004L7.36198%2013.9753L3.06108%2010.7773%22%20stroke%3D%22white%22%2F%3E%3C%2Fsvg%3E);
 		}
 

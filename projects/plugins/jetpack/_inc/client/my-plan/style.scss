@@ -152,7 +152,7 @@
 	flex-wrap: nowrap;
 	flex-grow: 1;
 	box-sizing: border-box;
-	margin: 0 rem.convert( 8px );
+	margin: 0 rem.convert(8px);
 	background-color: colors.$white;
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
@@ -167,31 +167,31 @@
 
 	@include breakpoints.breakpoint( "<660px" ) {
 		max-width: 100%;
-		margin-bottom: rem.convert( 8px );
+		margin-bottom: rem.convert(8px);
 	}
 
 	@include breakpoints.breakpoint( ">480px" ) {
-		padding: rem.convert( 24px );
+		padding: rem.convert(24px);
 	}
 
 	@include breakpoints.breakpoint( "<480px" ) {
-		padding: rem.convert( 16px );
+		padding: rem.convert(16px);
 	}
 }
 
 .jp-landing__plan-features-list {
 	list-style: initial;
-	margin-left: rem.convert( 16px );
+	margin-left: rem.convert(16px);
 }
 
 .jp-landing__plan-features-img {
-	width: rem.convert( 48px );
+	width: rem.convert(48px);
 	padding: 24px 24px 24px 0;
 	line-height: 1;
 	display: flex;
 
 	@include breakpoints.breakpoint( ">960px" ) {
-		width: rem.convert( 48px );
+		width: rem.convert(48px);
 	}
 }
 
@@ -201,7 +201,7 @@
 }
 
 .jp-landing__plan-features-text,
-.jp-landing__licensing-actions{
+.jp-landing__licensing-actions {
 	flex: 1;
 	font-size: typography.$font-body-small;
 	color: var(--jp-gray-80);
@@ -229,9 +229,9 @@
 	align-items: stretch;
 	justify-content: space-between;
 	gap: 24px;
-	margin-bottom: rem.convert( 32px );
-	margin-left: rem.convert( -8px );
-	margin-right: rem.convert( -8px );
+	margin-bottom: rem.convert(32px);
+	margin-left: rem.convert(-8px);
+	margin-right: rem.convert(-8px);
 
 	@include breakpoints.breakpoint( "<660px" ) {
 		display: block;
@@ -254,12 +254,12 @@
 }
 
 .jp-landing__plan-features-title.is-placeholder {
-	height: rem.convert( 24px );
+	height: rem.convert(24px);
 	max-width: 50%;
 }
 
 .jp-landing__plan-features-text.is-placeholder {
-	height: rem.convert( 44px );
+	height: rem.convert(44px);
 	max-width: 75%;
 }
 

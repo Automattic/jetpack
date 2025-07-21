@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scanner: revert changes to returned parsed attributes.

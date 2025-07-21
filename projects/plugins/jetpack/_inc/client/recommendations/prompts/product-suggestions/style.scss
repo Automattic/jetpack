@@ -57,8 +57,8 @@
 	padding: 1rem 2.5rem;
 	min-height: 3.125rem;
 
-	background: var( --jp-white-off );
-	color: var( --jp-gray-30 );
+	background: var(--jp-white-off);
+	color: var(--jp-gray-30);
 
 	font-size: typography.$font-body-small;
 
@@ -74,7 +74,7 @@
 }
 
 .jp-recommendations-product-suggestion__timer {
-	color: var( --jp-gray-60 );
+	color: var(--jp-gray-60);
 
 	@include mixin_breakpoint.breakpoint( '<782px' ) {
 		flex-direction: column;

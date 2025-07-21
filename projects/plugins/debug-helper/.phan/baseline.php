@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 65+ occurrences
-    // PhanNoopNew : 15+ occurrences
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanUndeclaredClassStaticProperty : 4 occurrences
@@ -31,23 +30,19 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'class-admin.php' => ['PhanNoopNew'],
-        'modules/class-autoloader-debug-helper.php' => ['PhanEmptyForeach', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstantOfClass', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeReturnType'],
-        'modules/class-broken-token.php' => ['PhanNoopNew', 'PhanUndeclaredClassMethod'],
-        'modules/class-cookie-state.php' => ['PhanNoopNew', 'PhanUndeclaredClassMethod'],
-        'modules/class-idc-simulator.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod'],
+        'modules/class-autoloader-debug-helper.php' => ['PhanEmptyForeach', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstantOfClass', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeReturnType'],
+        'modules/class-broken-token.php' => ['PhanUndeclaredClassMethod'],
+        'modules/class-cookie-state.php' => ['PhanUndeclaredClassMethod'],
+        'modules/class-idc-simulator.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod'],
         'modules/class-jetpack-sync-debug-helper.php' => ['PhanNonClassMethodCall'],
-        'modules/class-mocker.php' => ['PhanNoopNew'],
-        'modules/class-modules-helper.php' => ['PhanNoopNew', 'PhanUndeclaredClassMethod'],
-        'modules/class-protect-helper.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty'],
-        'modules/class-rest-api-tester.php' => ['PhanNoopNew'],
-        'modules/class-scan-helper.php' => ['PhanNoopNew', 'PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal'],
-        'modules/class-sync-data-settings-tester.php' => ['PhanNoopNew', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClass'],
-        'modules/class-waf-helper.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
+        'modules/class-modules-helper.php' => ['PhanUndeclaredClassMethod'],
+        'modules/class-protect-helper.php' => ['PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty'],
+        'modules/class-scan-helper.php' => ['PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal'],
+        'modules/class-sync-data-settings-tester.php' => ['PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClass'],
+        'modules/class-waf-helper.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'modules/class-wpcom-api-request-faker-module.php' => ['PhanUndeclaredClassMethod'],
-        'modules/class-wpcom-api-request-tracker-module.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
-        'modules/class-xmlrpc-blocker.php' => ['PhanNoopNew'],
-        'modules/class-xmlrpc-logger.php' => ['PhanNoopNew', 'PhanUndeclaredFunction'],
+        'modules/class-wpcom-api-request-tracker-module.php' => ['PhanTypeMismatchArgument'],
+        'modules/class-xmlrpc-logger.php' => ['PhanUndeclaredFunction'],
         'modules/inc/class-broken-token-connection-errors.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

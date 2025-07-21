@@ -13,11 +13,11 @@
 	fill: gb.$gray-700;
 
 	&.bluesky {
-		fill: var( --color-bluesky );
+		fill: var(--color-bluesky);
 	}
 
 	&.facebook {
-		fill: var( --color-facebook );
+		fill: var(--color-facebook);
 		// Add some specificity to override the border-radius on Jetpack settings page
 		&:global(.social-logo) {
 			border-radius: 50%;
@@ -25,27 +25,27 @@
 	}
 
 	&.twitter {
-		fill: var( --color-twitter );
+		fill: var(--color-twitter);
 	}
 
 	&.linkedin {
-		fill: var( --color-linkedin );
+		fill: var(--color-linkedin);
 	}
 
 	&.tumblr {
-		fill: var( --color-tumblr );
+		fill: var(--color-tumblr);
 	}
 
 	&.google {
-		fill: var( --color-gplus );
+		fill: var(--color-gplus);
 	}
 
 	&.mastodon {
-		fill: var( --color-mastodon );
+		fill: var(--color-mastodon);
 	}
 
 	&.nextdoor {
-		fill: var( --color-nextdoor );
+		fill: var(--color-nextdoor);
 		// Add some specificity to override the border-radius on Jetpack settings page
 		&:global(.social-logo) {
 			border-radius: 50%;
@@ -53,15 +53,15 @@
 	}
 
 	&.instagram {
-		fill: var( --color-instagram );
+		fill: var(--color-instagram);
 	}
 
 	&.whatsapp {
-		fill: var( --color-whatsapp );
+		fill: var(--color-whatsapp);
 	}
 
 	&.threads {
-		fill: var( --color-threads );
+		fill: var(--color-threads);
 
 		&:global(.social-logo) {
 			border-radius: 40%;

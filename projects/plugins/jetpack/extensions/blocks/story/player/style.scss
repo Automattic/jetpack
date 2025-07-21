@@ -49,7 +49,7 @@
 		background-color: transparent;
 		border: 0;
 		outline-width: 0;
-		cursor:pointer;
+		cursor: pointer;
 	}
 
 	&.wp-story-initialized {
@@ -116,7 +116,7 @@
 			@keyframes rotate-spinner {
 
 				100% {
-					transform: rotate( 360deg );
+					transform: rotate(360deg);
 				}
 			}
 
@@ -125,7 +125,8 @@
 				align-items: center;
 			}
 
-			.wp-story-loading-spinner__outer, .wp-story-loading-spinner__inner {
+			.wp-story-loading-spinner__outer,
+			.wp-story-loading-spinner__inner {
 				margin: auto;
 				box-sizing: border-box;
 				border: 0.1em solid transparent;
@@ -151,7 +152,8 @@
 		}
 	}
 
-	.wp-story-image, .wp-story-video {
+	.wp-story-image,
+	.wp-story-video {
 		display: block;
 		height: auto;
 		width: auto;
@@ -169,7 +171,8 @@
 		}
 	}
 
-	.wp-story-meta, .wp-story-controls {
+	.wp-story-meta,
+	.wp-story-controls {
 		display: none;
 	}
 
@@ -226,7 +229,7 @@
 			background-color: transparent;
 
 			svg {
-				filter: drop-shadow( 0 0 2px rgba(0, 0, 0, .6) );
+				filter: drop-shadow(0 0 2px rgba(0, 0, 0, .6));
 			}
 		}
 	}
@@ -387,7 +390,7 @@
 	&.wp-story-app {
 		position: fixed;
 		// can force redraw on mobile safari
-		transform: translate3d(0,0,0);
+		transform: translate3d(0, 0, 0);
 		top: 0;
 		bottom: 0;
 		left: 0;
@@ -465,8 +468,8 @@
 
 			@media ( max-width: gb.$break-medium ) {
 				padding: 16px;
-				background: rgb(0,0,0);
-				background: linear-gradient(180deg, rgba(0,0,0,0.63) 0%, rgba(0,0,0,0) 100%);
+				background: rgb(0, 0, 0);
+				background: linear-gradient(180deg, rgba(0, 0, 0, 0.63) 0%, rgba(0, 0, 0, 0) 100%);
 			}
 
 			.wp-story-icon {
@@ -547,7 +550,7 @@
 			display: block;
 
 			@media ( max-width: gb.$break-medium ) {
-				display:block;
+				display: block;
 				position: absolute;
 				top: 0;
 				bottom: 0;

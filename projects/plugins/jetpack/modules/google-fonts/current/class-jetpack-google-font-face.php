@@ -9,6 +9,8 @@
  * Jetpack Google Font Face disables Font Face hooks in Core that prints **ALL** font faces.
  * Instead, it collects fonts that are used in global styles or block-level settings and
  * print those fonts in use.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Google_Font_Face {
 	/**

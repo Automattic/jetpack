@@ -19,9 +19,15 @@ class Cornerstone_Pages implements Has_Setup {
 		add_action( 'init', array( $this, 'set_default_pages' ), 0 );
 	}
 
+	/**
+	 * Set the default pages for the first time Boost is running on the website.
+	 */
 	public function set_default_pages() {
-		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
-		if ( empty( $pages ) ) {
+		// Since the DS store always returns an empty array, we can't know if the user
+		// wants an empty list of pages or this is the first time Boost is running on the website
+		// and we need to actually load the default pages.
+		$raw_pages = \get_option( 'jetpack_boost_ds_cornerstone_pages_list' );
+		if ( $raw_pages === false ) {
 			jetpack_boost_ds_set( 'cornerstone_pages_list', $this->default_pages() );
 		}
 	}
@@ -45,18 +51,16 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	private function default_pages() {
-		if ( $this->get_max_pages() === static::FREE_MAX_PAGES ) {
-			return array( '' );
-		}
-
 		$max_pages               = $this->get_max_pages();
 		$yoast_cornerstone_pages = $this->get_yoast_cornerstone_pages();
 		$woocommerce_pages       = $this->get_woocommerce_pages();
 
-		$homepage = array( '' );
-
-		$urls = array_unique( array_merge( $homepage, $woocommerce_pages, $yoast_cornerstone_pages ) );
+		$urls = array_unique( array_merge( $woocommerce_pages, $yoast_cornerstone_pages ) );
 		$urls = array_map( 'untrailingslashit', $urls );
+
+		// An empty string represents the home page.
+		// Remove it if it's in the list since the home page is a predefined page.
+		$urls = array_filter( $urls );
 
 		return array_slice( $urls, 0, $max_pages );
 	}
@@ -73,6 +77,7 @@ class Cornerstone_Pages implements Has_Setup {
 		);
 
 		$urls = array();
+
 		foreach ( $yoast_cornerstone_content as $post ) {
 			$permalink = get_permalink( $post->ID );
 			if ( $permalink ) {
@@ -80,7 +85,6 @@ class Cornerstone_Pages implements Has_Setup {
 				$urls[]             = $relative_permalink;
 			}
 		}
-
 		return $urls;
 	}
 
@@ -114,11 +118,20 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	public function get_properties() {
-		return array(
+		$properties = array(
 			'max_pages'         => $this->get_max_pages(),
 			'max_pages_premium' => static::PREMIUM_MAX_PAGES,
-			'default_pages'     => array_map( 'home_url', $this->default_pages() ),
+			'default_pages'     => array(),
+			'predefined_pages'  => Cornerstone_Utils::get_predefined_list(),
 		);
+
+		// We need this to ensure we don't include the home page in the default pages since an empty array is returned when no default pages are found.
+		$default_pages = $this->default_pages();
+
+		if ( ! empty( $default_pages ) ) {
+			$properties['default_pages'] = array_map( 'home_url', $default_pages );
+		}
+		return $properties;
 	}
 
 	public function add_display_post_states( $post_states, $post ) {

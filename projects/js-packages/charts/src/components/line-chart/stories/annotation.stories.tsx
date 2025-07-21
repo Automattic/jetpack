@@ -41,14 +41,30 @@ const createAnnotationTemplate =
 		</LineChart>
 	);
 
-const Template = createAnnotationTemplate();
+const Template = createAnnotationTemplate( [
+	{},
+	{},
+	{
+		styles: {
+			circleSubject: { fill: 'var(--jp-red)' },
+			connector: { stroke: 'var(--jp-red)' },
+			label: { anchorLineStroke: 'var(--jp-red)' },
+		},
+	},
+] );
 
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 
 const VerticalTemplate = createAnnotationTemplate( [
 	{ subjectType: 'line-vertical' },
 	{ subjectType: 'line-vertical' },
-	{ subjectType: 'line-vertical' },
+	{
+		subjectType: 'line-vertical',
+		styles: {
+			connector: { stroke: 'var(--jp-red)' },
+			label: { anchorLineStroke: 'var(--jp-red)' },
+		},
+	},
 ] );
 
 export const Vertical: StoryObj< typeof LineChart > = VerticalTemplate.bind( {} );
@@ -56,7 +72,13 @@ export const Vertical: StoryObj< typeof LineChart > = VerticalTemplate.bind( {} 
 const HorizontalTemplate = createAnnotationTemplate( [
 	{ subjectType: 'line-horizontal' },
 	{ subjectType: 'line-horizontal' },
-	{ subjectType: 'line-horizontal' },
+	{
+		subjectType: 'line-horizontal',
+		styles: {
+			connector: { stroke: 'var(--jp-red)' },
+			label: { anchorLineStroke: 'var(--jp-red)' },
+		},
+	},
 ] );
 
 export const Horizontal: StoryObj< typeof LineChart > = HorizontalTemplate.bind( {} );
@@ -64,7 +86,13 @@ export const Horizontal: StoryObj< typeof LineChart > = HorizontalTemplate.bind(
 const MixedTemplate = createAnnotationTemplate( [
 	{ subjectType: 'circle' },
 	{ subjectType: 'line-vertical' },
-	{ subjectType: 'line-horizontal' },
+	{
+		subjectType: 'line-horizontal',
+		styles: {
+			connector: { stroke: 'var(--jp-red)' },
+			label: { anchorLineStroke: 'var(--jp-red)' },
+		},
+	},
 ] );
 
 export const Mixed: StoryObj< typeof LineChart > = MixedTemplate.bind( {} );
@@ -218,7 +246,7 @@ const customBottomAnnotationArgs: Partial< LineChartAnnotationProps > = {
 	),
 };
 
-const CustomVerticalTemplate = createAnnotationTemplate( [
+const CustomTemplate = createAnnotationTemplate( [
 	{
 		...customTopAnnotationArgs,
 	},
@@ -230,4 +258,4 @@ const CustomVerticalTemplate = createAnnotationTemplate( [
 	},
 ] );
 
-export const CustomVertical: StoryObj< typeof LineChart > = CustomVerticalTemplate.bind( {} );
+export const Custom: StoryObj< typeof LineChart > = CustomTemplate.bind( {} );

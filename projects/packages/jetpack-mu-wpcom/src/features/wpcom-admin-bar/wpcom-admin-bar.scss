@@ -45,7 +45,7 @@
 /**
  * Hamburger menu
  */
-#wpadminbar #wp-admin-bar-menu-toggle>.ab-item .ab-icon {
+#wpadminbar #wp-admin-bar-menu-toggle > .ab-item .ab-icon {
 
 	@media (max-width: 480px) {
 		width: 48px;
@@ -55,7 +55,7 @@
 /**
  * WP logo menu
  */
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item {
 	padding: 0 10px;
 
 	@media (max-width: 782px) {
@@ -63,7 +63,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon {
 	margin-right: 0 !important;
 
 	@media (max-width: 480px) {
@@ -71,7 +71,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon::before {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon::before {
 	display: flex;
 	content: "";
 	width: 20px;
@@ -110,7 +110,7 @@
 		/**
 		 * Always show the House icon by the site name.
 		 */
-		content:"\f102" !important;
+		content: "\f102" !important;
 	}
 
 	@media (max-width: 480px) {
@@ -321,7 +321,7 @@
 				margin-top: -28px;
 				width: 6px;
 				height: 6px;
-				background-color: var( --color-masterbar-unread-dot-background, #e26f56 ) !important;
+				background-color: var(--color-masterbar-unread-dot-background, #e26f56) !important;
 				border-radius: 50px;
 			}
 
@@ -331,7 +331,7 @@
 				height: 100%;
 				margin: 0;
 
-				&::before{
+				&::before {
 					background-color: currentColor;
 					content: "";
 					display: flex;
@@ -390,7 +390,7 @@
 					justify-content: center;
 					padding: 0;
 
-					&::before{
+					&::before {
 						height: 32px;
 						margin: 0;
 						mask-size: contain;
