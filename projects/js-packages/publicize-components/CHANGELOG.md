@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] - 2025-07-21
+### Changed
+- Change the new badge color to match WordPress colors in the connection management. [#44310]
+- Update package dependencies. [#44356]
+
+### Fixed
+- SIG: Ensure the modal loads the featured image. [#44227]
+- Social: Fix image validation when images sizes are customised. [#44368]
+
 ## [1.1.4] - 2025-07-14
 ### Changed
 - Update package dependencies. [#44217] [#44219]
@@ -1304,6 +1313,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.1.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.1...v1.1.2

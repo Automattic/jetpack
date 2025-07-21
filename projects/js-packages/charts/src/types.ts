@@ -304,3 +304,10 @@ export interface ToggleEvent extends Event {
 }
 
 export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
+
+// LeaderboardChart types
+export type {
+	LeaderboardChartProps,
+	LeaderboardEntry,
+	MetricValueType,
+} from './components/leaderboard-chart';

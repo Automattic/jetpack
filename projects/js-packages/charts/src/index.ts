@@ -4,6 +4,7 @@ export { LineChart } from './components/line-chart';
 export { PieChart } from './components/pie-chart';
 export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
 export { BarListChart } from './components/bar-list-chart';
+export { LeaderboardChart } from './components/leaderboard-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
@@ -20,6 +21,9 @@ export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
 // Hooks
 export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
+
+// LeaderboardChart utilities
+export { formatMetricValue } from './components/leaderboard-chart';
 
 // Types
 export type * from './types';
