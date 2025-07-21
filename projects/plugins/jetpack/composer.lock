@@ -1413,7 +1413,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "e575465d91341af76df4d6fccc469823520dd957"
+                "reference": "690af0bed3b8874b34ab6a079a1eb2f946334eab"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
