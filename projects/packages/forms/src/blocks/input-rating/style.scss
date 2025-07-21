@@ -1,5 +1,15 @@
 /* Rating input block – front-end styles */
 
+.screen-reader-text {
+	position: absolute !important;
+	clip: rect(1px, 1px, 1px, 1px);
+	word-wrap: normal !important;
+	border: 0;
+	height: 1px;
+	overflow: hidden;
+	width: 1px;
+}
+
 .jetpack-field-rating {
 	position: relative;
 

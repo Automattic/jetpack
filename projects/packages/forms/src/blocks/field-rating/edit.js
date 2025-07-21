@@ -3,79 +3,42 @@ import {
 	useInnerBlocksProps,
 	InspectorControls,
 	BlockControls,
-	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import RatingToolbar from '../shared/components/rating-toolbar';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import useRatingSync from '../shared/hooks/use-rating-sync';
 
+/**
+ * Rating Field Edit Component
+ *
+ * Wrapper block that contains a rating input component. Provides settings
+ * panel and toolbar controls for configuring rating behavior and appearance.
+ *
+ * @param {object} props - Component props from WordPress block editor
+ * @return {import('react').JSX.Element} Rating field editor component
+ */
 export default function RatingFieldEdit( props ) {
-	const { attributes, setAttributes, clientId } = props;
+	const { attributes, setAttributes, clientId, isSelected } = props;
 	const {
-		max,
-		default: defaultValue,
+		max = 5,
+		default: defaultValue = 0,
 		required,
 		id,
 		width,
 		variation = 'stars',
-		className: classNameAttr = '',
 	} = attributes;
 
-	// Retrieve the clientId of the child rating-input block so we can sync its attributes.
-	const ratingInputClientId = useSelect(
-		select => {
-			const { getBlocks } = select( blockEditorStore );
-			const children = getBlocks( clientId ) || [];
-			const ratingInput = children.find( block => block.name === 'jetpack/rating-input' );
-			return ratingInput?.clientId;
-		},
-		[ clientId ]
-	);
-
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
-
-	const updateMax = newMax => {
-		const newProps = {
-			max: newMax,
-			default: newMax < defaultValue ? newMax : defaultValue,
-		};
-		setAttributes( newProps );
-		if ( ratingInputClientId ) {
-			updateBlockAttributes( ratingInputClientId, newProps );
-		}
-	};
-
-	const updateDefault = newVal => {
-		setAttributes( { default: newVal } );
-		if ( ratingInputClientId ) {
-			updateBlockAttributes( ratingInputClientId, { default: newVal } );
-		}
-	};
-
-	// Helper to update style variation (stars / hearts)
-	const updateVariation = newVariation => {
-		if ( newVariation === variation ) {
-			return;
-		}
-
-		// Remove previous is-style-* class if present
-		const cleanedClassName = ( classNameAttr || '' ).replace( /is-style-[^\s]+/g, '' ).trim();
-		const newClassName = `${ cleanedClassName } ${ `is-style-${ newVariation }` }`.trim();
-
-		setAttributes( {
-			variation: newVariation,
-			className: newClassName,
-		} );
-
-		if ( ratingInputClientId ) {
-			updateBlockAttributes( ratingInputClientId, { variation: newVariation } );
-		}
-	};
-
 	useFormWrapper( props );
+
+	// Use shared rating synchronization hook
+	const { updateMax, updateDefault, updateVariation } = useRatingSync(
+		clientId,
+		attributes,
+		setAttributes
+	);
 
 	const blockProps = useBlockProps( {
 		className: `jetpack-field jetpack-field-rating${
@@ -102,7 +65,7 @@ export default function RatingFieldEdit( props ) {
 	return (
 		<>
 			<BlockControls>
-				{ props.isSelected && (
+				{ isSelected && (
 					<RatingToolbar
 						variation={ variation }
 						max={ max }
@@ -117,14 +80,16 @@ export default function RatingFieldEdit( props ) {
 			<InspectorControls>
 				<PanelBody title={ __( 'Rating settings', 'jetpack-forms' ) }>
 					<RangeControl
-						label={ __( 'Max value', 'jetpack-forms' ) }
+						label={ __( 'Maximum rating', 'jetpack-forms' ) }
+						help={ __( 'Highest rating value users can select (2–10)', 'jetpack-forms' ) }
 						min={ 2 }
 						max={ 10 }
 						value={ max }
 						onChange={ updateMax }
 					/>
 					<RangeControl
-						label={ __( 'Default value', 'jetpack-forms' ) }
+						label={ __( 'Default rating', 'jetpack-forms' ) }
+						help={ __( 'Pre-selected rating value (0 for no selection)', 'jetpack-forms' ) }
 						min={ 0 }
 						max={ max }
 						value={ defaultValue }

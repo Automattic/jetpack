@@ -44,3 +44,5 @@ export default function RatingToolbar( { variation, max, onUpdateVariation, onUp
 		</>
 	);
 }
+
+// Shared toolbar component with comprehensive controls for rating configuration

@@ -1,108 +1,55 @@
-import { useBlockProps, store as blockEditorStore, BlockControls } from '@wordpress/block-editor';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useBlockProps, BlockControls } from '@wordpress/block-editor';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import RatingToolbar from '../shared/components/rating-toolbar';
+import useRatingSync from '../shared/hooks/use-rating-sync';
+import { getIconVariationFromClassName } from '../shared/utils/rating-helpers';
 import { DEFAULT_GLYPHS } from './constants';
 import Symbols from './symbols';
 
+/**
+ * Rating Input Edit Component
+ *
+ * Interactive rating component that renders clickable symbols (stars, hearts, etc.)
+ * and handles user input. Synchronizes with parent field-rating block.
+ *
+ * @param {object}   props               - Component props from WordPress block editor
+ * @param {string}   props.clientId      - Block client ID
+ * @param {object}   props.attributes    - Block attributes
+ * @param {Function} props.setAttributes - Function to update block attributes
+ * @return {import('react').JSX.Element} Rating input editor component
+ */
 export default function RatingInputEdit( { clientId, attributes, setAttributes } ) {
-	const {
-		max,
-		default: defaultValue,
-		variation = 'stars',
-		className: classNameAttr = '',
-	} = attributes;
+	const { max = 5, default: defaultValue = 0, variation = 'stars', className = '' } = attributes;
 
-	const { parentClientId } = useSelect(
-		select => {
-			const { getBlockRootClientId } = select( blockEditorStore );
-			return { parentClientId: getBlockRootClientId( clientId ) };
-		},
-		[ clientId ]
+	// Use shared rating synchronization hook
+	const { updateMax, updateDefault, updateVariation } = useRatingSync(
+		clientId,
+		attributes,
+		setAttributes
 	);
 
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	// Determine current icon variation - memoized for performance
+	const currentVariation = useMemo( () => {
+		return getIconVariationFromClassName( className, variation );
+	}, [ className, variation ] );
 
-	const updateDefault = newVal => {
-		setAttributes( { default: newVal } );
+	// Get icon character for current variation - memoized for performance
+	const iconChar = useMemo( () => {
+		const glyphs = DEFAULT_GLYPHS;
+		return glyphs[ currentVariation ]?.char || glyphs.stars.char;
+	}, [ currentVariation ] );
 
-		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, {
-				default: newVal,
-			} );
-		}
-	};
-
-	const glyphs = DEFAULT_GLYPHS;
-	const glyphKeys = Object.keys( glyphs );
-
-	// Get the parent block's className to determine the selected style.
-	const parentClassName = useSelect(
-		select => {
-			if ( ! parentClientId ) {
-				return '';
-			}
-			const parentBlock = select( blockEditorStore ).getBlock( parentClientId );
-			return parentBlock?.attributes?.className || '';
-		},
-		[ parentClientId ]
-	);
-
-	const matchedKey =
-		glyphKeys.find( key => parentClassName.includes( `is-style-${ key }` ) ) || glyphKeys[ 0 ];
-
-	// Persist the variation attribute to both this block and the parent field wrapper.
-	useEffect( () => {
-		setAttributes( { variation: matchedKey } );
-		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, { variation: matchedKey } );
-		}
-	}, [ matchedKey, parentClientId, setAttributes, updateBlockAttributes ] );
-
-	const iconChar = glyphs[ matchedKey ].char;
-
-	// Shared toolbar handlers
-	const updateMax = newMax => {
-		const newProps = {
-			max: newMax,
-			default: newMax < defaultValue ? newMax : defaultValue,
-		};
-		setAttributes( newProps );
-		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, newProps );
-		}
-	};
-
-	const updateVariation = newVariation => {
-		if ( newVariation === variation ) {
-			return;
-		}
-
-		// Retrieve parent className to replicate style class manipulation
-		const cleanedClassName = ( classNameAttr || '' ).replace( /is-style-[^\s]+/g, '' ).trim();
-		const newClassName = `${ cleanedClassName } ${ `is-style-${ newVariation }` }`.trim();
-
-		setAttributes( {
-			variation: newVariation,
-			className: newClassName,
-		} );
-
-		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, {
-				variation: newVariation,
-				className: newClassName,
-			} );
-		}
-	};
-
-	const blockProps = useBlockProps( { 'aria-label': __( 'Select rating', 'jetpack-forms' ) } );
+	const blockProps = useBlockProps( {
+		'aria-label': __( 'Rating input', 'jetpack-forms' ),
+		className: 'jetpack-rating-input-wrapper',
+	} );
 
 	return (
 		<div { ...blockProps }>
 			<BlockControls>
 				<RatingToolbar
-					variation={ variation }
+					variation={ currentVariation }
 					max={ max }
 					onUpdateVariation={ updateVariation }
 					onUpdateMax={ updateMax }
