@@ -1,5 +1,5 @@
 import { Plans, prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import playwrightConfig from '../../playwright.config.mjs';
 
 test.beforeAll( async ( { browser } ) => {

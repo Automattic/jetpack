@@ -257,7 +257,7 @@ export const moveToTrashAction = {
 
 export const deleteAction = {
 	id: 'delete',
-	label: __( 'Delete Permanently', 'jetpack-forms' ),
+	label: __( 'Delete permanently', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
 	icon: <Icon icon={ trash } />,

@@ -9,11 +9,10 @@ import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { filter, get, map } from 'lodash';
 import './util/form-styles.js';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
-	const blocks = map( innerBlocksTemplate, ( [ blockName, attr, innerBlocks = [] ] ) =>
+	const blocks = innerBlocksTemplate.map( ( [ blockName, attr, innerBlocks = [] ] ) =>
 		createBlock( blockName, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
 	);
 
@@ -50,13 +49,13 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 	return (
 		<div className={ clsx( classNames, 'is-placeholder' ) }>
 			<BlockVariationPicker
-				icon={ get( blockType, [ 'icon', 'src' ] ) }
-				label={ get( blockType, [ 'title' ] ) }
+				icon={ blockType?.icon?.src }
+				label={ blockType?.title }
 				instructions={ __(
 					'Start by selecting one of these templates, or browse patterns.',
 					'jetpack-forms'
 				) }
-				variations={ filter( variations, v => ! v.hiddenFromPicker ) }
+				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ ( nextVariation = defaultVariation ) => {
 					registry.batch( () => {
 						if ( nextVariation.attributes ) {

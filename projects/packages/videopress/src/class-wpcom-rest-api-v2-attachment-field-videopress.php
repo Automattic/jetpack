@@ -22,6 +22,8 @@ use WP_REST_Response;
  *   jetpack_videopress_guid: (string) VideoPress identifier
  *   ...
  * }
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_REST_API_V2_Attachment_VideoPress_Field {
 	/**

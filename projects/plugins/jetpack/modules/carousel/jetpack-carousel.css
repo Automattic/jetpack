@@ -15,15 +15,16 @@
 }
 
 .jp-carousel-overlay .swiper-button-prev,
-.jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
+.jp-carousel-overlay .swiper-rtl .swiper-button-next,
 .jp-carousel-overlay .swiper-button-next,
-.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
+.jp-carousel-overlay .swiper-rtl .swiper-button-prev {
 	background-image: none;
 }
 
 /* end of temporary fix */
 
-[data-carousel-extra]:not( .jp-carousel-wrap ) img, [data-carousel-extra]:not( .jp-carousel-wrap ) img + figcaption {
+[data-carousel-extra]:not(.jp-carousel-wrap) img,
+[data-carousel-extra]:not(.jp-carousel-wrap) img + figcaption {
 	cursor: pointer;
 }
 
@@ -31,7 +32,7 @@
 	line-height: inherit;
 }
 
-.jp-carousel-wrap.swiper-container {
+.jp-carousel-wrap.swiper {
 	height: auto;
 	width: 100vw;
 }
@@ -68,9 +69,9 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-overlay .swiper-button-next::after,
-.jp-carousel-overlay .swiper-container-rtl .swiper-button-next::after,
+.jp-carousel-overlay .swiper-rtl .swiper-button-next::after,
 .jp-carousel-overlay .swiper-button-prev::after,
-.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev::after {
+.jp-carousel-overlay .swiper-rtl .swiper-button-prev::after {
 	content: none;
 }
 
@@ -113,19 +114,19 @@ so we have to target all affected elements in touch devices.
 	display: none;
 }
 
-.jp-carousel-overlay .swiper-container .swiper-button-prev {
+.jp-carousel-overlay .swiper .swiper-button-prev {
 	left: 0;
 	right: auto;
 }
 
-.jp-carousel-overlay .swiper-container .swiper-button-next {
+.jp-carousel-overlay .swiper .swiper-button-next {
 	right: 0;
 	left: auto;
 }
 
-.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
-.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-next {
-	transform: scaleX( -1 );
+.jp-carousel-overlay .swiper.swiper-rtl .swiper-button-prev,
+.jp-carousel-overlay .swiper.swiper-rtl .swiper-button-next {
+	transform: scaleX(-1);
 }
 
 .jp-carousel-container {
@@ -159,7 +160,7 @@ so we have to target all affected elements in touch devices.
 	margin: 25px 20px 0 2px;
 	background-color: var(--jp-carousel-primary-color);
 	border-left: 4px solid #ffba00;
-	box-shadow: 0 1px 1px 0 rgba( 0, 0, 0, 0.1 );
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 .jp-carousel-info {
@@ -269,7 +270,7 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-slide,
 .jp-carousel-slide img {
-	transform: translate3d( 0, 0, 0 );
+	transform: translate3d(0, 0, 0);
 }
 
 .jp-carousel-close-hint {
@@ -343,7 +344,7 @@ div.jp-carousel-buttons a:hover {
 	background: var(--jp-carousel-primary-color);
 }
 
-.jp-swiper-pagination .swiper-pagination-bullet:not( .swiper-pagination-bullet-active ) {
+.jp-swiper-pagination .swiper-pagination-bullet:not(.swiper-pagination-bullet-active) {
 	background: var(--jp-carousel-primary-color);
 	opacity: 0.5;
 }
@@ -635,7 +636,7 @@ textarea#jp-carousel-comment-form-comment-field {
 	margin: 0;
 	float: none;
 	height: 147px;
-	box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.1 );
+	box-shadow: inset 2px 2px 2px rgba(0, 0, 0, 0.1);
 	border-radius: 3px;
 	overflow: hidden;
 	box-sizing: border-box;
@@ -684,11 +685,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font-size: 10px;
 	position: relative;
 	text-indent: -9999em;
-	border-top: 8px solid rgba( 255, 255, 255, 0.2 );
-	border-right: 8px solid rgba( 255, 255, 255, 0.2 );
-	border-bottom: 8px solid rgba( 255, 255, 255, 0.2 );
+	border-top: 8px solid rgba(255, 255, 255, 0.2);
+	border-right: 8px solid rgba(255, 255, 255, 0.2);
+	border-bottom: 8px solid rgba(255, 255, 255, 0.2);
 	border-left: 8px solid var(--jp-carousel-primary-color);
-	transform: translateZ( 0 );
+	transform: translateZ(0);
 	animation: load8 1.1s infinite linear;
 }
 
@@ -705,14 +706,14 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font-size: 10px;
 	position: absolute; /* relative to .jp-carousel-comment-form-container */
 	text-indent: -9999em;
-	border-top: 4px solid rgba( 255, 255, 255, 0.2 );
-	border-right: 4px solid rgba( 255, 255, 255, 0.2 );
-	border-bottom: 4px solid rgba( 255, 255, 255, 0.2 );
+	border-top: 4px solid rgba(255, 255, 255, 0.2);
+	border-right: 4px solid rgba(255, 255, 255, 0.2);
+	border-bottom: 4px solid rgba(255, 255, 255, 0.2);
 	border-left: 4px solid var(--jp-carousel-primary-color);
-	transform: translateZ( 0 );
+	transform: translateZ(0);
 	animation: load8 1.1s infinite linear;
 	margin: 0 auto;
-	top: calc( 50% - 15px );
+	top: calc(50% - 15px);
 	left: 0;
 	bottom: 0;
 	right: 0;
@@ -721,11 +722,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 @keyframes load8 {
 
 	0% {
-		transform: rotate( 0deg );
+		transform: rotate(0deg);
 	}
 
 	100% {
-		transform: rotate( 360deg );
+		transform: rotate(360deg);
 	}
 }
 
@@ -747,7 +748,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	padding: 10px;
 	float: left;
-	box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.2 );
+	box-shadow: inset 2px 2px 2px rgba(0, 0, 0, 0.2);
 	border-radius: 2px;
 	width: 285px;
 }
@@ -822,7 +823,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 2px;
 	font: 13px/1.4 'Helvetica Neue', sans-serif !important;
 	border: 1px solid var(--jp-carousel-border-color);
-	box-shadow: inset 0 0 5px 0 rgba( 0, 0, 0, 0.2 );
+	box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.2);
 }
 
 .jp-carousel-comment-post-error {
@@ -927,8 +928,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 /* Small screens */
 @media only screen and ( max-width: 760px ) {
 
-	.jp-carousel-overlay .swiper-container .swiper-button-next,
-	.jp-carousel-overlay .swiper-container .swiper-button-prev {
+	.jp-carousel-overlay .swiper .swiper-button-next,
+	.jp-carousel-overlay .swiper .swiper-button-prev {
 		display: none !important;
 	}
 

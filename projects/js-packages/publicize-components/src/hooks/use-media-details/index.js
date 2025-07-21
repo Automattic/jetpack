@@ -65,7 +65,8 @@ const getMediaDetails = async media => {
 	}
 
 	// We use medium image size for previews to decrease the load time.
-	const previewSize = sizes.medium || sizes.large;
+	// But fallback to full size, if the medium size is not available.
+	const previewSize = sizes.medium || sizes.large || sizes.full;
 	const previewData = {
 		width: previewSize.width,
 		height: previewSize.height,

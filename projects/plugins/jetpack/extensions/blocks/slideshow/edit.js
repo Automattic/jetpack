@@ -13,7 +13,7 @@ import domReady from '@wordpress/dom-ready';
 import { mediaUpload } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { get, map, pick } from 'lodash';
+import { pick } from 'lodash';
 import metadata from './block.json';
 import { PanelControls, ToolbarControls } from './controls';
 import Slideshow from './slideshow';
@@ -26,13 +26,11 @@ const ALLOWED_MEDIA_TYPES = [ 'image' ];
 export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 	const imageProps = pick( image, [ 'alt', 'id', 'link', 'caption' ] );
 	imageProps.url =
-		get( image, [ 'sizes', sizeSlug, 'url' ] ) ||
-		get( image, [ 'media_details', 'sizes', sizeSlug, 'source_url' ] ) ||
+		image?.sizes?.[ sizeSlug ]?.url ||
+		image?.media_details?.sizes?.[ sizeSlug ]?.source_url ||
 		image.url;
 	const imageSize =
-		get( image, [ 'sizes', sizeSlug ] ) ||
-		get( image, [ 'media_details', 'sizes', sizeSlug ] ) ||
-		image;
+		image?.sizes?.[ sizeSlug ] || image?.media_details?.sizes?.[ sizeSlug ] || image;
 	imageProps.aspectRatio =
 		imageSize.width && imageSize.height ? `${ imageSize.width } / ${ imageSize.height }` : null;
 	return imageProps;
@@ -96,14 +94,14 @@ export const SlideshowEdit = ( {
 	const uploadFromFiles = event => addFiles( event.target.files );
 
 	const getImageSizeOptions = () =>
-		map( imageSizes, ( { name, slug } ) => ( { value: slug, label: name } ) );
+		imageSizes?.map( ( { name, slug } ) => ( { value: slug, label: name } ) ) ?? [];
 
 	const updateImagesSize = slug => {
 		const updatedImages = images.map( image => {
 			const resizedImage = resizedImages.find(
 				( { id } ) => parseInt( id, 10 ) === parseInt( image.id, 10 )
 			);
-			const url = get( resizedImage, [ 'sizes', slug, 'source_url' ] );
+			const url = resizedImage?.sizes?.[ slug ]?.source_url;
 			return {
 				...image,
 				...( url && { url } ),
@@ -222,7 +220,7 @@ export default compose(
 		const { getMedia } = select( 'core' );
 		const resizedImages = ids.reduce( ( currentResizedImages, id ) => {
 			const image = getMedia( id );
-			const sizes = get( image, [ 'media_details', 'sizes' ] );
+			const sizes = image?.media_details?.sizes;
 			return [ ...currentResizedImages, { id, sizes } ];
 		}, [] );
 

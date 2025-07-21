@@ -4,6 +4,8 @@
  * Check capabilities endpoint class.
  *
  * GET /sites/%s/me/capability
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Check_Capabilities_Endpoint extends Jetpack_JSON_API_Modules_Endpoint {
 	/**

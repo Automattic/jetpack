@@ -13,9 +13,9 @@
 	padding: 1px;
 	border-radius: 100%;
 	background-color: #1d2327; /* IE11 fallback - Classic Dark */
-	background-color: var( --color-primary );
+	background-color: var(--color-primary);
 	border: 1px solid #3c434a; /* IE11 fallback - Classic Dark */
-	border: 1px solid var( --color-primary-dark );
+	border: 1px solid var(--color-primary-dark);
 	transition: all 0.2s ease-in-out;
 	overflow: visible;
 	width: 40px;
@@ -23,12 +23,14 @@
 	box-sizing: border-box; /* .button component */
 
 	/* elevation() mixin styles */
-	box-shadow: 0 4px 5px 0 rgba( 16, 21, 23, 0.14 ),
-										0 1px 10px 0 rgba( 16, 21, 23, 0.12 ),
-										0 2px 4px -1px rgba( 16, 21, 23, 0.2 ); /* IE11 fallback - Classic Dark */
-	box-shadow: 0 4px 5px 0 color-mix(in sRGB, var(--color-neutral-100) 14%, transparent),
-										0 1px 10px 0 color-mix(in sRGB, var(--color-neutral-100) 12%, transparent),
-										0 2px 4px -1px color-mix(in sRGB, var(--color-neutral-100) 20%, transparent);
+	box-shadow:
+		0 4px 5px 0 rgba(16, 21, 23, 0.14),
+		0 1px 10px 0 rgba(16, 21, 23, 0.12),
+		0 2px 4px -1px rgba(16, 21, 23, 0.2); /* IE11 fallback - Classic Dark */
+	box-shadow:
+		0 4px 5px 0 color-mix(in sRGB, var(--color-neutral-100) 14%, transparent),
+		0 1px 10px 0 color-mix(in sRGB, var(--color-neutral-100) 12%, transparent),
+		0 2px 4px -1px color-mix(in sRGB, var(--color-neutral-100) 20%, transparent);
 }
 
 .a8c-faux-inline-help .a8c-faux-inline-help__button::before {
@@ -40,35 +42,35 @@
 	left: 5px;
 	content: '';
 	background: #fff; /* IE11 fallback - Classic Dark */
-	background: var( --color-surface );
+	background: var(--color-surface);
 	border-radius: 100%;
 }
 
 .a8c-faux-inline-help .a8c-faux-inline-help__button:focus {
 	background-color: #1d2327; /* IE11 fallback - Classic Dark */
-	background-color: var( --color-primary );
+	background-color: var(--color-primary);
 	box-shadow: 0 0 0 2px #8c8f94; /* IE11 fallback - Classic Dark */
-	box-shadow: 0 0 0 2px var( --color-primary-light );
+	box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
 .a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon {
 	pointer-events: none; /* ensure SVG does not capture click on anchor */
 	position: relative;
 	fill: #1d2327; /* IE11 fallback - Classic Dark */
-	fill: var( --color-primary );
+	fill: var(--color-primary);
 	margin: -3px 0 0 -3px;
 	top: 0;
 	height: 42px;
 	width: 42px;
 }
 
-.a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon>use:first-child,
-.a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon>g:first-child {
+.a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon > use:first-child,
+.a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon > g:first-child {
 	transform: none;
 }
 
 .a8c-faux-inline-help .a8c-faux-inline-help__button:hover:not(.is-active) {
 	background: #1d2327; /* IE11 fallback - Classic Dark */
-	background: var( --color-primary );
-	transform: scale( 1.15 );
+	background: var(--color-primary);
+	transform: scale(1.15);
 }

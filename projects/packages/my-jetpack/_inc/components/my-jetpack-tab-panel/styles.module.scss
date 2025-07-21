@@ -2,8 +2,8 @@
 
 .tab-panel {
 
-    max-width: var(--max-container-width);
-    margin: 0 auto;
+	max-width: var(--max-container-width);
+	margin: 0 auto;
 
 	// Make all the links green
 	a,
@@ -52,4 +52,29 @@
 	position: relative;
 	inset-inline-start: 50%;
 	margin-inline-start: -50vw;
+}
+
+@mixin full-width-container {
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+}
+
+.my-jetpack-tab-panel--full-width {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+
+	:global(.components-tab-panel__tabs) {
+
+		@include full-width-container;
+	}
+
+	:global(.components-tab-panel__tab-content) {
+		background-color: #fcfcfc;
+
+		.my-jetpack-tab-panel-inner {
+
+			@include full-width-container;
+		}
+	}
 }

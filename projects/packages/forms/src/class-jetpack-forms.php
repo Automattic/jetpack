@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '3.0.0';
+	const PACKAGE_VERSION = '3.1.0';
 
 	/**
 	 * Load the contact form module.
@@ -77,7 +77,6 @@ class Jetpack_Forms {
 	 * @return boolean
 	 */
 	public static function is_legacy_menu_item_retired() {
-
 		$default                      = false; // Don't retire the legacy menu item by default.
 		$largest_legacy_connection_id = 245807300; // The connection ID after which the legacy menu item is retired.
 
@@ -87,6 +86,25 @@ class Jetpack_Forms {
 			$default = true; // Retire the legacy menu item for connections after the specified ID.
 		}
 
+		// If the user has seen the migration announcement, also default to true.
+		if ( ! $default && get_user_option( 'jetpack_forms_migration_announcement_seen' ) ) {
+			$default = true;
+		}
+
 		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', $default );
+	}
+
+	/**
+	 * Returns true if MailPoet integration is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_mailpoet_enabled() {
+		/**
+		 * Enable MailPoet integration.
+		 *
+		 * @param bool false Whether MailPoet integration be enabled. Default is false.
+		 */
+		return apply_filters( 'jetpack_forms_mailpoet_enable', false );
 	}
 }

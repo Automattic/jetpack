@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fixupConfigRules } from '@eslint/compat';
+import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import eslintJs from '@eslint/js';
 import eslintJson from '@eslint/json';
@@ -31,6 +31,7 @@ import eslintPluginLodash from 'eslint-plugin-lodash';
 import eslintPluginN from 'eslint-plugin-n';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginYouDontNeedLodashUnderscore from 'eslint-plugin-you-dont-need-lodash-underscore';
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
@@ -146,6 +147,19 @@ export function makeBaseConfig( configurl, opts = {} ) {
 						'plugin:@wordpress/i18n'
 					)
 				),
+				{
+					plugins: {
+						'you-dont-need-lodash-underscore': fixupPluginRules(
+							eslintPluginYouDontNeedLodashUnderscore
+						),
+					},
+					rules: {
+						...eslintPluginYouDontNeedLodashUnderscore.configs.compatible.rules,
+
+						// Replacement for throttle is not as straightforward as you-dont-need-lodash-underscore claims.
+						'you-dont-need-lodash-underscore/throttle': 'off',
+					},
+				},
 				tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
 			],
 		},
@@ -178,6 +192,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				),
 				ecmaVersion: 'latest', // Restore default overridden by plugin:@wordpress/esnext
 				parserOptions: {
+					tsconfigRootDir: rootdir,
 					ecmaFeatures: {
 						jsx: true,
 					},

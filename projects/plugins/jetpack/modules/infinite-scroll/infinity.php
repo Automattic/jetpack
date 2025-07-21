@@ -19,6 +19,8 @@ Text Domain: jetpack
 /**
  * Class: The_Neverending_Home_Page relies on add_theme_support, expects specific
  * styling from each theme; including fixed footer.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class The_Neverending_Home_Page {
 	/**

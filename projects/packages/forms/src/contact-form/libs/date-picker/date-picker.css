@@ -36,8 +36,8 @@
 	--dp-date-background: transparent;
 	--dp-date-color: #2c3338;
 
-	--dp-date-background-selected: var( --jetpack--contact-form--button-primary--background-color, var( --wp--preset--color--primary, #2a46ce ) );
-	--dp-date-color-selected: var( --jetpack--contact-form--button-primary--color, var( --wp--preset--color--base, #FFF ) );
+	--dp-date-background-selected: var(--jetpack--contact-form--button-primary--background-color, var(--wp--preset--color--primary, #2a46ce));
+	--dp-date-color-selected: var(--jetpack--contact-form--button-primary--color, var(--wp--preset--color--base, #FFF));
 
 	--dp-date-background-focus: #c3c4c7;
 	--dp-date-color-focus: #1d2327;
@@ -48,7 +48,7 @@
 	--dp-date-background-disabled: transparent;
 	--dp-date-color-disabled: #8c8f94;
 
-	--dp-today-color: var( --jetpack--contact-form--primary-color, var( --wp--preset--color--primary, #2a46ce ) );
+	--dp-today-color: var(--jetpack--contact-form--primary-color, var(--wp--preset--color--primary, #2a46ce));
 	--dp-date-edge-color: #787c82;
 
 	--dp-text-color: #3c434a;
@@ -56,7 +56,7 @@
 
 .dp-permanent .dp {
 	padding-top: 0;
-	border: 1px solid var( --db-border-color );
+	border: 1px solid var(--db-border-color);
 	box-shadow: none;
 	z-index: 0;
 }
@@ -66,7 +66,7 @@
 }
 
 .dp-cal {
-	min-height: var( --dp-min-height );
+	min-height: var(--dp-min-height);
 }
 
 .dp-below {
@@ -94,7 +94,7 @@
 }
 
 .dp-months {
-	min-height: var( --dp-min-height );
+	min-height: var(--dp-min-height);
 	padding: 0;
 	display: grid;
 	grid-template-columns: auto auto auto;
@@ -105,10 +105,10 @@
 
 .dp-years {
 	box-sizing: border-box;
-	max-height: calc( var( --dp-min-height ) + 16px);
+	max-height: calc(var(--dp-min-height) + 16px);
 	padding: 8px 16px 8px 0;
 	margin-right: -16px;
-  	overflow: auto !important; /* HACK for Chrome on Android */
+	overflow: auto !important; /* HACK for Chrome on Android */
 }
 
 .dp-cal-month,
@@ -120,11 +120,11 @@
 	text-align: center;
 	text-decoration: none;
 	position: relative;
-	color: var( --dp-date-color );
-	border-radius: var( --dp-nav-radius );
+	color: var(--dp-date-color);
+	border-radius: var(--dp-nav-radius);
 	box-shadow: none;
 	border: 0;
-	background: var( --dp-date-background );
+	background: var(--dp-date-background);
 }
 
 .dp-cal-header {
@@ -139,7 +139,7 @@
 .dp .dp-year,
 .dp .dp-cal-dropdown,
 .dp .dp-cal-nav {
-	color: var( --dp-ui-color ); /* Higher specificigy than the default */
+	color: var(--dp-ui-color); /* Higher specificigy than the default */
 	border: none;
 	letter-spacing: 0;
 }
@@ -149,10 +149,10 @@
 	width: 36px;
 	height: 36px;
 	overflow: hidden !important; /* We don't want to show this ever */
-	border-radius: var( --dp-nav-radius );
+	border-radius: var(--dp-nav-radius);
 	box-shadow: none;
 	border: 0;
-	background: var( --dp-ui-background );
+	background: var(--dp-ui-background);
 	padding: 0;
 	font-size: 12px;
 	text-align: center;
@@ -161,8 +161,8 @@
 
 .dp-cal-nav:focus,
 .dp-cal-nav:hover {
-	background: var( --dp-ui-background-focus );
-	color: var( --dp-ui-color-focus );
+	background: var(--dp-ui-background-focus);
+	color: var(--dp-ui-color-focus);
 	box-shadow: none;
 }
 
@@ -220,7 +220,7 @@
 	display: inline-block;
 	font-size: 16px;
 	line-height: 20px;
-	font-weight: var( --dp-bold);
+	font-weight: var(--dp-bold);
 	padding: 8px 22px 8px 8px;
 }
 
@@ -234,7 +234,7 @@
 }
 
 .dp-day-today {
-	outline: 1px solid var( --dp-today-color );
+	outline: 1px solid var(--dp-today-color);
 }
 
 .dp-current.dp-day-today,
@@ -251,8 +251,8 @@
 	padding: 8px;
 	text-decoration: none;
 	border: 0;
-	background: var( --dp-ui-background );
-	color: var( --dp-ui-color );
+	background: var(--dp-ui-background);
+	color: var(--dp-ui-color);
 }
 
 .dp-permanent .dp-close,
@@ -267,8 +267,8 @@
 .dp-prev:active,
 .dp-cal-month:active,
 .dp-cal-year:active {
-	background: var( --dp-ui-background-selected);
-	color: var( --dp-ui-color-selected );
+	background: var(--dp-ui-background-selected);
+	color: var(--dp-ui-color-selected);
 }
 
 @media screen and (min-device-width: 1200px) {
@@ -287,8 +287,8 @@
 	.dp-cal-month:hover,
 	.dp-cal-year:hover,
 	.dp-cal-year:focus {
-		background: var( --dp-ui-background-selected);
-		color: var( --dp-ui-color-selected );
+		background: var(--dp-ui-background-selected);
+		color: var(--dp-ui-color-selected);
 	}
 }
 

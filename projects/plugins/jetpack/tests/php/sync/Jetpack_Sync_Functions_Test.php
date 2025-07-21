@@ -923,10 +923,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			),
 		);
 
-		if (
-			! is_multisite()
-				&& ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC )
-		) {
+		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) {
 			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
 		}
 
@@ -1469,6 +1466,8 @@ function jetpack_foo_is_callable_random() {
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 /**
  * Example Test Taxonomy
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class ABC_FOO_TEST_Taxonomy_Example {
 

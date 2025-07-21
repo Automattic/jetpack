@@ -2,7 +2,7 @@
 @use '@automattic/jetpack-base-styles/style';
 
 .jetpack-redeem-partner-coupon-post-connection {
-	background: var( --jp-white );
+	background: var(--jp-white);
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
 
@@ -24,8 +24,8 @@
 			display: grid;
 			grid-template-columns: auto 34%;
 			grid-template-areas:
-"content aside"
-"subcontent aside";
+				"content aside"
+				"subcontent aside";
 		}
 	}
 
@@ -58,7 +58,7 @@
 		justify-content: center;
 		align-items: center;
 		padding: 48px 0;
-		background: var( --jp-white-off );
+		background: var(--jp-white-off);
 		background-size: cover;
 		background-position: center;
 
@@ -92,7 +92,7 @@
 		}
 	}
 
-  &__heading {
+	&__heading {
 		font-style: normal;
 		font-weight: 700;
 		font-size: 36px;
@@ -102,12 +102,13 @@
 		margin-bottom: 0;
 	}
 
-	p, li {
+	p,
+	li {
 		font-style: normal;
 		font-weight: 400;
 		font-size: 16px;
 		line-height: 24px;
-		color: var( --jp-black );
+		color: var(--jp-black);
 	}
 
 	ul {

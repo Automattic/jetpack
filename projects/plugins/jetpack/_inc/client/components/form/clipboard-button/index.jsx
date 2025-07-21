@@ -1,6 +1,5 @@
 import Clipboard from 'clipboard';
 import clsx from 'clsx';
-import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import { createRef, Component } from 'react';
 import Button from 'components/button';
@@ -50,7 +49,11 @@ export default class ClipboardButton extends Component {
 			<Button
 				rna={ this.props.rna }
 				ref={ this.buttonRef }
-				{ ...omit( this.props, Object.keys( this.constructor.propTypes ) ) }
+				{ ...Object.fromEntries(
+					Object.entries( this.props ).filter(
+						( [ k ] ) => ! Object.hasOwn( this.constructor.propTypes, k )
+					)
+				) }
 				className={ classes }
 			/>
 		);

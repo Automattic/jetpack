@@ -10,7 +10,8 @@ $automatticons: 'automatticons';
 @font-face {
 	font-family: automatticons;
 	src: url(../_inc/fonts/automatticons/automatticons.eot);
-	src: url(../_inc/fonts/automatticons/automatticons.eot?#iefix) format('embedded-opentype'),
+	src:
+		url(../_inc/fonts/automatticons/automatticons.eot?#iefix) format('embedded-opentype'),
 		url(../_inc/fonts/automatticons/automatticons.woff) format('woff'),
 		url(../_inc/fonts/automatticons/automatticons.ttf) format('truetype'),
 		url(../_inc/fonts/automatticons/automatticons.svg#automatticonsregular) format('svg');

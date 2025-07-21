@@ -142,5 +142,3 @@ class Colors_API {
 		return Automattic\Jetpack\Connection\Client::remote_request( $validated_args, $body );
 	}
 }
-
-new Colors_API();

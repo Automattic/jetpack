@@ -4,6 +4,8 @@
  * Get post backup endpoint class.
  *
  * /sites/%s/posts/%d/backup -> $blog_id, $post_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Get_Post_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 

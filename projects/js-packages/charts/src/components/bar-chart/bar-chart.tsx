@@ -1,13 +1,15 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
-import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
+import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useId } from 'react';
-import { useXYChartTheme } from '../../providers/theme';
+import { useCallback, useId, useState, useRef, useMemo } from 'react';
+import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
@@ -41,8 +43,9 @@ const validateData = ( data: SeriesData[] ) => {
 
 const getPatternId = ( chartId: string, index: number ) => `bar-pattern-${ chartId }-${ index }`;
 
-const BarChart: FC< BarChartProps > = ( {
+const BarChartInternal: FC< BarChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	width,
 	height = 400,
 	className,
@@ -61,7 +64,8 @@ const BarChart: FC< BarChartProps > = ( {
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
-	const chartId = useId();
+	const internalChartId = useId();
+	const chartId = useChartId( providedChartId );
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -69,6 +73,22 @@ const BarChart: FC< BarChartProps > = ( {
 	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	const chartRef = useRef< HTMLDivElement >( null );
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+	const [ isNavigating, setIsNavigating ] = useState( false );
+
+	const totalPoints =
+		Math.max( 0, ...data.map( series => series.data?.length || 0 ) ) * data.length;
+
+	// Use the keyboard navigation hook
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+	} );
 
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>
@@ -79,9 +99,9 @@ const BarChart: FC< BarChartProps > = ( {
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
 			withPatterns
-				? `url(#${ getPatternId( chartId, index ) })`
+				? `url(#${ getPatternId( internalChartId, index ) })`
 				: getColor( dataSorted[ index ], index ),
-		[ withPatterns, getColor, dataSorted, chartId ]
+		[ withPatterns, getColor, dataSorted, internalChartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -114,7 +134,7 @@ const BarChart: FC< BarChartProps > = ( {
 	const renderPattern = useCallback(
 		( index: number, color: string ) => {
 			const patternType = index % 4;
-			const id = getPatternId( chartId, index );
+			const id = getPatternId( internalChartId, index );
 			const commonProps = {
 				id,
 				stroke: 'white',
@@ -144,12 +164,12 @@ const BarChart: FC< BarChartProps > = ( {
 					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
 			}
 		},
-		[ chartId ]
+		[ internalChartId ]
 	);
 
 	const createPatternBorderStyle = useCallback(
 		( index: number, color: string ) => {
-			const patternId = getPatternId( chartId, index );
+			const patternId = getPatternId( internalChartId, index );
 			return `
 			.visx-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };
@@ -157,30 +177,82 @@ const BarChart: FC< BarChartProps > = ( {
 				}
 			`;
 		},
-		[ chartId ]
+		[ internalChartId ]
 	);
 
-	// Validate data using the same pattern as LineChart
+	const createKeyboardHighlightStyle = useCallback( () => {
+		if ( selectedIndex === undefined ) return '';
+
+		// Calculate which bar should be highlighted based on selectedIndex
+		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
+		const maxDataPoints = Math.max( ...data.map( s => s.data.length ) );
+		const dataPointIndex = Math.floor( selectedIndex / data.length );
+		const seriesIndex = selectedIndex % data.length;
+
+		// Only highlight if we're within valid bounds
+		if ( dataPointIndex >= maxDataPoints || seriesIndex >= data.length ) {
+			return '';
+		}
+
+		const seriesData = data[ seriesIndex ];
+		if ( dataPointIndex >= seriesData.data.length ) {
+			return '';
+		}
+
+		// Based on the DOM structure analysis:
+		// - All bars are in a single .visx-bar-group
+		// - Bars are ordered as: [series1[0], series1[1], series2[0], series2[1], ...]
+		// - So we need to calculate the actual bar index in the DOM
+		const actualBarIndex = seriesIndex * maxDataPoints + dataPointIndex;
+
+		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
+		const generatedStyles = `
+			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
+				actualBarIndex + 1
+			}) {
+				stroke: #005fcc;
+				stroke-width: 2px;
+			}
+		`;
+
+		return generatedStyles;
+	}, [ selectedIndex, data, chartId ] );
+
+	// Validate data first
 	const error = validateData( dataSorted );
+	const isDataValid = ! error;
+
+	// Create legend items (hooks must be called in same order every render)
+	const legendItems = useMemo(
+		() =>
+			dataSorted.map( ( group, index ) => ( {
+				label: group.label, // Label for each unique group
+				value: '', // Empty string since we don't want to show a specific value
+				color: getColor( group, index ),
+				shapeStyle: group?.options?.legendShapeStyle,
+			} ) ),
+		[ dataSorted, getColor ]
+	);
+
+	// Register chart with context only if data is valid
+	const providerTheme = useChartTheme();
+	useChartRegistration( chartId, legendItems, providerTheme, 'bar', isDataValid, {
+		orientation,
+		withPatterns,
+	} );
+
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
 
-	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = dataSorted.map( ( group, index ) => ( {
-		label: group.label, // Label for each unique group
-		value: '', // Empty string since we don't want to show a specific value
-		color: getColor( group, index ),
-		shapeStyle: group?.options?.legendShapeStyle,
-	} ) );
-
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
+	const highlightedBarStyle = createKeyboardHighlightStyle();
 
 	return (
 		<div
 			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
 			data-testid="bar-chart"
-			role="img"
+			role="grid"
 			aria-label="bar chart"
 			style={ {
 				width,
@@ -189,6 +261,12 @@ const BarChart: FC< BarChartProps > = ( {
 				flexDirection:
 					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
 			} }
+			tabIndex={ 0 }
+			onKeyDown={ onChartKeyDown }
+			onFocus={ onChartFocus }
+			onBlur={ onChartBlur }
+			ref={ chartRef }
+			data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
 		>
 			<XYChart
 				theme={ theme }
@@ -227,6 +305,8 @@ const BarChart: FC< BarChartProps > = ( {
 					</>
 				) }
 
+				{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+
 				<BarGroup padding={ chartOptions.barGroup.padding }>
 					{ dataSorted.map( ( seriesData, index ) => (
 						<BarSeries
@@ -244,11 +324,16 @@ const BarChart: FC< BarChartProps > = ( {
 				<Axis { ...chartOptions.axis.y } />
 
 				{ withTooltips && (
-					<Tooltip
+					<AccessibleTooltip
 						detectBounds
 						snapTooltipToDatumX
 						snapTooltipToDatumY
 						renderTooltip={ renderTooltip || renderDefaultTooltip }
+						selectedIndex={ selectedIndex }
+						tooltipRef={ tooltipRef }
+						keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
+						series={ data }
+						mode="individual"
 					/>
 				) }
 			</XYChart>
@@ -267,5 +352,13 @@ const BarChart: FC< BarChartProps > = ( {
 		</div>
 	);
 };
+
+const BarChart: FC< BarChartProps > = props => (
+	<ChartProvider>
+		<BarChartInternal { ...props } />
+	</ChartProvider>
+);
+
+BarChart.displayName = 'BarChart';
 
 export default withResponsive< BarChartProps >( BarChart );

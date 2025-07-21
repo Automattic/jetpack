@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	WAF_SETTINGS_FETCH,
@@ -92,7 +91,7 @@ export function isUpdatingWafSettings( state ) {
  * @return {string}  File path to bootstrap.php
  */
 export function getWafSettings( state ) {
-	return get( state.jetpack.waf, [ 'data' ], {} );
+	return state.jetpack.waf?.data ?? {};
 }
 
 /**
@@ -102,5 +101,5 @@ export function getWafSettings( state ) {
  * @return {boolean} Whether the firewall has automatic rules available
  */
 export function getAutomaticRulesAvailable( state ) {
-	return get( state.jetpack.waf, [ 'data', 'automaticRulesAvailable' ], false );
+	return state.jetpack.waf?.data?.automaticRulesAvailable ?? false;
 }

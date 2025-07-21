@@ -4,7 +4,6 @@ import { format } from 'util';
 import { parse as grammarParse } from '@wordpress/block-serialization-default-parser';
 import { parse, serialize, registerBlockType, setCategories } from '@wordpress/blocks';
 import { __, sprintf } from '@wordpress/i18n';
-import { omit, uniq } from 'lodash';
 
 let FIXTURES_DIR;
 
@@ -53,7 +52,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				if ( parsedJSONFixtureContent ) {
 					parserOutputExpectedString = parsedJSONFixtureContent;
 				} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
-					parserOutputExpectedString = JSON.stringify( parserOutputActual, null, 4 ) + '\n';
+					parserOutputExpectedString = JSON.stringify( parserOutputActual, null, '\t' ) + '\n';
 					writeBlockFixtureParsedJSON( basename, parserOutputExpectedString );
 				} else {
 					throw new Error( `Missing fixture file: ${ parsedJSONFixtureFileName }` );
@@ -112,7 +111,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 					blocksExpectedString = jsonFixtureContent;
 				} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
 					// Validation issues add too much noise so they get removed.
-					blocksExpectedString = JSON.stringify( blocksActualNormalized, null, 4 ) + '\n';
+					blocksExpectedString = JSON.stringify( blocksActualNormalized, null, '\t' ) + '\n';
 					writeBlockFixtureJSON( basename, blocksExpectedString );
 				} else {
 					throw new Error( `Missing fixture file: ${ jsonFixtureFileName }` );
@@ -298,7 +297,7 @@ function normalizeParsedBlocks( blocks ) {
 		// Clone and remove React-instance-specific stuff; also, attribute
 		// values that equal `undefined` will be removed. Validation issues
 		// add too much noise so they get removed as well.
-		block = JSON.parse( JSON.stringify( omit( block, 'validationIssues' ) ) );
+		block = JSON.parse( JSON.stringify( { ...block, validationIssues: undefined } ) );
 
 		// Change client IDs to a predictable value
 		block.clientId = '_clientId_' + index;
@@ -366,12 +365,14 @@ function getAvailableBlockFixturesBasenames() {
 	//  - fixture.json            : blocks structure
 	//  - fixture.serialized.html : re-serialized content
 	// Get the "base" name for each fixture first.
-	return uniq(
-		fs
-			.readdirSync( FIXTURES_DIR )
-			.filter( f => /(\.html|\.json)$/.test( f ) )
-			.map( f => f.replace( /\..+$/, '' ) )
-	);
+	return [
+		...new Set(
+			fs
+				.readdirSync( FIXTURES_DIR )
+				.filter( f => /(\.html|\.json)$/.test( f ) )
+				.map( f => f.replace( /\..+$/, '' ) )
+		),
+	];
 }
 
 /**

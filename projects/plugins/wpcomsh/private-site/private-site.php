@@ -368,12 +368,12 @@ function get_read_access_cookies( $args ) {
 
 	add_action(
 		'set_logged_in_cookie',
-		function ( $_cookie, $args ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
+		function ( $_cookie, $_expires, $_expiration ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
 			$logged_in_cookie            = $_cookie;
-			$logged_in_cookie_expiration = $args[1];
+			$logged_in_cookie_expiration = $_expiration;
 		},
 		10,
-		2
+		3
 	);
 	wp_set_auth_cookie( $user->ID, true );
 	if ( ! $logged_in_cookie ) {

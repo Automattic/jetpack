@@ -3,7 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { find, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -50,7 +50,7 @@ class MyPlanHeader extends Component {
 			};
 		}
 
-		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
+		const purchase = purchases?.find( purchaseObj => purchaseObj.product_slug === productSlug );
 
 		let expiration;
 		let activation;

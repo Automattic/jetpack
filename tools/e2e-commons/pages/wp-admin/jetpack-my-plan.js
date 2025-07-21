@@ -1,10 +1,10 @@
-import { resolveSiteUrl } from '../../helpers/utils-helper.js';
 import logger from '../../logger.js';
+import pwConfig from '../../playwright.config.mjs';
 import WpPage from '../wp-page.js';
 
 export default class JetpackMyPlanPage extends WpPage {
 	constructor( page ) {
-		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack#/my-plan';
+		const url = pwConfig.use.baseURL + '/wp-admin/admin.php?page=jetpack#/my-plan';
 		super( page, { expectedSelectors: [ '#jp-plugin-container', '.jp-landing__plans' ], url } );
 	}
 

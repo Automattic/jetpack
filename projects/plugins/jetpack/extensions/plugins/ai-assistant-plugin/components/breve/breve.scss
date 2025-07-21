@@ -4,7 +4,7 @@
 
 	.components-checkbox-control {
 
-		&__input:not( :disabled ) {
+		&__input:not(:disabled) {
 
 			@include features.features-colors( ( 'border-color' ) );
 

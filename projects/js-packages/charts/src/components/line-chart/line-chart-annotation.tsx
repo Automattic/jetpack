@@ -1,8 +1,19 @@
-import { Annotation, CircleSubject, Connector, Label, LineSubject } from '@visx/annotation';
+import {
+	Annotation,
+	CircleSubject,
+	Connector,
+	HtmlLabel,
+	Label,
+	LineSubject,
+} from '@visx/annotation';
 import { DataContext } from '@visx/xychart';
-import { merge } from 'lodash';
+import merge from 'deepmerge';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
+import { isSafari } from '../shared/utils';
+import LineChartAnnotationLabelWithPopover, {
+	POPOVER_BUTTON_SIZE,
+} from './line-chart-annotation-label-popover';
 import type { DataPointDate } from '../../types';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
@@ -15,7 +26,10 @@ export type AnnotationStyles = {
 	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
 	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
 	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' >;
-	label?: Omit< LabelProps, 'title' | 'subtitle' >;
+	label?: Omit< LabelProps, 'title' | 'subtitle' | 'x' | 'y' > & {
+		x?: number | 'start' | 'end';
+		y?: number | 'start' | 'end';
+	};
 };
 
 type SubjectType = 'circle' | 'line-vertical' | 'line-horizontal';
@@ -30,6 +44,8 @@ export type LineChartAnnotationProps = {
 	subjectType?: SubjectType;
 	styles?: AnnotationStyles;
 	testId?: string;
+	renderLabel?: FC< { title: string; subtitle?: string } >;
+	renderLabelPopover?: FC< { title: string; subtitle?: string } >;
 };
 
 export const getLabelPosition = ( {
@@ -79,6 +95,7 @@ export const getLabelPosition = ( {
 
 	if ( effectiveX + annotationMaxWidth > xMax ) {
 		isFlippedHorizontally = true;
+
 		if ( subjectType === 'circle' ) {
 			dx = -dx; // Just flip to the left side with same offset
 		} else if ( subjectType === 'line-vertical' ) {
@@ -142,7 +159,7 @@ const getVerticalAnchor = (
 			return y - height < yMax ? 'start' : 'end';
 		}
 
-		return 'middle';
+		return 'start';
 	}
 
 	return undefined;
@@ -155,6 +172,8 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	subjectType = 'circle',
 	styles: datumStyles,
 	testId,
+	renderLabel,
+	renderLabelPopover,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};
@@ -162,11 +181,11 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	const [ height, setHeight ] = useState< number | null >( null );
 
 	// Deep merge styles to preserve nested object properties
-	const styles = merge( {}, providerTheme.annotationStyles, datumStyles );
+	const styles = merge( providerTheme.annotationStyles ?? {}, datumStyles ?? {} );
 
 	// Measure the label height once after initial render
 	useEffect( () => {
-		if ( labelRef.current ) {
+		if ( labelRef.current?.getBBox ) {
 			const bbox = labelRef.current.getBBox();
 			setHeight( bbox.height );
 		}
@@ -183,6 +202,22 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		const [ yMin, yMax ] = yScale.range().map( Number );
 		const [ xMin, xMax ] = xScale.range().map( Number );
 
+		// If a custom label is provided, use the provided position
+		if ( renderLabel ) {
+			return {
+				x,
+				dx: 0,
+				y,
+				dy: 0,
+				yMin,
+				yMax,
+				xMin,
+				xMax,
+				isFlippedHorizontally: false,
+				isFlippedVertically: false,
+			};
+		}
+
 		const position = getLabelPosition( {
 			subjectType,
 			x,
@@ -195,12 +230,60 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		} );
 
 		return { x, y, yMin, yMax, xMin, xMax, ...position };
-	}, [ datum, xScale, yScale, subjectType, styles?.label?.maxWidth, height ] );
+	}, [ datum, xScale, yScale, subjectType, styles?.label?.maxWidth, height, renderLabel ] );
 
 	if ( ! positionData ) return null;
 
 	const { x, y, yMin, yMax, xMin, xMax, dx, dy, isFlippedHorizontally, isFlippedVertically } =
 		positionData;
+
+	const getLabelY = () => {
+		const labelY = styles?.label?.y;
+
+		if ( labelY === 'start' ) return yMax;
+		if ( labelY === 'end' ) return yMin;
+
+		return labelY;
+	};
+
+	const getLabelX = () => {
+		const labelX = styles?.label?.x;
+
+		if ( labelX === 'start' ) return xMin;
+		if ( labelX === 'end' ) return xMax;
+
+		return labelX;
+	};
+
+	const labelPosition = {
+		x: getLabelX(),
+		y: getLabelY(),
+	};
+
+	// Safari has a bug where children of an SVG foreignObject are not positioned correctly https://bugs.webkit.org/show_bug.cgi?id=23113
+	// This is a workaround to position the label correctly
+	const getSafariHTMLLabelPosition = () => {
+		const labelWidth = POPOVER_BUTTON_SIZE;
+		const labelHeight = POPOVER_BUTTON_SIZE;
+
+		return isSafari()
+			? {
+					transform: `translate(${
+						x +
+						( dx || 0 ) +
+						( typeof labelPosition.x === 'number' ? labelPosition.x - x : 0 ) -
+						labelWidth
+					}px, ${
+						y +
+						( dy || 0 ) +
+						( typeof labelPosition.y === 'number' ? labelPosition.y - y : 0 ) -
+						labelHeight
+					}px)`,
+					width: labelWidth,
+					height: labelHeight,
+			  }
+			: undefined;
+	};
 
 	return (
 		<g data-testid={ testId }>
@@ -221,21 +304,39 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 						{ ...{ ...styles?.lineSubject, orientation: 'horizontal' } }
 					/>
 				) }
-				<g ref={ labelRef }>
-					<Label
-						title={ title }
-						subtitle={ subtitle }
-						{ ...styles?.label }
-						horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
-						verticalAnchor={ getVerticalAnchor(
-							subjectType,
-							isFlippedVertically,
-							y,
-							yMax,
-							height ?? ANNOTATION_INIT_HEIGHT
-						) }
-					/>
-				</g>
+				{ renderLabel ? (
+					<HtmlLabel { ...styles?.label } { ...labelPosition }>
+						<div style={ getSafariHTMLLabelPosition() }>
+							{ renderLabelPopover ? (
+								<LineChartAnnotationLabelWithPopover
+									title={ title }
+									subtitle={ subtitle }
+									renderLabel={ renderLabel }
+									renderLabelPopover={ renderLabelPopover }
+								/>
+							) : (
+								renderLabel( { title, subtitle } )
+							) }
+						</div>
+					</HtmlLabel>
+				) : (
+					<g ref={ labelRef }>
+						<Label
+							title={ title }
+							subtitle={ subtitle }
+							{ ...styles?.label }
+							{ ...labelPosition }
+							horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
+							verticalAnchor={ getVerticalAnchor(
+								subjectType,
+								isFlippedVertically,
+								y,
+								yMax,
+								height ?? ANNOTATION_INIT_HEIGHT
+							) }
+						/>
+					</g>
+				) }
 			</Annotation>
 		</g>
 	);

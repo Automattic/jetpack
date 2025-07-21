@@ -19,8 +19,8 @@
 	}
 
 	:where(&:not(.is-style-outline) button) {
- 		border: none;
- 	}
+		border: none;
+	}
 
 	.spinner {
 		display: none;
@@ -47,7 +47,7 @@
 		width: 1px;
 	}
 
-	.disable-spinner  {
+	.disable-spinner {
 
 		.spinner {
 			display: none;

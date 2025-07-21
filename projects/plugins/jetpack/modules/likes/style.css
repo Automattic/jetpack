@@ -133,7 +133,7 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 
 div.sd-box {
 	border-top: 1px solid #dcdcde;
-	border-top: 1px solid rgba(0,0,0,.13);
+	border-top: 1px solid rgba(0, 0, 0, .13);
 }
 
 
@@ -149,7 +149,8 @@ div.sd-box {
 	display: none;
 }
 
-.entry-content .post-likes-widget, .post-likes-widget,
+.entry-content .post-likes-widget,
+.post-likes-widget,
 .comment-likes-widget {
 	margin: 0;
 	border-width: 0;
@@ -167,7 +168,7 @@ div.sd-box {
 	height: 18px;
 	position: absolute;
 	display: flex;
-	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 .comment-likes-widget-placeholder::before {

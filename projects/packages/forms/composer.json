@@ -38,7 +38,7 @@
 			"@composer phpunit"
 		],
 		"test-js": [
-			"pnpm run test:contact-form"
+			"pnpm run test"
 		],
 		"build-production": [
 			"pnpm run build-production"
@@ -69,7 +69,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "3.0.x-dev"
+			"dev-trunk": "3.1.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

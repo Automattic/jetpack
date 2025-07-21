@@ -12,6 +12,8 @@ use Automattic\Jetpack\Status\Host;
 
 /**
  * Jetpack_Carousel class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Carousel {
 	/**
@@ -446,10 +448,7 @@ class Jetpack_Carousel {
 			);
 
 			$swiper_library_path = array(
-				'url' => Assets::get_file_url_for_environment(
-					'_inc/build/carousel/swiper-bundle.min.js',
-					'modules/carousel/swiper-bundle.js'
-				),
+				'url' => plugins_url( '_inc/blocks/swiper.js', JETPACK__PLUGIN_FILE ),
 			);
 			wp_localize_script( 'jetpack-carousel', 'jetpackSwiperLibraryPath', $swiper_library_path );
 
@@ -539,10 +538,10 @@ class Jetpack_Carousel {
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
 			wp_enqueue_style(
-				'jetpack-carousel-swiper-css',
-				plugins_url( 'swiper-bundle.css', __FILE__ ),
+				'jetpack-swiper-library',
+				plugins_url( '_inc/blocks/swiper.css', JETPACK__PLUGIN_FILE ),
 				array(),
-				$this->asset_version( JETPACK__VERSION )
+				JETPACK__VERSION
 			);
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
@@ -591,7 +590,7 @@ class Jetpack_Carousel {
 		<div class="jp-carousel-container<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>">
 			<!-- The Carousel Swiper -->
 			<div
-				class="jp-carousel-wrap swiper-container jp-carousel-swiper-container jp-carousel-transitions"
+				class="jp-carousel-wrap swiper jp-carousel-swiper-container jp-carousel-transitions"
 				itemscope
 				itemtype="https://schema.org/ImageGallery">
 				<div class="jp-carousel swiper-wrapper"></div>
@@ -827,7 +826,7 @@ class Jetpack_Carousel {
 		foreach ( $matches[0] as $image_html ) {
 			if (
 				preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id )
-				&& ! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html )
+				&& ! str_contains( $image_html, 'wp-block-jetpack-slideshow_image' )
 			) {
 				/**
 				 * Allow filtering the attachment ID used to fetch and populate metadata about an image in a gallery.

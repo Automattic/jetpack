@@ -48,7 +48,7 @@
 	// This ensures that the tab doesn't change width when selected.
 	// See: https://github.com/WordPress/gutenberg/pull/9793
 	&::after {
-		content: attr( data-label );
+		content: attr(data-label);
 		display: block;
 		font-weight: 600;
 		height: 0;
@@ -59,8 +59,9 @@
 
 	&.is-active {
 		// The transparent shadow ensures no jumpiness when focus animates on an active tab.
-		box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) transparent,
-			inset 0 (-1 * variables.$border-width-tab) 0 0 var( --wp-admin-theme-color );
+		box-shadow:
+			inset 0 0 0 var(--wp-admin-border-width-focus) transparent,
+			inset 0 (-1 * variables.$border-width-tab) 0 0 var(--wp-admin-theme-color);
 		font-weight: 600;
 		position: relative;
 
@@ -77,12 +78,13 @@
 	}
 
 	&:focus {
-		box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color );
+		box-shadow: inset 0 0 0 var(--wp-admin-border-width-focus) var(--wp-admin-theme-color);
 	}
 
 	&.is-active:focus {
-		box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color ),
-			inset 0 (-1 * variables.$border-width-tab) 0 0 var( --wp-admin-theme-color );
+		box-shadow:
+			inset 0 0 0 var(--wp-admin-border-width-focus) var(--wp-admin-theme-color),
+			inset 0 (-1 * variables.$border-width-tab) 0 0 var(--wp-admin-theme-color);
 	}
 }
 
@@ -95,7 +97,7 @@
 	}
 
 	.components-button.is-tertiary {
-		margin-left: -( variables.$grid-unit-15 * 0.5 );
+		margin-left: -(variables.$grid-unit-15 * 0.5);
 	}
 }
 

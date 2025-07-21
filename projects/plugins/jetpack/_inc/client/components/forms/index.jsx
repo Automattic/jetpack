@@ -1,16 +1,13 @@
 import { _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { isEmpty, forOwn, omit } from 'lodash';
+import { isEmpty, forOwn } from 'lodash';
 import { Component, createRef } from 'react';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
 
 export const FormFieldset = props => {
 	return (
-		<fieldset
-			{ ...omit( props, 'className' ) }
-			className={ clsx( props.className, 'jp-form-fieldset' ) }
-		>
+		<fieldset { ...props } className={ clsx( props.className, 'jp-form-fieldset' ) }>
 			{ props.children }
 		</fieldset>
 	);
@@ -34,10 +31,7 @@ export class FormLegend extends Component {
 
 	render() {
 		return (
-			<legend
-				{ ...omit( this.props, 'className' ) }
-				className={ clsx( this.props.className, 'jp-form-legend' ) }
-			>
+			<legend { ...this.props } className={ clsx( this.props.className, 'jp-form-legend' ) }>
 				{ this.props.children }
 			</legend>
 		);
@@ -48,11 +42,9 @@ export class FormCheckbox extends Component {
 	static displayName = 'FormInputCheckbox';
 
 	render() {
-		const otherProps = omit( this.props, [ 'className', 'type' ] );
-
 		return (
 			<input
-				{ ...otherProps }
+				{ ...this.props }
 				type="checkbox"
 				className={ clsx( this.props.className, 'jp-form-checkbox' ) }
 			/>
@@ -112,10 +104,7 @@ export class FormTextarea extends Component {
 
 	render() {
 		return (
-			<textarea
-				{ ...omit( this.props, 'className' ) }
-				className={ clsx( this.props.className, 'jp-form-textarea' ) }
-			>
+			<textarea { ...this.props } className={ clsx( this.props.className, 'jp-form-textarea' ) }>
 				{ this.props.children }
 			</textarea>
 		);
@@ -126,11 +115,9 @@ export class FormRadio extends Component {
 	static displayName = 'FormRadio';
 
 	render() {
-		const otherProps = omit( this.props, [ 'className', 'type' ] );
-
 		return (
 			<input
-				{ ...otherProps }
+				{ ...this.props }
 				type="radio"
 				className={ clsx( this.props.className, 'jp-form-radio' ) }
 			/>
@@ -165,7 +152,7 @@ export class FormButton extends Component {
 
 		return (
 			<Button
-				{ ...omit( this.props, 'className' ) }
+				{ ...this.props }
 				variant={ this.props.isPrimary ? 'primary' : undefined }
 				className={ clsx( this.props.className, buttonClasses ) }
 			>

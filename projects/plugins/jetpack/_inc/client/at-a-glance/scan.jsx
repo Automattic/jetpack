@@ -4,7 +4,6 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
@@ -161,7 +160,7 @@ class DashScan extends Component {
 		}
 
 		// The VaultPress plugin is active and we received scanning data
-		const scanEnabled = get( vaultPressData, [ 'data', 'features', 'security' ], false );
+		const scanEnabled = vaultPressData?.data?.features?.security ?? false;
 		if ( scanEnabled ) {
 			const threats = this.props.scanThreats;
 
@@ -449,7 +448,7 @@ export default connect(
 			scanThreats: getVaultPressScanThreatCount( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
 			sitePlan,
-			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
+			planClass: getPlanClass( sitePlan?.product_slug ?? '' ),
 			showBackups: showBackups( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),

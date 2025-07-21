@@ -1,5 +1,5 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
 	BASE_DOCKER_CMD,
 	execSyncShellCommand,

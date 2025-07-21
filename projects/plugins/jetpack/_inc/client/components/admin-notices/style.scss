@@ -1,6 +1,8 @@
 .jetpack-pagestyles {
 	// Initially hide VaultPress and WooCommerce notices until they're displayed in Jetpack notices area
-	.vp-notice, .woocommerce-message, .wc-connect {
+	.vp-notice,
+	.woocommerce-message,
+	.wc-connect {
 		display: none;
 	}
 

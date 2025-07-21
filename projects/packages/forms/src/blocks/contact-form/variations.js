@@ -3,11 +3,10 @@ import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
-import { compact } from 'lodash';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
 
-const variations = compact( [
+const variations = [
 	{
 		name: 'regular-form',
 		title: __( 'Form', 'jetpack-forms' ),
@@ -1090,6 +1089,6 @@ const variations = compact( [
 			],
 		},
 	},
-] );
+].filter( Boolean );
 
 export default variations;

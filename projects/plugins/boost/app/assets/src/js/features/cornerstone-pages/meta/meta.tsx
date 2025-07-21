@@ -1,10 +1,9 @@
 import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
-import clsx from 'clsx';
+import { useEffect, useMemo, useState } from 'react';
 import styles from './meta.module.scss';
 import {
-	useCornerstonePages,
+	useCustomCornerstonePages,
 	useCornerstonePagesProperties,
 } from '../lib/stores/cornerstone-pages';
 import { createInterpolateElement } from '@wordpress/element';
@@ -20,19 +19,47 @@ import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
 import { ExternalLink } from '@wordpress/components';
 import type { FC, ReactNode } from 'react';
 
-const Meta = () => {
-	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
-	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
-	const cornerstonePagesProperties = useCornerstonePagesProperties();
-	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
+export const MetaError = () => (
+	<Notice
+		level="warning"
+		title={ __( 'Failed to load', 'jetpack-boost' ) }
+		hideCloseButton={ true }
+	>
+		<p>
+			{ createInterpolateElement(
+				__(
+					'Refresh the page and try again. If the issue persists, please <link>contact support</link>.',
+					'jetpack-boost'
+				),
+				{
+					link: (
+						<ExternalLink
+							href={ getSupportLink() }
+							onClick={ () => {
+								recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
+							} }
+						/>
+					),
+				}
+			) }
+		</p>
+	</Notice>
+);
+
+const CornerstonePagesContent = () => {
+	const cornerstonePagesProperties = useCornerstonePagesProperties()!;
+	const [ cornerstonePages, setCornerstonePages ] = useCustomCornerstonePages();
+	const regenerateAction = useRegenerateCriticalCssAction();
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
-	const regenerateAction = useRegenerateCriticalCssAction();
+	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 	const [ lcpState ] = useLcpState( { enabled: false } );
 	const { setNotice } = useNotices();
+	const listInputRows = isPremium ? 10 : 5;
 
 	const updateCornerstonePages = ( newValue: string ) => {
-		const newItems = newValue.split( '\n' ).map( line => line.trim() );
+		// If the user deletes all the URLs, we should set the list to an empty array.
+		const newItems = newValue ? newValue.split( '\n' ).map( line => line.trim() ) : [];
 
 		setCornerstonePages( newItems, () => {
 			setNotice( {
@@ -50,12 +77,15 @@ const Meta = () => {
 		} );
 	};
 
-	let content = null;
-
-	const listInputRows = isPremium ? 10 : 5;
-
-	if ( cornerstonePagesProperties !== undefined ) {
-		content = (
+	return (
+		<div className={ styles.section }>
+			<p className={ styles.description }>
+				<strong>{ __( 'Homepage:', 'jetpack-boost' ) }</strong>
+			</p>
+			<PredefinedList items={ cornerstonePagesProperties.predefined_pages } />
+			<p className={ styles.description }>
+				<strong>{ __( 'Custom:', 'jetpack-boost' ) }</strong>
+			</p>
 			<List
 				items={ cornerstonePages.join( '\n' ) }
 				setItems={ updateCornerstonePages }
@@ -80,42 +110,20 @@ const Meta = () => {
 					</>
 				}
 			/>
-		);
-	} else {
-		content = (
-			<Notice
-				level="warning"
-				title={ __( 'Failed to load', 'jetpack-boost' ) }
-				hideCloseButton={ true }
-			>
-				<p>
-					{ createInterpolateElement(
-						__(
-							'Refresh the page and try again. If the issue persists, please <link>contact support</link>.',
-							'jetpack-boost'
-						),
-						{
-							link: (
-								<ExternalLink
-									href={ getSupportLink() }
-									onClick={ () => {
-										recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
-									} }
-								/>
-							),
-						}
-					) }
-				</p>
-			</Notice>
-		);
-	}
+		</div>
+	);
+};
+
+const Meta = () => {
+	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
+	const cornerstonePagesProperties = useCornerstonePagesProperties();
 
 	return (
 		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
 			<p>
 				{ createInterpolateElement(
 					__(
-						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on the first cornerstone page. <b><link>Learn More</link></b>',
+						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
 						'jetpack-boost'
 					),
 					{
@@ -131,7 +139,9 @@ const Meta = () => {
 					}
 				) }
 			</p>
-			<div className={ styles.body }>{ content }</div>
+			<div className={ styles.body }>
+				{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
+			</div>
 		</div>
 	);
 };
@@ -168,6 +178,20 @@ export const CornerstonePagesUpgradeCTA = () => {
 	);
 };
 
+type PredefinedListProps = {
+	items: string[];
+};
+
+const PredefinedList: FC< PredefinedListProps > = ( { items } ) => {
+	return (
+		<ul className={ styles[ 'predefined-pages' ] }>
+			{ items.map( item => (
+				<li key={ item }>{ item }</li>
+			) ) }
+		</ul>
+	);
+};
+
 const List: FC< ListProps > = ( {
 	items,
 	setItems,
@@ -177,16 +201,19 @@ const List: FC< ListProps > = ( {
 	inputRows = 10,
 } ) => {
 	const [ inputValue, setInputValue ] = useState( items );
-	const [ inputInvalid, setInputInvalid ] = useState( false );
 	const [ validationError, setValidationError ] = useState< Error | null >( null );
+	const inputInvalid = useMemo( () => validationError, [ validationError ] );
+
+	useEffect( () => {
+		setInputValue( items );
+	}, [ items ] );
+
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		try {
-			const isValid = validateItems( value );
-			setInputInvalid( ! isValid );
+			validateItems( value );
 			setValidationError( null );
 		} catch ( e ) {
-			setInputInvalid( true );
 			setValidationError( e as Error );
 		}
 	};
@@ -217,25 +244,35 @@ const List: FC< ListProps > = ( {
 
 		for ( const line of lines ) {
 			let url: URL | undefined;
+			let pathname: string | undefined;
+
 			try {
 				url = new URL( line );
+				pathname = url.pathname;
 			} catch {
 				// If the URL is invalid, they have provided a relative URL, which we will allow.
+				pathname = line;
 			}
+
 			if ( url && ! isSameSiteUrl( url, siteUrl ) ) {
 				throw new Error(
 					/* translators: %s is the URL that didn't match the site URL */
 					sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )
 				);
 			}
+
+			if ( pathname === siteUrl.pathname ) {
+				throw new Error(
+					__(
+						'The homepage does not need to be added to the list, as it is automatically included.',
+						'jetpack-boost'
+					)
+				);
+			}
 		}
 
 		return true;
 	};
-
-	useEffect( () => {
-		setInputValue( items );
-	}, [ items ] );
 
 	function save() {
 		setItems( inputValue );
@@ -250,37 +287,31 @@ const List: FC< ListProps > = ( {
 	}
 
 	return (
-		<>
-			<div
-				className={ clsx( styles.section, {
-					[ styles[ 'has-error' ] ]: inputInvalid,
-				} ) }
+		<div className={ inputInvalid ? styles[ 'has-error' ] : '' }>
+			<textarea
+				value={ inputValue }
+				rows={ inputRows }
+				onChange={ e => validateInputValue( e.target.value ) }
+				id="jb-cornerstone-pages"
+			/>
+			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
+			{ description && <div className={ styles.description }>{ description }</div> }
+			<Button
+				disabled={ items === inputValue || inputInvalid }
+				onClick={ save }
+				className={ styles.button }
 			>
-				<textarea
-					value={ inputValue }
-					rows={ inputRows }
-					onChange={ e => validateInputValue( e.target.value ) }
-					id="jb-cornerstone-pages"
-				/>
-				{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
-				{ description && <div className={ styles.description }>{ description }</div> }
-				<Button
-					disabled={ items === inputValue || inputInvalid }
-					onClick={ save }
-					className={ styles.button }
-				>
-					{ __( 'Save', 'jetpack-boost' ) }
-				</Button>
-				<Button
-					disabled={ inputValue === defaultValue }
-					onClick={ loadDefaultValue }
-					className={ styles.button }
-					variant="link"
-				>
-					{ __( 'Load default pages', 'jetpack-boost' ) }
-				</Button>
-			</div>
-		</>
+				{ __( 'Save', 'jetpack-boost' ) }
+			</Button>
+			<Button
+				disabled={ inputValue === defaultValue }
+				onClick={ loadDefaultValue }
+				className={ styles.button }
+				variant="link"
+			>
+				{ __( 'Load default pages', 'jetpack-boost' ) }
+			</Button>
+		</div>
 	);
 };
 

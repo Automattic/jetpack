@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
  * @param {object}   props               - Component props
  * @param {Function} props.setAttributes - Function to update block attributes
  * @param {string}   props.postLinkText  - Text to display on the purchase link
- * @return {JSX.Element} Panel controls component
+ * @return {import('react').JSX.Element} Panel controls component
  */
 export function PanelControls( { setAttributes, postLinkText } ) {
 	return (

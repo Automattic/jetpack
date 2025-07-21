@@ -27,11 +27,11 @@ div.sharedaddy h3.sd-title {
 }
 
 body.highlander-light h3.sd-title::before {
-	border-top: 1px solid rgba(0,0,0,.2);
+	border-top: 1px solid rgba(0, 0, 0, .2);
 }
 
 body.highlander-dark h3.sd-title::before {
-	border-top: 1px solid rgba(255,255,255,.4);
+	border-top: 1px solid rgba(255, 255, 255, .4);
 }
 
 
@@ -88,9 +88,9 @@ body.highlander-dark h3.sd-title::before {
 .sd-content ul li.preview-item div.option.option-smart-off a,
 .sd-content ul li.advanced a.share-more,
 .sd-social-icon-text .sd-content ul li a.sd-button,
-.sd-social-official .sd-content>ul>li>a.sd-button,
+.sd-social-official .sd-content > ul > li > a.sd-button,
 #sharing_email .sharing_send,
-.sd-social-official .sd-content>ul>li .digg_button >a {		/* official Digg button no longer works, needs cleaning */
+.sd-social-official .sd-content > ul > li .digg_button > a {		/* official Digg button no longer works, needs cleaning */
 	text-decoration: none !important;
 	display: inline-block;
 	font-size: 13px;
@@ -121,19 +121,19 @@ body.highlander-dark h3.sd-title::before {
 	top: 2px;
 }
 
-.sd-content ul li a.sd-button>span,
+.sd-content ul li a.sd-button > span,
 .sd-content ul li .option a.share-ustom span,	/* Ugh. */
 .sd-content ul li.preview-item div.option.option-smart-off a span,
 .sd-content ul li.advanced a.share-more span,
-.sd-social-icon-text .sd-content ul li a.sd-button>span,
-.sd-social-official .sd-content>ul>li>a.sd-button span,
-.sd-social-official .sd-content>ul>li .digg_button >a span {		/* official Digg button no longer works, needs cleaning */
+.sd-social-icon-text .sd-content ul li a.sd-button > span,
+.sd-social-official .sd-content > ul > li > a.sd-button span,
+.sd-social-official .sd-content > ul > li .digg_button > a span {		/* official Digg button no longer works, needs cleaning */
 	line-height: 23px;
 	margin-left: 6px;
 }
 
 /* Icon Only */
-.sd-social-icon .sd-content ul li a.sd-button>span {
+.sd-social-icon .sd-content ul li a.sd-button > span {
 	margin-left: 0;
 }
 
@@ -146,17 +146,17 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 	margin-left: 3px;
 }
 
-.sd-social-official .sd-content ul li a.sd-button>span,
+.sd-social-official .sd-content ul li a.sd-button > span,
 .sd-social-official .sd-content ul li.preview-item div.option.option-smart-off a span {
 	line-height: 12px;
 	margin-left: 3px;
 }
 
 
-.sd-social-official .sd-content>ul>li>a.sd-button::before,
-.sd-social-official .sd-content>ul>li .digg_button>a::before,
-.sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button::before,
-.sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a::before {
+.sd-social-official .sd-content > ul > li > a.sd-button::before,
+.sd-social-official .sd-content > ul > li .digg_button > a::before,
+.sd-social-official .sd-content .sharing-hidden .inner > ul > li > a.sd-button::before,
+.sd-social-official .sd-content .sharing-hidden .inner > ul > li .digg_button > a::before {
 	margin-bottom: -1px;
 }
 
@@ -166,19 +166,19 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 .sd-social-text .sd-content ul li a.sd-button:active,
 .sd-social-icon-text .sd-content ul li a.sd-button:hover,
 .sd-social-icon-text .sd-content ul li a.sd-button:active,
-.sd-social-official .sd-content>ul>li>a.sd-button:hover,
-.sd-social-official .sd-content>ul>li>a.sd-button:active,
-.sd-social-official .sd-content>ul>li .digg_button>a:hover,
-.sd-social-official .sd-content>ul>li .digg_button>a:active {
+.sd-social-official .sd-content > ul > li > a.sd-button:hover,
+.sd-social-official .sd-content > ul > li > a.sd-button:active,
+.sd-social-official .sd-content > ul > li .digg_button > a:hover,
+.sd-social-official .sd-content > ul > li .digg_button > a:active {
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
 .sd-social-icon .sd-content ul li a.sd-button:active,
 .sd-social-text .sd-content ul li a.sd-button:active,
 .sd-social-icon-text .sd-content ul li a.sd-button:active,
-.sd-social-official .sd-content>ul>li>a.sd-button:active,
-.sd-social-official .sd-content>ul>li .digg_button>a:active {
-	box-shadow: inset 0 1px 0 rgba(0,0,0,.16);
+.sd-social-official .sd-content > ul > li > a.sd-button:active,
+.sd-social-official .sd-content > ul > li .digg_button > a:active {
+	box-shadow: inset 0 1px 0 rgba(0, 0, 0, .16);
 }
 
 /* All icons */
@@ -198,7 +198,7 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 }
 
 /* Make it look great in Chrome and Safari */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
 
 	.sd-content ul li a.sd-button::before {
 		position: relative;
@@ -212,7 +212,7 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 }
 
 /* Make it look great in Chrome and Safari */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
 
 	.sd-social-official ul li a.sd-button::before {
 		top: 0;
@@ -220,7 +220,9 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 }
 
 /* Add more pading on touch devices */
-.jp-sharing-input-touch .sd-content ul li { padding-left: 10px; }
+.jp-sharing-input-touch .sd-content ul li {
+	padding-left: 10px;
+}
 
 .sd-content ul li.preview-item.no-icon a.sd-button span {
 	margin-left: 0;
@@ -247,7 +249,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	top: -4px;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
 
 	.sd-social-icon .sd-content ul li a.share-more {
 		top: 2px;
@@ -475,7 +477,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	line-height: 1;
 }
 
-.sd-social-official .sd-content>ul>li>a.sd-button span {
+.sd-social-official .sd-content > ul > li > a.sd-button span {
 	line-height: 1;
 }
 
@@ -496,12 +498,12 @@ body .sd-content ul li.share-custom.no-icon a span {
 	margin: 0 0 5px 0;
 }
 
-.sd-social-official .sd-content ul>li {
+.sd-social-official .sd-content ul > li {
 	display: flex;
 	max-height: 18px;
 }
 
-.sd-social-official .sd-content ul>li .option-smart-off {
+.sd-social-official .sd-content ul > li .option-smart-off {
 	margin-right: 8px;
 }
 
@@ -515,11 +517,15 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Individual official buttons */
-.pocket_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
+.pocket_button iframe,
+.pinterest_button,
+.twitter_button,
+.linkedin_button > span {
 	margin: 0 !important;
 }
 
-.linkedin_button>span, .pinterest_button a {
+.linkedin_button > span,
+.pinterest_button a {
 	display: block !important;
 }
 
@@ -528,20 +534,19 @@ body .sd-content ul li.share-custom.no-icon a span {
 	width: unset;
 }
 
-body .sd-social-official li.share-print ,
+body .sd-social-official li.share-print,
 body .sd-social-official li.share-email a,
 body .sd-social-official li.share-custom a,
 body .sd-social-official li a.share-more,
 body .sd-social-official li.share-digg a,
-body .sd-social-official li.share-press-this a
-{
+body .sd-social-official li.share-press-this a {
 	position: relative;
 	top: 0;
 }
 
 
 /* Custom icons */
-body .sd-social-icon .sd-content li.share-custom>a {
+body .sd-social-icon .sd-content li.share-custom > a {
 	padding: 2px 3px 0 3px;
 	position: relative;
 	top: 4px;
@@ -551,8 +556,7 @@ body .sd-social-icon .sd-content li.share-custom a span,
 body .sd-social-icon-text .sd-content li.share-custom a span,
 body .sd-social-text .sd-content li.share-custom a span,
 body .sd-social-official .sd-content li.share-custom a span,
-body .sd-content ul li.share-custom a.share-icon span
-{
+body .sd-content ul li.share-custom a.share-icon span {
 	background-size: 16px 16px;
 	background-repeat: no-repeat;
 	margin-left: 0;
@@ -583,23 +587,24 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	border: 1px solid #ccc;
 	padding: 10px;
 	background: #fff;
-	box-shadow: 0 5px 20px rgba(0,0,0,.2);
+	box-shadow: 0 5px 20px rgba(0, 0, 0, .2);
 	border-radius: 2px;
 	margin-top: 5px;
 	max-width: 400px;
 }
 
-.sharing-hidden .inner ul{
+.sharing-hidden .inner ul {
 	margin: 0 !important;
 }
 
-.sd-social-official .sd-content .sharing-hidden ul>li.share-end {
+.sd-social-official .sd-content .sharing-hidden ul > li.share-end {
 	clear: both;
 	margin: 0 !important;
 	height: 0 !important;
 }
 
-.sharing-hidden .inner::before, .sharing-hidden .inner::after {
+.sharing-hidden .inner::before,
+.sharing-hidden .inner::after {
 	position: absolute;
 	z-index: 1;
 	top: -8px;
@@ -646,7 +651,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	max-width: 32px;
 }
 
-.sd-social-icon .sd-content ul li[class*='share-'] a.sd-button>span,
+.sd-social-icon .sd-content ul li[class*='share-'] a.sd-button > span,
 .sd-social-icon .sd-content ul li[class*='share-'] div.option a span {
 	line-height: 1;
 }
@@ -656,7 +661,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	border: none;
 	opacity: .6;
 }
-
 
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button::before {
@@ -752,7 +756,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 #jetpack-source_f_name {
-	display: none!important;
+	display: none !important;
 	position: absolute !important;
 	left: -9000px;
 }
