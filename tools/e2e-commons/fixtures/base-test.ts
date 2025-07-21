@@ -14,6 +14,16 @@ const test = baseTest.extend( {
 		page.on( 'pageerror', exception => {
 			logger.error( `Page error: "${ exception }"` );
 		} );
+
+		await page.context().addCookies( [
+			{
+				name: 'sensitive_pixel_options',
+				value: '{"ok":true,"buckets":{"essential":true,"analytics":false,"advertising":false}}',
+				domain: 'wordpress.com',
+				path: '/',
+			},
+		] );
+
 		await use( page );
 	},
 
