@@ -1,6 +1,6 @@
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { plus, lineSolid } from '@wordpress/icons';
+import { plus, reset } from '@wordpress/icons';
 import { StarIcon, HeartIcon } from '../../input-rating/icons';
 
 /**
@@ -18,7 +18,11 @@ export default function RatingToolbar( { variation, max, onUpdateVariation, onUp
 		<>
 			<ToolbarGroup>
 				<ToolbarButton
-					icon={ variation === 'stars' ? HeartIcon : StarIcon }
+					icon={
+						<span style={ { filter: 'brightness(0) opacity(0.6)' } }>
+							{ variation === 'stars' ? HeartIcon : StarIcon }
+						</span>
+					}
 					label={
 						variation === 'stars'
 							? __( 'Transform to hearts', 'jetpack-forms' )
@@ -29,7 +33,7 @@ export default function RatingToolbar( { variation, max, onUpdateVariation, onUp
 			</ToolbarGroup>
 			<ToolbarGroup>
 				<ToolbarButton
-					icon={ lineSolid }
+					icon={ reset }
 					label={ __( 'Remove star', 'jetpack-forms' ) }
 					onClick={ () => onUpdateMax( Math.max( 2, max - 1 ) ) }
 					disabled={ max <= 2 }
