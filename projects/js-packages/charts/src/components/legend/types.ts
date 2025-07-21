@@ -35,3 +35,10 @@ export type LegendProps = Omit< BaseLegendProps, 'items' > & {
 	items?: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
 	chartId?: string;
 };
+
+export type ChartLegendOptions = {
+	withGlyph?: boolean;
+	glyphSize?: number;
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	showValues?: boolean;
+};
