@@ -101,7 +101,6 @@ export default function RatingFieldEdit( props ) {
 
 	return (
 		<>
-			{ /* Toolbar: show when wrapper selected*/ }
 			<BlockControls>
 				{ props.isSelected && (
 					<RatingToolbar
@@ -112,8 +111,6 @@ export default function RatingFieldEdit( props ) {
 					/>
 				) }
 			</BlockControls>
-
-			{ /* Child toolbar will be captured when it is selected */ }
 
 			<div { ...innerBlocksProps } />
 
