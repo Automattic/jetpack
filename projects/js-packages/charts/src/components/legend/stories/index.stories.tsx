@@ -21,7 +21,7 @@ The Legend component provides a flexible way to display chart legends either as 
 - **Composition API**: Use \`<Chart.Legend />\` for clean, declarative legend positioning
 - **Standalone Usage**: Display legends independently from charts
 - **Context Integration**: Automatically retrieve legend data from charts using \`chartId\`
-- **Flexible Positioning**: Place legends anywhere in your layout with \`position\` and \`align\` props
+- **Flexible Positioning**: Place legends anywhere with \`orientation\`, \`alignmentHorizontal\`, and \`alignmentVertical\` props
 - **Works with Hidden Legends**: Charts with \`showLegend={false}\` still provide data to standalone legends
 - **Full Customization**: Inherits all props from BaseLegend for complete control
 
@@ -30,15 +30,15 @@ The Legend component provides a flexible way to display chart legends either as 
 ### Modern Composition API (Recommended)
 \`\`\`jsx
 <LineChart data={salesData}>
-  <LineChart.Legend position="bottom" align="center" />
+  <LineChart.Legend orientation="horizontal" alignmentHorizontal="center" alignmentVertical="bottom" />
 </LineChart>
 
 <BarChart data={salesData}>
-  <BarChart.Legend position="right" align="start" />
+  <BarChart.Legend orientation="vertical" alignmentHorizontal="right" alignmentVertical="top" />
 </BarChart>
 
 <PieChart data={pieData}>
-  <PieChart.Legend position="right" align="center" />
+  <PieChart.Legend orientation="vertical" alignmentHorizontal="right" alignmentVertical="center" />
 </PieChart>
 \`\`\`
 
@@ -171,7 +171,11 @@ const WithLineChartData = () => {
 				withGradientFill={ false }
 				withLegendGlyph={ false }
 			>
-				<LineChart.Legend position="bottom" align="center" />
+				<LineChart.Legend
+					orientation="horizontal"
+					alignmentHorizontal="center"
+					alignmentVertical="bottom"
+				/>
 			</LineChart>
 		</div>
 	);
@@ -193,7 +197,11 @@ const WithBarChartData = () => {
 	return (
 		<div style={ { width: '600px', height: '350px' } }>
 			<BarChart data={ barChartData } width={ 400 } height={ 300 }>
-				<BarChart.Legend position="right" align="start" />
+				<BarChart.Legend
+					orientation="vertical"
+					alignmentHorizontal="right"
+					alignmentVertical="top"
+				/>
 			</BarChart>
 		</div>
 	);
