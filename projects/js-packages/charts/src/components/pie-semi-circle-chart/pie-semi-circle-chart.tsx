@@ -7,7 +7,8 @@ import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
-import { BaseLegend } from '../legend';
+import { attachSubComponents } from '../../utils/create-chart-composition';
+import { BaseLegend, ChartLegend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -301,11 +302,23 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 };
 
-const PieSemiCircleChart: FC< PieSemiCircleChartProps > = props => (
+const PieSemiCircleChartBase: FC< PieSemiCircleChartProps > = props => (
 	<ChartProvider>
 		<PieSemiCircleChartInternal { ...props } />
 	</ChartProvider>
 );
 
-PieSemiCircleChart.displayName = 'PieSemiCircleChart';
+PieSemiCircleChartBase.displayName = 'PieSemiCircleChart';
+
+// Create composition type
+type PieSemiCircleChartComponent = FC< PieSemiCircleChartProps > & {
+	Legend: typeof ChartLegend;
+};
+
+// Attach subcomponents to create composition API
+const PieSemiCircleChart = attachSubComponents( PieSemiCircleChartBase, {
+	Legend: ChartLegend,
+} ) as PieSemiCircleChartComponent;
+
+export { PieSemiCircleChart };
 export default withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );
