@@ -232,14 +232,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		try {
-			$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ) );
+			$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ), true );
 		} catch ( \Exception $e ) {
 			return null;
 		}
 
-		$attributes             = (array) $data->attributes;
-		$form                   = new self( $attributes, $data->content, empty( $attributes['id'] ) );
-		$form->hash             = $data->hash;
+		$form                   = new self( $data['attributes'], $data['content'], empty( $data['attributes']['id'] ) );
+		$form->hash             = $data['hash'];
 		$form->has_verified_jwt = true;
 		return $form;
 	}
