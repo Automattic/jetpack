@@ -147,6 +147,11 @@ class Contact_Form_Shortcode {
 			return array_map( array( $this, 'unesc_attr' ), $value );
 		}
 
+		if ( is_object( $value ) ) {
+			$value = (array) $value;
+			return array_map( array( $this, 'unesc_attr' ), $value );
+		}
+
 		// For back-compat with old Grunion encoding
 		// Also, unencode commas
 		$value = strtr(
