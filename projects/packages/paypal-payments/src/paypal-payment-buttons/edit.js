@@ -9,10 +9,6 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalItemGroup as ItemGroup,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalItem as Item,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -327,25 +323,14 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					/>
 				</ToggleGroupControl>
 				<Text>
-					<strong>{ __( 'Instructions:', 'jetpack-paypal-payments' ) }</strong>
+					<ExternalLink href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }>
+						<strong>{ __( 'Go to PayPal', 'jetpack-paypal-payments' ) }</strong>
+					</ExternalLink>{ ' ' }
+					{ __(
+						'to get your Payment Button code and choose Payment Buttons. Enter your product and service details, and build the buttons. Copy the HTML button code for Stacked Buttons or Single Button and paste below.',
+						'jetpack-paypal-payments'
+					) }
 				</Text>
-				<ItemGroup>
-					<Item>
-						1.{ ' ' }
-						<ExternalLink
-							href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }
-						>
-							{ __( 'Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
-						</ExternalLink>
-					</Item>
-					<Item>
-						{ __(
-							'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.',
-							'jetpack-paypal-payments'
-						) }
-					</Item>
-					<Item>{ __( '3. Paste the code below.', 'jetpack-paypal-payments' ) }</Item>
-				</ItemGroup>
 				{ 'stacked' === buttonType && (
 					<PlainText
 						value={ rawHeadCode }
