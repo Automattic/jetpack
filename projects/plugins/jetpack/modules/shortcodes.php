@@ -14,8 +14,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Status\Request;
-
+// Load shortcode utils.
 require_once __DIR__ . '/shortcodes/shortcode-utils.php';
 
 /**
@@ -44,21 +43,6 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 	}
 
 	return str_replace( array( '&amp;', '&#038;' ), '&', $str );
-}
-
-/**
- * Determine if shortcodes should hook on pre_kses.
- *
- * @return bool True if shortcodes should hook on pre_kses, false otherwise.
- */
-function jetpack_shortcodes_should_hook_pre_kses() {
-	static $is_frontend;
-
-	if ( null === $is_frontend ) {
-		$is_frontend = Request::is_frontend( false );
-	}
-
-	return ! $is_frontend;
 }
 
 /**
