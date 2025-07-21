@@ -532,7 +532,7 @@ type LineChartComponent = React.ForwardRefExoticComponent<
 	Annotation: typeof LineChartAnnotation;
 };
 
-type LineChartReponsiveComponent = LineChartComponent & ResponsiveConfig;
+type LineChartResponsiveComponent = LineChartComponent & ResponsiveConfig;
 
 const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => (
 	<ChartProvider>
@@ -547,8 +547,8 @@ LineChart.Annotation = LineChartAnnotation;
 // Export unwrapped component for testing
 export { LineChart as LineChartUnresponsive };
 
-const ResponsiveLineChart: LineChartReponsiveComponent = Object.assign(
-	withResponsive< LineChartProps >( LineChart ) as LineChartReponsiveComponent,
+const ResponsiveLineChart: LineChartResponsiveComponent = Object.assign(
+	withResponsive< LineChartProps >( LineChart ) as LineChartResponsiveComponent,
 	{
 		AnnotationsOverlay: LineChartAnnotationsOverlay,
 		Annotation: LineChartAnnotation,
