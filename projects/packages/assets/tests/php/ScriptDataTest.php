@@ -155,7 +155,7 @@ class ScriptDataTest extends TestCase {
 
 		Monkey\Filters\expectApplied( 'jetpack_admin_js_script_data' )->andReturn( array( 'foo' => 'bar' ) );
 
-		$add_inline_args = array();
+		$add_inline_args = array( null, '', null );
 		Functions\when( 'wp_add_inline_script' )->alias(
 			function ( $handle, $data, $position ) use ( &$add_inline_args ) {
 				$add_inline_args = array( $handle, $data, $position );
