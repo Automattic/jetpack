@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 440+ occurrences
+    // PhanTypeMismatchArgument : 430+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 260+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 190+ occurrences
     // PhanTypeMismatchReturn : 140+ occurrences
@@ -81,7 +81,6 @@ return [
     // PhanPluginDuplicateSwitchCase : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
-    // PhanTypeConversionFromArray : 1 occurrence
     // PhanUndeclaredConstant : 1 occurrence
     // PhanUndeclaredExtendedClass : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
@@ -322,7 +321,7 @@ return [
         'modules/shortcodes/class.filter-embedded-html-objects.php' => ['PhanTypeMismatchPropertyDefault'],
         'modules/shortcodes/crowdsignal.php' => ['PhanPluginRedundantAssignment', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition'],
         'modules/shortcodes/dailymotion.php' => ['PhanTypeMismatchArgument'],
-        'modules/shortcodes/flickr.php' => ['PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn'],
+        'modules/shortcodes/flickr.php' => ['PhanTypeMismatchReturn'],
         'modules/shortcodes/getty.php' => ['PhanTypeMismatchArgument'],
         'modules/shortcodes/gist.php' => ['PhanTypeMismatchArgument'],
         'modules/shortcodes/googleapps.php' => ['PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
