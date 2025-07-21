@@ -1231,6 +1231,13 @@ class Contact_Form_Plugin {
 		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
 		$form = false;
+		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) {
+			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
+			if ( ! $form ) { // fail early if the JWT is invalid.
+				// If the JWT is invalid, we can't process the form.
+				return false;
+			}
+		}
 
 		if ( $is_widget ) {
 			// It's a form embedded in a text widget
@@ -1350,8 +1357,10 @@ class Contact_Form_Plugin {
 				apply_filters( 'the_content', $content );
 			}
 		}
-
-		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
+		if ( ! $form ) {
+			// In future version we will be able to skip this step.
+			$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
+		}
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
