@@ -16,7 +16,7 @@ const stylesArray = Object.entries( glyphs ).map( ( [ key, { label } ] ) => ( {
 } ) );
 const settings = {
 	...defaultSettings,
-	title: __( 'Rating', 'jetpack-forms' ),
+	title: __( 'Rating field', 'jetpack-forms' ),
 	description: __( 'Allow visitors to select a rating.', 'jetpack-forms' ),
 	icon: {
 		foreground: getIconColor(),
