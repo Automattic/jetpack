@@ -70,7 +70,7 @@ class Request_Test extends TestCase {
 		}
 
 		// Mock the apply_filters function
-		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( $expected_result )->andReturn( $expected_result );
+		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( $expected_result, true )->andReturn( $expected_result );
 
 		$result = Request::is_frontend();
 		$this->assertEquals( $expected_result, $result );
@@ -183,7 +183,7 @@ class Request_Test extends TestCase {
 
 		// Expect the header to be set with the combined Vary values
 		Functions\expect( 'header' )->once()->with( $expected_header );
-		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( true )->andReturn( true );
+		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( true, true )->andReturn( true );
 
 		$result = Request::is_frontend();
 		$this->assertTrue( $result );
@@ -279,7 +279,7 @@ class Request_Test extends TestCase {
 		}
 
 		// Set up the filter expectation
-		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( $initial_result )->andReturn( $filter_return );
+		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( $initial_result, true )->andReturn( $filter_return );
 
 		$result = Request::is_frontend();
 		$this->assertEquals( $expected_result, $result );
