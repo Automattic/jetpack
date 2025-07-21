@@ -370,6 +370,13 @@ $action-bar-height: 88px;
 	min-width: 300px !important;
 	overflow: auto;
 	flex: 1 1 40%;
+
+	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
+	margin-bottom: 97px;
+
+	@media (min-width: 782px) {
+		margin-bottom: 57px;
+	}
 }
 
 
