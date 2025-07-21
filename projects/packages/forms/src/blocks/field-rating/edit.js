@@ -5,12 +5,11 @@ import {
 	BlockControls,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import { PanelBody, RangeControl, ToolbarGroup, ToolbarButton } from '@wordpress/components';
+import { PanelBody, RangeControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { plus, lineSolid } from '@wordpress/icons';
-import { StarIcon, HeartIcon } from '../input-rating/icons';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import RatingToolbar from '../shared/components/rating-toolbar';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function RatingFieldEdit( props ) {
@@ -64,7 +63,6 @@ export default function RatingFieldEdit( props ) {
 
 		// Remove previous is-style-* class if present
 		const cleanedClassName = ( classNameAttr || '' ).replace( /is-style-[^\s]+/g, '' ).trim();
-
 		const newClassName = `${ cleanedClassName } ${ `is-style-${ newVariation }` }`.trim();
 
 		setAttributes( {
@@ -98,37 +96,24 @@ export default function RatingFieldEdit( props ) {
 			[ 'jetpack/rating-input', { max, default: defaultValue } ],
 		],
 		templateLock: 'all',
+		__experimentalCaptureToolbars: true,
 	} );
 
 	return (
 		<>
+			{ /* Toolbar: show when wrapper selected*/ }
 			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton
-						icon={ variation === 'stars' ? HeartIcon : StarIcon }
-						label={
-							variation === 'stars'
-								? __( 'Transform to hearts', 'jetpack-forms' )
-								: __( 'Transform to stars', 'jetpack-forms' )
-						}
-						onClick={ () => updateVariation( variation === 'stars' ? 'hearts' : 'stars' ) }
+				{ props.isSelected && (
+					<RatingToolbar
+						variation={ variation }
+						max={ max }
+						onUpdateVariation={ updateVariation }
+						onUpdateMax={ updateMax }
 					/>
-				</ToolbarGroup>
-				<ToolbarGroup>
-					<ToolbarButton
-						icon={ lineSolid }
-						label={ __( 'Remove star', 'jetpack-forms' ) }
-						onClick={ () => updateMax( Math.max( 2, max - 1 ) ) }
-						disabled={ max <= 2 }
-					/>
-					<ToolbarButton
-						icon={ plus }
-						label={ __( 'Add star', 'jetpack-forms' ) }
-						onClick={ () => updateMax( Math.min( 10, max + 1 ) ) }
-						disabled={ max >= 10 }
-					/>
-				</ToolbarGroup>
+				) }
 			</BlockControls>
+
+			{ /* Child toolbar will be captured when it is selected */ }
 
 			<div { ...innerBlocksProps } />
 
