@@ -1,4 +1,4 @@
-// Re-export Group component from visx
+// Re-export legend components from visx
 import {
 	LineShape as VisxLineShape,
 	CircleShape as VisxCircleShape,
