@@ -205,7 +205,6 @@ projects/packages/my-jetpack/
 ## Browser Support
 
 - **Modern Browsers**: Full feature support including Performance Observer
-- **Legacy Browsers**: Graceful degradation with core error tracking
 - **Session IDs**: Uses secure random generation when available, falls back to Math.random()
 - **Performance Observer**: Optional feature for performance monitoring
 
