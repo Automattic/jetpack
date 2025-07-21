@@ -30,13 +30,21 @@ export default function RatingToolbar( { variation, max, onUpdateVariation, onUp
 			<ToolbarGroup>
 				<ToolbarButton
 					icon={ reset }
-					label={ __( 'Remove star', 'jetpack-forms' ) }
+					label={
+						variation === 'hearts'
+							? __( 'Remove heart', 'jetpack-forms' )
+							: __( 'Remove star', 'jetpack-forms' )
+					}
 					onClick={ () => onUpdateMax( Math.max( 2, max - 1 ) ) }
 					disabled={ max <= 2 }
 				/>
 				<ToolbarButton
 					icon={ plus }
-					label={ __( 'Add star', 'jetpack-forms' ) }
+					label={
+						variation === 'hearts'
+							? __( 'Add heart', 'jetpack-forms' )
+							: __( 'Add star', 'jetpack-forms' )
+					}
 					onClick={ () => onUpdateMax( Math.min( 10, max + 1 ) ) }
 					disabled={ max >= 10 }
 				/>

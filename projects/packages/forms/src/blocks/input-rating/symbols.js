@@ -38,33 +38,41 @@ export default function Symbols( { max, value = 0, onChange = () => {}, char = '
 				case 'ArrowUp':
 					event.preventDefault();
 					if ( position < max ) {
-						// Focus next rating element
-						const nextElement =
-							event.target.parentElement.nextElementSibling?.querySelector( '[role="radio"]' );
-						nextElement?.focus();
+						// Focus next rating button
+						const nextLabel = event.target.closest(
+							'.jetpack-field-rating__label'
+						).nextElementSibling;
+						const nextButton = nextLabel?.querySelector( '.jetpack-field-rating__button' );
+						nextButton?.focus();
 					}
 					break;
 				case 'ArrowLeft':
 				case 'ArrowDown':
 					event.preventDefault();
 					if ( position > 1 ) {
-						// Focus previous rating element
-						const prevElement =
-							event.target.parentElement.previousElementSibling?.querySelector( '[role="radio"]' );
-						prevElement?.focus();
+						// Focus previous rating button
+						const prevLabel = event.target.closest(
+							'.jetpack-field-rating__label'
+						).previousElementSibling;
+						const prevButton = prevLabel?.querySelector( '.jetpack-field-rating__button' );
+						prevButton?.focus();
 					}
 					break;
 				case 'Home':
 					event.preventDefault();
-					// Focus first rating element
-					event.target.parentElement.parentElement.querySelector( '[role="radio"]' )?.focus();
+					// Focus first rating button
+					event.target
+						.closest( '.jetpack-field-rating__wrapper' )
+						.querySelector( '.jetpack-field-rating__button' )
+						?.focus();
 					break;
 				case 'End': {
 					event.preventDefault();
-					// Focus last rating element
-					const allRadios =
-						event.target.parentElement.parentElement.querySelectorAll( '[role="radio"]' );
-					allRadios[ allRadios.length - 1 ]?.focus();
+					// Focus last rating button
+					const allButtons = event.target
+						.closest( '.jetpack-field-rating__wrapper' )
+						.querySelectorAll( '.jetpack-field-rating__button' );
+					allButtons[ allButtons.length - 1 ]?.focus();
 					break;
 				}
 			}
