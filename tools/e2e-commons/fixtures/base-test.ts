@@ -24,7 +24,7 @@ test.beforeEach( async () => {
 
 test.afterEach( async () => {
 	const wpcomRequestCount = await execWpCommand( 'transient get wpcom_request_counter' );
-	allure.addParameter( 'Requests to WPCOM API', String( parseInt( wpcomRequestCount ) || 0 ) );
+	allure.label( 'Requests to WPCOM API', String( parseInt( wpcomRequestCount ) || 0 ) );
 } );
 
 export { test, expect };
