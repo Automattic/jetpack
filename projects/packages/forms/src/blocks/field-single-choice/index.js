@@ -33,6 +33,7 @@ const settings = {
 	styles: [
 		{ name: 'list', label: __( 'List', 'jetpack-forms' ), isDefault: true },
 		{ name: 'button', label: __( 'Button', 'jetpack-forms' ) },
+		{ name: 'browser', label: __( 'Browser', 'jetpack-forms' ) },
 	],
 	example: {
 		innerBlocks: [
