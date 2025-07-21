@@ -102,9 +102,7 @@ export default function RatingFieldEdit( props ) {
 
 	return (
 		<>
-			{ /* Toolbar controls */ }
 			<BlockControls>
-				{ /* Variation toggle group */ }
 				<ToolbarGroup>
 					<ToolbarButton
 						icon={ variation === 'stars' ? HeartIcon : StarIcon }
@@ -116,8 +114,6 @@ export default function RatingFieldEdit( props ) {
 						onClick={ () => updateVariation( variation === 'stars' ? 'hearts' : 'stars' ) }
 					/>
 				</ToolbarGroup>
-
-				{ /* Rating count controls group */ }
 				<ToolbarGroup>
 					<ToolbarButton
 						icon={ lineSolid }
