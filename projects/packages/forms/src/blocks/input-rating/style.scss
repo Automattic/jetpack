@@ -15,10 +15,7 @@
 		margin-bottom: 0;
 		cursor: pointer;
 		overflow: hidden;
-		font-family: "IBM Plex Sans JP", sans-serif;
-		font-weight: 400;
-		font-style: normal;
-		color: var(--jetpack--contact-form--background-color, #fff);
+		color: var( --jetpack--contact-form--background-color, #FFF );
 
 		// spacing between symbols
 		&:not(:first-of-type) {
