@@ -197,21 +197,26 @@ class WPCOM_Features {
 	private const JETPACK_SOCIAL_V1_BI_YEARLY                 = 'jetpack_social_v1_bi_yearly'; // 2607
 
 	// WPCOM "Level 2": Groups of level 1s.
-	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
-	private const WPCOM_PERSONAL_PLANS          = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y, self::PERSONAL_BUNDLE_3Y );
-	private const WPCOM_STARTER_PLANS           = array( self::STARTER_PLAN );
-	private const WPCOM_PREMIUM_PLANS           = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
-	private const WPCOM_PRO_PLANS               = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
-	private const WPCOM_MIGRATION_TRIAL_PLANS   = array( self::WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY );
-	private const WPCOM_HOSTING_TRIAL_PLANS     = array( self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
-	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
-	private const WPCOM_ECOMMERCE_PLANS         = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
-	private const WPCOM_ECOMMERCE_TRIAL_PLANS   = array( self::ECOMMERCE_TRIAL_BUNDLE_MONTHLY );
-	private const WPCOM_WOOEXPRESS_MEDIUM_PLANS = array( self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY );
-	private const WPCOM_WOOEXPRESS_SMALL_PLANS  = array( self::WPCOM_WOOEXPRESS_SMALL_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY );
-	private const GOOGLE_WORKSPACE_PRODUCTS     = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
-	private const GSUITE_PRODUCTS               = array( self::GAPPS, self::GAPPS_UNLIMITED );
-	private const WPCOM_TITAN_MAIL_PRODUCTS     = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
+	private const WPCOM_BLOGGER_PLANS              = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
+	private const WPCOM_PERSONAL_PLANS             = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y, self::PERSONAL_BUNDLE_3Y );
+	private const WPCOM_STARTER_PLANS              = array( self::STARTER_PLAN );
+	private const WPCOM_PREMIUM_PLANS              = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
+	private const WPCOM_PRO_PLANS                  = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
+	private const WPCOM_PERSONAL_AND_PREMIUM_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS );
+	private const WPCOM_SUMMER_SPECIAL_2025_PLANS  = array(
+		'required_sticker' => 'summer-special-2025',
+		self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+	);
+	private const WPCOM_MIGRATION_TRIAL_PLANS      = array( self::WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY );
+	private const WPCOM_HOSTING_TRIAL_PLANS        = array( self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
+	private const WPCOM_BUSINESS_PLANS             = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
+	private const WPCOM_ECOMMERCE_PLANS            = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
+	private const WPCOM_ECOMMERCE_TRIAL_PLANS      = array( self::ECOMMERCE_TRIAL_BUNDLE_MONTHLY );
+	private const WPCOM_WOOEXPRESS_MEDIUM_PLANS    = array( self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY );
+	private const WPCOM_WOOEXPRESS_SMALL_PLANS     = array( self::WPCOM_WOOEXPRESS_SMALL_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY );
+	private const GOOGLE_WORKSPACE_PRODUCTS        = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
+	private const GSUITE_PRODUCTS                  = array( self::GAPPS, self::GAPPS_UNLIMITED );
+	private const WPCOM_TITAN_MAIL_PRODUCTS        = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
 
 	// WPCOM "Level 3" A: Groups of level 2s.
 	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
@@ -529,6 +534,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
 			array( 'product_type' => array( 'marketplace_plugin', 'saas_plugin' ) ),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                           => array(
@@ -684,6 +690,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// EDIT_THEMES - Provides the edit_themes capability on atomic sites, does nothing on simple sites.
 		self::EDIT_THEMES                       => array(
@@ -760,6 +767,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::INSTALL_PURCHASED_PLUGINS         => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -768,6 +776,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::INSTALL_THEMES                    => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1625,7 +1634,7 @@ class WPCOM_Features {
 				continue;
 			}
 
-			$purchase_eligible_by_date = false;
+			$purchase_eligible_by_date    = false;
 			$purchase_eligible_by_sticker = false;
 
 			// Check if sticker requirement exists.
