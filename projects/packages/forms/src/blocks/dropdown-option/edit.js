@@ -1,32 +1,47 @@
 import { RichText, useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import { Button, Flex, FlexItem } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-
-const noop = () => undefined;
 
 export default function DropdownOptionEdit( props ) {
 	const { attributes, clientId, setAttributes } = props;
 	const { option } = attributes;
 	const className = 'jetpack-field-dropdown__option';
-	const blockProps = useBlockProps( { className } );
+	const blockProps = useBlockProps( {
+		className,
+	} );
 
-	const { removeBlocks, insertAfterBlock } = useDispatch( blockEditorStore );
-
-	const onKeyDown = useCallback(
-		event => {
-			if ( event.key === 'Enter' && ! event.shiftKey ) {
-				event.preventDefault();
-				insertAfterBlock( clientId );
-			}
-		},
-		[ insertAfterBlock, clientId ]
-	);
+	const { removeBlocks, insertBlocks } = useDispatch( blockEditorStore );
+	const { getBlockRootClientId, getBlockIndex } = useSelect( blockEditorStore );
 
 	const onRemove = () => {
 		return removeBlocks( clientId );
+	};
+
+	const onPaste = event => {
+		const pastedText = event.clipboardData.getData( 'text/plain' );
+
+		// Check if the pasted text contains multiple lines
+		if ( pastedText.includes( '\n' ) ) {
+			event.preventDefault();
+
+			const lines = pastedText.split( '\n' );
+
+			// Grab first element of the pasted list as a value for current option block
+			const firstLine = lines.shift();
+			setAttributes( { option: `${ option || '' }${ firstLine }` } );
+
+			// Append rest of the lines as new option blocks
+			const newOptions = lines.map( line =>
+				createBlock( 'jetpack/dropdown-option', { option: line } )
+			);
+			const rootClientId = getBlockRootClientId( clientId );
+			const index = getBlockIndex( clientId );
+
+			insertBlocks( newOptions, index + 1, rootClientId );
+		}
 	};
 
 	return (
@@ -34,10 +49,12 @@ export default function DropdownOptionEdit( props ) {
 			<Flex>
 				<FlexItem isBlock>
 					<RichText
-						allowedFormats={ [] }
+						__unstablePastePlainText
+						aria-label={ __( 'Dropdown option value', 'jetpack-forms' ) }
+						identifier="option"
 						onChange={ value => setAttributes( { option: value } ) }
-						onKeyDown={ onKeyDown }
-						onReplace={ noop }
+						onPaste={ onPaste }
+						onRemove={ onRemove }
 						placeholder={ __( 'Add option…', 'jetpack-forms' ) }
 						value={ option || '' }
 						withoutInteractiveFormatting

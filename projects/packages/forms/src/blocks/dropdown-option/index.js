@@ -21,6 +21,7 @@ const settings = {
 		customClassName: false,
 		html: false,
 		reusable: false,
+		splitting: true,
 	},
 	edit,
 	save,
