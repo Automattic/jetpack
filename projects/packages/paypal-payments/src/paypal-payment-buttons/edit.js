@@ -9,10 +9,6 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalItemGroup as ItemGroup,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalItem as Item,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -197,7 +193,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 	const [ rawHeadCode, setRawHeadCode ] = useState( '' );
 	const [ rawBodyCode, setRawBodyCode ] = useState( '' );
 
-	// Extract instruction strings to avoid ternary operator in i18n
 	const stackedInstructions = __(
 		'Stacked Buttons (Recommended): This option lets you present all of your product information and PayPal payment method upfront on your website.',
 		'jetpack-paypal-payments'
@@ -283,6 +278,18 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		);
 	}
 
+	const stackedButtonCodeLabel = __( 'Part 2 code', 'jetpack-paypal-payments' );
+	const stackedButtonCodePlaceholder = __(
+		'Paste the part 2 code here…',
+		'jetpack-paypal-payments'
+	);
+
+	const singleButtonCodeLabel = __( 'Single button code', 'jetpack-paypal-payments' );
+	const singleButtonCodePlaceholder = __(
+		'Paste the single button code here…',
+		'jetpack-paypal-payments'
+	);
+
 	return (
 		<div { ...blockProps }>
 			<Placeholder
@@ -316,25 +323,14 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					/>
 				</ToggleGroupControl>
 				<Text>
-					<strong>{ __( 'Instructions:', 'jetpack-paypal-payments' ) }</strong>
+					<ExternalLink href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }>
+						<strong>{ __( 'Go to PayPal', 'jetpack-paypal-payments' ) }</strong>
+					</ExternalLink>{ ' ' }
+					{ __(
+						'to get your Payment Button code and choose Payment Buttons. Enter your product and service details, and build the buttons. Copy the HTML button code for Stacked Buttons or Single Button and paste below.',
+						'jetpack-paypal-payments'
+					) }
 				</Text>
-				<ItemGroup>
-					<Item>
-						1.{ ' ' }
-						<ExternalLink
-							href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }
-						>
-							{ __( 'Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
-						</ExternalLink>
-					</Item>
-					<Item>
-						{ __(
-							'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.',
-							'jetpack-paypal-payments'
-						) }
-					</Item>
-					<Item>{ __( '3. Paste the code below.', 'jetpack-paypal-payments' ) }</Item>
-				</ItemGroup>
 				{ 'stacked' === buttonType && (
 					<PlainText
 						value={ rawHeadCode }
@@ -345,8 +341,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 								scriptSrc: extractedSrc,
 							} );
 						} }
-						placeholder={ __( 'Paste the head code here…', 'jetpack-paypal-payments' ) }
-						aria-label={ __( 'PayPal button head code', 'jetpack-paypal-payments' ) }
+						placeholder={ __( 'Paste the part 1 code here…', 'jetpack-paypal-payments' ) }
+						aria-label={ __( 'Part 1 code', 'jetpack-paypal-payments' ) }
 						name="paypal-payment-buttons-code-head"
 					/>
 				) }
@@ -361,8 +357,10 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 							buttonText: extractedButtonText,
 						} );
 					} }
-					placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }
-					aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
+					placeholder={
+						'stacked' === buttonType ? stackedButtonCodePlaceholder : singleButtonCodePlaceholder
+					}
+					aria-label={ 'stacked' === buttonType ? stackedButtonCodeLabel : singleButtonCodeLabel }
 					name="paypal-payment-buttons-code-body"
 				/>
 			</Placeholder>
