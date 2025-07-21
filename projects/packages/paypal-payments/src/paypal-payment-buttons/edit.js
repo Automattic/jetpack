@@ -197,7 +197,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 	const [ rawHeadCode, setRawHeadCode ] = useState( '' );
 	const [ rawBodyCode, setRawBodyCode ] = useState( '' );
 
-	// Extract instruction strings to avoid ternary operator in i18n
 	const stackedInstructions = __(
 		'Stacked Buttons (Recommended): This option lets you present all of your product information and PayPal payment method upfront on your website.',
 		'jetpack-paypal-payments'
@@ -283,6 +282,18 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		);
 	}
 
+	const stackedButtonCodeLabel = __( 'Part 2 code', 'jetpack-paypal-payments' );
+	const stackedButtonCodePlaceholder = __(
+		'Paste the part 2 code here…',
+		'jetpack-paypal-payments'
+	);
+
+	const singleButtonCodeLabel = __( 'Single button code', 'jetpack-paypal-payments' );
+	const singleButtonCodePlaceholder = __(
+		'Paste the single button code here…',
+		'jetpack-paypal-payments'
+	);
+
 	return (
 		<div { ...blockProps }>
 			<Placeholder
@@ -345,8 +356,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 								scriptSrc: extractedSrc,
 							} );
 						} }
-						placeholder={ __( 'Paste the head code here…', 'jetpack-paypal-payments' ) }
-						aria-label={ __( 'PayPal button head code', 'jetpack-paypal-payments' ) }
+						placeholder={ __( 'Paste the part 1 code here…', 'jetpack-paypal-payments' ) }
+						aria-label={ __( 'Part 1 code', 'jetpack-paypal-payments' ) }
 						name="paypal-payment-buttons-code-head"
 					/>
 				) }
@@ -361,8 +372,10 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 							buttonText: extractedButtonText,
 						} );
 					} }
-					placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }
-					aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
+					placeholder={
+						'stacked' === buttonType ? stackedButtonCodePlaceholder : singleButtonCodePlaceholder
+					}
+					aria-label={ 'stacked' === buttonType ? stackedButtonCodeLabel : singleButtonCodeLabel }
 					name="paypal-payment-buttons-code-body"
 				/>
 			</Placeholder>
