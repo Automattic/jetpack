@@ -6,14 +6,15 @@ import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
-import { BaseLegend } from '../legend';
+import { attachSubComponents } from '../../utils/create-chart-composition';
+import { BaseLegend, ChartLegend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
-import type { SVGProps, MouseEvent, ReactNode } from 'react';
+import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -77,12 +78,6 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	return { isValid: true, message: '' };
 };
 
-/**
- * Renders a pie or donut chart using the provided data.
- *
- * @param {PieChartProps} props - Component props
- * @return {JSX.Element} The rendered chart component
- */
 const PieChartInternal = ( {
 	data,
 	chartId: providedChartId,
@@ -265,7 +260,7 @@ const PieChartInternal = ( {
 	);
 };
 
-const PieChart = ( props: PieChartProps ) => {
+const PieChartBase: FC< PieChartProps > = props => {
 	const existingContext = useContext( ChartContext );
 
 	// If we're already in a ChartProvider context, don't create a new one
@@ -281,5 +276,17 @@ const PieChart = ( props: PieChartProps ) => {
 	);
 };
 
-PieChart.displayName = 'PieChart';
+PieChartBase.displayName = 'PieChart';
+
+// Create composition type
+type PieChartComponent = FC< PieChartProps > & {
+	Legend: typeof ChartLegend;
+};
+
+// Attach subcomponents to create composition API
+const PieChart = attachSubComponents( PieChartBase, {
+	Legend: ChartLegend,
+} ) as PieChartComponent;
+
+export { PieChart };
 export default withResponsive< PieChartProps >( PieChart );
