@@ -37,18 +37,7 @@
 		},
 
 		generateSessionId: function () {
-			const timestamp = Date.now().toString();
-			let randomPart = '';
-
-			if ( typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues ) {
-				const array = new Uint32Array( 3 );
-				window.crypto.getRandomValues( array );
-				randomPart = array.reduce( ( acc, val ) => acc + val.toString( 36 ), '' ).substring( 0, 9 );
-			} else {
-				randomPart = Math.random().toString( 36 ).substring( 2, 11 );
-			}
-
-			return 'jp_' + timestamp + '_' + randomPart;
+			return 'jp_' + Date.now() + '_' + Math.random().toString( 36 ).substring( 2, 11 );
 		},
 
 		setupErrorHandlers: function () {
