@@ -23,6 +23,10 @@ const settings = {
 		reusable: false,
 		splitting: true,
 	},
+	merge: ( attributes, { option = '' } ) => ( {
+		...attributes,
+		option: ( attributes.option || '' ) + option,
+	} ),
 	edit,
 	save,
 };

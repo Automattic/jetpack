@@ -6,19 +6,15 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 
 export default function DropdownOptionEdit( props ) {
-	const { attributes, clientId, setAttributes } = props;
+	const { attributes, clientId, mergeBlocks, setAttributes } = props;
 	const { option } = attributes;
 	const className = 'jetpack-field-dropdown__option';
 	const blockProps = useBlockProps( {
 		className,
 	} );
-
 	const { removeBlocks, insertBlocks } = useDispatch( blockEditorStore );
-	const { getBlockRootClientId, getBlockIndex } = useSelect( blockEditorStore );
-
-	const onRemove = () => {
-		return removeBlocks( clientId );
-	};
+	const { getBlockIndex, getBlockRootClientId, getNextBlockClientId, getPreviousBlockClientId } =
+		useSelect( blockEditorStore );
 
 	const onPaste = event => {
 		const pastedText = event.clipboardData.getData( 'text/plain' );
@@ -44,6 +40,19 @@ export default function DropdownOptionEdit( props ) {
 		}
 	};
 
+	const onRemove = () => {
+		const nextBlockClientId = getNextBlockClientId( clientId );
+		const previousBlockClientId = getPreviousBlockClientId( clientId );
+
+		if ( ! nextBlockClientId || ! previousBlockClientId ) {
+			// If this is the the only option, remove by emptying value
+			setAttributes( { option: '' } );
+			return;
+		}
+
+		return removeBlocks( clientId );
+	};
+
 	return (
 		<div { ...blockProps }>
 			<Flex>
@@ -53,6 +62,7 @@ export default function DropdownOptionEdit( props ) {
 						aria-label={ __( 'Dropdown option value', 'jetpack-forms' ) }
 						identifier="option"
 						onChange={ value => setAttributes( { option: value } ) }
+						onMerge={ mergeBlocks }
 						onPaste={ onPaste }
 						onRemove={ onRemove }
 						placeholder={ __( 'Add option…', 'jetpack-forms' ) }
