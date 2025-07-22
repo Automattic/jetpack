@@ -675,7 +675,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML string for the error wrapper.
 	 */
 	private static function render_error_wrapper() {
-		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFromErrors">';
+		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFormErrors">';
 		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
 				<span data-wp-text="state.getFormErrorMessage"></span>
 				<ul>
@@ -684,6 +684,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</template>
 				</ul>';
 		$html .= '</div>';
+
+		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError"></div>';
 		return $html;
 	}
 

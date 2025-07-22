@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: use Badge component for badges in Forms

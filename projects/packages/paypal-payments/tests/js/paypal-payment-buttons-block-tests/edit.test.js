@@ -153,6 +153,9 @@ describe( 'Edit', () => {
 		fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			buttonType: 'single',
+			scriptSrc: '',
+			buttonText: '',
+			hostedButtonId: '',
 		} );
 	} );
 
@@ -338,6 +341,84 @@ describe( 'Edit', () => {
 			expect( instructionText ).toHaveTextContent(
 				'to get your Payment Button code and choose Payment Buttons'
 			);
+		} );
+	} );
+
+	describe( 'Parameter Clearing on Button Type Toggle', () => {
+		it( 'clears all parameters when switching from stacked to single', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'stacked',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: '',
+					} }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'single',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
+		} );
+
+		it( 'clears all parameters when switching from single to stacked', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						scriptSrc: '',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: 'Pay Now',
+					} }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			fireEvent.click( screen.getByTestId( 'toggle-option-stacked' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'stacked',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
+		} );
+
+		it( 'clears all parameters when switching to the same type', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'stacked',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: '',
+					} }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			fireEvent.click( screen.getByTestId( 'toggle-option-stacked' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			// Should clear all parameters even when switching to the same type
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'stacked',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
 		} );
 	} );
 

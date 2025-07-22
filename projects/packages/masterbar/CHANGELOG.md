@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+### Deprecated
+- Admin Menu: Deprecate "Settings > Podcasting" menu. [#44367]
+- Admin Menu: Deprecate "Tools > Monetize" menu. [#44216]
+- Admin Menu: Deprecate "Users > Subscribers" menu. [#44302]
+
 ## [0.18.2] - 2025-07-14
 ### Changed
 - Update dependencies. [#44229]
@@ -381,6 +390,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.19.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.2...v0.19.0
 [0.18.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.1...v0.18.2
 [0.18.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.11...v0.18.0
