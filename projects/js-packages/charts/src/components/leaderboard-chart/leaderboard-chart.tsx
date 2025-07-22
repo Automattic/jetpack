@@ -1,4 +1,4 @@
-import { ProgressBar } from '@wordpress/components';
+import { ProgressBar, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import clsx from 'clsx';
 import { type FC } from 'react';
 import { formatMetricValue } from '../shared/format-metric-value';
@@ -175,7 +175,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 
 				return (
 					<div key={ entry.id } className={ styles.entryContainer }>
-						<div className={ styles.labelContainer }>
+						<VStack spacing={ 1.5 }>
 							<span className={ styles.entryLabel }>{ entry.label }</span>
 
 							<div className={ styles.progressContainer }>
@@ -191,7 +191,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 									/>
 								) }
 							</div>
-						</div>
+						</VStack>
 
 						<div className={ styles.valueContainer }>
 							<span className={ styles.currentValue }>
