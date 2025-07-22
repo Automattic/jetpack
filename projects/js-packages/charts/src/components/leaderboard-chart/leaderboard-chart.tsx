@@ -8,8 +8,21 @@ import {
 import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
 import { type FC } from 'react';
+import { useChartTheme } from '../../providers/theme';
 import { formatMetricValue } from '../shared/format-metric-value';
 import styles from './leaderboard-chart.module.scss';
+
+/**
+ * Default settings for LeaderboardChart component
+ */
+const DEFAULT_LEADERBOARD_SETTINGS = {
+	labelSpacing: 1.5,
+	rowGap: 12,
+	columnGap: 4,
+	primaryColor: '#3858E9',
+	secondaryColor: '#66BDFF',
+	deltaColors: [ '#D63638', '#757575', '#008A20' ] as [ string, string, string ],
+} as const;
 export interface LeaderboardEntry {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
@@ -139,23 +152,37 @@ const defaultDeltaFormatter = ( value: number ): string => {
 export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	data,
 	withComparison = false,
-	primaryColor = '#3858E9',
-	secondaryColor = '#66BDFF',
+	primaryColor,
+	secondaryColor,
 	valueFormatter = defaultValueFormatter,
 	deltaFormatter = defaultDeltaFormatter,
 	loading = false,
 	className,
 	style,
 } ) => {
-	// TODO: Integrate with ThemeProvider:
-	// 1. Use theme.colors for primaryColor/secondaryColor defaults
-	// 2. Get delta sign colors from theme instead of hardcoding
-	// 3. Add useChartTheme() hook like other chart components
-	const signColors = [ '#D63638', '#757575', '#008A20' ];
+	const theme = useChartTheme();
+
+	// Get component settings from theme with fallbacks
+	const leaderboardSettings = theme.leaderboardChart;
+	const labelSpacing =
+		leaderboardSettings?.labelSpacing ?? DEFAULT_LEADERBOARD_SETTINGS.labelSpacing;
+	const rowGap = leaderboardSettings?.rowGap ?? DEFAULT_LEADERBOARD_SETTINGS.rowGap;
+	const columnGap = leaderboardSettings?.columnGap ?? DEFAULT_LEADERBOARD_SETTINGS.columnGap;
+
+	// Use theme colors with prop overrides, fallback to defaults
+	const finalPrimaryColor =
+		primaryColor || leaderboardSettings?.primaryColor || DEFAULT_LEADERBOARD_SETTINGS.primaryColor;
+	const finalSecondaryColor =
+		secondaryColor ||
+		leaderboardSettings?.secondaryColor ||
+		DEFAULT_LEADERBOARD_SETTINGS.secondaryColor;
+
+	// Delta sign colors: negative, neutral, positive
+	const signColors = leaderboardSettings?.deltaColors ?? DEFAULT_LEADERBOARD_SETTINGS.deltaColors;
 
 	const chartStyle = {
-		'--primary-color': primaryColor,
-		'--secondary-color': secondaryColor,
+		'--primary-color': finalPrimaryColor,
+		'--secondary-color': finalSecondaryColor,
 		...style,
 	} as React.CSSProperties;
 
@@ -175,8 +202,8 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 		<Grid
 			className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
 			templateColumns="minmax(0, 1fr) auto"
-			rowGap={ 12 }
-			columnGap={ 4 }
+			rowGap={ rowGap }
+			columnGap={ columnGap }
 			style={ chartStyle }
 		>
 			{ data.map( entry => {
@@ -185,7 +212,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 
 				return (
 					<Fragment key={ entry.id }>
-						<VStack spacing={ 1.5 }>
+						<VStack spacing={ labelSpacing }>
 							<Text>{ entry.label }</Text>
 
 							<div className={ styles.progressContainer }>
