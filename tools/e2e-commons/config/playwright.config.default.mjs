@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
 import config from 'config';
 import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper.js';
 
-const rootPath = fileURLToPath( new URL( '.', import.meta.url ) );
+const rootPath = fileURLToPath( new URL( '..', import.meta.url ) );
 
 const reporter = [
 	[ 'list' ],
@@ -28,8 +28,10 @@ if ( process.env.CI ) {
 	);
 }
 
-process.env.STORAGE_STATE_DIR_PATH = `${ rootPath }../.state`;
+process.env.STORAGE_STATE_DIR_PATH = `${ rootPath }/.state`.replaceAll( '//', '/' );
 process.env.STORAGE_STATE_PATH = `${ process.env.STORAGE_STATE_DIR_PATH }/storage-state.json`;
+
+console.log( `Storage state path: ${ process.env.STORAGE_STATE_PATH }` );
 
 // Fail early if the required test site config is not defined
 // Let config lib throw by using get function on an undefined property
@@ -47,13 +49,13 @@ setWpEnvVars();
 export const setupProjects = [
 	{
 		name: 'global authentication',
-		testDir: `${ rootPath }../fixtures`,
+		testDir: `${ rootPath }/fixtures`,
 		testMatch: 'auth.setup.ts',
 		storageState: undefined,
 	},
 	{
 		name: 'connection setup',
-		testDir: `${ rootPath }../fixtures`,
+		testDir: `${ rootPath }/fixtures`,
 		testMatch: 'connection.setup.ts',
 		dependencies: [ 'global authentication' ],
 	},
