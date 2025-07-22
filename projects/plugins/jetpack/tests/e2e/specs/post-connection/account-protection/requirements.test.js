@@ -1,7 +1,6 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import ProfilePage from '_jetpack-e2e-commons/pages/wp-admin/profile.js';
-import { insertTestUsers } from '../../../helpers/account-protection-helper.js';
 import playwrightConfig from '../../../playwright.config.mjs';
 
 test.beforeAll( async ( { browser } ) => {
@@ -11,8 +10,6 @@ test.beforeAll( async ( { browser } ) => {
 		.withInactiveModules( [ 'protect', 'sso' ] )
 		.withActiveModules( [ 'account-protection' ] )
 		.build();
-
-	await insertTestUsers();
 
 	await page.close();
 } );
@@ -80,5 +77,9 @@ test.describe.parallel( 'Strong password requirements', () => {
 
 		// Validate that the password was updated.
 		await expect( profilePage.page.getByText( 'Profile updated.' ) ).toBeVisible();
+
+		// Need to save the storage state after the password update, otherwise the next test will fail.
+		// TODO: we should use a different user for this test instead of updating the password of the main user.
+		await profilePage.page.context().storageState( { path: process.env.STORAGE_STATE_PATH } );
 	} );
 } );
