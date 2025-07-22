@@ -18,10 +18,10 @@ export type FilteredProductsProps = UseFilteredProductsOptions;
  */
 export function FilteredProducts( { search, selectedFilter }: FilteredProductsProps ) {
 	const { sections, isLoading } = useFilteredProducts( { search, selectedFilter } );
-	const { trackEmptyResults } = useProductFiltersContext() || {};
+	const { trackEmptyResults } = useProductFiltersContext();
 
 	useEffect( () => {
-		if ( ! sections.length && ! isLoading && trackEmptyResults ) {
+		if ( ! sections.length && ! isLoading ) {
 			let emptyStateType: 'search' | 'filter' | 'combined';
 
 			if ( search && selectedFilter && selectedFilter !== 'all' ) {
@@ -32,7 +32,7 @@ export function FilteredProducts( { search, selectedFilter }: FilteredProductsPr
 				emptyStateType = 'filter';
 			}
 
-			trackEmptyResults( {
+			trackEmptyResults?.( {
 				emptyStateType,
 				searchTerm: search,
 				activeFilter: selectedFilter || 'all',
