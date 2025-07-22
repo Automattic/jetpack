@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { test as baseTest, expect, RequestUtils } from '@wordpress/e2e-test-utils-playwright';
+import { test as baseTest, expect } from '@wordpress/e2e-test-utils-playwright';
 import { allure } from 'allure-playwright';
 /**
  * Internal dependencies
  */
-import { execWpCommand, getSiteCredentials } from '../helpers/utils-helper.js';
+import { execWpCommand } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 
 const test = baseTest.extend( {
@@ -25,17 +25,6 @@ const test = baseTest.extend( {
 		] );
 
 		await use( page );
-	},
-
-	requestUtils: async ( {}, use ) => {
-		const creds = getSiteCredentials();
-		const requestUtils = await RequestUtils.setup( {
-			user: {
-				username: creds.username,
-				password: creds.password,
-			},
-		} );
-		await use( requestUtils );
 	},
 } );
 
