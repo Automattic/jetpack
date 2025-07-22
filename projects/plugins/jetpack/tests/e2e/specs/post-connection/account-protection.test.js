@@ -12,6 +12,9 @@ import playwrightConfig from '../../playwright.config.mjs';
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];
 
+// Reset storage state for this file to avoid being authenticated
+test.use( { storageState: { cookies: [], origins: [] } } );
+
 test.describe.parallel( 'Compromised Password Detection', () => {
 	test.use( { storageState: undefined } );
 
