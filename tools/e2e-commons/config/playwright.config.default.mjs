@@ -31,8 +31,6 @@ if ( process.env.CI ) {
 process.env.STORAGE_STATE_DIR_PATH = `${ rootPath }/.state`.replaceAll( '//', '/' );
 process.env.STORAGE_STATE_PATH = `${ process.env.STORAGE_STATE_DIR_PATH }/storage-state.json`;
 
-console.log( `Storage state path: ${ process.env.STORAGE_STATE_PATH }` );
-
 // Fail early if the required test site config is not defined
 // Let config lib throw by using get function on an undefined property
 if ( process.env.TEST_SITE ) {
