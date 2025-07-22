@@ -2,6 +2,8 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { Badge } from '@automattic/ui';
+import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */
@@ -49,13 +51,10 @@ const IntegrationCardHeader = ( {
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
 	const showPendingBadge = ! showPluginAction && ! isConnected && needsConnection;
-	const pendingBadge = setupBadge || (
-		<span className="integration-card__plugin-badge">
-			{ __( 'Needs connection', 'jetpack-forms' ) }
-		</span>
-	);
+
 	const installPluginActionLabel = __( 'Plugin needs install', 'jetpack-forms' );
 	const activatePluginActionLabel = __( 'Plugin needs activation', 'jetpack-forms' );
+	const pluginActionLabel = ! isInstalled ? installPluginActionLabel : activatePluginActionLabel;
 
 	const getTooltipText = checked => {
 		if ( toggleTooltip ) {
@@ -109,18 +108,24 @@ const IntegrationCardHeader = ( {
 							<span className="integration-card__description">{ description }</span>
 						) }
 						{ showPluginAction && (
-							<span className="integration-card__plugin-badge">
-								{ ! isInstalled && installPluginActionLabel }
-								{ isInstalled && ! isActive && activatePluginActionLabel }
-							</span>
+							<Badge
+								intent={ isInstalled && ! isActive ? 'warning' : 'default' }
+								className="integration-card__plugin-badge"
+							>
+								{ pluginActionLabel }
+							</Badge>
 						) }
 						{ showConnectedBadge && (
-							<span className="integration-card__connected-badge">
-								<Icon icon="yes-alt" size={ 12 } />
+							<Badge intent="success" className="integration-card__connected-badge">
 								{ __( 'Enabled', 'jetpack-forms' ) }
-							</span>
+							</Badge>
 						) }
-						{ showPendingBadge && <>{ pendingBadge }</> }
+						{ showPendingBadge &&
+							( setupBadge || (
+								<Badge intent="warning" className="integration-card__setup-badge">
+									{ __( 'Needs connection', 'jetpack-forms' ) }
+								</Badge>
+							) ) }
 					</div>
 				</div>
 				<HStack
