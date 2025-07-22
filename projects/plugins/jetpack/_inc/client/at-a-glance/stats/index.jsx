@@ -71,7 +71,7 @@ export class DashStats extends Component {
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
-		for ( const v of statsData[ unit ].data ) {
+		for ( const v of statsData[ unit ].data ?? [] ) {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
