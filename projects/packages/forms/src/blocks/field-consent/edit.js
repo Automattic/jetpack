@@ -4,7 +4,7 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
-import { getBlockType } from '@wordpress/blocks';
+import { getBlockType, registerBlockStyle, unregisterBlockStyle } from '@wordpress/blocks';
 import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -14,8 +14,9 @@ import JetpackFieldWidth from '../shared/components/jetpack-field-width';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function ConsentFieldEdit( props ) {
-	const { attributes, clientId, setAttributes } = props;
-	const { consentType, width, implicitConsentMessage, explicitConsentMessage } = attributes;
+	const { attributes, clientId, setAttributes, isSelected } = props;
+	const { consentType, width, implicitConsentMessage, explicitConsentMessage, className } =
+		attributes;
 
 	useFormWrapper( props );
 
@@ -129,6 +130,28 @@ export default function ConsentFieldEdit( props ) {
 		setAttributes,
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
+
+	// Ensure the className is set to 'is-style-default' if it is empty or not set.
+	useEffect( () => {
+		if ( className === '' || ! className ) {
+			setAttributes( { className: 'is-style-default' } );
+		}
+	}, [ className, setAttributes ] ); // This effect is a placeholder for any future side effects.
+
+	// Persist user-edited labels to the correct parent attribute.
+	useEffect( () => {
+		if ( consentType !== prevConsentType || ! isSelected ) {
+			return;
+		}
+		if ( consentType === 'explicit' ) {
+			registerBlockStyle( 'jetpack/field-consent', {
+				name: 'browser',
+				label: __( 'Browser', 'jetpack-forms' ),
+			} );
+		} else {
+			unregisterBlockStyle( 'jetpack/field-consent', 'browser' );
+		}
+	}, [ consentType, prevConsentType, clientId, isSelected ] );
 
 	const onShareFieldAttributesChange = useCallback(
 		value => {

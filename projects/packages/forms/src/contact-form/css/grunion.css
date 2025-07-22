@@ -921,6 +921,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: var(--jetpack--contact-form--font-size);
 }
 
+.contact-form .wp-block-jetpack-field-consent.is-style-default input.consent,
 .contact-form .is-style-list input.checkbox,
 .contact-form .grunion-field-wrap:not(.is-style-browser) input.checkbox-multiple,
 .contact-form .grunion-field-wrap:not(.is-style-browser) input.radio {
@@ -948,6 +949,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-radius: 50%;
 }
 
+.contact-form .wp-block-jetpack-field-consent.is-style-default input.consent:checked::before,
 .contact-form .is-style-list input.checkbox:checked::before,
 .contact-form .grunion-field-wrap:not(.is-style-browser) input.checkbox-multiple:checked::before {
 	content: "\2713";
