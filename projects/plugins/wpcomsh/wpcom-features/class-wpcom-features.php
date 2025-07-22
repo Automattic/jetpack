@@ -1512,10 +1512,11 @@ class WPCOM_Features {
 	 * @param string $feature   A singular feature.
 	 * @param array  $purchases A collection of purchases.
 	 * @param string $site_type Site type to check. Can be 'wpcom' or 'jetpack'. Default empty string.
+	 * @param int    $blog_id   The blog ID to check. Default null.
 	 *
 	 * @return bool Is the feature included in one of the purchases.
 	 */
-	public static function has_feature( $feature, $purchases, $site_type = '' ) {
+	public static function has_feature( $feature, $purchases, $site_type = '', $blog_id = null ) {
 		if ( ! self::feature_exists( $feature ) ) {
 			return false;
 		}
@@ -1531,7 +1532,7 @@ class WPCOM_Features {
 		}
 
 		foreach ( $purchases as $purchase ) {
-			if ( self::purchase_in_products_map( $purchase, $products_map ) ) {
+			if ( self::purchase_in_products_map( $purchase, $products_map, $blog_id ) ) {
 				return true;
 			}
 		}
@@ -1565,10 +1566,11 @@ class WPCOM_Features {
 	 *
 	 * @param object $purchase A single purchase.
 	 * @param array  $products_map A feature map definition array.
+	 * @param int    $blog_id The blog ID to check. Default null.
 	 *
 	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
 	 */
-	public static function purchase_in_products_map( $purchase, $products_map ) {
+	public static function purchase_in_products_map( $purchase, $products_map, $blog_id = null ) {
 
 		// First check if the current purchase is excluded in the product definition.
 		if ( isset( $products_map[ self::EXCLUDE_PLANS ] ) ) {
@@ -1595,9 +1597,12 @@ class WPCOM_Features {
 			// Check if sticker requirement exists.
 			$required_sticker = isset( $product_definition['required_sticker'] ) ? $product_definition['required_sticker'] : null;
 			if ( $required_sticker ) {
-				if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( $required_sticker ) ) {
+				if ( function_exists( 'has_blog_sticker' ) ) {
+					$blog_id                      = $blog_id ?? get_current_blog_id();
+					$purchase_eligible_by_sticker = has_blog_sticker( $required_sticker, $blog_id );
+				} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 					// Fallback for Atomic sites
-					$purchase_eligible_by_sticker = true;
+					$purchase_eligible_by_sticker = wpcomsh_is_site_sticker_active( $required_sticker );
 				}
 				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
 				unset( $product_definition['required_sticker'] );

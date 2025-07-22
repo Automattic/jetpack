@@ -87,7 +87,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 		WPCOM_Features::add_free_plan_purchase( $purchases, $site_type, $blog->registered );
 	}
 
-	return WPCOM_Features::has_feature( $feature, $purchases, $site_type );
+	return WPCOM_Features::has_feature( $feature, $purchases, $site_type, $blog_id );
 }
 
 /**
