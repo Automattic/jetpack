@@ -85,6 +85,7 @@ export default function DropdownOptionEdit( props ) {
 						onPaste={ onPaste }
 						onRemove={ onRemove }
 						placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+						tagName="div"
 						value={ option || '' }
 						withoutInteractiveFormatting
 					/>
