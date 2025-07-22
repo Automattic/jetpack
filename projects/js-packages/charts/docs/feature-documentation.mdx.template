@@ -228,13 +228,6 @@ type [AnotherTypeName] = {
 };
 ```
 
-## Examples and Stories
-
-- [**Default**](?path=/story/[storybook-path]--default): [Description of what this story demonstrates]
-- [**[Variation]**](?path=/story/[storybook-path]--[variation]): [Description]
-- [**Styled**](?path=/story/[storybook-path]--styled): [Description]
-- [**Custom**](?path=/story/[storybook-path]--custom): [Description]
-
 ## Migration from [Legacy API]
 
 [If applicable, provide migration examples]:

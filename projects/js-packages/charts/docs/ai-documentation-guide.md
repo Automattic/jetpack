@@ -223,12 +223,8 @@ type TypeName = {
 
 ````
 
-### 11. Examples and Migration
+### 11. Migration
 ```mdx
-## Examples and Stories
-- [**Story Name**](?path=/story/path): Description
-- [**Another Story**](?path=/story/path): Description
-
 ## Migration from [Legacy/Previous API]
 If applicable, provide migration examples:
 
@@ -273,7 +269,6 @@ If applicable, provide migration examples:
 ### Cross-References
 
 - **Link to related documentation**: Reference other chart features when relevant
-- **Include Storybook links**: Link to specific stories for examples
 - **Reference external docs**: Link to third-party libraries (visx, etc.) when applicable
 
 ## File Organization
@@ -315,7 +310,6 @@ Before considering documentation complete, verify:
 
 - [ ] Code examples match actual implementation
 - [ ] Type definitions are current
-- [ ] Story links work correctly
 - [ ] Examples use current API patterns
 
 ### Usability
@@ -356,4 +350,4 @@ The `annotation.docs.mdx` file exemplifies these patterns:
 6. **Browser considerations**: Honest discussion of Safari limitations
 7. **Migration support**: Clear guidance for upgrading from legacy API
 
-Follow this structure and level of detail for all chart component documentation to ensure consistency and usefulness across the entire charts library.
+Follow this structure and level of detail for all chart component documentation to ensure consistency and usefulness across the entire charts library. Examples and stories are accessible through the Storybook UI, so they don't need to be listed in the documentation.
