@@ -1641,9 +1641,23 @@ class WPCOM_Features {
 			// Check if sticker requirement exists.
 			$required_sticker = isset( $product_definition['required_sticker'] ) ? $product_definition['required_sticker'] : null;
 			if ( $required_sticker ) {
-				// Get blog ID from global context or purchase object if available.
-				$blog_id = isset( $purchase->blog_id ) ? $purchase->blog_id : get_current_blog_id();
+				// Get the correct blog ID depending on the environment.
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					$blog_id = get_current_blog_id();
+				} else {
+					// Atomic sites have the WP.com blog ID stored as a Jetpack option.
+					$jetpack_options = get_option( 'jetpack_options' );
+					if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+						$blog_id = (int) $jetpack_options['id'];
+					} else {
+						$blog_id = get_current_blog_id();
+					}
+				}
+				// Check for sticker using WordPress.com function (Simple sites)
 				if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( $required_sticker, $blog_id ) ) {
+					$purchase_eligible_by_sticker = true;
+				} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( $required_sticker ) ) {
+					// Fallback for Atomic sites
 					$purchase_eligible_by_sticker = true;
 				}
 				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
