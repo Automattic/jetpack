@@ -1,0 +1,251 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as [FeatureName]Stories from './[feature-name].stories';
+
+<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
+
+# [Component] [Feature Name]
+
+[Brief 1-2 sentence description of what this feature does and its primary use case.]
+
+<Canvas of={ [FeatureName]Stories.Default } />
+
+## Overview
+
+The [Component] component supports [feature description], providing [benefits and key capabilities]:
+
+<Source
+	language="jsx"
+	code={ `import { [Component] } from '@automattic/charts';
+
+	<[Component] data={ data }>
+		<[Component].[FeatureComponent]>
+			<[Component].[SubComponent]
+				[key-required-props]
+				[key-optional-props]
+			/>
+		</[Component].[FeatureComponent]>
+	</[Component]>` }
+/>
+
+## Basic Usage
+
+### Basic [Feature Name]
+
+[Description of the simplest implementation and when to use it]:
+
+<Canvas of={ [FeatureName]Stories.Default } />
+
+<Source
+	language="jsx"
+	code={ `<[Component] data={data}>
+		<[Component].[FeatureComponent]>
+			<[Component].[SubComponent]
+				[minimal-props-example]
+			/>
+		</[Component].[FeatureComponent]>
+	</[Component]>` }
+/>
+
+### Required Props
+
+- **`[propName]`**: [Description of what this prop does and its purpose]
+- **`[anotherRequiredProp]`**: [Description]
+
+### Optional Props
+
+- **`[optionalProp]`**: [Description and default behavior]
+- **`[anotherOptional]`**: [Description and use cases]
+
+## [Feature] Types
+
+### [Primary Type] (Default)
+
+[Description of the default/primary variation and when to use it]:
+
+<Canvas of={ [FeatureName]Stories.Default } />
+
+### [Variation Type]
+
+[Description and specific use case for this variation]:
+
+<Canvas of={ [FeatureName]Stories.[VariationName] } />
+
+<Source
+	language="jsx"
+	code={ `<[Component].[SubComponent]
+		[variation-specific-props]
+	/>` }
+/>
+
+### [Another Variation Type]
+
+[Description and use case]:
+
+<Canvas of={ [FeatureName]Stories.[AnotherVariation] } />
+
+### [Mixed/Combined Usage]
+
+[If applicable, show how different variations work together]:
+
+<Canvas of={ [FeatureName]Stories.Mixed } />
+
+## Styling and Customization
+
+### Custom [Styling Aspect]
+
+[Explanation of how to customize appearance with examples]:
+
+<Canvas of={ [FeatureName]Stories.Styled } />
+
+<Source
+	language="jsx"
+	code={ `<[Component].[SubComponent]
+		[props]
+		styles={{
+			[styleCategory]: {
+				[property]: '[value]',
+			},
+		}}
+	/>` }
+/>
+
+### Styling Options
+
+The `styles` prop accepts the following nested objects[, based on [external library reference if applicable]]:
+
+#### `[styleCategory]`
+
+Controls [what this category affects]:
+
+- `[property]`: [Description and possible values]
+- `[anotherProperty]`: [Description]
+
+#### `[anotherStyleCategory]`
+
+Controls [what this affects]:
+
+- `[property]`: [Description]
+
+### Theme Integration
+
+[Explanation of how feature integrates with chart themes and any theme-specific styling].
+
+## Custom [Feature Name]
+
+### Custom [Aspect] Rendering
+
+[Explanation of custom rendering capabilities]:
+
+<Canvas of={ [FeatureName]Stories.Custom } />
+
+<Source
+	language="jsx"
+	code={`[custom-implementation-example]`}
+/>
+
+### Interactive [Feature Name]
+
+[If applicable, show interactive capabilities]:
+
+<Source
+	language="jsx"
+	code={ `[interactive-example]` }
+/>
+
+## Advanced Features
+
+### [Advanced Feature Name]
+
+[Explanation of complex functionality with practical examples].
+
+### [Another Advanced Feature]
+
+[More advanced usage patterns and edge cases].
+
+## Accessibility
+
+### Keyboard Navigation
+
+- [Key interactions and expected behaviors]
+- [Navigation patterns]
+
+### Screen Reader Support
+
+- [ARIA attributes and labels used]
+- [Any limitations or considerations for screen readers]
+
+### Focus Management
+
+- [Focus behavior and visual indicators]
+- [Focus trapping or restoration if applicable]
+
+## Browser Compatibility
+
+### [Browser] Considerations
+
+[Any browser-specific behaviors, workarounds, or limitations].
+
+### [API/Feature] Support
+
+[Information about modern web API usage, polyfills, or fallback behavior].
+
+## API Reference
+
+### [Component].[FeatureComponent]
+
+[Description of the container/wrapper component].
+
+**Props:**
+
+- `children`: [Description of expected children]
+
+### [Component].[SubComponent]
+
+[Description of the main feature component].
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `[requiredProp]` | `[Type]` | - | **Required.** [Description] |
+| `[optionalProp]` | `[Type] \| [AlternativeType]` | `[default]` | [Description] |
+| `[anotherProp]` | `[ComplexType]` | - | [Description] |
+
+### [TypeName] Type
+
+```typescript
+type [TypeName] = {
+	[property]: [Type];
+	[optionalProperty]?: [Type];
+};
+```
+
+### [AnotherTypeName] Type
+
+```typescript
+type [AnotherTypeName] = {
+	[property]: [Type];
+};
+```
+
+## Examples and Stories
+
+- [**Default**](?path=/story/[storybook-path]--default): [Description of what this story demonstrates]
+- [**[Variation]**](?path=/story/[storybook-path]--[variation]): [Description]
+- [**Styled**](?path=/story/[storybook-path]--styled): [Description]
+- [**Custom**](?path=/story/[storybook-path]--custom): [Description]
+
+## Migration from [Legacy API]
+
+[If applicable, provide migration examples]:
+
+<Source
+	language="jsx"
+	code={`// Old API (deprecated)
+[legacy-example]
+
+// New API
+[new-api-example]
+`} />
+
+[Brief explanation of benefits of the new approach and any breaking changes to be aware of].
