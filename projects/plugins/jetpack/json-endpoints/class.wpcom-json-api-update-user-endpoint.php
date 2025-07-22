@@ -42,6 +42,8 @@ new WPCOM_JSON_API_Update_User_Endpoint(
 
 /**
  * Update site users API class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

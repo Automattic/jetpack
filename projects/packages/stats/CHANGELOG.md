@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.2] - 2025-07-21
+### Changed
+- Internal updates. [#39260]
+
 ## [0.17.1] - 2025-06-23
 ### Fixed
 - Autoloader: Prevent double slash in autoloader path. [#44030]
@@ -270,6 +274,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.17.2]: https://github.com/Automattic/jetpack-stats/compare/v0.17.1...v0.17.2
 [0.17.1]: https://github.com/Automattic/jetpack-stats/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/Automattic/jetpack-stats/compare/v0.16.3...v0.17.0
 [0.16.3]: https://github.com/Automattic/jetpack-stats/compare/v0.16.2...v0.16.3

@@ -37,12 +37,12 @@
 
 	button {
 
-		&:global( .components-button.has-icon ) {
+		&:global(.components-button.has-icon) {
 			min-width: auto;
 		}
 	}
 
-	.optimize-button:global( .components-button ) {
+	.optimize-button:global(.components-button) {
 
 		&:disabled {
 			background: transparent;

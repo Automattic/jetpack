@@ -59,19 +59,19 @@
 
 			&:not([disabled]) {
 
-				&:checked+label span {
+				&:checked + label span {
 					border: 1px solid rgba(0, 0, 0, 0.08);
 				}
 			}
 
-			&:checked+label span {
+			&:checked + label span {
 				background-color: var(--verbum-content-background-color);
 				backdrop-filter: brightness(1.2);
 				box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.04);
 			}
 		}
 
-		&:disabled input+label span {
+		&:disabled input + label span {
 			background-color: transparent;
 			backdrop-filter: none;
 			color: var(--verbum-border-color);

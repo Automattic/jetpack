@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.17.0",
+	"version": "0.19.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -45,6 +45,10 @@
 			"import": "./dist/mjs/components/*/index.js",
 			"require": "./dist/cjs/components/*/index.js"
 		},
+		"./visx/*": {
+			"import": "./dist/mjs/visx/*/index.js",
+			"require": "./dist/cjs/visx/*/index.js"
+		},
 		"./style.css": "./dist/mjs/style.css"
 	},
 	"dependencies": {
@@ -69,15 +73,15 @@
 		"@visx/xychart": "^3.12.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
-		"lodash": "^4.17.21",
+		"deepmerge": "4.3.1",
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.27.7",
+		"@babel/core": "7.28.0",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
-		"@babel/plugin-transform-runtime": "7.27.4",
-		"@babel/preset-env": "7.27.2",
+		"@babel/plugin-transform-runtime": "7.28.0",
+		"@babel/preset-env": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"@babel/preset-typescript": "7.27.1",
 		"@rollup/plugin-commonjs": "26.0.1",
@@ -95,6 +99,7 @@
 		"@types/react": "18.3.23",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
+		"@wordpress/components": "29.12.0",
 		"@wordpress/element": "6.26.0",
 		"babel-jest": "30.0.0",
 		"babel-loader": "9.1.2",

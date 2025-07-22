@@ -8,17 +8,17 @@
 		position: absolute;
 		top: 50%;
 		right: 4px;
-		transform: translateY( -50% );
+		transform: translateY(-50%);
 		overflow: visible;
 
-		&:not( :disabled )::before {
+		&:not(:disabled)::before {
 
 			@include mixin_long-content-fade.long-content-fade( $size: 16px );
-			right: calc( 100% + 1px );
+			right: calc(100% + 1px);
 		}
 
 		&:focus::before {
-			right: calc( 100% + 3px );
+			right: calc(100% + 3px);
 		}
 	}
 }

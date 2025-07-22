@@ -18,7 +18,9 @@
 	color: #464646;
 }
 
-#available-services, #enabled-services, #live-preview {
+#available-services,
+#enabled-services,
+#live-preview {
 	padding: 0;
 	width: 100%;
 	padding-top: 20px;
@@ -33,7 +35,8 @@
 	padding-bottom: 20px;
 }
 
-#available-services, #enabled-services {
+#available-services,
+#enabled-services {
 	border-bottom: 2px solid #ccc;
 }
 
@@ -42,7 +45,9 @@
 	padding-bottom: 60px;
 }
 
-#available-services h3, #enabled-services h3, #live-preview h3 {
+#available-services h3,
+#enabled-services h3,
+#live-preview h3 {
 	padding: 0;
 	margin-top: 0;
 	margin-bottom: 1em;
@@ -79,7 +84,8 @@ body.settings_page_sharing ul.services-hidden {
 }
 
 /* Generic style */
-#available-services .service, #enabled-services .service {
+#available-services .service,
+#enabled-services .service {
 	color: #2C3338 !important;
 	display: inline-block;
 	font-family: "Open Sans", sans-serif;
@@ -93,12 +99,14 @@ body.settings_page_sharing ul.services-hidden {
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
 }
 
-#available-services .service .options-left, #enabled-services .service .options-left {
+#available-services .service .options-left,
+#enabled-services .service .options-left {
 	align-items: center;
 	display: flex;
 }
 
-#available-services .service:hover, #enabled-services .service:hover {
+#available-services .service:hover,
+#enabled-services .service:hover {
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
@@ -203,7 +211,8 @@ body.settings_page_sharing ul.preview {
 	float: left;
 }
 
-body.settings_page_sharing ul.preview li.preview-item, body.settings_page_sharing ul.preview li.preview-item a {
+body.settings_page_sharing ul.preview li.preview-item,
+body.settings_page_sharing ul.preview li.preview-item a {
 	cursor: default;
 	text-decoration: none;
 }
@@ -223,24 +232,24 @@ div.sd-social-icon ul.preview li.preview-item.preview-custom a span {
 }
 
 .services ul li.end-fix {
-	clear:both;
-	float:none;
-	visibility:hidden;
-	padding:0;
-	margin:0;
-	height:20px;
-	width:0;
+	clear: both;
+	float: none;
+	visibility: hidden;
+	padding: 0;
+	margin: 0;
+	height: 20px;
+	width: 0;
 }
 
-#enabled-services h2{
-	font-size:20px;
-	padding-top:0;
+#enabled-services h2 {
+	font-size: 20px;
+	padding-top: 0;
 	font-weight: 400 !important;
 	color: #999;
 }
 
 body.settings_page_sharing #live-preview h2 {
-	font-size:20px;
+	font-size: 20px;
 	font-weight: 400 !important;
 	color: #e3e3e3;
 }
@@ -263,19 +272,19 @@ body.settings_page_sharing .advanced-form {
 	margin-left: -24px;
 	display: none;
 	border-top: 1px #e3e3e3 solid;
-	margin-top:4px;
+	margin-top: 4px;
 }
 
 body.settings_page_sharing .utility {
 	float: right;
-	padding-top:10px;
+	padding-top: 10px;
 	padding-right: 10px;
 	font-size: 10px;
 }
 
 body.settings_page_sharing .advanced input[type="submit"] {
 	float: left;
-	margin-top:10px;
+	margin-top: 10px;
 	margin-right: 10px;
 }
 
@@ -324,16 +333,16 @@ body.settings_page_sharing .advanced input[type="submit"] {
 .preview-digg .option-smart-on {
 	background: url(images/smart-digg.png) no-repeat top left;
 	background-size: 76px 17px;
-	width:76px;
-	height:17px;
+	width: 76px;
+	height: 17px;
 	margin-top: 2px;
 }
 
 .preview-facebook .option-smart-on {
 	background: url(images/smart-like.png) no-repeat top left;
 	background-size: 85px 20px;
-	width:85px;
-	height:20px;
+	width: 85px;
+	height: 20px;
 	margin-left: -4px;
 }
 
@@ -341,15 +350,15 @@ body.settings_page_sharing .advanced input[type="submit"] {
 .preview-x .option-smart-on {
 	background: url(images/smart-x.png?1) no-repeat top left;
 	background-size: 60px 20px;
-	width:60px;
-	height:20px;
+	width: 60px;
+	height: 20px;
 }
 
 .preview-linkedin .option-smart-on {
 	background: url(images/linkedin-smart.png) no-repeat top center;
 	background-size: 99px 18px;
-	width:99px;
-	height:20px;
+	width: 99px;
+	height: 20px;
 }
 
 .preview-tumblr .option-smart-on {
@@ -381,9 +390,8 @@ body.settings_page_sharing .advanced input[type="submit"] {
 	text-decoration: line-through;
 }
 
-@media
-(-webkit-min-device-pixel-ratio: 1.25),
-(min-resolution: 120dpi) {
+@media (-webkit-min-device-pixel-ratio: 1.25),
+	(min-resolution: 120dpi) {
 
 	.preview-digg .option-smart-on {
 		background-image: url(images/smart-digg@2x.png);
@@ -469,7 +477,7 @@ body.settings_page_sharing .advanced input[type="submit"] {
 
 
 .sharing-block-message__buttons-wrapper .button {
-	margin-right:1rem;
+	margin-right: 1rem;
 }
 
 .sharing-block-message__buttons-wrapper .button-primary:visited {

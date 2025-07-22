@@ -9,6 +9,8 @@ use Automattic\Jetpack\Connection\Error_Handler;
 
 /**
  * Class Broken_Token_Connection_Errors
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Broken_Token_Connection_Errors {
 

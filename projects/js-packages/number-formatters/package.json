@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/number-formatters",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "Number formatting utilities",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -19,7 +19,7 @@
 		"tslib": "^2.5.0"
 	},
 	"devDependencies": {
-		"@babel/core": "7.27.7",
+		"@babel/core": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"@jest/globals": "30.0.4",
 		"@knighted/duel": "2.1.4",

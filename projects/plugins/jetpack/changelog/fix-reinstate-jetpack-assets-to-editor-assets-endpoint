@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Editor assets endpoint: reinstate missing Jetpack assets via handle-based exclusion logic

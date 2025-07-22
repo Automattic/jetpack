@@ -49,10 +49,10 @@
 		background-color: #e4e2de;
 	}
 
-	 .wp-block-jetpack-map__gm-container {
-	 	inset: 0;
-	 	z-index: 0;
-	 }
+	.wp-block-jetpack-map__gm-container {
+		inset: 0;
+		z-index: 0;
+	}
 
 	/* Overlay for block selection */
 	.wp-block-jetpack-map__select-overlay {
@@ -66,7 +66,7 @@
 
 .wp-block-jetpack-map__marker-caption {
 	margin-top: 10px;
- }
+}
 
 .component__add-point__popover {
 
@@ -97,7 +97,8 @@
 		outline: none;
 		box-shadow: none;
 
-		&:focus, &:focus-within {
+		&:focus,
+		&:focus-within {
 			outline: none;
 			box-shadow: none;
 		}

@@ -4,13 +4,13 @@
 	&.is-active {
 
 		> svg {
-			fill: var( --jp-white );
+			fill: var(--jp-white);
 		}
 	}
 }
 
 .filters-section {
-	background-color: var( --jp-gray-0 );
+	background-color: var(--jp-gray-0);
 
 	.checkbox-container:last-child {
 		margin-bottom: 0;
@@ -18,11 +18,11 @@
 }
 
 .title-adornment {
-	fill: var( --jp-gray-10 );
-	margin-left: var( --spacing-base );
+	fill: var(--jp-gray-10);
+	margin-left: var(--spacing-base);
 	display: inline-flex;
 
-	:global( .components-tooltip.components-popover .components-popover__content ) {
+	:global(.components-tooltip.components-popover .components-popover__content) {
 		min-width: auto;
 		max-width: 256px;
 		width: 256px;

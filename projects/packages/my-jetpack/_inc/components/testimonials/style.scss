@@ -2,42 +2,43 @@
 @use '@automattic/jetpack-base-styles/root-variables';
 
 .jetpack-onboarding-testimonial {
-    --tag-color: #DAFFDC;
-    flex: 1;
-    background-size: cover;
-    background-position: center top;
-    background-repeat: no-repeat;
-    width: 100%;
-    height: 100%;
-    min-height: 200px;
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    padding-bottom: 50px;
-    overflow: hidden;
+	--tag-color: #DAFFDC;
+	flex: 1;
+	background-size: cover;
+	background-position: center top;
+	background-repeat: no-repeat;
+	width: 100%;
+	height: 100%;
+	min-height: 200px;
+	position: relative;
+	display: flex;
+	align-items: flex-end;
+	padding-bottom: 50px;
+	overflow: hidden;
 
-    // Specific testimonial variations
-    &--1 {
-        background-color: var(--jp-green-90);
+	// Specific testimonial variations
+	&--1 {
+		background-color: var(--jp-green-90);
 
-        svg.jp-gradient {
-            position: absolute;
-            inset-block-start: 0;
-            transform: scale(2);
-            width: 100%;
-        }
-    }
+		svg.jp-gradient {
+			position: absolute;
+			inset-block-start: 0;
+			transform: scale(2);
+			width: 100%;
+		}
+	}
 
-    &--2 {
-        background-image: url(./slide-01-sasha-endoh.jpg);
-    }
+	&--2 {
+		background-image: url(./slide-01-sasha-endoh.jpg);
+	}
 
-    &--3 {
-        background-image: url(./slide-02-tim-ferriss.jpg);
-    }
+	&--3 {
+		background-image: url(./slide-02-tim-ferriss.jpg);
+	}
 
 	// This is to make the image darker and let read the text
-	&--2, &--3 {
+	&--2,
+	&--3 {
 
 		&::before {
 			content: '';
@@ -50,58 +51,66 @@
 		}
 	}
 
-    &__content {
-        width: 100%;
-        padding-top: 2.5rem;
-        padding-inline: 1.5rem;
-        color: var(--jp-white);
-        text-align: left;
-        position: relative;
-        margin-bottom: 10px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu,
-		Cantarell, 'Helvetica Neue', sans-serif;
+	&__content {
+		width: 100%;
+		padding-top: 2.5rem;
+		padding-inline: 1.5rem;
+		color: var(--jp-white);
+		text-align: left;
+		position: relative;
+		margin-bottom: 10px;
+		font-family:
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Oxygen-Sans,
+			Ubuntu,
+			Cantarell,
+			'Helvetica Neue',
+			sans-serif;
 
-        @include gb.break-xlarge {
-            padding-inline: 3rem;
-        }
-    }
+		@include gb.break-xlarge {
+			padding-inline: 3rem;
+		}
+	}
 
-    &__messages {
-        display: flex; // Ensure that the messages SVG gets resized on smaller screens
-        margin-bottom: 4rem;
-    }
+	&__messages {
+		display: flex; // Ensure that the messages SVG gets resized on smaller screens
+		margin-bottom: 4rem;
+	}
 
-    &__quote {
-        margin-bottom: 24px;
-        font-weight: 400;
-        font-size: var(--font-title-small);
-        letter-spacing: 0;
+	&__quote {
+		margin-bottom: 24px;
+		font-weight: 400;
+		font-size: var(--font-title-small);
+		letter-spacing: 0;
 		line-height: 1.4;
-    }
+	}
 
-    &__author {
-        font-size: 1.25rem;
+	&__author {
+		font-size: 1.25rem;
 		margin-bottom: 0;
-    }
+	}
 
-    &__title {
-        font-size: var(--font-body);
-        margin: 0;
-        opacity: 0.9;
-    }
+	&__title {
+		font-size: var(--font-body);
+		margin: 0;
+		opacity: 0.9;
+	}
 }
 
 .jetpack-onboarding-testimonials-pager {
 
-    .dot-pager__control-choose-page {
-        background-color: var(--jp-gray);
-        opacity: 0.2;
+	.dot-pager__control-choose-page {
+		background-color: var(--jp-gray);
+		opacity: 0.2;
 
-        &.dot-pager__control-current {
-            background-color: var(--jp-green-mint);
-            opacity: 1;
-        }
-    }
+		&.dot-pager__control-current {
+			background-color: var(--jp-green-mint);
+			opacity: 1;
+		}
+	}
 
 	.swipeable__container {
 		border-radius: 12px;

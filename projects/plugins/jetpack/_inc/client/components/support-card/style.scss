@@ -9,7 +9,7 @@
 
 	@include ui.dashboard-card-shadow;
 
-	margin-top: rem.convert( 16px );
+	margin-top: rem.convert(16px);
 	margin-bottom: 0;
 }
 
@@ -41,8 +41,8 @@
 	@include breakpoints.breakpoint( "<660px" ) {
 		display: block;
 		width: 100%;
-		padding: rem.convert( 10px ) 0;
-		border-top: 1px color.adjust( colors.$gray, $lightness: 20%, $alpha: -.5 ) solid;
+		padding: rem.convert(10px) 0;
+		border-top: 1px color.adjust(colors.$gray, $lightness: 20%, $alpha: -.5) solid;
 
 		&::first-letter {
 			text-transform: capitalize;
@@ -62,19 +62,19 @@
 	@include breakpoints.breakpoint( "<660px" ) {
 
 		.jp-support-card__description:first-of-type {
-			margin-bottom: rem.convert( 16px );
+			margin-bottom: rem.convert(16px);
 		}
 	}
 }
 
 .jp-support-card__social {
-	background-color: color.adjust( colors.$gray, $lightness: 35% );
-	padding: rem.convert( 16px );
+	background-color: color.adjust(colors.$gray, $lightness: 35%);
+	padding: rem.convert(16px);
 
-		@include breakpoints.breakpoint( "<660px" ) {
-			background: colors.$white;
-			margin-top: rem.convert( 16px );
-			padding: 0 rem.convert( 16px );
+	@include breakpoints.breakpoint( "<660px" ) {
+		background: colors.$white;
+		margin-top: rem.convert(16px);
+		padding: 0 rem.convert(16px);
 	}
 }
 

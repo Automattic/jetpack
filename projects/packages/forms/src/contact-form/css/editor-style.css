@@ -412,8 +412,8 @@ select:focus {
 	border-color: #00aadc;
 	box-shadow: 0 0 0 2px #78dcfa;
 	outline: 0;
-	-moz-outline:none;
-	-moz-user-focus:ignore;
+	-moz-outline: none;
+	-moz-user-focus: ignore;
 }
 
 select:disabled,
@@ -425,7 +425,7 @@ select.is-compact {
 	min-width: 0;
 	padding: 0 20px 2px 6px;
 	margin: 0 4px;
-	background-position:  right 5px center;
+	background-position: right 5px center;
 	background-size: 12px 12px;
 }
 
@@ -486,7 +486,7 @@ input[type="submit"] {
 	padding: 7px 14px 9px;
 	-webkit-appearance: none;
 	-moz-appearance: none;
-			 appearance: none;
+	appearance: none;
 }
 
 input[type="submit"]:hover {

@@ -62,6 +62,8 @@ new WPCOM_JSON_API_List_Roles_Endpoint(
  * List Roles endpoint class.
  *
  * /sites/%s/roles/ -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 

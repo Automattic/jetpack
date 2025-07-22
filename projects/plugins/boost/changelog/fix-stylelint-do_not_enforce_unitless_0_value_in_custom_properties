@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Use units in CSS vars to avoid issues with CSS math functions.
+
