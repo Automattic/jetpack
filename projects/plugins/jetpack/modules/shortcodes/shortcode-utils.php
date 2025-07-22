@@ -20,6 +20,15 @@ if ( ! function_exists( 'jetpack_shortcodes_should_hook_pre_kses' ) ) {
 			$is_frontend = Request::is_frontend( false );
 		}
 
-		return ! $is_frontend;
+		$should_hook = ! $is_frontend;
+
+		/**
+		 * Filters whether shortcodes should hook on pre_kses.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $should_hook Whether shortcodes should hook on pre_kses.
+		 */
+		return apply_filters( 'jetpack_shortcodes_should_hook_pre_kses', $should_hook );
 	}
 }
