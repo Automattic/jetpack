@@ -16,12 +16,3 @@ export async function authenticateUser( request, credentials, siteUrl = '' ) {
 
 	await request.storageState( { path: STORAGE_STATE_PATH } );
 }
-
-/**
- * Utility function to authenticate a user in WordPress.com by sending a POST request to the login endpoint.
- * @param request     - Playwright request object.
- * @param credentials - User credentials object. It should have `username` and `password` properties.
- */
-export async function authenticateWordPressComUser( request, credentials ) {
-	await authenticateUser( request, credentials, 'https://wordpress.com' );
-}
