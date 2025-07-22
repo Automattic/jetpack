@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 /**
- * Handles the
+ * Feedback field class.
  *
- * Represents the submitted form data of an invividual field.
+ * Represents the submitted form data of an individual field.
  */
 class Feedback_Field {
 
@@ -22,7 +22,7 @@ class Feedback_Field {
 	private $key;
 
 	/**
-	 * The lable of the field.
+	 * The label of the field.
 	 *
 	 * @var string
 	 */

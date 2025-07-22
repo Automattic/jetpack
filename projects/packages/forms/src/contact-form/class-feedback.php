@@ -184,7 +184,7 @@ class Feedback {
 	/**
 	 * Load from Form Submission.
 	 *
-	 * @param array        $post_data The $_POST recieved during the form submission.
+	 * @param array        $post_data The $_POST received during the form submission.
 	 * @param Contact_Form $form  The form object.
 	 * @param WP_Post|null $current_post The current post object, if available.
 	 * @param int          $current_page_number The current page number associated with the current post object entry.
