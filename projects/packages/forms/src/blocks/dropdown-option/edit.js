@@ -59,6 +59,7 @@ export default function DropdownOptionEdit( props ) {
 				<FlexItem isBlock>
 					<RichText
 						__unstablePastePlainText
+						allowedFormats={ [] }
 						aria-label={ __( 'Dropdown option value', 'jetpack-forms' ) }
 						identifier="option"
 						onChange={ value => setAttributes( { option: value } ) }
