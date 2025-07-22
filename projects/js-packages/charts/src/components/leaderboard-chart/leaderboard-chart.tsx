@@ -1,4 +1,9 @@
-import { ProgressBar, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import {
+	ProgressBar,
+	__experimentalVStack as VStack,
+	__experimentalText as Text,
+} from '@wordpress/components';
 import clsx from 'clsx';
 import { type FC } from 'react';
 import { formatMetricValue } from '../shared/format-metric-value';
@@ -176,7 +181,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 				return (
 					<div key={ entry.id } className={ styles.entryContainer }>
 						<VStack spacing={ 1.5 }>
-							<span className={ styles.entryLabel }>{ entry.label }</span>
+							<Text>{ entry.label }</Text>
 
 							<div className={ styles.progressContainer }>
 								<ProgressBar
@@ -194,14 +199,10 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 						</VStack>
 
 						<div className={ styles.valueContainer }>
-							<span className={ styles.currentValue }>
-								{ valueFormatter( entry.currentValue ) }
-							</span>
+							<Text>{ valueFormatter( entry.currentValue ) }</Text>
 
 							{ withComparison && (
-								<span className={ styles.deltaValue } style={ { color: deltaColor } }>
-									{ deltaFormatter( entry.delta ) }
-								</span>
+								<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
 							) }
 						</div>
 					</div>
