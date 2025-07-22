@@ -31,7 +31,8 @@
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out config/local.cjs",
 		"test-decrypt-all-config": "pnpm test-decrypt-default-config && pnpm test-decrypt-config",
 		"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -in ./node_modules/_jetpack-e2e-commons/config/local.cjs -out ./node_modules/_jetpack-e2e-commons/config/encrypted.enc",
-		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc"
+		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
+		"allure-report": "allure generate --clean --output ./output/allure-report ./output/allure-results && allure open ./output/allure-report"
 	},
 	"devDependencies": {
 		"@playwright/test": "1.51.1",
