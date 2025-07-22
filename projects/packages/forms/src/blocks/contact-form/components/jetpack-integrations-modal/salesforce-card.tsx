@@ -68,7 +68,11 @@ const SalesforceCard = ( {
 		toggleDisabledTooltip: ! isValidSalesforceOrgId( salesforceData.organizationId )
 			? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )
 			: undefined,
-		setupBadge: <Badge intent="info">{ __( 'Enter organization ID', 'jetpack-forms' ) }</Badge>,
+		setupBadge: (
+			<Badge intent="info" className="integration-card__setup-badge">
+				{ __( 'Enter organization ID', 'jetpack-forms' ) }
+			</Badge>
+		),
 	};
 
 	return (
