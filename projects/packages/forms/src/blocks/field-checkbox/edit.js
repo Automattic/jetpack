@@ -5,7 +5,7 @@ import {
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldWidth from '../shared/components/jetpack-field-width';
 import ToolbarRequiredGroup from '../shared/components/toolbar-required-group';
@@ -15,7 +15,7 @@ import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
 
 export default function CheckboxFieldEdit( props ) {
 	const { setAttributes, attributes } = props;
-	const { defaultValue, required, width } = attributes;
+	const { defaultValue, required, width, className } = attributes;
 
 	useFormWrapper( props );
 
@@ -57,6 +57,13 @@ export default function CheckboxFieldEdit( props ) {
 		value => setAttributes( { shareFieldAttributes: value } ),
 		[ setAttributes ]
 	);
+
+	// Ensure the className is set to 'is-style-list' if it is empty or not set.
+	useEffect( () => {
+		if ( className === '' || ! className ) {
+			setAttributes( { className: 'is-style-list' } );
+		}
+	}, [ className, setAttributes ] ); // This effect is a placeholder for any future side effects.
 
 	return (
 		<>
