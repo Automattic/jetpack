@@ -1413,13 +1413,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "e575465d91341af76df4d6fccc469823520dd957"
+                "reference": "690af0bed3b8874b34ab6a079a1eb2f946334eab"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-jwt": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -1740,6 +1741,70 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Just in time messages for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-jwt",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/jwt",
+                "reference": "d0fbea9bb3f1d4c1e8e66af2780d8cdabe357319"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-jwt",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-jwt/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-jwt",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-jwt.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A JSON Web Token (JWT) implementation for Jetpack.",
             "transport-options": {
                 "relative": true
             }
