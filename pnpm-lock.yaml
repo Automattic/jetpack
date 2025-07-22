@@ -319,9 +319,6 @@ importers:
 
   projects/js-packages/charts:
     dependencies:
-      '@automattic/jetpack-components':
-        specifier: workspace:*
-        version: link:../components
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../number-formatters
@@ -385,6 +382,9 @@ importers:
       deepmerge:
         specifier: 4.3.1
         version: 4.3.1
+      gridicons:
+        specifier: 3.4.2
+        version: 3.4.2(react@18.3.1)
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -2469,6 +2469,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/ui':
+        specifier: 1.0.1
+        version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@gravatar-com/hovercards':
         specifier: 0.10.8
         version: 0.10.8
@@ -2535,6 +2538,9 @@ importers:
       copy-webpack-plugin:
         specifier: 13.0.0
         version: 13.0.0(webpack@5.94.0)
+      debug:
+        specifier: 4.4.1
+        version: 4.4.1
       email-validator:
         specifier: 2.0.4
         version: 2.0.4

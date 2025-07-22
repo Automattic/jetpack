@@ -298,6 +298,7 @@ class Contact_Form_Plugin {
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
+				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
 			),
 			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
 		);
@@ -1231,13 +1232,6 @@ class Contact_Form_Plugin {
 		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
 		$form = false;
-		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) {
-			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
-			if ( ! $form ) { // fail early if the JWT is invalid.
-				// If the JWT is invalid, we can't process the form.
-				return false;
-			}
-		}
 
 		if ( $is_widget ) {
 			// It's a form embedded in a text widget
@@ -1357,10 +1351,8 @@ class Contact_Form_Plugin {
 				apply_filters( 'the_content', $content );
 			}
 		}
-		if ( ! $form ) {
-			// In future version we will be able to skip this step.
-			$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
-		}
+
+		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {

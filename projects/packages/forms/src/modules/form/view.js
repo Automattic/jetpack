@@ -21,6 +21,7 @@ const withSyncEvent =
 
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
+let errorTimeout = null;
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
@@ -183,10 +184,16 @@ const { state } = store( NAMESPACE, {
 			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
 		},
 
-		get showFromErrors() {
+		get showFormErrors() {
 			const context = getContext();
 
 			return ! state.isFormValid && context.showErrors;
+		},
+
+		get showSubmissionError() {
+			const context = getContext();
+
+			return !! context.submissionError && ! state.showFormErrors;
 		},
 
 		get getFormErrorMessage() {
@@ -228,11 +235,6 @@ const { state } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 			return field?.value || '';
-		},
-
-		get getSubmissionError() {
-			const context = getContext();
-			return context.submissionError || '';
 		},
 	},
 
@@ -339,12 +341,12 @@ const { state } = store( NAMESPACE, {
 			if ( context.isResponseWithoutReloadEnabled ) {
 				event.preventDefault();
 				event.stopPropagation();
+				context.submissionError = null;
 
 				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
 
 				if ( success ) {
 					setSubmissionData( data );
-					context.submissionError = null;
 					context.submissionSuccess = true;
 
 					if ( refreshArgs ) {
@@ -357,6 +359,15 @@ const { state } = store( NAMESPACE, {
 					}
 				} else {
 					context.submissionError = error;
+
+					if ( errorTimeout ) {
+						clearTimeout( errorTimeout );
+					}
+
+					errorTimeout = setTimeout( () => {
+						context.submissionError = null;
+					}, 5000 );
+
 					setSubmissionData( [] );
 				}
 

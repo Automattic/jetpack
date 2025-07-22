@@ -250,7 +250,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "de727d5b798d543ded18322d80812988facccfcf"
+                "reference": "0a42fa643d1ae105ac1398fd8eeff46d6dce7004"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -276,7 +276,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.1.x-dev"
+                    "dev-trunk": "4.2.x-dev"
                 }
             },
             "autoload": {
@@ -1019,7 +1019,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3ada7720732bef274f53a977f81b23617106224b"
+                "reference": "aa43a422bbb20d041365e2d52e8ab6f7561cbf29"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1055,7 +1055,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.14.x-dev"
+                    "dev-trunk": "6.15.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1413,14 +1413,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "3c2be9c5348ce7de224ebe854b99bcdb87e931e1"
+                "reference": "e575465d91341af76df4d6fccc469823520dd957"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-jwt": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -1445,7 +1444,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -1746,70 +1745,6 @@
             }
         },
         {
-            "name": "automattic/jetpack-jwt",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/jwt",
-                "reference": "d0fbea9bb3f1d4c1e8e66af2780d8cdabe357319"
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^4.0.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-jwt",
-                "changelogger": {
-                    "link-template": "https://github.com/automattic/jetpack-jwt/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
-                },
-                "textdomain": "jetpack-jwt",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-jwt.php"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
-                ],
-                "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
-                ],
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "A JSON Web Token (JWT) implementation for Jetpack.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "automattic/jetpack-licensing",
             "version": "dev-trunk",
             "dist": {
@@ -1926,7 +1861,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "3fecd1e7106a4f3efb85c188d1717d6eae5a93a4"
+                "reference": "35da68eb47a67e6711af53de5829a86f9b2b358b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1956,7 +1891,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.18.x-dev"
+                    "dev-trunk": "0.19.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -2009,7 +1944,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "254c9942d3aa9df70c4dae2632d7ea13b6c55f84"
+                "reference": "154b0cb39e1dd3c951b2c53a0bd50edbca2f3b81"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2048,7 +1983,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.18.x-dev"
+                    "dev-trunk": "5.19.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2164,7 +2099,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "212a7b22dff2a31244d1bd0898143f35eec59667"
+                "reference": "9a3a07927fb852524773126ddbdb1b799e28b648"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2187,7 +2122,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"
@@ -2241,7 +2176,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "8336af6815cea248ed38cd238c181a606c19b3fe"
+                "reference": "781f78eb3303aab7be574e82a0da7d0b22ab6b66"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2265,7 +2200,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 }
             },
             "autoload": {
@@ -2971,7 +2906,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "73f34bf0ee21bb232d4245f3ef68c7bd911cb689"
+                "reference": "2de93770f98b4c662051bac5461445f9eb3a5c9e"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -2997,7 +2932,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.4.x-dev"
+                    "dev-trunk": "6.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

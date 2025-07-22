@@ -126,7 +126,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "de727d5b798d543ded18322d80812988facccfcf"
+                "reference": "0a42fa643d1ae105ac1398fd8eeff46d6dce7004"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -152,7 +152,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.1.x-dev"
+                    "dev-trunk": "4.2.x-dev"
                 }
             },
             "autoload": {
@@ -399,7 +399,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3ada7720732bef274f53a977f81b23617106224b"
+                "reference": "aa43a422bbb20d041365e2d52e8ab6f7561cbf29"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -435,7 +435,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.14.x-dev"
+                    "dev-trunk": "6.15.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -836,7 +836,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "73f34bf0ee21bb232d4245f3ef68c7bd911cb689"
+                "reference": "2de93770f98b4c662051bac5461445f9eb3a5c9e"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -862,7 +862,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.4.x-dev"
+                    "dev-trunk": "6.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

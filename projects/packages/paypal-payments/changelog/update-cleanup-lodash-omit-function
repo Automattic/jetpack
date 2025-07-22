@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Replace use of lodash `omit`. Should be no change to functionality.
-
-
