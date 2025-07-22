@@ -86,8 +86,8 @@
 
 .contact-form input[type="radio"],
 .contact-form input[type="checkbox"] {
-	width: 1rem;
-	height: 1rem;
+	width: 1em;
+	height: 1em;
 	margin: 0 0.75rem 0 0;
 }
 
