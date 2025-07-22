@@ -13,6 +13,8 @@ const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];
 
 test.describe.parallel( 'Compromised Password Detection', () => {
+	test.use( { storageState: undefined } );
+
 	test.beforeAll( async ( { browser } ) => {
 		// Set up a clean environment with account protection enabled.
 		const page = await browser.newPage( playwrightConfig.use );
