@@ -134,7 +134,7 @@ export default function ConsentFieldEdit( props ) {
 	// Ensure the className is set to 'is-style-default' if it is empty or not set.
 	useEffect( () => {
 		if ( className === '' || ! className ) {
-			setAttributes( { className: 'is-style-default' } );
+			setAttributes( { className: 'is-style-list' } );
 		}
 	}, [ className, setAttributes ] ); // This effect is a placeholder for any future side effects.
 
@@ -145,11 +145,17 @@ export default function ConsentFieldEdit( props ) {
 		}
 		if ( consentType === 'explicit' ) {
 			registerBlockStyle( 'jetpack/field-consent', {
+				name: 'list',
+				label: __( 'List', 'jetpack-forms' ),
+				isDefault: true,
+			} );
+			registerBlockStyle( 'jetpack/field-consent', {
 				name: 'browser',
 				label: __( 'Browser', 'jetpack-forms' ),
 			} );
 		} else {
 			unregisterBlockStyle( 'jetpack/field-consent', 'browser' );
+			unregisterBlockStyle( 'jetpack/field-consent', 'list' );
 		}
 	}, [ consentType, prevConsentType, clientId, isSelected ] );
 
