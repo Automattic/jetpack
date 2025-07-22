@@ -11,6 +11,6 @@ setup( 'authenticate users', async ( { request } ) => {
 	} );
 
 	await setup.step( 'authenticate wordpress.com user', async () => {
-		await authenticateUser( request, getDotComCredentials, 'https://wordpress.com' );
+		await authenticateUser( request, getDotComCredentials(), 'https://wordpress.com' );
 	} );
 } );
