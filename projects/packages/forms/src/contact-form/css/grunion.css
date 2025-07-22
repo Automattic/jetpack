@@ -934,6 +934,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	 * set from global styles or from block styles */
 	font-size: inherit;
 	width: 1em;
+	min-width: 1em;
 	height: 1em;
 	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
 	padding: 0;
