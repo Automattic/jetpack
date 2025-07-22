@@ -62,7 +62,7 @@ export default function DropdownOptionEdit( props ) {
 		const nextBlockClientId = getNextBlockClientId( clientId );
 		const previousBlockClientId = getPreviousBlockClientId( clientId );
 
-		if ( ! nextBlockClientId || ! previousBlockClientId ) {
+		if ( ! nextBlockClientId && ! previousBlockClientId ) {
 			// If this is the the only option, remove by emptying value
 			setAttributes( { option: '' } );
 			return;
