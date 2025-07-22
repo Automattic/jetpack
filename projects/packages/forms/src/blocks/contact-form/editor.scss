@@ -331,6 +331,7 @@
 	min-height: 200px;
 }
 
+// Default field styles. (browser default styles)
 .jetpack-field {
 
 	.jetpack-field__input,
@@ -372,6 +373,45 @@
 		opacity: 1;
 	}
 
+	.jetpack-field-consent__checkbox + .jetpack-field-label {
+		line-height: normal;
+	}
+
+	.jetpack-field-option {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+
+		> input {
+			margin: 0 5px 0 0;
+		}
+	}
+
+	.jetpack-field-option.field-option-checkbox,
+	.jetpack-field-option.field-option-radio,
+	.wp-block-jetpack-field-option-checkbox,
+	.wp-block-jetpack-field-option-radio {
+		display: flex;
+		align-items: baseline; /* Align input with first label line */
+		flex-wrap: nowrap;
+
+		.jetpack-option__type::before {
+			display: block; /* display: flex causes baselines to not align */
+			transform: translateY(0.15em);
+		}
+	}
+}
+
+// Default field styles other the browser.
+.jetpack-field:not(.is-style-browser) {
+
+	&.jetpack-field-consent .jetpack-field-option__checkbox {
+		margin: 0 0.75rem 0 0;
+		border-color: currentColor;
+		opacity: 1;
+	}
+
+	.jetpack-field-option__checkbox.jetpack-field-option__checkbox,
 	.jetpack-option__type.jetpack-option__type {
 		align-items: center;
 		display: flex;
@@ -393,6 +433,7 @@
 		min-width: auto;
 	}
 
+	:where( .jetpack-field-option__checkbox),
 	:where(.jetpack-option__type) {
 		all: initial;
 		color: currentColor;
@@ -434,6 +475,7 @@
 		line-height: normal;
 	}
 
+	.jetpack-field-option__checkbox,
 	.jetpack-field-option {
 		display: flex;
 		align-items: center;
@@ -444,7 +486,6 @@
 		}
 	}
 
-	.jetpack-field-option.field-option-checkbox,
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-checkbox,
 	.wp-block-jetpack-field-option-radio {
