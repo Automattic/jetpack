@@ -197,8 +197,8 @@ export default function InboxView() {
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
 	);
-	const fields = useMemo(
-		() => [
+	const fields = useMemo( () => {
+		const allFields = [
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
@@ -210,48 +210,53 @@ export default function InboxView() {
 				enableSorting: false,
 				enableHiding: false,
 			},
-			{
-				id: 'date',
-				label: __( 'Date', 'jetpack-forms' ),
-				render: ( { item } ) => dateI18n( dateSettings.formats.date, item.date ),
-				elements: ( filterOptions?.date || [] ).map( _filter => {
-					const date = new Date();
-					date.setDate( 1 );
-					date.setMonth( _filter.month - 1 ); // Months are zero-based in JS Date objects.
-					date.setFullYear( _filter.year );
-					return {
-						label: dateI18n(
-							// translators: Date format for date filters' labels. See https://www.php.net/manual/en/datetime.format.php
-							__( 'F Y', 'jetpack-forms' ),
-							date
-						),
-						value: `${ _filter.year }/${ _filter.month }`,
-					};
-				} ),
-				filterBy: { operators: [ 'is' ] },
-				enableSorting: false,
-			},
-			{
-				id: 'source',
-				label: __( 'Source', 'jetpack-forms' ),
-				render: ( { item } ) => {
-					return (
-						<ExternalLink href={ item.entry_permalink }>
-							{ decodeEntities( item.entry_title ) || getPath( item ) }
-						</ExternalLink>
-					);
-				},
-				elements: ( filterOptions?.source || [] ).map( source => ( {
-					value: source.id,
-					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
-				} ) ),
-				filterBy: { operators: [ 'is' ] },
-				enableSorting: false,
-			},
+			isMobile
+				? null
+				: {
+						id: 'date',
+						label: __( 'Date', 'jetpack-forms' ),
+						render: ( { item } ) => dateI18n( dateSettings.formats.date, item.date ),
+						elements: ( filterOptions?.date || [] ).map( _filter => {
+							const date = new Date();
+							date.setDate( 1 );
+							date.setMonth( _filter.month - 1 ); // Months are zero-based in JS Date objects.
+							date.setFullYear( _filter.year );
+							return {
+								label: dateI18n(
+									// translators: Date format for date filters' labels. See https://www.php.net/manual/en/datetime.format.php
+									__( 'F Y', 'jetpack-forms' ),
+									date
+								),
+								value: `${ _filter.year }/${ _filter.month }`,
+							};
+						} ),
+						filterBy: { operators: [ 'is' ] },
+						enableSorting: false,
+				  },
+			isMobile
+				? null
+				: {
+						id: 'source',
+						label: __( 'Source', 'jetpack-forms' ),
+						render: ( { item } ) => {
+							return (
+								<ExternalLink href={ item.entry_permalink }>
+									{ decodeEntities( item.entry_title ) || getPath( item ) }
+								</ExternalLink>
+							);
+						},
+						elements: ( filterOptions?.source || [] ).map( source => ( {
+							value: source.id,
+							label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
+						} ) ),
+						filterBy: { operators: [ 'is' ] },
+						enableSorting: false,
+				  },
 			{ id: 'ip', label: __( 'IP Address', 'jetpack-forms' ), enableSorting: false },
-		],
-		[ filterOptions, dateSettings.formats.date ]
-	);
+		];
+
+		return allFields.filter( Boolean );
+	}, [ filterOptions, dateSettings.formats.date, isMobile ] );
 
 	const actions = useMemo( () => {
 		const _actions = [
