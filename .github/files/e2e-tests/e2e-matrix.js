@@ -3,7 +3,7 @@ const fs = require( 'fs' );
 
 const projects = [
 	{
-		project: 'Jetpack Core - onboarding',
+		project: 'Jetpack onboarding',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/onboarding' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
@@ -11,7 +11,7 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
-		project: 'Jetpack Core - post-connection',
+		project: 'Jetpack post-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/post-connection' ],
 		targets: [ 'plugins/jetpack' ],
@@ -19,7 +19,7 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
-		project: 'Jetpack Core - post editor',
+		project: 'Jetpack post editor',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/editor' ],
 		targets: [ 'plugins/jetpack', 'packages/publicize' ],
@@ -27,7 +27,7 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
-		project: 'Jetpack Core - forms',
+		project: 'Jetpack forms',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/forms' ],
 		targets: [ 'plugins/jetpack', 'packages/forms' ],
@@ -35,7 +35,7 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
-		project: 'Jetpack Core - sync',
+		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],
 		targets: [ 'packages/sync' ],
