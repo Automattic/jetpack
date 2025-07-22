@@ -442,7 +442,7 @@ Full functionality in all modern browsers supporting:
 
 ### Safari Considerations
 
-- Tooltip positioning uses viewport center due to Safari's `foreignObject` positioning limitations
+- Annotation popover positioning uses viewport center due to Safari's `foreignObject` positioning limitations
 - Native Popover API support varies; fallbacks are provided
 
 ### Responsive Features
@@ -561,19 +561,17 @@ type ChartOptions = {
 
 ## Performance Considerations
 
-### Optimization Tips
+### Built-in Optimizations
 
-- **Data size**: Charts perform well with hundreds of data points; consider data aggregation for thousands of points
-- **Animation**: Animations have been removed for better performance
-- **Re-renders**: Use stable references for `data`, `options`, and callback props to prevent unnecessary re-renders
-- **Memory usage**: Large datasets benefit from virtualization or data sampling techniques
+- **No animations**: Animations have been removed from chart components to improve performance and reduce overhead
+- **Efficient rendering**: Built on `@visx/xychart` for optimized SVG rendering and chart performance
+- **Responsive behavior**: Uses `ResizeObserver` for efficient chart resizing without polling
 
-### Best Practices
+### Implementation Notes
 
-- Prefer `Date` objects over `dateString` for better performance
-- Use `curveType="linear"` for large datasets to reduce computation
-- Implement data loading states for async data fetching
-- Consider chart alternatives (like sparklines) for dense data displays
+- Chart components are optimized for typical dashboard and analytics use cases
+- The underlying `@visx` libraries provide efficient data-to-visual mappings
+- Consider your specific data volume and update frequency when implementing real-time charts
 
 ## Theming Integration
 
