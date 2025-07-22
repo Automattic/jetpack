@@ -277,7 +277,6 @@ If applicable, provide migration examples:
 
 - Main docs: `[feature-name].docs.mdx`
 - Stories: `[feature-name].stories.tsx`
-- Tests: `[feature-name].test.tsx`
 
 ### Directory Structure
 
@@ -285,7 +284,6 @@ If applicable, provide migration examples:
 src/components/[chart-type]/stories/
 ├── [feature-name].docs.mdx
 ├── [feature-name].stories.tsx
-└── [feature-name].test.tsx
 ```
 
 ### Storybook Integration
