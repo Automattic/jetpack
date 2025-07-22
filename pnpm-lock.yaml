@@ -319,9 +319,6 @@ importers:
 
   projects/js-packages/charts:
     dependencies:
-      '@automattic/jetpack-components':
-        specifier: workspace:*
-        version: link:../components
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../number-formatters
@@ -385,6 +382,9 @@ importers:
       deepmerge:
         specifier: 4.3.1
         version: 4.3.1
+      gridicons:
+        specifier: 3.4.2
+        version: 3.4.2(react@18.3.1)
       tslib:
         specifier: 2.5.0
         version: 2.5.0
