@@ -1595,10 +1595,10 @@ class WPCOM_Features {
 			$purchase_eligible_by_sticker = false;
 
 			// Check if sticker requirement exists.
-			$required_sticker = isset( $product_definition['required_sticker'] ) ? $product_definition['required_sticker'] : null;
+			$required_sticker = $product_definition['required_sticker'] ?? null;
 			if ( $required_sticker ) {
 				if ( function_exists( 'has_blog_sticker' ) ) {
-					$blog_id                      = $blog_id ?? get_current_blog_id();
+					$blog_id                    ??= get_current_blog_id();
 					$purchase_eligible_by_sticker = has_blog_sticker( $required_sticker, $blog_id );
 				} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 					// Fallback for Atomic sites
