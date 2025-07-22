@@ -131,7 +131,7 @@ export default function ConsentFieldEdit( props ) {
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
 
-	// Ensure the className is set to 'is-style-default' if it is empty or not set.
+	// Ensure the className is set to 'is-style-list' if it is empty or not set.
 	useEffect( () => {
 		if ( className === '' || ! className ) {
 			setAttributes( { className: 'is-style-list' } );
