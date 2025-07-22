@@ -133,8 +133,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( $set_id ) {
+			$is_widget = false;
+
 			if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
 				$attributes['id'] = 'widget-' . $attributes['widget'];
+				$is_widget        = true;
 			} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
 				$attributes['id'] = 'block-template-' . $attributes['block_template'];
 			} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
@@ -143,8 +146,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$attributes['id'] = $this->current_post->ID;
 			}
 
-			// When using admin-ajax.php, we don't need to add a page number to the id
-			if ( ! empty( self::$forms ) && ! $this->is_response_without_reload_enabled ) {
+			if ( ! empty( self::$forms ) && ! $is_widget ) {
 				// Ensure 'id' exists in $attributes before trying to modify it
 				if ( ! isset( $attributes['id'] ) ) {
 					$attributes['id'] = '';
