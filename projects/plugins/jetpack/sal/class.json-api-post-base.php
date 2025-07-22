@@ -422,20 +422,39 @@ abstract class SAL_Post {
 	public function get_publicize_urls() {
 		$publicize_urls = array();
 		$publicize      = get_post_meta( $this->post->ID, 'publicize_results', true );
-		if ( is_array( $publicize ) ) {
-			foreach ( $publicize as $service => $data ) {
-				switch ( $service ) {
-					// @todo explore removing once Twitter is removed from Publicize.
-					case 'twitter':
-						foreach ( $data as $datum ) {
-							$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
-						}
-						break;
-					case 'fb':
-						foreach ( $data as $datum ) {
-							$publicize_urls[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
-						}
-						break;
+		if ( $publicize ) {
+			// `get_post_meta` with `true` returns a string representation of the meta value, so we need to unserialize it.
+			if ( is_string( $publicize ) ) {
+				$maybe_array = maybe_unserialize( $publicize );
+				if ( ! is_array( $maybe_array ) ) {
+					$maybe_array = json_decode( $publicize, true );
+				}
+				if ( is_array( $maybe_array ) ) {
+					$publicize = $maybe_array;
+				} else {
+					return $publicize_urls;
+				}
+			}
+
+			if ( is_array( $publicize ) ) {
+				foreach ( $publicize as $service => $data ) {
+					switch ( $service ) {
+						// @todo explore removing once Twitter is removed from Publicize.
+						case 'twitter':
+							foreach ( $data as $datum ) {
+								if ( isset( $datum['user_id'] ) && isset( $datum['post_id'] ) ) {
+									$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
+								}
+							}
+							break;
+						case 'fb':
+							foreach ( $data as $datum ) {
+								if ( isset( $datum['user_id'] ) && isset( $datum['post_id'] ) ) {
+									$publicize_urls[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
+								}
+							}
+							break;
+					}
 				}
 			}
 		}
