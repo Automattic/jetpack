@@ -952,21 +952,21 @@
 					return args.largeFile;
 				}
 
-				// Sanitize the URL to remove non-cosmetic changes like resize, fit, etc.
-				var sanitizedUrl = sanitizePhotonUrl( args.largeFile );
-
 				// If we have a really large image load a smaller version
 				// that is closer to the viewable size
 				if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
+					// Sanitize the URL to remove non-cosmetic changes like resize, fit, etc.
+					var sanitizedUrl = sanitizePhotonUrl( args.largeFile );
+
 					// @2x the max sizes so we get a high enough resolution for zooming.
 					args.origMaxWidth = args.maxWidth * 2;
 					args.origMaxHeight = args.maxHeight * 2;
 					// Add the fit arg to the list of Photon args.
 					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + '%2C' + args.origMaxHeight );
+					return sanitizedUrl.toString();
 				}
 
-				// Build the new Photon URL including the original Photon args and the new fit arg.
-				return sanitizedUrl.toString();
+				return args.largeFile;
 			}
 
 			return args.origFile;
