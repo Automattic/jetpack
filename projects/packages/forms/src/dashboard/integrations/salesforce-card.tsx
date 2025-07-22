@@ -39,7 +39,11 @@ const SalesforceDashboardCard = ( {
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
-		setupBadge: <Badge intent="success">{ __( 'Configured per form', 'jetpack-forms' ) }</Badge>,
+		setupBadge: (
+			<Badge intent="success" className="integration-card__setup-badge">
+				{ __( 'Configured per form', 'jetpack-forms' ) }
+			</Badge>
+		),
 	};
 
 	return (
