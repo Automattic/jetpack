@@ -29,6 +29,7 @@ const settings = {
 	} ),
 	edit,
 	save,
+	__experimentalLabel: ( { option } ) => option,
 };
 
 export default {
