@@ -18,7 +18,6 @@ export default function DropdownEdit() {
 				__experimentalCaptureToolbars={ true }
 				defaultBlock={ DEFAULT_BLOCK }
 				directInsert={ true }
-				renderAppender={ false }
 				template={ TEMPLATE }
 				templateLock={ false }
 				templateInsertUpdatesSelection={ true }
