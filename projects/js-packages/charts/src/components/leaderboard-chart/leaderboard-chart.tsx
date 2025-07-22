@@ -2,8 +2,10 @@
 import {
 	ProgressBar,
 	__experimentalVStack as VStack,
+	__experimentalGrid as Grid,
 	__experimentalText as Text,
 } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
 import { type FC } from 'react';
 import { formatMetricValue } from '../shared/format-metric-value';
@@ -170,8 +172,11 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	}
 
 	return (
-		<div
+		<Grid
 			className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+			templateColumns="minmax(0, 1fr) auto"
+			rowGap={ 12 }
+			columnGap={ 4 }
 			style={ chartStyle }
 		>
 			{ data.map( entry => {
@@ -179,7 +184,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 				const deltaColor = signColors[ colorIndex ];
 
 				return (
-					<div key={ entry.id } className={ styles.entryContainer }>
+					<Fragment key={ entry.id }>
 						<VStack spacing={ 1.5 }>
 							<Text>{ entry.label }</Text>
 
@@ -205,10 +210,10 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 								<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
 							) }
 						</div>
-					</div>
+					</Fragment>
 				);
 			} ) }
-		</div>
+		</Grid>
 	);
 };
 

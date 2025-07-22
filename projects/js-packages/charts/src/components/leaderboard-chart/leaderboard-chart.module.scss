@@ -1,22 +1,9 @@
 .leaderboardChart {
-	width: 100%;
-	max-width: 400px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-
 	transition: opacity 0.3s ease-in-out;
 
 	&.loading {
 		opacity: 0.5;
 	}
-}
-
-.entryContainer {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	column-gap: 4px;
-	align-items: start;
 }
 
 .progressContainer {
@@ -48,10 +35,8 @@
 
 .valueContainer {
 	display: flex;
-	flex-direction: row;
 	gap: 4px;
-	align-items: flex-start;
-	text-align: right;
+	justify-content: flex-end;
 }
 
 .emptyState {
