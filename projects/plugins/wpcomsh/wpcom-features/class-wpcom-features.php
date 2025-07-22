@@ -1521,7 +1521,7 @@ class WPCOM_Features {
 
 		$products_map = self::FEATURES_MAP[ $feature ];
 
-		self::add_conditional_personal_and_higher_plans_to_products_map( $products_map, $feature );
+		// self::add_conditional_personal_and_higher_plans_to_products_map( $products_map, $feature );
 
 		// Automatically grant features that don't require any purchase.
 		if (
