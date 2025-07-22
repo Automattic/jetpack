@@ -8,13 +8,13 @@ export default {
 		...setupProjects,
 		{
 			// This project is used to run the Jetpack Core tests that require an already connected site.
-			name: 'jetpack core e2e',
+			name: 'jetpack e2e',
 			testIgnore: '**/specs/onboarding/**',
 			dependencies: [ 'connection setup' ],
 		},
 		{
 			// This project is used to run the Jetpack Core tests that cover connection flows, requiring a clean (unconnected) setup.
-			name: 'jetpack core onboarding e2e',
+			name: 'jetpack onboarding e2e',
 			testMatch: '**/specs/onboarding/**',
 			dependencies: [ 'global authentication' ],
 		},
