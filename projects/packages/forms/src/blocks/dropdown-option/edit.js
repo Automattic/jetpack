@@ -12,12 +12,30 @@ export default function DropdownOptionEdit( props ) {
 	const blockProps = useBlockProps( {
 		className,
 	} );
-	const { removeBlocks, insertBlocks } = useDispatch( blockEditorStore );
-	const { getBlockIndex, getBlockRootClientId, getNextBlockClientId, getPreviousBlockClientId } =
-		useSelect( blockEditorStore );
+	const { removeBlocks, replaceBlocks, insertBlocks } = useDispatch( blockEditorStore );
+	const {
+		getBlockIndex,
+		getBlockRootClientId,
+		getMultiSelectedBlockClientIds,
+		getNextBlockClientId,
+		getPreviousBlockClientId,
+	} = useSelect( blockEditorStore );
 
 	const onPaste = event => {
 		const pastedText = event.clipboardData.getData( 'text/plain' );
+
+		// While pasting, multiple blocks were selected
+		const multiSelectedBlockClientIds = getMultiSelectedBlockClientIds();
+		if ( multiSelectedBlockClientIds.length ) {
+			const lines = pastedText.split( '\n' );
+			const newOptions = lines.map( line =>
+				createBlock( 'jetpack/dropdown-option', { option: line } )
+			);
+			replaceBlocks( multiSelectedBlockClientIds, newOptions );
+			return;
+		}
+
+		// Otherwise pasting in a single block…
 
 		// Check if the pasted text contains multiple lines
 		if ( pastedText.includes( '\n' ) ) {
