@@ -109,7 +109,7 @@ const IntegrationCardHeader = ( {
 						) }
 						{ showPluginAction && (
 							<Badge
-								intent={ isInstalled && ! isActive ? 'warning' : 'info' }
+								intent={ isInstalled && ! isActive ? 'warning' : 'default' }
 								className="integration-card__plugin-badge"
 							>
 								{ pluginActionLabel }

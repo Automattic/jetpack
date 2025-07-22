@@ -69,7 +69,7 @@ const SalesforceCard = ( {
 			? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )
 			: undefined,
 		setupBadge: (
-			<Badge intent="info" className="integration-card__setup-badge">
+			<Badge intent="default" className="integration-card__setup-badge">
 				{ __( 'Enter organization ID', 'jetpack-forms' ) }
 			</Badge>
 		),
