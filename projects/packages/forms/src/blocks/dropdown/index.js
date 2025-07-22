@@ -17,6 +17,7 @@ const settings = {
 		src: menu,
 	},
 	attributes: {
+		/*
 		style: {
 			type: 'object',
 			default: {
@@ -25,10 +26,13 @@ const settings = {
 				},
 			},
 		},
+		*/
 	},
 	supports: {
+		anchor: false,
 		reusable: false,
 		html: false,
+		/*
 		color: {
 			gradients: true,
 			heading: true,
@@ -59,6 +63,7 @@ const settings = {
 				width: true,
 			},
 		},
+		*/
 	},
 	edit,
 	save,
