@@ -1597,12 +1597,12 @@ class WPCOM_Features {
 			// Check if sticker requirement exists.
 			$required_sticker = $product_definition['required_sticker'] ?? null;
 			if ( $required_sticker ) {
-				if ( function_exists( 'has_blog_sticker' ) ) {
-					$blog_id                    ??= get_current_blog_id();
-					$purchase_eligible_by_sticker = has_blog_sticker( $required_sticker, $blog_id );
-				} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+				if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 					// Fallback for Atomic sites
 					$purchase_eligible_by_sticker = wpcomsh_is_site_sticker_active( $required_sticker );
+				} elseif ( function_exists( 'has_blog_sticker' ) ) {
+					$blog_id                    ??= get_current_blog_id();
+					$purchase_eligible_by_sticker = has_blog_sticker( $required_sticker, $blog_id );
 				}
 				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
 				unset( $product_definition['required_sticker'] );
