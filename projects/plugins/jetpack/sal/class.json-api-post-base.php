@@ -422,7 +422,7 @@ abstract class SAL_Post {
 	public function get_publicize_urls() {
 		$publicize_urls = array();
 		$publicize      = get_post_meta( $this->post->ID, 'publicize_results', true );
-		if ( $publicize ) {
+		if ( is_array( $publicize ) ) {
 			foreach ( $publicize as $service => $data ) {
 				switch ( $service ) {
 					// @todo explore removing once Twitter is removed from Publicize.
@@ -667,6 +667,9 @@ abstract class SAL_Post {
 	public function get_parent() {
 		if ( $this->post->post_parent ) {
 			$parent = get_post( $this->post->post_parent );
+			if ( ! $parent ) {
+				return false;
+			}
 			if ( 'display' === $this->context ) {
 				$parent_title = (string) get_the_title( $parent->ID );
 			} else {
@@ -959,7 +962,9 @@ abstract class SAL_Post {
 				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_id );
 				if ( is_array( $sizes ) ) {
 					foreach ( $sizes as $size => $size_details ) {
-						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						if ( isset( $size_details['file'] ) ) {
+							$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						}
 					}
 				}
 			}
