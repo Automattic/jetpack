@@ -44,7 +44,7 @@ export default {
 			sendToSalesforce: false,
 		},
 	},
-	enableMailPoet: {
+	connectMailPoet: {
 		type: 'boolean',
 		default: false,
 	},
