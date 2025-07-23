@@ -1,5 +1,4 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DEFAULT_GLYPHS } from './constants';
 import Symbols from './symbols';
@@ -20,14 +19,10 @@ export default function RatingInputEdit( { context } ) {
 	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
 	const className = context?.[ 'jetpack/field-rating-className' ] || 'is-style-stars';
 
-	// Get icon character based on className - memoized for performance
-	const iconChar = useMemo( () => {
-		const glyphs = DEFAULT_GLYPHS;
-		if ( className.includes( 'is-style-hearts' ) ) {
-			return glyphs.hearts?.char || glyphs.stars.char;
-		}
-		return glyphs.stars.char;
-	}, [ className ] );
+	// Get icon component based on className
+	const icon = className.includes( 'is-style-hearts' )
+		? DEFAULT_GLYPHS.hearts.char
+		: DEFAULT_GLYPHS.stars.char;
 
 	const blockProps = useBlockProps( {
 		'aria-label': __( 'Rating input', 'jetpack-forms' ),
@@ -36,7 +31,7 @@ export default function RatingInputEdit( { context } ) {
 
 	return (
 		<div { ...blockProps }>
-			<Symbols max={ max } value={ defaultValue } onChange={ () => {} } char={ iconChar } />
+			<Symbols max={ max } value={ defaultValue } onChange={ () => {} } icon={ icon } />
 		</div>
 	);
 }

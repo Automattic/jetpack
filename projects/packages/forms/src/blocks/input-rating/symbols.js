@@ -12,11 +12,11 @@ import { __ } from '@wordpress/i18n';
  * @param {number}   props.max             - Highest selectable rating (≥2, ≤10).
  * @param {number}   [props.value=0]       - Currently selected rating (0 for no selection).
  * @param {Function} [props.onChange=noop] - Handler called with the new rating value.
- * @param {*}        [props.char='★']      - React element or character to display for each symbol.
+ * @param {*}        [props.icon='★']      - React element or character to display for each symbol.
  *
  * @return {import('react').JSX.Element} Accessible rating control component.
  */
-export default function Symbols( { max, value = 0, onChange = () => {}, char = '★' } ) {
+export default function Symbols( { max, value = 0, onChange = () => {}, icon = '★' } ) {
 	// Memoize rating positions array for performance
 	const ratings = useMemo( () => Array.from( { length: max }, ( _, i ) => i + 1 ), [ max ] );
 
@@ -58,23 +58,6 @@ export default function Symbols( { max, value = 0, onChange = () => {}, char = '
 						prevButton?.focus();
 					}
 					break;
-				case 'Home':
-					event.preventDefault();
-					// Focus first rating button
-					event.target
-						.closest( '.jetpack-field-rating__wrapper' )
-						.querySelector( '.jetpack-field-rating__button' )
-						?.focus();
-					break;
-				case 'End': {
-					event.preventDefault();
-					// Focus last rating button
-					const allButtons = event.target
-						.closest( '.jetpack-field-rating__wrapper' )
-						.querySelectorAll( '.jetpack-field-rating__button' );
-					allButtons[ allButtons.length - 1 ]?.focus();
-					break;
-				}
 			}
 		},
 		[ max, onChange ]
@@ -125,7 +108,7 @@ export default function Symbols( { max, value = 0, onChange = () => {}, char = '
 								onKeyDown={ event => handleKeyDown( event, position ) }
 							>
 								<span className={ isSelected ? 'is-rating-filled' : 'is-rating-unfilled' }>
-									{ char }
+									{ icon }
 								</span>
 							</span>
 						</label>
