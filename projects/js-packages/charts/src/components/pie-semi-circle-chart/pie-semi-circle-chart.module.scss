@@ -1,11 +1,5 @@
 .pie-semi-circle-chart {
-	display: flex;
-	flex-direction: column;
 	text-align: center;
-
-	&-legend {
-		margin-top: 1rem;
-	}
 
 	.label {
 		margin-bottom: 0;  // Add space between label and pie chart
