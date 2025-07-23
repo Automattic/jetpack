@@ -1,0 +1,117 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts/Docs" />
+
+# Automattic Charts
+
+A comprehensive charting library for displaying interactive data visualizations within Automattic products. Built on top of modern libraries like `@visx/xychart` and designed for accessibility, responsiveness, and ease of use.
+
+## Features
+
+- ✨ **Rich Chart Types** - Bar charts, bar list charts, donut charts, leaderboard visualizations, line charts, and pie charts
+- 🎨 **Themeable** - Built-in themes for Jetpack and WooCommerce with custom theme support
+- 📱 **Responsive** - Automatically adapts to container size and viewport changes
+- ♿ **Accessible** - Full keyboard navigation, screen reader support, and ARIA compliance
+- 🔧 **Compound Components** - Flexible API using compound component patterns for advanced features
+- 📊 **Interactive** - Tooltips, legends, annotations, and hover effects
+- 🎯 **TypeScript** - Full TypeScript support with comprehensive type definitions
+
+## Quick Start
+
+### Installation
+
+```bash
+npm install @automattic/charts
+# or
+pnpm add @automattic/charts
+# or
+yarn add @automattic/charts
+```
+
+### Basic Usage
+
+<Source
+	language="jsx"
+	code={`import { LineChart, ThemeProvider, jetpackTheme } from '@automattic/charts';
+
+	const data = [
+		{
+			label: 'Views',
+			data: [
+				{ date: new Date('2024-01-01'), value: 1200 },
+				{ date: new Date('2024-01-02'), value: 1400 },
+				{ date: new Date('2024-01-03'), value: 1100 },
+			],
+			options: {}
+		}
+	];
+
+	function MyChart() {
+		return (
+			<ThemeProvider theme={jetpackTheme}>
+				<LineChart data={data} />
+			</ThemeProvider>
+		);
+	}`}
+/>
+
+## Available Chart Types
+
+### [Bar Chart](./?path=/docs/js-packages-charts-types-bar-chart--docs)
+Ideal for comparing values across categories, with vertical and horizontal orientations.
+
+### [Bar List Chart](./?path=/docs/js-packages-charts-types-bar-list-chart--docs)
+A horizontal bar chart with customizable labels and value positioning, perfect for displaying categorized data with text annotations.
+
+### [Donut Chart](./?path=/docs/js-packages-charts-types-donut-chart--docs)
+A variation of pie charts with a hollow center for additional content display.
+
+### [Leaderboard Chart](./?path=/docs/js-packages-charts-types-leaderboard-chart--docs)
+Specialized for ranking data with progress bars and comparison values.
+
+### [Line Chart](./?path=/docs/js-packages-charts-types-line-chart--docs)
+Perfect for displaying trends over time, with support for multiple data series, annotations, and various curve types.
+
+### [Pie Chart](./?path=/docs/js-packages-charts-types-pie-chart--docs)
+Great for showing parts of a whole, with customizable thickness and gap spacing.
+
+## Core Concepts
+
+### Data Format
+Charts expect data in a standardized format with `date` (for time-series) or category values and numeric `value` properties.
+
+### Theme System
+Use the `ThemeProvider` component to apply consistent styling across all charts. Supports Jetpack and WooCommerce themes out of the box.
+
+### Responsive Design
+All charts automatically adapt to their container size using the `withResponsive` higher-order component.
+
+### Compound Components
+Advanced features like annotations, legends, and tooltips are implemented as compound components for maximum flexibility.
+
+## Development
+
+### Running Storybook Locally
+
+To explore all available charts and their variations:
+
+```bash
+# From the charts package directory
+pnpm run storybook
+
+# Or from the Jetpack monorepo root
+pnpm -F @automattic/charts storybook
+```
+
+### Contributing
+
+Ready to contribute? Check out the [Jetpack contributing guide](https://github.com/Automattic/jetpack/blob/trunk/docs/CONTRIBUTING.md) and the [Charts AI documentation guide](https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/charts/docs/ai-documentation-guide.md) for detailed information on adding new features and documentation.
+
+## Resources
+
+- [GitHub Repository](https://github.com/Automattic/jetpack/tree/trunk/projects/js-packages/charts)
+- [Package Documentation](https://github.com/Automattic/jetpack/tree/trunk/projects/js-packages/charts/README.md)
+- [TypeScript Definitions](https://github.com/Automattic/jetpack/tree/trunk/projects/js-packages/charts/src/types.ts)
+- [Contributing Guidelines](https://github.com/Automattic/jetpack/blob/trunk/docs/CONTRIBUTING.md)
+
+Start exploring the components and examples in the sidebar to see the full capabilities of the Automattic Charts library!
