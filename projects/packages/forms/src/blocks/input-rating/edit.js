@@ -13,9 +13,10 @@ import Symbols from './symbols';
  * @param {object}   props               - Component props from WordPress block editor
  * @param {object}   props.context       - Block context values from parent block
  * @param {Function} props.setAttributes - Function to update block attributes
+ * @param {string}   props.clientId      - Unique identifier for the block instance
  * @return {import('react').JSX.Element} Rating input editor component
  */
-export default function RatingInputEdit( { context, setAttributes } ) {
+export default function RatingInputEdit( { context, setAttributes, clientId } ) {
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
 	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
 	const className = context?.[ 'jetpack/field-rating-className' ] || 'is-style-stars';
@@ -37,7 +38,13 @@ export default function RatingInputEdit( { context, setAttributes } ) {
 
 	return (
 		<div { ...blockProps }>
-			<Symbols max={ max } value={ defaultValue } onChange={ onChangeDefault } icon={ icon } />
+			<Symbols
+				max={ max }
+				value={ defaultValue }
+				onChange={ onChangeDefault }
+				icon={ icon }
+				uniqueId={ clientId }
+			/>
 		</div>
 	);
 }

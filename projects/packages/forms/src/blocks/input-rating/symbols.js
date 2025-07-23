@@ -13,10 +13,16 @@ import { __ } from '@wordpress/i18n';
  * @param {number}   [props.value=0]       - Currently selected rating (0 for no selection).
  * @param {Function} [props.onChange=noop] - Handler called with the new rating value.
  * @param {*}        [props.icon='★']      - React element or character to display for each symbol.
- *
+ * @param {string}   [props.uniqueId='']   - Unique identifier to prevent conflicts between multiple instances.
  * @return {import('react').JSX.Element} Accessible rating control component.
  */
-export default function Symbols( { max, value = 0, onChange = () => {}, icon = '★' } ) {
+export default function Symbols( {
+	max,
+	value = 0,
+	onChange = () => {},
+	icon = '★',
+	uniqueId = '',
+} ) {
 	// Memoize rating positions array for performance
 	const ratings = useMemo( () => Array.from( { length: max }, ( _, i ) => i + 1 ), [ max ] );
 
@@ -71,12 +77,12 @@ export default function Symbols( { max, value = 0, onChange = () => {}, icon = '
 		className: 'jetpack-field-rating__wrapper',
 		role: 'radiogroup',
 		'aria-label': __( 'Rating', 'jetpack-forms' ),
-		'aria-describedby': 'rating-instructions',
+		'aria-describedby': `rating-instructions-${ uniqueId }`,
 	};
 
 	return (
 		<>
-			<div id="rating-instructions" className="screen-reader-text">
+			<div id={ `rating-instructions-${ uniqueId }` } className="screen-reader-text">
 				{ __(
 					'Use arrow keys to navigate between rating options, Enter or Space to select.',
 					'jetpack-forms'
@@ -87,14 +93,14 @@ export default function Symbols( { max, value = 0, onChange = () => {}, icon = '
 					const isSelected = value >= position;
 					const isCurrentSelection = value === position;
 
-					const inputId = `rating-${ position }`;
+					const inputId = `rating-${ uniqueId }-${ position }`;
 
 					return (
 						<label key={ position } className="jetpack-field-rating__label" htmlFor={ inputId }>
 							<input
 								id={ inputId }
 								type="radio"
-								name="rating"
+								name={ `rating-${ uniqueId }` }
 								value={ position }
 								checked={ value === position }
 								onChange={ handleSelect( position ) }
