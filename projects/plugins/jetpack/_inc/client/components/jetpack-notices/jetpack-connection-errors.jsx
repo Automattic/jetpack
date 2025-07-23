@@ -1,4 +1,3 @@
-import { getProtectedOwnerCreateAccountUrl } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { Component, Fragment } from 'react';
@@ -43,43 +42,52 @@ export default class JetpackConnectionErrors extends Component {
 						</NoticeAction>
 					</SimpleNotice>
 				);
-			case 'create_missing_account': {
-				// Check if this is a protected owner error with email data
-				let createAccountUrl = errorData.support_url || '/wp-admin/user-new.php';
+			default:
+				// Check for URL action (navigation)
+				if ( errorData.action_url && errorData.action_label ) {
+					const actions = [
+						<NoticeAction key="primary" href={ errorData.action_url }>
+							{ errorData.action_label }
+						</NoticeAction>,
+					];
 
-				// If we have error data that looks like a protected owner error, use prepopulation
-				if ( errorData && ( errorData.email || errorData.wpcom_user_email ) ) {
-					// Create a mock connection error object for the helper function
-					const connectionError = {
-						error_data: {
-							email: errorData.email,
-							wpcom_user_email: errorData.wpcom_user_email,
-						},
-					};
+					// Add secondary action if available
+					if ( errorData.secondary_action_url && errorData.secondary_action_label ) {
+						actions.push(
+							<NoticeAction
+								key="secondary"
+								href={ errorData.secondary_action_url }
+								variant="secondary"
+							>
+								{ errorData.secondary_action_label }
+							</NoticeAction>
+						);
+					}
 
-					// Get admin URL from window.Initial_State or use default
-					const adminUrl =
-						( typeof window !== 'undefined' && window.Initial_State?.adminUrl ) || '/wp-admin/';
-					createAccountUrl = getProtectedOwnerCreateAccountUrl( connectionError, adminUrl );
+					return (
+						<SimpleNotice
+							text={ message }
+							status={ 'is-error' }
+							icon={ 'link-break' }
+							showDismiss={ false }
+							display={ this.props.display }
+						>
+							{ actions }
+						</SimpleNotice>
+					);
 				}
 
+				// If no custom action available, fall back to default reconnect behavior
 				return (
-					<SimpleNotice
+					<ErrorNoticeCycleConnection
 						text={ message }
-						status={ 'is-error' }
-						icon={ 'link-break' }
-						showDismiss={ false }
+						errorCode={ code }
+						errorData={ errorData }
+						action={ 'reconnect' }
 						display={ this.props.display }
-					>
-						<NoticeAction href={ createAccountUrl }>
-							{ __( 'Create Account', 'jetpack' ) }
-						</NoticeAction>
-					</SimpleNotice>
+					/>
 				);
-			}
 		}
-
-		return null;
 	}
 
 	renderOne( error ) {

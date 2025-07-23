@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Connection: removed hardcoded custom errors and added support for dynamic errors.
