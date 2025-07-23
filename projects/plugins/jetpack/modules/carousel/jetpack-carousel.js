@@ -962,7 +962,7 @@
 					args.origMaxWidth = args.maxWidth * 2;
 					args.origMaxHeight = args.maxHeight * 2;
 					// Add the fit arg to the list of Photon args.
-					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + '%2C' + args.origMaxHeight );
+					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + ',' + args.origMaxHeight );
 					return sanitizedUrl.toString();
 				}
 
