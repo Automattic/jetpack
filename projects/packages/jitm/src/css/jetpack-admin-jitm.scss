@@ -78,7 +78,7 @@ $jp-gray-20:             #a7aaad;
 	&.is-secondary {
 
 		.gridicons-external-link {
-			fill: #000;
+			fill: currentColor;
 		}
 
 		&:hover {
@@ -533,4 +533,8 @@ $jp-gray-20:             #a7aaad;
 // if JITM appears directly below WordPress hello dolly adjust margins
 #dolly + .jitm-card {
 	margin: 3rem 1rem 0 auto;
+}
+
+.jetpack_page_jetpack-forms-admin .jitm-card {
+	margin-left: 1.25rem;
 }
