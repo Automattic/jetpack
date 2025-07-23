@@ -1646,6 +1646,24 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertEquals( $attributes['labelstyles'] . $attributes['optionstyles'], $styles, 'Label styles don\'t match' );
 	}
 
+	public function test_get_json_data() {
+		$current_post = Utility::create_post_context();
+		$post_id      = Utility::create_legacy_feedback( array( 'email' => 'hello@example.com' ) );
+		Utility::destroy_post_context( $current_post );
+		$response = Contact_Form::get_json_data( $post_id );
+
+		$this->assertIsArray( $response, 'Response should be an instance of Contact_Form_Response' );
+		$this->assertEquals(
+			array(
+				array(
+					'label' => 'email',
+					'value' => 'hello@example.com',
+				),
+			),
+			$response
+		);
+	}
+
 	/**
 	 * Tests whether a multifield contact form field is valid.
 	 *
