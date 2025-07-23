@@ -3,8 +3,8 @@
 @use "$css/main/common";
 
 .card {
-	background: #FFF url(\$images/color-shift.svg) no-repeat top right;
-	border: 1px solid #DCDCDE;
+	background: #fff url(\$images/color-shift.svg) no-repeat top right;
+	border: 1px solid #dcdcde;
 	border-radius: variables.$border-radius;
 
 	.content {

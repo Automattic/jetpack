@@ -1,6 +1,6 @@
-@use '../scss/functions/rem';
-@use '../scss/calypso-colors';
-@use '../scss/typography';
+@use "../scss/functions/rem";
+@use "../scss/calypso-colors";
+@use "../scss/typography";
 @use "../scss/mixins/breakpoints";
 @use "../scss/variables/colors";
 
@@ -210,7 +210,7 @@
 	button {
 		font-weight: 500;
 		font-size: var(--font-body-extra-small);
-	
+
 		.components-external-link__contents {
 			text-decoration: none;
 		}

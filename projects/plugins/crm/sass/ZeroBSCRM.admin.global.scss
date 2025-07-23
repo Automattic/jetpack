@@ -7,61 +7,61 @@
 // IT SHOULD NEVER contain any CSS itself, only includes :)
 // this'll keep it tidy and WH happy...
 
-// Mike's also made a clone of the following in \master\sass\ZeroBSCRM.admin.invoicepreview.scss
-// ... which could be updated if / when needs to be, (to largely match this... won't need all)
+// There's also a clone of this in sass/ZeroBSCRM.admin.invoicepreview.scss
+// which could be updated if / when needs to be...
 
-@use 'sass:meta';
+@use "sass:meta";
 
 // block wp notifications:]
-@include meta.load-css( 'wp-hide-admin-notices' );
+@include meta.load-css( "wp-hide-admin-notices" );
 
-// Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
-@include meta.load-css( 'ZeroBSCRM.genericeditpages' );
+// Import generic edit page styles (old legacy from taxibooker! :o to rewrite)
+@include meta.load-css( "ZeroBSCRM.genericeditpages" );
 
 // Import "core" styles
-@include meta.load-css( 'ZeroBSCRM.prevadmincore' );
+@include meta.load-css( "ZeroBSCRM.prevadmincore" );
 
 // Daterangepicker styles
-@include meta.load-css( 'daterangepicker/daterangepicker' );
+@include meta.load-css( "daterangepicker/daterangepicker" );
 
 // menu mods
-@include meta.load-css( 'ZeroBSCRM.adminmenu' );
+@include meta.load-css( "ZeroBSCRM.adminmenu" );
 
 // customer filters gui
-@include meta.load-css( 'ZeroBSCRM.customerfilters' );
+@include meta.load-css( "ZeroBSCRM.customerfilters" );
 
 // Import form styles - DO THESE need to be global?
-@include meta.load-css( 'ZeroBSCRM.forms' );
+@include meta.load-css( "ZeroBSCRM.forms" );
 
 // Import "Log" styles
-@include meta.load-css( 'ZeroBSCRM.logs' );
+@include meta.load-css( "ZeroBSCRM.logs" );
 
 // Import "Typeahead" styles
-@include meta.load-css( 'ZeroBSCRM.typeahead' );
+@include meta.load-css( "ZeroBSCRM.typeahead" );
 
 // Import "Spinner" styles
-@include meta.load-css( 'ZeroBSCRM.spinners' );
+@include meta.load-css( "ZeroBSCRM.spinners" );
 
 // Import ZBSmetabox styles
-@include meta.load-css( 'ZeroBSCRM.metaboxes' );
+@include meta.load-css( "ZeroBSCRM.metaboxes" );
 
 // Import "Admin Pages" styles
-@include meta.load-css( 'ZeroBSCRM.adminpages' );
+@include meta.load-css( "ZeroBSCRM.adminpages" );
 
 // Import "Hide WP Features" styles
-@include meta.load-css( 'ZeroBSCRM.hidewpfeatures' );
+@include meta.load-css( "ZeroBSCRM.hidewpfeatures" );
 
 // Import "animation" styles
-@include meta.load-css( 'ZeroBSCRM.animations' );
+@include meta.load-css( "ZeroBSCRM.animations" );
 
 // Import "mobile" styles
-@include meta.load-css( 'ZeroBSCRM.mobile' );
+@include meta.load-css( "ZeroBSCRM.mobile" );
 
 // Import "nag" module
-@include meta.load-css( 'ZeroBSCRM.nag' );
+@include meta.load-css( "ZeroBSCRM.nag" );
 
 // Import "learn menu" styles
-@include meta.load-css( 'JetpackCRM.admin.learnmenu' );
+@include meta.load-css( "JetpackCRM.admin.learnmenu" );
 
 // Import Jetpack Style overrides
-@include meta.load-css( 'JetpackCRM.admin.overrides' );
+@include meta.load-css( "JetpackCRM.admin.overrides" );

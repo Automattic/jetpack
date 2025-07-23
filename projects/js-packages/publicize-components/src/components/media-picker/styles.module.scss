@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .preview-wrapper {
 	position: relative;
@@ -30,7 +30,7 @@
 		grid-row: 2;
 
 		&::after {
-			content: '';
+			content: "";
 			position: absolute;
 			top: 0;
 			left: 0;
@@ -105,8 +105,9 @@
 .remove-loading {
 
 	@extend %remove;
-	// This is to make the close button appear in the right place when we are loading the image.
-	// With this it is possible to close/stop loading images if the request takes too long.
+	// This is to make the close button appear in the right place
+	// when we are loading the image. With this it is possible to
+	// close/stop loading images if the request takes too long.
 	top: -56px;
 	right: -5px;
 }

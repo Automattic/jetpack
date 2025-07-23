@@ -5,7 +5,7 @@ i.mce-i-grunion {
 
 i.mce-i-grunion::before,
 .jetpack-contact-form-icon::before {
-	content: '\f175';
+	content: "\f175";
 	vertical-align: top;
 }
 

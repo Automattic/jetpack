@@ -26,7 +26,8 @@
 	margin-bottom: 10px;
 }
 
-/* Assume that taxonomy select is the default selected. Other controls should be hidden here. */
+/* Assume that taxonomy select is the default selected.
+ * Other controls should be hidden here. */
 .jetpack-search-filters-widget__post-type-select {
 	display: none;
 }

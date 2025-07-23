@@ -279,7 +279,7 @@ div.ui.learn.button {
 		float: right;
 		margin: 0.5em;
 		max-width: 50px;
-		box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
+		box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
 
 	}
 
@@ -307,10 +307,10 @@ div.ui.learn.button {
 
 // Email template editor
 .jpcrm-email-template-label-content {
-	
+
 	position: absolute;
 	bottom: 1em;
-	
+
 }
 
 // generic loading.loaded classes
@@ -331,15 +331,15 @@ div.ui.learn.button {
 		position: absolute;
 		right: 1em;
 		font-size: 1.3em;
-		margin: .5em;
-		margin-right: .8em;
+		margin: 0.5em;
+		margin-right: 0.8em;
 
 	}
 
 }
 
 
-// system assistant 
+// system assistant
 // jobs
 .jpcrm-assistant-job {
 
@@ -364,7 +364,7 @@ div.ui.learn.button {
 	h4.ui.header {
 
 		margin-top: 1em;
-		
+
 	}
 
 }
@@ -392,7 +392,7 @@ div.ui.learn.button {
 	.state-incomplete {
 
 		display: none;
-		
+
 	}
 
 
@@ -408,7 +408,7 @@ div.ui.learn.button {
 
 	width: 100%;
 	height: auto;
-    
+
 }
 
 /* allow for long file titles and descriptions */

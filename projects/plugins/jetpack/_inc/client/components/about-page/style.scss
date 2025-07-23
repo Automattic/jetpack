@@ -1,6 +1,6 @@
 @use "../../scss/mixins/breakpoints";
 @use "../../scss/variables/colors";
-@use 'sass:color';
+@use "sass:color";
 
 $color__border: #dcdcde;
 $color__back-link: #787c82;
@@ -26,7 +26,7 @@ $color__back-link: #787c82;
 	border-bottom: none;
 
 	a {
-		color: #3C434A;
+		color: #3c434a;
 
 		&:hover,
 		&:active {
@@ -85,7 +85,7 @@ $color__back-link: #787c82;
 		color: #000;
 		font-weight: 400;
 		text-decoration: underline;
-		transition-duration: .05s;
+		transition-duration: 0.05s;
 		transition-property: border, background, color;
 		transition-timing-function: ease-in-out;
 

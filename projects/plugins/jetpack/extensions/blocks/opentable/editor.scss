@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 /**
  * Editor styles for OpenTable
@@ -151,7 +151,7 @@
 	}
 }
 
-.wp-block[data-type='jetpack/opentable'] {
+.wp-block[data-type="jetpack/opentable"] {
 
 	.components-notice__content {
 		text-align: left;

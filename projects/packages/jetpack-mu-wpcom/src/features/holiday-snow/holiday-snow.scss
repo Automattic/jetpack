@@ -5,16 +5,17 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-@use 'sass:list';
-@use 'sass:math';
+@use "sass:list";
+@use "sass:math";
 
 $grid_width: 600;
 $snow_density: 10;
 $snow_speed: 9s;
-$snow_selector: '#jetpack-holiday-snow';
+$snow_selector: "#jetpack-holiday-snow";
 
-// Random numbers, to replace the `random` function so we can have reproducable builds.
-// Needs $snow_density entries. Intergers 3-6.
+// Random numbers, to replace the `random` function
+// so we can have reproducable builds.
+// Needs $snow_density entries. Integers 3-6.
 $snow_sizes: 6, 6, 3, 5, 3, 4, 6, 5, 4, 6;
 // Needs $snow_density entries. Floats 0.6-1.0.
 $snow_alphas: 0.8, 1, 0.9, 1, 0.6, 1, 1, 1, 0.8, 1;
@@ -54,7 +55,7 @@ html {
 
 	#{$snow_selector}:after {
 		margin-left: math.div(-$grid_width, 3) + px;
-		opacity: .4;
+		opacity: 0.4;
 		animation-duration: $snow_speed * 2;
 		animation-direction: reverse;
 		filter: blur(3px);
@@ -64,7 +65,7 @@ html {
 		animation-duration: $snow_speed * 3;
 		animation-direction: reverse;
 		margin-left: math.div(-$grid_width, 2) + px;
-		opacity: .65;
+		opacity: 0.65;
 		filter: blur(1.5px);
 	}
 

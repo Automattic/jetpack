@@ -1,5 +1,5 @@
-@use '../../scss/variables/colors';
-@use '../../scss/mixin_breakpoint';
+@use "../../scss/variables/colors";
+@use "../../scss/mixin_breakpoint";
 
 .jp-recommendations-product-purchased {
 	display: flex;
@@ -9,7 +9,7 @@
 
 	height: 100%;
 
-	@include mixin_breakpoint.breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( ">480px" ) {
 		margin-left: 32px;
 		margin-right: 32px;
 	}
@@ -33,7 +33,7 @@
 .jp-recommendations-product-purchased__next {
 	align-self: center;
 
-	@include mixin_breakpoint.breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( ">480px" ) {
 		margin-top: auto;
 	}
 }

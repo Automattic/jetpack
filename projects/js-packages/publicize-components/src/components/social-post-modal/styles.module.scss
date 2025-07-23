@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .panel {
 	margin-block: 1rem;
@@ -62,7 +62,7 @@
 .settings-section {
 
 	@include gb.break-medium {
-		flex: 1
+		flex: 1;
 	}
 }
 

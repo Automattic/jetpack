@@ -1,7 +1,7 @@
 @use "sass:math";
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use '../../../shared/styles/jetpack-variables';
-@use 'variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../../../shared/styles/jetpack-variables";
+@use "variables";
 
 .wp-story-display-contents {
 	display: contents;
@@ -139,14 +139,14 @@
 				width: 40px;
 				height: 40px;
 				font-size: 40px;
-				border-top-color: #FFF;
+				border-top-color: #fff;
 			}
 
 			.wp-story-loading-spinner__inner {
 				width: 100%;
 				height: 100%;
-				border-top-color: #C4C4C4;
-				border-right-color: #C4C4C4;
+				border-top-color: #c4c4c4;
+				border-right-color: #c4c4c4;
 				opacity: 0.4;
 			}
 		}
@@ -229,7 +229,7 @@
 			background-color: transparent;
 
 			svg {
-				filter: drop-shadow(0 0 2px rgba(0, 0, 0, .6));
+				filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
 			}
 		}
 	}
@@ -665,7 +665,7 @@
 		@supports not (backdrop-filter: none) {
 			filter: blur(18px);
 			filter: url(#gaussian-blur-18);
-			filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='18');
+			filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius="18");
 		}
 	}
 

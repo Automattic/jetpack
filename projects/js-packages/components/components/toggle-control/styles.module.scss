@@ -43,7 +43,7 @@
 				transform: translateX(calc(var(--base-width) * 3));
 			}
 		}
-		
+
 		.components-toggle-control__help {
 			margin-inline-start: calc(var(--track-width) + var(--spacing-base));
 		}
@@ -55,7 +55,7 @@
 	:global {
 
 		.components-form-toggle {
-			opacity: .6;
+			opacity: 0.6;
 		}
 	}
 }

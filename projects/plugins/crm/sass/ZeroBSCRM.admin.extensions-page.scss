@@ -3,7 +3,8 @@
  * https://jetpackcrm.com
  */
 
-//wrap all in our page bodyclass so to not clash anywhere else. Is also only enqueue on that one page
+// Wrap all in our page bodyclass so to not clash anywhere else.
+// Is also only enqueue on that one page.
 .zbs-extensions-manager {
 
 	.title {
@@ -204,7 +205,8 @@
 		line-height: 21px;
 
 		// stuff to modify our sales page html pulled into the zbs ext subpage
-		// (improve how this html renders on pages like /admin.php?page=zerobscrm-extensions&extension_id=20570)
+		// improve how this html renders on pages like
+		// /admin.php?page=zerobscrm-extensions&extension_id=20570
 		.wul {
 			padding: 1em;
 			margin: 0.5em;

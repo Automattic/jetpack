@@ -2,8 +2,8 @@
  * Modal styles for Social Previews
  */
 
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@automattic/jetpack-base-styles/root-variables";
 
 // Styles shared between modals
 .jetpack-social-previews__modal {
@@ -61,7 +61,7 @@
 				margin-bottom: -1px;
 			}
 
-			&:not(:disabled):not([aria-disabled='true']):not(.is-secondary):not(.is-primary):not(.is-tertiary):not(.is-link):hover::after {
+			&:not(:disabled):not([aria-disabled="true"]):not(.is-secondary):not(.is-primary):not(.is-tertiary):not(.is-link):hover::after {
 				border-bottom: 1px solid var(--jp-highlight);
 				margin-bottom: -1px;
 			}
@@ -141,7 +141,7 @@
 			margin-bottom: 12px;
 
 			&::before {
-				content: '\2713 ';
+				content: "\2713 ";
 				position: absolute;
 				left: -20px;
 				color: gb.$alert-green;

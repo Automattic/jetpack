@@ -1,9 +1,9 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 .is-beta-extension {
 
 	&::before {
-		content: 'BETA';
+		content: "BETA";
 		position: absolute;
 		top: 3px;
 		right: 3px;

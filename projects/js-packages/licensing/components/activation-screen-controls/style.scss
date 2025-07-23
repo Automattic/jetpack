@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 .jp-license-activation-screen-controls {
 	background: var(--jp-white);
@@ -12,17 +12,20 @@
 		font-size: 44px;
 		font-weight: 700;
 
-		// This is inherited in the Jetpack plugin from the top level Jetpack page. Doesn't carry over to My Jetpack.
+		// This is inherited in the Jetpack plugin from the top-level
+		// Jetpack page. Doesn't carry over to My Jetpack.
 		line-height: 1.4;
 
-		// Exception here due to being overridden by Text component styles when used in My Jetpack.
+		// Exception here due to being overridden by Text component
+		// styles when used in My Jetpack.
 		margin: 0.67em 0;
 	}
 
 	p {
 		font-size: var(--font-body);
 
-		// Exception here due to being overridden by Text component styles when used in My Jetpack.
+		// Exception here due to being overridden by Text component
+		// styles when used in My Jetpack.
 		margin: 1em 0;
 	}
 
@@ -116,7 +119,7 @@
 		&[disabled],
 		&:disabled {
 			background-color: var(--jp-gray);
-			color: var(--jp-gray-20);;
+			color: var(--jp-gray-20);
 		}
 
 		.jp-components-spinner {

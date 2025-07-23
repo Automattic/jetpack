@@ -1,7 +1,7 @@
-@use 'sass:color';
-@use 'sass:list';
+@use "sass:color";
+@use "sass:list";
 @use "sass:math";
-@use 'sass:meta';
+@use "sass:meta";
 
 $full-width:	960px;
 $one-col:		660px;
@@ -180,7 +180,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	&::after {
 		border: 6px solid transparent;
 		border-bottom-color: $white;
-		content: ' ';
+		content: " ";
 		height: 0;
 		position: absolute;
 		top: -12px;
@@ -245,11 +245,11 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	background: color.adjust($gray, $lightness: 20%);
 
 	&::before {
-		content: '\f475';
+		content: "\f475";
 		display: inline-block;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-		font: 400 math.div($icon-size, 1) 'Noticons';
+		font: 400 math.div($icon-size, 1) "Noticons";
 		color: $white;
 		position: absolute;
 		top: 0;
@@ -294,7 +294,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 // Creates a fading overlay to signify that the content is longer
 // than the space allows.
 @mixin long-content-fade( $direction: right, $size: 20%, $color: #fff, $edge: 0, $z-index: false) {
-	content: '';
+	content: "";
 	display: block;
 	position: absolute;
 	-webkit-touch-callout: none;
@@ -309,7 +309,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		z-index: $z-index;
 	}
 
-	@if $direction == 'bottom' {
+	@if $direction == "bottom" {
 		background: linear-gradient(to top, rgba($color, 0), $color 90%);
 		left: $edge;
 		right: $edge;
@@ -318,7 +318,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		width: auto;
 	}
 
-	@if $direction == 'top' {
+	@if $direction == "top" {
 		background: linear-gradient(to bottom, rgba($color, 0), $color 90%);
 		top: calc(100% - $size);
 		left: $edge;
@@ -327,7 +327,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		width: auto;
 	}
 
-	@if $direction == 'left' {
+	@if $direction == "left" {
 		background: linear-gradient(to left, rgba($color, 0), $color 90%);
 		top: $edge;
 		left: $edge;
@@ -337,7 +337,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		height: auto;
 	}
 
-	@if $direction == 'right' {
+	@if $direction == "right" {
 		background: linear-gradient(to right, rgba($color, 0), $color 90%);
 		top: $edge;
 		bottom: $edge;
@@ -354,7 +354,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	color: transparent;
 
 	&::after {
-		content: '\00a0';
+		content: "\00a0";
 	}
 }
 

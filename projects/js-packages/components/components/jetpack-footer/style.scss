@@ -2,15 +2,15 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	
+
 	max-width: 1128px;
 	width: 100%;
 
 	color: var(--jp-black);
-	
+
 	font-size: var(--font-body-extra-small);
 	line-height: 1.333;
-	
+
 	a {
 		text-decoration: none;
 
@@ -60,7 +60,7 @@
 		width: 100%;
 		margin: 0;
 		padding: 0;
-		
+
 		list-style: none;
 
 		> li {
