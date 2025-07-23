@@ -29,7 +29,7 @@
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/mjs/index.js",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/types/index.d.ts",
 	"sideEffects": [
 		"*.css",
 		"*.scss"
@@ -39,17 +39,32 @@
 			"jetpack:src": "./src/index.ts",
 			"import": "./dist/mjs/index.js",
 			"require": "./dist/cjs/index.js",
-			"types": "./dist/index.d.ts"
-		},
-		"./components/*": {
-			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.js"
+			"types": "./dist/types/index.d.ts"
 		},
 		"./visx/*": {
+			"jetpack:src": "./src/visx/*",
 			"import": "./dist/mjs/visx/*/index.js",
-			"require": "./dist/cjs/visx/*/index.js"
+			"require": "./dist/cjs/visx/*/index.js",
+			"types": "./dist/types/visx/*/index.d.ts"
 		},
-		"./style.css": "./dist/mjs/style.css"
+		"./hooks/*": {
+			"jetpack:src": "./src/hooks/*",
+			"import": "./dist/mjs/hooks/*",
+			"require": "./dist/cjs/hooks/*",
+			"types": "./dist/types/hooks/*"
+		},
+		"./providers/*": {
+			"jetpack:src": "./src/providers/*",
+			"import": "./dist/mjs/providers/*/index.js",
+			"require": "./dist/cjs/providers/*/index.js",
+			"types": "./dist/types/providers/*/index.d.ts"
+		},
+		"./*": {
+			"jetpack:src": "./src/components/*",
+			"import": "./dist/mjs/components/*/index.js",
+			"require": "./dist/cjs/components/*/index.js",
+			"types": "./dist/types/components/*/index.d.ts"
+		}
 	},
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",
