@@ -18,11 +18,7 @@ if ( ! function_exists( 'jetpack_shortcodes_should_hook_pre_kses' ) ) {
 	function jetpack_shortcodes_should_hook_pre_kses( $force_recheck = false ) {
 		static $is_frontend;
 
-		if ( $force_recheck ) {
-			$is_frontend = null;
-		}
-
-		if ( null === $is_frontend ) {
+		if ( $force_recheck || null === $is_frontend ) {
 			$is_frontend = Request::is_frontend( false );
 		}
 
