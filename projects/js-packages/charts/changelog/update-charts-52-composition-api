@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: updates legends to use the composition API
