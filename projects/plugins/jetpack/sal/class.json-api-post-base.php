@@ -425,12 +425,12 @@ abstract class SAL_Post {
 		if ( $publicize ) {
 			// get_post_meta(..., true) will return a string if the value was stored as a scalar or serialized, so we may need to unserialize.
 			if ( is_string( $publicize ) ) {
-				$maybe_array = maybe_unserialize( $publicize );
-				if ( ! is_array( $maybe_array ) ) {
-					$maybe_array = json_decode( $publicize, true );
+				$maybe_array_publicize = maybe_unserialize( $publicize );
+				if ( ! is_array( $maybe_array_publicize ) ) {
+					$maybe_array_publicize = json_decode( $publicize, true );
 				}
-				if ( is_array( $maybe_array ) ) {
-					$publicize = $maybe_array;
+				if ( is_array( $maybe_array_publicize ) ) {
+					$publicize = $maybe_array_publicize;
 				} else {
 					return $publicize_urls;
 				}
