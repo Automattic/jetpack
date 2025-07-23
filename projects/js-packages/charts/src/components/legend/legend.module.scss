@@ -1,48 +1,75 @@
+@import '../../styles/variables.module.scss';
+
 .legend {
+	display: flex;
+	width: 100%;
+	color: var(--chart-legend-text-color);
 
 	&--horizontal {
-		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		gap: 16px;
+		gap: var(--chart-legend-horizontal-gap);
 	}
 
 	&--vertical {
-		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--chart-legend-item-gap);
 	}
 
-	// Vertical alignment positioning
-	&--vertical-align-top {
-		position: relative;
+	// Horizontal alignment for all orientations
+	&--horizontal-align-left {
+		justify-content: flex-start;
+	}
 
-		&.legend--horizontal-align-left {
-			justify-content: flex-start;
+	&--horizontal-align-center {
+		justify-content: center;
+	}
+
+	&--horizontal-align-right {
+		justify-content: flex-end;
+	}
+
+	// Vertical alignment for vertical legends - fixes CHARTS-39 issues  
+	&--vertical {
+		&.legend--vertical-align-top {
+			align-self: flex-start;
 		}
 
-		&.legend--horizontal-align-center {
-			justify-content: center;
+		&.legend--vertical-align-center {
+			align-self: center;
 		}
 
-		&.legend--horizontal-align-right {
-			justify-content: flex-end;
+		&.legend--vertical-align-bottom {
+			align-self: flex-end;
 		}
 	}
 
-	&--vertical-align-bottom {
-		position: relative;
-
-		&.legend--horizontal-align-left {
-			justify-content: flex-start;
+	// Grid-specific positioning when used within chart container
+	// This eliminates the positioning issues from CHARTS-39
+	&--grid-positioned {
+		// Remove any absolute positioning conflicts
+		position: static;
+		
+		// Ensure proper alignment within grid areas
+		&.legend--horizontal {
+			width: 100%;
 		}
-
-		&.legend--horizontal-align-center {
-			justify-content: center;
-		}
-
-		&.legend--horizontal-align-right {
-			justify-content: flex-end;
+		
+		&.legend--vertical {
+			height: 100%;
+			
+			// Fix vertical alignment issues mentioned in CHARTS-39
+			&.legend--horizontal-align-left {
+				align-items: flex-start;
+			}
+			
+			&.legend--horizontal-align-center {
+				align-items: center;
+			}
+			
+			&.legend--horizontal-align-right {
+				align-items: flex-end;
+			}
 		}
 	}
 }
@@ -50,15 +77,17 @@
 .legend-item {
 	display: flex;
 	align-items: center;
-	font-size: 0.875rem;
+	font-size: var(--chart-font-size-base);
+	line-height: var(--chart-line-height-base);
 }
 
 .legend-item-label {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: var(--chart-legend-item-gap);
 }
 
 .legend-item-value {
 	font-weight: 500;
+	color: var(--chart-legend-value-color);
 }
