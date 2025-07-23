@@ -204,7 +204,6 @@ class Protected_Owner_Error_Handler {
 			),
 		);
 
-		// @phan-suppress-next-line PhanUndeclaredMethod -- Method exists in newer connection package versions
 		return $error_handler->build_action_error_data( $args );
 	}
 
