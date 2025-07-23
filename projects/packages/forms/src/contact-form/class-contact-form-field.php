@@ -2091,18 +2091,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
 
 		/*
-		 * Determine which icon SVG to use.
-		 * The heart variation adds `is-style-hearts` to the block's class attribute when saved.
-		 * We check that raw attribute first, then fall back to any runtime classes we already have.
+		 * Determine which icon SVG to use based on CSS classes.
+		 * Check field_classes for style classes (this is where WordPress puts them).
 		 */
-		$variation_attr = $this->get_attribute( 'variation' );
-		if ( ! empty( $variation_attr ) ) {
-			$has_hearts_style = 'hearts' === $variation_attr;
-		} else {
-			// Fallback to detecting CSS classes for backwards compatibility.
-			$raw_class_attr   = $this->get_attribute( 'class' );
-			$has_hearts_style = ( false !== strpos( $raw_class_attr, 'is-style-hearts' ) ) || ( false !== strpos( $this->field_classes, 'is-style-hearts' ) );
-		}
+
+		$has_hearts_style = false !== strpos( $this->field_classes, 'is-style-hearts' );
 
 		// SVG icon definitions - keep in sync with JavaScript icons.js
 		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="currentColor" stroke="var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333))" stroke-width="2" stroke-linejoin="round"></path></svg>';
