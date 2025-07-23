@@ -7,10 +7,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 /**
@@ -201,120 +199,66 @@ function wpcom_add_hosting_menu() {
 add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
 
 /**
- * Register the submenu items for Jetpack menu.
- *
- * We require a separate function for this because the priority needs to be 999.
- *
- * @return void
- */
-function wpcom_add_untangled_jetpack_menu() {
-	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
-
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-
-	Jetpack_Admin_UI_Admin::add_menu(
-		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
-		__( 'Scan', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/scan/' . $domain,
-		/**
-		 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		 */
-		null,
-		5
-	);
-
-	Jetpack_Admin_UI_Admin::add_menu(
-		esc_attr__( 'Backup', 'jetpack-mu-wpcom' ),
-		__( 'Backup', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/backup/' . $domain,
-		/**
-		 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		 */
-		null,
-		4
-	);
-}
-
-add_action( 'admin_menu', 'wpcom_add_untangled_jetpack_menu', 999 );
-
-/**
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$is_atomic_site          = ! $is_simple_site;
 	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-
-	if ( ! $uses_wp_admin_interface ) {
-		return;
-	}
-
-	if ( $is_atomic_site && ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) ) {
-		return;
-	}
 
 	$blog_id = Connection_Manager::get_site_id();
 	if ( is_wp_error( $blog_id ) ) {
 		return;
 	}
 
-	// Hide submenu items that link to Jetpack Cloud.
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	// Jetpack > Scan.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
-
-	$domain           = wp_parse_url( home_url(), PHP_URL_HOST );
-	$activity_log_url = 'https://wordpress.com/activity-log/' . $domain;
-	$monetize_url     = 'https://wordpress.com/earn/' . $domain;
-	$subscribers_url  = 'https://wordpress.com/subscribers/' . $domain;
-	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
-	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
-
-	// Add submenu items that link to WordPress.com.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 	add_submenu_page(
 		'jetpack',
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
+		__( 'Scan', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		$activity_log_url,
+		'https://wordpress.com/scan/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
+	// Jetpack > Backup.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	add_submenu_page(
 		'jetpack',
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Backup', 'jetpack-mu-wpcom' ),
+		__( 'Backup', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		$monetize_url,
+		'https://wordpress.com/backup/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
+	// Jetpack > Monetize.
+	add_submenu_page(
+		'jetpack',
+		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
+		__( 'Monetize', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/earn/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
+
+	// Jetpack > Subscribers.
 	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
 			'manage_options',
-			$subscribers_url,
+			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 	} else {
 		$subscribers_dashboard = new Subscribers_Dashboard();
 		$subscribers_dashboard->add_wp_admin_submenu();
-	}
-
-	if ( $is_simple_site ) {
-		add_submenu_page(
-			'jetpack',
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			$newsletter_url,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
 	}
 
 	// Jetpack > Podcasting
@@ -323,9 +267,34 @@ function wpcom_add_jetpack_submenu() {
 		__( 'Podcasting', 'jetpack-mu-wpcom' ),
 		__( 'Podcasting', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		$podcasting_url,
+		'https://wordpress.com/settings/podcasting/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
+
+	if ( $uses_wp_admin_interface ) {
+		// Jetpack > Activity Log.
+		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+		add_submenu_page(
+			'jetpack',
+			__( 'Activity Log', 'jetpack-mu-wpcom' ),
+			__( 'Activity Log', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/activity-log/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+
+		// Jetpack > Newsletter.
+		if ( $is_simple_site ) {
+			add_submenu_page(
+				'jetpack',
+				__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				'manage_options',
+				'https://wordpress.com/settings/newsletter/' . $domain,
+				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			);
+		}
+	}
 
 	// Re-order menu.
 	global $submenu;
@@ -336,18 +305,27 @@ function wpcom_add_jetpack_submenu() {
 	$desired_order   = array(
 		'my-jetpack',
 		'stats',
-		$activity_log_url,
+		'boost',
+		'social',
 		'akismet-key-config',
-		'jetpack-search',
-		$monetize_url,
-		$subscribers_url,
+		'activity-log',
+		'scan',
+		'backup',
+		'forms',
+		'earn',
+		'search',
+		'subscribers',
+		'newsletter',
+		'podcasting',
+		'jetpack#/settings',
+		'jetpack#/dashboard',
 	);
 	$ordered_submenu = array();
 
 	// Re-add submenu items in the desired order.
 	foreach ( $desired_order as $slug ) {
 		foreach ( $submenu['jetpack'] as $item ) {
-			if ( $item[2] === $slug ) {
+			if ( str_contains( $item[2], $slug ) ) {
 				$ordered_submenu[] = $item;
 			}
 		}
@@ -355,7 +333,7 @@ function wpcom_add_jetpack_submenu() {
 
 	// Add any remaining submenu items.
 	foreach ( $submenu['jetpack'] as $item ) {
-		if ( ! in_array( $item[2], $desired_order, true ) ) {
+		if ( ! in_array( $item, $ordered_submenu, true ) ) {
 			$ordered_submenu[] = $item;
 		}
 	}

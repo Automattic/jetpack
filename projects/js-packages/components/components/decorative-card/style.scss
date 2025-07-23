@@ -4,7 +4,7 @@
 	display: flex;
 	border-radius: 8px;
 	overflow: hidden;
-	box-shadow: 0 0 15px var( --jp-gray );
+	box-shadow: 0 0 15px var(--jp-gray);
 	position: relative;
 	width: 360px;
 	max-width: 100%;
@@ -18,7 +18,7 @@
 	}
 
 	&__image {
-		background: var( --jp-gray );
+		background: var(--jp-gray);
 		background-size: cover;
 		position: relative;
 
@@ -57,7 +57,7 @@
 		position: absolute;
 		top: 50%;
 		left: 50%;
-		transform: translate( -50%, -50% );
+		transform: translate(-50%, -50%);
 		background-position: center, center;
 		background-repeat: no-repeat;
 

@@ -13,6 +13,8 @@ use WP_Error;
 
 /**
  * Registers the REST routes for Evaluation Recommendations.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class REST_Recommendations_Evaluation {
 	/**

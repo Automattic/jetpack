@@ -14,7 +14,8 @@
 		opacity: 1;
 	}
 
-	&::before, &::after {
+	&::before,
+	&::after {
 		position: absolute;
 		left: 9px;
 		content: ' ';
@@ -24,17 +25,17 @@
 	}
 
 	&::before {
-		transform: rotate( 45deg );
+		transform: rotate(45deg);
 	}
 
 	&::after {
-		transform: rotate( -45deg );
+		transform: rotate(-45deg);
 	}
 
 	span {
 		border: 0;
-		clip: rect( 1px, 1px, 1px, 1px );
-		clip-path: inset( 50% );
+		clip: rect(1px, 1px, 1px, 1px);
+		clip-path: inset(50%);
 		height: 1px;
 		margin: -1px;
 		overflow: hidden;

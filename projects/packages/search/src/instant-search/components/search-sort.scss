@@ -69,8 +69,8 @@
 }
 
 .jetpack-instant-search__search-form-controls
-	.jetpack-instant-search__search-sort
-	button.jetpack-instant-search__search-sort-option {
+.jetpack-instant-search__search-sort
+button.jetpack-instant-search__search-sort-option {
 	// Extra specificity to override overly agressive theme styles.
 	// Without this, we need to use "!important" to get our default styling.
 	@include helper.apply-default-overlay-colors();

@@ -14,7 +14,6 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 9 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
-    // PhanNoopNew : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
@@ -36,7 +35,6 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-jetpack-mu-wpcom.php' => ['PhanNoopNew'],
         'src/features/100-year-plan/enhanced-ownership.php' => ['PhanEmptyFQSENInCallable'],
         'src/features/100-year-plan/locked-mode.php' => ['PhanEmptyFQSENInCallable'],
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable'],
@@ -48,7 +46,7 @@ return [
         'src/features/launchpad/launchpad.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/features/marketplace-products-updater/class-marketplace-products-updater.php' => ['PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
         'src/features/media/heif-support.php' => ['PhanPluginSimplifyExpressionBool'],
-        'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
+        'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-wpcom-migration-key.php' => ['PhanUndeclaredClassMethod'],

@@ -24,6 +24,13 @@ class PayPal_Payment_Buttons {
 	public const BLOCK_NAME = 'jetpack/paypal-payment-buttons';
 
 	/**
+	 * PayPal partner attribution ID used for tracking.
+	 *
+	 * @var string
+	 */
+	public const PAYPAL_PARTNER_ATTRIBUTION_ID = 'WooNCPS_Ecom_Wordpress';
+
+	/**
 	 * Registers the block for use in Gutenberg
 	 * This is done via an action so that we can disable
 	 * registration if we need to.
@@ -71,7 +78,7 @@ class PayPal_Payment_Buttons {
 				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 					if ( 'paypal-payment-buttons-block-head' === $handle ) {
 						if ( ! str_contains( $tag, 'data-paypal-partner-attribution-id' ) ) {
-							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="WooNCPS_Ecom_Wordpress" src=$2', $tag );
+							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
 						}
 					}
 					return $tag;
@@ -103,7 +110,7 @@ class PayPal_Payment_Buttons {
 
 			$payment_id          = esc_attr( $hosted_button_id );
 			$button_text_escaped = esc_attr( $button_text );
-			$action_url          = esc_url( 'https://www.paypal.com/ncp/payment/' . $payment_id . '?at_code=WooNCPS_Ecom_Wordpress' );
+			$action_url          = esc_url( 'https://www.paypal.com/ncp/payment/' . $payment_id . '?at_code=' . self::PAYPAL_PARTNER_ATTRIBUTION_ID );
 
 			$button_html = sprintf(
 				'<style>.pp-%1$s{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>

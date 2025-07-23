@@ -1,4 +1,3 @@
-import { flowRight } from 'lodash';
 import refx from 'refx';
 import effects from './effects';
 
@@ -24,7 +23,8 @@ export default function applyMiddlewares( store ) {
 		dispatch: ( ...args ) => enhancedDispatch( ...args ),
 	};
 	chain = middlewares.map( middleware => middleware( middlewareAPI ) );
-	enhancedDispatch = flowRight( ...chain )( store.dispatch );
+
+	enhancedDispatch = chain.reduceRight( ( a, func ) => func( a ), store.dispatch );
 
 	store.dispatch = enhancedDispatch;
 

@@ -73,7 +73,7 @@
 	align-items: center;
 	margin-top: 10px;
 
-	&:not( .track-exists ) {
+	&:not(.track-exists) {
 		justify-content: flex-end;
 	}
 

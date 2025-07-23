@@ -5,13 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.29] - 2025-07-21
+### Changed
+- Internal updates.
+
 ## [4.2.28] - 2025-07-08
 ### Changed
 - Update dependencies. [#44229]
 
 ## [4.2.27] - 2025-07-03
 ### Changed
-- Improve JITM caching and minimize multiple wpcom sidebar jitm requests. [#44130]
+- Improve JITM caching and minimize multiple WordPress.com sidebar JITM requests. [#44130]
 - Update package dependencies. [#44148]
 
 ## [4.2.26] - 2025-06-30
@@ -958,6 +962,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.2.29]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.28...v4.2.29
 [4.2.28]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.27...v4.2.28
 [4.2.27]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.26...v4.2.27
 [4.2.26]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.25...v4.2.26

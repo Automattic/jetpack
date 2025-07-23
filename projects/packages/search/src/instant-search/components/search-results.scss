@@ -64,7 +64,7 @@ $colophon-height: 40px;
 		padding: 4px 6px;
 		width: 1px;
 		overflow: hidden;
-		clip: rect( 1px, 1px, 1px, 1px );
+		clip: rect(1px, 1px, 1px, 1px);
 
 		&:focus {
 
@@ -133,7 +133,7 @@ $colophon-height: 40px;
 
 .jetpack-instant-search__search-results-primary {
 	margin: 0;
-	max-width: calc( 100% - #{helper.$sidebar-width} );
+	max-width: calc(100% - #{helper.$sidebar-width});
 	width: 100%;
 
 	.jetpack-instant-search__overlay--no-sidebar & {
@@ -176,8 +176,8 @@ $colophon-height: 40px;
 
 			background: helper.$color-modal-background;
 			border-radius: 6px;
-			border: 1px solid rgba( 0, 0, 0, 0.1 );
-			box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
+			border: 1px solid rgba(0, 0, 0, 0.1);
+			box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 			display: block;
 			min-width: 360px;
 			padding: 16px 24px;

@@ -92,7 +92,7 @@ body.presentation-wrapper-fullscreen-parent {
 	background-repeat: no-repeat;
 	z-index: 2;
 	opacity: 0;
-	transition         : opacity .25s;
+	transition: opacity .25s;
 }
 
 .presentation .nav-arrow-left,
@@ -149,7 +149,7 @@ body.presentation-wrapper-fullscreen-parent {
 	display: table;
 	border-radius: 50px;
 	background-color: rgba(0, 0, 0, 0.75);
-	transition         : opacity .5s;
+	transition: opacity .5s;
 }
 
 .presentation .autoplay-overlay .overlay-msg {
@@ -169,5 +169,5 @@ body.presentation-wrapper-fullscreen-parent {
 
 .presentation .do-fade {
 	opacity: 1;
-	transition         : opacity .5s;
+	transition: opacity .5s;
 }

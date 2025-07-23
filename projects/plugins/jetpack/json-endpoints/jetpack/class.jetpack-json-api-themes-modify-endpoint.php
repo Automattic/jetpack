@@ -4,6 +4,8 @@
  * Themes modify endpoint class.
  * POST  /sites/%s/themes/%s
  * POST  /sites/%s/themes
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 
