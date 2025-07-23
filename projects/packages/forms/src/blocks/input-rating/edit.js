@@ -27,8 +27,8 @@ export default function RatingInputEdit( { context, setAttributes } ) {
 
 	// Get icon component based on className
 	const icon = className.includes( 'is-style-hearts' )
-		? DEFAULT_GLYPHS.hearts.char
-		: DEFAULT_GLYPHS.stars.char;
+		? DEFAULT_GLYPHS.hearts.icon
+		: DEFAULT_GLYPHS.stars.icon;
 
 	const blockProps = useBlockProps( {
 		'aria-label': __( 'Rating input', 'jetpack-forms' ),
