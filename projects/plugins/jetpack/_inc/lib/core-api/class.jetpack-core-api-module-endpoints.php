@@ -1051,42 +1051,37 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'wpcom_newsletter_categories':
-					$sanitized_category_ids = (array) $value;
+					if ( ! is_array( $value ) || empty( $value ) ) {
+						break;
+					}
 
-					array_walk_recursive(
-						$sanitized_category_ids,
-						function ( &$value ) {
-							if ( is_int( $value ) && $value > 0 ) {
-								return;
-							}
+					$formatted_value = array();
 
-							$value = (int) $value;
-							if ( $value <= 0 ) {
-								$value = null;
+					// Is the new value an array of ID's — [ 123, 456 ]
+					if ( is_numeric( $value[0] ) ) {
+						foreach ( $value as $id ) {
+							if ( is_numeric( $id ) ) {
+								$formatted_value[] = array( 'term_id' => (int) $id );
 							}
 						}
-					);
-
-					$sanitized_category_ids = array_unique(
-						array_filter(
-							$sanitized_category_ids,
-							function ( $category_id ) {
-								return $category_id !== null;
-							}
-						)
-					);
-
-					$new_value = array_map(
-						function ( $category_id ) {
-							return array( 'term_id' => $category_id );
-						},
-						$sanitized_category_ids
-					);
-
-					if ( ! update_option( $option, $new_value ) ) {
-						$updated = false;
-						$error   = esc_html__( 'WPCOM Newsletter Categories failed to process.', 'jetpack' );
 					}
+
+					// Is the new value an array of term_id's — [{term_id: 123}, {term_id: 456}]
+					if ( is_array( $value[0] ) && isset( $value[0]['term_id'] ) ) {
+						foreach ( $value as $item ) {
+							if ( is_array( $item ) && isset( $item['term_id'] ) && is_numeric( $item['term_id'] ) ) {
+								$formatted_value[] = array( 'term_id' => (int) $item['term_id'] );
+							}
+						}
+					}
+
+					// Only update if we have valid formatted values
+					if ( ! empty( $formatted_value ) ) {
+						$updated = get_option( $option ) !== $formatted_value
+							? update_option( $option, $formatted_value )
+							: true;
+					}
+
 					break;
 
 				default:
