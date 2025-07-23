@@ -46,10 +46,10 @@ class Plugin_Test extends TestCase {
 	protected function tearDown(): void {
 		parent::tearDown();
 
-		$reflection          = new \ReflectionClass( Plugin_Storage::class );
-		$configured_property = $reflection->getProperty( 'plugins' );
-		$configured_property->setAccessible( true );
-		$configured_property->setValue( null, array() );
+		$reflection       = new \ReflectionClass( Plugin_Storage::class );
+		$plugins_property = $reflection->getProperty( 'plugins' );
+		$plugins_property->setAccessible( true );
+		$plugins_property->setValue( null, array() );
 	}
 
 	/**
@@ -81,10 +81,6 @@ class Plugin_Test extends TestCase {
 	 */
 	public function test_is_only_no_plugins() {
 		$plugin = new Plugin( self::PLUGIN_SLUG );
-
-		// Mock Plugin_Storage::get_all() to return empty array
-		$mock = $this->createMock( Plugin_Storage::class );
-		$mock->method( 'get_all' )->willReturn( array() );
 
 		$this->assertTrue( $plugin->is_only() );
 	}
@@ -135,8 +131,6 @@ class Plugin_Test extends TestCase {
 		$this->expectException( Exception::class );
 		$this->expectExceptionMessage( 'You cannot call this method until Jetpack Config is configured' );
 
-		$this->assertFalse( $plugin->is_only() );
-
-		$configured_property->setValue( null, true );
+		$plugin->is_only();
 	}
 }
