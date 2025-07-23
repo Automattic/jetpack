@@ -18,7 +18,6 @@ const DefaultArgs = {
 			<ProductInterstitialFeatureList
 				features={ [
 					'Automated critical CSS',
-					'Image size analyzer',
 					'Performance history',
 					'Image quality control',
 					'Concatenate JS and CSS',
