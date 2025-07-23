@@ -69,8 +69,9 @@ class JWT {
 	 *                                     If the algorithm used is asymmetric, this is the public key.
 	 * @param array        $allowed_algs   List of supported verification algorithms.
 	 *                                     Supported algorithms are 'HS256', 'HS384', 'HS512' and 'RS256'.
+	 * @param bool         $as_array Whether to return the result as an associative array.
 	 *
-	 * @return object The JWT's payload as a PHP object
+	 * @return object|array The JWT's payload as a PHP object or array.
 	 *
 	 * @throws UnexpectedValueException     Provided JWT was invalid.
 	 * @throws SignatureInvalidException    Provided JWT was invalid because the signature verification failed.
@@ -81,7 +82,7 @@ class JWT {
 	 * @uses json_decode
 	 * @uses urlsafe_b64_decode
 	 */
-	public static function decode( $jwt, $key, array $allowed_algs = array() ) {
+	public static function decode( $jwt, $key, array $allowed_algs = array(), $as_array = false ) {
 		$timestamp = static::$timestamp === null ? time() : static::$timestamp;
 
 		if ( empty( $key ) ) {
@@ -100,7 +101,7 @@ class JWT {
 			throw new UnexpectedValueException( 'Invalid header encoding' );
 		}
 
-		$payload = static::json_decode( static::urlsafe_b64_decode( $bodyb64 ) );
+		$payload = static::json_decode( static::urlsafe_b64_decode( $bodyb64 ), $as_array );
 		if ( null === $payload ) {
 			throw new UnexpectedValueException( 'Invalid claims encoding' );
 		}
@@ -138,25 +139,38 @@ class JWT {
 			throw new SignatureInvalidException( 'Signature verification failed' );
 		}
 
+		$nbf = ! $as_array && isset( $payload->nbf ) ? $payload->nbf : null;
+		if ( $as_array && isset( $payload['nbf'] ) ) {
+			$nbf = $payload['nbf'];
+		}
 		// Check if the nbf if it is defined. This is the time that the
 		// token can actually be used. If it's not yet that time, abort.
-		if ( isset( $payload->nbf ) && $payload->nbf > ( $timestamp + static::$leeway ) ) {
+		if ( $nbf > ( $timestamp + static::$leeway ) ) {
 			throw new BeforeValidException(
-				'Cannot handle token prior to ' . gmdate( 'Y-m-d\\TH:i:sO', $payload->nbf )
+				'Cannot handle token prior to ' . gmdate( 'Y-m-d\\TH:i:sO', $nbf )
 			);
 		}
 
+		$iat = ! $as_array && isset( $payload->iat ) ? $payload->iat : null;
+		if ( $as_array && isset( $payload['iat'] ) ) {
+			$iat = $payload['iat'];
+		}
 		// Check that this token has been created before 'now'. This prevents
 		// using tokens that have been created for later use (and haven't
 		// correctly used the nbf claim).
-		if ( isset( $payload->iat ) && $payload->iat > ( $timestamp + static::$leeway ) ) {
+		if ( $iat > ( $timestamp + static::$leeway ) ) {
 			throw new BeforeValidException(
-				'Cannot handle token prior to ' . gmdate( 'Y-m-d\\TH:i:sO', $payload->iat )
+				'Cannot handle token prior to ' . gmdate( 'Y-m-d\\TH:i:sO', $iat )
 			);
 		}
 
+		$exp = ! $as_array && isset( $payload->exp ) ? $payload->exp : null;
+		if ( $as_array && isset( $payload['exp'] ) ) {
+			$exp = $payload['exp'];
+		}
+
 		// Check if this token has expired.
-		if ( isset( $payload->exp ) && ( $timestamp - static::$leeway ) >= $payload->exp ) {
+		if ( $exp && ( $timestamp - static::$leeway ) >= $exp ) {
 			throw new ExpiredException( 'Expired token' );
 		}
 
@@ -294,13 +308,14 @@ class JWT {
 	 * Decode a JSON string into a PHP object.
 	 *
 	 * @param string $input JSON string.
+	 * @param bool   $as_array Whether to return the result as an associative array.
 	 *
-	 * @return object Object representation of JSON string
+	 * @return object|array Object or Array representation of JSON string
 	 *
 	 * @throws DomainException Provided string was invalid JSON.
 	 */
-	public static function json_decode( $input ) {
-		$obj   = json_decode( $input, false, 512, JSON_BIGINT_AS_STRING );
+	public static function json_decode( $input, $as_array = false ) {
+		$obj   = json_decode( $input, $as_array, 512, JSON_BIGINT_AS_STRING );
 		$errno = json_last_error();
 
 		if ( $errno ) {
