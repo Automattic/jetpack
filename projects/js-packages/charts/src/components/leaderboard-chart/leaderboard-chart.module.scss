@@ -1,11 +1,11 @@
+@import '../../styles/variables.module.scss';
+
 .leaderboardChart {
 	width: 100%;
 	max-width: 400px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
+	gap: var(--chart-spacing-sm); // Replaces hardcoded 12px
 
-	transition: opacity 0.3s ease-in-out;
+	transition: opacity var(--chart-transition-duration) var(--chart-transition-easing);
 
 	&.loading {
 		opacity: 0.5;
@@ -15,21 +15,21 @@
 .entryContainer {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
-	column-gap: 4px;
+	column-gap: var(--chart-spacing-xs);
 	align-items: start;
 }
 
 .labelContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: calc(var(--chart-spacing-xs) * 1.5); // Replaces hardcoded 6px
 	min-width: 0;
 }
 
 .entryLabel {
-	font-size: 14px;
-	line-height: 1.4;
-	color: #1e1e1e;
+	font-size: var(--chart-font-size-base);
+	line-height: var(--chart-line-height-base);
+	color: var(--chart-color-text-primary);
 	font-weight: 400;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -39,55 +39,55 @@
 .progressContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: calc(var(--chart-spacing-xs) * 1.5); // Replaces hardcoded 6px
 
 	.progressBar {
 		width: 100%;
-		height: 6px;
+		height: calc(var(--chart-spacing-xs) * 1.5); // Replaces hardcoded 6px
 		border-radius: 2px;
 		background-color: transparent;
 		overflow: hidden;
-		transition: width 0.3s ease-in-out;	
+		transition: width var(--chart-transition-duration) var(--chart-transition-easing);
 
 		> div {
-			background-color: var(--progress-color, #3858e9);
+			background-color: var(--progress-color, var(--chart-color-primary));
 		}
 	}
 
 	.primaryBar {
-		--progress-color: var(--primary-color, #3858e9);
+		--progress-color: var(--chart-primary-color);
 	}
 	
 	.secondaryBar {
-		--progress-color: var(--secondary-color, #66bdff);
+		--progress-color: var(--chart-secondary-color);
 	}
 }
 
 .valueContainer {
 	display: flex;
 	flex-direction: row;
-	gap: 4px;
+	gap: var(--chart-spacing-xs);
 	align-items: flex-start;
 	text-align: right;
 }
 
 .currentValue {
-	font-size: 14px;
-	line-height: 1.4;
+	font-size: var(--chart-font-size-base);
+	line-height: var(--chart-line-height-base);
 	font-weight: 500;
-	color: #1e1e1e;
+	color: var(--chart-color-text-primary);
 }
 
 .deltaValue {
-	font-size: 13px;
-	line-height: 1.4;
+	font-size: var(--chart-font-size-sm);
+	line-height: var(--chart-line-height-base);
 	font-weight: 400;
 }
 
 .emptyState {
-	padding: 32px 16px;
+	padding: var(--chart-spacing-xl) var(--chart-spacing-md);
 	text-align: center;
-	color: #666;
-	font-size: 14px;
+	color: var(--chart-color-text-secondary);
+	font-size: var(--chart-font-size-base);
 	font-style: italic;
 }
