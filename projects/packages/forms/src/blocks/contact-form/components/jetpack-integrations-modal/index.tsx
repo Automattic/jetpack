@@ -20,6 +20,8 @@ import './style.scss';
  */
 import type { Integration } from '../../../../types';
 
+const isMailPoetEnabled: boolean = !! window?.jpFormsBlocks?.defaults?.isMailPoetEnabled;
+
 const IntegrationsModal = ( {
 	isOpen,
 	onClose,
@@ -61,8 +63,6 @@ const IntegrationsModal = ( {
 
 	const findIntegrationById = ( id: string ) =>
 		integrationsData?.find( ( integration: Integration ) => integration.id === id );
-
-	const isMailPoetEnabled: boolean = !! window?.jpFormsBlocks?.defaults?.isMailPoetEnabled;
 
 	return (
 		<Modal
