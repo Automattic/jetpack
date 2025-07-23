@@ -13,7 +13,9 @@ import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
+import { useChartLayout } from '../../hooks/use-chart-layout';
 import styles from './bar-chart.module.scss';
+import containerStyles from '../../styles/chart-container.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
@@ -23,6 +25,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
+	children?: ReactNode;
 }
 
 // Validation function similar to LineChart
@@ -64,6 +67,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
+	children,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
@@ -80,6 +84,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+
+	// Get CSS Grid layout classes
+	const layout = useChartLayout({
+		showLegend,
+		legendOrientation,
+		legendAlignmentHorizontal,
+		legendAlignmentVertical,
+		className,
+		theme: 'default' // TODO: Determine theme from providerTheme object
+	});
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
@@ -250,24 +264,19 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	return (
 		<div
-			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+			className={ clsx( layout.containerClass, containerStyles.chartContainer ) }
 			data-testid="bar-chart"
 			role="grid"
 			aria-label="bar chart"
-			style={ {
-				width,
-				height,
-				display: 'flex',
-				flexDirection:
-					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
-			} }
+			style={ { width, height } }
 			tabIndex={ 0 }
 			onKeyDown={ onChartKeyDown }
 			onFocus={ onChartFocus }
 			onBlur={ onChartBlur }
 			ref={ chartRef }
-			data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
+			data-chart-id={ `bar-chart-${ chartId }` }
 		>
+			<div className={ clsx( layout.chartAreaClass, containerStyles.chartArea, styles[ 'bar-chart' ] ) }>
 			<XYChart
 				theme={ theme }
 				width={ width }
@@ -337,19 +346,24 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					/>
 				) }
 			</XYChart>
+			</div>
 
-			{ showLegend && (
-				<div ref={ legendRef }>
+			<div 
+				ref={ legendRef }
+				className={ clsx( layout.legendAreaClass, containerStyles.legendArea ) }
+			>
+				{ showLegend && (
 					<Legend
 						items={ legendItems }
 						orientation={ legendOrientation }
 						alignmentHorizontal={ legendAlignmentHorizontal }
 						alignmentVertical={ legendAlignmentVertical }
-						className={ styles[ 'bar-chart__legend' ] }
+						className={ layout.legendClass }
 						shape={ legendShape }
 					/>
-				</div>
-			) }
+				) }
+				{ children }
+			</div>
 		</div>
 	);
 };
@@ -382,5 +396,13 @@ const BarChart = attachSubComponents( BarChartBase, {
 	Legend: ChartLegend,
 } ) as BarChartComponent;
 
+// Create responsive version with composition API
+const ResponsiveBarChart = withResponsive< BarChartProps >( BarChart );
+
+// Attach subcomponents to responsive version as well
+const BarChartWithComposition = attachSubComponents( ResponsiveBarChart, {
+	Legend: ChartLegend,
+} ) as BarChartComponent;
+
 export { BarChart };
-export default withResponsive< BarChartProps >( BarChart );
+export default BarChartWithComposition;
