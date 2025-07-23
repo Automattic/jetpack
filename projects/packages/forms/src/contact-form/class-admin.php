@@ -643,24 +643,24 @@ class Admin {
 	 * @return void
 	 */
 	public function grunion_manage_post_column_from( $post ) {
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
+		$response = Feedback::get( $post->ID );
 
-		if ( ! empty( $content_fields['_feedback_author'] ) ) {
-			echo esc_html( $content_fields['_feedback_author'] );
+		if ( ! empty( $response->get_author() ) ) {
+			echo esc_html( $response->get_author() );
 			return;
 		}
 
-		if ( ! empty( $content_fields['_feedback_author_email'] ) ) {
+		if ( ! empty( $response->get_author_email() ) ) {
 			printf(
 				"<a href='%1\$s' target='_blank'>%2\$s</a><br />",
-				esc_url( 'mailto:' . $content_fields['_feedback_author_email'] ),
-				esc_html( $content_fields['_feedback_author_email'] )
+				esc_url( 'mailto:' . $response->get_author_email() ),
+				esc_html( $response->get_author_email() )
 			);
 			return;
 		}
 
-		if ( ! empty( $content_fields['_feedback_ip'] ) ) {
-			echo esc_html( $content_fields['_feedback_ip'] );
+		if ( ! empty( $response->get_ip_address() ) ) {
+			echo esc_html( $response->get_ip_address() );
 			return;
 		}
 
@@ -681,8 +681,9 @@ class Admin {
 		$chunks       = explode( "\nJSON_DATA", $content );
 		// Get content fields.
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
+		$response       = Feedback::get( $post->ID );
 
-		if ( empty( $content_fields ) ) {
+		if ( empty( $response->get_fields() ) ) {
 			return;
 		}
 
@@ -763,9 +764,9 @@ class Admin {
 		echo '<hr />';
 
 		echo '<div class="feedback_response__item">';
-		if ( ! empty( $content_fields['_feedback_ip'] ) ) {
+		if ( ! empty( $response->get_ip_address() ) ) {
 			echo '<div class="feedback_response__item-key">' . esc_html__( 'IP', 'jetpack-forms' ) . '</div>';
-			echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
+			echo '<div class="feedback_response__item-value">' . esc_html( $response->get_ip_address() ) . '</div>';
 		}
 		echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack-forms' ) . '</div>';
 		echo '<div class="feedback_response__item-value"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';

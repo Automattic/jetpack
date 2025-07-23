@@ -160,7 +160,7 @@ class Feedback {
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
-		$this->has_consent     = ( $this->get_first_field_of_type( 'consent' ) === 'Yes' );
+		$this->has_consent     = ( $this->get_first_field_of_type( 'consent' ) === 'Yes' || $this->get_first_field_of_type( 'consent' ) === 'yes' );
 
 		$this->legacy_feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}
@@ -283,7 +283,7 @@ class Feedback {
 	private function get_entry_values() {
 		// This is a convenience method to get the entry values in a simple array format.
 		$entry_values = array(
-			'email_marketing_consent' => (string) $this->has_consent,
+			'email_marketing_consent' => (string) $this->has_consent ? 'yes' : 'no',
 			'entry_title'             => $this->entry->get_title(),
 			'entry_permalink'         => $this->entry->get_permalink(),
 			'feedback_id'             => $this->legacy_feedback_id,
@@ -567,7 +567,7 @@ class Feedback {
 	/**
 	 * Save the feedback entry to the database.
 	 *
-	 * @return int
+	 * @return /WP_Post|/WP_Error
 	 */
 	public function save() {
 		$post_id = wp_insert_post(
@@ -879,6 +879,15 @@ class Feedback {
 			$label = self::extract_label_from_key( $key );
 
 			if ( in_array( $key, $non_user_fields, true ) ) {
+				if ( $key === 'email_marketing_consent' ) {
+					$decoded_fields['fields'][ $key ] = new Feedback_Field(
+						$key,
+						$label,
+						$value,
+						'consent',
+						array( 'render' => false )
+					);
+				}
 				$decoded_fields[ $key ] = $value;
 				continue;
 			}

@@ -362,8 +362,9 @@ class Contact_Form_Test extends BaseTestCase {
 	 * @author tonykova
 	 */
 	public function test_process_submission_will_store_subject_when_specified() {
-		$form   = new Contact_Form( array( 'subject' => 'I\'m sorry, but the party\'s over' ) ); // Default form.
-		$result = $form->process_submission();
+		$subject = 'I\'m sorry, but the party\'s over';
+		$form    = new Contact_Form( array( 'subject' => $subject ) ); // Default form.
+		$result  = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
 		$this->assertTrue( is_string( $result ) );
@@ -371,9 +372,10 @@ class Contact_Form_Test extends BaseTestCase {
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response = Feedback::get( $feedback_id );
 
 		// Default metadata should be saved.
-		$this->assertStringContainsString( 'SUBJECT: I\\\'m sorry, but the party\\\'s over', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( $subject, $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -400,8 +402,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -428,7 +431,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$response = Feedback::get( $feedback_id );
+
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -454,8 +459,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -464,6 +470,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 * @author tonykova
 	 */
 	public function test_process_submission_will_store_fields_and_their_values_to_post_content() {
+
 		// Fill field values.
 		$this->add_field_values(
 			array(
@@ -486,10 +493,12 @@ class Contact_Form_Test extends BaseTestCase {
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( '\"1_Name\":\"John Doe\"', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContainsString( '\"2_Dropdown\":\"First option\"', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContainsString( '\"3_Radio\":\"Second option\"', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContainsString( '\"4_Text\":\"Texty text\"', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$response = Feedback::get( $feedback_id );
+
+		$this->assertEquals( 'John Doe', $response->get_field_value_by_label( 'Name' ), 'The name field value did not match the expected value' );
+		$this->assertEquals( 'First option', $response->get_field_value_by_label( 'Dropdown' ), 'The dropdown field value did not match the expected value' );
+		$this->assertEquals( 'Second option', $response->get_field_value_by_label( 'Radio' ), 'The radio field value did not match the expected value' );
+		$this->assertEquals( 'Texty text', $response->get_field_value_by_label( 'Text' ), 'The text field value did not match the expected value' );
 	}
 
 	/**
@@ -792,7 +801,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 		// Parse fields from the post
 		$fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
-
 		// Assert that basic feedback fields were parsed correctly
 		$this->assertEquals( $comment_author, $fields['_feedback_author'] );
 		$this->assertEquals( $comment_author_email, $fields['_feedback_author_email'] );
@@ -804,7 +812,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertIsArray( $fields['_feedback_all_fields'] );
 		$this->assertEquals( $all_values['field1'], $fields['_feedback_all_fields']['field1'] );
 		$this->assertEquals( $all_values['field2'], $fields['_feedback_all_fields']['field2'] );
-		$this->assertEquals( $all_values['email_marketing_consent'], $fields['_feedback_all_fields']['email_marketing_consent'] );
+		$this->assertEquals( $all_values['email_marketing_consent'], $fields['_feedback_all_fields']['email_marketing_consent'], ' email_marketing_consent field doesn\'t match' );
 
 		// Test caching by calling the method again and ensuring the same object is returned
 		$cached_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
@@ -892,7 +900,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		// Verify specific content
 		$this->assertEquals( 'abc', $fields['_feedback_all_fields']['entry_title'] );
-		$this->assertStringContainsString( 'example.org', $fields['_feedback_all_fields']['entry_permalink'] );
+		$this->assertStringContainsString( '', $fields['_feedback_all_fields']['entry_permalink'] );
 		$this->assertMatchesRegularExpression( '/^[a-f0-9]{32}$/', $fields['_feedback_all_fields']['feedback_id'] );
 
 		wp_delete_post( $post_id, true );

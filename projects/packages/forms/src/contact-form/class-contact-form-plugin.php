@@ -1814,61 +1814,39 @@ class Contact_Form_Plugin {
 	/**
 	 * Get `_feedback_extra_fields` field from post meta data.
 	 *
-	 * @param int  $post_id Id of the post to fetch meta data for.
-	 * @param bool $has_json_data Whether the post has JSON data or not, defaults to false for backwards compatibility.
+	 * @param int $post_id Id of the post to fetch meta data for.
+	 *
+	 * @deprecated since $$next-version$$
 	 *
 	 * @return mixed
 	 */
-	public function get_post_meta_for_csv_export( $post_id, $has_json_data = false ) {
-		$content_fields = self::parse_fields_from_content( $post_id );
-		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
-		$md             = $has_json_data
-			? array_diff_key( $all_fields, array_flip( array_keys( self::NON_PRINTABLE_FIELDS ) ) )
-			: (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
+	public function get_post_meta_for_csv_export( $post_id ) {
+		_doing_it_wrong( 'get_post_meta_for_csv_export', 'This function was deprecated.', '$$next-version$$' );
+		$response = Feedback::get( $post_id );
+		$md       = $response->get_compiled_fields( 'csv', 'key-value' );
 
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
-		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		$md['93_ip_address']    = $response->get_ip_address();
 
 		// add the email_marketing_consent to the post meta.
-		$md['90_consent'] = 0;
-		if ( ! empty( $all_fields ) ) {
-			// check if the email_marketing_consent field exists.
-			if ( isset( $all_fields['email_marketing_consent'] ) ) {
-				$md['90_consent'] = $all_fields['email_marketing_consent'];
-			}
+		$md['90_consent'] = $response->has_consent();
+		$md['-9_title']   = $response->get_entry_title();
 
-			// check if the feedback entry has a title.
-			if ( isset( $all_fields['entry_title'] ) ) {
-				$md['-9_title'] = $all_fields['entry_title'];
+		// check if the feedback entry has a permalink we can use.
+		if ( ! empty( $response->get_entry_permalink() ) ) {
+			$parsed          = wp_parse_url( $response->get_entry_permalink() );
+			$md['-6_source'] = '';
+			if ( $parsed && ! empty( $parsed['path'] ) && strpos( $parsed['path'], '/' ) === 0 ) {
+				$md['-6_source'] .= $parsed['path'];
 			}
-
-			// check if the feedback entry has a permalink we can use.
-			if ( ! empty( $all_fields['entry_permalink'] ) ) {
-				$parsed          = wp_parse_url( $all_fields['entry_permalink'] );
-				$md['-6_source'] = '';
-				if ( $parsed && ! empty( $parsed['path'] ) && strpos( $parsed['path'], '/' ) === 0 ) {
-					$md['-6_source'] .= $parsed['path'];
-				}
-				if ( $parsed && ! empty( $parsed['query'] ) ) {
-					$md['-6_source'] .= '?' . $parsed['query'];
-				}
+			if ( $parsed && ! empty( $parsed['query'] ) ) {
+				$md['-6_source'] .= '?' . $parsed['query'];
 			}
 		}
 
 		// flatten and decode all values.
 		$result = array();
 		foreach ( $md as $key => $value ) {
-			if ( is_array( $value ) ) {
-				if ( Contact_Form::is_file_upload_field( $value ) ) {
-					$file_names = array();
-					foreach ( $value['files'] as $file ) {
-						$file_names[] = $file['name'];
-					}
-					$value = implode( ', ', $file_names );
-				} else {
-					$value = implode( ', ', $value );
-				}
-			}
 			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
 
@@ -1881,6 +1859,8 @@ class Contact_Form_Plugin {
 	 * @param int $post_id Id of the post to fetch parsed contents for.
 	 *
 	 * @return array
+	 *
+	 * @deprecated since $$next-version$$
 	 *
 	 * @codeCoverageIgnore - No need to be covered.
 	 */
@@ -2679,6 +2659,9 @@ class Contact_Form_Plugin {
 	 * Helper function to parse the post content.
 	 *
 	 * @param string $post_content The post content to parse.
+	 *
+	 * @deprecated since $$next-version$$ Use Feedback::get( $post_id )->get_compiled_fields() instead.
+	 *
 	 * @return array Parsed fields.
 	 */
 	public static function parse_feedback_content( $post_content ) {
@@ -2752,24 +2735,20 @@ class Contact_Form_Plugin {
 	 * Parse the contact form fields.
 	 *
 	 * @param int $post_id - the post ID.
+	 *
+	 * @deprecated since $$next-version$$ Use Feedback::get( $post_id )->get_compiled_fields() instead.
 	 * @return array Fields.
 	 */
 	public static function parse_fields_from_content( $post_id ) {
-		static $post_fields;
-
-		if ( ! is_array( $post_fields ) ) {
-			$post_fields = array();
-		}
-
-		if ( isset( $post_fields[ $post_id ] ) ) {
-			return $post_fields[ $post_id ];
-		}
-
-		$post_content = get_post_field( 'post_content', $post_id );
-		$fields       = self::parse_feedback_content( $post_content );
-
-		$post_fields[ $post_id ] = $fields;
-
+		$response = Feedback::get( $post_id );
+		$fields   = array(
+			'_feedback_author'       => $response->get_author(),
+			'_feedback_author_email' => $response->get_author_email(),
+			'_feedback_author_url'   => $response->get_author_url(),
+			'_feedback_subject'      => $response->get_subject(),
+			'_feedback_ip'           => $response->get_ip_address(),
+			'_feedback_all_fields'   => $response->get_all_values(),
+		);
 		return $fields;
 	}
 
