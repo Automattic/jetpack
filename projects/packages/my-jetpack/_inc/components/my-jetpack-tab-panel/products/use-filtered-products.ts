@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import useProducts from '../../../data/products/use-products';
 import { CATEGORY_CARDS_AND_MODULES, PRODUCT_MODULES } from './mappings';
-import { JetpackProductWithCard } from './types';
+import { JetpackProductWithCard, ProductFilter } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { filterAndSortModules, filterSections, getSectionTitle } from './utils';
 
 export type UseFilteredProductsOptions = {
-	selectedFilter: string | undefined;
+	selectedFilter: ProductFilter | undefined;
 	search: string | undefined;
 };
 

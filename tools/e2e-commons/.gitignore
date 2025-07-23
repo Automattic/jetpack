@@ -3,3 +3,4 @@ node_modules/
 /config/tmp/*
 /output
 composer.lock
+.state/

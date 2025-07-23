@@ -21,7 +21,7 @@ test.describe( 'Sync', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
-		await prerequisitesBuilder( page ).withLoggedIn( true ).withConnection( true ).build();
+		await prerequisitesBuilder( page ).withLoggedIn( true ).build();
 		await page.close();
 
 		const jetpackOptions = await execWpCommand( 'option get jetpack_options --format=json' );

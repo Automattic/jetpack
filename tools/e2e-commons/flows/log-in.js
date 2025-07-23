@@ -1,4 +1,6 @@
 import config from 'config';
+import { authenticateUser } from '../helpers/login-utils.js';
+import { getSiteCredentials } from '../helpers/utils-helper';
 import logger from '../logger.js';
 import { DashboardPage, WPLoginPage } from '../pages/wp-admin/index.js';
 import { LoginPage } from '../pages/wpcom/index.js';
@@ -29,6 +31,8 @@ export async function loginToWpSite( page, mockPlanData ) {
 	}
 
 	await ( await WPLoginPage.init( page ) ).login();
+
+	await authenticateUser( page.request, getSiteCredentials() );
 
 	if ( ! mockPlanData ) {
 		await (

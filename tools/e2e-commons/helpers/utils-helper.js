@@ -56,7 +56,7 @@ export async function resetWordpressInstall() {
 /**
  * Cancel partner plan
  */
-async function cancelPartnerPlan() {
+export async function cancelPartnerPlan() {
 	logger.step( `Cancelling partner plan` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 	const cmd = `sh /usr/local/src/jetpack-monorepo/tools/partner-cancel.sh -- --partner_id=${ clientID } --partner_secret=${ clientSecret } --allow-root`;
@@ -212,14 +212,10 @@ export function getSiteCredentials() {
  */
 export function setWpEnvVars() {
 	const site = getConfigTestSite();
-	const storage = config.get( 'temp.storage' );
 
 	process.env.WP_BASE_URL = resolveSiteUrl();
 	process.env.WP_USERNAME = site.username;
 	process.env.WP_PASSWORD = site.password;
-	if ( storage ) {
-		process.env.STORAGE_STATE_PATH = storage;
-	}
 }
 
 /**
