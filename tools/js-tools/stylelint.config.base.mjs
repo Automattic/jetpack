@@ -19,6 +19,15 @@ const baseConfig = {
 			},
 		],
 
+		// Stylelint allows `0px` in math-type functions, but sometimes those math-type functions are
+		// passed vars instead of hard-coded values, and we need to prevent those from being unitless.
+		'length-zero-no-unit': [
+			true,
+			{
+				ignore: [ 'custom-properties' ],
+			},
+		],
+
 		// In theory this is a good rule, but in practice it's a massive lift to resolve existing violations.
 		// Here's an example that has no good answers:
 		// https://github.com/Automattic/jetpack/blob/86e27497d4b8e0736cae61c325f017dedad16dbb/projects/js-packages/components/components/button/style.module.scss#L73-L94

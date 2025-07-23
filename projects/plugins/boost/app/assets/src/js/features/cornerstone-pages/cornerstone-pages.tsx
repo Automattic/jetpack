@@ -58,20 +58,24 @@ const CornerstoneTitleSummary = () => {
 		return null;
 	}
 
+	const pages =
+		cornerstonePages.length === 0
+			? __( 'Homepage', 'jetpack-boost' )
+			: sprintf(
+					/* translators: %d is the number of pages in the custom cornerstone pages list. */
+					_n(
+						'Homepage + %d page',
+						'Homepage + %d pages',
+						cornerstonePages.length,
+						'jetpack-boost'
+					),
+					cornerstonePages.length
+			  );
+
 	return sprintf(
 		/* translators: %s is the number of pages in the custom cornerstone pages list. */
 		__( 'Added: %s', 'jetpack-boost' ),
-		() => {
-			if ( cornerstonePages.length === 0 ) {
-				return __( 'Homepage', 'jetpack-boost' );
-			}
-
-			return sprintf(
-				/* translators: %d is the number of pages in the custom cornerstone pages list. */
-				_n( 'Homepage + %d page', 'Homepage + %d pages', cornerstonePages.length, 'jetpack-boost' ),
-				cornerstonePages.length
-			);
-		}
+		pages
 	);
 };
 

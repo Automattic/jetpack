@@ -9,42 +9,43 @@
 
 	#zbs-contact-edit-avatar {
 
-		text-align:center !important;
-    	margin-bottom: 1em;   
+		text-align: center !important;
+		margin-bottom: 1em;
 
-    	// round avatars
-    	.ui.circular.segment h2 img {
-    		border-radius: 50% !important;
-    	}
-    	// removed for gravatars, 2.97.7 on ms request ZBS-619 
-    	.ui.segment h2 img.zbs-gravatar {
-    		border-radius: none !important;
-    	}
+		// round avatars
+		.ui.circular.segment h2 img {
+			border-radius: 50% !important;
+		}
+		// removed for gravatars, 2.97.7 on ms request ZBS-619
+		.ui.segment h2 img.zbs-gravatar {
+			border-radius: none !important;
+		}
 
 		.ui.segment {
 
-			margin-left:auto;
-			margin-right:auto;
-			display:inline-block;
+			margin-left: auto;
+			margin-right: auto;
+			display: inline-block;
 
-			i.icon, img {
-				margin-top:0 !important;
-				margin-right:0 !important;
+			i.icon,
+			img {
+				margin-top: 0 !important;
+				margin-right: 0 !important;
 				width: auto;
-    			max-width: 100px;
+				max-width: 100px;
 			}
 
 			h2.header {
-				margin-bottom:0 !important;
+				margin-bottom: 0 !important;
 			}
 
 			button.ui.circular {
 
 				position: absolute;
-			    top: 0;
-			    right: -0.5em;
-			    display: inline-block;
-    			background: #FFF !important;
+				top: 0;
+				right: -0.5em;
+				display: inline-block;
+				background: #fff !important;
 
 			}
 
@@ -53,50 +54,51 @@
 
 	// NOTE this is also in contact single! copy any changes if made:
 	.action-wrap {
-		
-	    display: block;
-	    position: relative;
-	    text-align: center;
-	    
+
+		display: block;
+		position: relative;
+		text-align: center;
+
 	}
 
-	// using actual .button breaks the css.. for now, hackily putting htis in here to simulate basic button
+	// using actual .button breaks the css...
+	// for now, hackily putting htis in here to simulate basic button
 	// NOTE this is also in contact single! copy any changes if made:
 	.action-button {
-	    cursor: pointer;
-	    display: inline-block;
-	    min-height: 1em;
-	    outline: none;
-	    border: none;
-	    vertical-align: baseline;
-	    //background: #E0E1E2 none;
-	    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-	    margin: 0 0.25em 0 0;
-	    padding: 0.78571429em 1.5em 0.78571429em;
-	    line-height: 1;
-	    font-style: normal;
-	    text-align: center;
-	    text-decoration: none;
-	    -webkit-user-select: none;
-	    -moz-user-select: none;
-	    -ms-user-select: none;
-	    user-select: none;
-	    transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
-	    will-change: '';
-	    -webkit-tap-highlight-color: transparent;
+		cursor: pointer;
+		display: inline-block;
+		min-height: 1em;
+		outline: none;
+		border: none;
+		vertical-align: baseline;
+		//background: #E0E1E2 none;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+		margin: 0 0.25em 0 0;
+		padding: 0.78571429em 1.5em 0.78571429em;
+		line-height: 1;
+		font-style: normal;
+		text-align: center;
+		text-decoration: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+		will-change: "";
+		-webkit-tap-highlight-color: transparent;
 
-	    font-size: 1rem;
+		font-size: 1rem;
 
-	    //background: transparent none !important;
-	    font-weight: 400;
-	    border-radius: 0.28571429rem;
-	    text-transform: none;
-	    text-shadow: none !important;
+		//background: transparent none !important;
+		font-weight: 400;
+		border-radius: 0.28571429rem;
+		text-transform: none;
+		text-shadow: none !important;
 
-	    box-shadow: 0 0 0 1px #21BA45 inset !important;
-	    color: #21BA45 !important;
+		box-shadow: 0 0 0 1px #21ba45 inset !important;
+		color: #21ba45 !important;
 
-	    background: #FFF !important;
+		background: #fff !important;
 	}
 
 }
@@ -106,30 +108,30 @@
 
 	#zbs-tags-wrap {
 
-		margin-top:1em;
+		margin-top: 1em;
 
 
 		.ui.label {
 
-    		margin-bottom: 0.4em;
+			margin-bottom: 0.4em;
 		}
 	}
 
 	// TAG SUGGESTION ENGINE
 	#zbs-tags-suggestions-wrap {
 
-		h4,.zbs-tags-suggestions-title {
+		h4,
+		.zbs-tags-suggestions-title {
 			margin-top: 1em;
 			margin-bottom: 0.4em;
 		}
 
 		.ui.label {
 
-    		margin-bottom: 0.4em;
+			margin-bottom: 0.4em;
 		}
 
-		.zbsTagSuggestion:hover
-		 {
+		.zbsTagSuggestion:hover {
 			cursor: pointer;
 			color: #000 !important;
 		}
@@ -143,7 +145,7 @@
 
 		#zbs-tag-suggestions-more-wrap {
 
-			display:none; // init
+			display: none; // init
 
 		}
 	}
@@ -151,28 +153,28 @@
 
 #zbs-edit-notification-wrap {
 
-    margin: 2em;
-    margin-top: 1em;
-    margin-bottom: 0;
-	
+	margin: 2em;
+	margin-top: 1em;
+	margin-bottom: 0;
+
 }
 
 
 // err msg fix
 #zbs-edit-warnings-wrap .ui.message {
-	
-    max-width: 80%;
-    margin-bottom: 5em;
-    margin-top: 4em;
-    margin-left: auto;
-    margin-right: auto;
-    
+
+	max-width: 80%;
+	margin-bottom: 5em;
+	margin-top: 4em;
+	margin-left: auto;
+	margin-right: auto;
+
 }
 
 //.zbs-generic-save-wrap (save, update etc. boxes for our objs)
 .zbs-generic-save-wrap {
 
-	text-align: center; 
+	text-align: center;
 
 	.ui.header {
 		margin-top: 0 !important;
@@ -180,10 +182,10 @@
 }
 
 .zbs-objedit-actions-bottom {
-	margin-top:1em;
+	margin-top: 1em;
 
 	.zbs-objedit-actions-delete {
-    	margin-top: 0.6em;
+		margin-top: 0.6em;
 	}
 }
 
@@ -191,22 +193,26 @@
 // e.g. can't load cos of perms
 #zbs-obj-edit-precheck-fail {
 
-    padding-top: 5em;
+	padding-top: 5em;
 
 }
 
 // fix for zbs-hide not working at high res's
 // JIRA-ZBS-960
-@media (min-width: 1500px){
+@media (min-width: 1500px) {
 
 	.zbs-hide,
 	tr.zbs-field-group-tr .zbs-field-group.zbs-hide {
-		display:none !important;
+		display: none !important;
 	}
 }
 
 //allow text wrapping in tag manager
-table#zbs-tag-manager td, table#zbs-tag-manager td .label, #zbs-tags-wrap span, .zbsTagSuggestion, .zbs-view-tags a.button {
-  white-space: normal;
-  overflow-wrap: anywhere;
+table#zbs-tag-manager td,
+table#zbs-tag-manager td .label,
+#zbs-tags-wrap span,
+.zbsTagSuggestion,
+.zbs-view-tags a.button {
+	white-space: normal;
+	overflow-wrap: anywhere;
 }

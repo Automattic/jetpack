@@ -1,9 +1,9 @@
-@use '../../scss/functions/rem';
-@use '../../scss/mixins/ui';
+@use "../../scss/functions/rem";
+@use "../../scss/mixins/ui";
 @use "../../scss/mixins/breakpoints";
 
 .jp-apps-card {
-	margin-top: rem.convert( 24px );
+	margin-top: rem.convert(24px);
 	margin-bottom: 0;
 }
 
@@ -19,7 +19,7 @@
 		padding: 48px 64px;
 	}
 
-	a:not( .dops-button ) {
+	a:not(.dops-button) {
 		font-style: italic;
 	}
 
@@ -41,7 +41,7 @@
 		}
 	}
 
-	@include breakpoints.breakpoint( '<782px' ) {
+	@include breakpoints.breakpoint( "<782px" ) {
 		flex-direction: column;
 
 		.jp-apps-card__description {
@@ -60,7 +60,7 @@
 	font-size: 17px;
 	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 145%;
-	color: var( --gray-100 );
+	color: var(--gray-100);
 	letter-spacing: -0.24px;
 
 	a.jp-apps-card__link {
@@ -76,7 +76,7 @@
 .jp-apps-card__header {
 	margin-top: 23px;
 	margin-bottom: 0;
-	color: var( --jp-gray-100 );
+	color: var(--jp-gray-100);
 	font-weight: 500;
 	font-size: 28px;
 	line-height: 32px;
@@ -95,18 +95,18 @@
 
 	.jp-apps-card__caption {
 		font-size: 11px;
-		margin: rem.convert( 10px ) 0 0;
+		margin: rem.convert(10px) 0 0;
 		max-width: 220px;
 	}
 
 	a.jp-apps-card__link {
-		color: var( --jp-green-primary );
+		color: var(--jp-green-primary);
 		font-style: normal;
 		font-weight: 700;
 	}
 
 	a.jp-apps-card__link:hover {
-		color: var( --jp-green-secondary );
+		color: var(--jp-green-secondary);
 	}
 }
 
@@ -116,7 +116,7 @@
 	justify-content: center;
 	align-items: center;
 
-	@include breakpoints.breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 
 		.apps-badge:first-child {
 			margin-right: 0;
@@ -125,5 +125,5 @@
 }
 
 .jp-themes-card {
-	margin-bottom: rem.convert( 20px );
+	margin-bottom: rem.convert(20px);
 }

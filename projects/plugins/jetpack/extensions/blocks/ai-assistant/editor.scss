@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 /**
  * Editor styles for Jetpack AI Assistant
@@ -35,7 +35,7 @@
 
 .jetpack-ai-assistant__error {
 	margin: 0 0 8px 0;
-	color: var( --wp--preset--color--black );
+	color: var(--wp--preset--color--black);
 }
 
 .jetpack-ai-assistant__accept {
@@ -109,7 +109,7 @@
 		}
 	}
 
-	table[style*='border-top-color'] {
+	table[style*="border-top-color"] {
 
 		> *,
 		tr:first-child {
@@ -121,12 +121,12 @@
 			}
 		}
 
-		tr:not( :first-child ) {
+		tr:not(:first-child) {
 			border-top-color: currentColor;
 		}
 	}
 
-	table[style*='border-right-color'] {
+	table[style*="border-right-color"] {
 
 		> *,
 		tr,
@@ -136,7 +136,7 @@
 		}
 	}
 
-	table[style*='border-bottom-color'] {
+	table[style*="border-bottom-color"] {
 
 		> *,
 		tr:last-child {
@@ -153,12 +153,12 @@
 		// have a bottom border matching the color of the table's border.
 		// This style gives the best visual appearance and most expected result
 		// until we can control individual table rows or cells via inner blocks.
-		tr:not( :last-child ) {
+		tr:not(:last-child) {
 			border-bottom-color: currentColor;
 		}
 	}
 
-	table[style*='border-left-color'] {
+	table[style*="border-left-color"] {
 
 		> *,
 		tr,
@@ -168,7 +168,7 @@
 		}
 	}
 
-	table[style*='border-style'] {
+	table[style*="border-style"] {
 
 		> *,
 		tr,
@@ -178,7 +178,7 @@
 		}
 	}
 
-	table[style*='border-width'] {
+	table[style*="border-width"] {
 
 		> *,
 		tr,
@@ -215,13 +215,13 @@
 		}
 
 		.components-button.is-primary {
-			background-color: var( --jp-white );
-			color: var( --jp-black );
+			background-color: var(--jp-white);
+			color: var(--jp-black);
 			margin-top: 8px;
 			margin-bottom: 8px;
 
 			&:hover {
-				background-color: var( --jp-gray-0 );
+				background-color: var(--jp-gray-0);
 			}
 		}
 	}

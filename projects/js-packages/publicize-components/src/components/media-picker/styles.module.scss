@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .preview-wrapper {
 	position: relative;
@@ -14,13 +14,13 @@
 	display: grid;
 	justify-content: center;
 	grid-template-rows: 1fr auto 2fr;
-	background-color: var( --jp-gray-0 );
-	border: 1px dashed var( --jp-gray-20 );
+	background-color: var(--jp-gray-0);
+	border: 1px dashed var(--jp-gray-20);
 	margin-bottom: 8px;
 	padding: 24px;
 	width: 100%;
 	min-height: 130px;
-	border-radius: calc( var( --jp-border-radius ) * 0.5 );
+	border-radius: calc(var(--jp-border-radius) * 0.5);
 
 	> * {
 		justify-self: center;
@@ -30,7 +30,7 @@
 		grid-row: 2;
 
 		&::after {
-			content: '';
+			content: "";
 			position: absolute;
 			top: 0;
 			left: 0;
@@ -45,7 +45,7 @@
 		font-size: 13px;
 		line-height: 16px;
 		text-align: center;
-		color: var( --jp-gray-60 );
+		color: var(--jp-gray-60);
 	}
 
 	> svg {
@@ -72,7 +72,8 @@
 	cursor: pointer;
 }
 
-.remove, %remove {
+.remove,
+%remove {
 	position: absolute;
 	top: -4px;
 	right: -4px;
@@ -87,25 +88,26 @@
 	cursor: pointer;
 	z-index: 2;
 	line-height: 0;
-	background-color: var( --jp-black );
-	border: 1.5px solid var( --jp-white );
+	background-color: var(--jp-black);
+	border: 1.5px solid var(--jp-white);
 	border-radius: 100%;
 	transition: 0.1s ease-in-out background;
 
 	svg {
-		fill: var( --jp-white );
+		fill: var(--jp-white);
 	}
 
 	&:hover {
-		background-color: var( --wp-admin-theme-color );
+		background-color: var(--wp-admin-theme-color);
 	}
 }
 
 .remove-loading {
 
 	@extend %remove;
-	// This is to make the close button appear in the right place when we are loading the image.
-	// With this it is possible to close/stop loading images if the request takes too long.
+	// This is to make the close button appear in the right place
+	// when we are loading the image. With this it is possible to
+	// close/stop loading images if the request takes too long.
 	top: -56px;
 	right: -5px;
 }

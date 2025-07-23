@@ -10,7 +10,12 @@
 		flex-direction: column;
 	}
 
-	h1, h2, h3, h4, h5, h6 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		letter-spacing: -1%;
 		margin: 0;
 	}
@@ -24,7 +29,7 @@
 			line-height: 32px;
 		}
 	}
-	
+
 	h2 {
 		font-size: 32px;
 		line-height: 35px;
@@ -35,7 +40,7 @@
 			line-height: 32px;
 		}
 	}
-	
+
 	p {
 		margin: 0;
 	}

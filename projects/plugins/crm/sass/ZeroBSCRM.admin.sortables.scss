@@ -7,36 +7,36 @@
 
 	ul {
 
-		text-align:left;
+		text-align: left;
 
 		li {
-			
-		    padding: 6px 10px;
-		    margin-top: 4px;
-		    margin-bottom: 4px;
-		    border: 1px solid #d1cfee;
-		    border-radius: 4px;
-		    background: #f2f4ff;
-		    cursor: move;
+
+			padding: 6px 10px;
+			margin-top: 4px;
+			margin-bottom: 4px;
+			border: 1px solid #d1cfee;
+			border-radius: 4px;
+			background: #f2f4ff;
+			cursor: move;
 
 		}
 
 		// handle
-		li::before { 
+		li::before {
 
 			font-family: FontAwesome;
-			content: '\f0c9';
-    		margin: 0 10px 0 0;
+			content: "\f0c9";
+			margin: 0 10px 0 0;
 			color: #ddd;
 
 		}
 
 		// ico when dragging
-		li.ui-sortable-helper::before { 
+		li.ui-sortable-helper::before {
 
 			font-family: FontAwesome;
-			content: '\f0c9';
-    		margin: 0 10px 0 0;
+			content: "\f0c9";
+			margin: 0 10px 0 0;
 			color: #000;
 
 		}
@@ -46,27 +46,26 @@
 }
 
 
-
 .zbsSortableFieldList li .zbs-showhide-field {
-	    
-	    float: right;
-	    text-align: right;
-	    line-height: 1;
-	    margin-top: -7px;
 
-	    label {
-	    	    vertical-align: middle;
-	    		padding-top: 11px;
-	    		padding-right: 6px;
+	float: right;
+	text-align: right;
+	line-height: 1;
+	margin-top: -7px;
 
-	    }
+	label {
+		vertical-align: middle;
+		padding-top: 11px;
+		padding-right: 6px;
 
-	    input {
+	}
 
-		    line-height: 1;
-		    display: inline-block;
-		    vertical-align: middle;
-		    
-	    }
+	input {
+
+		line-height: 1;
+		display: inline-block;
+		vertical-align: middle;
+
+	}
 
 }

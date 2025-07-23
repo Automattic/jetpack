@@ -1,17 +1,17 @@
 #respond .verbum-simple-subscribe-modal {
 	position: fixed;
-    z-index: 50000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: #00000057;
-    transition: all 0.4s;
-    display: flex;
-    justify-content: space-evenly;
-    align-content: center;
-    flex-wrap: wrap;
+	z-index: 50000;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: #00000057;
+	transition: all 0.4s;
+	display: flex;
+	justify-content: space-evenly;
+	align-content: center;
+	flex-wrap: wrap;
 
 	.verbum-simple-subscribe-modal__content {
 		text-align: center;
@@ -19,37 +19,37 @@
 		width: 100%;
 		max-width: 650px;
 		box-sizing: border-box;
-		transition: all .4s;
+		transition: all 0.4s;
 		padding: 32px;
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
 		justify-content: center;
-		
+
 		&.has-iframe {
 			background-color: transparent;
-	
-			.verbum-simple-subscribe-modal__close-button-container {
-					display: none !important;
-				}
-			}
 
-			.verbum-simple-subscribe-modal__iframe-container {
-				background-image: url( https://s0.wp.com/i/loading/dark-200.gif );
-				background-size: 50px;
-				background-repeat: no-repeat;
-				background-position: center 150px;
-				margin: 0 !important;
-				box-shadow: none;
-				border: none;
-				bottom: 0;
-				left: 0;
-				right: 0;
-				top: 0;
-				width: 100% !important;
-				height: 100%;
-				position: absolute;
+			.verbum-simple-subscribe-modal__close-button-container {
+				display: none !important;
 			}
+		}
+
+		.verbum-simple-subscribe-modal__iframe-container {
+			background-image: url(https://s0.wp.com/i/loading/dark-200.gif);
+			background-size: 50px;
+			background-repeat: no-repeat;
+			background-position: center 150px;
+			margin: 0 !important;
+			box-shadow: none;
+			border: none;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			top: 0;
+			width: 100% !important;
+			height: 100%;
+			position: absolute;
+		}
 	}
 
 	h2 {
@@ -72,7 +72,7 @@
 	.verbum-simple-subscribe-modal__action {
 		margin-top: 20px;
 		align-items: flex-start;
-    	display: flex;
+		display: flex;
 
 		input {
 			flex: 1;
@@ -84,14 +84,14 @@
 			border-width: 1px !important;
 			border-color: var(--wp--preset--color--primary) !important;
 			border-end-end-radius: 0;
-    		border-start-end-radius: 0;
+			border-start-end-radius: 0;
 			border-style: solid !important;
 			outline: none;
 			color: var(--wp--preset--color--primary) !important;
-			
+
 			&::placeholder {
 				color: currentColor;
-				opacity: .5;
+				opacity: 0.5;
 			}
 		}
 
@@ -112,12 +112,12 @@
 			color: var(--verbum-content-background-color);
 
 			&:hover {
-				opacity: .9;
+				opacity: 0.9;
 				cursor: pointer;
 			}
 
 			&:disabled {
-				opacity: .7 !important;
+				opacity: 0.7 !important;
 				cursor: not-allowed;
 			}
 		}
@@ -134,7 +134,7 @@
 			cursor: pointer;
 			border: none;
 			text-decoration: underline;
-		}	
+		}
 	}
 }
 

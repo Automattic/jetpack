@@ -1,70 +1,70 @@
 .jp-backup-video-section {
-    margin-top: 1.5rem;
-    padding: calc(var(--spacing-base) * 3);
+	margin-top: 1.5rem;
+	padding: calc(var(--spacing-base) * 3);
 
-    background-color: var(--jp-white);
-    border-radius: var(--jp-border-radius);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	background-color: var(--jp-white);
+	border-radius: var(--jp-border-radius);
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 
-    .jp-backup-video-section__content {
+	.jp-backup-video-section__content {
 
-        h2 {
-            margin-bottom: 1.5rem;
+		h2 {
+			margin-bottom: 1.5rem;
 
-            font-size: var(--font-title-large);
-            font-weight: 700;
-        }
-    
-        p {
-            margin-bottom: 3rem;
+			font-size: var(--font-title-large);
+			font-weight: 700;
+		}
 
-            font-weight: 500;
-            font-size: var(--font-title-medium);
-            line-height: 1.2;
-            color: var(--jp-black);
-        }
+		p {
+			margin-bottom: 3rem;
 
-        .jp-action-button--button.components-button {
-            margin-bottom: 3rem;
-            padding: 0.875rem 1.5rem;
-            width: 100%;
-            max-width: 375px;
+			font-weight: 500;
+			font-size: var(--font-title-medium);
+			line-height: 1.2;
+			color: var(--jp-black);
+		}
 
-            font-weight: 500;
-            font-size: 18px;
-        }
-    }
+		.jp-action-button--button.components-button {
+			margin-bottom: 3rem;
+			padding: 0.875rem 1.5rem;
+			width: 100%;
+			max-width: 375px;
 
-    video {
-        width: clamp( 400px, 500px, 100% );
-    }
+			font-weight: 500;
+			font-size: 18px;
+		}
+	}
 
-    @media (min-width: 600px) {
-        padding: calc(var(--spacing-base) * 8);
-    }
+	video {
+		width: clamp(400px, 500px, 100%);
+	}
 
-    @media (min-width: 1080px) {
-        display: flex;
-        align-items: flex-start;
-        gap: 2rem;
+	@media (min-width: 600px) {
+		padding: calc(var(--spacing-base) * 8);
+	}
 
-        .jp-backup-video-section__content {
+	@media (min-width: 1080px) {
+		display: flex;
+		align-items: flex-start;
+		gap: 2rem;
 
-            .jp-action-button--button.components-button {
-                margin-bottom: 0;
-            }
-        }
+		.jp-backup-video-section__content {
 
-        video {
-            max-width: 400px;
-        }
-    }
+			.jp-action-button--button.components-button {
+				margin-bottom: 0;
+			}
+		}
 
-    @media (min-width: 1200px ) {
-        gap: 4rem;
+		video {
+			max-width: 400px;
+		}
+	}
 
-        video {
-            max-width: 500px;
-        }
-    }
+	@media (min-width: 1200px ) {
+		gap: 4rem;
+
+		video {
+			max-width: 500px;
+		}
+	}
 }

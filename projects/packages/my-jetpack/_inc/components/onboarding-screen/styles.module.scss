@@ -3,7 +3,7 @@
 }
 
 .onboarding-screen {
-	// override the default max-container-width since otherwise the container will be only 1128px
+	// override default max-container-width or container will be only 1128px
 	--max-container-width: 100%;
 	width: 100%;
 	min-height: 100vh;

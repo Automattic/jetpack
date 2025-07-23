@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-videopress {
 	position: relative;
@@ -10,7 +10,7 @@
 
 	figcaption {
 		margin-bottom: 1em;
-    	margin-top: 0.5em;
+		margin-top: 0.5em;
 
 		@include gb.caption-style-theme();
 	}

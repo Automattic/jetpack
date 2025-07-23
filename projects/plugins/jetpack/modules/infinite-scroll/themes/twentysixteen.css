@@ -82,7 +82,7 @@ body #infinite-footer .blog-info {
 
 body #infinite-footer .blog-info a {
 	color: #1a1a1a;
-	font-size: inherit
+	font-size: inherit;
 }
 
 body #infinite-footer .blog-credits {
@@ -161,6 +161,6 @@ body #infinite-footer .blog-credits a:focus {
 
 	.infinite-wrap > article,
 	.site-main .infinite-loader {
-		margin-bottom: 7.0em;
+		margin-bottom: 7em;
 	}
 }

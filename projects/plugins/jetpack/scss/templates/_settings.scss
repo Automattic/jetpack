@@ -1,8 +1,8 @@
 // ==========================================================================
 // Settings
 // ==========================================================================
-@use '../../_inc/client/scss/calypso-colors';
-@use '../../_inc/client/scss/typography';
+@use "../../_inc/client/scss/calypso-colors";
+@use "../../_inc/client/scss/typography";
 @use "../atoms/colors/colors";
 @use "../atoms/typography/functions" as typography-functions;
 
@@ -96,7 +96,7 @@
 	select#bulk-action-selector-top {
 		width: 180px;
 		height: 40px;
-		border: 1px solid #DCDCDE;
+		border: 1px solid #dcdcde;
 		border-radius: 4px;
 		padding: 8px 16px;
 		margin-right: 8px;
@@ -272,7 +272,7 @@
 				font-weight: 400;
 				height: 40px;
 				width: 100%;
-				background-image: url( ../images/icon-search.svg );
+				background-image: url(../images/icon-search.svg);
 				background-repeat: no-repeat;
 				background-position: 8px center;
 				float: none;
@@ -363,7 +363,8 @@
 					background: calypso-colors.$black;
 					padding: 2px 6px;
 
-					a, .count {
+					a,
+					.count {
 						color: colors.$white;
 						text-decoration: none;
 						font-weight: 700;
@@ -397,15 +398,15 @@
 
 @media (max-width: 782px) {
 
-		// Fix to override particular wp-list-table changes in core - July 2015
-		.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
-			padding: 11px 10px;
-			display: block;
-		}
+	// Fix to override particular wp-list-table changes in core - July 2015
+	.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
+		padding: 11px 10px;
+		display: block;
+	}
 
-		.manage-right.show .subsubsub li {
-				padding: 5px;
-			}
+	.manage-right.show .subsubsub li {
+		padding: 5px;
+	}
 
 } // < 782
 
@@ -419,14 +420,15 @@
 
 @media (max-width: 430px) {
 
-		// Hide activate / config links on really small screens. Users can still utlize these actions by tapping on the title of the module
-		.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
-			display: none;
-		}
+	// Hide activate / config links on really small screens.
+	// Users can still utilize these actions by tapping on the title of the module.
+	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+		display: none;
+	}
 
-		.table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
-			display: block;
-		}
+	.table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
+		display: block;
+	}
 } // < 430
 
 // Modules page hacks
@@ -481,17 +483,18 @@ tr.jetpack-module {
 		width: auto;
 	}
 
-	a, p {
+	a,
+	p {
 		text-decoration: none;
 	}
 }
 
 tr.jetpack-module.unavailable {
-	background: #F9F9F6;
+	background: #f9f9f6;
 }
 
 tr.jetpack-module.active {
-	background: #F9F9F6;
+	background: #f9f9f6;
 
 	.column-name .info {
 		font-weight: 700;

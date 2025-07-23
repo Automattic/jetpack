@@ -1,15 +1,15 @@
-// This document contains styles that influence the styles of Stats & At a Glance, overall.
+// This document contains styles that influence Stats & At a Glance overall.
 // For more precise styles, dig into the styles of each component. ie. dash-item
-@use 'sass:color';
-@use '../scss/functions/rem';
-@use '../scss/calypso-colors';
+@use "sass:color";
+@use "../scss/functions/rem";
+@use "../scss/calypso-colors";
 @use "../scss/mixins/breakpoints";
 @use "../scss/mixins/ui";
 @use "../scss/typography";
 @use "../scss/variables/colors";
 
 .jp-at-a-glance {
-	margin-bottom: rem.convert( 48px );
+	margin-bottom: rem.convert(48px);
 
 	&__pinned-bundle {
 		margin-bottom: 1rem;
@@ -35,7 +35,7 @@
 	}
 
 	.dops-banner__title {
-		padding: 0 rem.convert( 8px );
+		padding: 0 rem.convert(8px);
 	}
 
 	.dops-banner__description {
@@ -93,9 +93,9 @@
 }
 
 .jp-at-a-glance__stats-inactive {
-	padding: rem.convert( 16px );
+	padding: rem.convert(16px);
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		display: flex;
 		flex-wrap: nowrap;
 		flex-direction: row;
@@ -108,7 +108,7 @@
 	display: flex;
 	flex-grow: 0;
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: none;
 	}
 }
@@ -129,13 +129,13 @@
 		color: colors.$black;
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
-		padding: 0 0 rem.convert( 16px );
+	@include breakpoints.breakpoint( "<660px" ) {
+		padding: 0 0 rem.convert(16px);
 	}
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-basis: 50%;
-		padding: 0 rem.convert( 16px );
+		padding: 0 rem.convert(16px);
 	}
 }
 
@@ -152,14 +152,14 @@
 		}
 	}
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-grow: 0;
 		margin-left: 64px;
 	}
 }
 
 .jp-at-a-glance__stats-chart {
-	padding: rem.convert( 16px ) 0;
+	padding: rem.convert(16px) 0;
 	position: relative;
 }
 
@@ -167,13 +167,13 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	transform: translate( -50%, -50% );
+	transform: translate(-50%, -50%);
 }
 
 .jp-at-a-glance__stats-bottom {
-	margin: rem.convert( 8px ) 0 0;
+	margin: rem.convert(8px) 0 0;
 
-	@include breakpoints.breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		box-shadow: 0 0 0 1px calypso-colors.$light-gray-700;
 	}
 }
@@ -200,20 +200,20 @@
 	}
 
 	.jp-at-a-glance__stats-chart-container {
-		filter: blur( 2px );
+		filter: blur(2px);
 	}
 }
 
 .jp-at-a-glance__stats-summary {
 	text-align: center;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-wrap: nowrap;
 		display: flex;
 		flex-direction: row;
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: block;
 	}
 }
@@ -223,68 +223,68 @@
 .jp-at-a-glance__stats-summary-alltime-views,
 .jp-at-a-glance__stats-summary-alltime-comments {
 	flex-basis: 25%;
-	padding: rem.convert( 13px ) 0 rem.convert( 17px );
+	padding: rem.convert(13px) 0 rem.convert(17px);
 }
 
 .jp-at-a-glance__stats-summary-today {
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
-	border-color: #DCDCDE;
+	border-color: #dcdcde;
 
-	@include breakpoints.breakpoint( '<660px' ) {
-		margin-top: rem.convert( -1px );
+	@include breakpoints.breakpoint( "<660px" ) {
+		margin-top: rem.convert(-1px);
 	}
 }
 
 .jp-at-a-glance__stats-summary-bestday {
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
-	border-color: #DCDCDE;
+	border-color: #dcdcde;
 
-	@include breakpoints.breakpoint( '>660px' ) {
-		margin: 0 rem.convert( 1px );
+	@include breakpoints.breakpoint( ">660px" ) {
+		margin: 0 rem.convert(1px);
 	}
 }
 
 .jp-at-a-glance__stats-summary-alltime-views {
 	border-width: 1px 0;
 	border-style: solid;
-	border-color: #DCDCDE;
+	border-color: #dcdcde;
 }
 
 .jp-at-a-glance__stats-summary-alltime-comments {
 	border-width: 1px 0 1px 1px;
 	border-style: solid;
-	border-color: #DCDCDE;
+	border-color: #dcdcde;
 }
 
 .jp-at-a-glance__stats-summary-bestday,
 .jp-at-a-glance__stats-summary-alltime-views,
 .jp-at-a-glance__stats-summary-alltime-comments {
 
-	@include breakpoints.breakpoint( '<660px' ) {
-		margin-top: rem.convert( 1px );
+	@include breakpoints.breakpoint( "<660px" ) {
+		margin-top: rem.convert(1px);
 	}
 }
 
 .jp-at-a-glance__stats-cta {
-	padding: rem.convert( 12px );
+	padding: rem.convert(12px);
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
 		align-items: center;
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: block;
 	}
 }
 
 .jp-at-a-glance__stats-cta-description {
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-basis: 30%;
 	}
 }
@@ -302,7 +302,7 @@
 	font-size: typography.$font-title-small;
 	line-height: 30px;
 	font-weight: 500;
-	margin: rem.convert( 6px ) 0 rem.convert( 4px );
+	margin: rem.convert(6px) 0 rem.convert(4px);
 }
 
 .jp-at-a-glance__stats-ctas {
@@ -311,18 +311,18 @@
 	align-items: center;
 	justify-content: flex-end;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		text-align: right;
 		flex-basis: 70%;
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		text-align: center;
 		flex-direction: column;
 
 		.dops-button {
 			width: 100%;
-			margin-bottom: rem.convert( 4px );
+			margin-bottom: rem.convert(4px);
 		}
 	}
 
@@ -333,7 +333,7 @@
 	.dops-button {
 		text-align: center;
 		text-decoration: none;
-		margin: rem.convert( 4px );
+		margin: rem.convert(4px);
 	}
 }
 
@@ -352,7 +352,7 @@
 		outline: 0;
 	}
 
-	@include breakpoints.breakpoint('<480px') {
+	@include breakpoints.breakpoint("<480px") {
 		margin-left: 0;
 		margin-right: rem.convert(16px);
 	}
@@ -387,7 +387,7 @@
 .jp-at-a-glance__item-grid {
 	display: flex;
 
-	@include breakpoints.breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: block; // don't need flexbox on smaller screens
 	}
 }
@@ -397,13 +397,13 @@
 	display: flex;
 	min-width: 0;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		flex-basis: 50%;
-		margin-bottom: rem.convert( 16px );
+		margin-bottom: rem.convert(16px);
 	}
 
-	@include breakpoints.breakpoint( '<660px' ) {
-		margin-bottom: rem.convert( 12px );
+	@include breakpoints.breakpoint( "<660px" ) {
+		margin-bottom: rem.convert(12px);
 	}
 
 	> div, // Sorry. not sure how to class this. Thanks, React.
@@ -425,7 +425,7 @@
 			align-items: flex-start;
 
 			&.dops-section-header {
-				align-items: center
+				align-items: center;
 			}
 		}
 
@@ -436,7 +436,7 @@
 				margin-left: 0;
 				padding-left: 0;
 
-				@include breakpoints.breakpoint( '<480px' ) {
+				@include breakpoints.breakpoint( "<480px" ) {
 					text-transform: none;
 				}
 			}
@@ -455,11 +455,11 @@
 .jp-at-a-glance__left {
 	display: flex;
 
-	@include breakpoints.breakpoint( '>660px' ) {
-		margin-right: rem.convert( 16px );
+	@include breakpoints.breakpoint( ">660px" ) {
+		margin-right: rem.convert(16px);
 
 		&:last-child {
-			flex-basis: calc( 50% - 0.5rem ); // rem function doesn't work in calc()
+			flex-basis: calc(50% - 0.5rem); // rem function doesn't work in calc()
 		}
 	}
 }
@@ -479,7 +479,7 @@
 }
 
 .jp-connection-settings__text {
-	margin-left: rem.convert( 16px );
+	margin-left: rem.convert(16px);
 	word-break: break-word;
 	color: calypso-colors.$gray-80;
 	font-size: typography.$font-body-small;
@@ -503,12 +503,12 @@
 	.jp-connection-settings__site-icon {
 		background: #c8d7e1;
 		color: #fff;
-		min-width: rem.convert( 64px );
+		min-width: rem.convert(64px);
 	}
 
 	.jp-connection-settings__gravatar {
 		display: inline-block;
-		min-width: rem.convert( 64px );
+		min-width: rem.convert(64px);
 		background: colors.$gray;
 		border-radius: 50%;
 		margin-bottom: 0;
@@ -519,27 +519,27 @@
 	max-width: 635px;
 	min-height: 400px;
 
-	@include breakpoints.breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		min-height: auto;
 	}
 }
 
 .jp-connection-settings__modal-body {
 	margin: 0;
-	padding: rem.convert( 24px ) rem.convert( 32px );
+	padding: rem.convert(24px) rem.convert(32px);
 	font-size: typography.$font-body-small;
 	color: colors.$blue-dark-text;
 	text-align: center;
 
 	h2 {
-		margin: rem.convert( 32px ) 0 rem.convert( 24px );
+		margin: rem.convert(32px) 0 rem.convert(24px);
 		font-size: typography.$font-title-large;
 		font-weight: 300;
 		color: colors.$blue-dark-text;
 	}
 
 	h4 {
-		margin: rem.convert( 16px ) rem.convert( 24px ) 0;
+		margin: rem.convert(16px) rem.convert(24px) 0;
 		font-size: typography.$font-body;
 		font-weight: 400;
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
@@ -552,7 +552,7 @@
 	}
 
 	ul {
-		margin: rem.convert( 24px ) 0 rem.convert( 36px );
+		margin: rem.convert(24px) 0 rem.convert(36px);
 		color: colors.$blue-text;
 	}
 
@@ -560,19 +560,19 @@
 		position: relative;
 		display: block;
 		margin: 0;
-		padding: rem.convert( 16px ) rem.convert( 8px ) rem.convert( 16px ) rem.convert( 44px );
-		border-bottom: 1px solid color.adjust( colors.$gray, $lightness: 25% );
+		padding: rem.convert(16px) rem.convert(8px) rem.convert(16px) rem.convert(44px);
+		border-bottom: 1px solid color.adjust(colors.$gray, $lightness: 25%);
 		text-align: left;
 
 		&:first-of-type {
-			border-top: 1px solid color.adjust( colors.$gray, $lightness: 25% );
+			border-top: 1px solid color.adjust(colors.$gray, $lightness: 25%);
 		}
 	}
 
 	.gridicon {
 		position: absolute;
-		left: rem.convert( 16px );
-		top: rem.convert( 16px );
+		left: rem.convert(16px);
+		top: rem.convert(16px);
 		vertical-align: text-bottom;
 		color: colors.$blue-text;
 	}
@@ -604,10 +604,10 @@
 }
 
 .jp-dash-item__videopress-storage {
-	margin-top: rem.convert( 16px );
+	margin-top: rem.convert(16px);
 
 	span {
-		margin-top: rem.convert( 10px );
+		margin-top: rem.convert(10px);
 		display: block;
 	}
 }
@@ -622,11 +622,15 @@
 a.jp-dash-item__manage-in-wpcom,
 .dops-banner__title a,
 .jp-connection-settings__actions a,
-.jp-dash-item a:not( .dops-button ),
+.jp-dash-item a:not(.dops-button),
 .dops-banner__description .jp-link-button,
 .jp-at-a-glance__stats-inactive-text a.components-external-link {
 
-	&, &:active, &:visited, &:hover, &:focus {
+	&,
+	&:active,
+	&:visited,
+	&:hover,
+	&:focus {
 		cursor: pointer;
 		font-weight: 400;
 		font-size: typography.$font-body-small;
@@ -650,7 +654,11 @@ a.jp-dash-item__manage-in-wpcom,
 
 .jp-connection-settings__actions a {
 
-	&, &:active, &:visited, &:hover, &:focus {
+	&,
+	&:active,
+	&:visited,
+	&:hover,
+	&:focus {
 		color: calypso-colors.$gray-80;
 	}
 }
@@ -728,7 +736,7 @@ a.jp-dash-item__manage-in-wpcom,
 
 		.dash-backup-undo__activity-log-user-meta-name {
 			display: flex;
-    		align-items: center;
+			align-items: center;
 		}
 	}
 

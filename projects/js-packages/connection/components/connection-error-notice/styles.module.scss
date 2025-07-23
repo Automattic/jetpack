@@ -5,18 +5,18 @@
 .notice {
 	box-sizing: border-box;
 	margin: 0;
-	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ); // 16px | 24px | 16px | 24px
+	padding: calc(var(--spacing-base) * 2) calc(var(--spacing-base ) * 3) calc(var(--spacing-base) * 2) calc(var(--spacing-base) * 3); // 16px | 24px | 16px | 24px
 	font-size: 16px;
 	line-height: 22px;
-	color: var( --jp-gray-80 );
-	border: 1px solid var( --jp-gray );
-	border-left: 6px solid var( --jp-red-50 );
+	color: var(--jp-gray-80);
+	border: 1px solid var(--jp-gray);
+	border-left: 6px solid var(--jp-red-50);
 	border-radius: var( --jp-border-radius );
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.06);
 
 	// notice itself on error status
 	&:global(.is-error) {
-		background-color: var( --jp-white );
+		background-color: var(--jp-white);
 	}
 
 	// notice content
@@ -25,12 +25,12 @@
 		margin: 0;
 		padding: 12px 4px;
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
 	}
 
 	// action button
 	:global(.is-link) {
-		color: var( --jp-black );
+		color: var(--jp-black);
 		font-size: 16px;
 		font-weight: 600;
 	}
@@ -40,8 +40,10 @@
 		align-self: center;
 	}
 
-	.button, .button:visited, .button:active, .button:hover {
-		color: var( --jp-white );
+	.button,
+	.button:visited,
+	.button:active,
+	.button:hover {
 		font-weight: 600;
 		font-size: 16px;
 		line-height: 24px;
@@ -51,25 +53,74 @@
 		justify-content: center;
 		align-items: center;
 		padding: 8px 24px;
-		margin-left: calc( var( --spacing-base ) * 2 + 24px ); // 40px
+		border-radius: var(--jp-border-radius);
+		display: inline-block;
+		margin-left: calc(var(--spacing-base) * 2 + 24px); // 40px
 		margin-top: 24px;
-		background: #000;
-		border-radius: var( --jp-border-radius );
+	}
 
-		&.primary {
-			background: var( --jp-green-50 );
+	.primary,
+	.primary:visited,
+	.primary:active,
+	.primary:hover {
+		color: var(--jp-white);
+		background: var(--jp-black);
+		border: 1px solid transparent;
+	}
+
+	.secondary,
+	.secondary:visited,
+	.secondary:active,
+	.secondary:hover {
+		background: transparent;
+		color: var(--jp-gray-80);
+		border: 1px solid var(--jp-gray-30);
+		
+		&:hover {
+			color: var(--jp-gray-100);
+			border-color: var(--jp-gray-50);
 		}
 	}
 
 	.actions {
 		display: flex;
-		gap: calc( var( --spacing-base ) * 2 ); // 16px
-		flex-wrap: wrap;
+		gap: calc(var(--spacing-base) * 2); // 16px
+		flex-direction: column;
+		text-align: center;
+		margin-top: calc(var(--spacing-base) * 2); // 16px
+
+		.button,
+		.button:visited,
+		.button:active,
+		.button:hover {
+			width: 100%;
+			max-width: 300px;
+			margin: 0;
+		}
 	}
 
-	&.bigger-than-medium {
+	// Media query for screens 1100px and above
+	@media (min-width: 1100px) {
 
-		.button, .button:visited, .button:active, .button:hover {
+		.actions {
+			margin-left: 0;
+			margin-top: 0;
+			flex-direction: row;
+			align-items: center;
+
+			.button,
+			.button:visited,
+			.button:active,
+			.button:hover {
+				width: auto;
+				max-width: none;
+			}
+		}
+
+		.button,
+		.button:visited,
+		.button:active,
+		.button:hover {
 			margin-left: 0;
 			margin-top: 0;
 			white-space: nowrap;
@@ -87,7 +138,7 @@
 }
 
 .message {
-	margin-right: var( --spacing-base ); // 8px
+	margin-right: var(--spacing-base); // 8px
 	flex-grow: 1;
 	display: flex;
 
@@ -95,10 +146,10 @@
 	> svg {
 		flex-shrink: 0;
 		align-self: flex-start;
-		margin-right: calc( var( --spacing-base ) * 2 ); // 16px
+		margin-right: calc(var(--spacing-base) * 2); // 16px
 	}
 
 	:global(.jp-components-spinner) {
-		margin-right: calc( var( --spacing-base ) * 2 ); // 16px
+		margin-right: calc(var(--spacing-base) * 2); // 16px
 	}
 }

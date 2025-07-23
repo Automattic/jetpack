@@ -46,7 +46,7 @@
 		padding-left: 0.5em;
 	}
 
-	.main-action:not( :empty ) {
+	.main-action:not(:empty) {
 		margin-left: auto;
 
 		button {
@@ -61,7 +61,7 @@
 	.description {
 		color: variables.$red_50;
 		font-weight: 700;
-		margin-bottom: .5em;
+		margin-bottom: 0.5em;
 	}
 
 	.message {
@@ -69,7 +69,7 @@
 		color: variables.$red_50;
 
 		p {
-			margin: .25em 0;
+			margin: 0.25em 0;
 			color: variables.$red_50;
 		}
 

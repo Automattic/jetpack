@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 .jetpack-connect-banner-nudge {
 
@@ -10,22 +10,22 @@
 		}
 
 		.components-button.is-primary {
-			background-color: var( --jp-white );
-			color: var( --jp-black );
+			background-color: var(--jp-white);
+			color: var(--jp-black);
 			margin-top: 8px;
 			margin-bottom: 8px;
 
 			&:hover {
-				background-color: var( --jp-gray-0 );
+				background-color: var(--jp-gray-0);
 			}
 		}
 	}
 }
 
 .jetpack-connect-banner {
-	color: var( --jp-black-80 );
-    background-color: var( --jp-white );
-    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.12), 0 3px 9px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.15);
+	color: var(--jp-black-80);
+	background-color: var(--jp-white);
+	box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.12), 0 3px 9px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.15);
 	border-radius: 0 0 2px 2px;
 
 	&__explanation {
@@ -37,8 +37,8 @@
 		gap: 6px;
 
 		p {
-			color: var( --jp-gray-20 );
-			font-size: var( --font-label );
+			color: var(--jp-gray-20);
+			font-size: var(--font-label);
 			padding: 6px 8px;
 			margin: 0;
 		}

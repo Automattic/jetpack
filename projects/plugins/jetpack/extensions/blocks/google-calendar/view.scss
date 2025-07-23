@@ -10,10 +10,12 @@
 	}
 
 	/**
-	 * The following rules are purely enhancements for when JS is turned when an AMP page is viewed. Granted this will be
-	 * a very rare scenario. Also, the rules here should eventually be merged into ampshared.css in AMP itself, at which
-	 * point they can be removed from the block. They are included here as a proof of concept to show how the noscript
-	 * fallback experience can be improved on AMP pages.
+	 * The following rules are purely enhancements for when JS is turned when an
+	 * AMP page is viewed. Granted this will be a very rare scenario. Also, the
+	 * rules here should eventually be merged into ampshared.css in AMP itself,
+	 * at which point they can be removed from the block. They are included here
+	 * as a proof of concept to show how the noscript fallback experience can be
+	 * improved on AMP pages.
 	 */
 
 	> amp-iframe > [placeholder] {

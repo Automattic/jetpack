@@ -1,6 +1,6 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
-$arrow-color: var( --jp-gray );
+$arrow-color: var(--jp-gray);
 
 // Fix arrow color
 .components-popover:not(.is-without-arrow)::before {
@@ -26,7 +26,7 @@ $arrow-color: var( --jp-gray );
 	}
 
 	.components-popover:not([data-y-axis="middle"])[data-x-axis="right"] .components-popover__content {
-		margin-left: -62px;	
+		margin-left: -62px;
 	}
 
 	/*
@@ -72,7 +72,7 @@ $arrow-color: var( --jp-gray );
 .icon-tooltip-wrapper {
 	display: inline-block;
 	position: relative;
-	color: var( --jp-black );
+	color: var(--jp-black);
 
 	.components-button.is-link:focus:not(:disabled) {
 		box-shadow: none;

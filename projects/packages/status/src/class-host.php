@@ -139,7 +139,7 @@ class Host {
 	 * Returns a guess of the hosting provider for the current site based on various checks.
 	 *
 	 * @since 5.0.4 Added $guess parameter.
-	 * @since $$next-version$$ Removed $guess parameter.
+	 * @since 6.0.0 Removed $guess parameter.
 	 *
 	 * @return string
 	 */

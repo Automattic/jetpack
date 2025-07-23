@@ -21,7 +21,7 @@
 		}
 
 	}
-	
+
 	:global {
 
 		.components-range-control__marks {
@@ -45,10 +45,10 @@
 		margin-bottom: 0;
 
 		input {
-			max-width: var( --input-width );
+			max-width: var(--input-width);
 		}
 
-		&:last-child{
+		&:last-child {
 			margin-bottom: 0;
 		}
 
@@ -82,15 +82,15 @@
 			 * Remove arrows from the number input
 			 * backward compatibility for Firefox, Safari, and Chrome
 			 */
-			 &::-webkit-outer-spin-button,
-			 &::-webkit-inner-spin-button {
-				 -webkit-appearance: none;
-			 }
- 
-			 &[type="number"] {
-				 appearance: textfield;
-				 -moz-appearance: textfield;
-			 }
+			&::-webkit-outer-spin-button,
+			&::-webkit-inner-spin-button {
+				-webkit-appearance: none;
+			}
+
+			&[type="number"] {
+				appearance: textfield;
+				-moz-appearance: textfield;
+			}
 		}
 
 		.components-input-control__backdrop {

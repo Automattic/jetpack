@@ -1,4 +1,4 @@
-@use 'scss/variables';
+@use "scss/variables";
 
 $color-modal-background: variables.$studio-white;
 $search-box-size: 60px;
@@ -16,7 +16,7 @@ $search-box-size: 60px;
 	flex-flow: row nowrap;
 	width: 100%;
 	background: $color-modal-background;
-	box-shadow: rgba( 0, 0, 0, 0.35 ) 0 5px 25px;
+	box-shadow: rgba(0, 0, 0, 0.35) 0 5px 25px;
 }
 
 .jp-mocked-legacy-search__search-icon {

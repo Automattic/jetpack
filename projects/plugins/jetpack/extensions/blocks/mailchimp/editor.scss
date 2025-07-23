@@ -1,4 +1,4 @@
-@use 'view';
+@use "view";
 
 .wp-block-jetpack-mailchimp {
 
@@ -23,11 +23,12 @@
 	}
 
 	// Hide everything else except notification when modifying notification labels
-	&.wp-block-jetpack-mailchimp_notication-audition > *:not( .wp-block-jetpack-mailchimp_notification ) {
+	&.wp-block-jetpack-mailchimp_notication-audition > *:not(.wp-block-jetpack-mailchimp_notification) {
 		display: none;
 	}
 
-	.wp-block-jetpack-mailchimp_text-input, .jetpack-submit-button {
+	.wp-block-jetpack-mailchimp_text-input,
+	.jetpack-submit-button {
 		margin-bottom: 1.5rem;
 	}
 

@@ -1,4 +1,4 @@
-@use '../../scss/calypso-colors';
+@use "../../scss/calypso-colors";
 
 
 @keyframes dropdown-slide-down {
@@ -81,7 +81,8 @@
 
 		&.disabled {
 
-			svg, .tree-dropdown__tag {
+			svg,
+			.tree-dropdown__tag {
 				opacity: 0.7;
 			}
 		}
@@ -90,7 +91,8 @@
 			flex-grow: 1;
 			padding: 0;
 
-			&, &:focus {
+			&,
+			&:focus {
 				border: none;
 				box-shadow: none;
 			}
@@ -114,7 +116,8 @@
 			padding: 0;
 			cursor: pointer;
 
-			&, svg {
+			&,
+			svg {
 				width: 18px;
 				height: 18px;
 			}
@@ -127,7 +130,7 @@
 			display: grid;
 			grid-template-rows: 1fr;
 			transition: grid-template-rows 500ms;
-			  
+
 			&.hide {
 				grid-template-rows: 0fr;
 			}
@@ -139,7 +142,7 @@
 			position: absolute;
 			top: 100%;
 			width: 100%;
-			background-color: calypso-colors.$white;	
+			background-color: calypso-colors.$white;
 			z-index: 1000;
 			padding: 8px;
 
@@ -151,7 +154,7 @@
 				box-shadow: 0 0 0 2px var(--jp-green-5), 0 10px 15px 0 #00000026;
 
 				&::before {
-					content: '';
+					content: "";
 					position: absolute;
 					top: -5px;
 					left: -1px;
@@ -167,7 +170,7 @@
 					overflow-y: auto;
 				}
 			}
-			
+
 			ul.jp-tree-items {
 				overflow-y: hidden;
 				max-height: 370px;

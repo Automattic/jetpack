@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .templateControl {
 	padding-top: 1rem;
@@ -18,7 +18,7 @@
 	justify-content: flex-end;
 
 	> * + * {
-		margin-inline-start: var( --spacing-base );
+		margin-inline-start: var(--spacing-base);
 	}
 }
 

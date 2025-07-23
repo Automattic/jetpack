@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/root-variables";
 
 .jetpack-ai-assistant__message {
 	display: flex;
@@ -11,7 +11,7 @@
 	min-height: 28px;
 
 	> svg {
-		fill: var( --jp-gray-40 );
+		fill: var(--jp-gray-40);
 		flex-shrink: 0;
 	}
 
@@ -29,11 +29,11 @@
 		}
 
 		.components-external-link {
-			color: var( --jp-gray-50 );
+			color: var(--jp-gray-50);
 		}
 
-		// Force padding 0 in link buttons, since default Gutenberg version in WordPress doesn't use iframe and
-		// Buttons receive styles from edit-post-visual-editor.
+		// Force padding 0 in link buttons, since default Gutenberg in WordPress
+		// doesn't use iframe and Buttons receive styles from edit-post-visual-editor.
 		.components-button.is-link {
 			padding: 0;
 		}
@@ -46,30 +46,30 @@
 }
 
 .jetpack-ai-assistant__message-severity-info {
-	background-color: var( --jp-gray-0 );
-	color: var( --jp-gray-50 );
+	background-color: var(--jp-gray-0);
+	color: var(--jp-gray-50);
 }
 
 .jetpack-ai-assistant__message-severity-warning {
-	background-color: #FEF8EE;
-	color: var( --jp-gray-100 );
+	background-color: #fef8ee;
+	color: var(--jp-gray-100);
 }
 
 .jetpack-ai-assistant__message-severity-error {
-	background-color: var( --jp-red-0 );
-	color: var( --jp-gray-100 );
+	background-color: var(--jp-red-0);
+	color: var(--jp-gray-100);
 
 	> svg {
-		fill: var( --jp-red-40, #E65054 );
+		fill: var(--jp-red-40, #e65054);
 	}
 }
 
 .jetpack-ai-assistant__message-severity-success {
-	background-color: var( --jp-green-5 );
-	color: var( --jp-gray-100 );
+	background-color: var(--jp-green-5);
+	color: var(--jp-gray-100);
 
 	> svg {
-		fill: var( --jp-green-30 );
+		fill: var(--jp-green-30);
 	}
 }
 
@@ -79,6 +79,6 @@
 	height: unset;
 
 	> svg {
-		fill: var( --jp-gray-50 );
+		fill: var(--jp-gray-50);
 	}
 }

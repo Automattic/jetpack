@@ -38,8 +38,8 @@
 			}
 		}
 
-		// Hack: this notice is intentionally set to be dismissible (but we hide the close icon),
-		// so that it is guaranteed to be displayed after the pinned notices.
+		// Hack: this notice is intentionally set to be dismissible (but we hide the
+		// close icon) so that it is guaranteed to be displayed after pinned notices.
 		.components-notice__dismiss {
 			display: none;
 		}

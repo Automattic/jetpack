@@ -1,6 +1,6 @@
-@use '../../../scss/variables/colors';
-@use '../../../scss/typography';
-@use '../../../scss/mixin_breakpoint';
+@use "../../../scss/variables/colors";
+@use "../../../scss/typography";
+@use "../../../scss/mixin_breakpoint";
 
 .jp-recommendations-sidebar-mobile__apps-badge {
 	display: flex;
@@ -39,7 +39,7 @@ h2.jp-recommendation-sidebar-mobile__heading {
 
 	background-color: colors.$gray-light;
 
-	@include mixin_breakpoint.breakpoint( '<1040px' ) {
+	@include mixin_breakpoint.breakpoint( "<1040px" ) {
 		flex-direction: column;
 	}
 }
@@ -52,7 +52,7 @@ p.jp-recommendations-sidebar-mobile__qr-code-body {
 	word-wrap: break-word;
 
 	a {
-		color: var( --jp-green-50 );
+		color: var(--jp-green-50);
 		word-wrap: break-word;
 	}
 }
@@ -60,7 +60,7 @@ p.jp-recommendations-sidebar-mobile__qr-code-body {
 .jp-recommendations-sidebar-mobile__qr-code-image {
 	flex-shrink: 0;
 
-	@include mixin_breakpoint.breakpoint( '<1040px' ) {
+	@include mixin_breakpoint.breakpoint( "<1040px" ) {
 		margin-top: 0.75rem;
 
 		width: 125px;

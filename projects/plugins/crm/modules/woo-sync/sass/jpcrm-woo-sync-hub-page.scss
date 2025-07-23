@@ -4,21 +4,21 @@
  */
 
 #jpcrm-woosync-hub-page {
-	
-    margin-top: 4em;
 
-	#jpcrm-woo-logo{
+	margin-top: 4em;
 
-	    text-align: center;
-	    margin: 1.5em auto;
-	    display: table;
+	#jpcrm-woo-logo {
+
+		text-align: center;
+		margin: 1.5em auto;
+		display: table;
 
 		img {
 
-		   vertical-align: middle;
+			vertical-align: middle;
 
 		}
-		
+
 		#jpcrm-woosync-jpcrm-logo {
 			max-width: 250px;
 		}
@@ -29,76 +29,74 @@
 
 		i {
 
-		    vertical-align: middle;
-		    display: table-cell;
-		    padding: 0 1em;
-		    font-size: 1.5em;
-    		color: #069e08;
+			vertical-align: middle;
+			display: table-cell;
+			padding: 0 1em;
+			font-size: 1.5em;
+			color: #069e08;
 
 		}
-
-
 
 	}
 
 	#jpcrm-woosync-messages {
 
-	    max-width: 800px;
-	    margin: auto;
-    	margin-bottom: 1em;
+		max-width: 800px;
+		margin: auto;
+		margin-bottom: 1em;
 
 	}
 
 	#jpcrm-woosync-page-body {
 
-	    max-width: 800px;
-	    margin: auto;
+		max-width: 800px;
+		margin: auto;
 
-	    .jpcrm-woosync-settings-button {
+		.jpcrm-woosync-settings-button {
 
-		    font-size: 1.3em;
-		    margin-right: 0.5em;
+			font-size: 1.3em;
+			margin-right: 0.5em;
 
-	    }
+		}
 
 		.jpcrm-woosync-stats-header {
 
-		    font-size: 1.3em;
-		    margin: 0.5em 1em;	
+			font-size: 1.3em;
+			margin: 0.5em 1em;
 			display: flex;
 			align-items: center;
 
-		    span {
+			span {
 
 				color: #8594a2;
-			    margin-right: 5px;
-			    margin-left: 5px;
+				margin-right: 5px;
+				margin-left: 5px;
 
-		    }
+			}
 
-		    i {
+			i {
 
-	    		margin-left: 0.5em;
+				margin-left: 0.5em;
 
-		    }
+			}
 
-		    .jpcrm-woosync-stats-url {
-		    	
-		    	line-height: 0.8;
+			.jpcrm-woosync-stats-url {
 
-		    }
+				line-height: 0.8;
+
+			}
 
 		}
 
 		h2.ui.header {
 
-    		margin: 1em;
+			margin: 1em;
 
 		}
 
-		.jpcrm-woosync-recap {		
-		    margin: 0;
-		    opacity: 0.5;
+		.jpcrm-woosync-recap {
+			margin: 0;
+			opacity: 0.5;
 		}
 
 		#jpcrm-woo-stats {
@@ -109,78 +107,78 @@
 
 		#jpcrm-woo-stats-nothing-yet {
 
-    		display: table;
+			display: table;
 
-    		div {
+			div {
 
-    			display: table-cell;
-    			vertical-align: middle;
+				display: table-cell;
+				vertical-align: middle;
 
 				div {
 
-			    display: block;
+					display: block;
 
 				}
 
-			    p {
-			    
-			    	color: #FFF;
-			    
-			    }
-			    
+				p {
+
+					color: #fff;
+
+				}
+
 
 			}
 
 		}
 
 		#jpcrm-woosync-stats-container {
-			
+
 			.jpcrm-woosync-stat {
 
 				display: table;
 				min-height: 230px;
 				width: 100%;
-				border: solid 2px #2185D0 !important;
-				color: #2185D0 !important;
-				background-color: #FFF !important;
+				border: solid 2px #2185d0 !important;
+				color: #2185d0 !important;
+				background-color: #fff !important;
 
 				div.jpcrm-woosync-stat-container {
-	    			
-	    			display: table-cell;
-	    			vertical-align: middle;
-	    			text-align: center;
 
-    				// numbers
-    				font-size: 3em;
-    				font-weight: 700;
+					display: table-cell;
+					vertical-align: middle;
+					text-align: center;
 
-    				// ico
-    				i {
-					    display: inline-block;
-					    margin: 0 0 0.4em 0;
+					// numbers
+					font-size: 3em;
+					font-weight: 700;
+
+					// ico
+					i {
+						display: inline-block;
+						margin: 0 0 0.4em 0;
 					}
 
-    				// labels
-    				div.jpcrm-woosync-stat-label {
+					// labels
+					div.jpcrm-woosync-stat-label {
 
-    					font-size: 0.5em;
-    					margin-top: 1.0em;
-    					line-height: 1.2;
-    				}
+						font-size: 0.5em;
+						margin-top: 1em;
+						line-height: 1.2;
+					}
 
-    			}
+				}
 			}
-		
+
 		}
 
 		// debug mode output:
 		#jpcrm-woosync-debug-output {
 
 			background: #f1e9e9;
-		    color: #000;
-		    line-height: 2;
-		    overflow-x: scroll;
-    		padding: 0.5em 1em;
+			color: #000;
+			line-height: 2;
+			overflow-x: scroll;
+			padding: 0.5em 1em;
 
 		}
 
@@ -189,25 +187,25 @@
 	// low key grey links for admin admins really
 	#jpcrm-woosync-quiet-restart-link {
 
-	    margin-top: 1.2em;
-	    text-align: center;
-    	opacity: 0.6;
+		margin-top: 1.2em;
+		text-align: center;
+		opacity: 0.6;
 
-	    a {
-		    text-decoration: underline;
+		a {
+			text-decoration: underline;
 		}
 	}
 
 	.status.green {
-		color: #069e08!important;
+		color: #069e08 !important;
 	}
 
 	.status.orange {
-		color: #f2711c!important;
+		color: #f2711c !important;
 	}
 
 	.status.red {
-		color: #db2828!important;
+		color: #db2828 !important;
 	}
 
 	.jpcrm-clickable:hover {

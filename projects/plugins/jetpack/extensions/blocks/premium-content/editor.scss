@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-premium-content-container .premium-content-tabs {
 	align-items: center;
@@ -35,31 +35,31 @@
 }
 
 .membership-button__disclaimer {
-	color: var( --color-gray-200 );
+	color: var(--color-gray-200);
 	flex-basis: 100%;
 	margin: 0;
 	font-style: italic;
 }
 
 .membership-button__disclaimer a {
-	color: var( --color-gray-400 );
+	color: var(--color-gray-400);
 	line-height: 36px;
 }
 
 /* Subscribe/Login buttons */
 
-.wp-block-buttons .wp-block[data-type='jetpack/recurring-payments'] {
+.wp-block-buttons .wp-block[data-type="jetpack/recurring-payments"] {
 	--jetpack-payment-buttons-gap: 0.5em;
-	
+
 	display: inline-block;
 	margin: 0 0.5em 0 0;
 	width: auto;
 }
 
 .editor-styles-wrapper
-	.wp-block-buttons
-	.wp-block[data-type='jetpack/recurring-payments']
-	.wp-block-button:not( .alignleft ):not( .alignright ) {
+.wp-block-buttons
+.wp-block[data-type="jetpack/recurring-payments"]
+.wp-block-button:not(.alignleft):not(.alignright) {
 	margin: 0;
 }
 
@@ -91,7 +91,7 @@
 	display: inline-block;
 }
 
-.wp-block[data-align='center'] > .wp-block-premium-content-login-button {
+.wp-block[data-align="center"] > .wp-block-premium-content-login-button {
 	display: flex;
 	align-items: center;
 	justify-content: center;

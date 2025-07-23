@@ -1,8 +1,8 @@
 /**
  * Styles for Top Posts
  */
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use '../../shared/styles/jetpack-variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../../shared/styles/jetpack-variables";
 
 .wp-block-jetpack-top-posts {
 	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
@@ -25,7 +25,7 @@
 		.jetpack-top-posts-wrapper {
 			align-items: flex-start;
 			display: grid;
-			grid: auto / repeat( 6, 1fr );
+			grid: auto / repeat(6, 1fr);
 			gap: 16px 12px;
 
 			@media only screen and ( max-width: gb.$break-small ) {

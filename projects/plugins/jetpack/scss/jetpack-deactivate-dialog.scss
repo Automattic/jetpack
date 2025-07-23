@@ -1,7 +1,7 @@
-@use 'sass:color';
-@use '../_inc/client/scss/variables/colors';
-@use '../_inc/client/scss/functions/colors' as colorfuncs;
-@use '../_inc/client/scss/calypso-colors';
+@use "sass:color";
+@use "../_inc/client/scss/variables/colors";
+@use "../_inc/client/scss/functions/colors" as colorfuncs;
+@use "../_inc/client/scss/calypso-colors";
 
 #TB_window.jetpack-disconnect-modal {
 
@@ -83,7 +83,7 @@
 		top: 22px;
 
 		&::after {
-			content: '\f335';
+			content: "\f335";
 			font: 400 32px/29px dashicons;
 			-webkit-font-smoothing: antialiased;
 			-moz-osx-font-smoothing: grayscale;
@@ -158,7 +158,7 @@
 				-webkit-appearance: none;
 				-moz-appearance: none;
 				appearance: none;
-				width:100%;
+				width: 100%;
 				margin-bottom: 18px;
 
 				@media screen and (min-width: 661px) {
@@ -169,14 +169,14 @@
 
 				&#jetpack_deactivation_dialog_content__button-deactivate {
 					background: colors.$alert-red;
-					border-color: color.adjust( colors.$alert-red, $lightness: -20% );
+					border-color: color.adjust(colors.$alert-red, $lightness: -20%);
 					color: colors.$white;
 					margin-bottom: 0;
 
 					&[disabled],
 					&:disabled {
-						background: color.adjust( colors.$alert-red, $lightness: 20% );
-						border-color: colorfuncs.tint( colors.$alert-red, 30% );
+						background: color.adjust(colors.$alert-red, $lightness: 20%);
+						border-color: colorfuncs.tint(colors.$alert-red, 30%);
 					}
 				}
 			}

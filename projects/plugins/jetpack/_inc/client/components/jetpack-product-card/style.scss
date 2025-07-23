@@ -1,8 +1,8 @@
-@use '../../scss/functions/rem';
-@use '../../scss/calypso-colors';
-@use '../../scss/mixin_breakpoint';
-@use '../../scss/typography';
-@use '../../scss/variables/colors';
+@use "../../scss/functions/rem";
+@use "../../scss/calypso-colors";
+@use "../../scss/mixin_breakpoint";
+@use "../../scss/typography";
+@use "../../scss/variables/colors";
 
 .jp-product-card {
 	position: relative;
@@ -10,15 +10,15 @@
 	padding: 30px 24px 45px;
 	width: 100%;
 	background: colors.$white;
-	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.03 ), 0 1px 2px rgba( 0, 0, 0, 0.03 );
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
 	border: 1px solid calypso-colors.$gray-lighten-20;
 	border-radius: 4px;
 
-	@include mixin_breakpoint.breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		padding: 40px 48px 60px;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		padding-top: 60px;
 	}
 }
@@ -35,7 +35,7 @@
 	margin-bottom: 24px;
 	display: none;
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		display: block;
 	}
 }
@@ -54,7 +54,7 @@
 
 .jp-product-card__description {
 	color: colors.$black;
-	font-size: rem.convert( 15px );
+	font-size: rem.convert(15px);
 	line-height: 1.5;
 	margin: 0 0 22px;
 }
@@ -88,7 +88,7 @@
 		sup:first-of-type {
 			font-weight: 400;
 			font-size: 24px; // var(--font-title-medium);
-    		line-height: 32px;
+			line-height: 32px;
 		}
 
 		// Fraction
@@ -101,7 +101,7 @@
 
 	// Final price
 	.product-price_legend {
-		color: var( --jp-gray-40 );
+		color: var(--jp-gray-40);
 		font-size: 14px; // --font-body-small
 		line-height: 20px;
 		font-weight: 400;
@@ -126,7 +126,7 @@
 
 .jp-product-card__checkout {
 	align-self: flex-start;
-	font-size: rem.convert( 16px );
+	font-size: rem.convert(16px);
 	margin-top: 2rem;
 	padding-left: 60px;
 	padding-right: 60px;
@@ -178,7 +178,7 @@
 	padding: 9px 10px;
 	background: colors.$black;
 	color: colors.$white;
-	font-size: rem.convert( 13px );
+	font-size: rem.convert(13px);
 	font-weight: 600;
 	letter-spacing: 0.3px;
 	border-top-left-radius: 4px;
@@ -203,32 +203,32 @@
 	height: auto;
 	margin-top: 36px;
 
-	@include mixin_breakpoint.breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( ">480px" ) {
 		display: block;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		min-width: 240px;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		margin-top: 0;
 	}
 }
 
 .jp-product-card--has-media {
 
-	@include mixin_breakpoint.breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( ">480px" ) {
 		display: block;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		display: grid;
 		grid-template-columns: 55% 45%;
 		column-gap: 26px;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>1040px' ) {
+	@include mixin_breakpoint.breakpoint( ">1040px" ) {
 		grid-template-columns: auto auto;
 	}
 

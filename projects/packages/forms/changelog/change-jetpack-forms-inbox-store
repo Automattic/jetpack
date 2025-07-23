@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Forms: consolidate a single hook for all inbox data, making it easier to share the store props and dispatches and removing the need to invalidate the entire store to get fresh listings after emptying trash

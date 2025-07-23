@@ -5,7 +5,7 @@
 
 	/* handle top menu logo cube */
 	.logo-cube {
-		cursor:pointer;
+		cursor: pointer;
 		height: 40px;
 		width: 200px;
 		line-height: 1;
@@ -15,7 +15,7 @@
 		&:hover {
 			transform: rotateX(90deg); /* Text bleed at 90º */
 		}
-		
+
 		.cube-side {
 			height: 40px;
 			background-color: #fff;
@@ -68,8 +68,8 @@
 			}
 
 			#jpcrm-user-menu {
-				width:580px;
-				min-width:580px;
+				width: 580px;
+				min-width: 580px;
 
 				i.icon {
 					margin-right: 8px;

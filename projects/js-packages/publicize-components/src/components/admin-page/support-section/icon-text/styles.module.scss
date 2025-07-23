@@ -2,14 +2,14 @@
 	grid-column: 1 / -1;
 	display: grid;
 	grid-template-columns: auto 1fr;
-	grid-template-rows: repeat( 2, auto );
-	column-gap: calc( var( --spacing-base ) * 3 );
-	row-gap: calc( var( --spacing-base ) * 2 );
+	grid-template-rows: repeat(2, auto);
+	column-gap: calc(var(--spacing-base) * 3);
+	row-gap: calc(var(--spacing-base) * 2);
 
 	> * + * {
-		margin-top: calc( var( --spacing-base ) * 2 );
+		margin-top: calc(var(--spacing-base) * 2);
 	}
-	
+
 	@supports ( display: grid ) {
 
 		> * + * {
@@ -22,7 +22,7 @@
 	}
 
 	&.viewport-gt-medium {
-		column-gap: calc( var( --spacing-base ) * 6 );
+		column-gap: calc(var(--spacing-base) * 6);
 		grid-column: 3 / span 8;
 	}
 }
@@ -54,7 +54,7 @@
 
 	justify-self: flex-end;
 
-	margin-right: var( --spacing-base );
+	margin-right: var(--spacing-base);
 
 	.viewport-gt-small & {
 		margin-right: auto;

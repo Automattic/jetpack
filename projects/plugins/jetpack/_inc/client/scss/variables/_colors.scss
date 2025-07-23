@@ -1,5 +1,5 @@
-@use 'sass:color';
-@use '../functions/colors';
+@use "sass:color";
+@use "../functions/colors";
 
 // ==========================================================================
 // WordPress.com Colors
@@ -13,10 +13,10 @@ $blue-dark: #005082;
 
 // Grays
 $gray-original: #87a6bc;
-$gray: color.adjust( $gray-original, $saturation: -100% ); // Intermediary transform to match dotcom's colors
+$gray: color.adjust($gray-original, $saturation: -100%); // Intermediary transform to match dotcom's colors
 
-$gray-light: color.adjust( $gray, $lightness: 33% ); //#f6f6f6
-$gray-dark: color.adjust( $gray, $lightness: -38% ); //#404040
+$gray-light: color.adjust($gray, $lightness: 33%); //#f6f6f6
+$gray-dark: color.adjust($gray, $lightness: -38%); //#404040
 
 // Text blues
 $blue-heading: #668eaa;
@@ -26,7 +26,7 @@ $blue-dark-text: #2e4453;
 // $gray-text: ideal for standard, non placeholder text
 // $gray-text-min: minimum contrast needed for WCAG 2.0 AA on white background
 $gray-text: $gray-dark;
-$gray-text-min: color.adjust( $gray, $lightness: -18% ); //#537994
+$gray-text-min: color.adjust($gray, $lightness: -18%); //#537994
 
 /**
  * $gray color functions:
@@ -59,19 +59,19 @@ $alert-purple: #855da6;
 $alert-hot-red: #eb0001; // 2019
 
 // Link hovers
-$link-highlight: colors.tint( $blue-medium, 20% );
+$link-highlight: colors.tint($blue-medium, 20%);
 
 // Essentials
 $black: #000;
-$white: rgba( 255, 255, 255, 1 );
-$transparent: rgba( 255, 255, 255, 0 );
+$white: rgba(255, 255, 255, 1);
+$transparent: rgba(255, 255, 255, 0);
 
 // Uncommon
 $border-ultra-light-gray: #e8f0f5;
 
 // Layout
 $masterbar-color: $blue-wordpress;
-$sidebar-bg-color: color.adjust( $gray, $lightness: 30% );
+$sidebar-bg-color: color.adjust($gray, $lightness: 30%);
 $sidebar-text-color: $gray-dark;
 $sidebar-selected-color: $gray;
 

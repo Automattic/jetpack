@@ -1,4 +1,4 @@
-@use 'sass:color';
+@use "sass:color";
 @use "scss/calypso-colors";
 @use "scss/color-functions";
 @use "scss/typography";
@@ -36,9 +36,9 @@
 
 	&[disabled],
 	&:disabled {
-		color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+		color: color.adjust(calypso-colors.$gray, $lightness: 30%);
 		background: calypso-colors.$white;
-		border-color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+		border-color: color.adjust(calypso-colors.$gray, $lightness: 30%);
 		cursor: default;
 	}
 
@@ -53,7 +53,7 @@
 		line-height: 2;
 
 		&:disabled {
-			color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+			color: color.adjust(calypso-colors.$gray, $lightness: 30%);
 		}
 
 		.gridicon {
@@ -68,7 +68,8 @@
 		.gridicons-plus-small:last-of-type {
 			margin-left: 0;
 		}
-		// Make plus icon nudged closer to adjacent icons for add-people and add-plugin type buttons
+		// Make plus icon nudged closer to adjacent icons
+		// for add-people and add-plugin type buttons
 		.gridicons-plus-small + .gridicon {
 			margin-left: -4px;
 		}
@@ -80,7 +81,7 @@
 
 	.gridicon {
 		position: relative;
-			top: 4px;
+		top: 4px;
 		margin-top: -2px;
 		width: 18px;
 		height: 18px;
@@ -132,36 +133,36 @@
 	}
 
 	&:focus {
-		box-shadow: 0 0 0 2px color.adjust( calypso-colors.$alert-red, $lightness: 20% );
+		box-shadow: 0 0 0 2px color.adjust(calypso-colors.$alert-red, $lightness: 20%);
 	}
 
 	&[disabled],
 	&:disabled {
-		color: color.adjust( calypso-colors.$alert-red, $lightness: 30% );
-		border-color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+		color: color.adjust(calypso-colors.$alert-red, $lightness: 30%);
+		border-color: color.adjust(calypso-colors.$gray, $lightness: 30%);
 	}
 }
 
 .dops-button.is-primary.is-scary {
 	background: calypso-colors.$alert-red;
-	border-color: color.adjust( calypso-colors.$alert-red, $lightness: -20% );
+	border-color: color.adjust(calypso-colors.$alert-red, $lightness: -20%);
 	color: calypso-colors.$white;
 
 	&:hover,
 	&:focus {
-		border-color: color.adjust( calypso-colors.$alert-red, $lightness: -40% );
+		border-color: color.adjust(calypso-colors.$alert-red, $lightness: -40%);
 	}
 
 	&[disabled],
 	&:disabled {
-		background: color.adjust( calypso-colors.$alert-red, $lightness: 20% );
-		border-color: color-functions.tint( calypso-colors.$alert-red, 30% );
+		background: color.adjust(calypso-colors.$alert-red, $lightness: 20%);
+		border-color: color-functions.tint(calypso-colors.$alert-red, 30%);
 	}
 }
 
 .dops-button.is-borderless {
 	border: none;
-	color: color.adjust( calypso-colors.$gray, $lightness: -10% );
+	color: color.adjust(calypso-colors.$gray, $lightness: -10%);
 	padding-left: 0;
 	padding-right: 0;
 
@@ -185,7 +186,7 @@
 
 	&[disabled],
 	&:disabled {
-		color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+		color: color.adjust(calypso-colors.$gray, $lightness: 30%);
 		background: calypso-colors.$white;
 		cursor: default;
 
@@ -199,11 +200,11 @@
 
 		&:hover,
 		&:focus {
-			color: color.adjust( calypso-colors.$alert-red, $lightness: -20% );
+			color: color.adjust(calypso-colors.$alert-red, $lightness: -20%);
 		}
 
 		&[disabled] {
-			color: color.adjust( calypso-colors.$alert-red, $lightness: 30% );
+			color: color.adjust(calypso-colors.$alert-red, $lightness: 30%);
 		}
 	}
 

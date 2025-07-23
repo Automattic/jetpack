@@ -1,14 +1,14 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
-// Used to show cards in the disconnection flow for active plugins and site benefits.
+// Show cards in the disconnection flow for active plugins and site benefits.
 .jp-connection__disconnect-card {
-	background-color: var( --jp-white );
+	background-color: var(--jp-white);
 	width: 800px;
 	max-width: 100%;
 	padding: 1rem 2rem;
 	border: none;
 	border-radius: 3px;
-	box-shadow: 0 0 15px var( --jp-gray-off );
+	box-shadow: 0 0 15px var(--jp-gray-off);
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 0;

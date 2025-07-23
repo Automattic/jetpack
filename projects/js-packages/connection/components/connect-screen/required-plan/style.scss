@@ -1,4 +1,4 @@
-@use '@wordpress/base-styles/mixins';
+@use "@wordpress/base-styles/mixins";
 
 .jp-connection__connect-screen-layout__left {
 
@@ -57,8 +57,8 @@
 			align-items: center;
 
 			&:disabled {
-				background: var(--jp-gray)  !important;
-				color: var(--jp-gray-20)  !important;
+				background: var(--jp-gray) !important;
+				color: var(--jp-gray-20) !important;
 			}
 		}
 

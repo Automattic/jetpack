@@ -1,11 +1,11 @@
-import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import WpPage from '_jetpack-e2e-commons/pages/wp-page.js';
+import pwConfig from '../../playwright.config.mjs';
 
 export default class SearchDashboard extends WpPage {
 	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*jetpack\/v4\/search\/settings/;
 
 	constructor( page ) {
-		const url = `${ resolveSiteUrl() }/wp-admin/admin.php?page=jetpack-search`;
+		const url = `${ pwConfig.use.baseURL }/wp-admin/admin.php?page=jetpack-search`;
 		super( page, {
 			expectedSelectors: [ '.jp-search-dashboard-top__title' ],
 			url,

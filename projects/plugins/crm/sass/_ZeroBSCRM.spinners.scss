@@ -4,21 +4,25 @@
  */
 
 // generic blocker
- .zbsSpinnerBlocker {
- 	
- 	position:absolute;
- 	top: 0; left: 0;
-	width: 100%;height:100%;
-	background:transparent;
-	z-index:100;
+.zbsSpinnerBlocker {
+
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	z-index: 100;
 
 	.zbsSpinnerBG {
 
-	 	position:absolute;
-	 	top: 0; left: 0;
-		width: 100%;height:100%;
-		background:#FFF;
-		z-index:100;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: #fff;
+		z-index: 100;
 		opacity: 0.6;
 
 	}
@@ -26,7 +30,7 @@
 	.zbsSpinnerIco {
 
 		color: #008000;
-		z-index:101;
+		z-index: 101;
 
 		// central align
 		position: relative;
@@ -34,7 +38,7 @@
 		transform: translateY(-50%);
 
 		// no offset
-		margin-left:0;
+		margin-left: 0;
 
 	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Forms: once the migration page is shown and the user clicks on the new dashboard URL, update user option and not render the old menu entry anymore

@@ -3,11 +3,11 @@
  * https://jetpackcrm.com
  */
 
- 	// Req.
-	@charset "UTF-8";
-	
-	// main
-	@use 'ZeroBSCRM.editview';
+// Req.
+@charset "UTF-8";
 
-	// sub: Contact
-	@use 'ZeroBSCRM.editcontact' as ZeroBSCRM2;
+// main
+@use "ZeroBSCRM.editview";
+
+// sub: Contact
+@use "ZeroBSCRM.editcontact" as ZeroBSCRM2;

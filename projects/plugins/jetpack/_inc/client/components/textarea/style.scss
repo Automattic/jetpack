@@ -1,6 +1,6 @@
-@use 'sass:color';
-@use '../../scss/functions/rem';
-@use '../../scss/calypso-colors';
+@use "sass:color";
+@use "../../scss/functions/rem";
+@use "../../scss/calypso-colors";
 
 // ==========================================================================
 // Text Inputs
@@ -10,15 +10,15 @@
 .dops-textarea {
 	box-sizing: border-box;
 	margin: 0;
-	padding: rem.convert( 7px ) rem.convert( 14px );
-	min-height: rem.convert( 92px );
+	padding: rem.convert(7px) rem.convert(14px);
+	min-height: rem.convert(92px);
 	width: 100%;
 	color: calypso-colors.$gray-dark;
-	font-size: rem.convert( 16px );
+	font-size: rem.convert(16px);
 	line-height: 1.5;
-	border: 1px solid color.adjust( calypso-colors.$gray, $lightness: 20% );
+	border: 1px solid color.adjust(calypso-colors.$gray, $lightness: 20%);
 	background-color: calypso-colors.$white;
-	transition: all .15s ease-in-out;
+	transition: all 0.15s ease-in-out;
 	box-shadow: none;
 
 	&::placeholder {
@@ -26,7 +26,7 @@
 	}
 
 	&:hover {
-		border-color: color.adjust( calypso-colors.$gray, $lightness: 10% );
+		border-color: color.adjust(calypso-colors.$gray, $lightness: 10%);
 	}
 
 	&:focus {
@@ -41,16 +41,16 @@
 
 	&:disabled {
 		background: calypso-colors.$gray-light;
-		border-color: color.adjust( calypso-colors.$gray, $lightness: 30% );
-		color: color.adjust( calypso-colors.$gray, $lightness: 10% );
-		-webkit-text-fill-color: color.adjust( calypso-colors.$gray, $lightness: 10% );
+		border-color: color.adjust(calypso-colors.$gray, $lightness: 30%);
+		color: color.adjust(calypso-colors.$gray, $lightness: 10%);
+		-webkit-text-fill-color: color.adjust(calypso-colors.$gray, $lightness: 10%);
 
 		&:hover {
 			cursor: default;
 		}
 
 		&::placeholder {
-			color: color.adjust( calypso-colors.$gray, $lightness: 10% );
+			color: color.adjust(calypso-colors.$gray, $lightness: 10%);
 		}
 	}
 }
