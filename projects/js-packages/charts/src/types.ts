@@ -302,3 +302,12 @@ export interface ToggleEvent extends Event {
 	newState: 'open' | 'closed';
 	oldState: 'open' | 'closed';
 }
+
+export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
+
+// LeaderboardChart types
+export type {
+	LeaderboardChartProps,
+	LeaderboardEntry,
+	MetricValueType,
+} from './components/leaderboard-chart';

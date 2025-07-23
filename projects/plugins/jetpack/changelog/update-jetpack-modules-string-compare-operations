@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Code Modernization: Replace usage of certain preg_match() checks with str_contains().

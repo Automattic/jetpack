@@ -2,7 +2,9 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { Card, CardBody, CardFooter, Dashicon } from '@wordpress/components';
+import { Badge } from '@automattic/ui';
+import '@automattic/ui/style.css';
+import { Card, CardBody, CardFooter } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -61,10 +63,7 @@ const PatternCard = ( { pattern }: { pattern: Pattern } ) => {
 						<h4>{ pattern.title }</h4>
 						{ pattern.recommended && (
 							<div>
-								<span className="section-patterns__grid-card-recommended-badge">
-									<Dashicon icon="yes-alt" size={ 16 } />
-									{ __( 'Recommended', 'jetpack-forms' ) }
-								</span>
+								<Badge intent="success">{ __( 'Recommended', 'jetpack-forms' ) }</Badge>
 							</div>
 						) }
 					</div>

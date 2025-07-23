@@ -36,8 +36,8 @@
 	 * Narrow screen overrides.
 	 */
 	@media ( max-width: 782px ) {
-		--expanded-gap: 0;
-		--border-radius: 0;
+		--expanded-gap: 0px;
+		--border-radius: 0px;
 		--table-column-expand: 32px;
 	}
 }

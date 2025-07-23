@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix padding on input and textarea fields.

@@ -125,7 +125,11 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-response-header {
 	margin: 24px 0 0;
-	padding: 0 32px;
+	padding: 0 32px 0 0;
+
+	@media (min-width: 782px) {
+		padding: 0 32px;
+	}
 }
 
 .jp-forms__inbox-response-header-title {
@@ -300,24 +304,19 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox__dataviews__container {
-	height: 100%;
 	box-sizing: border-box;
-	min-height: 400px;
+	justify-content: unset;
+	align-items: unset;
 }
 
 .jp-forms__inbox__dataviews {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
-	max-height: 100%;
 	flex: 1 1 60%;
 
 	.dataviews-wrapper {
 		background: var(--jp-white);
-		height: 300px;
 		flex-grow: 1;
-		overflow-y: visible;
-		overflow-x: auto;
 
 		@media (min-width: 782px) {
 			border-right: 1px solid var(--jp-gray-5);
@@ -346,13 +345,38 @@ $action-bar-height: 88px;
 			}
 		}
 	}
+
+	// optionally, fix the footer to bottom of the page and add margin so the last row is not hidden by the footer
+	margin-bottom: 97px;
+	
+	@media (min-width: 782px) {
+		margin-bottom: 57px;
+	}
+
+	.dataviews-footer {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		left: 0;
+
+		@media (min-width: 782px) {
+			width: calc(100% - 160px);
+			left: 160px; // 160px is compensation for the width of the sidebar
+		}
+	}
 }
 
 .jp-forms__inbox__dataviews-response {
 	min-width: 300px !important;
-	height: 100%;
 	overflow: auto;
 	flex: 1 1 40%;
+
+	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
+	margin-bottom: 97px;
+
+	@media (min-width: 782px) {
+		margin-bottom: 57px;
+	}
 }
 
 
@@ -364,25 +388,18 @@ body.jetpack_page_jetpack-forms-admin {
 	#wpcontent,
 	#wpbody,
 	#wpbody-content {
-		height: 100%;
+		min-height: 100%;
 	}
 }
 
 #jp-forms-dashboard {
-	height: 100%;
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-
-	// This is the ThemeWrapper div, we need to keep it at 100% for the inner content to be full height.
-	> div:first-child {
-		height: 100%;
-	}
-
 }
 
 .jp-forms__inbox-tabs .components-tab-panel__tab-content {
-	flex: 1 1 auto;
+	flex: 1;
 
 	/* Important to pair with flex-shrink */
 	min-height: 0;;

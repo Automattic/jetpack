@@ -2,7 +2,7 @@ import { useParentSize } from '@visx/responsive';
 import type { BaseChartProps, Optional } from '../../types';
 import type { ComponentType } from 'react';
 
-type ResponsiveConfig = {
+export type ResponsiveConfig = {
 	/**
 	 * The maximum width of the chart. Defaults to 1200.
 	 */
