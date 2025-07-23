@@ -63,6 +63,7 @@ const settings = {
 		'jetpack/field-rating-max': 'max',
 		'jetpack/field-rating-default': 'default',
 		'jetpack/field-rating-className': 'className',
+		'jetpack/field-rating-onChangeDefault': 'onChangeDefault',
 	},
 	styles: stylesArray,
 	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],

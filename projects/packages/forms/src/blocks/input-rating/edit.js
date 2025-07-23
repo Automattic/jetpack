@@ -16,12 +16,11 @@ import Symbols from './symbols';
  * @return {import('react').JSX.Element} Rating input editor component
  */
 export default function RatingInputEdit( { context, setAttributes } ) {
-	// Get all values from context provided by parent field-rating block
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
 	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
 	const className = context?.[ 'jetpack/field-rating-className' ] || 'is-style-stars';
+	const onChangeDefault = context?.[ 'jetpack/field-rating-onChangeDefault' ] || ( () => {} );
 
-	// Sync the className from context to the block's attributes
 	useEffect( () => {
 		setAttributes( { className } );
 	}, [ className, setAttributes ] );
@@ -38,7 +37,7 @@ export default function RatingInputEdit( { context, setAttributes } ) {
 
 	return (
 		<div { ...blockProps }>
-			<Symbols max={ max } value={ defaultValue } onChange={ () => {} } icon={ icon } />
+			<Symbols max={ max } value={ defaultValue } onChange={ onChangeDefault } icon={ icon } />
 		</div>
 	);
 }

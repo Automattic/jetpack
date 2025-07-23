@@ -5,6 +5,7 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl } from '@wordpress/components';
+import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import RatingToolbar from '../shared/components/rating-toolbar';
@@ -35,13 +36,19 @@ export default function RatingFieldEdit( props ) {
 		} );
 	};
 
-	const updateDefault = newDefault => {
-		const validatedDefault = Math.min( Math.max( parseInt( newDefault ) || 0, 0 ), max );
-		setAttributes( { default: validatedDefault } );
-	};
+	const onChangeDefault = useCallback(
+		newDefault => {
+			const validatedDefault = Math.min( Math.max( parseInt( newDefault ) || 0, 0 ), max );
+			setAttributes( { default: validatedDefault } );
+		},
+		[ max, setAttributes ]
+	);
+
+	useEffect( () => {
+		setAttributes( { onChangeDefault } );
+	}, [ onChangeDefault, setAttributes ] );
 
 	const updateClassName = newClassName => {
-		// Set className directly, matching core behavior
 		setAttributes( { className: newClassName } );
 	};
 
@@ -96,7 +103,7 @@ export default function RatingFieldEdit( props ) {
 						min={ 0 }
 						max={ max }
 						value={ defaultValue }
-						onChange={ updateDefault }
+						onChange={ onChangeDefault }
 					/>
 				</PanelBody>
 			</InspectorControls>

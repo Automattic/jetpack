@@ -20,8 +20,12 @@ export default function Symbols( { max, value = 0, onChange = () => {}, icon = '
 	// Memoize rating positions array for performance
 	const ratings = useMemo( () => Array.from( { length: max }, ( _, i ) => i + 1 ), [ max ] );
 
-	// Memoize click handlers to prevent unnecessary re-renders
-	const handleSelect = useCallback( position => () => onChange( position ), [ onChange ] );
+	const handleSelect = useCallback(
+		position => () => {
+			onChange( value === position ? 0 : position );
+		},
+		[ onChange, value ]
+	);
 
 	// Handle keyboard navigation
 	const handleKeyDown = useCallback(
