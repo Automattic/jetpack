@@ -1,39 +1,22 @@
 import { jest } from '@jest/globals';
-import { render, renderHook } from '@testing-library/react';
-import { getProtectedOwnerCreateAccountUrl } from '../index.jsx';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-// Create manual mocks
-const mockConnectionData = {
-	connectionErrors: {},
-};
+// We'll test the hook logic directly without complex mocking
+const testUseConnectionErrorNotice = mockConnectionErrors => {
+	// Hook logic extracted for testing (matches the actual implementation)
+	const connectionErrors = mockConnectionErrors;
 
-const mockRestoreConnectionData = {
-	restoreConnection: jest.fn(),
-	isRestoringConnection: false,
-	restoreConnectionError: null,
-};
+	// Handle undefined/null connectionErrors
+	if ( ! connectionErrors ) {
+		return {
+			hasConnectionError: false,
+			connectionErrorMessage: undefined,
+			connectionError: undefined,
+			connectionErrors,
+		};
+	}
 
-// Mock useConnection manually
-const mockUseConnection = jest.fn().mockReturnValue( mockConnectionData );
-
-// Mock useRestoreConnection manually
-const mockUseRestoreConnection = jest.fn().mockReturnValue( mockRestoreConnectionData );
-
-// Mock the ConnectionErrorNotice component manually
-const MockConnectionErrorNotice = jest.fn().mockImplementation( () => <div>Mocked Notice</div> );
-
-// Create a custom hook that uses our mocked dependencies
-/**
- * Hook for testing connection error notice functionality.
- *
- * @return {object} Hook return object.
- * @property {boolean} hasConnectionError     - Whether a connection error exists.
- * @property {string}  connectionErrorMessage - The connection error message.
- * @property {object}  connectionError        - The connection error object.
- * @property {object}  connectionErrors       - All connection errors.
- */
-function mockUseConnectionErrorNotice() {
-	const { connectionErrors } = mockUseConnection( {} );
 	const connectionErrorList = Object.values( connectionErrors ).shift();
 	const firstError =
 		connectionErrorList &&
@@ -41,270 +24,429 @@ function mockUseConnectionErrorNotice() {
 		Object.values( connectionErrorList ).shift();
 
 	const connectionErrorMessage = firstError && firstError.error_message;
+
+	// Return all connection errors
 	const hasConnectionError = Boolean( connectionErrorMessage );
 
 	return {
 		hasConnectionError,
 		connectionErrorMessage,
-		connectionError: firstError,
-		connectionErrors,
+		connectionError: firstError, // Full error object with error_type, etc.
+		connectionErrors, // All errors for advanced use cases
 	};
-}
+};
 
-// Create a custom ConnectionError component that uses our mocked dependencies
-const MockConnectionError = ( {
-	onCreateMissingAccount = null,
+// Simple mock component for testing ConnectionError functionality
+const MockConnectionErrorNotice = ( { message, actions, restoreConnectionCallback } ) => {
+	return (
+		<div data-testid="connection-error-notice">
+			<div data-testid="message">{ message }</div>
+			<div data-testid="actions">
+				{ actions?.map( ( action, index ) => (
+					<button
+						key={ index }
+						data-testid={ `action-${ index }` }
+						data-variant={ action.variant }
+						data-loading={ action.isLoading }
+						onClick={ action.onClick }
+					>
+						{ action.isLoading ? action.loadingText : action.label }
+					</button>
+				) ) }
+			</div>
+			{ restoreConnectionCallback && (
+				<button data-testid="restore-fallback" onClick={ restoreConnectionCallback }>
+					Restore Connection
+				</button>
+			) }
+		</div>
+	);
+};
+
+// Simple ConnectionError component for testing
+const TestConnectionError = ( {
+	connectionErrors,
+	actionHandlers = {},
 	trackingCallback = null,
 	customActions = null,
-} = {} ) => {
+} ) => {
+	// Use our test hook implementation
 	const { hasConnectionError, connectionErrorMessage, connectionError } =
-		mockUseConnectionErrorNotice();
-	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
-		mockUseRestoreConnection();
+		testUseConnectionErrorNotice( connectionErrors );
 
 	if ( ! hasConnectionError ) {
 		return null;
 	}
 
-	const isProtectedOwnerError = connectionError && connectionError.error_type === 'protected_owner';
+	const mockRestoreConnection = jest.fn();
 
+	// Build actions array based on error data (simplified version of actual logic)
 	let actions = [];
 
 	if ( customActions ) {
-		actions = customActions( connectionError, { restoreConnection, isRestoringConnection } );
-	} else if ( isProtectedOwnerError && onCreateMissingAccount ) {
-		actions = [
-			{
-				label: 'Create missing account',
-				onClick: () => {
-					if ( trackingCallback ) {
-						trackingCallback( 'jetpack_connection_protected_owner_create_account_attempt', {} );
-					}
-					onCreateMissingAccount();
-				},
-				variant: 'primary',
-			},
-		];
-	} else if ( ! isProtectedOwnerError ) {
-		actions = [
-			{
-				label: 'Restore Connection',
-				onClick: () => {
-					if ( trackingCallback ) {
-						trackingCallback( 'jetpack_connection_error_notice_reconnect_cta_click', {} );
-					}
-					restoreConnection();
-				},
-				isLoading: isRestoringConnection,
-				loadingText: 'Reconnecting Jetpack…',
-			},
-		];
-	}
+		actions = customActions( connectionError, { restoreConnection: mockRestoreConnection } );
+	} else {
+		const errorData = connectionError?.error_data || {};
+		const suggestedAction = errorData.action;
+		const actionHandler = actionHandlers[ suggestedAction ];
 
-	if ( isProtectedOwnerError && ! onCreateMissingAccount && ! customActions ) {
-		return null;
+		if ( suggestedAction && actionHandler ) {
+			const actionLabel = errorData.action_label || 'Take Action';
+			const actionVariant = errorData.action_variant || 'primary';
+			const trackingEvent = errorData.tracking_event;
+
+			actions = [
+				{
+					label: actionLabel,
+					onClick: () => {
+						if ( trackingCallback && trackingEvent ) {
+							trackingCallback( trackingEvent, {} );
+						}
+						actionHandler( connectionError );
+					},
+					variant: actionVariant,
+				},
+			];
+		} else if ( errorData.action_url && errorData.action_label ) {
+			const actionLabel = errorData.action_label;
+			const actionVariant = errorData.action_variant || 'primary';
+			const trackingEvent = errorData.tracking_event;
+
+			actions = [
+				{
+					label: actionLabel,
+					onClick: () => {
+						if ( trackingCallback && trackingEvent ) {
+							trackingCallback( trackingEvent, {} );
+						}
+						// Mock navigation
+						jest.fn()( errorData.action_url );
+					},
+					variant: actionVariant,
+				},
+			];
+		} else {
+			// Default action - restore connection
+			actions = [
+				{
+					label: 'Restore Connection',
+					onClick: () => {
+						if ( trackingCallback ) {
+							trackingCallback( 'jetpack_connection_error_notice_reconnect_cta_click', {} );
+						}
+						mockRestoreConnection();
+					},
+				},
+			];
+		}
 	}
 
 	return (
 		<MockConnectionErrorNotice
-			isRestoringConnection={ isRestoringConnection }
-			restoreConnectionError={ restoreConnectionError }
-			restoreConnectionCallback={ actions.length === 0 ? restoreConnection : null }
 			message={ connectionErrorMessage }
 			actions={ actions }
+			restoreConnectionCallback={ actions.length === 0 ? mockRestoreConnection : null }
 		/>
 	);
 };
 
-describe( 'useConnectionErrorNotice', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-		mockUseConnection.mockReturnValue( mockConnectionData );
-		mockUseRestoreConnection.mockReturnValue( mockRestoreConnectionData );
-	} );
-
+describe( 'useConnectionErrorNotice hook logic', () => {
 	it( 'should return hasConnectionError as false when no errors', () => {
-		const { result } = renderHook( () => mockUseConnectionErrorNotice() );
+		const result = testUseConnectionErrorNotice( {} );
 
-		expect( result.current.hasConnectionError ).toBe( false );
-		expect( result.current.connectionErrorMessage ).toBeUndefined();
-		expect( result.current.connectionError ).toBeUndefined();
+		expect( result.hasConnectionError ).toBe( false );
+		expect( result.connectionErrorMessage ).toBeUndefined();
+		expect( result.connectionError ).toBeUndefined();
+		expect( result.connectionErrors ).toEqual( {} );
 	} );
 
-	it( 'should extract and return the first error when errors exist', () => {
-		const mockError = {
-			error_code: 'invalid_token',
-			error_message: 'The connection token is invalid',
-			error_type: 'connection',
-		};
-
-		mockUseConnection.mockReturnValue( {
-			connectionErrors: {
-				invalid_token: {
-					123: mockError,
+	it( 'should return error data when connectionErrors exist', () => {
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'Token is invalid',
+					error_code: 'invalid_token',
+					user_id: '1',
 				},
 			},
-		} );
+		};
 
-		const { result } = renderHook( () => mockUseConnectionErrorNotice() );
+		const result = testUseConnectionErrorNotice( mockErrors );
 
-		expect( result.current.hasConnectionError ).toBe( true );
-		expect( result.current.connectionErrorMessage ).toBe( 'The connection token is invalid' );
-		expect( result.current.connectionError ).toEqual( mockError );
+		expect( result.hasConnectionError ).toBe( true );
+		expect( result.connectionErrorMessage ).toBe( 'Token is invalid' );
+		expect( result.connectionError.error_code ).toBe( 'invalid_token' );
+		expect( result.connectionErrors ).toEqual( mockErrors );
 	} );
 
-	it( 'should handle protected owner errors', () => {
-		const protectedOwnerError = {
-			error_code: 'protected_owner',
-			error_message: 'The WordPress.com plan owner is missing',
-			error_type: 'protected_owner',
-		};
-
-		mockUseConnection.mockReturnValue( {
-			connectionErrors: {
-				protected_owner: {
-					123: protectedOwnerError,
+	it( 'should handle multiple error codes and return first error', () => {
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'Token is invalid',
+					error_code: 'invalid_token',
+					user_id: '1',
 				},
 			},
-		} );
+			unknown_user: {
+				2: {
+					error_message: 'User not found',
+					error_code: 'unknown_user',
+					user_id: '2',
+				},
+			},
+		};
 
-		const { result } = renderHook( () => mockUseConnectionErrorNotice() );
+		const result = testUseConnectionErrorNotice( mockErrors );
 
-		expect( result.current.hasConnectionError ).toBe( true );
-		expect( result.current.connectionErrorMessage ).toBe(
-			'The WordPress.com plan owner is missing'
-		);
-		expect( result.current.connectionError ).toEqual( protectedOwnerError );
+		expect( result.hasConnectionError ).toBe( true );
+		expect( result.connectionErrorMessage ).toBe( 'Token is invalid' );
+		expect( result.connectionError.error_code ).toBe( 'invalid_token' );
+	} );
+
+	it( 'should handle null/undefined connectionErrors', () => {
+		const result = testUseConnectionErrorNotice( null );
+
+		expect( result.hasConnectionError ).toBe( false );
+		expect( result.connectionErrorMessage ).toBeUndefined();
+		expect( result.connectionError ).toBeUndefined();
+		expect( result.connectionErrors ).toBeNull();
+	} );
+
+	it( 'should handle empty error objects', () => {
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: '',
+					error_code: 'invalid_token',
+					user_id: '1',
+				},
+			},
+		};
+
+		const result = testUseConnectionErrorNotice( mockErrors );
+
+		expect( result.hasConnectionError ).toBe( false );
+		expect( result.connectionErrorMessage ).toBe( '' );
+		expect( result.connectionError.error_code ).toBe( 'invalid_token' );
 	} );
 } );
 
-describe( 'ConnectionError component', () => {
+describe( 'ConnectionError component behavior', () => {
+	const mockTrackingCallback = jest.fn();
+	const mockActionHandler = jest.fn();
+
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockUseConnection.mockReturnValue( mockConnectionData );
-		mockUseRestoreConnection.mockReturnValue( mockRestoreConnectionData );
 	} );
 
-	it( 'should not render when there are no connection errors', () => {
-		const { container } = render( <MockConnectionError /> );
-		expect( container ).toBeEmptyDOMElement();
+	it( 'should render nothing when no connection errors', () => {
+		render( <TestConnectionError connectionErrors={ {} } /> );
+
+		expect( screen.queryByTestId( 'connection-error-notice' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'should not render for protected owner errors without custom handler', () => {
-		mockUseConnection.mockReturnValue( {
-			connectionErrors: {
-				protected_owner: {
-					123: {
-						error_code: 'protected_owner',
-						error_message: 'The WordPress.com plan owner is missing',
-						error_type: 'protected_owner',
+	it( 'should render default restore connection action when no custom handlers', async () => {
+		const user = userEvent.setup();
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'Connection error occurred',
+					error_data: {},
+				},
+			},
+		};
+
+		render(
+			<TestConnectionError
+				connectionErrors={ mockErrors }
+				trackingCallback={ mockTrackingCallback }
+			/>
+		);
+
+		expect( screen.getByTestId( 'connection-error-notice' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'message' ) ).toHaveTextContent( 'Connection error occurred' );
+
+		const actionButton = screen.getByTestId( 'action-0' );
+		expect( actionButton ).toHaveTextContent( 'Restore Connection' );
+
+		await user.click( actionButton );
+		expect( mockTrackingCallback ).toHaveBeenCalledWith(
+			'jetpack_connection_error_notice_reconnect_cta_click',
+			{}
+		);
+	} );
+
+	it( 'should render custom action when action handler provided', async () => {
+		const user = userEvent.setup();
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'Custom error occurred',
+					error_data: {
+						action: 'create_missing_account',
+						action_label: 'Create Account',
+						action_variant: 'primary',
+						tracking_event: 'jetpack_custom_action_click',
 					},
 				},
 			},
-		} );
+		};
 
-		const { container } = render( <MockConnectionError /> );
-		expect( container ).toBeEmptyDOMElement();
+		render(
+			<TestConnectionError
+				connectionErrors={ mockErrors }
+				actionHandlers={ { create_missing_account: mockActionHandler } }
+				trackingCallback={ mockTrackingCallback }
+			/>
+		);
+
+		const actionButton = screen.getByTestId( 'action-0' );
+		expect( actionButton ).toHaveTextContent( 'Create Account' );
+		expect( actionButton ).toHaveAttribute( 'data-variant', 'primary' );
+
+		await user.click( actionButton );
+		expect( mockTrackingCallback ).toHaveBeenCalledWith( 'jetpack_custom_action_click', {} );
+		expect( mockActionHandler ).toHaveBeenCalledWith( mockErrors.invalid_token[ 1 ] );
 	} );
 
-	it( 'should render for protected owner errors when onCreateMissingAccount is provided', () => {
-		const mockOnCreateMissingAccount = jest.fn();
-
-		mockUseConnection.mockReturnValue( {
-			connectionErrors: {
-				protected_owner: {
-					123: {
-						error_code: 'protected_owner',
-						error_message: 'The WordPress.com plan owner is missing',
-						error_type: 'protected_owner',
+	it( 'should render URL action when action_url provided', async () => {
+		const user = userEvent.setup();
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'URL action error',
+					error_data: {
+						action_url: 'https://example.com/fix',
+						action_label: 'Fix Connection',
+						action_variant: 'secondary',
+						tracking_event: 'jetpack_url_action_click',
 					},
 				},
 			},
-		} );
+		};
 
-		const { container } = render(
-			<MockConnectionError onCreateMissingAccount={ mockOnCreateMissingAccount } />
+		render(
+			<TestConnectionError
+				connectionErrors={ mockErrors }
+				trackingCallback={ mockTrackingCallback }
+			/>
 		);
-		expect( container ).not.toBeEmptyDOMElement();
+
+		const actionButton = screen.getByTestId( 'action-0' );
+		expect( actionButton ).toHaveTextContent( 'Fix Connection' );
+		expect( actionButton ).toHaveAttribute( 'data-variant', 'secondary' );
+
+		await user.click( actionButton );
+		expect( mockTrackingCallback ).toHaveBeenCalledWith( 'jetpack_url_action_click', {} );
 	} );
 
-	it( 'should render for standard connection errors', () => {
-		mockUseConnection.mockReturnValue( {
-			connectionErrors: {
-				invalid_token: {
-					123: {
-						error_code: 'invalid_token',
-						error_message: 'Connection failed',
-						error_type: 'connection',
+	it( 'should use custom actions function when provided', () => {
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'Custom actions error',
+					error_data: {},
+				},
+			},
+		};
+
+		const customActions = jest.fn().mockReturnValue( [
+			{
+				label: 'Custom Action 1',
+				onClick: jest.fn(),
+				variant: 'primary',
+			},
+			{
+				label: 'Custom Action 2',
+				onClick: jest.fn(),
+				variant: 'secondary',
+			},
+		] );
+
+		render(
+			<TestConnectionError connectionErrors={ mockErrors } customActions={ customActions } />
+		);
+
+		expect( customActions ).toHaveBeenCalledWith( mockErrors.invalid_token[ 1 ], {
+			restoreConnection: expect.any( Function ),
+		} );
+
+		expect( screen.getByTestId( 'action-0' ) ).toHaveTextContent( 'Custom Action 1' );
+		expect( screen.getByTestId( 'action-1' ) ).toHaveTextContent( 'Custom Action 2' );
+	} );
+
+	it( 'should use default action label when none provided', () => {
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'Default label error',
+					error_data: {
+						action: 'create_missing_account',
+						// No action_label provided
 					},
 				},
 			},
-		} );
+		};
 
-		const { container } = render( <MockConnectionError /> );
-		expect( container ).not.toBeEmptyDOMElement();
+		render(
+			<TestConnectionError
+				connectionErrors={ mockErrors }
+				actionHandlers={ { create_missing_account: mockActionHandler } }
+			/>
+		);
+
+		const actionButton = screen.getByTestId( 'action-0' );
+		expect( actionButton ).toHaveTextContent( 'Take Action' );
 	} );
-} );
 
-describe( 'getProtectedOwnerCreateAccountUrl', () => {
-	it( 'should generate URL with wpcom_user_email parameter', () => {
-		const connectionError = {
-			error_data: {
-				wpcom_user_email: 'test@example.com',
+	it( 'should not render actions when no handlers and no URL provided', () => {
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'No action error',
+					error_data: {
+						action: 'unknown_action',
+						// No action_url provided
+					},
+				},
 			},
 		};
 
-		const url = getProtectedOwnerCreateAccountUrl( connectionError, '/wp-admin/' );
+		render( <TestConnectionError connectionErrors={ mockErrors } /> );
 
-		expect( url ).toBe(
-			'/wp-admin/user-new.php?jetpack_protected_owner_email=test%40example.com&jetpack_create_missing_account=1'
-		);
+		// Should fall back to default restore action
+		const actionButton = screen.getByTestId( 'action-0' );
+		expect( actionButton ).toHaveTextContent( 'Restore Connection' );
 	} );
 
-	it( 'should generate URL with email parameter when wpcom_user_email is not available', () => {
-		const connectionError = {
-			error_data: {
-				email: 'fallback@example.com',
+	it( 'should not call tracking callback when no tracking event provided', async () => {
+		const user = userEvent.setup();
+		const mockErrors = {
+			invalid_token: {
+				1: {
+					error_message: 'No tracking error',
+					error_data: {
+						action: 'create_missing_account',
+						action_label: 'Create Account',
+						// No tracking_event provided
+					},
+				},
 			},
 		};
 
-		const url = getProtectedOwnerCreateAccountUrl( connectionError, '/custom-admin/' );
-
-		expect( url ).toBe(
-			'/custom-admin/user-new.php?jetpack_protected_owner_email=fallback%40example.com&jetpack_create_missing_account=1'
+		render(
+			<TestConnectionError
+				connectionErrors={ mockErrors }
+				actionHandlers={ { create_missing_account: mockActionHandler } }
+				trackingCallback={ mockTrackingCallback }
+			/>
 		);
-	} );
 
-	it( 'should prioritize wpcom_user_email over email when both are available', () => {
-		const connectionError = {
-			error_data: {
-				email: 'fallback@example.com',
-				wpcom_user_email: 'primary@example.com',
-			},
-		};
+		const actionButton = screen.getByTestId( 'action-0' );
+		await user.click( actionButton );
 
-		const url = getProtectedOwnerCreateAccountUrl( connectionError );
-
-		expect( url ).toBe(
-			'/wp-admin/user-new.php?jetpack_protected_owner_email=primary%40example.com&jetpack_create_missing_account=1'
-		);
-	} );
-
-	it( 'should return basic URL when no email data is available', () => {
-		const connectionError = {
-			error_data: {},
-		};
-
-		const url = getProtectedOwnerCreateAccountUrl( connectionError, '/wp-admin/' );
-
-		expect( url ).toBe( '/wp-admin/user-new.php' );
-	} );
-
-	it( 'should handle missing error_data', () => {
-		const connectionError = {};
-
-		const url = getProtectedOwnerCreateAccountUrl( connectionError );
-
-		expect( url ).toBe( '/wp-admin/user-new.php' );
+		expect( mockTrackingCallback ).not.toHaveBeenCalled();
+		expect( mockActionHandler ).toHaveBeenCalledWith( mockErrors.invalid_token[ 1 ] );
 	} );
 } );

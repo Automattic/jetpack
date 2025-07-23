@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2

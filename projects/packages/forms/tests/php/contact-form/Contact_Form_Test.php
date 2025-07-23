@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Constants;
 use DOMDocument;
 use DOMElement;
 use PHPUnit\Framework\Attributes\Before;
@@ -2872,5 +2873,127 @@ EOT;
 
 		// Restore original post
 		$post = $original_post;
+	}
+
+	public function test_encode_form_to_jwt() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+		$form = new Contact_Form(
+			array(
+				'to'      => 'hello@email.com',
+				'subject' => 'test subject',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+			. "[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+
+		$this->assertNotEmpty( $jwt, 'JWT should not be empty' );
+		$this->assertIsString( $jwt, 'JWT should be a string' );
+
+		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
+
+		// Decode the JWT to verify its structure
+		$to_attribute = $form_copy->get_attribute( 'to' );
+		$this->assertEquals( 'hello@email.com', $to_attribute );
+		$this->assertEquals( $form_copy->get_attributes(), $form->get_attributes(), 'Form attributes should match' );
+		$this->assertEquals( $form->get_attribute( 'to' ), $form_copy->get_attribute( 'to' ), 'Form IDs should match' );
+		$this->assertEquals( $form->get_attribute( 'id' ), $form_copy->get_attribute( 'id' ), 'Form IDs should match' );
+
+		$this->assertTrue( $form_copy->has_verified_jwt, 'Form copy should have verified JWT' );
+		$this->assertFalse( $form->has_verified_jwt, 'Original form should not have verified JWT' );
+
+		$this->assertEquals( $form->hash, $form_copy->hash, 'Form hashes should match' );
+		$this->assertNotEmpty( $form_copy->hash, 'Form hash should not be empty' );
+
+		$this->assertEquals( $form->get_field_ids(), $form_copy->get_field_ids(), 'Field IDs should match' );
+		$this->assertNotEmpty( $form_copy->get_field_ids(), 'Fields should not be empty' );
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
+	public function test_get_instance_from_jwt_returns_null_when_no_secret() {
+		// Ensure JETPACK_BLOG_TOKEN is not defined
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+
+		$form = new Contact_Form(
+			array(
+				'to'      => 'test@email.com',
+				'subject' => 'Test Form',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+		$this->assertNotEmpty( $jwt, 'JWT should not be empty as it uses default secret' );
+		$this->assertIsString( $jwt, 'JWT should be a string' );
+
+		// The form should still be recoverable using the default secret
+		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
+		$this->assertNotNull( $form_copy, 'Should recover form using default secret' );
+		$this->assertTrue( $form_copy->has_verified_jwt, 'Form should have verified JWT with default secret' );
+	}
+
+	public function test_get_instance_from_jwt_returns_with_all_attribute_data() {
+		// Ensure JETPACK_BLOG_TOKEN is not defined
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+
+		$attributes = array(
+			'to'                     => 'test@email.com',
+			'subject'                => 'Test Form',
+			'show_subject'           => 'no', // only used in back-compat mode
+			'widget'                 => 'string',    // Not exposed to the user. Works with Contact_Form_Plugin::widget_atts()
+			'block_template'         => null, // Not exposed to the user. Works with template_loader
+			'block_template_part'    => null, // Not exposed to the user. Works with Contact_Form::parse()
+			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
+			// These attributes come from the block editor, so use camel case instead of snake case.
+			'customThankyou'         => 'message', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
+			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack-forms' ), // The text to show above customThankyouMessage.
+			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack-forms' ), // The message to show when customThankyou is set to 'message'.
+			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
+			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
+			'className'              => 'string-class-name', // The class name to apply to the form.
+			'postToUrl'              => 'https://example.com/submit', // The URL to post the form data to.
+			'salesforceData'         => array( 'organizationId' => '12345' ),
+			'hiddenFields'           => array(
+				'hiddenField1' => 'value1',
+				'hiddenField2' => 'value2',
+			), // Hidden fields to include in the form.
+			'stepTransition'         => 'fade-slide',
+		);
+		// Add a widget ID to the attributes for testing.
+		$expected_attributes                        = $attributes;
+		$expected_attributes['jetpackCRM']          = '1';
+		$expected_attributes['block_template']      = '';
+		$expected_attributes['block_template_part'] = '';
+		$expected_attributes['id']                  = 'widget-string';
+
+		$form = new Contact_Form(
+			$attributes,
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+		$this->assertNotEmpty( $jwt, 'JWT should not be empty as it uses default secret' );
+		$this->assertIsString( $jwt, 'JWT should be a string' );
+		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
+
+		$this->assertEquals( $form->get_attributes(), $form_copy->get_attributes(), 'Form attributes should match' );
+		$this->assertNotNull( $form_copy, 'Should recover form using default secret' );
+		$this->assertTrue( $form_copy->has_verified_jwt, 'Form should have verified JWT with default secret' );
+		$this->assertEquals( $form->get_attribute( 'salesforceData' ), $form_copy->get_attribute( 'salesforceData' ), 'Form attributes should match' );
+		$this->assertIsArray( $form_copy->get_attribute( 'salesforceData' ), 'salesforceData should be an array' );
+		$this->assertArrayHasKey( 'organizationId', $form_copy->get_attribute( 'salesforceData' ), 'salesforceData should contain organizationId' );
+		$this->assertSame( '12345', $form_copy->get_attribute( 'salesforceData' )['organizationId'], 'organizationId should match' );
+
+		$this->assertEquals( $expected_attributes, $form_copy->get_attributes(), 'jetpackCRM should be true' );
+	}
+
+	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		$form_copy = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token' );
+		$this->assertNull( $form_copy, 'Should return null for invalid JWT token' );
+
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 } // end class

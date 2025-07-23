@@ -1,0 +1,593 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as LineChartStories from './index.stories';
+import * as GlyphStories from './glyph.stories';
+import * as LegendStories from './legend.stories';
+
+<Meta title="JS Packages/Charts/Types/Line Chart" of={ LineChartStories } />
+
+# Line Chart
+
+Line Charts visualize data trends over time or other continuous variables, connecting data points with smooth or linear lines. They excel at showing patterns, trends, and relationships in time-series data.
+
+<Canvas of={ LineChartStories.Default } />
+
+## Overview
+
+The Line Chart component provides a flexible, accessible, and highly customizable solution for displaying temporal data. Built on `@visx/xychart`, it supports multiple data series, various curve types, interactive tooltips, legends, and compound components for advanced features like annotations:
+
+<Source
+	language="jsx"
+	code={ `import { LineChart } from '@automattic/charts';
+
+	<LineChart data={ data }>
+		{/* Optional child components for advanced features */}
+		<LineChart.AnnotationsOverlay>
+			<LineChart.Annotation
+				datum={ { date: new Date('2024-01-01'), value: 100 } }
+				title="Product Launch"
+			/>
+		</LineChart.AnnotationsOverlay>
+	</LineChart>` }
+/>
+
+## Basic Usage
+
+### Simple Line Chart
+
+The simplest line chart requires only a `data` prop with time-series data:
+
+<Canvas of={ LineChartStories.SingleSeries } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={[
+			{
+				label: 'Temperature',
+				data: [
+					{ date: new Date('2024-01-01'), value: 20 },
+					{ date: new Date('2024-01-02'), value: 25 },
+					{ date: new Date('2024-01-03'), value: 18 },
+				],
+				options: {}
+			}
+		]}
+	/>` }
+/>
+
+### Required Props
+
+- **`data`**: Array of series data, each containing `label`, `data` array, and optional `options`
+
+### Optional Props
+
+- **`width`**: Chart width in pixels (responsive by default)
+- **`height`**: Chart height in pixels (responsive by default)
+- **`withTooltips`**: Enable interactive tooltips (`true` by default)
+- **`showLegend`**: Display chart legend (`false` by default)
+- **`curveType`**: Line curve style (`'smooth'`, `'linear'`, `'monotone'`)
+- **`withGradientFill`**: Fill area under lines with gradient (`false` by default)
+- **`margin`**: Custom chart margins
+- **`options`**: Advanced axis and scale configuration
+
+## Curve Types
+
+### Linear Curves
+
+Connect data points with straight lines for precise, unsmoothed visualization:
+
+<Canvas of={ LineChartStories.CurveTypes } />
+
+### Smooth Curves (Catmull-Rom)
+
+Create flowing curves that pass through all data points using Catmull-Rom spline interpolation:
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		curveType="smooth"
+	/>` }
+/>
+
+### Monotone X Curves
+
+Prevent overshooting while maintaining smoothness, ideal for data with sharp changes:
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		curveType="monotone"
+	/>` }
+/>
+
+**When to use each type:**
+- **Linear**: Raw data visualization, technical charts, precise measurements
+- **Smooth**: Aesthetic presentations, trend visualization, marketing materials
+- **Monotone**: Financial data, scientific measurements where overshooting would be misleading
+
+## Multiple Series
+
+### Multi-Series Charts
+
+Display multiple data series with automatic color differentiation:
+
+<Canvas of={ LineChartStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={[
+			{
+				label: 'London Temperature',
+				data: londonData,
+				options: {}
+			},
+			{
+				label: 'New York Temperature',
+				data: newYorkData,
+				options: {}
+			}
+		]}
+	/>` }
+/>
+
+### Custom Series Styling
+
+Override individual series appearance with the `options` prop:
+
+<Canvas of={ LineChartStories.BrokenLine } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={[
+			{
+				label: 'Projected Data',
+				data: projectedData,
+				options: {
+					stroke: '#ff6b6b',
+					seriesLineStyle: {
+						strokeDasharray: '5 5 1'
+					},
+					legendShapeStyle: {
+						strokeDasharray: '5 5 1'
+					}
+				}
+			}
+		]}
+	/>` }
+/>
+
+## Visual Features
+
+### Gradient Fill
+
+Add visual depth with gradient fills under line series:
+
+<Canvas of={ LineChartStories.GradientFilled } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		withGradientFill={true}
+	/>` }
+/>
+
+### Glyphs and Markers
+
+Add visual markers at data points using the glyph system:
+
+<Canvas of={ GlyphStories.Start } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		withStartGlyphs={true}
+		withLegendGlyph={true}
+		renderGlyph={(props) => (
+			<circle
+				cx={props.x}
+				cy={props.y}
+				r={4}
+				fill={props.color}
+			/>
+		)}
+	/>` }
+/>
+
+## Interactive Features
+
+### Tooltips and Crosshairs
+
+Enable rich interactive tooltips with optional crosshair guides:
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		withTooltips={true}
+		withTooltipCrosshairs={{
+			showVertical: true,
+			showHorizontal: false
+		}}
+		renderTooltip={({ datum, color }) => (
+			<div style={{ background: color, color: 'white', padding: '8px' }}>
+				<div>Value: {datum.value}</div>
+				<div>Date: {datum.date.toLocaleDateString()}</div>
+			</div>
+		)}
+	/>` }
+/>
+
+### Pointer Events
+
+Handle user interactions with custom event handlers:
+
+<Canvas of={ LineChartStories.WithPointerEvents } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		onPointerDown={({ datum }) => console.log('Clicked:', datum)}
+		onPointerMove={({ datum }) => console.log('Hover:', datum)}
+	/>` }
+/>
+
+### Keyboard Navigation
+
+Charts are fully keyboard accessible with Tab navigation and arrow key data point selection.
+
+## Legends
+
+### Basic Legend
+
+Display series information with automatic color matching:
+
+<Canvas of={ LegendStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		showLegend={true}
+		legendOrientation="horizontal"
+		legendAlignmentHorizontal="center"
+		legendAlignmentVertical="bottom"
+	/>` }
+/>
+
+### Custom Legend Shapes
+
+Use different shapes and custom glyphs in legends:
+
+<Canvas of={ LegendStories.AlignmentPositioning } />
+
+	<Source
+		language="jsx"
+		code={ `<LineChart
+			data={data}
+			showLegend={true}
+			legendAlignmentHorizontal="right"
+			legendAlignmentVertical="top"
+		/>` }
+	/>
+
+## Advanced Customization
+
+### Axis Configuration
+
+Customize axes with formatting, orientation, and tick options:
+
+<Canvas of={ LineChartStories.SmartFormatting } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		options={{
+			axis: {
+				x: {
+					orientation: 'bottom',
+					numTicks: 6,
+					tickFormat: (date) => date.toLocaleDateString()
+				},
+				y: {
+					orientation: 'right',
+					numTicks: 4,
+					tickFormat: (value) => '$' + value + 'k'
+				}
+			},
+			yScale: {
+				type: 'linear',
+				zero: true,
+				nice: true
+			}
+		}}
+	/>` }
+/>
+
+### Responsive Behavior
+
+Charts automatically resize based on container size:
+
+<Canvas of={ LineChartStories.FixedDimensions } />
+
+<Source
+	language="jsx"
+	code={ `// Responsive (default)
+	<LineChart data={data} />
+
+	// Fixed dimensions
+	<LineChart
+		data={data}
+		width={800}
+		height={400}
+	/>` }
+/>
+
+### Custom Margins
+
+Control chart layout with precise margin settings:
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		margin={{
+			top: 20,
+			right: 80,
+			bottom: 60,
+			left: 80
+		}}
+	/>` }
+/>
+
+## Annotations
+
+Add contextual information to highlight specific data points or events. For comprehensive annotation documentation, see the [Line Chart Annotations](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) guide:
+
+<Source
+	language="jsx"
+	code={ `<LineChart data={data}>
+		<LineChart.AnnotationsOverlay>
+			<LineChart.Annotation
+				datum={{ date: new Date('2024-01-15'), value: 100 }}
+				title="Product Launch"
+				subtitle="Version 2.0 released"
+				subjectType="line-vertical"
+			/>
+		</LineChart.AnnotationsOverlay>
+	</LineChart>` }
+/>
+
+## Data Formats
+
+### Date Handling
+
+The chart supports multiple date formats and automatically converts to local timezone:
+
+<Canvas of={ LineChartStories.DateStringFormats } />
+
+<Source
+	language="jsx"
+	code={ `// Date objects
+	{ date: new Date('2024-01-01'), value: 10 }
+
+	// Date strings (automatically parsed)
+	{ dateString: '2024-01-01', value: 10 }
+	{ dateString: '2024-01-01 14:30:00', value: 15 }
+	{ dateString: '2024-01-01T14:30:00Z', value: 20 }` }
+/>
+
+### Large Values
+
+Automatic formatting handles large numbers with smart abbreviations:
+
+<Canvas of={ LineChartStories.SmartFormatting } />
+
+Values are automatically formatted as:
+- **1B and above**: "1.23B"
+- **1M and above**: "1.2M"
+- **1K and above**: "1k"
+- **Below 1K**: "1,234"
+
+## Error Handling
+
+The chart gracefully handles various error states and edge cases:
+
+<Canvas of={ LineChartStories.ErrorStates } />
+
+**Supported scenarios:**
+- Empty data arrays
+- Invalid date values
+- Null or NaN numeric values
+- Single data points
+- Missing data properties
+
+## Accessibility
+
+### Keyboard Navigation
+
+- **Tab**: Focus the chart
+- **Arrow Keys**: Navigate between data points
+- **Enter/Space**: Activate tooltips or interactive elements
+- **Escape**: Close active tooltips
+
+### Screen Reader Support
+
+- Chart container has `role="grid"` with descriptive `aria-label`
+- Data points are navigable and announced with values
+- Interactive elements have appropriate ARIA attributes
+- Color information is supplemented with patterns and labels
+
+### Focus Management
+
+- Clear visual focus indicators
+- Logical tab order through interactive elements
+- Focus restoration after modal interactions
+
+## Browser Compatibility
+
+### Modern Browser Support
+
+Full functionality in all modern browsers supporting:
+- SVG rendering
+- CSS Grid and Flexbox
+- ES6+ JavaScript features
+
+### Safari Considerations
+
+- Annotation popover positioning uses viewport center due to Safari's `foreignObject` positioning limitations
+- Native Popover API support varies; fallbacks are provided
+
+### Responsive Features
+
+- Built-in ResizeObserver support for automatic chart resizing
+- Graceful degradation for older browsers
+- Touch-friendly interactions on mobile devices
+
+## API Reference
+
+### LineChart
+
+Main chart component with responsive behavior by default.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
+| `width` | `number` | responsive | Chart width in pixels |
+| `height` | `number` | responsive | Chart height in pixels |
+| `curveType` | `'smooth' \| 'linear' \| 'monotone'` | `'smooth'` | Line curve interpolation type |
+| `withGradientFill` | `boolean` | `false` | Fill area under lines with gradient |
+| `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
+| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }` | - | Show crosshair guides with tooltips |
+| `showLegend` | `boolean` | `false` | Display chart legend |
+| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
+| `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Horizontal legend alignment |
+| `legendAlignmentVertical` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
+| `legendShape` | `LegendShape` | `'line'` | Shape used in legend markers |
+| `withStartGlyphs` | `boolean` | `false` | Show markers at the first data point of each series |
+| `withLegendGlyph` | `boolean` | `false` | Use custom glyphs in legend |
+| `renderGlyph` | `(props: GlyphProps) => ReactNode` | - | Custom glyph render function |
+| `glyphStyle` | `SVGProps<SVGCircleElement>` | `{}` | Styling for chart glyphs |
+| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
+| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
+| `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
+| `onPointerDown` | `(event: EventHandlerParams) => void` | - | Pointer down event handler |
+| `onPointerUp` | `(event: EventHandlerParams) => void` | - | Pointer up event handler |
+| `onPointerMove` | `(event: EventHandlerParams) => void` | - | Pointer move event handler |
+| `onPointerOut` | `(event: PointerEvent) => void` | - | Pointer out event handler |
+| `children` | `ReactNode` | - | Child components (e.g., annotations) |
+
+### LineChart.AnnotationsOverlay
+
+Container component for chart annotations. See [Annotations documentation](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) for complete details.
+
+**Props:**
+
+- `children`: Annotation components
+
+### LineChart.Annotation
+
+Individual annotation component. See [Annotations documentation](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) for complete API reference.
+
+### SeriesData Type
+
+```typescript
+type SeriesData = {
+	label: string;
+	data: DataPointDate[];
+	options?: {
+		gradient?: {
+			from: string;
+			to: string;
+			fromOpacity?: number;
+			toOpacity?: number;
+		};
+		stroke?: string;
+		seriesLineStyle?: LineStyles;
+		legendShapeStyle?: CSSProperties;
+	};
+};
+```
+
+### DataPointDate Type
+
+```typescript
+type DataPointDate = {
+	date?: Date;
+	dateString?: string; // Multiple formats supported
+	value: number | null;
+	label?: string;
+};
+```
+
+### ChartOptions Type
+
+```typescript
+type ChartOptions = {
+	yScale?: {
+		type?: 'linear' | 'log';
+		zero?: boolean;
+		domain?: [number, number];
+		nice?: boolean;
+	};
+	xScale?: {
+		type?: 'time' | 'linear';
+		domain?: [Date, Date] | [number, number];
+	};
+	axis?: {
+		x?: {
+			orientation?: 'top' | 'bottom';
+			numTicks?: number;
+			tickFormat?: (value: any) => string;
+		};
+		y?: {
+			orientation?: 'left' | 'right';
+			numTicks?: number;
+			tickFormat?: (value: number) => string;
+		};
+	};
+};
+```
+
+
+## Performance Considerations
+
+### Built-in Optimizations
+
+- **No animations**: Animations have been removed from chart components to improve performance and reduce overhead
+- **Efficient rendering**: Built on `@visx/xychart` for optimized SVG rendering and chart performance
+- **Responsive behavior**: Uses `ResizeObserver` for efficient chart resizing without polling
+
+### Implementation Notes
+
+- Chart components are optimized for typical dashboard and analytics use cases
+- The underlying `@visx` libraries provide efficient data-to-visual mappings
+- Consider your specific data volume and update frequency when implementing real-time charts
+
+## Theming Integration
+
+Line Charts integrate seamlessly with the chart theming system:
+
+<Source
+	language="jsx"
+	code={ `import { ThemeProvider, jetpackTheme } from '@automattic/charts';
+
+	<ThemeProvider theme={jetpackTheme}>
+		<LineChart data={data} />
+	</ThemeProvider>` }
+/>
+
+**Available themes:**
+- **Default**: Neutral colors and styling
+- **Jetpack**: Jetpack brand colors and styling
+- **Woo**: WooCommerce brand colors and styling
+- **Custom**: Define your own theme object

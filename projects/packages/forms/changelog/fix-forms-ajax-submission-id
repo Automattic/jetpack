@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix form id collision check
