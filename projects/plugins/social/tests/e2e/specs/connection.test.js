@@ -1,14 +1,15 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { disconnect } from '_jetpack-e2e-commons/utils/index.ts';
 import { connect } from '../flows/index.js';
 import { JetpackSocialPage } from '../pages/index.js';
 
-test.beforeEach( async ( { page } ) => {
+test.beforeEach( async ( { page, requestUtils } ) => {
+	await disconnect( requestUtils );
+
 	await prerequisitesBuilder( page )
 		.withCleanEnv()
 		.withActivePlugins( [ 'jetpack-social' ] )
-		.withLoggedIn( true )
-		.withWpComLoggedIn( true )
 		.build();
 } );
 

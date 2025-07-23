@@ -5,15 +5,16 @@ import {
 	execSyncShellCommand,
 	execWpCommand,
 } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { disconnect } from '_jetpack-e2e-commons/utils/index.ts';
 import { connect } from '../flows/connection';
 
 test.describe( 'Jetpack Protect Plugin', () => {
-	test.beforeEach( async ( { page, admin } ) => {
+	test.beforeEach( async ( { page, admin, requestUtils } ) => {
+		await disconnect( requestUtils );
+
 		await prerequisitesBuilder( page )
-			.withCleanEnv()
 			.withActivePlugins( [ 'jetpack-protect' ] )
 			.withInactivePlugins( [ 'e2e-waf-data-interceptor' ] )
-			.withLoggedIn( true )
 			.build();
 
 		/**

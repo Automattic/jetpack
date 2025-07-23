@@ -1,4 +1,3 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
@@ -10,7 +9,6 @@ import {
 	disableDedicatedSync,
 	isSyncQueueEmpty,
 } from '../../helpers/sync-helper.js';
-import playwrightConfig from '../../playwright.config.mjs';
 
 test.describe( 'Sync', () => {
 	const wpcomRestAPIBase = 'https://public-api.wordpress.com/rest/';
@@ -19,11 +17,7 @@ test.describe( 'Sync', () => {
 	let wpcomPostsResponse;
 	let wpcomPosts;
 
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await prerequisitesBuilder( page ).withLoggedIn( true ).build();
-		await page.close();
-
+	test.beforeAll( async ( {} ) => {
 		const jetpackOptions = await execWpCommand( 'option get jetpack_options --format=json' );
 		wpcomBlogId = JSON.parse( jetpackOptions ).id;
 		wpcomForcedPostsUrl =
