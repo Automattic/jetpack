@@ -107,6 +107,17 @@ export type ChartTheme = {
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
 	annotationStyles?: AnnotationStyles;
+	/** ConversionFunnelChart specific settings */
+	conversionFunnelChart?: {
+		/** Primary color for funnel bars */
+		primaryColor?: string;
+		/** Background color for chart container */
+		backgroundColor?: string;
+		/** Color for positive change indicators */
+		positiveChangeColor?: string;
+		/** Color for negative change indicators */
+		negativeChangeColor?: string;
+	};
 };
 
 declare type AxisOptions = {
@@ -311,3 +322,6 @@ export type {
 	LeaderboardEntry,
 	MetricValueType,
 } from './components/leaderboard-chart';
+
+// ConversionFunnelChart types
+export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';

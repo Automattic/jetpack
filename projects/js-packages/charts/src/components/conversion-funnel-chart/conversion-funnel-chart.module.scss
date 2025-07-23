@@ -1,0 +1,119 @@
+.conversionFunnelChart {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+	&.loading {
+		opacity: 0.6;
+		pointer-events: none;
+	}
+}
+
+.mainMetric {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	margin-bottom: 24px;
+}
+
+.mainRate {
+	font-size: 48px;
+	font-weight: 400;
+	color: #111827;
+	line-height: 1;
+	margin: 0;
+}
+
+.changeIndicator {
+	font-size: 20px;
+	font-weight: 600;
+	margin: 0;
+}
+
+.funnelContainer {
+	display: flex;
+	gap: 16px;
+	align-items: flex-end;
+	height: 200px;
+}
+
+.funnelStep {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.stepHeader {
+	margin-bottom: 16px;
+}
+
+.stepLabel {
+	font-size: 14px;
+	font-weight: 500;
+	color: #6b7280;
+	margin: 0 0 4px 0;
+	display: block;
+}
+
+.stepRate {
+	font-size: 18px;
+	font-weight: 600;
+	color: #111827;
+	margin: 0;
+	display: block;
+}
+
+.barContainer {
+	flex: 1;
+	display: flex;
+	align-items: flex-end;
+	background-color: var(--light-background-color, rgba(79, 70, 229, 0.08));
+	border-radius: 4px;
+}
+
+.funnelBar {
+	width: 100%;
+	min-height: 4px;
+	border-radius: 4px 4px 0 0;
+	transition: all 0.3s ease;
+	background-color: var(--primary-color, #4f46e5);
+
+	&:hover {
+		opacity: 0.8;
+	}
+}
+
+.emptyState {
+	text-align: center;
+	padding: 48px 24px;
+	color: #6b7280;
+	font-size: 16px;
+}
+
+// Responsive design
+@media (max-width: 640px) {
+
+	.conversionFunnelChart {
+		padding: 16px;
+	}
+
+	.mainRate {
+		font-size: 36px;
+	}
+
+	.changeIndicator {
+		font-size: 16px;
+	}
+
+	.funnelContainer {
+		height: 180px;
+		gap: 12px;
+	}
+
+	.stepRate {
+		font-size: 16px;
+	}
+
+	.stepLabel {
+		font-size: 12px;
+	}
+}

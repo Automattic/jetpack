@@ -33,6 +33,12 @@ const defaultTheme: ChartTheme = {
 			radius: 5,
 		},
 	},
+	conversionFunnelChart: {
+		primaryColor: '#3858E9',
+		backgroundColor: '#F3F4F6',
+		positiveChangeColor: '#008A20',
+		negativeChangeColor: '#D63638',
+	},
 };
 
 /**
@@ -67,6 +73,12 @@ const jetpackTheme: ChartTheme = {
 			fill: 'var(--jp-gray-80, #2c3338)',
 			radius: 5,
 		},
+	},
+	conversionFunnelChart: {
+		primaryColor: '#006DAB',
+		backgroundColor: '#F3F4F6',
+		positiveChangeColor: '#1F9828',
+		negativeChangeColor: '#FF8C8F',
 	},
 };
 
@@ -107,6 +119,12 @@ const wooTheme: ChartTheme = {
 			fill: 'black',
 			radius: 5,
 		},
+	},
+	conversionFunnelChart: {
+		primaryColor: '#3858E9',
+		backgroundColor: '#F3F4F6',
+		positiveChangeColor: '#008A20',
+		negativeChangeColor: '#D63638',
 	},
 };
 
