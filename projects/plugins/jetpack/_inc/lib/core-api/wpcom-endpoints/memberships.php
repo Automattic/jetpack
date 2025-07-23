@@ -503,19 +503,65 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request The request for this endpoint, containing the details needed to build the payload.
 	 * @return array The built payload.
+	 * @throws \Exception When tier validation fails.
 	 */
 	private function get_payload_for_product( WP_REST_Request $request ) {
 		$is_editable             = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type                    = isset( $request['type'] ) ? $request['type'] : null;
 		$tier                    = isset( $request['tier'] ) ? $request['tier'] : null;
 		$buyer_can_change_amount = isset( $request['buyer_can_change_amount'] ) && (bool) $request['buyer_can_change_amount'];
+		$interval                = $request['interval'];
+
+		// Validate tier field usage according to the tier system design.
+		// Only apply tier validation for newsletter plans with type 'tier'.
+		if ( null !== $tier && 'tier' === $type ) {
+			// Monthly plans should not have a tier field.
+			if ( '1 month' === $interval ) {
+				throw new \Exception( __( 'Monthly plans should not have a tier field. The tier field is only used to link yearly plans to their corresponding monthly plans.', 'jetpack' ) );
+			}
+
+			// Yearly plans must have a valid tier that points to a monthly plan.
+			if ( '1 year' === $interval ) {
+				if ( ! is_numeric( $tier ) || $tier <= 0 ) {
+					throw new \Exception( __( 'Yearly plans must have a valid tier ID that points to an existing monthly plan.', 'jetpack' ) );
+				}
+
+				// Check if the referenced monthly plan exists and is actually a monthly plan.
+				if ( $this->is_wpcom() ) {
+					require_lib( 'memberships' );
+					Memberships_Store_Sandbox::get_instance()->init( true );
+
+					$monthly_plan = Memberships_Product::get_from_post( get_current_blog_id(), $tier );
+					if ( is_wp_error( $monthly_plan ) || ! $monthly_plan ) {
+						throw new \Exception( __( 'The specified tier ID does not correspond to an existing monthly plan.', 'jetpack' ) );
+					}
+
+					$monthly_plan_data = $monthly_plan->to_array();
+					if ( '1 month' !== $monthly_plan_data['interval'] ) {
+						throw new \Exception( __( 'The specified tier ID must point to a monthly plan (1 month interval).', 'jetpack' ) );
+					}
+
+					// Check for duplicate tier usage - only one yearly plan should reference a specific monthly plan.
+					$existing_yearly_plans = Memberships_Product::get_product_list( get_current_blog_id(), 'tier', null, false );
+					foreach ( $existing_yearly_plans as $existing_plan ) {
+						if ( isset( $existing_plan['tier'] ) && $existing_plan['tier'] === $tier && '1 year' === $existing_plan['interval'] ) {
+							// If this is an update, allow it to reference itself.
+							$product_id = $request->get_param( 'product_id' );
+							if ( ! $product_id || $existing_plan['id'] !== $product_id ) {
+								throw new \Exception( __( 'Another yearly plan already references this monthly plan. Each monthly plan can only have one corresponding yearly plan.', 'jetpack' ) );
+							}
+						}
+					}
+				}
+			}
+		}
 
 		$payload = array(
 			'title'                        => $request['title'],
 			'price'                        => $request['price'],
 			'currency'                     => $request['currency'],
 			'buyer_can_change_amount'      => $buyer_can_change_amount,
-			'interval'                     => $request['interval'],
+			'interval'                     => $interval,
 			'type'                         => $type,
 			'welcome_email_content'        => $request['welcome_email_content'],
 			'subscribe_as_site_subscriber' => $request['subscribe_as_site_subscriber'],

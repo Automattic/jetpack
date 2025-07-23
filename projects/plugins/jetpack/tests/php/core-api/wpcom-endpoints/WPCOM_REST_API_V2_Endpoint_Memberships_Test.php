@@ -357,6 +357,67 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	}
 
 	/**
+	 * Tests POST 'memberships/product' endpoint with invalid tier for monthly plan.
+	 */
+	public function test_create_product_with_invalid_tier_for_monthly_plan() {
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'title'    => 'Monthly Plan',
+			'price'    => 10,
+			'currency' => 'USD',
+			'interval' => '1 month',
+			'type'     => 'tier',
+			'tier'     => 123, // Monthly plans should not have tier
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
+	}
+
+	/**
+	 * Tests POST 'memberships/product' endpoint with invalid tier value.
+	 */
+	public function test_create_product_with_invalid_tier_value() {
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'title'    => 'Yearly Plan',
+			'price'    => 100,
+			'currency' => 'USD',
+			'interval' => '1 year',
+			'type'     => 'tier',
+			'tier'     => -1, // Invalid tier value
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
+	}
+
+	/**
+	 * Tests POST 'memberships/product' endpoint with tier for donation product (should be allowed).
+	 */
+	public function test_create_donation_product_with_tier() {
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'title'    => 'Donation Plan',
+			'price'    => 10,
+			'currency' => 'USD',
+			'interval' => '1 month',
+			'type'     => 'donation',
+			'tier'     => 123, // Donation products can have tier
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		// This should not fail because donation products are not subject to tier validation
+		$this->assertNotEquals( 400, $response->get_status() );
+	}
+
+	/**
 	 * Tests PUT 'memberships/product/[product_id]' endpoint without authorization.
 	 */
 	public function test_update_product_no_auth() {
@@ -426,6 +487,42 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'dummy_error', $response, 500 );
+	}
+
+	/**
+	 * Tests PUT 'memberships/product/{id}' endpoint with invalid tier for monthly plan.
+	 */
+	public function test_update_product_with_invalid_tier_for_monthly_plan() {
+		// First create a product
+		$create_request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$create_request->set_header( 'content_type', 'application/json' );
+		$create_body = array(
+			'title'    => 'Monthly Plan',
+			'price'    => 10,
+			'currency' => 'USD',
+			'interval' => '1 month',
+			'type'     => 'tier',
+		);
+		$create_request->set_body( wp_json_encode( $create_body ) );
+		$create_response = $this->server->dispatch( $create_request );
+		$product_data    = $create_response->get_data();
+		$product_id      = $product_data['id'];
+
+		// Now try to update it with an invalid tier
+		$update_request = new WP_REST_Request( Requests::PUT, "/wpcom/v2/memberships/product/$product_id" );
+		$update_request->set_header( 'content_type', 'application/json' );
+		$update_body = array(
+			'title'    => 'Updated Monthly Plan',
+			'price'    => 15,
+			'currency' => 'USD',
+			'interval' => '1 month',
+			'type'     => 'tier',
+			'tier'     => 123, // Monthly plans should not have tier
+		);
+		$update_request->set_body( wp_json_encode( $update_body ) );
+		$update_response = $this->server->dispatch( $update_request );
+
+		$this->assertErrorResponse( 'rest_invalid_param', $update_response, 400 );
 	}
 
 	/**
