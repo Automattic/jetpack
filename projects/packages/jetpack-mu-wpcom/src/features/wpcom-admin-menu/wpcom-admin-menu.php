@@ -521,3 +521,92 @@ function wpcom_add_plugins_menu() {
 	}
 }
 add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
+
+/**
+ * Adds some Tools menus that are missing on Simple sites.
+ */
+function wpcom_add_tools_menu() {
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	if ( ! $is_simple_site ) {
+		return;
+	}
+
+	add_submenu_page(
+		'tools.php',
+		__( 'Export Personal Data', 'jetpack-mu-wpcom' ),
+		__( 'Export Personal Data', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'wpcom-export-personal-data',
+		'wpcom_display_export_erase_persona_data_page'
+	);
+
+	add_submenu_page(
+		'tools.php',
+		__( 'Erase Personal Data', 'jetpack-mu-wpcom' ),
+		__( 'Erase Personal Data', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'wpcom-erase-personal-data',
+		'wpcom_display_export_erase_persona_data_page'
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_tools_menu' );
+
+/**
+ * Displays an Export/Erase Personal Date page for Simple sites.
+ */
+function wpcom_display_export_erase_persona_data_page() {
+	require_once ABSPATH . 'wp-admin/admin-header.php';
+	if ( str_contains( get_current_screen()->id, 'export-personal-dat' ) ) {
+		$page_title = __( 'Export Personal Data', 'jetpack-mu-wpcom' );
+	} else {
+		$page_title = __( 'Erase Personal Data', 'jetpack-mu-wpcom' );
+	}
+	wpcom_display_callout( 'dashicons-id-alt', $page_title, 'test' );
+}
+
+/**
+ * Displays a callout box in wp-admin.
+ *
+ * @param string $icon The Dashicons icon class to use within the callout.
+ * @param string $title The title text to display in the callout.
+ * @param string $image The path of the image to include within the callout.
+ */
+function wpcom_display_callout( $icon, $title, $image ) {
+	require_once ABSPATH . 'wp-admin/admin-header.php';
+	?>
+	<style>
+		.wpcom-callout {
+			padding: 24px;
+			margin-left: auto;
+			margin-right: auto;
+			max-width: 620px;
+			display: flex;
+			-webkit-box-align: stretch;
+			align-items: stretch;
+			flex-direction: row;
+			gap: calc(24px);
+			justify-content: stretch;
+			font-family: -apple-system, "system-ui", Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+			font-size: 13px;
+			font-weight: 400;
+			line-height: 20px;
+			background-color: rgb(255, 255, 255);
+			color: rgb(30, 30, 30);
+			position: relative;
+			box-shadow: rgba(0, 0, 0, 0.1) 0 0 0 1px;
+			outline: none;
+			border-radius: calc(7px);
+		}
+	</style>
+	<div class="wrap">
+		<div class="wpcom-callout">
+			<div class="wpcom-callout-content">
+				<div class="wpcom-callout-icon"><span class="dashicons <?php echo esc_attr( $icon ); ?>"></span></div>
+				<div class="wpcom-callout-title"><?php echo esc_html( $title ); ?></div>
+			</div>
+			<div class="wpcom-callout-image"></div>
+		</div>
+	</div>
+	<?php
+	require_once ABSPATH . 'wp-admin/admin-footer.php';
+}
