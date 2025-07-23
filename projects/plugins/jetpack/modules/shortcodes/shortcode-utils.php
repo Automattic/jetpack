@@ -11,10 +11,16 @@ if ( ! function_exists( 'jetpack_shortcodes_should_hook_pre_kses' ) ) {
 	/**
 	 * Determine if shortcodes should hook on pre_kses.
 	 *
+	 * @param bool $force_recheck Whether to force a re-check of the request. Defaults to false.
+	 *
 	 * @return bool True if shortcodes should hook on pre_kses, false otherwise.
 	 */
-	function jetpack_shortcodes_should_hook_pre_kses() {
+	function jetpack_shortcodes_should_hook_pre_kses( $force_recheck = false ) {
 		static $is_frontend;
+
+		if ( $force_recheck ) {
+			$is_frontend = null;
+		}
 
 		if ( null === $is_frontend ) {
 			$is_frontend = Request::is_frontend( false );
