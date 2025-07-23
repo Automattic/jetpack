@@ -15,7 +15,8 @@
 	display: none;
 }
 
-/* When Infinite Scroll has reached its end we need to re-display elements that were hidden (via .neverending) before. */
+/* When Infinite Scroll has reached its end we need to re-display
+ * elements that were hidden (via .neverending) before. */
 .infinite-end.neverending .footer-nav-widgets-wrapper,
 .infinity-end.neverending #site-footer {
 	display: block;
@@ -281,7 +282,7 @@
 /* GIF Block */
 .wp-block-jetpack-gif {
 
-	/* Uses !important because the gif block styles are loaded in the footer after this file */
+	/* Uses !important because gif block styles load in footer after this file */
 	margin: 1em auto !important;
 }
 
@@ -309,7 +310,7 @@
 
 /* Contact form */
 
-/* See https: //core.trac.wordpress.org/browser/trunk/src/wp-content/themes/twentytwenty/style.css?rev=58726#L710 */
+/* See https://core.trac.wordpress.org/browser/trunk/src/wp-content/themes/twentytwenty/style.css?rev=58726#L710 */
 .contact-form input.grunion-field[type="checkbox"] {
 	padding: 0;
 	width: 1.5rem;

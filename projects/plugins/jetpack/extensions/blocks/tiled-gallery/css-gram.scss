@@ -2,13 +2,13 @@
  * This code is based on CSS gram:
  * https://github.com/una/CSSgram/tree/master
  *
- * Due to the packaging options available, the source has been duplicated and adapted here
- * to best fit our specific needs.
+ * Due to the packaging options available, the source has been duplicated and
+ * adapted here to best fit our specific needs.
  */
 
 /* From https://github.com/una/CSSgram/blob/0.1.12/source/scss/_shared.scss */
 @mixin pseudo-elem {
-	content: '';
+	content: "";
 	display: block;
 	height: 100%;
 	width: 100%;

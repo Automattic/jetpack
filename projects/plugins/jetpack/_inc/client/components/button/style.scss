@@ -1,4 +1,4 @@
-@use 'sass:color';
+@use "sass:color";
 @use "../../scss/functions/rem";
 @use "../../scss/calypso-colors";
 @use "../../scss/color-functions";
@@ -69,7 +69,8 @@
 		.gridicons-plus-small:last-of-type {
 			margin-left: 0;
 		}
-		// Make plus icon nudged closer to adjacent icons for add-people and add-plugin type buttons
+		// Make plus icon nudged closer to adjacent icons
+		// for add-people and add-plugin type buttons
 		.gridicons-plus-small + .gridicon {
 			margin-left: -4px;
 		}
@@ -97,7 +98,7 @@
 	color: calypso-colors.$white;
 
 	&:hover {
-		background: var(--jp-gray-80)
+		background: var(--jp-gray-80);
 	}
 
 	&[disabled],

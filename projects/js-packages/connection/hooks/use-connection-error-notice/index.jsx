@@ -4,34 +4,6 @@ import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
 
 /**
- * Helper function to generate user creation URL with email prepopulation
- *
- * @param {object} connectionError - The connection error object
- * @param {string} baseUrl         - Base admin URL (defaults to '/wp-admin/')
- * @return {string} The complete URL for user creation with email parameters
- */
-export function getProtectedOwnerCreateAccountUrl( connectionError, baseUrl = '/wp-admin/' ) {
-	let redirectUrl = baseUrl + 'user-new.php';
-
-	// Add protected owner email if available for prepopulation
-	if ( connectionError?.error_data?.wpcom_user_email ) {
-		const params = new URLSearchParams( {
-			jetpack_protected_owner_email: connectionError.error_data.wpcom_user_email,
-			jetpack_create_missing_account: '1',
-		} );
-		redirectUrl += '?' + params.toString();
-	} else if ( connectionError?.error_data?.email ) {
-		const params = new URLSearchParams( {
-			jetpack_protected_owner_email: connectionError.error_data.email,
-			jetpack_create_missing_account: '1',
-		} );
-		redirectUrl += '?' + params.toString();
-	}
-
-	return redirectUrl;
-}
-
-/**
  * Connection error notice hook.
  * Returns connection error data and conditional flag on whether
  * to render the component or not.
@@ -48,7 +20,7 @@ export default function useConnectionErrorNotice() {
 
 	const connectionErrorMessage = firstError && firstError.error_message;
 
-	// Return all connection errors, including protected owner errors
+	// Return all connection errors
 	const hasConnectionError = Boolean( connectionErrorMessage );
 
 	return {
@@ -60,9 +32,9 @@ export default function useConnectionErrorNotice() {
 }
 
 export const ConnectionError = ( {
-	onCreateMissingAccount = null, // Custom handler for protected owner errors
+	actionHandlers = {}, // Handlers for specific actions like { create_missing_account: () => {}, custom_action: () => {} }
 	trackingCallback = null, // Custom tracking function
-	customActions = null, // Function that returns custom actions based on error
+	customActions = null, // Function that returns custom actions based on error (takes precedence)
 } = {} ) => {
 	const { hasConnectionError, connectionErrorMessage, connectionError } =
 		useConnectionErrorNotice();
@@ -73,48 +45,140 @@ export const ConnectionError = ( {
 		return null;
 	}
 
-	// Determine error type
-	const isProtectedOwnerError = connectionError && connectionError.error_type === 'protected_owner';
-
-	// Build actions array based on error type
+	// Build actions array based on error data
 	let actions = [];
 
 	if ( customActions ) {
 		// Use provided custom actions function
-		actions = customActions( connectionError, { restoreConnection, isRestoringConnection } );
-	} else if ( isProtectedOwnerError && onCreateMissingAccount ) {
-		// Handle protected owner error with custom handler
-		actions = [
-			{
-				label: __( 'Create missing account', 'jetpack-connection-js' ),
-				onClick: () => {
-					if ( trackingCallback ) {
-						trackingCallback( 'jetpack_connection_protected_owner_create_account_attempt', {} );
-					}
-					onCreateMissingAccount();
+		try {
+			actions = customActions( connectionError, { restoreConnection, isRestoringConnection } );
+		} catch {
+			// Silently fall back to default behavior if customActions fails
+			actions = [];
+		}
+	} else {
+		// Get action info from error data
+		const errorData = connectionError?.error_data || {};
+		const suggestedAction = errorData.action;
+		const actionHandler = actionHandlers[ suggestedAction ];
+
+		if ( suggestedAction && actionHandler ) {
+			// Use action data from the error
+			const actionLabel = errorData.action_label || __( 'Take Action', 'jetpack-connection-js' );
+			const actionVariant = errorData.action_variant || 'primary';
+			const trackingEvent = errorData.tracking_event;
+
+			actions = [
+				{
+					label: actionLabel,
+					onClick: () => {
+						try {
+							if ( trackingCallback && trackingEvent ) {
+								trackingCallback( trackingEvent, {} );
+							}
+							actionHandler( connectionError );
+						} catch {
+							// Silently fail if action handler throws
+						}
+					},
+					variant: actionVariant,
 				},
-				variant: 'primary',
-			},
-		];
-	} else if ( ! isProtectedOwnerError ) {
-		// Standard connection error - use restore connection
-		actions = [
-			{
-				label: __( 'Restore Connection', 'jetpack-connection-js' ),
-				onClick: () => {
-					if ( trackingCallback ) {
-						trackingCallback( 'jetpack_connection_error_notice_reconnect_cta_click', {} );
-					}
-					restoreConnection();
+			];
+		} else if ( errorData.action_url && errorData.action_label ) {
+			// Generic link action - requires both URL and label for clarity
+			const actionLabel = errorData.action_label;
+			const actionVariant = errorData.action_variant || 'primary';
+			const trackingEvent = errorData.tracking_event;
+
+			actions = [
+				{
+					label: actionLabel,
+					onClick: () => {
+						try {
+							if ( trackingCallback && trackingEvent ) {
+								trackingCallback( trackingEvent, {} );
+							}
+							window.location.href = errorData.action_url;
+						} catch {
+							// Silently fail if navigation throws
+						}
+					},
+					variant: actionVariant,
 				},
-				isLoading: isRestoringConnection,
-				loadingText: __( 'Reconnecting Jetpack…', 'jetpack-connection-js' ),
-			},
-		];
+			];
+		} else {
+			// Default action - restore connection
+			actions = [
+				{
+					label: __( 'Restore Connection', 'jetpack-connection-js' ),
+					onClick: () => {
+						try {
+							if ( trackingCallback ) {
+								trackingCallback( 'jetpack_connection_error_notice_reconnect_cta_click', {} );
+							}
+							restoreConnection();
+						} catch {
+							// Silently fail if restore connection throws
+						}
+					},
+					isLoading: isRestoringConnection,
+					loadingText: __( 'Reconnecting Jetpack…', 'jetpack-connection-js' ),
+				},
+			];
+		}
+
+		// Add secondary action if available (only for custom errors, not default restore)
+		if ( actions.length > 0 && ( suggestedAction || errorData.action_url ) ) {
+			const secondaryAction = errorData.secondary_action;
+			const secondaryActionHandler = actionHandlers[ secondaryAction ];
+			const secondaryActionUrl = errorData.secondary_action_url;
+			const secondaryActionLabel = errorData.secondary_action_label;
+
+			// Secondary action with handler
+			if ( secondaryAction && secondaryActionHandler && secondaryActionLabel ) {
+				const secondaryActionVariant = errorData.secondary_action_variant || 'secondary';
+				const secondaryTrackingEvent = errorData.secondary_tracking_event;
+
+				actions.push( {
+					label: secondaryActionLabel,
+					onClick: () => {
+						try {
+							if ( trackingCallback && secondaryTrackingEvent ) {
+								trackingCallback( secondaryTrackingEvent, {} );
+							}
+							secondaryActionHandler( connectionError );
+						} catch {
+							// Silently fail if secondary action handler throws
+						}
+					},
+					variant: secondaryActionVariant,
+				} );
+			}
+			// Secondary action with URL (requires both URL and label)
+			else if ( secondaryActionUrl && secondaryActionLabel ) {
+				const secondaryActionVariant = errorData.secondary_action_variant || 'secondary';
+				const secondaryTrackingEvent = errorData.secondary_tracking_event;
+
+				actions.push( {
+					label: secondaryActionLabel,
+					onClick: () => {
+						try {
+							if ( trackingCallback && secondaryTrackingEvent ) {
+								trackingCallback( secondaryTrackingEvent, {} );
+							}
+							window.location.href = secondaryActionUrl;
+						} catch {
+							// Silently fail if secondary action navigation throws
+						}
+					},
+					variant: secondaryActionVariant,
+				} );
+			}
+		}
 	}
 
-	// For protected owner errors without custom handler, don't show the component
-	if ( isProtectedOwnerError && ! onCreateMissingAccount && ! customActions ) {
+	// If no actions are available and no custom handler provided, don't render
+	if ( actions.length === 0 && ! customActions ) {
 		return null;
 	}
 

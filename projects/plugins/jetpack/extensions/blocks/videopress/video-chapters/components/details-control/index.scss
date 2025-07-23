@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 .is-beta {
 	transition: 0.5s box-shadow linear;
@@ -9,7 +9,7 @@
 	}
 
 	&::before {
-		content: 'BETA';
+		content: "BETA";
 		position: absolute;
 		top: 12px;
 		right: 16px;

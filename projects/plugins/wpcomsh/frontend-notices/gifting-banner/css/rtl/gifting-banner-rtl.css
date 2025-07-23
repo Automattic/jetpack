@@ -1,6 +1,7 @@
 /* This file was automatically generated on Dec 23 2022 01:06:01 */
 
-/* NOTICE! This file exists in WPCOM & WPCOMSH. Updates need to be synced to both repos. */
+/* NOTICE! This file exists in WPCOM & WPCOMSH.
+ * Updates need to be synced to both repos. */
 
 .wpcom-coming-soon-body .wpcom-gifting-banner,
 .wpcom-coming-soon-private-default-body .wpcom-gifting-banner,
@@ -97,7 +98,7 @@
 
 .wpcom-gifting-banner__more-info-button::before {
 	background: url(../../images/gridicons-help-outline.svg) no-repeat center;
-	content: '';
+	content: "";
 	height: 16px;
 	width: 16px;
 	position: absolute;

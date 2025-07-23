@@ -1,5 +1,5 @@
 :root {
-	--wpcom-themes-banner-image: '';
+	--wpcom-themes-banner-image: "";
 }
 
 @font-face {
@@ -10,7 +10,7 @@
 }
 
 .wpcom-themes-banner {
-	background-color: #DBE0F9;
+	background-color: #dbe0f9;
 	padding: 64px 32px;
 	border-radius: 10px;
 	margin-bottom: 25px;
@@ -42,7 +42,7 @@
 .wpcom-themes-banner p {
 	font-size: 16px;
 	line-height: 24px;
-	color: #2C3338;
+	color: #2c3338;
 }
 
 .wpcom-themes-banner a,

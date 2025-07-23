@@ -9,7 +9,7 @@
 	> * + * {
 		margin-top: calc(var(--spacing-base) * 2);
 	}
-	
+
 	@supports ( display: grid ) {
 
 		> * + * {

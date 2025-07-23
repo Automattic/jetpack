@@ -1,4 +1,4 @@
-import { Spinner, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Spinner } from '@automattic/jetpack-components';
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -19,9 +19,7 @@ const ConnectionErrorNotice = props => {
 		actions = [], // New prop for custom actions
 	} = props;
 
-	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
-	const wrapperClassName =
-		styles.notice + ( isBiggerThanMedium ? ' ' + styles[ 'bigger-than-medium' ] : '' );
+	const wrapperClassName = styles.notice;
 
 	const icon = (
 		<Icon
@@ -82,31 +80,41 @@ const ConnectionErrorNotice = props => {
 
 	if ( actions.length > 0 ) {
 		// Use custom actions
-		actionButtons = actions.map( ( action, index ) => (
-			<a
-				key={ index }
-				onClick={ action.onClick }
-				onKeyDown={ action.onClick }
-				className={ `${ styles.button } ${ action.variant === 'primary' ? styles.primary : '' }` }
-				href="#"
-			>
-				{ action.isLoading
-					? action.loadingText || __( 'Loading…', 'jetpack-connection-js' )
-					: action.label }
-			</a>
-		) );
+		actionButtons = actions.map( ( action, index ) => {
+			let buttonClassName = styles.button;
+			if ( action.variant === 'primary' ) {
+				buttonClassName += ' ' + styles.primary;
+			} else if ( action.variant === 'secondary' ) {
+				buttonClassName += ' ' + styles.secondary;
+			}
+
+			return (
+				<button
+					key={ index }
+					type="button"
+					onClick={ action.onClick }
+					onKeyDown={ action.onClick }
+					className={ buttonClassName }
+					disabled={ action.isLoading }
+				>
+					{ action.isLoading
+						? action.loadingText || __( 'Loading…', 'jetpack-connection-js' )
+						: action.label }
+				</button>
+			);
+		} );
 	} else if ( restoreConnectionCallback ) {
 		// Use default restore connection action for backward compatibility
 		actionButtons = [
-			<a
+			<button
 				key="restore"
+				type="button"
 				onClick={ restoreConnectionCallback }
 				onKeyDown={ restoreConnectionCallback }
 				className={ styles.button }
-				href="#"
 			>
 				{ __( 'Restore Connection', 'jetpack-connection-js' ) }
-			</a>,
+			</button>,
 		];
 	}
 

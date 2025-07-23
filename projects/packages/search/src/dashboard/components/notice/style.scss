@@ -1,7 +1,7 @@
-@use 'scss/calypso-colors';
-@use 'scss/layout';
-@use 'scss/calypso-mixins';
-@use 'scss/mixin_icons';
+@use "scss/calypso-colors";
+@use "scss/layout";
+@use "scss/calypso-mixins";
+@use "scss/mixin_icons";
 
 .dops-notice {
 	display: flex;
@@ -9,7 +9,7 @@
 	width: 100%;
 	margin-bottom: 24px;
 	box-sizing: border-box;
-	animation: appear .3s ease-in-out;
+	animation: appear 0.3s ease-in-out;
 	background: calypso-colors.$gray-dark;
 	color: calypso-colors.$white;
 	border-radius: 3px;

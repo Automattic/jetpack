@@ -1,7 +1,7 @@
 @use "../../scss/calypso-colors";
-@use '../../scss/layout';
+@use "../../scss/layout";
 @use "../../scss/calypso-mixins";
-@use '../../scss/mixin_icons';
+@use "../../scss/mixin_icons";
 
 .dops-notice {
 	display: flex;
@@ -9,11 +9,16 @@
 	width: 100%;
 	margin-bottom: 24px;
 	box-sizing: border-box;
-	animation: appear .3s ease-in-out;
+	animation: appear 0.3s ease-in-out;
 	background: calypso-colors.$gray-dark;
 	color: calypso-colors.$white;
 	border-radius: 3px;
 	line-height: 1.5;
+
+	// Media query for screens smaller than 620px
+	@media (max-width: 619px) {
+		flex-flow: column;
+	}
 
 	// Success!
 	&.is-success {
@@ -79,6 +84,12 @@
 		@include calypso-mixins.breakpoint( ">480px" ) {
 			margin-top: 12px;
 		}
+	}
+
+	// Media query for screens smaller than 620px
+	@media (max-width: 619px) {
+		width: 100%;
+		padding-bottom: 10px;
 	}
 }
 
@@ -194,7 +205,7 @@ a.dops-notice__action {
 		align-items: center;
 		border-radius: 0;
 		font-size: 14px;
-		margin: 0 0 0 auto; // forces the element to the right;
+		margin: auto; // forces the element to the right;
 		padding: 13px 16px;
 
 		.gridicon {
@@ -216,6 +227,16 @@ a.dops-notice__action {
 		opacity: 0.7;
 		width: 18px;
 		height: 18px;
+	}
+
+	&.is-secondary {
+		color: calypso-colors.$gray-lighten-20;
+		opacity: 0.8;
+
+		&:hover {
+			color: calypso-colors.$gray-lighten-10;
+			opacity: 1;
+		}
 	}
 }
 

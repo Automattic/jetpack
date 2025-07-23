@@ -51,7 +51,7 @@
 	position: absolute;
 	left: 43px;
 	padding-top: 3px;
-	opacity: .8;
+	opacity: 0.8;
 }
 
 #customize-control-wpcom_custom_css_content_width_control input[type="text"]:focus + span {
@@ -90,7 +90,7 @@
 	border-bottom: 4px solid transparent;
 	color: #50575e;
 	padding: 7px 10px 5px;
-	transition: .15s color ease-in-out, .15s background-color ease-in-out, .15s border-color ease-in-out;
+	transition: 0.15s color ease-in-out, 0.15s background-color ease-in-out, 0.15s border-color ease-in-out;
 }
 
 .css-help a:hover {

@@ -30,7 +30,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		
+
 		div {
 			width: 64px;
 			height: 64px;
@@ -96,7 +96,7 @@
 		bottom: 0;
 		border: 2px solid #808080;
 		border-radius: 10px;
-		transition: .4s;
+		transition: 0.4s;
 		box-sizing: border-box;
 	}
 
@@ -109,20 +109,20 @@
 		bottom: 2px;
 		background: #808080;
 		border-radius: 50%;
-		transition: .4s;
+		transition: 0.4s;
 	}
 
 	input:checked + .handle {
-		border-color: #3AA662;
+		border-color: #3aa662;
 	}
 
 	input:checked + .handle::before {
-		background: #3AA662;
+		background: #3aa662;
 		transform: translateX(20px);
 	}
 
 	input:focus + .handle {
-		box-shadow: 0 0 3px #2196F3;
+		box-shadow: 0 0 3px #2196f3;
 	}
 
 
@@ -130,5 +130,5 @@
 		text-align: center;
 		margin-bottom: 2em;
 	}
-	
+
 }

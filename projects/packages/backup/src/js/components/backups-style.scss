@@ -1,5 +1,5 @@
-@use '@automattic/jetpack-base-styles/style' as jpbs;
-@use 'masthead/calypso-mixins';
+@use "@automattic/jetpack-base-styles/style" as jpbs;
+@use "masthead/calypso-mixins";
 
 @include jpbs.for-tablet-up {
 
@@ -184,7 +184,7 @@
 }
 
 .backup__warning-color {
-	filter: brightness(0) saturate(100%) invert(94%) sepia(96%) saturate(7500%) hue-rotate(329deg) brightness(98%) contrast(92%)
+	filter: brightness(0) saturate(100%) invert(94%) sepia(96%) saturate(7500%) hue-rotate(329deg) brightness(98%) contrast(92%);
 }
 
 @keyframes animation-el-1 {
@@ -291,7 +291,7 @@
 
 		@include jpbs.for-tablet-down {
 			width: 100%;
-			
+
 		}
 	}
 }

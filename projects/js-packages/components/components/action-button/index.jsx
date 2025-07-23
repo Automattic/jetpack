@@ -67,9 +67,13 @@ ActionButton.propTypes = {
 	/** The error message string */
 	errorMessage: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** The type/variant of button */
-	variant: PropTypes.arrayOf( PropTypes.oneOf( [ 'primary', 'secondary', 'link' ] ) ),
+	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'link' ] ),
 	/** Will display the button as a link with an external icon. */
 	isExternalLink: PropTypes.bool,
+	/** Custom CSS class to apply to the button */
+	customClass: PropTypes.string,
+	/** Text to display when loading */
+	loadingText: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 };
 
 export default ActionButton;

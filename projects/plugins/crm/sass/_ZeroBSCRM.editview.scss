@@ -10,13 +10,13 @@
 	#zbs-contact-edit-avatar {
 
 		text-align: center !important;
-		margin-bottom: 1em;   
+		margin-bottom: 1em;
 
 		// round avatars
 		.ui.circular.segment h2 img {
 			border-radius: 50% !important;
 		}
-		// removed for gravatars, 2.97.7 on ms request ZBS-619 
+		// removed for gravatars, 2.97.7 on ms request ZBS-619
 		.ui.segment h2 img.zbs-gravatar {
 			border-radius: none !important;
 		}
@@ -45,7 +45,7 @@
 				top: 0;
 				right: -0.5em;
 				display: inline-block;
-				background: #FFF !important;
+				background: #fff !important;
 
 			}
 
@@ -54,14 +54,15 @@
 
 	// NOTE this is also in contact single! copy any changes if made:
 	.action-wrap {
-		
+
 		display: block;
 		position: relative;
 		text-align: center;
-	    
+
 	}
 
-	// using actual .button breaks the css.. for now, hackily putting htis in here to simulate basic button
+	// using actual .button breaks the css...
+	// for now, hackily putting htis in here to simulate basic button
 	// NOTE this is also in contact single! copy any changes if made:
 	.action-button {
 		cursor: pointer;
@@ -71,7 +72,7 @@
 		border: none;
 		vertical-align: baseline;
 		//background: #E0E1E2 none;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 		margin: 0 0.25em 0 0;
 		padding: 0.78571429em 1.5em 0.78571429em;
 		line-height: 1;
@@ -83,7 +84,7 @@
 		-ms-user-select: none;
 		user-select: none;
 		transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
-		will-change: '';
+		will-change: "";
 		-webkit-tap-highlight-color: transparent;
 
 		font-size: 1rem;
@@ -94,10 +95,10 @@
 		text-transform: none;
 		text-shadow: none !important;
 
-		box-shadow: 0 0 0 1px #21BA45 inset !important;
-		color: #21BA45 !important;
+		box-shadow: 0 0 0 1px #21ba45 inset !important;
+		color: #21ba45 !important;
 
-		background: #FFF !important;
+		background: #fff !important;
 	}
 
 }
@@ -155,19 +156,19 @@
 	margin: 2em;
 	margin-top: 1em;
 	margin-bottom: 0;
-	
+
 }
 
 
 // err msg fix
 #zbs-edit-warnings-wrap .ui.message {
-	
+
 	max-width: 80%;
 	margin-bottom: 5em;
 	margin-top: 4em;
 	margin-left: auto;
 	margin-right: auto;
-    
+
 }
 
 //.zbs-generic-save-wrap (save, update etc. boxes for our objs)

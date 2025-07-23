@@ -1,5 +1,5 @@
 @use "../../scss/mixins/breakpoints";
-@use '../../scss/functions/rem';
+@use "../../scss/functions/rem";
 
 .jp-form-settings-card {
 	margin-bottom: rem.convert(24px);
@@ -155,7 +155,7 @@
 	}
 
 	a.dops-card .dops-card__link-indicator {
-		color: #1E1E1E;
+		color: #1e1e1e;
 		width: rem.convert(18px);
 		flex-shrink: 0;
 		margin-left: auto;

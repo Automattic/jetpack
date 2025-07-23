@@ -1,8 +1,8 @@
 // ==========================================================================
 // Settings
 // ==========================================================================
-@use '../../_inc/client/scss/calypso-colors';
-@use '../../_inc/client/scss/typography';
+@use "../../_inc/client/scss/calypso-colors";
+@use "../../_inc/client/scss/typography";
 @use "../atoms/colors/colors";
 @use "../atoms/typography/functions" as typography-functions;
 
@@ -96,7 +96,7 @@
 	select#bulk-action-selector-top {
 		width: 180px;
 		height: 40px;
-		border: 1px solid #DCDCDE;
+		border: 1px solid #dcdcde;
 		border-radius: 4px;
 		padding: 8px 16px;
 		margin-right: 8px;
@@ -420,7 +420,8 @@
 
 @media (max-width: 430px) {
 
-	// Hide activate / config links on really small screens. Users can still utlize these actions by tapping on the title of the module
+	// Hide activate / config links on really small screens.
+	// Users can still utilize these actions by tapping on the title of the module.
 	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
 		display: none;
 	}
@@ -489,11 +490,11 @@ tr.jetpack-module {
 }
 
 tr.jetpack-module.unavailable {
-	background: #F9F9F6;
+	background: #f9f9f6;
 }
 
 tr.jetpack-module.active {
-	background: #F9F9F6;
+	background: #f9f9f6;
 
 	.column-name .info {
 		font-weight: 700;

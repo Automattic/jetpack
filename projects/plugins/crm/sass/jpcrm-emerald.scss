@@ -1,22 +1,22 @@
 /* JP vars */
-@use 'emerald/jp_vars';
-@use 'emerald/jpcrm_vars';
+@use "emerald/jp_vars";
+@use "emerald/jpcrm_vars";
 
 /* base file */
-@use 'emerald/emerald_base';
+@use "emerald/emerald_base";
 
 /* top menu */
-@use 'emerald/jpcrm_top_menu';
+@use "emerald/jpcrm_top_menu";
 
 /* components */
-@use 'emerald/buttons';
-@use 'emerald/dashcard';
-@use 'emerald/dashcount';
-@use 'emerald/dropdown-buttons';
-@use 'emerald/edit-page';
-@use 'emerald/learn-menu';
-@use 'emerald/listview';
-@use 'emerald/listview-footer';
-@use 'emerald/listview-header';
-@use 'emerald/listview-table';
-@use 'emerald/pagination';
+@use "emerald/buttons";
+@use "emerald/dashcard";
+@use "emerald/dashcount";
+@use "emerald/dropdown-buttons";
+@use "emerald/edit-page";
+@use "emerald/learn-menu";
+@use "emerald/listview";
+@use "emerald/listview-footer";
+@use "emerald/listview-header";
+@use "emerald/listview-table";
+@use "emerald/pagination";

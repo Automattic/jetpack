@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-map {
 
@@ -9,7 +9,7 @@
 	.wp-block-group-is-layout-flex.is-vertical > & {
 		width: 100%;
 	}
-	
+
 	.wp-block-jetpack-map__gm-container {
 		width: 100%;
 		overflow: hidden;
@@ -57,7 +57,8 @@
 	}
 
 	.mapboxgl-ctrl-group button {
-		// Prevents theme styles adding a border radius to all buttons affecting the Map block controls too.
+		// Prevents theme styles adding a border radius to all buttons
+		// affecting the Map block controls too.
 		border-radius: 0;
 		// Prevents theme styles from affecting the background color of the button.
 		background-color: transparent !important;

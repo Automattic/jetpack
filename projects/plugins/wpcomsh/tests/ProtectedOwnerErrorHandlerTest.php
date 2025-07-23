@@ -73,7 +73,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertEquals( 'create_missing_account', $result['action'] );
-		$this->assertEquals( 'test@example.com', $result['extra_data']['email'] );
+		$this->assertEquals( 'test@example.com', $result['email'] );
 	}
 
 	/**

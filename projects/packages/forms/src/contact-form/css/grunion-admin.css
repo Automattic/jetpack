@@ -3,7 +3,7 @@
 body.no-js .tablenav select[name^="action"],
 body.no-js #doaction,
 body.no-js #doaction2 {
-	display: none
+	display: none;
 }
 
 .column-feedback_from img {
@@ -71,15 +71,15 @@ body.no-js #doaction2 {
 }
 
 .spam a {
-	color: #BC0B0B;
+	color: #bc0b0b;
 }
 
 .untrash a {
-	color: #D98500;
+	color: #d98500;
 }
 
 .unspam a {
-	color: #D98500;
+	color: #d98500;
 }
 
 .post-type-feedback #jetpack-check-feedback-spam {
@@ -213,8 +213,8 @@ body.no-js #doaction2 {
 	font-style: normal;
 	font-weight: 400;
 	letter-spacing: -0.01em;
-	color: #FFF;
+	color: #fff;
 	background: #000;
-	border: 1px solid #FFF;
+	border: 1px solid #fff;
 	border-radius: 4px;
 }

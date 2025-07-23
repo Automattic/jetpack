@@ -79,7 +79,7 @@
 }
 
 #adminmenu .toplevel_page_site-notices .wp-menu-image::before {
-	content: '\f534';
+	content: "\f534";
 	font-family: dashicons;
 	font-size: 20px;
 	line-height: 20px;
@@ -279,7 +279,7 @@
 }
 
 .screen-options-tab__wrapper {
-	position: relative
+	position: relative;
 }
 
 .screen-options-tab__dropdown {
@@ -311,7 +311,7 @@
 }
 
 .screen-switcher:not(:hover) .screen-switcher__button:nth-child(2) > strong {
-	color: var(--wp-admin-theme-color)
+	color: var(--wp-admin-theme-color);
 }
 
 .screen-switcher__button,
@@ -322,41 +322,42 @@ a.screen-switcher__button {
 	color: var(--color-text);
 	cursor: pointer;
 	display: inline-block;
-	font-size: .75rem;
+	font-size: 0.75rem;
 	line-height: normal;
 	text-decoration: none;
 	padding: 8px;
-	text-align: left
+	text-align: left;
 }
 
 .screen-switcher__button:nth-child(2),
 a.screen-switcher__button:nth-child(2) {
 	border-color: var(--wp-admin-theme-color);
-	margin-bottom: 4px
+	margin-bottom: 4px;
 }
 
 .screen-switcher__button:last-child,
 a.screen-switcher__button:last-child {
-	margin-bottom: 0
+	margin-bottom: 0;
 }
 
 .screen-switcher__button strong,
 a.screen-switcher__button strong {
 	display: block;
 	font-size: 13px;
-	margin-bottom: 4px
+	margin-bottom: 4px;
 }
 
 .screen-switcher__button:focus > strong,
 .screen-switcher__button:hover > strong,
 a.screen-switcher__button:focus > strong,
 a.screen-switcher__button:hover > strong {
-	color: var(--wp-admin-theme-color)
+	color: var(--wp-admin-theme-color);
 }
 
 /** Add new site button **/
 
-/* stylelint-disable-next-line no-duplicate-selectors -- This is part of a larger section of changes. */
+/* stylelint-disable-next-line no-duplicate-selectors
+-- This is part of a larger section of changes. */
 #adminmenu {
 	display: flex;
 	flex-direction: column;

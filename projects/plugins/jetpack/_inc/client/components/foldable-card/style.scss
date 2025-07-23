@@ -1,8 +1,8 @@
-@use 'sass:color';
-@use '../../scss/functions/rem';
-@use '../../scss/calypso-colors';
-@use '../../scss/calypso-mixins';
-@use '../../scss/mixin_clear-fix';
+@use "sass:color";
+@use "../../scss/functions/rem";
+@use "../../scss/calypso-colors";
+@use "../../scss/calypso-mixins";
+@use "../../scss/mixin_clear-fix";
 
 
 // Multisite
@@ -10,7 +10,7 @@
 
 	@include mixin_clear-fix.clear-fix;
 	position: relative;
-	transition: margin .15s linear;
+	transition: margin 0.15s linear;
 	padding: 0;
 
 	&.is-expanded {
@@ -97,7 +97,7 @@ button.dops-foldable-card__action {
 	width: 100%;
 	margin-right: 5px;
 
-	@include calypso-mixins.breakpoint( '<480px' ) {
+	@include calypso-mixins.breakpoint( "<480px" ) {
 		flex: 1 1;
 	}
 }
@@ -119,7 +119,7 @@ button.dops-foldable-card__action {
 		width: 100%;
 		vertical-align: middle;
 
-		transition: transform .15s cubic-bezier(0.175, .885, .32, 1.275), color .20s ease-in;
+		transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease-in;
 
 		.dops-foldable-card.is-expanded & {
 			transform: rotate(180deg);

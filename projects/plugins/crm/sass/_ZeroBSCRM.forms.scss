@@ -8,8 +8,9 @@
 */
 
 
-// Info box - will be replaced by js with (i) when page activated (gets class .zbs-live)
-.zbs-infobox {  
+// Info box - will be replaced by js with (i) when
+// page activated (gets class .zbs-live)
+.zbs-infobox {
 
 	// init
 	display: none;
@@ -58,8 +59,8 @@
 	overflow-y: auto;
 	font-size: 14px;
 	font-weight: 400;
-	background: #FFF;
-	border: 1px solid #CCC;
+	background: #fff;
+	border: 1px solid #ccc;
 	border-radius: 5px;
 	padding: 8px 10px;
 	text-align: left;
@@ -70,7 +71,7 @@
 
 		color: #008000;
 		padding: 4px 10px;
-	    
+
 	}
 
 
@@ -149,7 +150,6 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 }
 
 .jpcrm-customer-file-upload,
- 
 .jpcrm-customer-file-upload-remove {
 	border: 1px solid #ccc;
 	display: inline-block !important;
@@ -160,7 +160,6 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 }
 
 .jpcrm-customer-file-upload:hover,
- 
 .jpcrm-customer-file-upload-remove:hover {
 	border: 1px solid #999;
 }

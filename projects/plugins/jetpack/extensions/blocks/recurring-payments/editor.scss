@@ -1,5 +1,5 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use 'view';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "view";
 
 .wp-block-jetpack-recurring-payments {
 	width: 100%;
@@ -121,7 +121,7 @@
 	}
 
 	.wp-block-jetpack-button,
-	.wp-block[data-type='jetpack/button'] {
+	.wp-block[data-type="jetpack/button"] {
 		width: 100%;
 		margin-top: 0;
 		margin-bottom: 0;

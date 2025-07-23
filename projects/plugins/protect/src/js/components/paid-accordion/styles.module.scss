@@ -85,14 +85,14 @@
 	overflow: hidden;
 
 	&-close {
-		transition: all .1s;
+		transition: all 0.1s;
 		max-height: 0;
 		padding: 0;
 		transform: scaleY(0);
 	}
 
 	&-open {
-		transition: max-height .3s, transform .2s;
+		transition: max-height 0.3s, transform 0.2s;
 		padding: calc(var(--spacing-base) * 4) calc(var(--spacing-base) * 7); // 32 px | 56px
 		max-height: 1000px;
 		transform: scaleY(1);
