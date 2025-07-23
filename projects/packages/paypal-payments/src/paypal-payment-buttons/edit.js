@@ -324,16 +324,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 				instructions={ buttonType === 'stacked' ? stackedInstructions : singleInstructions }
 				notices={ notice }
 			>
-				<Text>
-					<ExternalLink href={ getPayPalSignupUrl() }>
-						<strong>{ __( 'Sign up', 'jetpack-paypal-payments' ) }</strong>
-					</ExternalLink>{ ' ' }
-					{ __( 'or', 'jetpack-paypal-payments' ) }{ ' ' }
-					<ExternalLink href={ getPayPalLoginUrl() }>
-						<strong>{ __( 'log in', 'jetpack-paypal-payments' ) }</strong>
-					</ExternalLink>{ ' ' }
-					{ __( 'to PayPal to get your Payment Button code.', 'jetpack-paypal-payments' ) }
-				</Text>
 				<ToggleGroupControl
 					label={ __( 'Button type', 'jetpack-paypal-payments' ) }
 					value={ buttonType }
@@ -367,6 +357,16 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 						label={ __( 'Single Button', 'jetpack-paypal-payments' ) }
 					/>
 				</ToggleGroupControl>
+				<Text>
+					<ExternalLink href={ getPayPalSignupUrl() }>
+						<strong>{ __( 'Sign up', 'jetpack-paypal-payments' ) }</strong>
+					</ExternalLink>{ ' ' }
+					{ __( 'or', 'jetpack-paypal-payments' ) }{ ' ' }
+					<ExternalLink href={ getPayPalLoginUrl() }>
+						<strong>{ __( 'log in', 'jetpack-paypal-payments' ) }</strong>
+					</ExternalLink>{ ' ' }
+					{ __( 'to PayPal to get your Payment Button code.', 'jetpack-paypal-payments' ) }
+				</Text>
 				{ 'stacked' === buttonType && (
 					<PlainText
 						value={ rawHeadCode }

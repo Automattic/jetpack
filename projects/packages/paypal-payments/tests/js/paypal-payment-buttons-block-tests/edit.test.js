@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 
+// Mock Jetpack script data
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isWpcomPlatformSite: jest.fn( () => false ), // Default to WordPress.org for tests
+} ) );
+
 // Mock WordPress dependencies
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
@@ -324,12 +329,51 @@ describe( 'Edit', () => {
 		} );
 	} );
 
-	it( 'renders external link to PayPal buttons page', () => {
+	it( 'renders external links to PayPal signup and login pages for WordPress.org', () => {
 		render( <Edit { ...defaultProps } /> );
-		const link = screen.getByTestId( 'external-link' );
-		expect( link ).toBeInTheDocument();
-		expect( link ).toHaveAttribute( 'href', 'https://www.paypal.com/buttons/' );
-		expect( link ).toHaveTextContent( 'Go to PayPal' );
+		const links = screen.getAllByTestId( 'external-link' );
+		expect( links ).toHaveLength( 2 );
+
+		// Check signup link
+		expect( links[ 0 ] ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp_org&at_code=wp_org'
+		);
+		expect( links[ 0 ] ).toHaveTextContent( 'Sign up' );
+
+		// Check login link
+		expect( links[ 1 ] ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/ncp/buttons/create?utm_source=wp_org&at_code=wp_org'
+		);
+		expect( links[ 1 ] ).toHaveTextContent( 'log in' );
+	} );
+
+	it( 'renders external links to PayPal signup and login pages for WordPress.com', () => {
+		// Mock WordPress.com platform
+		const { isWpcomPlatformSite } = require( '@automattic/jetpack-script-data' );
+		isWpcomPlatformSite.mockReturnValue( true );
+
+		render( <Edit { ...defaultProps } /> );
+		const links = screen.getAllByTestId( 'external-link' );
+		expect( links ).toHaveLength( 2 );
+
+		// Check signup link
+		expect( links[ 0 ] ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp_com&at_code=wp_com'
+		);
+		expect( links[ 0 ] ).toHaveTextContent( 'Sign up' );
+
+		// Check login link
+		expect( links[ 1 ] ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/ncp/buttons/create?utm_source=wp_com&at_code=wp_com'
+		);
+		expect( links[ 1 ] ).toHaveTextContent( 'log in' );
+
+		// Reset mock
+		isWpcomPlatformSite.mockReturnValue( false );
 	} );
 
 	describe( 'Instruction Elements', () => {
@@ -337,10 +381,10 @@ describe( 'Edit', () => {
 			render( <Edit { ...defaultProps } /> );
 			const instructionText = screen.getByTestId( 'experimental-text' );
 			expect( instructionText ).toBeInTheDocument();
-			expect( instructionText ).toHaveTextContent( 'Go to PayPal' );
-			expect( instructionText ).toHaveTextContent(
-				'to get your Payment Button code and choose Payment Buttons'
-			);
+			expect( instructionText ).toHaveTextContent( 'Sign up' );
+			expect( instructionText ).toHaveTextContent( 'or' );
+			expect( instructionText ).toHaveTextContent( 'log in' );
+			expect( instructionText ).toHaveTextContent( 'to PayPal to get your Payment Button code.' );
 		} );
 	} );
 
