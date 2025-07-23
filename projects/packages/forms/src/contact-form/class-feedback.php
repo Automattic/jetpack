@@ -328,6 +328,12 @@ class Feedback {
 						'value' => $field->get_render_value( $context ),
 					);
 					break;
+				case 'label|value':
+					$compiled_fields[] = array(
+						'label' => $field->get_label( $context ),
+						'value' => $field->get_render_value( $context ),
+					);
+					break;
 				case 'value':
 					$compiled_fields[] = $field->get_render_value( $context );
 					break;

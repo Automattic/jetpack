@@ -904,8 +904,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// you are doing it wrong, the $form parameter is deprecated and no longer used
 			_deprecated_argument( __METHOD__, '$$next-version$$', 'The $form parameter is deprecated and no longer used.' );
 		}
-
-		return self::get_raw_compiled_form_data( $feedback_id );
+		$response = Feedback::get( $feedback_id );
+		return $response->get_compiled_fields( 'ajax', 'label|value' );
 	}
 
 	/**
