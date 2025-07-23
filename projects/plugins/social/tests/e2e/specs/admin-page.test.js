@@ -5,7 +5,6 @@ import { disconnect } from '_jetpack-e2e-commons/utils/index.ts';
 
 test.beforeEach( async ( { page, requestUtils } ) => {
 	await disconnect( requestUtils );
-
 	await prerequisitesBuilder( page ).withActivePlugins( [ 'jetpack-social' ] ).build();
 } );
 
