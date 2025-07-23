@@ -14,20 +14,21 @@ import { StarIcon, HeartIcon } from '../../input-rating/icons';
  * @return {import('@wordpress/element').WPElement} JSX markup for the toolbar.
  */
 export default function RatingToolbar( { className, max, onUpdateClassName, onUpdateMax } ) {
+	// Determine if current style is stars (default) or hearts
+	const isCurrentlyStars = ! className || className.includes( 'is-style-stars' );
+
 	return (
 		<>
 			<ToolbarGroup>
 				<ToolbarButton
-					icon={ className?.includes( 'is-style-stars' ) ? HeartIcon : StarIcon }
+					icon={ isCurrentlyStars ? HeartIcon : StarIcon }
 					label={
-						className?.includes( 'is-style-stars' )
+						isCurrentlyStars
 							? __( 'Transform to hearts', 'jetpack-forms' )
 							: __( 'Transform to stars', 'jetpack-forms' )
 					}
 					onClick={ () =>
-						onUpdateClassName(
-							className?.includes( 'is-style-stars' ) ? 'is-style-hearts' : 'is-style-stars'
-						)
+						onUpdateClassName( isCurrentlyStars ? 'is-style-hearts' : 'is-style-stars' )
 					}
 				/>
 			</ToolbarGroup>
