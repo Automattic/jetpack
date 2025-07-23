@@ -57,11 +57,12 @@ const settings = {
 			default: 0,
 			role: 'content',
 		},
-		variation: {
-			type: 'string',
-			default: 'stars',
-			role: 'content',
-		},
+	},
+	providesContext: {
+		...defaultSettings.providesContext,
+		'jetpack/field-rating-max': 'max',
+		'jetpack/field-rating-default': 'default',
+		'jetpack/field-rating-className': 'className',
 	},
 	styles: stylesArray,
 	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],

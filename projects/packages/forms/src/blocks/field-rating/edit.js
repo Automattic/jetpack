@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import RatingToolbar from '../shared/components/rating-toolbar';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useRatingSync from '../shared/hooks/use-rating-sync';
 
 /**
  * Rating Field Edit Component
@@ -21,24 +20,30 @@ import useRatingSync from '../shared/hooks/use-rating-sync';
  * @return {import('react').JSX.Element} Rating field editor component
  */
 export default function RatingFieldEdit( props ) {
-	const { attributes, setAttributes, clientId, isSelected } = props;
-	const {
-		max = 5,
-		default: defaultValue = 0,
-		required,
-		id,
-		width,
-		variation = 'stars',
-	} = attributes;
+	const { attributes, setAttributes, clientId } = props;
+	const { max = 5, default: defaultValue = 0, required, id, width, className = '' } = attributes;
 
 	useFormWrapper( props );
 
-	// Use shared rating synchronization hook
-	const { updateMax, updateDefault, updateVariation } = useRatingSync(
-		clientId,
-		attributes,
-		setAttributes
-	);
+	// Direct update functions for rating attributes
+	const updateMax = newMax => {
+		const validatedMax = Math.min( Math.max( parseInt( newMax ) || 5, 2 ), 10 );
+		const validatedDefault = Math.min( defaultValue, validatedMax );
+		setAttributes( {
+			max: validatedMax,
+			default: validatedDefault,
+		} );
+	};
+
+	const updateDefault = newDefault => {
+		const validatedDefault = Math.min( Math.max( parseInt( newDefault ) || 0, 0 ), max );
+		setAttributes( { default: validatedDefault } );
+	};
+
+	const updateClassName = newClassName => {
+		// Set className directly, matching core behavior
+		setAttributes( { className: newClassName } );
+	};
 
 	const blockProps = useBlockProps( {
 		className: `jetpack-field jetpack-field-rating${
@@ -56,7 +61,7 @@ export default function RatingFieldEdit( props ) {
 					placeholder: __( 'Add label…', 'jetpack-forms' ),
 				},
 			],
-			[ 'jetpack/rating-input', { max, default: defaultValue } ],
+			[ 'jetpack/rating-input', {} ],
 		],
 		templateLock: 'all',
 		__experimentalCaptureToolbars: true,
@@ -64,15 +69,13 @@ export default function RatingFieldEdit( props ) {
 
 	return (
 		<>
-			<BlockControls>
-				{ isSelected && (
-					<RatingToolbar
-						variation={ variation }
-						max={ max }
-						onUpdateVariation={ updateVariation }
-						onUpdateMax={ updateMax }
-					/>
-				) }
+			<BlockControls __experimentalShareWithChildBlocks>
+				<RatingToolbar
+					className={ className }
+					max={ max }
+					onUpdateClassName={ updateClassName }
+					onUpdateMax={ updateMax }
+				/>
 			</BlockControls>
 
 			<div { ...innerBlocksProps } />

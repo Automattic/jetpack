@@ -39,15 +39,3 @@ export const validateRatingValue = ( value, min = 0, max = 10 ) => {
 export const validateMaxRating = maxValue => {
 	return validateRatingValue( maxValue, 2, 10 );
 };
-
-/**
- * Gets the appropriate icon variation from className or attribute.
- *
- * @param {string} className - Block className string
- * @param {string} variation - Variation attribute fallback
- * @return {string} Icon variation ('stars', 'hearts', etc.)
- */
-export const getIconVariationFromClassName = ( className = '', variation = 'stars' ) => {
-	const match = className.match( /is-style-([^\s]+)/ );
-	return match ? match[ 1 ] : variation;
-};

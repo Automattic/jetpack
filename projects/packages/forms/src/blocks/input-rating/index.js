@@ -40,11 +40,12 @@ const settings = {
 			</SVG>
 		),
 	},
-	attributes: {
-		max: { type: 'number', default: 5 },
-		default: { type: 'number', default: 0 },
-		variation: { type: 'string', default: 'stars' },
-	},
+	attributes: {},
+	usesContext: [
+		'jetpack/field-rating-max',
+		'jetpack/field-rating-default',
+		'jetpack/field-rating-className',
+	],
 	supports: {
 		reusable: false,
 		html: false,
