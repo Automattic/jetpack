@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Removed src and tests to optimize lib size
