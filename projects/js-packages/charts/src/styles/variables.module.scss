@@ -1,0 +1,105 @@
+// CSS Custom Properties for Charts Package
+// Provides consistent theming and spacing across all chart components
+
+:root {
+	// Spacing Scale
+	--chart-spacing-xs: 0.25rem; // 4px
+	--chart-spacing-sm: 0.5rem;  // 8px  
+	--chart-spacing-md: 1rem;    // 16px
+	--chart-spacing-lg: 1.5rem;  // 24px
+	--chart-spacing-xl: 2rem;    // 32px
+
+	// Legend Spacing
+	--chart-legend-gap: var(--chart-spacing-md);
+	--chart-legend-gap-small: var(--chart-spacing-sm);
+	--chart-legend-item-gap: var(--chart-spacing-sm);
+	--chart-legend-horizontal-gap: var(--chart-spacing-md);
+
+	// Typography
+	--chart-font-size-sm: 0.75rem;   // 12px
+	--chart-font-size-base: 0.875rem; // 14px  
+	--chart-font-size-lg: 1rem;      // 16px
+	--chart-line-height-base: 1.4;
+
+	// Colors - Base System
+	--chart-color-primary: #3858e9;
+	--chart-color-secondary: #66bdff;
+	--chart-color-text-primary: #1e1e1e;
+	--chart-color-text-secondary: #666;
+	--chart-color-background: #fff;
+	--chart-color-border: rgba(0, 0, 0, 0.1);
+
+	// Chart-specific colors that can be overridden by themes
+	--chart-progress-color: var(--chart-color-primary);
+	--chart-primary-color: var(--chart-color-primary);
+	--chart-secondary-color: var(--chart-color-secondary);
+
+	// Legend specific
+	--chart-legend-text-color: var(--chart-color-text-primary);
+	--chart-legend-value-color: var(--chart-color-text-primary);
+	--chart-legend-background: transparent;
+
+	// Responsive breakpoints
+	--chart-breakpoint-mobile: 768px;
+	--chart-breakpoint-tablet: 1024px;
+
+	// Animation
+	--chart-transition-duration: 0.3s;
+	--chart-transition-easing: ease-in-out;
+
+	// Z-index scale
+	--chart-z-tooltip: 1000;
+	--chart-z-annotation: 100;
+	--chart-z-legend: 10;
+}
+
+// Theme Variants
+// These provide different color schemes that can be applied via CSS classes
+
+.chart-theme-jetpack {
+	--chart-color-primary: #00a32a;
+	--chart-color-secondary: #4ab866;
+	--chart-progress-color: var(--chart-color-primary);
+	--chart-primary-color: var(--chart-color-primary);
+	--chart-secondary-color: var(--chart-color-secondary);
+}
+
+.chart-theme-woo {
+	--chart-color-primary: #96588a;
+	--chart-color-secondary: #c2a5ba;
+	--chart-progress-color: var(--chart-color-primary);
+	--chart-primary-color: var(--chart-color-primary);
+	--chart-secondary-color: var(--chart-color-secondary);
+}
+
+.chart-theme-dark {
+	--chart-color-text-primary: #fff;
+	--chart-color-text-secondary: #ccc;
+	--chart-color-background: #1e1e1e;
+	--chart-color-border: rgba(255, 255, 255, 0.1);
+	--chart-legend-text-color: var(--chart-color-text-primary);
+	--chart-legend-value-color: var(--chart-color-text-primary);
+}
+
+// Compact spacing variant for dashboard usage
+.chart-spacing-compact {
+	--chart-legend-gap: var(--chart-spacing-sm);
+	--chart-legend-item-gap: calc(var(--chart-spacing-xs) * 1.5); // 6px
+	--chart-legend-horizontal-gap: var(--chart-spacing-sm);
+}
+
+// Spacious variant for standalone charts
+.chart-spacing-spacious {
+	--chart-legend-gap: var(--chart-spacing-lg);
+	--chart-legend-item-gap: var(--chart-spacing-md);
+	--chart-legend-horizontal-gap: var(--chart-spacing-lg);
+}
+
+// Utility classes for common overrides
+.chart-no-gap {
+	--chart-legend-gap: 0;
+}
+
+.chart-large-gap {
+	--chart-legend-gap: var(--chart-spacing-xl);
+}

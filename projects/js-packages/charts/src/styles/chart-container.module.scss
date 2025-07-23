@@ -1,0 +1,220 @@
+// Chart container with CSS Grid layout for precise legend positioning
+// This replaces the duplicated flex layout logic across all chart components
+// and solves legend alignment and overlap issues
+
+@import './variables.module';
+
+.chartContainer {
+	width: 100%;
+	display: grid;
+	gap: var(--chart-legend-gap);
+	
+	// Default grid template - chart only
+	grid-template-areas: "chart";
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr;
+	
+	// Progressive enhancement for CSS Grid support
+	@supports (display: grid) {
+		// Legend positioned at top
+		&.legendTop {
+			grid-template-areas: 
+				"legend-top"
+				"chart";
+			grid-template-rows: auto 1fr;
+		}
+		
+		// Legend positioned at bottom  
+		&.legendBottom {
+			grid-template-areas:
+				"chart"
+				"legend-bottom";
+			grid-template-rows: 1fr auto;
+		}
+		
+		// Legend positioned at left
+		&.legendLeft {
+			grid-template-areas: "legend-left chart";
+			grid-template-columns: auto 1fr;
+		}
+		
+		// Legend positioned at right
+		&.legendRight {
+			grid-template-areas: "chart legend-right";
+			grid-template-columns: 1fr auto;
+		}
+		
+		// Corner positioning for advanced use cases (e.g., top-right for WooCommerce)
+		&.legendTopLeft {
+			grid-template-areas:
+				"legend-top-left ."
+				"chart chart";
+			grid-template-columns: auto 1fr;
+			grid-template-rows: auto 1fr;
+		}
+		
+		&.legendTopRight {
+			grid-template-areas:
+				". legend-top-right"
+				"chart chart";
+			grid-template-columns: 1fr auto;
+			grid-template-rows: auto 1fr;
+		}
+		
+		&.legendBottomLeft {
+			grid-template-areas:
+				"chart chart"
+				"legend-bottom-left .";
+			grid-template-columns: auto 1fr;
+			grid-template-rows: 1fr auto;
+		}
+		
+		&.legendBottomRight {
+			grid-template-areas:
+				"chart chart"
+				". legend-bottom-right";
+			grid-template-columns: 1fr auto;
+			grid-template-rows: 1fr auto;
+		}
+	}
+	
+	// Fallback for browsers without CSS Grid support
+	@supports (not (display: grid)) {
+		display: flex;
+		flex-direction: column;
+		
+		&.legendTop {
+			flex-direction: column-reverse;
+		}
+		
+		&.legendLeft,
+		&.legendRight {
+			flex-direction: row;
+		}
+		
+		&.legendLeft {
+			flex-direction: row-reverse;
+		}
+	}
+}
+
+// Chart area - contains the actual chart/SVG
+.chartArea {
+	grid-area: chart;
+	min-width: 0; // Prevent grid blowout
+	min-height: 0; // Allow chart to shrink
+}
+
+// Legend positioning classes for different grid areas
+.legendArea {
+	display: flex;
+	
+	// Standard positions
+	&.legendTop {
+		grid-area: legend-top;
+	}
+	
+	&.legendBottom {
+		grid-area: legend-bottom;
+	}
+	
+	&.legendLeft {
+		grid-area: legend-left;
+	}
+	
+	&.legendRight {
+		grid-area: legend-right;
+	}
+	
+	// Corner positions
+	&.legendTopLeft {
+		grid-area: legend-top-left;
+	}
+	
+	&.legendTopRight {
+		grid-area: legend-top-right;
+	}
+	
+	&.legendBottomLeft {
+		grid-area: legend-bottom-left;
+	}
+	
+	&.legendBottomRight {
+		grid-area: legend-bottom-right;
+	}
+}
+
+// Subgrid Enhancement
+// Excellent browser support: Firefox 71+, Safari 16.5+, Chrome/Edge 117+ (~75% global support)
+@supports (grid-template-rows: subgrid) {
+
+	.chartContainer {
+		// Enhanced legend item alignment using subgrid
+		&.useSubgrid {
+
+			.legendArea {
+				// Allow legend to inherit parent grid for perfect alignment
+				&.legend--horizontal {
+					display: grid;
+					grid-template-rows: subgrid;
+					grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+					gap: var(--chart-legend-horizontal-gap);
+				}
+				
+				&.legend--vertical {
+					display: grid;
+					grid-template-columns: subgrid;
+					grid-template-rows: repeat(auto-fit, auto);
+					gap: var(--chart-legend-item-gap);
+				}
+			}
+		}
+	}
+	
+	// Subgrid for legend items - perfect alignment across chart boundaries
+	.legend-item {
+
+		&.subgrid-aligned {
+			display: grid;
+			grid-template-columns: subgrid;
+			align-items: center;
+		}
+	}
+}
+
+// Responsive adjustments
+@media (max-width: var(--chart-breakpoint-mobile)) {
+
+	.chartContainer {
+		--chart-legend-gap: var(--chart-legend-gap-small);
+		
+		// Force vertical layout on mobile for better readability
+		&.legendLeft,
+		&.legendRight {
+			grid-template-areas:
+				"chart"
+				"legend-bottom";
+			grid-template-columns: 1fr;
+			grid-template-rows: 1fr auto;
+		}
+		
+		// Simplify corner positions on mobile
+		&.legendTopLeft,
+		&.legendTopRight {
+			grid-template-areas:
+				"legend-top"
+				"chart";
+			grid-template-columns: 1fr;
+			grid-template-rows: auto 1fr;
+		}
+		
+		&.legendBottomLeft,
+		&.legendBottomRight {
+			grid-template-areas:
+				"chart"
+				"legend-bottom";
+			grid-template-columns: 1fr;
+			grid-template-rows: 1fr auto;
+		}
+	}
+}
