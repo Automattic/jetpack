@@ -12,6 +12,7 @@ import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import GoogleSheetsCard from './google-sheets-card';
 import JetpackCRMCard from './jetpack-crm-card';
+import MailPoetCard from './mailpoet-card';
 import SalesforceCard from './salesforce-card';
 import './style.scss';
 /**
@@ -33,6 +34,7 @@ const IntegrationsModal = ( {
 		crm: false,
 		creativemail: false,
 		salesforce: false,
+		mailpoet: false,
 	} );
 
 	if ( ! isOpen ) {
@@ -59,6 +61,8 @@ const IntegrationsModal = ( {
 
 	const findIntegrationById = ( id: string ) =>
 		integrationsData?.find( ( integration: Integration ) => integration.id === id );
+
+	const isMailPoetEnabled: boolean = !! window?.jpFormsBlocks?.defaults?.isMailPoetEnabled;
 
 	return (
 		<Modal
@@ -88,6 +92,14 @@ const IntegrationsModal = ( {
 					data={ findIntegrationById( 'zero-bs-crm' ) }
 					refreshStatus={ refreshIntegrations }
 				/>
+				{ isMailPoetEnabled && (
+					<MailPoetCard
+						isExpanded={ expandedCards.mailpoet }
+						onToggle={ () => toggleCard( 'mailpoet' ) }
+						data={ findIntegrationById( 'mailpoet' ) }
+						refreshStatus={ refreshIntegrations }
+					/>
+				) }
 				<SalesforceCard
 					isExpanded={ expandedCards.salesforce }
 					onToggle={ () => toggleCard( 'salesforce' ) }
