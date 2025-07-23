@@ -5,9 +5,9 @@
 	width: fit-content;
 	max-width: 384px;
 	padding: 24px 24px 32px;
-	background:var( --jp-white );
-	box-shadow: 0 10px 40px rgba( 0, 0, 0, 0.08 );
-	border-radius: var( --jp-border-radius );
+	background: var(--jp-white);
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+	border-radius: var(--jp-border-radius);
 
 	@media screen and ( min-width: 600px ) {
 		padding: 32px 32px 44px;
@@ -46,7 +46,7 @@
 	&__price-before {
 		position: relative;
 		margin-right: 16px;
-		color: var( --jp-gray-20 );
+		color: var(--jp-gray-20);
 	}
 
 	&__price-strikethrough {
@@ -55,17 +55,17 @@
 		height: 3px;
 		left: 0;
 		top: 20px;
-		background: var( --jp-pink );
+		background: var(--jp-pink);
 		border-radius: 1.5px;
 	}
 
 	&__price-after {
-		color: var( --jp-black );
+		color: var(--jp-black);
 	}
 
 	&__currency {
 		vertical-align: super;
-		font-size: var( --font-title-small );
+		font-size: var(--font-title-small);
 		font-weight: 400;
 		line-height: 20px;
 	}
@@ -76,12 +76,12 @@
 		font-size: 14px;
 		font-weight: 400;
 		line-height: 17px;
-		color: var( --jp-gray-50 );
+		color: var(--jp-gray-50);
 		letter-spacing: -0.02em;
 	}
 
 	&__price-decimal {
-		font-size: var( --font-label );
+		font-size: var(--font-label);
 		line-height: 14px;
 		vertical-align: top;
 	}
@@ -90,9 +90,9 @@
 		width: 100%;
 		height: auto;
 		font-size: 18px;
-		background: var( --jp-black );
-		color: var( --jp-white ) !important;
-		border-radius: var( --jp-border-radius );
+		background: var(--jp-black);
+		color: var(--jp-white) !important;
+		border-radius: var(--jp-border-radius);
 		padding: 14px 24px;
 		margin: 24px 0 32px;
 		justify-content: center;
@@ -101,10 +101,10 @@
 
 	&__info,
 	&__tos {
-		font-size: var( --font-label );
+		font-size: var(--font-label);
 		line-height: 20px;
 		letter-spacing: -0.02em;
-		color: var( --jp-gray-60 );
+		color: var(--jp-gray-60);
 	}
 
 	&__tos {

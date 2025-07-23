@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import config from 'config';
 import logger from '../logger.js';
 import pwConfig from '../playwright.config.mjs';
 
@@ -146,8 +145,8 @@ export default class PageActions {
 	 * @return {Promise<void>}
 	 */
 	async saveCurrentStorageState() {
-		await this.page.context().storageState( { path: config.get( 'temp.storage' ) } );
-		// fs.writeFileSync( config.get( 'temp.storage' ), JSON.stringify( storage ) );
+		const { STORAGE_STATE_PATH } = process.env;
+		await this.page.context().storageState( { path: STORAGE_STATE_PATH } );
 	}
 
 	/**

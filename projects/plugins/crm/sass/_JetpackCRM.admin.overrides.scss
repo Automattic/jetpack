@@ -9,16 +9,16 @@
  */
 
 
- // variables
- $body_bg: #f1f1f1;
- $page_title: #2a323c;
- $menu_hover: #f7f7f7;
- $bottom_border: #dededf;
+// variables
+$body_bg: #f1f1f1;
+$page_title: #2a323c;
+$menu_hover: #f7f7f7;
+$bottom_border: #dededf;
 
 // square off + shadow as per Jetpack proper
 @mixin jetpackBox {
 
-	box-shadow: 0 0 0 1px #ccd0d4, 0 1px 1px 1px rgba(0,0,0,0.04) !important;
+	box-shadow: 0 0 0 1px #ccd0d4, 0 1px 1px 1px rgba(0, 0, 0, 0.04) !important;
 	border-radius: 0 !important;
 	border: 0 !important;
 	
@@ -27,7 +27,7 @@
 // dash
 .panel,
 // contact view:;
-.ui.grid.segment, 
+.ui.grid.segment,
 .ui[class*="top attached"].menu,
 .ui.segment[class*="bottom attached"],
 .ui.tabular.menu .active.item {
@@ -38,15 +38,16 @@
 
 .ui.attached.tabular.menu {
 
-    border: 0;
-    box-shadow: none !important;
+	border: 0;
+	box-shadow: none !important;
 }
 
 .ui.blue.button {
 	background-color: #007cba;
 }
 
-.ui.icon.buttons .button, .ui.icon.button {
+.ui.icon.buttons .button,
+.ui.icon.button {
 	font-size: 14px;
 }
 
@@ -82,15 +83,15 @@
 // hide logo
 #zbs-settings-menu .branding.item img {
 
-	display:none !important;
+	display: none !important;
 
 }
 
-.inbox-nav{
+.inbox-nav {
 	background: #fff !important;
 	border-right: 1px solid #dddd !important;
 
-	.item{
+	.item {
 		border-bottom: 1px solid #e2e2e2;
 		color: #000 !important;
 	}
@@ -105,7 +106,10 @@
 		background: none;
 	}
 
-	.ranges li.active, td.active, td.active:hover, .btn-primary {
+	.ranges li.active,
+	td.active,
+	td.active:hover,
+	.btn-primary {
 		background-color: var(--jp-black);
 		border-color: var(--jp-black);
 	}

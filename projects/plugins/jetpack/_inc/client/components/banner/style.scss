@@ -85,7 +85,7 @@
 		transition: all 100ms ease-in-out;
 
 		&.is-card-link {
-			box-shadow: 0 0 0 1px colors.$gray, 0 2px 4px color.adjust( colors.$gray, $lightness: 20% );
+			box-shadow: 0 0 0 1px colors.$gray, 0 2px 4px color.adjust(colors.$gray, $lightness: 20%);
 		}
 
 		.dops-card__link-indicator {
@@ -130,7 +130,7 @@
 	}
 
 	.dops-banner__icon-circle-svg {
-		transform: translate( 1px, 4px );
+		transform: translate(1px, 4px);
 	}
 
 	@include layout.breakpoint( '>480px' ) {
@@ -199,7 +199,11 @@
 
 		.jp-link-button {
 
-			&, &:active, &:visited, &:hover, &:focus {
+			&,
+			&:active,
+			&:visited,
+			&:hover,
+			&:focus {
 				font-size: typography.$font-body-extra-small;
 				line-height: 1.4;
 				box-shadow: none;

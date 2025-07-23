@@ -44,7 +44,8 @@
 /*
  * Atomic notifications customized to standout. Based on Calypso notifications.
  */
-.wpcomsh-notice, .rtl .wpcomsh-notice {
+.wpcomsh-notice,
+.rtl .wpcomsh-notice {
 	border: none;
 	background: #2D3337;
 	box-sizing: border-box;
@@ -56,11 +57,11 @@
 	padding: 0;
 }
 
-.wpcomsh-notice a{
+.wpcomsh-notice a {
 	color: #fff;
 }
 
-.wpcomsh-notice .dashicons-info{
+.wpcomsh-notice .dashicons-info {
 	height: 24px;
 	width: 24px;
 	font-size: 26px;

@@ -62,8 +62,6 @@ jest.mock( '@wordpress/components', () => ( {
 	},
 	__experimentalToggleGroupControlOption: () => null, // We're not using the actual implementation
 	__experimentalText: ( { children } ) => <span data-testid="experimental-text">{ children }</span>,
-	__experimentalItemGroup: ( { children } ) => <div data-testid="item-group">{ children }</div>,
-	__experimentalItem: ( { children } ) => <div data-testid="item">{ children }</div>,
 	SVG: props => <svg { ...props } />,
 	Path: props => <path { ...props } />,
 } ) );
@@ -99,6 +97,7 @@ describe( 'Edit', () => {
 			buttonText: '',
 		},
 		setAttributes: jest.fn(),
+		isSelected: true,
 	};
 
 	beforeEach( () => {
@@ -132,6 +131,7 @@ describe( 'Edit', () => {
 					buttonType: 'single',
 				} }
 				setAttributes={ defaultProps.setAttributes }
+				isSelected={ true }
 			/>
 		);
 
@@ -142,18 +142,31 @@ describe( 'Edit', () => {
 
 	it( 'updates buttonType when toggle is clicked', () => {
 		const setAttributes = jest.fn();
-		render( <Edit attributes={ defaultProps.attributes } setAttributes={ setAttributes } /> );
+		render(
+			<Edit
+				attributes={ defaultProps.attributes }
+				setAttributes={ setAttributes }
+				isSelected={ true }
+			/>
+		);
 
 		fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			buttonType: 'single',
+			scriptSrc: '',
+			buttonText: '',
+			hostedButtonId: '',
 		} );
 	} );
 
 	it( 'updates scriptSrc when head code is entered', () => {
 		const setAttributes = jest.fn();
 		render(
-			<Edit attributes={ { ...defaultProps.attributes } } setAttributes={ setAttributes } />
+			<Edit
+				attributes={ { ...defaultProps.attributes } }
+				setAttributes={ setAttributes }
+				isSelected={ true }
+			/>
 		);
 
 		const inputs = screen.getAllByTestId( 'plain-text' );
@@ -171,7 +184,11 @@ describe( 'Edit', () => {
 	it( 'updates hostedButtonId when body code is entered', () => {
 		const setAttributes = jest.fn();
 		render(
-			<Edit attributes={ { ...defaultProps.attributes } } setAttributes={ setAttributes } />
+			<Edit
+				attributes={ { ...defaultProps.attributes } }
+				setAttributes={ setAttributes }
+				isSelected={ true }
+			/>
 		);
 
 		const inputs = screen.getAllByTestId( 'plain-text' );
@@ -196,6 +213,7 @@ describe( 'Edit', () => {
 			<Edit
 				attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
 				setAttributes={ setAttributes }
+				isSelected={ true }
 			/>
 		);
 
@@ -311,54 +329,190 @@ describe( 'Edit', () => {
 		const link = screen.getByTestId( 'external-link' );
 		expect( link ).toBeInTheDocument();
 		expect( link ).toHaveAttribute( 'href', 'https://www.paypal.com/buttons/' );
-		expect( link ).toHaveTextContent( 'Go to PayPal to get your button code' );
+		expect( link ).toHaveTextContent( 'Go to PayPal' );
 	} );
 
 	describe( 'Instruction Elements', () => {
-		it( 'renders instruction text with strong tag', () => {
+		it( 'renders simplified instruction text', () => {
 			render( <Edit { ...defaultProps } /> );
 			const instructionText = screen.getByTestId( 'experimental-text' );
 			expect( instructionText ).toBeInTheDocument();
-			expect( instructionText ).toHaveTextContent( 'Instructions:' );
-		} );
-
-		it( 'renders item group with three instruction items', () => {
-			render( <Edit { ...defaultProps } /> );
-			const itemGroup = screen.getByTestId( 'item-group' );
-			expect( itemGroup ).toBeInTheDocument();
-
-			const items = screen.getAllByTestId( 'item' );
-			expect( items ).toHaveLength( 3 );
-		} );
-
-		it( 'renders correct instruction items for stacked buttons', () => {
-			render( <Edit { ...defaultProps } /> );
-			const items = screen.getAllByTestId( 'item' );
-
-			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your button code' );
-			expect( items[ 1 ] ).toHaveTextContent(
-				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
+			expect( instructionText ).toHaveTextContent( 'Go to PayPal' );
+			expect( instructionText ).toHaveTextContent(
+				'to get your Payment Button code and choose Payment Buttons'
 			);
-			expect( items[ 2 ] ).toHaveTextContent( '3. Paste the code below.' );
 		} );
+	} );
 
-		it( 'renders correct instruction items for single button type', () => {
+	describe( 'Parameter Clearing on Button Type Toggle', () => {
+		it( 'clears all parameters when switching from stacked to single', () => {
+			const setAttributes = jest.fn();
 			render(
 				<Edit
 					attributes={ {
-						...defaultProps.attributes,
-						buttonType: 'single',
+						buttonType: 'stacked',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: '',
 					} }
-					setAttributes={ defaultProps.setAttributes }
+					setAttributes={ setAttributes }
+					isSelected={ true }
 				/>
 			);
-			const items = screen.getAllByTestId( 'item' );
 
-			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your button code' );
-			expect( items[ 1 ] ).toHaveTextContent(
-				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
+			fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'single',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
+		} );
+
+		it( 'clears all parameters when switching from single to stacked', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						scriptSrc: '',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: 'Pay Now',
+					} }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
 			);
-			expect( items[ 2 ] ).toHaveTextContent( '3. Paste the code below.' );
+
+			fireEvent.click( screen.getByTestId( 'toggle-option-stacked' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'stacked',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
+		} );
+
+		it( 'clears all parameters when switching to the same type', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'stacked',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: '',
+					} }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			fireEvent.click( screen.getByTestId( 'toggle-option-stacked' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			// Should clear all parameters even when switching to the same type
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'stacked',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
+		} );
+	} );
+
+	describe( 'Preview Functionality', () => {
+		it( 'shows no preview for stacked buttons', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'stacked',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			// Should show the configuration form since stacked button previews are disabled
+			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows direct button preview when block is not selected and has valid single button data', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: 'Buy Now',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			// Single button should render directly, not in iframe
+			const button = screen.getByDisplayValue( 'Buy Now' );
+			expect( button ).toBeInTheDocument();
+			expect( button ).toHaveAttribute( 'type', 'button' );
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows placeholder when block is not selected but data is invalid', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: '',
+						buttonText: '',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			// Should show the configuration form, not the preview
+			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows settings form when block is selected', () => {
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: 'Buy Now',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ true }
+				/>
+			);
+
+			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows preview placeholder message when data is incomplete', () => {
+			// Mock the preview component to show up, but with incomplete data
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						hostedButtonId: '', // Missing button ID
+						buttonText: '',
+					} }
+					setAttributes={ jest.fn() }
+					isSelected={ false }
+				/>
+			);
+
+			// Should show the configuration form since data is incomplete
+			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

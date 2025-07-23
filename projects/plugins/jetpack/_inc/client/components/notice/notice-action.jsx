@@ -12,6 +12,7 @@ export default class NoticeAction extends Component {
 		onClick: PropTypes.func,
 		external: PropTypes.bool,
 		icon: PropTypes.string,
+		variant: PropTypes.oneOf( [ 'primary', 'secondary' ] ),
 	};
 
 	static defaultProps = {
@@ -19,8 +20,13 @@ export default class NoticeAction extends Component {
 	};
 
 	render() {
+		let className = 'dops-notice__action';
+		if ( this.props.variant === 'secondary' ) {
+			className += ' is-secondary';
+		}
+
 		const attributes = {
-			className: 'dops-notice__action',
+			className,
 			href: this.props.href,
 			onClick: this.props.onClick,
 		};

@@ -22,9 +22,13 @@
  */
 @keyframes spinner-inner {
 
-	0% { opacity: 1 }
+	0% {
+		opacity: 1
+	}
 
-	100% { opacity: 0 }
+	100% {
+		opacity: 0
+	}
 }
 
 .infinite-loader .spinner-inner div {
@@ -180,8 +184,8 @@
  */
 #infinite-footer {
 	position: fixed;
-		bottom: -50px;
-		left: 0;
+	bottom: -50px;
+	left: 0;
 	width: 100%;
 }
 
@@ -196,8 +200,8 @@
 }
 
 #infinite-footer .container {
-	background: rgba( 255, 255, 255, 0.8 );
-	border-color: rgba( 0, 0, 0, 0.1 );
+	background: rgba(255, 255, 255, 0.8);
+	border-color: rgba(0, 0, 0, 0.1);
 	border-style: solid;
 	border-width: 1px 0 0;
 	box-sizing: border-box;
@@ -289,8 +293,11 @@
 	position: absolute;
 	overflow: hidden;
 	clip: rect(0 0 0 0);
-	height: 1px; width: 1px;
-	margin: -1px; padding: 0; border: 0;
+	height: 1px;
+	width: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
 }
 
 /**

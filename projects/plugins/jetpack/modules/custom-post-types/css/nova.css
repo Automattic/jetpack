@@ -20,7 +20,8 @@
 	text-align: center;
 }
 
-.widefat .menu-label-row, .widefat .menu-label-row td {
+.widefat .menu-label-row,
+.widefat .menu-label-row td {
 	background-color: #f0f0f1;
 	color: #111;
 	border: 0 none;
@@ -44,7 +45,8 @@
 	margin-top: 4px;
 }
 
-.tablenav .view-switch a, .tablenav div.tablenav-pages {
+.tablenav .view-switch a,
+.tablenav div.tablenav-pages {
 	display: none;
 }
 
@@ -52,15 +54,18 @@
 /* many-items.css
 -------------------------------------------------------------- */
 
-.many-items-table th, .many-items-table td {
+.many-items-table th,
+.many-items-table td {
 	width: 30%;
 }
 
-.many-items-table th.nova-price, .many-items-table td.nova-price {
+.many-items-table th.nova-price,
+.many-items-table td.nova-price {
 	width: 10%;
 }
 
-.many-items-table input, .many-items-table textarea {
+.many-items-table input,
+.many-items-table textarea {
 	width: 100%;
 }
 

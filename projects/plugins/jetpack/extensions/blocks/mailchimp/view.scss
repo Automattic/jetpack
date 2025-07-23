@@ -11,7 +11,8 @@
 		}
 	}
 
-	.wp-block-jetpack-button, p {
+	.wp-block-jetpack-button,
+	p {
 
 		@include align.align-block;
 
@@ -28,7 +29,7 @@
 		outline: 1px;
 		outline-offset: -2px;
 		outline-style: auto;
-		outline-color: var( --color-error );
+		outline-color: var(--color-error);
 	}
 
 	.wp-block-jetpack-mailchimp_notification {
@@ -41,21 +42,16 @@
 		}
 
 		&.wp-block-jetpack-mailchimp_error {
-			background-color: var( --color-error );
+			background-color: var(--color-error);
 			color: gb.$white;
 		}
 
 		&.wp-block-jetpack-mailchimp_processing {
-			background-color: rgba(
-				0,
-				0,
-				0,
-				0.025
-			); // This would be "dark-opacity-light-50" which doesn't exist in Gutenberg
+			background-color: rgba(0, 0, 0, 0.025); // This would be "dark-opacity-light-50" which doesn't exist in Gutenberg
 		}
 
 		&.wp-block-jetpack-mailchimp_success {
-			background-color: var( --color-success );
+			background-color: var(--color-success);
 			color: gb.$white;
 		}
 	}

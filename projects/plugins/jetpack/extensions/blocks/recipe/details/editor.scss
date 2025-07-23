@@ -2,56 +2,56 @@
  * Editor styles for Recipe-details
  */
 
- [data-title="Recipe Details"] {
+[data-title="Recipe Details"] {
 
-   &.alignright,
-   &.alignleft,
-   &.aligncenter {
-     float: none;
-   }
+	&.alignright,
+	&.alignleft,
+	&.aligncenter {
+		float: none;
+	}
 
-   &.alignright {
+	&.alignright {
 
-    .wp-recipe-block-details {
-        justify-content: right;
-    }
-   }
+		.wp-recipe-block-details {
+			justify-content: right;
+		}
+	}
 
-   &.aligncenter {
+	&.aligncenter {
 
-    .wp-recipe-block-details {
-      justify-content: center;
-    }
-   }
- }
+		.wp-recipe-block-details {
+			justify-content: center;
+		}
+	}
+}
 
 .wp-block-jetpack-recipe-details {
-  display: block;
+	display: block;
 
-  .wp-recipe-block-details {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 150px));
+	.wp-recipe-block-details {
+		display: grid;
+		gap: 1rem;
+		grid-template-columns: repeat(auto-fit, minmax(100px, 150px));
 
-    &.alignright {
-      justify-content: right;
-    }
+		&.alignright {
+			justify-content: right;
+		}
 
-    &.aligncenter {
-      justify-content: center;
-    }
-  }
+		&.aligncenter {
+			justify-content: center;
+		}
+	}
 
 	.group .components-base-control:nth-child(2) {
 		margin-top: 10px;
 		margin-bottom: 10px;
 	}
 
-  .components-unit-control .components-input-control__container {
-    max-height: 40px;
+	.components-unit-control .components-input-control__container {
+		max-height: 40px;
 
-    .components-unit-control__select {
-      width: 40px;
-    }
-  }
+		.components-unit-control__select {
+			width: 40px;
+		}
+	}
 }

@@ -35,8 +35,8 @@
 }
 
 .jetpack-instant-search__sidebar
-	.jetpack-instant-search__search-filters
-	button.jetpack-instant-search__clear-filters-link {
+.jetpack-instant-search__search-filters
+button.jetpack-instant-search__clear-filters-link {
 	// Extra specificity to override overly agressive theme styles.
 	// Without this, we need to use "!important" to get our default styling.
 	@include helper.apply-default-overlay-colors();

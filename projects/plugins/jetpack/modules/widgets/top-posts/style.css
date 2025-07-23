@@ -81,16 +81,16 @@
 
 .widgets-list-layout li::before,
 .widgets-list-layout li::after {
-	content:"";
-	display:table;
+	content: "";
+	display: table;
 }
 
 .widgets-list-layout li::after {
-	clear:both;
+	clear: both;
 }
 
 .widgets-list-layout li {
-	zoom:1;
+	zoom: 1;
 	margin-bottom: 1em;
 	list-style-type: none !important;
 }
