@@ -64,8 +64,6 @@ const IntegrationsModal = ( {
 	const findIntegrationById = ( id: string ) =>
 		integrationsData?.find( ( integration: Integration ) => integration.id === id );
 
-	const isMailPoetEnabled: boolean = !! window?.jpFormsBlocks?.defaults?.isMailPoetEnabled;
-
 	return (
 		<Modal
 			title={ __( 'Manage integrations', 'jetpack-forms' ) }
