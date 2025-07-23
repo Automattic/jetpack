@@ -423,7 +423,7 @@ abstract class SAL_Post {
 		$publicize_urls = array();
 		$publicize      = get_post_meta( $this->post->ID, 'publicize_results', true );
 		if ( $publicize ) {
-			// `get_post_meta` with `true` returns a string representation of the meta value, so we need to unserialize it.
+			// get_post_meta(..., true) will return a string if the value was stored as a scalar or serialized, so we may need to unserialize.
 			if ( is_string( $publicize ) ) {
 				$maybe_array = maybe_unserialize( $publicize );
 				if ( ! is_array( $maybe_array ) ) {
