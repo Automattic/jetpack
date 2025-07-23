@@ -8,13 +8,13 @@
 	height: 38px;
 	margin-top: -19px;
 	margin-left: -16px;
-	background-image: url( ./oval.svg );
+	background-image: url(./oval.svg);
 	background-repeat: no-repeat;
 	text-indent: -9999px;
 	box-shadow: none;
 	background-color: transparent;
 
-	&.components-button:not( :disabled ):not( [aria-disabled='true'] ):focus {
+	&.components-button:not(:disabled):not([aria-disabled='true']):focus {
 		background-color: transparent;
 		box-shadow: none;
 	}
@@ -27,7 +27,7 @@
 
 .component__add-point__popover {
 
-	.components-button:not( :disabled ):not( [aria-disabled='true'] ):focus {
+	.components-button:not(:disabled):not([aria-disabled='true']):focus {
 		background-color: transparent;
 		box-shadow: none;
 	}

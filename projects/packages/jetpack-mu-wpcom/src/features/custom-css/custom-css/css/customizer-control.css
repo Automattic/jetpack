@@ -1,5 +1,6 @@
 /* NOAUTORTL */
-.for-codemirror, .CodeMirror {
+.for-codemirror,
+.CodeMirror {
 	font-family: Consolas, Monaco, monospace;
 	font-size: 12px;
 	line-height: 16px;
@@ -13,12 +14,12 @@
 #customize-control-custom_css#customize-control-custom_css {
 	margin-right: -12px;
 	margin-left: -12px;
-	width: calc( 100% + 24px );
+	width: calc(100% + 24px);
 }
 
 .customize-control-code_editor .CodeMirror {
 	height: 300px;
-	height: calc( 100vh - 268px );
+	height: calc(100vh - 268px);
 }
 
 .for-codemirror {
@@ -89,7 +90,7 @@
 	border-bottom: 4px solid transparent;
 	color: #50575e;
 	padding: 7px 10px 5px;
-	transition: .15s color ease-in-out,.15s background-color ease-in-out,.15s border-color ease-in-out;
+	transition: .15s color ease-in-out, .15s background-color ease-in-out, .15s border-color ease-in-out;
 }
 
 .css-help a:hover {
@@ -128,7 +129,7 @@
 
 #sub-accordion-section-custom_css .customize-control-jetpackCss {
 	margin: 0 -12px;
-	width: calc( 100% + 24px );
+	width: calc(100% + 24px);
 }
 
 #customize-theme-controls #sub-accordion-section-custom_css .customize-control-title {

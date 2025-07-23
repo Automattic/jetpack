@@ -3,7 +3,7 @@
 	box-sizing: border-box;
 }
 
-.wp-customizer  .expanded .widget-conditional .form{
+.wp-customizer  .expanded .widget-conditional .form {
 	overflow: scroll;
 	margin-bottom: 20px;
 }
@@ -28,13 +28,13 @@
 	margin-top: 10px;
 }
 
-.widget-conditional .conditions{
+.widget-conditional .conditions {
 	margin-bottom: 12px;
 }
 
 .widget-conditional .condition,
 .widget-conditional .condition-top {
-	clear:both;
+	clear: both;
 }
 
 .widget-conditional .condition {
@@ -105,8 +105,8 @@
 }
 
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional-inner select {
-	display:initial;
-	width:auto;
+	display: initial;
+	width: auto;
 	background-color: #fff;
 }
 
@@ -117,7 +117,7 @@
 }
 
 .editor-styles-wrapper .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional  .alignleft {
-	margin-left:20px
+	margin-left: 20px
 }
 
 .widget-conditional .condition:last-child .condition-conjunction,
@@ -170,10 +170,10 @@
  * Rules for gutenberg advanced panel
  */
 
- .widget-vis__wrapper .components-base-control,
- .widget-vis__rule .components-base-control {
-	 margin-bottom: 12px;
- }
+.widget-vis__wrapper .components-base-control,
+.widget-vis__rule .components-base-control {
+	margin-bottom: 12px;
+}
 
 .widget-vis__rule {
 	padding: 12px;
@@ -227,10 +227,10 @@
 }
 
 .widget-vis__select-multi-level select option:disabled {
-    font-size: 18px;
-    font-weight: 600;
+	font-size: 18px;
+	font-weight: 600;
 }
 
 .widget-vis__delete-rule .components-button.is-secondary {
 	margin-top: 8px;
- }
+}

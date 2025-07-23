@@ -37,9 +37,9 @@
 
 	&[disabled],
 	&:disabled {
-		color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+		color: color.adjust(calypso-colors.$gray, $lightness: 30%);
 		background: calypso-colors.$white;
-		border-color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+		border-color: color.adjust(calypso-colors.$gray, $lightness: 30%);
 		cursor: default;
 	}
 
@@ -54,7 +54,7 @@
 		font-size: typography.$font-body-extra-small;
 
 		&:disabled {
-			color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+			color: color.adjust(calypso-colors.$gray, $lightness: 30%);
 		}
 
 		.gridicon {
@@ -97,7 +97,7 @@
 	color: calypso-colors.$white;
 
 	&:hover {
-		background: var( --jp-gray-80 )
+		background: var(--jp-gray-80)
 	}
 
 	&[disabled],
@@ -118,99 +118,99 @@
 
 // Scary buttons
 .dops-button.is-scary {
-  color: calypso-colors.$alert-red;
-
-  &:hover,
-  &:focus {
-	border-color: calypso-colors.$alert-red;
-  }
-
-  &:focus {
-	box-shadow: 0 0 0 2px color.adjust( calypso-colors.$alert-red, $lightness: 20% );
-  }
-
-  &[disabled],
-  &:disabled {
-	color: color.adjust( calypso-colors.$alert-red, $lightness: 30% );
-	border-color: color.adjust( calypso-colors.$gray, $lightness: 30% );
-  }
-}
-
-.dops-button.is-primary.is-scary {
-  background: calypso-colors.$alert-red;
-  border-color: color.adjust( calypso-colors.$alert-red, $lightness: -20% );
-  color: calypso-colors.$white;
-
-  &:hover,
-  &:focus {
-	border-color: color.adjust( calypso-colors.$alert-red, $lightness: -40% );
-  }
-
-  &[disabled],
-  &:disabled {
-	background: color.adjust( calypso-colors.$alert-red, $lightness: 20% );
-	border-color: color-functions.tint( calypso-colors.$alert-red, 30% );
-  }
-}
-
-.dops-button.is-borderless {
-  box-shadow: none;
-  color: color.adjust( calypso-colors.$gray, $lightness: -10% );
-  padding-left: 0;
-  padding-right: 0;
-
-  &:hover {
-	color: calypso-colors.$gray-dark;
-  }
-
-  &:focus {
-	box-shadow: none;
-  }
-
-  .dops-accessible-focus &:focus {
-	outline: thin dotted;
-  }
-
-  .gridicon {
-	width: 24px;
-	height: 24px;
-	top: 6px;
-  }
-
-  &[disabled],
-  &:disabled {
-	color: color.adjust( calypso-colors.$gray, $lightness: 30% );
-	background: calypso-colors.$white;
-	cursor: default;
-
-	&:active {
-	  border-width: 0;
-	}
-  }
-
-  &.is-scary {
 	color: calypso-colors.$alert-red;
 
 	&:hover,
 	&:focus {
-	  color: color.adjust( calypso-colors.$alert-red, $lightness: -20% );
+		border-color: calypso-colors.$alert-red;
 	}
 
-	&[disabled] {
-	  color: color.adjust( calypso-colors.$alert-red, $lightness: 30% );
+	&:focus {
+		box-shadow: 0 0 0 2px color.adjust(calypso-colors.$alert-red, $lightness: 20%);
 	}
-  }
 
-  &.is-compact {
-	background: transparent;
-	border-radius: 0;
+	&[disabled],
+	&:disabled {
+		color: color.adjust(calypso-colors.$alert-red, $lightness: 30%);
+		border-color: color.adjust(calypso-colors.$gray, $lightness: 30%);
+	}
+}
+
+.dops-button.is-primary.is-scary {
+	background: calypso-colors.$alert-red;
+	border-color: color.adjust(calypso-colors.$alert-red, $lightness: -20%);
+	color: calypso-colors.$white;
+
+	&:hover,
+	&:focus {
+		border-color: color.adjust(calypso-colors.$alert-red, $lightness: -40%);
+	}
+
+	&[disabled],
+	&:disabled {
+		background: color.adjust(calypso-colors.$alert-red, $lightness: 20%);
+		border-color: color-functions.tint(calypso-colors.$alert-red, 30%);
+	}
+}
+
+.dops-button.is-borderless {
+	box-shadow: none;
+	color: color.adjust(calypso-colors.$gray, $lightness: -10%);
+	padding-left: 0;
+	padding-right: 0;
+
+	&:hover {
+		color: calypso-colors.$gray-dark;
+	}
+
+	&:focus {
+		box-shadow: none;
+	}
+
+	.dops-accessible-focus &:focus {
+		outline: thin dotted;
+	}
 
 	.gridicon {
-	  width: 18px;
-	  height: 18px;
-	  top: 5px;
+		width: 24px;
+		height: 24px;
+		top: 6px;
 	}
-  }
+
+	&[disabled],
+	&:disabled {
+		color: color.adjust(calypso-colors.$gray, $lightness: 30%);
+		background: calypso-colors.$white;
+		cursor: default;
+
+		&:active {
+			border-width: 0;
+		}
+	}
+
+	&.is-scary {
+		color: calypso-colors.$alert-red;
+
+		&:hover,
+		&:focus {
+			color: color.adjust(calypso-colors.$alert-red, $lightness: -20%);
+		}
+
+		&[disabled] {
+			color: color.adjust(calypso-colors.$alert-red, $lightness: 30%);
+		}
+	}
+
+	&.is-compact {
+		background: transparent;
+		border-radius: 0;
+
+		.gridicon {
+			width: 18px;
+			height: 18px;
+			top: 5px;
+		}
+	}
 }
 
 // ==========================================================================
@@ -219,9 +219,9 @@
 // ==========================================================================
 
 .dops-button.is-rna {
-	font-size: rem.convert( 16px );
-	line-height: rem.convert( 24px );
-	padding: rem.convert( 8px ) rem.convert( 24px );
+	font-size: rem.convert(16px);
+	line-height: rem.convert(24px);
+	padding: rem.convert(8px) rem.convert(24px);
 	letter-spacing: -0.01em;
 
 	font-weight: 500;
@@ -231,10 +231,10 @@
 
 	&:disabled,
 	&.disabled {
-		background: var( --jp-gray ) !important;
+		background: var(--jp-gray) !important;
 		border-color: transparent !important;
 		box-shadow: none;
-		color: var( --jp-gray-20 ) !important;
+		color: var(--jp-gray-20) !important;
 
 		pointer-events: none;
 	}
@@ -244,48 +244,48 @@
 	}
 
 	&.is-compact {
-		font-size: rem.convert( 12px );
-		line-height: rem.convert( 20px );
-		padding: rem.convert( 4px ) rem.convert( 8px );
+		font-size: rem.convert(12px);
+		line-height: rem.convert(20px);
+		padding: rem.convert(4px) rem.convert(8px);
 	}
 }
 
 .dops-button:not(.is-primary).is-rna {
-  background-color: var( --jp-white );
-  border-color: var( --jp-black );
-  color: var( --jp-black );
+	background-color: var(--jp-white);
+	border-color: var(--jp-black);
+	color: var(--jp-black);
 
-  &:hover,
-  &:active {
-	background: var( --jp-gray-0 );
-  }
+	&:hover,
+	&:active {
+		background: var(--jp-gray-0);
+	}
 
-  &:focus {
-	box-shadow: none;
-	outline: solid 2px var( --jp-black );
-	outline-offset: -1px;
-  }
+	&:focus {
+		box-shadow: none;
+		outline: solid 2px var(--jp-black);
+		outline-offset: -1px;
+	}
 }
 
 .dops-button.is-primary.is-rna {
-  background-color: var( --jp-black );
-  border-color: var( --jp-black );
-  color: var( --jp-white );
+	background-color: var(--jp-black);
+	border-color: var(--jp-black);
+	color: var(--jp-white);
 
-  -webkit-font-smoothing: antialiased;
+	-webkit-font-smoothing: antialiased;
 
-  &:hover,
-  &:active {
-	background: var( --jp-gray-80 );
-	border-color: var( --jp-gray-80 );
-	color: var( --jp-white );
-  }
+	&:hover,
+	&:active {
+		background: var(--jp-gray-80);
+		border-color: var(--jp-gray-80);
+		color: var(--jp-white);
+	}
 
-  &:focus {
-	box-shadow: none;
-	outline: solid 1px var( --jp-black );
-	outline-offset: 1px;
-  }
+	&:focus {
+		box-shadow: none;
+		outline: solid 1px var(--jp-black);
+		outline-offset: 1px;
+	}
 }
 
 a .components-external-link,

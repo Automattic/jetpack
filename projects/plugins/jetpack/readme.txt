@@ -326,18 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9-a.3 - 2025-07-14
+### 14.9-a.5 - 2025-07-21
 #### Enhancements
-- Forms: Add "Empty trash" button.
-- Forms: Add link to disconnect Google.
-- Forms: Add tip that spam will automatically be deleted after 15 days.
-- Forms: Improve email copy-to-clipboard visually and make it less hidden.
-- Forms: Refresh look of responses in dashboard.
-- Forms: Update integration links.
-- Use the `view_stats` cap for the Jetpack Stats menu item instead of `manage_options`.
+- Add new PayPal Payment block (beta).
+- Forms: Add Gravatars in form responses.
+- Forms: Make phone fields clickable
+- Forms: Use sentence case in default consent text.
+- My Jetpack: Enable access to My Jetpack on WP Multisite.
+- Podcast player block: Improve page load performance by removing use of `lodash`.
+- Story block: Improve page load performance by removing use of `lodash`.
+- Update PayPal Payment Buttons block to support rendering previews.
 
-#### Improved compatibility
-- Sync: Ignore the ActivityPub Outbox CPT.
+#### Bug fixes
+- Dashboard: Use UTC for Jetpack Stats chart.
+- Forms: Fix the way forms are submitted.
+- Social: Fix image validation when images sizes are customised.
 
 --------
 

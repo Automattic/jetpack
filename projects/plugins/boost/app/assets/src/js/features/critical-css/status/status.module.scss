@@ -22,7 +22,8 @@
 		flex-grow: 1;
 		position: relative;
 
-		.successes, .generating {
+		.successes,
+		.generating {
 			color: variables.$gray_40;
 
 			@include mixins.breakpoint(md) {

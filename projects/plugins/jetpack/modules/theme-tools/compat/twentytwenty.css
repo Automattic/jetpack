@@ -15,7 +15,7 @@
 	display: none;
 }
 
- /* When Infinite Scroll has reached its end we need to re-display elements that were hidden (via .neverending) before. */
+/* When Infinite Scroll has reached its end we need to re-display elements that were hidden (via .neverending) before. */
 .infinite-end.neverending .footer-nav-widgets-wrapper,
 .infinity-end.neverending #site-footer {
 	display: block;
@@ -126,7 +126,7 @@
 }
 
 /* Flickr */
-.widget_flickr .flickr-size-thumbnail .flickr-images  {
+.widget_flickr .flickr-size-thumbnail .flickr-images {
 	justify-content: left;
 }
 
@@ -177,7 +177,7 @@
 @media ( min-width: 700px ) {
 
 	.jetpack_subscription_widget .widget-title label {
-			font-size: 4rem;
+		font-size: 4rem;
 	}
 }
 
@@ -232,7 +232,7 @@
 	}
 }
 
-#jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post  {
+#jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post {
 	padding-right: 0;
 }
 

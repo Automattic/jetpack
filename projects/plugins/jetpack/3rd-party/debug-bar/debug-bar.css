@@ -27,8 +27,8 @@
 
 .json-toggle-wrap .toggle {
 	position: absolute;
-		bottom: 10px;
-		right: 10px;
+	bottom: 10px;
+	right: 10px;
 	background: #fff;
 	border: 1px solid #000;
 	cursor: pointer;

@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2025-07-21
+### Changed
+- Revert forms JWT usage for forms reconstruction from responses. [#44397]
+
+## [4.0.0] - 2025-07-21
+### Added
+- Add "Empty spam" button to delete all responses marked as spam. [#44308]
+- Add Gravatars in form responses. [#44270]
+- Add tests for feedback endpoint. [#44318]
+- Display success info after form submission without reload. [#44204]
+- Include multistep form in Jetpack and WordPress.com plans. [#44309]
+
+### Changed
+- Add feature flag for MailPoet integration. [#44339]
+- Consolidate a single hook for all inbox data, making it easier to share the store props and dispatches and removing the need to invalidate the entire store to get fresh listings after emptying trash. [#44293]
+- Invert default disabled state on empty buttons for a cleaner transition to being available. [#44321]
+- Make phone fields clickable [#44291]
+- Update package dependencies. [#44338] [#44356]
+- Use sentence case in default consent text. [#44078]
+
+### Removed
+- Prevent rendering of old menu entry once the migration page is shown and the user clicks on the new dashboard URL. [#43714]
+- Remove unused editor CSS. [#44346]
+
+### Fixed
+- Add a JWT token when submitting the form so that we are able to instantiate on submit. [#44360]
+- Fix export hooks error on mobile. [#44357]
+- Fix integration card headers on mobile. [#44286]
+- Fix excess padding next to Gravatar on mobile. [#44394]
+- Prevent post_meta from being created. [#44332]
+- Remove manual `DependencyExtractionWebpackPlugin` instantiation. [#44307]
+- Show submission information after reload with AJAX submission. [#44342]
+
 ## [3.1.0] - 2025-07-14
 ### Added
 - Add "Empty trash" button. [#44225]
@@ -1293,6 +1326,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[4.0.1]: https://github.com/automattic/jetpack-forms/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/automattic/jetpack-forms/compare/v3.1.0...v4.0.0
 [3.1.0]: https://github.com/automattic/jetpack-forms/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/automattic/jetpack-forms/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/automattic/jetpack-forms/compare/v2.0.1...v2.1.0
