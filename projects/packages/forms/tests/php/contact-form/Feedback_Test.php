@@ -1360,7 +1360,7 @@ class Feedback_Test extends BaseTestCase {
 		$test_message = 'Hello, this is a test message from our contact form.';
 
 		return array(
-			'all_format'       => array(
+			'all_format'         => array(
 				'format'   => 'all',
 				'expected' => array(
 					'1_Name'    => array(
@@ -1382,7 +1382,7 @@ class Feedback_Test extends BaseTestCase {
 				),
 				'message'  => 'Compiled fields should match the default form structure with all field data.',
 			),
-			'key_value_format' => array(
+			'key_value_format'   => array(
 				'format'   => 'key-value',
 				'expected' => array(
 					'1_Name'    => $test_name,
@@ -1392,7 +1392,29 @@ class Feedback_Test extends BaseTestCase {
 				),
 				'message'  => 'Compiled fields should return key-value pairs only.',
 			),
-			'value_format'     => array(
+			'label-value_format' => array(
+				'format'   => 'label|value',
+				'expected' => array(
+					array(
+						'label' => 'Name',
+						'value' => $test_name,
+					),
+					array(
+						'label' => 'Email',
+						'value' => $test_email,
+					),
+					array(
+						'label' => 'Website',
+						'value' => $test_website,
+					),
+					array(
+						'label' => 'Message',
+						'value' => $test_message,
+					),
+				),
+				'message'  => 'Compiled fields should returnlabel|value pairs only.',
+			),
+			'value_format'       => array(
 				'format'   => 'value',
 				'expected' => array(
 					$test_name,
@@ -1402,7 +1424,7 @@ class Feedback_Test extends BaseTestCase {
 				),
 				'message'  => 'Compiled fields should return only values as indexed array.',
 			),
-			'label_format'     => array(
+			'label_format'       => array(
 				'format'   => 'label',
 				'expected' => array(
 					'Name',
