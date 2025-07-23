@@ -9,7 +9,6 @@ test.beforeEach( async ( { page, requestUtils } ) => {
 	await disconnect( requestUtils );
 
 	await prerequisitesBuilder( page )
-		.withCleanEnv()
 		.withActivePlugins( [ 'jetpack-social' ] )
 		.withInactivePlugins( [ 'jetpack' ] )
 		.build();

@@ -7,10 +7,7 @@ import { JetpackSocialPage } from '../pages/index.js';
 test.beforeEach( async ( { page, requestUtils } ) => {
 	await disconnect( requestUtils );
 
-	await prerequisitesBuilder( page )
-		.withCleanEnv()
-		.withActivePlugins( [ 'jetpack-social' ] )
-		.build();
+	await prerequisitesBuilder( page ).withActivePlugins( [ 'jetpack-social' ] ).build();
 } );
 
 test( 'Jetpack Social connection', async ( { page } ) => {
