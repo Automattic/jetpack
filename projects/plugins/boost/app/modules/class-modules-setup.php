@@ -303,7 +303,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		 * Filter to allow modules to run even if the website is not public.
 		 * This is useful for debugging purposes.
 		 *
-		 * @since $$next-version$$
+		 * @since 4.2.0
 		 *
 		 * @param bool   $can_module_run Whether the module should be disabled.
 		 * @param Module $module         The module to check.
