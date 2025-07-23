@@ -1,31 +1,35 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { WPLoginPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
-import ProfilePage from '_jetpack-e2e-commons/pages/wp-admin/profile.js';
 import {
 	getAccountProtectionAuthCodeFromTransient,
 	getAccountProtectionTokenFromUrl,
 	insertTestUsers,
-} from '../../helpers/account-protection-helper.js';
-import playwrightConfig from '../../playwright.config.mjs';
+} from '../../../helpers/account-protection-helper.js';
+import playwrightConfig from '../../../playwright.config.mjs';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];
 
+// Reset storage state for this file to avoid being authenticated
+test.use( { storageState: { cookies: [], origins: [] } } );
+
+test.beforeAll( async ( { browser } ) => {
+	// Set up a clean environment with account protection enabled.
+	const page = await browser.newPage( playwrightConfig.use );
+	await prerequisitesBuilder( page )
+		.withInactiveModules( [ 'protect', 'sso' ] )
+		.withActiveModules( [ 'account-protection' ] )
+		.build();
+
+	await insertTestUsers();
+
+	await page.close();
+} );
+
 test.describe.parallel( 'Compromised Password Detection', () => {
-	test.beforeAll( async ( { browser } ) => {
-		// Set up a clean environment with account protection enabled.
-		const page = await browser.newPage( playwrightConfig.use );
-		await prerequisitesBuilder( page )
-			.withInactiveModules( [ 'protect', 'sso' ] )
-			.withActiveModules( [ 'account-protection' ] )
-			.withCleanEnv()
-			.withConnection( true )
-			.build();
-
+	test.beforeAll( async ( {} ) => {
 		await insertTestUsers();
-
-		await page.close();
 	} );
 
 	test( 'Detects compromised passwords', async ( { page } ) => {
@@ -144,86 +148,5 @@ test.describe.parallel( 'Compromised Password Detection', () => {
 		await loginPage.waitForElementToBeHidden( '.action-update-password' );
 
 		expect( page.url() ).toContain( '/profile.php#password' );
-	} );
-} );
-
-test.describe.parallel( 'Strong password requirements', () => {
-	test.beforeAll( async ( { browser } ) => {
-		// Set up a clean environment with account protection enabled.
-		const page = await browser.newPage( playwrightConfig.use );
-
-		await prerequisitesBuilder( page )
-			.withCleanEnv()
-			.withLoggedIn( true )
-			.withInactiveModules( [ 'protect', 'sso' ] )
-			.withActiveModules( [ 'account-protection' ] )
-			.withConnection( true )
-			.build();
-
-		await page.close();
-	} );
-
-	test( 'Enforces strong password requirements', async ( { page } ) => {
-		const profilePage = await ProfilePage.visit( page );
-
-		await profilePage.page.getByRole( 'button' ).filter( { hasText: 'set new password' } ).click();
-
-		// Validate that the Jetpack password strength meter replaces the default one.
-		await expect( profilePage.page.locator( '.strength-meter' ) ).toBeVisible();
-		await expect( profilePage.page.locator( '#pass-strength-result' ) ).toBeHidden();
-		await expect( profilePage.page.getByRole( 'checkbox', { name: 'pw_weak' } ) ).toBeHidden();
-
-		// Wait for the default password to be validated.
-		await expect( profilePage.page.locator( '#pass1' ) ).not.toBeEmpty();
-		await expect(
-			profilePage.page.locator( '.strength-meter' ).filter( { hasNotText: 'Validating' } )
-		).toBeVisible();
-
-		// Enter a weak password.
-		const passwordInput = profilePage.page.locator( '#pass1' );
-		await passwordInput.fill( 'password' );
-		await passwordInput.evaluate( input => {
-			input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
-		} );
-
-		// Validate that the Jetpack password strength meter displays "Weak".
-		await expect( profilePage.page.locator( '.strength-meter' ).getByText( 'Weak' ) ).toBeVisible();
-		await expect( profilePage.page.getByText( 'Strong password' ) ).toHaveCSS(
-			'color',
-			'rgb(230, 80, 84)'
-		);
-		await expect( profilePage.page.getByText( 'Not a leaked password' ) ).toHaveCSS(
-			'color',
-			'rgb(230, 80, 84)'
-		);
-		await expect( profilePage.page.getByText( 'Between 6 and 150 characters' ) ).toHaveCSS(
-			'color',
-			'rgb(0, 135, 16)'
-		);
-		await expect( profilePage.page.getByText( "Doesn't match existing user data" ) ).toHaveCSS(
-			'color',
-			'rgb(0, 135, 16)'
-		);
-		await expect( profilePage.page.getByText( 'Not used recently' ) ).toHaveCSS(
-			'color',
-			'rgb(0, 135, 16)'
-		);
-
-		await expect( profilePage.page.getByText( 'Confirm use of weak password' ) ).toBeVisible();
-		await expect( profilePage.page.getByText( 'Update Profile', { exact: true } ) ).toBeDisabled();
-
-		// check the checkbox to disable the weak password.
-		await profilePage.page.locator( '.pw-checkbox' ).check();
-
-		await expect( profilePage.page.getByText( 'Update Profile', { exact: true } ) ).toBeEnabled();
-
-		// update the password.
-		await profilePage.page.getByText( 'Update Profile', { exact: true } ).click();
-
-		// Wait for the navigation to complete.
-		await profilePage.page.waitForURL( '/wp-admin/profile.php' );
-
-		// Validate that the password was updated.
-		await expect( profilePage.page.getByText( 'Profile updated.' ) ).toBeVisible();
 	} );
 } );
