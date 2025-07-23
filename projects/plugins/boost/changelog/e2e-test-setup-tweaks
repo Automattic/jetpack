@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: e2e tests: update the Playwright install command
+
+
