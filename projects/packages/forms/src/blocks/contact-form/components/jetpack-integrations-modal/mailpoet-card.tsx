@@ -5,12 +5,19 @@ import MailPoetIcon from '../../../../icons/mailpoet';
 import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../../types';
 
+interface MailPoetCardProps extends SingleIntegrationCardProps {
+	connectMailPoet: boolean;
+	setAttributes: ( attrs: { connectMailPoet: boolean } ) => void;
+}
+
 const MailPoetCard = ( {
 	isExpanded,
 	onToggle,
+	connectMailPoet,
+	setAttributes,
 	data,
 	refreshStatus,
-}: SingleIntegrationCardProps ) => {
+}: MailPoetCardProps ) => {
 	const {
 		isConnected: mailpoetActiveWithKey = false,
 		settingsUrl = '',
@@ -19,7 +26,10 @@ const MailPoetCard = ( {
 
 	const cardData: IntegrationCardData = {
 		...data,
-		showHeaderToggle: false,
+		showHeaderToggle: true,
+		headerToggleValue: connectMailPoet ?? false,
+		isHeaderToggleEnabled: true,
+		onHeaderToggleChange: ( value: boolean ) => setAttributes( { connectMailPoet: value } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_mailpoet_click',
