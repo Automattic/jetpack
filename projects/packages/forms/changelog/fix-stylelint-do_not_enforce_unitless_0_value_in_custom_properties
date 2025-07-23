@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix padding on input and textarea fields.

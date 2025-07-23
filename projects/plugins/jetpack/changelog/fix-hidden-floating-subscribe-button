@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Floating subscription button: display on mobile devices as well when enabled.
