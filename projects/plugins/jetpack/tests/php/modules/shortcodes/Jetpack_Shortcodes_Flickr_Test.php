@@ -211,6 +211,8 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 		$shortcode_content = wp_kses_post( $content );
 
 		$this->assertEquals( '[flickr photo="https://www.flickr.com/photos/batmoo/5265478228/" w=375 h=500]', $shortcode_content );
+
+		remove_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
 	}
 
 	/**
@@ -225,5 +227,7 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 		$shortcode_content = wp_kses_post( $content );
 
 		$this->assertEquals( '[flickr video="https://www.flickr.com/photos/kalakeli/49931239842/" w=500 h=300 controls="yes" autoplay="yes"]', $shortcode_content );
+
+		remove_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
 	}
 }

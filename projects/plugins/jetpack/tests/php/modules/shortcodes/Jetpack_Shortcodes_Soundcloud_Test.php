@@ -134,6 +134,10 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 		$shortcode_content = wp_kses_post( $content );
 
 		$this->assertEquals( '<a href="https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773">https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773</a>', $shortcode_content );
+
+		remove_filter( 'pre_kses', 'jetpack_soundcloud_embed_reversal' );
+		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'filter' ), 11 );
+		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'maybe_create_links' ), 100 ); // See WPCom_Embed_Stats::init().
 	}
 
 	/**
