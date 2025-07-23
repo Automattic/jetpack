@@ -1,26 +1,26 @@
 .wrapper {
-	padding: calc( var( --spacing-base ) * 8 );
+	padding: calc(var(--spacing-base) * 8);
 	position: relative;
 }
 
 .is-card {
-	background-color: var( --jp-white );
-	border: 1px solid var( --jp-gray );
-	border-radius: var( --jp-border-radius );
-	box-shadow: 0 2px 6px var( --product-card-shadow ), 0 1px 2px var( --product-card-shadow );
+	background-color: var(--jp-white);
+	border: 1px solid var(--jp-gray);
+	border-radius: var(--jp-border-radius);
+	box-shadow: 0 2px 6px var(--product-card-shadow), 0 1px 2px var(--product-card-shadow);
 
 	.card-header {
-		border-radius: var( --jp-border-radius ) var( --jp-border-radius ) 0 0;
+		border-radius: var(--jp-border-radius) var(--jp-border-radius) 0 0;
 	}
 }
 
 .card-header {
 	display: flex;
 	align-items: center;
-	background: var( --jp-black );
-	color: var( --jp-white );
-	padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base );
-	line-height: calc( var( --spacing-base ) * 3 );
+	background: var(--jp-black);
+	color: var(--jp-white);
+	padding: calc(var(--spacing-base) / 2) var(--spacing-base);
+	line-height: calc(var(--spacing-base) * 3);
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -35,15 +35,15 @@
 }
 
 .product-bundle-icon {
-	fill: var( --jp-white );
-	margin-right: var( --spacing-base );
+	fill: var(--jp-white);
+	margin-right: var(--spacing-base);
 }
 
 .product-bundle-icons,
 .product-icon {
 	display: flex;
 	align-items: center;
-	margin-bottom: calc( var( --spacing-base ) * 4 );
+	margin-bottom: calc(var(--spacing-base) * 4);
 }
 
 .plus-icon {
@@ -56,18 +56,18 @@
 	margin: 0;
 	padding: 0;
 	flex-grow: 1;
-	margin-bottom: calc( var( --spacing-base ) * 2 );
+	margin-bottom: calc(var(--spacing-base) * 2);
 
 	li {
 		list-style: none;
 		display: flex;
 		align-items: flex-start;
-		margin-bottom: var( --spacing-base );
+		margin-bottom: var(--spacing-base);
 	}
 
 	.check {
-		fill: var( --jp-green-primary );
-		margin-right: var( --spacing-base );
+		fill: var(--jp-green-primary);
+		margin-right: var(--spacing-base);
 		flex-shrink: 0;
 	}
 }
@@ -78,7 +78,7 @@
 	align-items: center;
 
 	svg {
-		margin-right: var( --spacing-base );
+		margin-right: var(--spacing-base);
 	}
 }
 
@@ -88,6 +88,6 @@
 	
 	&:global(.is-primary):disabled {
 		opacity: 1;
-		background-color: var( --jp-black );
+		background-color: var(--jp-black);
 	}
 }

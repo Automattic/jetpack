@@ -3,10 +3,11 @@
  * https://jetpackcrm.com
  */
 
- // Specifically for admin settings pages
+// Specifically for admin settings pages
 
 .zbs-explainer-ico {
-	margin-top: 1em;margin-bottom: 1em;
+	margin-top: 1em;
+	margin-bottom: 1em;
 
 	i.fa {
 		font-size: 40px;
@@ -19,8 +20,8 @@
 
 		input {
 
-			margin-top:-5px;
-			margin-right:6px;
+			margin-top: -5px;
+			margin-right: 6px;
 
 		}
 	}
@@ -29,71 +30,70 @@
 
 
 #poststuff.zbs-settings-page {
-	padding-top:0;
-	min-width:auto !important;
+	padding-top: 0;
+	min-width: auto !important;
 }
 
 #zbs-settings-menu .branding.item {
 
-	text-align:center;
+	text-align: center;
 	line-height: 20px;
-    font-size: 1.2em;
-    font-weight: 800;
+	font-size: 1.2em;
+	font-weight: 800;
 
 	img {
 
-	    max-width: 30px !important;
-	    background: #000;
-	    display: inline-block !important;
-    	margin-left: -0.5em !important;
-	    float:left;
+		max-width: 30px !important;
+		background: #000;
+		display: inline-block !important;
+		margin-left: -0.5em !important;
+		float: left;
 	}
 }
 // fix for menu weirdness
 #zbs-settings-menu .item a.item.zbs-settings-head {
 	margin-bottom: -1em;
-    padding: 0;
+	padding: 0;
 }
 
 #zbs-settings-menu.ui.vertical.menu .item a.item.zbs-settings-head.active.item {
 	color: #2185D0 !important;
-    background: rgba(0, 0, 0, 0);
+	background: rgba(0, 0, 0, 0);
 }
-
 
 
 // WH new custom fields type
 .zbs-settings-custom-fields {
 
 	.zbscrm-cf-fieldtype-label {
-		margin-right:0.7em;
+		margin-right: 0.7em;
 	}
 
 	.zbscrm-cf-settings-wrap {
-	    padding: 0.7em;
+		padding: 0.7em;
 	}
 
-	.zbs-generic-hide{
-		display:none; // initially
+	.zbs-generic-hide {
+		display: none; // initially
 	}
 
 	// make autonumber inputs look okay
 	.zbs-cf-type-autonumber-wrap .ui.labeled.input {
-		max-width:200px;
-		clear:both;
+		max-width: 200px;
+		clear: both;
 	}
 
 	.zbs-cf-type-autonumber-input-wrap {
-	    margin-bottom: 0.5em;
+		margin-bottom: 0.5em;
 
-	    // pretty up these
-	    .ui.label {
-		    min-width: 120px;
-		    text-align: right;
+		// pretty up these
+		.ui.label {
+			min-width: 120px;
+			text-align: right;
 		}
 	}
 	// ui fix
-	.ui.labeled.input>.label:not(.corner) {
+	.ui.labeled.input > .label:not(.corner) {
 		padding-top: 0.6em !important;
 	}
 
@@ -102,41 +102,40 @@
 
 // license page, license info show
 .zbs-license-full-info {
-	display:none;
+	display: none;
 }
 
 // v3.0 migration blocker - do not remove :) won't see, but it'll break for old migraters:
 #zbs-migration-blocker {
 	display: block;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 10000;
-    background-color: #FFF;
-    margin-top: 0.5em;
-    opacity: 0.92;
-    border-radius: 0.2em;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 10000;
+	background-color: #FFF;
+	margin-top: 0.5em;
+	opacity: 0.92;
+	border-radius: 0.2em;
 }
 
 #zbs-migration-settings-notice {
-    z-index: 10001;
-    position: absolute;
-    top: 7em;
-    left: 0;
-    width: 100%;
-    text-align:center;
+	z-index: 10001;
+	position: absolute;
+	top: 7em;
+	left: 0;
+	width: 100%;
+	text-align: center;
 
-    .ui.message {
-	    max-width: 700px;
-	    margin-left: auto;
-	    margin-right: auto;
+	.ui.message {
+		max-width: 700px;
+		margin-left: auto;
+		margin-right: auto;
 	}
 }
 
 
-
 // tax table editor 
-.zbs-taxtable-line td:first-child{
+.zbs-taxtable-line td:first-child {
 	width: 60%;
 	max-width: 400px;
 }

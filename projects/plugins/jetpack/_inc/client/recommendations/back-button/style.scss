@@ -9,7 +9,7 @@
 
 	background-color: transparent;
 	border: none;
-	color: var( --jp-gray-70 );
+	color: var(--jp-gray-70);
 	fill: currentColor;
 
 	font-size: typography.$font-body;
@@ -25,7 +25,7 @@
 	}
 
 	&:focus-visible {
-		outline-color: var( --jp-black );
+		outline-color: var(--jp-black);
 		outline-offset: 2px;
 	}
 

@@ -11,7 +11,8 @@
 	text-align: center;
 }
 
-.widefat .menu-label-row, .widefat .menu-label-row td {
+.widefat .menu-label-row,
+.widefat .menu-label-row td {
 	background-color: #d6d6d6;
 	color: #111;
 	border: 0 none;
@@ -25,6 +26,7 @@
 	margin-top: 4px;
 }
 
-.tablenav .view-switch a, .tablenav div.tablenav-pages {
+.tablenav .view-switch a,
+.tablenav div.tablenav-pages {
 	display: none;
 }

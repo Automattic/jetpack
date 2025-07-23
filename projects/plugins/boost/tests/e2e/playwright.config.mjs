@@ -1,6 +1,16 @@
-import config from '_jetpack-e2e-commons/config/playwright.config.default.mjs';
+import baseConfig, {
+	setupProjects,
+} from '_jetpack-e2e-commons/config/playwright.config.default.mjs';
 
 export default {
-	...config,
-	actionTimeout: 40000,
+	...baseConfig,
+	actionTimeout: 40 * 1000,
+	projects: [
+		...setupProjects,
+		{
+			name: 'jetpack boost e2e',
+			testMatch: '**/specs/**',
+			dependencies: [ 'global authentication' ],
+		},
+	],
 };

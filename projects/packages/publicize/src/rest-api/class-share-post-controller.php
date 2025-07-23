@@ -16,6 +16,8 @@ use WP_REST_Server;
 
 /**
  * Publicize: Share post class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Share_Post_Controller extends Base_Controller {
 

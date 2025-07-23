@@ -15,6 +15,8 @@ use Automattic\Jetpack\Sync\Settings;
  * Sync endpoint class.
  *
  * POST /sites/%s/sync
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
@@ -94,6 +96,8 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
  * Sync status endpoint class.
  *
  * GET /sites/%s/sync/status
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -111,6 +115,8 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 /**
  * Sync Check Endpoint class.
  * GET /sites/%s/data-check
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -128,6 +134,8 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 /**
  * Sync histogram endpoint.
  * GET /sites/%s/data-histogram
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -179,6 +187,8 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 
 /**
  * POST /sites/%s/sync/health
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 
@@ -208,6 +218,8 @@ class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync
 
 /**
  * POST /sites/%s/sync/settings
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -244,6 +256,8 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 
 /**
  * GET /sites/%s/sync/settings
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -259,6 +273,8 @@ class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_
 
 /**
  * GET /sites/%s/sync/object
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -295,6 +311,8 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 
 /**
  * Sync Now endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -321,6 +339,8 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 
 /**
  * Sync checkout endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -477,6 +497,8 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 
 /**
  * Close endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -558,7 +580,9 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 }
 
 /**
- * Unlock ednpoint class.
+ * Unlock endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
@@ -589,6 +613,8 @@ class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 
 /**
  * Object ID range class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Sync_Object_Id_Range extends Jetpack_JSON_API_Sync_Endpoint {
 	/**

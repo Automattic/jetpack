@@ -19,6 +19,8 @@ use WP_REST_Server;
 
 /**
  * Registers the REST routes for Connections.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class REST_Connector {
 	/**

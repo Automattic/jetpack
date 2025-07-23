@@ -54,7 +54,7 @@
 	}
 
 	.btn.btn-primary {
-			background-color: #079E08;
+		background-color: #079E08;
 	}
 
 	.btn.btn-info {
@@ -108,19 +108,20 @@
 		color: #404040;
 
 		.label {
-			margin-left: 5px;	
+			margin-left: 5px;
 		}
 
-		b,span {
+		b,
+		span {
 			vertical-align: middle;
 		}
 
 		.license {
 			font-size: 12px;
-			margin-left:10px;
+			margin-left: 10px;
 			padding: 5px;
 			background-color: #f5f5f5;
-			color:#505050;
+			color: #505050;
 		}
 
 		.invalid-license {

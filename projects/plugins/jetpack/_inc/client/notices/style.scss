@@ -4,13 +4,13 @@
 	overflow: hidden;
 
 	&.is-pinned {
-		width: calc( 100% - 272px - 32px - 32px );
-		z-index: z-index.z-index( 'root', '.notices-list.is-pinned' );
+		width: calc(100% - 272px - 32px - 32px);
+		z-index: z-index.z-index('root', '.notices-list.is-pinned');
 		position: fixed;
-			top: 47px + 32px;
+		top: 47px + 32px;
 
 		.notice {
-			z-index: z-index.z-index( 'root', '.notices-list.is-pinned .notice' );
+			z-index: z-index.z-index('root', '.notices-list.is-pinned .notice');
 		}
 	}
 }

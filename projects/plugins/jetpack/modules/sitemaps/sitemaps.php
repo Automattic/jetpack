@@ -57,6 +57,8 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
  * Governs the generation, storage, and serving of sitemaps.
  *
  * @since 4.8.0
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Sitemap_Manager {
 
@@ -195,19 +197,12 @@ class Jetpack_Sitemap_Manager {
 	public function callback_action_catch_sitemap_urls() {
 		// Regular expressions for sitemap URL routing.
 		$regex = array(
-			'master'        => '/^sitemap\.xml$/',
-			'sitemap'       => '/^sitemap-[1-9][0-9]*\.xml$/',
-			'index'         => '/^sitemap-index-[1-9][0-9]*\.xml$/',
-			'sitemap-style' => '/^sitemap\.xsl$/',
-			'index-style'   => '/^sitemap-index\.xsl$/',
-			'image'         => '/^image-sitemap-[1-9][0-9]*\.xml$/',
-			'image-index'   => '/^image-sitemap-index-[1-9][0-9]*\.xml$/',
-			'image-style'   => '/^image-sitemap\.xsl$/',
-			'video'         => '/^video-sitemap-[1-9][0-9]*\.xml$/',
-			'video-index'   => '/^video-sitemap-index-[1-9][0-9]*\.xml$/',
-			'video-style'   => '/^video-sitemap\.xsl$/',
-			'news'          => '/^news-sitemap\.xml$/',
-			'news-style'    => '/^news-sitemap\.xsl$/',
+			'sitemap'     => '/^sitemap-[1-9][0-9]*\.xml$/',
+			'index'       => '/^sitemap-index-[1-9][0-9]*\.xml$/',
+			'image'       => '/^image-sitemap-[1-9][0-9]*\.xml$/',
+			'image-index' => '/^image-sitemap-index-[1-9][0-9]*\.xml$/',
+			'video'       => '/^video-sitemap-[1-9][0-9]*\.xml$/',
+			'video-index' => '/^video-sitemap-index-[1-9][0-9]*\.xml$/',
 		);
 
 		// The raw path(+query) of the requested URI.
@@ -235,7 +230,7 @@ class Jetpack_Sitemap_Manager {
 			$xml_content_type = apply_filters( 'jetpack_sitemap_content_type', 'text/xml' );
 
 			// Catch master sitemap xml.
-			if ( preg_match( $regex['master'], $request['sitemap_name'] ) ) {
+			if ( 'sitemap.xml' === $request['sitemap_name'] ) {
 				$sitemap_content = $this->librarian->get_sitemap_text(
 					jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
 					JP_MASTER_SITEMAP_TYPE
@@ -250,6 +245,55 @@ class Jetpack_Sitemap_Manager {
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$sitemap_content
+				);
+			}
+
+			// Catch sitemap xsl.
+			if ( 'sitemap.xsl' === $request['sitemap_name'] ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::sitemap_xsl()
+				);
+			}
+
+			// Catch sitemap index xsl.
+			if ( 'sitemap-index.xsl' === $request['sitemap_name'] ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::sitemap_index_xsl()
+				);
+			}
+
+			// Catch image sitemap xsl.
+			if ( 'image-sitemap.xsl' === $request['sitemap_name'] ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::image_sitemap_xsl()
+				);
+			}
+
+			// Catch video sitemap xsl.
+			if ( 'video-sitemap.xsl' === $request['sitemap_name'] ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::video_sitemap_xsl()
+				);
+			}
+
+			// Catch news sitemap xml.
+			if ( 'news-sitemap.xml' === $request['sitemap_name'] ) {
+				$sitemap_builder = new Jetpack_Sitemap_Builder();
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$sitemap_builder->news_sitemap_xml()
+				);
+			}
+
+			// Catch news sitemap xsl.
+			if ( 'news-sitemap.xsl' === $request['sitemap_name'] ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::news_sitemap_xsl()
 				);
 			}
 
@@ -275,22 +319,6 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
-			// Catch sitemap xsl.
-			if ( preg_match( $regex['sitemap-style'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					'application/xml',
-					Jetpack_Sitemap_Stylist::sitemap_xsl()
-				);
-			}
-
-			// Catch sitemap index xsl.
-			if ( preg_match( $regex['index-style'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					'application/xml',
-					Jetpack_Sitemap_Stylist::sitemap_index_xsl()
-				);
-			}
-
 			// Catch image sitemap xml.
 			if ( preg_match( $regex['image'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
@@ -313,14 +341,6 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
-			// Catch image sitemap xsl.
-			if ( preg_match( $regex['image-style'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					'application/xml',
-					Jetpack_Sitemap_Stylist::image_sitemap_xsl()
-				);
-			}
-
 			// Catch video sitemap xml.
 			if ( preg_match( $regex['video'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
@@ -340,31 +360,6 @@ class Jetpack_Sitemap_Manager {
 						$request['sitemap_name'],
 						JP_VIDEO_SITEMAP_INDEX_TYPE
 					)
-				);
-			}
-
-			// Catch video sitemap xsl.
-			if ( preg_match( $regex['video-style'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					'application/xml',
-					Jetpack_Sitemap_Stylist::video_sitemap_xsl()
-				);
-			}
-
-			// Catch news sitemap xml.
-			if ( preg_match( $regex['news'], $request['sitemap_name'] ) ) {
-				$sitemap_builder = new Jetpack_Sitemap_Builder();
-				$this->serve_raw_and_die(
-					$xml_content_type,
-					$sitemap_builder->news_sitemap_xml()
-				);
-			}
-
-			// Catch news sitemap xsl.
-			if ( preg_match( $regex['news-style'], $request['sitemap_name'] ) ) {
-				$this->serve_raw_and_die(
-					'application/xml',
-					Jetpack_Sitemap_Stylist::news_sitemap_xsl()
 				);
 			}
 		}

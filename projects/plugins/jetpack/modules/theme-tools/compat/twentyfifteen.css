@@ -103,7 +103,7 @@
 
 /* List type widgets */
 .widget_rss_links ul,
-.widget_top-posts ul ,
+.widget_top-posts ul,
 .widget_upcoming_events_widget ul {
 	list-style: none;
 	margin: 0;
@@ -263,7 +263,7 @@ iframe[id*="twitter-widget-"] {
  * Responsive Videos
  */
 
- .jetpack-video-wrapper {
+.jetpack-video-wrapper {
 	margin-bottom: 1.6em;
 }
 
@@ -295,7 +295,7 @@ iframe[id*="twitter-widget-"] {
 	margin: 2em 0 0;
 }
 
-.comment-subscription-form + .comment-subscription-form  {
+.comment-subscription-form + .comment-subscription-form {
 	margin-top: 1em;
 }
 

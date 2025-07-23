@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social Image Generator: do not use the latest post's Social Image as Open Graph Image tag on the home page.

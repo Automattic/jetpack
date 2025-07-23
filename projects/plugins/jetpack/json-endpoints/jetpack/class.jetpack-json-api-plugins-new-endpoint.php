@@ -61,6 +61,8 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
  * Plugins new endpoint class.
  *
  * POST /sites/%s/plugins/new
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 

@@ -7,7 +7,8 @@
 	font-size: 11px;
 }
 
-.button-effects, %button-effects {
+.button-effects,
+%button-effects {
 
 	&:hover {
 		opacity: 0.8;
@@ -21,7 +22,8 @@
 	}
 }
 
-.ji-button, %ji-button {
+.ji-button,
+%ji-button {
 	display: inline-block;
 	padding: 9px 21px;
 	font-size: 0.75rem;

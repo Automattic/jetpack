@@ -17,7 +17,7 @@
 		display: flex;
 		justify-content: space-between;
 		flex-wrap: wrap;
-		gap: calc( var( --horizontal-spacing ) * 3 );
+		gap: calc(var(--horizontal-spacing) * 3);
 	}
 
 	&__logo {

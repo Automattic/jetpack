@@ -78,8 +78,8 @@
 }
 
 
-.jetpack-sso-form-display #loginform>p,
-.jetpack-sso-form-display #loginform>div {
+.jetpack-sso-form-display #loginform > p,
+.jetpack-sso-form-display #loginform > div {
 	display: none;
 }
 

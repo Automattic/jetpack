@@ -60,7 +60,7 @@
 	.jp-license-activation-screen-controls--license-field {
 
 		input.components-text-control__input {
-			border: 1px solid var( --jp-gray-40 );
+			border: 1px solid var(--jp-gray-40);
 		}
 	}
 
@@ -82,9 +82,9 @@
 
 	.jp-license-activation-screen-controls--button,
 	.jp-license-activation-screen-controls--button:active {
-		background-color: var( --jp-black );
+		background-color: var(--jp-black);
 		border-radius: 4px;
-		color: var( --jp-white );
+		color: var(--jp-white);
 		display: flex;
 		font-size: 16px;
 		font-size: var(--font-body);
@@ -103,20 +103,20 @@
 		}
 
 		&.components-button:hover {
-			background-color: var( --jp-black-80 );
-			color: var( --jp-white );
+			background-color: var(--jp-black-80);
+			color: var(--jp-white);
 		}
 
 		&:focus {
-			background-color: var( --jp-black-80 );
-			border: 1px solid var( --jp-white );
-			color: var( --jp-white );
+			background-color: var(--jp-black-80);
+			border: 1px solid var(--jp-white);
+			color: var(--jp-white);
 		}
 
 		&[disabled],
 		&:disabled {
-			background-color: var( --jp-gray );
-			color: var( --jp-gray-20 );;
+			background-color: var(--jp-gray);
+			color: var(--jp-gray-20);;
 		}
 
 		.jp-components-spinner {

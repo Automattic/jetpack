@@ -2,14 +2,14 @@ $breakpoint-mobile: 782px; //Mobile size.
 
 .launched__modal {
 
-    p {
-        font-size: 16px;
-        margin: 0;
-    }
+	p {
+		font-size: 16px;
+		margin: 0;
+	}
 
-    &.components-modal__frame {
-        max-width: 640px;
-    }
+	&.components-modal__frame {
+		max-width: 640px;
+	}
 
 	.components-modal__header {
 		padding: 48px;

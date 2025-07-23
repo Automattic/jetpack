@@ -12,7 +12,9 @@
 @use 'ZeroBSCRM.timelines';
 
 // hide these, they look bad/inaccessible on this page:
-#wpwrap .update-nag {display:none !important;}
+#wpwrap .update-nag {
+	display: none !important;
+}
 
 
 // Customer Single view:
@@ -25,13 +27,13 @@
 	// Refine this specifically for an ID (later)
 	.zbs-default-avatar {
 		
-	    font-size: 3em;
-	    margin: 0.3em;
-	    margin-top: 0.5em;
+		font-size: 3em;
+		margin: 0.3em;
+		margin-top: 0.5em;
 	}
 
 	.three.wide.column img {
-		max-width:100%;
+		max-width: 100%;
 	}
 	
 	//these allow for wrapping td content
@@ -48,108 +50,109 @@
 
 	h3 {
 
-	    font-weight: 900;
-	    margin-bottom: 0;
+		font-weight: 900;
+		margin-bottom: 0;
 
 	}
 
 	.zbs-email {
 
-    	margin-left: 0.1em;
+		margin-left: 0.1em;
 
 	}
 
 	.zbs-sentence {
 		padding-top: 0.2em;
 		padding-bottom: 0.2em;
-		padding-left:0;
+		padding-left: 0;
 		color: #000;
-		margin-top:5px;
-		font-size:14px;
+		margin-top: 5px;
+		font-size: 14px;
 	}
 
 	// NOTE this is also in contact edit metabox! copy any changes if made:
 	.action-wrap {
 		
-	    display: block;
-	    position: relative;
-	    text-align: right;
-	    margin-top: 1em;
+		display: block;
+		position: relative;
+		text-align: right;
+		margin-top: 1em;
 	}
 
 	// using actual .button breaks the css.. for now, hackily putting htis in here to simulate basic button
 	// NOTE this is also in contact edit metabox! copy any changes if made:
 	.action-button {
-	    cursor: pointer;
-	    display: inline-block;
-	    min-height: 1em;
-	    outline: none;
-	    border: none;
-	    vertical-align: baseline;
-	    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-	    margin: 0 0.25em 0 0;
-	    padding: 0.78571429em 1.5em 0.78571429em;
-	    line-height: 1;
-	    font-style: normal;
-	    text-align: center;
-	    text-decoration: none;
-	    -webkit-user-select: none;
-	    -moz-user-select: none;
-	    -ms-user-select: none;
-	    user-select: none;
-	    transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
-	    will-change: '';
-	    -webkit-tap-highlight-color: transparent;
+		cursor: pointer;
+		display: inline-block;
+		min-height: 1em;
+		outline: none;
+		border: none;
+		vertical-align: baseline;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+		margin: 0 0.25em 0 0;
+		padding: 0.78571429em 1.5em 0.78571429em;
+		line-height: 1;
+		font-style: normal;
+		text-align: center;
+		text-decoration: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+		will-change: '';
+		-webkit-tap-highlight-color: transparent;
 
-	    font-size: 1rem;
+		font-size: 1rem;
 
-	    background: transparent none !important;
-	    font-weight: 400;
-	    border-radius: 0.28571429rem;
-	    text-transform: none;
-	    text-shadow: none !important;
+		background: transparent none !important;
+		font-weight: 400;
+		border-radius: 0.28571429rem;
+		text-transform: none;
+		text-shadow: none !important;
 
-	    box-shadow: 0 0 0 1px #21BA45 inset !important;
-	    color: #21BA45 !important;
+		box-shadow: 0 0 0 1px #21BA45 inset !important;
+		color: #21BA45 !important;
 	}
 }
 
 .zbs-view-vital-label {
-	width:160px;
-	text-align:right !important;
+	width: 160px;
+	text-align: right !important;
 }
 
 .zbs-view-vital-customfields-label {
-	min-width:160px;
-	text-align:right !important;
+	min-width: 160px;
+	text-align: right !important;
 }
 
 .zbs-view-tags {
-	text-align:center;
-	margin-top:2em;
-	margin-bottom:2em;
+	text-align: center;
+	margin-top: 2em;
+	margin-bottom: 2em;
 }
 
 
-.ui.menu,.ui.menu .menu {
-    opacity: 1;
-  z-index: 1;
+.ui.menu,
+.ui.menu .menu {
+	opacity: 1;
+	z-index: 1;
 }
 
 .go-behind {
-        position: relative !important;
-        //z-index: -1 !important;
+	position: relative !important;
+	//z-index: -1 !important;
 }
 
 
 // activity log -> long desc (hidden until shown)
 .zbs-long-desc {
 
-	display:none; // init
-    padding: 0.5em;
-    background: var(--jp-gray-0);
-    margin-right: 2em;
-    border-radius: 0.2em;
+	display: none; // init
+	padding: 0.5em;
+	background: var(--jp-gray-0);
+	margin-right: 2em;
+	border-radius: 0.2em;
 
 }
 
@@ -160,7 +163,7 @@ i.zbs-hide-longdesc {
 
 i.zbs-show-longdesc:hover,
 i.zbs-hide-longdesc:hover {
-	cursor:pointer;
+	cursor: pointer;
 }
 
 .zbs-long-desc-show .zbs-long-desc {
@@ -168,17 +171,16 @@ i.zbs-hide-longdesc:hover {
 }
 
 i.zbs-hide-longdesc {
-	display:none; // init
+	display: none; // init
 }
 
 .zbs-long-desc-show i.zbs-hide-longdesc {
-	display:inline-block;
+	display: inline-block;
 }
 
 .zbs-long-desc-show i.zbs-show-longdesc {
-	display:none;
+	display: none;
 }
-
 
 
 // ++====== SPECIFICS: Company view:
@@ -187,73 +189,73 @@ i.zbs-hide-longdesc {
 
 	#zbs-company-view-vitals-contacts .zbs-default-avatar {
 		
-	    font-size: 1em !important;
+		font-size: 1em !important;
 
-	    // this needs to match [.ui.label>.icon] in semantic ui :)
-   		margin: 0 0.75em 0 0 !important;
+		// this needs to match [.ui.label>.icon] in semantic ui :)
+		margin: 0 0.75em 0 0 !important;
 	}
 }
 
 // Tweak for activity logs on contact/co view page:
 .zbs-last-item .zbs-timeline-content {
-	padding-bottom:0;
+	padding-bottom: 0;
 }
 
 
 // ++========= MS additions WH moved out of inline 27/2/19
 
-.zbs-social-buttons a{
-color: #fff;
+.zbs-social-buttons a {
+	color: #fff;
 }
 
-.zbs-social-buttons .zbs-social-acc{
-float:left;
-margin:5px;
-width:30px;
+.zbs-social-buttons .zbs-social-acc {
+	float: left;
+	margin: 5px;
+	width: 30px;
 }
 
-.zbs-social-buttons .icon{
-margin: 0 !important;
-color: #fff;
-font-size:14px;
+.zbs-social-buttons .icon {
+	margin: 0 !important;
+	color: #fff;
+	font-size: 14px;
 }
 
 .zbs-social-buttons a:hover {
-  background-color: none !important;
-  border-color: none !important;
+	background-color: none !important;
+	border-color: none !important;
 }
 
-#contact-tab-social{
-display:none !important;
+#contact-tab-social {
+	display: none !important;
 }
 
-.zbs-sentence{
+.zbs-sentence {
 	line-height: 21px;
-	width:80%;
+	width: 80%;
 }
 
-.zbs-contact-owner{
-position: absolute;
-top: 8px;
-right: 10px;
-color: #b4b4c5;
+.zbs-contact-owner {
+	position: absolute;
+	top: 8px;
+	right: 10px;
+	color: #b4b4c5;
 }
 
-#zbs-side-sortables{
-padding-right: 1em;
+#zbs-side-sortables {
+	padding-right: 1em;
 }
 
-.zbs-view-tags a{
-margin-bottom:3px !important;
+.zbs-view-tags a {
+	margin-bottom: 3px !important;
 }
 
-.actvity-feed-view-box{
-margin-top: -15px !important;
+.actvity-feed-view-box {
+	margin-top: -15px !important;
 }
 
-.zbs-mini-tag{
-margin-top:10px !important;
-margin-right:10px !important;
+.zbs-mini-tag {
+	margin-top: 10px !important;
+	margin-right: 10px !important;
 }
 
 // === Pinned notes

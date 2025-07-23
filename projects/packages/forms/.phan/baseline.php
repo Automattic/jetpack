@@ -9,15 +9,15 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 35+ occurrences
+    // PhanTypeMismatchArgument : 40+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 15+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
     // PhanTypeMismatchArgumentInternal : 6 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
+    // PhanPluginDuplicateAdjacentStatement : 2 occurrences
     // PhanPluginRedundantAssignment : 2 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
-    // PhanPluginDuplicateAdjacentStatement : 1 occurrence
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanPossiblyNullTypeMismatchProperty : 1 occurrence
     // PhanTypeArraySuspiciousNullable : 1 occurrence

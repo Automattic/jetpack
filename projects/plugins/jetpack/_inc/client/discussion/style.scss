@@ -3,15 +3,15 @@
 
 .jp-form-settings-group .jp-toggle-set {
 	position: relative;
-	margin-bottom: rem.convert( 16px );
+	margin-bottom: rem.convert(16px);
 
 	.jp-support-info {
-		right: rem.convert( -20px );
-		top: rem.convert( 5px );
+		right: rem.convert(-20px);
+		top: rem.convert(5px);
 
 		@include layout.breakpoint( "<480px" ) {
-			right: rem.convert( -32px );
-			top: rem.convert( 5px );
+			right: rem.convert(-32px);
+			top: rem.convert(5px);
 		}
 	}
 }

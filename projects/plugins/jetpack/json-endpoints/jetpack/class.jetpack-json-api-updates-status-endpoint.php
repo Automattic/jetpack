@@ -4,6 +4,8 @@
  * Updates status class.
  *
  * GET /sites/%s/updates
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 	/**

@@ -12,7 +12,8 @@
 		margin: 6px 0 0;
 	}
 
-	&.is-requesting, &.is-suggesting {
+	&.is-requesting,
+	&.is-suggesting {
 		opacity: 1;
 		width: 24px;
 	}

@@ -183,12 +183,12 @@
 /* AMP pages */
 html[amp] {
 
-    .wp-block-jetpack-google-docs-embed {
+	.wp-block-jetpack-google-docs-embed {
 
-        &.alignleft,
-        &.alignright {
-            float: none;
-        }
+		&.alignleft,
+		&.alignright {
+			float: none;
+		}
 
 		&__wrapper {
 
@@ -211,8 +211,8 @@ html[amp] {
 		}
 
 		.loader {
-            display: none;
-        }
+			display: none;
+		}
 
-    }
+	}
 }

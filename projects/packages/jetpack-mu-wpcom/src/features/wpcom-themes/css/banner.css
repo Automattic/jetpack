@@ -14,7 +14,7 @@
 	padding: 64px 32px;
 	border-radius: 10px;
 	margin-bottom: 25px;
-	background-image: var( --wpcom-themes-banner-image );
+	background-image: var(--wpcom-themes-banner-image);
 	background-repeat: no-repeat;
 	background-position: center right 10px;
 	background-size: 530px;

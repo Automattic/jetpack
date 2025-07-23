@@ -261,6 +261,16 @@ function wpcom_add_jetpack_submenu() {
 		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
+	// Jetpack > Podcasting
+	add_submenu_page(
+		'jetpack',
+		__( 'Podcasting', 'jetpack-mu-wpcom' ),
+		__( 'Podcasting', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/settings/podcasting/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
+
 	if ( $uses_wp_admin_interface ) {
 		// Jetpack > Activity Log.
 		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
@@ -284,16 +294,6 @@ function wpcom_add_jetpack_submenu() {
 				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			);
 		}
-
-		// Jetpack > Podcasting
-		add_submenu_page(
-			'jetpack',
-			__( 'Podcasting', 'jetpack-mu-wpcom' ),
-			__( 'Podcasting', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/settings/podcasting/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
 	}
 
 	// Re-order menu.
