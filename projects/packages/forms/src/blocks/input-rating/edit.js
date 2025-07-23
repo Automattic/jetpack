@@ -31,10 +31,19 @@ export default function RatingInputEdit( { context, setAttributes, clientId } ) 
 		? DEFAULT_GLYPHS.hearts.icon
 		: DEFAULT_GLYPHS.stars.icon;
 
-	const blockProps = useBlockProps( {
+	const baseProps = useBlockProps();
+	const blockProps = {
+		...baseProps,
 		'aria-label': __( 'Rating input', 'jetpack-forms' ),
-		className: 'jetpack-rating-input-wrapper',
-	} );
+		className: `jetpack-rating-input-wrapper ${ baseProps.className || '' }`.trim(),
+		style: {
+			...baseProps.style,
+			// Set the CSS variable that the frontend styles expect
+			...( baseProps.style?.color && {
+				'--jetpack--contact-form--rating-star-color': baseProps.style.color,
+			} ),
+		},
+	};
 
 	return (
 		<div { ...blockProps }>
