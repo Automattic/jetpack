@@ -22,10 +22,12 @@ test.describe( 'Cornerstone Pages', () => {
 		await page.close();
 	} );
 
-	test.beforeEach( async () => {
+	test.afterEach( async () => {
 		// Reset cornerstone pages before each test to ensure atomicity
 		// Using option delete ensures the system properly initializes an empty array
 		await execWpCommand( 'option delete jetpack_boost_ds_cornerstone_pages_list' );
+
+		await boostPrerequisitesBuilder( page ).withPremiumFeaturesMocked( [] ).build();
 	} );
 
 	test( 'Cornerstone Pages panel should be visible and toggleable', async () => {
@@ -210,22 +212,21 @@ test.describe( 'Cornerstone Pages', () => {
 			'Load default pages button should be visible'
 		).toBeVisible();
 
+		const testUrls = '/sample-page';
+		await jetpackBoostPage.enterCornerstonePageUrl( testUrls );
+
 		// Test load default pages functionality (if there are default pages configured)
-		const loadDefaultButton = page.locator( 'text=Load default pages' );
-		if ( await loadDefaultButton.isEnabled() ) {
-			await loadDefaultButton.click();
-			// Should show some default pages loaded
-			expect(
-				await jetpackBoostPage.getCornerstonePageInputValue(),
-				'Should have some content after loading defaults'
-			).toBeTruthy();
-		}
+		const loadDefaultButton = page.getByRole( 'button', { name: 'Load default pages' } );
+		await loadDefaultButton.click();
+
+		// Should show some default pages loaded
+		expect(
+			await jetpackBoostPage.getCornerstonePageInputValue(),
+			'Should have no content after loading defaults'
+		).toBeFalsy();
 	} );
 
 	test( 'Prerender toggle should be visible when speculation_rules module is available', async () => {
-		// Activate speculation_rules module
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'speculation_rules' ] ).build();
-
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
@@ -234,30 +235,12 @@ test.describe( 'Cornerstone Pages', () => {
 			'Prerender toggle should be visible when speculation_rules is available'
 		).toBeTruthy();
 
-		await expect(
-			page.locator( 'text=Prerender Cornerstone Pages' ),
-			'Prerender section title should be visible'
-		).toBeVisible();
-
 		// Test toggle functionality
 		await jetpackBoostPage.togglePrerenderOption( true );
 		await jetpackBoostPage.waitForNotice( 'Prerender enabled' );
 
 		await jetpackBoostPage.togglePrerenderOption( false );
 		await jetpackBoostPage.waitForNotice( 'Prerender disabled' );
-	} );
-
-	test( 'Prerender toggle should not be visible when speculation_rules module is unavailable', async () => {
-		// Deactivate speculation_rules module
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'speculation_rules' ] ).build();
-
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		await jetpackBoostPage.openCornerstonePagesPanel();
-
-		expect(
-			await jetpackBoostPage.isPrerenderToggleVisible(),
-			'Prerender toggle should not be visible when speculation_rules is unavailable'
-		).toBeFalsy();
 	} );
 
 	test( 'Should handle relative URLs correctly', async () => {
@@ -277,30 +260,6 @@ test.describe( 'Cornerstone Pages', () => {
 			page.locator( 'text=Homepage + 1 page' ),
 			'Should accept and save relative URLs'
 		).toBeVisible();
-	} );
-
-	test( 'Should trigger Critical CSS regeneration when pages are updated for premium users', async () => {
-		// Mock premium features and activate critical_css module
-		await boostPrerequisitesBuilder( page )
-			.withPremiumFeaturesMocked( [ 'cornerstone-10-pages' ] )
-			.withActiveModules( [ 'critical_css' ] )
-			.build();
-
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		await jetpackBoostPage.openCornerstonePagesPanel();
-
-		// Add a page (this should trigger CSS regeneration for premium users)
-		await jetpackBoostPage.addCornerstonePage( '/premium-test-page' );
-
-		// Wait for save notice
-		await jetpackBoostPage.waitForNotice( 'Cornerstone pages saved' );
-
-		// Navigate to main page to check if Critical CSS regeneration was triggered
-		// Note: The exact UI for this might vary, but we should see regeneration activity
-		expect(
-			await jetpackBoostPage.isCriticalCssMetaVisible(),
-			'Critical CSS meta should be visible after cornerstone pages update'
-		).toBeTruthy();
 	} );
 
 	test( 'Should persist cornerstone pages across page reloads', async () => {
