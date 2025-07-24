@@ -37,14 +37,6 @@ export function prerequisitesBuilder( page ) {
 			state.plugins.inactive = plugins;
 			return this;
 		},
-		withLoggedIn( shouldBeLoggedIn ) {
-			state.loggedIn = shouldBeLoggedIn;
-			return this;
-		},
-		withWpComLoggedIn( shouldBeLoggedIn ) {
-			state.wpComLoggedIn = shouldBeLoggedIn;
-			return this;
-		},
 		withConnection( shouldBeConnected ) {
 			state.connected = shouldBeConnected;
 			return this;
