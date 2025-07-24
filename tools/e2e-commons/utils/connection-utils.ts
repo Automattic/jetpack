@@ -1,46 +1,12 @@
 import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
-import config from 'config';
+import { getDotComCredentials } from '../helpers/utils-helper';
 import logger from '../logger';
-
-/**
- * Get WordPress.com bearer token using client credentials flow.
- * @param requestUtils - RequestUtils instance
- * @return Promise<string> - Bearer token
- */
-export async function getWpcomBearerToken( requestUtils: RequestUtils ): Promise< string > {
-	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
-	const response = await requestUtils.request.post(
-		'https://public-api.wordpress.com/oauth2/token',
-		{
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				Host: 'public-api.wordpress.com',
-			},
-			form: {
-				client_id: clientID,
-				client_secret: clientSecret,
-				grant_type: 'client_credentials',
-				scope: 'jetpack-partner',
-			},
-		}
-	);
-
-	const tokenData = await response.json();
-	logger.debug( `Bearer token response: ${ JSON.stringify( tokenData ) }` );
-	return tokenData.access_token;
-}
 
 /**
  * Connect Jetpack site and user to WordPress.com.
  * @param requestUtils - RequestUtils instance.
  */
 export async function connect( requestUtils: RequestUtils ) {
-	// const creds = getDotComCredentials();
-	// const siteCreds = getSiteCredentials();
-	// await execWpCommand( `user update ${ siteCreds.username } --user_email=${ creds.email }` );
-
-	// await provisionJetpackStartConnection( creds.userId, 'free', siteCreds.username );
-
 	const authorizeUrl = await connectSite( requestUtils );
 	const clientId = new URL( authorizeUrl ).searchParams.get( 'client_id' ) || '';
 
@@ -58,8 +24,7 @@ export async function connectSite( requestUtils: RequestUtils ) {
 		return;
 	}
 
-	// Connect the site to Jetpack.
-	// /jetpack/v4/connection/register
+	// Connect the site.
 	const r = await requestUtils.rest( {
 		method: 'POST',
 		path: '/jetpack/v4/connection/register',
@@ -93,7 +58,7 @@ export async function connectUser( requestUtils: RequestUtils, clientId: string 
 
 	const { scope, secret, redirect_uri, user_id } = provisionResponse;
 
-	const bearerToken = await getWpcomBearerToken( requestUtils );
+	const bearerToken = getDotComCredentials().bearerToken;
 
 	const connectUserResponse = await requestUtils.request.post(
 		`https://public-api.wordpress.com/wpcom/v2/sites/${ clientId }/jetpack-remote-connect-user`,
@@ -123,7 +88,6 @@ export async function connectUser( requestUtils: RequestUtils, clientId: string 
  * @return {Promise<void>} Resolves when the disconnect is complete.
  */
 export async function disconnect( requestUtils: RequestUtils ) {
-	// await execWpCommand( 'jetpack disconnect blog' );
 	await disconnectUser( requestUtils );
 	await disconnectSite( requestUtils );
 }

@@ -230,6 +230,7 @@ export function getDotComCredentials() {
 		password: site.dotComAccount[ 1 ],
 		userId: site.dotComAccount[ 2 ],
 		email: site.dotComAccount[ 3 ],
+		bearerToken: site.dotComAccount[ 4 ],
 	};
 }
 
