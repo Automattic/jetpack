@@ -1,7 +1,8 @@
 import fs from 'fs';
 import { provisionJetpackStartConnection } from '../helpers/partner-provisioning';
-import { execWpCommand, getDotComCredentials, getSiteCredentials } from '../helpers/utils-helper';
+import { getDotComCredentials, getSiteCredentials } from '../helpers/utils-helper';
 import logger from '../logger';
+import { executeWpCommand } from '../utils/cli.ts';
 import { TestUtils } from '.';
 
 /**
@@ -10,7 +11,7 @@ import { TestUtils } from '.';
 export async function connect() {
 	const creds = getDotComCredentials();
 	const siteCreds = getSiteCredentials();
-	await execWpCommand( `user update ${ siteCreds.username } --user_email=${ creds.email }` );
+	await executeWpCommand( `user update ${ siteCreds.username } --user_email=${ creds.email }` );
 
 	await provisionJetpackStartConnection( creds.userId, 'free', siteCreds.username );
 }
@@ -20,7 +21,7 @@ export async function connect() {
  */
 export async function saveJetpackPrivateOptionsToStorageState() {
 	// We are connected. Let's save the existing connection options just in case.
-	const result = await execWpCommand( 'option get jetpack_private_options --format=json' );
+	const result = await executeWpCommand( 'option get jetpack_private_options --format=json' );
 	fs.writeFileSync(
 		`${ process.env.STORAGE_STATE_DIR_PATH }/jetpack_private_options.json`,
 		result.trim()
@@ -32,7 +33,7 @@ export async function saveJetpackPrivateOptionsToStorageState() {
  * @return {Promise<void>} Resolves when the disconnect is complete.
  */
 export async function disconnect( this: TestUtils ) {
-	// await execWpCommand( 'jetpack disconnect blog' );
+	// await executeWpCommand( 'jetpack disconnect blog' );
 	await disconnectUser.call( this );
 	await disconnectSite.call( this );
 }

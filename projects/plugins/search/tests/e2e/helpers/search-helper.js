@@ -1,5 +1,5 @@
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
 import { SearchHomepage } from '../pages/index.js';
 
 /**
@@ -7,7 +7,7 @@ import { SearchHomepage } from '../pages/index.js';
  * @return {string} wp-cli command output
  */
 export async function enableInstantSearch() {
-	return execWpCommand( 'option update instant_search_enabled 1' );
+	return executeWpCommand( 'option update instant_search_enabled 1' );
 }
 
 /**
@@ -15,7 +15,7 @@ export async function enableInstantSearch() {
  * @return {string} wp-cli command output
  */
 export async function disableInstantSearch() {
-	return execWpCommand( 'option update instant_search_enabled 0' );
+	return executeWpCommand( 'option update instant_search_enabled 0' );
 }
 
 /**
@@ -24,7 +24,7 @@ export async function disableInstantSearch() {
  * @return {string} wp-cli command output
  */
 export async function setResultFormat( format = 'expanded' ) {
-	return execWpCommand( `option update jetpack_search_result_format ${ format }` );
+	return executeWpCommand( `option update jetpack_search_result_format ${ format }` );
 }
 
 /**
@@ -33,7 +33,7 @@ export async function setResultFormat( format = 'expanded' ) {
  * @return {string} wp-cli command output
  */
 export async function setTheme( theme = 'light' ) {
-	return execWpCommand( `option update jetpack_search_result_format ${ theme }` );
+	return executeWpCommand( `option update jetpack_search_result_format ${ theme }` );
 }
 
 /**
@@ -42,7 +42,7 @@ export async function setTheme( theme = 'light' ) {
  * @return {string} wp-cli command output
  */
 export async function setHighlightColor( color = '"#FFFFFF"' ) {
-	return execWpCommand( `option update jetpack_search_highlight_color ${ color }` );
+	return executeWpCommand( `option update jetpack_search_highlight_color ${ color }` );
 }
 
 /**
@@ -51,7 +51,7 @@ export async function setHighlightColor( color = '"#FFFFFF"' ) {
  * @return {string} wp-cli command output
  */
 export async function setDefaultSort( defaultSort = 'relevance' ) {
-	return execWpCommand( `option update jetpack_search_default_sort ${ defaultSort }` );
+	return executeWpCommand( `option update jetpack_search_default_sort ${ defaultSort }` );
 }
 
 /**
@@ -60,7 +60,7 @@ export async function setDefaultSort( defaultSort = 'relevance' ) {
  */
 export async function searchAutoConfig() {
 	// Run auto config to add search widget / block with user ID `1`.
-	return await execWpCommand( 'jetpack-search auto_config 1' );
+	return await executeWpCommand( 'jetpack-search auto_config 1' );
 }
 
 /**
@@ -69,7 +69,7 @@ export async function searchAutoConfig() {
  */
 export async function clearSearchPlanInfo() {
 	// When running locally, sometimes there could be data in the option - better clear it.
-	return await execWpCommand( 'option delete jetpack_search_plan_info' );
+	return await executeWpCommand( 'option delete jetpack_search_plan_info' );
 }
 
 /**

@@ -1,4 +1,5 @@
 import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
+import { executeCommand, executeContainerCommand } from './cli.ts';
 import {
 	connect,
 	disconnect,
@@ -7,6 +8,7 @@ import {
 	isSiteConnected,
 	isUserConnected,
 } from './connection.ts';
+import { activateModule, deactivateModule, isModuleActive } from './jetpack.ts';
 import { authenticateUser } from './login.ts';
 
 export {
@@ -36,6 +38,17 @@ class TestUtils {
 	disconnectUser: typeof disconnectUser = disconnectUser.bind( this );
 	disconnectSite: typeof disconnectSite = disconnectSite.bind( this );
 	disconnect: typeof disconnect = disconnect.bind( this );
+
+	// CLI utilities
+	executeCommand: typeof executeCommand = executeCommand;
+	executeWpCommand: typeof executeCommand = executeCommand;
+	executeJetpackCommand: typeof executeCommand = executeCommand;
+	executeContainerCommand: typeof executeContainerCommand = executeContainerCommand;
+
+	// Jetpack specific utilities
+	activateModule: typeof activateModule = activateModule;
+	deactivateModule: typeof deactivateModule = deactivateModule;
+	isModuleActive: typeof isModuleActive = isModuleActive;
 }
 
 export { TestUtils };

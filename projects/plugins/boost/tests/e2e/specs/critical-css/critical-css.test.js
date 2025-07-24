@@ -1,5 +1,4 @@
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
 import { DashboardPage, Sidebar, ThemesPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
@@ -10,7 +9,7 @@ test.describe( 'Critical CSS module', () => {
 	let page;
 	let previousTheme = null;
 
-	test.beforeAll( async ( { browser } ) => {
+	test.beforeAll( async ( { browser, testUtils } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
@@ -18,14 +17,14 @@ test.describe( 'Critical CSS module', () => {
 			.withSpeedScoreMocked( true )
 			.build();
 
-		await execWpCommand( 'plugin activate e2e-critical-css-force-errors' );
+		await testUtils.executeWpCommand( 'plugin activate e2e-critical-css-force-errors' );
 	} );
 
-	test.afterAll( async () => {
-		await execWpCommand( 'plugin deactivate e2e-critical-css-force-errors' );
+	test.afterAll( async ( { testUtils } ) => {
+		await testUtils.executeWpCommand( 'plugin deactivate e2e-critical-css-force-errors' );
 
 		if ( previousTheme !== null ) {
-			await execWpCommand( `theme activate ${ previousTheme }` );
+			await testUtils.executeWpCommand( `theme activate ${ previousTheme }` );
 		}
 		await page.close();
 	} );

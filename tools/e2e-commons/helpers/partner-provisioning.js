@@ -4,7 +4,7 @@ import config from 'config';
 import shellescape from 'shell-escape';
 import logger from '../logger.js';
 import pwConfig from '../playwright.config.mjs';
-import { execSyncShellCommand, execWpCommand } from './utils-helper.js';
+import { executeCommand, executeJetpackCommand } from '../utils/cli.ts';
 
 /**
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
@@ -28,7 +28,7 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	let response;
 	// catch a command failed error so that secrets are not logged
 	try {
-		response = execSyncShellCommand( cmd );
+		response = await executeCommand( cmd );
 	} catch {
 		throw new Error( `Jetpack Start provisioning command failed.` );
 	}
@@ -41,11 +41,11 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 		throw new Error( `'Jetpack Start provisioning failed: ${ json.error }` );
 	}
 
-	await execWpCommand(
-		`jetpack authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
+	await executeJetpackCommand(
+		`authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
 	);
 
-	await execWpCommand( 'jetpack status' );
+	await executeJetpackCommand( 'status' );
 
 	return true;
 }

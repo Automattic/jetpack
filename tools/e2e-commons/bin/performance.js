@@ -4,8 +4,8 @@ import path from 'path';
 import { URL } from 'url';
 import { mergeWith } from 'lodash-es';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
-import { execSyncShellCommand, execWpCommand } from '../helpers/utils-helper.js';
 import pwConfig from '../playwright.config.mjs';
+import { executeWpCommand, executeCommand, executeContainerCommand } from '../utils/cli.ts';
 
 const __dirname = new URL( '.', import.meta.url ).pathname;
 
@@ -23,10 +23,10 @@ if ( ! existsSync( resultsPath ) ) {
 /**
  * Reset environment.
  */
-function envReset() {
-	console.log( execSyncShellCommand( 'pwd' ) );
-	execSyncShellCommand( 'pnpm env:reset' );
-	execSyncShellCommand( 'pnpm tunnel:reset' );
+async function envReset() {
+	console.log( await executeCommand( 'pwd' ) );
+	await executeContainerCommand( 'pnpm env:reset' );
+	executeContainerCommand( 'pnpm tunnel:reset' );
 }
 
 /**
@@ -35,13 +35,13 @@ function envReset() {
  */
 async function envSetup( type ) {
 	if ( type === 'base' ) {
-		await execWpCommand( 'plugin deactivate jetpack' );
+		await executeWpCommand( 'plugin deactivate jetpack' );
 	} else if ( type === 'jetpack' ) {
 		await prerequisitesBuilder().withConnection( true ).build();
-		await execWpCommand( 'jetpack module deactivate sso' );
+		await executeWpCommand( 'jetpack module deactivate sso' );
 	}
 
-	await execWpCommand(
+	await executeWpCommand(
 		'user create admin admin@example.com --role=administrator --user_pass=password'
 	);
 }
@@ -70,7 +70,7 @@ async function runTests( type, round ) {
  */
 async function testRun( type, round ) {
 	console.log( `Starting test run #${ round } for ${ type }` );
-	envReset();
+	await envReset();
 	await envSetup( type );
 	await runTests( type, round );
 	console.log( `Finished test run #${ round } for ${ type }` );

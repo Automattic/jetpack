@@ -1,4 +1,3 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { WPLoginPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import {
@@ -6,7 +5,6 @@ import {
 	getAccountProtectionTokenFromUrl,
 	insertTestUsers,
 } from '../../../helpers/account-protection-helper.js';
-import playwrightConfig from '../../../playwright.config.mjs';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];
@@ -14,17 +12,15 @@ const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];
 // Reset storage state for this file to avoid being authenticated
 test.use( { storageState: { cookies: [], origins: [] } } );
 
-test.beforeAll( async ( { browser } ) => {
-	// Set up a clean environment with account protection enabled.
-	const page = await browser.newPage( playwrightConfig.use );
-	await prerequisitesBuilder( page )
-		.withInactiveModules( [ 'protect', 'sso' ] )
-		.withActiveModules( [ 'account-protection' ] )
-		.build();
+test.beforeAll( async ( { testUtils } ) => {
+	await testUtils.activateModule( 'account-protection' );
+	expect( await testUtils.isModuleActive( 'account-protection' ) ).toBe( true );
+
+	await testUtils.deactivateModule( [ 'protect', 'sso' ] );
+	expect( await testUtils.isModuleActive( 'protect' ) ).toBe( false );
+	expect( await testUtils.isModuleActive( 'sso' ) ).toBe( false );
 
 	await insertTestUsers();
-
-	await page.close();
 } );
 
 test.describe.parallel( 'Compromised Password Detection', () => {

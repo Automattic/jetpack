@@ -1,5 +1,5 @@
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
 
 /**
  * Enable sync
@@ -7,7 +7,7 @@ import logger from '_jetpack-e2e-commons/logger.js';
  */
 export async function enableSync() {
 	logger.sync( 'Enabling sync' );
-	return execWpCommand( 'jetpack sync enable' );
+	return executeWpCommand( 'jetpack sync enable' );
 }
 
 /**
@@ -16,7 +16,7 @@ export async function enableSync() {
  */
 export async function disableSync() {
 	logger.sync( 'Disabling sync' );
-	return execWpCommand( 'jetpack sync disable' );
+	return executeWpCommand( 'jetpack sync disable' );
 }
 
 /**
@@ -25,7 +25,7 @@ export async function disableSync() {
  */
 export async function resetSync() {
 	logger.sync( 'Resetting sync' );
-	return execWpCommand( 'jetpack sync reset' );
+	return executeWpCommand( 'jetpack sync reset' );
 }
 
 /**
@@ -34,7 +34,7 @@ export async function resetSync() {
  */
 export async function getSyncStatus() {
 	logger.sync( 'Checking sync status' );
-	return execWpCommand( 'jetpack sync status' );
+	return executeWpCommand( 'jetpack sync status' );
 }
 
 /**
@@ -43,7 +43,7 @@ export async function getSyncStatus() {
  */
 export async function enableDedicatedSync() {
 	logger.sync( 'Enabling dedicated sync' );
-	return execWpCommand( 'option update jetpack_sync_settings_dedicated_sync_enabled 1' );
+	return executeWpCommand( 'option update jetpack_sync_settings_dedicated_sync_enabled 1' );
 }
 
 /**
@@ -52,7 +52,7 @@ export async function enableDedicatedSync() {
  */
 export async function disableDedicatedSync() {
 	logger.sync( 'Disabling dedicated sync' );
-	return execWpCommand( 'option update jetpack_sync_settings_dedicated_sync_enabled 0' );
+	return executeWpCommand( 'option update jetpack_sync_settings_dedicated_sync_enabled 0' );
 }
 
 /**

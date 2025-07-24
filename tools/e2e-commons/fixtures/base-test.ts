@@ -6,7 +6,6 @@ import { allure } from 'allure-playwright';
 /**
  * Internal dependencies
  */
-import { execWpCommand } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 import { TestUtils } from '../utils/index.js';
 
@@ -33,12 +32,14 @@ const test = baseTest.extend< { testUtils: TestUtils } >( {
 	},
 } );
 
-test.beforeEach( async () => {
-	await execWpCommand( 'transient delete wpcom_request_counter' );
+test.beforeEach( async ( { testUtils } ) => {
+	await testUtils.executeWpCommand( 'transient delete wpcom_request_counter' );
 } );
 
-test.afterEach( async () => {
-	const wpcomRequestCount = await execWpCommand( 'transient get wpcom_request_counter' );
+test.afterEach( async ( { testUtils } ) => {
+	const wpcomRequestCount = await testUtils.executeWpCommand(
+		'transient get wpcom_request_counter'
+	);
 	allure.description(
 		`'Requests to WPCOM API: ${ String( parseInt( wpcomRequestCount ) || 0 ) }'`
 	);

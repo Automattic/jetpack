@@ -1,15 +1,14 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
 import BlockEditorPage from '_jetpack-e2e-commons/pages/wp-admin/block-editor.js';
 import { disconnect } from '_jetpack-e2e-commons/utils/connection-utils.ts';
 import { connect } from '../flows/index.js';
 import playwrightConfig from '../playwright.config.mjs';
 
-test.beforeAll( async ( { browser, requestUtils } ) => {
+test.beforeAll( async ( { browser, requestUtils, testUtils } ) => {
 	await disconnect( requestUtils );
-	await execWpCommand( 'option delete jetpack-social_show_pricing_page' );
+	await testUtils.executeWpCommand( 'option delete jetpack-social_show_pricing_page' );
 
 	const page = await browser.newPage( playwrightConfig.use );
 	await prerequisitesBuilder( page )
