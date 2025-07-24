@@ -301,7 +301,7 @@ class Jetpack_Sitemap_Librarian {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT *
+				"SELECT ID, post_modified_gmt, comment_count
 					FROM $wpdb->posts
 					WHERE post_status='publish'
 						AND post_type IN ($post_types_list)
@@ -442,7 +442,7 @@ class Jetpack_Sitemap_Librarian {
 		// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT *
+				"SELECT ID, post_title, post_date_gmt, post_modified_gmt
 					FROM $wpdb->posts
 					WHERE post_status='publish'
 						AND post_date >= '%s'
