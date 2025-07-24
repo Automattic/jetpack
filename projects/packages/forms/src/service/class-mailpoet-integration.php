@@ -14,50 +14,23 @@ namespace Automattic\Jetpack\Forms\Service;
  */
 class MailPoet_Integration {
 	/**
-	 * Singleton instance
-	 *
-	 * @var MailPoet_Integration
-	 */
-	private static $instance = null;
-
-	/**
 	 * MailPoet API instance
 	 *
 	 * @var mixed
 	 */
-	protected $mailpoet_api = null;
-
-	/**
-	 * Initialize and return singleton instance.
-	 *
-	 * @return MailPoet_Integration
-	 */
-	public static function init() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * MailPoet_Integration class constructor.
-	 * Hooks on `grunion_after_feedback_post_inserted` action to handle MailPoet integration.
-	 */
-	private function __construct() {
-		add_action( 'grunion_after_feedback_post_inserted', array( $this, 'handle_mailpoet_integration' ), 15, 3 );
-	}
+	protected static $mailpoet_api = null;
 
 	/**
 	 * Get the MailPoet API instance (v1), instantiating if necessary.
 	 *
 	 * @return mixed
 	 */
-	protected function get_api() {
-		if ( null === $this->mailpoet_api && class_exists( '\MailPoet\API\API' ) ) {
+	protected static function get_api() {
+		if ( null === self::$mailpoet_api && class_exists( '\MailPoet\API\API' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			$this->mailpoet_api = \MailPoet\API\API::MP( 'v1' );
+			self::$mailpoet_api = \MailPoet\API\API::MP( 'v1' );
 		}
-		return $this->mailpoet_api;
+		return self::$mailpoet_api;
 	}
 
 	/**
@@ -67,7 +40,7 @@ class MailPoet_Integration {
 	 * @param string|null $list_name Optional. The name of the list to get or create. Defaults to 'Jetpack Form Subscribers'.
 	 * @return string|null List ID or null on failure.
 	 */
-	protected function get_or_create_list_id( $mailpoet_api, $list_name = null ) {
+	protected static function get_or_create_list_id( $mailpoet_api, $list_name = null ) {
 		$default_list_name        = 'Jetpack Form Subscribers';
 		$default_list_description = 'Subscribers from Jetpack Forms';
 		$list_name                = $list_name ? $list_name : $default_list_name;
@@ -101,7 +74,7 @@ class MailPoet_Integration {
 	 * @param array  $subscriber_data Associative array with at least 'email', optionally 'first_name', 'last_name'.
 	 * @return array|null Subscriber data on success, or null on failure.
 	 */
-	protected function add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data ) {
+	protected static function add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data ) {
 		try {
 			$subscriber = $mailpoet_api->addSubscriber(
 				$subscriber_data,
@@ -119,7 +92,7 @@ class MailPoet_Integration {
 	 * @param array $fields Collection of Contact_Form_Field instances.
 	 * @return array Associative array with at least 'email', optionally 'first_name', 'last_name'. Empty array if no email found.
 	 */
-	protected function get_subscriber_data_from_fields( $fields ) {
+	protected static function get_subscriber_data_from_fields( $fields ) {
 		// Try and get the form from any of the fields
 		$form = null;
 		foreach ( $fields as $field ) {
@@ -132,7 +105,6 @@ class MailPoet_Integration {
 			return array();
 		}
 
-		// Extract email, first_name, last_name from form fields.
 		$subscriber_data = array();
 		foreach ( $form->fields as $field ) {
 			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
@@ -148,7 +120,6 @@ class MailPoet_Integration {
 			}
 		}
 
-		// Only return the subscriber data if we have an email.
 		if ( empty( $subscriber_data['email'] ) ) {
 			return array();
 		}
@@ -163,28 +134,45 @@ class MailPoet_Integration {
 	 * @param array $fields       Collection of Contact_Form_Field instances.
 	 * @param bool  $is_spam      Whether the submission is spam.
 	 */
-	public function handle_mailpoet_integration( $post_id, $fields, $is_spam ) {
+	public static function handle_mailpoet_integration( $post_id, $fields, $is_spam ) {
 		if ( $is_spam ) {
 			return;
 		}
-		$mailpoet_api = $this->get_api();
+
+		// Try and get the form from any of the fields
+		$form = null;
+		foreach ( $fields as $field ) {
+			if ( ! empty( $field->form ) ) {
+				$form = $field->form;
+				break;
+			}
+		}
+		if ( ! $form || ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
+			return;
+		}
+
+		if ( empty( $form->attributes['connectMailPoet'] ) ) {
+			return;
+		}
+
+		$mailpoet_api = self::get_api();
 		if ( ! $mailpoet_api ) {
 			// MailPoet is not active or not loaded.
 			return;
 		}
 
-		$list_id = $this->get_or_create_list_id( $mailpoet_api );
+		$list_id = self::get_or_create_list_id( $mailpoet_api );
 		if ( ! $list_id ) {
-			// Could not get or create the list.
+			// Could not get or create the list; bail out.
 			return;
 		}
 
-		$subscriber_data = $this->get_subscriber_data_from_fields( $fields );
+		$subscriber_data = self::get_subscriber_data_from_fields( $fields );
 		if ( empty( $subscriber_data ) ) {
-			// Could not get minimum required subscriber data (email).
+			// Email is required for MailPoet subscribers.
 			return;
 		}
 
-		$this->add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data );
+		self::add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data );
 	}
 }

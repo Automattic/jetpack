@@ -302,6 +302,14 @@ class Contact_Form_Plugin {
 		}
 
 		self::register_contact_form_blocks();
+
+		// Register MailPoet integration hook after the class is loaded.
+		add_action(
+			'grunion_after_feedback_post_inserted',
+			array( MailPoet_Integration::class, 'handle_mailpoet_integration' ),
+			15,
+			3
+		);
 	}
 
 	/**
@@ -1385,10 +1393,6 @@ class Contact_Form_Plugin {
 			Post_To_Url::init();
 		}
 
-		// MailPoet integration: initialize if enabled.
-		if ( ! empty( $form->attributes['connectMailPoet'] ) ) {
-			MailPoet_Integration::init();
-		}
 		// Process the form
 		return $form->process_submission();
 	}
