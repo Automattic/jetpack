@@ -418,6 +418,72 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	}
 
 	/**
+	 * Tests POST 'memberships/product' endpoint with tier ID that doesn't exist.
+	 */
+	public function test_create_product_with_nonexistent_tier() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_tier_not_found' ), 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'title'    => 'Yearly Plan',
+			'price'    => 100,
+			'currency' => 'USD',
+			'interval' => '1 year',
+			'type'     => 'tier',
+			'tier'     => 99999, // Non-existent tier ID
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'tier_not_found', $response, 400 );
+	}
+
+	/**
+	 * Tests POST 'memberships/product' endpoint with tier ID that points to non-monthly plan.
+	 */
+	public function test_create_product_with_tier_pointing_to_non_monthly_plan() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_invalid_tier_interval' ), 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'title'    => 'Yearly Plan',
+			'price'    => 100,
+			'currency' => 'USD',
+			'interval' => '1 year',
+			'type'     => 'tier',
+			'tier'     => 456, // Tier ID pointing to a non-monthly plan
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'invalid_tier_interval', $response, 400 );
+	}
+
+	/**
+	 * Tests POST 'memberships/product' endpoint with duplicate tier reference.
+	 */
+	public function test_create_product_with_duplicate_tier_reference() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_duplicate_tier_reference' ), 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'title'    => 'Yearly Plan',
+			'price'    => 100,
+			'currency' => 'USD',
+			'interval' => '1 year',
+			'type'     => 'tier',
+			'tier'     => 789, // Tier ID already referenced by another yearly plan
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'duplicate_tier_reference', $response, 400 );
+	}
+
+	/**
 	 * Tests PUT 'memberships/product/[product_id]' endpoint without authorization.
 	 */
 	public function test_update_product_no_auth() {
@@ -830,6 +896,78 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'status_code' => 200,
 			'response'    => array(
 				'code' => 200,
+			),
+		);
+	}
+
+	/**
+	 * Mock WPCOM API response for tier not found error.
+	 *
+	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
+	 * @param array  $args     HTTP request arguments.
+	 * @param string $url      The request URL.
+	 * @return array
+	 */
+	public function mock_wpcom_api_response_tier_not_found( $response, $args, $url ) {
+		$this->assertEquals( Requests::POST, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product', $url );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'POST',
+			),
+			'body'        => '{"code":"tier_not_found","message":"The specified tier ID does not correspond to an existing monthly plan.","data":{"status":400}}',
+			'status_code' => 400,
+			'response'    => array(
+				'code' => 400,
+			),
+		);
+	}
+
+	/**
+	 * Mock WPCOM API response for invalid tier interval error.
+	 *
+	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
+	 * @param array  $args     HTTP request arguments.
+	 * @param string $url      The request URL.
+	 * @return array
+	 */
+	public function mock_wpcom_api_response_invalid_tier_interval( $response, $args, $url ) {
+		$this->assertEquals( Requests::POST, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product', $url );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'POST',
+			),
+			'body'        => '{"code":"invalid_tier_interval","message":"The specified tier ID must point to a monthly plan (1 month interval).","data":{"status":400}}',
+			'status_code' => 400,
+			'response'    => array(
+				'code' => 400,
+			),
+		);
+	}
+
+	/**
+	 * Mock WPCOM API response for duplicate tier reference error.
+	 *
+	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
+	 * @param array  $args     HTTP request arguments.
+	 * @param string $url      The request URL.
+	 * @return array
+	 */
+	public function mock_wpcom_api_response_duplicate_tier_reference( $response, $args, $url ) {
+		$this->assertEquals( Requests::POST, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product', $url );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'POST',
+			),
+			'body'        => '{"code":"duplicate_tier_reference","message":"Another yearly plan already references this monthly plan. Each monthly plan can only have one corresponding yearly plan.","data":{"status":400}}',
+			'status_code' => 400,
+			'response'    => array(
+				'code' => 400,
 			),
 		);
 	}
