@@ -23,7 +23,7 @@ class MailPoet_Integration {
 	/**
 	 * MailPoet API instance
 	 *
-	 * @var \MailPoet\API\API|null
+	 * @var mixed
 	 */
 	protected $mailpoet_api = null;
 
@@ -50,10 +50,11 @@ class MailPoet_Integration {
 	/**
 	 * Get the MailPoet API instance (v1), instantiating if necessary.
 	 *
-	 * @return \MailPoet\API\API|null
+	 * @return mixed
 	 */
 	protected function get_api() {
-		if ( null === $this->mailpoet_api && class_exists( '\\MailPoet\\API\\API' ) ) {
+		if ( null === $this->mailpoet_api && class_exists( '\MailPoet\API\API' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- dynamic plugin API
 			$this->mailpoet_api = \MailPoet\API\API::MP( 'v1' );
 		}
 		return $this->mailpoet_api;
@@ -62,8 +63,8 @@ class MailPoet_Integration {
 	/**
 	 * Get or create a MailPoet list for Jetpack Forms.
 	 *
-	 * @param \MailPoet\API\API $mailpoet_api The MailPoet API instance.
-	 * @param string|null       $list_name Optional. The name of the list to get or create. Defaults to 'Jetpack Form Subscribers'.
+	 * @param mixed       $mailpoet_api The MailPoet API instance.
+	 * @param string|null $list_name Optional. The name of the list to get or create. Defaults to 'Jetpack Form Subscribers'.
 	 * @return string|null List ID or null on failure.
 	 */
 	protected function get_or_create_list_id( $mailpoet_api, $list_name = null ) {
@@ -72,34 +73,23 @@ class MailPoet_Integration {
 		$list_name                = $list_name ? $list_name : $default_list_name;
 		$list_description         = $list_name === $default_list_name ? $default_list_description : $list_name;
 		try {
-			/**
-			 * Suppress undefined method warning for dynamic MailPoet API.
-			 *
-			 * @disregard P1013
-			 */
-			$lists = $mailpoet_api->getLists(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we check existence of class in  get_api() method
-
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- dynamic plugin API
+			$lists = $mailpoet_api->getLists();
 			// Look for an existing list with the given name (not deleted)
 			foreach ( $lists as $list ) {
 				if ( $list['name'] === $list_name && empty( $list['deleted_at'] ) ) {
 					return $list['id'];
 				}
 			}
-
-			/**
-			 * Suppress undefined method warning for dynamic MailPoet API.
-			 *
-			 * @disregard P1013
-			 */
-			$new_list = $mailpoet_api->addList( // @phan-suppress-current-line PhanUndeclaredClassMethod -- we check existence of class in  get_api() method
+			// Not found, create it
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- dynamic plugin API
+			$new_list = $mailpoet_api->addList(
 				array(
 					'name'        => $list_name,
 					'description' => $list_description,
 				)
 			);
 			return $new_list['id'];
-		} catch ( \MailPoet\API\MP\v1\APIException $e ) {
-			return null;
 		} catch ( \Exception $e ) {
 			return null;
 		}
@@ -108,25 +98,19 @@ class MailPoet_Integration {
 	/**
 	 * Add a subscriber to a MailPoet list.
 	 *
-	 * @param \MailPoet\API\API $mailpoet_api The MailPoet API instance.
-	 * @param string            $list_id The MailPoet list ID.
-	 * @param array             $subscriber_data Associative array with at least 'email', optionally 'first_name', 'last_name'.
+	 * @param mixed  $mailpoet_api The MailPoet API instance.
+	 * @param string $list_id The MailPoet list ID.
+	 * @param array  $subscriber_data Associative array with at least 'email', optionally 'first_name', 'last_name'.
 	 * @return array|null Subscriber data on success, or null on failure.
 	 */
 	protected function add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data ) {
 		try {
-			/**
-			 * Suppress undefined method warning for dynamic MailPoet API.
-			 *
-			 * @disregard P1013
-			 */
-			$subscriber = $mailpoet_api->addSubscriber( // @phan-suppress-current-line PhanUndeclaredClassMethod -- we check existence of class in  get_api() method
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- dynamic plugin API
+			$subscriber = $mailpoet_api->addSubscriber(
 				$subscriber_data,
 				array( $list_id )
 			);
 			return $subscriber;
-		} catch ( \MailPoet\API\MP\v1\APIException $e ) {
-			return null;
 		} catch ( \Exception $e ) {
 			return null;
 		}
