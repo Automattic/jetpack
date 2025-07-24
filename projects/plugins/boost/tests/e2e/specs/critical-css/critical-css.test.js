@@ -32,8 +32,10 @@ test.describe( 'Critical CSS module', () => {
 	// NOTE: The order of the following tests is important as we are making reuse of the generated Critical CSS
 	// which is an onerous task in a test.
 
-	test( 'No Critical CSS meta information should show on the admin when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical_css' ] ).build();
+	test( 'No Critical CSS meta information should show on the admin when the module is inactive', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateModule( 'critical_css' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
 			await jetpackBoostPage.isTheCriticalCssMetaInformationVisible(),
@@ -41,8 +43,10 @@ test.describe( 'Critical CSS module', () => {
 		).toBeFalsy();
 	} );
 
-	test( 'No Critical CSS should be available on the frontend when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical_css' ] ).build();
+	test( 'No Critical CSS should be available on the frontend when the module is inactive', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateModule( 'critical_css' );
 		await PostFrontendPage.visit( page );
 		expect(
 			await page.locator( '#jetpack-boost-critical-css' ).count( {

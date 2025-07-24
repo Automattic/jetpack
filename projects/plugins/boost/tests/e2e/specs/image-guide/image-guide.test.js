@@ -19,8 +19,11 @@ test.describe( 'Image CDN', () => {
 		await page.close();
 	} );
 
-	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'image_guide' ] ).build();
+	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateModule( 'image_guide' );
+
 		const firstPostPage = await FirstPostPage.visit( page );
 
 		expect(

@@ -45,10 +45,6 @@ export function prerequisitesBuilder( page ) {
 			state.plan = plan;
 			return this;
 		},
-		withInactiveModules( modules = [] ) {
-			state.modules.inactive = modules;
-			return this;
-		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;

@@ -9,10 +9,8 @@ test.describe( 'Cache module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
+
 		await boostPrerequisitesBuilder( page )
-			.withInactiveModules( [
-				'page_cache', // Make sure it's inactive.
-			] )
 			.withCleanEnv()
 			.withMockConnection( true )
 			.withSpeedScoreMocked( true )
@@ -25,8 +23,8 @@ test.describe( 'Cache module', () => {
 
 	// Disabling the module before each test, because each test will decide if
 	// it needs the module enabled or not.
-	test.beforeEach( async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'page_cache' ] ).build();
+	test.beforeEach( async ( { testUtils } ) => {
+		await testUtils.deactivateModule( 'page_cache' );
 	} );
 
 	test.afterAll( async () => {

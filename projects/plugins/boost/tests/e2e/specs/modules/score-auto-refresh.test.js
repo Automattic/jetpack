@@ -7,15 +7,16 @@ test.describe( 'Auto refresh of speed scores', () => {
 	let page;
 	let jetpackBoostPage;
 
-	test.beforeAll( async ( { browser } ) => {
+	test.beforeAll( async ( { browser, testUtils } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
 			.withConnection( true )
 			.withSpeedScoreMocked( false )
-			.withInactiveModules( [ 'critical_css', 'render_blocking_js' ] )
 			.build();
+
+		await testUtils.deactivateModule( [ 'critical_css', 'render_blocking_js' ] );
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
