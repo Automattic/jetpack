@@ -11,4 +11,5 @@ node_modules      export-ignore
 /jest.config.cjs   production-exclude
 **/stories/**     production-exclude
 **/tests/**       production-exclude
-**/src/**	      production-exclude
+**/src/**         production-exclude
+**/docs/**        production-exclude
