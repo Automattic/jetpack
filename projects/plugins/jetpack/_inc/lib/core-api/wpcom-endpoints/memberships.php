@@ -282,6 +282,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	public function create_product( WP_REST_Request $request ) {
 		$payload = $this->get_payload_for_product( $request );
 
+		if ( is_wp_error( $payload ) ) {
+			return $payload;
+		}
+
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
 			try {
@@ -304,6 +308,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	public function update_product( \WP_REST_Request $request ) {
 		$product_id = $request->get_param( 'product_id' );
 		$payload    = $this->get_payload_for_product( $request );
+
+		if ( is_wp_error( $payload ) ) {
+			return $payload;
+		}
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
@@ -502,8 +510,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * Get a payload for creating or updating products by parsing the request.
 	 *
 	 * @param WP_REST_Request $request The request for this endpoint, containing the details needed to build the payload.
-	 * @return array The built payload.
-	 * @throws \Exception When tier validation fails.
+	 * @return array|WP_Error The built payload or WP_Error on validation failure.
 	 */
 	private function get_payload_for_product( WP_REST_Request $request ) {
 		$is_editable             = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
@@ -517,13 +524,13 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		if ( null !== $tier && 'tier' === $type ) {
 			// Monthly plans should not have a tier field.
 			if ( '1 month' === $interval ) {
-				throw new \Exception( __( 'Monthly plans should not have a tier field. The tier field is only used to link yearly plans to their corresponding monthly plans.', 'jetpack' ) );
+				return new WP_Error( 'invalid_tier_usage', __( 'Monthly plans should not have a tier field. The tier field is only used to link yearly plans to their corresponding monthly plans.', 'jetpack' ), array( 'status' => 400 ) );
 			}
 
 			// Yearly plans must have a valid tier that points to a monthly plan.
 			if ( '1 year' === $interval ) {
 				if ( ! is_numeric( $tier ) || $tier <= 0 ) {
-					throw new \Exception( __( 'Yearly plans must have a valid tier ID that points to an existing monthly plan.', 'jetpack' ) );
+					return new WP_Error( 'invalid_tier_id', __( 'Yearly plans must have a valid tier ID that points to an existing monthly plan.', 'jetpack' ), array( 'status' => 400 ) );
 				}
 
 				// Check if the referenced monthly plan exists and is actually a monthly plan.
@@ -533,12 +540,12 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 					$monthly_plan = Memberships_Product::get_from_post( get_current_blog_id(), $tier );
 					if ( is_wp_error( $monthly_plan ) || ! $monthly_plan ) {
-						throw new \Exception( __( 'The specified tier ID does not correspond to an existing monthly plan.', 'jetpack' ) );
+						return new WP_Error( 'tier_not_found', __( 'The specified tier ID does not correspond to an existing monthly plan.', 'jetpack' ), array( 'status' => 400 ) );
 					}
 
 					$monthly_plan_data = $monthly_plan->to_array();
 					if ( '1 month' !== $monthly_plan_data['interval'] ) {
-						throw new \Exception( __( 'The specified tier ID must point to a monthly plan (1 month interval).', 'jetpack' ) );
+						return new WP_Error( 'invalid_tier_interval', __( 'The specified tier ID must point to a monthly plan (1 month interval).', 'jetpack' ), array( 'status' => 400 ) );
 					}
 
 					// Check for duplicate tier usage - only one yearly plan should reference a specific monthly plan.
@@ -548,7 +555,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							// If this is an update, allow it to reference itself.
 							$product_id = $request->get_param( 'product_id' );
 							if ( ! $product_id || $existing_plan['id'] !== $product_id ) {
-								throw new \Exception( __( 'Another yearly plan already references this monthly plan. Each monthly plan can only have one corresponding yearly plan.', 'jetpack' ) );
+								return new WP_Error( 'duplicate_tier_reference', __( 'Another yearly plan already references this monthly plan. Each monthly plan can only have one corresponding yearly plan.', 'jetpack' ), array( 'status' => 400 ) );
 							}
 						}
 					}
