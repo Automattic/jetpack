@@ -16,10 +16,16 @@ import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode } from 'react';
 
+type BarChartDataPoint = DataPointDate & {
+	__originalValue?: number;
+	__isZero?: boolean;
+};
+
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
+	zeroValueDisplay?: boolean;
 }
 
 // Validation function similar to LineChart
@@ -61,6 +67,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
+	zeroValueDisplay = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
@@ -70,8 +77,46 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const dataSorted = useChartDataTransform( data );
 
-	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
-	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
+	// Transform data to add a small value for zero bars to make them visible
+	// We'll store the original value for tooltips and calculations
+	const dataWithVisibleZeros = useMemo( () => {
+		if ( zeroValueDisplay === false ) return dataSorted;
+
+		// Calculate the scale range to determine appropriate minimum bar value
+		const allValues = dataSorted.flatMap( series =>
+			series.data.map( d => d.value as number ).filter( v => v > 0 )
+		);
+
+		if ( allValues.length === 0 ) return dataSorted;
+
+		// Calculate a small visible value for zero bars that adapts to the data range:
+		// - Use 60% of minimum value when data range is wide (prevents zero bars from being too small)
+		// - Use 0.8% of maximum value when data range is narrow (prevents zero bars from being too large)
+		// This ensures zero bars are always visible but never misleadingly prominent
+		const minVisibleValue = Math.min(
+			Math.min( ...allValues ) * 0.6,
+			Math.max( ...allValues ) * 0.008
+		);
+
+		return dataSorted.map( series => ( {
+			...series,
+			data: series.data.map( point => ( {
+				...point,
+				__originalValue: point.value, // Store original value
+				__isZero: point.value === 0,
+				value: point.value === 0 ? minVisibleValue : point.value,
+			} ) ),
+		} ) );
+	}, [ dataSorted, zeroValueDisplay ] );
+
+	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
+	const defaultMargin = useChartMargin(
+		height,
+		chartOptions,
+		dataWithVisibleZeros,
+		theme,
+		horizontal
+	);
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
@@ -100,14 +145,20 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		( index: number ) => () =>
 			withPatterns
 				? `url(#${ getPatternId( internalChartId, index ) })`
-				: getColor( dataSorted[ index ], index ),
-		[ withPatterns, getColor, dataSorted, internalChartId ]
+				: getColor( dataWithVisibleZeros[ index ], index ),
+		[ withPatterns, getColor, dataWithVisibleZeros, internalChartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-			const nearestDatum = tooltipData?.nearestDatum?.datum;
+			const nearestDatum = tooltipData?.nearestDatum?.datum as BarChartDataPoint;
 			if ( ! nearestDatum ) return null;
+
+			// Use the original value if available, otherwise use the actual value
+			const displayValue =
+				nearestDatum.__originalValue !== undefined
+					? nearestDatum.__originalValue
+					: nearestDatum.value;
 
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
@@ -123,7 +174,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							) }
 							:
 						</span>
-						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
+						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ displayValue }</span>
 					</div>
 				</div>
 			);
@@ -268,6 +319,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			ref={ chartRef }
 			data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
 		>
+			{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+
 			<XYChart
 				theme={ theme }
 				width={ width }
@@ -293,22 +346,20 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				{ withPatterns && (
 					<>
 						<defs data-testid="bar-chart-patterns">
-							{ dataSorted.map( ( seriesData, index ) =>
+							{ dataWithVisibleZeros.map( ( seriesData, index ) =>
 								renderPattern( index, getColor( seriesData, index ) )
 							) }
 						</defs>
 						<style>
-							{ dataSorted.map( ( seriesData, index ) =>
+							{ dataWithVisibleZeros.map( ( seriesData, index ) =>
 								createPatternBorderStyle( index, getColor( seriesData, index ) )
 							) }
 						</style>
 					</>
 				) }
 
-				{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
-
 				<BarGroup padding={ chartOptions.barGroup.padding }>
-					{ dataSorted.map( ( seriesData, index ) => (
+					{ dataWithVisibleZeros.map( ( seriesData, index ) => (
 						<BarSeries
 							key={ seriesData?.label }
 							dataKey={ seriesData?.label }
