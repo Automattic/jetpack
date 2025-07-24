@@ -8,8 +8,9 @@ import { allure } from 'allure-playwright';
  */
 import { execWpCommand } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
+import { TestUtils } from '../utils/index.js';
 
-const test = baseTest.extend( {
+const test = baseTest.extend< { testUtils: TestUtils } >( {
 	page: async ( { page }, use ) => {
 		page.on( 'pageerror', exception => {
 			logger.error( `Page error: "${ exception }"` );
@@ -25,6 +26,10 @@ const test = baseTest.extend( {
 		] );
 
 		await use( page );
+	},
+
+	testUtils: async ( { requestUtils }, use ) => {
+		await use( new TestUtils( requestUtils ) );
 	},
 } );
 

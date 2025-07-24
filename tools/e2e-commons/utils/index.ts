@@ -1,3 +1,14 @@
+import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
+import {
+	connect,
+	disconnect,
+	disconnectSite,
+	disconnectUser,
+	isSiteConnected,
+	isUserConnected,
+} from './connection.ts';
+import { authenticateUser } from './login.ts';
+
 export {
 	connect,
 	saveJetpackPrivateOptionsToStorageState,
@@ -7,3 +18,24 @@ export {
 	isUserConnected,
 	isSiteConnected,
 } from './connection-utils.ts';
+
+class TestUtils {
+	requestUtils: RequestUtils;
+
+	constructor( requestUtils: RequestUtils ) {
+		this.requestUtils = requestUtils;
+	}
+
+	// Authentication utilities
+	authenticateUser: typeof authenticateUser = authenticateUser.bind( this );
+
+	// Connection utilities
+	isUserConnected: typeof isUserConnected = isUserConnected.bind( this );
+	isSiteConnected: typeof isSiteConnected = isSiteConnected.bind( this );
+	connect: typeof connect = connect.bind( this );
+	disconnectUser: typeof disconnectUser = disconnectUser.bind( this );
+	disconnectSite: typeof disconnectSite = disconnectSite.bind( this );
+	disconnect: typeof disconnect = disconnect.bind( this );
+}
+
+export { TestUtils };
