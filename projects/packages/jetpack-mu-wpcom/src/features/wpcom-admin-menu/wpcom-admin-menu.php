@@ -57,7 +57,6 @@ add_action( 'admin_menu', 'wpcom_add_dashboard_updates_menu' );
  * Displays a WordPress Updates page for Simple sites.
  */
 function wpcom_display_dashboard_updates_page() {
-	require_once ABSPATH . 'wp-admin/admin-header.php';
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'WordPress Updates', 'jetpack-mu-wpcom' ); ?></h1>
@@ -70,7 +69,6 @@ function wpcom_display_dashboard_updates_page() {
 		<p><?php esc_html_e( 'Your themes are all up to date.', 'jetpack-mu-wpcom' ); ?>
 	</div>
 	<?php
-	require_once ABSPATH . 'wp-admin/admin-footer.php';
 }
 
 /**
@@ -537,7 +535,7 @@ function wpcom_add_tools_menu() {
 		__( 'Export Personal Data', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		'wpcom-export-personal-data',
-		'wpcom_display_export_erase_persona_data_page'
+		'wpcom_display_export_erase_personal_data_page'
 	);
 
 	add_submenu_page(
@@ -546,7 +544,7 @@ function wpcom_add_tools_menu() {
 		__( 'Erase Personal Data', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		'wpcom-erase-personal-data',
-		'wpcom_display_export_erase_persona_data_page'
+		'wpcom_display_export_erase_personal_data_page'
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_tools_menu' );
@@ -554,9 +552,9 @@ add_action( 'admin_menu', 'wpcom_add_tools_menu' );
 /**
  * Displays an Export/Erase Personal Date page for Simple sites.
  */
-function wpcom_display_export_erase_persona_data_page() {
+function wpcom_display_export_erase_personal_data_page() {
 	require_once ABSPATH . 'wp-admin/admin-header.php';
-	if ( str_contains( get_current_screen()->id, 'export-personal-dat' ) ) {
+	if ( str_contains( get_current_screen()->id, 'export-personal-data' ) ) {
 		$page_title = __( 'Export Personal Data', 'jetpack-mu-wpcom' );
 	} else {
 		$page_title = __( 'Erase Personal Data', 'jetpack-mu-wpcom' );
@@ -586,7 +584,6 @@ function wpcom_display_export_erase_persona_data_page() {
  * @param string $image The path of the image to include within the callout.
  */
 function wpcom_display_callout( $icon, $title, $description, $button_link, $button_text, $image ) {
-	require_once ABSPATH . 'wp-admin/admin-header.php';
 	?>
 	<style>
 		.wpcom-callout-container {
@@ -686,5 +683,4 @@ function wpcom_display_callout( $icon, $title, $description, $button_link, $butt
 		</div>
 	</div>
 	<?php
-	require_once ABSPATH . 'wp-admin/admin-footer.php';
 }
