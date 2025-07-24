@@ -314,6 +314,13 @@ $action-bar-height: 88px;
 	flex-direction: column;
 	flex: 1 1 60%;
 
+	// Optionally, fix the footer to bottom of the page and add margin so the last row is not hidden by the footer.
+	margin-bottom: 97px;
+
+	@media (min-width: 782px) {
+		margin-bottom: 57px;
+	}
+
 	.dataviews-wrapper {
 		background: var(--jp-white);
 		flex-grow: 1;
@@ -344,13 +351,6 @@ $action-bar-height: 88px;
 				}
 			}
 		}
-	}
-
-	// optionally, fix the footer to bottom of the page and add margin so the last row is not hidden by the footer
-	margin-bottom: 97px;
-	
-	@media (min-width: 782px) {
-		margin-bottom: 57px;
 	}
 
 	.dataviews-footer {
