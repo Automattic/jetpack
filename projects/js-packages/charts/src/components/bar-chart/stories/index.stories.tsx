@@ -232,3 +232,47 @@ export const HorizontalBarChart: Story = {
 		gridVisibility: 'none',
 	},
 };
+
+const dataWithZeroValues = [
+	{
+		group: 'United States',
+		label: 'United States',
+		data: [
+			{ label: '1896', value: 0 },
+			{ label: '1900', value: 0 },
+			{ label: '1904', value: 2 },
+			{ label: '1908', value: 1 },
+			{ label: '1912', value: 3 },
+		],
+	},
+	{
+		group: 'Great Britain',
+		label: 'Great Britain',
+		data: [
+			{ label: '1896', value: 1 },
+			{ label: '1900', value: 0 },
+			{ label: '1904', value: 1 },
+			{ label: '1908', value: 10 },
+			{ label: '1912', value: 9 },
+		],
+	},
+	{
+		group: 'Japan',
+		label: 'Japan',
+		data: [
+			{ label: '1896', value: 2 },
+			{ label: '1900', value: 1 },
+			{ label: '1904', value: 2 },
+			{ label: '1908', value: 1 },
+			{ label: '1912', value: 2 },
+		],
+	},
+];
+
+export const WithZeroValues: Story = {
+	args: {
+		...Default.args,
+		data: dataWithZeroValues,
+		zeroValueDisplay: true,
+	},
+};
