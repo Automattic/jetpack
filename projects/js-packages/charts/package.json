@@ -22,7 +22,7 @@
 		"clean-build": "rm -rf dist/",
 		"typecheck": "tsc --noEmit",
 		"build": "pnpm run build:prod",
-		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production && touch dist/style.css",
+		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
 		"build:dev": "rollup -c --environment NODE_ENV:development",
 		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && pnpm run build:types",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types"
@@ -46,24 +46,6 @@
 			"import": "./dist/mjs/visx/*/index.js",
 			"require": "./dist/cjs/visx/*/index.js",
 			"types": "./dist/types/visx/*/index.d.ts"
-		},
-		"./hooks/*": {
-			"jetpack:src": "./src/hooks/*",
-			"import": "./dist/mjs/hooks/*",
-			"require": "./dist/cjs/hooks/*",
-			"types": "./dist/types/hooks/*"
-		},
-		"./providers/*": {
-			"jetpack:src": "./src/providers/*",
-			"import": "./dist/mjs/providers/*/index.js",
-			"require": "./dist/cjs/providers/*/index.js",
-			"types": "./dist/types/providers/*/index.d.ts"
-		},
-		"./*": {
-			"jetpack:src": "./src/components/*",
-			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.js",
-			"types": "./dist/types/components/*/index.d.ts"
 		}
 	},
 	"dependencies": {
