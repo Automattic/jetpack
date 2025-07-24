@@ -23,11 +23,10 @@ test.describe( 'Cornerstone Pages', () => {
 	} );
 
 	test.afterEach( async () => {
+		await boostPrerequisitesBuilder( page ).withPremiumFeaturesMocked( [] ).build();
 		// Reset cornerstone pages before each test to ensure atomicity
 		// Using option delete ensures the system properly initializes an empty array
 		await execWpCommand( 'option delete jetpack_boost_ds_cornerstone_pages_list' );
-
-		await boostPrerequisitesBuilder( page ).withPremiumFeaturesMocked( [] ).build();
 	} );
 
 	test( 'Cornerstone Pages panel should be visible and toggleable', async () => {
