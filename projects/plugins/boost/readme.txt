@@ -183,21 +183,25 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.1.2 - 2025-07-08
+### 4.2.0 - 2025-07-23
 #### Added
-- Concatenate JS/CSS: Add cleanup for expired options in the database.
+- Critical CSS: Exclude post types of popular builder plugins from generation.
+- General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality.
+- My Jetpack: Added analytics for empty product search results.
 
 #### Changed
-- General: Update UI to show some features are unavailable if the website is offline.
-- LCP Optimization: Show errors not in the list of known errors, in the UI.
-- Concatenate JS/CSS: Cleanup static files when running garbage collection.
-- My Jetpack: Updating Stats card to include a chart for better analytics.
+- Cornerstone Pages: Ensure Home URL is always a predefined Cornerstone Page
+- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript
+- Improves performance of wpcom comments liking by caching and minimizing API requests.
+- My Jetpack: Enabled access to My Jetpack on WP Multisite.
 - Update package dependencies.
 
+#### Deprecated
+- Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via a temporary filter.
+
 #### Fixed
-- LCP Optimization: Ensure new error types unsupported by the plugin version show as Unknown
-- Concatenate JS: Exclude scripts of type module from concatenation.
-- JITM: Fix ineffective caching due to expired plugin sync transient
+- General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2
+- Update JITMs to remove jQuery dependency
 
 --------
 
