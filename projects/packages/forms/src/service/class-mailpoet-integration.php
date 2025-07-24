@@ -44,7 +44,7 @@ class MailPoet_Integration {
 	 * Hooks on `grunion_after_feedback_post_inserted` action to handle MailPoet integration.
 	 */
 	private function __construct() {
-		add_action( 'grunion_after_feedback_post_inserted', array( $this, 'handle_mailpoet_integration' ), 15, 4 );
+		add_action( 'grunion_after_feedback_post_inserted', array( $this, 'handle_mailpoet_integration' ), 15, 3 );
 	}
 
 	/**
@@ -162,9 +162,8 @@ class MailPoet_Integration {
 	 * @param int   $post_id      The post ID for the feedback CPT.
 	 * @param array $fields       Collection of Contact_Form_Field instances.
 	 * @param bool  $is_spam      Whether the submission is spam.
-	 * @param array $entry_values Extra fields from the contact form.
 	 */
-	public function handle_mailpoet_integration( $post_id, $fields, $is_spam, $entry_values ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function handle_mailpoet_integration( $post_id, $fields, $is_spam ) {
 		if ( $is_spam ) {
 			return;
 		}
