@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add zeroValueDisplay option to BarChart to render zero-value with a small visible value
