@@ -100,7 +100,7 @@ class Plugin {
 				_doing_it_wrong(
 					__METHOD__,
 					esc_html( $plugins->get_error_message() ),
-					'$$next-version$$'
+					'{plugin/package}-$$next-version$$'
 				);
 			} else {
 				wp_trigger_error( __METHOD__, $plugins->get_error_message() );
