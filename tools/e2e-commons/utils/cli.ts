@@ -5,7 +5,7 @@ import logger from '../logger.js';
 const execFileAsync = promisify( execFile );
 
 // Security: Allowed commands to prevent command injection
-const ALLOWED_COMMANDS = new Set( [ 'wp', 'pnpm' ] );
+const ALLOWED_COMMANDS = new Set( [ 'wp', 'pnpm', 'sh' ] );
 
 /**
  * Security: Validates that a command is in the allowed list

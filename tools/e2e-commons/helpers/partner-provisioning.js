@@ -18,12 +18,10 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 	const __dirname = url.fileURLToPath( new URL( '.', import.meta.url ) );
-	const cmd = `sh ${ path.resolve(
-		__dirname,
-		'../../partner-provision.sh'
-	) } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${
-		pwConfig.use.baseURL
-	} --wpcom_user_id=${ userId }`;
+
+	// Build command and arguments separately for security
+	const scriptPath = path.resolve( __dirname, '../../partner-provision.sh' );
+	const cmd = `sh ${ scriptPath } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ pwConfig.use.baseURL } --wpcom_user_id=${ userId }`;
 
 	let response;
 	// catch a command failed error so that secrets are not logged
