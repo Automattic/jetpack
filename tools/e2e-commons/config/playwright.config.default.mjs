@@ -47,13 +47,13 @@ setWpEnvVars();
 export const setupProjects = [
 	{
 		name: 'global authentication',
-		testDir: `${ rootPath }/fixtures`,
+		testDir: `${ rootPath }/setup-specs`,
 		testMatch: 'auth.setup.ts',
 		storageState: undefined,
 	},
 	{
 		name: 'connection setup',
-		testDir: `${ rootPath }/fixtures`,
+		testDir: `${ rootPath }/setup-specs`,
 		testMatch: 'connection.setup.ts',
 		dependencies: [ 'global authentication' ],
 	},
