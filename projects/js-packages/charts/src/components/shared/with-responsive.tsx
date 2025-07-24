@@ -68,9 +68,9 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				} }
 			>
 				<WrappedComponent
-					width={ containerWidth }
-					height={ containerHeight }
-					size={ containerWidth }
+					width={ chartProps.width ?? containerWidth }
+					height={ chartProps.height ?? containerHeight }
+					size={ chartProps.size ?? containerWidth }
 					{ ...( chartProps as T ) }
 				/>
 			</div>
