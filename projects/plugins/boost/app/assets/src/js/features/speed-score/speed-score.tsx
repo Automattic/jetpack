@@ -23,6 +23,7 @@ import PopOut from './pop-out/pop-out';
 import { useCornerstonePagesProperties } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
+import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
 
 const SpeedScore = () => {
 	const properties = useCornerstonePagesProperties();
@@ -77,14 +78,6 @@ const SpeedScore = () => {
 		}
 	}, [ loadScore, site.online ] );
 
-	const isCriticalCssEnabled = () => {
-		if ( ! data?.cloud_css?.available ) {
-			return data?.cloud_css?.active ?? false;
-		}
-
-		return data?.critical_css?.active ?? false;
-	};
-
 	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
 		{
@@ -92,7 +85,8 @@ const SpeedScore = () => {
 			pendingStates: {
 				criticalCss: {
 					isPending:
-						isCriticalCssEnabled() && ( cssState.status === 'pending' || criticalCssIsGenerating ),
+						isCriticalCssEnabled( data ) &&
+						( cssState.status === 'pending' || criticalCssIsGenerating ),
 					timestamp: cssState.updated || 0,
 				},
 				lcp: {
