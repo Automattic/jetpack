@@ -373,7 +373,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$request->set_body( wp_json_encode( $body ) );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
+		$this->assertErrorResponse( 'invalid_tier_usage', $response, 400 );
 	}
 
 	/**
@@ -393,7 +393,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$request->set_body( wp_json_encode( $body ) );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
+		$this->assertErrorResponse( 'invalid_tier_id', $response, 400 );
 	}
 
 	/**
@@ -493,6 +493,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	 * Tests PUT 'memberships/product/{id}' endpoint with invalid tier for monthly plan.
 	 */
 	public function test_update_product_with_invalid_tier_for_monthly_plan() {
+		// Mock the WPCOM API response for product creation
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_create_product_success' ), 10, 3 );
+
 		// First create a product
 		$create_request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
 		$create_request->set_header( 'content_type', 'application/json' );
@@ -508,6 +511,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$product_data    = $create_response->get_data();
 		$product_id      = $product_data['id'];
 
+		// Remove the create mock and add update mock
+		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_create_product_success' ), 10 );
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_update_product_remote_error' ), 10, 3 );
+
 		// Now try to update it with an invalid tier
 		$update_request = new WP_REST_Request( Requests::PUT, "/wpcom/v2/memberships/product/$product_id" );
 		$update_request->set_header( 'content_type', 'application/json' );
@@ -522,7 +529,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$update_request->set_body( wp_json_encode( $update_body ) );
 		$update_response = $this->server->dispatch( $update_request );
 
-		$this->assertErrorResponse( 'rest_invalid_param', $update_response, 400 );
+		$this->assertErrorResponse( 'invalid_tier_usage', $update_response, 400 );
 	}
 
 	/**
@@ -799,6 +806,30 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'status_code' => 500,
 			'response'    => array(
 				'code' => 500,
+			),
+		);
+	}
+
+	/**
+	 * Validate the Jetpack API request for creating memberships products and mock the successful response.
+	 *
+	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
+	 * @param array  $args     HTTP request arguments.
+	 * @param string $url      The request URL.
+	 * @return array
+	 */
+	public function mock_wpcom_api_response_create_product_success( $response, $args, $url ) {
+		$this->assertEquals( Requests::POST, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product', $url );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'POST',
+			),
+			'body'        => '{"id":123,"title":"Monthly Plan","price":10,"currency":"USD","interval":"1 month","type":"tier"}',
+			'status_code' => 200,
+			'response'    => array(
+				'code' => 200,
 			),
 		);
 	}
