@@ -53,13 +53,13 @@
 			"require": "./dist/cjs/providers/*/index.js",
 			"types": "./dist/types/providers/*/index.d.ts"
 		},
+		"./style.css": "./dist/mjs/style.css",
 		"./*": {
 			"jetpack:src": "./src/components/*",
 			"import": "./dist/mjs/components/*/index.js",
 			"require": "./dist/cjs/components/*/index.js",
 			"types": "./dist/types/components/*/index.d.ts"
-		},
-		"./style.css": "./dist/mjs/style.css"
+		}
 	},
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",
