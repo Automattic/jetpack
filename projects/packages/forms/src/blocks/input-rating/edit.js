@@ -3,6 +3,7 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DEFAULT_GLYPHS } from './constants';
 import Symbols from './symbols';
+import './editor.scss';
 
 /**
  * Rating Input Edit Component
@@ -31,19 +32,14 @@ export default function RatingInputEdit( { context, setAttributes, clientId } ) 
 		? DEFAULT_GLYPHS.hearts.icon
 		: DEFAULT_GLYPHS.stars.icon;
 
-	const baseProps = useBlockProps();
-	const blockProps = {
-		...baseProps,
+	const blockProps = useBlockProps( {
 		'aria-label': __( 'Rating input', 'jetpack-forms' ),
-		className: `jetpack-rating-input-wrapper ${ baseProps.className || '' }`.trim(),
+		className: 'jetpack-rating-input-wrapper',
 		style: {
-			...baseProps.style,
 			// Set the CSS variable that the frontend styles expect
-			...( baseProps.style?.color && {
-				'--jetpack--contact-form--rating-star-color': baseProps.style.color,
-			} ),
+			'--jetpack--contact-form--rating-star-color': 'currentColor',
 		},
-	};
+	} );
 
 	return (
 		<div { ...blockProps }>
