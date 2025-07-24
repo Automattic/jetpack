@@ -54,6 +54,7 @@ class MailPoet_Integration {
 	 */
 	protected function get_api() {
 		if ( null === $this->mailpoet_api && class_exists( '\MailPoet\API\API' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$this->mailpoet_api = \MailPoet\API\API::MP( 'v1' );
 		}
 		return $this->mailpoet_api;
