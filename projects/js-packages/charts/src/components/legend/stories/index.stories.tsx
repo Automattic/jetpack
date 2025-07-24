@@ -338,13 +338,7 @@ const DashboardWithCentralizedLegend = () => {
 
 						<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
 							<h3 style={ { margin: '0 0 20px 0' } }>Device Distribution</h3>
-							<PieChart
-								chartId="dashboard-devices"
-								data={ pieChartData }
-								showLegend={ false }
-								width={ 200 }
-								height={ 200 }
-							/>
+							<PieChart chartId="dashboard-devices" data={ pieChartData } showLegend={ false } />
 						</div>
 					</div>
 				</div>
