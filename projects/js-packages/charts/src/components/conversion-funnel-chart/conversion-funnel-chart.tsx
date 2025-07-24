@@ -1,8 +1,10 @@
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import clsx from 'clsx';
-import { type FC, useState, useRef, useCallback, useMemo } from 'react';
+import { type FC, useRef, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import styles from './conversion-funnel-chart.module.scss';
+import { useFunnelSelection } from './hooks/use-funnel-selection';
+import { hexToRgba } from './utils/color-utils';
 
 /**
  * Represents a single step in the conversion funnel
@@ -67,55 +69,11 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	style,
 } ) => {
 	const theme = useChartTheme();
-	const [ clickedStep, setClickedStep ] = useState< string | null >( null );
 	const chartRef = useRef< HTMLDivElement >( null );
 
-	// Handle clicks within chart to deselect
-	const handleChartClick = useCallback( () => {
-		if ( clickedStep ) {
-			setClickedStep( null );
-		}
-	}, [ clickedStep ] );
-
-	// Handle bar click
-	const handleBarClick = useCallback(
-		( stepId: string, event: React.MouseEvent ) => {
-			event.stopPropagation();
-			if ( clickedStep === stepId ) {
-				// If clicking the same step, deselect it
-				setClickedStep( null );
-			} else {
-				// Otherwise, select this step
-				setClickedStep( stepId );
-			}
-		},
-		[ clickedStep ]
-	);
-
-	// Handle bar keydown
-	const handleBarKeyDown = useCallback(
-		( stepId: string, event: React.KeyboardEvent ) => {
-			if ( event.key === 'Enter' || event.key === ' ' ) {
-				event.preventDefault();
-				if ( clickedStep === stepId ) {
-					setClickedStep( null );
-				} else {
-					setClickedStep( stepId );
-				}
-			}
-		},
-		[ clickedStep ]
-	);
-
-	// Handle chart keydown
-	const handleChartKeyDown = useCallback(
-		( event: React.KeyboardEvent ) => {
-			if ( event.key === 'Escape' ) {
-				handleChartClick();
-			}
-		},
-		[ handleChartClick ]
-	);
+	// Use custom hook for selection management
+	const { handleChartClick, handleChartKeyDown, handleBarClick, handleBarKeyDown, getStepState } =
+		useFunnelSelection();
 
 	// Create handler factories to avoid arrow functions in JSX
 	const stepHandlers = useMemo( () => {
@@ -140,8 +98,6 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	// Get component settings from theme with fallbacks
 	const funnelSettings = theme.conversionFunnelChart;
 	const primaryColor = funnelSettings?.primaryColor || DEFAULT_FUNNEL_SETTINGS.primaryColor;
-	const backgroundColor =
-		funnelSettings?.backgroundColor || DEFAULT_FUNNEL_SETTINGS.backgroundColor;
 	const positiveChangeColor =
 		funnelSettings?.positiveChangeColor || DEFAULT_FUNNEL_SETTINGS.positiveChangeColor;
 	const negativeChangeColor =
@@ -151,20 +107,11 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	const isPositiveChange = changeIndicator?.startsWith( '+' );
 	const changeColor = isPositiveChange ? positiveChangeColor : negativeChangeColor;
 
-	// Function to convert hex color to rgba with opacity
-	const hexToRgba = ( hex: string, alpha: number ): string => {
-		const r = parseInt( hex.slice( 1, 3 ), 16 );
-		const g = parseInt( hex.slice( 3, 5 ), 16 );
-		const b = parseInt( hex.slice( 5, 7 ), 16 );
-		return `rgba(${ r }, ${ g }, ${ b }, ${ alpha })`;
-	};
-
 	// Create light background version of primary color
 	const lightBackgroundColor = hexToRgba( primaryColor, 0.08 );
 
 	const chartStyle = {
 		'--primary-color': primaryColor,
-		'--background-color': backgroundColor,
 		'--light-background-color': lightBackgroundColor,
 		'--change-color': changeColor,
 		...style,
@@ -209,8 +156,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 			<div className={ styles.funnelContainer }>
 				{ steps.map( step => {
 					const barHeight = ( step.rate / maxRate ) * 100;
-					const isClicked = clickedStep === step.id;
-					const isBlurred = clickedStep && clickedStep !== step.id;
+					const { isClicked, isBlurred } = getStepState( step.id );
 
 					return (
 						<div
