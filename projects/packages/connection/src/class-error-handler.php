@@ -491,7 +491,7 @@ class Error_Handler {
 	 * JavaScript error handling components. External plugins (like wpcomsh) can use this
 	 * to ensure their error structures are compatible.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.16.0
 	 *
 	 * @param array $args Action configuration arguments - only non-empty values will be included.
 	 * @return array Standardized error_data array for JavaScript components.

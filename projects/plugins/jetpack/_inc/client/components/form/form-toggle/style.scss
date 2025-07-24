@@ -1,5 +1,5 @@
-@use 'sass:color';
-@use '../../../scss/calypso-colors';
+@use "sass:color";
+@use "../../../scss/calypso-colors";
 // ==========================================================================
 // FormToggle
 // ==========================================================================
@@ -20,7 +20,7 @@
 	vertical-align: middle;
 	outline: 0;
 	cursor: pointer;
-	transition: all .4s ease, box-shadow 0s;
+	transition: all 0.4s ease, box-shadow 0s;
 
 	&::before,
 	&::after {
@@ -35,7 +35,7 @@
 		left: 0;
 		border-radius: 50%;
 		background: calypso-colors.$white;
-		transition: all .2s ease;
+		transition: all 0.2s ease;
 	}
 
 	&::before {
@@ -112,7 +112,8 @@
 	}
 }
 
-// Classes for toggle state before action is complete (updating plugin or something)
+// Classes for toggle state before action is
+// complete (updating plugin or something)
 .form-toggle.is-toggling {
 
 	+ .form-toggle__label .form-toggle__switch {

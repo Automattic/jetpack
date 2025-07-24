@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/root-variables";
 
 .jetpack-ai-assistant__message {
 	display: flex;
@@ -32,8 +32,8 @@
 			color: var(--jp-gray-50);
 		}
 
-		// Force padding 0 in link buttons, since default Gutenberg version in WordPress doesn't use iframe and
-		// Buttons receive styles from edit-post-visual-editor.
+		// Force padding 0 in link buttons, since default Gutenberg in WordPress
+		// doesn't use iframe and Buttons receive styles from edit-post-visual-editor.
 		.components-button.is-link {
 			padding: 0;
 		}
@@ -51,7 +51,7 @@
 }
 
 .jetpack-ai-assistant__message-severity-warning {
-	background-color: #FEF8EE;
+	background-color: #fef8ee;
 	color: var(--jp-gray-100);
 }
 
@@ -60,7 +60,7 @@
 	color: var(--jp-gray-100);
 
 	> svg {
-		fill: var(--jp-red-40, #E65054);
+		fill: var(--jp-red-40, #e65054);
 	}
 }
 

@@ -1,5 +1,5 @@
 :root {
-	--wpcom-plugins-banner-image: '';
+	--wpcom-plugins-banner-image: "";
 }
 
 @font-face {
@@ -40,18 +40,18 @@
 	font-family: Recoleta, serif;
 	font-size: 32px;
 	line-height: 40px;
-	color: #FFF;
+	color: #fff;
 }
 
 .wpcom-plugins-banner p {
 	font-size: 16px;
 	line-height: 24px;
-	color: #A7AAAD;
+	color: #a7aaad;
 }
 
 .wpcom-plugins-banner a,
 .wpcom-plugins-banner a:visited {
-	background-color: #3858E9;
+	background-color: #3858e9;
 	color: #fff;
 	border-radius: 4px;
 	padding: 10px 24px;
@@ -86,7 +86,7 @@
 
 	.wpcom-plugins-banner {
 		background-position: bottom right 5px;
-		background-size: 300px
+		background-size: 300px;
 	}
 
 	.rtl .wpcom-plugins-banner {

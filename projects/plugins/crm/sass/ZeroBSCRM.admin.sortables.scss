@@ -10,7 +10,7 @@
 		text-align: left;
 
 		li {
-			
+
 			padding: 6px 10px;
 			margin-top: 4px;
 			margin-bottom: 4px;
@@ -25,7 +25,7 @@
 		li::before {
 
 			font-family: FontAwesome;
-			content: '\f0c9';
+			content: "\f0c9";
 			margin: 0 10px 0 0;
 			color: #ddd;
 
@@ -35,7 +35,7 @@
 		li.ui-sortable-helper::before {
 
 			font-family: FontAwesome;
-			content: '\f0c9';
+			content: "\f0c9";
 			margin: 0 10px 0 0;
 			color: #000;
 
@@ -47,7 +47,7 @@
 
 
 .zbsSortableFieldList li .zbs-showhide-field {
-	    
+
 	float: right;
 	text-align: right;
 	line-height: 1;
@@ -65,7 +65,7 @@
 		line-height: 1;
 		display: inline-block;
 		vertical-align: middle;
-		    
+
 	}
 
 }

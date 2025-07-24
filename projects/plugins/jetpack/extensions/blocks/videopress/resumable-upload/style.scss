@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .resumable-upload {
 	background: gb.$white;
@@ -88,7 +88,7 @@
 
 .resumable-upload__progress {
 	height: 8px;
-	background: #D2D2D2;
+	background: #d2d2d2;
 	width: 100%;
 	max-width: 160px;
 	border-radius: 4px;
