@@ -1,6 +1,5 @@
 export {
 	connect,
-	saveJetpackPrivateOptionsToStorageState,
 	disconnectUser,
 	disconnectSite,
 	disconnect,
