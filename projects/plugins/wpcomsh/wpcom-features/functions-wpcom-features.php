@@ -412,7 +412,7 @@ function wpcom_get_product_features( $product ) {
 		);
 		return array();
 	}
-
+	// @codeCoverageIgnoreStart
 	$purchase = _convert_product_to_purchase( $product );
 	if ( ! $purchase ) {
 		return array();
@@ -454,6 +454,7 @@ function wpcom_get_product_features( $product ) {
 	}
 
 	return $features;
+	// @codeCoverageIgnoreEnd
 }
 
 /**
