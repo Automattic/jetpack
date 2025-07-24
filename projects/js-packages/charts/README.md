@@ -2,7 +2,7 @@
 
 A comprehensive charting library for displaying interactive data visualizations within Automattic products. Built on top of modern libraries like `@visx/xychart` and designed for accessibility, responsiveness, and ease of use.
 
-Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts-docs--docs).
+Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts).
 
 ## Quick Start
 
