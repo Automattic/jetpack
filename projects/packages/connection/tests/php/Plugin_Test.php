@@ -121,7 +121,8 @@ class Plugin_Test extends TestCase {
 		$configured_property->setValue( null, false );
 
 		set_error_handler(
-			static function ( $errno, $errstr ) {
+			// @phan-suppress-next-line PhanPluginNeverReturnFunction,PhanTypeMismatchArgumentInternal The complaints aren't compatible with PHP <8.0
+			static function ( int $errno, string $errstr ): void {
 				restore_error_handler();
 				throw new Exception( $errstr, $errno );
 			},
