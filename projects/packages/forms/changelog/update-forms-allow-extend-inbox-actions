@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: Allow extenders register actions and fields for the 'feedback' post type.

@@ -8,8 +8,10 @@ import {
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
@@ -66,6 +68,20 @@ export default function InboxView() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
 	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
+
+	// Allow extenders register actions and fields for the 'feedback' post type.
+	// Users can use `registerEntityAction` and `registerEntityField` to register them.
+	// https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/README.md#registerentityaction
+	// https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/README.md#registerentityfield
+	const { feedbackEntityActions, feedbackEntityFields } = useSelect( select => {
+		const { getEntityActions, getEntityFields } = select( editorStore );
+		return {
+			feedbackEntityActions:
+				typeof getEntityActions === 'function' ? getEntityActions( 'postType', 'feedback' ) : [],
+			feedbackEntityFields:
+				typeof getEntityFields === 'function' ? getEntityFields( 'postType', 'feedback' ) : [],
+		};
+	} );
 
 	const dateSettings = getDateSettings();
 	const containerRef = useResizeObserver(
@@ -249,8 +265,9 @@ export default function InboxView() {
 				enableSorting: false,
 			},
 			{ id: 'ip', label: __( 'IP Address', 'jetpack-forms' ), enableSorting: false },
+			...feedbackEntityFields,
 		],
-		[ filterOptions, dateSettings.formats.date ]
+		[ filterOptions, dateSettings.formats.date, feedbackEntityFields ]
 	);
 
 	const actions = useMemo( () => {
@@ -260,6 +277,7 @@ export default function InboxView() {
 			moveToTrashAction,
 			restoreAction,
 			deleteAction,
+			...feedbackEntityActions,
 		];
 		if ( isMobile ) {
 			_actions.unshift( viewActionModal );
@@ -275,7 +293,7 @@ export default function InboxView() {
 			} );
 		}
 		return _actions;
-	}, [ isMobile, onChangeSelection, selection ] );
+	}, [ isMobile, onChangeSelection, selection, feedbackEntityActions ] );
 
 	return (
 		<HStack
