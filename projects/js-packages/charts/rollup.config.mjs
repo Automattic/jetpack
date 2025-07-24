@@ -1,7 +1,6 @@
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
-import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import { defineConfig } from 'rollup';
 import dts from 'rollup-plugin-dts';
@@ -38,8 +37,6 @@ const createOutputConfig = ( dir, format ) => ( {
 	format,
 	preserveModules: true, // Keep individual module files instead of bundling
 	preserveModulesRoot: 'src', // Remove 'src' from output paths
-	sourcemap: true, // Generate sourcemaps for debugging
-	sourcemapPathTransform: relativeSourcePath => `/@automattic/charts/${ relativeSourcePath }`, // Brand sourcemap paths
 	exports: 'named', // Ensure named exports are preserved for tree-shaking
 } );
 
@@ -70,13 +67,11 @@ const mainConfig = {
 		typescript( {
 			tsconfig: './tsconfig.json',
 			declaration: false, // Don't generate .d.ts files here (handled by dtsConfig)
-			sourceMap: true,
 			compilerOptions: {
 				verbatimModuleSyntax: true, // Preserve import/export syntax exactly
 			},
 			exclude: [ 'node_modules', 'dist', '**/stories/**', '**/*.test.{ts,tsx}' ],
 		} ),
-		terser(), // Minify the output
 	],
 	onwarn( warning, warn ) {
 		// Suppress circular dependency warnings (common in React component libraries)
