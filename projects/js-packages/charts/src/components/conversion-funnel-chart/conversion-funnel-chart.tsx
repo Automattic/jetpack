@@ -1,6 +1,6 @@
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import clsx from 'clsx';
-import { type FC } from 'react';
+import { type FC, useState, useRef, useCallback, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import styles from './conversion-funnel-chart.module.scss';
 
@@ -67,6 +67,75 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	style,
 } ) => {
 	const theme = useChartTheme();
+	const [ clickedStep, setClickedStep ] = useState< string | null >( null );
+	const chartRef = useRef< HTMLDivElement >( null );
+
+	// Handle clicks within chart to deselect
+	const handleChartClick = useCallback( () => {
+		if ( clickedStep ) {
+			setClickedStep( null );
+		}
+	}, [ clickedStep ] );
+
+	// Handle bar click
+	const handleBarClick = useCallback(
+		( stepId: string, event: React.MouseEvent ) => {
+			event.stopPropagation();
+			if ( clickedStep === stepId ) {
+				// If clicking the same step, deselect it
+				setClickedStep( null );
+			} else {
+				// Otherwise, select this step
+				setClickedStep( stepId );
+			}
+		},
+		[ clickedStep ]
+	);
+
+	// Handle bar keydown
+	const handleBarKeyDown = useCallback(
+		( stepId: string, event: React.KeyboardEvent ) => {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				if ( clickedStep === stepId ) {
+					setClickedStep( null );
+				} else {
+					setClickedStep( stepId );
+				}
+			}
+		},
+		[ clickedStep ]
+	);
+
+	// Handle chart keydown
+	const handleChartKeyDown = useCallback(
+		( event: React.KeyboardEvent ) => {
+			if ( event.key === 'Escape' ) {
+				handleChartClick();
+			}
+		},
+		[ handleChartClick ]
+	);
+
+	// Create handler factories to avoid arrow functions in JSX
+	const stepHandlers = useMemo( () => {
+		const handlers: Record<
+			string,
+			{
+				onClick: ( event: React.MouseEvent ) => void;
+				onKeyDown: ( event: React.KeyboardEvent ) => void;
+			}
+		> = {};
+
+		steps.forEach( step => {
+			handlers[ step.id ] = {
+				onClick: ( event: React.MouseEvent ) => handleBarClick( step.id, event ),
+				onKeyDown: ( event: React.KeyboardEvent ) => handleBarKeyDown( step.id, event ),
+			};
+		} );
+
+		return handlers;
+	}, [ steps, handleBarClick, handleBarKeyDown ] );
 
 	// Get component settings from theme with fallbacks
 	const funnelSettings = theme.conversionFunnelChart;
@@ -118,8 +187,13 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 
 	return (
 		<div
+			ref={ chartRef }
 			className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
 			style={ chartStyle }
+			onClick={ handleChartClick }
+			onKeyDown={ handleChartKeyDown }
+			role="button"
+			tabIndex={ 0 }
 		>
 			{ /* Main Metric */ }
 			<div className={ styles.mainMetric }>
@@ -135,9 +209,14 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 			<div className={ styles.funnelContainer }>
 				{ steps.map( step => {
 					const barHeight = ( step.rate / maxRate ) * 100;
+					const isClicked = clickedStep === step.id;
+					const isBlurred = clickedStep && clickedStep !== step.id;
 
 					return (
-						<div key={ step.id } className={ styles.funnelStep }>
+						<div
+							key={ step.id }
+							className={ clsx( styles.funnelStep, isBlurred && styles.blurred ) }
+						>
 							{ /* Step Label and Rate */ }
 							<div className={ styles.stepHeader }>
 								<Text className={ styles.stepLabel }>{ step.label }</Text>
@@ -145,14 +224,37 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 							</div>
 
 							{ /* Funnel Bar */ }
-							<div className={ styles.barContainer }>
+							<div
+								className={ clsx(
+									styles.barContainer,
+									isClicked && styles.selected,
+									isBlurred && styles.disabled
+								) }
+								onClick={ stepHandlers[ step.id ].onClick }
+								onKeyDown={ stepHandlers[ step.id ].onKeyDown }
+								role="button"
+								tabIndex={ isBlurred ? -1 : 0 }
+							>
 								<div
-									className={ styles.funnelBar }
+									className={ clsx( styles.funnelBar, isClicked && styles.selected ) }
 									style={ {
 										height: `${ barHeight }%`,
 										backgroundColor: primaryColor,
 									} }
 								/>
+
+								{ /* Tooltip */ }
+								{ isClicked && (
+									<div className={ styles.tooltip }>
+										<div className={ styles.tooltipContent }>
+											<Text className={ styles.tooltipTitle }>{ step.label }</Text>
+											<Text className={ styles.tooltipRate }>
+												{ step.rate.toFixed( 1 ) }%
+												{ step.count && ` • ${ step.count.toLocaleString() } items` }
+											</Text>
+										</div>
+									</div>
+								) }
 							</div>
 						</div>
 					);
