@@ -420,9 +420,24 @@ function wpcom_get_product_features( $product ) {
 
 	$cache_group = 'site_purchases';
 	$cache_found = false;
-	$cache_key   = $purchase->product_slug . filemtime( __DIR__ . '/class-wpcom-features.php' );
 
-	$features = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
+	// Include sticker status in cache key only for Personal and Premium plans since they're affected by summer-special-2025
+	$has_summer_sticker = '';
+	if ( function_exists( 'has_blog_sticker' ) && $purchase ) {
+		// Use existing WPCOM_Store helper methods to check plan types
+		$is_personal_or_premium_plan = false;
+		if ( isset( $purchase->product_id ) ) {
+			$is_personal_or_premium_plan = WPCOM_Store::is_wpcom_personal_plan( $purchase->product_id ) || WPCOM_Store::is_wpcom_premium_plan( $purchase->product_id );
+		}
+
+		if ( $is_personal_or_premium_plan ) {
+			$current_blog_id    = get_current_blog_id();
+			$has_summer_sticker = has_blog_sticker( 'summer-special-2025', $current_blog_id ) ? '_summer2025_' : '';
+		}
+	}
+
+	$cache_key = $purchase->product_slug . $has_summer_sticker . filemtime( __DIR__ . '/class-wpcom-features.php' );
+	$features  = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
 
 	if ( false === $cache_found ) {
 		$features = array();
