@@ -9,7 +9,8 @@ import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
 
 // Define input entry points for multi-entry build
-// This supports package.json exports like "./components/bar-chart"
+// This supports package.json exports like "import { BarChart } from '@automattic/charts/bar-chart';" for consumers.
+// This is useful especially to import components specific types and/or helpers easily.
 const inputConfig = {
 	index: 'src/index.ts',
 	// Include component index files to support "./components/*" exports
