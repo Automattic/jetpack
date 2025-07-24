@@ -423,6 +423,7 @@ function wpcom_get_product_features( $product ) {
 
 	// Include sticker status in cache key only for Personal and Premium plans since they're affected by summer-special-2025
 	$has_summer_sticker = '';
+	// @phan-suppress-next-line PhanRedundantCondition
 	if ( function_exists( 'has_blog_sticker' ) && $purchase ) {
 		// Use existing WPCOM_Store helper methods to check plan types
 		$is_personal_or_premium_plan = false;
@@ -443,6 +444,7 @@ function wpcom_get_product_features( $product ) {
 		$features = array();
 
 		foreach ( WPCOM_Features::get_feature_slugs() as $feature ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 			if ( wpcom_purchase_has_feature( $purchase, $feature ) ) {
 				$features[] = $feature;
 			}
