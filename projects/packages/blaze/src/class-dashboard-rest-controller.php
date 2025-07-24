@@ -249,7 +249,7 @@ class Dashboard_REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/payments(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/payments(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'edit_dsp_payments' ),
@@ -754,7 +754,8 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_dsp_payments( $req ) {
-		return $this->edit_dsp_generic( 'v1/payments', $req, array( 'timeout' => 20 ) );
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->edit_dsp_generic( "{$version}/campaigns", $req, array( 'timeout' => 20 ) );
 	}
 
 	/**
