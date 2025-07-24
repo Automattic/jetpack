@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
  * @type {import('stylelint').Config}
  */
 const baseConfig = {
-	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss' ) ),
+	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss-stylistic' ) ),
 	rules: {
 		'font-family-no-missing-generic-family-keyword': [
 			true,
