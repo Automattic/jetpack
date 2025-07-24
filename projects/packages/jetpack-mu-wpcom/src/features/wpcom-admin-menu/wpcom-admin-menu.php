@@ -553,7 +553,6 @@ add_action( 'admin_menu', 'wpcom_add_tools_menu' );
  * Displays an Export/Erase Personal Date page for Simple sites.
  */
 function wpcom_display_export_erase_personal_data_page() {
-	require_once ABSPATH . 'wp-admin/admin-header.php';
 	if ( str_contains( get_current_screen()->id, 'export-personal-data' ) ) {
 		$page_title = __( 'Export Personal Data', 'jetpack-mu-wpcom' );
 	} else {
