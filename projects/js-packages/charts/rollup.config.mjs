@@ -23,6 +23,9 @@ const inputConfig = {
 	'visx/text/index': 'src/visx/text/index.ts',
 	'visx/group/index': 'src/visx/group/index.ts',
 	'visx/legend/index': 'src/visx/legend/index.ts',
+	// Include provider index files
+	'providers/chart-context/index': 'src/providers/chart-context/index.ts',
+	'providers/theme/index': 'src/providers/theme/index.ts',
 };
 
 const mainConfig = {
@@ -73,6 +76,14 @@ const mainConfig = {
 	],
 	onwarn( warning, warn ) {
 		if ( warning.code === 'CIRCULAR_DEPENDENCY' ) {
+			return;
+		}
+		// Suppress "use client" directive warnings from node_modules
+		if (
+			warning.code === 'MODULE_LEVEL_DIRECTIVE' &&
+			warning.message.includes( '"use client"' ) &&
+			warning.id?.includes( 'node_modules' )
+		) {
 			return;
 		}
 		warn( warning );

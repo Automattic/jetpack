@@ -22,7 +22,7 @@
 		"clean-build": "rm -rf dist/",
 		"typecheck": "tsc --noEmit",
 		"build": "pnpm run build:prod",
-		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
+		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production && touch dist/style.css",
 		"build:dev": "rollup -c --environment NODE_ENV:development",
 		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && pnpm run build:types",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types"
