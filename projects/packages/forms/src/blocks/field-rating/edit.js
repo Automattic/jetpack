@@ -88,7 +88,7 @@ export default function RatingFieldEdit( props ) {
 			<div { ...innerBlocksProps } />
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Rating settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
 					<RangeControl
 						label={ __( 'Maximum rating', 'jetpack-forms' ) }
 						help={ __( 'Highest rating value users can select (2–10)', 'jetpack-forms' ) }
