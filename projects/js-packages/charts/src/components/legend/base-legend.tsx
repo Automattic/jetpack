@@ -133,7 +133,6 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 									{ label.text }
 									{ items.find( item => item.label === label.text )?.value && (
 										<span className={ styles[ 'legend-item-value' ] }>
-											{ ' ' }
 											{ items.find( item => item.label === label.text )?.value }
 										</span>
 									) }
