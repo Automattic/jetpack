@@ -37,7 +37,7 @@ Consumers can import visx components through this module instead of importing di
 import { LineShape } from '@automattic/charts/visx/legend';
 
 // Instead of: import { Text } from '@visx/text'
-import { Text } from '@automattic/charts/text';
+import { Text } from '@automattic/charts/visx/text';
 ```
 
 This approach ensures that consumers get the visx functionality they need while maintaining a clean and manageable dependency structure.
