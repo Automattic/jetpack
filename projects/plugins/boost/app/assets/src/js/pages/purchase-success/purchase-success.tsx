@@ -67,17 +67,6 @@ const PurchaseSuccess: FC = () => {
 				<li>
 					{ createInterpolateElement(
 						__(
-							'<strong>Image Size Analyzer:</strong> Scan and identify oversized images. Optimize them to boost loading speeds.',
-							'jetpack-boost'
-						),
-						{
-							strong: <strong />,
-						}
-					) }
-				</li>
-				<li>
-					{ createInterpolateElement(
-						__(
 							'<strong>Historical Performance:</strong> Review past performance scores and Core Web Vitals data. Identify which actions positively impacted site speeds over time.',
 							'jetpack-boost'
 						),

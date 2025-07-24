@@ -1,16 +1,12 @@
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { Onboarding } from '_jetpack-e2e-commons/flows/onboarding.ts';
-import { authenticateUser } from '_jetpack-e2e-commons/helpers/login-utils.ts';
-import { getSiteCredentials } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { disconnect, isSiteConnected, isUserConnected } from '_jetpack-e2e-commons/utils/index.ts';
 
-test.beforeEach( async ( { request, requestUtils } ) => {
+test.beforeEach( async ( { requestUtils } ) => {
 	await disconnect( requestUtils );
 
 	expect( await isUserConnected( requestUtils ) ).toBe( false );
 	expect( await isSiteConnected( requestUtils ) ).toBe( false );
-
-	await authenticateUser( request, getSiteCredentials() );
 } );
 
 test( 'Onboarding landing page', async ( { page, admin } ) => {

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2025-07-23
+### Added
+- Critical CSS: Exclude post types of popular builder plugins from generation. [#44280]
+- General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality. [#44246]
+- My Jetpack: Added analytics for empty product search results. [#44344]
+
+### Changed
+- Cornerstone Pages: Ensure Home URL is always a predefined Cornerstone Page [#44275]
+- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript [#44327]
+- Improves performance of wpcom comments liking by caching and minimizing API requests. [#44205]
+- My Jetpack: Enabled access to My Jetpack on WP Multisite. [#44260]
+- Update package dependencies. [#44219] [#44356]
+
+### Deprecated
+- Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via a temporary filter. [#44287]
+
+### Fixed
+- General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2 [#44418]
+- Update JITMs to remove jQuery dependency [#43783]
+
 ## [4.1.2] - 2025-07-08
 ### Added
 - Concatenate JS/CSS: Add cleanup for expired options in the database. [#44134]
@@ -748,6 +768,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.2...4.2.0
 [4.1.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.1...4.1.2
 [4.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.0.0...4.1.0

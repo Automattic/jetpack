@@ -49,7 +49,7 @@ class Image_Size_Analysis implements Feature, Is_Always_On, Has_Data_Sync, Needs
 		 * Filter whether the Image Size Analysis UI should be displayed on the main page.
 		 *
 		 * @param bool $should_display Whether the UI should be displayed. Default false.
-		 * @since $$next-version$$
+		 * @since 4.2.0
 		 */
 		return apply_filters( 'jetpack_boost_image_size_analysis_display_ui', false );
 	}

@@ -10,4 +10,6 @@ node_modules      export-ignore
 /changelog/**     production-exclude
 /jest.config.cjs   production-exclude
 **/stories/**     production-exclude
-**/test/**        production-exclude
+**/tests/**       production-exclude
+**/src/**         production-exclude
+**/docs/**        production-exclude

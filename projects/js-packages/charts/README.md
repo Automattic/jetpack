@@ -1,22 +1,32 @@
 # Automattic Charts
 
-Display charts within Automattic products.
+A comprehensive charting library for displaying interactive data visualizations within Automattic products. Built on top of modern libraries like `@visx/xychart` and designed for accessibility, responsiveness, and ease of use.
 
-## Storybook
+Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts).
 
-To see available charts, from the root of the monorepo follow these steps:
+## Quick Start
+
+### Installation
+
+```bash
+npm install @automattic/charts
+# or
+pnpm add @automattic/charts
+# or
+yarn add @automattic/charts
+```
+
+### Local development with Storybook
+
+To run Storybook locally, from the root of the monorepo follow these steps:
 
 1. Run `pnpm install` to install the dependencies.
 2. Run `cd projects/js-packages/charts` to navigate to the charts package.
 3. Run `pnpm run storybook` to start the storybook server.
 
-## How to install charts
+## Contributing
 
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+Ready to contribute? Check out the [Jetpack contributing guide](https://github.com/Automattic/jetpack/blob/trunk/docs/CONTRIBUTING.md) and the [Charts AI documentation guide](https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/charts/docs/ai-documentation-guide.md) for detailed information on adding new features and documentation.
 
 ## Using this package in your WordPress plugin
 
@@ -28,5 +38,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-charts is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+Charts is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
