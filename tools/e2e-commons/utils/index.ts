@@ -1,5 +1,10 @@
 import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
-import { executeCommand, executeContainerCommand } from './cli.ts';
+import {
+	executeCommand,
+	executeContainerCommand,
+	executeWpCommand,
+	executeJetpackCommand,
+} from './cli.ts';
 import {
 	connect,
 	disconnect,
@@ -41,8 +46,8 @@ class TestUtils {
 
 	// CLI utilities
 	executeCommand: typeof executeCommand = executeCommand;
-	executeWpCommand: typeof executeCommand = executeCommand;
-	executeJetpackCommand: typeof executeCommand = executeCommand;
+	executeWpCommand: typeof executeWpCommand = executeWpCommand;
+	executeJetpackCommand: typeof executeJetpackCommand = executeJetpackCommand;
 	executeContainerCommand: typeof executeContainerCommand = executeContainerCommand;
 
 	// Jetpack specific utilities
