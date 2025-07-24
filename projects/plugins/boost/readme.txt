@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 4.1.2
+Stable tag: 4.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.2.0 - 2025-07-23
+### 4.2.1 - 2025-07-24
 #### Added
 - Critical CSS: Exclude post types of popular builder plugins from generation.
 - General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality.
@@ -202,6 +202,8 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 #### Fixed
 - General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2
 - Update JITMs to remove jQuery dependency
+
+Note: There was no public 4.2.0 release.
 
 --------
 
