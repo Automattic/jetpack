@@ -52,8 +52,8 @@ test.describe( 'Critical CSS module', () => {
 		).toBe( 0 );
 	} );
 
-	test( 'Critical CSS should be generated when the module is active', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
+	test( 'Critical CSS should be generated when the module is active', async ( { testUtils } ) => {
+		await testUtils.activateModule( 'critical_css' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		expect(
@@ -62,9 +62,11 @@ test.describe( 'Critical CSS module', () => {
 		).toBeTruthy();
 	} );
 
-	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical_css' ] ).build();
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
+	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateModule( 'critical_css' );
+		await testUtils.activateModule( 'critical_css' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
 			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
@@ -78,8 +80,10 @@ test.describe( 'Critical CSS module', () => {
 		expect( criticalCss.length, 'Critical CSS should be displayed' ).toBeGreaterThan( 100 );
 	} );
 
-	test( 'Critical CSS Admin message should show when the theme is changed', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
+	test( 'Critical CSS Admin message should show when the theme is changed', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.activateModule( 'critical_css' );
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectThemes();
 		const themesPage = await ThemesPage.init( page );
@@ -100,8 +104,10 @@ test.describe( 'Critical CSS module', () => {
 		).toBeTruthy();
 	} );
 
-	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
+	test( 'User can access the Critical advanced recommendations and go back to settings page', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.activateModule( 'critical_css' );
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 

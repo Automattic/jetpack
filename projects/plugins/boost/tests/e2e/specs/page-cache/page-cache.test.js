@@ -99,8 +99,9 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should be present when module is active', async ( {
 		browser,
 		baseURL,
+		testUtils,
 	} ) => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
+		await testUtils.activateModule( 'page_cache' );
 
 		// Ensure default storageState is empty.
 		const newContext = await browser.newContext( { storageState: {} } );

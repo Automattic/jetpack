@@ -11,13 +11,11 @@ import playwrightConfig from '../playwright.config.mjs';
 test.describe( 'Search Dashboard', () => {
 	let searchDashboard;
 
-	test.beforeAll( async ( { browser } ) => {
+	test.beforeAll( async ( { browser, testUtils } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await clearSearchPlanInfo();
-		await prerequisitesBuilder( page )
-			.withPlan( Plans.Complete )
-			.withActiveModules( [ 'search' ] )
-			.build();
+		await testUtils.activateModule( 'search' );
+		await prerequisitesBuilder( page ).withPlan( Plans.Complete ).build();
 
 		await enableInstantSearch();
 		await page.close();

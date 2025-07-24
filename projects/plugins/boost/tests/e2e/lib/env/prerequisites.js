@@ -24,10 +24,6 @@ export function boostPrerequisitesBuilder( page ) {
 	};
 
 	return {
-		withActiveModules( modules = [] ) {
-			state.modules.active = modules;
-			return this;
-		},
 		withInactiveModules( modules = [] ) {
 			state.modules.inactive = modules;
 			return this;

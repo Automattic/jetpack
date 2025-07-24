@@ -29,11 +29,11 @@ test.describe( 'Image CDN', () => {
 		).toBeFalsy();
 	} );
 
-	test( 'Image Guide functionality should be active when the module is active', async () => {
-		await boostPrerequisitesBuilder( page )
-			.withActiveModules( [ 'image_guide' ] )
-			.withAppendedImage( true )
-			.build();
+	test( 'Image Guide functionality should be active when the module is active', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.activateModule( 'image_guide' );
+		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
 		const firstPostPage = await FirstPostPage.visit( page );
 
 		expect(

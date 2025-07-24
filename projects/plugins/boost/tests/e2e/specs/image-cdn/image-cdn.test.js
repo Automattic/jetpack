@@ -19,8 +19,10 @@ test.describe( 'Image CDN', () => {
 		await page.close();
 	} );
 
-	test( 'No Image CDN meta information should show on the admin when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'image_cdn' ] ).build();
+	test( 'No Image CDN meta information should show on the admin when the module is inactive', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateModule( 'image_cdn' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		expect(
@@ -29,11 +31,11 @@ test.describe( 'Image CDN', () => {
 		).toBeFalsy();
 	} );
 
-	test( 'Image CDN functionality shouldn`t be active when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page )
-			.withInactiveModules( [ 'image_cdn' ] )
-			.withAppendedImage( true )
-			.build();
+	test( 'Image CDN functionality shouldn`t be active when the module is inactive', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateModule( 'image_cdn' );
+		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
 		const firstPostPage = await FirstPostPage.visit( page );
 
 		expect(
@@ -43,8 +45,8 @@ test.describe( 'Image CDN', () => {
 		).not.toMatch( /https:\/\/.*\.wp\.com/ );
 	} );
 
-	test( 'Upgrade section should be visible when the module is active', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'image_cdn' ] ).build();
+	test( 'Upgrade section should be visible when the module is active', async ( { testUtils } ) => {
+		await testUtils.activateModule( 'image_cdn' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		expect(
@@ -53,11 +55,9 @@ test.describe( 'Image CDN', () => {
 		).toBeTruthy();
 	} );
 
-	test( 'Image should be loaded via CDN when Image CDN is active', async () => {
-		await boostPrerequisitesBuilder( page )
-			.withActiveModules( [ 'image_cdn' ] )
-			.withAppendedImage( true )
-			.build();
+	test( 'Image should be loaded via CDN when Image CDN is active', async ( { testUtils } ) => {
+		await testUtils.activateModule( 'image_cdn' );
+		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
 		const firstPostPage = await FirstPostPage.visit( page );
 
 		expect(

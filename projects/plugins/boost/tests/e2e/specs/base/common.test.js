@@ -42,10 +42,10 @@ test.describe( 'Common tests', () => {
 	} ) => {
 		// Generate Critical CSS to ensure that on plugin deactivation it is cleared.
 		// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv( true )
-			.withActiveModules( [ 'critical_css' ] )
-			.build();
+		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).build();
+
+		await testUtils.activateModule( 'critical_css' );
+
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		// Wait for generation progress UI first
