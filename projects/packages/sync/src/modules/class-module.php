@@ -478,7 +478,7 @@ abstract class Module {
 		// We will adjust if it is stuck after 10 minutes.
 		if (
 			$is_stuck &&
-			( time() - $stuck_data['timestamp'] ) >= 1 * MINUTE_IN_SECONDS
+			( time() - $stuck_data['timestamp'] ) >= 10 * MINUTE_IN_SECONDS
 		) {
 			$stuck_count         = ++$stuck_data['stuck_count'];
 			$adjusted_chunk_size = max( 1, (int) ( $default_chunk_size / ( 2 ** $stuck_count ) ) ); // Halve the chunk size for each stuck iteration.
