@@ -54,7 +54,6 @@ class MailPoet_Integration {
 	 */
 	protected function get_api() {
 		if ( null === $this->mailpoet_api && class_exists( '\MailPoet\API\API' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- dynamic plugin API
 			$this->mailpoet_api = \MailPoet\API\API::MP( 'v1' );
 		}
 		return $this->mailpoet_api;
@@ -73,7 +72,6 @@ class MailPoet_Integration {
 		$list_name                = $list_name ? $list_name : $default_list_name;
 		$list_description         = $list_name === $default_list_name ? $default_list_description : $list_name;
 		try {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- dynamic plugin API
 			$lists = $mailpoet_api->getLists();
 			// Look for an existing list with the given name (not deleted)
 			foreach ( $lists as $list ) {
@@ -82,7 +80,6 @@ class MailPoet_Integration {
 				}
 			}
 			// Not found, create it
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- dynamic plugin API
 			$new_list = $mailpoet_api->addList(
 				array(
 					'name'        => $list_name,
@@ -105,7 +102,6 @@ class MailPoet_Integration {
 	 */
 	protected function add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data ) {
 		try {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- dynamic plugin API
 			$subscriber = $mailpoet_api->addSubscriber(
 				$subscriber_data,
 				array( $list_id )
