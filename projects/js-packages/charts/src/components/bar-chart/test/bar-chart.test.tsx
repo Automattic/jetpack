@@ -467,6 +467,7 @@ describe( 'BarChart', () => {
 		} );
 	} );
 
+	/* eslint-disable testing-library/no-node-access */
 	describe( 'Zero Value Display', () => {
 		test( 'renders visible bars for zero values with default settings', () => {
 			renderWithTheme( {
@@ -554,4 +555,6 @@ describe( 'BarChart', () => {
 			} );
 		} );
 	} );
+
+	/* eslint-enable testing-library/no-node-access */
 } );
