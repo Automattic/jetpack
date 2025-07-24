@@ -59,6 +59,7 @@
 		"@wordpress/interactivity": "6.28.0",
 		"@wordpress/notices": "5.28.0",
 		"@wordpress/primitives": "4.28.0",
+		"@wordpress/private-apis": "1.29.0",
 		"@wordpress/url": "4.28.0",
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "13.0.0",

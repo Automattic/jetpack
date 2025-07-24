@@ -12,12 +12,16 @@ import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
 import { isEmpty } from 'lodash';
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
+export const { unlock } = __dangerousOptInToUnstableAPIsOnlyForCoreModules(
+	'I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.',
+	'@wordpress/editor'
+);
 /**
  * Internal dependencies
  */
@@ -70,14 +74,15 @@ export default function InboxView() {
 	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
 
 	// Allow extenders register actions and fields for the 'feedback' post type.
+	// Note: this is experimental and as of 07/2025 only available with Gutenberg plugin.
 	// Users can use `registerEntityAction` and `registerEntityField` to register them.
 	// https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/README.md#registerentityaction
 	// https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/README.md#registerentityfield
 	const { feedbackEntityActions, feedbackEntityFields } = useSelect( select => {
-		const { getEntityActions, getEntityFields } = select( editorStore );
+		const { getEntityActions, getEntityFields } = unlock( select( editorStore ) );
 		return {
 			feedbackEntityActions:
-				typeof getEntityActions === 'function' ? getEntityActions( 'postType', 'feedback' ) : [],
+				typeof getEntityFields === 'function' ? getEntityActions( 'postType', 'feedback' ) : [],
 			feedbackEntityFields:
 				typeof getEntityFields === 'function' ? getEntityFields( 'postType', 'feedback' ) : [],
 		};
