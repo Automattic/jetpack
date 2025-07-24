@@ -97,11 +97,7 @@ class Plugin {
 
 		if ( is_wp_error( $plugins ) ) {
 			if ( 'too_early' === $plugins->get_error_code() ) {
-				_doing_it_wrong(
-					__METHOD__,
-					esc_html( $plugins->get_error_message() ),
-					'{plugin/package}-$$next-version$$'
-				);
+				_doing_it_wrong( __METHOD__, esc_html( $plugins->get_error_message() ), '$$next-version$$' );
 			} else {
 				wp_trigger_error( __METHOD__, $plugins->get_error_message() );
 			}
