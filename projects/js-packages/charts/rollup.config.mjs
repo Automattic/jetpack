@@ -102,7 +102,7 @@ const dtsConfig = {
 		} ),
 	],
 	// Don't include style imports or React types in type definitions
-	external: [ /\.scss$/, /\.css$/, 'react', /@types\/.*/, /^@visx\/.*/, 'react/jsx-runtime' ],
+	external: [ /\.scss$/, /\.css$/, 'react', /@types\/.*/, /^@visx\/.*/, /react\/.*/ ],
 };
 
 // Export both configurations - Rollup will build them in parallel
