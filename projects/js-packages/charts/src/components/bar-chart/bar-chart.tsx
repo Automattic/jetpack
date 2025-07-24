@@ -23,6 +23,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
+	children?: ReactNode;
 }
 
 // Validation function similar to LineChart
@@ -64,6 +65,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
+	children,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
@@ -350,6 +352,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					/>
 				</div>
 			) }
+			{ children }
 		</div>
 	);
 };
@@ -382,5 +385,13 @@ const BarChart = attachSubComponents( BarChartBase, {
 	Legend: ChartLegend,
 } ) as BarChartComponent;
 
+// Create responsive version with composition API
+const ResponsiveBarChart = withResponsive< BarChartProps >( BarChart );
+
+// Attach subcomponents to responsive version as well
+const BarChartWithComposition = attachSubComponents( ResponsiveBarChart, {
+	Legend: ChartLegend,
+} ) as BarChartComponent;
+
 export { BarChart };
-export default withResponsive< BarChartProps >( BarChart );
+export default BarChartWithComposition;

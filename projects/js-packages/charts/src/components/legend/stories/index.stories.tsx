@@ -165,6 +165,7 @@ const WithLineChartData = () => {
 	return (
 		<div style={ { width: '600px', height: '400px' } }>
 			<LineChart
+				chartId="line-chart-composition"
 				data={ lineChartData }
 				width={ 600 }
 				height={ 300 }
@@ -196,7 +197,7 @@ export const WithLineChart: Story = {
 const WithBarChartData = () => {
 	return (
 		<div style={ { width: '600px', height: '350px' } }>
-			<BarChart data={ barChartData } width={ 400 } height={ 300 }>
+			<BarChart chartId="bar-chart-composition" data={ barChartData } width={ 400 } height={ 300 }>
 				<BarChart.Legend
 					orientation="vertical"
 					alignmentHorizontal="right"
