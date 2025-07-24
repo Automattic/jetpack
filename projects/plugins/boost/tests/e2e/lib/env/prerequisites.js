@@ -32,10 +32,6 @@ export function boostPrerequisitesBuilder( page ) {
 			state.modules.inactive = modules;
 			return this;
 		},
-		withLoggedIn( shouldBeLoggedIn ) {
-			state.loggedIn = shouldBeLoggedIn;
-			return this;
-		},
 		withConnection( shouldBeConnected ) {
 			state.connected = shouldBeConnected;
 			return this;
