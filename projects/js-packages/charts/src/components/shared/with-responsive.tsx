@@ -65,7 +65,6 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				style={ {
 					width: '100%',
 					height: chartProps.height ?? 'auto',
-					overflow: 'hidden',
 				} }
 			>
 				<WrappedComponent
