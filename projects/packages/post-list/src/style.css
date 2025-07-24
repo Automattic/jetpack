@@ -41,7 +41,8 @@ th.column-thumbnail + th a {
 	margin-left: -60px;
 }
 
-/* If thumbnail column has .hidden class. The entire column is toggled off. Don't pull "Title" header name over. */
+/* If thumbnail column has .hidden class, the entire column is
+ * toggled off. Don't pull "Title" header name over. */
 th.column-thumbnail.hidden + th a {
 	margin-left: 0;
 }

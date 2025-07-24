@@ -1,4 +1,4 @@
-@use 'main/variables';
+@use "main/variables";
 
 .jb-setup-banner {
 	border: 1px solid variables.$gray_5;
@@ -87,7 +87,7 @@
 		color: #fff;
 		cursor: pointer;
 		display: inline-block;
-		font-size: .875rem;
+		font-size: 0.875rem;
 		font-weight: 600;
 		margin: 0;
 		outline: 0;
@@ -95,7 +95,7 @@
 		padding: 0.625rem 1.5rem;
 		text-decoration: none;
 		text-overflow: ellipsis;
-		transition: all .15s ease-in-out;
+		transition: all 0.15s ease-in-out;
 		vertical-align: top;
 
 		&:hover {

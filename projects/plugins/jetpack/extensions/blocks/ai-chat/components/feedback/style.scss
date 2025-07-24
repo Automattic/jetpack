@@ -5,7 +5,7 @@
 		flex-direction: row;
 		flex-wrap: nowrap;
 		margin-top: 1rem;
-        
+
 		.jetpack-ai-chat-feedback-input {
 			flex: auto;
 			flex-grow: 4;
@@ -36,13 +36,13 @@
 			cursor: pointer;
 			padding: 0.5rem;
 			border-radius: 2px;
-    
+
 			svg {
 				width: 20px;
 				fill: var(--wp--preset--color--contrast);
 				vertical-align: middle;
 			}
-    
+
 			&:disabled {
 				opacity: 0.5;
 				cursor: not-allowed;

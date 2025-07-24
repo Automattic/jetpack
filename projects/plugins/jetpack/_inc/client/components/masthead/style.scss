@@ -1,5 +1,5 @@
-@use '../../scss/functions/rem';
-@use '../../scss/calypso-colors';
+@use "../../scss/functions/rem";
+@use "../../scss/calypso-colors";
 @use "../../scss/mixins/breakpoints";
 @use "../../scss/variables/colors";
 
@@ -75,9 +75,11 @@
 		flex-grow: 1;
 		align-self: center;
 
-		/* This fixes an unwanted space between the buttons in the network settings caused by a line break. */
+		/* This fixes an unwanted space between the buttons in the
+		 * network settings caused by a line break. */
 
-		/* Fixed here to keep PHP code readable. It's safe: .dops-button and .dops-button.is-compact specify a font size. */
+		/* Fixed here to keep PHP code readable. It's safe:
+		 * .dops-button and .dops-button.is-compact specify a font size. */
 		font-size: 0;
 	}
 

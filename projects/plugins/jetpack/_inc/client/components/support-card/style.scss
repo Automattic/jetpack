@@ -1,6 +1,6 @@
-@use 'sass:color';
-@use '../../scss/functions/rem';
-@use '../../scss/mixins/ui';
+@use "sass:color";
+@use "../../scss/functions/rem";
+@use "../../scss/mixins/ui";
 @use "../../scss/mixins/breakpoints";
 @use "../../scss/typography";
 @use "../../scss/variables/colors";
@@ -42,7 +42,7 @@
 		display: block;
 		width: 100%;
 		padding: rem.convert(10px) 0;
-		border-top: 1px color.adjust(colors.$gray, $lightness: 20%, $alpha: -.5) solid;
+		border-top: 1px color.adjust(colors.$gray, $lightness: 20%, $alpha: -0.5) solid;
 
 		&::first-letter {
 			text-transform: capitalize;

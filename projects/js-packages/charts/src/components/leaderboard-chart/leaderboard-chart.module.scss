@@ -47,7 +47,7 @@
 		border-radius: 2px;
 		background-color: transparent;
 		overflow: hidden;
-		transition: width 0.3s ease-in-out;	
+		transition: width 0.3s ease-in-out;
 
 		> div {
 			background-color: var(--progress-color, #3858e9);
@@ -57,7 +57,7 @@
 	.primaryBar {
 		--progress-color: var(--primary-color, #3858e9);
 	}
-	
+
 	.secondaryBar {
 		--progress-color: var(--secondary-color, #66bdff);
 	}
