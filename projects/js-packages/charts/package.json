@@ -46,7 +46,20 @@
 			"import": "./dist/mjs/visx/*/index.js",
 			"require": "./dist/cjs/visx/*/index.js",
 			"types": "./dist/types/visx/*/index.d.ts"
-		}
+		},
+		"./providers/*": {
+			"jetpack:src": "./src/providers/*",
+			"import": "./dist/mjs/providers/*/index.js",
+			"require": "./dist/cjs/providers/*/index.js",
+			"types": "./dist/types/providers/*/index.d.ts"
+		},
+		"./*": {
+			"jetpack:src": "./src/components/*",
+			"import": "./dist/mjs/components/*/index.js",
+			"require": "./dist/cjs/components/*/index.js",
+			"types": "./dist/types/components/*/index.d.ts"
+		},
+		"./style.css": "./dist/mjs/style.css"
 	},
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",
