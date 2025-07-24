@@ -48,12 +48,31 @@ const mainConfig = {
 		createOutputConfig( './dist/mjs/', 'esm' ), // ES modules for modern bundlers
 	],
 	// Don't bundle these dependencies - expect them to be provided by the consumer
-	external: [ 'react', 'react-dom', /^@visx\/.*/, '@react-spring/web', 'clsx', 'tslib' ],
+	external: [
+		// Peer dependencies
+		'react',
+		'react-dom',
+		'react/jsx-runtime',
+		// All production dependencies should be external
+		'@automattic/number-formatters',
+		'@babel/runtime',
+		'@react-spring/web',
+		/^@visx\/.*/, // All @visx packages
+		'clsx',
+		'date-fns',
+		'deepmerge',
+		'gridicons',
+		'tslib',
+		// Node.js built-ins
+		/^node:/,
+	],
 	plugins: [
 		peerDepsExternal( { includeDependencies: true } ), // Automatically externalize peer dependencies
 		resolve( {
 			preferBuiltins: true,
 			extensions: [ '.tsx', '.ts', '.js', '.jsx' ], // Resolve these file extensions
+			// Only resolve modules from the source directory, not node_modules
+			resolveOnly: [ /^\.\.?\//, /^src\// ],
 		} ),
 		commonjs(), // Convert CommonJS modules to ES modules
 		json(), // Import JSON files as modules
