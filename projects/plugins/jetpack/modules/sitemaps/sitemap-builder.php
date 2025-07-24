@@ -1147,7 +1147,11 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @access private
 	 * @since 4.8.0
 	 *
-	 * @param WP_Post $post The post to be processed.
+	 * @param object $post The post to be processed. Object with properties:
+	 *                     ID (int) Post ID
+	 *                     post_title (string) Post title
+	 *                     post_modified_gmt (string) Post date in GMT
+	 *                     comment_count (int) Number of comments.
 	 *
 	 * @return array
 	 *              @type array  $xml An XML fragment representing the post URL.
@@ -1164,6 +1168,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		 *
 		 * @param bool   $skip Current boolean. False by default, so no post is skipped.
 		 * @param object $post Current post in the form of a $wpdb result object. Not WP_Post.
+		 *                     Doesn't have all the properties of a WP_Post.
 		 */
 		if ( true === apply_filters( 'jetpack_sitemap_skip_post', false, $post ) ) {
 			return array(
@@ -1418,7 +1423,11 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @access private
 	 * @since 4.8.0
 	 *
-	 * @param WP_Post $post The post to be processed.
+	 * @param object $post The post to be processed. Object with properties:
+	 *                     ID (int) Post ID
+	 *                     post_title (string) Post title
+	 *                     post_date_gmt (string) Post date in GMT
+	 *                     post_modified_gmt (string) Post date in GMT.
 	 *
 	 * @return string An XML fragment representing the post URL.
 	 */
@@ -1434,8 +1443,9 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		 *
 		 * @since 3.9.0
 		 *
-		 * @param bool    $skip Current boolean. False by default, so no post is skipped.
-		 * @param WP_POST $post Current post object.
+		 * @param bool   $skip Current boolean. False by default, so no post is skipped.
+		 * @param object $post Current post in the form of a $wpdb result object. Not WP_Post.
+		 *                     Doesn't have all the properties of a WP_Post.
 		 */
 		if ( apply_filters( 'jetpack_sitemap_news_skip_post', false, $post ) ) {
 			return array(
