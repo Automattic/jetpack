@@ -8,6 +8,8 @@ import dts from 'rollup-plugin-dts';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
 
+// Define input entry points for multi-entry build
+// This supports package.json exports like "./components/bar-chart"
 const inputConfig = {
 	index: 'src/index.ts',
 	// Include component index files to support "./components/*" exports
@@ -28,36 +30,37 @@ const inputConfig = {
 	'providers/theme/index': 'src/providers/theme/index.ts',
 };
 
+// Helper function to create consistent output configurations
+// Reduces duplication between CJS, ESM, and TypeScript declaration outputs
+const createOutputConfig = ( dir, format ) => ( {
+	dir,
+	format,
+	preserveModules: true, // Keep individual module files instead of bundling
+	preserveModulesRoot: 'src', // Remove 'src' from output paths
+	sourcemap: true, // Generate sourcemaps for debugging
+	sourcemapPathTransform: relativeSourcePath => `/@automattic/charts/${ relativeSourcePath }`, // Brand sourcemap paths
+	exports: 'named', // Ensure named exports are preserved for tree-shaking
+} );
+
+// Main configuration for building JavaScript modules (CJS and ESM)
 const mainConfig = {
 	input: inputConfig,
 	output: [
-		{
-			dir: './dist/cjs/',
-			format: 'cjs',
-			preserveModules: true,
-			preserveModulesRoot: 'src',
-			sourcemap: true,
-			sourcemapPathTransform: relativeSourcePath => `/@automattic/charts/${ relativeSourcePath }`,
-		},
-		{
-			dir: './dist/mjs/',
-			format: 'esm',
-			preserveModules: true,
-			preserveModulesRoot: 'src',
-			sourcemap: true,
-		},
+		createOutputConfig( './dist/cjs/', 'cjs' ), // CommonJS for Node.js compatibility
+		createOutputConfig( './dist/mjs/', 'esm' ), // ES modules for modern bundlers
 	],
+	// Don't bundle these dependencies - expect them to be provided by the consumer
 	external: [ 'react', 'react-dom', /^@visx\/.*/, '@react-spring/web', 'clsx', 'tslib' ],
 	plugins: [
-		peerDepsExternal( { includeDependencies: true } ),
+		peerDepsExternal( { includeDependencies: true } ), // Automatically externalize peer dependencies
 		resolve( {
 			preferBuiltins: true,
-			extensions: [ '.tsx', '.ts', '.js', '.jsx' ],
+			extensions: [ '.tsx', '.ts', '.js', '.jsx' ], // Resolve these file extensions
 		} ),
-		commonjs(),
-		json(),
+		commonjs(), // Convert CommonJS modules to ES modules
+		json(), // Import JSON files as modules
 		postcss( {
-			extract: 'style.css', // extract CSS to a separate file
+			extract: 'style.css', // Extract CSS to a separate file
 			autoModules: true, // Automatically handle .module.scss as CSS modules
 			modules: true, // Enable CSS modules
 			use: [ 'sass' ], // Enable SCSS support
@@ -65,20 +68,21 @@ const mainConfig = {
 		} ),
 		typescript( {
 			tsconfig: './tsconfig.json',
-			declaration: false,
+			declaration: false, // Don't generate .d.ts files here (handled by dtsConfig)
 			sourceMap: true,
 			compilerOptions: {
-				verbatimModuleSyntax: true,
+				verbatimModuleSyntax: true, // Preserve import/export syntax exactly
 			},
 			exclude: [ 'node_modules', 'dist', '**/stories/**', '**/*.test.{ts,tsx}' ],
 		} ),
-		terser(),
+		terser(), // Minify the output
 	],
 	onwarn( warning, warn ) {
+		// Suppress circular dependency warnings (common in React component libraries)
 		if ( warning.code === 'CIRCULAR_DEPENDENCY' ) {
 			return;
 		}
-		// Suppress "use client" directive warnings from node_modules
+		// Suppress "use client" directive warnings from node_modules (Next.js related)
 		if (
 			warning.code === 'MODULE_LEVEL_DIRECTIVE' &&
 			warning.message.includes( '"use client"' ) &&
@@ -90,19 +94,19 @@ const mainConfig = {
 	},
 };
 
-// Configuration for generating TypeScript declaration files
+// Configuration for generating TypeScript declaration files (.d.ts)
+// Separate from main build to ensure clean type definitions
 const dtsConfig = {
 	input: inputConfig,
-	output: [
-		{ dir: 'dist/types/', preserveModules: true, preserveModulesRoot: 'src', format: 'es' },
-	],
+	output: createOutputConfig( 'dist/types/', 'es' ), // Use 'es' format for TypeScript declarations
 	plugins: [
 		dts( {
-			respectExternal: true,
+			respectExternal: true, // Don't bundle external types
 		} ),
 	],
-	// Don't include style imports in type definitions
+	// Don't include style imports or React types in type definitions
 	external: [ /\.scss$/, /\.css$/, 'react', /@types\/.*/, /^@visx\/.*/, 'react/jsx-runtime' ],
 };
 
+// Export both configurations - Rollup will build them in parallel
 export default defineConfig( [ mainConfig, dtsConfig ] );
