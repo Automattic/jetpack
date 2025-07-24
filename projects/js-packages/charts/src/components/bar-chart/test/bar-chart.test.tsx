@@ -466,4 +466,92 @@ describe( 'BarChart', () => {
 			expect( customTooltipRenderer ).toHaveBeenCalled();
 		} );
 	} );
+
+	describe( 'Zero Value Display', () => {
+		test( 'renders visible bars for zero values with default settings', () => {
+			renderWithTheme( {
+				zeroValueDisplay: true,
+				data: [
+					{
+						label: 'Test Series',
+						data: [
+							{ label: 'Zero', value: 0 },
+							{ label: 'Non-zero', value: 100 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
+
+			// Should have 2 bars
+			expect( bars?.length ).toBe( 2 );
+
+			// Both bars should have height > 0 (zero values get minimum height)
+			bars?.forEach( bar => {
+				const height = parseFloat( bar.getAttribute( 'height' ) || '0' );
+				expect( height ).toBeGreaterThan( 0 );
+			} );
+		} );
+
+		test( 'Does not render zero-value bars when default zeroValueDisplay is false', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Test Series',
+						data: [
+							{ label: 'Zero', value: 0 },
+							{ label: 'Non-zero', value: 100 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
+
+			// Should have 2 bars
+			expect( bars?.length ).toBe( 2 );
+
+			// Both bars should have height > 0 (zero values get minimum height)
+			const barZero = bars[ 0 ];
+			const height = parseFloat( barZero.getAttribute( 'height' ) || '0' );
+			expect( height ).toBe( 0 );
+
+			// Second bar should have height more than 0.
+			const barOne = bars[ 1 ];
+			const heightOne = parseFloat( barOne.getAttribute( 'height' ) || '0' );
+			expect( heightOne ).toBeGreaterThan( 0 );
+		} );
+
+		test( 'works correctly with horizontal orientation', () => {
+			renderWithTheme( {
+				zeroValueDisplay: true,
+				data: [
+					{
+						label: 'Test Series',
+						data: [
+							{ label: 'Zero', value: 0 },
+							{ label: 'Non-zero', value: 100 },
+						],
+						options: {},
+					},
+				],
+				orientation: 'horizontal',
+			} );
+
+			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
+
+			// Both bars should be visible in horizontal mode
+			expect( bars?.length ).toBe( 2 );
+			bars?.forEach( bar => {
+				const width = parseFloat( bar.getAttribute( 'width' ) || '0' );
+				expect( width ).toBeGreaterThan( 0 );
+			} );
+		} );
+	} );
 } );
