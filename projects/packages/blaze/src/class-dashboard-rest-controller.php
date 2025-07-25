@@ -755,7 +755,7 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_dsp_payments( $req ) {
 		$version = $req->get_param( 'api_version' ) ?? 'v1';
-		return $this->edit_dsp_generic( "{$version}/campaigns", $req, array( 'timeout' => 20 ) );
+		return $this->edit_dsp_generic( "{$version}/payments", $req, array( 'timeout' => 20 ) );
 	}
 
 	/**
