@@ -275,4 +275,11 @@ export const WithZeroValues: Story = {
 		data: dataWithZeroValues,
 		zeroValueDisplay: true,
 	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Bar chart visually displaying zero values.',
+			},
+		},
+	},
 };
