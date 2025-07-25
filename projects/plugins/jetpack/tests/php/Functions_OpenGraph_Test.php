@@ -97,6 +97,37 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	}
 
 	/**
+	 * Test Core's custom logo fallback in jetpack_og_get_image.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_jetpack_og_get_image_core_custom_logo() {
+		$default_url = jetpack_og_get_image();
+
+		// Set up Core's custom logo
+		set_theme_mod( 'custom_logo', $this->icon_id );
+
+		// Test valid-sized Core's custom logo
+		$image_url      = jetpack_og_get_image( 200, 200 );
+		$custom_logo_id = get_theme_mod( 'custom_logo' );
+		$logo_details   = wp_get_attachment_image_src( $custom_logo_id, 'full' );
+		$this->assertEquals( $logo_details[0], $image_url['src'] );
+		$this->assertEquals( $logo_details[1], $image_url['width'] );
+		$this->assertEquals( $logo_details[2], $image_url['height'] );
+
+		// Test that alt text is included
+		$this->assertArrayHasKey( 'alt_text', $image_url );
+
+		// Test smaller/invalid Core's custom logo (should fall back to default)
+		$image_url = jetpack_og_get_image( 512, 512 );
+		$this->assertNotEquals( $logo_details[0], $image_url['src'] );
+		$this->assertEquals( $default_url['src'], $image_url['src'] );
+
+		// Clean up
+		remove_theme_mod( 'custom_logo' );
+	}
+
+	/**
 	 * Test potential descriptions given to OG description.
 	 *
 	 * @dataProvider jetpack_og_get_description_data_provider

@@ -483,7 +483,27 @@ function jetpack_og_get_site_image( $width, $height ) {
 		}
 	}
 
-	// Third fall back, Core Site Icon, if valid in size.
+	// Third fall back, Core's site logo.
+	if ( has_custom_logo() ) {
+		$custom_logo_id = get_theme_mod( 'custom_logo' );
+		$sl_details     = wp_get_attachment_image_src(
+			$custom_logo_id,
+			'full'
+		);
+		if (
+			isset( $sl_details[0] ) && isset( $sl_details[1] ) && isset( $sl_details[2] )
+			&& ( _jetpack_og_get_image_validate_size( $sl_details[1], $sl_details[2], $width, $height ) )
+		) {
+			return array(
+				'src'      => $sl_details[0],
+				'width'    => $sl_details[1],
+				'height'   => $sl_details[2],
+				'alt_text' => Jetpack_PostImages::get_alt_text( $custom_logo_id ),
+			);
+		}
+	}
+
+	// Fourth fall back, Core Site Icon, if valid in size.
 	if ( has_site_icon() ) {
 		$image_id = get_option( 'site_icon' );
 		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
