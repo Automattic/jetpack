@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Update composer.lock file to remove reference to automattic/jetpack-wordads
+
+

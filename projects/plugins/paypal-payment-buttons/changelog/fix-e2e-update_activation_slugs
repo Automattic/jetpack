@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: E2E: Fix regression after changing Docker plugin slugs.
+
+
