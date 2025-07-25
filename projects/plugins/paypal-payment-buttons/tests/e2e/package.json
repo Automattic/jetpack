@@ -4,23 +4,23 @@
 	"description": "plugin--description.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Starter Plugin"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] PayPal Payment Buttons"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/plugins/starter-plugin"
+		"directory": "projects/plugins/paypal-payment-buttons"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm jetpack build plugins/starter-plugin plugins/jetpack -v --no-pnpm-install --production",
+		"build": "pnpm jetpack build plugins/paypal-payment-buttons -v --no-pnpm-install --production",
 		"clean": "rm -rf output",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./node_modules/_jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
 		"distclean": "rm -rf node_modules",
-		"env:up": "e2e-env start --activate-plugins jetpack-starter-plugin",
+		"env:up": "e2e-env start --activate-plugins paypal-payment-buttons",
 		"env:down": "e2e-env stop",
-		"env:reset": "e2e-env reset --activate-plugins jetpack-starter-plugin",
+		"env:reset": "e2e-env reset --activate-plugins paypal-payment-buttons",
 		"tunnel:up": "tunnel up",
 		"tunnel:reset": "tunnel reset",
 		"tunnel:down": "tunnel down",
@@ -36,10 +36,10 @@
 	"browserslist": [],
 	"ci": {
 		"targets": [
-			"plugins/starter-plugin",
+			"plugins/paypal-payment-buttons",
 			"tools/e2e-commons"
 		],
-		"pluginSlug": "jetpack-starter-plugin",
-		"mirrorName": "jetpack-starter-plugin"
+		"pluginSlug": "paypal-payment-buttons",
+		"mirrorName": "paypal-payment-buttons"
 	}
 }
