@@ -136,7 +136,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ providerTheme.colors ]
 	);
 
-	// Create legend items (hooks must be called in same order every render)
+	// Create legend items with color from accessors (which respects item.color)
 	const legendItems = useMemo(
 		() =>
 			data.map( ( item, index ) => ( {
@@ -147,11 +147,24 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ data, accessors ]
 	);
 
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			thickness,
+			clockwise,
+		} ),
+		[ thickness, clockwise ]
+	);
+
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'pie-semi-circle', isValid, {
-		thickness,
-		clockwise,
-	} );
+	useChartRegistration(
+		chartId,
+		legendItems,
+		providerTheme,
+		'pie-semi-circle',
+		isValid,
+		chartMetadata
+	);
 
 	if ( ! isValid ) {
 		return (
@@ -184,7 +197,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Set the clockwise direction based on the prop
 	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
 	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
-
 	return (
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
@@ -283,6 +295,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }
+					chartId={ chartId }
 				/>
 			) }
 		</div>

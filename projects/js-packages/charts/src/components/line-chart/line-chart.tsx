@@ -12,9 +12,15 @@ import {
 	useState,
 	useRef,
 } from 'react';
-import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import {
+	ChartProvider,
+	ChartContext,
+	useChartId,
+	useChartRegistration,
+} from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -332,36 +338,33 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		const error = validateData( dataSorted );
 		const isDataValid = ! error;
 
-		// Create legend items (hooks must be called in same order every render)
-		const legendItems = useMemo(
-			() =>
-				dataSorted.map( ( group, index ) => ( {
-					label: group.label, // Label for each unique group
-					value: '', // Empty string since we don't want to show a specific value
-					color:
-						group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
-					shapeStyle: group?.options?.legendShapeStyle,
-					renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-					glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
-				} ) ),
-			[
-				dataSorted,
-				providerTheme.colors,
-				providerTheme.glyphs,
-				withLegendGlyph,
+		// Memoize legend options to prevent unnecessary re-calculations
+		const legendOptions = useMemo(
+			() => ( {
+				withGlyph: withLegendGlyph,
+				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
 				renderGlyph,
-				glyphStyle?.radius,
-			]
+			} ),
+			[ withLegendGlyph, glyphStyle?.radius, renderGlyph ]
+		);
+
+		// Create legend items using the reusable hook
+		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions );
+
+		// Memoize metadata to prevent unnecessary re-registration
+		const chartMetadata = useMemo(
+			() => ( {
+				withGradientFill,
+				smoothing,
+				curveType,
+				withStartGlyphs,
+				withLegendGlyph,
+			} ),
+			[ withGradientFill, smoothing, curveType, withStartGlyphs, withLegendGlyph ]
 		);
 
 		// Register chart with context only if data is valid
-		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
-			withGradientFill,
-			smoothing,
-			curveType,
-			withStartGlyphs,
-			withLegendGlyph,
-		} );
+		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, chartMetadata );
 
 		const accessors = {
 			xAccessor: ( d: DataPointDate ) => d?.date,
@@ -514,6 +517,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							alignmentVertical={ legendAlignmentVertical }
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
+							chartId={ chartId }
 							ref={ legendRef }
 						/>
 					) }
@@ -542,11 +546,21 @@ type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
 > &
 	LineChartAnnotationComponents;
 
-const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => (
-	<ChartProvider>
-		<LineChartInternal { ...props } ref={ ref } />
-	</ChartProvider>
-) ) as LineChartComponent;
+const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => {
+	const existingContext = useContext( ChartContext );
+
+	// If we're already in a ChartProvider context, don't create a new one
+	if ( existingContext ) {
+		return <LineChartInternal { ...props } ref={ ref } />;
+	}
+
+	// Otherwise, create our own ChartProvider
+	return (
+		<ChartProvider>
+			<LineChartInternal { ...props } ref={ ref } />
+		</ChartProvider>
+	);
+} ) as LineChartComponent;
 
 LineChart.displayName = 'LineChart';
 LineChart.AnnotationsOverlay = LineChartAnnotationsOverlay;

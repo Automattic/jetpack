@@ -1,10 +1,12 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useId, useState, useRef, useMemo } from 'react';
+import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
@@ -66,9 +68,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
 	const internalChartId = useId();
 	const chartId = useChartId( providedChartId );
+	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
+
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendData( dataSorted, providerTheme );
 
 	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
@@ -222,24 +228,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const error = validateData( dataSorted );
 	const isDataValid = ! error;
 
-	// Create legend items (hooks must be called in same order every render)
-	const legendItems = useMemo(
-		() =>
-			dataSorted.map( ( group, index ) => ( {
-				label: group.label, // Label for each unique group
-				value: '', // Empty string since we don't want to show a specific value
-				color: getColor( group, index ),
-				shapeStyle: group?.options?.legendShapeStyle,
-			} ) ),
-		[ dataSorted, getColor ]
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			orientation,
+			withPatterns,
+		} ),
+		[ orientation, withPatterns ]
 	);
 
 	// Register chart with context only if data is valid
-	const providerTheme = useChartTheme();
-	useChartRegistration( chartId, legendItems, providerTheme, 'bar', isDataValid, {
-		orientation,
-		withPatterns,
-	} );
+	useChartRegistration( chartId, legendItems, providerTheme, 'bar', isDataValid, chartMetadata );
 
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
@@ -347,17 +346,28 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }
+					chartId={ chartId }
 				/>
 			) }
 		</div>
 	);
 };
 
-const BarChart: FC< BarChartProps > = props => (
-	<ChartProvider>
-		<BarChartInternal { ...props } />
-	</ChartProvider>
-);
+const BarChart: FC< BarChartProps > = props => {
+	const existingContext = useContext( ChartContext );
+
+	// If we're already in a ChartProvider context, don't create a new one
+	if ( existingContext ) {
+		return <BarChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own ChartProvider
+	return (
+		<ChartProvider>
+			<BarChartInternal { ...props } />
+		</ChartProvider>
+	);
+};
 
 BarChart.displayName = 'BarChart';
 
