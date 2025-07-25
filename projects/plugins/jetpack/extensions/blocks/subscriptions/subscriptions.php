@@ -1005,11 +1005,11 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 }
 
 /**
- * Gate access to existing comments
+ * Gate access to existing comments.
  *
- * @param string $comment The comment.
+ * @param \WP_Comment $comment The comment.
  *
- * @return string
+ * @return \WP_Comment|null
  */
 function maybe_gate_existing_comments( $comment ) {
 	if ( empty( $comment ) ) {
@@ -1020,7 +1020,8 @@ function maybe_gate_existing_comments( $comment ) {
 	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $comment;
 	}
-	return '';
+
+	return null;
 }
 
 /**
