@@ -971,4 +971,82 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			),
 		);
 	}
+
+	/**
+	 * Test validate_tier_field method with null tier (should pass).
+	 */
+	public function test_validate_tier_field_with_null_tier() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
+		$request  = new WP_REST_Request();
+
+		$reflection = new ReflectionClass( $endpoint );
+		$method     = $reflection->getMethod( 'validate_tier_field' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $endpoint, $request, null, 'tier', '1 month' );
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Test validate_tier_field method with non-tier type (should pass).
+	 */
+	public function test_validate_tier_field_with_non_tier_type() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
+		$request  = new WP_REST_Request();
+
+		$reflection = new ReflectionClass( $endpoint );
+		$method     = $reflection->getMethod( 'validate_tier_field' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $endpoint, $request, 123, 'donation', '1 month' );
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Test validate_tier_field method with monthly plan and tier (should fail).
+	 */
+	public function test_validate_tier_field_with_monthly_plan_and_tier() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
+		$request  = new WP_REST_Request();
+
+		$reflection = new ReflectionClass( $endpoint );
+		$method     = $reflection->getMethod( 'validate_tier_field' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $endpoint, $request, 123, 'tier', '1 month' );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertEquals( 'invalid_tier_usage', $result->get_error_code() );
+	}
+
+	/**
+	 * Test validate_yearly_tier method with invalid tier value.
+	 */
+	public function test_validate_yearly_tier_with_invalid_value() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
+		$request  = new WP_REST_Request();
+
+		$reflection = new ReflectionClass( $endpoint );
+		$method     = $reflection->getMethod( 'validate_yearly_tier' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $endpoint, $request, -1 );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertEquals( 'invalid_tier_id', $result->get_error_code() );
+	}
+
+	/**
+	 * Test validate_yearly_tier method with non-numeric tier.
+	 */
+	public function test_validate_yearly_tier_with_non_numeric_tier() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
+		$request  = new WP_REST_Request();
+
+		$reflection = new ReflectionClass( $endpoint );
+		$method     = $reflection->getMethod( 'validate_yearly_tier' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $endpoint, $request, 'invalid' );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertEquals( 'invalid_tier_id', $result->get_error_code() );
+	}
 }
