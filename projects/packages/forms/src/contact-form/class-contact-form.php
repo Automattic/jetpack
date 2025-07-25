@@ -495,7 +495,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Initial data used to render the success message when the page is reloaded after a successful submission
 		// Don't show the feedback details unless the nonce matches
-		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'], $form ) : null;
+		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'] ) : null;
 		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
 
@@ -923,6 +923,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			_deprecated_argument( __METHOD__, '$$next-version$$', 'The $form parameter is deprecated and no longer used.' );
 		}
 		$response = Feedback::get( $feedback_id );
+		if ( ! $response ) {
+			return array();
+		}
 		return $response->get_compiled_fields( 'ajax', 'label|value' );
 	}
 
@@ -940,6 +943,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			_deprecated_argument( __METHOD__, '$$next-version$$', 'The $form parameter is deprecated and no longer used.' );
 		}
 		$response = Feedback::get( $feedback_id );
+		if ( ! $response ) {
+			return array();
+		}
 		return $response->get_compiled_fields();
 	}
 

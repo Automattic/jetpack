@@ -531,6 +531,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$fields   = $this->get_fields_for_response( $request );
 
 		$response = Feedback::get( $item->ID );
+		if ( ! $response ) {
+			return rest_ensure_response( $data );
+		}
 
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {

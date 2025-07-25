@@ -1997,7 +1997,9 @@ class Contact_Form_Plugin {
 		foreach ( $post_ids as $post_id ) {
 			$post_export_data = array();
 			$feedback         = Feedback::get( $post_id );
-
+			if ( ! $feedback ) {
+				continue;
+			}
 			$fields             = $feedback->get_compiled_fields( 'personal_export', 'all' );
 			$post_export_data[] = array(
 				'name'  => __( 'Date', 'jetpack-forms' ),
