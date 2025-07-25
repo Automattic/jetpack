@@ -20,7 +20,7 @@ export const ConnectionNotice: FC = () => {
 						'jetpack-publicize-components'
 					) }
 					&nbsp;
-					<a href={ getMyJetpackUrl( '#/connection' ) }>
+					<a href={ getMyJetpackUrl( '&step=connect-user' ) }>
 						{ __( 'Connect now', 'jetpack-publicize-components' ) }
 					</a>
 				</p>

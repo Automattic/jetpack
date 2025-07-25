@@ -19,7 +19,7 @@ export default function useRestoreConnection() {
 
 	const { disconnectUserSuccess, setConnectionErrors } = useDispatch( STORE_ID );
 
-	const USER_CONNECTION_URL = '/wp-admin/admin.php?page=my-jetpack#/connection';
+	const USER_CONNECTION_URL = '/wp-admin/admin.php?page=my-jetpack&step=connect-user';
 
 	/**
 	 * Initiate connection restore.
