@@ -640,10 +640,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		}
 
 		foreach ( $existing_yearly_plans as $existing_plan ) {
-			if ( isset( $existing_plan['tier'] ) && $existing_plan['tier'] === $tier && '1 year' === $existing_plan['interval'] ) {
+			if ( isset( $existing_plan['tier'] ) && (string) $existing_plan['tier'] === (string) $tier && '1 year' === $existing_plan['interval'] ) {
 				// If this is an update, allow it to reference itself.
 				$product_id = $request->get_param( 'product_id' );
-				if ( ! $product_id || $existing_plan['id'] !== $product_id ) {
+				if ( ! $product_id || (string) $existing_plan['id'] !== (string) $product_id ) {
 					return new WP_Error( 'duplicate_tier_reference', __( 'Another yearly plan already references this monthly plan. Each monthly plan can only have one corresponding yearly plan.', 'jetpack' ), array( 'status' => 400 ) );
 				}
 			}
