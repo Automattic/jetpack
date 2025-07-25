@@ -1,14 +1,6 @@
-# Jetpack Starter Plugin
+# PayPal Payment Buttons
 
-Jetpack Starter Plugin plugin
-
-## How to install Jetpack Starter Plugin
-
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+This plugin provides the PayPal Payment Buttons block, which allows users to easily integrate with PayPal's payment buttons functionality.
 
 ## Security
 
@@ -16,5 +8,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-Jetpack Starter Plugin is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+PayPal Payment Buttons is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 
