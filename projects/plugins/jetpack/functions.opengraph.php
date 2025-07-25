@@ -484,7 +484,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 	}
 
 	// Third fall back, Core's site logo.
-	if ( empty( $image ) && has_custom_logo() ) {
+	if ( has_custom_logo() ) {
 		$custom_logo_id = get_theme_mod( 'custom_logo' );
 		$sl_details     = wp_get_attachment_image_src(
 			$custom_logo_id,
