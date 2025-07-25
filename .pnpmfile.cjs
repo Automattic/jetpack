@@ -98,6 +98,10 @@ async function fixDeps( pkg ) {
 			}
 		}
 
+		// Todo: Move this to wpPkgs when we update to @wordpress/components v30.
+		// We're currently on v29.12.0, so add it manually for now.
+		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
+
 		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
 		// https://github.com/WordPress/gutenberg/issues/60975
 		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
