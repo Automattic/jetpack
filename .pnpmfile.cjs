@@ -98,8 +98,7 @@ async function fixDeps( pkg ) {
 			}
 		}
 
-		// Todo: Move this to wpPkgs when we update to @wordpress/components v30.
-		// We're currently on v29.12.0, so add it manually for now.
+		// @todo Move this to wpPkgs when all indirect deps on `@wordpress/dataviews` are on v5.
 		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
 
 		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
