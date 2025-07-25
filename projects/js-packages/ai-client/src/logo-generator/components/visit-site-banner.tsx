@@ -44,7 +44,7 @@ export const VisitSiteBanner: FC< {
 						target="_blank"
 						onClick={ onVisitBlankTarget ? onVisitBlankTarget : null }
 					>
-						{ __( 'Learn more about Jetpack AI', 'jetpack-ai-client' ) }
+						<span>{ __( 'Learn more about Jetpack AI', 'jetpack-ai-client' ) }</span>
 						<Icon icon={ external } size={ 20 } />
 					</Button>
 				</div>

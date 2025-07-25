@@ -4,10 +4,3 @@
 	bottom: 0;
 	right: 0;
 }
-
-@media screen and (max-width: 640px) {
-
-	.jetpack-subscribe-floating-button {
-		display: none;
-	}
-}

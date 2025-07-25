@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.17.0",
+	"version": "0.21.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -29,7 +29,7 @@
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/mjs/index.js",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/types/index.d.ts",
 	"sideEffects": [
 		"*.css",
 		"*.scss"
@@ -39,16 +39,29 @@
 			"jetpack:src": "./src/index.ts",
 			"import": "./dist/mjs/index.js",
 			"require": "./dist/cjs/index.js",
-			"types": "./dist/index.d.ts"
+			"types": "./dist/types/index.d.ts"
 		},
-		"./components/*": {
+		"./visx/*": {
+			"jetpack:src": "./src/visx/*",
+			"import": "./dist/mjs/visx/*/index.js",
+			"require": "./dist/cjs/visx/*/index.js",
+			"types": "./dist/types/visx/*/index.d.ts"
+		},
+		"./providers/*": {
+			"jetpack:src": "./src/providers/*",
+			"import": "./dist/mjs/providers/*/index.js",
+			"require": "./dist/cjs/providers/*/index.js",
+			"types": "./dist/types/providers/*/index.d.ts"
+		},
+		"./style.css": "./dist/mjs/style.css",
+		"./*": {
+			"jetpack:src": "./src/components/*",
 			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.js"
-		},
-		"./style.css": "./dist/mjs/style.css"
+			"require": "./dist/cjs/components/*/index.js",
+			"types": "./dist/types/components/*/index.d.ts"
+		}
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "7.27.6",
 		"@react-spring/web": "9.7.5",
@@ -70,6 +83,7 @@
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
 		"deepmerge": "4.3.1",
+		"gridicons": "3.4.2",
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
@@ -95,6 +109,7 @@
 		"@types/react": "18.3.23",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
+		"@wordpress/components": "29.12.0",
 		"@wordpress/element": "6.26.0",
 		"babel-jest": "30.0.0",
 		"babel-loader": "9.1.2",

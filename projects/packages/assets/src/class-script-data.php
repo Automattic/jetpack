@@ -86,7 +86,9 @@ class Script_Data {
 
 		self::$did_render_script_data = true;
 
-		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
+		$script_data = is_admin() || self::is_authenticated_rest_request()
+			? self::get_admin_script_data()
+			: self::get_public_script_data();
 
 		if ( ! empty( $script_data ) ) {
 			$script_data = wp_json_encode(
@@ -102,6 +104,15 @@ class Script_Data {
 				wp_print_inline_script_tag( sprintf( 'window.JetpackScriptData = %s;', $script_data ) );
 			}
 		}
+	}
+
+	/**
+	 * Whether the current request is an authenticated REST API request.
+	 *
+	 * @return bool
+	 */
+	protected static function is_authenticated_rest_request() {
+		return wp_is_serving_rest_request() && current_user_can( 'read' );
 	}
 
 	/**

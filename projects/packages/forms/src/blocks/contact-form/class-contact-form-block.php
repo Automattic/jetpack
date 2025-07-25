@@ -531,6 +531,7 @@ class Contact_Form_Block {
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
 				'preferredView'        => $preferred_view,
+				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
 			),
 		);
 

@@ -5,9 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.20.1] - 2025-07-24
+### Removed
+- Admin: remove references to deprecated feature.
+
+## [5.20.0] - 2025-07-23
+### Changed
+- Connection: removed hardcoded custom errors and added support for dynamic errors. [#44281]
+- Replace static mobile app text with direct link to download page [#44366]
+- Update dependencies. [#44407]
+
+### Removed
+- Removed old onboarding global notice. [#44392]
+
+## [5.19.0] - 2025-07-21
+### Changed
+- Enable My Jetpack access on WP Multisite. [#44260]
+- Show warning for products and modules not available for multisite. [#44260]
+- Update package dependencies. [#44356]
+
 ## [5.18.0] - 2025-07-14
 ### Added
-- Added project-level `CLAUDE.md`. [#44191]
+- Add project-level `CLAUDE.md`. [#44191]
 
 ### Changed
 - Fix some issues with site disconnections. [#44196]
@@ -2243,6 +2262,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.20.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.0...5.20.1
+[5.20.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.19.0...5.20.0
+[5.19.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.18.0...5.19.0
 [5.18.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.17.4...5.18.0
 [5.17.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.17.3...5.17.4
 [5.17.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.17.2...5.17.3

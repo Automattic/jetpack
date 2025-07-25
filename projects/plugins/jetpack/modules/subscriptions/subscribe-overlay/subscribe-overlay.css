@@ -3,7 +3,7 @@ body.jetpack-subscribe-overlay-open {
 }
 
 .jetpack-subscribe-overlay {
-	--jetpack-subscribe-overlay--background-color: var(--wp--preset--color--background, var(--wp--preset--color--base, var(--wp--preset--color--contrast, #F9F9F9)));
+	--jetpack-subscribe-overlay--background-color: var(--wp--preset--color--background, var(--wp--preset--color--base, var(--wp--preset--color--contrast, #f9f9f9)));
 
 	visibility: hidden;
 	position: fixed;

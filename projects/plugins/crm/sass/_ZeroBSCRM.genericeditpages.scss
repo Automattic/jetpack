@@ -52,7 +52,7 @@ table.wh-metatab tr.wh-hr td {
 }
 
 table.wh-metatab tr.wh-hr hr {
-	border-top: 1px solid #D4DBF0;
+	border-top: 1px solid #d4dbf0;
 	border-bottom: 0;
 }
 
@@ -62,7 +62,7 @@ span.wh-info {
 	font-size: 12px;
 	padding: 4px 9px;
 	color: #000;
-	background: #CBE3EF;
+	background: #cbe3ef;
 	border-radius: 3px;
 }
 
@@ -123,12 +123,13 @@ textarea.form-control {
 	}
 
 	.jpcrm-external-source {
-    
+
 		border-top: 1px solid #e9e9e9;
 		margin-top: 5px;
 		padding-top: 4px;
 
-		// here we add extra padding because woo ext sources can have view order buttons
+		// here we add extra padding because woo ext sources
+		// can have view order buttons
 		.jpcrm-ext-source-woo-order {
 			padding-top: 5px;
 			padding-bottom: 5px;
@@ -195,7 +196,7 @@ textarea.form-control {
 	max-width: 700px;
 	margin-left: auto;
 	margin-right: auto;
-    
+
 }
 
 
@@ -243,7 +244,7 @@ textarea.form-control {
 
 }
 
-// edit pages radio custom fields 
+// edit pages radio custom fields
 .zbs-field-radio-wrap {
 
 	.zbs-radio:first-of-type {
@@ -271,7 +272,7 @@ textarea.form-control {
 		line-height: 17px;
 		min-width: 17px;
 
-		// good if these match the above checkbox labels ^^ 
+		// good if these match the above checkbox labels ^^
 		label {
 			font-size: 16px !important;
 			color: #555;

@@ -12,9 +12,15 @@ import {
 	useState,
 	useRef,
 } from 'react';
-import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import {
+	ChartProvider,
+	ChartContext,
+	useChartId,
+	useChartRegistration,
+} from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -25,7 +31,8 @@ import LineChartAnnotation from './line-chart-annotation';
 import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
 import { LineChartContext, type LineChartRef } from './line-chart-context';
 import styles from './line-chart.module.scss';
-import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
+import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type { ResponsiveConfig } from '../shared/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
@@ -331,36 +338,33 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		const error = validateData( dataSorted );
 		const isDataValid = ! error;
 
-		// Create legend items (hooks must be called in same order every render)
-		const legendItems = useMemo(
-			() =>
-				dataSorted.map( ( group, index ) => ( {
-					label: group.label, // Label for each unique group
-					value: '', // Empty string since we don't want to show a specific value
-					color:
-						group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
-					shapeStyle: group?.options?.legendShapeStyle,
-					renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-					glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
-				} ) ),
-			[
-				dataSorted,
-				providerTheme.colors,
-				providerTheme.glyphs,
-				withLegendGlyph,
+		// Memoize legend options to prevent unnecessary re-calculations
+		const legendOptions = useMemo(
+			() => ( {
+				withGlyph: withLegendGlyph,
+				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
 				renderGlyph,
-				glyphStyle?.radius,
-			]
+			} ),
+			[ withLegendGlyph, glyphStyle?.radius, renderGlyph ]
+		);
+
+		// Create legend items using the reusable hook
+		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions );
+
+		// Memoize metadata to prevent unnecessary re-registration
+		const chartMetadata = useMemo(
+			() => ( {
+				withGradientFill,
+				smoothing,
+				curveType,
+				withStartGlyphs,
+				withLegendGlyph,
+			} ),
+			[ withGradientFill, smoothing, curveType, withStartGlyphs, withLegendGlyph ]
 		);
 
 		// Register chart with context only if data is valid
-		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
-			withGradientFill,
-			smoothing,
-			curveType,
-			withStartGlyphs,
-			withLegendGlyph,
-		} );
+		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, chartMetadata );
 
 		const accessors = {
 			xAccessor: ( d: DataPointDate ) => d?.date,
@@ -513,6 +517,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							alignmentVertical={ legendAlignmentVertical }
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
+							chartId={ chartId }
 							ref={ legendRef }
 						/>
 					) }
@@ -524,18 +529,38 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 	}
 );
 
-type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartProps & React.RefAttributes< LineChartRef >
-> & {
+type LineChartAnnotationComponents = {
 	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
 	Annotation: typeof LineChartAnnotation;
 };
 
-const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => (
-	<ChartProvider>
-		<LineChartInternal { ...props } ref={ ref } />
-	</ChartProvider>
-) ) as LineChartComponent;
+type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
+
+type LineChartComponent = React.ForwardRefExoticComponent<
+	LineChartBaseProps & React.RefAttributes< LineChartRef >
+> &
+	LineChartAnnotationComponents;
+
+type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< LineChartRef >
+> &
+	LineChartAnnotationComponents;
+
+const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => {
+	const existingContext = useContext( ChartContext );
+
+	// If we're already in a ChartProvider context, don't create a new one
+	if ( existingContext ) {
+		return <LineChartInternal { ...props } ref={ ref } />;
+	}
+
+	// Otherwise, create our own ChartProvider
+	return (
+		<ChartProvider>
+			<LineChartInternal { ...props } ref={ ref } />
+		</ChartProvider>
+	);
+} ) as LineChartComponent;
 
 LineChart.displayName = 'LineChart';
 LineChart.AnnotationsOverlay = LineChartAnnotationsOverlay;
@@ -544,9 +569,12 @@ LineChart.Annotation = LineChartAnnotation;
 // Export unwrapped component for testing
 export { LineChart as LineChartUnresponsive };
 
-const ResponsiveLineChart = Object.assign( withResponsive< LineChartProps >( LineChart ), {
-	AnnotationsOverlay: LineChartAnnotationsOverlay,
-	Annotation: LineChartAnnotation,
-} );
+const ResponsiveLineChart: LineChartResponsiveComponent = Object.assign(
+	withResponsive< LineChartProps >( LineChart ) as LineChartResponsiveComponent,
+	{
+		AnnotationsOverlay: LineChartAnnotationsOverlay,
+		Annotation: LineChartAnnotation,
+	}
+);
 
 export default ResponsiveLineChart;

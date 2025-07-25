@@ -1,7 +1,7 @@
-@use 'sass:color';
-@use 'sass:meta';
-@use 'sass:string';
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "sass:color";
+@use "sass:meta";
+@use "sass:string";
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 //Set the default values
 $jetpack-audio-player-primary: gb.$black;
@@ -127,11 +127,11 @@ $gutter-m: 15px !default;
 	 */
 	@function encodecolor( $string ) {
 
-		@if meta.type-of( $string ) == 'color' {
+		@if meta.type-of( $string ) == "color" {
 			$hex: string.slice(color.ie-hex-str($string), 4);
-			$string: string.unquote('#{$hex}');
+			$string: string.unquote("#{$hex}");
 		}
-		$string: '%23' + $string;
+		$string: "%23" + $string;
 
 		@return $string;
 	}
@@ -175,7 +175,7 @@ $gutter-m: 15px !default;
 			// Using mask on the :before pseudo to prevent it from covering the outline
 			&::before {
 				display: block;
-				content: '';
+				content: "";
 				width: 100%;
 				height: 100%;
 				background-color: var(--jetpack-audio-player-primary);

@@ -1,8 +1,8 @@
 @use "../../scss/mixins/breakpoints";
 @use "../../scss/typography";
 @use "../../scss/variables/colors";
-@use 'sass:color';
-@use '../../scss/functions/rem';
+@use "sass:color";
+@use "../../scss/functions/rem";
 
 .jp-dash-section-header {
 	display: flex;

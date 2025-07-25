@@ -43,6 +43,26 @@ class Jwt_Test extends TestCase {
 		$this->assertEquals( $payload['iss'], $decoded->iss );
 		$this->assertEquals( $payload['sub'], $decoded->sub );
 	}
+	/**
+	 * Test that the JWT class has a method to encode a token.
+	 */
+	public function test_jwt_encode_decode_array() {
+		$secret  = '1234567890abcdef1234567890abcdef'; // Example secret key
+		$payload = array(
+			'howdy' => 'world',
+			'iss'   => 'https://example.com',
+			'sub'   => '1234567890',
+		);
+		$jwt     = JWT::encode( $payload, $secret, 'HS256' );
+		$decoded = JWT::decode( $jwt, $secret, array( 'HS256' ), true );
+
+		$this->assertNotEmpty( $jwt );
+		$this->assertIsString( $jwt );
+		$this->assertIsArray( $decoded );
+		$this->assertEquals( $payload['howdy'], $decoded['howdy'] );
+		$this->assertEquals( $payload['iss'], $decoded['iss'] );
+		$this->assertEquals( $payload['sub'], $decoded['sub'] );
+	}
 
 	/**
 	 * Test that the JWT class has a method to encode a token.

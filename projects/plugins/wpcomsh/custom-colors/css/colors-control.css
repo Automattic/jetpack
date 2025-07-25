@@ -40,7 +40,7 @@
 .color-grid.main li {
 	height: 55px;
 	width: 55px;
-	background-image: radial-gradient(center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80%);
+	background-image: radial-gradient(center top, circle farthest-side, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 80%);
 	background-position: center center;
 	background-size: cover;
 	border: 2px solid #fff;
@@ -128,7 +128,7 @@
 
 .color-grid .unavailable::before {
 	color: #fff;
-	content: '\f406';
+	content: "\f406";
 	font-family: Noticons;
 	font-size: 21px;
 	opacity: 0.4;
@@ -281,7 +281,7 @@ a.revert {
 }
 
 #the-bg-picker-prompt::after {
-	content: '.';
+	content: ".";
 	display: block;
 	height: 0;
 	clear: both;
@@ -389,7 +389,7 @@ a.revert {
 
 /* Theme featured palettes */
 .colour-lovers.featured::before {
-	content: 'Featured';
+	content: "Featured";
 	background: #000;
 	color: #fff;
 	display: block;
@@ -443,7 +443,7 @@ a.revert {
 }
 
 #colourlovers-patterns::after {
-	content: '.';
+	content: ".";
 	display: block;
 	height: 0;
 	clear: both;
@@ -775,7 +775,7 @@ input#iris {
 	width: 100%;
 	border-bottom: none;
 	background-color: transparent;
-	padding-top: 20px
+	padding-top: 20px;
 }
 
 .color-grid.main li {

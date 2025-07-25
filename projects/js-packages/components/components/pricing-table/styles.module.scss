@@ -31,7 +31,7 @@
 			position: relative;
 
 			&::after {
-				content: '';
+				content: "";
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -73,7 +73,7 @@
 		padding-top: calc(var(--spacing-base) * 2);
 
 		&::before {
-			content: '';
+			content: "";
 			position: absolute;
 			top: 0;
 			left: var(--padding);
@@ -88,7 +88,8 @@
 			z-index: 5;
 			background-color: var(--jp-gray);
 
-			// Last pricing column doesn't have any grid gap on the right. So override the default width specified above.
+			// Last pricing column doesn't have any grid gap on the right, so
+			// override the default width specified above.
 			.is-viewport-large .table > :last-child & {
 				width: 100%;
 			}

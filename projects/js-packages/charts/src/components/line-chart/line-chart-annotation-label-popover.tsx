@@ -1,5 +1,5 @@
-import { Gridicon } from '@automattic/jetpack-components';
 import clsx from 'clsx';
+import Gridicon from 'gridicons';
 import { useEffect, useId, useRef, useState } from 'react';
 import { isSafari } from '../shared/utils';
 import styles from './line-chart.module.scss';

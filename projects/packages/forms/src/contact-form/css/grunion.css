@@ -3,7 +3,7 @@
 	--jetpack--contact-form--border-color: #8c8f94;
 	--jetpack--contact-form--border-size: 1px;
 	--jetpack--contact-form--border-style: solid;
-	--jetpack--contact-form--border-radius: 0;
+	--jetpack--contact-form--border-radius: 0px;
 	--jetpack--contact-form--input-padding: 16px;
 	--jetpack--contact-form--font-size: 16px;
 	--jetpack--contact-form--error-color: #b32d2e;
@@ -395,7 +395,8 @@
 	}
 }
 
-/** For the "Empty Spam" button on /wp-admin/edit.php?post_status=spam&post_type=feedback **/
+/** For the "Empty Spam" button on
+/wp-admin/edit.php?post_status=spam&post_type=feedback */
 .jetpack-empty-spam-container {
 	display: inline-block;
 }
@@ -409,7 +410,7 @@
 	margin-top: 7px;
 }
 
-/* Make sure the set height of the Spacer block nested inside the Contact Form block is respected */
+/* Respect set height of Spacer block nested inside Contact Form block */
 .wp-block-jetpack-contact-form .wp-block-spacer {
 	width: 100%;
 }
@@ -418,8 +419,8 @@
 	position: relative;
 
 	/*
-	 * Remove padding set on .grunion-field. We want the nested input to have no space around it.
-	 * Instead the padding is added to the `select` element itself.
+	 * Remove padding set on .grunion-field. We want the nested input to have no
+	 * space around it. Instead padding is added to the `select` element itself.
 	 */
 	padding: 0;
 }
@@ -443,8 +444,9 @@
 
 	/*
 	 * The translateY is to center the arrow vertically.
-	 * It's set to -75% to account for the fact that only the bottom-half of the element is visible.
-	 * If we set it to -50%, the element would be centered, but not the visible part of the arrow.
+	 * It's set to -75% to account for the fact that only the bottom-half of the
+	 * element is visible. If we set it to -50%, the element would be centered,
+	 * but not the visible part of the arrow.
 	 */
 	transform: translateY(-75%) rotate(45deg);
 	transform-origin: center center;
@@ -485,8 +487,9 @@
 	z-index: 1;
 
 	/*
-	 * Remove border width from select element, border should be added by the wrapper.
-	 * Radius is retained to ensure the select element has the same radius as the wrapper.
+	 * Remove border width from select element, border should be added
+	 * by the wrapper. Radius is retained to ensure the select element
+	 * has the same radius as the wrapper.
 	 */
 	border-width: 0 !important;
 }
@@ -506,7 +509,8 @@
 .contact-form .is-style-animated .grunion-field-wrap {
 
 	/*
-	 * This is duplicated in class-contact-form-field.php, does it need to be set here? This might be back compat for shortcodes.
+	 * This is duplicated in class-contact-form-field.php. Does it
+	 * need to be set here? This might be back compat for shortcodes.
 	 */
 	--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 }
@@ -522,7 +526,7 @@
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
 	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
-	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)))
+	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)));
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label {
@@ -558,7 +562,7 @@
 
 	/*
 	 * This is required to ensure the color is not overridden by the global styles.
-	 * See the selector in class-contact-form-block.php for 'jetpack/input' registration.
+	 * See selector in class-contact-form-block.php for jetpack/input registration.
 	 */
 	color: unset !important;
 }
@@ -619,7 +623,8 @@
 	background-color: var(--jetpack--contact-form--input-background);
 }
 
-/* Preserve the background color for the checkbox multiple and radio wrap when using the old checkbox multiple and radio blocks. */
+/* Preserve the background color for the checkbox multiple and radio
+ * wrap when using the old checkbox multiple and radio blocks. */
 .contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap:not(.wp-block-jetpack-field-checkbox-multiple),
 .contact-form .is-style-outlined .grunion-field-radio-wrap:not(.wp-block-jetpack-field-radio) {
 	background-color: var(--jetpack--contact-form--input-background);
@@ -707,7 +712,9 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(-50%);
 }
 
-/* Form that upgrade to use inner blocks look to the global styles border size accessible via the CSS vars. See Contact_Form_Field::get_form_variation_style_properties() .*/
+/* Form that upgrade to use inner blocks look to the global styles
+ * border size accessible via the CSS vars.
+ * See Contact_Form_Field::get_form_variation_style_properties() .*/
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
@@ -732,7 +739,8 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .grunion-label-required {
 
 	/*
-	 * The font size should be 85% of the label font size, which is reduced separately to 0.8em for this focused style.
+	 * The font size should be 85% of the label font size, which is
+	 * reduced separately to 0.8em for this focused style.
 	 * 0.85 * 0.8 = 0.68em.
 	 */
 	font-size: 0.68em;
@@ -838,13 +846,15 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	/*
 	 * The required text is always 85% of the label font size.
-	 * The label font size is reduced to 0.75em in a separate rule, so that needs to be accounted for.
+	 * The label font size is reduced to 0.75em in a separate
+	 * rule, so that needs to be accounted for.
 	 * 0.85 * 0.75 = 0.6375em.
 	 */
 	font-size: 0.6375em;
 }
 
-/* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
+/* The following is scoped by the presence of the custom font size
+ * CSS var to avoid needing conditional fallback within the var() */
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:focus),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-value),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-placeholder),
@@ -859,7 +869,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(0);
 }
 
-/* Ensure that the outlined field is not hidden by the absolutely positioned label */
+/* Ensure the outlined field is not hidden by the absolutely positioned label */
 .contact-form .is-style-outlined .grunion-field:not(.contact-form__select-wrapper) {
 	z-index: 1;
 }
@@ -875,7 +885,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin: 0;
 }
 
-/* fields with multiple options - not .wp-block-jetpack-options because the inner blocks introduce new markup */
+/* fields with multiple options - not .wp-block-jetpack-options
+ * because the inner blocks introduce new markup */
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options:not(.wp-block-jetpack-options),
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options:not(.wp-block-jetpack-options) {
 	padding-top: 8px;
@@ -901,7 +912,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
 .contact-form :where(.grunion-radio-options .contact-form-field) {
 
-	/* Back compat for the old css vars used in the old radio and checkbox styles */
+	/* Back compat for old css vars used in the old radio and checkbox styles */
 	font-size: var(--jetpack--contact-form--font-size);
 }
 
@@ -911,8 +922,9 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	box-sizing: border-box;
 
-	/* Inherit the font size from the parent element. This allows the input to scale with the font size
-	   set from global styles or from block styles */
+	/* Inherit the font size from the parent element.
+	 * This allows the input to scale with the font size
+	 * set from global styles or from block styles */
 	font-size: inherit;
 	width: 1em;
 	height: 1em;
@@ -934,8 +946,9 @@ on production builds, the attributes are being reordered, causing side-effects
 	content: "\2713";
 	position: absolute;
 
-	/* Inherit the font size from the parent element. This allows the input to scale with the font size
-	   set from global styles or from block styles */
+	/* Inherit the font size from the parent element.
+	 * This allows the input to scale with the font size
+	 * set from global styles or from block styles */
 	font-size: inherit;
 	top: calc(1em / 2);
 	left: calc(1em / 2);
@@ -950,10 +963,11 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .grunion-field-wrap input.radio:checked::before {
 	background: currentColor;
 	border-radius: 50%;
-	content: '';
+	content: "";
 
-	/* Inherit the font size from the parent element. This allows the input to scale with the font size
-	   set from global styles or from block styles */
+	/* Inherit the font size from the parent element.
+	 * This allows the input to scale with the font size
+	 * set from global styles or from block styles */
 	font-size: inherit;
 	height: calc(1em / 2);
 	width: calc(1em / 2);
@@ -1015,7 +1029,8 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple {
 
 	/*
-	* Options typically have a transform applied to line the checkbox/radio with the label.
+	* Options typically have a transform applied to
+	* line the checkbox/radio with the label.
 	* This is not needed for the button style.
 	*/
 	transform: unset !important;
@@ -1032,7 +1047,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-color: currentColor;
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	box-sizing: initial;
-	content: '';
+	content: "";
 	display: block;
 	height: 100%;
 	left: calc(var(--jetpack--contact-form--button-outline--border-size) * -1);

@@ -2,7 +2,7 @@
 /**
  * PayPal Payment Buttons block.
  *
- * @since $$next-version$$
+ * @since 14.9
  *
  * @package automattic/jetpack
  */

@@ -1,8 +1,8 @@
-@use '../../scss/functions/rem';
-@use '../../scss/calypso-colors';
-@use '../../scss/mixin_breakpoint';
-@use '../../scss/typography';
-@use '../../scss/variables/colors';
+@use "../../scss/functions/rem";
+@use "../../scss/calypso-colors";
+@use "../../scss/mixin_breakpoint";
+@use "../../scss/typography";
+@use "../../scss/variables/colors";
 
 .jp-product-card {
 	position: relative;
@@ -14,11 +14,11 @@
 	border: 1px solid calypso-colors.$gray-lighten-20;
 	border-radius: 4px;
 
-	@include mixin_breakpoint.breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		padding: 40px 48px 60px;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		padding-top: 60px;
 	}
 }
@@ -35,7 +35,7 @@
 	margin-bottom: 24px;
 	display: none;
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		display: block;
 	}
 }
@@ -203,32 +203,32 @@
 	height: auto;
 	margin-top: 36px;
 
-	@include mixin_breakpoint.breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( ">480px" ) {
 		display: block;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		min-width: 240px;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		margin-top: 0;
 	}
 }
 
 .jp-product-card--has-media {
 
-	@include mixin_breakpoint.breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( ">480px" ) {
 		display: block;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		display: grid;
 		grid-template-columns: 55% 45%;
 		column-gap: 26px;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>1040px' ) {
+	@include mixin_breakpoint.breakpoint( ">1040px" ) {
 		grid-template-columns: auto auto;
 	}
 

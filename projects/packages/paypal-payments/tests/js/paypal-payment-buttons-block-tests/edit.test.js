@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 
+// Mock Jetpack script data
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isWpcomPlatformSite: jest.fn( () => false ), // Default to WordPress.org for tests
+} ) );
+
 // Mock WordPress dependencies
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
@@ -62,8 +67,6 @@ jest.mock( '@wordpress/components', () => ( {
 	},
 	__experimentalToggleGroupControlOption: () => null, // We're not using the actual implementation
 	__experimentalText: ( { children } ) => <span data-testid="experimental-text">{ children }</span>,
-	__experimentalItemGroup: ( { children } ) => <div data-testid="item-group">{ children }</div>,
-	__experimentalItem: ( { children } ) => <div data-testid="item">{ children }</div>,
 	SVG: props => <svg { ...props } />,
 	Path: props => <path { ...props } />,
 } ) );
@@ -155,6 +158,9 @@ describe( 'Edit', () => {
 		fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			buttonType: 'single',
+			scriptSrc: '',
+			buttonText: '',
+			hostedButtonId: '',
 		} );
 	} );
 
@@ -323,60 +329,140 @@ describe( 'Edit', () => {
 		} );
 	} );
 
-	it( 'renders external link to PayPal buttons page', () => {
+	it( 'renders external links to PayPal signup and login pages for WordPress.org', () => {
 		render( <Edit { ...defaultProps } /> );
-		const link = screen.getByTestId( 'external-link' );
-		expect( link ).toBeInTheDocument();
-		expect( link ).toHaveAttribute( 'href', 'https://www.paypal.com/buttons/' );
-		expect( link ).toHaveTextContent( 'Go to PayPal to get your button code' );
+		const links = screen.getAllByTestId( 'external-link' );
+		expect( links ).toHaveLength( 2 );
+
+		// Check signup link
+		expect( links[ 0 ] ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp_org&at_code=wp_org'
+		);
+		expect( links[ 0 ] ).toHaveTextContent( 'Sign up' );
+
+		// Check login link
+		expect( links[ 1 ] ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/ncp/buttons/create?utm_source=wp_org&at_code=wp_org'
+		);
+		expect( links[ 1 ] ).toHaveTextContent( 'log in' );
+	} );
+
+	it( 'renders external links to PayPal signup and login pages for WordPress.com', () => {
+		// Mock WordPress.com platform
+		const { isWpcomPlatformSite } = require( '@automattic/jetpack-script-data' );
+		isWpcomPlatformSite.mockReturnValue( true );
+
+		render( <Edit { ...defaultProps } /> );
+		const links = screen.getAllByTestId( 'external-link' );
+		expect( links ).toHaveLength( 2 );
+
+		// Check signup link
+		expect( links[ 0 ] ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp_com&at_code=wp_com'
+		);
+		expect( links[ 0 ] ).toHaveTextContent( 'Sign up' );
+
+		// Check login link
+		expect( links[ 1 ] ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/ncp/buttons/create?utm_source=wp_com&at_code=wp_com'
+		);
+		expect( links[ 1 ] ).toHaveTextContent( 'log in' );
+
+		// Reset mock
+		isWpcomPlatformSite.mockReturnValue( false );
 	} );
 
 	describe( 'Instruction Elements', () => {
-		it( 'renders instruction text with strong tag', () => {
+		it( 'renders simplified instruction text', () => {
 			render( <Edit { ...defaultProps } /> );
 			const instructionText = screen.getByTestId( 'experimental-text' );
 			expect( instructionText ).toBeInTheDocument();
-			expect( instructionText ).toHaveTextContent( 'Instructions:' );
+			expect( instructionText ).toHaveTextContent( 'Sign up' );
+			expect( instructionText ).toHaveTextContent( 'or' );
+			expect( instructionText ).toHaveTextContent( 'log in' );
+			expect( instructionText ).toHaveTextContent( 'to PayPal to get your Payment Button code.' );
 		} );
+	} );
 
-		it( 'renders item group with three instruction items', () => {
-			render( <Edit { ...defaultProps } /> );
-			const itemGroup = screen.getByTestId( 'item-group' );
-			expect( itemGroup ).toBeInTheDocument();
-
-			const items = screen.getAllByTestId( 'item' );
-			expect( items ).toHaveLength( 3 );
-		} );
-
-		it( 'renders correct instruction items for stacked buttons', () => {
-			render( <Edit { ...defaultProps } /> );
-			const items = screen.getAllByTestId( 'item' );
-
-			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your button code' );
-			expect( items[ 1 ] ).toHaveTextContent(
-				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
-			);
-			expect( items[ 2 ] ).toHaveTextContent( '3. Paste the code below.' );
-		} );
-
-		it( 'renders correct instruction items for single button type', () => {
+	describe( 'Parameter Clearing on Button Type Toggle', () => {
+		it( 'clears all parameters when switching from stacked to single', () => {
+			const setAttributes = jest.fn();
 			render(
 				<Edit
 					attributes={ {
-						...defaultProps.attributes,
-						buttonType: 'single',
+						buttonType: 'stacked',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: '',
 					} }
-					setAttributes={ defaultProps.setAttributes }
+					setAttributes={ setAttributes }
 					isSelected={ true }
 				/>
 			);
-			const items = screen.getAllByTestId( 'item' );
 
-			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your button code' );
-			expect( items[ 1 ] ).toHaveTextContent(
-				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
+			fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'single',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
+		} );
+
+		it( 'clears all parameters when switching from single to stacked', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'single',
+						scriptSrc: '',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: 'Pay Now',
+					} }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
 			);
-			expect( items[ 2 ] ).toHaveTextContent( '3. Paste the code below.' );
+
+			fireEvent.click( screen.getByTestId( 'toggle-option-stacked' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'stacked',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
+		} );
+
+		it( 'clears all parameters when switching to the same type', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ {
+						buttonType: 'stacked',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'ABC123DEF',
+						buttonText: '',
+					} }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			fireEvent.click( screen.getByTestId( 'toggle-option-stacked' ) ); // eslint-disable-line testing-library/prefer-user-event
+
+			// Should clear all parameters even when switching to the same type
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonType: 'stacked',
+				scriptSrc: '',
+				buttonText: '',
+				hostedButtonId: '',
+			} );
 		} );
 	} );
 
