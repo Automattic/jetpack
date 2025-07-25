@@ -550,6 +550,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 					// Check for duplicate tier usage - only one yearly plan should reference a specific monthly plan.
 					$existing_yearly_plans = Memberships_Product::get_product_list( get_current_blog_id(), 'tier', null, false );
+					if ( is_wp_error( $existing_yearly_plans ) ) {
+						return new WP_Error( 'product_list_error', __( 'Could not retrieve existing products to check for duplicate tier references.', 'jetpack' ), array( 'status' => 500 ) );
+					}
 					foreach ( $existing_yearly_plans as $existing_plan ) {
 						if ( isset( $existing_plan['tier'] ) && $existing_plan['tier'] === $tier && '1 year' === $existing_plan['interval'] ) {
 							// If this is an update, allow it to reference itself.
