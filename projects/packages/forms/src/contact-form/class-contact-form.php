@@ -437,6 +437,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_enqueue_script( 'accessible-form' );
 		}
 
+		$config = array(
+			'error_types'    => array(
+				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
+				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
+				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
+				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
+			),
+			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
+		);
+		wp_interactivity_config( 'jetpack/form', $config );
+		\wp_enqueue_script_module(
+			'jp-forms-view',
+			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			\JETPACK__VERSION
+		);
+
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
 		$container_classes[]      = self::get_block_alignment_class( $attributes );
 		$container_classes_string = implode( ' ', $container_classes );

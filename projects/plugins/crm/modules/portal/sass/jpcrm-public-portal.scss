@@ -6,13 +6,13 @@
  *
  * Date: 22/08/22
  */
-  
+
 // theme compatibility fixes
-@use '../../../sass/ZeroBSCRM.ThemeCompat';
+@use "../../../sass/ZeroBSCRM.ThemeCompat";
 
 // Import JS CSS vars
-@use '../../../sass/emerald/jp_vars';
- 
+@use "../../../sass/emerald/jp_vars";
+
 .zbs-client-portal-wrap {
 	position: relative;
 	min-height: 650px !important;
@@ -70,7 +70,7 @@
 		max-width: 50%;
 		height: 100px;
 	}
-	// alerts, e.g. admin 'viewing as user' 
+	// alerts, e.g. admin 'viewing as user'
 	.alert {
 		margin: 2em;
 		background: #38b6dc;
@@ -87,7 +87,7 @@
 			text-decoration: underline;
 		}
 	}
-  
+
 	.container {
 		width: 100%;
 		margin-left: auto;
@@ -108,7 +108,7 @@
 .zbs-client-portal-pro-note {
 	background: #000;
 	text-align: center;
-	color: #FFF;
+	color: #fff;
 	padding: 1em;
 	margin: 2em;
 	font-family: helvetica, sans-serif;
@@ -121,7 +121,7 @@
 	}
 
 	a {
-		color: #FFF !important;
+		color: #fff !important;
 		font-weight: 800;
 	}
 
@@ -145,7 +145,7 @@
 
 .zbs_alert {
 	padding: 10px;
-	background: #8BC34A;
+	background: #8bc34a;
 	color: #fff;
 	display: block;
 	text-align: center;
@@ -183,7 +183,7 @@
 			font-weight: 400;
 		}
 	}
-	// edit pages radio custom fields 
+	// edit pages radio custom fields
 	.zbs-field-radio-wrap {
 		// overall padding margin: 0.5em 1em 1em;
 		text-align: left;
@@ -205,7 +205,8 @@
 		}
 	}
 
-	/* Few tweaks as provided by Alvaro in slack ... wh selectively added those which made sense for multi-theme userbase JIRA-ZBS-531 */
+	/* Few tweaks as provided by Alvaro in slack ... wh selectively added
+	 * those which made sense for multi-theme userbase JIRA-ZBS-531 */
 	.zbs-portal-login .login-form input[type="text"],
 	.zbs-portal-login .login-form input[type="password"],
 	.form-control.widetext,
@@ -265,7 +266,7 @@
 		margin: auto;
 		margin-bottom: 50px;
 		margin-top: 20px;
-    
+
 		input[type="text"],
 		input[type="password"] {
 			width: 100%;
@@ -321,7 +322,7 @@
 }
 
 .zbs-single-invoice-portal {
- 
+
 	.zbs-invoice-pull-left {
 		float: left;
 		width: 50%;
@@ -373,18 +374,14 @@
 	}
 
 	.zbs-invoice-portal-inner .zbs-invoice-box table,
- 
 	.zbs-invoice-portal-inner .zbs-invoice-box td,
- 
 	.zbs-invoice-portal-inner .zbs-invoice-box th {
 		table-layout: auto;
 		border: none;
 	}
 
 	.zbs-invoice-portal-inner .zbs-invoice-box table .dz,
- 
 	.zbs-invoice-portal-inner .zbs-invoice-box td .dz,
- 
 	.zbs-invoice-portal-inner .zbs-invoice-box th .dz {
 		font-size: 13px;
 		font-style: italic;
@@ -482,14 +479,14 @@
 }
 
 .zerobs-proposal-poweredby {
-	margin-top: 2em
+	margin-top: 2em;
 }
 
-//hide the title from the Portal Page 
+//hide the title from the Portal Page
 .entry-title {
 	display: none !important;
 }
-//for the invoice hashes. No portal nav for these. 
+//for the invoice hashes. No portal nav for these.
 .fullW {
 	width: 100% !important;
 }
@@ -513,10 +510,10 @@
 	overflow: auto;
 
 	@media (min-width: 1100px) {
-		// puts the menu in the first column (1fr) and content in the second column in large screens
+		// menu in the first column, content in the second column on large screens
 		grid-template-columns: 1fr 3fr;
 
-		// forces the main/second address field to show in two columns (avoids wrapping)
+		// forces the main/second address field to show in two columns (no wrapping)
 		.zbs-multi-group-wrap {
 			display: flex;
 			flex-wrap: nowrap;
@@ -552,12 +549,12 @@
 			}
 
 			tr {
-				border: 1px solid rgba(0, 0, 0, .2);
+				border: 1px solid rgba(0, 0, 0, 0.2);
 			}
 
 			td {
 				border: none;
-				border-bottom: 1px solid rgba(0, 0, 0, .1);
+				border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 				position: relative;
 				padding-left: 50%;
 			}
@@ -582,7 +579,7 @@
 	.zbs-multi-group-item {
 		margin-bottom: 30px;
 		padding: 10px;
-		border-left: 5px solid rgba(0, 0, 0, .1);
+		border-left: 5px solid rgba(0, 0, 0, 0.1);
 	}
 
 	.zerobs-proposal-body {
@@ -604,7 +601,7 @@
 
 	#zbs-nav-tabs li {
 		list-style: none;
-		border: 1px solid rgba(0, 0, 0, .1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
 		border-bottom-width: 0;
 		white-space: nowrap;
 	}
@@ -615,11 +612,11 @@
 
 	#zbs-nav-tabs a {
 		display: block;
-		padding: .5em 1em;
+		padding: 0.5em 1em;
 	}
 
 	#zbs-nav-tabs .fa {
-		margin-right: .5em;
+		margin-right: 0.5em;
 	}
 
 	.zbs-portal-content .alert {
@@ -627,7 +624,7 @@
 		background: var(--jp-green-20);
 		text-align: center;
 		padding: 1em;
-		border-radius: .5em;
+		border-radius: 0.5em;
 	}
 
 	.zbs-portal-content .alert a {
@@ -737,7 +734,6 @@ i.icon.child::before {
 }
 
 .client-portal-file-upload,
- 
 .client-portal-file-upload-remove {
 	border: 1px solid #ccc;
 	display: inline-block !important;
@@ -747,7 +743,6 @@ i.icon.child::before {
 }
 
 .client-portal-file-upload:hover,
- 
 .client-portal-file-upload-remove:hover {
 	border: 1px solid #999;
 }

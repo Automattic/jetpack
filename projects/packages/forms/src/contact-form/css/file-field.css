@@ -61,7 +61,7 @@
 
 .jetpack-form-file-field__dropzone.is-dropping {
 	cursor: pointer;
-	transition: .2s;
+	transition: 0.2s;
 	opacity: 1;
 	filter: invert(0.1);
 }
@@ -133,7 +133,7 @@
 
 	.jetpack-form-file-field__preview-wrap.is-active .jetpack-form-file-field__preview {
 		opacity: 0;
-		animation: jpShowFileField 0.35s cubic-bezier(.21, 1.02, .73, 1) forwards;
+		animation: jpShowFileField 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
 	}
 
 	/* Animation for the fade out effect */
@@ -143,7 +143,7 @@
 }
 
 .jetpack-form-file-field__preview::before {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -209,7 +209,7 @@
 .jetpack-form-file-field__remove::after {
 	position: absolute;
 	left: 16px;
-	content: ' ';
+	content: " ";
 	height: 18px;
 	width: 1px;
 	top: 7px;
@@ -232,12 +232,12 @@
 }
 
 .jetpack-form-file-field__image {
-	content: '';
+	content: "";
 	aspect-ratio: 1 / 1;
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
-	outline: 1 solid var(--jetpack--contact-form--button-primary--text-color, #FFF);
+	outline: 1 solid var(--jetpack--contact-form--button-primary--text-color, #fff);
 	background-color: var(--jetpack--contact-form--border-color, #333);
 	border-radius: 50%;
 	outline-offset: 0;
@@ -273,7 +273,7 @@
 }
 
 .jetpack-form-file-field__progress-bar {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -288,7 +288,7 @@
 }
 
 .jetpack-form-file-field__progress-bar::after {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 3px;
 	bottom: 3px;
@@ -331,7 +331,7 @@
 }
 
 .jetpack-form-file-field__success {
-	color: #008A20;
+	color: #008a20;
 	display: none;
 }
 
@@ -351,8 +351,8 @@
 @keyframes jpShowFileField {
 
 	0% {
-		transform: translate3d(0, -10px, 0) scale(.90);
-		opacity: .5;
+		transform: translate3d(0, -10px, 0) scale(0.9);
+		opacity: 0.5;
 	}
 
 	100% {

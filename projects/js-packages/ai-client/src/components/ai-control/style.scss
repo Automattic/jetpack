@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/root-variables";
 
 .jetpack-components-ai-control__container-wrapper {
 	position: sticky;
@@ -11,7 +11,7 @@
 	box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.12), 0 3px 9px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.15);
 	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	border-radius: 6px;
-	border: 1px solid var(--gutenberg-gray-400, #CCC);
+	border: 1px solid var(--gutenberg-gray-400, #ccc);
 }
 
 .jetpack-components-ai-control__wrapper {

@@ -1,8 +1,8 @@
 /**
  * Styles for Top Posts
  */
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use '../../shared/styles/jetpack-variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../../shared/styles/jetpack-variables";
 
 .wp-block-jetpack-top-posts {
 	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;

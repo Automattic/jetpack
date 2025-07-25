@@ -1,7 +1,7 @@
 @use "sass:math";
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use 'common';
-@use '../../shared/memberships';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "common";
+@use "../../shared/memberships";
 
 .wp-block-jetpack-donations {
 
@@ -26,7 +26,7 @@
 		}
 
 		&::before {
-			content: '';
+			content: "";
 			background-color: gb.$gray-600;
 			width: gb.$spinner-size;
 			height: gb.$spinner-size;
@@ -39,7 +39,7 @@
 		}
 
 		&::after {
-			content: '';
+			content: "";
 			background-color: gb.$white;
 			width: math.div(gb.$spinner-size, 4.5);
 			height: math.div(gb.$spinner-size, 4.5);

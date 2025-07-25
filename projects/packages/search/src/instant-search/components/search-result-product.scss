@@ -1,4 +1,4 @@
-@use '../lib/styles/helper';
+@use "../lib/styles/helper";
 
 $item-spacing: 16px;
 
@@ -82,7 +82,7 @@ $item-spacing: 16px;
 
 	&::before {
 		display: block;
-		content: '';
+		content: "";
 		width: 100%;
 		padding-top: 100%;
 	}

@@ -1,4 +1,4 @@
-@import '@wordpress/dataviews/build-style/style.css';
+@import "@wordpress/dataviews/build-style/style.css";
 
 $tab-item-height: 40px;
 $tabs-height: $tab-item-height + 16px;
@@ -53,7 +53,7 @@ $action-bar-height: 88px;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
 	box-sizing: border-box;
-	color: #2C3338;
+	color: #2c3338;
 	display: inline-flex;
 	font-size: 12px;
 	font-weight: 400;
@@ -98,7 +98,7 @@ $action-bar-height: 88px;
 
 		&.enter,
 		&.enter-active {
-			animation: jp-forms__slide-in .2s ease-out forwards, jp-forms__fade-in .2s ease-in forwards;
+			animation: jp-forms__slide-in 0.2s ease-out forwards, jp-forms__fade-in 0.2s ease-in forwards;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
 				animation: none;
@@ -115,7 +115,7 @@ $action-bar-height: 88px;
 			z-index: -1;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-in .2s ease-out forwards reverse, jp-forms__fade-in .2s ease-in forwards reverse;
+				animation: jp-forms__slide-in 0.2s ease-out forwards reverse, jp-forms__fade-in 0.2s ease-in forwards reverse;
 				z-index: 1;
 			}
 		}
@@ -314,6 +314,14 @@ $action-bar-height: 88px;
 	flex-direction: column;
 	flex: 1 1 60%;
 
+	// Optionally, fix the footer to bottom of the page and add margin
+	// so the last row is not hidden by the footer.
+	margin-bottom: 97px;
+
+	@media (min-width: 782px) {
+		margin-bottom: 57px;
+	}
+
 	.dataviews-wrapper {
 		background: var(--jp-white);
 		flex-grow: 1;
@@ -346,13 +354,6 @@ $action-bar-height: 88px;
 		}
 	}
 
-	// optionally, fix the footer to bottom of the page and add margin so the last row is not hidden by the footer
-	margin-bottom: 97px;
-	
-	@media (min-width: 782px) {
-		margin-bottom: 57px;
-	}
-
 	.dataviews-footer {
 		position: fixed;
 		bottom: 0;
@@ -380,7 +381,10 @@ $action-bar-height: 88px;
 }
 
 
-/* We need to make the available canvas 100% tall. Without this, no flex values will work, they will only use the available space. */
+/*
+ * We need to make the available canvas 100% tall. Without this,
+ * no flex values will work, they will only use the available space.
+ */
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
 
@@ -402,7 +406,7 @@ body.jetpack_page_jetpack-forms-admin {
 	flex: 1;
 
 	/* Important to pair with flex-shrink */
-	min-height: 0;;
+	min-height: 0;
 }
 
 .jp-forms__inbox-file-preview-shell {
@@ -464,7 +468,7 @@ body.jetpack_page_jetpack-forms-admin {
 	}
 }
 
-// Make sure backdrop is below the file preview modal but above the response modal
+// Ensure backdrop is below the file preview modal but above the response modal
 .components-modal__screen-overlay:nth-of-type(2) {
 	z-index: 100005;
 }

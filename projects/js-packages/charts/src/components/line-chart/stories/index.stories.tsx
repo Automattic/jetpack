@@ -52,8 +52,8 @@ FixedDimensions.parameters = {
 };
 
 // Story with gradient filled line chart
-export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
-GridientFilled.args = {
+export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientFilled.args = {
 	...Default.args,
 	margin: undefined,
 	data: webTrafficData,

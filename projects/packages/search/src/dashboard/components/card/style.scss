@@ -1,7 +1,7 @@
-@use 'sass:color';
-@use 'scss/layout';
-@use 'scss/typography';
-@use 'scss/calypso-colors';
+@use "sass:color";
+@use "scss/layout";
+@use "scss/typography";
+@use "scss/calypso-colors";
 
 $title: #f6f7f7;
 $meta: #a7aaad;
@@ -19,7 +19,7 @@ $section-border: #dcdcde;
 	background: calypso-colors.$white;
 	box-shadow:
 		0 0 0 1px calypso-colors.$light-gray-700,
-		0 1px 1px 1px  rgba(0, 0, 0, .04);
+		0 1px 1px 1px  rgba(0, 0, 0, 0.04);
 
 	@include layout.clear-fix;
 
