@@ -71,7 +71,7 @@ const getFeaturePrimaryAction = (
 		case PRODUCT_STATUSES.ABSENT:
 			return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
-			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: '#/connection' };
+			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: '&step=connect-user' };
 		default:
 			return {
 				label: __( 'Manage', 'jetpack-my-jetpack' ),

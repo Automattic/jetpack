@@ -230,7 +230,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
-					href: '#/connection?skip_pricing=true',
+					href: '&step=connect-user',
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: fixUserConnectionHandler,
