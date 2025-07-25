@@ -32,7 +32,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			( point: DataPointDate ) =>
+			point =>
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
