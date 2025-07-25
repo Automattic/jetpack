@@ -23,12 +23,12 @@
 
 .jetpack-recipe-content .alignright {
 	float: right !important;
-	margin: 0 0 .5em 1em !important;
+	margin: 0 0 0.5em 1em !important;
 }
 
 .jetpack-recipe-content .alignleft {
 	float: left !important;
-	margin: 0 1em .5em 0 !important;
+	margin: 0 1em 0.5em 0 !important;
 }
 
 .jetpack-recipe-content .alignnone {

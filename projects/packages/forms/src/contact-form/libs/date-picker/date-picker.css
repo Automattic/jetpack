@@ -9,7 +9,7 @@
 
 .dp {
 	position: relative;
-	background: #FFF;
+	background: #fff;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
 	padding: 16px;
@@ -27,7 +27,7 @@
 	--dp-ui-background: transparent;
 	--dp-ui-color: #333;
 
-	--dp-ui-background-selected: #EEE;
+	--dp-ui-background-selected: #eee;
 	--dp-ui-color-selected: #111;
 
 	--dp-ui-background-focus: transparent;
@@ -37,7 +37,7 @@
 	--dp-date-color: #2c3338;
 
 	--dp-date-background-selected: var(--jetpack--contact-form--button-primary--background-color, var(--wp--preset--color--primary, #2a46ce));
-	--dp-date-color-selected: var(--jetpack--contact-form--button-primary--color, var(--wp--preset--color--base, #FFF));
+	--dp-date-color-selected: var(--jetpack--contact-form--button-primary--color, var(--wp--preset--color--base, #fff));
 
 	--dp-date-background-focus: #c3c4c7;
 	--dp-date-color-focus: #1d2327;
@@ -175,7 +175,7 @@
 }
 
 .dp-cal-nav::before {
-	content: '';
+	content: "";
 	border: 2px solid;
 	width: 6px;
 	height: 6px;
@@ -198,7 +198,7 @@
 }
 
 .dp-cal-dropdown::after {
-	content: '';
+	content: "";
 	border: 2px solid;
 	border-right: 0;
 	border-bottom: 0;

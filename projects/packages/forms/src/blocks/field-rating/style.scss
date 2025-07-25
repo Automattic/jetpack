@@ -20,7 +20,7 @@
 		font-family: "IBM Plex Sans JP", sans-serif;
 		font-weight: 400;
 		font-style: normal;
-		color: var(--jetpack--contact-form--background-color, #FFF);
+		color: var(--jetpack--contact-form--background-color, #fff);
 
 		// kludge to fix spacing between stars
 		.contact-form &:not(:first-of-type) input[type="radio"].jetpack-field-rating__input::before {

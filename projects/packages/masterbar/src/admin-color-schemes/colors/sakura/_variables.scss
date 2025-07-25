@@ -1,6 +1,6 @@
 // make use of color studio variables for consistency across products
 @use "@automattic/color-studio/dist/color-variables" as studio;
-@use '../deprecated-color-variables';
+@use "../deprecated-color-variables";
 
 // core variables (core _variables.scss)
 $base-color: studio.$studio-celadon-70; // Calypso --color-masterbar-background
@@ -36,6 +36,7 @@ $masterbar-submenu-background-alt: studio.$studio-celadon-70;
 
 // nav unification overrides
 $nav-unification-sidebar-border: studio.$studio-pink-10; // Calypso --color-sidebar-border
+/* stylelint-disable-next-line @stylistic/max-line-length */
 //$nav-unification-sidebar-text-alternative: studio.$studio-pink-60; // Calypso --color-sidebar-text-alternative
 
 // Calypso color variables used in e.g. inline help

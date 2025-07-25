@@ -331,12 +331,34 @@ class Error_Handler {
 		}
 
 		$first_user_errors = $displayable_errors[ $first_error_code ];
-		$first_error       = reset( $first_user_errors );
+		if ( ! is_array( $first_user_errors ) || empty( $first_user_errors ) ) {
+			return array(); // Invalid error structure
+		}
+
+		$first_error = reset( $first_user_errors );
+
+		// Validate error structure
+		if ( ! is_array( $first_error ) || ! isset( $first_error['error_message'] ) ) {
+			return array(); // Invalid error structure
+		}
 
 		// Determine the action - use the one from error_data if available, otherwise default to 'reconnect'
 		$action = 'reconnect'; // Default action for connection errors
-		if ( isset( $first_error['error_data']['action'] ) ) {
+		if ( isset( $first_error['error_data']['action'] ) && is_string( $first_error['error_data']['action'] ) ) {
 			$action = $first_error['error_data']['action'];
+		}
+
+		// Safely merge error data, ensuring we don't overwrite critical fields
+		$error_data = isset( $first_error['error_data'] ) && is_array( $first_error['error_data'] ) ? $first_error['error_data'] : array();
+
+		// Build the data array with safe merging
+		$dashboard_data = array( 'api_error_code' => $first_error_code );
+
+		// Add error_data fields, but be careful not to overwrite api_error_code
+		foreach ( $error_data as $key => $value ) {
+			if ( 'api_error_code' !== $key ) {
+				$dashboard_data[ $key ] = $value;
+			}
 		}
 
 		$dashboard_error = array(
@@ -344,10 +366,7 @@ class Error_Handler {
 				'code'    => 'connection_error',
 				'message' => $first_error['error_message'],
 				'action'  => $action,
-				'data'    => array_merge(
-					array( 'api_error_code' => $first_error_code ),
-					$first_error['error_data'] ?? array()
-				),
+				'data'    => $dashboard_data,
 			),
 		);
 
@@ -466,12 +485,65 @@ class Error_Handler {
 	}
 
 	/**
+	 * Builds action error data for generic JavaScript components.
+	 *
+	 * This helper method creates standardized error_data arrays that work with the generic
+	 * JavaScript error handling components. External plugins (like wpcomsh) can use this
+	 * to ensure their error structures are compatible.
+	 *
+	 * @since 6.16.0
+	 *
+	 * @param array $args Action configuration arguments - only non-empty values will be included.
+	 * @return array Standardized error_data array for JavaScript components.
+	 */
+	public function build_action_error_data( array $args = array() ) {
+		// Set default values for variants
+		$args = wp_parse_args(
+			$args,
+			array(
+				'action_variant'           => 'primary',
+				'secondary_action_variant' => 'secondary',
+			)
+		);
+
+		// Start with core data
+		$error_data = array(
+			'blog_id' => \Jetpack_Options::get_option( 'id' ),
+		);
+
+		// Validate variant values
+		$valid_variants = array( 'primary', 'secondary' );
+		if ( ! in_array( $args['action_variant'], $valid_variants, true ) ) {
+			$args['action_variant'] = 'primary';
+		}
+		if ( ! in_array( $args['secondary_action_variant'], $valid_variants, true ) ) {
+			$args['secondary_action_variant'] = 'secondary';
+		}
+
+		// Merge extra_data first, then regular args (so args take precedence)
+		if ( ! empty( $args['extra_data'] ) && is_array( $args['extra_data'] ) ) {
+			$error_data = array_merge( $error_data, $args['extra_data'] );
+			unset( $args['extra_data'] ); // Remove from args to avoid duplication
+		}
+
+		// Filter out empty values and merge with error_data
+		$filtered_args = array_filter(
+			$args,
+			function ( $value ) {
+				return ! empty( $value );
+			}
+		);
+
+		return array_merge( $error_data, $filtered_args );
+	}
+
+	/**
 	 * Builds a standardized error array for the connection error system.
 	 *
 	 * This method creates a consistent error array structure that can be used
 	 * by both internal error handling and external plugins/customizations.
 	 *
-	 * @since 6.13.10
+	 * @since 1.14.2
 	 *
 	 * @param string $error_code    The error code identifier.
 	 * @param string $error_message The human-readable error message.

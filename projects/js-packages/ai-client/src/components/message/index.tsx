@@ -209,7 +209,7 @@ export function UpgradeMessage( {
 				href={ upgradeUrl }
 				target={ upgradeUrl ? '_blank' : null }
 			>
-				{ __( 'Upgrade now', 'jetpack-ai-client' ) }
+				<span>{ __( 'Upgrade now', 'jetpack-ai-client' ) }</span>
 			</Button>
 		</Message>
 	);
@@ -246,11 +246,11 @@ export function ErrorMessage( {
 					href={ upgradeUrl }
 					target={ upgradeUrl ? '_blank' : null }
 				>
-					{ __( 'Upgrade now', 'jetpack-ai-client' ) }
+					<span>{ __( 'Upgrade now', 'jetpack-ai-client' ) }</span>
 				</Button>
 			) : (
 				<Button variant="link" onClick={ onTryAgainClick }>
-					{ __( 'Try again', 'jetpack-ai-client' ) }
+					<span>{ __( 'Try again', 'jetpack-ai-client' ) }</span>
 				</Button>
 			) }
 		</Message>

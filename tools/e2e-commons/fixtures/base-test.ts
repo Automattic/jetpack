@@ -12,8 +12,18 @@ import logger from '../logger.js';
 const test = baseTest.extend( {
 	page: async ( { page }, use ) => {
 		page.on( 'pageerror', exception => {
-			logger.debug( `Page error: "${ exception }"` );
+			logger.error( `Page error: "${ exception }"` );
 		} );
+
+		await page.context().addCookies( [
+			{
+				name: 'sensitive_pixel_options',
+				value: '{"ok":true,"buckets":{"essential":true,"analytics":false,"advertising":false}}',
+				domain: 'wordpress.com',
+				path: '/',
+			},
+		] );
+
 		await use( page );
 	},
 } );

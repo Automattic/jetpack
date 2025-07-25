@@ -8,7 +8,7 @@ import { useCallback, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { attachSubComponents } from '../../utils/create-chart-composition';
-import { BaseLegend, ChartLegend } from '../legend';
+import { Legend, ChartLegend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -288,7 +288,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			) }
 
 			{ showLegend && (
-				<BaseLegend
+				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
@@ -296,6 +296,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }
+					chartId={ chartId }
 				/>
 			) }
 		</div>

@@ -1,4 +1,4 @@
-@use '../lib/styles/helper';
+@use "../lib/styles/helper";
 
 .jetpack-instant-search__search-form-controls {
 	display: flex;
@@ -11,7 +11,7 @@
 	margin-left: helper.$results-margin-lg;
 	margin-right: helper.$results-margin-lg;
 
-	@include helper.multiple-breaks-for-customberg( '<l', '<xl' ) {
+	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
 		margin-left: helper.$results-margin-md;
 		margin-right: helper.$results-margin-md;
 
@@ -28,7 +28,7 @@
 		margin-right: helper.$results-margin-sm;
 	}
 
-	@include helper.multiple-breaks-for-customberg( '>l', '>xl' ) {
+	@include helper.multiple-breaks-for-customberg( ">l", ">xl" ) {
 		position: absolute;
 		right: helper.$sidebar-width;
 	}

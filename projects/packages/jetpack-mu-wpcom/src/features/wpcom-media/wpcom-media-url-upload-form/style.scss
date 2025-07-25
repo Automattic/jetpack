@@ -39,9 +39,9 @@
 /**
  * To align the styles with Core.
  *
- * Another way is to avoid concat the `media-views` styles with the `css_do_concat` filter
- * since the styles should not be loaded on the `media-new.php`. But this one seems to be
- * relatively safe.
+ * Another way is to avoid concat the `media-views` styles with the
+ * `css_do_concat` filter since the styles should not be loaded on
+ * the `media-new.php`. But this one seems to be relatively safe.
  */
 .media-upload-form .attachment-details .copy-to-clipboard-container {
 	margin-left: 0;

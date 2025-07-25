@@ -341,16 +341,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			</XYChart>
 
 			{ showLegend && (
-				<div ref={ legendRef }>
-					<Legend
-						items={ legendItems }
-						orientation={ legendOrientation }
-						alignmentHorizontal={ legendAlignmentHorizontal }
-						alignmentVertical={ legendAlignmentVertical }
-						className={ styles[ 'bar-chart__legend' ] }
-						shape={ legendShape }
-					/>
-				</div>
+				<Legend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
+					className={ styles[ 'bar-chart__legend' ] }
+					shape={ legendShape }
+					ref={ legendRef }
+					chartId={ chartId }
+				/>
 			) }
 			{ children }
 		</div>

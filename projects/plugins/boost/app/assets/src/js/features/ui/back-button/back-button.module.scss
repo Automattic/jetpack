@@ -1,15 +1,15 @@
-@use '$css/main/variables';
+@use "$css/main/variables";
 
 .back-button {
 	text-decoration: none !important;
 	color: variables.$gray_90;
 	line-height: 24px;
 
-	// Specify the global class for specificity so that it overrides the default styles.
+	// Specify global class for specificity so that it overrides default styles.
 	&:global(.components-button) {
 		margin-bottom: 8px;
 	}
-	
+
 	span {
 		font-size: 14pt;
 		font-weight: 400;

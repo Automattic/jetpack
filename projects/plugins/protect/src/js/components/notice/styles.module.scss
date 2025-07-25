@@ -38,7 +38,7 @@
 	align-items: center;
 	justify-content: center;
 	padding: calc(var(--spacing-base) * 1.5); // 12px
-    
+
 	.notice--success & {
 		background-color: var(--jp-green-50);
 	}
@@ -46,7 +46,7 @@
 	.notice--error & {
 		background-color: var(--jp-red);
 	}
-    
+
 	.notice--info & {
 		fill: var(--jp-yellow-50);
 		background-color: var(--jp-yellow-5);
