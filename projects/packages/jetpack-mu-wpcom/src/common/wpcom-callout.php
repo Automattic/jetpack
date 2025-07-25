@@ -19,7 +19,7 @@ function wpcom_display_callout( $icon, $title, $description, $button_link, $butt
 	?>
 	<style>
 		.wpcom-callout-container {
-			height: max( 100vh - 32px, 400px );
+			height: max( calc( 100vh - 32px ), 400px );
 			display: flex;
 			justify-content: center;
 			align-items: center;
