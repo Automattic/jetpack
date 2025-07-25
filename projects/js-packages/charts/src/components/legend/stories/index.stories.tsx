@@ -1,9 +1,11 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { ChartProvider } from '../../../providers/chart-context';
+import { useChartTheme } from '../../../providers/theme';
 import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
 import { PieChart } from '../../pie-chart';
 import { Legend } from '../legend';
+import { useChartLegendData } from '../use-chart-legend-data';
 import type { SeriesData, DataPointPercentage } from '../../../types';
 
 const meta: Meta< typeof Legend > = {
@@ -14,33 +16,17 @@ const meta: Meta< typeof Legend > = {
 		docs: {
 			description: {
 				component: `
-The Legend component provides a flexible way to display chart legends either as standalone components, through the modern composition API, or integrated with charts through the chart context.
+The Legend component provides a flexible way to display chart legends either as standalone components or integrated with charts through the chart context.
 
 ## Key Features
 
-- **Composition API**: Use \`<Chart.Legend />\` for clean, declarative legend positioning
 - **Standalone Usage**: Display legends independently from charts
 - **Context Integration**: Automatically retrieve legend data from charts using \`chartId\`
-- **Flexible Positioning**: Place legends anywhere with \`orientation\`, \`alignmentHorizontal\`, and \`alignmentVertical\` props
+- **Flexible Positioning**: Place legends anywhere in your layout
 - **Works with Hidden Legends**: Charts with \`showLegend={false}\` still provide data to standalone legends
 - **Full Customization**: Inherits all props from BaseLegend for complete control
 
 ## Usage Examples
-
-### Modern Composition API (Recommended)
-\`\`\`jsx
-<LineChart data={salesData}>
-  <LineChart.Legend orientation="horizontal" alignmentHorizontal="center" alignmentVertical="bottom" />
-</LineChart>
-
-<BarChart data={salesData}>
-  <BarChart.Legend orientation="vertical" alignmentHorizontal="right" alignmentVertical="top" />
-</BarChart>
-
-<PieChart data={pieData}>
-  <PieChart.Legend orientation="vertical" alignmentHorizontal="right" alignmentVertical="center" />
-</PieChart>
-\`\`\`
 
 ### Basic Usage with Manual Data
 \`\`\`jsx
@@ -160,24 +146,24 @@ export const Vertical: Story = {
 	},
 };
 
-// Story showing use with LineChart using composition API
+// Story showing use with LineChart data
 const WithLineChartData = () => {
+	const theme = useChartTheme();
+	const legendItems = useChartLegendData( lineChartData, theme, {
+		showValues: false,
+	} );
+
 	return (
-		<div style={ { width: '600px', height: '400px' } }>
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
 			<LineChart
-				chartId="line-chart-composition"
 				data={ lineChartData }
+				showLegend={ false }
 				width={ 600 }
 				height={ 300 }
 				withGradientFill={ false }
 				withLegendGlyph={ false }
-			>
-				<LineChart.Legend
-					orientation="horizontal"
-					alignmentHorizontal="center"
-					alignmentVertical="bottom"
-				/>
-			</LineChart>
+			/>
+			<Legend items={ legendItems } orientation="horizontal" />
 		</div>
 	);
 };
@@ -187,23 +173,21 @@ export const WithLineChart: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
+				story: 'Legend used with LineChart data, positioned independently below the chart.',
 			},
 		},
 	},
 };
 
-// Story showing use with BarChart using composition API
+// Story showing use with BarChart data
 const WithBarChartData = () => {
+	const theme = useChartTheme();
+	const legendItems = useChartLegendData( barChartData, theme );
+
 	return (
-		<div style={ { width: '600px', height: '350px' } }>
-			<BarChart chartId="bar-chart-composition" data={ barChartData } width={ 400 } height={ 300 }>
-				<BarChart.Legend
-					orientation="vertical"
-					alignmentHorizontal="right"
-					alignmentVertical="top"
-				/>
-			</BarChart>
+		<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
+			<BarChart data={ barChartData } showLegend={ false } width={ 400 } height={ 300 } />
+			<Legend items={ legendItems } orientation="vertical" />
 		</div>
 	);
 };
@@ -213,7 +197,7 @@ export const WithBarChart: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: 'Legend used with BarChart using the composition API, positioned beside the chart.',
+				story: 'Legend used with BarChart data, positioned vertically beside the chart.',
 			},
 		},
 	},
