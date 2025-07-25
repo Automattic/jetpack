@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -301,6 +302,16 @@ class Contact_Form_Plugin {
 		}
 
 		self::register_contact_form_blocks();
+
+		// Register MailPoet integration hook after the class is loaded.
+		if ( Jetpack_Forms::is_mailpoet_enabled() ) {
+			add_action(
+				'grunion_after_feedback_post_inserted',
+				array( MailPoet_Integration::class, 'handle_mailpoet_integration' ),
+				15,
+				4
+			);
+		}
 	}
 
 	/**
@@ -1383,6 +1394,7 @@ class Contact_Form_Plugin {
 		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
 			Post_To_Url::init();
 		}
+
 		// Process the form
 		return $form->process_submission();
 	}

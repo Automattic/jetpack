@@ -2959,6 +2959,7 @@ EOT;
 				'hiddenField2' => 'value2',
 			), // Hidden fields to include in the form.
 			'stepTransition'         => 'fade-slide',
+			'connectMailPoet'        => false,
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                        = $attributes;
