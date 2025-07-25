@@ -278,7 +278,8 @@ export const WithZeroValues: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: 'Bar chart visually displaying zero values.',
+				story:
+					'Bar chart visually displaying zero values. Set the prop `zeroValueDisplay` to `true` to display zero values, and `false` to not display zero values. Default is `false`.',
 			},
 		},
 	},
