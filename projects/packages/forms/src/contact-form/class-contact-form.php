@@ -909,6 +909,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$raw_data  = self::get_raw_compiled_form_data( $feedback_id, $form );
 		$json_data = array();
 
+		// Sort by field index to maintain the correct order
+		ksort( $raw_data );
+
 		// Handle file upload field (new structure with field_id and files array)
 		foreach ( $raw_data as $field_data ) {
 			$value = $field_data['value'];
