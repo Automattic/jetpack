@@ -10,18 +10,15 @@ import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
+import { useZeroValueDisplay } from '../shared/use-zero-value-display';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import type { EnhancedDataPoint } from '../shared/use-zero-value-display';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode } from 'react';
-
-type BarChartDataPoint = DataPointDate & {
-	__originalValue?: number;
-	__isZero?: boolean;
-};
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
@@ -81,35 +78,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const dataSorted = useChartDataTransform( data );
 
 	// Transform data to add a small value for zero bars to make them visible
-	const dataWithVisibleZeros = useMemo( () => {
-		if ( zeroValueDisplay === false ) return dataSorted;
-
-		// Calculate the scale range to determine appropriate minimum bar value
-		const allValues = dataSorted.flatMap( series =>
-			series.data.map( d => d.value as number ).filter( v => v > 0 )
-		);
-
-		if ( allValues.length === 0 ) return dataSorted;
-
-		// Calculate a small visible value for zero bars that adapts to the data range:
-		// - Use 60% of minimum value when data range is wide (prevents zero bars from being too small)
-		// - Use 0.8% of maximum value when data range is narrow (prevents zero bars from being too large)
-		// This ensures zero bars are always visible but never misleadingly prominent
-		const minVisibleValue = Math.min(
-			Math.min( ...allValues ) * 0.6,
-			Math.max( ...allValues ) * 0.008
-		);
-
-		return dataSorted.map( series => ( {
-			...series,
-			data: series.data.map( point => ( {
-				...point,
-				__originalValue: point.value, // Store original value
-				__isZero: point.value === 0,
-				value: point.value === 0 ? minVisibleValue : point.value,
-			} ) ),
-		} ) );
-	}, [ dataSorted, zeroValueDisplay ] );
+	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
+		enabled: zeroValueDisplay,
+	} );
 
 	// Create legend items using the reusable hook
 	const legendItems = useChartLegendData( dataSorted, providerTheme );
@@ -155,7 +126,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-			const nearestDatum = tooltipData?.nearestDatum?.datum as BarChartDataPoint;
+			const nearestDatum = tooltipData?.nearestDatum?.datum as EnhancedDataPoint;
 			if ( ! nearestDatum ) return null;
 
 			// Use the original value if available, otherwise use the actual value
