@@ -86,7 +86,7 @@ const ConnectionForm = () => {
 						}
 
 						if ( registered ) {
-							return __( 'Connect your account', 'jetpack-my-jetpack' );
+							return _x( 'Connect your account', '', 'jetpack-my-jetpack' );
 						}
 
 						return __( 'Supercharge my site', 'jetpack-my-jetpack' );
