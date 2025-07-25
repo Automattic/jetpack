@@ -263,7 +263,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		const theme = useXYChartTheme( data );
 		const internalChartId = useId(); // Ensure unique ids for gradient fill.
 		const chartId = useChartId( providedChartId );
-		const [ , legendHeight ] = useElementHeight< HTMLDivElement >();
+		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
@@ -390,7 +390,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 					data-testid="line-chart"
 					style={ {
 						width,
-						height,
+						height: height - ( showLegend ? legendHeight : 0 ),
 						display: 'flex',
 						flexDirection:
 							showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
@@ -518,6 +518,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }
+							ref={ legendRef }
 						/>
 					) }
 
