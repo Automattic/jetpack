@@ -1,5 +1,5 @@
 .conversionFunnelChart {
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
 	&.loading {
 		opacity: 0.6;
@@ -125,7 +125,7 @@
 	min-width: 180px;
 
 	&::after {
-		content: '';
+		content: "";
 		position: absolute;
 		top: 100%;
 		left: 50%;
@@ -135,7 +135,7 @@
 	}
 
 	&::before {
-		content: '';
+		content: "";
 		position: absolute;
 		top: 100%;
 		left: 50%;
