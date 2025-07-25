@@ -189,7 +189,7 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertFalse( $field->has_file(), 'basic field should not be a file field' );
 
 		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file' );
-		$this->assertFalse( $field->has_file(), 'empty file field should not be non - empty' );
+		$this->assertFalse( $field->has_file(), 'empty file field should not be non-empty' );
 	}
 
 	public function test_get_render_api_value() {
