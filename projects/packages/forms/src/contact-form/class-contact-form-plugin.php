@@ -749,12 +749,13 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the progress indicator.
 	 *
-	 * @param array  $attributes - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $attributes - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance.
 	 *
 	 * @return string HTML for the progress indicator.
 	 */
-	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
+	public static function gutenblock_render_form_progress_indicator( $attributes, $content, $block ) {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 		if ( empty( $version ) ) {
 			$version = '0.1';
@@ -762,14 +763,14 @@ class Contact_Form_Plugin {
 
 		// Enqueue the frontend style for the progress indicator.
 		$style_handle = 'jetpack-form-progress-indicator-style';
-		$style_path   = '../../dist/blocks/form-progress-indicator/style.css'; // Path from the 404 error
+		$style_path   = '../../dist/blocks/form-progress-indicator/style.css';
 		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
 			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
 		}
 
-		// Enqueue the interactivity script module (matching form-step pattern).
+		// Enqueue the interactivity script module.
 		$script_handle = 'jetpack-form-progress-indicator';
-		$script_path   = '../../dist/modules/form-progress-indicator/view.js'; // Path from previous 404 error
+		$script_path   = '../../dist/modules/form-progress-indicator/view.js';
 		\wp_enqueue_script_module(
 			$script_handle,
 			plugins_url( $script_path, __FILE__ ),
@@ -777,18 +778,108 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		$processor = new \WP_HTML_Tag_Processor( $content );
-		$processor->next_tag();
-		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+		// Get step data from block context
+		$form_steps      = $block->context['jetpack/form-steps'] ?? array();
+		$show_step_names = $attributes['showStepNames'] ?? false;
 
-		while ( $processor->next_tag() ) {
-			$class = $processor->get_attribute( 'class' );
-			if ( 'jetpack-form-progress-indicator-bar' === $class ) {
-				$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
+		// Check if this is dots style
+		$is_dots_style = false;
+		if ( preg_match( '/\bis-style-dots\b/', $content ) ) {
+			$is_dots_style = true;
+		}
+
+		$processor = new \WP_HTML_Tag_Processor( $content );
+
+		// Find the wrapper and add interactivity
+		if ( $processor->next_tag( array( 'class_name' => 'jetpack-form-progress-indicator--wrapper' ) ) ) {
+			$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+			$processor->set_attribute( 'data-wp-init', 'actions.initializeProgress' );
+			$processor->set_attribute( 'data-wp-watch', 'callbacks.updateStepNames' );
+		}
+
+		// Find the progress bar and add width binding
+		$processor = new \WP_HTML_Tag_Processor( $processor->get_updated_html() );
+		while ( $processor->next_tag( array( 'class_name' => 'jetpack-form-progress-indicator-bar' ) ) ) {
+			$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
+			break;
+		}
+
+		// If we need to render steps (dots or step names), we'll use string replacement
+		if ( $is_dots_style || $show_step_names ) {
+			$steps_html = '';
+
+			if ( ! empty( $form_steps ) ) {
+				// Build steps HTML from context data
+				foreach ( $form_steps as $index => $step ) {
+					$step_name   = $step['name'] ?? 'Step ' . ( $index + 1 );
+					$steps_html .= sprintf(
+						'<div class="jetpack-form-progress-indicator-step" data-step-index="%d"><span class="jetpack-form-progress-indicator-step-label">%s</span></div>',
+						$index,
+						esc_html( $step_name )
+					);
+				}
+			} else {
+				// Fallback: Try to find step blocks in the post content
+				global $post;
+				if ( $post && has_blocks( $post->post_content ) ) {
+					$blocks      = parse_blocks( $post->post_content );
+					$step_blocks = self::find_step_blocks_recursive( $blocks );
+
+					if ( ! empty( $step_blocks ) ) {
+						foreach ( $step_blocks as $index => $step_block ) {
+							$step_name   = $step_block['attrs']['stepLabel'] ?? 'Step ' . ( $index + 1 );
+							$steps_html .= sprintf(
+								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d"><span class="jetpack-form-progress-indicator-step-label">%s</span></div>',
+								$index,
+								esc_html( $step_name )
+							);
+						}
+					} else {
+						// Ultimate fallback: Create generic steps
+						$step_count = 3;
+						for ( $i = 0; $i < $step_count; $i++ ) {
+							$steps_html .= sprintf(
+								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d"><span class="jetpack-form-progress-indicator-step-label">Step %d</span></div>',
+								$i,
+								$i + 1
+							);
+						}
+					}
+				}
 			}
+
+			// Use string replacement to insert the steps HTML
+			$updated_content = $processor->get_updated_html();
+			$updated_content = str_replace(
+				'<div class="jetpack-form-progress-indicator-steps"></div>',
+				'<div class="jetpack-form-progress-indicator-steps">' . $steps_html . '</div>',
+				$updated_content
+			);
+
+			return $updated_content;
 		}
 
 		return $processor->get_updated_html();
+	}
+
+	/**
+	 * Recursively find form step blocks in parsed blocks.
+	 *
+	 * @param array $blocks The parsed blocks array.
+	 * @return array Array of step blocks.
+	 */
+	private static function find_step_blocks_recursive( $blocks ) {
+		$step_blocks = array();
+
+		foreach ( $blocks as $block ) {
+			if ( $block['blockName'] === 'jetpack/form-step' ) {
+				$step_blocks[] = $block;
+			} elseif ( ! empty( $block['innerBlocks'] ) ) {
+				$step_blocks = array_merge( $step_blocks, self::find_step_blocks_recursive( $block['innerBlocks'] ) );
+			}
+		}
+
+		return $step_blocks;
 	}
 
 	/**

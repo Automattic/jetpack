@@ -31,6 +31,7 @@ export const settings = {
 			},
 		},
 	},
+	usesContext: [ 'jetpack/form-steps' ],
 	title: __( 'Progress indicator', 'jetpack-forms' ),
 	description: __(
 		'Show a visual indicator of progress through multi-step forms.',
@@ -56,7 +57,23 @@ export const settings = {
 	},
 	edit: edit,
 	save: save,
-	attributes: {},
+	attributes: {
+		showStepNames: {
+			type: 'boolean',
+			default: false,
+		},
+	},
+	styles: [
+		{
+			name: 'line',
+			label: __( 'Line', 'jetpack-forms' ),
+			isDefault: true,
+		},
+		{
+			name: 'dots',
+			label: __( 'Dots', 'jetpack-forms' ),
+		},
+	],
 	transforms: {},
 	example: {},
 };

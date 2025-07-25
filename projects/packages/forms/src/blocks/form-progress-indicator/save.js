@@ -1,12 +1,17 @@
 import { useBlockProps } from '@wordpress/block-editor';
 
-const FormProgressIndicatorSave = () => {
+const FormProgressIndicatorSave = ( { attributes } ) => {
+	const { showStepNames } = attributes;
 	const blockProps = useBlockProps.save();
 
 	return (
-		<div className="jetpack-form-progress-indicator--wrapper">
+		<div
+			className="jetpack-form-progress-indicator--wrapper"
+			data-show-step-names={ showStepNames }
+		>
 			<div { ...blockProps }>
 				<div className="jetpack-form-progress-indicator-bar"></div>
+				<div className="jetpack-form-progress-indicator-steps"></div>
 			</div>
 		</div>
 	);

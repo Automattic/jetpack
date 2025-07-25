@@ -117,6 +117,16 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const steps = useFormSteps( clientId );
 
+	// Update formSteps attribute when steps change
+	useEffect( () => {
+		const stepData = steps.map( ( step, index ) => ( {
+			clientId: step.clientId,
+			name: step.attributes?.stepLabel || `Step ${ index + 1 }`,
+			label: step.attributes?.stepLabel || `Step ${ index + 1 }`,
+		} ) );
+		setAttributes( { formSteps: stepData } );
+	}, [ steps, setAttributes ] );
+
 	const submitButton = useFindBlockRecursively(
 		clientId,
 		block => block.name === 'jetpack/button'

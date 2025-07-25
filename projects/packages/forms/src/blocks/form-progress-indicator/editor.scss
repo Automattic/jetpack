@@ -1,17 +1,15 @@
 .wp-block-jetpack-form-progress-indicator {
 	--jp-form-progress-height: 0.75rem;
-
-	// Use theme colors with fallbacks
 	--jp-form-progress-bg-color: #e0e0e0;
 
-	// Essential structure
+	// Default line style
 	height: var(--jp-form-progress-height);
 	position: relative;
-	overflow: hidden;
+	overflow: visible;
 	border-radius: calc(var(--jp-form-progress-height) / 2);
 	background-color: var(--wp--style--color--background, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
 
-	// Progress bar element - rendered as a child element to match the frontend
+	// Progress bar element for line style
 	.jetpack-form-progress-indicator-bar {
 		content: "";
 		display: block;
@@ -25,5 +23,86 @@
 		z-index: 1;
 		background-color: currentColor;
 		border-radius: calc(var(--jp-form-progress-height) / 2);
+	}
+
+	// Step labels container
+	.jetpack-form-progress-indicator-steps {
+		display: flex;
+		justify-content: space-between;
+		position: absolute;
+		top: calc(100% + 0.5rem);
+		left: 0;
+		right: 0;
+		width: 100%;
+	}
+
+	.jetpack-form-progress-indicator-step {
+		position: relative;
+		text-align: center;
+
+		&.is-active .jetpack-form-progress-indicator-step-label {
+			font-weight: 600;
+			color: currentColor;
+		}
+	}
+
+	.jetpack-form-progress-indicator-step-label {
+		font-size: 0.875rem;
+		color: var(--wp--preset--color--contrast-2, #666);
+		white-space: nowrap;
+	}
+
+	// Step names need to be shown when enabled
+	.jetpack-form-progress-indicator-steps:empty {
+		display: none;
+	}
+
+	// Dots style variation
+	&.is-style-dots {
+		height: auto;
+		background: none;
+		overflow: visible;
+
+		.jetpack-form-progress-indicator-bar {
+			display: none;
+		}
+
+		.jetpack-form-progress-indicator-steps {
+			position: static;
+			display: flex !important;
+			justify-content: center;
+			align-items: center;
+			gap: 1rem;
+		}
+
+		.jetpack-form-progress-indicator-step {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 0.5rem;
+
+			&::before {
+				content: "";
+				display: block;
+				width: 1rem;
+				height: 1rem;
+				border-radius: 50%;
+				background-color: var(--wp--style--color--background, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+				transition: background-color 0.3s ease;
+			}
+
+			&.is-active::before {
+				background-color: currentColor;
+			}
+		}
+
+		.jetpack-form-progress-indicator-step-label {
+			position: static;
+		}
+
+		// Hide labels when showStepNames is false
+		&:not(.show-step-names) .jetpack-form-progress-indicator-step-label {
+			display: none;
+		}
 	}
 }

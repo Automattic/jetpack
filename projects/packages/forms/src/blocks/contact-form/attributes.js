@@ -48,4 +48,8 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	formSteps: {
+		type: 'array',
+		default: [],
+	},
 };
