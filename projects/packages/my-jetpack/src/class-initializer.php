@@ -187,7 +187,9 @@ class Initializer {
 			// Redirect to onboarding if not connected.
 			$redirect_args['step'] = 'onboarding';
 			$should_redirect       = true;
-		} elseif ( ! $connection->is_user_connected() && 'connect-user' === $step ) {
+		} elseif ( $connection->is_connected() && 'connect-user' === $step ) {
+			// if the site is connected and we want to connect the user, we want
+			// to retain the step in the URL, but not redirect to onboarding.
 			$should_redirect = false;
 		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
 			// Redirect away from onboarding if already connected.
