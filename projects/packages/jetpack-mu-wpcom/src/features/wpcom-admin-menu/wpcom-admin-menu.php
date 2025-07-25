@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
+require_once __DIR__ . '/../../common/wpcom-callout.php';
+
 /**
  * Checks if the current user has a WordPress.com account connected.
  *
@@ -57,7 +59,6 @@ add_action( 'admin_menu', 'wpcom_add_dashboard_updates_menu' );
  * Displays a WordPress Updates page for Simple sites.
  */
 function wpcom_display_dashboard_updates_page() {
-	require_once ABSPATH . 'wp-admin/admin-header.php';
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'WordPress Updates', 'jetpack-mu-wpcom' ); ?></h1>
@@ -70,7 +71,6 @@ function wpcom_display_dashboard_updates_page() {
 		<p><?php esc_html_e( 'Your themes are all up to date.', 'jetpack-mu-wpcom' ); ?>
 	</div>
 	<?php
-	require_once ABSPATH . 'wp-admin/admin-footer.php';
 }
 
 /**
@@ -521,3 +521,55 @@ function wpcom_add_plugins_menu() {
 	}
 }
 add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
+
+/**
+ * Adds some Tools menus that are missing on Simple sites.
+ */
+function wpcom_add_tools_menu() {
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	if ( ! $is_simple_site ) {
+		return;
+	}
+
+	add_submenu_page(
+		'tools.php',
+		__( 'Export Personal Data', 'jetpack-mu-wpcom' ),
+		__( 'Export Personal Data', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'wpcom-export-personal-data',
+		'wpcom_display_export_erase_personal_data_page'
+	);
+
+	add_submenu_page(
+		'tools.php',
+		__( 'Erase Personal Data', 'jetpack-mu-wpcom' ),
+		__( 'Erase Personal Data', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'wpcom-erase-personal-data',
+		'wpcom_display_export_erase_personal_data_page'
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_tools_menu' );
+
+/**
+ * Displays an Export/Erase Personal Date page for Simple sites.
+ */
+function wpcom_display_export_erase_personal_data_page() {
+	if ( str_contains( get_current_screen()->id, 'export-personal-data' ) ) {
+		$page_title = __( 'Export Personal Data', 'jetpack-mu-wpcom' );
+	} else {
+		$page_title = __( 'Erase Personal Data', 'jetpack-mu-wpcom' );
+	}
+
+	wpcom_display_callout(
+		'dashicons-id-alt',
+		$page_title,
+		array(
+			__( 'WordPress.com gives you the tools to manage personal data from your dashboard, like viewing or deleting comments tied to a visitor.', 'jetpack-mu-wpcom' ),
+			__( 'To support privacy requests, make sure people can reach you easily, whether through a contact form or an email in your Privacy Policy.', 'jetpack-mu-wpcom' ),
+		),
+		localized_wpcom_url( 'https://wordpress.com/support/your-site-and-the-gdpr/' ),
+		__( 'Learn more', 'jetpack-mu-wpcom' ),
+		plugins_url( 'images/performance.svg', __FILE__ )
+	);
+}
