@@ -328,7 +328,6 @@ export default class JetpackBoostPage extends WpPage {
 		}
 	}
 
-	// LCP Optimization methods
 	async isLcpOptimizationVisible() {
 		const selector = '[data-testid="module-lcp"]';
 		return this.page.isVisible( selector );

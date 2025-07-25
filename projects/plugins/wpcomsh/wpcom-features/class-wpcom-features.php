@@ -213,6 +213,12 @@ class WPCOM_Features {
 	private const GSUITE_PRODUCTS               = array( self::GAPPS, self::GAPPS_UNLIMITED );
 	private const WPCOM_TITAN_MAIL_PRODUCTS     = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
 
+	private const WPCOM_PERSONAL_AND_PREMIUM_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS );
+	private const WPCOM_SUMMER_SPECIAL_2025_PLANS  = array(
+		'required_sticker' => 'summer-special-2025',
+		self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+	);
+
 	// WPCOM "Level 3" A: Groups of level 2s.
 	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
 	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
@@ -529,6 +535,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
 			array( 'product_type' => array( 'marketplace_plugin', 'saas_plugin' ) ),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                           => array(
@@ -684,6 +691,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// EDIT_THEMES - Provides the edit_themes capability on atomic sites, does nothing on simple sites.
 		self::EDIT_THEMES                       => array(
@@ -760,6 +768,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::INSTALL_PURCHASED_PLUGINS         => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -768,6 +777,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::INSTALL_THEMES                    => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -801,6 +811,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2.
 		self::LIVE_SUPPORT                      => array(
@@ -840,6 +851,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		// MONITOR_1_MINUTE_CHECK_INTERVAL - Jetpack Monitor checks site uptime once per minute
@@ -1225,6 +1237,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::UPLOAD_SPACE_1GB                  => array(
 			self::SPACE_1GB,
@@ -1502,17 +1515,16 @@ class WPCOM_Features {
 	 * @param string $feature   A singular feature.
 	 * @param array  $purchases A collection of purchases.
 	 * @param string $site_type Site type to check. Can be 'wpcom' or 'jetpack'. Default empty string.
+	 * @param int    $blog_id   The blog ID to check. Default null.
 	 *
 	 * @return bool Is the feature included in one of the purchases.
 	 */
-	public static function has_feature( $feature, $purchases, $site_type = '' ) {
+	public static function has_feature( $feature, $purchases, $site_type = '', $blog_id = null ) {
 		if ( ! self::feature_exists( $feature ) ) {
 			return false;
 		}
 
 		$products_map = self::FEATURES_MAP[ $feature ];
-
-		self::add_conditional_personal_and_higher_plans_to_products_map( $products_map, $feature );
 
 		// Automatically grant features that don't require any purchase.
 		if (
@@ -1523,55 +1535,11 @@ class WPCOM_Features {
 		}
 
 		foreach ( $purchases as $purchase ) {
-			if ( self::purchase_in_products_map( $purchase, $products_map ) ) {
+			if ( self::purchase_in_products_map( $purchase, $products_map, $blog_id ) ) {
 				return true;
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * This is a temporary code to grant the "The Summer Special" feature to a particular set of users.
-	 * We could use A8C_PROXIED_REQUEST but it would release it to all a8c users and we don't want that now.
-	 * This will be removed soon and replaced with the A8C_PROXIED_REQUEST solution used here: https://code.a8c.com/D83198 for CfT.
-	 *
-	 * @param array  $products_map Reference to an array of products.
-	 * @param string $feature The feature to check.
-	 *
-	 * @return void
-	 */
-	public static function add_conditional_personal_and_higher_plans_to_products_map( &$products_map, $feature ) {
-		// Adds the WPCOM_PERSONAL_AND_HIGHER_PLANS to the products_map for some features and users.
-		$features_to_add_personal_and_higher_plans = array(
-			self::ATOMIC,
-			self::EDIT_PLUGINS,
-			self::INSTALL_PLUGINS,
-			self::INSTALL_PURCHASED_PLUGINS,
-			self::INSTALL_THEMES,
-			self::EDIT_THEMES,
-		);
-
-		// Add Quake team and other users who will test the feature.
-		$users_to_add_personal_and_higher_plans = array(
-			19261507, // paulopmt1 (a8c test user)
-			234854924, // paulopmt120 (non-a8c test user)
-			29815763, // Bogdan
-			2540684, // Igor
-			10202727, // Kamen
-			196161102, // Leo
-			208647015, // Luis
-			8895355, // Miro
-			12082291, // Konstantin
-			29999338, // Miguel
-			8735, // Dean
-			97869786, // Claudiu
-			143738775, // Joshua
-			217470, // Veselin
-		);
-
-		if ( in_array( $feature, $features_to_add_personal_and_higher_plans, true ) && in_array( get_current_user_id(), $users_to_add_personal_and_higher_plans, true ) ) {
-			$products_map = array_merge( $products_map, array( self::WPCOM_PERSONAL_AND_HIGHER_PLANS ) );
-		}
 	}
 
 	/**
@@ -1601,10 +1569,11 @@ class WPCOM_Features {
 	 *
 	 * @param object $purchase A single purchase.
 	 * @param array  $products_map A feature map definition array.
+	 * @param int    $blog_id The blog ID to check. Default null.
 	 *
 	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
 	 */
-	public static function purchase_in_products_map( $purchase, $products_map ) {
+	public static function purchase_in_products_map( $purchase, $products_map, $blog_id = null ) {
 
 		// First check if the current purchase is excluded in the product definition.
 		if ( isset( $products_map[ self::EXCLUDE_PLANS ] ) ) {
@@ -1625,7 +1594,24 @@ class WPCOM_Features {
 				continue;
 			}
 
-			$purchase_eligible_by_date = false;
+			$purchase_eligible_by_date    = false;
+			$purchase_eligible_by_sticker = false;
+
+			// Check if sticker requirement exists.
+			$required_sticker = $product_definition['required_sticker'] ?? null;
+			if ( $required_sticker ) {
+				if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+					// Fallback for Atomic sites
+					$purchase_eligible_by_sticker = wpcomsh_is_site_sticker_active( $required_sticker );
+				} elseif ( function_exists( 'has_blog_sticker' ) ) {
+					$blog_id                    ??= get_current_blog_id();
+					$purchase_eligible_by_sticker = has_blog_sticker( $required_sticker, $blog_id );
+				}
+				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
+				unset( $product_definition['required_sticker'] );
+			} else {
+				$purchase_eligible_by_sticker = true; // No sticker requirement, so eligible by default.
+			}
 
 			// If 'before' & 'after' are empty, this is not a legacy feature.
 			if ( empty( $product_definition['before'] ) && empty( $product_definition['after'] ) ) {
@@ -1659,8 +1645,8 @@ class WPCOM_Features {
 				}
 			}
 
-			// If the date range hurtle is cleared, check if the purchase is included in the $product_definition.
-			if ( $purchase_eligible_by_date ) {
+			// If the date range and sticker requirements are cleared, check if the purchase is included in the $product_definition.
+			if ( $purchase_eligible_by_date && $purchase_eligible_by_sticker ) {
 				if ( self::in_array_recursive( $purchase->product_slug ?? null, array( $product_definition ) ) ) {
 					return true;
 				}

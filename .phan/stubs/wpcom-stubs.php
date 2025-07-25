@@ -150,7 +150,7 @@ namespace {
     class WPCOM_Store
     {
         /**
-         * @deprecated 
+         * @deprecated
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -163,6 +163,20 @@ namespace {
          * @return Store_Subscription[]
          */
         public static function get_subscriptions($blog_ids = 0, $user_ids = 0, $product_ids = 0, $metas = '')
+        {
+        }
+        /**
+         * @param int $product_id
+         * @return bool
+         */
+        public static function is_wpcom_personal_plan($product_id)
+        {
+        }
+        /**
+         * @param int $product_id
+         * @return bool
+         */
+        public static function is_wpcom_premium_plan($product_id)
         {
         }
     }
@@ -1046,7 +1060,7 @@ namespace {
     /**
      * @param  string $url
      * @return string
-     * @internal 
+     * @internal
      */
     function staticize_subdomain($url)
     {
@@ -1116,7 +1130,7 @@ namespace {
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
