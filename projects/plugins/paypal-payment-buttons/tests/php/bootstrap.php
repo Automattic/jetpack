@@ -2,7 +2,7 @@
 /**
  * Bootstrap.
  *
- * @package automattic/jetpack-starter-plugin
+ * @package automattic/paypal-payment-buttons
  */
 
 /**
@@ -11,4 +11,4 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 \Automattic\Jetpack\Test_Environment::init();
-require_once __DIR__ . '/../../jetpack-starter-plugin.php';
+require_once __DIR__ . '/../../paypal-payment-buttons.php';

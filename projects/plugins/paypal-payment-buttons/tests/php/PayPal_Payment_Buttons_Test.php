@@ -72,15 +72,10 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 	/**
 	 * Tests PayPal Payment Buttons construction.
 	 *
-	 * The only meaningful/testable thing is to check if My_Jetpack is initialized
+	 * Tests that the class can be instantiated successfully.
 	 */
-	public function test_my_jetpack_initialized_once() {
-
-		new PayPal_Payment_Buttons();
-		$this->assertSame( 1, did_action( ( 'my_jetpack_init' ) ) );
-
-		// Check that `my_jetpack_init` is only triggered once.
-		new PayPal_Payment_Buttons();
-		$this->assertSame( 1, did_action( ( 'my_jetpack_init' ) ) );
+	public function test_plugin_construction() {
+		$plugin = new PayPal_Payment_Buttons();
+		$this->assertInstanceOf( 'PayPal_Payment_Buttons', $plugin );
 	}
 }
