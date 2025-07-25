@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '3.1.0';
+	const PACKAGE_VERSION = '4.0.1';
 
 	/**
 	 * Load the contact form module.
@@ -92,5 +92,19 @@ class Jetpack_Forms {
 		}
 
 		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', $default );
+	}
+
+	/**
+	 * Returns true if MailPoet integration is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_mailpoet_enabled() {
+		/**
+		 * Enable MailPoet integration.
+		 *
+		 * @param bool false Whether MailPoet integration be enabled. Default is false.
+		 */
+		return apply_filters( 'jetpack_forms_mailpoet_enable', false );
 	}
 }

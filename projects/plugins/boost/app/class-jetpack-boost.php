@@ -56,6 +56,8 @@ use Automattic\Jetpack_Boost\REST_API\REST_API;
  *
  * @since      1.0.0
  * @author     Automattic <support@jetpack.com>
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Boost {
 
@@ -170,6 +172,19 @@ class Jetpack_Boost {
 	public function handle_version_change() {
 		// Remove this option to prevent the notice from showing up.
 		delete_site_option( 'jetpack_boost_static_minification' );
+
+		// Add upgrade check for Cornerstone Pages.
+		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
+		if ( is_array( $pages ) && in_array( home_url( '' ), $pages, true ) ) {
+			// Remove homepage (empty string) from the cornerstone pages list.
+			$pages = array_filter(
+				$pages,
+				function ( $page ) {
+					return $page !== home_url( '' );
+				}
+			);
+			jetpack_boost_ds_set( 'cornerstone_pages_list', $pages );
+		}
 
 		if ( jetpack_boost_minify_is_enabled() ) {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.

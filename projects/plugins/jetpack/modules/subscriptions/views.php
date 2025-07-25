@@ -668,25 +668,26 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @return array
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$instance = $old_instance;
+		// Merge new values over old, then fill in any missing keys with defaults
+		$instance = wp_parse_args( (array) $new_instance, wp_parse_args( (array) $old_instance, static::defaults() ) );
 
 		if ( self::is_jetpack() ) {
-			$instance['title']                 = wp_kses( stripslashes( $new_instance['title'] ), array() );
-			$instance['subscribe_placeholder'] = wp_kses( stripslashes( $new_instance['subscribe_placeholder'] ), array() );
-			$instance['subscribe_button']      = wp_kses( stripslashes( $new_instance['subscribe_button'] ), array() );
-			$instance['success_message']       = wp_kses( stripslashes( $new_instance['success_message'] ), array() );
+			$instance['title']                 = wp_kses( stripslashes( $instance['title'] ), array() );
+			$instance['subscribe_placeholder'] = wp_kses( stripslashes( $instance['subscribe_placeholder'] ), array() );
+			$instance['subscribe_button']      = wp_kses( stripslashes( $instance['subscribe_button'] ), array() );
+			$instance['success_message']       = wp_kses( stripslashes( $instance['success_message'] ), array() );
 		}
 
 		if ( self::is_wpcom() ) {
-			$instance['title']               = wp_strip_all_tags( stripslashes( $new_instance['title'] ) );
-			$instance['title_following']     = wp_strip_all_tags( stripslashes( $new_instance['title_following'] ) );
-			$instance['subscribe_logged_in'] = wp_filter_post_kses( stripslashes( $new_instance['subscribe_logged_in'] ) );
-			$instance['subscribe_button']    = wp_strip_all_tags( stripslashes( $new_instance['subscribe_button'] ) );
+			$instance['title']               = wp_strip_all_tags( stripslashes( $instance['title'] ) );
+			$instance['title_following']     = isset( $instance['title_following'] ) ? wp_strip_all_tags( stripslashes( $instance['title_following'] ) ) : '';
+			$instance['subscribe_logged_in'] = isset( $instance['subscribe_logged_in'] ) ? wp_filter_post_kses( stripslashes( $instance['subscribe_logged_in'] ) ) : '';
+			$instance['subscribe_button']    = wp_strip_all_tags( stripslashes( $instance['subscribe_button'] ) );
 		}
 
 		$instance['show_subscribers_total']     = isset( $new_instance['show_subscribers_total'] ) && $new_instance['show_subscribers_total'];
 		$instance['show_only_email_and_button'] = isset( $new_instance['show_only_email_and_button'] ) && $new_instance['show_only_email_and_button'];
-		$instance['subscribe_text']             = wp_filter_post_kses( stripslashes( $new_instance['subscribe_text'] ) );
+		$instance['subscribe_text']             = wp_filter_post_kses( stripslashes( $instance['subscribe_text'] ) );
 
 		return $instance;
 	}

@@ -4,6 +4,8 @@
  * Get option backup endpoint.
  *
  * /sites/%s/options/backup      -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**

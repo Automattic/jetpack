@@ -5,7 +5,7 @@ import Upgraded from '$features/ui/upgraded/upgraded';
 import styles from './cornerstone-pages.module.scss';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { useCornerstonePages } from './lib/stores/cornerstone-pages';
+import { useCustomCornerstonePages } from './lib/stores/cornerstone-pages';
 import Prerender from './prerender/prerender';
 import { useSingleModuleState } from '$features/module/lib/stores';
 
@@ -53,38 +53,29 @@ const CornerstonePages = () => {
 };
 
 const CornerstoneTitleSummary = () => {
-	const [ cornerstonePages ] = useCornerstonePages();
-	if ( ! cornerstonePages.length ) {
+	const [ cornerstonePages ] = useCustomCornerstonePages();
+	if ( ! Array.isArray( cornerstonePages ) ) {
 		return null;
 	}
-	return sprintf(
-		/* translators: %s is the number of pages in the cornerstone pages list apart from the homepage. */
-		__( 'Added: %s', 'jetpack-boost' ),
-		() => {
-			const homepage = Jetpack_Boost.site.url.replace( /\/$/, '' );
-			const hasHomepage = cornerstonePages.includes( homepage );
 
-			if ( hasHomepage ) {
-				if ( cornerstonePages.length > 1 ) {
-					return sprintf(
-						/* translators: %d is the number of pages in the cornerstone pages list apart from the homepage. */
-						_n(
-							'Homepage + %d page',
-							'Homepage + %d pages',
-							cornerstonePages.length - 1,
-							'jetpack-boost'
-						),
-						cornerstonePages.length - 1
-					);
-				}
-				return __( 'Homepage', 'jetpack-boost' );
-			}
-			return sprintf(
-				/* translators: %d is the number of pages added to the cornerstone pages list. */
-				_n( '%d page', '%d pages', cornerstonePages.length, 'jetpack-boost' ),
-				cornerstonePages.length
-			);
-		}
+	const pages =
+		cornerstonePages.length === 0
+			? __( 'Homepage', 'jetpack-boost' )
+			: sprintf(
+					/* translators: %d is the number of pages in the custom cornerstone pages list. */
+					_n(
+						'Homepage + %d page',
+						'Homepage + %d pages',
+						cornerstonePages.length,
+						'jetpack-boost'
+					),
+					cornerstonePages.length
+			  );
+
+	return sprintf(
+		/* translators: %s is the number of pages in the custom cornerstone pages list. */
+		__( 'Added: %s', 'jetpack-boost' ),
+		pages
 	);
 };
 

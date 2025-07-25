@@ -18,6 +18,8 @@ use WP_REST_Server;
 
 /**
  * Publicize: Social Image Generator Controller class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Social_Image_Generator_Controller extends Base_Controller {
 

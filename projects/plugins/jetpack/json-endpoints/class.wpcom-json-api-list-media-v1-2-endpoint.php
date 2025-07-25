@@ -56,6 +56,8 @@ new WPCOM_JSON_API_List_Media_v1_2_Endpoint(
 
 /**
  * List Media v1_2 endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Media_v1_2_Endpoint extends WPCOM_JSON_API_List_Media_v1_1_Endpoint { // phpcs:ignore
 	/**

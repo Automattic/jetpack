@@ -1,9 +1,10 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-business-hours {
 	overflow: hidden;
 
-	dd, dt {
+	dd,
+	dt {
 
 		@media (min-width: 480px ) {
 			display: inline-block;
@@ -19,18 +20,18 @@
 		margin: 0;
 
 		@media (min-width: 480px ) {
-			max-width: calc( 70% - 0.5em );
+			max-width: calc(70% - 0.5em);
 		}
 	}
 
 	.components-toggle-control__label,
 	.components-base-control__label {
-	  	// Sets labels to 13px for consistency in the Site Editor.
-	  	// The Site Editor iframe doesn't include common styles,
-	  	// from which the font size of the labels are inherited.
-	  	// https://github.com/WordPress/gutenberg/blob/3da717b8d0ac7d7821fc6d0475695ccf3ae2829f/packages/base-styles/_variables.scss#L16
+		// Sets labels to 13px for consistency in the Site Editor.
+		// The Site Editor iframe doesn't include common styles,
+		// from which the font size of the labels are inherited.
+		// https://github.com/WordPress/gutenberg/blob/3da717b8d0ac7d7821fc6d0475695ccf3ae2829f/packages/base-styles/_variables.scss#L16
 		font-size: gb.$default-font-size;
-	 }
+	}
 
 	.components-base-control__field {
 		margin-bottom: 0;

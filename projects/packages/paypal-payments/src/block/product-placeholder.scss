@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .simple-payments__loading {
 	animation: simple-payments-loading 1600ms ease-in-out infinite;
@@ -61,7 +61,7 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-details p {
 	padding: 0;
 	position: absolute;
 	top: 50%;
-	transform: translate( -50%, -50% );
+	transform: translate(-50%, -50%);
 	width: auto;
 }
 
@@ -90,7 +90,7 @@ input[type="number"].jetpack-simple-payments-items-number {
 
 input[type="number"].jetpack-simple-payments-items-number::-webkit-inner-spin-button,
 input[type="number"].jetpack-simple-payments-items-number::-webkit-outer-spin-button {
-  opacity: 1;
+	opacity: 1;
 }
 
 @media screen and ( min-width: 400px ) {

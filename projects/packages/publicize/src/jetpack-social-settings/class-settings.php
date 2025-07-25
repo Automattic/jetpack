@@ -16,6 +16,8 @@ use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
  *      - Social Image Generator
  *      - UTM Settings
  *      - Social Notes
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Settings {
 	/**

@@ -1,5 +1,5 @@
-import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import WpPage from '_jetpack-e2e-commons/pages/wp-page.js';
+import pwConfig from '../../../playwright.config.mjs';
 
 const apiEndpointsRegex = {
 	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
@@ -7,7 +7,7 @@ const apiEndpointsRegex = {
 
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
-		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
+		const url = pwConfig.use.baseURL + '/wp-admin/admin.php?page=jetpack-boost';
 		super( page, { expectedSelectors: [ '#jb-dashboard' ], url } );
 	}
 
@@ -255,5 +255,76 @@ export default class JetpackBoostPage extends WpPage {
 			( await this.getSpeedScore( 'desktop' ) ) > 0 &&
 			( await this.currentPageTitleIs( /Overall Score: [A-Z]/i ) )
 		);
+	}
+
+	async isCornerstonePagesContentVisible() {
+		return await this.page.getByText( 'List the most important pages' ).isVisible();
+	}
+
+	async openCornerstonePagesPanel() {
+		const panelToggle = this.page.locator( 'text=Cornerstone Pages' ).first();
+		if ( ! ( await this.isCornerstonePagesContentVisible() ) ) {
+			await panelToggle.click();
+			await this.isCornerstonePagesContentVisible();
+		}
+	}
+
+	async enterCornerstonePageUrl( url ) {
+		const textarea = this.page.locator( '#jb-cornerstone-pages' );
+		await textarea.fill( url );
+	}
+
+	async clearCornerstonePageInput() {
+		const textarea = this.page.locator( '#jb-cornerstone-pages' );
+		await textarea.fill( '' );
+	}
+
+	async addCornerstonePage( url ) {
+		await this.enterCornerstonePageUrl( url );
+		const saveButton = this.page.locator( 'text=Save' ).first();
+		await saveButton.click();
+	}
+
+	async getCornerstonePageInputValue() {
+		const textarea = this.page.locator( '#jb-cornerstone-pages' );
+		return await textarea.inputValue();
+	}
+
+	async isCornerstoneSaveButtonDisabled() {
+		const saveButton = this.page.locator( 'text=Save' ).first();
+		return await saveButton.isDisabled();
+	}
+
+	async isCornerstoneUpgradeCTAVisible() {
+		const selector = 'text=Premium users can add up to 10 cornerstone pages';
+		return this.page.isVisible( selector );
+	}
+
+	async isPremiumFeatureDetected() {
+		return await this.page
+			.getByRole( 'button', { name: 'Cornerstone Pages Upgraded' } )
+			.isVisible();
+	}
+
+	async waitForNotice( message ) {
+		const notice = this.page.locator( `.components-snackbar:has-text("${ message }")` );
+		await notice.waitFor( {
+			timeout: 10000,
+		} );
+	}
+
+	// Prerender methods
+	async isPrerenderToggleVisible() {
+		const selector = 'text=Prerender Cornerstone Pages';
+		return this.page.isVisible( selector );
+	}
+
+	async togglePrerenderOption( enabled ) {
+		const toggle = this.page.locator( '[data-testid="prerender-cornerstone-pages-title"] input' );
+		const isCurrentlyChecked = await toggle.isChecked();
+
+		if ( isCurrentlyChecked !== enabled ) {
+			await toggle.click();
+		}
 	}
 }

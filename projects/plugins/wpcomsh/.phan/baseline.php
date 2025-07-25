@@ -21,11 +21,9 @@ return [
     // PhanImpossibleCondition : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
-    // PhanNoopNew : 2 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
-    // PhanNoopNewNoSideEffects : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
@@ -38,7 +36,6 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'custom-colors/class-palette.php' => ['PhanTypeArraySuspiciousNullable'],
-        'custom-colors/colors-api.php' => ['PhanNoopNewNoSideEffects'],
         'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable'],
         'custom-colors/core-bg-admin-notice.php' => ['PhanContextNotObject'],
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
@@ -54,7 +51,6 @@ return [
         'private-site/access-denied-preview-login-template.php' => ['PhanTypeSuspiciousEcho'],
         'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
         'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
-        'support-session.php' => ['PhanNoopNew'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/BlogTokenResilienceTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],

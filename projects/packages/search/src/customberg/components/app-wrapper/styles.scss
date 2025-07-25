@@ -1,5 +1,5 @@
-@use '@wordpress/base-styles/colors';
-@use 'instant-search/lib/styles/helper';
+@use "@wordpress/base-styles/colors";
+@use "instant-search/lib/styles/helper";
 
 .jp-search-configure-app-wrapper {
 	flex-grow: 1;
@@ -8,7 +8,7 @@
 		position: absolute;
 		left: 50%;
 		top: 50%;
-		transform: translate( -50%, -50% );
+		transform: translate(-50%, -50%);
 	}
 
 	.jetpack-instant-search {
@@ -16,8 +16,9 @@
 		position: absolute;
 		padding-top: 2em;
 
-		// Adjusts z-index for Customberg only, so color picker is not hidden behind overlay.
-		// Needs to have equal z-index to .interface-interface-skeleton__sidebar.
+		// Adjusts z-index for Customberg only, so color picker is
+		// not hidden behind overlay. Needs to have equal z-index
+		// to .interface-interface-skeleton__sidebar.
 		z-index: 90;
 
 		.jetpack-instant-search__search-results-wrapper {
@@ -25,7 +26,7 @@
 		}
 
 		// Disables opening search results without disabling the sort option selector.
-		a:not( .jetpack-instant-search__search-sort-option ) {
+		a:not(.jetpack-instant-search__search-sort-option) {
 			pointer-events: none;
 		}
 	}

@@ -1,8 +1,8 @@
-@use 'sass:color';
-@use '../../scss/layout';
-@use '../../scss/variables/colors';
-@use '../../scss/color-functions';
-@use '../../scss/typography';
+@use "sass:color";
+@use "../../scss/layout";
+@use "../../scss/variables/colors";
+@use "../../scss/color-functions";
+@use "../../scss/typography";
 
 @mixin banner-color( $color ) {
 
@@ -85,7 +85,7 @@
 		transition: all 100ms ease-in-out;
 
 		&.is-card-link {
-			box-shadow: 0 0 0 1px colors.$gray, 0 2px 4px color.adjust( colors.$gray, $lightness: 20% );
+			box-shadow: 0 0 0 1px colors.$gray, 0 2px 4px color.adjust(colors.$gray, $lightness: 20%);
 		}
 
 		.dops-card__link-indicator {
@@ -93,7 +93,7 @@
 		}
 	}
 
-	@include layout.breakpoint( '>480px' ) {
+	@include layout.breakpoint( ">480px" ) {
 		padding: 16px;
 
 		&.is-dismissible {
@@ -130,10 +130,10 @@
 	}
 
 	.dops-banner__icon-circle-svg {
-		transform: translate( 1px, 4px );
+		transform: translate(1px, 4px);
 	}
 
-	@include layout.breakpoint( '>480px' ) {
+	@include layout.breakpoint( ">480px" ) {
 		align-items: center;
 
 		.dops-banner__icon {
@@ -155,7 +155,7 @@
 		width: 32px;
 	}
 
-	@include layout.breakpoint( '>480px' ) {
+	@include layout.breakpoint( ">480px" ) {
 		align-items: center;
 		align-self: center;
 	}
@@ -173,7 +173,7 @@
 	flex-grow: 1;
 	flex-wrap: wrap;
 
-	@include layout.breakpoint( '>480px' ) {
+	@include layout.breakpoint( ">480px" ) {
 		flex-wrap: nowrap;
 	}
 }
@@ -199,7 +199,11 @@
 
 		.jp-link-button {
 
-			&, &:active, &:visited, &:hover, &:focus {
+			&,
+			&:active,
+			&:visited,
+			&:hover,
+			&:focus {
 				font-size: typography.$font-body-extra-small;
 				line-height: 1.4;
 				box-shadow: none;
@@ -223,7 +227,7 @@
 		}
 	}
 
-	@include layout.breakpoint( '>480px' ) {
+	@include layout.breakpoint( ">480px" ) {
 		width: auto;
 
 		.dops-banner__list li .gridicon {
@@ -259,7 +263,7 @@
 		}
 	}
 
-	@include layout.breakpoint( '>480px' ) {
+	@include layout.breakpoint( ">480px" ) {
 		margin: 0 4px 0 8px;
 		text-align: center;
 		width: auto;

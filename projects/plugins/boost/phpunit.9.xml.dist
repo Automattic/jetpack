@@ -14,10 +14,12 @@
 			<directory suffix="Test.php">tests/php</directory>
 			<exclude>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</exclude>
 			<exclude>tests/php/Image_Size_Analysis_Deprecation_Test.php</exclude>
+			<exclude>tests/php/Jetpack_Boost_Test.php</exclude>
 		</testsuite>
 		<testsuite name="with-wordpress">
 			<file>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</file>
 			<file>tests/php/Image_Size_Analysis_Deprecation_Test.php</file>
+			<file>tests/php/Jetpack_Boost_Test.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

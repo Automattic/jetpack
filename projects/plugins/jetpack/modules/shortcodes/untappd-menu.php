@@ -14,6 +14,8 @@
 
 /**
  * Display Untappd data in posts and pages.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Untappd {
 

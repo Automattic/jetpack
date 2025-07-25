@@ -34,6 +34,8 @@ new WPCOM_JSON_API_GET_Comment_Counts_Endpoint(
 
 /**
  * GET Comment Counts endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_GET_Comment_Counts_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

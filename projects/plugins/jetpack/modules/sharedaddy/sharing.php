@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -128,12 +129,12 @@ class Sharing_Admin {
 	 * Register Sharing settings menu page in offline mode or when wp-admin interface is enabled.
 	 */
 	public function subscription_menu() {
-		$wpcom_is_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-		$is_user_connected           = ( new Connection_Manager() )->is_user_connected();
+		$is_user_connected = ( new Connection_Manager() )->is_user_connected();
 
 		if (
 			( new Status() )->is_offline_mode()
-			|| $wpcom_is_wp_admin_interface
+			// Always enable Settings > Sharing on Atomic and Simple.
+			|| ( new Host() )->is_wpcom_platform()
 			|| ! $is_user_connected
 		) {
 			add_submenu_page(

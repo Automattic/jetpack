@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 $tablet-width: 760px;
 
@@ -21,11 +21,11 @@ $tablet-width: 760px;
 	max-width: 414px;
 	overflow: hidden;
 	position: relative;
-	transition: 0.25s height cubic-bezier(0.59,0.37,0.18,1.19) 0;
+	transition: 0.25s height cubic-bezier(0.59, 0.37, 0.18, 1.19) 0;
 	width: 90%;
 	will-change: height;
 
-	// Hacky override for to target core's modal component .components-modal__content.
+	// Override for to target core's modal component .components-modal__content.
 	> div:first-child {
 		padding: 0;
 	}
@@ -92,7 +92,8 @@ $tablet-width: 760px;
 			top: 64px;
 			z-index: 99;
 
-			path, clipPath {
+			path,
+			clipPath {
 				fill: #000;
 			}
 
@@ -107,13 +108,14 @@ $tablet-width: 760px;
 
 			.jetpack-logo {
 
-				path, clipPath {
-					transition: 2s fill ease .5s;
+				path,
+				clipPath {
+					transition: 2s fill ease 0.5s;
 					fill: #fff;
 				}
 
 				path.jetpack-logo-triangles {
-					transition: 2s fill ease .5s;
+					transition: 2s fill ease 0.5s;
 					fill: #000;
 				}
 			}
@@ -126,11 +128,17 @@ $tablet-width: 760px;
  */
 @keyframes videoMove {
 
-	20%  { transform: translateY(0)   scale(1); }
+	20% {
+		transform: translateY(0)   scale(1);
+	}
 
-	65%  { transform: translateY(16%) scale(1.4); }
+	65% {
+		transform: translateY(16%) scale(1.4);
+	}
 
-	100% { transform: translateY(0)   scale(1); }
+	100% {
+		transform: translateY(0)   scale(1);
+	}
 }
 
 .video-wrap {
@@ -141,7 +149,7 @@ $tablet-width: 760px;
 	min-height: 400px;
 	overflow: hidden;
 	position: relative;
-	transition: .55s height cubic-bezier(0.59,0.37,0.18,1) 0s;
+	transition: 0.55s height cubic-bezier(0.59, 0.37, 0.18, 1) 0s;
 	will-change: height;
 
 	.animating & {
@@ -162,7 +170,7 @@ $tablet-width: 760px;
 		position: absolute;
 		top: 0;
 		transform: scale(1);
-		transition: 0.85s all cubic-bezier(1,0,.39,1) 0s;
+		transition: 0.85s all cubic-bezier(1, 0, 0.39, 1) 0s;
 		width: 100%;
 		will-change: transform;
 	}
@@ -175,7 +183,7 @@ $tablet-width: 760px;
 		0% {
 			left: 60%;
 			top: 32px;
-			animation-timing-function: cubic-bezier(0.86,0,0.07,1);
+			animation-timing-function: cubic-bezier(0.86, 0, 0.07, 1);
 		}
 
 		50% {
@@ -183,7 +191,7 @@ $tablet-width: 760px;
 			left: 32px;
 			top: 32px;
 			width: 100%;
-			animation-timing-function: cubic-bezier(0.17,0.84,0.44,1);
+			animation-timing-function: cubic-bezier(0.17, 0.84, 0.44, 1);
 		}
 
 		100% {
@@ -202,7 +210,7 @@ $tablet-width: 760px;
 		position: absolute;
 		right: 32px;
 		top: 32px;
-		transition: .55s width ease 0s;
+		transition: 0.55s width ease 0s;
 		z-index: 3;
 
 		video {
@@ -215,7 +223,7 @@ $tablet-width: 760px;
 		}
 
 		.animating & {
-			animation-delay: .25s;
+			animation-delay: 0.25s;
 			animation-duration: 2s;
 			animation-fill-mode: forwards;
 			animation-name: slidein;
@@ -266,7 +274,8 @@ $tablet-width: 760px;
 			gap: 16px;
 			padding: 0 32px 0 0;
 
-			h2, p {
+			h2,
+			p {
 				margin: 0;
 			}
 		}
@@ -280,8 +289,8 @@ $tablet-width: 760px;
 			width: auto;
 
 			/*
-			 * We have to use !important to add additional styling compared to the Jetpack
-			 * button component.
+			 * We have to use !important to add additional styling compared to the
+			 * Jetpack button component.
 			 */
 			padding: 16px var(--jp-modal-padding-large) !important;
 		}
@@ -289,7 +298,7 @@ $tablet-width: 760px;
 		.animating & {
 			left: -20px;
 			opacity: 0;
-			transition: .55s all cubic-bezier(0.59,0.37,0.18,1) .3s;
+			transition: 0.55s all cubic-bezier(0.59, 0.37, 0.18, 1) 0.3s;
 		}
 	}
 }
@@ -303,7 +312,7 @@ $tablet-width: 760px;
 	opacity: 0;
 	position: absolute;
 	top: 100%;
-	transition: 0.45s transform cubic-bezier(0.59,0.37,0.18,1) 2s, 0.45s opacity linear;
+	transition: 0.45s transform cubic-bezier(0.59, 0.37, 0.18, 1) 2s, 0.45s opacity linear;
 	width: 100%;
 	will-change: transform, opacity;
 	z-index: 2;
@@ -346,12 +355,12 @@ $tablet-width: 760px;
 			right: 32px;
 			top: unset;
 			transform: translateY(0%);
-			transition: 0.45s all cubic-bezier(0.59,0.37,0.18,1) 2s, 0.45s opacity linear;
+			transition: 0.45s all cubic-bezier(0.59, 0.37, 0.18, 1) 2s, 0.45s opacity linear;
 			transition-delay: 2s;
 			width: auto;
 
 			.content-wrap-text {
-				padding-left: 32px;;
+				padding-left: 32px;
 			}
 
 			.button {

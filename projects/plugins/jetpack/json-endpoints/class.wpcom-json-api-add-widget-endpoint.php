@@ -98,6 +98,8 @@ new WPCOM_JSON_API_Add_Widgets_Endpoint(
 
 /**
  * The Add Widgets endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

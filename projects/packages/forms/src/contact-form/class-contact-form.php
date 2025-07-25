@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use Jetpack_Tracks_Event;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -94,12 +96,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $current_post;
 
 	/**
+	 * Whether the form has a verified JWT token.
+	 *
+	 * @var bool
+	 */
+	public $has_verified_jwt = false;
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
 	 * @param string $content - the content.
+	 * @param bool   $set_id - whether to set the ID for the form.
 	 */
-	public function __construct( $attributes, $content = null ) {
+	public function __construct( $attributes, $content = null, $set_id = true ) {
 		global $post, $page;
 
 		// AJAX requests don't have a post object, so we need to get the post object from the $_POST['contact-form-id']
@@ -115,56 +125,39 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
 
 		// Set up the default subject and recipient for this form.
-		$default_to      = '';
-		$default_subject = '[' . get_option( 'blogname' ) . ']';
+		$default_to      = self::get_default_to( $this->current_post ? $this->current_post->post_author : null );
+		$default_subject = self::get_default_subject( $attributes );
 
 		if ( ! isset( $attributes ) || ! is_array( $attributes ) ) {
 			$attributes = array();
 		}
 
-		if ( $this->current_post ) {
-			$default_subject = sprintf(
-				// translators: the blog name and post title.
-				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack-forms' ),
-				$default_subject,
-				Contact_Form_Plugin::strip_tags( $this->current_post->post_title )
-			);
-		}
+		if ( $set_id ) {
+			$is_widget = false;
 
-		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'widget-' . $attributes['widget'];
-			// translators: the blog name (and post name, if applicable).
-			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack-forms' ), $default_subject );
-		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'block-template-' . $attributes['block_template'];
-		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-		} elseif ( $this->current_post ) {
-			$attributes['id'] = $this->current_post->ID;
-			$post_author      = get_userdata( $this->current_post->post_author );
-			if ( is_a( $post_author, '\WP_User' ) ) {
-				$default_to .= $post_author->user_email;
-			} else {
-				$default_to .= get_option( 'admin_email' );
-			}
-		}
-
-		// When using admin-ajax.php, we don't need to add a page number to the id
-		if ( ! empty( self::$forms ) && ! $this->is_response_without_reload_enabled ) {
-			// Ensure 'id' exists in $attributes before trying to modify it
-			if ( ! isset( $attributes['id'] ) ) {
-				$attributes['id'] = '';
+			if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+				$attributes['id'] = 'widget-' . $attributes['widget'];
+				$is_widget        = true;
+			} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
+				$attributes['id'] = 'block-template-' . $attributes['block_template'];
+			} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
+				$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
+			} elseif ( $this->current_post ) {
+				$attributes['id'] = $this->current_post->ID;
 			}
 
-			// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
-			$page_num = max( 1, intval( $page ) );
+			if ( ! empty( self::$forms ) && ! $is_widget ) {
+				// Ensure 'id' exists in $attributes before trying to modify it
+				if ( ! isset( $attributes['id'] ) ) {
+					$attributes['id'] = '';
+				}
 
-			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
+				// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
+				$page_num = max( 1, intval( $page ) );
+
+				$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
+			}
 		}
-
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
 		self::$forms[ $this->hash ] = $this;
 
@@ -186,6 +179,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack-forms' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
+			'connectMailPoet'        => false, // Whether to send contact to MailPoet.
 			'className'              => null,
 			'postToUrl'              => null,
 			'salesforceData'         => null,
@@ -217,43 +211,135 @@ class Contact_Form extends Contact_Form_Shortcode {
 				[contact-field label="' . __( 'Message', 'jetpack-forms' ) . '" type="textarea" /]';
 
 			$this->parse_content( $default_form );
-
-			// Store the shortcode.
-			$this->store_shortcode( $default_form, $attributes, $this->hash );
-		} else {
-			// Store the shortcode.
-			$this->store_shortcode( $content, $attributes, $this->hash );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = false;
+	}
+	/**
+	 * Get the instance of the contact form from a JWT token.
+	 *
+	 * @param string $jwt_token The JWT token.
+	 *
+	 * @return Contact_Form|null The contact form instance or null if not found.
+	 */
+	public static function get_instance_from_jwt( $jwt_token ) {
+		$secret = self::get_secret();
+		if ( empty( $secret ) ) {
+			return null;
+		}
+
+		try {
+			$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ), true );
+		} catch ( \Exception $e ) {
+			return null;
+		}
+
+		$form                   = new self( $data['attributes'], $data['content'], empty( $data['attributes']['id'] ) );
+		$form->hash             = $data['hash'];
+		$form->has_verified_jwt = true;
+		return $form;
+	}
+	/**
+	 * Helper function to get the secret from the Tokens class.
+	 *
+	 * @return string|null The secret from the Tokens class or null if not available.
+	 */
+	private static function get_secret() {
+		$token          = ( new Tokens() )->get_access_token();
+		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION );
+		if ( ! isset( $token->secret ) ) {
+			return $default_secret;
+		}
+
+		// Get the secret from the Tokens class.
+		return $token->secret;
+	}
+
+	/**
+	 * Helper function to get the attributes of the contact form.
+	 *
+	 * @return array The attributes of the contact form.
+	 */
+	public function get_attributes() {
+		return $this->attributes;
+	}
+
+	/**
+	 * Get the JWT token for the contact form instance.
+	 *
+	 * @return string The JWT token.
+	 */
+	public function get_jwt() {
+		$attributes = $this->attributes;
+		return JWT::encode(
+			array(
+				'attributes' => $attributes,
+				'content'    => $this->content,
+				'hash'       => $this->hash,
+			),
+			self::get_secret()
+		);
+	}
+
+	/**
+	 * Get the default recipient email address for the contact form.
+	 *
+	 * @param int|null $post_author_id The ID of the post author. If provided, will return the author's email.
+	 *
+	 * @return string The default recipient email address.
+	 */
+	public static function get_default_to( $post_author_id = null ) {
+
+		if ( $post_author_id ) {
+			$post_author = get_userdata( $post_author_id );
+			if ( ! empty( $post_author->user_email ) ) {
+				return $post_author->user_email;
+			}
+		}
+		// Get the default recipient email address.
+		$default_to = get_option( 'admin_email' );
+
+		return $default_to;
+	}
+
+	/**
+	 * Get the default subject for the contact form.
+	 *
+	 * @param array $attributes The attributes of the contact form.
+	 *
+	 * @return string The default subject for the contact form.
+	 */
+	public static function get_default_subject( $attributes ) {
+		global $post;
+		// Get the default subject for the contact form.
+		$default_subject = '[' . get_option( 'blogname' ) . ']';
+
+		if ( $post ) {
+			$default_subject = sprintf(
+				// translators: the blog name and post title.
+				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack-forms' ),
+				$default_subject,
+				Contact_Form_Plugin::strip_tags( $post->post_title )
+			);
+		}
+
+		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			// translators: '%1$s the blog name
+			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack-forms' ), $default_subject );
+		}
+
+		return $default_subject;
 	}
 
 	/**
 	 * Store shortcode content for recall later
 	 *  - used to receate shortcode when user uses do_shortcode
 	 *
-	 * @param string $content - the content.
-	 * @param array  $attributes - the attributes.
-	 * @param string $hash - the hash.
+	 * @deprecated $$next-version$$
 	 */
-	public static function store_shortcode( $content = null, $attributes = null, $hash = null ) {
-
-		if ( $content && isset( $attributes['id'] ) ) {
-
-			if ( empty( $hash ) ) {
-				$hash = sha1( wp_json_encode( $attributes ) . $content );
-			}
-
-			$shortcode_meta = (string) get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
-
-			if ( $shortcode_meta !== '' || $shortcode_meta !== $content ) {
-				update_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", $content );
-
-				// Save attributes to post_meta for later use. They're not available later in do_shortcode situations.
-				update_post_meta( $attributes['id'], "_g_feedback_shortcode_atts_{$hash}", $attributes );
-			}
-		}
+	public static function store_shortcode() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Contact_Form_Plugin::store_shortcode()' );
 	}
 
 	/**
@@ -352,9 +438,42 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_enqueue_script( 'accessible-form' );
 		}
 
+		$config = array(
+			'error_types'    => array(
+				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
+				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
+				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
+				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
+			),
+			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
+		);
+		wp_interactivity_config( 'jetpack/form', $config );
+		\wp_enqueue_script_module(
+			'jp-forms-view',
+			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			\JETPACK__VERSION
+		);
+
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
 		$container_classes[]      = self::get_block_alignment_class( $attributes );
 		$container_classes_string = implode( ' ', $container_classes );
+
+		$is_reload_after_success = isset( $_GET['contact-form-id'] )
+		&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
+		&& isset( $_GET['contact-form-sent'] )
+		&& isset( $_GET['contact-form-hash'] )
+		&& is_string( $_GET['contact-form-hash'] )
+		&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$feedback_id           = 0;
+		$is_reload_nonce_valid = false;
+
+		if ( $is_reload_after_success ) {
+			$feedback_id           = (int) $_GET['contact-form-sent'];
+			$is_reload_nonce_valid = isset( $_GET['_wpnonce'] )
+				&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), "contact-form-sent-{$feedback_id}" );
+		}
 
 		$max_steps = 0;
 		if ( preg_match_all( '/data-wp-context=[\'"]?{"step":(\d+)}[\'"]?/', $content, $matches ) ) {
@@ -366,6 +485,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$is_multistep = $max_steps > 0;
 		$element_id   = 'jp-form-' . esc_attr( $form->hash );
 
+		// Initial data used to render the success message when the page is reloaded after a successful submission
+		// Don't show the feedback details unless the nonce matches
+		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'], $form ) : null;
+		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
+		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
+
 		$default_context = array(
 			'formId'                         => $id,
 			'formHash'                       => $form->hash,
@@ -374,7 +499,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'fields'                         => array(),
 			'isMultiStep'                    => $is_multistep, // Whether the form is a multistep form.
 			'isResponseWithoutReloadEnabled' => $form->is_response_without_reload_enabled,
-			'submissionData'                 => null,
+			'submissionData'                 => $submission_data,
+			'formattedSubmissionData'        => $formatted_submission_data,
+			'submissionSuccess'              => $submission_success,
 			'submissionError'                => null,
 			'elementId'                      => $element_id,
 		);
@@ -404,7 +531,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		>\n";
 
 		if ( $form->is_response_without_reload_enabled ) {
-			$r .= self::render_ajax_success_wrapper( $form );
+			$r .= self::render_ajax_success_wrapper( $form, $submission_success, $formatted_submission_data );
 		}
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
@@ -416,14 +543,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "</ul>\n</div>\n\n";
 		}
 
-		if ( isset( $_GET['contact-form-id'] )
-			&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
-			&& isset( $_GET['contact-form-sent'] ) && isset( $_GET['contact-form-hash'] )
-			&& is_string( $_GET['contact-form-hash'] )
-			&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $is_reload_after_success && ! $form->is_response_without_reload_enabled ) {
 			// The contact form was submitted.  Show the success message/results.
-			$feedback_id = (int) $_GET['contact-form-sent'];
-
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
 			$r       .= '<div class="contact-form-submission">';
 
@@ -434,11 +555,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				"</h4>\n\n";
 
 			// Don't show the feedback details unless the nonce matches
-			if (
-				$feedback_id
-				&& isset( $_GET['_wpnonce'] )
-				&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), "contact-form-sent-{$feedback_id}" )
-			) {
+			if ( $is_reload_nonce_valid ) {
 				$r_success_message .= self::success_message( $feedback_id, $form );
 			}
 
@@ -486,9 +603,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id, $page );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
-			$post_title              = $post->post_title ?? '';
-			$form_accessible_name    = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
-			$form_aria_label         = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
+			if ( $submission_success ) {
+				$form_classes .= ' submission-success';
+			}
+			$post_title           = $post->post_title ?? '';
+			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
+			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
 			if ( $has_submit_button_block ) {
 				$form_classes .= ' wp-block-jetpack-contact-form';
@@ -500,7 +620,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
 				data-wp-on--submit=\"actions.onFormSubmit\"
 				data-wp-on--reset=\"actions.onFormReset\"
-				data-wp-class--is-submitted=\"state.hasSubmitted\"
+				data-wp-class--submission-success=\"context.submissionSuccess\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
 				data-wp-class--is-ajax-form=\"context.isResponseWithoutReloadEnabled\"
@@ -509,7 +629,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $is_multistep ) { // This makes the "enter" key work in multi-step forms as expected.
 				$r .= '<input type="submit" style="display: none;" />';
 			}
-
+			$r .= "<input type='hidden' name='jetpack_contact_form_jwt' value='" . esc_attr( $form->get_jwt() ) . "' />\n";
 			$r .= $form->body;
 
 			if ( $is_multistep ) {
@@ -603,12 +723,32 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Helper function to format the submission data for the success message.
+	 *
+	 * @param array $data The submission data.
+	 *
+	 * @return array The formatted submission data.
+	 */
+	private static function format_submission_data( $data ) {
+		$formatted_submission_data = array();
+
+		foreach ( $data as $field_data ) {
+			$formatted_submission_data[] = array(
+				'label' => self::maybe_add_colon_to_label( $field_data['label'] ),
+				'value' => self::maybe_transform_value( $field_data['value'] ),
+			);
+		}
+
+		return $formatted_submission_data;
+	}
+
+	/**
 	 * Helper function that display the error wrapper.
 	 *
 	 * @return string HTML string for the error wrapper.
 	 */
 	private static function render_error_wrapper() {
-		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFromErrors">';
+		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFormErrors">';
 		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
 				<span data-wp-text="state.getFormErrorMessage"></span>
 				<ul>
@@ -617,6 +757,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</template>
 				</ul>';
 		$html .= '</div>';
+
+		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError"></div>';
 		return $html;
 	}
 
@@ -624,12 +766,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Renders the success wrapper after a form is submitted without reloading the page.
 	 *
 	 * @param Contact_Form $form - the contact form.
+	 * @param bool         $submission_success - whether the form has already been submitted.
+	 * @param array        $formatted_submission_data - the formatted submission data.
 	 *
 	 * @return string HTML string for the success wrapper.
 	 */
-	private static function render_ajax_success_wrapper( $form ) {
-		$html  = '<div class="contact-form-submission contact-form-ajax-submission" data-wp-class--is-submitted="state.hasSubmitted">';
-		$html .= '<p class="go-back-message"> <a class="link" href="#" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+	private static function render_ajax_success_wrapper( $form, $submission_success = false, $formatted_submission_data = array() ) {
+		$classes = 'contact-form-submission contact-form-ajax-submission';
+		if ( $submission_success ) {
+			$classes .= ' submission-success';
+		}
+		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
+		$html .= '<p class="go-back-message"> <a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
@@ -653,10 +801,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$html .= wp_kses( $raw_message, $allowed_html );
 		} else {
-			$html .= '<template data-wp-each--submission="state.getSubmissionData">
-				<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-				<div class="field-value" data-wp-text="context.submission.value"></div>
+			$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
+				<div>
+					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
+					<div class="field-value" data-wp-text="context.submission.value"></div>
+				</div>
 			</template>';
+
+			// For each entry in the submission data array, render a div with the label and value.
+			foreach ( $formatted_submission_data as $submission ) {
+				$html .= '<div data-wp-each-child>
+					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . $submission['label'] . '</div>
+					<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
+				</div>';
+			}
 		}
 
 		$html .= '</div>';
@@ -752,7 +910,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$json_data = array();
 
 		// Handle file upload field (new structure with field_id and files array)
-		foreach ( $raw_data as $field_index => $field_data ) {
+		foreach ( $raw_data as $field_data ) {
 			$value = $field_data['value'];
 			$label = $field_data['label'];
 
@@ -768,16 +926,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 						$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
 						$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
 
-						$json_data[ $field_index ]['label'] = $label;
-						$json_data[ $field_index ]['value'] = array(
-							'name' => $file_name,
-							'size' => $file_size,
+						$json_data[] = array(
+							'label' => $label,
+							'value' => array(
+								'name' => $file_name,
+								'size' => $file_size,
+							),
 						);
 					}
 				}
 			} else {
-				$json_data[ $field_index ]['label'] = $label;
-				$json_data[ $field_index ]['value'] = $value;
+				$json_data[] = array(
+					'label' => $label,
+					'value' => $value,
+				);
 			}
 		}
 
@@ -1366,21 +1528,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$to = get_option( 'admin_email' );
 		}
 
-		// Make sure we're processing the form we think we're processing... probably a redundant check.
-		if ( $widget ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+		if ( ! $this->has_verified_jwt ) {
+			// Make sure we're processing the form we think we're processing... probably a redundant check.
+			if ( $widget ) {
+				if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+					return false;
+				}
+			} elseif ( $block_template ) {
+				if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+					return false;
+				}
+			} elseif ( $block_template_part ) {
+				if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+					return false;
+				}
+			} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || $this->current_post->ID !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
-		} elseif ( $block_template ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
-			}
-		} elseif ( $block_template_part ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
-			}
-		} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || $this->current_post->ID !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-			return false;
 		}
 
 		$field_ids = $this->get_field_ids();
@@ -1987,6 +2151,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
 
+		$refresh_args = array(
+			'contact-form-id'   => $id,
+			'contact-form-sent' => $post_id,
+			'contact-form-hash' => $this->hash,
+			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
+		);
+
 		// If the request accepts JSON, return a JSON response instead of redirecting
 		$accepts_json = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
@@ -1995,8 +2166,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			echo wp_json_encode(
 				array(
-					'success' => true,
-					'data'    => self::get_json_data( $post_id, $this ),
+					'success'     => true,
+					'data'        => self::get_json_data( $post_id, $this ),
+					'refreshArgs' => $refresh_args,
 				)
 			);
 
@@ -2026,14 +2198,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( ! $custom_redirect ) {
 			$redirect = add_query_arg(
-				urlencode_deep(
-					array(
-						'contact-form-id'   => $id,
-						'contact-form-sent' => $post_id,
-						'contact-form-hash' => $this->hash,
-						'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
-					)
-				),
+				urlencode_deep( $refresh_args ),
 				$redirect
 			);
 		}
@@ -2324,6 +2489,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':' ) . ':';
 
 		return $formatted_label;
+	}
+
+	/**
+	 * Ensures a value is formatted as a string, taking into account file upload fields.
+	 *
+	 * @param mixed $value The value to transform.
+	 * @return mixed The transformed value.
+	 */
+	private static function maybe_transform_value( $value ) {
+		// For file upload fields, we want to show the file name and size
+		if ( is_array( $value ) && isset( $value['name'] ) && isset( $value['size'] ) ) {
+			$file_name = $value['name'];
+			$file_size = $value['size'];
+			return empty( $file_size ) ? $file_name : $file_name . ' (' . $file_size . ')';
+		}
+
+		return $value;
 	}
 
 	/**

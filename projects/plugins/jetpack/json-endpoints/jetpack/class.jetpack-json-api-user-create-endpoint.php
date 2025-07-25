@@ -5,6 +5,8 @@ use Automattic\Jetpack\Constants;
 
 /**
  * User create endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 

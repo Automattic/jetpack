@@ -42,6 +42,7 @@ export default {
 		},
 	},
 	supports: {
+		align: false,
 		className: false,
 		customClassName: false,
 		html: false,

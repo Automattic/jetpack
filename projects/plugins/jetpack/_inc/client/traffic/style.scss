@@ -1,4 +1,4 @@
-@use '../scss/functions/rem';
+@use "../scss/functions/rem";
 @use "../scss/variables/colors";
 @use "../scss/mixin_breakpoint";
 @use "../scss/typography";
@@ -8,16 +8,16 @@
 	.dops-button {
 		margin: 0 15px;
 
-		@include mixin_breakpoint.breakpoint( '<660px' ) {
+		@include mixin_breakpoint.breakpoint( "<660px" ) {
 			margin-top: 10px;
 			width: 40%;
 		}
 	}
 
 	.jp-form-google-separator {
-		padding: .5rem 0;
+		padding: 0.5rem 0;
 
-		@include mixin_breakpoint.breakpoint( '<660px' ) {
+		@include mixin_breakpoint.breakpoint( "<660px" ) {
 			margin: 25px 0 0;
 			display: inline-block;
 		}
@@ -43,7 +43,7 @@
 
 // we want to place.jp-form-input-with-prefix's margin after this element
 .jp-form-input-with-prefix-bottom-message {
-	top: rem.convert( -20px );
+	top: rem.convert(-20px);
 	position: relative;
 	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 2em;
@@ -69,11 +69,11 @@
 		margin-right: 5px;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		border-left: 0;
 	}
 
-	@include mixin_breakpoint.breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 		border-top: 0;
 	}
 }
@@ -82,7 +82,7 @@
 	margin-left: 10px;
 	overflow: visible;
 
-	@include mixin_breakpoint.breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 		margin-left: 0;
 		margin-right: 5px;
 		margin-top: 5px;
@@ -103,8 +103,8 @@
 	align-content: center;
 
 	.dops-button {
-		margin-left: rem.convert( 8px );
-		margin-right: rem.convert( 8px );
+		margin-left: rem.convert(8px);
+		margin-right: rem.convert(8px);
 
 		&:first-child {
 			margin-left: 0;
@@ -241,7 +241,7 @@ $twitter-pofile-image-padding: 17px;
 
 .jp-seo-yoast-promo-banner {
 	// Overwrites of dops-banner styles for purposes of Yoast ad
-	border-left-color: #A3286A !important;
+	border-left-color: #a3286a !important;
 
 	.dops-banner__icon-plan {
 
@@ -258,7 +258,7 @@ $twitter-pofile-image-padding: 17px;
 
 .jp-stats-odyssey-disabled-notice {
 
-	@include mixin_breakpoint.breakpoint('<480px') {
+	@include mixin_breakpoint.breakpoint("<480px") {
 
 		a.dops-notice__action {
 			white-space: initial;
@@ -269,7 +269,7 @@ $twitter-pofile-image-padding: 17px;
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint('>480px') {
+	@include mixin_breakpoint.breakpoint(">480px") {
 		width: calc(100% - 26px);
 	}
 }
@@ -288,7 +288,7 @@ $twitter-pofile-image-padding: 17px;
 
 .jp-stats-odyssey-badge {
 	color: #008710;
-	background-color: #D0E6B8;
+	background-color: #d0e6b8;
 	border-radius: 3px;
 	font-size: 10px;
 	line-height: 18px;

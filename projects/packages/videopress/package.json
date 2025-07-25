@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.30.4",
+	"version": "0.30.5",
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
 	"bugs": {
@@ -29,7 +29,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
-		"@babel/core": "7.27.7",
+		"@babel/core": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"@csstools/postcss-global-data": "2.1.1",
 		"@jest/globals": "30.0.4",

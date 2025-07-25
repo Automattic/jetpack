@@ -1,14 +1,14 @@
 import { expect } from '@playwright/test';
 import { waitForBlock } from '../../helpers/blocks-helper.js';
-import { resolveSiteUrl } from '../../helpers/utils-helper.js';
 import logger from '../../logger.js';
+import pwConfig from '../../playwright.config.mjs';
 import { SitePage } from '../index.js';
 import WpPage from '../wp-page.js';
 import { EditorCanvas } from './index.js';
 
 export default class SiteEditorPage extends WpPage {
 	constructor( page ) {
-		const url = resolveSiteUrl() + '/wp-admin/site-editor.php';
+		const url = pwConfig.use.baseURL + '/wp-admin/site-editor.php';
 		super( page, { expectedSelectors: [ '#site-editor' ], url } );
 
 		this.canvasPage = new EditorCanvas( page );

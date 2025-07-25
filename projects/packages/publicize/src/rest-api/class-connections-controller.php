@@ -17,6 +17,8 @@ use WP_REST_Server;
 
 /**
  * Connections Controller class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Connections_Controller extends Base_Controller {
 

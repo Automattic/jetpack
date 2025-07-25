@@ -23,7 +23,7 @@
 	border: 1px solid #000;
 	background-color: #fff;
 	padding: 8px 12px;
-	color: var( --gray-10 );
+	color: var(--gray-10);
 }
 
 .options li.active {
@@ -31,14 +31,14 @@
 }
 
 .options li.selected {
-	background-color: var( --gray-0 );
+	background-color: var(--gray-0);
 }
 
 .tabs {
 	display: flex;
-	border-bottom: 1px solid var( --gray-5 );
+	border-bottom: 1px solid var(--gray-5);
 	margin-bottom: 32px;
-	gap: var( --expanded-gap );
+	gap: var(--expanded-gap);
 
 	/* Hide on narrow screens. */
 	@media ( max-width: 782px ) {
@@ -64,7 +64,7 @@
 
 .tab:hover,
 .tab:focus-within {
-	border-bottom: 1px solid var( --gray-40 );
+	border-bottom: 1px solid var(--gray-40);
 }
 
 .link {
@@ -91,6 +91,6 @@
 .issues {
 	padding: 2px 8px;
 	font-size: 0.75rem;
-	border-radius: var( --border-radius );
-	background-color: var( --gray-5 );
+	border-radius: var(--border-radius);
+	background-color: var(--gray-5);
 }

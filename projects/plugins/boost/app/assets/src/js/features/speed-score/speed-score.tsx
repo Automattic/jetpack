@@ -20,14 +20,14 @@ import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/criti
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import PopOut from './pop-out/pop-out';
-import { useCornerstonePages } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
+import { useCornerstonePagesProperties } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
 
 const SpeedScore = () => {
-	const [ cornerstonePages ] = useCornerstonePages();
+	const properties = useCornerstonePagesProperties();
 	const { site } = Jetpack_Boost;
-	const pageSpeedUrl = cornerstonePages[ 0 ];
+	const pageSpeedUrl = properties?.predefined_pages?.[ 0 ] || site.url;
 	const [ { status, error, scores }, loadScore ] = useSpeedScores( pageSpeedUrl );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;

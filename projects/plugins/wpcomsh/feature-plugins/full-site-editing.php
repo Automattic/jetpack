@@ -117,7 +117,7 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 		$blog_id      = get_current_blog_id();
 		$site_url     = get_home_url( $blog_id );
 		$site_slug    = wp_parse_url( $site_url, PHP_URL_HOST );
-		$settings_url = 'https://wordpress.com/settings/general/' . $site_slug . '#site-privacy-settings';
+		$settings_url = 'https://wordpress.com/sites/settings/v2/' . $site_slug . '/site-visibility';
 
 		if ( $is_wpcom_public_coming_soon_enabled ) {
 			/* translators: 1: opening anchor tag; 2: closing anchor tag. */

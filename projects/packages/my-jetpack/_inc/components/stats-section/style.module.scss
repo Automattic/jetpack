@@ -1,10 +1,10 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 
 $actions-size: 28px;
-$spacing-vertical: calc( var(--spacing-base) * 3 );
-$spacing-horizontal: calc( var(--spacing-base) * 3 );
+$spacing-vertical: calc(var(--spacing-base) * 3);
+$spacing-horizontal: calc(var(--spacing-base) * 3);
 $break-medium: 782px;
 $min-card-width: 155px;
 
@@ -40,7 +40,7 @@ $min-card-width: 155px;
 
 .section-description {
 	margin-left: 0.75rem;
-	font-family:  $sans-font;
+	font-family: $sans-font;
 	font-weight: 400;
 	font-size: var(--font-body-small);
 	color: var(--jp-gray-60);
@@ -84,7 +84,7 @@ $min-card-width: 155px;
 		border-radius: 4px;
 		width: 100%;
 		min-width: $min-card-width; // Minimum mobile width
-		padding: var(--spacing-base) calc( var(--spacing-base) * 2 ) calc( var(--spacing-base) + 6px );
+		padding: var(--spacing-base) calc(var(--spacing-base) * 2) calc(var(--spacing-base) + 6px);
 		margin-bottom: 0;
 		transition: all 0.15s ease-in-out;
 
@@ -95,7 +95,7 @@ $min-card-width: 155px;
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
-			padding: var(--spacing-base) calc( var(--spacing-base) * 2 );
+			padding: var(--spacing-base) calc(var(--spacing-base) * 2);
 		}
 
 		@media (min-width: gb.$break-medium) {
@@ -145,8 +145,8 @@ $min-card-width: 155px;
 
 .stats-card-heading {
 	font-size: 14px;
-    letter-spacing: -.15px;
-    line-height: 20px;
+	letter-spacing: -0.15px;
+	line-height: 20px;
 }
 
 .stats-card-count {
@@ -180,8 +180,8 @@ $min-card-width: 155px;
 .stats-card-difference {
 	font-size: var(--font-body-small);
 	font-weight: 600;
-    letter-spacing: -.24px;
-    line-height: 25px;
+	letter-spacing: -0.24px;
+	line-height: 25px;
 	color: var(--jp-gray-20);
 	fill: var(--jp-gray-20);
 
@@ -220,7 +220,7 @@ $min-card-width: 155px;
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	margin-top: calc( var(--spacing-base) * 2.5 );
+	margin-top: calc(var(--spacing-base) * 2.5);
 	min-height: $actions-size;
 	flex-wrap: wrap;
 }

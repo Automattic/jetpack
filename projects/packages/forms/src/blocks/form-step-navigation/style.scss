@@ -10,7 +10,7 @@
 }
 
 .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link {
-	width: calc( 100% - var(--wp--style--block-gap, 1.5rem) / 2 );
+	width: calc(100% - var(--wp--style--block-gap, 1.5rem) / 2);
 }
 
 .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-next,
@@ -22,7 +22,7 @@
 	width: 100%;
 }
 
-.is-content-justification-space-between .wp-block-jetpack-button:has( .is-next, .is-submit ) {
+.is-content-justification-space-between .wp-block-jetpack-button:has(.is-next, .is-submit) {
 	margin-left: auto;
 }
 

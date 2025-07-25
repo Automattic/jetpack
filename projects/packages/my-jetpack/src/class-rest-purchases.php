@@ -13,6 +13,8 @@ use WP_Error;
 
 /**
  * Registers the REST routes for Purchases.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class REST_Purchases {
 	/**

@@ -132,12 +132,12 @@ img[id*="botd"] {
 
 .widget_akismet_widget a,
 .content-sidebar .widget_akismet_widget a {
-	color: rgba(255,255,255,0.5) !important;
+	color: rgba(255, 255, 255, 0.5) !important;
 }
 
 .widget_akismet_widget a:hover,
 .content-sidebar .widget_akismet_widget a:hover {
-	color: rgba(255,255,255,0.7)  !important;
+	color: rgba(255, 255, 255, 0.7) !important;
 }
 
 /* Authors Widget */

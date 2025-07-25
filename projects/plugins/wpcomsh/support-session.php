@@ -20,6 +20,8 @@ if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
 /**
  * Detects the presence of a support session through Jetpack SSO
  * or a client-side check when SSO is disabled or the Jetpack connection is broken.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOMSH_Support_Session_Detect {
 	const COOKIE_NAME                  = '_wpcomsh_support_session_detected';
@@ -391,6 +393,8 @@ class WPCOMSH_Support_Session_Detect {
 /**
  * Attempts to hide ToS acceptance UI and prevent logging user ToS acceptance
  * while in a support session.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOMSH_Support_Session_Safety {
 

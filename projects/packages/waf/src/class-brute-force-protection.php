@@ -21,6 +21,8 @@ use WP_Error;
 
 /**
  * Brute Force Protection class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Brute_Force_Protection {
 

@@ -137,6 +137,8 @@ new WPCOM_JSON_API_List_Comments_Endpoint(
  * /sites/%s/comments/%d/replies/ -> $blog_id, $comment_id
  *
  * @todo permissions
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpoint { // phpcs:ignore
 

@@ -10,6 +10,8 @@ use Automattic\Jetpack\Connection\Client;
  * Themes install endpoint class.
  *
  * POST  /sites/%s/themes/%s/install
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 

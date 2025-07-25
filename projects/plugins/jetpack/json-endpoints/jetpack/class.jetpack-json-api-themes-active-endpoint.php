@@ -3,6 +3,8 @@
 /**
  * GET  /sites/%s/themes/mine => current theme
  * POST /sites/%s/themes/mine => switch theme
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Themes_Active_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 

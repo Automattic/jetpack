@@ -23,6 +23,8 @@ new WPCOM_JSON_API_Get_Comment_Endpoint(
 
 /**
  * Get Comment endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
 	/**

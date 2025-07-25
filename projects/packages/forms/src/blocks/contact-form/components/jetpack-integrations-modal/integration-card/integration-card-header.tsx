@@ -2,6 +2,8 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { Badge } from '@automattic/ui';
+import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */
@@ -49,13 +51,10 @@ const IntegrationCardHeader = ( {
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
 	const showPendingBadge = ! showPluginAction && ! isConnected && needsConnection;
-	const pendingBadge = setupBadge || (
-		<span className="integration-card__plugin-badge">
-			{ __( 'Needs connection', 'jetpack-forms' ) }
-		</span>
-	);
+
 	const installPluginActionLabel = __( 'Plugin needs install', 'jetpack-forms' );
 	const activatePluginActionLabel = __( 'Plugin needs activation', 'jetpack-forms' );
+	const pluginActionLabel = ! isInstalled ? installPluginActionLabel : activatePluginActionLabel;
 
 	const getTooltipText = checked => {
 		if ( toggleTooltip ) {
@@ -104,25 +103,29 @@ const IntegrationCardHeader = ( {
 						/>
 					</div>
 					<div className="integration-card__title-section">
-						<div className="integration-card__title-row">
-							<h3 className="integration-card__title">{ title }</h3>
-							{ showPluginAction && (
-								<span className="integration-card__plugin-badge">
-									{ ! isInstalled && installPluginActionLabel }
-									{ isInstalled && ! isActive && activatePluginActionLabel }
-								</span>
-							) }
-							{ showConnectedBadge && (
-								<span className="integration-card__connected-badge">
-									<Icon icon="yes-alt" size={ 12 } />
-									{ __( 'Enabled', 'jetpack-forms' ) }
-								</span>
-							) }
-							{ showPendingBadge && <>{ pendingBadge }</> }
-						</div>
+						<h3 className="integration-card__title">{ title }</h3>
 						{ description && (
 							<span className="integration-card__description">{ description }</span>
 						) }
+						{ showPluginAction && (
+							<Badge
+								intent={ isInstalled && ! isActive ? 'warning' : 'default' }
+								className="integration-card__plugin-badge"
+							>
+								{ pluginActionLabel }
+							</Badge>
+						) }
+						{ showConnectedBadge && (
+							<Badge intent="success" className="integration-card__connected-badge">
+								{ __( 'Enabled', 'jetpack-forms' ) }
+							</Badge>
+						) }
+						{ showPendingBadge &&
+							( setupBadge || (
+								<Badge intent="warning" className="integration-card__setup-badge">
+									{ __( 'Needs connection', 'jetpack-forms' ) }
+								</Badge>
+							) ) }
 					</div>
 				</div>
 				<HStack

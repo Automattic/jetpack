@@ -32,6 +32,8 @@ new WPCOM_JSON_API_Render_Shortcode_Endpoint(
  * Render shortcode endpoint class.
  *
  * /sites/%s/shortcodes/render -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Render_Shortcode_Endpoint extends WPCOM_JSON_API_Render_Endpoint {
 	/**

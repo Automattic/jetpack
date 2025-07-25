@@ -19,6 +19,8 @@ use WP_REST_Server;
 
 /**
  * VideoPress wpcom api v2 endpoint
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	/**

@@ -16,6 +16,8 @@ use Automattic\Jetpack\Assets;
 
 /**
  * Register and display Recipes in posts.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Recipes {
 

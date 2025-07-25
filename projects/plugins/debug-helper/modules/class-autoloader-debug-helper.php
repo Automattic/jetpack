@@ -11,6 +11,8 @@
 
 /**
  * Class Autoloader_Debug_Helper
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Autoloader_Debug_Helper {
 

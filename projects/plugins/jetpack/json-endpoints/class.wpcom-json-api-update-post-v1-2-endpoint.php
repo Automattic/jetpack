@@ -170,6 +170,8 @@ use function Automattic\Jetpack\Extensions\Map\map_block_from_geo_points;
 // phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
 /**
  * Update post v1.2 endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Post_v1_1_Endpoint {
 	/**

@@ -19,14 +19,12 @@ import { useParams } from 'react-router';
  * Internal dependencies
  */
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
 import useRedBubbleQuery from '../../data/use-red-bubble-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
 import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
-import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -38,7 +36,6 @@ import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
 import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
-import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -79,10 +76,6 @@ const GlobalNotice = ( { message, title, options } ) => {
  * @return {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState( {
-		isLoading: false,
-		variation: 'control',
-	} );
 	useNotificationWatcher();
 	const {
 		// no prettier please
@@ -92,9 +85,8 @@ export default function MyJetpackScreen() {
 		userIsAdmin,
 	} = getMyJetpackWindowInitialState();
 
-	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -203,37 +195,18 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			) }
-			{ isWelcomeBannerVisible && userIsAdmin ? (
-				<WelcomeFlow
-					welcomeFlowExperiment={ welcomeFlowExperiment }
-					setWelcomeFlowExperiment={ setWelcomeFlowExperiment }
-				>
-					{ noticeMessage &&
-						( siteIsRegistered ||
-							noticeOptions?.id === NOTICE_SITE_CONNECTION_ERROR.options.id ) && (
-							<GlobalNotice
-								message={ noticeMessage }
-								title={ noticeTitle }
-								options={ noticeOptions }
-							/>
-						) }
-				</WelcomeFlow>
-			) : (
-				noticeMessage && (
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col>
-							<GlobalNotice
-								message={ noticeMessage }
-								title={ noticeTitle }
-								options={ noticeOptions }
-							/>
-						</Col>
-					</Container>
-				)
+			{ noticeMessage && (
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col>
+						<GlobalNotice
+							message={ noticeMessage }
+							title={ noticeTitle }
+							options={ noticeOptions }
+						/>
+					</Col>
+				</Container>
 			) }
-			{ ! isWelcomeBannerVisible && isSectionVisible && userIsAdmin && (
-				<EvaluationRecommendations />
-			) }
+			{ isSectionVisible && userIsAdmin && <EvaluationRecommendations /> }
 
 			{ isRedirectingFromOnboarding && <OnboardingTour /> }
 

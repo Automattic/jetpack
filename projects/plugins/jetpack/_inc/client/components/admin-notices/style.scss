@@ -1,6 +1,9 @@
 .jetpack-pagestyles {
-	// Initially hide VaultPress and WooCommerce notices until they're displayed in Jetpack notices area
-	.vp-notice, .woocommerce-message, .wc-connect {
+	// Initially hide VaultPress and WooCommerce notices until
+	// they're displayed in Jetpack notices area
+	.vp-notice,
+	.woocommerce-message,
+	.wc-connect {
 		display: none;
 	}
 
@@ -16,7 +19,7 @@
 		padding: 0;
 
 		&::before {
-			content: '';
+			content: "";
 		}
 
 		.submit {

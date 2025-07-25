@@ -1,4 +1,4 @@
-@use '@wordpress/base-styles/mixins';
+@use "@wordpress/base-styles/mixins";
 
 /**
  * Allow to apply the modern scheme to elements.
@@ -45,7 +45,7 @@
 /**
  * Hamburger menu
  */
-#wpadminbar #wp-admin-bar-menu-toggle>.ab-item .ab-icon {
+#wpadminbar #wp-admin-bar-menu-toggle > .ab-item .ab-icon {
 
 	@media (max-width: 480px) {
 		width: 48px;
@@ -55,7 +55,7 @@
 /**
  * WP logo menu
  */
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item {
 	padding: 0 10px;
 
 	@media (max-width: 782px) {
@@ -63,7 +63,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon {
 	margin-right: 0 !important;
 
 	@media (max-width: 480px) {
@@ -71,7 +71,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon::before {
+#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon::before {
 	display: flex;
 	content: "";
 	width: 20px;
@@ -110,7 +110,7 @@
 		/**
 		 * Always show the House icon by the site name.
 		 */
-		content:"\f102" !important;
+		content: "\f102" !important;
 	}
 
 	@media (max-width: 480px) {
@@ -170,14 +170,15 @@
 	padding: 0;
 
 	.wp-admin-bar__info-badges {
-		color: rgba(240, 246, 252, .7);
+		color: rgba(240, 246, 252, 0.7);
 	}
 }
 
 /**
  * Profile section of the admin bar
  */
-// stylelint-disable-next-line no-duplicate-selectors -- disabling due to the complexity of combining the two selectors
+// stylelint-disable-next-line no-duplicate-selectors
+// -- disabling due to the complexity of combining the two selectors
 #wpadminbar {
 	// Add background color to the right side of the admin bar for the mobile view
 	.quicklinks {
@@ -321,7 +322,7 @@
 				margin-top: -28px;
 				width: 6px;
 				height: 6px;
-				background-color: var( --color-masterbar-unread-dot-background, #e26f56 ) !important;
+				background-color: var(--color-masterbar-unread-dot-background, #e26f56) !important;
 				border-radius: 50px;
 			}
 
@@ -331,7 +332,7 @@
 				height: 100%;
 				margin: 0;
 
-				&::before{
+				&::before {
 					background-color: currentColor;
 					content: "";
 					display: flex;
@@ -340,7 +341,7 @@
 					mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KICA8ZGVmcz4KICAgIDxtYXNrIGlkPSJjaXJjbGUtbWFzayI+CiAgICAgIDwhLS0gRXZlcnl0aGluZyBvdXRzaWRlIHRoZSBjaXJjbGUgaXMgdmlzaWJsZSAod2hpdGUpLCBhbmQgdGhlIGNpcmNsZSBpcyBzdWJ0cmFjdGVkIChibGFjaykgLS0+CiAgICAgIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IndoaXRlIiAvPgogICAgICA8Y2lyY2xlIGN4PSIyMCIgY3k9IjQiIHI9IjQiIGZpbGw9ImJsYWNrIiAvPgogICAgPC9tYXNrPgogIDwvZGVmcz4KICAKICA8IS0tIEFwcGx5IHRoZSBtYXNrIHRvIHRoZSBwYXRoIHNvIHRoZSBjaXJjbGUgaXMgc3VidHJhY3RlZCAtLT4KICA8ZyBtYXNrPSJ1cmwoI2NpcmNsZS1tYXNrKSI+CiAgICA8cGF0aCBmaWxsPSJ2YXIoLS1jb2xvci1tYXN0ZXJiYXItaWNvbikiIGQ9Ik05LDIwYzAsMS4xLTAuOSwyLTIsMnMtMi0wLjktMi0yczAuOS0yLDItMiAgIFM5LDE4LjksOSwyMHogTTE3LDE4Yy0xLjEsMC0yLDAuOS0yLDJzMC45LDIsMiwyczItMC45LDItMlMxOC4xLDE4LDE3LDE4eiBNMTcuNCwxM2MwLjksMCwxLjctMC43LDItMS42TDIxLDVIN1Y0YzAtMS4xLTAuOS0yLTItMiAgIEgzdjJoMnYxdjh2MmMwLDEuMSwwLjksMiwyLDJoMTJjMC0xLjEtMC45LTItMi0ySDd2LTJIMTcuNHoiPjwvcGF0aD4KICA8L2c+Cjwvc3ZnPgo=);
 					mask-position: center;
 					mask-repeat: no-repeat;
-					width: 24px
+					width: 24px;
 				}
 			}
 		}
@@ -383,18 +384,18 @@
 					height: 7px;
 					margin-left: 33px;
 					margin-top: -37px;
-					width: 7px
+					width: 7px;
 				}
 
 				.cart-icon {
 					justify-content: center;
 					padding: 0;
 
-					&::before{
+					&::before {
 						height: 32px;
 						margin: 0;
 						mask-size: contain;
-						width: 32px
+						width: 32px;
 					}
 				}
 			}

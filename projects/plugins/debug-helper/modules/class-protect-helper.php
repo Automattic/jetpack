@@ -10,6 +10,8 @@ use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 
 /**
  * Helps debug Protect
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Protect_Helper {
 

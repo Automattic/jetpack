@@ -161,6 +161,8 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 
 /**
  * Settings v1_4 endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_3_Endpoint {
 

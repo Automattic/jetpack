@@ -1,8 +1,8 @@
-@use '@wordpress/base-styles/mixins';
-@use '@automattic/jetpack-base-styles/style';
+@use "@wordpress/base-styles/mixins";
+@use "@automattic/jetpack-base-styles/style";
 
 .jp-connection__connect-screen-layout {
-	background: var( --jp-white );
+	background: var(--jp-white);
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
 
@@ -10,7 +10,8 @@
 		display: none;
 	}
 
-	&__left, &__right {
+	&__left,
+	&__right {
 		box-sizing: border-box;
 	}
 
@@ -30,7 +31,7 @@
 			font-weight: 700;
 			font-size: 36px;
 			line-height: 40px;
-			color: var( --jp-black );
+			color: var(--jp-black);
 			margin-top: 32px;
 			margin-bottom: 0;
 		}
@@ -40,12 +41,13 @@
 			font-weight: 500;
 			font-size: 24px;
 			line-height: 32px;
-			color: var( --jp-black );
+			color: var(--jp-black);
 			margin-top: 32px;
 			margin-bottom: 0;
 		}
 
-		p, li {
+		p,
+		li {
 			font-style: normal;
 			font-weight: 400;
 			font-size: 16px;
@@ -58,19 +60,19 @@
 		}
 
 		a {
-			color: var( --jp-black );
+			color: var(--jp-black);
 			text-decoration: underline;
 			height: auto;
 			font: inherit;
 			padding: 0;
 
 			&:hover {
-				color: var( --jp-black );
-				text-decoration-thickness: var( --jp-underline-thickness );
+				color: var(--jp-black);
+				text-decoration-thickness: var(--jp-underline-thickness);
 			}
 
 			&:focus {
-				color: var( --jp-black );
+				color: var(--jp-black);
 				box-shadow: none !important;
 			}
 		}
@@ -84,7 +86,7 @@
 				background-size: 24px;
 				padding-left: 30px;
 				margin-bottom: 9px;
-				color: var( --jp-black );
+				color: var(--jp-black);
 			}
 		}
 	}
@@ -99,7 +101,7 @@
 
 	&__two-columns {
 		display: flex;
-    	flex-wrap: wrap;
+		flex-wrap: wrap;
 
 		.jp-connection__connect-screen-layout__left {
 			flex-grow: 1;
@@ -113,7 +115,7 @@
 		.jp-connection__connect-screen-layout__right {
 			flex-grow: 1;
 			flex-basis: 47%;
-			background: #F9F9F6;
+			background: #f9f9f6;
 			display: none;
 
 			@include mixins.break-xlarge {
@@ -143,7 +145,7 @@
 			padding: 4rem 6rem 4rem 4rem;
 		}
 	}
-	
+
 	.jp-connection__connect-screen-required-plan__pricing-card {
 
 		/** Line up with the top of the product logo,
@@ -155,7 +157,7 @@
 			top: calc(var(--spacing-base) * 9.25);
 			right: calc(var(--spacing-base) * -45);
 		}
-		
+
 		.jp-components__pricing-card {
 			border-radius: var(--jp-border-radius-rna);
 			width: 425px;
@@ -191,7 +193,7 @@
 		height: 677px;
 		z-index: 1;
 
-		clip-path: polygon( 100% 0, 100% 100%, 0 0, 0 0 );
+		clip-path: polygon(100% 0, 100% 100%, 0 0, 0 0);
 
 		&__blue,
 		&__yellow,
@@ -207,7 +209,7 @@
 			right: -100px;
 			top: -275px;
 			z-index: 3;
-			
+
 			background-color: var(--jp-blue-5);
 		}
 

@@ -1,11 +1,11 @@
-@use '../../scss/mixin_breakpoint';
-@use '../../scss/calypso-colors';
-@use '../../scss/typography';
+@use "../../scss/mixin_breakpoint";
+@use "../../scss/calypso-colors";
+@use "../../scss/typography";
 
 // My Plan Card
 .my-plan-card {
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		display: flex;
 		flex-flow: row nowrap;
 		justify-content: space-between;
@@ -25,19 +25,19 @@
 
 .my-plan-card__header {
 	flex: 1;
-  	margin: auto;
+	margin: auto;
 }
 
-.is-plan .my-plan-card__title{
-  font-size: 24px;
+.is-plan .my-plan-card__title {
+	font-size: 24px;
 }
 
-.is-plan .my-plan-card__tag-line{
-  font-size: 16px;
+.is-plan .my-plan-card__tag-line {
+	font-size: 16px;
 }
 
-.is-plan .my-plan-card__header{
-  margin: auto;
+.is-plan .my-plan-card__header {
+	margin: auto;
 }
 
 .my-plan-card__title {
@@ -47,9 +47,9 @@
 	margin: 4px 0;
 	color: calypso-colors.$black;
 
-  @include mixin_breakpoint.breakpoint( '<960px' ) {
-	padding-top: 16px;
-  }
+	@include mixin_breakpoint.breakpoint( "<960px" ) {
+		padding-top: 16px;
+	}
 }
 
 .my-plan-card__tag-line {
@@ -58,8 +58,8 @@
 	line-height: 1.65;
 	margin: 0 0 4px 0;
 
-	@include mixin_breakpoint.breakpoint( '<960px' ) {
-	  margin-bottom: 8px;
+	@include mixin_breakpoint.breakpoint( "<960px" ) {
+		margin-bottom: 8px;
 	}
 }
 
@@ -71,7 +71,7 @@
 	justify-content: center;
 	align-items: center;
 
-	@include mixin_breakpoint.breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 		order: 99;
 		width: 80px;
 		height: 80px;
@@ -85,7 +85,7 @@
 	height: 48px;
 	margin: 16px 24px 16px 0;
 
-	@include mixin_breakpoint.breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 		display: none;
 	}
 
@@ -103,7 +103,7 @@
 	justify-content: space-between;
 	padding: 0;
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		flex-flow: column nowrap;
 		justify-content: center;
 		align-items: flex-end;
@@ -111,19 +111,19 @@
 	}
 
 	&::before {
-		content: '';
+		content: "";
 		position: absolute;
 		left: -16px;
 		right: -16px;
 		border-bottom: 1px solid var(--jp-gray);
-	  	bottom: 0;
+		bottom: 0;
 
-		@include mixin_breakpoint.breakpoint( '>480px' ) {
+		@include mixin_breakpoint.breakpoint( ">480px" ) {
 			left: -24px;
 			right: -24px;
 		}
 
-		@include mixin_breakpoint.breakpoint( '>960px' ) {
+		@include mixin_breakpoint.breakpoint( ">960px" ) {
 			content: none;
 		}
 	}
@@ -141,17 +141,17 @@
 .my-plan-card__details {
 	padding: 8px 0 16px;
 	color: calypso-colors.$gray-darken-10;
-  	display: contents;
+	display: contents;
 
-	@include mixin_breakpoint.breakpoint( '<960px' ) {
-	  display: block;
+	@include mixin_breakpoint.breakpoint( "<960px" ) {
+		display: block;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( ">480px" ) {
 		white-space: nowrap;
 	}
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		padding-top: 0;
 	}
 
@@ -160,25 +160,25 @@
 	}
 
 	a.my-plan-card__renew {
-	  text-decoration: underline;
-	  margin-top: 8px;
+		text-decoration: underline;
+		margin-top: 8px;
 
-	  &:hover {
-		text-decoration-thickness: 3px;
-		color: calypso-colors.$black;
-	  }
+		&:hover {
+			text-decoration-thickness: 3px;
+			color: calypso-colors.$black;
+		}
 
-	  &:focus {
-		text-decoration-line: none;
-		border-radius: 2px;
-		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
-		outline: 3px solid transparent;
-		color: calypso-colors.$black;
-	  }
+		&:focus {
+			text-decoration-line: none;
+			border-radius: 2px;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
+			outline: 3px solid transparent;
+			color: calypso-colors.$black;
+		}
 
-	  &:active {
-		color: calypso-colors.$black;
-	  }
+		&:active {
+			color: calypso-colors.$black;
+		}
 	}
 }
 
@@ -186,9 +186,9 @@
 	padding-top: 8px;
 	white-space: nowrap;
 
-	  .has-action-only & {
-		  padding-top: 0;
-	  }
+	.has-action-only & {
+		padding-top: 0;
+	}
 }
 
 .my-plan-card__expired {
@@ -201,11 +201,11 @@
 	color: calypso-colors.$black;
 
 	.components-external-link__icon {
-	  align-self: center;
+		align-self: center;
 	}
 
-	@include mixin_breakpoint.breakpoint( '<960px' ) {
-	  justify-content: flex-start;
+	@include mixin_breakpoint.breakpoint( "<960px" ) {
+		justify-content: flex-start;
 	}
 }
 

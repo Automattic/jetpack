@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
  * @type {import('stylelint').Config}
  */
 const baseConfig = {
-	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss' ) ),
+	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss-stylistic' ) ),
 	rules: {
 		'font-family-no-missing-generic-family-keyword': [
 			true,
@@ -16,6 +16,15 @@ const baseConfig = {
 					'Noticons', // WordPress.com internal font
 					'social-logos', // see js-packages/social-logos
 				],
+			},
+		],
+
+		// Stylelint allows `0px` in math-type functions, but sometimes those math-type functions are
+		// passed vars instead of hard-coded values, and we need to prevent those from being unitless.
+		'length-zero-no-unit': [
+			true,
+			{
+				ignore: [ 'custom-properties' ],
 			},
 		],
 

@@ -1,4 +1,4 @@
-@use '../lib/styles/helper';
+@use "../lib/styles/helper";
 $image-square-size: 128px;
 
 .jetpack-instant-search__search-result-expanded {
@@ -24,7 +24,7 @@ $image-square-size: 128px;
 	max-width: 100%;
 
 	@include helper.break-small-up() {
-		width: calc( 100% - #{$image-square-size} - 1em );
+		width: calc(100% - #{$image-square-size} - 1em);
 	}
 
 	.jetpack-instant-search__search-result-expanded--no-image & {
@@ -64,7 +64,7 @@ $image-square-size: 128px;
 	// See https://css-tricks.com/aspect-ratio-boxes/
 	&::before {
 		display: block;
-		content: '';
+		content: "";
 		width: 100%;
 		padding-top: 100%;
 	}
@@ -121,12 +121,12 @@ $image-square-size: 128px;
 .jetpack-instant-search__search-result-expanded__footer-author {
 
 	&::after {
-		content: '·';
+		content: "·";
 		margin-left: 10px;
 		color: #636363;
 
 		li:last-child & {
-			content: '';
+			content: "";
 		}
 	}
 }

@@ -300,14 +300,16 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request The request sent to the API.
 	 */
 	public function get_conversations( \WP_REST_Request $request ) {
-		$bot_name_slug  = $request->get_param( 'bot_id' );
-		$page_number    = $request['page_number'];
-		$items_per_page = $request['items_per_page'];
+		$bot_name_slug     = $request->get_param( 'bot_id' );
+		$page_number       = $request['page_number'];
+		$items_per_page    = $request['items_per_page'];
+		$truncation_method = $request['truncation_method'];
 
 		$url_query_params = http_build_query(
 			array(
-				'page_number'    => $page_number,
-				'items_per_page' => $items_per_page,
+				'page_number'       => $page_number,
+				'items_per_page'    => $items_per_page,
+				'truncation_method' => $truncation_method,
 			)
 		);
 

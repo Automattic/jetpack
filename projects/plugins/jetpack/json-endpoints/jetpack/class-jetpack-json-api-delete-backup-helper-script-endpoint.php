@@ -11,6 +11,8 @@ use Automattic\Jetpack\Backup\V0005\Helper_Script_Manager;
 /**
  * API endpoint /sites/%s/delete-backup-helper-script
  * This API endpoint deletes a Jetpack Backup Helper Script
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**

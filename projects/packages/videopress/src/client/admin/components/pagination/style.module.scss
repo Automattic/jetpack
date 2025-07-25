@@ -7,9 +7,9 @@
 	}
 
 	.button {
-		width: calc( var( --spacing-base ) * 4 );
-		height: calc( var( --spacing-base ) * 4 );
-		line-height: calc( var( --spacing-base ) * 4 );
+		width: calc(var(--spacing-base) * 4);
+		height: calc(var(--spacing-base) * 4);
+		line-height: calc(var(--spacing-base) * 4);
 	}
 
 	.button:not(.selected):disabled {
@@ -18,5 +18,5 @@
 }
 
 .pagination-placeholder {
-	height: calc( var(--spacing-base) * 4 );
+	height: calc(var(--spacing-base) * 4);
 }

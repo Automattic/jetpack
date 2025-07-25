@@ -1,16 +1,16 @@
-@use '../../scss/functions/rem';
-@use '../../scss/layout';
-@use '../../scss/calypso-colors';
+@use "../../scss/functions/rem";
+@use "../../scss/layout";
+@use "../../scss/calypso-colors";
 
 .jp-support-info {
 	position: absolute;
-	top: rem.convert( 27px );
-	right: rem.convert( 25px );
+	top: rem.convert(27px);
+	right: rem.convert(25px);
 	z-index: 1;
 
 	@include layout.breakpoint( "<480px" ) {
-		top: rem.convert( 20px );
-		right: rem.convert( 16px );
+		top: rem.convert(20px);
+		right: rem.convert(16px);
 	}
 
 	.jp-form-fieldset & {
@@ -34,8 +34,8 @@
 
 	.jp-support-info__privacy {
 		display: block;
-		margin-top: rem.convert( 14px );
-		padding-top: rem.convert( 12px );
-		border-top: 1px solid rgba( calypso-colors.$gray, 0.5 );
+		margin-top: rem.convert(14px);
+		padding-top: rem.convert(12px);
+		border-top: 1px solid rgba(calypso-colors.$gray, 0.5);
 	}
 }

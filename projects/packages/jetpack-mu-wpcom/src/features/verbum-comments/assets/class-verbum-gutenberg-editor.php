@@ -16,6 +16,8 @@ require_once __DIR__ . '/class-verbum-asset-loader.php';
  * This loads the isolated editor, and sets up the editor to be used for Verbum_Comments.
  *
  * @see https://github.com/Automattic/isolated-block-editor
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Verbum_Gutenberg_Editor {
 	/**

@@ -192,6 +192,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				),
 				ecmaVersion: 'latest', // Restore default overridden by plugin:@wordpress/esnext
 				parserOptions: {
+					tsconfigRootDir: rootdir,
 					ecmaFeatures: {
 						jsx: true,
 					},

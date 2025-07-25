@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2025-07-21
+### Removed
+- Remove host guess based on DNS. [#44325]
+
 ## [5.4.0] - 2025-07-08
 ### Changed
 - VIP: Change hosting check method back now that constant is reliable. [#44223]
@@ -489,6 +493,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[6.0.0]: https://github.com/Automattic/jetpack-status/compare/v5.4.0...v6.0.0
 [5.4.0]: https://github.com/Automattic/jetpack-status/compare/v5.3.1...v5.4.0
 [5.3.1]: https://github.com/Automattic/jetpack-status/compare/v5.3.0...v5.3.1
 [5.3.0]: https://github.com/Automattic/jetpack-status/compare/v5.2.1...v5.3.0

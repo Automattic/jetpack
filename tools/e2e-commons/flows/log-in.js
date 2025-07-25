@@ -1,8 +1,10 @@
 import config from 'config';
-import { resolveSiteUrl } from '../helpers/utils-helper.js';
+import { authenticateUser } from '../helpers/login-utils.js';
+import { getSiteCredentials } from '../helpers/utils-helper';
 import logger from '../logger.js';
 import { DashboardPage, WPLoginPage } from '../pages/wp-admin/index.js';
 import { LoginPage } from '../pages/wpcom/index.js';
+import pwConfig from '../playwright.config.mjs';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 
@@ -30,10 +32,12 @@ export async function loginToWpSite( page, mockPlanData ) {
 
 	await ( await WPLoginPage.init( page ) ).login();
 
+	await authenticateUser( page.request, getSiteCredentials() );
+
 	if ( ! mockPlanData ) {
 		await (
 			await DashboardPage.init( page )
-		).setSandboxModeForPayments( cookie, new URL( resolveSiteUrl() ).host );
+		).setSandboxModeForPayments( cookie, new URL( pwConfig.use.baseURL ).host );
 	}
 }
 

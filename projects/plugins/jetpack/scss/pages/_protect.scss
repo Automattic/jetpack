@@ -1,6 +1,7 @@
 @use "../atoms/colors/colors";
 
-/* 'Pages' is a temporary location for these styles, until we can break them up into their proper atmoic locations */
+/* 'Pages' is a temporary location for these styles until we
+ * can break them up into their proper atomic locations */
 
 // ==========================================================================
 // Jetpack Protect Config Page
@@ -10,7 +11,8 @@
 .configure-module p {
 	font-size: 14px;
 
-	&.success, &.error {
+	&.success,
+	&.error {
 		color: colors.$white;
 		padding: 10px;
 	}
@@ -63,7 +65,7 @@
 .configure-module {
 
 	input[disabled] {
-		opacity: .5;
+		opacity: 0.5;
 	}
 
 	input.button-primary {
@@ -73,7 +75,7 @@
 
 /* whitelist table */
 
-@media only screen and (min-width : 1100px) {
+@media only screen and (min-width: 1100px) {
 
 	.protect-whitelist {
 		width: 65%;
@@ -82,7 +84,7 @@
 
 } /* end > 1065px */
 
-@media only screen and (max-width : 400px) {
+@media only screen and (max-width: 400px) {
 
 	.protect-status strong {
 		font-size: 12px;
