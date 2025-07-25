@@ -327,4 +327,62 @@ export default class JetpackBoostPage extends WpPage {
 			await toggle.click();
 		}
 	}
+
+	// LCP Optimization methods
+	async isLcpOptimizationVisible() {
+		const selector = '[data-testid="module-lcp"]';
+		return this.page.isVisible( selector );
+	}
+
+	async waitForLcpOptimizationStatus( status, timeout = 30000 ) {
+		// Map status to the expected UI indicators
+		const statusSelectors = {
+			pending: "text=Jetpack Boost is optimizing your Cornerstone Page's LCP for you.",
+			analyzed: '.jb-feature-content-lcp .successes',
+			error: '.jb-feature-content-lcp .failures',
+		};
+
+		const selector = statusSelectors[ status ];
+		if ( ! selector ) {
+			throw new Error( `Unknown LCP status: ${ status }` );
+		}
+
+		return this.waitForElementToBeVisible( selector, timeout );
+	}
+
+	async isLcpLastOptimizedVisible() {
+		const selector = '[data-testid="module-lcp"] .successes:has-text("Last optimized")';
+		return this.page.isVisible( selector );
+	}
+
+	async clickLcpOptimizeButton() {
+		const button = this.page.locator( '[data-testid="module-lcp"] input' );
+		await button.click();
+	}
+
+	async isLcpOptimizeButtonDisabled() {
+		const button = this.page.locator( '[data-testid="module-lcp"] input' );
+		return await button.isDisabled();
+	}
+
+	async isLcpBetaPillVisible() {
+		const selector = '[data-testid="module-lcp"] .pill:has-text("Beta")';
+		return this.page.isVisible( selector );
+	}
+
+	async isLcpWorksOfflineIndicatorVisible() {
+		// LCP module should NOT work offline, so this should return false
+		const selector = '[data-testid="module-lcp"] .works-offline-indicator';
+		return this.page.isVisible( selector );
+	}
+
+	async isLcpErrorDetailsComponentInDom() {
+		const selector = '[data-testid="module-lcp"] .error-details';
+		return this.page.locator( selector ).count() > 0;
+	}
+
+	async getLcpOptimizationDescription() {
+		const selector = '[data-testid="module-lcp"] p';
+		return await this.page.locator( selector ).textContent();
+	}
 }
