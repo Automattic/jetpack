@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Subscription: Return expected type when modifying get_comment return value.
