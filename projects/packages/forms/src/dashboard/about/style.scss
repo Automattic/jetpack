@@ -6,6 +6,7 @@
 }
 
 .jp-forms__about {
+	width: 100%;
 	--section-spacing-horizontal: calc(var(--spacing-base) * 9); // 72px
 	--content-max-width: 1280px;
 	background-color: var(--jp-white);
