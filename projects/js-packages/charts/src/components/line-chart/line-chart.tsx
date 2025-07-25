@@ -390,7 +390,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 					data-testid="line-chart"
 					style={ {
 						width,
-						height: height - ( showLegend ? legendHeight : 0 ),
+						height,
 						display: 'flex',
 						flexDirection:
 							showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
