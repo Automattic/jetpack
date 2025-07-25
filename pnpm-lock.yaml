@@ -5014,24 +5014,6 @@ importers:
 
   projects/plugins/paypal-payment-buttons:
     dependencies:
-      '@automattic/jetpack-base-styles':
-        specifier: workspace:*
-        version: link:../../js-packages/base-styles
-      '@automattic/jetpack-components':
-        specifier: workspace:*
-        version: link:../../js-packages/components
-      '@automattic/jetpack-connection':
-        specifier: workspace:*
-        version: link:../../js-packages/connection
-      '@automattic/jetpack-shared-extension-utils':
-        specifier: workspace:*
-        version: link:../../js-packages/shared-extension-utils
-      '@wordpress/data':
-        specifier: 10.26.0
-        version: 10.26.0(react@18.3.1)
-      '@wordpress/date':
-        specifier: 5.26.0
-        version: 5.26.0
       '@wordpress/element':
         specifier: 6.26.0
         version: 6.26.0
