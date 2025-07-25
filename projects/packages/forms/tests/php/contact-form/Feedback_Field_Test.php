@@ -62,7 +62,7 @@ class Feedback_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the Feedback_Field can serealize and unserialize correctly.
+	 * Test that the Feedback_Field can serialize and unserialize correctly.
 	 */
 	public function test_Feedback_Field_serialization() {
 		$field        = new Feedback_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ) );
