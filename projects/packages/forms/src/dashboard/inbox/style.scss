@@ -1,3 +1,5 @@
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/variables";
 @import "@wordpress/dataviews/build-style/style.css";
 
 .jp-forms__inbox {
@@ -318,13 +320,49 @@
 	.dataviews-footer {
 		position: fixed;
 		bottom: 0;
-		width: 100%;
-		left: 0;
 
-		@media (min-width: 782px) {
-			width: calc(100% - 160px);
-			left: 160px; // 160px is compensation for the width of the sidebar
+		// Compensation for the width of the sidebar
+		// Set left position when auto-fold is not on the body element.
+		// Adapted from https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
+		left: 0;
+		width: 100%;
+
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+			left: variables.$admin-sidebar-width;
+			width: calc(100% - variables.$admin-sidebar-width);
 		}
+	}
+}
+
+/*
+ * Compensation for the width of the sidebar
+ * Auto fold is when on smaller breakpoints, nav menu auto collapses.
+ * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
+ */
+.auto-fold .jp-forms__inbox__dataviews .dataviews-footer {
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		left: variables.$admin-sidebar-width-collapsed;
+		width: calc(100% - variables.$admin-sidebar-width-collapsed);
+	}
+
+	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
+		left: variables.$admin-sidebar-width;
+		width: calc(100% - variables.$admin-sidebar-width);
+	}
+}
+
+/*
+ * Compensation for the width of the sidebar when the Sidebar
+ * is manually collapsed.
+ * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
+ */
+.folded .jp-forms__inbox__dataviews .dataviews-footer {
+	left: 0;
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		left: variables.$admin-sidebar-width-collapsed;
+		width: calc(100% - variables.$admin-sidebar-width-collapsed);
 	}
 }
 
