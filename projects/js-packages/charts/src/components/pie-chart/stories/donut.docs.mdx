@@ -143,102 +143,6 @@ Combine thickness with gaps and rounded corners for modern appearance:
 	</PieChart>` }
 />
 
-## Center Content Patterns
-
-### Numerical Summary
-
-Display key metrics in the center:
-
-<Source
-	language="jsx"
-	code={ `<PieChart thickness={ 0.5 } data={ data }>
-		<Group>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				fontSize={ 36 }
-				fontWeight="bold"
-			>
-				{ data.reduce((sum, item) => sum + item.value, 0).toLocaleString() }
-			</Text>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				fontSize={ 14 }
-				y={ 25 }
-			>
-				Total Users
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-### Progress Indicator
-
-Use for progress or completion tracking:
-
-<Source
-	language="jsx"
-	code={ `<PieChart thickness={ 0.3 } data={ progressData }>
-		<Group>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				fontSize={ 48 }
-				fontWeight="bold"
-				fill="#10b981"
-			>
-				78%
-			</Text>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				fontSize={ 16 }
-				y={ 30 }
-			>
-				Complete
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-### Multi-line Content
-
-Display complex information with multiple text elements:
-
-<Source
-	language="jsx"
-	code={ `<PieChart thickness={ 0.4 } data={ data }>
-		<Group>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				fontSize={ 20 }
-				fontWeight="bold"
-				y={ -15 }
-			>
-				Q4 2024
-			</Text>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				fontSize={ 24 }
-				fill="#3b82f6"
-			>
-				$2.4M
-			</Text>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				fontSize={ 14 }
-				y={ 20 }
-			>
-				Revenue
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
 ## Interactive Features
 
 ### Donut with Tooltips
@@ -358,13 +262,6 @@ Center content in donut charts should be properly announced:
 		</Group>
 	</PieChart>` }
 />
-
-### Focus Management
-
-Ensure center content doesn't interfere with chart navigation:
-- Center text should not be focusable unless interactive
-- Maintain clear focus indicators on chart segments
-- Preserve logical tab order from center to legend
 
 ## Common Use Cases
 
