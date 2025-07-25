@@ -40,7 +40,7 @@ const SpeedScore = () => {
 	const moduleStates = useMemo(
 		() =>
 			Object.entries( data || {} ).reduce( ( acc: boolean[], [ key, value ] ) => {
-				if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
+				if ( key !== 'image_guide' ) {
 					acc.push( value.active );
 				}
 				return acc;
