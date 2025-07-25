@@ -1662,6 +1662,10 @@ class Contact_Form_Test extends BaseTestCase {
 			),
 			$response
 		);
+
+		$response = Contact_Form::get_json_data( 999999 );
+		$this->assertIsArray( $response, 'Response should be an instance of Contact_Form_Response' );
+		$this->assertEquals( array(), $response, 'Response should be empty for non-existing post ID' );
 	}
 
 	/**
