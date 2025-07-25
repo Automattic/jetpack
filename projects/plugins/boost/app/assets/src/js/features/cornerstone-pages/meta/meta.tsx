@@ -18,6 +18,8 @@ import { useNotices } from '$features/notice/context';
 import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
 import { ExternalLink } from '@wordpress/components';
 import type { FC, ReactNode } from 'react';
+import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
+import { useModulesState } from '$features/module/lib/stores';
 
 export const MetaError = () => (
 	<Notice
@@ -56,6 +58,7 @@ const CornerstonePagesContent = () => {
 	const [ lcpState ] = useLcpState( { enabled: false } );
 	const { setNotice } = useNotices();
 	const listInputRows = isPremium ? 10 : 5;
+	const [ { data: modulesState } ] = useModulesState();
 
 	const updateCornerstonePages = ( newValue: string ) => {
 		// If the user deletes all the URLs, we should set the list to an empty array.
@@ -67,9 +70,12 @@ const CornerstonePagesContent = () => {
 				type: 'success',
 				message: __( 'Cornerstone pages saved', 'jetpack-boost' ),
 			} );
-			refetchRegenerationReason();
-			if ( isPremium ) {
-				regenerateAction.mutate();
+
+			if ( isCriticalCssEnabled( modulesState ) ) {
+				refetchRegenerationReason();
+				if ( isPremium ) {
+					regenerateAction.mutate();
+				}
 			}
 
 			// If the CS Pages were updated, the LCP state should be set to pending if it was enabled. This will trigger the LCP Module to listen until the LCP is optimized.
