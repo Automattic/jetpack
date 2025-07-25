@@ -19,16 +19,16 @@
 		width: 100%;
 		max-width: 650px;
 		box-sizing: border-box;
-		transition: all .4s;
+		transition: all 0.4s;
 		padding: 32px;
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
 		justify-content: center;
-		
+
 		&.has-iframe {
 			background-color: transparent;
-	
+
 			.verbum-simple-subscribe-modal__close-button-container {
 				display: none !important;
 			}
@@ -88,10 +88,10 @@
 			border-style: solid !important;
 			outline: none;
 			color: var(--wp--preset--color--primary) !important;
-			
+
 			&::placeholder {
 				color: currentColor;
-				opacity: .5;
+				opacity: 0.5;
 			}
 		}
 
@@ -112,12 +112,12 @@
 			color: var(--verbum-content-background-color);
 
 			&:hover {
-				opacity: .9;
+				opacity: 0.9;
 				cursor: pointer;
 			}
 
 			&:disabled {
-				opacity: .7 !important;
+				opacity: 0.7 !important;
 				cursor: not-allowed;
 			}
 		}

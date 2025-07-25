@@ -50,7 +50,7 @@ export const UpgradeNudge = () => {
 					className="is-primary"
 					onClick={ handleUpgradeClick }
 				>
-					{ buttonText }
+					<span>{ buttonText }</span>
 				</Button>
 			</div>
 		</div>

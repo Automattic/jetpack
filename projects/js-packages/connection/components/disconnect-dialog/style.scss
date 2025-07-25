@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 .jp-connection__disconnect-dialog {
 
@@ -91,7 +91,7 @@
 		}
 
 		&::before {
-			content: '';
+			content: "";
 			display: block;
 			width: 100%;
 			position: absolute;
@@ -156,7 +156,8 @@
 	justify-content: center;
 	align-items: center;
 
-	// When the screen height is shorter, hide the decorative cards to show the text and controls without scrolling.
+	// When the screen height is shorter, hide the decorative cards to
+	// show the text and controls without scrolling.
 	@media (max-height: 900px) {
 
 		.jp-components__decorative-card {

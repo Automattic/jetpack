@@ -1,4 +1,4 @@
-@use '../../shared/styles/align';
+@use "../../shared/styles/align";
 
 .wp-block-jetpack-eventbrite {
 	position: relative;
@@ -13,6 +13,6 @@
 	}
 }
 
-[data-type='jetpack/eventbrite'][data-align='center'] {
+[data-type="jetpack/eventbrite"][data-align="center"] {
 	text-align: center;
 }

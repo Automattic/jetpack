@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .footer {
 	display: flex;
@@ -16,7 +16,7 @@
 }
 
 .modal {
-	
+
 	@include gb.break-small {
 		max-height: 90%;
 	}

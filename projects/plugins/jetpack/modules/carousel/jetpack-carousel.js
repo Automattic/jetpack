@@ -860,6 +860,41 @@
 			};
 		}
 
+		function sanitizePhotonUrl( url ) {
+			var urlObj;
+			try {
+				urlObj = new URL( url );
+				// eslint-disable-next-line no-unused-vars
+			} catch ( e ) {
+				return url;
+			}
+
+			var whitelistedPhotonArgs = [
+				'quality',
+				'ssl',
+				'filter',
+				'brightness',
+				'contrast',
+				'colorize',
+				'smooth',
+			];
+
+			// Get all search params
+			var searchParams = Array.from( urlObj.searchParams.entries() );
+
+			// Clear all existing params
+			urlObj.search = '';
+
+			// Only add back whitelisted params
+			searchParams.forEach( ( [ key, value ] ) => {
+				if ( whitelistedPhotonArgs.includes( key ) ) {
+					urlObj.searchParams.append( key, value );
+				}
+			} );
+
+			return urlObj;
+		}
+
 		function selectBestImageUrl( args ) {
 			if ( typeof args !== 'object' ) {
 				args = {};
@@ -913,20 +948,25 @@
 			if ( isPhotonUrl ) {
 				// args.origFile doesn't point to a Photon url, so in this case we use args.largeFile
 				// to return the photon url of the original image.
-				var largeFileIndex = args.largeFile.lastIndexOf( '?' );
-				var origPhotonUrl = args.largeFile;
-				if ( largeFileIndex !== -1 ) {
-					origPhotonUrl = args.largeFile.substring( 0, largeFileIndex );
-					// If we have a really large image load a smaller version
-					// that is closer to the viewable size
-					if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-						// @2x the max sizes so we get a high enough resolution for zooming.
-						args.origMaxWidth = args.maxWidth * 2;
-						args.origMaxHeight = args.maxHeight * 2;
-						origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
-					}
+				if ( args.largeFile.lastIndexOf( '?' ) === -1 ) {
+					return args.largeFile;
 				}
-				return origPhotonUrl;
+
+				// If we have a really large image load a smaller version
+				// that is closer to the viewable size
+				if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
+					// Sanitize the URL to remove non-cosmetic changes like resize, fit, etc.
+					var sanitizedUrl = sanitizePhotonUrl( args.largeFile );
+
+					// @2x the max sizes so we get a high enough resolution for zooming.
+					args.origMaxWidth = args.maxWidth * 2;
+					args.origMaxHeight = args.maxHeight * 2;
+					// Add the fit arg to the list of Photon args.
+					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + ',' + args.origMaxHeight );
+					return sanitizedUrl.toString();
+				}
+
+				return args.largeFile;
 			}
 
 			return args.origFile;

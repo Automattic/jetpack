@@ -1,5 +1,5 @@
 @use "../scss/mixin_breakpoint";
-@use '../scss/functions/rem';
+@use "../scss/functions/rem";
 
 .jp-settings-container {
 
@@ -125,7 +125,7 @@
 		font-size: rem.convert(24px);
 		line-height: rem.convert(32px);
 		font-weight: 500;
-		color: #23282D;
+		color: #23282d;
 		margin-top: rem.convert(48px);
 		margin-bottom: rem.convert(24px);
 	}

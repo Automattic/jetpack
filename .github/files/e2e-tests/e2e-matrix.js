@@ -83,6 +83,14 @@ const projects = [
 		buildGroup: 'jetpack-boost',
 	},
 	{
+		project: 'Jetpack Boost - Cornerstone Pages',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/cornerstone' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
 		project: 'Jetpack Boost - Image CDN',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/image-cdn' ],
@@ -101,7 +109,7 @@ const projects = [
 	{
 		project: 'Search',
 		path: 'projects/plugins/search/tests/e2e',
-		testArgs: [],
+		testArgs: [ 'specs' ],
 		targets: [ 'plugins/search' ],
 		suite: '',
 		buildGroup: 'jetpack-search',
@@ -109,7 +117,7 @@ const projects = [
 	{
 		project: 'VideoPress',
 		path: 'projects/plugins/videopress/tests/e2e',
-		testArgs: [],
+		testArgs: [ 'specs' ],
 		targets: [ 'plugins/videopress' ],
 		suite: '',
 		buildGroup: 'jetpack-videopress',
@@ -117,7 +125,7 @@ const projects = [
 	{
 		project: 'Social',
 		path: 'projects/plugins/social/tests/e2e',
-		testArgs: [],
+		testArgs: [ 'specs' ],
 		targets: [ 'plugins/social' ],
 		suite: '',
 		buildGroup: 'jetpack-social',
@@ -125,7 +133,7 @@ const projects = [
 	{
 		project: 'Protect',
 		path: 'projects/plugins/protect/tests/e2e',
-		testArgs: [],
+		testArgs: [ 'specs' ],
 		targets: [ 'plugins/protect' ],
 		suite: '',
 		buildGroup: 'jetpack-protect',

@@ -28,7 +28,7 @@
 	position: relative;
 
 	&::before {
-		content: '';
+		content: "";
 		position: absolute;
 		box-shadow: 0 4px 24px 0 hsla(0, 0%, 0%, 0.08);
 		top: 0;

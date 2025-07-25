@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Improve phpunit bootstrap for running from `jetpack docker phpunit`.
+
+

@@ -5,9 +5,9 @@
 }
 
 // Make sure the widget embed container is always as tall as the
-// default/minimum value set by Eventbrite (425px), by overriding
-// the container's inline height (set by Eventbrite, sometimes incorrectly as 0px),
-// and setting the default height directly to the iframe.
+// default/minimum value set by Eventbrite (425px), by overriding the
+// container's inline height (set by Eventbrite, sometimes incorrectly
+// as 0px), and setting the default height directly to the iframe.
 .wp-block-jetpack-eventbrite--embed {
 	height: auto !important;
 
@@ -21,7 +21,7 @@
 }
 
 .eventbrite__lightbox {
-	background: rgba(57, 54, 79, .8);
+	background: rgba(57, 54, 79, 0.8);
 }
 
 .eventbrite__lighbox-inside {

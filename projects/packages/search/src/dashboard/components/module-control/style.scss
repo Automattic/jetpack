@@ -1,4 +1,4 @@
-@use 'scss/variables';
+@use "scss/variables";
 
 $color-button-background: variables.$black;
 $color-button-text: variables.$white;
@@ -26,7 +26,7 @@ $toggle-width: 3em;
 	&.jp-form-search-settings-group--disabled {
 
 		&::after {
-			content: ' ';
+			content: " ";
 			position: absolute;
 			top: 0;
 			left: 0;
@@ -190,7 +190,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 	}
 
 	&::after {
-		content: '→';
+		content: "→";
 		position: absolute;
 		top: 50%;
 		right: 1.5em;

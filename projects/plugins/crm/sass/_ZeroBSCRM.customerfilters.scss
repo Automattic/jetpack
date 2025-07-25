@@ -48,7 +48,7 @@
 
 	// individual filters
 	.zbs-crm-customerfilter {
-	    
+
 		// unless overridden below
 		display: inline-block;
 		padding: 4px 8px;
@@ -56,7 +56,7 @@
 
 		// label
 		label {
-    		
+
 			margin: 4px 8px;
 			font-size: 13px;
 			font-weight: 800;
@@ -70,35 +70,35 @@
 
 		// fields: Input text
 		input[type="text"] {
-    		
+
 			margin: 4px 8px;
 
 		}
 
 		// fields: Input checkbox
 		input[type="checkbox"] {
-    		
+
 			margin: 4px 8px;
 
 		}
 
 		// fields: Input radio
 		input[type="radio"] {
-    		
+
 			margin: 4px 8px;
 
 		}
 
 		// fields: Select
 		select {
-    		
+
 			margin: 4px 8px;
 
 		}
 
 		// fields: textarea
 		textarea {
-    		
+
 			margin: 4px 8px;
 
 		}
@@ -108,7 +108,7 @@
 
 	// overrides for display:inline-block
 	.zbs-crm-customerfilter.zbs-full-line {
-		
+
 		display: block;
 
 	}
@@ -142,15 +142,15 @@
 
 	// a group shown as a panel
 	.zbs-crm-customerfilter-group.zbs-panel {
-    
+
 		display: inline-block;
 
 		padding: 10px;
 		margin: 8px;
 		border-radius: 4px;
-		background: #FFF;
+		background: #fff;
 		border: 1px solid #dedee3;
-		width: auto; 
+		width: auto;
 
 		// group labels
 		label {
@@ -166,7 +166,7 @@
 
 	// full line group
 	.zbs-crm-customerfilter-group.zbs-full-line {
-		
+
 		display: block;
 
 	}
@@ -174,7 +174,7 @@
 
 	// submit button
 	.zbs-crm-closing-action {
-		
+
 		display: block;
 		text-align: center;
 		border-top: 1px solid #dedee3;
@@ -203,9 +203,9 @@
 
 	// "To" label
 	span.to-label {
-		
+
 		padding-right: 8px !important;
 
 	}
-	
+
 }

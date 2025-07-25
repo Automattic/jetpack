@@ -21,7 +21,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '4.2.29';
+	const PACKAGE_VERSION = '4.3.0';
 
 	/**
 	 * List of screen IDs where JITMs are allowed to display.
@@ -191,7 +191,7 @@ class JITM {
 			__FILE__,
 			array(
 				'in_footer'    => true,
-				'dependencies' => array( 'jquery' ),
+				'dependencies' => array(),
 				'enqueue'      => true,
 			)
 		);

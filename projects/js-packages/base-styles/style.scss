@@ -1,4 +1,4 @@
-@use './root-variables';
+@use "./root-variables";
 
 /********* Mixins *********/
 @mixin for-phone-up {
@@ -39,12 +39,12 @@ $wp-gray-dark: #23282d;
 	font-family:
 		-apple-system,
 		BlinkMacSystemFont,
-		'Segoe UI',
+		"Segoe UI",
 		Roboto,
 		Oxygen-Sans,
 		Ubuntu,
 		Cantarell,
-		'Helvetica Neue',
+		"Helvetica Neue",
 		sans-serif;
 }
 
@@ -145,7 +145,7 @@ $wp-gray-dark: #23282d;
 	}
 
 	&::after {
-		content: '→';
+		content: "→";
 		position: absolute;
 		top: 50%;
 		right: 24px;
