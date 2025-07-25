@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Mailchimp block: fix links to accommodate for a bug in Gutenberg
