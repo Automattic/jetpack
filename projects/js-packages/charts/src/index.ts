@@ -19,13 +19,6 @@ export { LineShape, CircleShape, RectShape } from './visx/legend';
 export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
-export {
-	ChartProvider,
-	useChartContext,
-	useChartId,
-	useChartRegistration,
-} from './providers/chart-context';
-
 // Hooks
 export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
 
