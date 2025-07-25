@@ -1,56 +1,39 @@
 import { Col, Text } from '@automattic/jetpack-components';
-import {
-	useConnectionErrorNotice,
-	useRestoreConnection,
-	getProtectedOwnerCreateAccountUrl,
-} from '@automattic/jetpack-connection';
+import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
 import { assignLocation } from './assignLocation';
-import type { NoticeOptions } from '../../context/notices/types';
+import type { NoticeOptions, NoticeButtonAction } from '../../context/notices/types';
 import type { ReactElement } from 'react';
 
-// Define NoticeAction type since it's not exported
-interface NoticeAction {
-	label: string;
-	onClick: () => void;
-	isLoading?: boolean;
-	loadingText?: string;
-	noDefaultClasses?: boolean;
-	variant?: 'primary' | 'secondary';
-}
-
-const useConnectionErrorsNotice = () => {
+const useConnectionErrorsNotice = ( actionHandlers = {} ) => {
 	const { setNotice } = useContext( NoticeContext );
-	const { hasConnectionError, connectionError } = useConnectionErrorNotice(); // Using enhanced hook
+	const { hasConnectionError, connectionError } = useConnectionErrorNotice();
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 	const { recordEvent } = useAnalytics();
 
-	// Handler for creating missing account (protected owner errors)
-	const handleCreateMissingAccount = useCallback( () => {
-		// Track the attempt to use create missing account
-		recordEvent( 'jetpack_my_jetpack_protected_owner_create_account_attempt', {} );
+	// Generic handler for custom actions based on error data
+	const handleCustomAction = useCallback(
+		( actionUrl: string, trackingEvent?: string ) => {
+			// Track the action if tracking event is provided and follows expected pattern
+			if ( trackingEvent && trackingEvent.startsWith( 'jetpack_' ) ) {
+				recordEvent( trackingEvent as `jetpack_${ string }`, {} );
+			}
 
-		// Get admin URL and generate the complete URL with email prepopulation
-		const initialState = window?.Initial_State as { adminUrl?: string } | undefined;
-		const adminUrl = initialState?.adminUrl || '/wp-admin/';
-		const redirectUrl = getProtectedOwnerCreateAccountUrl( connectionError, adminUrl );
-
-		assignLocation( redirectUrl );
-	}, [ recordEvent, connectionError ] );
+			// Navigate to the action URL
+			assignLocation( actionUrl );
+		},
+		[ recordEvent ]
+	);
 
 	useEffect( () => {
-		// Use the enhanced hook data - it now includes protected owner errors
 		if ( ! hasConnectionError || ! connectionError ) {
 			return;
 		}
-
-		// Check if this is a protected owner error based on the error_type field
-		const isProtectedOwnerError = connectionError.error_type === 'protected_owner';
 
 		// Use the error message provided by the backend
 		let errorMessage: string | ReactElement = connectionError.error_message;
@@ -70,20 +53,42 @@ const useConnectionErrorsNotice = () => {
 			);
 		}
 
-		// Add action buttons based on error type
-		let noticeActions: NoticeAction[] = [];
-		if ( isProtectedOwnerError ) {
-			// Protected owner mismatch error - add only "Create missing account" button
+		// Build actions based on error data
+		let noticeActions: NoticeButtonAction[] = [];
+
+		// Get action info from error data
+		const errorData = connectionError?.error_data || {};
+		const suggestedAction = errorData.action;
+		const actionHandler = actionHandlers[ suggestedAction ];
+		const actionUrl = errorData.action_url;
+		const actionLabel = errorData.action_label;
+		const trackingEvent = errorData.tracking_event;
+
+		if ( suggestedAction && actionHandler ) {
+			// Custom action handler provided (function call)
 			noticeActions = [
 				{
-					label: __( 'Create missing account', 'jetpack-my-jetpack' ),
-					onClick: handleCreateMissingAccount,
+					label: actionLabel || __( 'Take Action', 'jetpack-my-jetpack' ),
+					onClick: () => {
+						if ( trackingEvent && trackingEvent.startsWith( 'jetpack_' ) ) {
+							recordEvent( trackingEvent as `jetpack_${ string }`, {} );
+						}
+						actionHandler( connectionError );
+					},
 					noDefaultClasses: true,
-					variant: 'primary',
+				},
+			];
+		} else if ( actionUrl && actionLabel ) {
+			// Custom URL action provided (navigation)
+			noticeActions = [
+				{
+					label: actionLabel,
+					onClick: () => handleCustomAction( actionUrl, trackingEvent ),
+					noDefaultClasses: true,
 				},
 			];
 		} else {
-			// Standard connection error - add "Restore Connection" button
+			// Default action - restore connection
 			const onCtaClick = () => {
 				restoreConnection();
 				recordEvent( 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click' );
@@ -98,6 +103,39 @@ const useConnectionErrorsNotice = () => {
 					noDefaultClasses: true,
 				},
 			];
+		}
+
+		// Add secondary action if available (only for custom errors, not default restore)
+		if ( noticeActions.length > 0 && ( suggestedAction || actionUrl ) ) {
+			const secondaryAction = errorData.secondary_action;
+			const secondaryActionHandler = actionHandlers[ secondaryAction ];
+			const secondaryActionUrl = errorData.secondary_action_url;
+			const secondaryActionLabel = errorData.secondary_action_label;
+			const secondaryTrackingEvent = errorData.secondary_tracking_event;
+
+			// Secondary action with handler
+			if ( secondaryAction && secondaryActionHandler && secondaryActionLabel ) {
+				noticeActions.push( {
+					label: secondaryActionLabel,
+					onClick: () => {
+						if ( secondaryTrackingEvent && secondaryTrackingEvent.startsWith( 'jetpack_' ) ) {
+							recordEvent( secondaryTrackingEvent as `jetpack_${ string }`, {} );
+						}
+						secondaryActionHandler( connectionError );
+					},
+					noDefaultClasses: true,
+					variant: 'secondary',
+				} );
+			}
+			// Secondary action with URL (requires both URL and label)
+			else if ( secondaryActionUrl && secondaryActionLabel ) {
+				noticeActions.push( {
+					label: secondaryActionLabel,
+					onClick: () => handleCustomAction( secondaryActionUrl, secondaryTrackingEvent ),
+					noDefaultClasses: true,
+					variant: 'secondary',
+				} );
+			}
 		}
 
 		const noticeOptions: NoticeOptions = {
@@ -119,7 +157,8 @@ const useConnectionErrorsNotice = () => {
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
-		handleCreateMissingAccount,
+		handleCustomAction,
+		actionHandlers,
 	] );
 };
 

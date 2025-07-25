@@ -44,9 +44,9 @@
 }
 
 /*
-To prevent flash of prev/next image scale transition after pinch zoom we need to hide them.
-Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
-so we have to target all affected elements in touch devices.
+To prevent flash of prev/next image scale transition after pinch zoom we need
+to hide them. Swiper does not add a class of `swiper-slide-zoomed` to slides
+on pinch and zoom so we have to target all affected elements in touch devices.
 */
 .jp-carousel-overlay .swiper-slide.swiper-slide-prev .swiper-zoom-container img,
 .jp-carousel-overlay .swiper-slide.swiper-slide-next .swiper-zoom-container img {
@@ -89,7 +89,7 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-overlay {
-	font-family: 'Helvetica Neue', sans-serif !important;
+	font-family: "Helvetica Neue", sans-serif !important;
 	z-index: 2147483647;
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -150,7 +150,7 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-msg {
-	font-family: 'Open Sans', sans-serif;
+	font-family: "Open Sans", sans-serif;
 	font-style: normal;
 	display: inline-block;
 	line-height: 19px;
@@ -250,7 +250,7 @@ so we have to target all affected elements in touch devices.
 div.jp-carousel-buttons a {
 	border: none !important;
 	color: var(--jp-carousel-primary-subtle-color);
-	font: 400 11px/1.2em 'Helvetica Neue', sans-serif !important;
+	font: 400 11px/1.2em "Helvetica Neue", sans-serif !important;
 	letter-spacing: 0 !important;
 	padding: 5px 2px 5px 0;
 	text-decoration: none !important;
@@ -364,7 +364,7 @@ div.jp-carousel-buttons a:hover {
 	background: none !important;
 	border: none !important;
 	display: inline-block;
-	font: 400 20px/1.3em 'Helvetica Neue', sans-serif;
+	font: 400 20px/1.3em "Helvetica Neue", sans-serif;
 	line-height: normal;
 	letter-spacing: 0 !important;
 	margin: 0 0 10px 0;
@@ -459,7 +459,7 @@ div.jp-carousel-buttons a:hover {
 /** Meta Box Start **/
 .jp-carousel-image-meta {
 	color: var(--jp-carousel-primary-color);
-	font: 12px/1.4 'Helvetica Neue', sans-serif !important;
+	font: 12px/1.4 "Helvetica Neue", sans-serif !important;
 	width: 100%;
 	display: none;
 }
@@ -470,7 +470,7 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-image-meta li,
 .jp-carousel-image-meta h5 {
-	font-family: 'Helvetica Neue', sans-serif !important;
+	font-family: "Helvetica Neue", sans-serif !important;
 	position: inherit !important;
 	top: auto !important;
 	right: auto !important;
@@ -538,7 +538,7 @@ a.jp-carousel-image-download span.photo-size-times {
 
 /** Comments Start **/
 .jp-carousel-comments {
-	font: 15px/1.7 'Helvetica Neue', sans-serif !important;
+	font: 15px/1.7 "Helvetica Neue", sans-serif !important;
 	font-weight: 400;
 	background: none transparent;
 	width: 100%;
@@ -630,7 +630,7 @@ textarea#jp-carousel-comment-form-comment-field {
 	background: var(--jp-carousel-bg-faded-color);
 	border: 1px solid var(--jp-carousel-border-color);
 	color: var(--jp-carousel-primary-subtle-color);
-	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
+	font: 16px/1.4 "Helvetica Neue", sans-serif !important;
 	width: 100%;
 	padding: 10px 10px 5px;
 	margin: 0;
@@ -745,7 +745,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: var(--jp-carousel-bg-color);
 	border: 1px solid var(--jp-carousel-border-color);
 	color: var(--jp-carousel-primary-subtle-color);
-	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
+	font: 16px/1.4 "Helvetica Neue", sans-serif !important;
 	padding: 10px;
 	float: left;
 	box-shadow: inset 2px 2px 2px rgba(0, 0, 0, 0.2);
@@ -759,7 +759,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comment-form-commenting-as p {
-	font: 400 13px/1.7 'Helvetica Neue', sans-serif !important;
+	font: 400 13px/1.7 "Helvetica Neue", sans-serif !important;
 	margin: 22px 0 0;
 	float: left;
 }
@@ -773,7 +773,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comment-form-commenting-as label {
-	font: 400 13px/1.7 'Helvetica Neue', sans-serif !important;
+	font: 400 13px/1.7 "Helvetica Neue", sans-serif !important;
 	margin: 0 20px 3px 0;
 	float: left;
 	width: 100px;
@@ -821,7 +821,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	padding: 1em 0;
 	box-sizing: border-box;
 	border-radius: 2px;
-	font: 13px/1.4 'Helvetica Neue', sans-serif !important;
+	font: 13px/1.4 "Helvetica Neue", sans-serif !important;
 	border: 1px solid var(--jp-carousel-border-color);
 	box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.2);
 }
@@ -836,7 +836,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comments-loading {
-	font: 400 15px/1.7 'Helvetica Neue', sans-serif !important;
+	font: 400 15px/1.7 "Helvetica Neue", sans-serif !important;
 	display: none;
 	color: var(--jp-carousel-primary-subtle-color);
 	text-align: left;
@@ -910,7 +910,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: var(--jp-carousel-primary-color);
 	color: var(--jp-carousel-bg-color);
 	font-weight: 400;
-	font-family: 'Helvetica Neue', sans-serif !important;
+	font-family: "Helvetica Neue", sans-serif !important;
 	position: relative;
 }
 

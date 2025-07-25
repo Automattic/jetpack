@@ -1,14 +1,13 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { Onboarding } from '_jetpack-e2e-commons/flows/onboarding.ts';
 import logger from '_jetpack-e2e-commons/logger.js';
+import { disconnect, isSiteConnected, isUserConnected } from '_jetpack-e2e-commons/utils/index.ts';
 
-test.beforeEach( async ( { page } ) => {
-	await prerequisitesBuilder( page )
-		.withCleanEnv()
-		.withLoggedIn( true )
-		.withWpComLoggedIn( true )
-		.build();
+test.beforeEach( async ( { requestUtils } ) => {
+	await disconnect( requestUtils );
+
+	expect( await isUserConnected( requestUtils ) ).toBe( false );
+	expect( await isSiteConnected( requestUtils ) ).toBe( false );
 } );
 
 test( 'Full connection - Site and User', async ( { page, requestUtils, admin } ) => {

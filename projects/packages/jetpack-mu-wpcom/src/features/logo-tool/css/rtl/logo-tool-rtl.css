@@ -3,13 +3,13 @@
 .customize-control .actions .create-logo-button {
 	display: block !important;
 	text-align: center;
-	border-color: #6BA774;
-	color: #6BA774;
+	border-color: #6ba774;
+	color: #6ba774;
 	font-size: 14px;
 }
 
 .customize-control .actions .create-logo-button:focus {
-	box-shadow: 0 0 0 1px #6BA774;
+	box-shadow: 0 0 0 1px #6ba774;
 }
 
 .create-logo-button .external-link-icon {

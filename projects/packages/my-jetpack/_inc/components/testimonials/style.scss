@@ -1,8 +1,8 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@automattic/jetpack-base-styles/root-variables";
 
 .jetpack-onboarding-testimonial {
-	--tag-color: #DAFFDC;
+	--tag-color: #daffdc;
 	flex: 1;
 	background-size: cover;
 	background-position: center top;
@@ -41,13 +41,13 @@
 	&--3 {
 
 		&::before {
-			content: '';
+			content: "";
 			position: absolute;
 			top: 0;
 			left: 0;
 			right: 0;
 			bottom: -16px;
-			background: linear-gradient(0deg, rgba(0, 0, 0, 0.90) 0%, rgba(0, 0, 0, 0.60) 37.5%, rgba(0, 0, 0, 0.02) 100%);
+			background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.6) 37.5%, rgba(0, 0, 0, 0.02) 100%);
 		}
 	}
 
@@ -62,12 +62,12 @@
 		font-family:
 			-apple-system,
 			BlinkMacSystemFont,
-			'Segoe UI',
+			"Segoe UI",
 			Roboto,
 			Oxygen-Sans,
 			Ubuntu,
 			Cantarell,
-			'Helvetica Neue',
+			"Helvetica Neue",
 			sans-serif;
 
 		@include gb.break-xlarge {

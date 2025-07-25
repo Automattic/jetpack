@@ -1,8 +1,8 @@
-@use '@automattic/jetpack-base-styles/style';
-@use '../../scss/mixins/ui';
-@use '../../scss/variables/colors';
-@use '../../scss/typography';
-@use '../../scss/mixin_breakpoint';
+@use "@automattic/jetpack-base-styles/style";
+@use "../../scss/mixins/ui";
+@use "../../scss/variables/colors";
+@use "../../scss/typography";
+@use "../../scss/mixin_breakpoint";
 
 .jp-recommendations-product-card-upsell {
 
@@ -12,7 +12,7 @@
 
 	padding: 3.25rem 2rem 2rem;
 
-	@include mixin_breakpoint.breakpoint( '<480px' ) {
+	@include mixin_breakpoint.breakpoint( "<480px" ) {
 		padding: 1rem;
 
 		&.with-header {
@@ -83,7 +83,7 @@
 
 .jp-recommendations-product-card-upsell__final-price {
 	margin-inline-end: 1rem;
-	
+
 	color: var(--jp-gray-100);
 }
 

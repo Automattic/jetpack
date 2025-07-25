@@ -6,6 +6,7 @@ export type NoticeButtonAction = NoticeAction & {
 	loadingText?: string;
 	isDisabled?: boolean;
 	isExternalLink?: boolean;
+	variant?: 'primary' | 'secondary';
 };
 
 export type Notice = {

@@ -41,7 +41,9 @@ function swiperResize( swiper ) {
 	if ( ! swiper || ! swiper.el ) {
 		return;
 	}
-	const img = swiper.el.querySelector( '.swiper-slide[data-swiper-slide-index="0"] img' );
+	const img = swiper.params.loop
+		? swiper.el.querySelector( '.swiper-slide[data-swiper-slide-index="0"] img' )
+		: swiper.el.querySelector( '.swiper-slide img' );
 	if ( ! img ) {
 		return;
 	}

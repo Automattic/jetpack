@@ -1,5 +1,5 @@
 @use "../scss/variables/colors";
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/root-variables";
 
 @mixin emerald-button-colors() {
 	background: var(--jp-black);
@@ -15,7 +15,7 @@
 @mixin widget-card() {
 	background: var(--jp-white);
 	border-radius: 5px;
-	box-shadow: 0 4px 40px 0 rgba(0, 0, 0, .04);
+	box-shadow: 0 4px 40px 0 rgba(0, 0, 0, 0.04);
 	padding: 1em 1.5em 1em 1.5em;
 }
 
@@ -38,7 +38,7 @@
 
 		svg {
 			height: 20px;
-			margin: .15em 0 0 .5em;
+			margin: 0.15em 0 0 0.5em;
 		}
 	}
 
@@ -107,11 +107,11 @@
 
 				.stats-section-inner > h3.heading {
 					font-size: 1.25em;
-					margin: 0 0 .5em 0;
+					margin: 0 0 0.5em 0;
 				}
 
 				p {
-					margin: 0 0 .25em;
+					margin: 0 0 0.25em;
 					color: var(--jp-gray-40);
 
 					&.nothing {
@@ -151,20 +151,20 @@
 		display: grid;
 		row-gap: 1em;
 		grid-template-areas:
-			'header'
-			'content';
+			"header"
+			"content";
 		grid-template-rows: min-content min-content;
 	}
 
 	.stats-info-content {
 		grid-area: content;
 		display: grid;
-		grid-template-areas: 'posts searches';
+		grid-template-areas: "posts searches";
 		grid-template-columns: 1fr 1fr;
 		column-gap: 1em;
 
 		.stats-section {
-			// Make sure the stats section doesn't overflow the container, which makes ellipsis work.
+			// Make sure stats section doesn't overflow container so the ellipsis works.
 			min-width: 0;
 		}
 	}
@@ -216,7 +216,7 @@
 	.stats,
 	.widgets,
 	.wpcom-connect {
-		padding: .75em;
+		padding: 0.75em;
 	}
 
 	.wpcom-connect {

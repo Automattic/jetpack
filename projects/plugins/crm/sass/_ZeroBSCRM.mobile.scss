@@ -4,7 +4,7 @@
  */
 
 /*
-	Global styles for ZBS Mobile and Tablet layouts. 
+	Global styles for ZBS Mobile and Tablet layouts.
 */
 
 /* Semantic UI has these classes, however they're only applicable to*/
@@ -31,7 +31,7 @@
 		display: none !important;
 	}
 }
-  
+
 /* Tablet / iPad Portrait */
 @media only screen and (min-width: 768px) and (max-width: 991px) {
 
@@ -44,7 +44,7 @@
 		display: none !important;
 	}
 }
-  
+
 /* Computer / Desktop / iPad Landscape */
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
 
@@ -57,7 +57,7 @@
 		display: none !important;
 	}
 }
-  
+
 /* Large Monitor */
 @media only screen and (min-width: 1200px) and (max-width: 1919px) {
 
@@ -70,7 +70,7 @@
 		display: none !important;
 	}
 }
-  
+
 /* Widescreen Monitor */
 @media only screen and (min-width: 1920px) {
 
@@ -118,7 +118,7 @@
 			//margin-top:-45px;
 			margin-top: 0;
 		}
-        
+
 		#zbs-mobile-navigation-toggle {
 			display: none;
 		}
@@ -233,7 +233,7 @@
 		height: inherit !important;
 	}
 
-	//invoice 
+	//invoice
 	.post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input,
 	.post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select {
 		width: 100%;
@@ -292,7 +292,7 @@
 		.grid {
 			max-width: 100%;
 		}
-        
+
 		#zbs-mobile-navigation-toggle {
 			display: none;
 		}
@@ -343,8 +343,6 @@
 			width: 100% !important;
 		}
 
-  
- 
 
 		#zbs-customer-panel {
 			padding-right: 0;
@@ -391,7 +389,7 @@
 		height: inherit !important;
 	}
 
-	//invoice 
+	//invoice
 	.post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input,
 	.post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select {
 		width: 100%;
@@ -412,10 +410,10 @@
 
 	// Email template editor
 	.jpcrm-email-template-label-content {
-        
+
 		position: relative;
 		bottom: auto;
-        
+
 	}
 
 
@@ -429,49 +427,49 @@
 .ui.unstackable.table {
 	display: table;
 }
-  
+
 .ui.unstackable.table thead {
 	display: table-header-group;
 }
-  
+
 .ui.unstackable.table tbody {
 	display: table-row-group;
 }
-  
+
 .ui.unstackable.table tfoot {
 	display: table-footer-group;
 }
-  
+
 .ui.unstackable.table tr {
 	display: table-row;
 }
-  
+
 .ui.unstackable.table td:first-child {
 	font-weight: 400;
 }
-  
+
 .ui.unstackable.table tr > td {
 	width: auto !important;
 	display: table-cell;
 	padding: 0.4em 0.7em;
 	box-shadow: none !important;
 }
-  
+
 .ui.unstackable.celled.table.segment th:first-child,
 .ui.unstackable.celled.table.segment td:first-child {
 	border-left: none !important;
 }
-  
+
 .ui.unstackable.celled.table.segment th:last-child,
 .ui.unstackable.celled.table.segment td:last-child {
 	border-right: none !important;
 }
-  
+
 .ui.unstackable.celled.table.segment > *:first-child > tr:first-child > th,
 .ui.unstackable.celled.table.segment > *:first-child > tr:first-child > td {
 	border-top: none !important;
 }
-  
+
 .ui.unstackable.celled.table.segment > *:last-child > tr:last-child > th,
 .ui.unstackable.celled.table.segment > *:last-child > tr:last-child > td {
 	border-bottom: none !important;

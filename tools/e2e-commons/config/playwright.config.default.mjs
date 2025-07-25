@@ -4,6 +4,8 @@ import { defineConfig, devices } from '@playwright/test';
 import config from 'config';
 import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper.js';
 
+const rootPath = fileURLToPath( new URL( '..', import.meta.url ) );
+
 const reporter = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
@@ -26,6 +28,9 @@ if ( process.env.CI ) {
 	);
 }
 
+process.env.STORAGE_STATE_DIR_PATH = `${ rootPath }/.state`.replaceAll( '//', '/' );
+process.env.STORAGE_STATE_PATH = `${ process.env.STORAGE_STATE_DIR_PATH }/storage-state.json`;
+
 // Fail early if the required test site config is not defined
 // Let config lib throw by using get function on an undefined property
 if ( process.env.TEST_SITE ) {
@@ -36,22 +41,31 @@ if ( process.env.TEST_SITE ) {
 // This is needed because writeFileSync doesn't create parent dirs and will fail
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
-// Create the file used to save browser storage to skip login actions if it doesn't already exist
-// If the file is missing Playwright context creation will fail
-if ( ! fs.existsSync( config.get( 'temp.storage' ) ) ) {
-	fs.writeFileSync( config.get( 'temp.storage' ), '{}' );
-}
 // Ensure the environment variables for `@wordpress/e2e-test-utils-playwright` are set
 setWpEnvVars();
 
+export const setupProjects = [
+	{
+		name: 'global authentication',
+		testDir: `${ rootPath }/fixtures`,
+		testMatch: 'auth.setup.ts',
+		storageState: undefined,
+	},
+	{
+		name: 'connection setup',
+		testDir: `${ rootPath }/fixtures`,
+		testMatch: 'connection.setup.ts',
+		dependencies: [ 'global authentication' ],
+	},
+];
+
 const playwrightConfig = defineConfig( {
 	timeout: 300000,
-	retries: process.env.CI ? 2 : 0,
+	retries: process.env.CI ? 1 : 0,
 	workers: 1,
 	outputDir: config.get( 'dirs.results' ),
 	reporter,
 	forbidOnly: !! process.env.CI,
-	globalSetup: fileURLToPath( new URL( './global-setup.mjs', import.meta.url ).href ),
 	use: {
 		baseURL: resolveSiteUrl(),
 		headless: true,
@@ -64,7 +78,6 @@ const playwrightConfig = defineConfig( {
 		},
 		video: 'retain-on-failure',
 		trace: process.env.CI ? 'off' : 'retain-on-failure',
-		storageState: config.get( 'temp.storage' ),
 		userAgent:
 			'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 wp-e2e-tests',
 		locale: 'en-US',
@@ -73,14 +86,12 @@ const playwrightConfig = defineConfig( {
 			// TODO - Enable strictSelectors once all tests are updated.
 			// strictSelectors: true,
 		},
+		...devices[ 'Desktop Chrome' ],
+		storageState: fs.existsSync( process.env.STORAGE_STATE_PATH )
+			? process.env.STORAGE_STATE_PATH
+			: undefined,
 	},
 	reportSlowTests: null,
-	projects: [
-		{
-			name: 'chromium',
-			use: { ...devices[ 'Desktop Chrome' ] },
-		},
-	],
 } );
 
 export default playwrightConfig;

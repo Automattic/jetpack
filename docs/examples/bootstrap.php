@@ -36,10 +36,30 @@ if ( false !== getenv( 'WORDPRESS_DEVELOP_DIR' ) ) {
 }
 
 if ( ! isset( $_tests_dir ) || ! file_exists( $_tests_dir . '/includes/bootstrap.php' ) ) {
-	echo 'Failed to automatically locate WordPress or wordpress-develop to run tests.' . PHP_EOL;
-	echo PHP_EOL;
-	echo 'Set the WORDPRESS_DEVELOP_DIR environment variable to point to a copy of WordPress' . PHP_EOL;
-	echo 'or wordpress-develop.' . PHP_EOL;
+	if ( is_dir( '/tmp/wordpress-develop' ) && file_exists( '/var/scripts/ensure-php-version.sh' ) ) {
+		fprintf(
+			STDERR,
+			<<<'EOF'
+Looks like you're using the Jetpack Docker dev env, but the wordpress-develop checkout is incomplete.
+Try running `jetpack docker stop && jetpack docker up` to repopulate it.
+
+If that doesn't fix it, try (on the host) deleting `tools/docker/wordpress-develop/tests/` and then
+running `jetpack docker stop && jetpack docker up` again to repopulate it.
+
+EOF
+		);
+	} else {
+		fprintf(
+			STDERR,
+			<<<'EOF'
+Failed to automatically locate WordPress or wordpress-develop to run tests.
+
+Set the WORDPRESS_DEVELOP_DIR environment variable to point to a copy of WordPress
+or wordpress-develop.
+
+EOF
+		);
+	}
 	exit( 1 );
 }
 

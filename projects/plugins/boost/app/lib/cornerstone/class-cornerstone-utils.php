@@ -20,7 +20,7 @@ class Cornerstone_Utils {
 	 *
 	 * @return string[] The absolute URLs of the cornerstone pages.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.2.0
 	 */
 	public static function get_custom_list() {
 		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
@@ -38,7 +38,7 @@ class Cornerstone_Utils {
 	 *
 	 * @return string[] The absolute URLs of the cornerstone pages.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.2.0
 	 */
 	public static function get_predefined_list() {
 		return self::maybe_trailing_slash_urls( array( home_url() ) );
