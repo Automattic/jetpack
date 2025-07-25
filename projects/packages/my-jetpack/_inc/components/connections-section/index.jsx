@@ -1,10 +1,8 @@
 import { useMemo } from 'react';
-import { MyJetpackRoutes } from '../../constants';
 import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import ConnectionStatusCard from '../connection-status-card';
 
 /**
@@ -13,8 +11,10 @@ import ConnectionStatusCard from '../connection-status-card';
  * @return {object} ConnectionsSection React component.
  */
 export default function ConnectionsSection() {
-	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
-	const navigate = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
+	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins, handleConnectUser } =
+		useMyJetpackConnection( {
+			redirectUri: 'admin.php?page=my-jetpack',
+		} );
 	const { data: products, isLoading, isError } = useAllProducts();
 	const { adminUrl } = getMyJetpackWindowInitialState();
 
@@ -45,7 +45,7 @@ export default function ConnectionsSection() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			redirectUri={ topJetpackMenuItemUrl }
-			onConnectUser={ navigate }
+			onConnectUser={ handleConnectUser }
 			connectedPlugins={ connectedPlugins }
 			requiresUserConnection={ productsThatRequireUserConnection.length > 0 }
 			// eslint-disable-next-line react/jsx-no-bind
