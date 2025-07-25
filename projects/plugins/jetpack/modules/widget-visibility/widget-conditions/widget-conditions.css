@@ -117,7 +117,7 @@
 }
 
 .editor-styles-wrapper .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional  .alignleft {
-	margin-left: 20px
+	margin-left: 20px;
 }
 
 .widget-conditional .condition:last-child .condition-conjunction,
@@ -161,7 +161,8 @@
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional-inner {
 
 	/*
-	 * fonts of labels are reset to 13px in gutenberg editor for legacy widgets, ensure a consistent look on non-labels
+	 * fonts of labels are reset to 13px in gutenberg editor for legacy widgets
+	 * ensure a consistent look on non-labels
 	 */
 	font-size: 13px;
 }

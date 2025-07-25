@@ -1,5 +1,5 @@
-@use '../../scss/calypso-colors';
-@use '../../scss/mixin_breakpoint';
+@use "../../scss/calypso-colors";
+@use "../../scss/mixin_breakpoint";
 
 $border: 1px solid calypso-colors.$gray-5;
 
@@ -88,7 +88,7 @@ $border: 1px solid calypso-colors.$gray-5;
 	&__summary {
 		display: flex;
 		justify-content: space-between;
-        
+
 		padding: 1rem;
 
 		@include mixin_breakpoint.breakpoint( "<660px" ) {
@@ -109,7 +109,7 @@ $border: 1px solid calypso-colors.$gray-5;
 
 	&__last-tested {
 		margin: 0 0 0.25rem 0;
-        
+
 		color: calypso-colors.$gray-30;
 		text-align: left;
 	}

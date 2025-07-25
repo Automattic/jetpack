@@ -99,7 +99,7 @@
 
 .jetpack-sso-or::before {
 	background: #dcdcde;
-	content: '';
+	content: "";
 	height: 1px;
 	position: absolute;
 	left: 0;
@@ -112,7 +112,7 @@
 	color: #777;
 	position: relative;
 	padding: 0 8px;
-	text-transform: uppercase
+	text-transform: uppercase;
 }
 
 #jetpack-sso-wrap .button {

@@ -1,7 +1,7 @@
-@use '../../scss/functions/rem';
-@use '../../scss/calypso-colors';
-@use '../../scss/mixin_clear-fix';
-@use '../../scss/mixin_long-content-fade';
+@use "../../scss/functions/rem";
+@use "../../scss/calypso-colors";
+@use "../../scss/mixin_clear-fix";
+@use "../../scss/mixin_long-content-fade";
 
 .dops-section-header.dops-card {
 	display: flex;
@@ -10,11 +10,11 @@
 	padding-top: rem.convert(16px);
 	padding-bottom: rem.convert(15px);
 	position: relative;
-	border-bottom: 1px solid #DCDCDE;
+	border-bottom: 1px solid #dcdcde;
 	margin-bottom: 0;
 
 	&::after {
-		content: '';
+		content: "";
 	}
 }
 
