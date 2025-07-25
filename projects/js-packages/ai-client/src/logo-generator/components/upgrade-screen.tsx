@@ -52,12 +52,12 @@ export const UpgradeScreen: FC< {
 				</span>
 				&nbsp;
 				<Button variant="link" href={ upgradeInfoUrl } target="_blank">
-					{ __( 'Learn more about Jetpack AI.', 'jetpack-ai-client' ) }
+					<span>{ __( 'Learn more about Jetpack AI.', 'jetpack-ai-client' ) }</span>
 				</Button>
 			</div>
 			<div className="jetpack-ai-logo-generator-modal__notice-actions">
 				<Button variant="tertiary" onClick={ onCancel }>
-					{ __( 'Cancel', 'jetpack-ai-client' ) }
+					<span>{ __( 'Cancel', 'jetpack-ai-client' ) }</span>
 				</Button>
 				<Button
 					variant="primary"
@@ -65,7 +65,7 @@ export const UpgradeScreen: FC< {
 					target="_blank"
 					onClick={ handleUpgradeClick }
 				>
-					{ __( 'Upgrade', 'jetpack-ai-client' ) }
+					<span>{ __( 'Upgrade', 'jetpack-ai-client' ) }</span>
 				</Button>
 			</div>
 		</div>

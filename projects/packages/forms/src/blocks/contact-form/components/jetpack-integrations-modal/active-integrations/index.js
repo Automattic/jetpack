@@ -3,6 +3,7 @@ import { JetpackIcon } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../../icons/akismet';
+import MailPoetOrangeIcon from '../../../../../icons/mailpoet-orange';
 import SalesforceCircleIcon from '../../../../../icons/salesforce-circle';
 import { isValidSalesforceOrgId } from '../salesforce-card';
 import './style.scss';
@@ -27,6 +28,15 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 						...integration,
 						icon: <JetpackIcon size={ 30 } color={ COLOR_JETPACK } />,
 						tooltip: __( 'Jetpack CRM is connected for this form', 'jetpack-forms' ),
+					} );
+				}
+				break;
+			case 'mailpoet':
+				if ( integration.isActive && attributes.connectMailPoet ) {
+					acc.push( {
+						...integration,
+						icon: <MailPoetOrangeIcon width={ 30 } height={ 30 } />,
+						tooltip: __( 'MailPoet is connected for this form', 'jetpack-forms' ),
 					} );
 				}
 				break;

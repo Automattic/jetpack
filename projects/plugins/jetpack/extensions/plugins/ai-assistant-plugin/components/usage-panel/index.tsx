@@ -129,7 +129,7 @@ export function UsagePanel( {
 										href={ contactUsURL }
 										onClick={ handleContactUsClick }
 									>
-										{ __( 'Contact Us', 'jetpack' ) }
+										<span>{ __( 'Contact Us', 'jetpack' ) }</span>
 									</Button>
 								</>
 							) }
@@ -141,7 +141,7 @@ export function UsagePanel( {
 									href={ checkoutUrl }
 									onClick={ handleUpgradeClick }
 								>
-									{ upgradeButtonText }
+									<span>{ upgradeButtonText }</span>
 								</Button>
 							) }
 						</div>

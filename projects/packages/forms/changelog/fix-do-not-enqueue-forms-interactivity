@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: only enqueue view script when the form is rendered
