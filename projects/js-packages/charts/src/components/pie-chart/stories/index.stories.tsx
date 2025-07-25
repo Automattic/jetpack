@@ -1,5 +1,3 @@
-import { Group } from '@visx/group';
-import { Text } from '@visx/text';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -142,33 +140,6 @@ export const Default: Story = {
 	},
 };
 
-export const Doughnut: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.5,
-		padding: 0,
-		gapScale: 0.03,
-		cornerScale: 0.03,
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
-					🍩 Doughnut
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fill="#008A20" fontSize={ 18 } y={ 16 }>
-					Three donuts for the price of one!
-				</Text>
-			</Group>
-		),
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Doughnut chart variant with the thickness set to 0.5 (50%).',
-			},
-		},
-	},
-};
-
 export const WithTooltips: Story = {
 	args: {
 		...Default.args,
@@ -178,21 +149,6 @@ export const WithTooltips: Story = {
 		docs: {
 			description: {
 				story: 'Pie chart with interactive tooltips that appear on hover.',
-			},
-		},
-	},
-};
-
-export const WithTooltipsDoughnut: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.5,
-		withTooltips: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Doughnut chart with interactive tooltips that appear on hover.',
 			},
 		},
 	},
