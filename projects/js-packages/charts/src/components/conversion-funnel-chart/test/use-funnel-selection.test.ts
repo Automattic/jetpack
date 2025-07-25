@@ -160,7 +160,6 @@ describe( 'useFunnelSelection', () => {
 			const mockBarEvent = {
 				stopPropagation: jest.fn(),
 			} as unknown as React.MouseEvent;
-			const mockChartEvent = {} as React.MouseEvent;
 
 			// First select a step
 			act( () => {
@@ -172,7 +171,7 @@ describe( 'useFunnelSelection', () => {
 
 			// Then click chart to deselect
 			act( () => {
-				result.current.handleChartClick( mockChartEvent );
+				result.current.handleChartClick();
 			} );
 
 			stepState = result.current.getStepState( 'test-step' );
