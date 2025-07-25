@@ -1,9 +1,5 @@
 @import "@wordpress/dataviews/build-style/style.css";
 
-$tab-item-height: 40px;
-$tabs-height: $tab-item-height + 16px;
-$action-bar-height: 88px;
-
 .jp-forms__inbox {
 	// visual aid for focus, currently only export button
 	.button-primary.export-button:focus {
@@ -16,51 +12,6 @@ $action-bar-height: 88px;
 			font-size: var(--jp-forms-font-size-regular);
 		}
 	}
-}
-
-.jp-forms__inbox-tabs {
-
-	.components-tab-panel__tabs {
-		margin: 0;
-		padding: 10px 48px 10px;
-		z-index: 1;
-		flex: 0 1 auto;
-
-		@media (max-width: 600px) {
-			top: 0;
-		}
-
-		@media (max-width: 520px) {
-			padding: 0 24px;
-		}
-	}
-}
-
-.jp-forms__inbox-tab-item {
-	font-size: var(--jp-forms-font-size-regular);
-	font-weight: 400;
-	height: $tab-item-height;
-	padding: 8px 16px;
-
-	&.active-tab {
-		font-weight: 600;
-	}
-}
-
-.jp-forms__inbox-tab-item-count {
-	align-items: center;
-	background: transparent;
-	border: 1px solid #dcdcde;
-	border-radius: 3px;
-	box-sizing: border-box;
-	color: #2c3338;
-	display: inline-flex;
-	font-size: 12px;
-	font-weight: 400;
-	height: 20px;
-	line-height: 18px;
-	margin-left: 10px;
-	padding: 0 6px;
 }
 
 @keyframes jp-forms__slide-in {
@@ -400,13 +351,6 @@ body.jetpack_page_jetpack-forms-admin {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-}
-
-.jp-forms__inbox-tabs .components-tab-panel__tab-content {
-	flex: 1;
-
-	/* Important to pair with flex-shrink */
-	min-height: 0;
 }
 
 .jp-forms__inbox-file-preview-shell {
