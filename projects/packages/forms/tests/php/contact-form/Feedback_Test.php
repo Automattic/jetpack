@@ -1412,7 +1412,7 @@ class Feedback_Test extends BaseTestCase {
 						'value' => $test_message,
 					),
 				),
-				'message'  => 'Compiled fields should returnlabel|value pairs only.',
+				'message'  => 'Compiled fields should return label|value pairs only.',
 			),
 			'value_format'       => array(
 				'format'   => 'value',
