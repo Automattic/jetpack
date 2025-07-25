@@ -9,13 +9,13 @@
 
 	h2.ui.header {
 
-		background: #FFF;
+		background: #fff;
 		margin-top: 0 !important;
 		margin-left: -30px;
 		padding-top: 0.7em;
 		padding-bottom: 1em;
 		padding-left: 1.3em;
-	    
+
 		border-bottom: #eaeaea 1px solid;
 		box-shadow: 0 1px 6px 0 #efefef;
 
@@ -28,11 +28,11 @@
 	#zbs-segment-edit-var-title {
 
 		min-width: 400px;
-		
+
 	}
 
 	.ui.centralsimple.huge {
-		
+
 		font-size: 20px;
 		text-align: center;
 
@@ -125,7 +125,7 @@
 
 		// segment conditions
 		.zbs-segment-edit-condition {
-		    
+
 			select,
 			input {
 				display: inline-block;
@@ -182,7 +182,7 @@
 
 		// match type select
 		#zbs-segment-edit-var-matchtype {
-		 
+
 			width: auto;
 			margin-left: auto;
 			margin-right: auto;
@@ -203,7 +203,7 @@
 	// when a segment condition has gone rogue.
 	.segment-condition-errored {
 		max-width: 25%;
-		color: #CCC;
+		color: #ccc;
 	}
 }
 

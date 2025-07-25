@@ -6,7 +6,7 @@
 
 	//padding: 34px;
 
-	background: #FFF;
+	background: #fff;
 	box-shadow: 0 4px 44px rgba(0, 0, 0, 0.35);
 	border-radius: 8px;
 	padding: 10px 12px;
@@ -68,7 +68,8 @@
 
 				a.learn-more-link {
 
-					// taken from _JetpackCRM.admin.modals.scss .jpcrm-modal-learn-footer-actions a
+					// taken from _JetpackCRM.admin.modals.scss
+					// `.jpcrm-modal-learn-footer-actions a`
 					display: flex;
 					align-items: center;
 					font-size: 14px;
@@ -136,7 +137,7 @@
 							color: #000;
 
 							img {
-                    
+
 								margin-right: 8px;
 
 							}
@@ -146,7 +147,7 @@
 					}
 
 				}
-          
+
 
 				// COPY TO BELOW
 

@@ -1,4 +1,4 @@
-@use 'sass:meta';
+@use "sass:meta";
 
 .trigger-wrapper {
 	padding-block: 1rem;
@@ -73,13 +73,14 @@
 
 	/**
 	 * We have to use scoped import to avoid styles being added globally.
-	 * By importing the styles here, all the styles from dataviews package will be scoped to this component.
+	 * By importing the styles here, all the styles from dataviews package
+	 * will be scoped to this component.
 	 * @see https://github.com/Automattic/jetpack/issues/39981
 	 */
 	// Use :global scope to avoid CSS encapsulation
 	:global {
 
-		@include meta.load-css( '@wordpress/dataviews/build-style/style' );
+		@include meta.load-css( "@wordpress/dataviews/build-style/style" );
 	}
 
 	// Hide the table actions

@@ -1,13 +1,13 @@
 // Chart
 // Life is a statistical anomaly
 
-@use 'sass:color';
-@use '../../scss/z-index';
-@use '../../scss/calypso-colors';
-@use '../../scss/layout';
-@use '../../scss/mixin_clear-fix';
-@use '../../scss/mixin_long-content-fade';
-@use '../../scss/mixin_icons';
+@use "sass:color";
+@use "../../scss/z-index";
+@use "../../scss/calypso-colors";
+@use "../../scss/layout";
+@use "../../scss/mixin_clear-fix";
+@use "../../scss/mixin_long-content-fade";
+@use "../../scss/mixin_icons";
 
 .dops-chart {
 	position: relative;
@@ -40,12 +40,12 @@
 // Y-axis marker lines inside each chart__bar
 // (This is needed so that bars overlap correctly)
 .dops-chart__bar-marker {
-	z-index: z-index.z-index('root', '.dops-chart__bar-marker');
+	z-index: z-index.z-index("root", ".dops-chart__bar-marker");
 	position: absolute;
 	top: 0;
 	width: 100%;
 	height: 1px;
-	border-top: 1px solid rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), .1);
+	border-top: 1px solid rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.1);
 }
 
 .dops-chart__bar-marker,
@@ -109,12 +109,12 @@
 // (vertical thin grey bar)
 
 .dops-chart__x-axis-label::before {
-	content: '';
+	content: "";
 	display: block;
 	position: absolute;
 	top: -4px;
 	left: 50%;
-	margin-left: -.5px;
+	margin-left: -0.5px;
 	width: 1px;
 	height: 5px;
 	background: calypso-colors.$gray-light;
@@ -146,29 +146,29 @@
 
 
 	&.is-weekend {
-		background-color: rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), .5);
+		background-color: rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.5);
 	}
 
 	&:focus {
-		background-color: rgba(calypso-colors.$orange-jazzy, .1);
+		background-color: rgba(calypso-colors.$orange-jazzy, 0.1);
 	}
 
 	&:hover {
 		cursor: pointer;
-		background-color: rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), .25);
+		background-color: rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.25);
 	}
 
 	&.is-selected {
 		cursor: default;
-		background-color: rgba(calypso-colors.$orange-jazzy, .1);
+		background-color: rgba(calypso-colors.$orange-jazzy, 0.1);
 	}
 }
 
 // Individual bar wrapper & misc
 // 1: Positions the bar in the space as defined by .bar
 // 2: Default value for top so bars grow when they get a new value
-//    (doesn't function correctly for period switching right now, not sure why)
-//    (also doesn't work because updating the DOM is so heavy it stalls all animations)
+//   (doesn't function correctly for period switching right now, not sure why)
+//   (also doesn't work since updating DOM is so heavy it stalls all animations)
 
 .dops-chart__bar-section {
 	display: inline-block;
@@ -178,7 +178,7 @@
 	right: 16%; // 1
 	bottom: 0; // 1
 	left: 16%; // 1
-	z-index: z-index.z-index('root', '.dops-chart__bar-section');
+	z-index: z-index.z-index("root", ".dops-chart__bar-section");
 
 	.dops-chart__bar:hover &.is-bar {
 		background-color: var(--jp-green-40);
@@ -189,7 +189,7 @@
 	}
 
 	&.is-spacer {
-		z-index: z-index.z-index('root', '.dops-chart__bar-section.is-spacer');
+		z-index: z-index.z-index("root", ".dops-chart__bar-section.is-spacer");
 		background-color: calypso-colors.$transparent;
 	}
 
@@ -200,10 +200,10 @@
 		top: 160px;
 		bottom: 0;
 		left: 0;
-		z-index: z-index.z-index('root', '.dops-chart__bar-section.is-ghost::after');
+		z-index: z-index.z-index("root", ".dops-chart__bar-section.is-ghost::after");
 		width: 100%;
 		height: 40px;
-		background-image: linear-gradient(to bottom, calypso-colors.$transparent, rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), .5)); // TODO: needs to use default color for gradient
+		background-image: linear-gradient(to bottom, calypso-colors.$transparent, rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.5)); // TODO: needs to use default color for gradient
 
 		.dops-chart__bar:hover & {
 			display: none;
@@ -329,7 +329,7 @@
 	font-size: 14px;
 	line-height: 24px;
 	clear: both;
-	z-index: z-index.z-index('root', '.dops-chart__empty');
+	z-index: z-index.z-index("root", ".dops-chart__empty");
 }
 
 .dops-chart__empty_notice {
@@ -342,9 +342,9 @@
 	box-sizing: border-box;
 	font-size: 14px;
 	line-height: 1.4285;
-	animation: appear .3s ease-in-out;
+	animation: appear 0.3s ease-in-out;
 	box-shadow:
-		0 0 0 1px color.adjust(calypso-colors.$gray, $lightness: 20%, $alpha: -.5),
+		0 0 0 1px color.adjust(calypso-colors.$gray, $lightness: 20%, $alpha: -0.5),
 		0 1px 2px color.adjust(calypso-colors.$gray, $lightness: 30%);
 
 	@include layout.breakpoint( ">660px" ) {
@@ -354,7 +354,7 @@
 		&::before {
 
 			@include mixin_icons.noticons;
-			content: '\f456';
+			content: "\f456";
 			position: absolute;
 			top: 23px;
 			left: 20px;
@@ -488,7 +488,7 @@
 			min-width: 0;
 
 			&::before {
-				content: '';
+				content: "";
 				position: relative;
 				background-image: linear-gradient(to right, rgba(61, 89, 109, 0) 0%, rgba(61, 89, 109, 0.5), rgba(61, 89, 109, 1));
 				left: -30px;

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.19.1",
+	"version": "0.21.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -29,7 +29,7 @@
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/mjs/index.js",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/types/index.d.ts",
 	"sideEffects": [
 		"*.css",
 		"*.scss"
@@ -39,17 +39,27 @@
 			"jetpack:src": "./src/index.ts",
 			"import": "./dist/mjs/index.js",
 			"require": "./dist/cjs/index.js",
-			"types": "./dist/index.d.ts"
-		},
-		"./components/*": {
-			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.js"
+			"types": "./dist/types/index.d.ts"
 		},
 		"./visx/*": {
+			"jetpack:src": "./src/visx/*",
 			"import": "./dist/mjs/visx/*/index.js",
-			"require": "./dist/cjs/visx/*/index.js"
+			"require": "./dist/cjs/visx/*/index.js",
+			"types": "./dist/types/visx/*/index.d.ts"
 		},
-		"./style.css": "./dist/mjs/style.css"
+		"./providers/*": {
+			"jetpack:src": "./src/providers/*",
+			"import": "./dist/mjs/providers/*/index.js",
+			"require": "./dist/cjs/providers/*/index.js",
+			"types": "./dist/types/providers/*/index.d.ts"
+		},
+		"./style.css": "./dist/mjs/style.css",
+		"./*": {
+			"jetpack:src": "./src/components/*",
+			"import": "./dist/mjs/components/*/index.js",
+			"require": "./dist/cjs/components/*/index.js",
+			"types": "./dist/types/components/*/index.d.ts"
+		}
 	},
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",

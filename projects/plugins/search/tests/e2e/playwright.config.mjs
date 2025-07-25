@@ -9,7 +9,7 @@ export default {
 		{
 			name: 'jetpack search e2e',
 			testMatch: '**/specs/**',
-			dependencies: [ 'global authentication' ],
+			dependencies: [ 'connection setup' ],
 		},
 	],
 };

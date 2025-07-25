@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .my-jetpack-screen {
 	overflow-x: hidden;
@@ -152,7 +152,7 @@
 			padding: 2px 8px;
 			margin: 4px 8px 4px 0;
 			border-radius: 6px;
-			background-color: #f1f1f1
+			background-color: #f1f1f1;
 		}
 	}
 

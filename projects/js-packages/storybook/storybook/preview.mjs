@@ -30,6 +30,14 @@ const preview = {
 		docs: {
 			codePanel: true,
 		},
+		options: {
+			storySort: {
+				order: [
+					'*',
+					[ 'AI Client', 'Charts', [ 'Introduction', 'Types', 'Composites', 'Themes', '*' ] ],
+				],
+			},
+		},
 	},
 	initialGlobals: {
 		backgrounds: { value: 'jetpack-dashboard' },

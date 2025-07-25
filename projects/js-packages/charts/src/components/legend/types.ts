@@ -24,9 +24,14 @@ export type LegendItemWithoutGlyph = BaseLegendItem & {
 	glyphSize?: number;
 };
 
-export type LegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
+export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
 	orientation?: 'horizontal' | 'vertical';
 	alignmentHorizontal?: 'left' | 'center' | 'right';
 	alignmentVertical?: 'top' | 'bottom';
+};
+
+export type LegendProps = Omit< BaseLegendProps, 'items' > & {
+	items?: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
+	chartId?: string;
 };

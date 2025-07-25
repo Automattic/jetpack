@@ -6,8 +6,8 @@
  */
 
 /**
- * This function name uses British English to maintain backward compatibility, as developers
- * may use the function in their own admin CSS files. See #56811.
+ * This function name uses British English to maintain backward compatibility,
+ * as developers may use the function in their own admin CSS files. See #56811.
  */
 body {
 	background: #f1f1f1;
@@ -281,7 +281,7 @@ textarea:focus {
 	color: #fff;
 }
 
-/* Active tabs use a bottom border color that matches the page background color. */
+/* Active tabs use a bottom border color that matches page background color. */
 .about-wrap .nav-tab-active,
 .nav-tab-active,
 .nav-tab-active:hover {

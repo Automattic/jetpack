@@ -1,4 +1,4 @@
-import { Guide } from '@wordpress/components';
+import { ExternalLink, Guide } from '@wordpress/components';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { FC, useCallback } from 'react';
@@ -100,11 +100,11 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 									<p className="myjetpack-onboarding-welcome-tour__text">
 										{ createInterpolateElement(
 											__(
-												'Install the Jetpack app for iOS or Android and stay connected to your site from anywhere!<br /><br />We sent you an email with the download link.',
+												'Install the <mobileLink>Jetpack app</mobileLink> for iOS or Android and stay connected to your site from anywhere!',
 												'jetpack-my-jetpack'
 											),
 											{
-												br: <br />,
+												mobileLink: <ExternalLink href="https://jetpack.com/mobile/" />,
 											}
 										) }
 									</p>
