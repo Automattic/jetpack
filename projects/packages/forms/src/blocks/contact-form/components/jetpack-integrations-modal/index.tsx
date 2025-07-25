@@ -98,6 +98,8 @@ const IntegrationsModal = ( {
 						onToggle={ () => toggleCard( 'mailpoet' ) }
 						data={ findIntegrationById( 'mailpoet' ) }
 						refreshStatus={ refreshIntegrations }
+						connectMailPoet={ attributes.connectMailPoet }
+						setAttributes={ setAttributes }
 					/>
 				) }
 				<SalesforceCard

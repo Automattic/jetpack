@@ -197,19 +197,6 @@ class Boost extends Product {
 				),
 			),
 			array(
-				'name'  => __( 'Automatic image size analysis', 'jetpack-my-jetpack' ),
-				'info'  => array(
-					'content' => __(
-						'Scan your site for images that aren’t properly sized for the device they’re being viewed on.',
-						'jetpack-my-jetpack'
-					),
-				),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => false ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
-				),
-			),
-			array(
 				'name'  => __( 'Historical performance scores', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(
