@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -293,23 +294,6 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		$config = array(
-			'error_types'    => array(
-				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
-				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
-				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
-				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
-			),
-			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
-		);
-		wp_interactivity_config( 'jetpack/form', $config );
-		\wp_enqueue_script_module(
-			'jp-forms-view',
-			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),
-			array( '@wordpress/interactivity' ),
-			\JETPACK__VERSION
-		);
-
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
 		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
@@ -318,6 +302,16 @@ class Contact_Form_Plugin {
 		}
 
 		self::register_contact_form_blocks();
+
+		// Register MailPoet integration hook after the class is loaded.
+		if ( Jetpack_Forms::is_mailpoet_enabled() ) {
+			add_action(
+				'grunion_after_feedback_post_inserted',
+				array( MailPoet_Integration::class, 'handle_mailpoet_integration' ),
+				15,
+				4
+			);
+		}
 	}
 
 	/**
@@ -1400,6 +1394,7 @@ class Contact_Form_Plugin {
 		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
 			Post_To_Url::init();
 		}
+
 		// Process the form
 		return $form->process_submission();
 	}
