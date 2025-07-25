@@ -83,6 +83,14 @@ const projects = [
 		buildGroup: 'jetpack-boost',
 	},
 	{
+		project: 'Jetpack Boost - Cornerstone Pages',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/cornerstone' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
 		project: 'Jetpack Boost - Image CDN',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/image-cdn' ],
