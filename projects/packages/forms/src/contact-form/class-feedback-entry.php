@@ -138,7 +138,7 @@ class Feedback_Entry {
 	}
 
 	/**
-	 * Get the page number of the enrty title.
+	 * Get the page number of the entry title.
 	 *
 	 * @return array
 	 */
