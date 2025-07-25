@@ -6,7 +6,7 @@ import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
-import { BaseLegend } from '../legend';
+import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -240,7 +240,7 @@ const PieChartInternal = ( {
 			</svg>
 
 			{ showLegend && (
-				<BaseLegend
+				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
@@ -248,6 +248,7 @@ const PieChartInternal = ( {
 					className={ styles[ 'pie-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }
+					chartId={ chartId }
 				/>
 			) }
 
