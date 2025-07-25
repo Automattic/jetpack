@@ -50,10 +50,10 @@ function ScrollToTop() {
 const MyJetpack = () => {
 	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 	const container = document.getElementById( 'my-jetpack-container' );
-	const isOnboarding = container?.dataset?.route === 'onboarding';
+	const step = container?.dataset?.route;
 
 	// If we're on the onboarding route, render just the onboarding screen
-	if ( isOnboarding ) {
+	if ( step === 'onboarding' || step === 'connect-user' ) {
 		return (
 			<Providers>
 				<OnboardingScreen />

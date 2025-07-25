@@ -179,16 +179,18 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// Handle onboarding redirects based on connection status
+		// Handle onboarding redirects based on connection status.
 		$should_redirect = false;
 		$redirect_args   = array( 'page' => 'my-jetpack' );
 
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
-			// Redirect to onboarding if not connected
+		if ( ! $connection->is_connected() && 'onboarding' !== $step ) {
+			// Redirect to onboarding if not connected.
 			$redirect_args['step'] = 'onboarding';
 			$should_redirect       = true;
+		} elseif ( ! $connection->is_user_connected() && 'connect-user' === $step ) {
+			$should_redirect = false;
 		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
-			// Redirect away from onboarding if already connected
+			// Redirect away from onboarding if already connected.
 			$should_redirect = true;
 		}
 
@@ -203,8 +205,8 @@ class Initializer {
 			exit( 0 );
 		}
 
-		// If the user reaches the onboarding page, add a class to the body
-		if ( $step === 'onboarding' ) {
+		// If the user reaches the onboarding page, add a class to the body.
+		if ( 'onboarding' === $step || 'connect-user' === $step ) {
 			add_filter( 'admin_body_class', array( __CLASS__, 'add_onboarding_admin_body_class' ) );
 		}
 
@@ -452,11 +454,12 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$is_onboarding = $step === 'onboarding';
+		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Add data attribute for onboarding, otherwise render normal container
-		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';
+		$step = in_array( $step, array( 'onboarding', 'connect-user' ), true ) ? $step : '';
+
+		// Add data attribute for onboarding, otherwise render normal container.
+		echo '<div id="my-jetpack-container" ' . ( $step ? 'data-route="' . esc_attr( $step ) . '"' : '' ) . '></div>';
 	}
 
 	/**
