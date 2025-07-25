@@ -939,7 +939,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private static function get_raw_compiled_form_data( $feedback_id, $form = null ) {
 		if ( $form ) {
-			// you are doing it wring, the $form parameter is deprecated and no longer used.
+			// you are doing it wrong, the $form parameter is deprecated and no longer used.
 			_deprecated_argument( __METHOD__, '$$next-version$$', 'The $form parameter is deprecated and no longer used.' );
 		}
 		$response = Feedback::get( $feedback_id );
