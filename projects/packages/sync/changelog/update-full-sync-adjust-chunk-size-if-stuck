@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Full Sync: Adjust chunk size in case full sync gets stuck.
