@@ -2676,7 +2676,10 @@ class Contact_Form_Plugin {
 	 * Helper function to parse the post content.
 	 *
 	 * @param string $post_content The post content to parse.
+	 *
 	 * @return array Parsed fields.
+	 *
+	 * @deprecated since $$next-version$$
 	 */
 	public static function parse_feedback_content( $post_content ) {
 		$all_values = array();
@@ -2752,22 +2755,15 @@ class Contact_Form_Plugin {
 	 * @return array Fields.
 	 */
 	public static function parse_fields_from_content( $post_id ) {
-		static $post_fields;
-
-		if ( ! is_array( $post_fields ) ) {
-			$post_fields = array();
-		}
-
-		if ( isset( $post_fields[ $post_id ] ) ) {
-			return $post_fields[ $post_id ];
-		}
-
-		$post_content = get_post_field( 'post_content', $post_id );
-		$fields       = self::parse_feedback_content( $post_content );
-
-		$post_fields[ $post_id ] = $fields;
-
-		return $fields;
+		$response = Feedback::get( $post_id );
+		return array(
+			'_feedback_author'       => $response->get_author(),
+			'_feedback_author_email' => $response->get_author_email(),
+			'_feedback_author_url'   => $response->get_author_url(),
+			'_feedback_subject'      => $response->get_subject(),
+			'_feedback_ip'           => $response->get_ip_address(),
+			'_feedback_all_fields'   => $response->get_all_values(),
+		);
 	}
 
 	/**
