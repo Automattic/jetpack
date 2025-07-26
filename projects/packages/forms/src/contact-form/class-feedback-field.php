@@ -263,6 +263,9 @@ class Feedback_Field {
 	 */
 	public function has_file() {
 		if ( $this->is_of_type( 'file' ) ) {
+			if ( ! isset( $this->value['files'] ) || ! is_array( $this->value['files'] ) ) {
+				return false;
+			}
 			return count( $this->value['files'] ) > 0;
 		}
 
