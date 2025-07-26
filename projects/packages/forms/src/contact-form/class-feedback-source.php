@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 /**
- * Class Feedback_Entry
+ * Class Feedback_Source
  *
  * Represents where a feedback was created from, feedback entry with an ID, title, permalink, and page number.
  */
@@ -44,7 +44,7 @@ class Feedback_Source {
 	private $page_number = 1;
 
 	/**
-	 * Constructor for Feedback_Entry.
+	 * Constructor for Feedback_Source.
 	 *
 	 * @param int    $id          The ID of the feedback entry.
 	 * @param string $title       The title of the feedback entry.
@@ -70,11 +70,11 @@ class Feedback_Source {
 	}
 
 	/**
-	 * Creates a Feedback_Entry instance from a submission.
+	 * Creates a Feedback_Source instance from a submission.
 	 *
 	 * @param \WP_Post|null $current_post The current post object.
 	 * @param int           $current_page_number The current page number, default is 1.
-	 * @return Feedback_Entry Returns an instance of Feedback_Entry.
+	 * @return Feedback_Source Returns an instance of Feedback_Source.
 	 */
 	public static function from_submission( $current_post, int $current_page_number = 1 ) {
 		$id = isset( $current_post->ID ) ? (int) $current_post->ID : 0;
