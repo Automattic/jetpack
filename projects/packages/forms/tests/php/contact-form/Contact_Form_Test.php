@@ -3005,7 +3005,7 @@ EOT;
 				'subject' => 'Test Form',
 			)
 		);
-		$this->assertTrue( is_object( $form ), 'Form should be an object after creation' );
+		$this->assertInstanceOf( Contact_Form::class, $form, 'Form should be a Contact_Form instance after creation' );
 		$this->assertSame( 1, Contact_Form::get_forms_count(), 'Forms count should be 1 after first form creation' );
 		$form = new Contact_Form(
 			array(
@@ -3014,7 +3014,7 @@ EOT;
 			)
 		);
 
-		$this->assertTrue( is_object( $form ), 'Form should be an object after creation' );
+		$this->assertInstanceOf( Contact_Form::class, $form, 'Form should be a Contact_Form instance after creation' );
 		$this->assertEquals( 2, Contact_Form::get_forms_count(), 'Forms count should be 2 after second form creation' );
 	}
 } // end class
