@@ -107,9 +107,9 @@ class Feedback {
 	 *
 	 * This is used to store the entry object of the post that the feedback was submitted from.
 	 *
-	 * @var Feedback_Entry
+	 * @var Feedback_Source
 	 */
-	protected $entry;
+	protected $source;
 
 	/**
 	 * Create a response object from a feedback post ID.
@@ -144,7 +144,7 @@ class Feedback {
 
 		$this->fields = $parsed_content['fields'] ?? array();
 
-		$this->entry = new Feedback_Entry(
+		$this->source = new Feedback_Source(
 			$feedback_post->post_parent,
 			$parsed_content['entry_title'] ?? '',
 			$parsed_content['entry_page'] ?? 1
@@ -191,7 +191,7 @@ class Feedback {
 	 */
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
-		$this->entry = Feedback_Entry::from_submission( $current_post, $current_page_number );
+		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
@@ -284,13 +284,13 @@ class Feedback {
 		// This is a convenience method to get the entry values in a simple array format.
 		$entry_values = array(
 			'email_marketing_consent' => (string) $this->has_consent,
-			'entry_title'             => $this->entry->get_title(),
-			'entry_permalink'         => $this->entry->get_permalink(),
+			'entry_title'             => $this->source->get_title(),
+			'entry_permalink'         => $this->source->get_permalink(),
 			'feedback_id'             => $this->legacy_feedback_id,
 		);
 
-		if ( $this->entry->get_page_number() > 1 ) {
-			$entry_values['entry_page'] = $this->entry->get_page_number();
+		if ( $this->source->get_page_number() > 1 ) {
+			$entry_values['entry_page'] = $this->source->get_page_number();
 		}
 		return $entry_values;
 	}
@@ -539,7 +539,7 @@ class Feedback {
 	 * @return int|null
 	 */
 	public function get_entry_id() {
-		return $this->entry->get_id();
+		return $this->source->get_id();
 	}
 
 	/**
@@ -550,7 +550,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_entry_title() {
-		return $this->entry->get_title();
+		return $this->source->get_title();
 	}
 
 	/**
@@ -560,7 +560,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_entry_permalink() {
-		return $this->entry->get_permalink();
+		return $this->source->get_permalink();
 	}
 	/**
 	 * Get the short permalink of a post.
@@ -568,7 +568,7 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_entry_short_permalink() {
-		return $this->entry->get_relative_permalink();
+		return $this->source->get_relative_permalink();
 	}
 	/**
 	 * Save the feedback entry to the database.
@@ -585,7 +585,7 @@ class Feedback {
 				'post_name'      => $this->legacy_feedback_id,
 				'post_content'   => $this->serialize(),
 				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
-				'post_parent'    => $this->entry->get_id(),
+				'post_parent'    => $this->source->get_id(),
 			)
 		);
 
@@ -605,7 +605,7 @@ class Feedback {
 				'subject' => $this->subject,
 				'ip'      => $this->ip_address,
 			),
-			$this->entry->serialize()
+			$this->source->serialize()
 		);
 
 		$fields_to_serialize['fields'] = array();

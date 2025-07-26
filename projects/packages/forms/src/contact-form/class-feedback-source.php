@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
  *
  * Represents where a feedback was created from, feedback entry with an ID, title, permalink, and page number.
  */
-class Feedback_Entry {
+class Feedback_Source {
 
 	/**
 	 * The ID of the post or page that the feedback was created on.

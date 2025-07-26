@@ -13,17 +13,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
- * Test class for Feedback_Entry
+ * Test class for Feedback_Source
  *
- * @covers \Automattic\Jetpack\Forms\ContactForm\Feedback_Entry
+ * @covers \Automattic\Jetpack\Forms\ContactForm\Feedback_Source
  */
-#[CoversClass( Feedback_Entry::class )]
-class Feedback_Entry_Test extends BaseTestCase {
+#[CoversClass( Feedback_Source::class )]
+class Feedback_Source_Test extends BaseTestCase {
 	/**
 	 * Test constructor with invalid ID (0 or negative)
 	 */
 	public function test_constructor_with_invalid_id() {
-		$entry = new Feedback_Entry( 0, 'Test Title', 2 );
+		$entry = new Feedback_Source( 0, 'Test Title', 2 );
 
 		$this->assertSame( 0, $entry->get_id() );
 		$this->assertEquals( 'Test Title', $entry->get_title() );
@@ -35,7 +35,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	 * Test constructor with negative ID
 	 */
 	public function test_constructor_with_negative_id() {
-		$entry = new Feedback_Entry( -5, 'Test Title' );
+		$entry = new Feedback_Source( -5, 'Test Title' );
 
 		$this->assertSame( 0, $entry->get_id() );
 		$this->assertEquals( 'Test Title', $entry->get_title() );
@@ -47,7 +47,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	 * Test constructor with valid ID but non-existent post
 	 */
 	public function test_constructor_with_nonexistent_post() {
-		$entry = new Feedback_Entry( 999999, 'Fallback Title' );
+		$entry = new Feedback_Source( 999999, 'Fallback Title' );
 
 		$this->assertSame( 999999, $entry->get_id() );
 		$this->assertEquals( 'Fallback Title', $entry->get_title() );
@@ -68,7 +68,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 			)
 		);
 
-		$entry = new Feedback_Entry( $post_id, 'Fallback Title', 3 );
+		$entry = new Feedback_Source( $post_id, 'Fallback Title', 3 );
 
 		$this->assertEquals( $post_id, $entry->get_id() );
 		$this->assertEquals( 'Public Post Title', $entry->get_title() );
@@ -89,7 +89,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 			)
 		);
 
-		$entry = new Feedback_Entry( $post_id, 'Fallback Title' );
+		$entry = new Feedback_Source( $post_id, 'Fallback Title' );
 
 		$this->assertSame( $post_id, $entry->get_id() );
 		$this->assertEquals( 'Fallback Title', $entry->get_title() );
@@ -107,7 +107,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 			)
 		);
 
-		$entry = Feedback_Entry::from_submission( $post );
+		$entry = Feedback_Source::from_submission( $post );
 
 		$this->assertSame( 0, $entry->get_id() );
 		$this->assertSame( '', $entry->get_title() );
@@ -124,7 +124,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 			)
 		);
 
-		$entry = Feedback_Entry::from_submission( $post, 3 );
+		$entry = Feedback_Source::from_submission( $post, 3 );
 
 		$this->assertEquals( 456, $entry->get_id() );
 		$this->assertSame( '', $entry->get_title() );
@@ -137,7 +137,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	public function test_from_submission_with_empty_post() {
 		$post = new \WP_Post( (object) array() );
 
-		$entry = Feedback_Entry::from_submission( $post );
+		$entry = Feedback_Source::from_submission( $post );
 
 		$this->assertSame( 0, $entry->get_id() );
 		$this->assertSame( '', $entry->get_title() );
@@ -157,7 +157,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 			)
 		);
 
-		$entry     = new Feedback_Entry( $post_id, 'Test', 1 );
+		$entry     = new Feedback_Source( $post_id, 'Test', 1 );
 		$permalink = $entry->get_permalink();
 
 		$this->assertNotEmpty( $permalink );
@@ -177,7 +177,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 			)
 		);
 
-		$entry     = new Feedback_Entry( $post_id, 'Test', 3 );
+		$entry     = new Feedback_Source( $post_id, 'Test', 3 );
 		$permalink = $entry->get_permalink();
 
 		$this->assertStringContainsString( 'page=3', $permalink );
@@ -187,7 +187,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	 * Test get_permalink with no valid post
 	 */
 	public function test_get_permalink_with_no_post() {
-		$entry = new Feedback_Entry( 0, 'Test' );
+		$entry = new Feedback_Source( 0, 'Test' );
 
 		$this->assertSame( '', $entry->get_permalink() );
 	}
@@ -205,7 +205,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 			)
 		);
 
-		$entry              = new Feedback_Entry( $post_id, 'Test' );
+		$entry              = new Feedback_Source( $post_id, 'Test' );
 		$relative_permalink = $entry->get_relative_permalink();
 
 		$this->assertNotEmpty( $relative_permalink );
@@ -216,7 +216,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	 * Test get_relative_permalink with empty permalink
 	 */
 	public function test_get_relative_permalink_with_empty_permalink() {
-		$entry = new Feedback_Entry( 0, 'Test' );
+		$entry = new Feedback_Source( 0, 'Test' );
 
 		$this->assertSame( '', $entry->get_relative_permalink() );
 	}
@@ -225,7 +225,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	 * Test all getter methods
 	 */
 	public function test_getter_methods() {
-		$entry = new Feedback_Entry( 0, 'Test Title', 5 );
+		$entry = new Feedback_Source( 0, 'Test Title', 5 );
 
 		$this->assertSame( 0, $entry->get_id() );
 		$this->assertEquals( 'Test Title', $entry->get_title() );
@@ -236,7 +236,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	 * Test serialize method
 	 */
 	public function test_serialize() {
-		$entry      = new Feedback_Entry( 0, 'Serialized Title', 2 );
+		$entry      = new Feedback_Source( 0, 'Serialized Title', 2 );
 		$serialized = $entry->serialize();
 
 		$expected = array(
@@ -254,7 +254,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	 * Test serialize with empty title
 	 */
 	public function test_serialize_with_empty_title() {
-		$entry      = new Feedback_Entry( 0, '', 1 );
+		$entry      = new Feedback_Source( 0, '', 1 );
 		$serialized = $entry->serialize();
 
 		$expected = array(
@@ -269,7 +269,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 	 * Test default page number
 	 */
 	public function test_default_page_number() {
-		$entry = new Feedback_Entry( 0, 'Test' );
+		$entry = new Feedback_Source( 0, 'Test' );
 
 		$this->assertSame( 1, $entry->get_page_number() );
 	}
@@ -287,7 +287,7 @@ class Feedback_Entry_Test extends BaseTestCase {
 			)
 		);
 
-		$entry = new Feedback_Entry( $post_id, 'Fallback Title' );
+		$entry = new Feedback_Source( $post_id, 'Fallback Title' );
 
 		// ID should be reset to 0 for non-public posts
 		$this->assertSame( $post_id, $entry->get_id() );
