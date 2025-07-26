@@ -2679,7 +2679,9 @@ EOT;
 			'g' . $post->ID
 		);
 
-		$form1 = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
+		$form1     = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
+		$source_id = Contact_Form::get_source_id( array() );
+		Contact_Form::increment_count( $source_id );
 		// Submit first form
 		$result1 = $form1->process_submission();
 
@@ -2690,10 +2692,11 @@ EOT;
 				'name'    => 'First form name 2',
 				'message' => 'First form message 2',
 			),
-			'g' . $post->ID . '-2-1' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
+			'g' . $post->ID . '-2' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
 		);
 
-		$form2   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
+		$form2 = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
+
 		$result2 = $form2->process_submission();
 
 		$this->assertTrue( is_string( $result2 ), 'First form submission should be successful' );

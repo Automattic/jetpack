@@ -68,6 +68,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $forms = array();
 
 	/**
+	 * The number of contact forms created.
+	 *
+	 * @var array
+	 */
+	private static $form_count = array();
+
+	/**
 	 * Whether to print the grunion.css style when processing the contact-form shortcode
 	 *
 	 * @var bool
@@ -110,7 +117,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param bool   $set_id - whether to set the ID for the form.
 	 */
 	public function __construct( $attributes, $content = null, $set_id = true ) {
-		global $post, $page;
+		global $post;
 
 		// AJAX requests don't have a post object, so we need to get the post object from the $_POST['contact-form-id']
 		$this->current_post = $post;
@@ -133,33 +140,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( $set_id ) {
-			$is_widget = false;
-
-			if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-				$attributes['id'] = 'widget-' . $attributes['widget'];
-				$is_widget        = true;
-			} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-				$attributes['id'] = 'block-template-' . $attributes['block_template'];
-			} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-				$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-			} elseif ( $this->current_post ) {
-				$attributes['id'] = $this->current_post->ID;
-			}
-
-			if ( ! empty( self::$forms ) && ! $is_widget ) {
-				// Ensure 'id' exists in $attributes before trying to modify it
-				if ( ! isset( $attributes['id'] ) ) {
-					$attributes['id'] = '';
-				}
-
-				// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
-				$page_num = max( 1, intval( $page ) );
-
-				$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
-			}
+			$attributes['id'] = self::set_id( $attributes );
 		}
-		$this->hash                 = sha1( wp_json_encode( $attributes ) );
-		self::$forms[ $this->hash ] = $this;
+
+		$this->attributes = $attributes;
+
+		$this->hash = sha1( wp_json_encode( $attributes ) );
+		$errors     = false;
+
+		if ( isset( self::$forms[ $attributes['id'] ] ) ) {
+			$errors = self::$forms[ $attributes['id'] ]->errors;
+		}
+		self::$forms[ $attributes['id'] ] = $this;
+
+		$this->errors = \is_wp_error( $errors ) ? $errors : null;
 
 		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
@@ -217,6 +211,73 @@ class Contact_Form extends Contact_Form_Shortcode {
 		Contact_Form_Plugin::$using_contact_form_field = false;
 	}
 	/**
+	 * Set the ID for the contact form based on the source ID and the count of forms with that ID.
+	 *
+	 * @param array $attributes The attributes of the contact form.
+	 *
+	 * @return string The ID for the contact form.
+	 */
+	public static function set_id( $attributes ) {
+		$source_id = self::get_source_id( $attributes );
+
+		$id_part = array( $source_id );
+
+		// Count how any forms have this ID.
+		if ( self::get_count( $source_id ) > 1 ) {
+			$id_part[] = self::get_count( $source_id );
+		}
+
+		return implode( '-', $id_part );
+	}
+	/**
+	 * Get the source ID for the contact form based on the attributes.
+	 * Source ID is used to track where on the page the form is located.
+	 *
+	 * @param array $attributes The attributes of the contact form.
+	 *
+	 * @return string The source ID for the contact form.
+	 */
+	public static function get_source_id( $attributes ) {
+		global $post, $page;
+
+		$id_part = array();
+		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			$id_part[] = 'widget-' . $attributes['widget'];
+		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
+			$id_part[] = 'block-template-' . $attributes['block_template'];
+		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
+			$id_part[] = 'block-template-part-' . $attributes['block_template_part'];
+		} elseif ( $post ) {
+			$id_part[] = $post->ID;
+		}
+
+		$page_num = max( 1, intval( $page ) );
+		if ( $page_num > 1 ) {
+			$id_part[] = $page_num;
+		}
+		return implode( '-', $id_part );
+	}
+
+	/**
+	 * Get the count of contact forms created.
+	 *
+	 * @param string $source_id The source ID of the contact form.
+	 *
+	 * @return int The count of contact forms.
+	 */
+	public static function get_count( $source_id ) {
+		return isset( self::$form_count[ $source_id ] ) ? self::$form_count[ $source_id ] : 1;
+	}
+
+	/**
+	 * Increment the count of contact forms created.
+	 *
+	 * @param string $source_id The source ID of the contact form.
+	 */
+	public static function increment_count( $source_id ) {
+		self::$form_count[ $source_id ] = isset( self::$form_count[ $source_id ] ) ? self::$form_count[ $source_id ] + 1 : 2;
+	}
+	/**
 	 * Get the instance of the contact form from a JWT token.
 	 *
 	 * @param string $jwt_token The JWT token.
@@ -238,6 +299,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$form                   = new self( $data['attributes'], $data['content'], empty( $data['attributes']['id'] ) );
 		$form->hash             = $data['hash'];
 		$form->has_verified_jwt = true;
+		$id                     = $form->get_attribute( 'id' );
+		self::$forms[ $id ]     = $form;
+
 		return $form;
 	}
 	/**
@@ -413,11 +477,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_singular() ) {
 			add_action( 'admin_bar_menu', array( __CLASS__, 'add_quick_link_to_admin_bar' ), 100 ); // We use priority 100 so that the link that is added gets added after the "Edit Page" link.
 		}
-		// Create a new Contact_Form object (this class)
-		$form = new Contact_Form( $attributes, $content );
-		Contact_Form_Plugin::reset_step();
+		$plugin = Contact_Form_Plugin::init();
 
-		$id = $form->get_attribute( 'id' );
+		if ( $plugin->get_current_widget_id() ) {
+			$attributes['widget'] = $plugin->get_current_widget_id();
+		}
+
+		// Create a new Contact_Form object (this class)
+		$form      = new Contact_Form( $attributes, $content );
+		$id        = $form->get_attribute( 'id' );
+		$source_id = self::get_source_id( $attributes );
+		Contact_Form_Plugin::reset_step();
+		self::increment_count( $source_id );
 
 		if ( ! $id ) { // something terrible has happened
 			return '[contact-form]';
@@ -1291,18 +1362,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			$form->fields[] = $field;
 		}
-
-		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
-			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
-			&&
-			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
-			&&
-			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, wp_unslash( $_POST['contact-form-hash'] ) )
-		) { // phpcs:enable
-			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
-			$field->validate();
-		}
-
 		// Output HTML
 		return $field->render();
 	}

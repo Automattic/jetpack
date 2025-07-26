@@ -317,6 +317,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Check if the field has a value.
+	 *
+	 * This is used to determine if the field has been filled out by the user.
+	 *
+	 * @return bool True if the field has a value, false otherwise.
+	 */
+	public function has_value() {
+		$field_id    = $this->get_attribute( 'id' );
+		$field_value = isset( $_POST[ $field_id ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+
+		return ! empty( $field_value );
+	}
+
+	/**
 	 * Check the default value for options field
 	 *
 	 * @param string $value - the value we're checking.

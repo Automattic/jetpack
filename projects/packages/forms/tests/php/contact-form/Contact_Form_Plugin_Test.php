@@ -575,9 +575,14 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		// We do this because we don't currenly have a way to prevent the redirect to happen.
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
 		$form                              = new Contact_Form( array( 'to' => 'test@example.com' ), "[contact-field label='Name' type='name' required='1'/]" );
+		$form_id                           = $form->get_attribute( 'id' );
 		$_POST['jetpack_contact_form_jwt'] = $token ?? $form->get_jwt();
 		$_POST['contact-form-hash']        = $form->hash;
-		$_POST['contact-form-id']          = $post_id;
+		$_POST['contact-form-id']          = $form_id;
+		$_POST[ 'g' . $form_id . '-name' ] = 'Mario';
+
+		$_POST['contact-form-nonce'] = wp_create_nonce( 'jetpack_contact_form' );
+
 		return $previous_post;
 	}
 

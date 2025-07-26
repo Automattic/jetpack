@@ -36,6 +36,13 @@ class Contact_Form_Plugin {
 	public $current_widget_id;
 
 	/**
+	 * The ID of the sidebar currently being processed.
+	 *
+	 * @var string
+	 */
+	public $current_sidebar_id;
+
+	/**
 	 * If the contact form field is being used.
 	 *
 	 * @var bool
@@ -175,6 +182,8 @@ class Contact_Form_Plugin {
 
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
 		add_action( 'dynamic_sidebar', array( $this, 'track_current_widget' ) );
+		add_action( 'dynamic_sidebar_before', array( $this, 'track_current_widget_before' ) );
+		add_action( 'dynamic_sidebar_after', array( $this, 'track_current_widget_after' ) );
 
 		// Add a "widget" shortcode attribute to all contact-form shortcodes embedded in widgets
 		add_filter( 'widget_text', array( $this, 'widget_atts' ), 0 );
@@ -1232,6 +1241,22 @@ class Contact_Form_Plugin {
 				// If the JWT is invalid, we can't process the form.
 				return false;
 			}
+
+			$has_value = false;
+			// Validate the form fields before processing the form.
+			foreach ( $form->fields as $field ) {
+
+				$field->validate();
+				if ( ! $has_value && $field->has_value() ) {
+					$has_value = true;
+				}
+			}
+
+			if ( ! $has_value && ! is_wp_error( $form->errors ) ) {
+				Contact_Form::$forms[ $form->get_attribute( 'id' ) ] = $form; // Store the form in the static array so we can access it later.
+				$form->errors                                        = new \WP_Error();
+				$form->errors->add( 'empty', __( 'Please fill out at least one field.', 'jetpack-forms' ) );
+			}
 		}
 
 		if ( $is_widget ) {
@@ -1339,7 +1364,7 @@ class Contact_Form_Plugin {
 			$post = get_post( $id );
 
 			// Process the content to populate Contact_Form::$last
-			if ( $post ) {
+			if ( $post && ! $form ) {
 				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
 					$postdata = generate_postdata( $post );
 					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
@@ -1554,6 +1579,43 @@ class Contact_Form_Plugin {
 	 */
 	public function track_current_widget( $widget ) {
 		$this->current_widget_id = $widget['id'];
+	}
+
+	/**
+	 * Tracks the sidebar currently being processed.
+	 * Attached to `dynamic_sidebar_before`
+	 *
+	 * @see $current_sidebar_id - the current sidebar ID.
+	 *
+	 * @param string $index The sidebar index.
+	 */
+	public function track_current_widget_before( $index ) {
+		$this->current_sidebar_id = $index;
+	}
+
+	/**
+	 * Resets the current widget and sidebar IDs.
+	 * Attached to `dynamic_sidebar_after`
+	 *
+	 * @see $current_widget_id - the current widget ID.
+	 * @see $current_sidebar_id - the current sidebar ID.
+	 */
+	public function track_current_widget_after() {
+		$this->current_sidebar_id = null;
+		$this->current_widget_id  = null;
+	}
+
+	/**
+	 * Gets the current widget ID.
+	 *
+	 * @return string|false The current widget ID or false if not set.
+	 */
+	public function get_current_widget_id() {
+		// If we don't have a current widget ID or sidebar ID, we
+		if ( ! $this->current_widget_id || ! $this->current_sidebar_id ) {
+			return false;
+		}
+		return $this->current_widget_id . '-' . $this->current_sidebar_id;
 	}
 
 	/**
