@@ -160,7 +160,7 @@ class Feedback {
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
-		$this->has_consent     = ( $this->get_first_field_of_type( 'consent' ) === 'Yes' );
+		$this->has_consent     = ( strtolower( $this->get_first_field_of_type( 'consent' ) ) === 'yes' );
 
 		$this->legacy_feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}
@@ -283,7 +283,7 @@ class Feedback {
 	private function get_entry_values() {
 		// This is a convenience method to get the entry values in a simple array format.
 		$entry_values = array(
-			'email_marketing_consent' => (string) $this->has_consent,
+			'email_marketing_consent' => (string) $this->has_consent ? 'yes' : 'no',
 			'entry_title'             => $this->source->get_title(),
 			'entry_permalink'         => $this->source->get_permalink(),
 			'feedback_id'             => $this->legacy_feedback_id,
@@ -885,6 +885,16 @@ class Feedback {
 			$label = self::extract_label_from_key( $key );
 
 			if ( in_array( $key, $non_user_fields, true ) ) {
+				if ( $key === 'email_marketing_consent' ) {
+					$decoded_fields['fields'][ $key ] = new Feedback_Field(
+						$key,
+						$label,
+						$value,
+						'consent',
+						array( 'render' => false )
+					);
+					continue;
+				}
 				$decoded_fields[ $key ] = $value;
 				continue;
 			}
