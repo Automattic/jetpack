@@ -2257,7 +2257,6 @@ class Contact_Form_Plugin {
 	public function get_export_feedback_data( $feedback_ids ) {
 		$feedback_data = array();
 		$field_names   = array();
-		$results       = array();
 
 		foreach ( $feedback_ids as $feedback_id ) {
 			$response = Feedback::get( $feedback_id );
@@ -2272,6 +2271,19 @@ class Contact_Form_Plugin {
 		 * Make sure the field names are unique, because we don't want duplicate data.
 		 */
 		$field_names = array_unique( $field_names );
+		return $this->format_feedback_data_for_csv( $feedback_data, $field_names );
+	}
+
+	/**
+	 * Returns an array of feedback data for CSV export.
+	 *
+	 * @param array $feedback_data Array of feedback data to fetch the results for.
+	 * @param array $field_names   Array of field names to include in the results.
+	 *
+	 * @return array
+	 */
+	private function format_feedback_data_for_csv( $feedback_data, $field_names ) {
+		$results = array();
 		foreach ( $feedback_data as $feedback_id => $feedback ) {
 
 			if ( ! $feedback instanceof Feedback ) {
@@ -2419,7 +2431,7 @@ class Contact_Form_Plugin {
 
 		$feedbacks = get_posts( $args );
 
-		return self::get_export_feedback_data( $feedbacks );
+		return $this->get_export_feedback_data( $feedbacks );
 	}
 
 	/**
