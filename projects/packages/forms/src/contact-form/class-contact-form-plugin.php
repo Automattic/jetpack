@@ -2254,7 +2254,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @return array
 	 */
-	public static function get_export_feedback_data( $feedback_ids ) {
+	public function get_export_feedback_data( $feedback_ids ) {
 		$feedback_data = array();
 		$field_names   = array();
 		$results       = array();
@@ -2320,7 +2320,7 @@ class Contact_Form_Plugin {
 			'Contact_Form_Plugin::get_export_feedback_data()'
 		);
 
-		return self::get_export_feedback_data( $post_ids );
+		return $this->get_export_feedback_data( $post_ids );
 	}
 
 	/**

@@ -596,7 +596,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	public function test_export_csv_legacy_data() {
-
+		$plugin       = Contact_Form_Plugin::init();
 		$current_post = Utility::create_post_context();
 		$post_ids     = array();
 		$post_ids[]   = Utility::create_legacy_feedback(
@@ -631,7 +631,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				'IP Address' => array( $ip, $ip ),
 
 			),
-			Contact_Form_Plugin::get_export_feedback_data( $post_ids )
+			$plugin->get_export_feedback_data( $post_ids )
 		);
 
 		Utility::destroy_post_context( $current_post );
@@ -641,7 +641,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * Test get_export_feedback_data with empty feedback list
 	 */
 	public function test_get_export_feedback_data_empty_list() {
-		$result = Contact_Form_Plugin::get_export_feedback_data( array() );
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->get_export_feedback_data( array() );
 		$this->assertEquals( array(), $result );
 	}
 
@@ -650,7 +651,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 */
 	public function test_get_export_feedback_data_invalid_ids() {
 		// Test with non-existent feedback IDs
-		$result = Contact_Form_Plugin::get_export_feedback_data( array( 99999, 99998 ) );
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->get_export_feedback_data( array( 99999, 99998 ) );
 		$this->assertEquals( array(), $result );
 	}
 
@@ -674,8 +676,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				'3_Phone' => '123-456-7890',
 			)
 		);
-
-		$result = Contact_Form_Plugin::get_export_feedback_data( array( $post_id_1, $post_id_2 ) );
+		$plugin    = Contact_Form_Plugin::init();
+		$result    = $plugin->get_export_feedback_data( array( $post_id_1, $post_id_2 ) );
 
 		// Verify that the result contains the expected fields
 		$this->assertIsArray( $result );
@@ -707,8 +709,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			'5_Unicode' => 'Café naïve résumé',
 		);
 		$post_id      = Utility::create_legacy_feedback( $special_data );
-
-		$result = Contact_Form_Plugin::get_export_feedback_data( array( $post_id ) );
+		$plugin       = Contact_Form_Plugin::init();
+		$result       = $plugin->get_export_feedback_data( array( $post_id ) );
 
 		// Verify the basic structure
 		$this->assertIsArray( $result );
