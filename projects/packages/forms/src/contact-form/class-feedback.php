@@ -160,7 +160,7 @@ class Feedback {
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
-		$this->has_consent     = ( strtolower( $this->get_first_field_of_type( 'consent' ) ) === 'yes' );
+		$this->has_consent     = ( in_array( strtolower( $this->get_first_field_of_type( 'consent' ) ), array( 'yes', 'true', '1' ), true ) );
 
 		$this->legacy_feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}
