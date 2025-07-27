@@ -741,4 +741,64 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		Utility::destroy_post_context( $current_post );
 	}
+
+	public function test_interpersonal_data_exporter() {
+		global $post;
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'value2',
+				'email'   => 'hello@example.com',
+			)
+		);
+
+		$plugin   = Contact_Form_Plugin::init();
+		$exporter = $plugin->internal_personal_data_formater( array( $post_id ) );
+
+		$assert = array(
+			'group_id'    => 'feedback',
+			'group_label' => 'Feedback',
+			'item_id'     => 'feedback-' . $post_id,
+			'data'        => array(
+				array(
+					'name'  => 'Date',
+					'value' => get_post_field( 'post_date', $post_id ),
+				),
+				array(
+					'name'  => 'Source Title',
+					'value' => '',
+				),
+				array(
+					'name'  => 'Source URL:',
+					'value' => get_permalink( $post->ID ),
+				),
+				array(
+					'name'  => 'field',
+					'value' => 'value1',
+				),
+				array(
+					'name'  => 'field',
+					'value' => 'value2',
+				),
+				array(
+					'name'  => 'email',
+					'value' => 'hello@example.com',
+				),
+				array(
+					'name'  => 'Consent',
+					'value' => 'No',
+				),
+				array(
+					'name'  => 'IP Address',
+					'value' => 'https://127.0.0.1',
+				), // same as the default value in the create_legacy_feedback
+			),
+		);
+
+		$this->assertEquals(
+			$assert,
+			$exporter[0]
+		);
+		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
+	}
 }
