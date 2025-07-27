@@ -812,10 +812,11 @@ class Contact_Form_Plugin {
 				// Build steps HTML from context data
 				foreach ( $form_steps as $index => $step ) {
 					$step_label  = $step['label'] ?? 'Step ' . ( $index + 1 );
+					$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
 					$steps_html .= sprintf(
-						'<div class="jetpack-form-progress-indicator-step" data-step-index="%d"><span class="jetpack-form-progress-indicator-step-label">%s</span></div>',
+						'<div class="jetpack-form-progress-indicator-step" data-step-index="%d">%s</div>',
 						$index,
-						esc_html( $step_label )
+						$label_html
 					);
 				}
 			} else {
@@ -828,20 +829,22 @@ class Contact_Form_Plugin {
 					if ( ! empty( $step_blocks ) ) {
 						foreach ( $step_blocks as $index => $step_block ) {
 							$step_label  = $step_block['attrs']['stepLabel'] ?? 'Step ' . ( $index + 1 );
+							$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
 							$steps_html .= sprintf(
-								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d"><span class="jetpack-form-progress-indicator-step-label">%s</span></div>',
+								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d">%s</div>',
 								$index,
-								esc_html( $step_label )
+								$label_html
 							);
 						}
 					} else {
 						// Ultimate fallback: Create generic steps
 						$step_count = 3;
 						for ( $i = 0; $i < $step_count; $i++ ) {
+							$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">Step %d</span>', $i + 1 ) : '';
 							$steps_html .= sprintf(
-								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d"><span class="jetpack-form-progress-indicator-step-label">Step %d</span></div>',
+								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d">%s</div>',
 								$i,
-								$i + 1
+								$label_html
 							);
 						}
 					}

@@ -33,6 +33,9 @@ const FormProgressIndicatorEdit = ( {
 		className: `${ className || '' }${ showStepNames ? ' show-step-names' : '' }`,
 	} );
 
+	const isDotStyle =
+		className?.includes( 'is-style-dots' ) || blockProps.className?.includes( 'is-style-dots' );
+
 	// Only need to set width – colours come from core style engine variables.
 	const progressBarStyle = {
 		width: `${ progress }%`,
@@ -52,24 +55,25 @@ const FormProgressIndicatorEdit = ( {
 			<div className="jetpack-form-progress-indicator--wrapper">
 				<div { ...blockProps }>
 					<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
-					{ ( showStepNames || className?.includes( 'is-style-dots' ) ) &&
-						finalSteps.length > 0 && (
-							<div className="jetpack-form-progress-indicator-steps">
-								{ finalSteps.map( ( step, index ) => (
-									<div
-										key={ index }
-										className={ `jetpack-form-progress-indicator-step${
-											index <= currentStepInfo.index ? ' is-active' : ''
-										}` }
-										data-step-index={ index }
-									>
+					{ ( showStepNames || isDotStyle ) && finalSteps.length > 0 && (
+						<div className="jetpack-form-progress-indicator-steps">
+							{ finalSteps.map( ( step, index ) => (
+								<div
+									key={ index }
+									className={ `jetpack-form-progress-indicator-step${
+										index <= currentStepInfo.index ? ' is-active' : ''
+									}` }
+									data-step-index={ index }
+								>
+									{ showStepNames && (
 										<span className="jetpack-form-progress-indicator-step-label">
 											{ step.label }
 										</span>
-									</div>
-								) ) }
-							</div>
-						) }
+									) }
+								</div>
+							) ) }
+						</div>
+					) }
 				</div>
 			</div>
 			<StepControls formClientId={ parentFormId } showToggle={ false } showNavigation={ true } />
