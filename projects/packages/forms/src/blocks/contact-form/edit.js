@@ -121,7 +121,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	useEffect( () => {
 		const stepData = steps.map( ( step, index ) => ( {
 			clientId: step.clientId,
-			name: step.attributes?.stepLabel || `Step ${ index + 1 }`,
 			label: step.attributes?.stepLabel || `Step ${ index + 1 }`,
 		} ) );
 		setAttributes( { formSteps: stepData } );

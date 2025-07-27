@@ -811,11 +811,11 @@ class Contact_Form_Plugin {
 			if ( ! empty( $form_steps ) ) {
 				// Build steps HTML from context data
 				foreach ( $form_steps as $index => $step ) {
-					$step_name   = $step['name'] ?? 'Step ' . ( $index + 1 );
+					$step_label  = $step['label'] ?? 'Step ' . ( $index + 1 );
 					$steps_html .= sprintf(
 						'<div class="jetpack-form-progress-indicator-step" data-step-index="%d"><span class="jetpack-form-progress-indicator-step-label">%s</span></div>',
 						$index,
-						esc_html( $step_name )
+						esc_html( $step_label )
 					);
 				}
 			} else {
@@ -827,11 +827,11 @@ class Contact_Form_Plugin {
 
 					if ( ! empty( $step_blocks ) ) {
 						foreach ( $step_blocks as $index => $step_block ) {
-							$step_name   = $step_block['attrs']['stepLabel'] ?? 'Step ' . ( $index + 1 );
+							$step_label  = $step_block['attrs']['stepLabel'] ?? 'Step ' . ( $index + 1 );
 							$steps_html .= sprintf(
 								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d"><span class="jetpack-form-progress-indicator-step-label">%s</span></div>',
 								$index,
-								esc_html( $step_name )
+								esc_html( $step_label )
 							);
 						}
 					} else {

@@ -64,7 +64,7 @@ const FormProgressIndicatorEdit = ( {
 										data-step-index={ index }
 									>
 										<span className="jetpack-form-progress-indicator-step-label">
-											{ step.name || step.label || `Step ${ index + 1 }` }
+											{ step.label }
 										</span>
 									</div>
 								) ) }
