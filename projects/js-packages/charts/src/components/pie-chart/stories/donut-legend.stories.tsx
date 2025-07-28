@@ -1,7 +1,7 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
+import { PieChart } from '..';
 import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
-import { PieChart } from '../../pie-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const data = [
