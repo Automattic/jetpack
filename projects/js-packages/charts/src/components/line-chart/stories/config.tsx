@@ -72,7 +72,7 @@ export const lineChartMetaArgs = {
 	],
 	argTypes: {
 		themeName: {
-			control: 'select',
+			control: { type: 'select' },
 			options: [ 'default', 'jetpack', 'woo', 'customStorybook' ],
 			defaultValue: 'default',
 		},

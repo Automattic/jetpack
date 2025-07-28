@@ -10,7 +10,7 @@ const meta: Meta< typeof LineChart > = {
 		...lineChartMetaArgs.argTypes,
 		...legendArgTypes,
 		legendShape: {
-			control: 'select',
+			control: { type: 'select' as const },
 			options: [ 'circle', 'rect' ],
 			table: { category: 'Legend' },
 		},

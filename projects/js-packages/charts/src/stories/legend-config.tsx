@@ -6,36 +6,36 @@ import { jetpackTheme, wooTheme } from '../providers/theme';
  */
 export const legendArgTypes = {
 	showLegend: {
-		control: 'boolean',
+		control: { type: 'boolean' as const },
 		table: { category: 'Legend' },
 	},
 	legendAlignmentHorizontal: {
-		control: 'select',
+		control: { type: 'select' as const },
 		options: [ 'left', 'center', 'right' ],
 		table: { category: 'Legend' },
 	},
 	legendAlignmentVertical: {
-		control: 'select',
+		control: { type: 'select' as const },
 		options: [ 'top', 'bottom' ],
 		table: { category: 'Legend' },
 	},
 	legendOrientation: {
-		control: 'select',
+		control: { type: 'select' as const },
 		options: [ 'horizontal', 'vertical' ],
 		table: { category: 'Legend' },
 	},
 	legendShape: {
-		control: 'select',
+		control: { type: 'select' as const },
 		options: [ 'circle', 'rect' ],
 		table: { category: 'Legend' },
 	},
 	withLegendGlyph: {
-		control: 'boolean',
+		control: { type: 'boolean' as const },
 		table: { category: 'Legend' },
 		description: 'Show glyphs in legend (Line charts only)',
 	},
 	theme: {
-		control: 'select',
+		control: { type: 'select' as const },
 		options: {
 			default: undefined,
 			jetpack: jetpackTheme,
