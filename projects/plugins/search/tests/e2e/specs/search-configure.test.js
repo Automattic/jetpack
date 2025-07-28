@@ -20,8 +20,6 @@ test.describe( 'Search Configure', () => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await clearSearchPlanInfo();
 		await prerequisitesBuilder( page )
-			.withLoggedIn( true )
-			.withConnection( true )
 			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'search' ] )
 			.build();

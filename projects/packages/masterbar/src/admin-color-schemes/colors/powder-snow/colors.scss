@@ -1,8 +1,8 @@
 @use "sass:meta";
 @use "variables";
 @use "@automattic/color-studio/dist/color-variables" as studio;
-@use '../deprecated-color-variables';
-@include meta.load-css( "../admin", $with: meta.module-variables( 'variables' ) );
+@use "../deprecated-color-variables";
+@include meta.load-css( "../admin", $with: meta.module-variables( "variables" ) );
 @include meta.load-css( "sidebar-notice" );
 
 // Specific overrides for this color scheme.

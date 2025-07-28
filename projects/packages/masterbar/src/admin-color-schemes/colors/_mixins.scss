@@ -2,7 +2,7 @@
  * Button mixin- creates a button effect with correct
  * highlights/shadows, based on a base color.
  */
-@use 'sass:color';
+@use "sass:color";
 
 @mixin button( $button-color, $button-text-color: #fff ) {
 	background: $button-color;

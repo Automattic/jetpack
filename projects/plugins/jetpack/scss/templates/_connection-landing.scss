@@ -9,8 +9,11 @@
 // Jetpack NUX Page(s) (main jetpack admin page)
 //===========================================================================
 
-// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss
-// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
+// Needs to be cleaned. Let's remove those important tags and unneeded
+// classes that we can utilize from core. Properly nest elements. migrate
+// into _main.scss
+// Once everything is tested, I'll remove all the comments below as well.
+// - @jeffgolenski
 
 // wrapping these common element names temporarily until I can audit - jeff
 .jp-content {
@@ -88,7 +91,7 @@
 	.jp-content {
 
 		.landing {
-			padding: 0 .5em;
+			padding: 0 0.5em;
 		}
 	}
 } // large-phone

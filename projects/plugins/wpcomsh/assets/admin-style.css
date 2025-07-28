@@ -47,7 +47,7 @@
 .wpcomsh-notice,
 .rtl .wpcomsh-notice {
 	border: none;
-	background: #2D3337;
+	background: #2d3337;
 	box-sizing: border-box;
 	color: #fff;
 	display: flex;
@@ -91,6 +91,6 @@
 
 .notice__content {
 	flex-grow: 1;
-	font-size: .875rem;
+	font-size: 0.875rem;
 	padding: 13px;
 }

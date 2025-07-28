@@ -40,7 +40,7 @@
 	position: absolute;
 	top: 5px;
 	left: 5px;
-	content: '';
+	content: "";
 	background: #fff; /* IE11 fallback - Classic Dark */
 	background: var(--color-surface);
 	border-radius: 100%;

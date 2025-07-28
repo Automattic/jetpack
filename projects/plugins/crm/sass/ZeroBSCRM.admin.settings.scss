@@ -57,7 +57,7 @@
 }
 
 #zbs-settings-menu.ui.vertical.menu .item a.item.zbs-settings-head.active.item {
-	color: #2185D0 !important;
+	color: #2185d0 !important;
 	background: rgba(0, 0, 0, 0);
 }
 
@@ -105,14 +105,14 @@
 	display: none;
 }
 
-// v3.0 migration blocker - do not remove :) won't see, but it'll break for old migraters:
+// v3.0 migration blocker - won't see, but it'll break for old migrators
 #zbs-migration-blocker {
 	display: block;
 	position: absolute;
 	width: 100%;
 	height: 100%;
 	z-index: 10000;
-	background-color: #FFF;
+	background-color: #fff;
 	margin-top: 0.5em;
 	opacity: 0.92;
 	border-radius: 0.2em;
@@ -134,7 +134,7 @@
 }
 
 
-// tax table editor 
+// tax table editor
 .zbs-taxtable-line td:first-child {
 	width: 60%;
 	max-width: 400px;

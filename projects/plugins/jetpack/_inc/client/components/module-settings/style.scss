@@ -1,5 +1,5 @@
 @use "../../scss/mixins/breakpoints";
-@use '../../scss/functions/rem';
+@use "../../scss/functions/rem";
 
 .jp-module-settings__external-link {
 	font-size: rem.convert(14px);
@@ -51,7 +51,7 @@
 
 .jp-related-posts-preview__post-context {
 	font-size: rem.convert(15px);
-	opacity: .6;
+	opacity: 0.6;
 	margin: 0;
 }
 

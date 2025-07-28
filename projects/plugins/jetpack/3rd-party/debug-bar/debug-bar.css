@@ -10,11 +10,11 @@
 }
 
 .qm-debug-bar-output .jetpack-search-debug-bar h2:first-child {
-	margin-top: .5em !important;
+	margin-top: 0.5em !important;
 }
 
 .debug-menu-target h3 {
-	padding-top: 0
+	padding-top: 0;
 }
 
 .jetpack-search-debug-output-toggle .print-r {

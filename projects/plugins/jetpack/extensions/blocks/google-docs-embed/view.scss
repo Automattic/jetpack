@@ -1,13 +1,15 @@
 /**
  * Shared Editor and Front End styles for Google Docs
  */
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 /* style the error message */
 .wp-block-jetpack-google-docs-embed {
 	border: 1px solid #ccc;
 
-	/* if this block appears in the row block, add a flex-basis, because padding on flex items is resolved against the inline size of their containing block, so the browser sees padding-bottom: x% as 0 */
+	// if this block appears in the row block, add a flex-basis, because padding on
+	// flex items is resolved against the inline size of their containing block, so
+	// the browser sees padding-bottom: x% as 0
 	flex-basis: 50%;
 
 	&.aligncenter {

@@ -1,4 +1,4 @@
-@use '../../scss/z-index';
+@use "../../scss/z-index";
 @use "scss/calypso-colors";
 @use "scss/calypso-mixins";
 
@@ -6,7 +6,7 @@
 	text-align: right;
 	pointer-events: none;
 
-	z-index: z-index.z-index('root', '.global-notices');
+	z-index: z-index.z-index("root", ".global-notices");
 	position: fixed;
 	top: auto;
 	right: 0;

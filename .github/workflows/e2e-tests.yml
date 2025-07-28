@@ -11,6 +11,9 @@ concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: 1
+
 jobs:
   create-test-matrix:
     name: "Determine tests matrix"

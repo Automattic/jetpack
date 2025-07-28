@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 
@@ -145,7 +145,7 @@ $min-card-width: 155px;
 
 .stats-card-heading {
 	font-size: 14px;
-	letter-spacing: -.15px;
+	letter-spacing: -0.15px;
 	line-height: 20px;
 }
 
@@ -180,7 +180,7 @@ $min-card-width: 155px;
 .stats-card-difference {
 	font-size: var(--font-body-small);
 	font-weight: 600;
-	letter-spacing: -.24px;
+	letter-spacing: -0.24px;
 	line-height: 25px;
 	color: var(--jp-gray-20);
 	fill: var(--jp-gray-20);

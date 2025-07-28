@@ -101,7 +101,7 @@ html {
 }
 
 .dops-card::after {
-	content: '.';
+	content: ".";
 	display: block;
 	height: 0;
 	clear: both;
@@ -159,7 +159,7 @@ html {
 }
 
 .dops-card-section::after {
-	content: '.';
+	content: ".";
 	display: block;
 	height: 0;
 	clear: both;
@@ -425,7 +425,7 @@ html {
 	height: 12px;
 	position: relative;
 	display: block;
-	content: '';
+	content: "";
 }
 
 .form-toggle__label:active .form-toggle__switch,
@@ -453,7 +453,7 @@ html {
 }
 
 .dops-foldable-card.dops-card::after {
-	content: '.';
+	content: ".";
 	display: block;
 	height: 0;
 	clear: both;
@@ -927,7 +927,7 @@ button.dops-foldable-card__action {
 	display: inline-block;
 	vertical-align: middle;
 	font: 400 16px/1 dashicons;
-	content: '\F347';
+	content: "\F347";
 	line-height: 16px;
 	color: rgba(135, 166, 188, 0.5);
 }
@@ -938,7 +938,7 @@ button.dops-foldable-card__action {
 	display: inline-block;
 	vertical-align: middle;
 	font: 400 16px/1 dashicons;
-	content: '\F343';
+	content: "\F343";
 }
 
 .dops-section-nav.has-pinned-items .dops-section-nav__mobile-header {

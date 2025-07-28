@@ -135,7 +135,7 @@ export async function ensureConnectedState( requiredConnected = false ) {
 /**
  * Connect Jetpack.
  */
-async function connect() {
+export async function connect() {
 	const creds = getDotComCredentials();
 	const siteCreds = getSiteCredentials();
 	await execWpCommand( `user update ${ siteCreds.username } --user_email=${ creds.email }` );
@@ -364,5 +364,5 @@ export async function isBlogTokenSet() {
 	) {
 		return false;
 	}
-	throw result;
+	return false;
 }
