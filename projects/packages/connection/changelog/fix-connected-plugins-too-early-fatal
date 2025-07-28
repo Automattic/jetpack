@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a fatal triggered by trying to disconnect Jetpack too early.
