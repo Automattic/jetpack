@@ -1,6 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
+import { sharedDecorator } from '../../../stories/decorator-config';
 import BarListChart from '../bar-list-chart';
 import { salesByChannel, salesByProduct } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -11,23 +12,7 @@ const meta: Meta< typeof BarListChart > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: sharedDecorator,
 };
 
 export default meta;
@@ -39,6 +24,8 @@ export const Default: Story = {
 	args: {
 		withTooltips: true,
 		data: salesByProduct,
+		containerWidth: '600px',
+		containerHeight: '332px',
 	},
 };
 

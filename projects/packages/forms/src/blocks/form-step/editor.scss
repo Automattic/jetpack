@@ -1,7 +1,7 @@
 /**
  * Editor styles for the form-step block
  */
-@import "@automattic/jetpack-base-styles/gutenberg-base-styles";
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .jetpack-form-step__break {
 	display: flex;
@@ -20,14 +20,15 @@
 	}
 
 	.jetpack-form-step__label {
-		background-color: var(--wp-components-color-background, #fff);
-		color: var(--wp-components-color-foreground, #1e1e1e);
+		background-color: var(--wp-components-color-background, gb.$white);
+		color: var(--wp-components-color-foreground, gb.$gray-900);
 		font-size: var(--wp--preset--font-size--normal, 16px);
 		padding: 0 calc(var(--wp--style--block-gap, 1.5rem) * 0.5);
-		border-radius: var(--wp--preset--spacing--20, 4px);
-		font-weight: 600;
+		border-radius: var(--wp--preset--spacing--20, gb.$radius-medium);
+		font-weight: gb.$font-weight-medium;
 		white-space: nowrap;
 		margin: 0 8px;
+		font-family: gb.$default-font;
 	}
 }
 

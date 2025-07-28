@@ -1,11 +1,13 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -13,9 +15,7 @@ import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { SVGProps, MouseEvent, ReactNode } from 'react';
 
-type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
-
-interface PieChartProps extends OmitBaseChartProps {
+interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
@@ -108,25 +108,26 @@ const PieChartInternal = ( {
 			withTooltips,
 		} );
 
+	// Memoize legend options to prevent unnecessary re-calculations
+	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendData( data, providerTheme, legendOptions );
+
 	const { isValid, message } = validateData( data );
 
-	// Create legend items (hooks must be called in same order every render)
-	const legendItems = useMemo(
-		() =>
-			data.map( ( item, index ) => ( {
-				label: item.label,
-				value: item.value.toString(),
-				color: providerTheme.colors[ index % providerTheme.colors.length ],
-			} ) ),
-		[ data, providerTheme.colors ]
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			thickness,
+			gapScale,
+			cornerScale,
+		} ),
+		[ thickness, gapScale, cornerScale ]
 	);
 
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, {
-		thickness,
-		gapScale,
-		cornerScale,
-	} );
+	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, chartMetadata );
 
 	if ( ! isValid ) {
 		return (
@@ -138,14 +139,15 @@ const PieChartInternal = ( {
 
 	const width = size;
 	const height = size;
+	const adjustedHeight =
+		showLegend && legendAlignmentVertical === 'top' ? height - legendHeight : height;
 
 	// Calculate radius based on width/height
-	const radius = Math.min( width, height ) / 2;
+	const radius = Math.min( width, adjustedHeight ) / 2;
 
-	// Center the chart in the available space, adjusting for legend position
+	// Center the chart in the available space
 	const centerX = width / 2;
-	const legendOffset = showLegend && legendAlignmentVertical === 'top' ? legendHeight / 2 : 0;
-	const centerY = height / 2 + legendOffset;
+	const centerY = adjustedHeight / 2;
 
 	// Calculate the angle between each
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
@@ -179,10 +181,10 @@ const PieChartInternal = ( {
 			} }
 		>
 			<svg
-				viewBox={ `0 0 ${ size } ${ size }` }
+				viewBox={ `0 0 ${ size } ${ adjustedHeight }` }
 				preserveAspectRatio="xMidYMid meet"
 				width={ size }
-				height={ size }
+				height={ adjustedHeight }
 			>
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage & { index: number } >
@@ -247,6 +249,7 @@ const PieChartInternal = ( {
 					className={ styles[ 'pie-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }
+					chartId={ chartId }
 				/>
 			) }
 
@@ -264,11 +267,21 @@ const PieChartInternal = ( {
 	);
 };
 
-const PieChart = ( props: PieChartProps ) => (
-	<ChartProvider>
-		<PieChartInternal { ...props } />
-	</ChartProvider>
-);
+const PieChart = ( props: PieChartProps ) => {
+	const existingContext = useContext( ChartContext );
+
+	// If we're already in a ChartProvider context, don't create a new one
+	if ( existingContext ) {
+		return <PieChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own ChartProvider
+	return (
+		<ChartProvider>
+			<PieChartInternal { ...props } />
+		</ChartProvider>
+	);
+};
 
 PieChart.displayName = 'PieChart';
 export default withResponsive< PieChartProps >( PieChart );

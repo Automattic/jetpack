@@ -2959,6 +2959,7 @@ EOT;
 				'hiddenField2' => 'value2',
 			), // Hidden fields to include in the form.
 			'stepTransition'         => 'fade-slide',
+			'connectMailPoet'        => false,
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                        = $attributes;
@@ -2995,5 +2996,25 @@ EOT;
 		$this->assertNull( $form_copy, 'Should return null for invalid JWT token' );
 
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
+	public function test_get_forms_count() {
+		$form = new Contact_Form(
+			array(
+				'to'      => 'test@email.com',
+				'subject' => 'Test Form',
+			)
+		);
+		$this->assertInstanceOf( Contact_Form::class, $form, 'Form should be a Contact_Form instance after creation' );
+		$this->assertSame( 1, Contact_Form::get_forms_count(), 'Forms count should be 1 after first form creation' );
+		$form = new Contact_Form(
+			array(
+				'to'      => 'test@email.com',
+				'subject' => 'Test Form',
+			)
+		);
+
+		$this->assertInstanceOf( Contact_Form::class, $form, 'Form should be a Contact_Form instance after creation' );
+		$this->assertEquals( 2, Contact_Form::get_forms_count(), 'Forms count should be 2 after second form creation' );
 	}
 } // end class
