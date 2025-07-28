@@ -836,7 +836,7 @@ class Manager {
 	 *
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
-	 * @param ?int $user_id the user identifier.
+	 * @param int|null $user_id the user identifier.
 	 * @return bool|array An array with the WPCOM user data on success, false otherwise.
 	 */
 	public function get_connected_user_data( $user_id = null ) {
@@ -935,8 +935,8 @@ class Manager {
 	 *
 	 * @access public
 	 *
-	 * @param ?int    $user_id (optional) the user identifier, defaults to current user.
-	 * @param ?string $redirect_url the URL to redirect the user to for processing, defaults to
+	 * @param int|null $user_id (optional) the user identifier, defaults to current user.
+	 * @param string|null $redirect_url the URL to redirect the user to for processing, defaults to
 	 *                             admin_url().
 	 * @return WP_Error only in case of a failed user lookup.
 	 */
@@ -1014,7 +1014,7 @@ class Manager {
 	 *
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
-	 * @param ?int $user_id the user identifier.
+	 * @param int|null $user_id the user identifier.
 	 * @param bool $can_overwrite_primary_user Allow for the primary user to be disconnected.
 	 * @param bool $force_disconnect_locally Disconnect user locally even if we were unable to disconnect them from WP.com.
 	 * @return bool Whether the disconnection of the user was successful.
