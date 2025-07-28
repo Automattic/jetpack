@@ -194,12 +194,12 @@ class Initializer {
 		// Handle onboarding redirects based on connection status.
 		$should_redirect = false;
 
-		if ( ! $connection->is_connected() && 'onboarding' !== $step ) {
-			// Redirect to onboarding if not connected.
+		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
+			// Redirect to onboarding if not connected
 			$redirect_args['step'] = 'onboarding';
 			$should_redirect       = true;
-		} elseif ( $connection->is_connected() && 'onboarding' === $step ) {
-			// Redirect away from onboarding if already connected.
+		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
+			// Redirect away from onboarding if already connected
 			$should_redirect = true;
 		}
 
@@ -214,8 +214,8 @@ class Initializer {
 			exit( 0 );
 		}
 
-		// If the user reaches the onboarding page, add a class to the body.
-		if ( 'onboarding' === $step ) {
+		// If the user reaches the onboarding page, add a class to the body
+		if ( $step === 'onboarding' ) {
 			add_filter( 'admin_body_class', array( __CLASS__, 'add_onboarding_admin_body_class' ) );
 		}
 
@@ -463,12 +463,11 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$is_onboarding = $step === 'onboarding';
 
-		$step = in_array( $step, array( 'onboarding', 'connect-user' ), true ) ? $step : '';
-
-		// Add data attribute for onboarding, otherwise render normal container.
-		echo '<div id="my-jetpack-container" ' . ( $step ? 'data-route="' . esc_attr( $step ) . '"' : '' ) . '></div>';
+		// Add data attribute for onboarding, otherwise render normal container
+		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';
 	}
 
 	/**
