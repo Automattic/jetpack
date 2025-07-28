@@ -4,6 +4,7 @@ import {
 	getAccountProtectionAuthCodeFromTransient,
 	getAccountProtectionTokenFromUrl,
 	insertTestUsers,
+	deleteTestUsers,
 } from '../../../helpers/account-protection-helper.js';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
@@ -23,11 +24,11 @@ test.beforeAll( async ( { testUtils } ) => {
 	await insertTestUsers();
 } );
 
-test.describe.parallel( 'Compromised Password Detection', () => {
-	test.beforeAll( async ( {} ) => {
-		await insertTestUsers();
-	} );
+test.afterAll( async () => {
+	await deleteTestUsers();
+} );
 
+test.describe.parallel( 'Compromised Password Detection', () => {
 	test( 'Detects compromised passwords', async ( { page } ) => {
 		for ( const role of PRIVILEGED_ROLES ) {
 			await test.step( `Enforces account protection 2FA for ${ role } users`, async () => {

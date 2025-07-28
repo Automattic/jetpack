@@ -25,6 +25,30 @@ export async function insertTestUsers() {
 }
 
 /**
+ * Delete test users created by insertTestUsers
+ * @return {Promise<void>} wp-cli 'user delete' command output
+ */
+export async function deleteTestUsers() {
+	logger.sync( 'Deleting test users' );
+
+	// Delete users by role name
+	for ( const role of [ ...PRIVILEGED_ROLES, ...NON_PRIVILEGED_ROLES ] ) {
+		try {
+			await executeWpCommand( `user delete ${ role } --yes` );
+		} catch {
+			logger.debug( `User ${ role } not found or already deleted` );
+		}
+	}
+
+	// Delete the secure user
+	try {
+		await executeWpCommand( `user delete secure_user --yes` );
+	} catch {
+		logger.debug( `User secure_user not found or already deleted` );
+	}
+}
+
+/**
  * Get account protection token from URL
  * @param {string} url - The URL to get the token from
  * @return {string} account protection token

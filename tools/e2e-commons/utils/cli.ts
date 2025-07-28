@@ -13,15 +13,19 @@ const ALLOWED_COMMANDS = new Set( [ 'wp', 'pnpm', 'sh' ] );
  * @return {string} Text with secrets masked
  */
 function maskSecrets( text: string ): string {
+	if ( process.env.SHOW_SECRETS ) {
+		return text;
+	}
+
 	const secretPatterns = [
 		/(Authorization:\s*Bearer\s+)([^\s'"]+)/gi,
 		/(Authorization:\s*Token\s+)([^\s'"]+)/gi,
-		/(-{0,2}[\w]*secret[=:\s]+)([^\s'"]+)/gi,
-		/(-{0,2}[\w]*key[=:\s]+)([^\s'"]+)/gi,
-		/(-{0,2}[\w]*token[=:\s]+)([^\s'"]+)/gi,
-		/(-{0,2}[\w]*pass(?:word)?[=:\s]+)([^\s'"]+)/gi,
-		/(-{0,2}auth[=:\s]+)([^\s'"]+)/gi,
-		/(-{0,2}bearer[=:\s]+)([^\s'"]+)/gi,
+		/((?:-{0,2}|"?)[\w]*secret(?:"?\s*:\s*"?|[=:\s]+))([^\s'",}]+)/gi,
+		/((?:-{0,2}|"?)[\w]*key(?:"?\s*:\s*"?|[=:\s]+))([^\s'",}]+)/gi,
+		/((?:-{0,2}|"?)[\w]*token(?:"?\s*:\s*"?|[=:\s]+))([^\s'",}]+)/gi,
+		/((?:-{0,2}|"?)[\w]*pass(?:word)?(?:"?\s*:\s*"?|[=:\s]+))([^\s'",}]+)/gi,
+		/((?:-{0,2}|"?)auth(?:"?\s*:\s*"?|[=:\s]+))([^\s'",}]+)/gi,
+		/((?:-{0,2}|"?)bearer(?:"?\s*:\s*"?|[=:\s]+))([^\s'",}]+)/gi,
 	];
 
 	let maskedText = text;
