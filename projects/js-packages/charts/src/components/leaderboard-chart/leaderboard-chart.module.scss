@@ -1,39 +1,9 @@
 .leaderboardChart {
-	width: 100%;
-	max-width: 400px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-
 	transition: opacity 0.3s ease-in-out;
 
 	&.loading {
 		opacity: 0.5;
 	}
-}
-
-.entryContainer {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	column-gap: 4px;
-	align-items: start;
-}
-
-.labelContainer {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	min-width: 0;
-}
-
-.entryLabel {
-	font-size: 14px;
-	line-height: 1.4;
-	color: #1e1e1e;
-	font-weight: 400;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .progressContainer {
@@ -65,23 +35,8 @@
 
 .valueContainer {
 	display: flex;
-	flex-direction: row;
 	gap: 4px;
-	align-items: flex-start;
-	text-align: right;
-}
-
-.currentValue {
-	font-size: 14px;
-	line-height: 1.4;
-	font-weight: 500;
-	color: #1e1e1e;
-}
-
-.deltaValue {
-	font-size: 13px;
-	line-height: 1.4;
-	font-weight: 400;
+	justify-content: flex-end;
 }
 
 .emptyState {

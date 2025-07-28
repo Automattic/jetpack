@@ -107,6 +107,21 @@ export type ChartTheme = {
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
 	annotationStyles?: AnnotationStyles;
+	/** LeaderboardChart specific settings */
+	leaderboardChart?: {
+		/** Gap between rows in the leaderboard grid */
+		rowGap?: number;
+		/** Gap between columns in the leaderboard grid */
+		columnGap?: number;
+		/** Spacing between label and progress bars */
+		labelSpacing?: number;
+		/** Primary color for current period bars */
+		primaryColor?: string;
+		/** Secondary color for comparison period bars */
+		secondaryColor?: string;
+		/** Delta colors: [negative, neutral, positive] */
+		deltaColors?: [ string, string, string ];
+	};
 };
 
 declare type AxisOptions = {
@@ -302,12 +317,3 @@ export interface ToggleEvent extends Event {
 	newState: 'open' | 'closed';
 	oldState: 'open' | 'closed';
 }
-
-export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
-
-// LeaderboardChart types
-export type {
-	LeaderboardChartProps,
-	LeaderboardEntry,
-	MetricValueType,
-} from './components/leaderboard-chart';

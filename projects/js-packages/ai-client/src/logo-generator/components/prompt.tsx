@@ -307,7 +307,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 									target="_blank"
 									onClick={ onUpgradeClick }
 								>
-									{ __( 'Upgrade', 'jetpack-ai-client' ) }
+									<span>{ __( 'Upgrade', 'jetpack-ai-client' ) }</span>
 								</Button>
 							</>
 						) }
