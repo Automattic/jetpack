@@ -71,5 +71,4 @@ VerticalOrientation.args = {
 	legendOrientation: 'vertical',
 	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
-	containerHeight: '524px',
 };
