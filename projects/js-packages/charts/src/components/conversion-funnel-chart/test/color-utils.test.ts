@@ -49,10 +49,101 @@ describe( 'hexToRgba', () => {
 			expect( result ).toBe( 'rgba(255, 0, 0, 0.123456)' );
 		} );
 
-		// Note: Function expects hex with # prefix - without it, it treats 'f' as hex digit
-		it( 'handles hex starting with f (edge case)', () => {
-			const result = hexToRgba( 'ff0000', 1 );
-			expect( result ).toBe( 'rgba(240, 0, 0, 1)' ); // 'f' = 15, 'f0' = 240
+		// Function now validates hex input format
+		it( 'throws error for hex without # prefix', () => {
+			expect( () => hexToRgba( 'ff0000', 1 ) ).toThrow( 'Hex color must start with #' );
+		} );
+	} );
+
+	describe( 'Input validation', () => {
+		describe( 'Invalid hex format', () => {
+			it( 'throws error for non-string input', () => {
+				expect( () => hexToRgba( 123 as unknown as string, 1 ) ).toThrow(
+					'Hex color must be a string'
+				);
+				expect( () => hexToRgba( null as unknown as string, 1 ) ).toThrow(
+					'Hex color must be a string'
+				);
+				expect( () => hexToRgba( undefined as unknown as string, 1 ) ).toThrow(
+					'Hex color must be a string'
+				);
+			} );
+
+			it( 'throws error for hex without # prefix', () => {
+				expect( () => hexToRgba( 'ff0000', 1 ) ).toThrow( 'Hex color must start with #' );
+				expect( () => hexToRgba( '000000', 1 ) ).toThrow( 'Hex color must start with #' );
+			} );
+
+			it( 'throws error for wrong length hex strings', () => {
+				expect( () => hexToRgba( '#ff', 1 ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToRgba( '#fff', 1 ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToRgba( '#ffff', 1 ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToRgba( '#fffff', 1 ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToRgba( '#ff00000', 1 ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToRgba( '#', 1 ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+			} );
+
+			it( 'throws error for invalid hex characters', () => {
+				expect( () => hexToRgba( '#gggggg', 1 ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+				expect( () => hexToRgba( '#ff00gg', 1 ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+				expect( () => hexToRgba( '#zz0000', 1 ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+				expect( () => hexToRgba( '#ff@000', 1 ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+				expect( () => hexToRgba( '#ff 000', 1 ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+			} );
+
+			it( 'throws error for empty string', () => {
+				expect( () => hexToRgba( '', 1 ) ).toThrow( 'Hex color must start with #' );
+			} );
+		} );
+
+		describe( 'Invalid alpha values', () => {
+			it( 'throws error for non-number alpha', () => {
+				expect( () => hexToRgba( '#ff0000', 'invalid' as unknown as number ) ).toThrow(
+					'Alpha must be a number'
+				);
+				expect( () => hexToRgba( '#ff0000', null as unknown as number ) ).toThrow(
+					'Alpha must be a number'
+				);
+				expect( () => hexToRgba( '#ff0000', undefined as unknown as number ) ).toThrow(
+					'Alpha must be a number'
+				);
+				expect( () => hexToRgba( '#ff0000', {} as unknown as number ) ).toThrow(
+					'Alpha must be a number'
+				);
+			} );
+
+			it( 'throws error for NaN alpha', () => {
+				expect( () => hexToRgba( '#ff0000', NaN ) ).toThrow( 'Alpha must be a number' );
+			} );
+
+			it( 'accepts negative and greater than 1 alpha values (CSS allows this)', () => {
+				// These should not throw - CSS allows alpha values outside 0-1 range
+				expect( () => hexToRgba( '#ff0000', -0.5 ) ).not.toThrow();
+				expect( () => hexToRgba( '#ff0000', 1.5 ) ).not.toThrow();
+				expect( () => hexToRgba( '#ff0000', 2 ) ).not.toThrow();
+			} );
 		} );
 	} );
 
