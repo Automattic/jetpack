@@ -1,7 +1,6 @@
 import path from 'path';
 import * as url from 'url';
 import config from 'config';
-import shellescape from 'shell-escape';
 import logger from '../logger.js';
 import pwConfig from '../playwright.config.mjs';
 import { executeCommand, executeJetpackCommand } from '../utils/cli.ts';
@@ -39,9 +38,7 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 		throw new Error( `'Jetpack Start provisioning failed: ${ json.error }` );
 	}
 
-	await executeJetpackCommand(
-		`authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
-	);
+	await executeJetpackCommand( `authorize_user --user=${ user } --token=${ json.access_token }` );
 
 	await executeJetpackCommand( 'status' );
 
