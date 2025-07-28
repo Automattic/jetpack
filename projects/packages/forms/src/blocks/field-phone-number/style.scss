@@ -1,0 +1,22 @@
+.jetpack-contact-form .jetpack-field.jetpack-field-phone-number {
+	
+	.jetpack-phone-number-input {
+		display: flex;
+		gap: 8px;
+
+
+		&__dropdown {
+			flex: 0;
+			border-radius: var( --jetpack--contact-form--border-radius, 4px ); // to match default border radius on forms.css
+
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			white-space: nowrap;
+		}
+
+		&__input {
+			flex: 1;
+		}
+	}
+}

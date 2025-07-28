@@ -236,7 +236,18 @@ class Contact_Form_Block {
 					),
 				)
 			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/phone-number-input',
+				array()
+			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/country-list-input',
+				array()
+			);
 		}
+
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
@@ -368,6 +379,16 @@ class Contact_Form_Block {
 		if ( Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-rating',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
+					'provides_context' => array(
+						'jetpack/field-required' => 'required',
+					),
+				)
+			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/field-phone-number',
 				array(
 					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
 					'provides_context' => array(
