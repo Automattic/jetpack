@@ -40,7 +40,8 @@ function register_block() {
 	/*
 	 * Disable the feature on P2 blogs
 	 */
-	if ( ( new Host() )->is_p2_site() ) {
+	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
+		\WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
 		return;
 	}
 
