@@ -83,8 +83,7 @@ function get_admin_menu_class() {
 		}
 
 		// P2 sites.
-		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
-		if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
+		if ( ( new Host() )->is_p2_site() ) {
 			require_once __DIR__ . '/class-p2-admin-menu.php';
 			return P2_Admin_Menu::class;
 		}
