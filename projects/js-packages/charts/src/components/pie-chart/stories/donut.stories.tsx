@@ -9,6 +9,7 @@ type StoryArgs = React.ComponentProps< typeof PieChart > & {
 	containerWidth?: string;
 	containerHeight?: string;
 	resize?: string;
+	theme?: string | object;
 };
 
 const data = [
@@ -68,13 +69,14 @@ const meta: Meta< StoryArgs > = {
 			},
 		},
 		theme: {
-			control: 'select',
-			options: {
+			control: { type: 'select' as const },
+			options: [ 'default', 'jetpack', 'woo' ],
+			mapping: {
 				default: undefined,
 				jetpack: jetpackTheme,
 				woo: wooTheme,
 			},
-			defaultValue: undefined,
+			defaultValue: 'default',
 		},
 		maxWidth: {
 			control: {
