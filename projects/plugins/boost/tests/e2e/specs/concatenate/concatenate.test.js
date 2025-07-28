@@ -23,7 +23,7 @@ test.describe( 'Concatenate JS and CSS', () => {
 	test( 'No Concatenate meta information should show on the admin when the modules are inactive', async ( {
 		testUtils,
 	} ) => {
-		await testUtils.deactivateModule( [ 'minify_js', 'minify_css' ] );
+		await testUtils.deactivateBoostModules( [ 'minify_js', 'minify_css' ] );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		expect(
@@ -37,7 +37,7 @@ test.describe( 'Concatenate JS and CSS', () => {
 	} );
 
 	test( 'Concatenation shouldn`t occur when the modules are inactive', async ( { testUtils } ) => {
-		await testUtils.deactivateModule( [ 'minify_js', 'minify_css' ] );
+		await testUtils.deactivateBoostModules( [ 'minify_js', 'minify_css' ] );
 		await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
 		const postFrontPage = await PostFrontendPage.visit( page );
 
@@ -56,7 +56,7 @@ test.describe( 'Concatenate JS and CSS', () => {
 	test( 'Meta information should be visible when the modules are active', async ( {
 		testUtils,
 	} ) => {
-		await testUtils.activateModule( [ 'minify_js', 'minify_css' ] );
+		await testUtils.activateBoostModules( [ 'minify_js', 'minify_css' ] );
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
@@ -71,7 +71,7 @@ test.describe( 'Concatenate JS and CSS', () => {
 	} );
 
 	test( 'Concatenation occurs when modules are active', async ( { testUtils } ) => {
-		await testUtils.activateModule( [ 'minify_js', 'minify_css' ] );
+		await testUtils.activateBoostModules( [ 'minify_js', 'minify_css' ] );
 		await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
 		const postFrontPage = await PostFrontendPage.visit( page );
 
@@ -96,7 +96,7 @@ test.describe( 'Concatenate JS and CSS', () => {
 	test( 'Assets that are excluded by default shouldn`t be concatenated', async ( {
 		testUtils,
 	} ) => {
-		await testUtils.activateModule( [ 'minify_js', 'minify_css' ] );
+		await testUtils.activateBoostModules( [ 'minify_js', 'minify_css' ] );
 		await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
 		const postFrontPage = await PostFrontendPage.visit( page );
 

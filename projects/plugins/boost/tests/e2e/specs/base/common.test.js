@@ -44,7 +44,7 @@ test.describe( 'Common tests', () => {
 		// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).build();
 
-		await testUtils.activateModule( 'critical_css' );
+		await testUtils.activateBoostModule( 'critical_css' );
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 

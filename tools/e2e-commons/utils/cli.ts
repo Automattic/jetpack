@@ -140,3 +140,17 @@ export async function executeJetpackCommand(
 ): Promise< string > {
 	return await executeWpCommand( `jetpack ${ command }`, inContainer );
 }
+
+/**
+ * Executes a Jetpack Boost CLI command.
+ *
+ * @param {string}  command     - Jetpack Boost CLI command (without 'jetpack-boost' prefix)
+ * @param {boolean} inContainer - Whether to run command in Docker container (default: true)
+ * @return {Promise<string>} Command output
+ */
+export async function executeJetpackBoostCommand(
+	command: string,
+	inContainer = true
+): Promise< string > {
+	return await executeWpCommand( `jetpack-boost ${ command }`, inContainer );
+}

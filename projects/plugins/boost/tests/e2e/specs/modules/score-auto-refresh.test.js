@@ -16,7 +16,7 @@ test.describe( 'Auto refresh of speed scores', () => {
 			.withSpeedScoreMocked( false )
 			.build();
 
-		await testUtils.deactivateModule( [ 'critical_css', 'render_blocking_js' ] );
+		await testUtils.deactivateBoostModules( [ 'critical_css', 'render_blocking_js' ] );
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 

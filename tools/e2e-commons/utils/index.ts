@@ -13,6 +13,7 @@ import {
 	isSiteConnected,
 	isUserConnected,
 } from './connection.ts';
+import { activateBoostModule, deactivateBoostModule } from './jetpack-boost.ts';
 import { activateModule, deactivateModule, isModuleActive } from './jetpack.ts';
 import { authenticateUser } from './login.ts';
 
@@ -44,6 +45,10 @@ class TestUtils {
 	activateModule: typeof activateModule = activateModule;
 	deactivateModule: typeof deactivateModule = deactivateModule;
 	isModuleActive: typeof isModuleActive = isModuleActive;
+
+	// Jetpack Boost specific utilities
+	activateBoostModule: typeof activateBoostModule = activateBoostModule;
+	deactivateBoostModule: typeof deactivateBoostModule = deactivateBoostModule;
 }
 
 export { TestUtils };
