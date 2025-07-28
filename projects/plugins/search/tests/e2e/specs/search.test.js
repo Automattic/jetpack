@@ -1,5 +1,4 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { syncPlanData } from '_jetpack-e2e-commons/helpers/plan-helper.js';
 import {
 	enableInstantSearch,
 	disableInstantSearch,
@@ -27,8 +26,6 @@ test.describe( 'Instant Search', () => {
 	} );
 
 	test.beforeEach( async ( { page } ) => {
-		await syncPlanData( page );
-
 		await searchAPIRoute( page );
 		homepage = await SearchHomepage.visit( page );
 		await homepage.waitForInstantSearchReady();
