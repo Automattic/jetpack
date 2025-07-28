@@ -1,4 +1,3 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
 	enableInstantSearch,
@@ -15,7 +14,7 @@ test.describe( 'Search Dashboard', () => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await clearSearchPlanInfo();
 		await testUtils.activateModule( 'search' );
-		await prerequisitesBuilder( page ).build();
+		await testUtils.setMockPlanData( 'jetpack_complete' );
 
 		await enableInstantSearch();
 		await page.close();

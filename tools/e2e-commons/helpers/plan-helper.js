@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import config from 'config';
+import { execWpCommand } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 import pwConfig from '../playwright.config.mjs';
 import { executeWpCommand } from '../utils/cli.ts';
@@ -18,7 +19,7 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );
 
 	const cmd = `option update ${ planDataOption } < ${ planDatafilePath }`;
-	await executeWpCommand( cmd );
+	await execWpCommand( cmd );
 }
 
 /**
