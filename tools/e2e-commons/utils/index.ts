@@ -16,6 +16,7 @@ import {
 import { activateBoostModule, deactivateBoostModule } from './jetpack-boost.ts';
 import { activateModule, deactivateModule, isModuleActive } from './jetpack.ts';
 import { authenticateUser } from './login.ts';
+import { setMockPlanData } from './plan.ts';
 
 class TestUtils {
 	requestUtils: RequestUtils;
@@ -49,6 +50,9 @@ class TestUtils {
 	// Jetpack Boost specific utilities
 	activateBoostModule: typeof activateBoostModule = activateBoostModule;
 	deactivateBoostModule: typeof deactivateBoostModule = deactivateBoostModule;
+
+	// Plan utilities
+	setMockPlanData: typeof setMockPlanData = setMockPlanData.bind( this );
 }
 
 export { TestUtils };
