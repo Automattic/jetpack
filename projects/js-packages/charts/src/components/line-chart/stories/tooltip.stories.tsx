@@ -13,7 +13,6 @@ const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 
 const tooltipStoryArgs = {
 	...lineChartStoryArgs,
-	withTooltipCrosshairs: false,
 };
 
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
