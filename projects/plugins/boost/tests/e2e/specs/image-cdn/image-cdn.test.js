@@ -22,7 +22,7 @@ test.describe( 'Image CDN', () => {
 	test( 'No Image CDN meta information should show on the admin when the module is inactive', async ( {
 		testUtils,
 	} ) => {
-		await testUtils.deactivateBoostModules( 'image_cdn' );
+		await testUtils.deactivateBoostModule( 'image_cdn' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		expect(
@@ -34,7 +34,7 @@ test.describe( 'Image CDN', () => {
 	test( 'Image CDN functionality shouldn`t be active when the module is inactive', async ( {
 		testUtils,
 	} ) => {
-		await testUtils.deactivateBoostModules( 'image_cdn' );
+		await testUtils.deactivateBoostModule( 'image_cdn' );
 		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
 		const firstPostPage = await FirstPostPage.visit( page );
 
@@ -46,7 +46,7 @@ test.describe( 'Image CDN', () => {
 	} );
 
 	test( 'Upgrade section should be visible when the module is active', async ( { testUtils } ) => {
-		await testUtils.activateBoostModules( 'image_cdn' );
+		await testUtils.activateBoostModule( 'image_cdn' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		expect(
@@ -56,7 +56,7 @@ test.describe( 'Image CDN', () => {
 	} );
 
 	test( 'Image should be loaded via CDN when Image CDN is active', async ( { testUtils } ) => {
-		await testUtils.activateBoostModules( 'image_cdn' );
+		await testUtils.activateBoostModule( 'image_cdn' );
 		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
 		const firstPostPage = await FirstPostPage.visit( page );
 

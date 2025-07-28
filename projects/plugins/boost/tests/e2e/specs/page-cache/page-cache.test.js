@@ -24,7 +24,7 @@ test.describe( 'Cache module', () => {
 	// Disabling the module before each test, because each test will decide if
 	// it needs the module enabled or not.
 	test.beforeEach( async ( { testUtils } ) => {
-		await testUtils.deactivateBoostModules( 'page_cache' );
+		await testUtils.deactivateBoostModule( 'page_cache' );
 	} );
 
 	test.afterAll( async () => {
@@ -99,7 +99,7 @@ test.describe( 'Cache module', () => {
 		baseURL,
 		testUtils,
 	} ) => {
-		await testUtils.activateBoostModules( 'page_cache' );
+		await testUtils.activateBoostModule( 'page_cache' );
 
 		// Ensure default storageState is empty.
 		const newContext = await browser.newContext( { storageState: {} } );
