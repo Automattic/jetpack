@@ -76,22 +76,25 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 
 	// Create handler factories to avoid arrow functions in JSX
 	const stepHandlers = useMemo( () => {
-		const handlers: Record<
+		const handlers = new Map<
 			string,
 			{
 				onClick: ( event: React.MouseEvent ) => void;
 				onKeyDown: ( event: React.KeyboardEvent ) => void;
 			}
-		> = {};
+		>();
 
 		steps.forEach( step => {
-			handlers[ step.id ] = {
-				onClick: ( event: React.MouseEvent ) => {
-					event.stopPropagation();
-					handleBarClick( step.id );
-				},
-				onKeyDown: ( event: React.KeyboardEvent ) => handleBarKeyDown( step.id, event ),
+			const onClick = ( event: React.MouseEvent ) => {
+				event.stopPropagation();
+				handleBarClick( step.id );
 			};
+
+			const onKeyDown = ( event: React.KeyboardEvent ) => {
+				handleBarKeyDown( step.id, event );
+			};
+
+			handlers.set( step.id, { onClick, onKeyDown } );
 		} );
 
 		return handlers;
