@@ -177,8 +177,8 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 									isClicked && styles.selected,
 									isBlurred && styles.disabled
 								) }
-								onClick={ stepHandlers[ step.id ].onClick }
-								onKeyDown={ stepHandlers[ step.id ].onKeyDown }
+								onClick={ stepHandlers.get( step.id )?.onClick }
+								onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
 								role="button"
 								tabIndex={ isBlurred ? -1 : 0 }
 								aria-label={ step.label }
