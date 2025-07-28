@@ -13,17 +13,16 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 15+ occurrences
     // PhanTypeMismatchReturn : 15+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
-    // PhanTypeMismatchDefault : 5 occurrences
+    // PhanTypeMismatchDefault : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
-    // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
@@ -32,6 +31,7 @@ return [
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanPluginDuplicateAdjacentStatement : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
+    // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
 
@@ -40,10 +40,10 @@ return [
         'legacy/class-jetpack-options.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal'],
         'legacy/class-jetpack-signature.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal'],
         'legacy/class-jetpack-tracks-client.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal'],
-        'legacy/class-jetpack-xmlrpc-server.php' => ['PhanAccessMethodInternal', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
+        'legacy/class-jetpack-xmlrpc-server.php' => ['PhanAccessMethodInternal', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
-        'src/class-manager.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-manager.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-nonce-handler.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturnNullable'],
         'src/class-partner-coupon.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-partner.php' => ['PhanTypeMismatchPropertyProbablyReal'],
