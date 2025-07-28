@@ -1,7 +1,8 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
-import { PieChart } from '../../pie-chart';
+import { PieChart } from '..';
+import { sharedDecorator } from '../../../stories/decorator-config';
+import { legendArgTypes } from '../../../stories/legend-config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const data = [
@@ -25,7 +26,7 @@ const meta: Meta< typeof PieChart > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: legendDecorator,
+	decorators: sharedDecorator,
 	argTypes: legendArgTypes,
 } satisfies Meta< typeof PieChart >;
 
@@ -34,7 +35,9 @@ export default meta;
 const Template: StoryFn< typeof PieChart > = args => <PieChart { ...args } />;
 
 const legendStoryArgs = {
-	width: 600,
+	resize: 'none',
+	containerWidth: '432px',
+	containerHeight: '480px',
 	thickness: 0.4,
 	gapScale: 0.03,
 	padding: 20,
