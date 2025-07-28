@@ -24,8 +24,8 @@ export const Default: Story = {
 	args: {
 		withTooltips: true,
 		data: salesByProduct,
-		containerWidth: '600px',
-		containerHeight: '332px',
+		width: 600,
+		height: 332,
 	},
 };
 
@@ -48,6 +48,8 @@ export const CustomLabelComponent: Story = {
 			left: 0,
 		},
 		options: {
+			xScale: {},
+			yScale: {},
 			labelComponent: ( { textProps, x, y, label, formatter } ) => {
 				return (
 					<>
@@ -74,6 +76,8 @@ export const CustomValueComponent: Story = {
 			left: 0,
 		},
 		options: {
+			xScale: {},
+			yScale: {},
 			valueComponent: ( { textProps, x, y, value, formatter, data, index } ) => {
 				const currentValue = data[ 0 ].data[ index ].value;
 				const previousValue = data[ 1 ].data[ index ].value;
