@@ -189,6 +189,8 @@ class Initializer {
 			// Redirect the user to connect their account.
 			// This will exit on redirect.
 			$connection->connect_user( null, $redirect_uri );
+
+			return;
 		}
 
 		// Handle onboarding redirects based on connection status.
