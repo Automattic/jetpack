@@ -168,35 +168,6 @@ Use `gapScale` to add spacing between chart segments:
 	/>` }
 />
 
-#### Rounded Corners
-
-Apply `cornerScale` for rounded segment corners:
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		data={ data }
-		cornerScale={ 0.1 } // 10% corner rounding
-	/>` }
-/>
-
-#### Thickness Control
-
-Adjust `thickness` to create various chart styles:
-
-<Source
-	language="jsx"
-	code={ `// Full pie chart (default)
-	<PieChart thickness={ 1 } data={ data } />
-
-    // Donut chart with 40% thickness
-    <PieChart thickness={ 0.4 } data={ data } />
-
-    // Thin donut chart
-    <PieChart thickness={ 0.2 } data={ data } />` }
-
-/>
-
 ### Custom Colors
 
 Override theme colors by providing color values in data:
