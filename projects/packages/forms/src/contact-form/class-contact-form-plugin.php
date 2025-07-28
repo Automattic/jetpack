@@ -195,6 +195,9 @@ class Contact_Form_Plugin {
 
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blocklist' ), 10, 2 );
 		add_filter( 'jetpack_contact_form_in_comment_disallowed_list', array( $this, 'is_in_disallowed_list' ), 10, 2 );
+
+		// Note: We previously tried using render_block_data to set form steps context,
+		// but found that parsing post content directly is more reliable for server-side rendering
 		// Akismet to the rescue
 		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
 			add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10, 2 );
@@ -778,15 +781,9 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		// Get step data from block context
+		// Get step data - try block context first, then parse from content
 		$form_steps      = $block->context['jetpack/form-steps'] ?? array();
 		$show_step_names = $attributes['showStepNames'] ?? false;
-
-		// Check if this is dots style
-		$is_dots_style = false;
-		if ( preg_match( '/\bis-style-dots\b/', $content ) ) {
-			$is_dots_style = true;
-		}
 
 		$processor = new \WP_HTML_Tag_Processor( $content );
 
@@ -803,74 +800,87 @@ class Contact_Form_Plugin {
 			break;
 		}
 
-		// If we need to render steps (dots or step names), we'll use string replacement
-		if ( $is_dots_style || $show_step_names ) {
-			$steps_html = '';
+		// Always populate the steps HTML - the container is always in the markup
+		$steps_html = '';
 
-			if ( ! empty( $form_steps ) ) {
-				// Build steps HTML from context data
-				foreach ( $form_steps as $index => $step ) {
-					$step_label = $step['label'] ?? 'Step ' . ( $index + 1 );
-					$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
-					// For initial render, assume currentStep = 1 (first step)
-					$is_initially_active = $index === 0 ? ' is-active' : '';
-					$steps_html         .= sprintf(
-						'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" %s>%s</div>',
-						$is_initially_active,
-						wp_interactivity_data_wp_context( array( 'stepIndex' => $index ) ),
-						$label_html
-					);
-				}
-			} else {
-				// Fallback: Try to find step blocks in the post content
-				global $post;
-				if ( $post && has_blocks( $post->post_content ) ) {
-					$blocks      = parse_blocks( $post->post_content );
-					$step_blocks = self::find_step_blocks_recursive( $blocks );
-
-					if ( ! empty( $step_blocks ) ) {
-						foreach ( $step_blocks as $index => $step_block ) {
-							$step_label = $step_block['attrs']['stepLabel'] ?? 'Step ' . ( $index + 1 );
-							$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
-							// For initial render, assume currentStep = 1 (first step)
-							$is_initially_active = $index === 0 ? ' is-active' : '';
-							$steps_html         .= sprintf(
-								'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" %s>%s</div>',
-								$is_initially_active,
-								wp_interactivity_data_wp_context( array( 'stepIndex' => $index ) ),
-								$label_html
-							);
-						}
-					} else {
-						// Ultimate fallback: Create generic steps
-						$step_count = 3;
-						for ( $i = 0; $i < $step_count; $i++ ) {
-							$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">Step %d</span>', $i + 1 ) : '';
-							// For initial render, assume currentStep = 1 (first step)
-							$is_initially_active = $i === 0 ? ' is-active' : '';
-							$steps_html         .= sprintf(
-								'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" %s>%s</div>',
-								$is_initially_active,
-								wp_interactivity_data_wp_context( array( 'stepIndex' => $i ) ),
-								$label_html
-							);
-						}
-					}
-				}
+		// If no steps from context, parse from post content
+		if ( empty( $form_steps ) ) {
+			global $post;
+			if ( $post && $post->post_content ) {
+				$parsed_blocks = parse_blocks( $post->post_content );
+				$form_steps    = self::find_steps_in_blocks( $parsed_blocks );
 			}
+		}
+
+		// Build steps HTML from the data
+		foreach ( $form_steps as $index => $step ) {
+			$step_label = $step['label'] ?? 'Step ' . ( $index + 1 );
+			$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
+			// For initial render, assume currentStep = 1 (first step)
+			$is_initially_active = $index === 0 ? ' is-active' : '';
+			$steps_html         .= sprintf(
+				'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" %s>%s</div>',
+				$is_initially_active,
+				wp_interactivity_data_wp_context( array( 'stepIndex' => $index ) ),
+				$label_html
+			);
+		}
 
 			// Use string replacement to insert the steps HTML
 			$updated_content = $processor->get_updated_html();
-			$updated_content = str_replace(
-				'<div class="jetpack-form-progress-indicator-steps"></div>',
-				'<div class="jetpack-form-progress-indicator-steps" data-wp-interactive="jetpack/form">' . $steps_html . '</div>',
-				$updated_content
-			);
+		$updated_content     = str_replace(
+			'<div class="jetpack-form-progress-indicator-steps"></div>',
+			'<div class="jetpack-form-progress-indicator-steps" data-wp-interactive="jetpack/form">' . $steps_html . '</div>',
+			$updated_content
+		);
 
-			return $updated_content;
+		return $updated_content;
+	}
+
+	/**
+	 * Find form steps in parsed blocks.
+	 *
+	 * @param array $blocks The parsed blocks array.
+	 * @return array Array of step data.
+	 */
+	private static function find_steps_in_blocks( $blocks ) {
+		$form_steps = array();
+
+		foreach ( $blocks as $block ) {
+			// Look for contact form blocks
+			if ( $block['blockName'] === 'jetpack/contact-form' && ! empty( $block['innerBlocks'] ) ) {
+				foreach ( $block['innerBlocks'] as $inner_block ) {
+					// Check direct children for steps
+					if ( $inner_block['blockName'] === 'jetpack/form-step' ) {
+						$label        = $inner_block['attrs']['stepLabel'] ?? 'Step ' . ( count( $form_steps ) + 1 );
+						$form_steps[] = array(
+							'label'    => $label,
+							'clientId' => $inner_block['clientId'] ?? '',
+						);
+					} elseif ( ! empty( $inner_block['innerBlocks'] ) ) {
+						// Check nested blocks (steps might be in wrapper)
+						foreach ( $inner_block['innerBlocks'] as $nested_block ) {
+							if ( $nested_block['blockName'] === 'jetpack/form-step' ) {
+								$label        = $nested_block['attrs']['stepLabel'] ?? 'Step ' . ( count( $form_steps ) + 1 );
+								$form_steps[] = array(
+									'label'    => $label,
+									'clientId' => $nested_block['clientId'] ?? '',
+								);
+							}
+						}
+					}
+				}
+				break; // Found a form, stop looking
+			} elseif ( ! empty( $block['innerBlocks'] ) ) {
+				// Recursively search in inner blocks
+				$nested_steps = self::find_steps_in_blocks( $block['innerBlocks'] );
+				if ( ! empty( $nested_steps ) ) {
+					$form_steps = array_merge( $form_steps, $nested_steps );
+				}
+			}
 		}
 
-		return $processor->get_updated_html();
+		return $form_steps;
 	}
 
 	/**
