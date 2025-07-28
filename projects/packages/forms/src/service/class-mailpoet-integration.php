@@ -151,7 +151,7 @@ class MailPoet_Integration {
 			return;
 		}
 
-		if ( empty( $form->attributes['connectMailPoet'] ) ) {
+		if ( empty( $form->attributes['mailpoet']['enabledForForm'] ?? null ) ) {
 			return;
 		}
 

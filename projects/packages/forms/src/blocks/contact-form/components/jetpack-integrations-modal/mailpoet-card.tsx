@@ -6,14 +6,20 @@ import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../../types';
 
 interface MailPoetCardProps extends SingleIntegrationCardProps {
-	connectMailPoet: boolean;
-	setAttributes: ( attrs: { connectMailPoet: boolean } ) => void;
+	mailpoet: {
+		enabledForForm: boolean;
+		listId?: string | null;
+		listName?: string | null;
+	};
+	setAttributes: ( attrs: {
+		mailpoet: { enabledForForm: boolean; listId?: string | null; listName?: string | null };
+	} ) => void;
 }
 
 const MailPoetCard = ( {
 	isExpanded,
 	onToggle,
-	connectMailPoet,
+	mailpoet,
 	setAttributes,
 	data,
 	refreshStatus,
@@ -27,9 +33,10 @@ const MailPoetCard = ( {
 	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: connectMailPoet ?? false,
+		headerToggleValue: mailpoet?.enabledForForm ?? false,
 		isHeaderToggleEnabled: true,
-		onHeaderToggleChange: ( value: boolean ) => setAttributes( { connectMailPoet: value } ),
+		onHeaderToggleChange: ( value: boolean ) =>
+			setAttributes( { mailpoet: { ...mailpoet, enabledForForm: value } } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_mailpoet_click',
