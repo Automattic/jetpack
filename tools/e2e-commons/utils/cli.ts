@@ -139,7 +139,7 @@ export async function executeWpCommand(
  */
 export async function executeJetpackCommand(
 	command: string,
-	inContainer = true
+	inContainer: boolean = true
 ): Promise< string > {
 	return await executeWpCommand( `jetpack ${ command }`, inContainer );
 }
@@ -153,7 +153,7 @@ export async function executeJetpackCommand(
  */
 export async function executeJetpackBoostCommand(
 	command: string,
-	inContainer = true
+	inContainer: boolean = true
 ): Promise< string > {
 	return await executeWpCommand( `jetpack-boost ${ command }`, inContainer );
 }
