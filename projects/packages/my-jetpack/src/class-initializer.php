@@ -179,19 +179,26 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
+		$redirect_args = array( 'page' => 'my-jetpack' );
+
+		if ( 'connect-user' === $step ) {
+			$redirect_uri = wp_sanitize_redirect(
+				add_query_arg( $redirect_args, admin_url( 'admin.php' ) )
+			);
+
+			// Redirect the user to connect their account.
+			// This will exit on redirect.
+			$connection->connect_user( null, $redirect_uri );
+		}
+
 		// Handle onboarding redirects based on connection status.
 		$should_redirect = false;
-		$redirect_args   = array( 'page' => 'my-jetpack' );
 
 		if ( ! $connection->is_connected() && 'onboarding' !== $step ) {
 			// Redirect to onboarding if not connected.
 			$redirect_args['step'] = 'onboarding';
 			$should_redirect       = true;
-		} elseif ( $connection->is_connected() && 'connect-user' === $step ) {
-			// if the site is connected and we want to connect the user, we want
-			// to retain the step in the URL, but not redirect to onboarding.
-			$should_redirect = false;
-		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
+		} elseif ( $connection->is_connected() && 'onboarding' === $step ) {
 			// Redirect away from onboarding if already connected.
 			$should_redirect = true;
 		}
@@ -208,7 +215,7 @@ class Initializer {
 		}
 
 		// If the user reaches the onboarding page, add a class to the body.
-		if ( 'onboarding' === $step || 'connect-user' === $step ) {
+		if ( 'onboarding' === $step ) {
 			add_filter( 'admin_body_class', array( __CLASS__, 'add_onboarding_admin_body_class' ) );
 		}
 
