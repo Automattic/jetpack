@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller.
  */
@@ -79,14 +81,7 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 			$variant = 'tour';
 		}
 
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			$is_p2 = false;
-		} else {
-			$blog_id = get_current_blog_id();
-			$is_p2   = \WPForTeams\is_wpforteams_site( $blog_id );
-		}
-
-		if ( $is_p2 ) {
+		if ( ( new Host() )->is_p2_site() ) {
 			// disable welcome tour for authoring P2s.
 			// see: https://github.com/Automattic/wp-calypso/issues/62973.
 			$nux_status = 'disabled';
