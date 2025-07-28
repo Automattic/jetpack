@@ -6,7 +6,12 @@ import BarListChart from '../bar-list-chart';
 import { salesByChannel, salesByProduct } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof BarListChart > = {
+type StoryArgs = React.ComponentProps< typeof BarListChart > & {
+	containerWidth?: string;
+	containerHeight?: string;
+};
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar List Chart',
 	component: BarListChart,
 	parameters: {
@@ -17,15 +22,15 @@ const meta: Meta< typeof BarListChart > = {
 
 export default meta;
 
-type Story = StoryObj< typeof BarListChart >;
+type Story = StoryObj< StoryArgs >;
 
 // Default story with multiple series
 export const Default: Story = {
 	args: {
 		withTooltips: true,
 		data: salesByProduct,
-		width: 600,
-		height: 332,
+		containerWidth: '600px',
+		containerHeight: '332px',
 	},
 };
 
