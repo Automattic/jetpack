@@ -35,12 +35,13 @@ export class JetpackFormHandler extends BlockHandler {
 			'core/block-editor'
 		) as BlockEditorDispatch;
 
-		// Extract variation name from the original content if present
-		const variationMatch = newContent.match(
-			/<!-- wp:jetpack\/contact-form ({[^}]*"variationName":"([^"]+)"[^}]*}) -->/
-		);
-		if ( variationMatch && variationMatch[ 2 ] ) {
-			this.originalVariationName = variationMatch[ 2 ];
+		// Parse the content first to extract variation name properly
+		const parsedBlocks = parse( newContent );
+
+		// Extract variation name from the parsed contact-form block if present
+		const contactFormBlock = parsedBlocks.find( block => block.name === 'jetpack/contact-form' );
+		if ( contactFormBlock && contactFormBlock.attributes?.variationName ) {
+			this.originalVariationName = contactFormBlock.attributes.variationName;
 		}
 
 		// Remove the Jetpack Form block from the content.
