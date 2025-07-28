@@ -8,15 +8,9 @@ store( 'jetpack/form', {
 		},
 		get isStepActive() {
 			const context = getContext();
-			// Get the parent context (form context) and the local context (step context)
-			const stepIndex = context.stepIndex;
-			const currentStep = context.currentStep;
-
-			// If we have a local stepIndex, compare it with the form's currentStep
-			if ( typeof stepIndex !== 'undefined' && typeof currentStep !== 'undefined' ) {
-				return stepIndex < currentStep;
-			}
-			return false;
+			// For progress indicator steps, we want to show as active if currentStep > stepIndex
+			// stepIndex is 0-based, currentStep is 1-based
+			return context.currentStep > context.stepIndex;
 		},
 	},
 	actions: {
@@ -38,7 +32,5 @@ store( 'jetpack/form', {
 			// This function is kept for compatibility but doesn't do anything
 		},
 	},
-	callbacks: {
-		// No longer needed - active states are handled declaratively in PHP/JS
-	},
+	callbacks: {},
 } );

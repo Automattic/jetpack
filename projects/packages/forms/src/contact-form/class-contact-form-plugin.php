@@ -810,11 +810,14 @@ class Contact_Form_Plugin {
 			if ( ! empty( $form_steps ) ) {
 				// Build steps HTML from context data
 				foreach ( $form_steps as $index => $step ) {
-					$step_label  = $step['label'] ?? 'Step ' . ( $index + 1 );
-					$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
-					$steps_html .= sprintf(
-						'<div class="jetpack-form-progress-indicator-step" data-wp-class--is-active="state.isStepActive" data-wp-context=\'{"stepIndex":%d}\'>%s</div>',
-						$index,
+					$step_label = $step['label'] ?? 'Step ' . ( $index + 1 );
+					$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
+					// For initial render, assume currentStep = 1 (first step)
+					$is_initially_active = $index === 0 ? ' is-active' : '';
+					$steps_html         .= sprintf(
+						'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" %s>%s</div>',
+						$is_initially_active,
+						wp_interactivity_data_wp_context( array( 'stepIndex' => $index ) ),
 						$label_html
 					);
 				}
@@ -827,11 +830,14 @@ class Contact_Form_Plugin {
 
 					if ( ! empty( $step_blocks ) ) {
 						foreach ( $step_blocks as $index => $step_block ) {
-							$step_label  = $step_block['attrs']['stepLabel'] ?? 'Step ' . ( $index + 1 );
-							$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
-							$steps_html .= sprintf(
-								'<div class="jetpack-form-progress-indicator-step" data-wp-class--is-active="state.isStepActive" data-wp-context=\'{"stepIndex":%d}\'>%s</div>',
-								$index,
+							$step_label = $step_block['attrs']['stepLabel'] ?? 'Step ' . ( $index + 1 );
+							$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
+							// For initial render, assume currentStep = 1 (first step)
+							$is_initially_active = $index === 0 ? ' is-active' : '';
+							$steps_html         .= sprintf(
+								'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" %s>%s</div>',
+								$is_initially_active,
+								wp_interactivity_data_wp_context( array( 'stepIndex' => $index ) ),
 								$label_html
 							);
 						}
@@ -839,10 +845,13 @@ class Contact_Form_Plugin {
 						// Ultimate fallback: Create generic steps
 						$step_count = 3;
 						for ( $i = 0; $i < $step_count; $i++ ) {
-							$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">Step %d</span>', $i + 1 ) : '';
-							$steps_html .= sprintf(
-								'<div class="jetpack-form-progress-indicator-step" data-wp-class--is-active="state.isStepActive" data-wp-context=\'{"stepIndex":%d}\'>%s</div>',
-								$i,
+							$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">Step %d</span>', $i + 1 ) : '';
+							// For initial render, assume currentStep = 1 (first step)
+							$is_initially_active = $i === 0 ? ' is-active' : '';
+							$steps_html         .= sprintf(
+								'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" %s>%s</div>',
+								$is_initially_active,
+								wp_interactivity_data_wp_context( array( 'stepIndex' => $i ) ),
 								$label_html
 							);
 						}
@@ -854,7 +863,7 @@ class Contact_Form_Plugin {
 			$updated_content = $processor->get_updated_html();
 			$updated_content = str_replace(
 				'<div class="jetpack-form-progress-indicator-steps"></div>',
-				'<div class="jetpack-form-progress-indicator-steps">' . $steps_html . '</div>',
+				'<div class="jetpack-form-progress-indicator-steps" data-wp-interactive="jetpack/form">' . $steps_html . '</div>',
 				$updated_content
 			);
 
