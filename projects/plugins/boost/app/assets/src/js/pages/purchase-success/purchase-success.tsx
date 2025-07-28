@@ -2,7 +2,6 @@ import { getRedirectUrl, Button } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router';
 import CardPage from '$layout/card-page/card-page';
@@ -12,18 +11,10 @@ import type { FC } from 'react';
 
 const PurchaseSuccess: FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
-	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
-	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
-	const isaRequest = useImageAnalysisRequest();
-	const { canResizeImages } = Jetpack_Boost;
 
 	useEffect( () => {
 		setCloudCssState( true );
-		// If image guide is enabled, request a new ISA report.
-		if ( imageGuideState?.active && isaState?.active && false !== canResizeImages ) {
-			isaRequest.requestNewReport();
-		}
 		// We only want this effect to run on mount.
 		// Specifying the dependencies will cause it to run on every render (infinite loop).
 		// eslint-disable-next-line react-hooks/exhaustive-deps
