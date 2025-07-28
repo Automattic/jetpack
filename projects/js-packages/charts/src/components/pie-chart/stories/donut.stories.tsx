@@ -100,9 +100,8 @@ type Story = StoryObj< typeof PieChart >;
 export const Default: Story = {
 	args: {
 		size: 400,
-		containerWidth: '432px',
-		containerHeight: '432px',
-		resize: 'none',
+		width: 432,
+		height: 432,
 		thickness: 0.5,
 		gapScale: 0.03,
 		padding: 20,
@@ -162,8 +161,8 @@ export const Thin: Story = {
 		thickness: 0.2,
 		gapScale: 0.01,
 		size: 700,
-		containerWidth: '732px',
-		containerHeight: '732px',
+		width: 732,
+		height: 732,
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
@@ -185,8 +184,8 @@ export const Doughnut: Story = {
 		gapScale: 0.03,
 		cornerScale: 0.03,
 		size: 600,
-		containerWidth: '632px',
-		containerHeight: '632px',
+		width: 632,
+		height: 632,
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
