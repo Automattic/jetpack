@@ -111,10 +111,10 @@ export const lineChartStoryArgs = {
 	options: {
 		axis: {
 			x: {
-				orientation: 'bottom',
+				orientation: 'bottom' as const,
 			},
 			y: {
-				orientation: 'left',
+				orientation: 'left' as const,
 			},
 		},
 	},
