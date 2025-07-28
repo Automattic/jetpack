@@ -83,8 +83,7 @@
 	}
 
 	&.disabled {
-		cursor: default;
-		pointer-events: none;
+		cursor: pointer;
 	}
 }
 
