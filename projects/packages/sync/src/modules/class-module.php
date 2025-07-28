@@ -401,10 +401,11 @@ abstract class Module {
 	 * @param string $config Full sync configuration for this module.
 	 * @param array  $status the current module full sync status.
 	 * @param float  $send_until timestamp until we want this request to send full sync events.
+	 * @param int    $started The timestamp when the full sync started.
 	 *
 	 * @return array Status, the module full sync status updated.
 	 */
-	public function send_full_sync_actions( $config, $status, $send_until ) {
+	public function send_full_sync_actions( $config, $status, $send_until, $started ) {
 		global $wpdb;
 
 		if ( empty( $status['last_sent'] ) ) {
@@ -417,7 +418,7 @@ abstract class Module {
 				'max_chunks' => 10,
 				'chunk_size' => 100,
 			);
-		$limits['chunk_size'] = $this->adjust_chunk_size_if_stuck( $status['last_sent'], $limits['chunk_size'] );
+		$limits['chunk_size'] = $this->adjust_chunk_size_if_stuck( $status['last_sent'], $limits['chunk_size'], $started );
 
 		$chunks_sent = 0;
 
@@ -463,10 +464,11 @@ abstract class Module {
 	 *
 	 * @param string $last_sent The current last_sent marker.
 	 * @param int    $default_chunk_size The default chunk size.
+	 * @param int    $started The timestamp when the full sync started.
 	 * @return int Adjusted chunk size.
 	 */
-	private function adjust_chunk_size_if_stuck( $last_sent, $default_chunk_size ) {
-		$transient_key       = 'jetpack_sync_last_sent_' . $this->name();
+	private function adjust_chunk_size_if_stuck( $last_sent, $default_chunk_size, $started ) {
+		$transient_key       = 'jetpack_sync_last_sent_' . $this->name() . '_' . $started;
 		$stuck_data          = get_transient( $transient_key );
 		$stuck_count         = 0;
 		$adjusted_chunk_size = $default_chunk_size;
