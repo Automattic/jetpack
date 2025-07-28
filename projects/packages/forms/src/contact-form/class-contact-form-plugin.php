@@ -794,7 +794,6 @@ class Contact_Form_Plugin {
 		if ( $processor->next_tag( array( 'class_name' => 'jetpack-form-progress-indicator--wrapper' ) ) ) {
 			$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
 			$processor->set_attribute( 'data-wp-init', 'actions.initializeProgress' );
-			$processor->set_attribute( 'data-wp-watch', 'callbacks.updateStepNames' );
 		}
 
 		// Find the progress bar and add width binding
@@ -814,7 +813,7 @@ class Contact_Form_Plugin {
 					$step_label  = $step['label'] ?? 'Step ' . ( $index + 1 );
 					$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
 					$steps_html .= sprintf(
-						'<div class="jetpack-form-progress-indicator-step" data-step-index="%d">%s</div>',
+						'<div class="jetpack-form-progress-indicator-step" data-wp-class--is-active="state.isStepActive" data-wp-context=\'{"stepIndex":%d}\'>%s</div>',
 						$index,
 						$label_html
 					);
@@ -831,7 +830,7 @@ class Contact_Form_Plugin {
 							$step_label  = $step_block['attrs']['stepLabel'] ?? 'Step ' . ( $index + 1 );
 							$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
 							$steps_html .= sprintf(
-								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d">%s</div>',
+								'<div class="jetpack-form-progress-indicator-step" data-wp-class--is-active="state.isStepActive" data-wp-context=\'{"stepIndex":%d}\'>%s</div>',
 								$index,
 								$label_html
 							);
@@ -842,7 +841,7 @@ class Contact_Form_Plugin {
 						for ( $i = 0; $i < $step_count; $i++ ) {
 							$label_html  = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">Step %d</span>', $i + 1 ) : '';
 							$steps_html .= sprintf(
-								'<div class="jetpack-form-progress-indicator-step" data-step-index="%d">%s</div>',
+								'<div class="jetpack-form-progress-indicator-step" data-wp-class--is-active="state.isStepActive" data-wp-context=\'{"stepIndex":%d}\'>%s</div>',
 								$i,
 								$label_html
 							);

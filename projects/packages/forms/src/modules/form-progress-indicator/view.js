@@ -1,10 +1,22 @@
-import { getContext, store, getElement } from '@wordpress/interactivity';
+import { getContext, store } from '@wordpress/interactivity';
 
 store( 'jetpack/form', {
 	state: {
 		get getStepProgress() {
 			const context = getContext();
 			return ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 + '%';
+		},
+		get isStepActive() {
+			const context = getContext();
+			// Get the parent context (form context) and the local context (step context)
+			const stepIndex = context.stepIndex;
+			const currentStep = context.currentStep;
+
+			// If we have a local stepIndex, compare it with the form's currentStep
+			if ( typeof stepIndex !== 'undefined' && typeof currentStep !== 'undefined' ) {
+				return stepIndex < currentStep;
+			}
+			return false;
 		},
 	},
 	actions: {
@@ -27,22 +39,6 @@ store( 'jetpack/form', {
 		},
 	},
 	callbacks: {
-		updateStepNames() {
-			const context = getContext();
-			const element = getElement();
-			const wrapper = element.ref;
-
-			// Update active states for all steps
-			const steps = wrapper?.querySelectorAll( '.jetpack-form-progress-indicator-step' );
-			if ( steps ) {
-				steps.forEach( ( step, index ) => {
-					if ( index < context.currentStep ) {
-						step.classList.add( 'is-active' );
-					} else {
-						step.classList.remove( 'is-active' );
-					}
-				} );
-			}
-		},
+		// No longer needed - active states are handled declaratively in PHP/JS
 	},
 } );
