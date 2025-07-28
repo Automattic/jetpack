@@ -1,4 +1,5 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { jetpackTheme, wooTheme } from '../../../providers/theme';
+import { legendDecorator } from '../../../stories/legend-config';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
 import { PieChart } from '../../pie-chart';
@@ -25,27 +26,7 @@ const meta = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		( Story, { args } ) => (
-			<ThemeProvider theme={ args.theme }>
-				<div
-					style={ {
-						resize: 'both',
-						overflow: 'auto',
-						padding: '2rem',
-						width: '800px',
-						aspectRatio: '1/1',
-						minWidth: '400px',
-						maxWidth: '1200px',
-						height: '800px',
-						border: '1px dashed #ccc',
-					} }
-				>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
+	decorators: legendDecorator,
 	argTypes: {
 		size: {
 			control: {
@@ -118,6 +99,10 @@ type Story = StoryObj< typeof PieChart >;
 
 export const Default: Story = {
 	args: {
+		size: 400,
+		containerWidth: '432px',
+		containerHeight: '432px',
+		resize: 'none',
 		thickness: 0.4,
 		gapScale: 0.03,
 		padding: 20,
@@ -196,6 +181,9 @@ export const Doughnut: Story = {
 		padding: 0,
 		gapScale: 0.03,
 		cornerScale: 0.03,
+		size: 600,
+		containerWidth: '632px',
+		containerHeight: '632px',
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>

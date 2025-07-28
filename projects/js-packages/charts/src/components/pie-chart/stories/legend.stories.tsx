@@ -34,7 +34,10 @@ export default meta;
 const Template: StoryFn< typeof PieChart > = args => <PieChart { ...args } />;
 
 const legendStoryArgs = {
-	width: 600,
+	resize: 'none',
+	size: 400,
+	containerWidth: '432px',
+	containerHeight: '480px',
 	thickness: 0.4,
 	gapScale: 0.03,
 	padding: 20,
