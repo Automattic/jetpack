@@ -171,6 +171,7 @@ const WithLineChartData = () => {
 				height={ 300 }
 				withGradientFill={ false }
 				withLegendGlyph={ false }
+				showLegend={ false }
 			>
 				<LineChart.Legend
 					orientation="horizontal"
@@ -197,7 +198,13 @@ export const WithLineChart: Story = {
 const WithBarChartData = () => {
 	return (
 		<div style={ { width: '600px', height: '350px' } }>
-			<BarChart chartId="bar-chart-composition" data={ barChartData } width={ 400 } height={ 300 }>
+			<BarChart
+				chartId="bar-chart-composition"
+				data={ barChartData }
+				width={ 400 }
+				height={ 300 }
+				showLegend={ false }
+			>
 				<BarChart.Legend
 					orientation="vertical"
 					alignmentHorizontal="right"
