@@ -2,6 +2,8 @@ import { ThemeProvider, jetpackTheme, wooTheme } from '../providers/theme';
 import type { ChartTheme } from '../types';
 import type { Decorator } from '@storybook/react';
 
+type Resize = 'both' | 'horizontal' | 'vertical' | 'none';
+
 /**
  * Shared legend configuration for chart stories
  * Provides consistent argTypes and decorators across all chart legend stories
@@ -60,11 +62,11 @@ export const legendDecorator: Decorator[] = [
 		<ThemeProvider theme={ args.theme as ChartTheme | undefined }>
 			<div
 				style={ {
-					resize: 'both',
+					resize: ( args.resize as Resize ) ?? 'both',
 					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					height: '600px',
+					padding: '1rem',
+					width: ( args.containerWidth as string ) ?? '800px',
+					height: ( args.containerHeight as string ) ?? '800px',
 					minWidth: '400px',
 					maxWidth: '1200px',
 					border: '1px dashed #ccc',

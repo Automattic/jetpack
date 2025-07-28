@@ -1,4 +1,5 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { jetpackTheme, wooTheme } from '../../../providers/theme';
+import { legendDecorator } from '../../../stories/legend-config';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -29,27 +30,7 @@ const meta = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		( Story, { args } ) => (
-			<ThemeProvider theme={ args.theme }>
-				<div
-					style={ {
-						resize: 'both',
-						overflow: 'auto',
-						padding: '2rem',
-						width: '800px',
-						aspectRatio: '1/1',
-						minWidth: '400px',
-						maxWidth: '1200px',
-						height: '800px',
-						border: '1px dashed #ccc',
-					} }
-				>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
+	decorators: legendDecorator,
 	argTypes: {
 		size: {
 			control: {
@@ -137,6 +118,10 @@ export const Default: Story = {
 		withTooltips: false,
 		data,
 		theme: 'default',
+		resize: 'none',
+		size: 400,
+		containerWidth: '432px',
+		containerHeight: '432px',
 	},
 };
 
@@ -154,7 +139,7 @@ export const WithTooltips: Story = {
 	},
 };
 
-const responsiveArgs = { ...Default.args };
+const responsiveArgs = { ...Default.args, resize: 'both' };
 delete responsiveArgs.size;
 export const Responsiveness: Story = {
 	args: responsiveArgs,

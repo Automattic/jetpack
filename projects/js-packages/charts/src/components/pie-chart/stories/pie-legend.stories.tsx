@@ -39,8 +39,10 @@ const Template: StoryFn< typeof PieChart > = args => <PieChart { ...args } />;
 
 const legendStoryArgs = {
 	data,
-	width: 600,
-	height: 600,
+	resize: 'none',
+	size: 400,
+	containerWidth: '432px',
+	containerHeight: '450px',
 	thickness: 0, // Full pie (not donut)
 	innerRadius: 0, // Explicitly set inner radius for full pie
 	gapScale: 0.03,
@@ -69,4 +71,5 @@ VerticalOrientation.args = {
 	legendOrientation: 'vertical',
 	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
+	containerHeight: '524px',
 };
