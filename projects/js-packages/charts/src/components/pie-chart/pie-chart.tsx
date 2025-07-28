@@ -284,5 +284,13 @@ const PieChart = attachSubComponents( PieChartBase, {
 	Legend: ChartLegend,
 } );
 
+// Create responsive version with composition API
+const ResponsivePieChart = withResponsive< PieChartProps >( PieChart );
+
+// Attach subcomponents to responsive version as well
+const PieChartWithComposition = attachSubComponents( ResponsivePieChart, {
+	Legend: ChartLegend,
+} );
+
 export { PieChart };
-export default withResponsive< PieChartProps >( PieChart );
+export default PieChartWithComposition;
