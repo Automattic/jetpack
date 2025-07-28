@@ -2,9 +2,17 @@
  * Internal dependencies
  */
 import { expect, test } from '../fixtures/base-test.ts';
+import logger from '../logger.js';
 
 test( 'connect site', async ( { testUtils } ) => {
-	await testUtils.connect();
+	// Used to ease development and debugging.
+	// Sometimes locally the is already connected and we want to skip the connection.
+	// eslint-disable-next-line playwright/no-conditional-in-test
+	if ( process.env.JETPACK_SKIP_CONNECT ) {
+		logger.warn( 'Jetpack connection setup skipped by environment variable!' );
+	} else {
+		await testUtils.connect();
+	}
 
 	expect( await testUtils.isSiteConnected() ).toBe( true );
 	expect( await testUtils.isUserConnected() ).toBe( true );
