@@ -299,5 +299,13 @@ const BarListChart = attachSubComponents( BarListChartBase, {
 	Legend: ChartLegend,
 } );
 
+// Create responsive version with composition API
+const ResponsiveBarListChart = withResponsive< BarListChartProps >( BarListChart );
+
+// Attach subcomponents to responsive version as well
+const BarListChartWithComposition = attachSubComponents( ResponsiveBarListChart, {
+	Legend: ChartLegend,
+} );
+
 export { BarListChart };
-export default withResponsive< BarListChartProps >( BarListChart );
+export default BarListChartWithComposition;
