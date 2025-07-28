@@ -1514,16 +1514,16 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Check if the site has the summer-special-2005 blog sticker.
+	 * Check if the site has the summer-special-2025 blog sticker.
 	 *
 	 * @return bool
 	 */
-	public function is_summer_special_2005() {
+	public function is_summer_special_2025() {
 		if ( function_exists( 'has_blog_sticker' ) ) {
-			return has_blog_sticker( 'summer-special-2005' );
+			return has_blog_sticker( 'summer-special-2025' );
 		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 			// For atomic sites
-			return wpcomsh_is_site_sticker_active( 'summer-special-2005' );
+			return wpcomsh_is_site_sticker_active( 'summer-special-2025' );
 		}
 		return false;
 	}
