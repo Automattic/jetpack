@@ -102,8 +102,7 @@ jobs:
 
       - name: Configure Github to be able to SSH to the WP Cloud site
         run: |
-          echo "::group::Intializing"
-
+          echo "::group::Initializing"
           mkdir -vp ~/.ssh/
           chmod -v 700 ~/.ssh
 
@@ -122,24 +121,33 @@ jobs:
           echo "  User wpcom-jetpackisbestpack-default-237778992" >> ~/.ssh/config
           echo "  IdentityFile ~/.ssh/id_site" >> ~/.ssh/config
           echo "  IdentitiesOnly yes" >> ~/.ssh/config
-
           echo "::endgroup::"
 
           echo "::group::Transferring wpcomsh to the testing server"
-          ssh jpwpcomsh "wp --skip-plugins --skip-themes dereferenced freshen > /dev/null 2>&1" || CODE=$?
-          echo "wp dereferenced freshen has exited with code $CODE"
+          # This can give errors if the previous state was broken, so ignore them
+          ssh jpwpcomsh "wp --skip-plugins --skip-themes dereferenced freshen > /dev/null 2>&1" || echo "wp dereferenced freshen has exited with code $?"
           ssh jpwpcomsh "rm -rf /tmp/old-* > /dev/null 2>&1"
-          pnpm jetpack rsync --non-interactive wpcomsh jpwpcomsh:~/htdocs/wp-content/mu-plugins
+          pnpm jetpack rsync --non-interactive wpcomsh jpwpcomsh:/srv/htdocs/wp-content/mu-plugins
           scp -r projects/plugins/wpcomsh/bin jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
           scp -r projects/plugins/wpcomsh/tests jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
-          # The test on WP Cloud won't use `phpunit-select-config`, so select config manually.
-          scp projects/plugins/wpcomsh/phpunit.9.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/phpunit.xml.dist
-
           echo "::endgroup::"
 
-          echo "::group::execution"
-          ssh jpwpcomsh "/srv/htdocs/wp-content/mu-plugins/wpcomsh/bin/run-phpunit-tests.sh" || CODE=$?
+          # Do a basic check to verify the site is loading
+          echo "::group::Verify things load"
+          CODE=0
+          ssh jpwpcomsh "wp option get start_of_week" > /dev/null || CODE=$?
           echo "::endgroup::"
+
+          # Proceed with tests if all seems well
+          if [[ $CODE -eq 0 ]]; then
+            echo "::group::Run PHPUnit tests"
+            # The test on WP Cloud won't use `phpunit-select-config`, so select config manually.
+            scp projects/plugins/wpcomsh/phpunit.9.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/phpunit.xml.dist
+            ssh jpwpcomsh "/srv/htdocs/wp-content/mu-plugins/wpcomsh/bin/run-phpunit-tests.sh" || CODE=$?
+            echo "::endgroup::"
+          else
+            echo 'Unable to run a basic `wp` command! Something is wrong with the site.'
+          fi
 
           echo "::group::teardown"
           rm -rvf ~/.ssh/
