@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Full Sync: For stuck adjustment, consider started time of full sync to avoid checks for different full syncs.
