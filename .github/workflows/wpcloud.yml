@@ -134,13 +134,15 @@ jobs:
 
           # Do a basic check to verify the site is loading
           echo "::group::Verify things load"
-          SITE_URL=$(ssh jpwpcomsh "wp option get siteurl" 2>/dev/null)
-          CODE=$?
+          CODE=0
+          SITE_URL=$(ssh jpwpcomsh "wp option get siteurl" 2>/dev/null) || CODE=$?
           if [[ $CODE -ne 0 ]]; then
             echo 'Unable to run a basic `wp` command! Something is wrong with the site.'
+          elif [[ ! "$SITE_URL" =~ ^https?://[a-z0-9_.-]+$ ]]; then
+            echo 'Site URL retrieved doesn't seem to be a URL.'
+            CODE=1
           else
-            curl -s --fail "$SITE_URL" > /dev/null
-            CODE=$?
+            curl -s --fail "$SITE_URL" > /dev/null || CODE=$?
             [[ $CODE -ne 0 ]] && echo 'Unable to load site! Something is wrong with the site.'
           fi
           echo "::endgroup::"
