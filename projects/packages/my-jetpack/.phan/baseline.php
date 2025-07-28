@@ -19,12 +19,13 @@ return [
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
+    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-initializer.php' => ['PhanImpossibleCondition'],
+        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-products.php' => ['PhanNonClassMethodCall'],
         'src/class-rest-products.php' => ['PhanPluginMixedKeyNoKey'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal'],
