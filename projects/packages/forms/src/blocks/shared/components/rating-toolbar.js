@@ -16,17 +16,22 @@ import { StarIcon, HeartIcon } from '../../input-rating/icons';
 export default function RatingToolbar( { className, max, onUpdateClassName, onUpdateMax } ) {
 	// Determine if current style is stars (default) or hearts
 	const isCurrentlyStars = ! className || className.includes( 'is-style-stars' );
+	const isHeartsStyle = className?.includes( 'is-style-hearts' );
+
+	// Pre-define translation strings to avoid dynamic translation calls
+	const transformToHeartsLabel = __( 'Transform to hearts', 'jetpack-forms' );
+	const transformToStarsLabel = __( 'Transform to stars', 'jetpack-forms' );
+	const removeHeartLabel = __( 'Remove heart', 'jetpack-forms' );
+	const removeStarLabel = __( 'Remove star', 'jetpack-forms' );
+	const addHeartLabel = __( 'Add heart', 'jetpack-forms' );
+	const addStarLabel = __( 'Add star', 'jetpack-forms' );
 
 	return (
 		<>
 			<ToolbarGroup>
 				<ToolbarButton
 					icon={ isCurrentlyStars ? HeartIcon : StarIcon }
-					label={
-						isCurrentlyStars
-							? __( 'Transform to hearts', 'jetpack-forms' )
-							: __( 'Transform to stars', 'jetpack-forms' )
-					}
+					label={ isCurrentlyStars ? transformToHeartsLabel : transformToStarsLabel }
 					onClick={ () =>
 						onUpdateClassName( isCurrentlyStars ? 'is-style-hearts' : 'is-style-stars' )
 					}
@@ -35,21 +40,13 @@ export default function RatingToolbar( { className, max, onUpdateClassName, onUp
 			<ToolbarGroup>
 				<ToolbarButton
 					icon={ reset }
-					label={
-						className?.includes( 'is-style-hearts' )
-							? __( 'Remove heart', 'jetpack-forms' )
-							: __( 'Remove star', 'jetpack-forms' )
-					}
+					label={ isHeartsStyle ? removeHeartLabel : removeStarLabel }
 					onClick={ () => onUpdateMax( Math.max( 2, max - 1 ) ) }
 					disabled={ max <= 2 }
 				/>
 				<ToolbarButton
 					icon={ plus }
-					label={
-						className?.includes( 'is-style-hearts' )
-							? __( 'Add heart', 'jetpack-forms' )
-							: __( 'Add star', 'jetpack-forms' )
-					}
+					label={ isHeartsStyle ? addHeartLabel : addStarLabel }
 					onClick={ () => onUpdateMax( Math.min( 10, max + 1 ) ) }
 					disabled={ max >= 10 }
 				/>
