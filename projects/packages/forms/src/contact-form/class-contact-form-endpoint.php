@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use WP_Error;
@@ -184,6 +185,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'default'  => 'trash',
 					),
 				),
+			)
+		);
+
+		// MailPoet: List all lists
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/mailpoet/lists',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_mailpoet_lists' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 			)
 		);
 	}
@@ -948,5 +960,15 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * REST callback for /mailpoet-lists
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function get_mailpoet_lists() {
+		$lists = MailPoet_Integration::get_all_lists();
+		return rest_ensure_response( $lists );
 	}
 }

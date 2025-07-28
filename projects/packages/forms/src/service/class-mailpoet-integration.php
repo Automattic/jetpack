@@ -175,4 +175,21 @@ class MailPoet_Integration {
 
 		self::add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data );
 	}
+
+	/**
+	 * Get all MailPoet lists.
+	 *
+	 * @return array List of MailPoet lists, or empty array on failure.
+	 */
+	public static function get_all_lists() {
+		$mailpoet_api = self::get_api();
+		if ( ! $mailpoet_api ) {
+			return array();
+		}
+		try {
+			return $mailpoet_api->getLists();
+		} catch ( \Exception $e ) {
+			return array();
+		}
+	}
 }
