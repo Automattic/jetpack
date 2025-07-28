@@ -14,11 +14,11 @@ export const UserConnectedPlaceholder = ( { icon, notices, connectURL, apiCall }
 		) }
 	>
 		<Button variant="secondary" href={ connectURL } target="_blank">
-			{ __( 'Set up Mailchimp form', 'jetpack' ) }
+			<span>{ __( 'Set up Mailchimp form', 'jetpack' ) }</span>
 		</Button>
 		<div className={ `${ BLOCK_CLASS }-recheck` }>
 			<Button variant="link" onClick={ apiCall }>
-				{ __( 'Re-check Connection', 'jetpack' ) }
+				<span>{ __( 'Re-check Connection', 'jetpack' ) }</span>
 			</Button>
 		</div>
 	</Placeholder>

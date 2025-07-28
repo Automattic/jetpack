@@ -4,15 +4,12 @@ import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-c
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { ImageCdnLiar, QualitySettings } from '$features/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
-import { RecommendationsMeta } from '$features/image-size-analysis';
-import { useIsaUIState } from '$features/image-size-analysis/lib/stores/isa-ui-state';
 import MinifyCss from '$features/minify-css/minify-css';
 import MinifyJs from '$features/minify-js/minify-js';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
-import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -27,9 +24,6 @@ const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 
-	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
-	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
-	const [ { data: isaUIState } ] = useIsaUIState();
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 
 	const requestRegenerateCriticalCss = () => {
@@ -190,30 +184,6 @@ const Index = () => {
 
 			<div className={ styles.settings }>
 				<ImageGuide />
-
-				{ isaUIState?.should_display_ui && (
-					<Module
-						slug="image_size_analysis"
-						toggle={ false }
-						worksOffline={ false }
-						title={
-							<>
-								{ __( 'Image Size Analysis', 'jetpack-boost' ) }
-								<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
-							</>
-						}
-						description={
-							<p>
-								{ __(
-									`This tool will search your site for images that are too large and have an impact on your visitors' experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
-									'jetpack-boost'
-								) }
-							</p>
-						}
-					>
-						{ isaState?.active && <RecommendationsMeta isCdnActive={ !! imageCdn?.active } /> }
-					</Module>
-				) }
 			</div>
 		</div>
 	);

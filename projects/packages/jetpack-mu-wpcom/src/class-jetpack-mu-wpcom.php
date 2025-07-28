@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Status\Host;
+
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
  * Jetpack_Mu_Wpcom main class.
@@ -590,8 +592,6 @@ class Jetpack_Mu_Wpcom {
 			require_once $path_wp_for_teams;
 		}
 
-		// This covers both P2 and P2020 themes.
-		$is_p2     = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $blog_id );
 		$is_forums = str_contains( get_stylesheet(), 'a8c/supportforums' ); // Not in /forums.
 
 		$verbum_option_enabled = get_blog_option( $blog_id, 'enable_verbum_commenting', true );
@@ -601,7 +601,7 @@ class Jetpack_Mu_Wpcom {
 		}
 
 		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
-		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
+		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || ( new Host() )->is_p2_site() || $is_forums );
 	}
 
 	/**
@@ -680,11 +680,8 @@ class Jetpack_Mu_Wpcom {
 	 * @return array - The modified Jetpack script data.
 	 */
 	public static function add_jetpack_script_data_for_p2( $data ) {
-		if (
-		str_contains( get_stylesheet(), 'pub/p2' ) ||
-		( function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() ) )
-		) {
-			$host = new \Automattic\Jetpack\Status\Host();
+		$host = new Host();
+		if ( $host->is_p2_site() ) {
 			if ( ! isset( $data['site']['host'] ) ) {
 				$data['site']['host'] = $host->get_known_host_guess();
 			}
