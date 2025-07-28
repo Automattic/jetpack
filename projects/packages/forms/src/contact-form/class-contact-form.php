@@ -551,33 +551,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "</ul>\n</div>\n\n";
 		}
 
+		if ( $is_reload_after_success && $form->is_response_without_reload_enabled ) {
+			$r .= '<noscript>';
+			$r .= self::render_noscript_success_message( $is_reload_nonce_valid, $feedback_id, $form );
+			$r .= '</noscript>';
+		}
+
 		if ( $is_reload_after_success && ! $form->is_response_without_reload_enabled ) {
 			// The contact form was submitted.  Show the success message/results.
-			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
-			$r       .= '<div class="contact-form-submission">';
-
-			$r_success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
-
-			$r_success_message .=
-				'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
-				"</h4>\n\n";
-
-			// Don't show the feedback details unless the nonce matches
-			if ( $is_reload_nonce_valid ) {
-				$r_success_message .= self::success_message( $feedback_id, $form );
-			}
-
-			/**
-			 * Filter the message returned after a successful contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 1.3.1
-			 *
-			 * @param string $r_success_message Success message.
-			 */
-			$r .= apply_filters( 'grunion_contact_form_success_message', $r_success_message );
-			$r .= '</div>';
+			$r .= self::render_noscript_success_message( $is_reload_nonce_valid, $feedback_id, $form );
 		} else {
 			// Nothing special - show the normal contact form
 			if ( $form->get_attribute( 'widget' )
@@ -728,6 +710,55 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $r The contact form HTML.
 		 */
 		return apply_filters( 'jetpack_contact_form_html', $r );
+	}
+
+	/**
+	 * Renders the success message for the contact form when js is disabled or not desired.
+	 *
+	 * @param bool         $is_reload_nonce_valid - whether the nonce is valid.
+	 * @param int          $feedback_id - the feedback ID.
+	 * @param Contact_Form $form - the contact form.
+	 *
+	 * @return string HTML string for the success message.
+	 */
+	private static function render_noscript_success_message( $is_reload_nonce_valid, $feedback_id, $form ) {
+		$back_url        = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
+		$contact_form_id = sanitize_text_field( wp_unslash( $_GET['contact-form-id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$message = '';
+
+		$message .= '<style>
+			.contact-form-ajax-submission {
+				display: none;
+			}
+
+			#contact-form-' . $contact_form_id . ' form.contact-form {
+				display: none;
+			}
+		</style>';
+
+		$message         .= '<div class="contact-form-submission">';
+		$success_message  = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . "</h4>\n\n";
+
+		// Don't show the feedback details unless the nonce matches
+		if ( $is_reload_nonce_valid ) {
+			$success_message .= self::success_message( $feedback_id, $form );
+		}
+
+		/**
+		 * Filter the message returned after a successful contact form submission.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param string $message Success message.
+		 */
+		$message .= apply_filters( 'grunion_contact_form_success_message', $success_message );
+		$message .= '</div>';
+
+		return $message;
 	}
 
 	/**
@@ -916,6 +947,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function get_json_data( $feedback_id, $form ) {
 		$raw_data  = self::get_raw_compiled_form_data( $feedback_id, $form );
 		$json_data = array();
+
+		// Sort by field index to maintain the correct order
+		ksort( $raw_data );
 
 		// Handle file upload field (new structure with field_id and files array)
 		foreach ( $raw_data as $field_data ) {
