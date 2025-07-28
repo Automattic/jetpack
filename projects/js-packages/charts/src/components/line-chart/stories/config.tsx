@@ -45,7 +45,7 @@ const THEME_MAP = {
 	customStorybook: customStorybookTheme,
 };
 
-export const lineChartMetaArgs = {
+export const lineChartMetaArgs: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Line Chart',
 	component: LineChart,
 	parameters: {
@@ -102,7 +102,7 @@ export const lineChartMetaArgs = {
 			},
 		},
 	},
-} as const satisfies Partial< Meta< StoryArgs > >;
+};
 
 export const lineChartStoryArgs = {
 	data: sampleData,
