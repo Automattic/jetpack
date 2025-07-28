@@ -1,11 +1,10 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { disconnect } from '_jetpack-e2e-commons/utils/index.ts';
 import { connect } from '../flows/connection';
 
 test.describe( 'Jetpack Protect Plugin', () => {
-	test.beforeEach( async ( { page, admin, requestUtils, testUtils } ) => {
-		await disconnect( requestUtils );
+	test.beforeEach( async ( { page, admin, testUtils } ) => {
+		await testUtils.disconnect();
 
 		await prerequisitesBuilder( page )
 			.withActivePlugins( [ 'jetpack-protect' ] )
