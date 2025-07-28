@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added UI confirmation via text box when deleting an extension via delete-fixer so that the user is fully aware that it may break their site.
