@@ -316,5 +316,14 @@ const PieSemiCircleChart = attachSubComponents( PieSemiCircleChartBase, {
 	Legend: ChartLegend,
 } );
 
+// Create responsive version with composition API
+const ResponsivePieSemiCircleChart =
+	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );
+
+// Attach subcomponents to responsive version as well
+const PieSemiCircleChartWithComposition = attachSubComponents( ResponsivePieSemiCircleChart, {
+	Legend: ChartLegend,
+} );
+
 export { PieSemiCircleChart };
-export default withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );
+export default PieSemiCircleChartWithComposition;
