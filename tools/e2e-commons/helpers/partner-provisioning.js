@@ -35,7 +35,7 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	if ( json.success ) {
 		logger.cli( 'Successful provisioning' );
 	} else {
-		throw new Error( `'Jetpack Start provisioning failed: ${ json.error }` );
+		throw new Error( `Jetpack Start provisioning failed: ${ json.error }` );
 	}
 
 	await executeJetpackCommand( `authorize_user --user=${ user } --token=${ json.access_token }` );
