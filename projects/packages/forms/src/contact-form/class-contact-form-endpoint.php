@@ -187,17 +187,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
-
-		// MailPoet: List all lists
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base . '/mailpoet/lists',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_mailpoet_lists' ),
-				'permission_callback' => array( $this, 'get_items_permissions_check' ),
-			)
-		);
 	}
 
 	/**
@@ -956,19 +945,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the method exists first
 					}
 				}
+				// Add MailPoet lists to details
+				$response['details']['lists'] = MailPoet_Integration::get_all_lists();
 				break;
 		}
 
 		return $response;
-	}
-
-	/**
-	 * REST callback for /mailpoet-lists
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function get_mailpoet_lists() {
-		$lists = MailPoet_Integration::get_all_lists();
-		return rest_ensure_response( $lists );
 	}
 }
