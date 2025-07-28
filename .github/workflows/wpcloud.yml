@@ -134,8 +134,15 @@ jobs:
 
           # Do a basic check to verify the site is loading
           echo "::group::Verify things load"
-          CODE=0
-          ssh jpwpcomsh "wp option get start_of_week" > /dev/null || CODE=$?
+          SITE_URL=$(ssh jpwpcomsh "wp option get siteurl" 2>/dev/null)
+          CODE=$?
+          if [[ $CODE -ne 0 ]]; then
+            echo 'Unable to run a basic `wp` command! Something is wrong with the site.'
+          else
+            curl -s --fail "$SITE_URL" > /dev/null
+            CODE=$?
+            [[ $CODE -ne 0 ]] && echo 'Unable to load site! Something is wrong with the site.'
+          fi
           echo "::endgroup::"
 
           # Proceed with tests if all seems well
@@ -145,8 +152,6 @@ jobs:
             scp projects/plugins/wpcomsh/phpunit.9.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/phpunit.xml.dist
             ssh jpwpcomsh "/srv/htdocs/wp-content/mu-plugins/wpcomsh/bin/run-phpunit-tests.sh" || CODE=$?
             echo "::endgroup::"
-          else
-            echo 'Unable to run a basic `wp` command! Something is wrong with the site.'
           fi
 
           echo "::group::teardown"
