@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images
