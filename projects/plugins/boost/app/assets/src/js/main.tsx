@@ -1,4 +1,4 @@
-import { createHashRouter, redirect, useLocation, useParams } from 'react-router';
+import { createHashRouter, redirect, useLocation } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
@@ -10,15 +10,11 @@ import type { JSX } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
-import { useSingleModuleState } from '$features/module/lib/stores';
-import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
-import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import '../css/admin-style.scss';
 import CacheDebugLog from './pages/cache-debug-log/cache-debug-log';
 
 const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();
-	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 
 	const checkForGettingStarted = () => {
 		if ( shouldGetStarted ) {
@@ -57,20 +53,6 @@ const useBoostRouter = () => {
 						<AdvancedCriticalCss />
 					</Tracks>
 				</SettingsPage>
-			),
-		},
-		{
-			path: 'image-size-analysis/:group/:page',
-			loader: () => {
-				if ( ! isaState?.available ) {
-					return redirect( '/' );
-				}
-				return null;
-			},
-			element: (
-				<Tracks>
-					<ISAPage />
-				</Tracks>
 			),
 		},
 		{
@@ -118,18 +100,6 @@ const Tracks = ( { children }: { children: JSX.Element } ) => {
 	}, [ location ] );
 
 	return children;
-};
-
-const ISAPage = () => {
-	const { group, page } = useParams< { group: string; page: string } >();
-	const [ imageCdnState ] = useSingleModuleState( 'image_cdn' );
-	return (
-		<ImageSizeAnalysis
-			isImageCdnModuleActive={ !! imageCdnState?.active }
-			group={ group as isaGroupKeys }
-			page={ parseInt( page || '1', 10 ) }
-		/>
-	);
 };
 
 export default () => {
