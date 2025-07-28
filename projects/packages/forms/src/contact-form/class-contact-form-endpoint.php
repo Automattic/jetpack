@@ -552,7 +552,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['author_avatar'] = $response->get_author_avatar();
 		}
 		if ( rest_is_field_included( 'email_marketing_consent', $fields ) ) {
-			$data['email_marketing_consent'] = $response->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+			$data['email_marketing_consent'] = $response->has_consent() ? '1' : '';
 		}
 		if ( rest_is_field_included( 'ip', $fields ) ) {
 			$data['ip'] = $response->get_ip_address();
