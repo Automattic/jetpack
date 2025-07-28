@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { ChartProvider } from '../../../providers/chart-context';
-import { BarChart } from '../../bar-chart';
-import { LineChart } from '../../line-chart';
+import BarChart from '../../bar-chart/bar-chart';
+import LineChart from '../../line-chart/line-chart';
 import { PieChart } from '../../pie-chart';
 import { Legend } from '../legend';
 import type { SeriesData, DataPointPercentage } from '../../../types';
@@ -174,6 +174,7 @@ const WithLineChartData = () => {
 				showLegend={ false }
 			>
 				<LineChart.Legend
+					chartId="line-chart-composition"
 					orientation="horizontal"
 					alignmentHorizontal="center"
 					alignmentVertical="bottom"
@@ -206,6 +207,7 @@ const WithBarChartData = () => {
 				showLegend={ false }
 			>
 				<BarChart.Legend
+					chartId="bar-chart-composition"
 					orientation="vertical"
 					alignmentHorizontal="right"
 					alignmentVertical="top"
