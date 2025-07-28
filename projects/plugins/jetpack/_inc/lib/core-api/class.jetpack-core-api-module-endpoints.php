@@ -79,7 +79,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			);
 		}
 
-		if ( ! Jetpack_Plan::supports( $module_slug ) ) {
+		if ( ! Jetpack_Plan::supports( $module_slug ) && $module_slug !== 'carousel' ) {
 			return new WP_Error(
 				'not_supported',
 				esc_html__( 'The requested Jetpack module is not supported by your plan.', 'jetpack' ),

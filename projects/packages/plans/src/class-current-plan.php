@@ -387,6 +387,11 @@ class Current_Plan {
 			return true;
 		}
 
+		error_log($feature);
+		if ('carousel' === $feature ) {
+			return true;
+		}
+
 		// As of 05 2023 - all plans support Earn features (minus 'simple-payments').
 		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container' ), true ) ) {
 			return true;

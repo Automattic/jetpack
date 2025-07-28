@@ -27,11 +27,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load WP_Error for error messages.
 require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
+if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 // Register endpoints when WP REST API is initialized.
-add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
+	add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
 // Load API endpoints that are synced with WP.com
 // Each of these is a class that will register its own routes on 'rest_api_init'.
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
+}
 
 require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
 
@@ -2216,20 +2218,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return array_merge( $parameters, self::get_updateable_data_list( $selector ) );
 	}
 
-	/**
-	 * Returns a list of module options or general settings that can be updated.
-	 *
-	 * @since 4.3.0
-	 * @since 4.4.0 Accepts 'any' as a parameter which will make it return the entire list.
-	 *
-	 * @param string|array $selector Module slug, 'any', or an array of parameters.
-	 *                               If empty, it's assumed we're updating a module and we'll try to get its slug.
-	 *                               If 'any' the full list is returned.
-	 *                               If it's an array of parameters, includes the elements by matching keys.
-	 *
-	 * @return array
-	 */
-	public static function get_updateable_data_list( $selector = '' ) {
+	private static function get_schema_options() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return array(
+				'carousel_enable_it' => array(
+					'description'       => esc_html__( 'Jetpack carousel.', 'jetpack' ),
+					'type'              => 'boolean',
+					'default'           => false,
+					'validate_callback' => __CLASS__ . '::validate_boolean',
+					'jp_group'          => 'settings',
+				),
+			);
+		}
 
 		$options = array(
 			// Blocks.
@@ -3099,6 +3099,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'videopress',
 			),
 		);
+
+		return $options;
+	}
+
+	/**
+	 * Returns a list of module options or general settings that can be updated.
+	 *
+	 * @since 4.3.0
+	 * @since 4.4.0 Accepts 'any' as a parameter which will make it return the entire list.
+	 *
+	 * @param string|array $selector Module slug, 'any', or an array of parameters.
+	 *                               If empty, it's assumed we're updating a module and we'll try to get its slug.
+	 *                               If 'any' the full list is returned.
+	 *                               If it's an array of parameters, includes the elements by matching keys.
+	 *
+	 * @return array
+	 */
+	public static function get_updateable_data_list( $selector = '' ) {
+
+		$options = self::get_schema_options();
 
 		// SEO Tools - SEO Enhancer.
 		// TODO: move this to the main options array? The filter was there while developing the feature.

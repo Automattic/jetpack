@@ -1,9 +1,11 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import * as WPElement from '@wordpress/element';
 import { _x } from '@wordpress/i18n';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Routes } from 'react-router';
 import accessibleFocus from 'lib/accessible-focus';
-import Main from 'main';
+import MainJetpack from 'main';
+import MainWpcomSimple from 'main-wpcom-simple';
 import * as actionTypes from 'state/action-types';
 import store from 'state/redux-store';
 
@@ -25,9 +27,71 @@ render();
  * Initial render function.
  */
 function render() {
+	const Main = isSimpleSite() ? MainWpcomSimple : MainJetpack;
 	const container = document.getElementById( 'jp-plugin-container' );
 
 	if ( container === null ) {
+		return;
+	}
+
+	if ( isSimpleSite() ) {
+		const wpcomSimpleComponent = (
+			<div>
+				<Provider store={ store }>
+					<HashRouter>
+						<Routes>
+							<Route
+								path="/dashboard"
+								element={ <Main routeName={ getRouteName( '/dashboard' ) } /> }
+							/>
+							<Route
+								path="/recommendations/*"
+								element={ <Main routeName={ getRouteName( '/recommendations' ) } /> }
+							/>
+							<Route
+								path="/settings"
+								element={ <Main routeName={ getRouteName( '/settings' ) } /> }
+							/>
+							<Route
+								path="/discussion"
+								element={ <Main routeName={ getRouteName( '/discussion' ) } /> }
+							/>
+							<Route path="/earn" element={ <Main routeName={ getRouteName( '/earn' ) } /> } />
+							<Route
+								path="/newsletter"
+								element={ <Main routeName={ getRouteName( '/newsletter' ) } /> }
+							/>
+							<Route
+								path="/security"
+								element={ <Main routeName={ getRouteName( '/security' ) } /> }
+							/>
+							<Route
+								path="/performance"
+								element={ <Main routeName={ getRouteName( '/performance' ) } /> }
+							/>
+							<Route
+								path="/traffic"
+								element={ <Main routeName={ getRouteName( '/traffic' ) } /> }
+							/>
+							<Route
+								path="/writing"
+								element={ <Main routeName={ getRouteName( '/writing' ) } /> }
+							/>
+							<Route
+								path="/sharing"
+								element={ <Main routeName={ getRouteName( '/sharing' ) } /> }
+							/>
+							<Route path="/wpbody-content" element={ <Main /> } />
+							<Route path="/wp-toolbar" element={ <Main /> } />
+							<Route path="/privacy" element={ <Main /> } />
+							<Route path="/*" element={ <Main routeName={ getRouteName( '/*' ) } /> } />
+						</Routes>
+					</HashRouter>
+				</Provider>
+			</div>
+		);
+
+		WPElement.createRoot( container ).render( wpcomSimpleComponent );
 		return;
 	}
 
