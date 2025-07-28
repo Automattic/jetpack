@@ -7,27 +7,9 @@ import { useCallback, useState } from 'react';
 export const useFunnelSelection = () => {
 	const [ clickedStep, setClickedStep ] = useState< string | null >( null );
 
-	// Handle clicks within chart to deselect
-	const handleChartClick = useCallback( () => {
-		if ( clickedStep ) {
-			setClickedStep( null );
-		}
-	}, [ clickedStep ] );
-
-	// Handle chart keydown
-	const handleChartKeyDown = useCallback(
-		( event: React.KeyboardEvent ) => {
-			if ( event.key === 'Escape' ) {
-				handleChartClick();
-			}
-		},
-		[ handleChartClick ]
-	);
-
 	// Handle bar click
 	const handleBarClick = useCallback(
-		( stepId: string, event: React.MouseEvent ) => {
-			event.stopPropagation();
+		( stepId: string ) => {
 			if ( clickedStep === stepId ) {
 				// If clicking the same step, deselect it
 				setClickedStep( null );
@@ -49,6 +31,9 @@ export const useFunnelSelection = () => {
 				} else {
 					setClickedStep( stepId );
 				}
+			} else if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				setClickedStep( null );
 			}
 		},
 		[ clickedStep ]
@@ -65,8 +50,6 @@ export const useFunnelSelection = () => {
 
 	return {
 		clickedStep,
-		handleChartClick,
-		handleChartKeyDown,
 		handleBarClick,
 		handleBarKeyDown,
 		getStepState,

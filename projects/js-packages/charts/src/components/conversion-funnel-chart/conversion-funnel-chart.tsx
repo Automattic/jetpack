@@ -72,8 +72,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	const chartRef = useRef< HTMLDivElement >( null );
 
 	// Use custom hook for selection management
-	const { handleChartClick, handleChartKeyDown, handleBarClick, handleBarKeyDown, getStepState } =
-		useFunnelSelection();
+	const { handleBarClick, handleBarKeyDown, getStepState } = useFunnelSelection();
 
 	// Create handler factories to avoid arrow functions in JSX
 	const stepHandlers = useMemo( () => {
@@ -87,7 +86,10 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 
 		steps.forEach( step => {
 			handlers[ step.id ] = {
-				onClick: ( event: React.MouseEvent ) => handleBarClick( step.id, event ),
+				onClick: ( event: React.MouseEvent ) => {
+					event.stopPropagation();
+					handleBarClick( step.id );
+				},
 				onKeyDown: ( event: React.KeyboardEvent ) => handleBarKeyDown( step.id, event ),
 			};
 		} );
@@ -137,10 +139,6 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 			ref={ chartRef }
 			className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
 			style={ chartStyle }
-			onClick={ handleChartClick }
-			onKeyDown={ handleChartKeyDown }
-			role="button"
-			tabIndex={ 0 }
 		>
 			{ /* Main Metric */ }
 			<div className={ styles.mainMetric }>
@@ -180,6 +178,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 								onKeyDown={ stepHandlers[ step.id ].onKeyDown }
 								role="button"
 								tabIndex={ isBlurred ? -1 : 0 }
+								aria-label={ step.label }
 							>
 								<div
 									className={ clsx( styles.funnelBar, isClicked && styles.selected ) }

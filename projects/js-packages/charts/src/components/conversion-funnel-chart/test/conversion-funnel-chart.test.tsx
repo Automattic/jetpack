@@ -108,8 +108,11 @@ describe( 'ConversionFunnelChart', () => {
 			await user.click( cartBar );
 
 			// Check that the component still renders correctly after click
-			expect( screen.getByText( 'Cart' ) ).toBeInTheDocument();
-			expect( screen.getAllByText( '71.1%' ) ).toHaveLength( 1 );
+			// After clicking, there will be multiple 'Cart' texts (header + tooltip)
+			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
+			// Rate appears once in header, and in tooltip it's combined with count text
+			expect( screen.getByText( '71.1%' ) ).toBeInTheDocument();
+			expect( screen.getByText( /71\.1% • .* items/ ) ).toBeInTheDocument();
 		} );
 
 		it( 'handles keyboard navigation with Enter key', async () => {
@@ -121,7 +124,8 @@ describe( 'ConversionFunnelChart', () => {
 			await user.keyboard( '{Enter}' );
 
 			// Check that component still works after keyboard interaction
-			expect( screen.getByText( 'Cart' ) ).toBeInTheDocument();
+			// After keyboard activation, there will be multiple 'Cart' texts (header + tooltip)
+			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
 		} );
 
 		it( 'handles keyboard navigation with Space key', async () => {
@@ -133,30 +137,8 @@ describe( 'ConversionFunnelChart', () => {
 			await user.keyboard( ' ' );
 
 			// Check that component still works after keyboard interaction
-			expect( screen.getByText( 'Cart' ) ).toBeInTheDocument();
-		} );
-
-		it( 'allows clicking on chart background', async () => {
-			const user = userEvent.setup();
-			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
-
-			// Click on chart background (first button without a name - the chart container)
-			const allButtons = screen.getAllByRole( 'button' );
-			const chartButton = allButtons.find(
-				button =>
-					! button.getAttribute( 'aria-label' ) &&
-					button.getAttribute( 'style' )?.includes( '--primary-color' )
-			);
-
-			// Ensure we found the chart button
-			expect( chartButton ).toBeDefined();
-
-			if ( chartButton ) {
-				await user.click( chartButton );
-			}
-
-			// Check that component still renders correctly
-			expect( screen.getAllByText( '10.3%' ) ).toHaveLength( 2 );
+			// After keyboard activation, there will be multiple 'Cart' texts (header + tooltip)
+			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
 		} );
 
 		it( 'maintains component state after bar interactions', async () => {
@@ -188,8 +170,10 @@ describe( 'ConversionFunnelChart', () => {
 			await user.click( sessionsBar );
 
 			// Component should still render correctly
-			expect( screen.getByText( 'Sessions' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Cart' ) ).toBeInTheDocument();
+			// After clicking sessions, only Sessions should have tooltip (2 instances)
+			expect( screen.getAllByText( 'Sessions' ) ).toHaveLength( 2 );
+			// Cart should only appear once in header now
+			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 1 );
 		} );
 	} );
 
@@ -197,9 +181,9 @@ describe( 'ConversionFunnelChart', () => {
 		it( 'has proper ARIA roles for interactive elements', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			// Chart should have multiple interactive elements
+			// Should have 4 bars as interactive elements
 			const allButtons = screen.getAllByRole( 'button' );
-			expect( allButtons.length ).toBeGreaterThan( 4 ); // Chart + 4 bars
+			expect( allButtons ).toHaveLength( 4 ); // 4 bars
 
 			// Each bar should have button role
 			mockSteps.forEach( step => {
@@ -210,16 +194,6 @@ describe( 'ConversionFunnelChart', () => {
 
 		it( 'has proper tabIndex for keyboard navigation', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
-
-			// Chart container should be focusable (find by style attribute)
-			const allButtons = screen.getAllByRole( 'button' );
-			const chartButton = allButtons.find(
-				button => button.getAttribute( 'style' )?.includes( '--primary-color' )
-			);
-
-			// Ensure we found the chart button and verify its tabIndex
-			expect( chartButton ).toBeDefined();
-			expect( chartButton ).toHaveAttribute( 'tabIndex', '0' );
 
 			// Bars should be focusable
 			mockSteps.forEach( step => {
@@ -257,7 +231,8 @@ describe( 'ConversionFunnelChart', () => {
 			await user.click( bar );
 
 			// Check that component renders correctly with large numbers
-			expect( screen.getByText( 'Test' ) ).toBeInTheDocument();
+			// After clicking, there will be multiple 'Test' texts (header + tooltip)
+			expect( screen.getAllByText( 'Test' ) ).toHaveLength( 2 );
 			expect( screen.getAllByText( '50.0%' ) ).toHaveLength( 2 );
 		} );
 

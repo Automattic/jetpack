@@ -15,28 +15,21 @@ describe( 'useFunnelSelection', () => {
 	describe( 'Bar Click Handling', () => {
 		it( 'selects a step when bar is clicked', () => {
 			const { result } = renderHook( () => useFunnelSelection() );
-			const mockEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
 
 			act( () => {
-				result.current.handleBarClick( 'test-step', mockEvent );
+				result.current.handleBarClick( 'test-step' );
 			} );
 
 			const stepState = result.current.getStepState( 'test-step' );
 			expect( stepState.isClicked ).toBe( true );
 			expect( stepState.isBlurred ).toBe( false );
-			expect( mockEvent.stopPropagation ).toHaveBeenCalled();
 		} );
 
 		it( 'blurs other steps when one is selected', () => {
 			const { result } = renderHook( () => useFunnelSelection() );
-			const mockEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
 
 			act( () => {
-				result.current.handleBarClick( 'selected-step', mockEvent );
+				result.current.handleBarClick( 'selected-step' );
 			} );
 
 			const selectedState = result.current.getStepState( 'selected-step' );
@@ -50,13 +43,10 @@ describe( 'useFunnelSelection', () => {
 
 		it( 'deselects step when clicking the same bar again', () => {
 			const { result } = renderHook( () => useFunnelSelection() );
-			const mockEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
 
 			// First click to select
 			act( () => {
-				result.current.handleBarClick( 'test-step', mockEvent );
+				result.current.handleBarClick( 'test-step' );
 			} );
 
 			let stepState = result.current.getStepState( 'test-step' );
@@ -64,7 +54,7 @@ describe( 'useFunnelSelection', () => {
 
 			// Second click to deselect
 			act( () => {
-				result.current.handleBarClick( 'test-step', mockEvent );
+				result.current.handleBarClick( 'test-step' );
 			} );
 
 			stepState = result.current.getStepState( 'test-step' );
@@ -74,18 +64,15 @@ describe( 'useFunnelSelection', () => {
 
 		it( 'switches selection when clicking different bar', () => {
 			const { result } = renderHook( () => useFunnelSelection() );
-			const mockEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
 
 			// Select first step
 			act( () => {
-				result.current.handleBarClick( 'step1', mockEvent );
+				result.current.handleBarClick( 'step1' );
 			} );
 
 			// Select second step
 			act( () => {
-				result.current.handleBarClick( 'step2', mockEvent );
+				result.current.handleBarClick( 'step2' );
 			} );
 
 			const step1State = result.current.getStepState( 'step1' );
@@ -154,83 +141,6 @@ describe( 'useFunnelSelection', () => {
 		} );
 	} );
 
-	describe( 'Chart Click Handling', () => {
-		it( 'deselects all steps when chart is clicked', () => {
-			const { result } = renderHook( () => useFunnelSelection() );
-			const mockBarEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
-
-			// First select a step
-			act( () => {
-				result.current.handleBarClick( 'test-step', mockBarEvent );
-			} );
-
-			let stepState = result.current.getStepState( 'test-step' );
-			expect( stepState.isClicked ).toBe( true );
-
-			// Then click chart to deselect
-			act( () => {
-				result.current.handleChartClick();
-			} );
-
-			stepState = result.current.getStepState( 'test-step' );
-			expect( stepState.isClicked ).toBe( false );
-			expect( stepState.isBlurred ).toBe( false );
-		} );
-	} );
-
-	describe( 'Chart Keyboard Handling', () => {
-		it( 'deselects all steps on Escape key', () => {
-			const { result } = renderHook( () => useFunnelSelection() );
-			const mockBarEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
-			const mockKeyEvent = {
-				key: 'Escape',
-				preventDefault: jest.fn(),
-			} as unknown as React.KeyboardEvent;
-
-			// First select a step
-			act( () => {
-				result.current.handleBarClick( 'test-step', mockBarEvent );
-			} );
-
-			// Then press Escape on chart
-			act( () => {
-				result.current.handleChartKeyDown( mockKeyEvent );
-			} );
-
-			const stepState = result.current.getStepState( 'test-step' );
-			expect( stepState.isClicked ).toBe( false );
-		} );
-
-		it( 'does not deselect on non-Escape keys', () => {
-			const { result } = renderHook( () => useFunnelSelection() );
-			const mockBarEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
-			const mockKeyEvent = {
-				key: 'Enter',
-				preventDefault: jest.fn(),
-			} as unknown as React.KeyboardEvent;
-
-			// First select a step
-			act( () => {
-				result.current.handleBarClick( 'test-step', mockBarEvent );
-			} );
-
-			// Then press Enter on chart (should not deselect)
-			act( () => {
-				result.current.handleChartKeyDown( mockKeyEvent );
-			} );
-
-			const stepState = result.current.getStepState( 'test-step' );
-			expect( stepState.isClicked ).toBe( true ); // Should remain selected
-			expect( mockKeyEvent.preventDefault ).not.toHaveBeenCalled();
-		} );
-	} );
-
 	describe( 'getStepState', () => {
 		it( 'returns correct state for unselected steps', () => {
 			const { result } = renderHook( () => useFunnelSelection() );
@@ -244,12 +154,9 @@ describe( 'useFunnelSelection', () => {
 
 		it( 'returns correct state for selected step', () => {
 			const { result } = renderHook( () => useFunnelSelection() );
-			const mockEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
 
 			act( () => {
-				result.current.handleBarClick( 'selected-step', mockEvent );
+				result.current.handleBarClick( 'selected-step' );
 			} );
 
 			const stepState = result.current.getStepState( 'selected-step' );
@@ -261,12 +168,9 @@ describe( 'useFunnelSelection', () => {
 
 		it( 'returns correct state for blurred steps', () => {
 			const { result } = renderHook( () => useFunnelSelection() );
-			const mockEvent = {
-				stopPropagation: jest.fn(),
-			} as unknown as React.MouseEvent;
 
 			act( () => {
-				result.current.handleBarClick( 'selected-step', mockEvent );
+				result.current.handleBarClick( 'selected-step' );
 			} );
 
 			const blurredStepState = result.current.getStepState( 'other-step' );
