@@ -68,6 +68,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $forms = array();
 
 	/**
+	 * The context for the forms, indexed by context.
+	 * This is used to keep track of how many forms are in a specific context.
+	 *
+	 * @var array
+	 */
+	public static $forms_context = array();
+
+	/**
 	 * Whether to print the grunion.css style when processing the contact-form shortcode
 	 *
 	 * @var bool
@@ -136,8 +144,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page );
 		}
 		$this->hash = sha1( wp_json_encode( $attributes ) );
+
 		if ( $set_id ) {
 			self::$forms[ $this->hash ] = $this; // This increments the form count.
+			self::increment_form_context_count( $attributes, $this->current_post );
 		}
 
 		// Keep reference to $this for parsing form fields.
@@ -221,6 +231,55 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the context for the contact form based on the attributes and post.
+	 *
+	 * @param array        $attributes The attributes of the contact form.
+	 * @param WP_Post|null $post The post object, if available.
+	 *
+	 * @return string The context for the contact form.
+	 */
+	public static function get_context( $attributes, $post = null ) {
+		$context = 'jp-form';
+		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			$context = 'widget-' . $attributes['widget'];
+		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
+			$context = 'block-template-' . $attributes['block_template'];
+		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
+			$context = 'block-template-part-' . $attributes['block_template_part'];
+		} elseif ( $post instanceof WP_Post ) {
+			$context = (string) $post->ID;
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Increment the count of forms for a specific context.
+	 *
+	 * @param array        $attributes The attributes of the contact form.
+	 * @param WP_Post|null $post The post object, if available.
+	 *
+	 * @return void
+	 */
+	public static function increment_form_context_count( $attributes, $post ) {
+		$context = self::get_context( $attributes, $post );
+		if ( ! isset( self::$forms_context[ $context ] ) ) {
+			self::$forms_context[ $context ] = 1;
+			return;
+		}
+		self::$forms_context[ $context ] = self::get_forms_context_count( $context ) + 1;
+	}
+
+	/**
+	 * Get the count of forms.
+	 *
+	 * @return int The count of forms.
+	 */
+	public static function get_forms_count() {
+		return count( self::$forms );
+	}
+
+	/**
 	 * Compute the ID for the contact form based on the attributes and post.
 	 *
 	 * @param array        $attributes The attributes of the contact form.
@@ -230,29 +289,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The ID for the contact form.
 	 */
 	public static function compute_id( $attributes, $post = null, $page_number = 1 ) {
-		$id_part = array();
-		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-			$id_part[] = 'widget-' . $attributes['widget'];
-		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-			$id_part[] = 'block-template-' . $attributes['block_template'];
-		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-			$id_part[] = 'block-template-part-' . $attributes['block_template_part'];
-		} elseif ( $post instanceof WP_Post ) {
-			$id_part[] = $post->ID;
-		}
 
-		if ( self::get_forms_count() > 0 ) {
-			$id_part[] = self::get_forms_count();
+		$context = self::get_context( $attributes, $post );
+		$id_part = array( $context );
+
+		if ( self::get_forms_context_count( $context ) > 0 ) {
+			$id_part[] = self::get_forms_context_count( $context );
 		}
 
 		$page_num = max( 1, intval( $page_number ) );
 		if ( $page_num > 1 ) {
 			$id_part[] = $page_num;
-		}
-
-		if ( empty( $id_part ) ) {
-			// If no ID part is set, we use a default value.
-			$id_part[] = 'jp-form'; // Default ID part.
 		}
 
 		return implode( '-', $id_part );
@@ -299,13 +346,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 			self::get_secret()
 		);
 	}
+
 	/**
 	 * Get the count of forms.
 	 *
+	 * @param string $context The context for which to get the count of forms.
+	 *
 	 * @return int The count of forms.
 	 */
-	public static function get_forms_count() {
-		return count( self::$forms );
+	public static function get_forms_context_count( $context ) {
+		if ( ! isset( self::$forms_context[ $context ] ) ) {
+			self::$forms_context[ $context ] = 0;
+			return 0;
+		}
+
+		return self::$forms_context[ $context ];
 	}
 
 	/**

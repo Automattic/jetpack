@@ -3121,12 +3121,6 @@ EOT;
 		$form1 = new Contact_Form( $attributes1, '', false );
 		$id1   = $form1->get_attribute( 'id' );
 
-		$attributes1 = array(
-			'to'      => 'test1@example.com',
-			'subject' => 'Test Subject 1',
-			'id'      => 'form-1',
-		);
-
 		$form2 = new Contact_Form( $attributes1, '', false );
 		$id2   = $form2->get_attribute( 'id' );
 
@@ -3331,5 +3325,61 @@ EOT;
 
 		$this->assertIsString( $computed_id, 'Computed ID should handle array attributes' );
 		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with array attributes' );
+	}
+
+	public function test_test_context_in_form_id_creation() {
+
+		$attributes   = array();
+		$post_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'First Test Post',
+				'post_content' => 'First test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+		$post         = get_post( $post_post_id );
+
+		$form_id = Contact_Form::compute_id( $attributes, $post );
+		Contact_Form::increment_form_context_count( $attributes, $post );
+		$this->assertStringContainsString( (string) $post_post_id, $form_id, 'Form ID should contain the post ID of the first post' );
+
+		$form_id_2 = Contact_Form::compute_id( $attributes, $post );
+		$this->assertStringContainsString( (string) $post_post_id, $form_id_2, 'Form ID should contain the post ID of the first post' );
+		$this->assertNotEquals( $form_id, $form_id_2, 'Form IDs should be different for different instances' );
+
+		$second_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Second Test Post',
+				'post_content' => 'Second test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+		$second_post    = get_post( $second_post_id );
+
+		$form_id_3 = Contact_Form::compute_id( $attributes, $second_post );
+		Contact_Form::increment_form_context_count( $attributes, $second_post );
+
+		$this->assertStringContainsString( (string) $second_post_id, $form_id_3, 'Form ID should contain the post ID of the second post' );
+
+		$form_id_4 = Contact_Form::compute_id( $attributes, $second_post );
+		$this->assertStringContainsString( (string) $second_post_id, $form_id_4, 'Form ID should contain the post ID of the second post' );
+		$this->assertNotEquals( $form_id_3, $form_id_4, 'Form IDs should be different for different instances' );
+
+		$attributes['widget'] = 'sidebar';
+
+		$form_id_5 = Contact_Form::compute_id( $attributes, $second_post );
+		Contact_Form::increment_form_context_count( $attributes, $second_post );
+		$this->assertStringContainsString( 'widget-sidebar', $form_id_5, 'Form ID should contain the post ID of the second post' );
+
+		$form_id_6 = Contact_Form::compute_id( $attributes, $second_post );
+		$this->assertStringContainsString( 'widget-sidebar', $form_id_6, 'Form ID should contain the post ID of the second post' );
+		$this->assertNotEquals( $form_id_5, $form_id_6, 'Form IDs should be different for different instances' );
+
+		// Assert that we have 6 unique form ids.
+		$this->assertCount( 6, array_unique( array( $form_id, $form_id_2, $form_id_3, $form_id_4, $form_id_5, $form_id_6 ) ), 'There should be 6 unique forms' );
 	}
 }
