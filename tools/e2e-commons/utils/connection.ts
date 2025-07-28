@@ -1,8 +1,7 @@
-import fs from 'fs';
-import { provisionJetpackStartConnection } from '../helpers/partner-provisioning';
 import { getDotComCredentials, getSiteCredentials } from '../helpers/utils-helper';
 import logger from '../logger';
 import { executeWpCommand } from '../utils/cli.ts';
+import { partnerProvisionConnection } from './partner-provision.ts';
 import { TestUtils } from '.';
 
 /**
@@ -13,19 +12,7 @@ export async function connect() {
 	const siteCreds = getSiteCredentials();
 	await executeWpCommand( `user update ${ siteCreds.username } --user_email=${ creds.email }` );
 
-	await provisionJetpackStartConnection( creds.userId, 'free', siteCreds.username );
-}
-
-/**
- * Save Jetpack private options to storage state.
- */
-export async function saveJetpackPrivateOptionsToStorageState() {
-	// We are connected. Let's save the existing connection options just in case.
-	const result = await executeWpCommand( 'option get jetpack_private_options --format=json' );
-	fs.writeFileSync(
-		`${ process.env.STORAGE_STATE_DIR_PATH }/jetpack_private_options.json`,
-		result.trim()
-	);
+	await partnerProvisionConnection( creds.userId, 'free', siteCreds.username );
 }
 
 /**

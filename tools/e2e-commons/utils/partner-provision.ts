@@ -6,6 +6,9 @@ import pwConfig from '../playwright.config.mjs';
 import { executeCommand, executeJetpackCommand } from '../utils/cli.ts';
 
 /**
+ * Connect Jetpack.
+ */
+/**
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
  * @param {number} userId - WPCOM user ID
@@ -13,16 +16,15 @@ import { executeCommand, executeJetpackCommand } from '../utils/cli.ts';
  * @param {string} user   - Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-export async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
+export async function partnerProvisionConnection( userId, plan = 'free', user ) {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 	const __dirname = url.fileURLToPath( new URL( '.', import.meta.url ) );
 
-	// Build command and arguments separately for security
 	const scriptPath = path.resolve( __dirname, '../../partner-provision.sh' );
-	const cmd = `sh ${ scriptPath } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ pwConfig.use.baseURL } --wpcom_user_id=${ userId }`;
+	const cmd = `sh ${ scriptPath } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ pwConfig.use?.baseURL } --wpcom_user_id=${ userId }`;
 
-	let response;
+	let response: string;
 	// catch a command failed error so that secrets are not logged
 	try {
 		response = await executeCommand( cmd );
@@ -33,14 +35,12 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	const json = JSON.parse( response );
 
 	if ( json.success ) {
-		logger.cli( 'Successful provisioning' );
+		logger.debug( 'Successful provisioning' );
 	} else {
 		throw new Error( `Jetpack Start provisioning failed: ${ json.error }` );
 	}
 
 	await executeJetpackCommand( `authorize_user --user=${ user } --token=${ json.access_token }` );
-
-	await executeJetpackCommand( 'status' );
 
 	return true;
 }
