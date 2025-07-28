@@ -3,7 +3,7 @@ import { ThemeProvider, jetpackTheme, wooTheme } from '../.';
 import { LineChart, BarChart, PieSemiCircleChart } from '../../../.';
 import barSampleData from '../../../components/bar-chart/stories/sample-data';
 
-const meta: Meta< typeof LineChart > = {
+const meta: Meta< typeof ThemeProvider > = {
 	title: 'JS Packages/Charts/Themes',
 	component: ThemeProvider,
 	parameters: {
@@ -74,7 +74,13 @@ export const Default: Story = {
 	render: () => (
 		<ThemeProvider>
 			<GridComponent>
-				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
+				<LineChart
+					data={ lineSampleData }
+					width={ 400 }
+					height={ 300 }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="Default Theme" />
 			</GridComponent>
@@ -86,7 +92,13 @@ export const JetpackTheme: Story = {
 	render: () => (
 		<ThemeProvider theme={ jetpackTheme }>
 			<GridComponent>
-				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
+				<LineChart
+					data={ lineSampleData }
+					width={ 400 }
+					height={ 300 }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="Jetpack Theme" />
 			</GridComponent>
@@ -98,7 +110,13 @@ export const WooTheme: Story = {
 	render: () => (
 		<ThemeProvider theme={ wooTheme }>
 			<GridComponent>
-				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
+				<LineChart
+					data={ lineSampleData }
+					width={ 400 }
+					height={ 300 }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="Woo Theme" />
 			</GridComponent>
@@ -130,7 +148,13 @@ export const CustomTheme: Story = {
 			} }
 		>
 			<GridComponent>
-				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
+				<LineChart
+					data={ lineSampleData }
+					width={ 400 }
+					height={ 300 }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart
 					data={ pieData }
