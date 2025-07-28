@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Status: Remove reliance on is_p2_site function before the package has been updated
