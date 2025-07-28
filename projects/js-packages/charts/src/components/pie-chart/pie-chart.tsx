@@ -279,15 +279,10 @@ const PieChartBase: FC< PieChartProps > = props => {
 
 PieChartBase.displayName = 'PieChart';
 
-// Create composition type
-type PieChartComponent = FC< PieChartProps > & {
-	Legend: typeof ChartLegend;
-};
-
 // Attach subcomponents to create composition API
 const PieChart = attachSubComponents( PieChartBase, {
 	Legend: ChartLegend,
-} ) as PieChartComponent;
+} );
 
 export { PieChart };
 export default withResponsive< PieChartProps >( PieChart );

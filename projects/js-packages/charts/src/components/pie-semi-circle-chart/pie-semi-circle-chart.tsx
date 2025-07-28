@@ -311,15 +311,10 @@ const PieSemiCircleChartBase: FC< PieSemiCircleChartProps > = props => (
 
 PieSemiCircleChartBase.displayName = 'PieSemiCircleChart';
 
-// Create composition type
-type PieSemiCircleChartComponent = FC< PieSemiCircleChartProps > & {
-	Legend: typeof ChartLegend;
-};
-
 // Attach subcomponents to create composition API
 const PieSemiCircleChart = attachSubComponents( PieSemiCircleChartBase, {
 	Legend: ChartLegend,
-} ) as PieSemiCircleChartComponent;
+} );
 
 export { PieSemiCircleChart };
 export default withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );

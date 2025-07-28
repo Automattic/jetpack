@@ -294,15 +294,10 @@ const BarListChartBase: FC< BarListChartProps > = ( {
 	);
 };
 
-// Create composition type
-type BarListChartComponent = FC< BarListChartProps > & {
-	Legend: typeof ChartLegend;
-};
-
 // Attach subcomponents to create composition API
 const BarListChart = attachSubComponents( BarListChartBase, {
 	Legend: ChartLegend,
-} ) as BarListChartComponent;
+} );
 
 export { BarListChart };
 export default withResponsive< BarListChartProps >( BarListChart );

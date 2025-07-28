@@ -375,15 +375,10 @@ const BarChartBase: FC< BarChartProps > = props => {
 
 BarChartBase.displayName = 'BarChart';
 
-// Create composition type
-type BarChartComponent = FC< BarChartProps > & {
-	Legend: typeof ChartLegend;
-};
-
 // Attach subcomponents to create composition API
 const BarChart = attachSubComponents( BarChartBase, {
 	Legend: ChartLegend,
-} ) as BarChartComponent;
+} );
 
 // Create responsive version with composition API
 const ResponsiveBarChart = withResponsive< BarChartProps >( BarChart );
@@ -391,7 +386,7 @@ const ResponsiveBarChart = withResponsive< BarChartProps >( BarChart );
 // Attach subcomponents to responsive version as well
 const BarChartWithComposition = attachSubComponents( ResponsiveBarChart, {
 	Legend: ChartLegend,
-} ) as BarChartComponent;
+} );
 
 export { BarChart };
 export default BarChartWithComposition;
