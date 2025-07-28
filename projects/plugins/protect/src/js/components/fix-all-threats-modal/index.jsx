@@ -1,6 +1,6 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
 import ThreatFixHeader from '../threat-fix-header';
@@ -42,6 +42,21 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 		[ threatIds ]
 	);
 
+	const fixableThreats = useMemo(
+		() =>
+			threatList.filter(
+				threat => threat.fixable && threat.fixable.extras?.isBulkFixable !== false
+			),
+		[ threatList ]
+	);
+	const nonFixableThreats = useMemo(
+		() =>
+			threatList.filter(
+				threat => ! threat.fixable || threat.fixable.extras?.isBulkFixable === false
+			),
+		[ threatList ]
+	);
+
 	return (
 		<UserConnectionGate>
 			<Text variant="title-medium" mb={ 2 }>
@@ -52,11 +67,29 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 			</Text>
 
 			<div className={ styles.list }>
-				{ threatList.map( threat => (
+				{ fixableThreats.map( threat => (
 					<ThreatFixHeader
 						key={ threat.id }
 						threat={ threat }
 						fixAllDialog={ true }
+						onCheckFix={ handleCheckboxClick }
+					/>
+				) ) }
+			</div>
+
+			<Text mb={ 3 } mr={ 6 }>
+				{ __(
+					'These threats cannot be fixed in bulk because individual confirmation is required:',
+					'jetpack-protect'
+				) }
+			</Text>
+
+			<div className={ styles.list }>
+				{ nonFixableThreats.map( threat => (
+					<ThreatFixHeader
+						key={ threat.id }
+						threat={ threat }
+						fixAllDialog={ false }
 						onCheckFix={ handleCheckboxClick }
 					/>
 				) ) }
