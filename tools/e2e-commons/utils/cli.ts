@@ -8,6 +8,51 @@ const execFileAsync = promisify( execFile );
 const ALLOWED_COMMANDS = new Set( [ 'wp', 'pnpm', 'sh' ] );
 
 /**
+ * Masks sensitive information in command strings and output
+ * @param {string} text - Text to mask secrets in
+ * @return {string} Text with secrets masked
+ */
+function maskSecrets( text: string ): string {
+	const secretPatterns = [
+		/(Authorization:\s*Bearer\s+)([^\s'"]+)/gi,
+		/(Authorization:\s*Token\s+)([^\s'"]+)/gi,
+		/(-{0,2}client[-_]?secret[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}private[-_]?key[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}access[-_]?token[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}refresh[-_]?token[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}api[-_]?key[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}token[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}secret[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}password[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}pass[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}key[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}auth[=:\s]+)([^\s'"]+)/gi,
+		/(-{0,2}bearer[=:\s]+)([^\s'"]+)/gi,
+	];
+
+	let maskedText = text;
+
+	secretPatterns.forEach( pattern => {
+		maskedText = maskedText.replace( pattern, ( _, prefix, secret ) => {
+			// Remove quotes if present
+			const cleanSecret = secret.replace( /^['"]|['"]$/g, '' );
+
+			if ( cleanSecret.length <= 4 ) {
+				return `${ prefix }****`;
+			}
+
+			const firstTwo = cleanSecret.substring( 0, 2 );
+			const lastTwo = cleanSecret.substring( cleanSecret.length - 2 );
+			const masked = `${ firstTwo }***${ lastTwo }`;
+
+			return `${ prefix }${ masked }`;
+		} );
+	} );
+
+	return maskedText;
+}
+
+/**
  * Security: Validates that a command is in the allowed list
  * @param {string} command - Command to validate
  * @return {boolean} Whether command is allowed
@@ -45,17 +90,17 @@ function parseCommandString( cmdString: string ): { command: string; args: strin
  * @return {Promise<string>} command output
  */
 export async function executeCommand( cmd: string ): Promise< string > {
-	logger.debug( `Executing command: ${ cmd }` );
+	logger.debug( `Executing command: ${ maskSecrets( cmd ) }` );
 
 	const { command, args } = parseCommandString( cmd );
 
 	try {
 		const { stdout, stderr } = await execFileAsync( command, args );
 		const output = stdout + stderr;
-		logger.debug( `Command output: ${ output.replace( /\n$/, '' ) }` );
+		logger.debug( `Command output: ${ maskSecrets( output.replace( /\n$/, '' ) ) }` );
 		return output;
 	} catch ( error ) {
-		logger.warn( `Command error: ${ error.toString() }` );
+		logger.warn( `Command error: ${ maskSecrets( error.toString() ) }` );
 		throw error;
 	}
 }
