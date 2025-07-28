@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
-import LineChart, { LineChartUnresponsive } from '../line-chart';
+import LineChart, { LineChart as LineChartUnresponsive } from '../line-chart';
 import type { LineChartRef } from '../line-chart-context';
 
 const customTheme = {
@@ -40,6 +40,8 @@ describe( 'LineChart', () => {
 	const defaultProps = {
 		width: 500,
 		height: 300,
+		withGradientFill: false,
+		withLegendGlyph: false,
 		data: [
 			{
 				label: 'Series A',
@@ -57,7 +59,6 @@ describe( 'LineChart', () => {
 
 		return render(
 			<ThemeProvider theme={ theme }>
-				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<LineChart { ...defaultProps } { ...props } />
 			</ThemeProvider>
 		);
@@ -68,7 +69,6 @@ describe( 'LineChart', () => {
 
 		return render(
 			<ThemeProvider theme={ theme }>
-				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<LineChartUnresponsive { ...defaultProps } { ...props } ref={ ref } />
 			</ThemeProvider>
 		);
@@ -398,7 +398,6 @@ describe( 'LineChart', () => {
 
 			return render(
 				<ThemeProvider theme={ theme }>
-					{ /* @ts-expect-error TODO Fix the missing props */ }
 					<LineChart { ...defaultProps } { ...props }>
 						{ children }
 					</LineChart>

@@ -19,6 +19,7 @@ import {
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
+import { attachSubComponents } from '../../utils/create-chart-composition';
 import { Legend, ChartLegend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
@@ -548,7 +549,7 @@ type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
 	Legend: typeof ChartLegend;
 } & LineChartAnnotationComponents;
 
-const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => {
+const LineChartBase = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( ChartContext );
 
 	// If we're already in a ChartProvider context, don't create a new one
@@ -562,20 +563,28 @@ const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => 
 			<LineChartInternal { ...props } ref={ ref } />
 		</ChartProvider>
 	);
+} );
+
+LineChartBase.displayName = 'LineChart';
+
+// Attach subcomponents to create composition API
+const LineChart = attachSubComponents( LineChartBase, {
+	Legend: ChartLegend,
+	AnnotationsOverlay: LineChartAnnotationsOverlay,
+	Annotation: LineChartAnnotation,
 } ) as LineChartComponent;
 
-LineChart.displayName = 'LineChart';
-LineChart.Legend = ChartLegend;
-LineChart.AnnotationsOverlay = LineChartAnnotationsOverlay;
-LineChart.Annotation = LineChartAnnotation;
+// Export the composed component
+export { LineChart };
 
-// Export unwrapped component for testing
-export { LineChart as LineChartUnresponsive };
+// Create responsive version with composition API
+const ResponsiveLineChart = withResponsive< LineChartProps >( LineChart );
 
-const ResponsiveLineChart = Object.assign( withResponsive< LineChartProps >( LineChart ), {
+// Attach subcomponents to responsive version as well
+const LineChartWithComposition = attachSubComponents( ResponsiveLineChart, {
 	Legend: ChartLegend,
 	AnnotationsOverlay: LineChartAnnotationsOverlay,
 	Annotation: LineChartAnnotation,
 } ) as LineChartResponsiveComponent;
 
-export default ResponsiveLineChart;
+export default LineChartWithComposition;
