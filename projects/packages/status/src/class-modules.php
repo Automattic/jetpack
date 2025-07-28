@@ -27,7 +27,7 @@ class Modules {
 	 * @return bool
 	 */
 	public function is_active( $module, $available_only = true ) {
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return true;
 		}
 
