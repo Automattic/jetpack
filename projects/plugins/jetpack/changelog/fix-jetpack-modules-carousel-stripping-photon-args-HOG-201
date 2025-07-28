@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Carousel: Fix disabling all photon args when opening an image in a lightbox.

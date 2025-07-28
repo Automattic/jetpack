@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Site Abstraction Layer: Minor cleanup to ensure we use variables in the correct format, preventing PHP warnings.

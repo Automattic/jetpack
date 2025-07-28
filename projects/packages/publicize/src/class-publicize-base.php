@@ -1636,13 +1636,13 @@ abstract class Publicize_Base {
 	/**
 	 * Returns the image size in bytes of a remote image.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.66.3
 	 *
 	 * @param  string $image_url       Image URL.
 	 * @return integer|null $bytes      Image size in bytes, or null if request failed.
 	 */
 	public function get_remote_filesize( $image_url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$', 'add_jetpack_social_og_images' );
+		_deprecated_function( __METHOD__, '0.66.3', 'add_jetpack_social_og_images' );
 
 		return null;
 	}
@@ -1650,7 +1650,7 @@ abstract class Publicize_Base {
 	/**
 	 * Returns the resized Photon URL for a given image.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.66.3
 	 *
 	 * @param string $image_url Image URL.
 	 * @param int    $width Image width.
@@ -1658,7 +1658,7 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function get_resized_image_url( $image_url, $width, $height ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$', 'add_jetpack_social_og_images' );
+		_deprecated_function( __METHOD__, '0.66.3', 'add_jetpack_social_og_images' );
 
 		return $image_url;
 	}
@@ -1666,7 +1666,7 @@ abstract class Publicize_Base {
 	/**
 	 * This function runs the image through Site Accelerator to compress it, and also scales it down if needed.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.66.3
 	 *
 	 * @param string $url Image URL.
 	 * @param int    $width Image width.
@@ -1674,7 +1674,7 @@ abstract class Publicize_Base {
 	 * @return array The compressed image data.
 	 */
 	public function compress_and_scale_og_image( $url, $width, $height ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$', 'add_jetpack_social_og_images' );
+		_deprecated_function( __METHOD__, '0.66.3', 'add_jetpack_social_og_images' );
 
 		return array();
 	}
@@ -1683,7 +1683,7 @@ abstract class Publicize_Base {
 	 * Reduce the filesize of an image by reducing the dimensions. Uses Photon.
 	 * Returns null if the image cannot be reduced enough.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.66.3
 	 *
 	 * @param string $url Image URL.
 	 * @param int    $width Image width.
@@ -1693,7 +1693,7 @@ abstract class Publicize_Base {
 	 * @return array|null
 	 */
 	public function reduce_file_size( $url, $width, $height, $filesize, $tries = 5 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$', 'add_jetpack_social_og_images' );
+		_deprecated_function( __METHOD__, '0.66.3', 'add_jetpack_social_og_images' );
 
 		return null;
 	}
@@ -1702,21 +1702,21 @@ abstract class Publicize_Base {
 	 * Hooks into jetpack_open_graph_tags to add the Jetpack Social images to the OpenGraph tags,
 	 * or to make the Jetpack open graph images pass restrictions.
 	 *
-	 * @deprecated $$next-version$$ use add_jetpack_social_og_images instead.
+	 * @deprecated 0.66.3 use add_jetpack_social_og_images instead.
 	 *
 	 * @param array $tags Current tags.
 	 *
 	 * @return array The modified tags.
 	 */
 	public function jetpack_social_open_graph_filter( $tags ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'add_jetpack_social_og_images' );
+		_deprecated_function( __METHOD__, '0.66.3', 'add_jetpack_social_og_images' );
 		return $tags;
 	}
 
 	/**
 	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
 	 *
-	 * @deprecated $$next-version$$ use add_jetpack_social_og_images instead.
+	 * @deprecated 0.66.3 use add_jetpack_social_og_images instead.
 	 *
 	 * @param array $tags Current tags.
 	 * @param array $opengraph_image The Jetpack Social image data.
@@ -1724,7 +1724,7 @@ abstract class Publicize_Base {
 	 * @return array The modified tags.
 	 */
 	public function add_jetpack_social_og_image( $tags, $opengraph_image ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$', 'add_jetpack_social_og_images' );
+		_deprecated_function( __METHOD__, '0.66.3', 'add_jetpack_social_og_images' );
 
 		return $tags;
 	}
