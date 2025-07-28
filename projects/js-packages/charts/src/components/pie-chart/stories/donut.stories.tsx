@@ -5,6 +5,12 @@ import { Text } from '../../../visx/text';
 import { PieChart } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
+type StoryArgs = React.ComponentProps< typeof PieChart > & {
+	containerWidth?: string;
+	containerHeight?: string;
+	resize?: string;
+};
+
 const data = [
 	{
 		label: 'Active Users',
@@ -20,7 +26,7 @@ const data = [
 	},
 ];
 
-const meta = {
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Donut Chart',
 	component: PieChart,
 	parameters: {
@@ -92,16 +98,17 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof PieChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
-type Story = StoryObj< typeof PieChart >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
 		size: 400,
-		width: 432,
-		height: 432,
+		containerWidth: '432px',
+		containerHeight: '432px',
+		resize: 'none',
 		thickness: 0.5,
 		gapScale: 0.03,
 		padding: 20,
@@ -161,8 +168,8 @@ export const Thin: Story = {
 		thickness: 0.2,
 		gapScale: 0.01,
 		size: 700,
-		width: 732,
-		height: 732,
+		containerWidth: '732px',
+		containerHeight: '732px',
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
@@ -184,8 +191,8 @@ export const Doughnut: Story = {
 		gapScale: 0.03,
 		cornerScale: 0.03,
 		size: 600,
-		width: 632,
-		height: 632,
+		containerWidth: '632px',
+		containerHeight: '632px',
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
