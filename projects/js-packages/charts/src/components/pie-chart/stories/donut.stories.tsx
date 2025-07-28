@@ -1,5 +1,5 @@
 import { jetpackTheme, wooTheme } from '../../../providers/theme';
-import { legendDecorator } from '../../../stories/legend-config';
+import { sharedDecorator } from '../../../stories/decorator-config';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
 import { PieChart } from '../../pie-chart';
@@ -26,7 +26,7 @@ const meta = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: legendDecorator,
+	decorators: sharedDecorator,
 	argTypes: {
 		size: {
 			control: {

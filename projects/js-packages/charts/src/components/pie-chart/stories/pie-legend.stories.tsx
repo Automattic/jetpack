@@ -1,4 +1,5 @@
-import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
+import { sharedDecorator } from '../../../stories/decorator-config';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { PieChart } from '../../pie-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
@@ -29,7 +30,7 @@ const meta: Meta< typeof PieChart > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: legendDecorator,
+	decorators: sharedDecorator,
 	argTypes: legendArgTypes,
 } satisfies Meta< typeof PieChart >;
 
@@ -40,7 +41,6 @@ const Template: StoryFn< typeof PieChart > = args => <PieChart { ...args } />;
 const legendStoryArgs = {
 	data,
 	resize: 'none',
-	size: 400,
 	containerWidth: '432px',
 	containerHeight: '480px',
 	thickness: 0, // Full pie (not donut)

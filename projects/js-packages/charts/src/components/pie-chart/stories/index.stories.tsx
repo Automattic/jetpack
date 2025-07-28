@@ -1,5 +1,5 @@
 import { jetpackTheme, wooTheme } from '../../../providers/theme';
-import { legendDecorator } from '../../../stories/legend-config';
+import { sharedDecorator } from '../../../stories/decorator-config';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -30,7 +30,7 @@ const meta = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: legendDecorator,
+	decorators: sharedDecorator,
 	argTypes: {
 		size: {
 			control: {
