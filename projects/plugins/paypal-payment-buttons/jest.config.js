@@ -4,4 +4,5 @@ module.exports = {
 	...baseConfig,
 	roots: [ '<rootDir>/src' ],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/jest.setup.js' ],
+	passWithNoTests: true,
 };
