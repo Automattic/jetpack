@@ -130,7 +130,7 @@ class Plugin_Test extends TestCase {
 		);
 
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'You cannot call this method until Jetpack Config is configured' );
+		$this->expectExceptionMessage( 'too_early' );
 
 		$plugin->is_only();
 	}

@@ -97,9 +97,9 @@ class Plugin {
 
 		if ( is_wp_error( $plugins ) ) {
 			if ( 'too_early' === $plugins->get_error_code() ) {
-				_doing_it_wrong( __METHOD__, esc_html( $plugins->get_error_message() ), '$$next-version$$' );
+				_doing_it_wrong( __METHOD__, esc_html( $plugins->get_error_code() . ': ' . $plugins->get_error_message() ), '$$next-version$$' );
 			} else {
-				wp_trigger_error( __METHOD__, $plugins->get_error_message() );
+				wp_trigger_error( __METHOD__, $plugins->get_error_code() . ': ' . $plugins->get_error_message() );
 			}
 			return false;
 		}
