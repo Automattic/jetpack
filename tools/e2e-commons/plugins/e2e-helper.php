@@ -30,21 +30,6 @@ function e2e_helper_register_rest_routes() {
 					'validate_callback' => 'e2e_helper_validate_plan_type',
 				),
 			),
-		),
-		array(
-			'methods'             => 'GET',
-			'callback'            => 'e2e_helper_debug_plan_data',
-			'permission_callback' => 'e2e_helper_admin_permission_check',
-		)
-	);
-
-	register_rest_route(
-		'e2e-helper/v1',
-		'/compare-plan-data/(?P<plan_type>[a-zA-Z_]+)',
-		array(
-			'methods'             => 'GET',
-			'callback'            => 'e2e_helper_compare_plan_data',
-			'permission_callback' => 'e2e_helper_admin_permission_check',
 		)
 	);
 }
