@@ -2,7 +2,6 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-// eslint-disable-next-line import/default
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';

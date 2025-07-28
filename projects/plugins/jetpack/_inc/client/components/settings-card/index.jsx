@@ -1,6 +1,5 @@
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
-// eslint-disable-next-line import/default
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'components/button';
