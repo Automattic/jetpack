@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 // The $icon-color variable for admin color schemes.
 // See: https://github.com/WordPress/wordpress-develop/blob/679cc0c4a261a77bd8fdb140cd9b0b2ff80ebf37/src/wp-admin/css/colors/_variables.scss#L9
@@ -389,16 +390,13 @@ add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 41 );
  */
 function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	// Get the current blog ID
-	$blog_id = get_current_blog_id();
-	$status  = new Status();
+	$status = new Status();
 
 	// Check for various site types
 	$badge_text = '';
 
 	// Check if this is a P2 site
-	if ( str_contains( get_stylesheet(), 'pub/p2' ) ||
-		( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
-		\WPForTeams\is_wpforteams_site( $blog_id ) ) ) {
+	if ( ( new Host() )->is_p2_site() ) {
 		$badge_text = 'P2';
 	} elseif ( (bool) get_option( 'wpcom_is_staging_site' ) ) {
 		// Check for staging site

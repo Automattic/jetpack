@@ -1,6 +1,4 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../providers/theme';
-import type { ChartTheme } from '../types';
-import type { Decorator } from '@storybook/react';
+import { jetpackTheme, wooTheme } from '../providers/theme';
 
 /**
  * Shared legend configuration for chart stories
@@ -47,31 +45,3 @@ export const legendArgTypes = {
 		table: { category: 'Theme' },
 	},
 };
-
-/**
- * Shared decorator for legend stories with theme support and resizable container
- * @param Story      - The story component to render
- * @param root0      - The story context object
- * @param root0.args - The story arguments
- * @return The decorated story component
- */
-export const legendDecorator: Decorator[] = [
-	( Story, { args } ) => (
-		<ThemeProvider theme={ args.theme as ChartTheme | undefined }>
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					height: '600px',
-					minWidth: '400px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-				} }
-			>
-				<Story />
-			</div>
-		</ThemeProvider>
-	),
-];

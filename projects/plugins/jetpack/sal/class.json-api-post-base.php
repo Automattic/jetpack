@@ -423,19 +423,38 @@ abstract class SAL_Post {
 		$publicize_urls = array();
 		$publicize      = get_post_meta( $this->post->ID, 'publicize_results', true );
 		if ( $publicize ) {
-			foreach ( $publicize as $service => $data ) {
-				switch ( $service ) {
-					// @todo explore removing once Twitter is removed from Publicize.
-					case 'twitter':
-						foreach ( $data as $datum ) {
-							$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
-						}
-						break;
-					case 'fb':
-						foreach ( $data as $datum ) {
-							$publicize_urls[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
-						}
-						break;
+			// get_post_meta(..., true) will return a string if the value was stored as a scalar or serialized, so we may need to unserialize.
+			if ( is_string( $publicize ) ) {
+				$maybe_array_publicize = maybe_unserialize( $publicize );
+				if ( ! is_array( $maybe_array_publicize ) ) {
+					$maybe_array_publicize = json_decode( $publicize, true );
+				}
+				if ( is_array( $maybe_array_publicize ) ) {
+					$publicize = $maybe_array_publicize;
+				} else {
+					return $publicize_urls;
+				}
+			}
+
+			if ( is_array( $publicize ) ) {
+				foreach ( $publicize as $service => $data ) {
+					switch ( $service ) {
+						// @todo explore removing once Twitter is removed from Publicize.
+						case 'twitter':
+							foreach ( $data as $datum ) {
+								if ( isset( $datum['user_id'] ) && isset( $datum['post_id'] ) ) {
+									$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
+								}
+							}
+							break;
+						case 'fb':
+							foreach ( $data as $datum ) {
+								if ( isset( $datum['user_id'] ) && isset( $datum['post_id'] ) ) {
+									$publicize_urls[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
+								}
+							}
+							break;
+					}
 				}
 			}
 		}
@@ -667,6 +686,9 @@ abstract class SAL_Post {
 	public function get_parent() {
 		if ( $this->post->post_parent ) {
 			$parent = get_post( $this->post->post_parent );
+			if ( ! $parent ) {
+				return false;
+			}
 			if ( 'display' === $this->context ) {
 				$parent_title = (string) get_the_title( $parent->ID );
 			} else {
@@ -959,7 +981,9 @@ abstract class SAL_Post {
 				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_id );
 				if ( is_array( $sizes ) ) {
 					foreach ( $sizes as $size => $size_details ) {
-						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						if ( isset( $size_details['file'] ) ) {
+							$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						}
 					}
 				}
 			}

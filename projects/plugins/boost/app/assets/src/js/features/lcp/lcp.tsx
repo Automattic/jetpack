@@ -3,11 +3,13 @@ import Pill from '$features/ui/pill/pill';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import RefreshIcon from '$svg/refresh';
 import { Button } from '@automattic/jetpack-components';
+import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { __ } from '@wordpress/i18n';
-import styles from './status/status.module.scss';
 import { useLcpState, useOptimizeLcpAction } from './lib/stores/lcp-state';
-import Status from './status/status';
+import { LcpState } from './lib/stores/lcp-state-types';
 import { ErrorDetails } from './status/error-details';
+import Status from './status/status';
+import styles from './status/status.module.scss';
 
 const Lcp = () => {
 	const [ query ] = useLcpState();
@@ -18,6 +20,16 @@ const Lcp = () => {
 	const handleEnable = () => {
 		// Refetch the lcp State as when the module is enabled, the Analyzer will start running.
 		query.refetch();
+	};
+
+	const handleBeforeToggle = ( newStatus: boolean ) => {
+		if ( newStatus ) {
+			// Ensure that the state is optimistically set to pending when the module is enabled.
+			queryClient.setQueryData( [ 'lcp_state' ], ( lcp: LcpState ) => ( {
+				...lcp,
+				status: 'pending',
+			} ) );
+		}
 	};
 
 	const handleClickOptimize = () => {
@@ -44,6 +56,7 @@ const Lcp = () => {
 				</p>
 			}
 			onEnable={ handleEnable }
+			onBeforeToggle={ handleBeforeToggle }
 		>
 			<div className={ styles.status }>
 				<div className={ styles.summary }>

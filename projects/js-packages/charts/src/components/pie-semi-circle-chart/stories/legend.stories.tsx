@@ -1,4 +1,5 @@
-import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
+import { sharedDecorator } from '../../../stories/decorator-config';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { PieSemiCircleChart } from '../../pie-semi-circle-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
@@ -29,7 +30,7 @@ const meta: Meta< typeof PieSemiCircleChart > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: legendDecorator,
+	decorators: sharedDecorator,
 	argTypes: legendArgTypes,
 } satisfies Meta< typeof PieSemiCircleChart >;
 
@@ -39,7 +40,9 @@ const Template: StoryFn< typeof PieSemiCircleChart > = args => <PieSemiCircleCha
 
 const legendStoryArgs = {
 	data,
-	width: 600,
+	containerWidth: '600px',
+	containerHeight: '350px',
+	resize: 'none',
 	thickness: 0.4,
 	withTooltips: true,
 	showLegend: true,
@@ -58,6 +61,7 @@ AlignmentPositioning.args = {
 	...legendStoryArgs,
 	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
+	containerHeight: '400px',
 };
 
 export const VerticalOrientation: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
@@ -66,4 +70,5 @@ VerticalOrientation.args = {
 	legendOrientation: 'vertical',
 	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
+	containerHeight: '500px',
 };
