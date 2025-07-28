@@ -141,6 +141,29 @@ describe( 'useFunnelSelection', () => {
 		} );
 	} );
 
+	describe( 'Clear Selection', () => {
+		it( 'clears selection when clearSelection is called', () => {
+			const { result } = renderHook( () => useFunnelSelection() );
+
+			// First select a step
+			act( () => {
+				result.current.handleBarClick( 'test-step' );
+			} );
+
+			let stepState = result.current.getStepState( 'test-step' );
+			expect( stepState.isClicked ).toBe( true );
+
+			// Clear selection
+			act( () => {
+				result.current.clearSelection();
+			} );
+
+			stepState = result.current.getStepState( 'test-step' );
+			expect( stepState.isClicked ).toBe( false );
+			expect( stepState.isBlurred ).toBe( false );
+		} );
+	} );
+
 	describe( 'getStepState', () => {
 		it( 'returns correct state for unselected steps', () => {
 			const { result } = renderHook( () => useFunnelSelection() );

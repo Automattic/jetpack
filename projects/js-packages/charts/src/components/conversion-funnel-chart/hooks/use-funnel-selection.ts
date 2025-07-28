@@ -39,6 +39,11 @@ export const useFunnelSelection = () => {
 		[ clickedStep ]
 	);
 
+	// Clear selection (for chart-level click)
+	const clearSelection = useCallback( () => {
+		setClickedStep( null );
+	}, [] );
+
 	// Get step state helpers
 	const getStepState = useCallback(
 		( stepId: string ) => ( {
@@ -52,6 +57,7 @@ export const useFunnelSelection = () => {
 		clickedStep,
 		handleBarClick,
 		handleBarKeyDown,
+		clearSelection,
 		getStepState,
 	};
 };

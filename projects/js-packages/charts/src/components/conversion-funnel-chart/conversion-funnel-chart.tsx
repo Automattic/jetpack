@@ -1,6 +1,6 @@
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import clsx from 'clsx';
-import { type FC, useRef, useMemo } from 'react';
+import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './hooks/use-funnel-selection';
@@ -70,9 +70,16 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 } ) => {
 	const theme = useChartTheme();
 	const chartRef = useRef< HTMLDivElement >( null );
+	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
 	// Use custom hook for selection management
-	const { handleBarClick, handleBarKeyDown, getStepState } = useFunnelSelection();
+	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } = useFunnelSelection();
+
+	// Wrapper to clear selectedBarRef after clearing selection
+	const clearSelectionAndRef = useCallback( () => {
+		clearSelection();
+		selectedBarRef.current = null;
+	}, [ clearSelection ] );
 
 	// Create handler factories to avoid arrow functions in JSX
 	const stepHandlers = useMemo( () => {
@@ -87,10 +94,14 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		steps.forEach( step => {
 			const onClick = ( event: React.MouseEvent ) => {
 				event.stopPropagation();
+				// Store reference to the clicked bar element
+				selectedBarRef.current = event.currentTarget as HTMLDivElement;
 				handleBarClick( step.id );
 			};
 
 			const onKeyDown = ( event: React.KeyboardEvent ) => {
+				// Store reference to the focused bar element for keyboard interactions
+				selectedBarRef.current = event.currentTarget as HTMLDivElement;
 				handleBarKeyDown( step.id, event );
 			};
 
@@ -99,6 +110,22 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 
 		return handlers;
 	}, [ steps, handleBarClick, handleBarKeyDown ] );
+
+	// Handle document-level click to clear selection when clicking outside selected bar
+	useEffect( () => {
+		const handleDocumentClick = ( event: MouseEvent ) => {
+			// Only clear selection if there's an active selection and click is outside the selected bar
+			if ( selectedBarRef.current && ! selectedBarRef.current.contains( event.target as Node ) ) {
+				clearSelectionAndRef();
+			}
+		};
+
+		document.addEventListener( 'mousedown', handleDocumentClick );
+
+		return () => {
+			document.removeEventListener( 'mousedown', handleDocumentClick );
+		};
+	}, [ clearSelectionAndRef ] );
 
 	// Get component settings from theme with fallbacks
 	const funnelSettings = theme.conversionFunnelChart;
