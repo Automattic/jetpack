@@ -26,7 +26,7 @@ if ( ! existsSync( resultsPath ) ) {
 async function envReset() {
 	console.log( await executeCommand( 'pwd' ) );
 	await executeContainerCommand( 'pnpm env:reset' );
-	executeContainerCommand( 'pnpm tunnel:reset' );
+	await executeContainerCommand( 'pnpm tunnel:reset' );
 }
 
 /**

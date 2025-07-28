@@ -120,7 +120,10 @@ export async function executeContainerCommand( cmd: string ): Promise< string > 
  * @param {boolean} inContainer - Whether to run command in Docker container (default: true)
  * @return {Promise<string>} Command output
  */
-export async function executeWpCommand( command: string, inContainer = true ): Promise< string > {
+export async function executeWpCommand(
+	command: string,
+	inContainer: boolean = true
+): Promise< string > {
 	if ( inContainer ) {
 		return executeContainerCommand( `wp -- ${ command }` );
 	}

@@ -11,7 +11,7 @@ export async function setMockPlanData(
 	this: TestUtils,
 	planType: 'jetpack_free' | 'jetpack_complete' = 'jetpack_complete'
 ): Promise< void > {
-	logger.info( `Setting plan data via REST API: ${ planType }` );
+	logger.debug( `Setting mocked plan data: ${ planType }` );
 
 	try {
 		const response = await this.requestUtils.rest( {
@@ -22,9 +22,11 @@ export async function setMockPlanData(
 			},
 		} );
 
-		logger.info( `Plan data set successfully for ${ planType }: ${ JSON.stringify( response ) }` );
+		logger.debug(
+			`Mocked plan data set successfully for ${ planType }: ${ JSON.stringify( response ) }`
+		);
 	} catch ( error ) {
-		logger.error( `Failed to set plan data: ${ JSON.stringify( error ) }` );
+		logger.warn( `Failed to set mocked plan data: ${ JSON.stringify( error ) }` );
 		throw error;
 	}
 }

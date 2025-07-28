@@ -10,16 +10,15 @@ import {
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
 import { SearchConfigure } from '../pages/wp-admin/index.js';
-import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Search Configure', () => {
 	let searchConfigure;
 
-	test.beforeAll( async ( { browser, testUtils } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
+	test.beforeAll( async ( { testUtils } ) => {
 		await clearSearchPlanInfo();
-		await testUtils.activateModule( 'search' );
+
 		await testUtils.setMockPlanData( 'jetpack_complete' );
+		await testUtils.activateModule( 'search' );
 
 		await enableInstantSearch();
 
@@ -28,8 +27,6 @@ test.describe( 'Search Configure', () => {
 		await setHighlightColor();
 		await setResultFormat();
 		await setDefaultSort();
-
-		await page.close();
 	} );
 
 	test.afterAll( async () => {

@@ -5,19 +5,17 @@ import {
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
 import { SearchDashboard } from '../pages/wp-admin/index.js';
-import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Search Dashboard', () => {
 	let searchDashboard;
 
-	test.beforeAll( async ( { browser, testUtils } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await clearSearchPlanInfo();
-		await testUtils.activateModule( 'search' );
-		await testUtils.setMockPlanData( 'jetpack_complete' );
+	test.beforeAll( async ( { testUtils } ) => {
+		clearSearchPlanInfo();
 
-		await enableInstantSearch();
-		await page.close();
+		await testUtils.setMockPlanData( 'jetpack_complete' );
+		await testUtils.activateModule( 'search' );
+
+		enableInstantSearch();
 	} );
 
 	test.afterAll( async () => {
