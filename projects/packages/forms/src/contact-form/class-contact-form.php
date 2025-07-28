@@ -133,33 +133,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( $set_id ) {
-			$is_widget = false;
-
-			if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-				$attributes['id'] = 'widget-' . $attributes['widget'];
-				$is_widget        = true;
-			} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-				$attributes['id'] = 'block-template-' . $attributes['block_template'];
-			} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-				$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-			} elseif ( $this->current_post ) {
-				$attributes['id'] = $this->current_post->ID;
-			}
-
-			if ( ! empty( self::$forms ) && ! $is_widget ) {
-				// Ensure 'id' exists in $attributes before trying to modify it
-				if ( ! isset( $attributes['id'] ) ) {
-					$attributes['id'] = '';
-				}
-
-				// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
-				$page_num = max( 1, intval( $page ) );
-
-				$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
-			}
+			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page );
 		}
-		$this->hash                 = sha1( wp_json_encode( $attributes ) );
-		self::$forms[ $this->hash ] = $this;
+		$this->hash = sha1( wp_json_encode( $attributes ) );
+		if ( $set_id ) {
+			self::$forms[ $this->hash ] = $this; // This increments the form count.
+		}
 
 		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
@@ -240,6 +219,45 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$form->has_verified_jwt = true;
 		return $form;
 	}
+
+	/**
+	 * Compute the ID for the contact form based on the attributes and post.
+	 *
+	 * @param array        $attributes The attributes of the contact form.
+	 * @param WP_Post|null $post The post object, if available.
+	 * @param int          $page_number The page number, if available.
+	 *
+	 * @return string The ID for the contact form.
+	 */
+	public static function compute_id( $attributes, $post = null, $page_number = 1 ) {
+		$id_part = array();
+		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			$id_part[] = 'widget-' . $attributes['widget'];
+		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
+			$id_part[] = 'block-template-' . $attributes['block_template'];
+		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
+			$id_part[] = 'block-template-part-' . $attributes['block_template_part'];
+		} elseif ( $post instanceof WP_Post ) {
+			$id_part[] = $post->ID;
+		}
+
+		if ( self::get_forms_count() > 0 ) {
+			$id_part[] = self::get_forms_count();
+		}
+
+		$page_num = max( 1, intval( $page_number ) );
+		if ( $page_num > 1 ) {
+			$id_part[] = $page_num;
+		}
+
+		if ( empty( $id_part ) ) {
+			// If no ID part is set, we use a default value.
+			$id_part[] = 'jp-form'; // Default ID part.
+		}
+
+		return implode( '-', $id_part );
+	}
+
 	/**
 	 * Helper function to get the secret from the Tokens class.
 	 *
@@ -421,6 +439,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_singular() ) {
 			add_action( 'admin_bar_menu', array( __CLASS__, 'add_quick_link_to_admin_bar' ), 100 ); // We use priority 100 so that the link that is added gets added after the "Edit Page" link.
 		}
+		$plugin               = Contact_Form_Plugin::init();
+		$attributes['widget'] = $plugin->get_current_widget_context();
 		// Create a new Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
 		Contact_Form_Plugin::reset_step();
