@@ -311,7 +311,7 @@ class Manager {
 	 *
 	 * @todo Tighten $wp_xmlrpc_server_class a bit to make sure it doesn't do bad things.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function alternate_xmlrpc() {
 		// Some browser-embedded clients send cookies. We don't want them.
@@ -935,7 +935,7 @@ class Manager {
 	 *
 	 * @access public
 	 *
-	 * @param int|null $user_id (optional) the user identifier, defaults to current user.
+	 * @param int|null    $user_id (optional) the user identifier, defaults to current user.
 	 * @param string|null $redirect_url the URL to redirect the user to for processing, defaults to
 	 *                             admin_url().
 	 * @return WP_Error only in case of a failed user lookup.
@@ -1015,8 +1015,8 @@ class Manager {
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
 	 * @param int|null $user_id the user identifier.
-	 * @param bool $can_overwrite_primary_user Allow for the primary user to be disconnected.
-	 * @param bool $force_disconnect_locally Disconnect user locally even if we were unable to disconnect them from WP.com.
+	 * @param bool     $can_overwrite_primary_user Allow for the primary user to be disconnected.
+	 * @param bool     $force_disconnect_locally Disconnect user locally even if we were unable to disconnect them from WP.com.
 	 * @return bool Whether the disconnection of the user was successful.
 	 */
 	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false, $force_disconnect_locally = false ) {
