@@ -395,7 +395,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 /**
  * Get a fallback social image for the site.
  *
- * @since $$next-version$$
+ * @since 14.9
  *
  * @param int $width The width of the image.
  * @param int $height The height of the image.
@@ -418,7 +418,7 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 	 * Allow filtering the template to use with Social Image Generator.
 	 * Available templates: highway, dois, fullscreen, edge.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.9
 	 *
 	 * @param string $template The template to use.
 	 */
@@ -442,7 +442,7 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 /**
  * Get the site's representative image.
  *
- * @since $$next-version$$
+ * @since 14.9
  *
  * @param int $width The width of the image.
  * @param int $height The height of the image.
@@ -531,7 +531,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 /**
  * Get the site's fallback image.
  *
- * @since $$next-version$$
+ * @since 14.9
  *
  * @return string
  */
@@ -549,7 +549,7 @@ function jetpack_og_get_site_fallback_blank_image() {
 /**
  * Get available templates for Social Image Generator.
  *
- * @since $$next-version$$
+ * @since 14.9
  *
  * @return array The available templates.
  */
@@ -564,7 +564,7 @@ function jetpack_og_get_available_templates() {
 /**
  * Get a social image token from Social Image Generator.
  *
- * @since $$next-version$$
+ * @since 14.9
  *
  * @param string $site_title The site title.
  * @param string $image_url The image URL.
@@ -585,7 +585,7 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 	/**
 	 * Filter the social image token for testing purposes.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.9
 	 *
 	 * @param string|WP_Error|null $token The token to return, or null to use default behavior.
 	 */
@@ -611,7 +611,7 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 /**
  * Generate and create a fallback social image.
  *
- * @since $$next-version$$
+ * @since 14.9
  *
  * @param array  $representative_image The representative image of the site.
  * @param string $template The template to use.

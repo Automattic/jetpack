@@ -344,10 +344,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Store shortcode content for recall later
 	 *  - used to receate shortcode when user uses do_shortcode
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 5.0.0
 	 */
 	public static function store_shortcode() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Contact_Form_Plugin::store_shortcode()' );
+		_deprecated_function( __METHOD__, '5.0.0', 'Contact_Form_Plugin::store_shortcode()' );
 	}
 
 	/**

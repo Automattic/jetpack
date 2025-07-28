@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Dashboard: Prevent failure if stats endpoint returns an error.
