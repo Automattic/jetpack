@@ -38,7 +38,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	decorators: sharedDecorator,
 	argTypes: legendArgTypes,
-} satisfies Meta< StoryArgs >;
+};
 
 export default meta;
 
