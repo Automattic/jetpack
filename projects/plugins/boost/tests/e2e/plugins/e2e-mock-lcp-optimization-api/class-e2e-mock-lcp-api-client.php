@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
 use Automattic\Jetpack\Boost_Core\Lib\WPCOM_Boost_API_Client;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 
 /**
  * Mock API Client for LCP optimization testing.
@@ -40,11 +41,9 @@ class E2E_Mock_LCP_API_Client implements Boost_API_Client {
 	 * @return mixed
 	 */
 	public function post( $path, $payload = array(), $args = null ) {
-		error_log( 'E2E_Mock_LCP_API_Client::post - path: ' . $path );
-
 		// Intercept LCP requests
 		if ( 'lcp' === $path ) {
-			return $this->handle_lcp_request( $payload );
+			return $this->handle_lcp_request();
 		}
 
 		// Delegate other requests to the real client
@@ -68,17 +67,81 @@ class E2E_Mock_LCP_API_Client implements Boost_API_Client {
 	/**
 	 * Handle LCP optimization requests and return mock data.
 	 *
-	 * @param array $payload The request payload.
 	 * @return array Mock response.
 	 */
-	private function handle_lcp_request( $payload ) {
-		error_log( 'E2E_Mock_LCP_API_Client: Handling LCP request with payload: ' . print_r( $payload, true ) );
-
-		// Start async "analysis" to simulate real behavior
-		wp_schedule_single_event( time() + 2, 'e2e_mock_lcp_analysis_complete' );
+	private function handle_lcp_request() {
+		add_action(
+			'shutdown',
+			array( $this, 'trigger_lcp_analysis_completion' )
+		);
 
 		return array(
 			'success' => true,
 		);
+	}
+
+	private function create_lcp_analysis_mock_data() {
+		$cornerstone_pages = Cornerstone_Utils::get_list();
+
+		if ( empty( $cornerstone_pages ) ) {
+			$cornerstone_pages = array( home_url() );
+		}
+
+		$viewport_template = array(
+			'success'     => true,
+			'type'        => 'img',
+			'selector'    => 'img.wp-post-image',
+			'html'        => '<img class="wp-post-image" src="https://example.com/image.jpg" alt="Test">',
+			'breakpoints' => array(
+				array(
+					'maxWidth'        => 768,
+					'imageDimensions' => array(
+						array(
+							'width'  => 400,
+							'height' => 300,
+						),
+					),
+				),
+			),
+		);
+
+		$pages_data = array();
+		foreach ( $cornerstone_pages as $url ) {
+			$provider_data = Cornerstone_Utils::prepare_provider_data( $url );
+
+			$viewport_template['url'] = $url;
+
+			$pages_data[] = array(
+				'key'     => $provider_data['key'],
+				'url'     => $provider_data['url'],
+				'success' => true,
+				'reports' => array(
+					'mobile'  => $viewport_template,
+					'desktop' => $viewport_template,
+				),
+			);
+		}
+
+		// Simulate WPCOM calling back our update endpoint
+		return array(
+			'success' => true,
+			'data'    => $pages_data,
+		);
+	}
+
+	public function trigger_lcp_analysis_completion() {
+		// Only proceed if we have a pending LCP state
+		$lcp_state = new \Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State();
+		if ( ! $lcp_state->is_pending() ) {
+			return;
+		}
+
+		// Create a mock request to the update endpoint
+		$request = new WP_REST_Request( 'POST', '/jetpack-boost/v1/lcp/update' );
+		$request->set_body_params( $this->create_lcp_analysis_mock_data() );
+
+		// Get the endpoint and process the mock data
+		$update_endpoint = new \Automattic\Jetpack_Boost\REST_API\Endpoints\Update_LCP();
+		$update_endpoint->response( $request );
 	}
 }
