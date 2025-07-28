@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 13c7b851269f9ce5341480031491e95f2329d9f3.
+ * Stubs automatically generated from WordPress.com commit e271d7a095f2704b3dc0e5731e7d1d4cefecd4a1.
  */
 
 namespace {
@@ -149,8 +149,14 @@ namespace {
     }
     class WPCOM_Store
     {
+        static function is_wpcom_personal_plan($product_id)
+        {
+        }
+        static function is_wpcom_premium_plan($product_id)
+        {
+        }
         /**
-         * @deprecated
+         * @deprecated 
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -163,20 +169,6 @@ namespace {
          * @return Store_Subscription[]
          */
         public static function get_subscriptions($blog_ids = 0, $user_ids = 0, $product_ids = 0, $metas = '')
-        {
-        }
-        /**
-         * @param int $product_id
-         * @return bool
-         */
-        public static function is_wpcom_personal_plan($product_id)
-        {
-        }
-        /**
-         * @param int $product_id
-         * @return bool
-         */
-        public static function is_wpcom_premium_plan($product_id)
         {
         }
     }
@@ -1060,7 +1052,7 @@ namespace {
     /**
      * @param  string $url
      * @return string
-     * @internal
+     * @internal 
      */
     function staticize_subdomain($url)
     {
@@ -1130,7 +1122,7 @@ namespace {
     {
     }
     /**
-     * @deprecated
+     * @deprecated 
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
