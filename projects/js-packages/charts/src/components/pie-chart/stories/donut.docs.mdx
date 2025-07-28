@@ -10,36 +10,7 @@ Donut Charts are circular charts with a hollow center, perfect for displaying pr
 
 **Important:** There is no separate DonutChart component. Donuts are created by configuring the PieChart component with `thickness < 1`. This means all PieChart props, features, and styling options are available for donut charts.
 
-<Canvas of={ DonutStories.Default } />
-
-## Overview
-
-The Donut Chart is a variation of the [PieChart](./?path=/docs/js-packages-charts-types-pie-chart--docs) component that sets the `thickness` prop to a value less than 1. This creates a hollow center that can be used to display totals, titles, or other contextual information:
-
-- **`thickness: 1`** (default) = Full pie chart with no hollow center
-- **`thickness: 0.5`** = Donut with 50% thickness, creating a substantial hollow center
-- **`thickness: 0.2`** = Thin ring donut with 20% thickness, creating a large hollow center
-- **`thickness: 0`** = No visible chart (not recommended)
-
-The hollow center area can contain custom content using the `children` prop with visx components:
-
-<Source
-	language="jsx"
-	code={ `import { PieChart } from '@automattic/charts';
-	import { Group } from '@visx/group';
-	import { Text } from '@visx/text';
-
-	<PieChart
-		thickness={ 0.5 }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle">
-				Center Content
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
+<Canvas of={ DonutStories.Doughnut } />
 
 ## Basic Usage
 

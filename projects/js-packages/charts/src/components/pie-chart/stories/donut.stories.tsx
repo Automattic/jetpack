@@ -103,7 +103,7 @@ export const Default: Story = {
 		containerWidth: '432px',
 		containerHeight: '432px',
 		resize: 'none',
-		thickness: 0.4,
+		thickness: 0.5,
 		gapScale: 0.03,
 		padding: 20,
 		cornerScale: 0.03,
@@ -161,6 +161,9 @@ export const Thin: Story = {
 		...Default.args,
 		thickness: 0.2,
 		gapScale: 0.01,
+		size: 700,
+		containerWidth: '732px',
+		containerHeight: '732px',
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
