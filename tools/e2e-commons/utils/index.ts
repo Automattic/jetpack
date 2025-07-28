@@ -16,16 +16,6 @@ import {
 import { activateModule, deactivateModule, isModuleActive } from './jetpack.ts';
 import { authenticateUser } from './login.ts';
 
-export {
-	connect,
-	saveJetpackPrivateOptionsToStorageState,
-	disconnectUser,
-	disconnectSite,
-	disconnect,
-	isUserConnected,
-	isSiteConnected,
-} from './connection-utils.ts';
-
 class TestUtils {
 	requestUtils: RequestUtils;
 
