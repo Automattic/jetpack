@@ -1147,11 +1147,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @access private
 	 * @since 4.8.0
 	 *
-	 * @param object $post The post to be processed. Object with properties:
-	 *                     ID (int) Post ID
-	 *                     post_title (string) Post title
-	 *                     post_modified_gmt (string) Post date in GMT
-	 *                     comment_count (int) Number of comments.
+	 * @param object $post The post to be processed. Similar to WP_Post, but without post_content and post_content_filtered.
 	 *
 	 * @return array
 	 *              @type array  $xml An XML fragment representing the post URL.
@@ -1423,11 +1419,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @access private
 	 * @since 4.8.0
 	 *
-	 * @param object $post The post to be processed. Object with properties:
-	 *                     ID (int) Post ID
-	 *                     post_title (string) Post title
-	 *                     post_date_gmt (string) Post date in GMT
-	 *                     post_modified_gmt (string) Post date in GMT.
+	 * @param object $post The post to be processed. Similar to WP_Post, but without post_content and post_content_filtered.
 	 *
 	 * @return string An XML fragment representing the post URL.
 	 */
