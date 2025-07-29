@@ -79,6 +79,34 @@ class Host {
 	}
 
 	/**
+	 * Determine if this is a P2 site.
+	 * This covers both P2 and P2020 themes.
+	 *
+	 * @return bool
+	 */
+	public function is_p2_site() {
+		$site_id = $this->get_wpcom_site_id();
+		if ( ! $site_id ) {
+			return false;
+		}
+		return str_contains( get_stylesheet(), 'pub/p2' ) || ( function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( $site_id ) );
+	}
+
+	/**
+	 * Get the current site's WordPress.com ID.
+	 *
+	 * @return mixed The site's WordPress.com ID.
+	 */
+	public function get_wpcom_site_id() {
+		if ( $this->is_wpcom_simple() ) {
+			return get_current_blog_id();
+		} elseif ( class_exists( 'Jetpack' ) && \Jetpack::is_connection_ready() ) {
+			return \Jetpack_Options::get_option( 'id' );
+		}
+		return false;
+	}
+
+	/**
 	 * Add all wordpress.com environments to the safe redirect allowed list.
 	 *
 	 * To be used with a filter of allowed domains for a redirect.
