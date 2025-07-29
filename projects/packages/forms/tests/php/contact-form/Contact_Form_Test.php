@@ -2656,6 +2656,17 @@ EOT;
 			$expected,
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
+
+		// Check that the function return null if the function gets null.
+		$this->assertNull(
+			Util::grunion_contact_form_apply_block_attribute( null, array( 'foo' => 'bar' ) )
+		);
+
+		// Check that the function return array if the function gets null.
+		$this->assertEquals(
+			array(),
+			Util::grunion_contact_form_apply_block_attribute( array(), array( 'foo' => 'bar' ) )
+		);
 	}
 	/**
 	 * Helper function that tracks the ids of the feedbacks that got created.
