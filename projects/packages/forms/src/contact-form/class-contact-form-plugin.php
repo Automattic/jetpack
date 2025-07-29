@@ -2317,7 +2317,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Prepares feedback post data for CSV export.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since package-$$next-version$$'
 	 *
 	 * @see get_export_feedback_data()
 	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
@@ -2328,7 +2328,7 @@ class Contact_Form_Plugin {
 
 		_deprecated_function(
 			__METHOD__,
-			'$$next-version$$',
+			'package-$$next-version$$',
 			'Contact_Form_Plugin::get_export_feedback_data()'
 		);
 
@@ -2342,14 +2342,14 @@ class Contact_Form_Plugin {
 	 * - Positive values render AFTER any form field/value column: 1, 30, 93...
 	 *   Mind using high numbering on these ones as the prefix is used on regular inputs: 1_Name, 2_Email, etc
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since package-$$next-version$$
 	 *
 	 * @return array
 	 */
 	public function get_well_known_column_names() {
 		_deprecated_function(
 			__METHOD__,
-			'$$next-version$$',
+			'package-$$next-version$$',
 			'Contact_Form_Plugin::get_export_column_names()'
 		);
 		return array(
