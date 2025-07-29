@@ -1,32 +1,30 @@
-import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import { getDotComCredentials } from '../helpers/utils-helper';
 import logger from '../logger';
+import { TestUtils } from '.';
 
 /**
  * Connect Jetpack site and user to WordPress.com.
- * @param requestUtils - RequestUtils instance.
  */
-export async function connect( requestUtils: RequestUtils ) {
-	const authorizeUrl = await connectSite( requestUtils );
+export async function connect( this: TestUtils ) {
+	const authorizeUrl = await connectSite.call( this );
 	const clientId = new URL( authorizeUrl ).searchParams.get( 'client_id' ) || '';
 
 	// await partnerProvisionConnection( creds.userId, 'free', siteCreds.username );
-	await connectUser( requestUtils, clientId );
+	await connectUser.call( this, clientId );
 }
 
 /**
  * Connect Jetpack site.
- * @param  requestUtils - RequestUtils instance.
  * @return {Promise<void>} Resolves when the connection is complete.
  */
-export async function connectSite( requestUtils: RequestUtils ) {
-	if ( await isSiteConnected( requestUtils ) ) {
+export async function connectSite( this: TestUtils ) {
+	if ( await isSiteConnected.call( this ) ) {
 		logger.debug( 'Site is already connected, no need to connect.' );
 		return;
 	}
 
 	// Connect the site.
-	const r = await requestUtils.rest( {
+	const r = await this.requestUtils.rest( {
 		method: 'POST',
 		path: '/jetpack/v4/connection/register',
 		data: { from: 'jetpack-app', plugin_slug: 'jetpack' },
@@ -39,17 +37,16 @@ export async function connectSite( requestUtils: RequestUtils ) {
 
 /**
  * Connect user.
- * @param  requestUtils - RequestUtils instance.
- * @param  clientId     - Client ID from the authorize URL.
+ * @param  clientId - Client ID from the authorize URL.
  * @return {Promise<void>} Resolves when the connection is complete.
  */
-export async function connectUser( requestUtils: RequestUtils, clientId: string ) {
-	if ( await isUserConnected( requestUtils ) ) {
+export async function connectUser( this: TestUtils, clientId: string ) {
+	if ( await isUserConnected.call( this ) ) {
 		logger.debug( 'User is already connected, no need to connect.' );
 		return;
 	}
 
-	const provisionResponse = await requestUtils.rest( {
+	const provisionResponse = await this.requestUtils.rest( {
 		method: 'POST',
 		path: '/jetpack/v4/remote_provision',
 		data: { from: 'jetpack-e2e', plugin_slug: 'jetpack' },
@@ -61,7 +58,7 @@ export async function connectUser( requestUtils: RequestUtils, clientId: string 
 
 	const bearerToken = getDotComCredentials().bearerToken;
 
-	const connectUserResponse = await requestUtils.request.post(
+	const connectUserResponse = await this.requestUtils.request.post(
 		`https://public-api.wordpress.com/wpcom/v2/sites/${ clientId }/jetpack-remote-connect-user`,
 		{
 			headers: {
@@ -85,28 +82,26 @@ export async function connectUser( requestUtils: RequestUtils, clientId: string 
 
 /**
  * Disconnect Jetpack.
- * @param  requestUtils - RequestUtils instance.
  * @return {Promise<void>} Resolves when the disconnect is complete.
  */
-export async function disconnect( requestUtils: RequestUtils ) {
-	await disconnectUser( requestUtils );
-	await disconnectSite( requestUtils );
+export async function disconnect() {
+	await disconnectUser.call( this );
+	await disconnectSite.call( this );
 }
 
 /**
  * Disconnect user from WordPress.com.
- * @param  requestUtils - RequestUtils instance.
  * @return {Promise<void>} Resolves when the disconnect is complete.
  */
-export async function disconnectUser( requestUtils: RequestUtils ) {
-	if ( ! ( await isUserConnected( requestUtils ) ) ) {
+export async function disconnectUser( this: TestUtils ) {
+	if ( ! ( await isUserConnected.call( this ) ) ) {
 		logger.debug( 'User is not connected, no need to disconnect.' );
 		return;
 	}
 
 	// Unlink current user from the related WordPress.com account.
 	// `linked` as `false` will disconnect the site.
-	const r = await requestUtils.rest( {
+	const r = await this.requestUtils.rest( {
 		method: 'POST',
 		path: '/jetpack/v4/connection/user',
 		data: {
@@ -121,16 +116,15 @@ export async function disconnectUser( requestUtils: RequestUtils ) {
 
 /**
  * Disconnect Jetpack installation from WordPress.com.
- * @param  requestUtils - RequestUtils instance.
  * @return {Promise<void>} Resolves when the disconnect is complete.
  */
-export async function disconnectSite( requestUtils: RequestUtils ) {
-	if ( ! ( await isSiteConnected( requestUtils ) ) ) {
+export async function disconnectSite() {
+	if ( ! ( await isSiteConnected.call( this ) ) ) {
 		logger.debug( 'Site is not connected, no need to disconnect.' );
 		return;
 	}
 
-	const r = await requestUtils.rest( {
+	const r = await this.requestUtils.rest( {
 		method: 'POST',
 		path: '/jetpack/v4/connection',
 		data: {
@@ -144,11 +138,10 @@ export async function disconnectSite( requestUtils: RequestUtils ) {
 /**
  * Check if the site is connected.
  * @return {Promise<boolean>} True if connected, false otherwise.
- * @param  requestUtils - RequestUtils instance.
  */
-export async function isSiteConnected( requestUtils: RequestUtils ): Promise< boolean > {
+export async function isSiteConnected( this: TestUtils ): Promise< boolean > {
 	try {
-		const r = await requestUtils.rest( { path: 'jetpack/v4/connection' } );
+		const r = await this.requestUtils.rest( { path: 'jetpack/v4/connection' } );
 		logger.debug( `Site connection check response: ${ JSON.stringify( r ) }` );
 		return r.isActive;
 	} catch ( error ) {
@@ -160,11 +153,10 @@ export async function isSiteConnected( requestUtils: RequestUtils ): Promise< bo
 /**
  * Check if the user is connected.
  * @return {Promise<boolean>} True if connected, false otherwise.
- * @param  requestUtils - RequestUtils instance.
  */
-export async function isUserConnected( requestUtils: RequestUtils ): Promise< boolean > {
+export async function isUserConnected( this: TestUtils ): Promise< boolean > {
 	try {
-		const r = await requestUtils.rest( { path: 'jetpack/v4/connection/data' } );
+		const r = await this.requestUtils.rest( { path: 'jetpack/v4/connection/data' } );
 		logger.debug( `User connection check response: ${ JSON.stringify( r ) }` );
 		return r.currentUser.isConnected;
 	} catch ( error ) {
