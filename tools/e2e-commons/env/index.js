@@ -1,6 +1,5 @@
 import {
 	prerequisitesBuilder,
-	ensureConnectedState,
 	ensurePlan,
 	ensureUserIsLoggedIn,
 	ensureWpComUserIsLoggedIn,
@@ -12,7 +11,6 @@ import { Plans } from './types.js';
 
 export {
 	prerequisitesBuilder,
-	ensureConnectedState,
 	ensurePlan,
 	ensureUserIsLoggedIn,
 	ensureWpComUserIsLoggedIn,

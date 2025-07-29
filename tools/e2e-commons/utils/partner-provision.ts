@@ -1,11 +1,13 @@
 import path from 'path';
 import * as url from 'url';
 import config from 'config';
-import shellescape from 'shell-escape';
 import logger from '../logger.js';
 import pwConfig from '../playwright.config.mjs';
-import { execSyncShellCommand, execWpCommand } from './utils-helper.js';
+import { executeCommand, executeJetpackCommand } from '../utils/cli.ts';
 
+/**
+ * Connect Jetpack.
+ */
 /**
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
@@ -14,21 +16,18 @@ import { execSyncShellCommand, execWpCommand } from './utils-helper.js';
  * @param {string} user   - Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-export async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
+export async function partnerProvisionConnection( userId, plan = 'free', user ) {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 	const __dirname = url.fileURLToPath( new URL( '.', import.meta.url ) );
-	const cmd = `sh ${ path.resolve(
-		__dirname,
-		'../../partner-provision.sh'
-	) } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${
-		pwConfig.use.baseURL
-	} --wpcom_user_id=${ userId }`;
 
-	let response;
+	const scriptPath = path.resolve( __dirname, '../../partner-provision.sh' );
+	const cmd = `sh ${ scriptPath } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ pwConfig.use?.baseURL } --wpcom_user_id=${ userId }`;
+
+	let response: string;
 	// catch a command failed error so that secrets are not logged
 	try {
-		response = execSyncShellCommand( cmd );
+		response = await executeCommand( cmd );
 	} catch {
 		throw new Error( `Jetpack Start provisioning command failed.` );
 	}
@@ -36,16 +35,12 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	const json = JSON.parse( response );
 
 	if ( json.success ) {
-		logger.cli( 'Successful provisioning' );
+		logger.debug( 'Successful provisioning' );
 	} else {
-		throw new Error( `'Jetpack Start provisioning failed: ${ json.error }` );
+		throw new Error( `Jetpack Start provisioning failed: ${ json.error }` );
 	}
 
-	await execWpCommand(
-		`jetpack authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
-	);
-
-	await execWpCommand( 'jetpack status' );
+	await executeJetpackCommand( `authorize_user --user=${ user } --token=${ json.access_token }` );
 
 	return true;
 }
