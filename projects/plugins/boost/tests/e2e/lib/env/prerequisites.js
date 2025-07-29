@@ -1,5 +1,4 @@
 import { expect } from '@playwright/test';
-import { ensureUserIsLoggedIn } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
 import { JetpackBoostPage } from '../pages/index.js';
@@ -13,7 +12,6 @@ export function boostPrerequisitesBuilder( page ) {
 	const state = {
 		testPostTitles: [],
 		clean: undefined,
-		loggedIn: undefined,
 		modules: { active: undefined, inactive: undefined },
 		connected: undefined,
 		mockConnection: undefined,
@@ -70,7 +68,6 @@ export function boostPrerequisitesBuilder( page ) {
  * @param {boolean} state.connected           - Whether the site should be connected.
  * @param {object}  state.plugins             - Plugins state, see ensurePluginsState()
  * @param {object}  state.modules             - Modules state, see ensureModulesState()
- * @param {Array}   state.loggedIn            -
  * @param {Array}   state.testPostTitles      -
  * @param {boolean} state.mockSpeedScore      -
  * @param {Array}   state.mockPremiumFeatures - Premium features to mock
@@ -81,7 +78,6 @@ export function boostPrerequisitesBuilder( page ) {
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		modules: () => ensureModulesState( state.modules ),
-		loggedIn: () => ensureUserIsLoggedIn( page ),
 		connected: () => ensureConnectedState( state.connected, page ),
 		mockConnection: () => ensureMockConnectionState( state.mockConnection ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
