@@ -11,15 +11,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class PayPal_Payment_Buttons
- *
- * @phan-constructor-used-for-side-effects
  */
 class PayPal_Payment_Buttons {
 
 	/**
+	 * Plugin instance.
+	 *
+	 * @var PayPal_Payment_Buttons
+	 */
+	private static $instance = null;
+
+	/**
+	 * Get plugin instance.
+	 *
+	 * @return PayPal_Payment_Buttons
+	 */
+	public static function instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Initialize the plugin and register hooks.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		$instance = self::instance();
+		$instance->init_hooks();
+	}
+
+	/**
 	 * Constructor.
 	 */
-	public function __construct() {
+	private function __construct() {
+		// Private constructor to prevent direct instantiation
+	}
+
+	/**
+	 * Initialize WordPress hooks.
+	 *
+	 * @return void
+	 */
+	public function init_hooks() {
 		// Initialize PayPal Payment Buttons block with correct dist path
 		add_action( 'init', array( $this, 'register_paypal_block' ), 9 );
 
