@@ -2325,13 +2325,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_export_data_for_posts( $post_ids ) {
-
-		_deprecated_function(
-			__METHOD__,
-			'package-$$next-version$$',
-			'Contact_Form_Plugin::get_export_feedback_data()'
-		);
-
+		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_feedback_data()' );
 		return $this->get_export_feedback_data( $post_ids );
 	}
 
@@ -2347,11 +2341,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_well_known_column_names() {
-		_deprecated_function(
-			__METHOD__,
-			'package-$$next-version$$',
-			'Contact_Form_Plugin::get_export_column_names()'
-		);
+		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_column_names()' );
 		return array(
 			'-9_title'         => __( 'Title', 'jetpack-forms' ),
 			'-6_source'        => __( 'Source', 'jetpack-forms' ),
