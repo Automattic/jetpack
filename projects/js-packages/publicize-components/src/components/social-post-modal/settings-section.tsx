@@ -28,7 +28,7 @@ export function SettingsSection( { onReShared } ) {
 	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 
-	const { isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();
+	const { isRePublicizeUpgradableViaUpsell, needsUserConnection } = usePublicizeConfig();
 	const isReSharingPossible = useIsReSharingPossible();
 	const { enabledConnections } = useSocialMediaConnections();
 
@@ -66,16 +66,18 @@ export function SettingsSection( { onReShared } ) {
 					) }
 				</p>
 				<SharePostForm analyticsData={ { location: 'preview-modal' } } />
-				<Notice type={ 'warning' }>
-					{ __(
-						'You must connect your WordPress.com account to be able to re-share posts.',
-						'jetpack-publicize-components'
-					) }
-					&nbsp;
-					<a href={ getMyJetpackUrl( '#/connection' ) }>
-						{ __( 'Connect now', 'jetpack-publicize-components' ) }
-					</a>
-				</Notice>
+				{ needsUserConnection && (
+					<Notice type={ 'warning' }>
+						{ __(
+							'You must connect your WordPress.com account to be able to re-share posts.',
+							'jetpack-publicize-components'
+						) }
+						&nbsp;
+						<a href={ getMyJetpackUrl( '#/connection' ) }>
+							{ __( 'Connect now', 'jetpack-publicize-components' ) }
+						</a>
+					</Notice>
+				) }
 				{ isPostPublished && ! isRePublicizeUpgradableViaUpsell && (
 					<div className={ styles[ 'share-actions' ] }>
 						<ScheduleButton
