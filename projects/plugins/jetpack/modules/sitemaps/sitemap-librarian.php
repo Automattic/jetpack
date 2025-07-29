@@ -298,10 +298,12 @@ class Jetpack_Sitemap_Librarian {
 		}
 		$post_types_list = implode( ',', $post_types );
 
+		$columns_list = $this->get_sanitized_post_columns( $wpdb );
+
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT *
+				"SELECT $columns_list
 					FROM $wpdb->posts
 					WHERE post_status='publish'
 						AND post_type IN ($post_types_list)
@@ -439,10 +441,12 @@ class Jetpack_Sitemap_Librarian {
 
 		$post_types_list = implode( ',', $post_types );
 
+		$columns_list = $this->get_sanitized_post_columns( $wpdb );
+
 		// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT *
+				"SELECT $columns_list
 					FROM $wpdb->posts
 					WHERE post_status='publish'
 						AND post_date >= '%s'
@@ -454,5 +458,24 @@ class Jetpack_Sitemap_Librarian {
 			)
 		);
 		// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/**
+	 * Returns all columns from the posts table,
+	 * except post_content and post_content_filtered.
+	 *
+	 * @param object $wpdb The WordPress database object.
+	 * @return string The sanitized post columns.
+	 */
+	private function get_sanitized_post_columns( $wpdb ) {
+		$columns = array_filter(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->get_col( "SHOW COLUMNS FROM $wpdb->posts" ),
+			function ( $column ) {
+				return $column !== 'post_content' && $column !== 'post_content_filtered';
+			}
+		);
+
+		return implode( ',', array_map( 'esc_sql', $columns ) );
 	}
 }
