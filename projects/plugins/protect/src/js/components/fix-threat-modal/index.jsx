@@ -69,7 +69,7 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 								),
 								extension?.type === 'plugin'
 									? __( 'plugin', 'jetpack-protect' )
-									: __( 'theme', 'jetpack-protect' )
+									: __( 'theme', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) // See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#conditional-function-call-compaction
 							) }
 						/>
 					) : (
@@ -83,7 +83,7 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 								),
 								extension?.type === 'plugin'
 									? __( 'plugin', 'jetpack-protect' )
-									: __( 'theme', 'jetpack-protect' )
+									: __( 'theme', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 )
 							) }
 						/>
 					) }
@@ -106,7 +106,7 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 								),
 								extension?.type === 'plugin'
 									? __( 'plugin', 'jetpack-protect' )
-									: __( 'theme', 'jetpack-protect' ),
+									: __( 'theme', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ),
 								slug
 							),
 							{
