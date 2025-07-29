@@ -11,8 +11,6 @@ export function prerequisitesBuilder( page ) {
 	const state = {
 		clean: undefined,
 		plugins: { active: undefined, inactive: undefined },
-		connected: undefined,
-		modules: { active: undefined, inactive: undefined },
 	};
 
 	return {
@@ -22,10 +20,6 @@ export function prerequisitesBuilder( page ) {
 		},
 		withInactivePlugins( plugins = [] ) {
 			state.plugins.inactive = plugins;
-			return this;
-		},
-		withConnection( shouldBeConnected ) {
-			state.connected = shouldBeConnected;
 			return this;
 		},
 		withCleanEnv() {
@@ -51,7 +45,6 @@ export function prerequisitesBuilder( page ) {
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		plugins: () => ensurePluginsState( state.plugins ),
-		modules: () => ensureModulesState( state.modules ),
 		clean: () => ensureCleanState( state.clean ),
 	};
 
@@ -84,68 +77,6 @@ async function ensureCleanState( shouldReset ) {
 		await execWpCommand( 'jetpack disconnect blog' );
 		await resetWordpressInstall();
 	}
-}
-
-/**
- * Ensure modules are active/inactive
- * @param {object}   modules          - State
- * @param {string[]} modules.active   - Modules to activate.
- * @param {string[]} modules.inactive - Modules to deactivate.
- */
-export async function ensureModulesState( modules ) {
-	if ( ! isLocalSite() ) {
-		logger.prerequisites(
-			'Site is not local, skipping modules setup. Assuming required setup is already in place.'
-		);
-		return;
-	}
-
-	if ( modules.active ) {
-		await activateModules( modules.active );
-	} else {
-		logger.prerequisites( 'Cannot find list of modules to activate!' );
-	}
-
-	if ( modules.inactive ) {
-		await deactivateModules( modules.inactive );
-	} else {
-		logger.prerequisites( 'Cannot find list of modules to deactivate!' );
-	}
-}
-
-/**
- * Activate modules.
- * @param {string[]} modulesList - Modules
- */
-export async function activateModules( modulesList ) {
-	for ( const module of modulesList ) {
-		logger.prerequisites( `Activating module ${ module }` );
-		const result = await execWpCommand( `jetpack module activate ${ module }` );
-		assert.match( result, new RegExp( `Success: .* has been activated.`, 'i' ) );
-	}
-}
-
-/**
- * Deactivate modules.
- * @param {string[]} modulesList - Modules
- */
-export async function deactivateModules( modulesList ) {
-	for ( const module of modulesList ) {
-		logger.prerequisites( `Deactivating module ${ module }` );
-		const result = await execWpCommand( `jetpack module deactivate ${ module }` );
-		assert.match( result, new RegExp( `Success: .* has been deactivated.`, 'i' ) );
-	}
-}
-
-/**
- * Check if a module is active.
- * @param {string} module - Module
- * @return {boolean} If active
- */
-export async function isModuleActive( module ) {
-	logger.prerequisites( `Checking if ${ module } module is active` );
-	const result = await execWpCommand( `jetpack options get active_modules` );
-	return result.includes( module );
 }
 
 /**
