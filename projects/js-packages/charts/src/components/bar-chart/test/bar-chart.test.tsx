@@ -5,7 +5,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '../../../providers/theme';
-import BarChart from '../bar-chart';
+import BarChart, { BarChart as BarChartNamed } from '../bar-chart';
 
 describe( 'BarChart', () => {
 	const defaultProps = {
@@ -459,11 +459,71 @@ describe( 'BarChart', () => {
 			await user.keyboard( '{ArrowRight}' );
 
 			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Custom: 01/01/2024' );
 
 			const customTooltip = screen.getByTestId( 'custom-tooltip' );
 			expect( customTooltip ).toBeInTheDocument();
 			expect( customTooltipRenderer ).toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'Composition API', () => {
+		test( 'renders with composition API legend without explicit chartId', () => {
+			render(
+				<ThemeProvider>
+					<BarChartNamed { ...defaultProps }>
+						<BarChartNamed.Legend orientation="horizontal" />
+					</BarChartNamed>
+				</ThemeProvider>
+			);
+
+			// Chart should render
+			expect( screen.getByTestId( 'bar-chart' ) ).toBeInTheDocument();
+
+			// Legend should render and inherit chartId from parent
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+		} );
+
+		test( 'composition API legend automatically gets data from parent chart', () => {
+			render(
+				<ThemeProvider>
+					<BarChartNamed { ...defaultProps }>
+						<BarChartNamed.Legend orientation="vertical" />
+					</BarChartNamed>
+				</ThemeProvider>
+			);
+
+			// Legend should show data from parent chart
+			const legendItems = screen.getAllByTestId( 'legend-item' );
+			expect( legendItems ).toHaveLength( 1 ); // One series in defaultProps
+		} );
+
+		test( 'composition API works with explicit chartId', () => {
+			render(
+				<ThemeProvider>
+					<BarChartNamed { ...defaultProps } chartId="test-chart">
+						<BarChartNamed.Legend chartId="test-chart" orientation="horizontal" />
+					</BarChartNamed>
+				</ThemeProvider>
+			);
+
+			// Chart should render with explicit ID
+			expect( screen.getByTestId( 'bar-chart' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+		} );
+
+		test( 'composition API is backward compatible with prop-based legend', () => {
+			render(
+				<ThemeProvider>
+					<BarChartNamed { ...defaultProps } showLegend={ true } legendOrientation="horizontal">
+						<BarChartNamed.Legend orientation="vertical" />
+					</BarChartNamed>
+				</ThemeProvider>
+			);
+
+			// Both prop-based and composition legends should render
+			const legends = screen.getAllByRole( 'list' );
+			expect( legends ).toHaveLength( 2 ); // One from props, one from composition
 		} );
 	} );
 } );
