@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows/index.js';
+import { loginToWpCom, loginToWpSite } from '../flows/index.js';
 import { execWpCommand, isLocalSite, resetWordpressInstall } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 
@@ -15,7 +15,6 @@ export function prerequisitesBuilder( page ) {
 		loggedIn: undefined,
 		wpComLoggedIn: undefined,
 		connected: undefined,
-		plan: undefined,
 		modules: { active: undefined, inactive: undefined },
 	};
 
@@ -30,10 +29,6 @@ export function prerequisitesBuilder( page ) {
 		},
 		withConnection( shouldBeConnected ) {
 			state.connected = shouldBeConnected;
-			return this;
-		},
-		withPlan( plan ) {
-			state.plan = plan;
 			return this;
 		},
 		withCleanEnv() {
@@ -60,7 +55,6 @@ async function buildPrerequisites( state, page ) {
 		plugins: () => ensurePluginsState( state.plugins ),
 		loggedIn: () => ensureUserIsLoggedIn( page ),
 		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( page ),
-		plan: () => ensurePlan( state.plan, page ),
 		modules: () => ensureModulesState( state.modules ),
 		clean: () => ensureCleanState( state.clean ),
 	};
@@ -94,26 +88,6 @@ async function ensureCleanState( shouldReset ) {
 		await execWpCommand( 'jetpack disconnect blog' );
 		await resetWordpressInstall();
 	}
-}
-
-/**
- * Ensure plan.
- * @param {string} plan - Plan slug.
- * @param {page}   page - Playwright page instance.
- */
-export async function ensurePlan( plan = undefined, page ) {
-	if ( ! isLocalSite() ) {
-		logger.prerequisites(
-			'Site is not local, skipping plan setup. Assuming required plan is already in place.'
-		);
-		return;
-	}
-
-	if ( [ 'free', 'complete' ].indexOf( plan ) < 0 ) {
-		throw new Error( `Unsupported plan ${ plan }` );
-	}
-
-	await syncJetpackPlanData( page, plan, true );
 }
 
 /**

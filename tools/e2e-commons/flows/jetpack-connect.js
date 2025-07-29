@@ -1,13 +1,6 @@
 import { expect } from '@playwright/test';
 import config from 'config';
-import { persistPlanData, syncPlanData } from '../helpers/plan-helper.js';
-import logger from '../logger.js';
-import {
-	Sidebar,
-	JetpackPage,
-	JetpackMyPlanPage,
-	RecommendationsPage,
-} from '../pages/wp-admin/index.js';
+import { Sidebar, JetpackPage, RecommendationsPage } from '../pages/wp-admin/index.js';
 import {
 	AuthorizePage,
 	PickAPlanPage,
@@ -15,7 +8,6 @@ import {
 	ThankYouPage,
 	LoginPage,
 } from '../pages/wpcom/index.js';
-import { executeWpCommand } from '../utils/cli.ts';
 
 const cardCredentials = config.get( 'testCardCredentials' );
 
@@ -56,32 +48,4 @@ export async function doSiteLevelConnection( page ) {
 	).areSiteTypeQuestionsVisible();
 	expect( isPageVisible ).toBeTruthy();
 	await ( await Sidebar.init( page ) ).selectJetpack();
-}
-
-/**
- * Sync Jetpack plan data
- *
- * @param {page}    page         - Playwright page instance.
- * @param {string}  plan         - Plan slug.
- * @param {boolean} mockPlanData - Whether to mock plan data.
- */
-export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
-	logger.step( `Sync plan data. { plan: ${ plan }, mock: ${ mockPlanData } }` );
-	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
-	await persistPlanData( planType );
-
-	const jpPlanPage = await JetpackMyPlanPage.visit( page );
-
-	if ( ! mockPlanData ) {
-		await jpPlanPage.reload();
-		await page.waitForResponse(
-			response => response.url().match( /v4\/site[^/]/ ) && response.status() === 200,
-			{ timeout: 60 * 1000 }
-		);
-		await executeWpCommand( 'cron event run jetpack_v2_heartbeat' );
-	}
-	await syncPlanData( page );
-	if ( ! ( await jpPlanPage.isPlan( plan ) ) ) {
-		throw new Error( `Site does not have ${ plan } plan` );
-	}
 }
