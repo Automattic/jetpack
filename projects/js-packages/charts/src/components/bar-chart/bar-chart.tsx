@@ -123,9 +123,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			const nearestDatum = tooltipData?.nearestDatum?.datum as EnhancedDataPoint;
 			if ( ! nearestDatum ) return null;
 
-			// Always use the original value for tooltips, never the visual value
-			const displayValue = nearestDatum.value;
-
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
 					<div className={ styles[ 'bar-chart__tooltip-header' ] }>
@@ -140,7 +137,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							) }
 							:
 						</span>
-						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ displayValue }</span>
+						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
 					</div>
 				</div>
 			);
