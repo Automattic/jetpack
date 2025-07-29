@@ -5,7 +5,7 @@ import { URL } from 'url';
 import { mergeWith } from 'lodash-es';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
 import pwConfig from '../playwright.config.mjs';
-import { executeWpCommand, executeCommand, executeContainerCommand } from '../utils/cli.ts';
+import { executeWpCommand, executeCommand } from '../utils/cli.ts';
 
 const __dirname = new URL( '.', import.meta.url ).pathname;
 
@@ -25,8 +25,8 @@ if ( ! existsSync( resultsPath ) ) {
  */
 async function envReset() {
 	console.log( await executeCommand( 'pwd' ) );
-	await executeContainerCommand( 'pnpm env:reset' );
-	await executeContainerCommand( 'pnpm tunnel:reset' );
+	await executeCommand( 'pnpm env:reset' );
+	await executeCommand( 'pnpm tunnel:reset' );
 }
 
 /**
