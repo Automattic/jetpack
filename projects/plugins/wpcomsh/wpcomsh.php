@@ -82,7 +82,7 @@ require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-w
 require_once __DIR__ . '/endpoints/rest-api.php';
 
 // Load feature plugins.
-require_once __DIR__ . '/feature-plugins/addition5al-css.php';
+require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
