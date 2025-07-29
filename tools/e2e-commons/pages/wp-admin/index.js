@@ -1,5 +1,4 @@
 export { default as BlockEditorPage } from './block-editor.js';
-export { default as SiteEditorPage } from './site-editor.js';
 export { default as EventbriteBlock } from './blocks/eventbrite.js';
 export { default as PinterestBlock } from './blocks/pinterest.js';
 export { default as MailchimpBlock } from './blocks/mailchimp.js';
