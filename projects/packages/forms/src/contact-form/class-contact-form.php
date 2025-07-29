@@ -1110,7 +1110,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$compiled_form = self::get_raw_compiled_form_data( $feedback_id );
+		$compiled_form = array();
+		$response      = Feedback::get( $feedback_id );
+
+		if ( $response instanceof Feedback ) {
+			// If the response is an instance of Feedback, we can use its method to get compiled fields.
+			$compiled_form = $response->get_compiled_fields( 'email', 'all' );
+		}
 
 		/**
 		 * This filter allows a site owner to customize the response to be emailed, by adding their own HTML around it for example.
@@ -1146,9 +1152,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 			}
 		}
-
-		// Sorting lines by the field index
-		ksort( $compiled_form );
 
 		return $compiled_form;
 	}
