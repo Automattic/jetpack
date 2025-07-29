@@ -257,7 +257,7 @@ Charts are fully keyboard accessible:
 
 ### Visual Enhancement for Zero Values
 
-By default, bars with zero values have no visual height, making them difficult to identify. The `zeroValueDisplay` feature provides better user experience by giving zero values a minimum visual height while preserving data integrity:
+By default, bars with zero values have no visual height, making them difficult to identify. The `showZeroValues` feature provides better user experience by giving zero values a minimum visual height while preserving data integrity:
 
 <Canvas of={ BarChartStories.ZeroValueComparison } />
 
@@ -265,7 +265,7 @@ By default, bars with zero values have no visual height, making them difficult t
 	language="jsx"
 	code={ `<BarChart
 		data={dataWithZeros}
-		zeroValueDisplay={true}
+		showZeroValues={true}
 		withTooltips={true}
 	/>` }
 />
@@ -485,7 +485,7 @@ Main chart component with responsive behavior by default.
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
-| `zeroValueDisplay` | `boolean` | `false` | Display zero values with minimum visual height |
+| `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
 | `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Horizontal legend alignment |

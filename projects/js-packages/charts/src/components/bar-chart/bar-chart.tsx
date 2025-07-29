@@ -24,7 +24,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
-	zeroValueDisplay?: boolean;
+	showZeroValues?: boolean;
 }
 
 // Validation function similar to LineChart
@@ -66,7 +66,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
-	zeroValueDisplay = false,
+	showZeroValues = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
@@ -79,7 +79,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	// Transform data to add a small value for zero bars to make them visible
 	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
-		enabled: zeroValueDisplay,
+		enabled: showZeroValues,
 	} );
 
 	// Create legend items using the reusable hook

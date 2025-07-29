@@ -233,53 +233,69 @@ export const HorizontalBarChart: Story = {
 	},
 };
 
+const dataWithZeroValues = [
+	{
+		group: 'United States',
+		label: 'United States',
+		data: [
+			{ label: '1896', value: 0 },
+			{ label: '1900', value: 0 },
+			{ label: '1904', value: 2 },
+			{ label: '1908', value: 1 },
+			{ label: '1912', value: 3 },
+		],
+	},
+	{
+		group: 'Great Britain',
+		label: 'Great Britain',
+		data: [
+			{ label: '1896', value: 1 },
+			{ label: '1900', value: 0 },
+			{ label: '1904', value: 1 },
+			{ label: '1908', value: 10 },
+			{ label: '1912', value: 9 },
+		],
+	},
+	{
+		group: 'Japan',
+		label: 'Japan',
+		data: [
+			{ label: '1896', value: 2 },
+			{ label: '1900', value: 1 },
+			{ label: '1904', value: 2 },
+			{ label: '1908', value: 1 },
+			{ label: '1912', value: 2 },
+		],
+	},
+];
 export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '40px' } }>
 			<div>
-				<h3>Zero Value Display Enabled</h3>
+				<h3>Zero Value Display: Disabled (Default)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero values are not visually displayed. Bars with zero values have no height.
+				</p>
+				<div style={ { width: '600px', height: '300px' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ false }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+
+			<div>
+				<h3>Zero Value Display: Enabled</h3>
 				<p style={ { marginBottom: '20px', color: '#666' } }>
 					Zero values are visually displayed with minimum height bars. The tooltip still shows the
 					actual value of 0, while the bar has a small visual height for better UX.
 				</p>
 				<div style={ { width: '600px', height: '300px' } }>
 					<BarChart
-						data={ [
-							{
-								group: 'United States',
-								label: 'United States',
-								data: [
-									{ label: '1896', value: 0 },
-									{ label: '1900', value: 0 },
-									{ label: '1904', value: 2 },
-									{ label: '1908', value: 1 },
-									{ label: '1912', value: 3 },
-								],
-							},
-							{
-								group: 'Great Britain',
-								label: 'Great Britain',
-								data: [
-									{ label: '1896', value: 1 },
-									{ label: '1900', value: 0 },
-									{ label: '1904', value: 1 },
-									{ label: '1908', value: 10 },
-									{ label: '1912', value: 9 },
-								],
-							},
-							{
-								group: 'Japan',
-								label: 'Japan',
-								data: [
-									{ label: '1896', value: 2 },
-									{ label: '1900', value: 1 },
-									{ label: '1904', value: 2 },
-									{ label: '1908', value: 1 },
-									{ label: '1912', value: 2 },
-								],
-							},
-						] }
-						zeroValueDisplay={ true }
+						data={ dataWithZeroValues }
+						showZeroValues={ true }
 						withTooltips={ true }
 						gridVisibility="x"
 					/>
@@ -287,4 +303,12 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 			</div>
 		</div>
 	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+			},
+		},
+	},
 };

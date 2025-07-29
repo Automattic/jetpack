@@ -471,7 +471,7 @@ describe( 'BarChart', () => {
 	describe( 'Zero Value Display', () => {
 		test( 'renders visible bars for zero values with default settings', () => {
 			renderWithTheme( {
-				zeroValueDisplay: true,
+				showZeroValues: true,
 				data: [
 					{
 						label: 'Test Series',
@@ -497,7 +497,7 @@ describe( 'BarChart', () => {
 			} );
 		} );
 
-		test( 'Does not render zero-value bars when default zeroValueDisplay is false', () => {
+		test( 'Does not render zero-value bars when default showZeroValues is false', () => {
 			renderWithTheme( {
 				data: [
 					{
@@ -530,7 +530,7 @@ describe( 'BarChart', () => {
 
 		test( 'works correctly with horizontal orientation', () => {
 			renderWithTheme( {
-				zeroValueDisplay: true,
+				showZeroValues: true,
 				data: [
 					{
 						label: 'Test Series',
