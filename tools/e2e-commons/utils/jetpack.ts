@@ -38,14 +38,14 @@ export async function isModuleActive( module: string ): Promise< boolean > {
 	}
 
 	// Parse the PHP array output to extract module names
-	const moduleMatches = result.match( /\[[\d+]\] => (.+)/g );
+	const moduleMatches = result.match( /\[\d+\] => (.+)/g );
 	if ( ! moduleMatches ) {
 		return false;
 	}
 
 	const activeModules = moduleMatches
 		.map( match => {
-			const moduleMatch = match.match( /\[[\d+]\] => (.+)/ );
+			const moduleMatch = match.match( /\[\d+\] => (.+)/ );
 			return moduleMatch ? moduleMatch[ 1 ].trim() : '';
 		} )
 		.filter( Boolean );
