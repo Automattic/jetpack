@@ -36,7 +36,6 @@
 	"browserslist": [],
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
-		"app-password": "./bin/app-password.sh",
 		"tunnel": "./bin/tunnel.sh"
 	}
 }
