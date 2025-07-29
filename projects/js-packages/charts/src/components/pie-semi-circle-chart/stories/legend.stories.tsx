@@ -1,6 +1,13 @@
-import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
+import { sharedDecorator } from '../../../stories/decorator-config';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { PieSemiCircleChart } from '../../pie-semi-circle-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
+
+type StoryArgs = React.ComponentProps< typeof PieSemiCircleChart > & {
+	containerWidth?: string;
+	containerHeight?: string;
+	resize?: string;
+};
 
 const data = [
 	{
@@ -23,23 +30,25 @@ const data = [
 	},
 ];
 
-const meta: Meta< typeof PieSemiCircleChart > = {
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart/Legend',
 	component: PieSemiCircleChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: legendDecorator,
+	decorators: sharedDecorator,
 	argTypes: legendArgTypes,
-} satisfies Meta< typeof PieSemiCircleChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
 
-const Template: StoryFn< typeof PieSemiCircleChart > = args => <PieSemiCircleChart { ...args } />;
+const Template: StoryFn< StoryArgs > = args => <PieSemiCircleChart { ...args } />;
 
 const legendStoryArgs = {
 	data,
-	width: 600,
+	containerWidth: '600px',
+	containerHeight: '350px',
+	resize: 'none',
 	thickness: 0.4,
 	withTooltips: true,
 	showLegend: true,
@@ -48,22 +57,24 @@ const legendStoryArgs = {
 	note: 'Windows +10%',
 };
 
-export const Default: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...legendStoryArgs,
 };
 
-export const AlignmentPositioning: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+export const AlignmentPositioning: StoryObj< StoryArgs > = Template.bind( {} );
 AlignmentPositioning.args = {
 	...legendStoryArgs,
 	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
+	containerHeight: '400px',
 };
 
-export const VerticalOrientation: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+export const VerticalOrientation: StoryObj< StoryArgs > = Template.bind( {} );
 VerticalOrientation.args = {
 	...legendStoryArgs,
 	legendOrientation: 'vertical',
 	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
+	containerHeight: '500px',
 };

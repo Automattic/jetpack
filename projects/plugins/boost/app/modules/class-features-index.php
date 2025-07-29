@@ -5,7 +5,6 @@ namespace Automattic\Jetpack_Boost\Modules;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide;
-use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
@@ -30,7 +29,6 @@ class Features_Index {
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Lcp::class,
-		Image_Size_Analysis::class,
 		Minify_JS::class,
 		Minify_CSS::class,
 		Render_Blocking_JS::class,

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Forms: Add error message on network request failure for ajax submission

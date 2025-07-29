@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.12] - 2025-07-28
+### Changed
+- Internal updates.
+
 ## [0.13.11] - 2025-07-21
 ### Changed
 - Update package dependencies. [#44356]
@@ -341,6 +345,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.13.12]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.11...v0.13.12
 [0.13.11]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.10...v0.13.11
 [0.13.10]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.9...v0.13.10
 [0.13.9]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.8...v0.13.9

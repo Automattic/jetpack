@@ -17,8 +17,8 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanUndeclaredClassConstant : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
-    // PhanPossiblyUndeclaredVariable : 3 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
+    // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
@@ -42,7 +42,6 @@ return [
         'app/lib/minify/class-dependency-path-mapping.php' => ['PhanUndeclaredConstant'],
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/modules/image-guide/class-image-guide-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'app/modules/image-size-analysis/data-sync/class-image-analysis-action-fix.php' => ['PhanPossiblyUndeclaredVariable'],
         'app/modules/optimizations/critical-css/class-css-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/page-cache/class-page-cache-setup.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-logger.php' => ['PhanCoalescingNeverNull', 'PhanPluginDuplicateConditionalNullCoalescing'],
