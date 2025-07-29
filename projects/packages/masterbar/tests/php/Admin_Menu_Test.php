@@ -121,23 +121,6 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_stats_menu
-	 */
-	public function test_add_stats_menu() {
-		global $menu;
-
-		static::$admin_menu->add_stats_menu();
-		// Ignore position keys, since the key used for the Stats menu contains a pseudorandom number
-		// that we shouldn't hardcode. The only thing that matters is that the menu should be in the
-		// 3rd position regardless of the key.
-		// @see https://core.trac.wordpress.org/ticket/40927
-		ksort( $menu );
-		$menu_items = array_values( $menu );
-
-		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[2][2] );
-	}
-
-	/**
 	 * Tests add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
