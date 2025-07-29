@@ -41,7 +41,7 @@ export async function setTheme( theme = 'light' ) {
  * @param {string} color - Setting value.
  * @return {string} wp-cli command output
  */
-export async function setHighlightColor( color = '"#FFFFFF"' ) {
+export async function setHighlightColor( color = '#FFFFFF' ) {
 	return executeWpCommand( `option update jetpack_search_highlight_color ${ color }` );
 }
 
