@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.6] - 2025-07-28
+### Changed
+- Internal updates.
+
 ## [0.30.5] - 2025-07-21
 ### Changed
 - Update package dependencies. [#44356]
@@ -1694,6 +1698,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.30.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.5...v0.30.6
 [0.30.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.4...v0.30.5
 [0.30.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.3...v0.30.4
 [0.30.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.2...v0.30.3
