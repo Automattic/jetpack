@@ -476,14 +476,10 @@ class Jetpack_Sitemap_Librarian {
 			}
 		);
 
-		return implode(
-			',',
-			array_map(
-				function ( $column ) {
-					return $column;
-				},
-				$columns
-			)
-		);
+		foreach ( (array) $columns as $i => $column ) {
+			$columns[ $i ] = $wpdb->prepare( '%s', $column );
+		}
+
+		return implode( ',', $columns );
 	}
 }
