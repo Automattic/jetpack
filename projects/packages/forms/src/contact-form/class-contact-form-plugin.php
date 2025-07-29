@@ -2317,7 +2317,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Prepares feedback post data for CSV export.
 	 *
-	 * @deprecated since package-$$next-version$$'
+	 * @deprecated since package-$$next-version$$
 	 *
 	 * @see get_export_feedback_data()
 	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
