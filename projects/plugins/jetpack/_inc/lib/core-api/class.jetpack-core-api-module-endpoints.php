@@ -490,6 +490,22 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$response[ $setting ] = 1;
 					break;
 
+				case 'wpcom_featured_image_in_email':
+					// Handle conditional default for WordPress.com sites created after May 2, 2025
+					$default_value = false;
+					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+						global $current_blog;
+						if ( $current_blog && method_exists( $current_blog, 'get_registered_date' ) ) {
+							$registered_date = $current_blog->get_registered_date();
+							// Compare to May 2, 2025 (ISO 8601 format)
+							if ( $registered_date && $registered_date !== '0000-00-00T00:00:00+00:00' && strtotime( $registered_date ) >= strtotime( '2025-05-02T00:00:00+00:00' ) ) {
+								$default_value = true;
+							}
+						}
+					}
+					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting, $default_value ), $settings[ $setting ] );
+					break;
+
 				default:
 					$default              = isset( $settings[ $setting ]['default'] ) ? $settings[ $setting ]['default'] : false;
 					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting, $default ), $settings[ $setting ] );

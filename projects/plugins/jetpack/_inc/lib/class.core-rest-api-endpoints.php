@@ -2647,21 +2647,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'wpcom_featured_image_in_email'             => array(
 				'description'       => esc_html__( 'Whether to include the featured image in the email or not', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => function () {
-					// For WordPress.com sites created after May 2, 2025, default to true
-					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						global $current_blog;
-						if ( $current_blog && method_exists( $current_blog, 'get_registered_date' ) ) {
-							$registered_date = $current_blog->get_registered_date();
-							// Compare to May 2, 2025 (ISO 8601 format)
-							if ( $registered_date && $registered_date !== '0000-00-00T00:00:00+00:00' && strtotime( $registered_date ) >= strtotime( '2025-05-02T00:00:00+00:00' ) ) {
-								return true;
-							}
-						}
-					}
-					// For all other sites, default to false for legacy behavior
-					return false;
-				},
+				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
