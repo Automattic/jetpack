@@ -13,7 +13,5 @@
 		"directory": "projects/packages/jwt"
 	},
 	"license": "GPL-2.0-or-later",
-	"author": "Automattic",
-	"scripts": {},
-	"devDependencies": {}
+	"author": "Automattic"
 }

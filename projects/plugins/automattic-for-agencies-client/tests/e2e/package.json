@@ -1,18 +1,6 @@
 {
 	"private": true,
 	"type": "module",
-	"description": "Easily connect your clients sites to the Automattic for Agencies portal and enable portal features like plugin updates, downtime monitoring, and more..",
-	"homepage": "https://jetpack.com",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Automattic For Agencies Client"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/plugins/automattic-for-agencies-client"
-	},
-	"license": "GPL-2.0-or-later",
-	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm jetpack build plugins/automattic-for-agencies-client plugins/jetpack -v --no-pnpm-install --production",
 		"clean": "rm -rf output",

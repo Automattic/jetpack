@@ -35,6 +35,5 @@
 	"sideEffects": [
 		"*.css",
 		"*.scss"
-	],
-	"scripts": {}
+	]
 }

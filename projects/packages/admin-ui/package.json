@@ -19,6 +19,5 @@
 		"build-js": "echo 'Not implemented.'",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'"
-	},
-	"devDependencies": {}
+	}
 }

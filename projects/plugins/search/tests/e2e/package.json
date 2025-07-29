@@ -1,14 +1,6 @@
 {
 	"private": true,
 	"type": "module",
-	"description": "A cloud-powered replacement for WordPress' search.",
-	"homepage": "https://jetpack.com",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
-	},
-	"license": "GPL-2.0-or-later",
-	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm jetpack build packages/assets packages/search packages/connection plugins/jetpack -v --no-pnpm-install --production",
 		"clean": "rm -rf output",

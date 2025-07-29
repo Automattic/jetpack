@@ -1,18 +1,6 @@
 {
 	"private": true,
 	"type": "module",
-	"description": "High quality, ad-free video.",
-	"homepage": "https://jetpack.com",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] VideoPress"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/plugins/videopress"
-	},
-	"license": "GPL-2.0-or-later",
-	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm jetpack build plugins/videopress plugins/jetpack -v --no-pnpm-install --production",
 		"clean": "rm -rf output",

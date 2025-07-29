@@ -1,18 +1,6 @@
 {
 	"private": true,
 	"type": "module",
-	"description": "Features for classic themes..",
-	"homepage": "https://jetpack.com",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Classic Theme Helper Plugin"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/plugins/classic-theme-helper-plugin"
-	},
-	"license": "GPL-2.0-or-later",
-	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm jetpack build plugins/classic-theme-helper-plugin plugins/jetpack -v --no-pnpm-install --production",
 		"clean": "rm -rf output",

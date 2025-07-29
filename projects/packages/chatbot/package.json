@@ -21,6 +21,5 @@
 		"build-production-js": "echo 'Not implemented.'",
 		"watch": "echo 'Not implemented.'",
 		"clean": "true"
-	},
-	"devDependencies": {}
+	}
 }

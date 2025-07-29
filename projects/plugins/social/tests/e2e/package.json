@@ -1,18 +1,6 @@
 {
 	"private": true,
 	"type": "module",
-	"description": "plugin--description.",
-	"homepage": "https://jetpack.com",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Social"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/plugins/social"
-	},
-	"license": "GPL-2.0-or-later",
-	"author": "Automattic",
 	"scripts": {
 		"allure-report": "allure generate --clean --output ./output/allure-report ./output/allure-results && allure open ./output/allure-report",
 		"build": "pnpm jetpack build packages/assets packages/connection packages/publicize plugins/social plugins/jetpack -v --no-pnpm-install --production",

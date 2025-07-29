@@ -1,17 +1,6 @@
 {
 	"private": true,
 	"type": "module",
-	"description": "Boost your WordPress site's performance, from the creators of Jetpack.",
-	"homepage": "https://jetpack.com/boost/",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
-	},
-	"license": "GPL-2.0-or-later",
-	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm jetpack build plugins/jetpack plugins/boost js-packages/image-guide js-packages/critical-css-gen packages/plugin-deactivation packages/connection packages/jitm packages/my-jetpack packages/assets -v --no-pnpm-install --production",
 		"clean": "rm -rf output",
