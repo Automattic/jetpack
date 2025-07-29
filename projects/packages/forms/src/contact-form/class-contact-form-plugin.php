@@ -1572,7 +1572,7 @@ class Contact_Form_Plugin {
 		if ( ! is_string( $text ) ) {
 			return $text;
 		}
-		return preg_replace( '/\\[contact-form([^a-zA-Z_-])/', '[contact-form widget="' . $this->current_widget_id . '"\\1', $text );
+		return preg_replace( '/\[contact-form([^a-zA-Z_-])/', '[contact-form widget="' . $this->current_widget_id . '"\\1', $text );
 	}
 
 	/**
