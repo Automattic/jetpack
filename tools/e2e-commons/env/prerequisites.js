@@ -1,5 +1,4 @@
 import assert from 'assert';
-import { loginToWpCom, loginToWpSite } from '../flows/index.js';
 import { execWpCommand, isLocalSite, resetWordpressInstall } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 
@@ -12,8 +11,6 @@ export function prerequisitesBuilder( page ) {
 	const state = {
 		clean: undefined,
 		plugins: { active: undefined, inactive: undefined },
-		loggedIn: undefined,
-		wpComLoggedIn: undefined,
 		connected: undefined,
 		modules: { active: undefined, inactive: undefined },
 	};
@@ -53,8 +50,6 @@ export function prerequisitesBuilder( page ) {
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		plugins: () => ensurePluginsState( state.plugins ),
-		loggedIn: () => ensureUserIsLoggedIn( page ),
-		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( page ),
 		modules: () => ensureModulesState( state.modules ),
 		clean: () => ensureCleanState( state.clean ),
 	};
@@ -88,22 +83,6 @@ async function ensureCleanState( shouldReset ) {
 		await execWpCommand( 'jetpack disconnect blog' );
 		await resetWordpressInstall();
 	}
-}
-
-/**
- * Ensure user is logged in.
- * @param {page} page - Playwright page instance.
- */
-export async function ensureUserIsLoggedIn( page ) {
-	await loginToWpSite( page, true );
-}
-
-/**
- * Ensure WordPress.com user is logged in.
- * @param {page} page - Playwright page instance.
- */
-export async function ensureWpComUserIsLoggedIn( page ) {
-	await loginToWpCom( page, true );
 }
 
 /**
