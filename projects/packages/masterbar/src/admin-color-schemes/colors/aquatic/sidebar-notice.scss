@@ -1,6 +1,7 @@
 /*
- * Styles for sidebar notices are maintained in a separate file for each color scheme so we can load them independently when needed.
-*/
+ * Styles for sidebar notices are maintained in a separate file for
+ * each color scheme so we can load them independently when needed.
+ */
 @use "variables";
 @use "../upsell-banner" with (
 	$menu-nudge-text-color: variables.$menu-nudge-text-color,

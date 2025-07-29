@@ -8,8 +8,8 @@
  * Date: 31/01/18
  */
 
-// Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
-@use 'ZeroBSCRM.timelines';
+// Import generic edit page styles (old legacy from taxibooker! :o to rewrite)
+@use "ZeroBSCRM.timelines";
 
 // hide these, they look bad/inaccessible on this page:
 #wpwrap .update-nag {
@@ -22,11 +22,11 @@
 #zbs-customer-panel,
 #zbs-company-panel {
 
-	// THIS shouldn't really be here, it's too VAGUE - it affects other default avatars in 
-	// the vitals box. 
+	// THIS shouldn't really be here, it's too VAGUE - it affects other default
+	// avatars in the vitals box.
 	// Refine this specifically for an ID (later)
 	.zbs-default-avatar {
-		
+
 		font-size: 3em;
 		margin: 0.3em;
 		margin-top: 0.5em;
@@ -35,7 +35,7 @@
 	.three.wide.column img {
 		max-width: 100%;
 	}
-	
+
 	//these allow for wrapping td content
 	tr.wraplines {
 		white-space: normal;
@@ -72,14 +72,15 @@
 
 	// NOTE this is also in contact edit metabox! copy any changes if made:
 	.action-wrap {
-		
+
 		display: block;
 		position: relative;
 		text-align: right;
 		margin-top: 1em;
 	}
 
-	// using actual .button breaks the css.. for now, hackily putting htis in here to simulate basic button
+	// using actual .button breaks the css...
+	// for now, hackily putting this in here to simulate basic button
 	// NOTE this is also in contact edit metabox! copy any changes if made:
 	.action-button {
 		cursor: pointer;
@@ -88,7 +89,7 @@
 		outline: none;
 		border: none;
 		vertical-align: baseline;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 		margin: 0 0.25em 0 0;
 		padding: 0.78571429em 1.5em 0.78571429em;
 		line-height: 1;
@@ -100,7 +101,7 @@
 		-ms-user-select: none;
 		user-select: none;
 		transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
-		will-change: '';
+		will-change: "";
 		-webkit-tap-highlight-color: transparent;
 
 		font-size: 1rem;
@@ -111,8 +112,8 @@
 		text-transform: none;
 		text-shadow: none !important;
 
-		box-shadow: 0 0 0 1px #21BA45 inset !important;
-		color: #21BA45 !important;
+		box-shadow: 0 0 0 1px #21ba45 inset !important;
+		color: #21ba45 !important;
 	}
 }
 
@@ -188,7 +189,7 @@ i.zbs-hide-longdesc {
 #zbs-company-panel {
 
 	#zbs-company-view-vitals-contacts .zbs-default-avatar {
-		
+
 		font-size: 1em !important;
 
 		// this needs to match [.ui.label>.icon] in semantic ui :)
@@ -264,7 +265,7 @@ i.zbs-hide-longdesc {
 }
 
 .jpcrm-pinned-logs {
-	
+
 	margin-bottom: 1em !important;
 
 	.jpcrm-pinned-log {

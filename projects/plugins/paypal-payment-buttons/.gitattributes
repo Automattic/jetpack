@@ -1,0 +1,48 @@
+# Files not needed to be distributed in the package.
+.gitattributes    export-ignore
+.github/          export-ignore
+package.json      export-ignore
+
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+build/**                                        production-include
+jetpack_vendor/**                               production-include
+vendor/autoload.php                             production-include
+vendor/autoload_packages.php                    production-include
+vendor/automattic/**                            production-include
+vendor/composer/**                              production-include
+vendor/jetpack-autoloader/**                    production-include
+
+# Composer dependencies that need to be production-included
+/vendor/automattic/jetpack-a8c-mc-stats/**     production-include
+/vendor/automattic/jetpack-admin-ui/**         production-include
+/vendor/automattic/jetpack-assets/**           production-include
+/vendor/automattic/jetpack-autoloader/**       production-include
+/vendor/automattic/jetpack-blocks/**           production-include
+/vendor/automattic/jetpack-connection/**       production-include
+/vendor/automattic/jetpack-constants/**        production-include
+/vendor/automattic/jetpack-paypal-payments/**  production-include
+/vendor/automattic/jetpack-plans/**            production-include
+/vendor/automattic/jetpack-redirect/**         production-include
+/vendor/automattic/jetpack-roles/**            production-include
+/vendor/automattic/jetpack-status/**           production-include
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+# Remember to end all directories with `/**` to properly tag every file.
+.babelrc                                        production-exclude
+.gitattributes                                  production-exclude
+.gitignore                                      production-exclude
+.phpcs.dir.xml                                  production-exclude
+babel.config.js                                 production-exclude
+build/**/*.js.map                               production-exclude
+changelog/**                                    production-exclude
+composer.lock                                   production-exclude
+jest.config.js                                  production-exclude
+jest.setup.js                                   production-exclude
+package.json                                    production-exclude
+README.md                                       production-exclude
+src/js/**                                       production-exclude
+tests/**                                        production-exclude
+/vendor/automattic/jetpack-changelogger/**     production-exclude
+/vendor/automattic/jetpack-composer-plugin/**  production-exclude
+webpack.config.js                               production-exclude

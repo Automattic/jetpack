@@ -1,0 +1,10 @@
+/node_modules
+/config/local*
+/config/tmp/*
+/output
+plan-data.txt
+e2e_tunnels.txt
+jetpack-private-options.txt
+/allure-results
+storage.json
+/tmp

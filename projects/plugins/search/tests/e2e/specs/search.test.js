@@ -1,4 +1,3 @@
-import { prerequisitesBuilder, Plans } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
 	enableInstantSearch,
@@ -8,28 +7,19 @@ import {
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
 import { SearchHomepage } from '../pages/index.js';
-import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Instant Search', () => {
 	let homepage;
 
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await clearSearchPlanInfo();
-		await prerequisitesBuilder( page )
-			.withLoggedIn( true )
-			.withConnection( true )
-			.withPlan( Plans.Complete )
-			.withActiveModules( [ 'search' ] )
-			.build();
-
-		await enableInstantSearch();
-		await searchAutoConfig();
-		await page.close();
+	test.beforeAll( async ( { testUtils } ) => {
+		clearSearchPlanInfo();
+		await testUtils.activateModule( 'search' );
+		enableInstantSearch();
+		searchAutoConfig();
 	} );
 
 	test.afterAll( async () => {
-		await disableInstantSearch();
+		disableInstantSearch();
 	} );
 
 	test.beforeEach( async ( { page } ) => {

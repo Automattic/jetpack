@@ -5,17 +5,17 @@ div.jetpack-quiz {
 	/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 	line-height: 1.3em;
 	margin-bottom: 2em;
-	border-radius: .2em;
+	border-radius: 0.2em;
 }
 
 div.jetpack-quiz div.jetpack-quiz-question {
-	margin-bottom: .5em;
+	margin-bottom: 0.5em;
 	font-weight: 700;
 }
 
 div.jetpack-quiz div.jetpack-quiz-answer {
 	cursor: pointer;
-	margin-bottom: .5em;
+	margin-bottom: 0.5em;
 	padding: 1em 0 1em 1em;
 	border-bottom: 1px dotted #999;
 }

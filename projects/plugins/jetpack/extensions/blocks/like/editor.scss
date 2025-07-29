@@ -6,7 +6,8 @@
 	}
 }
 
-// Hide the Like block if it tries to load in the editor (e.g. as a part of the Query Loop block).
+// Hide the Like block if it tries to load in the editor
+// (e.g. as a part of the Query Loop block)
 .wp-block-jetpack-like .sharedaddy {
 	display: none;
 }
@@ -41,7 +42,7 @@
 	border-radius: 4px;
 	color: #2c3338;
 	background: #fff;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 0 0 1px rgba(0, 0, 0, .12);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
 	text-shadow: none;
 	line-height: 23px;
 	padding: 4px 10px 3px 9px;
@@ -57,11 +58,11 @@
 }
 
 .wpl-button a:hover {
-	box-shadow: 0 1px 2px rgba(0, 0, 0, .22), 0 0 0 1px rgba(0, 0, 0, .22);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
 .wpl-button a:active {
-	box-shadow: 0 1px 2px rgba(0, 0, 0, .22), 0 0 0 1px rgba(0, 0, 0, .22);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
 .wpl-button a::before {
@@ -218,7 +219,7 @@ div.comment-liked a.comment-like-link:hover::before {
 a.comment-like-link {
 	color: #222;
 	font-size: 12px;
-	opacity: .8;
+	opacity: 0.8;
 	text-decoration: none;
 }
 
@@ -259,7 +260,7 @@ a.comment-like-link.loading::before {
 }
 
 .wpl-likebox .wpl-avatars li a img {
-	border: solid 1.5px rgba(255, 255, 255, .5);
+	border: solid 1.5px rgba(255, 255, 255, 0.5);
 	border-radius: 50%;
 	width: 26px;
 	height: 26px;
@@ -279,12 +280,12 @@ a.comment-like-link.loading::before {
 	white-space: nowrap;
 }
 
-// stylelint-disable no-duplicate-selectors -- Overrides to fix CSS conflicts within editor.
+// stylelint-disable no-duplicate-selectors -- Override CSS conflicts in editor.
 .wpl-likebox {
 	// Prevents color and outline conflict by
 	// .wp-block-post-content a:where(:not(.wp-element-button))
 	a {
-		color: #2C3338 !important;
+		color: #2c3338 !important;
 		text-decoration: none !important;
 		outline: none !important;
 	}

@@ -8,7 +8,7 @@ export { LeaderboardChart } from './components/leaderboard-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
-export { Legend } from './components/legend';
+export { Legend, BaseLegend, useChartLegendData } from './components/legend';
 
 // Visx components
 export { Text, getStringWidth, useText } from './visx/text';
@@ -28,3 +28,8 @@ export { formatMetricValue } from './components/leaderboard-chart';
 // Types
 export type * from './types';
 export type * from './visx/types';
+
+export type { LineStyles, GridStyles } from '@visx/xychart';
+
+export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
+export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';

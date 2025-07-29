@@ -326,21 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9-a.5 - 2025-07-21
+### 14.9-a.7 - 2025-07-28
 #### Enhancements
-- Add new PayPal Payment block (beta).
-- Forms: Add Gravatars in form responses.
-- Forms: Make phone fields clickable
-- Forms: Use sentence case in default consent text.
-- My Jetpack: Enable access to My Jetpack on WP Multisite.
-- Podcast player block: Improve page load performance by removing use of `lodash`.
-- Story block: Improve page load performance by removing use of `lodash`.
-- Update PayPal Payment Buttons block to support rendering previews.
+- Open Graph Meta tags: Add a new fallback image to display on the home page.
+- Open Graph meta tags: Support site logos when generating fallback Image Meta tags.
 
 #### Bug fixes
-- Dashboard: Use UTC for Jetpack Stats chart.
+- Carousel: Fix disabling all photon args when opening an image in a lightbox.
+- Clear PayPal Payment button block parameters when changing block type.
+- Forms: Fix padding on input and textarea fields.
 - Forms: Fix the way forms are submitted.
-- Social: Fix image validation when images sizes are customised.
+- Forms: Enqueue view script only when the form is rendered.
+- JITM: Remove jQuery dependency.
+- Mailchimp block: Fix links to accommodate for a bug in Gutenberg.
+- My Jetpack: Fix footer alignment for disconnected accounts.
+- Related Posts: Ensure results are available via REST API directly.
+- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page.
+- Subscriptions: Display floating subscription button on mobile devices as well when enabled.
 
 --------
 

@@ -5,7 +5,8 @@
 	gap: var(--spacing-base); // 8px
 }
 
-// Nested selectors for popovers and dropdowns are no longer supported due to portals
+// Nested selectors for popovers and dropdowns are
+// no longer supported due to portals
 .popover {
 	padding: var(--spacing-base); // 8px
 	text-align: center;

@@ -8,53 +8,53 @@
  * example: @include meta.load-css( '../components/card/style' );
  */
 
-@use 'sass:meta';
+@use "sass:meta";
 
 // Variables
-@use '@automattic/color-studio/dist/color-variables';
-@use 'variables/colors';
-@use 'variables/layout';
+@use "@automattic/color-studio/dist/color-variables";
+@use "variables/colors";
+@use "variables/layout";
 
 // Mixins
-@use 'mixins/breakpoints';
-@use 'mixins/clear-fix';
-@use 'mixins/long-content-fade';
-@use 'mixins/ui';
+@use "mixins/breakpoints";
+@use "mixins/clear-fix";
+@use "mixins/long-content-fade";
+@use "mixins/ui";
 
 // Typography
-@use 'typography';
+@use "typography";
 
 // General
-@use 'shared/main';
-@use 'shared/admin-static';
+@use "shared/main";
+@use "shared/admin-static";
 
 // Components
-@include meta.load-css( '../components/dash-item/style' );
-@include meta.load-css( '../components/dash-section-header/style' );
-@include meta.load-css( '../components/foldable-card/style2' );
-@include meta.load-css( '../components/footer/style' );
-@include meta.load-css( '../components/dev-card/style' );
-@include meta.load-css( '../components/loading-placeholder/style' );
-@include meta.load-css( '../components/jetpack-notices/style' );
-@include meta.load-css( '../components/masthead/style' );
-@include meta.load-css( '../components/module-settings/style' );
-@include meta.load-css( '../components/support-card/style' );
-@include meta.load-css( '../components/forms/styles' );
-@include meta.load-css( '../components/admin-notices/style' );
-@include meta.load-css( '../components/module-toggle/style' );
-@include meta.load-css( '../components/navigation-settings/style' );
-@include meta.load-css( '../components/settings-card/style' );
-@include meta.load-css( '../components/settings-group/style' );
-@include meta.load-css( '../components/apps-card/style' );
-@include meta.load-css( '../components/upgrade-notice-content/style' );
-@include meta.load-css( '../components/jetpack-dialogue-modern/style' );
-@include meta.load-css( '../components/about-page/style' );
+@include meta.load-css( "../components/dash-item/style" );
+@include meta.load-css( "../components/dash-section-header/style" );
+@include meta.load-css( "../components/foldable-card/style2" );
+@include meta.load-css( "../components/footer/style" );
+@include meta.load-css( "../components/dev-card/style" );
+@include meta.load-css( "../components/loading-placeholder/style" );
+@include meta.load-css( "../components/jetpack-notices/style" );
+@include meta.load-css( "../components/masthead/style" );
+@include meta.load-css( "../components/module-settings/style" );
+@include meta.load-css( "../components/support-card/style" );
+@include meta.load-css( "../components/forms/styles" );
+@include meta.load-css( "../components/admin-notices/style" );
+@include meta.load-css( "../components/module-toggle/style" );
+@include meta.load-css( "../components/navigation-settings/style" );
+@include meta.load-css( "../components/settings-card/style" );
+@include meta.load-css( "../components/settings-group/style" );
+@include meta.load-css( "../components/apps-card/style" );
+@include meta.load-css( "../components/upgrade-notice-content/style" );
+@include meta.load-css( "../components/jetpack-dialogue-modern/style" );
+@include meta.load-css( "../components/about-page/style" );
 
 // Page Templates
-@include meta.load-css( '../at-a-glance/style' );
-@include meta.load-css( '../my-plan/style' );
-@include meta.load-css( '../performance/style' );
-@include meta.load-css( '../recommendations/style' );
-@include meta.load-css( '../security/style' );
-@include meta.load-css( '../settings/style' );
-@include meta.load-css( '../traffic/style' );
+@include meta.load-css( "../at-a-glance/style" );
+@include meta.load-css( "../my-plan/style" );
+@include meta.load-css( "../performance/style" );
+@include meta.load-css( "../recommendations/style" );
+@include meta.load-css( "../security/style" );
+@include meta.load-css( "../settings/style" );
+@include meta.load-css( "../traffic/style" );

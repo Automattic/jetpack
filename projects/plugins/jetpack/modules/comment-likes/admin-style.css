@@ -32,7 +32,7 @@
 
 .fixed .column-comment_likes .vers::before {
 	font: 400 20px/1 dashicons;
-	content: '\f155';
+	content: "\f155";
 	speak: none;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;

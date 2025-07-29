@@ -34,11 +34,11 @@
 
 	&.transparent {
 		--verbum-font-color: rgba(0, 0, 0, 0.8);
-		--verbum-border-color: #DCDCDE;
+		--verbum-border-color: #dcdcde;
 		--verbum-background-color: rgba(255, 255, 255, 0.6);
 		--verbum-wrapper-background-color: rgba(255, 255, 255, 0.6);
 		--verbum-content-background-color: rgba(255, 255, 255, 0.6);
-		--verbum-element-opacity: .9;
+		--verbum-element-opacity: 0.9;
 		--wp--preset--color--primary: var(--verbum-font-color);
 		--verbum-focus-color: #0675c4;
 		--verbum-focus-background-color: #fff;
@@ -46,11 +46,11 @@
 	}
 
 	&.light {
-		--verbum-font-color: #3C434A;
-		--verbum-border-color: #DCDCDE;
-		--verbum-background-color: #FFF;
-		--verbum-wrapper-background-color: #F9F9F9;
-		--verbum-content-background-color: #FFF;
+		--verbum-font-color: #3c434a;
+		--verbum-border-color: #dcdcde;
+		--verbum-background-color: #fff;
+		--verbum-wrapper-background-color: #f9f9f9;
+		--verbum-content-background-color: #fff;
 		--verbum-element-opacity: 1;
 		--wp--preset--color--primary: var(--verbum-font-color);
 		--verbum-focus-color: #0675c4;
@@ -345,11 +345,11 @@
 								button.social-button {
 
 									&:not(.active) {
-										background-color: #5C5C5C;
-										opacity: .6;
+										background-color: #5c5c5c;
+										opacity: 0.6;
 
 										svg {
-											opacity: .8;
+											opacity: 0.8;
 										}
 									}
 								}
@@ -370,15 +370,15 @@
 								box-sizing: border-box;
 
 								&.wordpress {
-									background-color: #0675C4;
+									background-color: #0675c4;
 								}
 
 								&.facebook {
-									background-color: #0F6FEA;
+									background-color: #0f6fea;
 								}
 
 								&.mail {
-									background-color: #3C97CE;
+									background-color: #3c97ce;
 								}
 
 								&:focus-visible {
@@ -460,7 +460,8 @@
 						padding: 0;
 						display: flex;
 						overflow: hidden;
-						// Because of the overlap & focus we need to adjust things a bit so it looks the same
+						// Because of the overlap & focus we need to adjust
+						// things a bit so it looks the same
 						margin: -2px 0 -2px -2px;
 
 						button {
@@ -476,7 +477,7 @@
 
 							&:focus {
 								outline: 2px solid var(--verbum-focus-color);
-								// The buttons overlap so we need to add a z-index to the focussed button
+								// The buttons overlap so we need to add a z-index to focussed button
 								z-index: 1;
 							}
 						}

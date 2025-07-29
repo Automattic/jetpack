@@ -36,12 +36,10 @@ test.describe( 'Getting started page', () => {
 	test( 'User should be able to purchase the premium plan', async () => {
 		const expectedUrlPattern = /https:\/\/wordpress.com\/.*checkout.*/;
 
-		const navigation = jetpackBoostPage.page.waitForNavigation( {
-			url: expectedUrlPattern,
+		await jetpackBoostPage.click( 'text="Get Boost"' );
+		await jetpackBoostPage.page.waitForURL( expectedUrlPattern, {
 			timeout: 180000,
 		} );
-		await jetpackBoostPage.click( 'text="Get Boost"' );
-		await navigation;
 
 		expect(
 			expectedUrlPattern.test( jetpackBoostPage.page.url() ),
@@ -50,9 +48,8 @@ test.describe( 'Getting started page', () => {
 	} );
 
 	test( 'User should be able to get started with the free plan', async () => {
-		const navigation = jetpackBoostPage.page.waitForNavigation( { timeout: 180000 } );
 		await jetpackBoostPage.click( 'text="Start for free"' );
-		await navigation;
+		await jetpackBoostPage.page.waitForURL( /page=jetpack-boost(?:#\/)?$/, { timeout: 180000 } );
 
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();

@@ -7,6 +7,10 @@ import LineChart from '../line-chart';
 import sampleData from './sample-data';
 import type { Meta } from '@storybook/react';
 
+type StoryArgs = React.ComponentProps< typeof LineChart > & {
+	themeName?: string;
+};
+
 const customStorybookTheme = merge( jetpackTheme, {
 	glyphs: [
 		props => createElement( DefaultGlyph, { ...props, key: props.key } ),
@@ -41,14 +45,14 @@ const THEME_MAP = {
 	customStorybook: customStorybookTheme,
 };
 
-export const lineChartMetaArgs = {
+export const lineChartMetaArgs: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Line Chart',
 	component: LineChart,
 	parameters: {
 		layout: 'centered',
 	},
 	decorators: [
-		( Story, { args } ) => {
+		( Story, { args }: { args: StoryArgs } ) => {
 			const theme = THEME_MAP[ args.themeName ];
 
 			return (
@@ -72,7 +76,7 @@ export const lineChartMetaArgs = {
 	],
 	argTypes: {
 		themeName: {
-			control: 'select',
+			control: { type: 'select' as const },
 			options: [ 'default', 'jetpack', 'woo', 'customStorybook' ],
 			defaultValue: 'default',
 		},
@@ -98,7 +102,7 @@ export const lineChartMetaArgs = {
 			},
 		},
 	},
-} satisfies Meta< typeof LineChart >;
+};
 
 export const lineChartStoryArgs = {
 	data: sampleData,
@@ -111,10 +115,10 @@ export const lineChartStoryArgs = {
 	options: {
 		axis: {
 			x: {
-				orientation: 'bottom',
+				orientation: 'bottom' as const,
 			},
 			y: {
-				orientation: 'left',
+				orientation: 'left' as const,
 			},
 		},
 	},

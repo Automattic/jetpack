@@ -9,11 +9,8 @@ test.describe( 'Cache module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
+
 		await boostPrerequisitesBuilder( page )
-			.withLoggedIn( true )
-			.withInactiveModules( [
-				'page_cache', // Make sure it's inactive.
-			] )
 			.withCleanEnv()
 			.withMockConnection( true )
 			.withSpeedScoreMocked( true )
@@ -26,8 +23,8 @@ test.describe( 'Cache module', () => {
 
 	// Disabling the module before each test, because each test will decide if
 	// it needs the module enabled or not.
-	test.beforeEach( async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'page_cache' ] ).build();
+	test.beforeEach( async ( { testUtils } ) => {
+		await testUtils.deactivateBoostModule( 'page_cache' );
 	} );
 
 	test.afterAll( async () => {
@@ -100,8 +97,9 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should be present when module is active', async ( {
 		browser,
 		baseURL,
+		testUtils,
 	} ) => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
+		await testUtils.activateBoostModule( 'page_cache' );
 
 		// Ensure default storageState is empty.
 		const newContext = await browser.newContext( { storageState: {} } );

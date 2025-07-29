@@ -1,6 +1,7 @@
 @use "../atoms/colors/colors";
 
-/* 'Pages' is a temporary location for these styles, until we can break them up into their proper atmoic locations */
+/* 'Pages' is a temporary location for these styles until we
+ * can break them up into their proper atomic locations */
 
 // ==========================================================================
 // Jetpack Protect Config Page
@@ -64,7 +65,7 @@
 .configure-module {
 
 	input[disabled] {
-		opacity: .5;
+		opacity: 0.5;
 	}
 
 	input.button-primary {

@@ -4,13 +4,17 @@ import sampleData from './sample-data';
 import type { LineChartAnnotationProps } from '../line-chart-annotation';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof LineChart > = {
+type StoryArgs = React.ComponentProps< typeof LineChart > & {
+	themeName?: string;
+};
+
+const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart/Annotations',
 	args: {
 		...lineChartStoryArgs,
 	},
-} satisfies Meta< typeof LineChart >;
+};
 
 export default meta;
 

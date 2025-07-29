@@ -1,15 +1,6 @@
 import assert from 'assert';
-import fs from 'fs';
-import config from 'config';
 import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows/index.js';
-import { provisionJetpackStartConnection } from '../helpers/partner-provisioning.js';
-import {
-	execWpCommand,
-	getDotComCredentials,
-	getSiteCredentials,
-	isLocalSite,
-	resetWordpressInstall,
-} from '../helpers/utils-helper.js';
+import { execWpCommand, isLocalSite, resetWordpressInstall } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 
 /**
@@ -37,28 +28,12 @@ export function prerequisitesBuilder( page ) {
 			state.plugins.inactive = plugins;
 			return this;
 		},
-		withLoggedIn( shouldBeLoggedIn ) {
-			state.loggedIn = shouldBeLoggedIn;
-			return this;
-		},
-		withWpComLoggedIn( shouldBeLoggedIn ) {
-			state.wpComLoggedIn = shouldBeLoggedIn;
-			return this;
-		},
 		withConnection( shouldBeConnected ) {
 			state.connected = shouldBeConnected;
 			return this;
 		},
 		withPlan( plan ) {
 			state.plan = plan;
-			return this;
-		},
-		withActiveModules( modules = [] ) {
-			state.modules.active = modules;
-			return this;
-		},
-		withInactiveModules( modules = [] ) {
-			state.modules.inactive = modules;
 			return this;
 		},
 		withCleanEnv() {
@@ -85,7 +60,6 @@ async function buildPrerequisites( state, page ) {
 		plugins: () => ensurePluginsState( state.plugins ),
 		loggedIn: () => ensureUserIsLoggedIn( page ),
 		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( page ),
-		connected: () => ensureConnectedState( state.connected ),
 		plan: () => ensurePlan( state.plan, page ),
 		modules: () => ensureModulesState( state.modules ),
 		clean: () => ensureCleanState( state.clean ),
@@ -103,68 +77,6 @@ async function buildPrerequisites( state, page ) {
 			}
 		}
 	}
-}
-
-/**
- * Ensure connected state.
- * @param {boolean} requiredConnected - Whether the site should be connected.
- */
-export async function ensureConnectedState( requiredConnected = false ) {
-	if ( ! isLocalSite() ) {
-		logger.prerequisites(
-			'Site is not local, skipping connection setup. Assuming required setup is already in place.'
-		);
-		return;
-	}
-
-	const isConnected = await isBlogTokenSet();
-
-	if ( requiredConnected && isConnected ) {
-		logger.prerequisites( 'Already connected, moving on' );
-	} else if ( requiredConnected && ! isConnected ) {
-		logger.prerequisites( 'Connecting Jetpack' );
-		await connect();
-	} else if ( ! requiredConnected && isConnected ) {
-		logger.prerequisites( 'Disconnecting Jetpack' );
-		await disconnect();
-	} else {
-		logger.prerequisites( 'Already disconnected, moving on' );
-	}
-}
-
-/**
- * Connect Jetpack.
- */
-async function connect() {
-	const creds = getDotComCredentials();
-	const siteCreds = getSiteCredentials();
-	await execWpCommand( `user update ${ siteCreds.username } --user_email=${ creds.email }` );
-
-	try {
-		provisionJetpackStartConnection( creds.userId, 'free', siteCreds.username );
-	} catch ( error ) {
-		// Let's try to re-try the provisioning if it fails the first time.
-		if ( error.message.startsWith( 'Jetpack Start provisioning failed' ) ) {
-			provisionJetpackStartConnection( creds.userId, 'free', siteCreds.username );
-		} else {
-			throw error;
-		}
-	}
-	assert.ok( await isBlogTokenSet() );
-
-	// We are connected. Let's save the existing connection options just in case.
-	const result = await execWpCommand( 'option get jetpack_private_options --format=json' );
-	fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
-}
-
-/**
- * Disconnect Jetpack.
- */
-async function disconnect() {
-	await execWpCommand( 'option delete jetpack_private_options' );
-	await execWpCommand( 'option delete jetpack_sync_error_idc' );
-
-	assert.ok( ! ( await isBlogTokenSet() ) );
 }
 
 /**
@@ -364,5 +276,5 @@ export async function isBlogTokenSet() {
 	) {
 		return false;
 	}
-	throw result;
+	return false;
 }
