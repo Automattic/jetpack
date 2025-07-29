@@ -91,21 +91,22 @@ class The_Neverending_Home_Page {
 	 * @return object
 	 */
 	public static function get_settings() {
+		$defaults = array(
+			'type'            => 'scroll', // scroll | click
+			'requested_type'  => 'scroll', // store the original type for use when logic overrides it
+			'footer_widgets'  => false, // true | false | sidebar_id | array of sidebar_ids -- last two are checked with is_active_sidebar
+			'container'       => 'content', // container html id
+			'wrapper'         => true, // true | false | html class -- the html class.
+			'render'          => false, // optional function, otherwise the `content` template part will be used
+			'footer'          => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
+			'footer_callback' => false, // function to be called to render the IS footer, in place of the default
+			'posts_per_page'  => false, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- int | false to set based on IS type
+			'click_handle'    => true, // boolean to enable or disable rendering the click handler div. If type is click and this is false, page must include its own trigger with the HTML ID `infinite-handle`.
+		);
+
 		if ( self::$settings === null ) {
 			$css_pattern = '#[^A-Z\d\-_]#i';
 
-			$defaults = array(
-				'type'            => 'scroll', // scroll | click
-				'requested_type'  => 'scroll', // store the original type for use when logic overrides it
-				'footer_widgets'  => false, // true | false | sidebar_id | array of sidebar_ids -- last two are checked with is_active_sidebar
-				'container'       => 'content', // container html id
-				'wrapper'         => true, // true | false | html class -- the html class.
-				'render'          => false, // optional function, otherwise the `content` template part will be used
-				'footer'          => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
-				'footer_callback' => false, // function to be called to render the IS footer, in place of the default
-				'posts_per_page'  => false, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- int | false to set based on IS type
-				'click_handle'    => true, // boolean to enable or disable rendering the click handler div. If type is click and this is false, page must include its own trigger with the HTML ID `infinite-handle`.
-			);
 			$settings = $defaults;
 			// Validate settings passed through add_theme_support()
 			$_settings = get_theme_support( 'infinite-scroll' );
@@ -267,20 +268,22 @@ class The_Neverending_Home_Page {
 			}
 
 			// Store final settings in a class static to avoid reparsing
-			/**
-			 * Filter the array of Infinite Scroll settings.
-			 *
-			 * @module infinite-scroll
-			 *
-			 * @since 2.0.0
-			 *
-			 * @param array $settings Array of Infinite Scroll settings.
-			 */
-			self::$settings = apply_filters( 'infinite_scroll_settings', $settings );
+			self::$settings = $settings;
 		}
 
-		/** This filter is already documented in modules/infinite-scroll/infinity.php */
-		return (object) apply_filters( 'infinite_scroll_settings', self::$settings );
+		/**
+		 * Filter the array of Infinite Scroll settings.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param array $settings Array of Infinite Scroll settings.
+		 */
+		$filtered_settings = apply_filters( 'infinite_scroll_settings', self::$settings );
+
+		// Ensure all properties are still set.
+		return (object) wp_parse_args( $filtered_settings, $defaults );
 	}
 
 	/**
