@@ -2659,12 +2659,13 @@ EOT;
 
 		// Check that the function return null if the function gets null.
 		$this->assertNull(
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
 			Util::grunion_contact_form_apply_block_attribute( null, array( 'foo' => 'bar' ) )
 		);
 
 		// Check that the function returns an array if the function gets an empty array.
 		$this->assertEquals(
-			array(),
+			array(), // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
 			Util::grunion_contact_form_apply_block_attribute( array(), array( 'foo' => 'bar' ) )
 		);
 	}
