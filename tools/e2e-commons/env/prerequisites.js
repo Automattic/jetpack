@@ -47,6 +47,7 @@ export function prerequisitesBuilder( page ) {
  * @param {object}  state.modules   - Modules state, see ensureModulesState()
  * @param {page}    page            - Playwright page instance.
  */
+// eslint-disable-next-line no-unused-vars
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		plugins: () => ensurePluginsState( state.plugins ),
