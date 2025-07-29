@@ -6,17 +6,21 @@
  * Version: 1.0.0
  * Text Domain: jetpack
  *
+ * Provides REST API endpoints for plan data management and HTTP request interception
+ * for E2E testing scenarios.
+ *
  * @package automattic/jetpack
  */
 
 add_action( 'rest_api_init', 'e2e_helper_register_rest_routes' );
+add_filter( 'pre_http_request', 'e2e_intercept_plan_data_request', 1, 3 );
 
 /**
  * Register REST API routes for E2E helper
  */
 function e2e_helper_register_rest_routes() {
 	register_rest_route(
-		'e2e-helper/v1',
+		'e2e-plan-helper/v1',
 		'/plan-data',
 		array(
 			'methods'             => 'POST',
@@ -600,4 +604,50 @@ function e2e_helper_get_plan( $plan_type ) {
 		default:
 			return array();
 	}
+}
+
+/**
+ * Intercept WPCOM plan data request and replaces it with mocked data
+ *
+ * @param false|array|WP_Error $return result.
+ * @param array                $_parsed_args not used.
+ * @param string               $url request URL.
+ */
+function e2e_intercept_plan_data_request( $return, $_parsed_args, $url ) {
+	if ( ! class_exists( 'Jetpack_Options' ) ) {
+		return $return;
+	}
+
+	$site_id = Jetpack_Options::get_option( 'id' );
+
+	if ( empty( $site_id ) ) {
+		return $return;
+	}
+
+	// match both /sites/$site_id && /sites/$site_id? urls.
+	if ( 1 === preg_match( sprintf( '/\/sites\/%d($|\?)/', $site_id ), $url ) ) {
+		$plan_data = get_option( 'e2e_jetpack_plan_data' );
+		if ( empty( $plan_data ) ) {
+			return $return;
+		}
+
+		delete_option( 'jetpack_active_plan' );
+
+		return array(
+			'response' => array( 'code' => 200 ),
+			'body'     => $plan_data,
+		);
+	}
+
+	if ( false !== stripos( $url, sprintf( '/sites/%d/wordads/status', $site_id ) ) ) {
+		$site_url  = site_url();
+		$json_data = sprintf( '{"ID":%d,"name":"E2E Testing","URL":"%s","approved":true,"active":true,"house":true,"unsafe":false,"status":false}', $site_id, $site_url );
+
+		return array(
+			'response' => array( 'code' => 200 ),
+			'body'     => $json_data,
+		);
+	}
+
+	return $return;
 }
