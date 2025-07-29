@@ -2,8 +2,7 @@ import { useMemo } from 'react';
 import type { SeriesData, DataPointDate } from '../../types';
 
 export type EnhancedDataPoint = DataPointDate & {
-	__originalValue?: number;
-	__isZero?: boolean;
+	visualValue?: number;
 };
 
 export interface EnhancedSeriesData extends Omit< SeriesData, 'data' > {
@@ -57,9 +56,7 @@ export const useZeroValueDisplay = (
 				if ( point.value === 0 ) {
 					return {
 						...point,
-						__originalValue: 0,
-						__isZero: true,
-						value: minVisibleValue,
+						visualValue: minVisibleValue,
 					};
 				}
 

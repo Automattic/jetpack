@@ -279,7 +279,107 @@ export const WithZeroValues: Story = {
 		docs: {
 			description: {
 				story:
-					'Bar chart visually displaying zero values. Set the prop `zeroValueDisplay` to `true` to display zero values, and `false` to not display zero values. Default is `false`.',
+					'Bar chart visually displaying zero values. Set the prop `zeroValueDisplay` to `true` to display zero values, and `false` to not display zero values. Default is `false`. When enabled, zero values are given a small `visualValue` for rendering while preserving the original `value` of 0 for tooltips and data integrity.',
+			},
+		},
+	},
+};
+
+export const ZeroValueComparison: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '40px' } }>
+			<div>
+				<h3>Zero Value Display: Disabled (Default)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero values are not visually displayed. Bars with zero values have no height.
+				</p>
+				<div style={ { width: '600px', height: '300px' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						zeroValueDisplay={ false }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+
+			<div>
+				<h3>Zero Value Display: Enabled</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero values are visually displayed with minimum height bars. The tooltip still shows the
+					actual value of 0, while the bar has a small visual height for better UX.
+				</p>
+				<div style={ { width: '600px', height: '300px' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						zeroValueDisplay={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+
+			<div>
+				<h3>With Custom Ratios</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					You can customize the minimum visible height using minValueRatio and maxValueRatio options
+					(passed through the hook configuration).
+				</p>
+				<div style={ { width: '600px', height: '300px' } }>
+					<BarChart
+						data={ [
+							{
+								...dataWithZeroValues[ 0 ],
+								data: [
+									{ label: '1896', value: 0 },
+									{ label: '1900', value: 1000 },
+									{ label: '1904', value: 0 },
+									{ label: '1908', value: 500 },
+									{ label: '1912', value: 0 },
+								],
+							},
+						] }
+						zeroValueDisplay={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+			},
+		},
+	},
+};
+
+export const ZeroValueTooltips: Story = {
+	args: {
+		...Default.args,
+		data: [
+			{
+				label: 'Tooltip Test Series',
+				data: [
+					{ label: 'Zero Value', value: 0 },
+					{ label: 'Small Value', value: 5 },
+					{ label: 'Another Zero', value: 0 },
+					{ label: 'Large Value', value: 100 },
+				],
+				options: {},
+			},
+		],
+		zeroValueDisplay: true,
+		withTooltips: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates that tooltips show the original zero values even when zero value display is enabled. Hover over the bars to see that zero values show "0" in tooltips while having visual height.',
 			},
 		},
 	},

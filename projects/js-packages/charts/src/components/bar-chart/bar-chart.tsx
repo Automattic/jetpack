@@ -85,13 +85,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	// Create legend items using the reusable hook
 	const legendItems = useChartLegendData( dataSorted, providerTheme );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
-	const defaultMargin = useChartMargin(
-		height,
-		chartOptions,
-		dataWithVisibleZeros,
-		theme,
-		horizontal
-	);
+	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
@@ -120,8 +114,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		( index: number ) => () =>
 			withPatterns
 				? `url(#${ getPatternId( internalChartId, index ) })`
-				: getColor( dataWithVisibleZeros[ index ], index ),
-		[ withPatterns, getColor, dataWithVisibleZeros, internalChartId ]
+				: getColor( dataSorted[ index ], index ),
+		[ withPatterns, getColor, dataSorted, internalChartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -129,11 +123,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			const nearestDatum = tooltipData?.nearestDatum?.datum as EnhancedDataPoint;
 			if ( ! nearestDatum ) return null;
 
-			// Use the original value if available, otherwise use the actual value
-			const displayValue =
-				nearestDatum.__originalValue !== undefined
-					? nearestDatum.__originalValue
-					: nearestDatum.value;
+			// Always use the original value for tooltips, never the visual value
+			const displayValue = nearestDatum.value;
 
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
@@ -314,12 +305,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				{ withPatterns && (
 					<>
 						<defs data-testid="bar-chart-patterns">
-							{ dataWithVisibleZeros.map( ( seriesData, index ) =>
+							{ dataSorted.map( ( seriesData, index ) =>
 								renderPattern( index, getColor( seriesData, index ) )
 							) }
 						</defs>
 						<style>
-							{ dataWithVisibleZeros.map( ( seriesData, index ) =>
+							{ dataSorted.map( ( seriesData, index ) =>
 								createPatternBorderStyle( index, getColor( seriesData, index ) )
 							) }
 						</style>
