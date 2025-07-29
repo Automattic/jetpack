@@ -100,7 +100,8 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 								  )
 								: __(
 										'We did not find this theme on WordPress.org. We encourage you to create a backup of your site before fixing this threat, to keep a copy of it.',
-										'jetpack-protect'
+										'jetpack-protect',
+										0 // dummy arg to avoid bad minification
 								  ) }
 						</Text>
 					) }
