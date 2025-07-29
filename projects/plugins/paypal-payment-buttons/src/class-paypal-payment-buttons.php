@@ -122,11 +122,11 @@ class PayPal_Payment_Buttons {
 
 	/**
 	 * Enqueue plugin admin scripts and styles.
+	 *
+	 * @param string $hook_suffix The current admin page hook suffix.
 	 */
-	public function enqueue_admin_scripts() {
-		// Only enqueue on our admin page
-		$screen = get_current_screen();
-		if ( $screen && $screen->id !== 'toplevel_page_paypal-payment-buttons' ) {
+	public function enqueue_admin_scripts( $hook_suffix ) {
+		if ( 'toplevel_page_paypal-payment-buttons' !== $hook_suffix ) {
 			return;
 		}
 
