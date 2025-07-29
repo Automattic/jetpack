@@ -221,7 +221,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	onPointerUp?: ( event: EventHandlerParams< DataPoint | DataPointDate > ) => void;
 	/**
-	 * Callback function for pointer down event
+	 * Callback function for pointer move event
 	 */
 	onPointerMove?: ( event: EventHandlerParams< DataPoint | DataPointDate > ) => void;
 	/**
