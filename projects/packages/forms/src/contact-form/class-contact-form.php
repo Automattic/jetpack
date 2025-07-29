@@ -68,6 +68,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $forms = array();
 
 	/**
+	 * The context for the forms, indexed by context.
+	 * This is used to keep track of how many forms are in a specific context.
+	 *
+	 * @var array
+	 */
+	public static $forms_context = array();
+
+	/**
 	 * Whether to print the grunion.css style when processing the contact-form shortcode
 	 *
 	 * @var bool
@@ -133,33 +141,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( $set_id ) {
-			$is_widget = false;
-
-			if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-				$attributes['id'] = 'widget-' . $attributes['widget'];
-				$is_widget        = true;
-			} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-				$attributes['id'] = 'block-template-' . $attributes['block_template'];
-			} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-				$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-			} elseif ( $this->current_post ) {
-				$attributes['id'] = $this->current_post->ID;
-			}
-
-			if ( ! empty( self::$forms ) && ! $is_widget ) {
-				// Ensure 'id' exists in $attributes before trying to modify it
-				if ( ! isset( $attributes['id'] ) ) {
-					$attributes['id'] = '';
-				}
-
-				// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
-				$page_num = max( 1, intval( $page ) );
-
-				$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
-			}
+			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page );
 		}
-		$this->hash                 = sha1( wp_json_encode( $attributes ) );
-		self::$forms[ $this->hash ] = $this;
+		$this->hash = sha1( wp_json_encode( $attributes ) );
+
+		if ( $set_id ) {
+			self::$forms[ $this->hash ] = $this; // This increments the form count.
+			self::increment_form_context_count( $attributes, $this->current_post );
+		}
 
 		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
@@ -240,6 +229,82 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$form->has_verified_jwt = true;
 		return $form;
 	}
+
+	/**
+	 * Get the context for the contact form based on the attributes and post.
+	 *
+	 * @param array        $attributes The attributes of the contact form.
+	 * @param WP_Post|null $post The post object, if available.
+	 *
+	 * @return string The context for the contact form.
+	 */
+	public static function get_context( $attributes, $post = null ) {
+		$context = 'jp-form';
+		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			$context = 'widget-' . $attributes['widget'];
+		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
+			$context = 'block-template-' . $attributes['block_template'];
+		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
+			$context = 'block-template-part-' . $attributes['block_template_part'];
+		} elseif ( $post instanceof WP_Post ) {
+			$context = (string) $post->ID;
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Increment the count of forms for a specific context.
+	 *
+	 * @param array        $attributes The attributes of the contact form.
+	 * @param WP_Post|null $post The post object, if available.
+	 *
+	 * @return void
+	 */
+	public static function increment_form_context_count( $attributes, $post ) {
+		$context = self::get_context( $attributes, $post );
+		if ( ! isset( self::$forms_context[ $context ] ) ) {
+			self::$forms_context[ $context ] = 1;
+			return;
+		}
+		self::$forms_context[ $context ] = self::get_forms_context_count( $context ) + 1;
+	}
+
+	/**
+	 * Get the count of forms.
+	 *
+	 * @return int The count of forms.
+	 */
+	public static function get_forms_count() {
+		return count( self::$forms );
+	}
+
+	/**
+	 * Compute the ID for the contact form based on the attributes and post.
+	 *
+	 * @param array        $attributes The attributes of the contact form.
+	 * @param WP_Post|null $post The post object, if available.
+	 * @param int          $page_number The page number, if available.
+	 *
+	 * @return string The ID for the contact form.
+	 */
+	public static function compute_id( $attributes, $post = null, $page_number = 1 ) {
+
+		$context = self::get_context( $attributes, $post );
+		$id_part = array( $context );
+
+		if ( self::get_forms_context_count( $context ) > 0 ) {
+			$id_part[] = self::get_forms_context_count( $context );
+		}
+
+		$page_num = max( 1, intval( $page_number ) );
+		if ( $page_num > 1 ) {
+			$id_part[] = $page_num;
+		}
+
+		return implode( '-', $id_part );
+	}
+
 	/**
 	 * Helper function to get the secret from the Tokens class.
 	 *
@@ -281,13 +346,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 			self::get_secret()
 		);
 	}
+
 	/**
 	 * Get the count of forms.
 	 *
+	 * @param string $context The context for which to get the count of forms.
+	 *
 	 * @return int The count of forms.
 	 */
-	public static function get_forms_count() {
-		return count( self::$forms );
+	public static function get_forms_context_count( $context ) {
+		if ( ! isset( self::$forms_context[ $context ] ) ) {
+			self::$forms_context[ $context ] = 0;
+			return 0;
+		}
+
+		return self::$forms_context[ $context ];
 	}
 
 	/**
@@ -421,6 +494,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_singular() ) {
 			add_action( 'admin_bar_menu', array( __CLASS__, 'add_quick_link_to_admin_bar' ), 100 ); // We use priority 100 so that the link that is added gets added after the "Edit Page" link.
 		}
+		$plugin               = Contact_Form_Plugin::init();
+		$attributes['widget'] = $plugin->get_current_widget_context();
 		// Create a new Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
 		Contact_Form_Plugin::reset_step();

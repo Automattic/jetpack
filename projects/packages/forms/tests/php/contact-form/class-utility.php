@@ -101,31 +101,7 @@ class Utility {
 	 */
 	public static function get_form_id( $attributes = array() ) {
 		global $post, $page;
-		// Ensure 'id' exists in $attributes before trying to use it
-		if ( ! isset( $attributes['id'] ) ) {
-			$attributes['id'] = '';
-		}
-
-		$count = Contact_Form::get_forms_count();
-
-		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-			$attributes['id'] = 'widget-' . $attributes['widget'];
-		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-
-			$attributes['id'] = 'block-template-' . $attributes['block_template'];
-		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-		} elseif ( $post ) {
-			$attributes['id'] = $post->ID;
-		}
-
-		if ( $count ) {
-			// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
-			$page_num = max( 1, intval( $page ) );
-
-			$attributes['id'] = $attributes['id'] . '-' . ( $count + 1 ) . '-' . $page_num;
-		}
-		return $attributes['id'];
+		return Contact_Form::compute_id( $attributes, $post, $page );
 	}
 
 	public static function get_post_request( $values, $form_id = null, $post_id = 0 ) {
