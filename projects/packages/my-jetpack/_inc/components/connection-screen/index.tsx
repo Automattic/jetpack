@@ -1,45 +1,20 @@
-import { Container, Col, AdminPage } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { AdminPage } from '@automattic/jetpack-components';
+import { getJetpackAdminPageUrl, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { useSearchParams } from 'react-router';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import useMyJetpackReturnToPage from '../../hooks/use-my-jetpack-return-to-page';
-import CloseLink from '../close-link';
-import ConnectionScreenBody from './body';
-import ConnectionScreenFooter from './footer';
-import styles from './styles.module.scss';
+import { addQueryArgs } from '@wordpress/url';
 import type { FC } from 'react';
 
 const ConnectionScreen: FC = () => {
-	const [ searchParams ] = useSearchParams();
-	const shouldSkipPricing = searchParams.get( 'skip_pricing' ) === 'true';
-	const returnToPage = useMyJetpackReturnToPage();
-	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
+	const redirectUrl = addQueryArgs( getJetpackAdminPageUrl(), {
+		connect_url_redirect: 1,
+		redirect_after_auth: getMyJetpackUrl(),
+	} );
+
+	window.location.replace( redirectUrl );
+
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ false }
-			useInternalLinks={ shouldUseInternalLinks() }
-		>
-			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
-				<Col className={ styles[ 'relative-col' ] }>
-					<CloseLink
-						className={ styles[ 'close-link' ] }
-						accessibleName={ __( 'Go back to previous screen', 'jetpack-my-jetpack' ) }
-					/>
-				</Col>
-				<Col>
-					<ConnectionScreenBody
-						from="my-jetpack"
-						redirectUri={ returnToPage }
-						apiRoot={ apiRoot }
-						apiNonce={ apiNonce }
-						registrationNonce={ registrationNonce }
-						skipPricingPage={ shouldSkipPricing }
-						footer={ <ConnectionScreenFooter /> }
-					/>
-				</Col>
-			</Container>
+		<AdminPage showBackground={ false } showFooter={ false }>
+			<div style={ { marginInline: '1.5rem' } }>{ __( 'Redirecting…', 'jetpack-my-jetpack' ) }</div>
 		</AdminPage>
 	);
 };
