@@ -594,7 +594,7 @@ function wpcom_display_site_health_page() {
 		__( 'Your site\'s in good hands', 'jetpack-mu-wpcom' ),
 		array(
 			__( 'No need to stress over performance or security checks, WordPress.com handles that for you behind the scenes.', 'jetpack-mu-wpcom' ),
-			__( 'That way, your site stays fast, safe, and reliable, without any extra effort from you', 'jetpack-mu-wpcom' ),
+			__( 'That way, your site stays fast, safe, and reliable, without any extra effort from you.', 'jetpack-mu-wpcom' ),
 		),
 		localized_wpcom_url( 'https://wordpress.com/support/choose-a-host/#frequently-asked-questions-about-managed-hosting-with-word-press-com' ),
 		__( 'Learn more', 'jetpack-mu-wpcom' ),
