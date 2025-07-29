@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-/*eslint lodash/import-scope: [2, "method"]*/
 import { Component } from 'react';
 import Toggle from 'components/form-toggle';
 

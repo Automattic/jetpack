@@ -5,10 +5,14 @@ import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof LineChart > = {
+type StoryArgs = React.ComponentProps< typeof LineChart > & {
+	themeName?: string;
+};
+
+const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
-} satisfies Meta< typeof LineChart >;
+};
 
 export default meta;
 
@@ -52,8 +56,8 @@ FixedDimensions.parameters = {
 };
 
 // Story with gradient filled line chart
-export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
-GridientFilled.args = {
+export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientFilled.args = {
 	...Default.args,
 	margin: undefined,
 	data: webTrafficData,

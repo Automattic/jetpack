@@ -1,4 +1,4 @@
-import { expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import logger from '_jetpack-e2e-commons/logger.js';
 
 /**

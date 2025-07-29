@@ -30,6 +30,8 @@ new WPCOM_JSON_API_Render_Embed_Endpoint(
  * Render embed endpoint class.
  *
  * /sites/%s/embeds/render -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoint {
 	/**

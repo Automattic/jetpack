@@ -205,6 +205,8 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint(
 // phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
 /**
  * Update post v1.1 endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
 	/**

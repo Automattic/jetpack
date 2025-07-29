@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2025-07-28
+### Added
+- Add error message on network request failure for AJAX submission. [#44386]
+- Add MailPoet integration. [#44425] [#44431] [#44439]
+- Add new classes for the Feedback refactor. [#44483]
+
+### Changed
+- Clean up unused CSS. [#44471]
+- Improve mobile interface. [#44381] [#44391]
+- Remove all height hacks, clean up some style issues, and fix the footer to the bottom.
+- Update integration modal links. [#44409]
+- Update step divider to look more like UI element. [#44402]
+- Use Badge component for badges. [#44347]
+
+### Fixed
+- Add a JWT token when submitting the form so that we are able to instantiate on submit. [#44399]
+- Allow About page to grow width so content remains centered even on oversized screens. [#44477]
+- Enqueue view script only when the form is rendered. [#44460]
+- Fix Sass warning in inbox. [#44442]
+- Fix padding on input and textarea fields. [#44401]
+- Fix field order on success message. [#44482]
+- Fix form ID collision check. [#44406]
+- Improve CSS on the admin side. [#44478]
+- Use a core variable to account for admin bar and CSS to account for folded sidebar. [#44470]
+
+## [4.0.1] - 2025-07-21
+### Changed
+- Revert forms JWT usage for forms reconstruction from responses. [#44397]
+
+## [4.0.0] - 2025-07-21
+### Added
+- Add "Empty spam" button to delete all responses marked as spam. [#44308]
+- Add Gravatars in form responses. [#44270]
+- Add tests for feedback endpoint. [#44318]
+- Display success info after form submission without reload. [#44204]
+- Include multistep form in Jetpack and WordPress.com plans. [#44309]
+
+### Changed
+- Add feature flag for MailPoet integration. [#44339]
+- Consolidate a single hook for all inbox data, making it easier to share the store props and dispatches and removing the need to invalidate the entire store to get fresh listings after emptying trash. [#44293]
+- Invert default disabled state on empty buttons for a cleaner transition to being available. [#44321]
+- Make phone fields clickable [#44291]
+- Update package dependencies. [#44338] [#44356]
+- Use sentence case in default consent text. [#44078]
+
+### Removed
+- Prevent rendering of old menu entry once the migration page is shown and the user clicks on the new dashboard URL. [#43714]
+- Remove unused editor CSS. [#44346]
+
+### Fixed
+- Add a JWT token when submitting the form so that we are able to instantiate on submit. [#44360]
+- Fix export hooks error on mobile. [#44357]
+- Fix integration card headers on mobile. [#44286]
+- Fix excess padding next to Gravatar on mobile. [#44394]
+- Prevent post_meta from being created. [#44332]
+- Remove manual `DependencyExtractionWebpackPlugin` instantiation. [#44307]
+- Show submission information after reload with AJAX submission. [#44342]
+
 ## [3.1.0] - 2025-07-14
 ### Added
 - Add "Empty trash" button. [#44225]
@@ -1293,6 +1351,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[5.0.0]: https://github.com/automattic/jetpack-forms/compare/v4.0.1...v5.0.0
+[4.0.1]: https://github.com/automattic/jetpack-forms/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/automattic/jetpack-forms/compare/v3.1.0...v4.0.0
 [3.1.0]: https://github.com/automattic/jetpack-forms/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/automattic/jetpack-forms/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/automattic/jetpack-forms/compare/v2.0.1...v2.1.0

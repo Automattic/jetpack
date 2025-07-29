@@ -1,5 +1,5 @@
-@use 'sass:color';
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "sass:color";
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .notice {
 	font-size: 13px;
@@ -23,18 +23,18 @@
 }
 
 .notice--warning {
-	background-color: color.adjust( gb.$alert-yellow, $lightness: 35% );
+	background-color: color.adjust(gb.$alert-yellow, $lightness: 35%);
 	border-left: 2px solid gb.$alert-yellow;
 }
 
 .notice--error {
-	background-color: color.adjust( gb.$alert-red, $lightness: 35% );
+	background-color: color.adjust(gb.$alert-red, $lightness: 35%);
 	border-left: 2px solid gb.$alert-red;
 }
 
 .notice--highlight {
 	padding: 12px 16px;
-	border: 1px solid var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
+	border: 1px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #007cba));
 	border-left-width: 4px;
 }
 
@@ -45,10 +45,11 @@
 	top: 12px;
 	right: 16px;
 
-	&:focus:not( :disabled ) {
-		box-shadow: inset 0 0 0 1px var( --wp-components-color-background, #fff ),
-			0 0 0 var( --wp-admin-border-width-focus )
-				var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
+	&:focus:not(:disabled) {
+		box-shadow:
+			inset 0 0 0 1px var(--wp-components-color-background, #fff),
+			0 0 0 var(--wp-admin-border-width-focus)
+			var(--wp-components-color-accent, var(--wp-admin-theme-color, #007cba));
 	}
 }
 

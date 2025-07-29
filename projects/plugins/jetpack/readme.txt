@@ -326,18 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9-a.3 - 2025-07-14
+### 14.9-a.7 - 2025-07-28
 #### Enhancements
-- Forms: Add "Empty trash" button.
-- Forms: Add link to disconnect Google.
-- Forms: Add tip that spam will automatically be deleted after 15 days.
-- Forms: Improve email copy-to-clipboard visually and make it less hidden.
-- Forms: Refresh look of responses in dashboard.
-- Forms: Update integration links.
-- Use the `view_stats` cap for the Jetpack Stats menu item instead of `manage_options`.
+- Open Graph Meta tags: Add a new fallback image to display on the home page.
+- Open Graph meta tags: Support site logos when generating fallback Image Meta tags.
 
-#### Improved compatibility
-- Sync: Ignore the ActivityPub Outbox CPT.
+#### Bug fixes
+- Carousel: Fix disabling all photon args when opening an image in a lightbox.
+- Clear PayPal Payment button block parameters when changing block type.
+- Forms: Fix padding on input and textarea fields.
+- Forms: Fix the way forms are submitted.
+- Forms: Enqueue view script only when the form is rendered.
+- JITM: Remove jQuery dependency.
+- Mailchimp block: Fix links to accommodate for a bug in Gutenberg.
+- My Jetpack: Fix footer alignment for disconnected accounts.
+- Related Posts: Ensure results are available via REST API directly.
+- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page.
+- Subscriptions: Display floating subscription button on mobile devices as well when enabled.
 
 --------
 

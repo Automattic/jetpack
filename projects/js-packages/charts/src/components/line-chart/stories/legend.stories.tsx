@@ -3,14 +3,18 @@ import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof LineChart > = {
+type StoryArgs = React.ComponentProps< typeof LineChart > & {
+	themeName?: string;
+};
+
+const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart/Legend',
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
 		...legendArgTypes,
 		legendShape: {
-			control: 'select',
+			control: { type: 'select' as const },
 			options: [ 'circle', 'rect' ],
 			table: { category: 'Legend' },
 		},

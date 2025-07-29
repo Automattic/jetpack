@@ -32,6 +32,8 @@ new Jetpack_JSON_API_Plugins_Get_Endpoint(
  * GET  /sites/%s/plugins/%s
  *
  * No v1.2 version since it is .com only
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_Get_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	/**

@@ -30,6 +30,8 @@ new WPCOM_JSON_API_GET_Site_V1_2_Endpoint(
 
 /**
  * GET Site v1_2 endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endpoint {
 

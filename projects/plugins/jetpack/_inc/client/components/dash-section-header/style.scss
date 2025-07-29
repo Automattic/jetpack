@@ -1,16 +1,16 @@
 @use "../../scss/mixins/breakpoints";
 @use "../../scss/typography";
 @use "../../scss/variables/colors";
-@use 'sass:color';
-@use '../../scss/functions/rem';
+@use "sass:color";
+@use "../../scss/functions/rem";
 
 .jp-dash-section-header {
 	display: flex;
 	flex-wrap: wrap;
-	margin: rem.convert( 12px ) 0 rem.convert( 12px );
+	margin: rem.convert(12px) 0 rem.convert(12px);
 
 	@include breakpoints.breakpoint( "<660px" ) {
-		margin-bottom: rem.convert( 24px );
+		margin-bottom: rem.convert(24px);
 	}
 
 	@include breakpoints.breakpoint( "<480px" ) {
@@ -68,9 +68,9 @@
 
 .jp-dash-section-header__settings {
 	display: inline-block;
-	min-width: rem.convert( 40px );
+	min-width: rem.convert(40px);
 	text-align: center;
-	color: color.adjust( colors.$gray, $lightness: -10% );
+	color: color.adjust(colors.$gray, $lightness: -10%);
 
 	&:focus {
 		outline: 0;
@@ -92,7 +92,7 @@
 	font-style: italic;
 
 	@include breakpoints.breakpoint( "<660px" ) {
-		margin-top: rem.convert( 4px );
+		margin-top: rem.convert(4px);
 	}
 
 	@include breakpoints.breakpoint( "<480px" ) {

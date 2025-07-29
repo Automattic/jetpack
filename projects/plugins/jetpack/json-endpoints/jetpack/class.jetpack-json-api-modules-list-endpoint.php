@@ -4,6 +4,8 @@
  * Modules list endpoint.
  *
  * GET /sites/%s/jetpack/modules
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Modules_List_Endpoint extends Jetpack_JSON_API_Modules_Endpoint {
 

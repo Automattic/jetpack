@@ -63,6 +63,11 @@ function fetch_token( $text, $image_url, $template ) {
 
 	if ( Utils::is_wpcom() ) {
 		require_lib( 'social-image-generator-token' );
+		require_lib( 'publicize/util/social-image-generator' );
+
+		if ( ! \Publicize\Social_Image_Generator\is_enabled() ) {
+			return new WP_Error( 'social_image_generator_not_enabled', __( 'Social Image Generator is not enabled.', 'jetpack-publicize-pkg' ) );
+		}
 
 		return \Social_Image_Generator\generate_token( $args );
 	}

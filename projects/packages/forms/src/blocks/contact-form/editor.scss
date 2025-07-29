@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .wp-block-jetpack-contact-form {
@@ -72,26 +72,22 @@
 			}
 
 			&.jetpack-field__width-25 {
-				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				flex: 1 1 calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 25%;
-
-				.jetpack-option__input.jetpack-option__input.jetpack-option__input {
-					width: 70px;
-				}
 			}
 
 			&.jetpack-field__width-33 {
-				flex: 1 1 calc( 33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				flex: 1 1 calc(33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 33.33%;
 			}
 
 			&.jetpack-field__width-50 {
-				flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				flex: 1 1 calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 50%;
 			}
 
 			&.jetpack-field__width-75 {
-				flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				flex: 1 1 calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 75%;
 			}
 
@@ -103,19 +99,19 @@
 				}
 			}
 
-			&[data-type='jetpack/field-checkbox'],
-			&[data-type='jetpack/field-consent'] {
+			&[data-type="jetpack/field-checkbox"],
+			&[data-type="jetpack/field-consent"] {
 				align-self: center;
 			}
 
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
-				max-width: var( --wp--preset--spacing--80, 100px );
+			&:where(.wp-block-jetpack-contact-form .wp-block-separator) {
+				max-width: var(--wp--preset--spacing--80, 100px);
 				margin-left: auto;
 				margin-right: auto;
 			}
 
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+			&:where(.wp-block-jetpack-contact-form .wp-block-separator.is-style-wide),
+			&:where(.wp-block-jetpack-contact-form .wp-block-separator.is-style-dots) {
 				max-width: inherit;
 			}
 
@@ -333,7 +329,8 @@
 
 .jetpack-field {
 
-	.jetpack-field__input, .jetpack-field__textarea {
+	.jetpack-field__input,
+	.jetpack-field__textarea {
 		width: 100%;
 		box-sizing: border-box;
 		box-shadow: unset;
@@ -342,18 +339,18 @@
 	}
 
 	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where( .jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle ) {
+	:where(.jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle) {
 		font: inherit;
 		border: 1px solid #8c8f94;
 		border-radius: 0;
 	}
 
-	:where( .jetpack-field-dropdown__toggle ) {
+	:where(.jetpack-field-dropdown__toggle) {
 		background-color: var(--jetpack--contact-form--input-background);
 	}
 
 	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where( .jetpack-field__textarea ) {
+	:where(.jetpack-field__textarea) {
 		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
 		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
 		border-style: var(--jetpack--contact-form--border-style, solid);
@@ -387,7 +384,8 @@
 		appearance: none !important;
 		outline: none !important;
 
-		/* Some classic themes set the min-widths, which gives an elliptical shape to the input. */
+		/* Some classic themes set the min-widths, which gives
+		 * an elliptical shape to the input. */
 		min-width: auto;
 	}
 
@@ -400,7 +398,8 @@
 		// with the font size.
 		font-size: inherit;
 
-		&::after, &::before {
+		&::after,
+		&::before {
 			all: initial;
 			color: inherit;
 			font-size: inherit;
@@ -414,7 +413,7 @@
 			border-style: solid;
 			border-width: 1px;
 			box-sizing: border-box;
-			content: ' ';
+			content: " ";
 			display: flex;
 			font-weight: 700;
 			height: 1em;
@@ -465,13 +464,14 @@
 		border-width: var(--jetpack--contact-form--button-outline--border-size);
 		border-color: currentColor;
 		border-radius: var(--jetpack--contact-form--button-outline--border-radius);
-		font-size: var(--jetpack--contact-form--font-size, 16px );
+		font-size: var(--jetpack--contact-form--font-size, 16px);
 		font-family: var(--jetpack--contact-form--font-family);
 		padding: var(--jetpack--contact-form--button-outline--padding);
 		line-height: var(--jetpack--contact-form--button-outline--line-height);
 	}
 
-	// Increase specificity to override the `align-items: baseline` from the `jetpack-field-option` class.
+	// Increase specificity to override the `align-items: baseline`
+	// from the `jetpack-field-option` class.
 	.jetpack-field-option.jetpack-field-option {
 		align-items: center;
 	}
@@ -495,8 +495,8 @@
 		&::before {
 
 			/*
-			 * Options typically have a transform applied to line the checkbox/radio with the label.
-			 * This is not needed for the button style.
+			 * Options typically have a transform applied to align the checkbox/radio
+			 * with the label. This is not needed for the button style.
 			 */
 			transform: unset !important;
 		}
@@ -507,28 +507,6 @@
 		.jetpack-option__type {
 			display: none;
 		}
-	}
-}
-
-// TODO - See if we can find usage of this class. It's possibly a dead style.
-.jetpack-field-multiple .jetpack-field-multiple__add-option {
-	margin: 0;
-	padding: 0;
-
-	.dashicon {
-		width: 1rem;
-		height: 1rem;
-		display: flex;
-		margin-left: 0;
-		margin-right: 0.75rem;
-
-		&::before {
-			font-size: 1rem;
-		}
-	}
-
-	svg {
-		margin-right: 12px;
 	}
 }
 
@@ -555,14 +533,6 @@
 	&:empty {
 		display: none;
 	}
-
-	// TODO - This looks like dead code, it looks like field select can't contain a multiple list.
-	// TODO: make this a class, @enej
-	[data-type='jetpack/field-select'] & {
-		border: 1px solid rgba( 0, 0, 0, 0.4 );
-		border-radius: 4px;
-		padding: 4px;
-	}
 }
 
 // Ensure global styles can ovewrite the default border color.
@@ -576,36 +546,8 @@
 	margin: 0;
 }
 
-// TODO - This looks like dead code, along with the `JetpackOption` component.
-// Duplicated to elevate specificity in order to overwrite core styles
-.jetpack-option__input.jetpack-option__input.jetpack-option__input {
-	color: inherit;
-	background: transparent;
-	border: none;
-	border-radius: 0;
-	flex-grow: 1;
-	line-height: 1.5;
-	font-size: inherit;
-	padding: 0;
-
-	&:hover {
-		border-color: #357cb5;
-	}
-
-	&:focus {
-		box-shadow: none;
-	}
-}
-
 .jetpack-field-multiple.components-base-control {
 	font-size: inherit;
-}
-
-// TODO - This is possibly dead CSS.
-// Duplicated to elevate specificity in order to overwrite calypso styles
-.jetpack-option__remove.jetpack-option__remove {
-	padding: 6px;
-	vertical-align: bottom;
 }
 
 .jetpack-field .components-base-control__label {
@@ -747,12 +689,14 @@
 
 	.jetpack-field {
 
-		.jetpack-field__input, .jetpack-field__textarea {
+		.jetpack-field__input,
+		.jetpack-field__textarea {
 			color: #787c82; //Simulates a placeholder color
 		}
 	}
 
-	.is-style-outlined &, .is-style-animated & {
+	.is-style-outlined &,
+	.is-style-animated & {
 
 		.jetpack-field {
 			position: relative;
@@ -798,15 +742,17 @@
 				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
-				// For some reason, when keeping the rule below together with the above selector,
-				// on production builds, the attributes are being reordered, causing side-effects
+				// For some reason, when keeping the rule below together with the above
+				// selector, on production builds, the attributes are being reordered,
+				// causing side-effects.
 				// stylelint-disable-next-line no-duplicate-selectors
 				border-left: none !important;
 				border-right: none !important;
 				box-sizing: content-box;
 
-				// This is required to ensure the color is not overridden by the global styles.
-				// See the selector in class-contact-form-block.php for 'jetpack/input' registration.
+				// This is required to ensure the color is not overridden by global styles.
+				// See the selector in class-contact-form-block.php for
+				// 'jetpack/input' registration.
 				color: unset !important;
 			}
 
@@ -855,7 +801,8 @@
 				transform: unset;
 			}
 
-			&.is-selected, &.has-placeholder {
+			&.is-selected,
+			&.has-placeholder {
 
 				.notched-label__notch {
 					border-top-color: transparent !important;
@@ -867,8 +814,8 @@
 				}
 
 				.jetpack-field-label .required {
-					// The required text is always 85% of the label font size.
-					// The label font size is reduced to 0.8em in a separate rule, so that needs to be accounted for.
+					// The required text is always 85% of the label font size. The label font
+					// size is set to 0.8em in a separate rule, so account for that.
 					// 0.85 * 0.8 = 0.68em.
 					font-size: 0.68em;
 				}
@@ -898,10 +845,13 @@
 				}
 			}
 
-			.jetpack-field-multiple__list, .jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle {
+			.jetpack-field-multiple__list,
+			.jetpack-field__input,
+			.jetpack-field__textarea,
+			.jetpack-field-dropdown__toggle {
 				display: flex;
 
-				 /*
+				/*
 				 * For the Outlined block style, labels render the input background and
 				 * border styles.
 				 * Unfortunately, the !important rule is required to overcome the inline
@@ -933,8 +883,7 @@
 
 			.jetpack-field__input,
 			.jetpack-field__textarea,
-			.jetpack-field-dropdown__toggle
-			{
+			.jetpack-field-dropdown__toggle {
 				padding-top: 1.4em;
 				padding-left: var(--jetpack--contact-form--animated-left-offset);
 			}
@@ -1006,8 +955,9 @@
 				}
 
 				.required {
-					// The required text is usually 85% of the label font size.
-					// The label is being reduced to 0.75em in a separate rule which doesn't apply to the required text font size.
+					// The required text is usually 85% of the label font size. The label is
+					// reduced to 0.75em in a separate rule which doesn't apply to the required
+					// text font size.
 					// Thus we take into account here - 0.85 * 0.75 = 0.6375em.
 					font-size: 0.6375em;
 				}
@@ -1032,7 +982,7 @@
 	background-color: var(--jetpack--contact-form--input-background);
 }
 
-:where( .wp-block-jetpack-contact-form.is-style-outlined ) {
+:where(.wp-block-jetpack-contact-form.is-style-outlined) {
 
 	.notched-label__leading {
 		border-color: var(--jetpack--contact-form--border-color);
@@ -1048,8 +998,9 @@
 		border-radius: unset !important;
 		padding: 0 4px;
 		transition: border 150ms linear;
-		// For some reason, when keeping the rule below together with the above selector,
-		// on production builds, the attributes are being reordered, causing side-effects
+		// For some reason, when keeping the rule below together with the above
+		// selector, on production builds, the attributes are being reordered,
+		// causing side-effects
 		border-left: none !important;
 		border-right: none !important;
 	}
@@ -1084,7 +1035,7 @@
 	.components-text-control__input[type="text"],
 	.components-text-control__input[type="text"]:focus,
 	.components-text-control__input:focus {
-		border-color: var( --wp--preset--color--vivid-red, #f00 );
+		border-color: var(--wp--preset--color--vivid-red, #f00);
 	}
 }
 
@@ -1157,32 +1108,13 @@
 
 	&.has-child-blocks {
 
-		> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+		> .block-editor-block-list__block-edit > div:not(.block-editor-inner-blocks) {
 
 			> .block-editor-inserter,
-			> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+			> .block-editor-block-list__block-edit > div:not(.block-editor-inner-blocks) {
 				display: none;
 			}
 		}
 	}
 }
 
-// Rating field
-.jetpack-field-rating__wrapper {
-	font-family: "IBM Plex Sans JP", sans-serif;
-	cursor: pointer;
-
-	.jetpack-field-rating__button:not(:first-of-type) {
-		margin-left: 8px;
-	}
-
-	.is-rating-filled,
-	.is-rating-unfilled {
-		-webkit-text-stroke: 2px #8c8f94;
-
-	}
-
-	.is-rating-unfilled {
-		color: transparent;
-	}
-}

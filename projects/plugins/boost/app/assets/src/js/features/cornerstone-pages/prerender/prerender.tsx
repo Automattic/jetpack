@@ -31,7 +31,7 @@ const Prerender = () => {
 
 	return (
 		<div className={ styles.wrapper }>
-			<div className={ styles.title }>
+			<div className={ styles.title } data-testid="prerender-cornerstone-pages-title">
 				<h4>{ __( 'Prerender Cornerstone Pages', 'jetpack-boost' ) }</h4>
 				<ToggleControl
 					className={ styles[ 'toggle-control' ] }

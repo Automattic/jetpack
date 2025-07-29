@@ -13,9 +13,15 @@
 
 @keyframes fadeIn {
 
-	from { opacity: 0; visibility: hidden; }
+	from {
+		opacity: 0;
+		visibility: hidden;
+	}
 
-	to { opacity: 1; visibility: visible; }
+	to {
+		opacity: 1;
+		visibility: visible;
+	}
 }
 
 .widget_eu_cookie_law_widget.widget.top {

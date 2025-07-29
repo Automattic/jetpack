@@ -4,6 +4,8 @@
  * Themes get endpoint class.
  *
  * GET  /sites/%s/themes/%s
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Themes_Get_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 	/**

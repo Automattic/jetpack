@@ -21,6 +21,8 @@ use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Jetpack_Publicize
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Publicize {
 	/**

@@ -1,9 +1,9 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .tab-panel {
 
-    max-width: var(--max-container-width);
-    margin: 0 auto;
+	max-width: var(--max-container-width);
+	margin: 0 auto;
 
 	// Make all the links green
 	a,

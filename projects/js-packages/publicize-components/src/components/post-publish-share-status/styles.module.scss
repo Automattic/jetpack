@@ -1,12 +1,12 @@
 .loading-block {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 
-    :global(.components-spinner) {
-        margin-top: 0;
-    }
+	:global(.components-spinner) {
+		margin-top: 0;
+	}
 }
 
 .loading-text {
-    color: var(--jp-gray-40);
+	color: var(--jp-gray-40);
 }

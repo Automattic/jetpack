@@ -17,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * 1. Settings are synced to WPCOM according to `Automattic\Jetpack\Sync\Modules\Search::$options_to_sync`.
  * 2. All synced options must also be explicitly whitelisted and sanitized on WPCOM; see `PCYsg-sBM-p2`.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Settings {
 

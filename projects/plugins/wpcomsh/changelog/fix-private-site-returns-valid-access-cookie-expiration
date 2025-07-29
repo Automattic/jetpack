@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Private site: ensure private sites return a valid cookie expiration value

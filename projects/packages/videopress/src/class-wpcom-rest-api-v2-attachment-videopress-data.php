@@ -24,6 +24,8 @@ use WP_REST_Response;
  * }
  *
  * @since 7.1.0
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	/**

@@ -1,7 +1,7 @@
 @keyframes rotate-spinner {
 
 	100% {
-		transform: rotate( 360deg );
+		transform: rotate(360deg);
 	}
 }
 
@@ -10,7 +10,8 @@
 	align-items: center;
 }
 
-.jp-components-spinner__outer, .jp-components-spinner__inner {
+.jp-components-spinner__outer,
+.jp-components-spinner__inner {
 	margin: auto;
 	box-sizing: border-box;
 	border: 0.1em solid transparent;

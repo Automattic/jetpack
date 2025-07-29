@@ -2,12 +2,13 @@
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
-	gap: var( --spacing-base ); // 8px
+	gap: var(--spacing-base); // 8px
 }
 
-// Nested selectors for popovers and dropdowns are no longer supported due to portals
+// Nested selectors for popovers and dropdowns are
+// no longer supported due to portals
 .popover {
-	padding: var( --spacing-base ); // 8px
+	padding: var(--spacing-base); // 8px
 	text-align: center;
 	white-space: nowrap;
 }
@@ -22,5 +23,5 @@
 .dropdown-content {
 	display: flex;
 	flex-direction: column;
-	gap: var( --spacing-base ); // 8px
+	gap: var(--spacing-base); // 8px
 }

@@ -6,25 +6,25 @@
 // this is extended throughout
 %zbs-tasks-field {
 
-    line-height: 1;
-    border: 1px solid #ccc;
-    border-radius: 0.2em;
-     box-shadow: inset 0 1px 2px rgba(0,0,0,.07);
+	line-height: 1;
+	border: 1px solid #ccc;
+	border-radius: 0.2em;
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.07);
 
 }
 
 .jpcrm-task-editor-wrap {
-    margin-top:-1em;
+	margin-top: -1em;
 }
 
 .zbs-task-clear {
-    margin-bottom:1em;
+	margin-bottom: 1em;
 }
 
 
 #calendar {
-    max-width: 100%;
-    margin: 0 auto;
+	max-width: 100%;
+	margin: 0 auto;
 }
 
 .jpcrm-task-owner {
@@ -36,7 +36,8 @@
 	align-items: center;
 	padding: 5px 10px;
 
-	i, img {
+	i,
+	img {
 		width: 30px;
 		flex: 0 0 0;
 		border-radius: 50%;
@@ -61,29 +62,29 @@
 }
 
 img.jpcrm-avatar {
-	border-radius:50%;
+	border-radius: 50%;
 }
 
-#zbs-add-task-ui{
-    width: 39%;
-    float: right;
-    margin-right: 1%;
-    display:none;
+#zbs-add-task-ui {
+	width: 39%;
+	float: right;
+	margin-right: 1%;
+	display: none;
 }
 
-.zbs-adding-task{
-    width: 60%;
-    float: left;
+.zbs-adding-task {
+	width: 60%;
+	float: left;
 }
 
-.close-add-task{
-    color: #767676;
-    float: right;
-    cursor: pointer;
+.close-add-task {
+	color: #767676;
+	float: right;
+	cursor: pointer;
 }
 
-.clear{
-    clear:both;
+.clear {
+	clear: both;
 }
 
 #zbs-task-title-row {
@@ -94,7 +95,7 @@ img.jpcrm-avatar {
 		// take general rounding etc. from this
 		@extend %zbs-tasks-field;
 
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 		font-size: 14px;
 		font-weight: 400;
 		min-height: 0;
@@ -108,7 +109,7 @@ img.jpcrm-avatar {
 		flex: 0 1 auto;
 
 		button {
-			width:100%;
+			width: 100%;
 
 			&.hidden {
 				display: none;
@@ -117,187 +118,197 @@ img.jpcrm-avatar {
 	}
 }
 
-.zbs-show{
-    border: 1px solid #ddd;
-    background: #fff;
+.zbs-show {
+	border: 1px solid #ddd;
+	background: #fff;
 }
 
 
+.no-owner,
+.no-task-date,
+.task-reminders,
+.no-contact,
+.show-on-calendar,
+.remind_task {
 
-.no-owner, .no-task-date, .task-reminders, .no-contact, .show-on-calendar, .remind_task{
+	// take general rounding etc. from this
+	@extend %zbs-tasks-field;
 
-    // take general rounding etc. from this
-    @extend %zbs-tasks-field;
-
-    width: 100%;
-    font-size: 14px;
-    color: #ccc;
-    border: 1px solid #ccc;
-    margin:0;
-    padding:4px;
+	width: 100%;
+	font-size: 14px;
+	color: #ccc;
+	border: 1px solid #ccc;
+	margin: 0;
+	padding: 4px;
 }
 
-.show-on-calendar, .remind_task{
-    color: #000;
+.show-on-calendar,
+.remind_task {
+	color: #000;
 
-    div input {
-        margin: 0.2em 0.5em !important;
-    }
+	div input {
+		margin: 0.2em 0.5em !important;
+	}
 
-    label {
-        font-size: 14px;
-		  line-height: 1.4;
-        font-weight: 400 !important;
-    }
+	label {
+		font-size: 14px;
+		line-height: 1.4;
+		font-weight: 400 !important;
+	}
 }
 
-.remind_task{
-    padding: 10px 4px;
-    position: relative;
+.remind_task {
+	padding: 10px 4px;
+	position: relative;
 }
 
-.remind_task a{
-    font-size: 14px;
-    position: absolute;
-    top: 5px;
-    right: 5px;
+.remind_task a {
+	font-size: 14px;
+	position: absolute;
+	top: 5px;
+	right: 5px;
 }
 
-.no-owner, .no-task-date{
-    width: 48%;
+.no-owner,
+.no-task-date {
+	width: 48%;
 }
 
 #zbse_desc {
-    font-size:14px;
-    padding: 0.5em;
+	font-size: 14px;
+	padding: 0.5em;
 }
 
-.show-on-calendar input[type="checkbox"], .remind_task input[type="checkbox"]{
-        margin: -2px 0 0;
-        line-height: normal;
+.show-on-calendar input[type="checkbox"],
+.remind_task input[type="checkbox"] {
+	margin: -2px 0 0;
+	line-height: normal;
 }
 
-.show-on-calendar span, .remind_task span{
-    margin-left:5px;
+.show-on-calendar span,
+.remind_task span {
+	margin-left: 5px;
 }
 
-.no-owner{
-    float: left;
-    position: relative;
-    border: 1px solid #ccc;
-    border-radius: 0.2em;
-    z-index: 0;
+.no-owner {
+	float: left;
+	position: relative;
+	border: 1px solid #ccc;
+	border-radius: 0.2em;
+	z-index: 0;
 }
 
-.no-task-date{
-    float:right;
+.no-task-date {
+	float: right;
 }
 
-.zbs-task-desc textarea{
+.zbs-task-desc textarea {
 
-    // take general rounding etc. from this
-    @extend %zbs-tasks-field;
+	// take general rounding etc. from this
+	@extend %zbs-tasks-field;
 
-    width: 100%;
-    height:200px;
+	width: 100%;
+	height: 200px;
 }
 
-::placeholder{
-    color: #ccc;
+::placeholder {
+	color: #ccc;
 }
 
-#titlewrap, #post-body-content{
-    display:none;
+#titlewrap,
+#post-body-content {
+	display: none;
 }
 
 .ui.segment {
-    margin-top:0;
+	margin-top: 0;
 }
 
-.no-owner .dn{
-    color: #000;
-    line-height: 30px;
-    vertical-align: middle;
-    width: 80%;
-    float: left;
+.no-owner .dn {
+	color: #000;
+	line-height: 30px;
+	vertical-align: middle;
+	width: 80%;
+	float: left;
 
 }
 
-.no-owner .avatar{
-    border-radius: 50%;
-    margin-right: 10px;
-    float: left;
+.no-owner .avatar {
+	border-radius: 50%;
+	margin-right: 10px;
+	float: left;
 }
 
-.zbs-unassigned{
-    font-size: 25px !important;
-    margin-top: 9px !important;
+.zbs-unassigned {
+	font-size: 25px !important;
+	margin-top: 9px !important;
 }
 
 .zbs-cal-complete {
 	box-sizing: border-box;
 
 	.icon {
-		margin:0 !important;
+		margin: 0 !important;
 	}
 }
 
-.zbs-comp-1{
-    display:none !important;
+.zbs-comp-1 {
+	display: none !important;
 }
 
-.zbs-task-for-help{
-    line-height:31px;
-    float: left;
-    margin-right: 5px;
-    width: 18%; min-width:134px;
-    color: #000;
-    padding-left: 0.3em;
+.zbs-task-for-help {
+	line-height: 31px;
+	float: left;
+	margin-right: 5px;
+	width: 18%;
+	min-width: 134px;
+	color: #000;
+	padding-left: 0.3em;
 }
 
 .zbs-task-for,
-.zbs-task-for-company{
-    width: 80%;
-    float: left;
-    padding: 0;
-    margin-top: -11px;
-    position:relative;
+.zbs-task-for-company {
+	width: 80%;
+	float: left;
+	padding: 0;
+	margin-top: -11px;
+	position: relative;
 
-    // right floated contact button when assigned
-    .zbs-view-contact {
+	// right floated contact button when assigned
+	.zbs-view-contact {
 
-        position: absolute !important;
-        right: 2px !important;
-        top: 14px !important;
+		position: absolute !important;
+		right: 2px !important;
+		top: 14px !important;
 
-    }
+	}
 
-    // right floated contact button when assigned
-    .zbs-view-company {
+	// right floated contact button when assigned
+	.zbs-view-company {
 
-        position: absolute !important;
-        right: 2px !important;
-        top: 14px !important;
+		position: absolute !important;
+		right: 2px !important;
+		top: 14px !important;
 
-    }
+	}
 }
 
 .zbstypeaheadwrap {
-    position: relative;
-    clear: both;
-    padding-top: 10px;
-    padding-bottom: 0;
+	position: relative;
+	clear: both;
+	padding-top: 10px;
+	padding-bottom: 0;
 }
 
-.zbs-task-for-who{
-    color: #000;
+.zbs-task-for-who {
+	color: #000;
 }
 
-.outlook-event{
-    border: 1px solid #ccc;
-    width: 100%;
-    padding: 10px;
-    border-radius: 4px;
+.outlook-event {
+	border: 1px solid #ccc;
+	width: 100%;
+	padding: 10px;
+	border-radius: 4px;
 }
 
 // FullCalendar style overrides
@@ -319,7 +330,8 @@ img.jpcrm-avatar {
 		background-color: inherit;
 	}
 
-	.fc-button-primary:not(:disabled).fc-button-active, .fc-button-primary:not(:disabled).fc-button-active:active {
+	.fc-button-primary:not(:disabled).fc-button-active,
+	.fc-button-primary:not(:disabled).fc-button-active:active {
 		color: var(--jp-white);
 		background-color: var(--jp-black);
 	}
@@ -353,7 +365,8 @@ img.jpcrm-avatar {
 		}
 	}
 
-	.fc-daygrid-event-harness, .fc-timegrid-event-harness {
+	.fc-daygrid-event-harness,
+	.fc-timegrid-event-harness {
 		overflow: hidden;
 		white-space: nowrap;
 	}

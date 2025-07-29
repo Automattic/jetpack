@@ -80,6 +80,9 @@ class Jetpack_Mu_Wpcom {
 		// Load the Social Links feature.
 		add_action( 'init', array( __CLASS__, 'load_social_links' ), 30 );
 
+		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via P2.
+		add_filter( 'jetpack_public_js_script_data', array( __CLASS__, 'add_jetpack_script_data_for_p2' ), 10, 1 );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -668,5 +671,27 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
+	}
+
+	/**
+	 * Add Jetpack script data with host information on P2
+	 *
+	 * @param array $data - The Jetpack script data.
+	 * @return array - The modified Jetpack script data.
+	 */
+	public static function add_jetpack_script_data_for_p2( $data ) {
+		if (
+		str_contains( get_stylesheet(), 'pub/p2' ) ||
+		( function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() ) )
+		) {
+			$host = new \Automattic\Jetpack\Status\Host();
+			if ( ! isset( $data['site']['host'] ) ) {
+				$data['site']['host'] = $host->get_known_host_guess();
+			}
+			if ( ! isset( $data['site']['is_wpcom_platform'] ) ) {
+				$data['site']['is_wpcom_platform'] = $host->is_wpcom_platform();
+			}
+		}
+		return $data;
 	}
 }

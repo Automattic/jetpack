@@ -13,7 +13,7 @@ import playwrightConfig from 'jetpack-js-tools/eslintrc/playwright.mjs';
 export function makeE2eConfig( configurl, opts = {} ) {
 	opts.envs ??= [ 'node' ];
 
-	return defineConfig( makeBaseConfig( configurl, { envs: [ 'node' ] } ), playwrightConfig, {
+	return defineConfig( makeBaseConfig( configurl, opts ), playwrightConfig, {
 		languageOptions: {
 			globals: {
 				wp: true,
@@ -24,8 +24,6 @@ export function makeE2eConfig( configurl, opts = {} ) {
 			'no-console': 'off',
 			'n/no-process-exit': 'off',
 			'playwright/no-skipped-test': 'off',
-			// False positives when using `page.getByRole()`
-			'testing-library/prefer-screen-queries': 'off',
 		},
 	} );
 }

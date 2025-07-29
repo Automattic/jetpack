@@ -6,6 +6,8 @@
  * GET /sites/%s/translations
  * POST /sites/%s/translations
  * POST /sites/%s/translations/update
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Translations_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**

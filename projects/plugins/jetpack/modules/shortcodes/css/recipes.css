@@ -8,13 +8,13 @@
 
 .jetpack-recipe-title {
 	border-bottom: 1px solid #ccc;
-	margin: .25em 0;
-	padding: .25em 0;
+	margin: 0.25em 0;
+	padding: 0.25em 0;
 }
 
 .jetpack-recipe .jetpack-recipe-meta {
 	display: block;
-	font-size: .9em;
+	font-size: 0.9em;
 	list-style-type: none;
 	margin-right: 0;
 	margin-left: 0;

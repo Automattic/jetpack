@@ -1,153 +1,153 @@
-@use '../../scss/calypso-colors';
-@use '../../scss/mixin_breakpoint';
+@use "../../scss/calypso-colors";
+@use "../../scss/mixin_breakpoint";
 
 $border: 1px solid calypso-colors.$gray-5;
 
 .boost-grade-info,
 .boost-conversion-loss-info,
 .boost-critical-css-info {
-    display: inline-block;
-    position: relative;
-    margin-left: 0.35rem;
-    top: 2px;
+	display: inline-block;
+	position: relative;
+	margin-left: 0.35rem;
+	top: 2px;
 }
 
 .boost-grade-info {
 
-    &__grades-description {
-        margin-top: 0;
-    }
+	&__grades-description {
+		margin-top: 0;
+	}
 
-    &__grades-table {
-        display: flex;
-        gap: 2rem;
-    }
+	&__grades-table {
+		display: flex;
+		gap: 2rem;
+	}
 }
 
 .boost-conversion-loss-info {
 
-    &__source {
-        margin: 0;
-    }
+	&__source {
+		margin: 0;
+	}
 }
 
 .boost-critical-css-info {
 
-    &__title {
-        margin-top: 0;
-    }
+	&__title {
+		margin-top: 0;
+	}
 
-    &__list {
-        list-style: unset;
-        padding-left: 1.5rem;
-    }
+	&__list {
+		list-style: unset;
+		padding-left: 1.5rem;
+	}
 
-    &__bottom-text {
-        margin-bottom: 0;
-    }
+	&__bottom-text {
+		margin-bottom: 0;
+	}
 }
 
 .dash-boost-speed-score {
-    background-color: calypso-colors.$white;
-    border: $border;
-    color: calypso-colors.$gray-80;
-    border-radius: 0.25rem;
+	background-color: calypso-colors.$white;
+	border: $border;
+	color: calypso-colors.$gray-80;
+	border-radius: 0.25rem;
 
-    .dops-card {
-        margin-bottom: 0;
-        border-radius: 0.25rem;
-    }
+	.dops-card {
+		margin-bottom: 0;
+		border-radius: 0.25rem;
+	}
 
-    .dops-banner__title {
-        line-height: 1.57;
-        color: calypso-colors.$gray-80;
-    }
+	.dops-banner__title {
+		line-height: 1.57;
+		color: calypso-colors.$gray-80;
+	}
 
-    .jb-score-bar {
-        margin: 0;
-    }
+	.jb-score-bar {
+		margin: 0;
+	}
 
-    .jb-score-bar__label,
-    .jb-score-bar__filler.fill-loading {
-        background-color: calypso-colors.$gray-0;
+	.jb-score-bar__label,
+	.jb-score-bar__filler.fill-loading {
+		background-color: calypso-colors.$gray-0;
 
-        @include mixin_breakpoint.breakpoint( "<782px" ) {
-            background-color: calypso-colors.$white;
-        }
-    }
+		@include mixin_breakpoint.breakpoint( "<782px" ) {
+			background-color: calypso-colors.$white;
+		}
+	}
 
-    .warning {
-        color: calypso-colors.$orange-warning;
-    }
+	.warning {
+		color: calypso-colors.$orange-warning;
+	}
 
-    &__score-bars,
-    &__summary {
-        border-bottom: $border;
-    }
+	&__score-bars,
+	&__summary {
+		border-bottom: $border;
+	}
 
-    &__summary {
-        display: flex;
-        justify-content: space-between;
-        
-        padding: 1rem;
+	&__summary {
+		display: flex;
+		justify-content: space-between;
 
-        @include mixin_breakpoint.breakpoint( "<660px" ) {
-            flex-direction: column;
-        }
-    }
+		padding: 1rem;
 
-    &__section-header {
-        width: 100%;
-        margin-bottom: 0;
-    }
+		@include mixin_breakpoint.breakpoint( "<660px" ) {
+			flex-direction: column;
+		}
+	}
 
-    &__score-text {
-        margin: 0;
-        line-height: 1.57;
-        font-size: 0.875rem;
-    }
+	&__section-header {
+		width: 100%;
+		margin-bottom: 0;
+	}
 
-    &__last-tested {
-        margin: 0 0 0.25rem 0;
-        
-        color: calypso-colors.$gray-30;
-        text-align: left;
-    }
+	&__score-text {
+		margin: 0;
+		line-height: 1.57;
+		font-size: 0.875rem;
+	}
 
-    &__install-button-link {
-        background: none;
-        border: none;
-        box-shadow: none;
-        padding: 0;
+	&__last-tested {
+		margin: 0 0 0.25rem 0;
 
-        cursor: pointer;
+		color: calypso-colors.$gray-30;
+		text-align: left;
+	}
 
-        color: calypso-colors.$black;
-        text-decoration: underline;
-        text-align: right;
+	&__install-button-link {
+		background: none;
+		border: none;
+		box-shadow: none;
+		padding: 0;
 
-        &:hover {
-            text-decoration-thickness: 3px;
-        }
+		cursor: pointer;
 
-        &:disabled {
-            text-decoration: none;
-            cursor: default;
-        }
-    }
+		color: calypso-colors.$black;
+		text-decoration: underline;
+		text-align: right;
 
-    &__summary-grade {
-        font-weight: 700;
-        font-size: 1.125rem;
-        line-height: 1.17;
-        margin-bottom: 0.25rem;
-    }
+		&:hover {
+			text-decoration-thickness: 3px;
+		}
 
-    &__score-bars {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
+		&:disabled {
+			text-decoration: none;
+			cursor: default;
+		}
+	}
 
-        padding: 1.5rem 1rem;
-    }
+	&__summary-grade {
+		font-weight: 700;
+		font-size: 1.125rem;
+		line-height: 1.17;
+		margin-bottom: 0.25rem;
+	}
+
+	&__score-bars {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+
+		padding: 1.5rem 1rem;
+	}
 }

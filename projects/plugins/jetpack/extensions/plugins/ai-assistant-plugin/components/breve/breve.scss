@@ -1,16 +1,16 @@
-@use 'features/features.colors';
+@use "features/features.colors";
 
 .jetpack-ai-proofread {
 
 	.components-checkbox-control {
 
-		&__input:not( :disabled ) {
+		&__input:not(:disabled) {
 
-			@include features.features-colors( ( 'border-color' ) );
+			@include features.features-colors( ( "border-color" ) );
 
 			&:checked {
 
-				@include features.features-colors( ( 'background-color' ) );
+				@include features.features-colors( ( "background-color" ) );
 			}
 		}
 

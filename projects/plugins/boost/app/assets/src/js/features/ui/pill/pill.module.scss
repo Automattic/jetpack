@@ -1,23 +1,23 @@
 .pill {
-	background: var( --jp-green-5 );
-	color: var( --jp-green-60 );
+	background: var(--jp-green-5);
+	color: var(--jp-green-60);
 	padding: 0.1em 0.4em;
 	font-size: 0.8rem;
 	line-height: 1.5;
 	margin-left: 10px;
-	transform: translateY( -4px );
+	transform: translateY(-4px);
 	display: inline-block;
 	border-radius: 0.4em;
 	border: 1px solid;
 }
 
 .pill-red {
-	background: var( --jp-red-50 );
-	border-color: var( --jp-red-80 );
-	color: var( --jp-white );
+	background: var(--jp-red-50);
+	border-color: var(--jp-red-80);
+	color: var(--jp-white);
 }
 
 .pill-gray {
 	background: transparent;
-	color: var( --gray-40 );
+	color: var(--gray-40);
 }

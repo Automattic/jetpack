@@ -4,6 +4,8 @@
  * Get Database object backup endpoint class.
  *
  * /sites/%s/database-object/backup      -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 

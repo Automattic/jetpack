@@ -4,6 +4,8 @@
  * Cron endpoint class.
  *
  * GET /sites/%s/cron
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 
@@ -147,6 +149,8 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
  * Cron post endpoint class.
  *
  * POST /sites/%s/cron
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Cron_Post_Endpoint extends Jetpack_JSON_API_Cron_Endpoint { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 
@@ -222,6 +226,8 @@ class Jetpack_JSON_API_Cron_Post_Endpoint extends Jetpack_JSON_API_Cron_Endpoint
  * Schedule endpoint class.
  *
  * POST /sites/%s/cron/schedule
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Cron_Schedule_Endpoint extends Jetpack_JSON_API_Cron_Endpoint { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 
@@ -285,6 +291,8 @@ class Jetpack_JSON_API_Cron_Schedule_Endpoint extends Jetpack_JSON_API_Cron_Endp
  * The cron unschedule ednpoint class.
  *
  * POST /sites/%s/cron/unschedule
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Cron_Unschedule_Endpoint extends Jetpack_JSON_API_Cron_Endpoint { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 

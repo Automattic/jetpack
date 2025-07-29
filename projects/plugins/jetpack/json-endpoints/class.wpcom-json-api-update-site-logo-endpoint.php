@@ -61,6 +61,8 @@ new WPCOM_JSON_API_Update_Site_Logo_Endpoint(
 
 /**
  * Set site logo settings API class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Site_Logo_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

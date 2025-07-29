@@ -19,6 +19,8 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Class Jetpack_Monitor
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Monitor {
 

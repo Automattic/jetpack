@@ -101,6 +101,8 @@ export interface JPFormsBlocksDefaults {
 	formsResponsesUrl?: string;
 	/** The URL for spam form responses. */
 	formsResponsesSpamUrl?: string;
+	/** Whether MailPoet integration is enabled. */
+	isMailPoetEnabled?: boolean;
 }
 
 /**

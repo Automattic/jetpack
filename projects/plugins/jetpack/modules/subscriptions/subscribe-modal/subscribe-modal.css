@@ -16,7 +16,7 @@ body.jetpack-subscribe-modal-open {
 }
 
 .jetpack-subscribe-modal.open {
-	background-color: rgba(0,0,0,0.3);
+	background-color: rgba(0, 0, 0, 0.3);
 	visibility: visible;
 }
 

@@ -24,7 +24,7 @@
 @include cols("lg");
 
 :export {
-	smCols: map.get(breakpoints.$cols-sizes, "sm");
-	mdCols: map.get(breakpoints.$cols-sizes, "md");
-	lgCols: map.get(breakpoints.$cols-sizes, "lg");
+	smcols: map.get(breakpoints.$cols-sizes, "sm");
+	mdcols: map.get(breakpoints.$cols-sizes, "md");
+	lgcols: map.get(breakpoints.$cols-sizes, "lg");
 }

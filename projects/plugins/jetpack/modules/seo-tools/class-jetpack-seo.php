@@ -7,6 +7,8 @@
 
 /**
  * An SEO expert walks into a bar, bars, pub, public house, Irish pub, drinks, beer, wine, liquor, Grey Goose, Cristal...
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_SEO {
 	/**

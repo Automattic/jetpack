@@ -1,6 +1,4 @@
-import { prerequisitesBuilder, Plans } from '_jetpack-e2e-commons/env/index.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
-import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
 	enableInstantSearch,
 	disableInstantSearch,
@@ -9,29 +7,19 @@ import {
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
 import { SearchHomepage } from '../pages/index.js';
-import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Instant Search', () => {
 	let homepage;
-	const siteUrl = resolveSiteUrl();
 
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await clearSearchPlanInfo();
-		await prerequisitesBuilder( page )
-			.withLoggedIn( true )
-			.withConnection( true )
-			.withPlan( Plans.Complete )
-			.withActiveModules( [ 'search' ] )
-			.build();
-
-		await enableInstantSearch();
-		await searchAutoConfig();
-		await page.close();
+	test.beforeAll( async ( { testUtils } ) => {
+		clearSearchPlanInfo();
+		await testUtils.activateModule( 'search' );
+		enableInstantSearch();
+		searchAutoConfig();
 	} );
 
 	test.afterAll( async () => {
-		await disableInstantSearch();
+		disableInstantSearch();
 	} );
 
 	test.beforeEach( async ( { page } ) => {
@@ -150,9 +138,9 @@ test.describe( 'Instant Search', () => {
 		} );
 	} );
 
-	test( 'Can display different result formats', async () => {
+	test( 'Can display different result formats', async ( { baseURL } ) => {
 		await test.step( 'Can use minimal format', async () => {
-			await homepage.goto( `${ siteUrl }?result_format=minimal` );
+			await homepage.goto( `${ baseURL }?result_format=minimal` );
 			await homepage.waitForInstantSearchReady();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-1' );
@@ -167,7 +155,7 @@ test.describe( 'Instant Search', () => {
 		} );
 
 		await test.step( 'Can use product format', async () => {
-			await homepage.goto( `${ siteUrl }?result_format=product` );
+			await homepage.goto( `${ baseURL }?result_format=product` );
 			await homepage.waitForInstantSearchReady();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-2' );
@@ -190,7 +178,7 @@ test.describe( 'Instant Search', () => {
 		} );
 
 		await test.step( 'Can use expanded format', async () => {
-			await homepage.goto( `${ siteUrl }?result_format=expanded&s=random-string-3` );
+			await homepage.goto( `${ baseURL }?result_format=expanded&s=random-string-3` );
 			await homepage.waitForInstantSearchReady();
 
 			expect( await homepage.isOverlayVisible(), 'Overlay should be visible' ).toBeTruthy();
@@ -205,8 +193,8 @@ test.describe( 'Instant Search', () => {
 		} );
 	} );
 
-	test( 'Can open overlay by clicking a link', async () => {
-		await homepage.goto( `${ siteUrl }?jetpack_search_link_in_footer=1` );
+	test( 'Can open overlay by clicking a link', async ( { baseURL } ) => {
+		await homepage.goto( `${ baseURL }?jetpack_search_link_in_footer=1` );
 		await homepage.waitForInstantSearchReady();
 
 		expect( await homepage.isOverlayVisible(), 'Overlay should not be visible' ).toBeFalsy();

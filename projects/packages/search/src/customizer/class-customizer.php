@@ -13,6 +13,8 @@ use WP_Customize_Manager;
 
 /**
  * Class to customize search on the site.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Customizer {
 	/**

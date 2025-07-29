@@ -30,6 +30,8 @@ if (
 ) {
 	/**
 	 * Class wrapper for Crowdsignal shortcodes
+	 *
+	 * @phan-constructor-used-for-side-effects
 	 */
 	class CrowdsignalShortcode {
 

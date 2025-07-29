@@ -20,10 +20,12 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
 
 /**
  * Class Speed_Score
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.4.9';
+	const PACKAGE_VERSION = '0.4.10';
 
 	/**
 	 * Array of module slugs that are currently active and can impact speed score.

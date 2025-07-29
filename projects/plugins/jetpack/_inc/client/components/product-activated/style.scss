@@ -1,5 +1,5 @@
-@use '../../scss/mixin_breakpoint';
-@use '../../scss/variables/colors';
+@use "../../scss/mixin_breakpoint";
+@use "../../scss/variables/colors";
 
 .jp-product-activated-label {
 	display: flex;
@@ -7,33 +7,33 @@
 	color: colors.$green-primary;
 	padding: 0 0 8px 0;
 
-  	&.expired {
-	  color: colors.$alert-red;
-
-	  ::before {
-	    background: colors.$alert-red;
-	  }
-	}
-
-	&.never-expires {
-		color: #AB8D16;
+	&.expired {
+		color: colors.$alert-red;
 
 		::before {
-			background: #AB8D16;
+			background: colors.$alert-red;
 		}
 	}
 
-  	::before {
-	  content: "";
-	  display: inline-block;
-	  width: 8px;
-	  height: 8px;
-	  margin-right: 8px;
-	  border-radius: 50%;
-	  background: var(--jp-green-50);
+	&.never-expires {
+		color: #ab8d16;
+
+		::before {
+			background: #ab8d16;
+		}
 	}
 
-	@include mixin_breakpoint.breakpoint( '>960px' ) {
+	::before {
+		content: "";
+		display: inline-block;
+		width: 8px;
+		height: 8px;
+		margin-right: 8px;
+		border-radius: 50%;
+		background: var(--jp-green-50);
+	}
+
+	@include mixin_breakpoint.breakpoint( ">960px" ) {
 		justify-content: flex-end;
 	}
 

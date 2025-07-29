@@ -34,7 +34,7 @@ export function TabContent( { name }: TabContentProps ) {
 	return (
 		<div className={ styles[ 'my-jetpack-tab-panel-inner' ] }>
 			<FullWidthSeparator />
-			<div className={ clsx( styles[ 'tab-content-wrapper' ], '123' ) }>
+			<div className={ clsx( styles[ 'tab-content-wrapper' ] ) }>
 				<ContentComponent />
 			</div>
 		</div>

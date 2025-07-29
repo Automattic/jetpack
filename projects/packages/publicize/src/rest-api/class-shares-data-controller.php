@@ -16,6 +16,8 @@ use WP_REST_Server;
 
 /**
  * Jetpack Social Controller class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Shares_Data_Controller extends Base_Controller {
 

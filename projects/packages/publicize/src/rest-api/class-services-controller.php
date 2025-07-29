@@ -17,6 +17,8 @@ use WP_REST_Server;
 
 /**
  * Services Controller class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Services_Controller extends Base_Controller {
 

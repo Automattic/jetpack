@@ -70,46 +70,59 @@ export default function useInboxData(): UseInboxDataReturn {
 
 	const {
 		records: rawRecords,
-		isResolving: isLoadingData,
+		isResolving: isLoadingRecordsData,
 		totalItems,
 		totalPages,
 	} = useEntityRecords( 'postType', 'feedback', currentQuery );
 
 	const records = ( rawRecords || [] ) as FormResponse[];
 
-	const { totalItems: totalItemsInbox } = useEntityRecords( 'postType', 'feedback', {
-		page: 1,
-		search: '',
-		...currentQuery,
-		status: 'publish,draft',
-		per_page: 1,
-		_fields: 'id',
-	} );
+	const { isResolving: isLoadingInboxData, totalItems: totalItemsInbox = 0 } = useEntityRecords(
+		'postType',
+		'feedback',
+		{
+			page: 1,
+			search: '',
+			...currentQuery,
+			status: 'publish,draft',
+			per_page: 1,
+			_fields: 'id',
+		}
+	);
 
-	const { totalItems: totalItemsSpam } = useEntityRecords( 'postType', 'feedback', {
-		page: 1,
-		search: '',
-		...currentQuery,
-		status: 'spam',
-		per_page: 1,
-		_fields: 'id',
-	} );
+	const { isResolving: isLoadingSpamData, totalItems: totalItemsSpam = 0 } = useEntityRecords(
+		'postType',
+		'feedback',
+		{
+			page: 1,
+			search: '',
+			...currentQuery,
+			status: 'spam',
+			per_page: 1,
+			_fields: 'id',
+		}
+	);
 
-	const { totalItems: totalItemsTrash } = useEntityRecords( 'postType', 'feedback', {
-		page: 1,
-		search: '',
-		...currentQuery,
-		status: 'trash',
-		per_page: 1,
-		_fields: 'id',
-	} );
+	const { isResolving: isLoadingTrashData, totalItems: totalItemsTrash = 0 } = useEntityRecords(
+		'postType',
+		'feedback',
+		{
+			page: 1,
+			search: '',
+			...currentQuery,
+			status: 'trash',
+			per_page: 1,
+			_fields: 'id',
+		}
+	);
 
 	return {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
 		records,
-		isLoadingData,
+		isLoadingData:
+			isLoadingRecordsData || isLoadingInboxData || isLoadingSpamData || isLoadingTrashData,
 		totalItems,
 		totalPages,
 		selectedResponsesCount,

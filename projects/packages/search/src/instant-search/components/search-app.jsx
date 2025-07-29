@@ -1,8 +1,5 @@
+import debounce from 'debounce';
 import stringify from 'fast-json-stable-stringify';
-// NOTE: We only import the debounce function here for reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import debounce from 'lodash/debounce';
 import * as React from 'react';
 import { Component, Fragment } from 'react';
 import { createPortal } from 'react-dom';

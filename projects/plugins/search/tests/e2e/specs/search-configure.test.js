@@ -1,5 +1,4 @@
-import { prerequisitesBuilder, Plans } from '_jetpack-e2e-commons/env/index.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
 	disableInstantSearch,
 	enableInstantSearch,
@@ -11,21 +10,13 @@ import {
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
 import { SearchConfigure } from '../pages/wp-admin/index.js';
-import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Search Configure', () => {
 	let searchConfigure;
 
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
+	test.beforeAll( async ( { testUtils } ) => {
 		await clearSearchPlanInfo();
-		await prerequisitesBuilder( page )
-			.withLoggedIn( true )
-			.withConnection( true )
-			.withPlan( Plans.Complete )
-			.withActiveModules( [ 'search' ] )
-			.build();
-
+		await testUtils.activateModule( 'search' );
 		await enableInstantSearch();
 
 		// initialize the settings we are going to manipulate.
@@ -33,8 +24,6 @@ test.describe( 'Search Configure', () => {
 		await setHighlightColor();
 		await setResultFormat();
 		await setDefaultSort();
-
-		await page.close();
 	} );
 
 	test.afterAll( async () => {

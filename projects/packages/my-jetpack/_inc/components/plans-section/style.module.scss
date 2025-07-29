@@ -1,7 +1,9 @@
 .container {
 
-	a, a:active, a:hover {
-		color: var( --jp-black );
+	a,
+	a:active,
+	a:hover {
+		color: var(--jp-black);
 	}
 
 	h3 {
@@ -20,8 +22,8 @@
 .plans-wrapper {
 	margin-bottom: 1rem;
 	display: flex;
-    flex-direction: column;
-    gap: 1rem;
+	flex-direction: column;
+	gap: 1rem;
 }
 
 .plan-container {
@@ -60,7 +62,9 @@
 
 .actions-list-item {
 
-	&, a, * {
+	&,
+	a,
+	* {
 		font-size: 0.8125rem; // 13px
 		line-height: 20px;
 		font-weight: 400;

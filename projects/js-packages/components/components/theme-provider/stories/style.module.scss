@@ -50,8 +50,8 @@
 .font-instance {
 	margin: 10px 0;
 	padding: 20px 30px;
-	background-color: var( --jp-white );
-	border: 1px dotted var( --jp-gray-10 );
+	background-color: var(--jp-white);
+	border: 1px dotted var(--jp-gray-10);
 	position: relative;
 
 	&:hover .copy-button {
@@ -60,8 +60,8 @@
 }
 
 .color-instance {
-	font-size: var( --font-title-small );
-	border: 1px dotted var( --jp-gray-10 );
+	font-size: var(--font-title-small);
+	border: 1px dotted var(--jp-gray-10);
 	min-height: 60px;
 	line-height: 60px;
 	padding: 10px;

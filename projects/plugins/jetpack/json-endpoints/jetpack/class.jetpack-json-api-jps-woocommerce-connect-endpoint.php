@@ -2,6 +2,8 @@
 
 /**
  * JPS WooCommerce connect endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 

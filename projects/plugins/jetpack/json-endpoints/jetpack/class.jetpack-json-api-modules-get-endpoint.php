@@ -4,6 +4,8 @@
  * The Modules get endpoint.
  *
  * /sites/%s/jetpack/modules/%s
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Modules_Get_Endpoint extends Jetpack_JSON_API_Modules_Endpoint {
 	/**

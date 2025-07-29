@@ -1,4 +1,4 @@
-@use '../lib/styles/helper';
+@use "../lib/styles/helper";
 
 $modal-max-width: 1080px;
 $modal-max-width-lg: 95%;
@@ -64,7 +64,7 @@ $colophon-height: 40px;
 		padding: 4px 6px;
 		width: 1px;
 		overflow: hidden;
-		clip: rect( 1px, 1px, 1px, 1px );
+		clip: rect(1px, 1px, 1px, 1px);
 
 		&:focus {
 
@@ -106,17 +106,17 @@ $colophon-height: 40px;
 		font-size: 13px;
 	}
 
-	@include helper.break( '>l' ) {
+	@include helper.break( ">l" ) {
 		display: none;
 	}
 
 	#{helper.$customberg-container-selector } & {
 
-		@include helper.break( '>l' ) {
+		@include helper.break( ">l" ) {
 			display: flex;
 		}
 
-		@include helper.break( '>xl' ) {
+		@include helper.break( ">xl" ) {
 			display: none;
 		}
 	}
@@ -133,14 +133,14 @@ $colophon-height: 40px;
 
 .jetpack-instant-search__search-results-primary {
 	margin: 0;
-	max-width: calc( 100% - #{helper.$sidebar-width} );
+	max-width: calc(100% - #{helper.$sidebar-width});
 	width: 100%;
 
 	.jetpack-instant-search__overlay--no-sidebar & {
 		max-width: 100%;
 	}
 
-	@include helper.multiple-breaks-for-customberg( '<l', '<xl' ) {
+	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
 		max-width: 100%;
 	}
 }
@@ -162,13 +162,13 @@ $colophon-height: 40px;
 		display: none;
 	}
 
-	@include helper.multiple-breaks-for-customberg( '<l', '<xl' ) {
+	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
 		display: none;
 	}
 
 	&.jetpack-instant-search__search-results-secondary--show-as-modal {
 
-		@include helper.multiple-breaks-for-customberg( '<l', '<xl' ) {
+		@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
 			position: absolute;
 			top: 0;
 			right: 1em;
@@ -176,8 +176,8 @@ $colophon-height: 40px;
 
 			background: helper.$color-modal-background;
 			border-radius: 6px;
-			border: 1px solid rgba( 0, 0, 0, 0.1 );
-			box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
+			border: 1px solid rgba(0, 0, 0, 0.1);
+			box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 			display: block;
 			min-width: 360px;
 			padding: 16px 24px;
@@ -186,7 +186,7 @@ $colophon-height: 40px;
 			max-height: 70vh;
 			overflow-y: scroll;
 
-			@include helper.break( '<s' ) {
+			@include helper.break( "<s" ) {
 				max-height: 80vh;
 			}
 
@@ -208,13 +208,13 @@ $colophon-height: 40px;
 	margin: 1em helper.$results-margin-lg 1.5em;
 	padding: 0;
 
-	@include helper.multiple-breaks-for-customberg( '<l', '<xl' ) {
+	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
 		margin-left: helper.$results-margin-md;
 		margin-right: helper.$results-margin-md;
 		margin-bottom: 1em;
 	}
 
-	@include helper.break( '<m' ) {
+	@include helper.break( "<m" ) {
 		margin-left: helper.$results-margin-sm;
 		margin-right: helper.$results-margin-sm;
 	}
@@ -222,7 +222,7 @@ $colophon-height: 40px;
 
 .jetpack-instant-search__search-results-title {
 
-	@include helper.multiple-breaks-for-customberg( '>l', '>xl' ) {
+	@include helper.multiple-breaks-for-customberg( ">l", ">xl" ) {
 		// Account for .jetpack-instant-search__search-form-controls.
 		padding-right: 210px;
 	}
@@ -235,12 +235,12 @@ $colophon-height: 40px;
 	margin-right: helper.$results-margin-lg;
 	padding: 0;
 
-	@include helper.multiple-breaks-for-customberg( '<l', '<xl' ) {
+	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
 		margin-left: helper.$results-margin-md;
 		margin-right: helper.$results-margin-md;
 	}
 
-	@include helper.break( '<m' ) {
+	@include helper.break( "<m" ) {
 		margin-left: helper.$results-margin-sm;
 		margin-right: helper.$results-margin-sm;
 	}
@@ -248,7 +248,7 @@ $colophon-height: 40px;
 	// Accessibility improvement for VoiceOVer
 	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
 	li::before {
-		content: '\200B';
+		content: "\200B";
 		position: absolute;
 		height: 1px;
 		width: 1px;

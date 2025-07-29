@@ -1,4 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { FirstPostPage } from '../../lib/pages/index.js';
@@ -19,8 +19,11 @@ test.describe( 'Image CDN', () => {
 		await page.close();
 	} );
 
-	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'image_guide' ] ).build();
+	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateBoostModule( 'image_guide' );
+
 		const firstPostPage = await FirstPostPage.visit( page );
 
 		expect(
@@ -29,11 +32,11 @@ test.describe( 'Image CDN', () => {
 		).toBeFalsy();
 	} );
 
-	test( 'Image Guide functionality should be active when the module is active', async () => {
-		await boostPrerequisitesBuilder( page )
-			.withActiveModules( [ 'image_guide' ] )
-			.withAppendedImage( true )
-			.build();
+	test( 'Image Guide functionality should be active when the module is active', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.activateBoostModule( 'image_guide' );
+		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
 		const firstPostPage = await FirstPostPage.visit( page );
 
 		expect(

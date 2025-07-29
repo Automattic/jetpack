@@ -11,6 +11,8 @@ use WP_Error;
 
 /**
  * Registers the REST routes for Products.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class REST_Products {
 	/**

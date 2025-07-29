@@ -1159,6 +1159,196 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		public function plugin_dance_health_check( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			WP_CLI::success( 'Healthy' );
 		}
+
+		/**
+		 * Runs comprehensive site diagnostics including Jetpack status, admin users, plugins, purchases, and PHP errors
+		 *
+		 * @subcommand diagnostic
+		 */
+		public function diagnostic( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			WP_CLI::log( WP_CLI::colorize( '%B=== SITE DIAGNOSTICS ===%n' ) );
+			WP_CLI::log( '' );
+
+			// 1. Jetpack Status
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Jetpack Status ---%n' ) );
+			$jetpack_result = WP_CLI::runcommand(
+				'jetpack status full',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $jetpack_result->return_code ) {
+				WP_CLI::log( $jetpack_result->stdout );
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RJetpack status command failed:%n' ) );
+				WP_CLI::log( $jetpack_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 2. Admin Users
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Administrator Users ---%n' ) );
+			$admin_users_result = WP_CLI::runcommand(
+				'user list --role=administrator',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $admin_users_result->return_code ) {
+				WP_CLI::log( $admin_users_result->stdout );
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RAdmin users command failed:%n' ) );
+				WP_CLI::log( $admin_users_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 3. Plugin Status
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Plugin Status ---%n' ) );
+			$plugin_status_result = WP_CLI::runcommand(
+				'plugin status',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $plugin_status_result->return_code ) {
+				WP_CLI::log( $plugin_status_result->stdout );
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RPlugin status command failed:%n' ) );
+				WP_CLI::log( $plugin_status_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 4. WPCOMSH Purchases (formatted as table)
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Site Purchases ---%n' ) );
+			$purchases_result = WP_CLI::runcommand(
+				'wpcomsh purchases --format=json',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $purchases_result->return_code ) {
+				$purchases_data = json_decode( $purchases_result->stdout, true );
+				if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+					$formatted_purchases = array();
+					foreach ( $purchases_data as $purchase ) {
+						$formatted_purchases[] = array(
+							'product'    => $purchase['product_slug'] ?? 'N/A',
+							'type'       => $purchase['product_type'] ?? 'N/A',
+							'subscribed' => isset( $purchase['subscribed_date'] ) ? gmdate( 'Y-m-d', strtotime( $purchase['subscribed_date'] ) ) : 'N/A',
+							'expires'    => isset( $purchase['expiry_date'] ) ? gmdate( 'Y-m-d', strtotime( $purchase['expiry_date'] ) ) : 'N/A',
+							'auto_renew' => isset( $purchase['auto_renew'] ) ? ( $purchase['auto_renew'] ? 'Yes' : 'No' ) : 'N/A',
+						);
+					}
+
+					$table_args = array( 'format' => 'table' );
+					$formatter  = new \WP_CLI\Formatter(
+						$table_args,
+						array( 'product', 'type', 'subscribed', 'expires', 'auto_renew' )
+					);
+					$formatter->display_items( $formatted_purchases );
+				} else {
+					WP_CLI::log( 'No purchases found.' );
+				}
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RPurchases command failed:%n' ) );
+				WP_CLI::log( $purchases_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 5. PHP Errors (filtered to recent fatals and errors)
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Recent PHP Errors ---%n' ) );
+			$php_errors_result = WP_CLI::runcommand(
+				'php-errors',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $php_errors_result->return_code ) {
+				$error_lines     = explode( "\n", trim( $php_errors_result->stdout ) );
+				$filtered_errors = array();
+
+				$recent_dates = array(
+					gmdate( 'd-M-Y' ),
+					gmdate( 'd-M-Y', strtotime( '-1 day' ) ),
+					gmdate( 'd-M-Y', strtotime( '-2 days' ) ),
+				);
+
+				foreach ( $error_lines as $line ) {
+					if ( empty( trim( $line ) ) ) {
+						continue;
+					}
+
+					$is_recent = false;
+					foreach ( $recent_dates as $date ) {
+						if ( strpos( $line, $date ) !== false ) {
+							$is_recent = true;
+							break;
+						}
+					}
+
+					if ( $is_recent ) {
+						// Check for various types of critical/fatal errors
+						$critical_patterns = array(
+							'Fatal error',
+							'PHP Fatal error',
+							'Parse error',
+							'Uncaught Error',
+							'Uncaught Exception',
+							'TypeError',
+							'ArgumentCountError',
+							'Compile error',
+						);
+
+						foreach ( $critical_patterns as $pattern ) {
+							if ( strpos( $line, $pattern ) !== false ) {
+								$filtered_errors[] = $line;
+								break;
+							}
+						}
+					}
+				}
+
+				if ( ! empty( $filtered_errors ) ) {
+					WP_CLI::log( WP_CLI::colorize( '%RRecent Critical PHP Errors:%n' ) );
+					foreach ( $filtered_errors as $error ) {
+						WP_CLI::log( $error );
+					}
+				} else {
+					// Show last 10 errors of any type if no recent critical errors
+					WP_CLI::log( WP_CLI::colorize( '%GNo recent critical errors found. Last 10 PHP errors:%n' ) );
+					$recent_errors = array_slice( $error_lines, -10 );
+					foreach ( $recent_errors as $error ) {
+						if ( ! empty( trim( $error ) ) ) {
+							WP_CLI::log( $error );
+						}
+					}
+				}
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RPHP errors command failed:%n' ) );
+				WP_CLI::log( $php_errors_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+			WP_CLI::log( WP_CLI::colorize( '%B=== DIAGNOSTICS COMPLETE ===%n' ) );
+		}
 	}
 }
 

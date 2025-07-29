@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: remove a PHP notice when non string is passed in

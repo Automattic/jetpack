@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-gif {
 
@@ -50,9 +50,9 @@
 	.wp-block-jetpack-gif_thumbnails-container {
 		display: flex;
 		margin: -2px 0 2px 0;
-		margin-left: calc( -4px / 2 );
+		margin-left: calc(-4px / 2);
 		overflow-x: auto;
-		width: calc( 100% + 4px );
+		width: calc(100% + 4px);
 
 		&::-webkit-scrollbar {
 			display: none;
@@ -71,8 +71,8 @@
 		justify-content: center;
 		margin: 2px;
 		padding: 0;
-		padding-bottom: calc( 100% / 10 - 4px );
-		width: calc( 100% / 10 - 4px );
+		padding-bottom: calc(100% / 10 - 4px);
+		width: calc(100% / 10 - 4px);
 
 		&:hover {
 			box-shadow: 0 0 0 1px gb.$gray-600;

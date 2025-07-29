@@ -1,14 +1,16 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { Onboarding } from '_jetpack-e2e-commons/flows/onboarding.ts';
 
-test.beforeEach( async ( { page, admin } ) => {
-	await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
+test.beforeEach( async ( { testUtils } ) => {
+	await testUtils.disconnect();
 
-	await admin.visitAdminPage( 'admin.php', 'page=my-jetpack' );
+	expect( await testUtils.isUserConnected() ).toBe( false );
+	expect( await testUtils.isSiteConnected() ).toBe( false );
 } );
 
 test( 'Site only connection', async ( { page, admin } ) => {
+	await admin.visitAdminPage( 'admin.php', 'page=my-jetpack' );
+
 	const onboarding = new Onboarding( page );
 
 	await test.step( 'Connect site', async () => {

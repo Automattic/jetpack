@@ -5,6 +5,8 @@ use Automattic\Jetpack\Connection\Tokens;
 
 /**
  * User connect endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_User_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 

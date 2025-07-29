@@ -21,6 +21,8 @@ use Automattic\Jetpack\Tracking;
 
 /**
  * Class Jetpack_Social
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Social {
 	const JETPACK_PUBLICIZE_MODULE_SLUG           = 'publicize';

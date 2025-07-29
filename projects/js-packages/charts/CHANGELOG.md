@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2025-07-28
+### Added
+- Add a standalone chart legend component. [#44245]
+- Add docs for various charts. [#44441] [#44465] [#44466] [#44467]
+
+### Changed
+- Apply theme to the LeaderboardChart component. [#44419]
+
+### Fixed
+- Fix issue where pie chart can be cut off. [#44490]
+
+## [0.21.0] - 2025-07-25
+### Added
+- Add Storybook docs introduction. [#44427]
+
+### Changed
+- Fix export structure for charts. [#44440]
+- Remove non-production files from built package. [#44438]
+
+## [0.20.0] - 2025-07-23
+### Added
+- Line Chart: Add documentation. [#44410]
+
+## [0.19.1] - 2025-07-22
+### Changed
+- Remove dependency on jetpack-components. [#44411]
+
+## [0.19.0] - 2025-07-21
+### Added
+- Added more exports for Woo Analytics to get rid of visx dependencies. [#44390]
+
+## [0.18.0] - 2025-07-21
+### Added
+- Add keyboard navigation support for bar and line charts. [#44036]
+- Add Woo Analytics Leaderboard chart component. [#44299]
+- Line chart: Add documentation for annotations. [#44361]
+- Line chart: Add support for custom interactive annotations. Includes a breaking change to the annotations API, from an `annotations` prop to a compound component pattern. [#44131]
+
+### Changed
+- Replace `lodash` with `deepmerge`. [#44316]
+- Update package dependencies. [#44356]
+
 ## [0.17.0] - 2025-07-14
 ### Added
 - Add foundation for ChartContext system. [#44189]
@@ -285,6 +327,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.22.0]: https://github.com/Automattic/charts/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/charts/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/Automattic/charts/compare/v0.19.1...v0.20.0
+[0.19.1]: https://github.com/Automattic/charts/compare/v0.19.0...v0.19.1
+[0.19.0]: https://github.com/Automattic/charts/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/Automattic/charts/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/Automattic/charts/compare/v0.16.2...v0.17.0
 [0.16.2]: https://github.com/Automattic/charts/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/Automattic/charts/compare/v0.16.0...v0.16.1

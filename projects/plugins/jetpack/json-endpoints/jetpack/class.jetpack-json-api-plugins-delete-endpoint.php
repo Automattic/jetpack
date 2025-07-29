@@ -52,6 +52,8 @@ new Jetpack_JSON_API_Plugins_Delete_Endpoint(
  * Plugins delete endpoint class.
  *
  * POST  /sites/%s/plugins/%s/delete
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_Delete_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 

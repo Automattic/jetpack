@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 .logo {
 	fill: var(--jp-yellow-30) !important;
@@ -31,7 +31,7 @@
 	font-weight: 600;
 	font-size: 16px;
 	line-height: 19px;
-	color: var( --jp-black );
+	color: var(--jp-black);
 
 	&:not(:last-child) {
 		margin-bottom: 8px;

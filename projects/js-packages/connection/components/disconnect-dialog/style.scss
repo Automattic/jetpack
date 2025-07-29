@@ -1,24 +1,24 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
 .jp-connection__disconnect-dialog {
 
 	h1 {
 		margin-top: 0;
 		line-height: 1.2;
-		font-size: var( --font-title-small );
+		font-size: var(--font-title-small);
 		font-weight: 600;
 	}
 
 	h2 {
 		margin: 0;
 		line-height: 1.2;
-		font-size: var( --font-title-small );
+		font-size: var(--font-title-small);
 		font-weight: 400;
 	}
 
 	p {
 		margin-top: 0;
-		font-size: var( --font-body );
+		font-size: var(--font-body);
 	}
 
 	&__large-text,
@@ -28,36 +28,36 @@
 
 	&__link,
 	.jp-connection__disconnect-dialog__link {
-		color: var( --jp-black );
+		color: var(--jp-black);
 		text-decoration: underline;
 		height: auto;
 		font: inherit;
 		padding: 0;
 
 		&:hover {
-			color: var( --jp-black );
-			text-decoration-thickness: var( --jp-underline-thickness );
+			color: var(--jp-black);
+			text-decoration-thickness: var(--jp-underline-thickness);
 		}
 
 		&:focus {
-			color: var( --jp-black );
+			color: var(--jp-black);
 			box-shadow: none !important;
 		}
 
 		&--bold {
-		  font-weight: 700;
+			font-weight: 700;
 		}
 	}
 
-	.components-button{
+	.components-button {
 		height: 40px;
-		font-size: var( --font-body-small );
+		font-size: var(--font-body-small);
 		border-radius: 4px;
 	}
 
-	.components-modal{
+	.components-modal {
 
-		&__content{
+		&__content {
 			padding: 0;
 			display: flex;
 			flex-direction: column;
@@ -69,7 +69,7 @@
 			}
 		}
 
-		&__header{
+		&__header {
 			display: none;
 		}
 	}
@@ -79,44 +79,44 @@
 		width: calc(100% - 48px); // Help with the margin on the row.
 	}
 
-	&__actions{
-		background: var( --jp-white );
+	&__actions {
+		background: var(--jp-white);
 		padding: 2rem 0;
 		position: sticky;
 		bottom: 0;
-		border-top: 1px solid var( --jp-gray );
+		border-top: 1px solid var(--jp-gray);
 
 		p {
 			margin-bottom: 0;
 		}
 
 		&::before {
-			content: '';
+			content: "";
 			display: block;
 			width: 100%;
 			position: absolute;
 			height: 80px;
-			background: linear-gradient(to bottom, rgba( 0,0,0,0 ), var( --jp-white-off ));
-			bottom: calc( 100% + 1px );
+			background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--jp-white-off));
+			bottom: calc(100% + 1px);
 			left: 0;
 		}
 	}
 
 	&__btn-dismiss,
-	&__btn-dismiss.components-button{ // override the components-button class
-		background: var( --jp-black ) !important;
+	&__btn-dismiss.components-button { // override the components-button class
+		background: var(--jp-black) !important;
 		margin-right: 10px;
 	}
 
-	&__btn-disconnect{
-		background: var( --jp-red ) !important;
+	&__btn-disconnect {
+		background: var(--jp-red) !important;
 	}
 
-	&__btn-back-to-wp{
-		background: var( --jp-black ) !important;
+	&__btn-back-to-wp {
+		background: var(--jp-black) !important;
 	}
 
-	&__button-wrap{
+	&__button-wrap {
 		text-align: left;
 
 		@media (min-width: 960px) {
@@ -124,8 +124,8 @@
 		}
 	}
 
-	&__error{
-		color: var( --jp-red );
+	&__error {
+		color: var(--jp-red);
 	}
 
 	&__survey {
@@ -145,7 +145,7 @@
 }
 
 .jp-connection__disconnect-dialog__content {
-	background: var( --jp-white-off );
+	background: var(--jp-white-off);
 	margin: 0;
 	padding: 2rem 1rem;
 	border-radius: 4px;
@@ -156,7 +156,8 @@
 	justify-content: center;
 	align-items: center;
 
-	// When the screen height is shorter, hide the decorative cards to show the text and controls without scrolling.
+	// When the screen height is shorter, hide the decorative cards to
+	// show the text and controls without scrolling.
 	@media (max-height: 900px) {
 
 		.jp-components__decorative-card {
@@ -165,12 +166,12 @@
 	}
 }
 
-@media (min-width: 600px){
+@media (min-width: 600px) {
 
 	.jp-connection__disconnect-dialog,
 	.jp-connection__disconnect-dialog.components-modal__frame {
 		width: 100%;
-		max-width: calc( 100% - 32px );
+		max-width: calc(100% - 32px);
 	}
 
 	.jp-connection__disconnect-dialog {
@@ -186,7 +187,7 @@
 }
 
 
-@media (min-width: 960px){
+@media (min-width: 960px) {
 
 	.jp-connection__disconnect-dialog,
 	.jp-connection__disconnect-dialog.components-modal__frame {
@@ -199,7 +200,7 @@
 	.jp-connection__disconnect-dialog {
 
 		h1 {
-			font-size: var( --font-title-large );
+			font-size: var(--font-title-large);
 		}
 
 		&__large-text,

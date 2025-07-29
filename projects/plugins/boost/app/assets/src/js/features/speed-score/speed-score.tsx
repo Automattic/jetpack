@@ -20,14 +20,15 @@ import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/criti
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import PopOut from './pop-out/pop-out';
-import { useCornerstonePages } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
+import { useCornerstonePagesProperties } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
+import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
 
 const SpeedScore = () => {
-	const [ cornerstonePages ] = useCornerstonePages();
+	const properties = useCornerstonePagesProperties();
 	const { site } = Jetpack_Boost;
-	const pageSpeedUrl = cornerstonePages[ 0 ];
+	const pageSpeedUrl = properties?.predefined_pages?.[ 0 ] || site.url;
 	const [ { status, error, scores }, loadScore ] = useSpeedScores( pageSpeedUrl );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
@@ -40,7 +41,7 @@ const SpeedScore = () => {
 	const moduleStates = useMemo(
 		() =>
 			Object.entries( data || {} ).reduce( ( acc: boolean[], [ key, value ] ) => {
-				if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
+				if ( key !== 'image_guide' ) {
 					acc.push( value.active );
 				}
 				return acc;
@@ -77,14 +78,6 @@ const SpeedScore = () => {
 		}
 	}, [ loadScore, site.online ] );
 
-	const isCriticalCssEnabled = () => {
-		if ( ! data?.cloud_css?.available ) {
-			return data?.cloud_css?.active ?? false;
-		}
-
-		return data?.critical_css?.active ?? false;
-	};
-
 	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
 		{
@@ -92,7 +85,8 @@ const SpeedScore = () => {
 			pendingStates: {
 				criticalCss: {
 					isPending:
-						isCriticalCssEnabled() && ( cssState.status === 'pending' || criticalCssIsGenerating ),
+						isCriticalCssEnabled( data ) &&
+						( cssState.status === 'pending' || criticalCssIsGenerating ),
 					timestamp: cssState.updated || 0,
 				},
 				lcp: {

@@ -113,6 +113,8 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
  *
  * POST  /sites/%s/plugins/%s
  * POST  /sites/%s/plugins
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 

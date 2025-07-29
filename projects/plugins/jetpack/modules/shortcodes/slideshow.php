@@ -12,6 +12,8 @@ use Automattic\Jetpack\Extensions\Slideshow;
 
 /**
  * Slideshow shortcode usage: [gallery type="slideshow"] or the older [slideshow]
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Slideshow_Shortcode {
 	/**

@@ -1,3 +1,14 @@
+/*
+ * External dependencies
+ */
+import { getConfig } from '@wordpress/interactivity';
+import debugFactory from 'debug';
+
+const debug = debugFactory( 'jetpack-forms:interactivity' );
+
+const NAMESPACE = 'jetpack/form';
+const config = getConfig( NAMESPACE );
+
 const getForm = formHash => {
 	return document.getElementById( 'jp-form-' + formHash );
 };
@@ -40,7 +51,9 @@ export const submitForm = async formHash => {
 
 	try {
 		const formData = new FormData( form );
-		const url = form.getAttribute( 'action' );
+
+		const adminAjaxUrl = config?.admin_ajax_url || '/wp-admin/admin-ajax.php';
+		const url = `${ adminAjaxUrl }?action=grunion-contact-form`;
 
 		const response = await fetch( url, {
 			method: 'POST',
@@ -51,13 +64,15 @@ export const submitForm = async formHash => {
 		} );
 
 		if ( ! response.ok ) {
-			return { success: false, error: response.status };
+			debug( 'Form submission failed', response );
+			return { success: false, error: config?.error_types?.network_error };
 		}
 
 		const result = await response.json();
 
 		return result;
 	} catch ( error ) {
-		return { success: false, error: error.message };
+		debug( 'Form submission failed', error );
+		return { success: false, error: config?.error_types?.network_error };
 	}
 };

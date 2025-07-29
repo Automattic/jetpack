@@ -21,6 +21,11 @@ type ProductFiltersContextType = {
 		productStatus: string;
 		productData: ProductCamelCase | MyJetpackModule;
 	} ) => void;
+	trackEmptyResults: ( params: {
+		emptyStateType: 'search' | 'filter' | 'combined';
+		searchTerm?: string;
+		activeFilter: ProductFilter;
+	} ) => void;
 } | null;
 
 const ProductFiltersContext = createContext< ProductFiltersContextType >( null );
@@ -85,9 +90,27 @@ export const ProductFiltersProvider = ( {
 		[ recordEvent, currentFilter, searchTerm ]
 	);
 
+	const trackEmptyResults = useCallback(
+		( params: {
+			emptyStateType: 'search' | 'filter' | 'combined';
+			searchTerm?: string;
+			activeFilter: ProductFilter;
+			sectionsChecked: number;
+		} ) => {
+			recordEvent( 'jetpack_myjetpack_products_empty_results', {
+				empty_state_type: params.emptyStateType,
+				search_term: params.searchTerm || '',
+				active_filter: params.activeFilter,
+				sections_checked: params.sectionsChecked,
+			} );
+		},
+		[ recordEvent ]
+	);
+
 	const contextValue = {
 		trackFilterChange,
 		trackProductAction,
+		trackEmptyResults,
 	};
 
 	return (

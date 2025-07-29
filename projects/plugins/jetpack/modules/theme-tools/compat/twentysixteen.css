@@ -16,7 +16,7 @@
 	margin: 1.75em 0 0;
 }
 
-.comment-subscription-form + .comment-subscription-form  {
+.comment-subscription-form + .comment-subscription-form {
 	margin-top: 0;
 }
 
@@ -25,7 +25,7 @@
  * Extra Widgets
  */
 
- /* Blog Subscriptions Widget */
+/* Blog Subscriptions Widget */
 .jetpack_subscription_widget #subscribe-email input {
 	padding: 0.625em 0.4375em;
 	width: 100%;
@@ -35,7 +35,7 @@
 	margin-bottom: 0;
 }
 
- /* Contact Info Widget */
+/* Contact Info Widget */
 .widget_contact_info .contact-map {
 	margin-bottom: 1.75em;
 }
@@ -250,7 +250,7 @@
 
 /* Upcoming Events Widget */
 .widget_upcoming_events_widget .upcoming-events li {
-	margin-bottom: 0.875em
+	margin-bottom: 0.875em;
 }
 
 /**
@@ -780,7 +780,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	}
 
 	.widget_upcoming_events_widget .upcoming-events li {
-		margin-bottom: 1.076923077em
+		margin-bottom: 1.076923077em;
 	}
 
 	.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {
