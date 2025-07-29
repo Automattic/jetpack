@@ -1,3 +1,4 @@
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { PlainText, useBlockProps } from '@wordpress/block-editor';
 import {
 	ExternalLink,
@@ -94,6 +95,30 @@ const validHostedButtonId = hostedButtonId => /^[A-Z0-9]+$/.test( hostedButtonId
 
 const validButtonText = buttonText =>
 	buttonText && buttonText.trim().length > 0 && buttonText.length <= 50;
+
+/**
+ * Get PayPal signup URL with platform-specific tracking parameters
+ *
+ * @return {string} The PayPal signup URL
+ */
+const getPayPalSignupUrl = () => {
+	const isWpcom = isWpcomPlatformSite();
+	const utmSource = isWpcom ? 'wp_com' : 'wp_org';
+	const atCode = isWpcom ? 'wp_com' : 'wp_org';
+	return `https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=${ utmSource }&at_code=${ atCode }`;
+};
+
+/**
+ * Get PayPal login URL with platform-specific tracking parameters
+ *
+ * @return {string} The PayPal login URL
+ */
+const getPayPalLoginUrl = () => {
+	const isWpcom = isWpcomPlatformSite();
+	const utmSource = isWpcom ? 'wp_com' : 'wp_org';
+	const atCode = isWpcom ? 'wp_com' : 'wp_org';
+	return `https://www.paypal.com/ncp/buttons/create?utm_source=${ utmSource }&at_code=${ atCode }`;
+};
 
 /**
  * PayPal Single Button Preview component (rendered directly)
@@ -333,13 +358,14 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					/>
 				</ToggleGroupControl>
 				<Text>
-					<ExternalLink href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }>
-						<strong>{ __( 'Go to PayPal', 'jetpack-paypal-payments' ) }</strong>
+					<ExternalLink href={ getPayPalSignupUrl() }>
+						<strong>{ __( 'Sign up', 'jetpack-paypal-payments' ) }</strong>
 					</ExternalLink>{ ' ' }
-					{ __(
-						'to get your Payment Button code and choose Payment Buttons. Enter your product and service details, and build the buttons. Copy the HTML button code for Stacked Buttons or Single Button and paste below.',
-						'jetpack-paypal-payments'
-					) }
+					{ __( 'or', 'jetpack-paypal-payments' ) }{ ' ' }
+					<ExternalLink href={ getPayPalLoginUrl() }>
+						<strong>{ __( 'log in', 'jetpack-paypal-payments' ) }</strong>
+					</ExternalLink>{ ' ' }
+					{ __( 'to PayPal to get your Payment Button code.', 'jetpack-paypal-payments' ) }
 				</Text>
 				{ 'stacked' === buttonType && (
 					<PlainText

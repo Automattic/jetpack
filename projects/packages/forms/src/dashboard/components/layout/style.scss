@@ -21,7 +21,7 @@ body.jetpack_page_jetpack-forms-admin {
 	margin: 0;
 	padding: 0;
 	width: 100%;
-	min-height: calc(100vh - 32px); // 32px is the height of the top admin bar
+	min-height: calc(100vh - var(--wp-admin--admin-bar--height));
 
 	.jp-forms__logo-wrapper,
 	.jp-forms__layout-header {

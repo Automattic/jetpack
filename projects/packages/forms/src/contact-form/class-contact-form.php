@@ -179,6 +179,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack-forms' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
+			'connectMailPoet'        => false, // Whether to send contact to MailPoet.
 			'className'              => null,
 			'postToUrl'              => null,
 			'salesforceData'         => null,
@@ -280,6 +281,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			self::get_secret()
 		);
 	}
+	/**
+	 * Get the count of forms.
+	 *
+	 * @return int The count of forms.
+	 */
+	public static function get_forms_count() {
+		return count( self::$forms );
+	}
 
 	/**
 	 * Get the default recipient email address for the contact form.
@@ -335,10 +344,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Store shortcode content for recall later
 	 *  - used to receate shortcode when user uses do_shortcode
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 5.0.0
 	 */
 	public static function store_shortcode() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Contact_Form_Plugin::store_shortcode()' );
+		_deprecated_function( __METHOD__, '5.0.0', 'Contact_Form_Plugin::store_shortcode()' );
 	}
 
 	/**
@@ -437,6 +446,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_enqueue_script( 'accessible-form' );
 		}
 
+		$config = array(
+			'error_types'    => array(
+				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
+				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
+				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
+				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
+			),
+			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
+		);
+		wp_interactivity_config( 'jetpack/form', $config );
+		\wp_enqueue_script_module(
+			'jp-forms-view',
+			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			\JETPACK__VERSION
+		);
+
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
 		$container_classes[]      = self::get_block_alignment_class( $attributes );
 		$container_classes_string = implode( ' ', $container_classes );
@@ -525,33 +551,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "</ul>\n</div>\n\n";
 		}
 
+		if ( $is_reload_after_success && $form->is_response_without_reload_enabled ) {
+			$r .= '<noscript>';
+			$r .= self::render_noscript_success_message( $is_reload_nonce_valid, $feedback_id, $form );
+			$r .= '</noscript>';
+		}
+
 		if ( $is_reload_after_success && ! $form->is_response_without_reload_enabled ) {
 			// The contact form was submitted.  Show the success message/results.
-			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
-			$r       .= '<div class="contact-form-submission">';
-
-			$r_success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
-
-			$r_success_message .=
-				'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
-				"</h4>\n\n";
-
-			// Don't show the feedback details unless the nonce matches
-			if ( $is_reload_nonce_valid ) {
-				$r_success_message .= self::success_message( $feedback_id, $form );
-			}
-
-			/**
-			 * Filter the message returned after a successful contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 1.3.1
-			 *
-			 * @param string $r_success_message Success message.
-			 */
-			$r .= apply_filters( 'grunion_contact_form_success_message', $r_success_message );
-			$r .= '</div>';
+			$r .= self::render_noscript_success_message( $is_reload_nonce_valid, $feedback_id, $form );
 		} else {
 			// Nothing special - show the normal contact form
 			if ( $form->get_attribute( 'widget' )
@@ -702,6 +710,55 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $r The contact form HTML.
 		 */
 		return apply_filters( 'jetpack_contact_form_html', $r );
+	}
+
+	/**
+	 * Renders the success message for the contact form when js is disabled or not desired.
+	 *
+	 * @param bool         $is_reload_nonce_valid - whether the nonce is valid.
+	 * @param int          $feedback_id - the feedback ID.
+	 * @param Contact_Form $form - the contact form.
+	 *
+	 * @return string HTML string for the success message.
+	 */
+	private static function render_noscript_success_message( $is_reload_nonce_valid, $feedback_id, $form ) {
+		$back_url        = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
+		$contact_form_id = sanitize_text_field( wp_unslash( $_GET['contact-form-id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$message = '';
+
+		$message .= '<style>
+			.contact-form-ajax-submission {
+				display: none;
+			}
+
+			#contact-form-' . $contact_form_id . ' form.contact-form {
+				display: none;
+			}
+		</style>';
+
+		$message         .= '<div class="contact-form-submission">';
+		$success_message  = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . "</h4>\n\n";
+
+		// Don't show the feedback details unless the nonce matches
+		if ( $is_reload_nonce_valid ) {
+			$success_message .= self::success_message( $feedback_id, $form );
+		}
+
+		/**
+		 * Filter the message returned after a successful contact form submission.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param string $message Success message.
+		 */
+		$message .= apply_filters( 'grunion_contact_form_success_message', $success_message );
+		$message .= '</div>';
+
+		return $message;
 	}
 
 	/**
@@ -890,6 +947,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function get_json_data( $feedback_id, $form ) {
 		$raw_data  = self::get_raw_compiled_form_data( $feedback_id, $form );
 		$json_data = array();
+
+		// Sort by field index to maintain the correct order
+		ksort( $raw_data );
 
 		// Handle file upload field (new structure with field_id and files array)
 		foreach ( $raw_data as $field_data ) {
@@ -1415,7 +1475,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 
 		// Initialize marketing consent
-		$field_ids['email_marketing_consent'] = null;
+		$field_ids['email_marketing_consent']       = null;
+		$field_ids['email_marketing_consent_field'] = null;
 
 		foreach ( $this->fields as $id => $field ) {
 			$type = $field->get_attribute( 'type' );
@@ -1448,6 +1509,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				case 'consent':
 					// Set email marketing consent for the first Consent type field
 					if ( null === $field_ids['email_marketing_consent'] ) {
+						$field_ids['email_marketing_consent_field'] = $id;
 						if ( $field->value ) {
 							$field_ids['email_marketing_consent'] = true;
 						} else {

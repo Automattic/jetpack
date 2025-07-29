@@ -19,23 +19,12 @@ export function boostPrerequisitesBuilder( page ) {
 		mockConnection: undefined,
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
+		mockPremiumFeatures: undefined,
 		enqueuedAssets: undefined,
 		appendImage: undefined,
 	};
 
 	return {
-		withActiveModules( modules = [] ) {
-			state.modules.active = modules;
-			return this;
-		},
-		withInactiveModules( modules = [] ) {
-			state.modules.inactive = modules;
-			return this;
-		},
-		withLoggedIn( shouldBeLoggedIn ) {
-			state.loggedIn = shouldBeLoggedIn;
-			return this;
-		},
 		withConnection( shouldBeConnected ) {
 			state.connected = shouldBeConnected;
 			return this;
@@ -50,6 +39,10 @@ export function boostPrerequisitesBuilder( page ) {
 		},
 		withSpeedScoreMocked( shouldMockSpeedScore ) {
 			state.mockSpeedScore = shouldMockSpeedScore;
+			return this;
+		},
+		withPremiumFeaturesMocked( features = [] ) {
+			state.mockPremiumFeatures = features;
 			return this;
 		},
 		withEnqueuedAssets( shouldEnqueueAssets ) {
@@ -72,17 +65,18 @@ export function boostPrerequisitesBuilder( page ) {
 
 /**
  * Build prerequisites.
- * @param {object}  state                - State
- * @param {boolean} state.clean          - Whether to reset the environment.
- * @param {boolean} state.connected      - Whether the site should be connected.
- * @param {object}  state.plugins        - Plugins state, see ensurePluginsState()
- * @param {object}  state.modules        - Modules state, see ensureModulesState()
- * @param {Array}   state.loggedIn       -
- * @param {Array}   state.testPostTitles -
- * @param {boolean} state.mockSpeedScore -
- * @param {boolean} state.enqueuedAssets -
- * @param {boolean} state.appendImage    -
- * @param {page}    page                 - Playwright page instance.
+ * @param {object}  state                     - State
+ * @param {boolean} state.clean               - Whether to reset the environment.
+ * @param {boolean} state.connected           - Whether the site should be connected.
+ * @param {object}  state.plugins             - Plugins state, see ensurePluginsState()
+ * @param {object}  state.modules             - Modules state, see ensureModulesState()
+ * @param {Array}   state.loggedIn            -
+ * @param {Array}   state.testPostTitles      -
+ * @param {boolean} state.mockSpeedScore      -
+ * @param {Array}   state.mockPremiumFeatures - Premium features to mock
+ * @param {boolean} state.enqueuedAssets      -
+ * @param {boolean} state.appendImage         -
+ * @param {page}    page                      - Playwright page instance.
  */
 async function buildPrerequisites( state, page ) {
 	const functions = {
@@ -93,6 +87,7 @@ async function buildPrerequisites( state, page ) {
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
+		mockPremiumFeatures: () => ensureMockPremiumFeaturesState( state.mockPremiumFeatures ),
 		enqueuedAssets: () => ensureEnqueuedAssets( state.enqueuedAssets ),
 		appendImage: () => ensureAppendedImage( state.appendImage ),
 	};
@@ -143,6 +138,27 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	} else {
 		logger.prerequisites( 'Unmocking Speed Score' );
 		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
+	}
+}
+
+/**
+ * Ensure premium features mock plugin state.
+ * @param {Array} mockPremiumFeatures - Array of premium features to mock.
+ */
+export async function ensureMockPremiumFeaturesState( mockPremiumFeatures ) {
+	if ( mockPremiumFeatures && mockPremiumFeatures.length > 0 ) {
+		logger.prerequisites( `Mocking Premium Features: ${ mockPremiumFeatures.join( ', ' ) }` );
+		// Enable the premium features mock plugin.
+		await execWpCommand( 'plugin activate e2e-mock-premium-features' );
+		// Set the features to mock as a proper PHP array using WP-CLI's --format=json
+		const featuresJson = JSON.stringify( mockPremiumFeatures );
+		await execWpCommand(
+			`option update e2e_mock_premium_features '${ featuresJson }' --format=json`
+		);
+	} else {
+		logger.prerequisites( 'Unmocking Premium Features' );
+		await execWpCommand( 'plugin deactivate e2e-mock-premium-features' );
+		await execWpCommand( 'option delete e2e_mock_premium_features' );
 	}
 }
 

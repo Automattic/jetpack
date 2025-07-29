@@ -1,5 +1,12 @@
+import { sharedDecorator } from '../../../stories/decorator-config';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
+
+type StoryArgs = React.ComponentProps< typeof PieSemiCircleChart > & {
+	containerWidth?: string;
+	containerHeight?: string;
+	resize?: string;
+};
 
 const data = [
 	{
@@ -22,31 +29,13 @@ const data = [
 	},
 ];
 
-const ResponsiveDecorator = Story => (
-	<div
-		style={ {
-			resize: 'both',
-			overflow: 'hidden',
-			padding: '2rem',
-			width: '800px',
-			aspectRatio: '2/1',
-			minWidth: '400px',
-			maxWidth: '1200px',
-			height: '450px',
-			border: '1px dashed #ccc',
-		} }
-	>
-		<Story />
-	</div>
-);
-
-const meta = {
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
 	component: PieSemiCircleChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [ ResponsiveDecorator ],
+	decorators: sharedDecorator,
 	argTypes: {
 		width: {
 			control: {
@@ -62,14 +51,6 @@ const meta = {
 				min: 0,
 				max: 1,
 				step: 0.01,
-			},
-		},
-		padding: {
-			control: {
-				type: 'range',
-				min: 0,
-				max: 100,
-				step: 5,
 			},
 		},
 		maxWidth: {
@@ -94,16 +75,17 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof PieSemiCircleChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
-type Story = StoryObj< typeof PieSemiCircleChart >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
-		width: 600,
+		containerWidth: '600px',
+		containerHeight: '325px',
+		resize: 'none',
 		thickness: 0.4,
-		padding: 20,
 		data,
 		label: 'OS',
 		note: 'Windows +10%',
@@ -125,7 +107,7 @@ export const WithTooltips: Story = {
 	},
 };
 
-const responsiveArgs = { ...Default.args };
+const responsiveArgs = { ...Default.args, resize: 'both' };
 delete responsiveArgs.width;
 export const Responsiveness: Story = {
 	args: responsiveArgs,

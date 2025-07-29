@@ -1,3 +1,4 @@
+import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { formatMetricValue } from '../../shared/format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';
 import { sampleData, smallDataset, largeValues, negativeGrowth } from './sample-data';
@@ -396,4 +397,39 @@ export const AdvancedFormatting: Story = {
 				signDisplay: 'always',
 			} ),
 	},
+};
+
+// Themed stories
+export const JetpackTheme: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+	},
+	decorators: [
+		Story => (
+			<ThemeProvider theme={ jetpackTheme }>
+				<div style={ { width: '400px', padding: '20px' } }>
+					<Story />
+				</div>
+			</ThemeProvider>
+		),
+	],
+};
+
+export const WooCommerceTheme: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+	},
+	decorators: [
+		Story => (
+			<ThemeProvider theme={ wooTheme }>
+				<div style={ { width: '400px', padding: '20px' } }>
+					<Story />
+				</div>
+			</ThemeProvider>
+		),
+	],
 };

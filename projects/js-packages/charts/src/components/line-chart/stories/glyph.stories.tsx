@@ -6,10 +6,14 @@ import type { DataPointDate } from '../../../types';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
-const meta: Meta< typeof LineChart > = {
+type StoryArgs = React.ComponentProps< typeof LineChart > & {
+	themeName?: string;
+};
+
+const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart/Glyphs',
-} satisfies Meta< typeof LineChart >;
+};
 
 export default meta;
 
@@ -20,12 +24,12 @@ const glyphStoryArgs = {
 	withStartGlyphs: true,
 };
 
-export const Start: StoryObj< typeof LineChart > = Template.bind( {} );
+export const Start: StoryObj< StoryArgs > = Template.bind( {} );
 Start.args = {
 	...glyphStoryArgs,
 };
 
-export const Custom: StoryObj< typeof LineChart > = Template.bind( {} );
+export const Custom: StoryObj< StoryArgs > = Template.bind( {} );
 Custom.args = {
 	...glyphStoryArgs,
 	withLegendGlyph: true,
@@ -63,7 +67,7 @@ const CustomStarGlyph = ( { color, size, x, y } ) => {
 	);
 };
 
-export const CustomSvg: StoryObj< typeof LineChart > = Template.bind( {} );
+export const CustomSvg: StoryObj< StoryArgs > = Template.bind( {} );
 CustomSvg.args = {
 	...glyphStoryArgs,
 	withLegendGlyph: true,
@@ -115,7 +119,7 @@ const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate >
 	);
 };
 
-export const InTooltip: StoryObj< typeof LineChart > = Template.bind( {} );
+export const InTooltip: StoryObj< StoryArgs > = Template.bind( {} );
 InTooltip.args = {
 	...glyphStoryArgs,
 	renderGlyph: ( { color, size, x, y } ) => {
@@ -127,7 +131,7 @@ InTooltip.args = {
 	renderTooltip: ToolTipWithGlyph,
 };
 
-export const CustomPerDataPoint: StoryObj< typeof LineChart > = Template.bind( {} );
+export const CustomPerDataPoint: StoryObj< StoryArgs > = Template.bind( {} );
 CustomPerDataPoint.args = {
 	...glyphStoryArgs,
 	showLegend: true,

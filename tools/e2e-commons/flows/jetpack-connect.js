@@ -1,7 +1,6 @@
 import { expect } from '@playwright/test';
 import config from 'config';
 import { persistPlanData, syncPlanData } from '../helpers/plan-helper.js';
-import { execWpCommand } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 import {
 	Sidebar,
@@ -16,6 +15,7 @@ import {
 	ThankYouPage,
 	LoginPage,
 } from '../pages/wpcom/index.js';
+import { executeWpCommand } from '../utils/cli.ts';
 
 const cardCredentials = config.get( 'testCardCredentials' );
 
@@ -78,7 +78,7 @@ export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
 			response => response.url().match( /v4\/site[^/]/ ) && response.status() === 200,
 			{ timeout: 60 * 1000 }
 		);
-		await execWpCommand( 'cron event run jetpack_v2_heartbeat' );
+		await executeWpCommand( 'cron event run jetpack_v2_heartbeat' );
 	}
 	await syncPlanData( page );
 	if ( ! ( await jpPlanPage.isPlan( plan ) ) ) {
