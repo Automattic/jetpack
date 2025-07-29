@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: use a core variable to account for admin bar and CSS to account for folded sidebar.

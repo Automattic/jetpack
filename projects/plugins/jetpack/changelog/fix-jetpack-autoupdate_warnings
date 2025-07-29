@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Autoupdate: Prevent warnings when data is malformed.

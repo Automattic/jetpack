@@ -122,6 +122,17 @@ export type ChartTheme = {
 		/** Delta colors: [negative, neutral, positive] */
 		deltaColors?: [ string, string, string ];
 	};
+	/** ConversionFunnelChart specific settings */
+	conversionFunnelChart?: {
+		/** Primary color for funnel bars */
+		primaryColor?: string;
+		/** Background color for chart container */
+		backgroundColor?: string;
+		/** Color for positive change indicators */
+		positiveChangeColor?: string;
+		/** Color for negative change indicators */
+		negativeChangeColor?: string;
+	};
 };
 
 declare type AxisOptions = {
@@ -317,3 +328,5 @@ export interface ToggleEvent extends Event {
 	newState: 'open' | 'closed';
 	oldState: 'open' | 'closed';
 }
+// ConversionFunnelChart types
+export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';

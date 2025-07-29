@@ -2,6 +2,12 @@ import { sharedDecorator } from '../../../stories/decorator-config';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
+type StoryArgs = React.ComponentProps< typeof PieSemiCircleChart > & {
+	containerWidth?: string;
+	containerHeight?: string;
+	resize?: string;
+};
+
 const data = [
 	{
 		label: 'MacOS',
@@ -23,7 +29,7 @@ const data = [
 	},
 ];
 
-const meta = {
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
 	component: PieSemiCircleChart,
 	parameters: {
@@ -45,14 +51,6 @@ const meta = {
 				min: 0,
 				max: 1,
 				step: 0.01,
-			},
-		},
-		padding: {
-			control: {
-				type: 'range',
-				min: 0,
-				max: 100,
-				step: 5,
 			},
 		},
 		maxWidth: {
@@ -77,10 +75,10 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof PieSemiCircleChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
-type Story = StoryObj< typeof PieSemiCircleChart >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
@@ -88,7 +86,6 @@ export const Default: Story = {
 		containerHeight: '325px',
 		resize: 'none',
 		thickness: 0.4,
-		padding: 20,
 		data,
 		label: 'OS',
 		note: 'Windows +10%',
