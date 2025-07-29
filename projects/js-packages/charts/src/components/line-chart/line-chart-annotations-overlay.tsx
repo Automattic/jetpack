@@ -1,9 +1,10 @@
 import { DataContext } from '@visx/xychart';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo, isValidElement, cloneElement } from 'react';
+import LineChartAnnotationsKeyboardNavigation from './line-chart-annotations-keyboard-navigation';
 import { useLineChartContext } from './line-chart-context';
 import styles from './line-chart.module.scss';
 import type { AxisScale } from '@visx/axis';
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, ReactElement } from 'react';
 
 export interface LineChartAnnotationsProps {
 	children?: ReactNode;
@@ -19,6 +20,58 @@ const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( { childre
 
 	const [ scales, setScales ] = useState< ScaleData | null >( null );
 	const [ scalesStable, setScalesStable ] = useState< boolean >( false );
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+
+	// Track interactive annotations (those with renderLabelPopover)
+	const interactiveAnnotations = useMemo( () => {
+		if ( ! children ) return [];
+
+		const annotations: ReactElement[] = [];
+
+		const processChild = ( child: ReactNode ): void => {
+			if ( isValidElement( child ) && child.props?.renderLabelPopover ) {
+				annotations.push( child );
+			}
+		};
+
+		if ( Array.isArray( children ) ) {
+			children.forEach( processChild );
+		} else {
+			processChild( children );
+		}
+
+		return annotations;
+	}, [ children ] );
+
+	// Clone children to pass navigation props to interactive annotations
+	const enhancedChildren = useMemo( () => {
+		if ( ! children ) return null;
+
+		let interactiveIndex = 0;
+
+		const processChild = ( child: ReactNode ): ReactNode => {
+			if ( isValidElement( child ) && child.props?.renderLabelPopover ) {
+				const isSelected = selectedIndex === interactiveIndex;
+				const currentIndex = interactiveIndex++;
+
+				return cloneElement( child, {
+					...child.props,
+					isSelected,
+					navigationIndex: currentIndex,
+					tabIndex: -1, // Remove from tab order
+				} );
+			}
+			return child;
+		};
+
+		if ( Array.isArray( children ) ) {
+			return children.map( processChild );
+		}
+
+		return processChild( children );
+	}, [ children, selectedIndex ] );
+
+	const hasInteractiveAnnotations = interactiveAnnotations.length > 0;
 
 	// Create a signature for scale data to enable easy comparison
 	const createScaleSignature = useCallback( ( scaleData: ScaleData ) => {
@@ -118,16 +171,32 @@ const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( { childre
 		height: chartHeight,
 	} as unknown as Parameters< typeof DataContext.Provider >[ 0 ][ 'value' ];
 
+	// SVG content that will be used in both cases
+	const svgContent = (
+		<svg
+			width={ chartWidth }
+			height={ chartHeight }
+			className={ styles[ 'line-chart__annotations-overlay' ] }
+			data-testid="line-chart-annotations-overlay"
+		>
+			{ enhancedChildren }
+		</svg>
+	);
+
 	return (
 		<DataContext.Provider value={ dataContextValue }>
-			<svg
-				width={ chartWidth }
-				height={ chartHeight }
-				className={ styles[ 'line-chart__annotations-overlay' ] }
-				data-testid="line-chart-annotations-overlay"
-			>
-				{ children }
-			</svg>
+			{ hasInteractiveAnnotations ? (
+				<LineChartAnnotationsKeyboardNavigation
+					chartWidth={ chartWidth }
+					chartHeight={ chartHeight }
+					totalInteractiveAnnotations={ interactiveAnnotations.length }
+					selectedIndex={ selectedIndex }
+					setSelectedIndex={ setSelectedIndex }
+					children={ svgContent }
+				/>
+			) : (
+				svgContent
+			) }
 		</DataContext.Provider>
 	);
 };

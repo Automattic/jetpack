@@ -46,6 +46,10 @@ export type LineChartAnnotationProps = {
 	testId?: string;
 	renderLabel?: FC< { title: string; subtitle?: string } >;
 	renderLabelPopover?: FC< { title: string; subtitle?: string } >;
+	// Keyboard navigation props (passed from overlay)
+	isSelected?: boolean;
+	navigationIndex?: number;
+	tabIndex?: number;
 };
 
 export const getLabelPosition = ( {
@@ -174,11 +178,24 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	testId,
 	renderLabel,
 	renderLabelPopover,
+	isSelected = false,
+	navigationIndex,
+	tabIndex,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	const labelRef = useRef< SVGGElement >( null );
+	const popoverButtonRef = useRef< HTMLButtonElement >( null );
 	const [ height, setHeight ] = useState< number | null >( null );
+
+	// Handle keyboard activation - focus popover when selected via keyboard
+	useEffect( () => {
+		if ( isSelected && renderLabelPopover && popoverButtonRef.current ) {
+			// Focus and click the popover button to open it
+			popoverButtonRef.current.focus();
+			popoverButtonRef.current.click();
+		}
+	}, [ isSelected, renderLabelPopover ] );
 
 	// Deep merge styles to preserve nested object properties
 	const styles = merge( providerTheme.annotationStyles ?? {}, datumStyles ?? {} );
@@ -231,6 +248,30 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 
 		return { x, y, yMin, yMax, xMin, xMax, ...position };
 	}, [ datum, xScale, yScale, subjectType, styles?.label?.maxWidth, height, renderLabel ] );
+
+	// Apply keyboard focus styling
+	const enhancedSubjectStyles = useMemo( () => {
+		if ( ! isSelected ) return styles;
+
+		// Add focus styling for keyboard navigation
+		const focusStyle = {
+			stroke: '#0073aa',
+			strokeWidth: 2,
+			filter: 'drop-shadow(0 0 4px rgba(0, 115, 170, 0.5))',
+		};
+
+		return {
+			...styles,
+			circleSubject: {
+				...styles?.circleSubject,
+				...focusStyle,
+			},
+			lineSubject: {
+				...styles?.lineSubject,
+				...focusStyle,
+			},
+		};
+	}, [ styles, isSelected ] );
 
 	if ( ! positionData ) return null;
 
@@ -286,26 +327,37 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	};
 
 	return (
-		<g data-testid={ testId }>
+		<g
+			data-testid={ testId }
+			role={ renderLabelPopover ? 'button' : undefined }
+			aria-label={
+				renderLabelPopover
+					? `${ title }${ subtitle ? `, ${ subtitle }` : '' }. Interactive annotation.`
+					: undefined
+			}
+			aria-current={ isSelected ? 'true' : undefined }
+		>
 			<Annotation x={ x } y={ y } dx={ dx } dy={ dy }>
-				<Connector { ...styles?.connector } />
-				{ subjectType === 'circle' && <CircleSubject { ...styles?.circleSubject } /> }
+				<Connector { ...enhancedSubjectStyles?.connector } />
+				{ subjectType === 'circle' && (
+					<CircleSubject { ...enhancedSubjectStyles?.circleSubject } />
+				) }
 				{ subjectType === 'line-vertical' && (
 					<LineSubject
 						min={ yMax }
 						max={ yMin }
-						{ ...{ ...styles?.lineSubject, orientation: 'vertical' } }
+						{ ...{ ...enhancedSubjectStyles?.lineSubject, orientation: 'vertical' } }
 					/>
 				) }
 				{ subjectType === 'line-horizontal' && (
 					<LineSubject
 						min={ xMin }
 						max={ xMax }
-						{ ...{ ...styles?.lineSubject, orientation: 'horizontal' } }
+						{ ...{ ...enhancedSubjectStyles?.lineSubject, orientation: 'horizontal' } }
 					/>
 				) }
 				{ renderLabel ? (
-					<HtmlLabel { ...styles?.label } { ...labelPosition }>
+					<HtmlLabel { ...enhancedSubjectStyles?.label } { ...labelPosition }>
 						<div style={ getSafariHTMLLabelPosition() }>
 							{ renderLabelPopover ? (
 								<LineChartAnnotationLabelWithPopover
@@ -313,6 +365,16 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 									subtitle={ subtitle }
 									renderLabel={ renderLabel }
 									renderLabelPopover={ renderLabelPopover }
+									ref={ popoverButtonRef }
+									tabIndex={ tabIndex }
+									aria-label={ `${ title }${
+										subtitle ? `, ${ subtitle }` : ''
+									}. Press Enter to open details.` }
+									aria-describedby={
+										navigationIndex !== undefined
+											? `annotation-${ navigationIndex }-help`
+											: undefined
+									}
 								/>
 							) : (
 								renderLabel( { title, subtitle } )
@@ -324,7 +386,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 						<Label
 							title={ title }
 							subtitle={ subtitle }
-							{ ...styles?.label }
+							{ ...enhancedSubjectStyles?.label }
 							{ ...labelPosition }
 							horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
 							verticalAnchor={ getVerticalAnchor(
@@ -338,6 +400,18 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 					</g>
 				) }
 			</Annotation>
+			{ /* Hidden help text for screen readers */ }
+			{ navigationIndex !== undefined && renderLabelPopover && (
+				<foreignObject x={ 0 } y={ 0 } width={ 1 } height={ 1 } style={ { overflow: 'hidden' } }>
+					<div
+						id={ `annotation-${ navigationIndex }-help` }
+						style={ { position: 'absolute', left: '-9999px', width: '1px', height: '1px' } }
+					>
+						Interactive chart annotation. Use arrow keys to navigate between annotations. Press
+						Enter or Space to open details.
+					</div>
+				</foreignObject>
+			) }
 		</g>
 	);
 };
