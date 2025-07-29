@@ -10,6 +10,7 @@ export async function connect( requestUtils: RequestUtils ) {
 	const authorizeUrl = await connectSite( requestUtils );
 	const clientId = new URL( authorizeUrl ).searchParams.get( 'client_id' ) || '';
 
+	// await partnerProvisionConnection( creds.userId, 'free', siteCreds.username );
 	await connectUser( requestUtils, clientId );
 }
 
