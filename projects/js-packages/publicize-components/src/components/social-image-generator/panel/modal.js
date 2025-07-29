@@ -14,6 +14,7 @@ import useMediaDetails from '../../../hooks/use-media-details';
 import GeneratedImagePreview from '../../generated-image-preview';
 import MediaPicker from '../../media-picker';
 import TemplatePicker from '../template-picker/picker';
+import { getFontOptions } from '../utils';
 import styles from './styles.module.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
@@ -35,6 +36,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 		featuredImageId,
 		defaultImageId,
 		template,
+		font,
 		updateSettings,
 	} = useImageGeneratorConfig();
 
@@ -44,6 +46,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 	);
 	const [ localCustomText, setEditedCustomText ] = useState( customText );
 	const [ localTemplate, setEditedTemplate ] = useState( template );
+	const [ selectedFont, setSelectedFont ] = useState( font );
 
 	const [ mediaDetails ] = useMediaDetails( localImageId );
 
@@ -51,13 +54,22 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 		//TODO: Commit the settings
 		updateSettings( {
 			template: localTemplate,
+			font: selectedFont,
 			image_type: localImageType,
 			custom_text: localCustomText || '',
 			// Only set image_id if it's a custom image
 			...( localImageType === 'custom' && { image_id: localImageId } ),
 		} );
 		onClose();
-	}, [ updateSettings, localTemplate, localImageType, localImageId, localCustomText, onClose ] );
+	}, [
+		updateSettings,
+		localTemplate,
+		localImageType,
+		localImageId,
+		localCustomText,
+		onClose,
+		selectedFont,
+	] );
 
 	const onCustomImageChange = useCallback(
 		media => {
@@ -75,6 +87,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 					customText={ localCustomText }
 					imageType={ localImageType }
 					template={ localTemplate }
+					font={ selectedFont }
 				/>
 				<SelectControl
 					label={ __( 'Image Type', 'jetpack-publicize-components' ) }
@@ -129,6 +142,14 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 					</BaseControl.VisualLabel>
 					<TemplatePicker value={ localTemplate } onTemplateSelected={ setEditedTemplate } />
 				</BaseControl>
+				<SelectControl
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+					label={ __( 'Font', 'jetpack-publicize-components' ) }
+					value={ selectedFont ?? '' }
+					options={ getFontOptions() }
+					onChange={ setSelectedFont }
+				/>
 				<div className={ styles.footer }>
 					<Button onClick={ onClose } variant="tertiary">
 						{ __( 'Cancel', 'jetpack-publicize-components' ) }

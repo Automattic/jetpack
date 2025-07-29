@@ -90,6 +90,7 @@ export type SocialImageGeneratorConfig = {
 	enabled: boolean;
 	template?: string;
 	default_image_id?: number;
+	font?: string;
 };
 
 export type UtmSettingsConfig = {
