@@ -275,8 +275,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			ref={ chartRef }
 			data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
 		>
-			{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
-
 			<XYChart
 				theme={ theme }
 				width={ width }
@@ -313,6 +311,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						</style>
 					</>
 				) }
+
+				{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
 				<BarGroup padding={ chartOptions.barGroup.padding }>
 					{ dataWithVisibleZeros.map( ( seriesData, index ) => (
