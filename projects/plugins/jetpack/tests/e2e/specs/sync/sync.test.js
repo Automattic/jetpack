@@ -1,5 +1,4 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
 import {
 	enableSync,
@@ -17,8 +16,10 @@ test.describe( 'Sync', () => {
 	let wpcomPostsResponse;
 	let wpcomPosts;
 
-	test.beforeAll( async ( {} ) => {
-		const jetpackOptions = await execWpCommand( 'option get jetpack_options --format=json' );
+	test.beforeAll( async ( { testUtils } ) => {
+		const jetpackOptions = await testUtils.executeWpCommand(
+			'option get jetpack_options --format=json'
+		);
 		wpcomBlogId = JSON.parse( jetpackOptions ).id;
 		wpcomForcedPostsUrl =
 			wpcomRestAPIBase + `v1/sites/${ wpcomBlogId }/posts?force=wpcom&search=Sync`;

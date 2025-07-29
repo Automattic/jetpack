@@ -86,7 +86,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @var bool
 	 */
-	public $is_response_without_reload_enabled = false;
+	public $is_response_without_reload_enabled = true;
 
 	/**
 	 * The current post object for this form.
@@ -122,7 +122,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		// phpcs:enable
 
-		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
+		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', true );
 
 		// Set up the default subject and recipient for this form.
 		$default_to      = self::get_default_to( $this->current_post ? $this->current_post->post_author : null );
@@ -344,10 +344,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Store shortcode content for recall later
 	 *  - used to receate shortcode when user uses do_shortcode
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 5.0.0
 	 */
 	public static function store_shortcode() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Contact_Form_Plugin::store_shortcode()' );
+		_deprecated_function( __METHOD__, '5.0.0', 'Contact_Form_Plugin::store_shortcode()' );
 	}
 
 	/**

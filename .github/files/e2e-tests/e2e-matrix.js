@@ -83,6 +83,14 @@ const projects = [
 		buildGroup: 'jetpack-boost',
 	},
 	{
+		project: 'Jetpack Boost - LCP Image Optimization',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/lcp-optimization' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
 		project: 'Jetpack Boost - Cornerstone Pages',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/cornerstone' ],

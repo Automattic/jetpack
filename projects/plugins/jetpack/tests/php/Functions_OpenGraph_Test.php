@@ -99,7 +99,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	/**
 	 * Test Core's custom logo fallback in jetpack_og_get_image.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.9
 	 */
 	public function test_jetpack_og_get_image_core_custom_logo() {
 		$default_url = jetpack_og_get_image();
@@ -430,7 +430,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 *
 	 * @dataProvider jetpack_og_get_site_fallback_blank_image_data_provider
 	 *
-	 * @since $$next-version$$
+	 * @since 14.9
 	 *
 	 * @param string        $expected_url Expected image URL.
 	 * @param callable|null $filter_callback Optional filter callback to add.
@@ -474,7 +474,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	/**
 	 * Test jetpack_og_get_site_image with different scenarios.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.9
 	 */
 	public function test_jetpack_og_get_site_image() {
 		// Test blank fallback when no site images are set.
@@ -510,7 +510,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 *
 	 * @dataProvider jetpack_og_generate_fallback_social_image_data_provider
 	 *
-	 * @since $$next-version$$
+	 * @since 14.9
 	 *
 	 * @param array         $representative_image The representative image array.
 	 * @param array         $expected_result Expected result array.
