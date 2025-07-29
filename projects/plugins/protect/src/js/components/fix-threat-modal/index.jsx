@@ -61,58 +61,78 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 					{ fixable.extensionStatus === 'active' ? (
 						<Notice
 							type="error"
-							message={ sprintf(
-								/* translators: %s is a translation of either "plugin" or "theme" depending on the type of extension being deleted. */
-								__(
-									'This %s seems to be currently active on your site. Deleting it may break your site. Please disable it first and check if your site is still working as expected, then proceed with the fix.',
-									'jetpack-protect'
-								),
+							message={
 								extension?.type === 'plugin'
-									? __( 'plugin', 'jetpack-protect' )
-									: __( 'theme', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) // See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#conditional-function-call-compaction
-							) }
+									? __(
+											'This plugin seems to be currently active on your site. Deleting it may break your site. Please disable it first and check if your site is still working as expected, then proceed with the fix.',
+											'jetpack-protect'
+									  )
+									: __(
+											'This theme seems to be currently active on your site. Deleting it may break your site. Please disable it first and check if your site is still working as expected, then proceed with the fix.',
+											'jetpack-protect',
+											0 // dummy arg to avoid bad minification, See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#conditional-function-call-compaction
+									  )
+							}
 						/>
 					) : (
 						<Notice
 							type="warning"
-							message={ sprintf(
-								/* translators: %s is a translation of either "plugin" or "theme" depending on the type of extension being deleted. */
-								__(
-									'This %s seems to not currently be active on your site. Please note that deleting it may still have adverse effects and this action cannot be undone.',
-									'jetpack-protect'
-								),
+							message={
 								extension?.type === 'plugin'
-									? __( 'plugin', 'jetpack-protect' )
-									: __( 'theme', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 )
-							) }
+									? __(
+											'This plugin seems to not currently be active on your site. Please note that deleting it may still have adverse effects and this action cannot be undone.',
+											'jetpack-protect'
+									  )
+									: __(
+											'This theme seems to not currently be active on your site. Please note that deleting it may still have adverse effects and this action cannot be undone.',
+											'jetpack-protect',
+											0 // dummy arg to avoid bad minification
+									  )
+							}
 						/>
 					) }
 					{ fixable.extras?.isDotorg === false && (
 						<Text mb={ 3 } mt={ 3 }>
-							{ __(
-								'We did not find this extension on WordPress.org. We encourage you to create a backup of your site before fixing this threat, to keep a copy of it.',
-								'jetpack-protect'
-							) }
+							{ extension?.type === 'plugin'
+								? __(
+										'We did not find this plugin on WordPress.org. We encourage you to create a backup of your site before fixing this threat, to keep a copy of it.',
+										'jetpack-protect'
+								  )
+								: __(
+										'We did not find this theme on WordPress.org. We encourage you to create a backup of your site before fixing this threat, to keep a copy of it.',
+										'jetpack-protect'
+								  ) }
 						</Text>
 					) }
 
 					<Text mb={ 3 } mt={ 3 }>
-						{ createInterpolateElement(
-							sprintf(
-								/* translators: %1$s is a translation of either "plugin" or "theme" depending on the type of extension being deleted. %2$s is the slug itself, e.g. jetpack-protect. */
-								__(
-									'To confirm you have read and understood the consequences, please enter the %1$s slug <code>%2$s</code> in the field below.',
-									'jetpack-protect'
-								),
-								extension?.type === 'plugin'
-									? __( 'plugin', 'jetpack-protect' )
-									: __( 'theme', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ),
-								slug
-							),
-							{
-								code: <code />,
-							}
-						) }
+						{ extension?.type === 'plugin'
+							? createInterpolateElement(
+									sprintf(
+										/* translators: %s is the plugin slug itself, e.g. jetpack-protect. */
+										__(
+											'To confirm you have read and understood the consequences, please enter the plugin slug <code>%s</code> in the field below.',
+											'jetpack-protect'
+										),
+										slug
+									),
+									{
+										code: <code />,
+									}
+							  )
+							: createInterpolateElement(
+									sprintf(
+										/* translators: %s is the theme slug itself, e.g. twentytwentyfive. */
+										__(
+											'To confirm you have read and understood the consequences, please enter the theme slug <code>%s</code> in the field below.',
+											'jetpack-protect'
+										),
+										slug
+									),
+									{
+										code: <code />,
+									}
+							  ) }
 					</Text>
 					<TextControl
 						__nextHasNoMarginBottom

@@ -11,7 +11,24 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 	const { setModal } = useModal();
 	const { fixThreats, isLoading: isFixersLoading } = useFixers();
 
-	const [ threatIds, setThreatIds ] = useState( threatList.map( ( { id } ) => parseInt( id ) ) );
+	const bulkFixableThreats = useMemo(
+		() =>
+			threatList.filter(
+				threat => threat.fixable && threat.fixable.extras?.isBulkFixable !== false
+			),
+		[ threatList ]
+	);
+	const nonBulkFixableThreats = useMemo(
+		() =>
+			threatList.filter(
+				threat => ! threat.fixable || threat.fixable.extras?.isBulkFixable === false
+			),
+		[ threatList ]
+	);
+
+	const [ threatIds, setThreatIds ] = useState(
+		bulkFixableThreats.map( ( { id } ) => parseInt( id ) )
+	);
 
 	const handleCancelClick = useCallback(
 		event => {
@@ -40,21 +57,6 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 			}
 		},
 		[ threatIds ]
-	);
-
-	const bulkFixableThreats = useMemo(
-		() =>
-			threatList.filter(
-				threat => threat.fixable && threat.fixable.extras?.isBulkFixable !== false
-			),
-		[ threatList ]
-	);
-	const nonBulkFixableThreats = useMemo(
-		() =>
-			threatList.filter(
-				threat => ! threat.fixable || threat.fixable.extras?.isBulkFixable === false
-			),
-		[ threatList ]
 	);
 
 	return (
