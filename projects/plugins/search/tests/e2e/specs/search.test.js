@@ -13,10 +13,7 @@ test.describe( 'Instant Search', () => {
 
 	test.beforeAll( async ( { testUtils } ) => {
 		clearSearchPlanInfo();
-
-		await testUtils.setMockPlanData( 'jetpack_complete' );
 		await testUtils.activateModule( 'search' );
-
 		enableInstantSearch();
 		searchAutoConfig();
 	} );

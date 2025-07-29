@@ -16,10 +16,7 @@ test.describe( 'Search Configure', () => {
 
 	test.beforeAll( async ( { testUtils } ) => {
 		await clearSearchPlanInfo();
-
-		await testUtils.setMockPlanData( 'jetpack_complete' );
 		await testUtils.activateModule( 'search' );
-
 		await enableInstantSearch();
 
 		// initialize the settings we are going to manipulate.
