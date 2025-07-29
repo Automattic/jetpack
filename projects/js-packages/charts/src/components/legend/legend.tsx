@@ -23,3 +23,5 @@ export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 		return <BaseLegend ref={ ref } items={ legendItems } { ...props } />;
 	}
 );
+
+Legend.displayName = 'Legend';

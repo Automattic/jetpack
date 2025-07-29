@@ -145,3 +145,5 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 		);
 	}
 );
+
+BaseLegend.displayName = 'BaseLegend';
