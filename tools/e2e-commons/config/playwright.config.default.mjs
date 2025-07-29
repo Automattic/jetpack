@@ -10,11 +10,6 @@ const reporter = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
 	[ 'allure-playwright' ],
-	[
-		`${ fileURLToPath(
-			new URL( '../' + config.get( 'dirs.reporters' ), import.meta.url )
-		) }/reporter.js`,
-	],
 ];
 
 if ( process.env.CI ) {
