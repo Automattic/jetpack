@@ -10,7 +10,9 @@ const ConnectionScreen: FC = () => {
 		redirect_after_auth: getMyJetpackUrl(),
 	} );
 
-	window.location.replace( redirectUrl );
+	useEffect(() => {
+		window.location.replace( redirectUrl );
+	}, []);
 
 	return (
 		<AdminPage showBackground={ false } showFooter={ false }>
