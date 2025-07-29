@@ -86,7 +86,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @var bool
 	 */
-	public $is_response_without_reload_enabled = true;
+	public $is_response_without_reload_enabled = false;
 
 	/**
 	 * The current post object for this form.
@@ -122,7 +122,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		// phpcs:enable
 
-		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', true );
+		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
 
 		// Set up the default subject and recipient for this form.
 		$default_to      = self::get_default_to( $this->current_post ? $this->current_post->post_author : null );
