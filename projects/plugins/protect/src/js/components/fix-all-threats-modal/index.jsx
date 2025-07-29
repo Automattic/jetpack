@@ -42,14 +42,14 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 		[ threatIds ]
 	);
 
-	const fixableThreats = useMemo(
+	const bulkFixableThreats = useMemo(
 		() =>
 			threatList.filter(
 				threat => threat.fixable && threat.fixable.extras?.isBulkFixable !== false
 			),
 		[ threatList ]
 	);
-	const nonFixableThreats = useMemo(
+	const nonBulkFixableThreats = useMemo(
 		() =>
 			threatList.filter(
 				threat => ! threat.fixable || threat.fixable.extras?.isBulkFixable === false
@@ -62,50 +62,56 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 			<Text variant="title-medium" mb={ 2 }>
 				{ __( 'Fix all threats', 'jetpack-protect' ) }
 			</Text>
-			<Text mb={ 3 }>
-				{ __( 'Jetpack will be fixing the selected threats:', 'jetpack-protect' ) }
-			</Text>
-
-			<div className={ styles.list }>
-				{ fixableThreats.map( threat => (
-					<ThreatFixHeader
-						key={ threat.id }
-						threat={ threat }
-						fixAllDialog={ true }
-						onCheckFix={ handleCheckboxClick }
-					/>
-				) ) }
-			</div>
-
-			<Text mb={ 3 } mr={ 6 }>
-				{ __(
-					'These threats cannot be fixed in bulk because individual confirmation is required:',
-					'jetpack-protect'
-				) }
-			</Text>
-
-			<div className={ styles.list }>
-				{ nonFixableThreats.map( threat => (
-					<ThreatFixHeader
-						key={ threat.id }
-						threat={ threat }
-						fixAllDialog={ false }
-						onCheckFix={ handleCheckboxClick }
-					/>
-				) ) }
-			</div>
-
+			{ bulkFixableThreats.length > 0 && (
+				<>
+					<Text mb={ 3 }>
+						{ __( 'Jetpack will be fixing the selected threats:', 'jetpack-protect' ) }
+					</Text>
+					<div className={ styles.list }>
+						{ bulkFixableThreats.map( threat => (
+							<ThreatFixHeader
+								key={ threat.id }
+								threat={ threat }
+								fixAllDialog={ true }
+								onCheckFix={ handleCheckboxClick }
+							/>
+						) ) }
+					</div>
+				</>
+			) }
+			{ nonBulkFixableThreats.length > 0 && (
+				<>
+					<Text mb={ 3 } mr={ 6 }>
+						{ __(
+							'These threats cannot be fixed in bulk because individual confirmation is required:',
+							'jetpack-protect'
+						) }
+					</Text>
+					<div className={ styles.list }>
+						{ nonBulkFixableThreats.map( threat => (
+							<ThreatFixHeader
+								key={ threat.id }
+								threat={ threat }
+								fixAllDialog={ false }
+								onCheckFix={ handleCheckboxClick }
+							/>
+						) ) }
+					</div>
+				</>
+			) }
 			<div className={ styles.footer }>
 				<Button variant="secondary" onClick={ handleCancelClick }>
 					{ __( 'Cancel', 'jetpack-protect' ) }
 				</Button>
-				<Button
-					isLoading={ isFixersLoading }
-					onClick={ handleFixClick }
-					disabled={ ! threatIds.length }
-				>
-					{ __( 'Fix all threats', 'jetpack-protect' ) }
-				</Button>
+				{ bulkFixableThreats.length > 0 && (
+					<Button
+						isLoading={ isFixersLoading }
+						onClick={ handleFixClick }
+						disabled={ ! threatIds.length }
+					>
+						{ __( 'Fix all threats', 'jetpack-protect' ) }
+					</Button>
+				) }
 			</div>
 		</UserConnectionGate>
 	);

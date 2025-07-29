@@ -40,7 +40,7 @@ export type Threat = {
 				extensionStatus?: string | null;
 				extras?: {
 					isBulkFixable?: boolean;
-					isDotOrg?: boolean;
+					isDotorg?: boolean;
 				};
 		  }
 		| false;
