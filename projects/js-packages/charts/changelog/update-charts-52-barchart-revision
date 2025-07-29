@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: updates barchart to use composition API
