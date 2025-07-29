@@ -123,11 +123,7 @@
 		padding-top: 8px;
 		padding-bottom: 24px;
 		padding-left: 60px; // this is to align with the row above's icon + gap (44 + 16)
-		padding-right: 0;
-
-		:last-child {
-			margin-bottom: 0;
-		}
+		padding-right: 20px;
 
 		@media (max-width: 782px) {
 			padding-left: 46px;
