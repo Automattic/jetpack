@@ -1371,7 +1371,9 @@ class Contact_Form_Plugin {
 				$attributes = get_post_meta( $id, "_g_feedback_shortcode_atts_{$hash}", true );
 				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
 					foreach ( array_filter( $attributes ) as $param => $value ) {
-						$parameters .= " $param=\"$value\"";
+						if ( is_scalar( $value ) ) {
+							$parameters .= ' ' . $param . '="' . esc_attr( $value ) . '"';
+						}
 					}
 				}
 
@@ -1567,8 +1569,10 @@ class Contact_Form_Plugin {
 	 */
 	public function widget_atts( $text ) {
 		Contact_Form::style( true );
-
-		return preg_replace( '/\[contact-form([^a-zA-Z_-])/', '[contact-form widget="' . $this->current_widget_id . '"\\1', $text );
+		if ( ! is_string( $text ) ) {
+			return $text;
+		}
+		return preg_replace( '/\\[contact-form([^a-zA-Z_-])/', '[contact-form widget="' . $this->current_widget_id . '"\\1', $text );
 	}
 
 	/**
