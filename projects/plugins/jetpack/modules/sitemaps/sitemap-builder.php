@@ -1177,7 +1177,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			);
 		}
 
-		$url = esc_url( get_permalink( $post->ID ) );
+		$url = esc_url( get_permalink( $post ) );
 
 		/*
 		 * Spec requires the URL to be <=2048 bytes.
