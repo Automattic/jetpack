@@ -385,9 +385,10 @@ class Help_Center {
 	 * Used for the Help Center when disconnected.
 	 */
 	public function get_help_center_url() {
-		$help_url = 'https://wordpress.com/help?help-center=home';
+		$help_url        = 'https://wordpress.com/help?help-center=home';
+		$is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), WPCOM_SUPPORT_BLOG_IDS, true );
 
-		if ( $this->is_jetpack_disconnected() || $this->is_loading_on_frontend() ) {
+		if ( $this->is_jetpack_disconnected() || ( $this->is_loading_on_frontend() && ! $is_support_site ) ) {
 			return $help_url;
 		}
 
@@ -429,16 +430,21 @@ class Help_Center {
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
-		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
-		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+		$can_edit_posts  = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+		$is_p2           = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+		$is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), WPCOM_SUPPORT_BLOG_IDS, true );
 
 		// We will show the help center icon in the admin bar when;
 		// 1. On wp-admin
 		// 2. On the front end of the site if the current user can edit posts
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
-		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) ) {
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $is_support_site ) {
 			return;
+		}
+
+		if ( $is_support_site ) {
+			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
 		} elseif ( $this->is_block_editor() ) {
