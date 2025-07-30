@@ -1,5 +1,5 @@
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { Panel } from '@wordpress/components';
+import { Notice, Panel } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
@@ -10,7 +10,6 @@ import { useSchedulePost } from '../../hooks/use-schedule-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { SharePostForm } from '../form/share-post-form';
-import Notice from '../notice';
 import ScheduleButton from '../schedule-button';
 import { SharePostButton } from '../share-post';
 import { ScheduledShares } from './scheduled-shares';
@@ -67,15 +66,21 @@ export function SettingsSection( { onReShared } ) {
 				</p>
 				<SharePostForm analyticsData={ { location: 'preview-modal' } } />
 				{ needsUserConnection && (
-					<Notice type={ 'warning' }>
+					<Notice
+						status={ 'warning' }
+						isDismissible={ false }
+						actions={ [
+							{
+								url: getMyJetpackUrl( '#/connection' ),
+								label: __( 'Connect now', 'jetpack-publicize-components' ),
+								variant: 'link',
+							},
+						] }
+					>
 						{ __(
 							'You must connect your WordPress.com account to be able to re-share posts.',
 							'jetpack-publicize-components'
 						) }
-						&nbsp;
-						<a href={ getMyJetpackUrl( '#/connection' ) }>
-							{ __( 'Connect now', 'jetpack-publicize-components' ) }
-						</a>
 					</Notice>
 				) }
 				{ isPostPublished && ! isRePublicizeUpgradableViaUpsell && (
