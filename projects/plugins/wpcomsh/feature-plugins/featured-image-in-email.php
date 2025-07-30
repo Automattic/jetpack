@@ -14,7 +14,7 @@ function wpcomsh_get_site_creation_timestamp() {
 	$default_timestamp = 0;
 
 	// Check if Jetpack is connected
-	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_active() ) {
+	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_connection_ready() ) {
 		return $default_timestamp;
 	}
 
