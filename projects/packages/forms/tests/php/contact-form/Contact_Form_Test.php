@@ -2891,4 +2891,35 @@ EOT;
 		// Assert that we have 6 unique form ids.
 		$this->assertCount( 6, array_unique( array( $form_id, $form_id_2, $form_id_3, $form_id_4, $form_id_5, $form_id_6 ) ), 'There should be 6 unique forms' );
 	}
+
+	/**
+	 * Test get_post_property method with various scenarios
+	 */
+	public function test_get_post_property() {
+		global $post;
+
+		// Test null/false/empty inputs
+		$this->assertNull( Contact_Form::get_post_property( null, 'ID' ), 'Should return null for null post data' );
+		$this->assertNull( Contact_Form::get_post_property( false, 'ID' ), 'Should return null for false post data' );
+		$this->assertNull( Contact_Form::get_post_property( 'not an object nor array', 'ID' ), 'Should return null for non-object/array post data' );
+
+		// Test object properties
+		$this->assertEquals( $post->ID, Contact_Form::get_post_property( $post, 'ID' ), 'Should return object property value' );
+		$this->assertEquals( $post->post_title, Contact_Form::get_post_property( $post, 'post_title' ), 'Should return object string property' );
+		$this->assertNull( Contact_Form::get_post_property( $post, 'non_existent_property' ), 'Should return null for non-existent object property' );
+
+		// Test array properties
+		$array_post = array(
+			'ID'         => 123,
+			'post_title' => 'Test Post',
+			'meta'       => array( 'key' => 'value' ),
+		);
+		$this->assertEquals( 123, Contact_Form::get_post_property( $array_post, 'ID' ), 'Should return array property value' );
+		$this->assertEquals( 'Test Post', Contact_Form::get_post_property( $array_post, 'post_title' ), 'Should return array string property' );
+		$this->assertEquals( array( 'key' => 'value' ), Contact_Form::get_post_property( $array_post, 'meta' ), 'Should return array property with nested array' );
+		$this->assertNull( Contact_Form::get_post_property( $array_post, 'non_existent_property' ), 'Should return null for non-existent array property' );
+
+		// Test empty array
+		$this->assertNull( Contact_Form::get_post_property( array(), 'ID' ), 'Should return null for empty array' );
+	}
 }
