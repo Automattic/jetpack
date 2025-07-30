@@ -181,7 +181,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	}
 
 	// Calculate chart dimensions
-	//TODO: we might want to accept height as a prop in the future, because the height of container might not always be enough.
+	// TODO: we might want to accept height as a prop in the future, because the height of container might not always be enough.
 	const height = width / 2;
 	// The chart only takes the height minus the legend height.
 	const chartHeight =
