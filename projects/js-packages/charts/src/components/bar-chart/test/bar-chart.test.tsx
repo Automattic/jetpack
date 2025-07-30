@@ -459,7 +459,7 @@ describe( 'BarChart', () => {
 			await user.keyboard( '{ArrowRight}' );
 
 			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Custom: 01/01/2024' );
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Custom: 1/1/2024' );
 
 			const customTooltip = screen.getByTestId( 'custom-tooltip' );
 			expect( customTooltip ).toBeInTheDocument();

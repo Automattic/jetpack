@@ -20,7 +20,8 @@ import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
-import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
+import type { ResponsiveConfig } from '../shared/with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode } from 'react';
 
@@ -380,17 +381,34 @@ const BarChartBase: FC< BarChartProps > = props => {
 	);
 };
 
+// Define subcomponents type for composition API
+type BarChartSubComponents = {
+	Legend: typeof ChartLegend;
+};
+
+type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
+
+type BarChartComponent = FC< BarChartProps > & BarChartSubComponents;
+
+type BarChartResponsiveComponent = FC< BarChartBaseProps & ResponsiveConfig > &
+	BarChartSubComponents;
+
 BarChartBase.displayName = 'BarChart';
 
 // Attach subcomponents to create composition API
 const BarChart = attachSubComponents( BarChartBase, {
 	Legend: ChartLegend,
-} );
+} ) as BarChartComponent;
 
 BarChart.displayName = 'BarChart';
 
-// Create responsive version with composition API
-const ResponsiveBarChart = withResponsive< BarChartProps >( BarChart );
+// Create responsive version with composition API preserving subcomponents
+const ResponsiveBarChart: BarChartResponsiveComponent = Object.assign(
+	withResponsive< BarChartProps >( BarChart ) as BarChartResponsiveComponent,
+	{
+		Legend: ChartLegend,
+	}
+);
 
 ResponsiveBarChart.displayName = 'ResponsiveBarChart';
 

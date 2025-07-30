@@ -203,10 +203,7 @@ export const ComparisonBothApproaches: StoryObj< typeof BarChart > = {
 			</div>
 		</div>
 	),
-	args: {
-		...storyArgs,
-		containerHeight: '900px',
-	},
+	args: storyArgs,
 	parameters: {
 		docs: {
 			description: {

@@ -15,7 +15,11 @@ export function attachSubComponents< TChart, TSubComponents extends Record< stri
 	const ComposedChart = Object.assign( Chart, subComponents );
 
 	// Preserve display name if it exists
-	if ( typeof Chart === 'function' && 'displayName' in Chart && Chart.displayName ) {
+	if (
+		typeof Chart === 'function' &&
+		'displayName' in Chart &&
+		typeof Chart.displayName === 'string'
+	) {
 		( ComposedChart as typeof Chart & { displayName?: string } ).displayName = Chart.displayName;
 	}
 
