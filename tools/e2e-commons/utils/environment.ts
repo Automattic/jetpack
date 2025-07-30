@@ -19,13 +19,15 @@ interface Credentials {
 	apiPassword?: string;
 }
 
+const { TEST_SITE } = process.env;
+
 /**
  * Get test site config.
  *
  * @return {TestSite} Site config
  */
 export function getConfigTestSite(): TestSite {
-	const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
+	const testSite = TEST_SITE ? TEST_SITE : 'default';
 	logger.debug( `Using '${ testSite }' test site config` );
 	return config.get( `testSites.${ testSite }` );
 }
@@ -64,10 +66,11 @@ export function getDotComCredentials(): Credentials {
  * @return {string} URL.
  */
 export function resolveSiteUrl(): string {
-	let url;
+	let url: string | undefined;
 
-	if ( process.env.TEST_SITE ) {
-		url = config.get( `testSites.${ process.env.TEST_SITE }` ).get( 'url' );
+	if ( TEST_SITE ) {
+		const siteConfig = config.get( `testSites.${ TEST_SITE }` );
+		url = typeof siteConfig.get === 'function' ? siteConfig.get( 'url' ) : siteConfig.url;
 	} else {
 		logger.debug( 'Checking for existing tunnel url' );
 		const filePath = config.get( 'temp.tunnels' );
@@ -82,10 +85,14 @@ export function resolveSiteUrl(): string {
 		}
 	}
 
+	if ( ! url ) {
+		throw new Error( 'Site URL could not be resolved. Please check your configuration.' );
+	}
+
 	// Validate the URL
-	url = new URL( url );
-	logger.debug( `Using site url: ${ url }` );
-	return url.toString();
+	const validatedURL = new URL( url );
+	logger.debug( `Using site url: ${ validatedURL }` );
+	return validatedURL.toString();
 }
 
 /**
@@ -93,8 +100,8 @@ export function resolveSiteUrl(): string {
  *
  * @return {boolean} true if site is local
  */
-export function isLocalSite() {
-	return ! process.env.TEST_SITE;
+export function isLocalSite(): boolean {
+	return ! TEST_SITE;
 }
 
 /**
