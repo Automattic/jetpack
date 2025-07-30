@@ -82,21 +82,9 @@ export function resolveSiteUrl(): string {
 		}
 	}
 
-	validateUrl( url );
+	url = new URL( url );
 	logger.debug( `Using site url: ${ url }` );
 	return url;
-}
-
-/**
- * Throw an error if the passed parameter is not a valid URL
- *
- * @param {string} url - the string to to be validated as URL
- */
-export function validateUrl( url ) {
-	const obj = new URL( url );
-	if ( ! obj ) {
-		throw new Error( `Undefined or invalid url!` );
-	}
 }
 
 /**

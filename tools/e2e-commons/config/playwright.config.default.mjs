@@ -37,15 +37,6 @@ if ( process.env.TEST_SITE ) {
 // This is needed because writeFileSync doesn't create parent dirs and will fail
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
-// Ensure the environment variables for `@wordpress/e2e-test-utils-playwright` are set
-const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
-logger.debug( `Using '${ testSite }' test site config` );
-const site = config.get( `testSites.${ testSite }` );
-
-process.env.WP_BASE_URL = resolveSiteUrl();
-process.env.WP_USERNAME = site.username;
-process.env.WP_PASSWORD = site.password;
-
 export const setupProjects = [
 	{
 		name: 'global authentication',
@@ -95,5 +86,14 @@ const playwrightConfig = defineConfig( {
 	},
 	reportSlowTests: null,
 } );
+
+// Ensure the environment variables for `@wordpress/e2e-test-utils-playwright` are set
+const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
+logger.debug( `Using '${ testSite }' test site config` );
+const site = config.get( `testSites.${ testSite }` );
+
+process.env.WP_BASE_URL = playwrightConfig.use.baseURL;
+process.env.WP_USERNAME = site.username;
+process.env.WP_PASSWORD = site.password;
 
 export default playwrightConfig;
