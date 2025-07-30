@@ -285,14 +285,20 @@ export async function disconnect() {
 export async function checkIfConnected() {
 	const cliCmd = 'jetpack-boost connection status';
 	const result = await executeWpCommand( cliCmd );
-	if ( typeof result !== 'object' ) {
-		return result === 'connected';
+
+	// If result is a string, check if it's 'connected'
+	if ( typeof result === 'string' ) {
+		return result.trim() === 'connected';
 	}
+
+	// If result is an error object, check the error message
 	const txt = result.toString();
 	if ( txt.includes( "Error: 'jetpack-boost' is not a registered wp command" ) ) {
 		return false;
 	}
-	throw result;
+
+	// For other errors, return false instead of throwing
+	return false;
 }
 
 /**
