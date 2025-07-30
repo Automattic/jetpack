@@ -17,6 +17,8 @@ use Jetpack_Tracks_Client;
 /**
  * Class Admin
  *
+ * @deprecated $$next-version$$
+ *
  * Singleton for Grunion admin area support.
  */
 class Admin {
