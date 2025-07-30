@@ -1,8 +1,6 @@
 {
-	"private": "true",
+	"private": true,
 	"description": "Manage Pull Requests and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)",
-	"author": "Automattic",
-	"license": "GPL-2.0-or-later",
 	"keywords": [
 		"wordpress",
 		"automattic",
@@ -10,7 +8,12 @@
 		"github",
 		"action"
 	],
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
 	"main": "src/index.js",
+	"scripts": {
+		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"
+	},
 	"dependencies": {
 		"@actions/core": "1.11.1",
 		"@actions/github": "6.0.1",
@@ -22,8 +25,5 @@
 	},
 	"devDependencies": {
 		"@vercel/ncc": "0.36.1"
-	},
-	"scripts": {
-		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"
 	}
 }

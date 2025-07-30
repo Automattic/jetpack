@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Do not send AJAX submission if form has custom redirect

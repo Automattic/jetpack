@@ -144,17 +144,6 @@ function checkFailed( before = 'The linter reported some problems. ', after = ''
 	exitCode = 1;
 }
 
-/**
- * Spawns `sort-package-json` for package.json sorting script.
- *
- * @param {Array} jsFiles - list of changed JS files
- */
-function sortPackageJson( jsFiles ) {
-	if ( jsFiles.includes( 'package.json' ) ) {
-		spawnSync( 'pnpm', [ 'sort-package-json' ], { stdio: 'inherit' } );
-	}
-}
-
 const gitFiles = parseGitDiffToPathArray( [ '--cached', '--diff-filter=ACMR' ] ).filter( Boolean );
 const dirtyFiles = parseGitDiffToPathArray( [ '--diff-filter=ACMR' ] ).filter( Boolean );
 const jsFiles = gitFiles.filter( filterJsFiles );
@@ -503,7 +492,6 @@ function exit( exitCodePassed ) {
 
 runCheckCopiedFiles();
 runCheckGitHubActionsYamlFiles();
-sortPackageJson( jsFiles );
 
 dirtyFiles.forEach( file =>
 	console.log(

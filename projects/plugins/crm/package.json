@@ -2,8 +2,13 @@
 	"name": "@automattic/jetpack-crm",
 	"version": "6.6.1",
 	"description": "The CRM for WordPress",
-	"author": "Automattic",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/crm"
+	},
 	"license": "GPL-2.0",
+	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "webpack",
@@ -11,11 +16,6 @@
 		"clean": "rm -rf build css/*.map.css css/*.min.css* css/*.min.rtl.css css/*.rtl.css css/welcome-to-zbs/*.min.css* css/welcome-to-zbs/*.min.rtl.css js/*.min.js* js/welcome-to-zbs/wizard2.min.js*",
 		"test": "jest",
 		"watch": "pnpm run build && webpack watch"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/plugins/crm"
 	},
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",

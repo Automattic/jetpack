@@ -11,8 +11,21 @@
 		"url": "https://github.com/Automattic/jetpack.git",
 		"directory": "projects/js-packages/connection"
 	},
-	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"./state/store.jsx",
+		"*.css",
+		"*.scss"
+	],
+	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
+	"scripts": {
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage"
+	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
@@ -47,18 +60,5 @@
 	"peerDependencies": {
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0"
-	},
-	"type": "module",
-	"exports": {
-		".": "./index.jsx"
-	},
-	"sideEffects": [
-		"./state/store.jsx",
-		"*.css",
-		"*.scss"
-	],
-	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage"
 	}
 }

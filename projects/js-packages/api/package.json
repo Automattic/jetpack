@@ -11,16 +11,8 @@
 		"url": "https://github.com/Automattic/jetpack.git",
 		"directory": "projects/js-packages/api"
 	},
-	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
-	"dependencies": {
-		"@automattic/jetpack-config": "workspace:*",
-		"@wordpress/url": "4.26.0"
-	},
-	"devDependencies": {
-		"jest": "30.0.4",
-		"jest-environment-jsdom": "30.0.4"
-	},
+	"author": "Automattic",
 	"type": "module",
 	"exports": {
 		".": "./index.jsx"
@@ -28,5 +20,13 @@
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage"
+	},
+	"dependencies": {
+		"@automattic/jetpack-config": "workspace:*",
+		"@wordpress/url": "4.26.0"
+	},
+	"devDependencies": {
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4"
 	}
 }
