@@ -174,9 +174,9 @@ class PayPal_Payment_Buttons {
 			array(
 				'in_footer'  => true,
 				'textdomain' => 'paypal-payment-buttons',
+				'enqueue'    => true,
 			)
 		);
-		wp_enqueue_script( 'paypal-payment-buttons-admin' );
 	}
 
 	/**
