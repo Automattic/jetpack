@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import config from 'config';
 import logger from '../logger.js';
 import { executeCommand } from './cli.js';
