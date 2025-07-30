@@ -167,24 +167,16 @@ class PayPal_Payment_Buttons {
 			return;
 		}
 
-		wp_enqueue_script(
+		\Automattic\Jetpack\Assets::register_script(
 			'paypal-payment-buttons-admin',
-			plugins_url( 'build/index.js', PAYPAL_PAYMENT_BUTTONS_ROOT_FILE ),
-			array( 'wp-element', 'wp-i18n' ),
-			filemtime( PAYPAL_PAYMENT_BUTTONS_DIR . 'build/index.js' ),
-			true
+			'build/index.js',
+			PAYPAL_PAYMENT_BUTTONS_ROOT_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
+			)
 		);
-
-		// Only enqueue CSS if the file exists
-		$css_file = PAYPAL_PAYMENT_BUTTONS_DIR . 'build/index.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'paypal-payment-buttons-admin',
-				plugins_url( 'build/index.css', PAYPAL_PAYMENT_BUTTONS_ROOT_FILE ),
-				array(),
-				filemtime( $css_file )
-			);
-		}
+		wp_enqueue_script( 'paypal-payment-buttons-admin' );
 	}
 
 	/**
