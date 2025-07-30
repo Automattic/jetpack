@@ -32,7 +32,7 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 	 * Initialize tests
 	 */
 	public function set_up() {
-		$this->paypal_plugin = new PayPal_Payment_Buttons();
+		$this->paypal_plugin = PayPal_Payment_Buttons::instance();
 	}
 
 	/**
@@ -75,7 +75,7 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 	 * Tests that the class can be instantiated successfully.
 	 */
 	public function test_plugin_construction() {
-		$plugin = new PayPal_Payment_Buttons();
+		$plugin = PayPal_Payment_Buttons::instance();
 		$this->assertInstanceOf( 'PayPal_Payment_Buttons', $plugin );
 	}
 }

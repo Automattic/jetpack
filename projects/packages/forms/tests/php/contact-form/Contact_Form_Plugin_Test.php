@@ -599,29 +599,33 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin       = Contact_Form_Plugin::init();
 		$current_post = Utility::create_post_context();
 		$post_ids     = array();
-		$post_ids[]   = Utility::create_legacy_feedback(
+
+		$post_id_1  = Utility::create_legacy_feedback(
 			array(
 				'1_field_A' => 'value1',
 				'2_field_B' => 'value2',
 			)
 		);
+		$post_1     = get_post( $post_id_1 );
+		$post_ids[] = $post_id_1;
 
-		$post_ids[] = Utility::create_legacy_feedback(
+		$post_id_2  = Utility::create_legacy_feedback(
 			array(
 				'1_field_A' => 'value1',
 				'2_field_C' => 'value2',
 			)
 		);
+		$post_2     = get_post( $post_id_2 );
+		$post_ids[] = $post_id_2;
 
-		$current_time    = current_time( 'mysql' );
 		$default_consent = 'No';
 		$ip              = 'https://127.0.0.1';
 
 		$this->assertEquals(
 			array(
 
-				'ID'         => array( $post_ids[0], $post_ids[1] ),
-				'Date'       => array( $current_time, $current_time ),
+				'ID'         => array( $post_id_1, $post_id_2 ),
+				'Date'       => array( $post_1->post_date, $post_2->post_date ),
 				'Title'      => array( $current_post->post_title, $current_post->post_title ),
 				'field_A'    => array( 'value1', 'value1' ),
 				'field_B'    => array( 'value2', '' ),
