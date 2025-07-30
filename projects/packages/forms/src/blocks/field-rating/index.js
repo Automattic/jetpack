@@ -52,18 +52,11 @@ const settings = {
 			default: 5,
 			role: 'content',
 		},
-		default: {
-			type: 'number',
-			default: 0,
-			role: 'content',
-		},
 	},
 	providesContext: {
 		...defaultSettings.providesContext,
 		'jetpack/field-rating-max': 'max',
-		'jetpack/field-rating-default': 'default',
 		'jetpack/field-rating-className': 'className',
-		'jetpack/field-rating-onChangeDefault': 'onChangeDefault',
 	},
 	styles: stylesArray,
 	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],
@@ -72,7 +65,6 @@ const settings = {
 	example: {
 		attributes: {
 			max: 5,
-			default: 3,
 		},
 		innerBlocks: [
 			{

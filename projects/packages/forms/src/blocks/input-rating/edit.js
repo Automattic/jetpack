@@ -19,9 +19,7 @@ import './editor.scss';
  */
 export default function RatingInputEdit( { context, setAttributes, clientId } ) {
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
-	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
 	const className = context?.[ 'jetpack/field-rating-className' ] || 'is-style-stars';
-	const onChangeDefault = context?.[ 'jetpack/field-rating-onChangeDefault' ] || ( () => {} );
 
 	useEffect( () => {
 		setAttributes( { className } );
@@ -43,13 +41,7 @@ export default function RatingInputEdit( { context, setAttributes, clientId } ) 
 
 	return (
 		<div { ...blockProps }>
-			<Symbols
-				max={ max }
-				value={ defaultValue }
-				onChange={ onChangeDefault }
-				icon={ icon }
-				uniqueId={ clientId }
-			/>
+			<Symbols max={ max } icon={ icon } uniqueId={ clientId } />
 		</div>
 	);
 }

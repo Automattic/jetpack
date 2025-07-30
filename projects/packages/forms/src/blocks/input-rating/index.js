@@ -41,12 +41,7 @@ const settings = {
 		),
 	},
 	attributes: {},
-	usesContext: [
-		'jetpack/field-rating-max',
-		'jetpack/field-rating-default',
-		'jetpack/field-rating-className',
-		'jetpack/field-rating-onChangeDefault',
-	],
+	usesContext: [ 'jetpack/field-rating-max', 'jetpack/field-rating-className' ],
 	supports: {
 		reusable: false,
 		html: false,
