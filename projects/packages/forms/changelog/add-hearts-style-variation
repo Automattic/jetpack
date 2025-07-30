@@ -1,0 +1,3 @@
+Significance: patch
+Type: added
+Comment: Rating field: add "Hearts" style variation, centralize glyph definitions, and migrate styling to the rating-input block. Block is still in beta

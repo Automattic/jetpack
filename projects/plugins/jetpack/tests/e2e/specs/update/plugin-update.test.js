@@ -1,4 +1,3 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
 	execShellCommand,
@@ -14,8 +13,6 @@ test.skip( 'Update Jetpack plugin', async ( { page, baseURL } ) => {
 	await execContainerShellCommand( `${ binPath }prepare-update.sh ${ baseURL }` );
 
 	// Update
-	await prerequisitesBuilder( page ).withLoggedIn( true ).withConnection( true ).build();
-
 	let pluginsPage;
 
 	await test.step( 'Navigate to Plugins page', async () => {

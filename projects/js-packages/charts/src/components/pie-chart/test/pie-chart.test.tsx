@@ -56,4 +56,58 @@ describe( 'PieChart', () => {
 			expect( screen.getByText( 'A' ) ).toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Legend Positioning', () => {
+		test( 'renders legend when showLegend is true', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legendAlignmentVertical: 'top',
+			} );
+
+			// Check that legend container is rendered using accessible queries
+			const legend = screen.getByRole( 'list' );
+			expect( legend ).toBeInTheDocument();
+			expect( legend ).toHaveAttribute( 'data-testid', 'legend-horizontal' );
+		} );
+
+		test( 'renders correct number of legend items', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legendAlignmentVertical: 'top',
+			} );
+
+			// Use getAllByTestId to find legend items
+			const legendItems = screen.getAllByTestId( 'legend-item' );
+			expect( legendItems ).toHaveLength( 2 );
+		} );
+
+		test( 'chart renders with legend at top position', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legendAlignmentVertical: 'top',
+			} );
+
+			// Verify the chart renders without errors when legend is at top
+			// The presence of the legend and chart elements indicates proper layout
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+
+			// Verify chart content is still rendered (pie slices create text labels)
+			const chartLabels = screen.getAllByText( /^[AB]$/ );
+			expect( chartLabels.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+
+		test( 'chart renders with legend at bottom position', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legendAlignmentVertical: 'bottom',
+			} );
+
+			// Verify the chart renders without errors when legend is at bottom
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+
+			// Verify chart content is still rendered
+			const chartLabels = screen.getAllByText( /^[AB]$/ );
+			expect( chartLabels.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+	} );
 } );

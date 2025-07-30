@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix PHP warnings in Contact_Form_Plugin class.

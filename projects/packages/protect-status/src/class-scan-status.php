@@ -241,6 +241,7 @@ class Scan_Status extends Status {
 						'title'                     => $scan_threat->title ?? null,
 						'description'               => $scan_threat->description ?? null,
 						'vulnerability_description' => $scan_threat->vulnerability_description ?? null,
+						'extension'                 => $scan_threat->extension ?? null,
 						'fix_description'           => $scan_threat->fix_description ?? null,
 						'payload_subtitle'          => $scan_threat->payload_subtitle ?? null,
 						'payload_description'       => $scan_threat->payload_description ?? null,

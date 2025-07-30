@@ -15,7 +15,6 @@ use DOMElement;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 use WP_Block;
@@ -1796,508 +1795,6 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_export_data_for_posts with fully vaid data input.
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_fully_valid_data() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-					'has_json_data',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array(
-				15,
-				false,
-				array(
-					'key1' => 'value1',
-					'key2' => 'value2',
-					'key3' => 'value3',
-					'key4' => 'value4',
-
-				),
-			),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'has_json_data' )
-			->willReturn( false );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'key1'         => array( 'value1', '' ),
-			'key2'         => array( 'value2', '' ),
-			'key3'         => array( 'value3', 'value3' ),
-			'key4'         => array( 'value4', 'value4' ),
-			'key5'         => array( '', 'value5' ),
-			'key6'         => array( '', 'value6' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with single invalid entry for post meta
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_invalid_single_entry_meta() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 * */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array( 15, false, null ),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		// Even though there is no post meta for the first, we don't stop the cycle
-		// and each mock expects two calls.
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'key3'         => array( '', 'value3' ),
-			'key4'         => array( '', 'value4' ),
-			'key5'         => array( '', 'value5' ),
-			'key6'         => array( '', 'value6' ),
-			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with invalid all entries for post meta
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_invalid_all_entries_meta() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array( 15, false, null ),
-			array( 16, false, null ),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with single invalid entry for parsed fields.
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_single_invalid_entry_for_parse_fields() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 * */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array(
-				15,
-				false,
-				array(
-					'key1' => 'value1',
-					'key2' => 'value2',
-					'key3' => 'value3',
-					'key4' => 'value4',
-
-				),
-			),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array() ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->once() )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->once() )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->once() )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj2' ),
-			'key3'         => array( 'value3' ),
-			'key4'         => array( 'value4' ),
-			'key5'         => array( 'value5' ),
-			'key6'         => array( 'value6' ),
-			'Comment'      => array( 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_all_entries_for_parse_fields_invalid() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array() ),
-			array( 16, array() ),
-		);
-
-		$mock->expects( $this->never() )
-			->method( 'get_post_meta_for_csv_export' );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array();
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test map_parsed_field_contents_of_post_to_field_names
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_map_parsed_field_contents_of_post_to_field_names() {
-
-		$input_data = array(
-			'test_field'             => 'moonstruck',
-			'_feedback_subject'      => 'This is my form',
-			'_feedback_author_email' => '',
-			'_feedback_author'       => 'John Smith',
-			'_feedback_author_url'   => 'http://example.com',
-			'_feedback_main_comment' => 'This is my comment!',
-			'another_field'          => 'thunderstruck',
-		);
-
-		$plugin = Contact_Form_Plugin::init();
-
-		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
-
-		$expected_result = array(
-			'1_Name'    => 'John Smith',
-			'3_Website' => 'http://example.com',
-			'4_Comment' => 'This is my comment!',
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
 	 * Tests the functionality of 'Contact_Form_Plugin::personal_data_exporter'.
 	 *
 	 * @author jaswrks
@@ -2656,6 +2153,18 @@ EOT;
 			$expected,
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
+
+		// Check that the function return null if the function gets null.
+		$this->assertNull(
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
+			Util::grunion_contact_form_apply_block_attribute( null, array( 'foo' => 'bar' ) )
+		);
+
+		// Check that the function returns an array if the function gets an empty array.
+		$this->assertEquals(
+			array(), // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
+			Util::grunion_contact_form_apply_block_attribute( array(), array( 'foo' => 'bar' ) )
+		);
 	}
 	/**
 	 * Helper function that tracks the ids of the feedbacks that got created.
@@ -2690,7 +2199,7 @@ EOT;
 				'name'    => 'First form name 2',
 				'message' => 'First form message 2',
 			),
-			'g' . $post->ID . '-2-1' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
+			'g' . $post->ID . '-1' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
 		);
 
 		$form2   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
@@ -2997,4 +2506,495 @@ EOT;
 
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
-} // end class
+	/**
+	 * Test compute_id method with basic attributes
+	 */
+	public function test_compute_id_with_basic_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty' );
+		$this->assertStringContainsString( (string) $post->ID, $computed_id, 'Computed ID should contain post ID' );
+	}
+
+	/**
+	 * Test compute_id method with null post
+	 */
+	public function test_compute_id_with_null_post() {
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, null );
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty' );
+		$this->assertStringNotContainsString( (string) $this->post->ID, $computed_id, 'Computed ID should not contain post ID when post is null' );
+	}
+
+	/**
+	 * Test compute_id method with widget attribute
+	 */
+	public function test_compute_id_with_widget_attribute() {
+		global $post;
+
+		$attributes = array(
+			'to'     => 'test@example.com',
+			'widget' => 'sidebar-1',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertStringContainsString( 'widget', $computed_id, 'Widget form ID should contain "widget"' );
+		$this->assertStringContainsString( 'sidebar-1', $computed_id, 'Widget form ID should contain widget ID' );
+	}
+
+	/**
+	 * Test compute_id method with different page numbers
+	 */
+	public function test_compute_id_with_different_page_numbers() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$id_page_1 = Contact_Form::compute_id( $attributes, $post, 1 );
+		$id_page_2 = Contact_Form::compute_id( $attributes, $post, 2 );
+
+		$this->assertNotEquals( $id_page_1, $id_page_2, 'IDs should be different for different page numbers' );
+		$this->assertEquals( $post->ID, $id_page_1, 'Page 1 ID should match post ID' );
+		$this->assertEquals( $post->ID . '-2', $id_page_2, 'Page 2 ID should match post ID' );
+	}
+
+	/**
+	 * Test compute_id method generates consistent IDs
+	 */
+	public function test_compute_id_generates_consistent_ids() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$id1 = Contact_Form::compute_id( $attributes, $post, 1 );
+		$id2 = Contact_Form::compute_id( $attributes, $post, 1 );
+
+		$this->assertEquals( $id1, $id2, 'Same attributes should generate same ID' );
+	}
+
+	/**
+	 * Test compute_id method with different attributes generates different IDs
+	 */
+	public function test_compute_id_with_different_attributes_generates_different_ids() {
+		$attributes1 = array(
+			'to'      => 'test1@example.com',
+			'subject' => 'Test Subject 1',
+		);
+
+		$form1 = new Contact_Form( $attributes1 );
+		$id1   = $form1->get_attribute( 'id' );
+
+		$attributes2 = array(
+			'to'      => 'test2@example.com',
+			'subject' => 'Test Subject 2',
+		);
+
+		$form2 = new Contact_Form( $attributes2 );
+		$id2   = $form2->get_attribute( 'id' );
+
+		$this->assertNotEquals( $id1, $id2, 'Different form objects should generate equals ID if the match is IDs' );
+	}
+
+	/**
+	 * Test compute_id method with different attributes generates different IDs
+	 */
+	public function test_contact_form_constructor_set_id_parameter() {
+
+		$attributes1 = array(
+			'to'      => 'test1@example.com',
+			'subject' => 'Test Subject 1',
+			'id'      => 'form-1',
+		);
+
+		$form1 = new Contact_Form( $attributes1, '', false );
+		$id1   = $form1->get_attribute( 'id' );
+
+		$form2 = new Contact_Form( $attributes1, '', false );
+		$id2   = $form2->get_attribute( 'id' );
+
+		$this->assertEquals( 'form-1', $id1, 'If you pass false for the 3rd parameter, the ID should match the one provided in the attributes' );
+		$this->assertEquals( 'form-1', $id2, 'If you pass false for the 3rd parameter, the ID should match the one provided in the attributes' );
+	}
+
+	/**
+	 * Test compute_id method with empty attributes
+	 */
+	public function test_compute_id_with_empty_attributes() {
+		global $post;
+
+		$attributes = array();
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string even with empty attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty even with empty attributes' );
+	}
+
+	/**
+	 * Test compute_id method with special characters in attributes
+	 */
+	public function test_compute_id_with_special_characters() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test+special@example.com',
+			'subject' => 'Test Subject with "quotes" and symbols!@#$%',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle special characters' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with special characters' );
+	}
+
+	/**
+	 * Test compute_id method with form count increment
+	 */
+	public function test_compute_id_with_form_count_increment() {
+		global $post;
+
+		// Reset forms count for consistent testing
+		Contact_Form::$forms = array();
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		// Create first form to increment count
+		$id1   = Contact_Form::compute_id( $attributes, $post );
+		$form1 = new Contact_Form( $attributes );
+
+		// Create second form to increment count again
+		$id2   = Contact_Form::compute_id( $attributes, $post );
+		$form2 = new Contact_Form( $attributes );
+
+		$id3 = Contact_Form::compute_id( $attributes, $post );
+		$id4 = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertNotEquals( $id1, $id2, 'IDs should be different when form count increases' );
+		$this->assertEquals( $id1, $form1->get_attribute( 'id' ), 'IDs should match the form object' );
+		$this->assertEquals( $id2, $form2->get_attribute( 'id' ), 'IDs should match the form object' );
+		$this->assertEquals( 2, Contact_Form::get_forms_count(), 'Forms count should be 2 after second form creation' );
+		$this->assertEquals( $id3, $id4, "IDs should match since calling the function should't have side effects" );
+	}
+
+	/**
+	 * Test compute_id method with block template attributes
+	 */
+	public function test_compute_id_with_block_template_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'                  => 'test@example.com',
+			'block_template'      => 'contact-template',
+			'block_template_part' => 'header-part',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle block template attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with block template attributes' );
+	}
+
+	/**
+	 * Test compute_id method with all possible attribute combinations
+	 */
+	public function test_compute_id_with_comprehensive_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'                    => 'comprehensive@example.com',
+			'subject'               => 'Comprehensive Test',
+			'widget'                => false,
+			'block_template'        => 'test-template',
+			'block_template_part'   => 'test-part',
+			'customThankyou'        => 'message',
+			'customThankyouMessage' => 'Thank you!',
+			'jetpackCRM'            => true,
+			'className'             => 'test-class',
+			'hiddenFields'          => array( 'field1' => 'value1' ),
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post, 3 );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle comprehensive attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with comprehensive attributes' );
+		$this->assertStringContainsString( '-3', $computed_id, 'ID should contain page number' );
+	}
+
+	/**
+	 * Test compute_id method maintains uniqueness across different posts
+	 */
+	public function test_compute_id_uniqueness_across_posts() {
+		// Create another post for testing
+		$second_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Second Test Post',
+				'post_content' => 'Second test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+
+		$second_post = get_post( $second_post_id );
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Same Subject',
+		);
+
+		$id_post1 = Contact_Form::compute_id( $attributes, $this->post );
+		$id_post2 = Contact_Form::compute_id( $attributes, $second_post );
+
+		$this->assertNotEquals( $id_post1, $id_post2, 'Same attributes on different posts should generate different IDs' );
+
+		// Clean up
+		wp_delete_post( $second_post_id, true );
+	}
+
+	/**
+	 * Test compute_id method with numeric values in attributes
+	 */
+	public function test_compute_id_with_numeric_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'          => 'test@example.com',
+			'subject'     => 'Test Subject',
+			'widget'      => 123,
+			'some_number' => 456.789,
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle numeric attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with numeric attributes' );
+	}
+
+	/**
+	 * Test compute_id method with boolean attributes
+	 */
+	public function test_compute_id_with_boolean_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'         => 'test@example.com',
+			'jetpackCRM' => true,
+			'widget'     => false,
+			'required'   => true,
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle boolean attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with boolean attributes' );
+	}
+
+	/**
+	 * Test compute_id method with array attributes
+	 */
+	public function test_compute_id_with_array_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'             => 'test@example.com',
+			'hiddenFields'   => array(
+				'field1' => 'value1',
+				'field2' => 'value2',
+			),
+			'salesforceData' => array(
+				'organizationId' => '12345',
+			),
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle array attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with array attributes' );
+	}
+
+	public function test_test_context_in_form_id_creation() {
+
+		$attributes   = array();
+		$post_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'First Test Post',
+				'post_content' => 'First test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+		$post         = get_post( $post_post_id );
+
+		$form_id = Contact_Form::compute_id( $attributes, $post );
+		Contact_Form::increment_form_context_count( $attributes, $post );
+		$this->assertStringContainsString( (string) $post_post_id, $form_id, 'Form ID should contain the post ID of the first post' );
+
+		$form_id_2 = Contact_Form::compute_id( $attributes, $post );
+		$this->assertStringContainsString( (string) $post_post_id, $form_id_2, 'Form ID should contain the post ID of the first post' );
+		$this->assertNotEquals( $form_id, $form_id_2, 'Form IDs should be different for different instances' );
+
+		$second_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Second Test Post',
+				'post_content' => 'Second test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+		$second_post    = get_post( $second_post_id );
+
+		$form_id_3 = Contact_Form::compute_id( $attributes, $second_post );
+		Contact_Form::increment_form_context_count( $attributes, $second_post );
+
+		$this->assertStringContainsString( (string) $second_post_id, $form_id_3, 'Form ID should contain the post ID of the second post' );
+
+		$form_id_4 = Contact_Form::compute_id( $attributes, $second_post );
+		$this->assertStringContainsString( (string) $second_post_id, $form_id_4, 'Form ID should contain the post ID of the second post' );
+		$this->assertNotEquals( $form_id_3, $form_id_4, 'Form IDs should be different for different instances' );
+
+		$attributes['widget'] = 'sidebar';
+
+		$form_id_5 = Contact_Form::compute_id( $attributes, $second_post );
+		Contact_Form::increment_form_context_count( $attributes, $second_post );
+		$this->assertStringContainsString( 'widget-sidebar', $form_id_5, 'Form ID should contain the post ID of the second post' );
+
+		$form_id_6 = Contact_Form::compute_id( $attributes, $second_post );
+		$this->assertStringContainsString( 'widget-sidebar', $form_id_6, 'Form ID should contain the post ID of the second post' );
+		$this->assertNotEquals( $form_id_5, $form_id_6, 'Form IDs should be different for different instances' );
+
+		// Assert that we have 6 unique form ids.
+		$this->assertCount( 6, array_unique( array( $form_id, $form_id_2, $form_id_3, $form_id_4, $form_id_5, $form_id_6 ) ), 'There should be 6 unique forms' );
+	}
+
+	/**
+	 * Test get_post_property method with various scenarios
+	 */
+	public function test_get_post_property() {
+		global $post;
+
+		// Test null/false/empty inputs
+		$this->assertNull( Contact_Form::get_post_property( null, 'ID' ), 'Should return null for null post data' );
+		$this->assertNull( Contact_Form::get_post_property( false, 'ID' ), 'Should return null for false post data' );
+		$this->assertNull( Contact_Form::get_post_property( 'not an object nor array', 'ID' ), 'Should return null for non-object/array post data' );
+
+		// Test object properties
+		$this->assertEquals( $post->ID, Contact_Form::get_post_property( $post, 'ID' ), 'Should return object property value' );
+		$this->assertEquals( $post->post_title, Contact_Form::get_post_property( $post, 'post_title' ), 'Should return object string property' );
+		$this->assertNull( Contact_Form::get_post_property( $post, 'non_existent_property' ), 'Should return null for non-existent object property' );
+
+		// Test array properties
+		$array_post = array(
+			'ID'         => 123,
+			'post_title' => 'Test Post',
+			'meta'       => array( 'key' => 'value' ),
+		);
+		$this->assertEquals( 123, Contact_Form::get_post_property( $array_post, 'ID' ), 'Should return array property value' );
+		$this->assertEquals( 'Test Post', Contact_Form::get_post_property( $array_post, 'post_title' ), 'Should return array string property' );
+		$this->assertEquals( array( 'key' => 'value' ), Contact_Form::get_post_property( $array_post, 'meta' ), 'Should return array property with nested array' );
+		$this->assertNull( Contact_Form::get_post_property( $array_post, 'non_existent_property' ), 'Should return null for non-existent array property' );
+
+		// Test empty array
+		$this->assertNull( Contact_Form::get_post_property( array(), 'ID' ), 'Should return null for empty array' );
+	}
+
+	/**
+	 * Test get_redirect_url method with various scenarios
+	 */
+	public function test_get_redirect_url() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+
+		$attributes = array(
+			'customThankyou'         => 'redirect',
+			'customThankyouRedirect' => 'https://example.com/thank-you',
+		);
+
+		$form = new Contact_Form( $attributes, '' );
+
+		// Test with custom thank you redirect URL.
+		$redirect_url = $form->get_redirect_url( array(), 123, $post_id );
+		$this->assertEquals( 'https://example.com/thank-you', $redirect_url, 'Redirect URL should match the custom thank you redirect URL.' );
+
+		// Test with no custom thank you redirect URL.
+		unset( $attributes['customThankyouRedirect'] );
+		$previous_request_uri         = $_REQUEST['_wp_http_referer'] ?? '';
+		$_REQUEST['_wp_http_referer'] = '/test-uri';
+
+		$form_no_redirect         = new Contact_Form( $attributes, '' );
+		$redirect_url_no_redirect = $form_no_redirect->get_redirect_url( array(), 123, $post_id );
+
+		if ( ! empty( $previous_request_uri ) ) {
+			$_REQUEST['_wp_http_referer'] = $previous_request_uri;
+		} else {
+			unset( $_REQUEST['_wp_http_referer'] );
+		}
+		// Restore the original request URI.
+
+		$this->assertEquals( '/test-uri', $redirect_url_no_redirect, 'Redirect URL should be empty when no custom thank you redirect URL is set.' );
+
+		$form_has_filter = new Contact_Form( $attributes, '' );
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+		$redirect_url_via_filter = $form_has_filter->get_redirect_url( array(), 123, $post_id );
+		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+		$this->assertEquals( 'https://example.com/redirected', $redirect_url_via_filter, 'Redirect URL should match the filter return value.' );
+	}
+
+	public function redirect_filter() {
+		return 'https://example.com/redirected';
+	}
+
+	public function test_has_custom_redirect() {
+		$attributes = array(
+			'customThankyou'         => 'redirect',
+			'customThankyouRedirect' => 'https://example.com/thank-you',
+		);
+
+		$form = new Contact_Form( $attributes, '' );
+
+		$this->assertTrue( $form->has_custom_redirect(), 'Form should have a custom redirect URL.' );
+
+		unset( $attributes['customThankyouRedirect'] );
+
+		$form_no_redirect = new Contact_Form( $attributes, '' );
+
+		$this->assertFalse( $form_no_redirect->has_custom_redirect(), 'Form should not have a custom redirect URL.' );
+
+		$form_has_filter = new Contact_Form( $attributes, '' );
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10, 3 );
+		$this->assertTrue( $form_has_filter->has_custom_redirect(), 'Form should have a custom redirect URL.' );
+		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+	}
+}

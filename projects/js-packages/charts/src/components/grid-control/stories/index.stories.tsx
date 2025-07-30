@@ -28,7 +28,6 @@ const Template: StoryFn< typeof GridControl > = args => {
 				xScale={ xScale }
 				yScale={ yScale }
 				gridVisibility={ args.gridVisibility }
-				className={ args.className }
 			/>
 		</svg>
 	);

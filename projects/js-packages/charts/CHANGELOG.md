@@ -5,25 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.21.0] - 2025-07-25
+## [0.23.0] - 2025-07-30
 ### Added
-- Add Storybook docs introduction [#44427]
+- Add component ConversionFunnelChart. [#44433]
+- Add showZeroValues option to BarChart to render zero-value with a small visible value. [#44443]
+
+### Fixed
+- Charts: Fix TS errors related to missing React import in stories. [#44190]
+- Fix top margin for semi cicle chart. [#44539]
+
+## [0.22.0] - 2025-07-28
+### Added
+- Add a standalone chart legend component. [#44245]
+- Add docs for various charts. [#44441] [#44465] [#44466] [#44467]
 
 ### Changed
-- Fix export structure for charts [#44440]
-- Removed src and tests to optimize lib size [#44438]
+- Apply theme to the LeaderboardChart component. [#44419]
+
+### Fixed
+- Fix issue where pie chart can be cut off. [#44490]
+
+## [0.21.0] - 2025-07-25
+### Added
+- Add Storybook docs introduction. [#44427]
+
+### Changed
+- Fix export structure for charts. [#44440]
+- Remove non-production files from built package. [#44438]
 
 ## [0.20.0] - 2025-07-23
 ### Added
-- Line Chart: Add documentation [#44410]
+- Line Chart: Add documentation. [#44410]
 
 ## [0.19.1] - 2025-07-22
 ### Changed
-- Removed dependency on jetpack-components [#44411]
+- Remove dependency on jetpack-components. [#44411]
 
 ## [0.19.0] - 2025-07-21
 ### Added
-- Added more exports for Woo Analytics to get rid of visx dependencies [#44390]
+- Added more exports for Woo Analytics to get rid of visx dependencies. [#44390]
 
 ## [0.18.0] - 2025-07-21
 ### Added
@@ -316,6 +336,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.23.0]: https://github.com/Automattic/charts/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/Automattic/charts/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/Automattic/charts/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/Automattic/charts/compare/v0.19.1...v0.20.0
 [0.19.1]: https://github.com/Automattic/charts/compare/v0.19.0...v0.19.1

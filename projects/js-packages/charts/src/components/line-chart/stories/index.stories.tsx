@@ -5,10 +5,14 @@ import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof LineChart > = {
+type StoryArgs = React.ComponentProps< typeof LineChart > & {
+	themeName?: string;
+};
+
+const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
-} satisfies Meta< typeof LineChart >;
+};
 
 export default meta;
 

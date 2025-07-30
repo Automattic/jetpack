@@ -139,14 +139,15 @@ const PieChartInternal = ( {
 
 	const width = size;
 	const height = size;
+	const adjustedHeight =
+		showLegend && legendAlignmentVertical === 'top' ? height - legendHeight : height;
 
 	// Calculate radius based on width/height
-	const radius = Math.min( width, height ) / 2;
+	const radius = Math.min( width, adjustedHeight ) / 2;
 
-	// Center the chart in the available space, adjusting for legend position
+	// Center the chart in the available space
 	const centerX = width / 2;
-	const legendOffset = showLegend && legendAlignmentVertical === 'top' ? legendHeight / 2 : 0;
-	const centerY = height / 2 + legendOffset;
+	const centerY = adjustedHeight / 2;
 
 	// Calculate the angle between each
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
@@ -180,10 +181,10 @@ const PieChartInternal = ( {
 			} }
 		>
 			<svg
-				viewBox={ `0 0 ${ size } ${ size }` }
+				viewBox={ `0 0 ${ size } ${ adjustedHeight }` }
 				preserveAspectRatio="xMidYMid meet"
 				width={ size }
-				height={ size }
+				height={ adjustedHeight }
 			>
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage & { index: number } >

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.13] - 2025-07-28
+### Changed
+- Internal updates.
+
 ## [4.2.12] - 2025-07-21
 ### Changed
 - Update package dependencies. [#44356]
@@ -904,6 +908,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.13]: https://github.com/Automattic/jetpack-backup/compare/v4.2.12...v4.2.13
 [4.2.12]: https://github.com/Automattic/jetpack-backup/compare/v4.2.11...v4.2.12
 [4.2.11]: https://github.com/Automattic/jetpack-backup/compare/v4.2.10...v4.2.11
 [4.2.10]: https://github.com/Automattic/jetpack-backup/compare/v4.2.9...v4.2.10
