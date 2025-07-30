@@ -59,7 +59,6 @@ All optional props from [PieChart](./?path=/docs/js-packages-charts-types-pie-ch
 - **`className`**: Additional CSS class name for the chart container
 - **`chartId`**: Optional unique identifier for the chart
 - **`margin`**: Chart margins as an object with `top`, `right`, `bottom`, `left` properties
-- **`onPointerDown`**, **`onPointerUp`**, **`onPointerMove`**, **`onPointerOut`**: Event handlers
 - **`legendOrientation`** (default: `'horizontal'`): Legend orientation (`'horizontal'` | `'vertical'`)
 - **`legendShape`** (default: `'circle'`): Legend shape
 - **`legendAlignmentHorizontal`** (default: `'center'`): Legend horizontal alignment
@@ -405,10 +404,6 @@ Donut charts are created using the PieChart component with `thickness` < 1. All 
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Optional unique identifier for the chart |
 | `margin` | `ChartMargin` | - | Chart margins with top, right, bottom, left properties |
-| `onPointerDown` | `(event: EventHandlerParams) => void` | - | Pointer down event handler |
-| `onPointerUp` | `(event: EventHandlerParams) => void` | - | Pointer up event handler |
-| `onPointerMove` | `(event: EventHandlerParams) => void` | - | Pointer move event handler |
-| `onPointerOut` | `(event: PointerEvent) => void` | - | Pointer out event handler |
 | `children` | `ReactNode` | - | Custom content to render in the center area |
 | `maxWidth` | `number` | - | Maximum width for responsive charts |
 | `aspectRatio` | `number` | `1` | Aspect ratio for responsive charts |
