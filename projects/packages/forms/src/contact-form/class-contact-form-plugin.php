@@ -1377,7 +1377,9 @@ class Contact_Form_Plugin {
 				$attributes = get_post_meta( $id, "_g_feedback_shortcode_atts_{$hash}", true );
 				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
 					foreach ( array_filter( $attributes ) as $param => $value ) {
-						$parameters .= " $param=\"$value\"";
+						if ( is_scalar( $value ) ) {
+							$parameters .= " $param=\"$value\"";
+						}
 					}
 				}
 
