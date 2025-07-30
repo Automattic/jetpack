@@ -286,7 +286,10 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
 					alignmentVertical={ legendAlignmentVertical }
-					className={ styles[ 'pie-semi-circle-chart-legend' ] }
+					className={ clsx( styles[ 'pie-semi-circle-chart-legend' ], {
+						[ styles[ 'is-on-top' ] ]: legendAlignmentVertical === 'top',
+						[ styles[ 'is-on-bottom' ] ]: legendAlignmentVertical === 'bottom',
+					} ) }
 					shape={ legendShape }
 					ref={ legendRef }
 					chartId={ chartId }
