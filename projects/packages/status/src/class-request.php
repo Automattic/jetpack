@@ -31,6 +31,7 @@ class Request {
 			|| Constants::is_true( 'REST_REQUEST' )
 			|| Constants::is_true( 'REST_API_REQUEST' )
 			|| Constants::is_true( 'WP_CLI' )
+			|| Constants::is_true( 'WPCOM_CLI_SCRIPT' ) // Special case for CLI scripts on WP.com that aren't using WP CLI.
 		) {
 			$is_frontend        = false;
 			$is_varying_request = false;
