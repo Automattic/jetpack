@@ -9,6 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons as Jetpack_PayPal_Payment_Buttons;
+
 /**
  * Class PayPal_Payment_Buttons
  */
@@ -61,14 +65,14 @@ class PayPal_Payment_Buttons {
 		add_action( 'init', array( $this, 'register_paypal_block' ), 9 );
 
 		// Load scripts for the editing interface
-		add_action( 'enqueue_block_editor_assets', array( 'Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons', 'load_editor_scripts' ), 9 );
+		add_action( 'enqueue_block_editor_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_scripts' ), 9 );
 
 		// Provide block availability data for editor
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_availability_data' ), 10 );
 
 		// Load styles in the editor iframe context
 		if ( is_admin() ) {
-			add_action( 'enqueue_block_assets', array( 'Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons', 'load_editor_styles' ), 9 );
+			add_action( 'enqueue_block_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_styles' ), 9 );
 		}
 
 		// Add admin menu
@@ -88,10 +92,10 @@ class PayPal_Payment_Buttons {
 		}
 
 		// Register the block using the Blocks package with the correct dist path
-		\Automattic\Jetpack\Blocks::jetpack_register_block(
+		Blocks::jetpack_register_block(
 			$dist_dir,
 			array(
-				'render_callback' => array( 'Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons', 'render_block' ),
+				'render_callback' => array( Jetpack_PayPal_Payment_Buttons::class, 'render_block' ),
 			)
 		);
 	}
@@ -167,7 +171,7 @@ class PayPal_Payment_Buttons {
 			return;
 		}
 
-		\Automattic\Jetpack\Assets::register_script(
+		Assets::register_script(
 			'paypal-payment-buttons-admin',
 			'build/index.js',
 			PAYPAL_PAYMENT_BUTTONS_ROOT_FILE,
