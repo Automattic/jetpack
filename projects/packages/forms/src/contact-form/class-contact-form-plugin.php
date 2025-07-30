@@ -782,8 +782,10 @@ class Contact_Form_Plugin {
 		);
 
 		// Get step data - try block context first, then parse from content
-		$form_steps      = $block->context['jetpack/form-steps'] ?? array();
-		$show_step_names = $attributes['showStepNames'] ?? false;
+		$form_steps       = $block->context['jetpack/form-steps'] ?? array();
+		$show_step_names  = $attributes['showStepNames'] ?? false;
+		$progress_color   = $attributes['progressColor'] ?? '';
+		$background_color = $attributes['backgroundColor'] ?? '';
 
 		$processor = new \WP_HTML_Tag_Processor( $content );
 
@@ -791,6 +793,22 @@ class Contact_Form_Plugin {
 		if ( $processor->next_tag( array( 'class_name' => 'jetpack-form-progress-indicator--wrapper' ) ) ) {
 			$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
 			$processor->set_attribute( 'data-wp-init', 'actions.initializeProgress' );
+		}
+
+		// Find the main block wrapper and add custom color properties
+		$processor = new \WP_HTML_Tag_Processor( $processor->get_updated_html() );
+		if ( $processor->next_tag( array( 'class_name' => 'wp-block-jetpack-form-progress-indicator' ) ) ) {
+			$style = '';
+			if ( $progress_color ) {
+				$style .= '--jetpack-progress-color:' . esc_attr( $progress_color ) . ';';
+			}
+			if ( $background_color ) {
+				$style .= '--jetpack-progress-bg-color:' . esc_attr( $background_color ) . ';';
+			}
+			if ( $style ) {
+				$existing_style = $processor->get_attribute( 'style' ) ? $processor->get_attribute( 'style' ) : '';
+				$processor->set_attribute( 'style', $existing_style . $style );
+			}
 		}
 
 		// Find the progress bar and add width binding
@@ -816,20 +834,28 @@ class Contact_Form_Plugin {
 		foreach ( $form_steps as $index => $step ) {
 			$step_label = $step['label'] ?? 'Step ' . ( $index + 1 );
 			$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
+
+			// Add step number for dots style with dynamic content binding
+			$step_number_html = sprintf( '<span class="jetpack-form-progress-indicator-step-number" data-wp-text="state.getStepContent">%d</span>', $index + 1 );
+
 			// For initial render, assume currentStep = 1 (first step)
 			$is_initially_active = $index === 0 ? ' is-active' : '';
-			$steps_html         .= sprintf(
-				'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" %s>%s</div>',
+			$step_html           = sprintf(
+				'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" %s>%s%s</div>',
 				$is_initially_active,
 				wp_interactivity_data_wp_context( array( 'stepIndex' => $index ) ),
+				$step_number_html,
 				$label_html
 			);
+			$steps_html         .= $step_html;
 		}
 
-			// Use string replacement to insert the steps HTML
-			$updated_content = $processor->get_updated_html();
-		$updated_content     = str_replace(
-			'<div class="jetpack-form-progress-indicator-steps"></div>',
+		// Get the updated HTML and replace the steps container with populated content
+		$updated_content = $processor->get_updated_html();
+
+		// Use regex to find and replace the steps container regardless of existing attributes
+		$updated_content = preg_replace(
+			'/<div class="jetpack-form-progress-indicator-steps"[^>]*><\/div>/',
 			'<div class="jetpack-form-progress-indicator-steps" data-wp-interactive="jetpack/form">' . $steps_html . '</div>',
 			$updated_content
 		);

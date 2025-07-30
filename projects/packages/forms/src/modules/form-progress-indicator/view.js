@@ -8,9 +8,23 @@ store( 'jetpack/form', {
 		},
 		get isStepActive() {
 			const context = getContext();
-			// For progress indicator steps, we want to show as active if currentStep > stepIndex
+			// For progress indicator steps, we want to show as active if currentStep === stepIndex + 1
 			// stepIndex is 0-based, currentStep is 1-based
-			return context.currentStep > context.stepIndex;
+			return context.currentStep === context.stepIndex + 1;
+		},
+		get isStepCompleted() {
+			const context = getContext();
+			// Step is completed if currentStep > stepIndex + 1
+			// stepIndex is 0-based, currentStep is 1-based
+			return context.currentStep > context.stepIndex + 1;
+		},
+		get getStepContent() {
+			const context = getContext();
+			// Return checkmark for completed steps, number for others
+			if ( context.currentStep > context.stepIndex + 1 ) {
+				return '✓';
+			}
+			return context.stepIndex + 1;
 		},
 	},
 	actions: {

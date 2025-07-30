@@ -21,14 +21,16 @@ export const settings = {
 			margin: true,
 		},
 		color: {
-			background: true,
 			text: true,
-			gradients: true,
+			background: false, // Disable default background to avoid wrapper styling
 			__experimentalDefaultControls: {
-				background: true,
 				text: true,
-				gradient: true,
 			},
+		},
+		__experimentalBorder: {
+			color: true,
+			radius: true,
+			width: true,
 		},
 	},
 	usesContext: [ 'jetpack/form-steps' ],
@@ -61,6 +63,12 @@ export const settings = {
 		showStepNames: {
 			type: 'boolean',
 			default: false,
+		},
+		progressColor: {
+			type: 'string',
+		},
+		backgroundColor: {
+			type: 'string',
 		},
 	},
 	styles: [

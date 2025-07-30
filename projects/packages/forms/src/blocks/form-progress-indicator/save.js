@@ -1,8 +1,13 @@
 import { useBlockProps } from '@wordpress/block-editor';
 
 const FormProgressIndicatorSave = ( { attributes } ) => {
-	const { showStepNames } = attributes;
-	const blockProps = useBlockProps.save();
+	const { showStepNames, progressColor, backgroundColor } = attributes;
+	const blockProps = useBlockProps.save( {
+		style: {
+			'--jetpack-progress-color': progressColor || undefined,
+			'--jetpack-progress-bg-color': backgroundColor || undefined,
+		},
+	} );
 
 	return (
 		<div
