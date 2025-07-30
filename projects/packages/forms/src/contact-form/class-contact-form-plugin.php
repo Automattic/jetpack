@@ -1372,7 +1372,7 @@ class Contact_Form_Plugin {
 				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
 					foreach ( array_filter( $attributes ) as $param => $value ) {
 						if ( is_scalar( $value ) ) {
-							$parameters .= ' ' . $param . '="' . esc_attr( $value ) . '"';
+							$parameters .= " $param=\"$value\"";
 						}
 					}
 				}
