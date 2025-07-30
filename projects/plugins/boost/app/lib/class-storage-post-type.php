@@ -247,6 +247,7 @@ class Storage_Post_Type {
 		);
 
 		wp_cache_flush_group( $this->post_type_slug() );
+		wp_cache_flush_group( 'options' );
 	}
 
 	/**
