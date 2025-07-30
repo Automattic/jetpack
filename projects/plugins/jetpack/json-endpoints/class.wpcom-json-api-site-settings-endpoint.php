@@ -1064,7 +1064,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case Jetpack_Newsletter_Category_Helper::NEWSLETTER_CATEGORIES_OPTION:
-					$updated[ $key ] = Jetpack_Newsletter_Category_Helper::save_category_ids( (array) $value );
+					$update_newsletter_categories = Jetpack_Newsletter_Category_Helper::save_category_ids( (array) $value );
+					if ( $update_newsletter_categories ) {
+						$updated[ $key ] = $update_newsletter_categories;
+					}
 
 					break;
 

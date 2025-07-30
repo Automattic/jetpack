@@ -1065,7 +1065,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$updated = true;
 					} else {
 						$updated = false;
-						$error   = esc_html__( 'Newsletter catergory did not update.', 'jetpack' );
+						$error   = esc_html__( 'Newsletter category did not update.', 'jetpack' );
 					}
 
 					break;
