@@ -603,20 +603,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'], $form ) : null;
 		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
+		$has_custom_redirect       = $form->has_custom_redirect();
 
 		$default_context = array(
-			'formId'                         => $id,
-			'formHash'                       => $form->hash,
-			'showErrors'                     => false, // We toggle this to true when we want to show the user errors right away.
-			'errors'                         => array(), // This should be a associative array.
-			'fields'                         => array(),
-			'isMultiStep'                    => $is_multistep, // Whether the form is a multistep form.
-			'isResponseWithoutReloadEnabled' => $form->is_response_without_reload_enabled,
-			'submissionData'                 => $submission_data,
-			'formattedSubmissionData'        => $formatted_submission_data,
-			'submissionSuccess'              => $submission_success,
-			'submissionError'                => null,
-			'elementId'                      => $element_id,
+			'formId'                  => $id,
+			'formHash'                => $form->hash,
+			'showErrors'              => false, // We toggle this to true when we want to show the user errors right away.
+			'errors'                  => array(), // This should be a associative array.
+			'fields'                  => array(),
+			'isMultiStep'             => $is_multistep, // Whether the form is a multistep form.
+			'useAjax'                 => $form->is_response_without_reload_enabled && ! $has_custom_redirect,
+			'submissionData'          => $submission_data,
+			'formattedSubmissionData' => $formatted_submission_data,
+			'submissionSuccess'       => $submission_success,
+			'submissionError'         => null,
+			'elementId'               => $element_id,
 		);
 
 		if ( $is_multistep ) {
@@ -718,7 +719,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				data-wp-class--submission-success=\"context.submissionSuccess\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
-				data-wp-class--is-ajax-form=\"context.isResponseWithoutReloadEnabled\"
+				data-wp-class--is-ajax-form=\"context.useAjax\"
 				novalidate >\n";
 
 			if ( $is_multistep ) { // This makes the "enter" key work in multi-step forms as expected.
@@ -2328,6 +2329,44 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return self::success_message( $post_id, $this );
 		}
 
+		$redirect = $this->get_redirect_url( $refresh_args, $id, $post_id );
+
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
+		wp_redirect( $redirect );
+		exit( 0 );
+	}
+
+	/**
+	 * Check if the contact form has a custom redirect.
+	 *
+	 * @return bool True if the contact form has a custom redirect, false otherwise.
+	 */
+	public function has_custom_redirect() {
+		if ( ! empty( $this->get_attribute( 'customThankyouRedirect' ) ) && 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
+			return true;
+		}
+		/**
+		 * Filter to check if the contact form has a redirect filter.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param bool $has_redirect True if the contact form has a redirect filter, false otherwise.
+		 */
+		return (bool) has_filter( 'grunion_contact_form_redirect_url' );
+	}
+
+	/**
+	 * Get the URL where the reader is redirected after submitting a form.
+	 *
+	 * @param array $refresh_args The arguments to be added to the redirect URL.
+	 * @param int   $id           Contact Form ID.
+	 * @param int   $post_id      Post ID.
+	 *
+	 * @return string The redirect URL.
+	 */
+	public function get_redirect_url( $refresh_args, $id, $post_id ) {
 		$redirect        = '';
 		$custom_redirect = false;
 		if ( 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
@@ -2363,11 +2402,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param int $id Contact Form ID.
 		 * @param int $post_id Post ID.
 		 */
-		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
-
-		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
-		wp_redirect( $redirect );
-		exit( 0 );
+		return apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
 	}
 
 	/**
