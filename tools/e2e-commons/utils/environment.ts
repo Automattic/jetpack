@@ -92,7 +92,7 @@ export function resolveSiteUrl(): string {
 	// Validate the URL
 	const validatedURL = new URL( url );
 	logger.debug( `Using site url: ${ validatedURL }` );
-	return validatedURL.toString();
+	return validatedURL.toString().replace( /\/$/, '' ); // Remove trailing slash if present
 }
 
 /**
