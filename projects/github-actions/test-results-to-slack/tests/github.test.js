@@ -7,6 +7,7 @@ describe( 'Workflow conclusion', () => {
 		${ false } | ${ 'Workflow is successful for empty jobs list' }             | ${ [] }
 		${ false } | ${ 'Workflow is successful for 2 successful completed jobs' } | ${ [ { status: 'completed', conclusion: 'success' }, { status: 'completed', conclusion: 'success' } ] }
 		${ false } | ${ 'Workflow is successful for 2 uncompleted jobs' }          | ${ [ { conclusion: 'failed' }, { status: 'should-not-matter', conclusion: 'failed' } ] }
+		${ false } | ${ 'Workflow is successful for skipped jobs' }                | ${ [ { status: 'completed', conclusion: 'skipped' }, { status: 'completed', conclusion: 'success' } ] }
 		${ true }  | ${ 'Workflow is failed for one failed job' }                  | ${ [ { status: 'completed', conclusion: 'success' }, { status: 'completed', conclusion: 'failed' } ] }
 	`( '$description', async ( { expected, jobs } ) => {
 		const { mockGitHubContext } = require( './test-utils' );

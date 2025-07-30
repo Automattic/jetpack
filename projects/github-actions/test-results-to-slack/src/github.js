@@ -30,7 +30,7 @@ async function isWorkflowFailed( token ) {
 	];
 
 	// Decide if any we'll treat this run as failed
-	return !! conclusions.some( conclusion => conclusion !== 'success' );
+	return !! conclusions.some( conclusion => conclusion !== 'success' && conclusion !== 'skipped' );
 }
 
 /**
