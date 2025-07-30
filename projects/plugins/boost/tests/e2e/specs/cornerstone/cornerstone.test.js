@@ -1,6 +1,6 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 
@@ -26,7 +26,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await boostPrerequisitesBuilder( page ).withPremiumFeaturesMocked( [] ).build();
 		// Reset cornerstone pages before each test to ensure atomicity
 		// Using option delete ensures the system properly initializes an empty array
-		await execWpCommand( 'option delete jetpack_boost_ds_cornerstone_pages_list' );
+		await executeWpCommand( 'option delete jetpack_boost_ds_cornerstone_pages_list' );
 	} );
 
 	test( 'Cornerstone Pages panel should be visible and toggleable', async () => {

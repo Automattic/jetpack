@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
 import { JetpackBoostPage } from '../pages/index.js';
 
 /**
@@ -130,10 +130,10 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	if ( mockSpeedScore ) {
 		logger.prerequisites( 'Mocking Speed Score' );
 		// Enable the speed score mock plugin.
-		await execWpCommand( 'plugin activate e2e-mock-speed-score-api' );
+		await executeWpCommand( 'plugin activate e2e-mock-speed-score-api' );
 	} else {
 		logger.prerequisites( 'Unmocking Speed Score' );
-		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
+		await executeWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
 	}
 }
 
@@ -145,16 +145,16 @@ export async function ensureMockPremiumFeaturesState( mockPremiumFeatures ) {
 	if ( mockPremiumFeatures && mockPremiumFeatures.length > 0 ) {
 		logger.prerequisites( `Mocking Premium Features: ${ mockPremiumFeatures.join( ', ' ) }` );
 		// Enable the premium features mock plugin.
-		await execWpCommand( 'plugin activate e2e-mock-premium-features' );
+		await executeWpCommand( 'plugin activate e2e-mock-premium-features' );
 		// Set the features to mock as a proper PHP array using WP-CLI's --format=json
 		const featuresJson = JSON.stringify( mockPremiumFeatures );
-		await execWpCommand(
+		await executeWpCommand(
 			`option update e2e_mock_premium_features '${ featuresJson }' --format=json`
 		);
 	} else {
 		logger.prerequisites( 'Unmocking Premium Features' );
-		await execWpCommand( 'plugin deactivate e2e-mock-premium-features' );
-		await execWpCommand( 'option delete e2e_mock_premium_features' );
+		await executeWpCommand( 'plugin deactivate e2e-mock-premium-features' );
+		await executeWpCommand( 'option delete e2e_mock_premium_features' );
 	}
 }
 
@@ -165,10 +165,12 @@ export async function ensureMockPremiumFeaturesState( mockPremiumFeatures ) {
 export async function ensureEnqueuedAssets( enqueue ) {
 	if ( enqueue ) {
 		logger.prerequisites( 'Enqueuing assets' );
-		await execWpCommand( 'plugin activate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
+		await executeWpCommand( 'plugin activate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
 	} else {
 		logger.prerequisites( 'Deactivating assets' );
-		await execWpCommand( 'plugin deactivate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
+		await executeWpCommand(
+			'plugin deactivate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php'
+		);
 	}
 }
 
@@ -179,10 +181,10 @@ export async function ensureEnqueuedAssets( enqueue ) {
 export async function ensureAppendedImage( append ) {
 	if ( append ) {
 		logger.prerequisites( 'Appending image' );
-		await execWpCommand( 'plugin activate e2e-appended-image/e2e-appended-image.php' );
+		await executeWpCommand( 'plugin activate e2e-appended-image/e2e-appended-image.php' );
 	} else {
 		logger.prerequisites( 'Removing appended image' );
-		await execWpCommand( 'plugin deactivate e2e-appended-image/e2e-appended-image.php' );
+		await executeWpCommand( 'plugin deactivate e2e-appended-image/e2e-appended-image.php' );
 	}
 }
 
@@ -193,7 +195,7 @@ export async function ensureAppendedImage( append ) {
 export async function activateModules( modules ) {
 	for ( const module of modules ) {
 		logger.prerequisites( `Activating module ${ module }` );
-		const result = await execWpCommand( `jetpack-boost module activate ${ module }` );
+		const result = await executeWpCommand( `jetpack-boost module activate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been activated.`, 'i' ) );
 	}
 }
@@ -205,7 +207,7 @@ export async function activateModules( modules ) {
 export async function deactivateModules( modules ) {
 	for ( const module of modules ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
-		const result = await execWpCommand( `jetpack-boost module deactivate ${ module }` );
+		const result = await executeWpCommand( `jetpack-boost module deactivate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been deactivated.`, 'i' ) );
 	}
 }
@@ -217,7 +219,7 @@ export async function deactivateModules( modules ) {
  */
 export async function ensureConnectedState( requiredConnected, page ) {
 	// Ensure the mock connection plugin is deactivated.
-	await execWpCommand( 'plugin deactivate e2e-mock-boost-connection' );
+	await executeWpCommand( 'plugin deactivate e2e-mock-boost-connection' );
 
 	const isConnected = await checkIfConnected();
 
@@ -241,14 +243,14 @@ export async function ensureConnectedState( requiredConnected, page ) {
 export async function ensureMockConnectionState( mockConnection ) {
 	if ( mockConnection ) {
 		logger.prerequisites( 'Mocking connection' );
-		await execWpCommand( 'plugin activate e2e-mock-boost-connection' );
+		await executeWpCommand( 'plugin activate e2e-mock-boost-connection' );
 		// Update the WP option jb_get_started to false.
-		await execWpCommand( 'option update jb_get_started 0' );
+		await executeWpCommand( 'option update jb_get_started 0' );
 	} else {
 		logger.prerequisites( 'Unmocking connection' );
-		await execWpCommand( 'plugin deactivate e2e-mock-boost-connection' );
+		await executeWpCommand( 'plugin deactivate e2e-mock-boost-connection' );
 		// Update the WP option jb_get_started to true.
-		await execWpCommand( 'option update jb_get_started 1' );
+		await executeWpCommand( 'option update jb_get_started 1' );
 	}
 }
 
@@ -268,7 +270,7 @@ export async function connect( page ) {
 export async function disconnect() {
 	logger.prerequisites( `Disconnecting Boost plugin to WP.com` );
 	const cliCmd = 'jetpack disconnect blog';
-	const result = await execWpCommand( cliCmd );
+	const result = await executeWpCommand( cliCmd );
 	expect( result ).toContain( 'Success: Jetpack has been successfully disconnected' );
 }
 
@@ -278,7 +280,7 @@ export async function disconnect() {
  */
 export async function checkIfConnected() {
 	const cliCmd = 'jetpack-boost connection status';
-	const result = await execWpCommand( cliCmd );
+	const result = await executeWpCommand( cliCmd );
 	if ( typeof result !== 'object' ) {
 		return result === 'connected';
 	}
@@ -302,12 +304,12 @@ async function ensureTestPosts( testPostTitles ) {
 	};
 	for ( const testPostTitle of testPostTitles ) {
 		if ( testPostTitle in testPostTitlesCommands ) {
-			const result = await execWpCommand( 'post list --fields=post_title' );
+			const result = await executeWpCommand( 'post list --fields=post_title' );
 			if ( result.includes( testPostTitle ) ) {
 				logger.prerequisites( 'The test content post already exists' );
 			} else {
 				logger.prerequisites( 'Creating test content post...' );
-				await execWpCommand( testPostTitlesCommands[ testPostTitle ] );
+				await executeWpCommand( testPostTitlesCommands[ testPostTitle ] );
 			}
 		}
 	}
@@ -320,6 +322,6 @@ async function ensureTestPosts( testPostTitles ) {
 async function ensureCleanState( shouldReset ) {
 	if ( shouldReset ) {
 		logger.prerequisites( 'Resetting Jetpack Boost' );
-		await execWpCommand( 'jetpack-boost reset' );
+		await executeWpCommand( 'jetpack-boost reset' );
 	}
 }

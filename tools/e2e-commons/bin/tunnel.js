@@ -8,7 +8,7 @@ import config from 'config';
 import localtunnel from 'localtunnel';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
+import { getReusableUrlFromFile } from '../utils/environment.ts';
 
 const tunnelConfig = config.get( 'tunnel' );
 

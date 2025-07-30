@@ -1,7 +1,7 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { DashboardPage, PluginsPage, Sidebar } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
+import { executeWpDbQuery } from '_jetpack-e2e-commons/utils/cli.ts';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 
@@ -70,12 +70,13 @@ test.describe( 'Common tests', () => {
 		await pluginsPage.click( 'text=Just Deactivate' );
 
 		let result;
-		result = await execWpCommand(
-			'db query \'SELECT ID FROM wp_posts WHERE post_type LIKE "%jb_store_%"\' --skip-column-names'
-		);
+		result = await executeWpDbQuery( 'SELECT ID FROM wp_posts WHERE post_type LIKE "%jb_store_%"', [
+			'--skip-column-names',
+		] );
 		expect( result.length, 'No DB records are found' ).toBe( 0 );
-		result = await execWpCommand(
-			'db query \'SELECT option_id FROM wp_options WHERE option_name = "jb-critical-css-dismissed-recommendations"\' --skip-column-names'
+		result = await executeWpDbQuery(
+			'SELECT option_id FROM wp_options WHERE option_name = "jb-critical-css-dismissed-recommendations"',
+			[ '--skip-column-names' ]
 		);
 		expect( result.length, 'No DB records are found' ).toBe( 0 );
 

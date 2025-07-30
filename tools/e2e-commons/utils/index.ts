@@ -4,6 +4,8 @@ import {
 	executeContainerCommand,
 	executeWpCommand,
 	executeJetpackCommand,
+	executeJetpackBoostCommand,
+	executeWpDbQuery,
 } from './cli.ts';
 import {
 	connect,
@@ -13,6 +15,13 @@ import {
 	isSiteConnected,
 	isUserConnected,
 } from './connection.ts';
+import {
+	getConfigTestSite,
+	getSiteCredentials,
+	isLocalSite,
+	resetEnvironment,
+	resolveSiteUrl,
+} from './environment.ts';
 import { activateBoostModule, deactivateBoostModule } from './jetpack-boost.ts';
 import { activateModule, deactivateModule, isModuleActive } from './jetpack.ts';
 import { authenticateUser } from './login.ts';
@@ -41,6 +50,8 @@ class TestUtils {
 	executeWpCommand: typeof executeWpCommand = executeWpCommand;
 	executeJetpackCommand: typeof executeJetpackCommand = executeJetpackCommand;
 	executeContainerCommand: typeof executeContainerCommand = executeContainerCommand;
+	executeJetpackBoostCommand: typeof executeJetpackBoostCommand = executeJetpackBoostCommand;
+	executeWpDbQuery: typeof executeWpDbQuery = executeWpDbQuery;
 
 	// Jetpack specific utilities
 	activateModule: typeof activateModule = activateModule;
@@ -53,6 +64,14 @@ class TestUtils {
 
 	// Plan utilities
 	setMockPlanData: typeof setMockPlanData = setMockPlanData.bind( this );
+
+	// Environment utilities
+	getConfigTestSite: typeof getConfigTestSite = getConfigTestSite;
+	resolveSiteUrl: typeof resolveSiteUrl = resolveSiteUrl;
+	isLocalSite: typeof isLocalSite = isLocalSite;
+	getSiteCredentials: typeof getSiteCredentials = getSiteCredentials;
+	getDotComCredentials: typeof getSiteCredentials = getSiteCredentials;
+	resetEnvironment: typeof resetEnvironment = resetEnvironment;
 }
 
 export { TestUtils };

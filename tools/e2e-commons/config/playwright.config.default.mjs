@@ -2,7 +2,8 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { defineConfig, devices } from '@playwright/test';
 import config from 'config';
-import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper.js';
+import logger from '../logger.js';
+import { resolveSiteUrl } from '../utils/environment.ts';
 
 const rootPath = fileURLToPath( new URL( '..', import.meta.url ) );
 
@@ -37,7 +38,13 @@ if ( process.env.TEST_SITE ) {
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
 // Ensure the environment variables for `@wordpress/e2e-test-utils-playwright` are set
-setWpEnvVars();
+const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
+logger.debug( `Using '${ testSite }' test site config` );
+const site = config.get( `testSites.${ testSite }` );
+
+process.env.WP_BASE_URL = resolveSiteUrl();
+process.env.WP_USERNAME = site.username;
+process.env.WP_PASSWORD = site.password;
 
 export const setupProjects = [
 	{
