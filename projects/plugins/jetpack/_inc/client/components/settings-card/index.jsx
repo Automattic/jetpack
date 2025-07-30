@@ -1,5 +1,5 @@
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __, _x } from '@wordpress/i18n';
-import { getUserConnectionUrl } from 'node_modules/@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'components/button';
