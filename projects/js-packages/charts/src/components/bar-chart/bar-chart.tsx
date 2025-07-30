@@ -120,7 +120,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-			const nearestDatum = tooltipData?.nearestDatum?.datum as EnhancedDataPoint;
+			const nearestDatum = tooltipData?.nearestDatum?.datum;
 			if ( ! nearestDatum ) return null;
 
 			return (
