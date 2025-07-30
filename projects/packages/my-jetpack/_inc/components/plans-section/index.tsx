@@ -14,6 +14,7 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
+import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
 import styles from './style.module.scss';
@@ -189,8 +190,14 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		'jetpack-my-jetpack'
 	);
 
+	const planPurchaseDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+
 	const planManageClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
+	}, [ recordEvent ] );
+
+	const planPurchaseClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
 	}, [ recordEvent ] );
 
 	const activateLicenseClickHandler = useCallback( () => {
@@ -214,6 +221,19 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 					<ExternalLink onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
 						{ planManageDescription }
 					</ExternalLink>
+				</li>
+			) }
+			{ ! hasComplete && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Button
+						onClick={ planPurchaseClickHandler }
+						href={ getPurchasePlanUrl() }
+						weight="regular"
+						variant="link"
+						isExternalLink={ true }
+					>
+						{ planPurchaseDescription }
+					</Button>
 				</li>
 			) }
 

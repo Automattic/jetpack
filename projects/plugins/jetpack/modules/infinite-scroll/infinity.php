@@ -91,21 +91,22 @@ class The_Neverending_Home_Page {
 	 * @return object
 	 */
 	public static function get_settings() {
+		$defaults = array(
+			'type'            => 'scroll', // scroll | click
+			'requested_type'  => 'scroll', // store the original type for use when logic overrides it
+			'footer_widgets'  => false, // true | false | sidebar_id | array of sidebar_ids -- last two are checked with is_active_sidebar
+			'container'       => 'content', // container html id
+			'wrapper'         => true, // true | false | html class -- the html class.
+			'render'          => false, // optional function, otherwise the `content` template part will be used
+			'footer'          => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
+			'footer_callback' => false, // function to be called to render the IS footer, in place of the default
+			'posts_per_page'  => false, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- int | false to set based on IS type
+			'click_handle'    => true, // boolean to enable or disable rendering the click handler div. If type is click and this is false, page must include its own trigger with the HTML ID `infinite-handle`.
+		);
+
 		if ( self::$settings === null ) {
 			$css_pattern = '#[^A-Z\d\-_]#i';
 
-			$defaults = array(
-				'type'            => 'scroll', // scroll | click
-				'requested_type'  => 'scroll', // store the original type for use when logic overrides it
-				'footer_widgets'  => false, // true | false | sidebar_id | array of sidebar_ids -- last two are checked with is_active_sidebar
-				'container'       => 'content', // container html id
-				'wrapper'         => true, // true | false | html class -- the html class.
-				'render'          => false, // optional function, otherwise the `content` template part will be used
-				'footer'          => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
-				'footer_callback' => false, // function to be called to render the IS footer, in place of the default
-				'posts_per_page'  => false, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- int | false to set based on IS type
-				'click_handle'    => true, // boolean to enable or disable rendering the click handler div. If type is click and this is false, page must include its own trigger with the HTML ID `infinite-handle`.
-			);
 			$settings = $defaults;
 			// Validate settings passed through add_theme_support()
 			$_settings = get_theme_support( 'infinite-scroll' );
@@ -267,20 +268,22 @@ class The_Neverending_Home_Page {
 			}
 
 			// Store final settings in a class static to avoid reparsing
-			/**
-			 * Filter the array of Infinite Scroll settings.
-			 *
-			 * @module infinite-scroll
-			 *
-			 * @since 2.0.0
-			 *
-			 * @param array $settings Array of Infinite Scroll settings.
-			 */
-			self::$settings = apply_filters( 'infinite_scroll_settings', $settings );
+			self::$settings = $settings;
 		}
 
-		/** This filter is already documented in modules/infinite-scroll/infinity.php */
-		return (object) apply_filters( 'infinite_scroll_settings', self::$settings );
+		/**
+		 * Filter the array of Infinite Scroll settings.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param array $settings Array of Infinite Scroll settings.
+		 */
+		$filtered_settings = apply_filters( 'infinite_scroll_settings', self::$settings );
+
+		// Ensure all properties are still set.
+		return (object) wp_parse_args( $filtered_settings, $defaults );
 	}
 
 	/**
@@ -290,12 +293,13 @@ class The_Neverending_Home_Page {
 	 * @return int
 	 */
 	public static function posts_per_page() {
-		$posts_per_page             = self::get_settings()->posts_per_page ? self::get_settings()->posts_per_page : self::wp_query()->get( 'posts_per_page' );
+		$settings                   = self::get_settings();
+		$posts_per_page             = $settings->posts_per_page ? $settings->posts_per_page : self::wp_query()->get( 'posts_per_page' );
 		$posts_per_page_core_option = get_option( 'posts_per_page' );
 
 		// If Infinite Scroll is set to click, and if the site owner changed posts_per_page, let's use that.
 		if (
-			'click' === self::get_settings()->type
+			'click' === $settings->type
 				&& ( '10' !== $posts_per_page_core_option )
 		) {
 			$posts_per_page = $posts_per_page_core_option;
@@ -443,9 +447,10 @@ class The_Neverending_Home_Page {
 	 * for the infinite_scroll setting.
 	 */
 	public function infinite_setting_html() {
+		$settings = self::get_settings();
 
 		// If the blog has footer widgets, show a notice instead of the checkbox
-		if ( self::get_settings()->footer_widgets || 'click' === self::get_settings()->requested_type ) {
+		if ( $settings->footer_widgets || 'click' === $settings->requested_type ) {
 			echo '<label><em>' . esc_html__( 'We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior.', 'jetpack' ) . '</em></label>';
 		} else {
 			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
@@ -541,13 +546,14 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	public function body_class() {
-		$classes = '';
+		$settings = self::get_settings();
+		$classes  = '';
 		// Do not add infinity-scroll class if disabled through the Reading page
 		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
-		if ( ! $disabled || 'click' === self::get_settings()->type ) {
+		if ( ! $disabled || 'click' === $settings->type ) {
 			$classes = 'infinite-scroll';
 
-			if ( 'scroll' === self::get_settings()->type ) {
+			if ( 'scroll' === $settings->type ) {
 				$classes .= ' neverending';
 			}
 		}
@@ -861,6 +867,8 @@ class The_Neverending_Home_Page {
 		global $wp_rewrite;
 		global $currentday;
 
+		$settings = self::get_settings();
+
 		// Default click handle text
 		$click_handle_text = __( 'Older posts', 'jetpack' );
 
@@ -910,13 +918,13 @@ class The_Neverending_Home_Page {
 
 		// Base JS settings
 		$js_settings = array(
-			'id'               => self::get_settings()->container,
+			'id'               => $settings->container,
 			'ajaxurl'          => esc_url_raw( self::ajax_url() ),
-			'type'             => esc_js( self::get_settings()->type ),
+			'type'             => esc_js( $settings->type ),
 			'wrapper'          => self::has_wrapper(),
-			'wrapper_class'    => is_string( self::get_settings()->wrapper ) ? esc_js( self::get_settings()->wrapper ) : 'infinite-wrap',
-			'footer'           => is_string( self::get_settings()->footer ) ? esc_js( self::get_settings()->footer ) : self::get_settings()->footer,
-			'click_handle'     => esc_js( self::get_settings()->click_handle ),
+			'wrapper_class'    => is_string( $settings->wrapper ) ? esc_js( $settings->wrapper ) : 'infinite-wrap',
+			'footer'           => is_string( $settings->footer ) ? esc_js( $settings->footer ) : $settings->footer,
+			'click_handle'     => esc_js( $settings->click_handle ),
 			'text'             => esc_js( $click_handle_text ),
 			'totop'            => esc_js( __( 'Scroll back to top', 'jetpack' ) ),
 			'currentday'       => $currentday,
@@ -1688,13 +1696,15 @@ class The_Neverending_Home_Page {
 			return;
 		}
 
+		$settings = self::get_settings();
+
 		// Bail if theme requested footer not show
-		if ( false === self::get_settings()->footer ) {
+		if ( false === $settings->footer ) {
 			return;
 		}
 
 		// We only need the new footer for the 'scroll' type
-		if ( 'scroll' !== self::get_settings()->type || ! self::archive_supports_infinity() ) {
+		if ( 'scroll' !== $settings->type || ! self::archive_supports_infinity() ) {
 			return;
 		}
 
@@ -1703,8 +1713,8 @@ class The_Neverending_Home_Page {
 		}
 
 		// Display a footer, either user-specified or a default
-		if ( false !== self::get_settings()->footer_callback && is_callable( self::get_settings()->footer_callback ) ) {
-			call_user_func( self::get_settings()->footer_callback, self::get_settings() );
+		if ( false !== $settings->footer_callback && is_callable( $settings->footer_callback ) ) {
+			call_user_func( $settings->footer_callback, $settings );
 		} else {
 			self::default_footer();
 		}
