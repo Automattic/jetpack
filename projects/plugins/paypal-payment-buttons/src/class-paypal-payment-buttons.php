@@ -173,7 +173,7 @@ class PayPal_Payment_Buttons {
 			PAYPAL_PAYMENT_BUTTONS_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
+				'textdomain' => 'paypal-payment-buttons',
 			)
 		);
 		wp_enqueue_script( 'paypal-payment-buttons-admin' );
