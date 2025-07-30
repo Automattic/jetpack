@@ -12,9 +12,6 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"browserslist": [
-		"extends @wordpress/browserslist-config"
-	],
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-js",
 		"build-js": "webpack",
@@ -24,6 +21,9 @@
 		"validate": "pnpm exec validate-es dist/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-idc": "workspace:*",
