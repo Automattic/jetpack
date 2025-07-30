@@ -142,8 +142,13 @@ jobs:
             echo 'Site URL retrieved does not seem to be a URL.'
             CODE=1
           else
+            echo 'No issues using a simple command in WP-CLI.'
             curl -s --fail "$SITE_URL" > /dev/null || CODE=$?
-            [[ $CODE -ne 0 ]] && echo 'Unable to load site! Something is wrong with the site.'
+            if [[ $CODE -ne 0 ]]; then
+              echo 'Unable to load site! Something is wrong with the site.'
+            else
+              echo 'No issues slurping site with `curl`.
+            fi
           fi
           echo "::endgroup::"
 
