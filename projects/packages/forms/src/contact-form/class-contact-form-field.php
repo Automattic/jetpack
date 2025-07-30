@@ -227,12 +227,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function add_error( $message ) {
 		$this->error = true;
-
-		if ( ! is_wp_error( $this->form->errors ) ) {
-			$this->form->errors = new \WP_Error();
-		}
-
-		$this->form->errors->add( $this->get_attribute( 'id' ), $message );
+		$this->form->add_error( $this->get_attribute( 'id' ), $message );
 	}
 
 	/**
@@ -244,6 +239,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function is_error() {
 		return $this->error;
+	}
+
+	/**
+	 * Check if the field has a value.
+	 *
+	 * This is used to determine if the field has been filled out by the user.
+	 *
+	 * @return bool True if the field has a value, false otherwise.
+	 */
+	public function has_value() {
+		$field_id    = $this->get_attribute( 'id' );
+		$field_value = isset( $_POST[ $field_id ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+
+		return ! empty( $field_value );
 	}
 
 	/**
@@ -277,28 +286,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field_value
 				) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'email':
 				// Make sure the email address is valid
 				if ( ! is_string( $field_value ) || ! is_email( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a valid email address.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'checkbox-multiple':
 				// Check that there is at least one option selected
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'number':
 				// Make sure the number address is valid
 				if ( ! is_numeric( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a number.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'file':
@@ -312,7 +321,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				// Just check for presence of any text
 				if ( ! is_string( $field_value ) || ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s is required', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s field is required.', 'jetpack-forms' ), $field_label ) );
 				}
 		}
 	}

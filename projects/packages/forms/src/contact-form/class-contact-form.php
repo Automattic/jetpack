@@ -76,6 +76,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $forms_context = array();
 
 	/**
+	 * The default attributes for the contact form.
+	 *
+	 * @var WP_Error
+	 */
+	public static $static_errors;
+	/**
+	 * The default attributes for the contact form.
+	 *
+	 * @var array
+	 */
+
+	/**
 	 * Whether to print the grunion.css style when processing the contact-form shortcode
 	 *
 	 * @var bool
@@ -614,7 +626,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$default_context = array(
 			'formId'                  => $id,
 			'formHash'                => $form->hash,
-			'showErrors'              => false, // We toggle this to true when we want to show the user errors right away.
+			'showErrors'              => $form->has_errors(), // We toggle this to true when we want to show the user errors right away.
 			'errors'                  => array(), // This should be a associative array.
 			'fields'                  => array(),
 			'isMultiStep'             => $is_multistep, // Whether the form is a multistep form.
@@ -654,10 +666,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= self::render_ajax_success_wrapper( $form, $submission_success, $formatted_submission_data );
 		}
 
-		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
+		if ( $form->has_errors() ) {
 			// There are errors.  Display them
 			$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack-forms' ) . "</h3>\n<ul class='form-errors'>\n";
-			foreach ( $form->errors->get_error_messages() as $message ) {
+			foreach ( $form->get_error_messages() as $message ) {
 				$r .= "\t<li class='form-error-message'>" . esc_html( $message ) . "</li>\n";
 			}
 			$r .= "</ul>\n</div>\n\n";
@@ -2706,5 +2718,81 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$theme_json_class = get_class( $theme_json_data );
 		return new $theme_json_class( $data, 'default' );
+	}
+
+	/**
+	 * Validate the contact form fields.
+	 *
+	 * This method checks each field for errors and ensures that at least one field has a value.
+	 * If no fields have values and there are no errors, it adds an error indicating that the form is empty.
+	 */
+	public function validate() {
+		$has_value = false;
+		// Validate the form fields before processing the form.
+		foreach ( $this->fields as $field ) {
+			$field->validate();
+			if ( ! $has_value && $field->has_value() ) {
+				$has_value = true;
+			}
+		}
+
+		if ( ! $has_value && ! $this->has_errors() ) {
+			$this->add_error( 'empty', __( 'Please fill out at least one field.', 'jetpack-forms' ) );
+		}
+	}
+
+	/**
+	 * Reset the static errors for the contact form.
+	 *
+	 * @param string $id The ID of the contact form to reset errors for. If null, resets all static errors.
+	 *
+	 * This method is used to clear the static errors stored in the class.
+	 */
+	public static function reset_errors( $id = null ) {
+		if ( $id && isset( self::$static_errors[ $id ] ) ) {
+			unset( self::$static_errors[ $id ] );
+			return;
+		}
+		self::$static_errors = array();
+	}
+
+	/**
+	 * Add an error to the contact form.
+	 *
+	 * @param string $error_code    The error code.
+	 * @param string $error_message The error message.
+	 */
+	public function add_error( $error_code, $error_message ) {
+		if ( ! is_wp_error( $this->errors ) ) {
+			$this->errors = new \WP_Error();
+		}
+		// for backward compatibility, we need to add the error code and message
+		$this->errors->add( $error_code, $error_message );
+		self::$static_errors[ $this->get_attribute( 'id' ) ] = $this->errors;
+	}
+	/**
+	 * Check if the contact form has errors.
+	 *
+	 * @return bool True if the contact form has errors, false otherwise.
+	 */
+	public function has_errors() {
+		$id = $this->get_attribute( 'id' );
+		if ( ! isset( self::$static_errors[ $id ] ) ) {
+			return false;
+		}
+		return is_wp_error( self::$static_errors[ $id ] ) && ! empty( self::$static_errors[ $id ]->get_error_codes() );
+	}
+
+	/**
+	 * Get the error messages of the contact form.
+	 *
+	 * @return array The errors of the contact form.
+	 */
+	public function get_error_messages() {
+		if ( ! $this->has_errors() ) {
+			return array();
+		}
+		$id = $this->get_attribute( 'id' );
+		return self::$static_errors[ $id ]->get_error_messages();
 	}
 }

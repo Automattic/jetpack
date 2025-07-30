@@ -1238,6 +1238,8 @@ class Contact_Form_Plugin {
 				// If the JWT is invalid, we can't process the form.
 				return false;
 			}
+
+			$form->validate();
 		}
 
 		if ( $is_widget ) {

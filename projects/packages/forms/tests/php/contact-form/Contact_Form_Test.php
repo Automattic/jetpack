@@ -2997,4 +2997,65 @@ EOT;
 		$this->assertTrue( $form_has_filter->has_custom_redirect(), 'Form should have a custom redirect URL.' );
 		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
 	}
+
+	public function test_validate_form() {
+		$name    = 'John Doe';
+		$email   = 'john@example.com';
+		$message = 'Test message';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'    => $name,
+				'email'   => $email,
+				'message' => $message,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+	}
+
+	public function test_validate_form_with_errors() {
+		$name    = 'John Doe';
+		$email   = 'john@example.com';
+		$message = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'    => $name,
+				'email'   => $email,
+				'message' => $message,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array( 'Message field is required.' ), $form->get_error_messages() );
+	}
 }
