@@ -108,7 +108,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			array(),
 			JETPACK__VERSION
 		);
-		wp_style_add_data( 'jetpack-subscriptions', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-subscriptions', 'path', $path );
 	}
 
