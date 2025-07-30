@@ -9,29 +9,70 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons as Jetpack_PayPal_Payment_Buttons;
+
 /**
  * Class PayPal_Payment_Buttons
- *
- * @phan-constructor-used-for-side-effects
  */
 class PayPal_Payment_Buttons {
 
 	/**
+	 * Plugin instance.
+	 *
+	 * @var PayPal_Payment_Buttons
+	 */
+	private static $instance = null;
+
+	/**
+	 * Get plugin instance.
+	 *
+	 * @return PayPal_Payment_Buttons
+	 */
+	public static function instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Initialize the plugin and register hooks.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		$instance = self::instance();
+		$instance->init_hooks();
+	}
+
+	/**
 	 * Constructor.
 	 */
-	public function __construct() {
+	private function __construct() {
+		// Private constructor to prevent direct instantiation
+	}
+
+	/**
+	 * Initialize WordPress hooks.
+	 *
+	 * @return void
+	 */
+	public function init_hooks() {
 		// Initialize PayPal Payment Buttons block with correct dist path
 		add_action( 'init', array( $this, 'register_paypal_block' ), 9 );
 
 		// Load scripts for the editing interface
-		add_action( 'enqueue_block_editor_assets', array( 'Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons', 'load_editor_scripts' ), 9 );
+		add_action( 'enqueue_block_editor_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_scripts' ), 9 );
 
 		// Provide block availability data for editor
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_availability_data' ), 10 );
 
 		// Load styles in the editor iframe context
 		if ( is_admin() ) {
-			add_action( 'enqueue_block_assets', array( 'Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons', 'load_editor_styles' ), 9 );
+			add_action( 'enqueue_block_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_styles' ), 9 );
 		}
 
 		// Add admin menu
@@ -51,10 +92,10 @@ class PayPal_Payment_Buttons {
 		}
 
 		// Register the block using the Blocks package with the correct dist path
-		\Automattic\Jetpack\Blocks::jetpack_register_block(
+		Blocks::jetpack_register_block(
 			$dist_dir,
 			array(
-				'render_callback' => array( 'Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons', 'render_block' ),
+				'render_callback' => array( Jetpack_PayPal_Payment_Buttons::class, 'render_block' ),
 			)
 		);
 	}
@@ -122,32 +163,24 @@ class PayPal_Payment_Buttons {
 
 	/**
 	 * Enqueue plugin admin scripts and styles.
+	 *
+	 * @param string $hook_suffix The current admin page hook suffix.
 	 */
-	public function enqueue_admin_scripts() {
-		// Only enqueue on our admin page
-		$screen = get_current_screen();
-		if ( $screen && $screen->id !== 'toplevel_page_paypal-payment-buttons' ) {
+	public function enqueue_admin_scripts( $hook_suffix ) {
+		if ( 'toplevel_page_paypal-payment-buttons' !== $hook_suffix ) {
 			return;
 		}
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'paypal-payment-buttons-admin',
-			plugins_url( 'build/index.js', PAYPAL_PAYMENT_BUTTONS_ROOT_FILE ),
-			array( 'wp-element', 'wp-i18n' ),
-			filemtime( PAYPAL_PAYMENT_BUTTONS_DIR . 'build/index.js' ),
-			true
+			'build/index.js',
+			PAYPAL_PAYMENT_BUTTONS_ROOT_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'paypal-payment-buttons',
+				'enqueue'    => true,
+			)
 		);
-
-		// Only enqueue CSS if the file exists
-		$css_file = PAYPAL_PAYMENT_BUTTONS_DIR . 'build/index.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'paypal-payment-buttons-admin',
-				plugins_url( 'build/index.css', PAYPAL_PAYMENT_BUTTONS_ROOT_FILE ),
-				array(),
-				filemtime( $css_file )
-			);
-		}
 	}
 
 	/**

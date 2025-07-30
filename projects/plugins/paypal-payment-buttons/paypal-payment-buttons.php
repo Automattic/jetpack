@@ -134,5 +134,5 @@ add_filter(
 
 register_deactivation_hook( __FILE__, array( 'PayPal_Payment_Buttons', 'plugin_deactivation' ) );
 
-// Main plugin class.
-new PayPal_Payment_Buttons();
+// Initialize plugin.
+PayPal_Payment_Buttons::init();
