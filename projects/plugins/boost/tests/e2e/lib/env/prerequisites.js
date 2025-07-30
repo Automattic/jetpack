@@ -301,10 +301,20 @@ export async function checkIfConnected() {
  */
 async function ensureTestPosts( testPostTitles ) {
 	const testPostTitlesCommands = {
-		'Hello World with image':
-			"post create --post_status='publish' --post_title='Hello World with image' --post_content='<h1>Hello World with image</h1><div><p>This is just a test post with an image</p><img src=\"https://picsum.photos/seed/picsum/600/600\" alt=\"placeholder Image\"></div>'",
-		'Hello World with JavaScript':
-			'post create --post_status=\'publish\' --post_title=\'Hello World with JavaScript\' --post_content=\'<h1>Hello World with JavaScript</h1><div class="render-blocking-js"><script id="blockingScript">document.getElementById("testDiv").style.display = "block";</script></div><div id="testDiv" style="display: none">This is made visible by JavaScript</div>\'',
+		'Hello World with image': [
+			'post',
+			'create',
+			'--post_status=publish',
+			'--post_title=Hello World with image',
+			'--post_content=<h1>Hello World with image</h1><div><p>This is just a test post with an image</p><img src="https://picsum.photos/seed/picsum/600/600" alt="placeholder Image"></div>',
+		],
+		'Hello World with JavaScript': [
+			'post',
+			'create',
+			'--post_status=publish',
+			'--post_title=Hello World with JavaScript',
+			'--post_content=<h1>Hello World with JavaScript</h1><div class="render-blocking-js"><script id="blockingScript">document.getElementById("testDiv").style.display = "block";</script></div><div id="testDiv" style="display: none">This is made visible by JavaScript</div>',
+		],
 	};
 	for ( const testPostTitle of testPostTitles ) {
 		if ( testPostTitle in testPostTitlesCommands ) {
