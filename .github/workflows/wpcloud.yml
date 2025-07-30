@@ -139,7 +139,7 @@ jobs:
           if [[ $CODE -ne 0 ]]; then
             echo 'Unable to run a basic `wp` command! Something is wrong with the site.'
           elif [[ ! "$SITE_URL" =~ ^https?://[a-z0-9_.-]+$ ]]; then
-            echo 'Site URL retrieved doesn't seem to be a URL.'
+            echo 'Site URL retrieved does not seem to be a URL.'
             CODE=1
           else
             curl -s --fail "$SITE_URL" > /dev/null || CODE=$?
