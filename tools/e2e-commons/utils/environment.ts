@@ -82,9 +82,10 @@ export function resolveSiteUrl(): string {
 		}
 	}
 
+	// Validate the URL
 	url = new URL( url );
 	logger.debug( `Using site url: ${ url }` );
-	return url;
+	return url.toString();
 }
 
 /**
