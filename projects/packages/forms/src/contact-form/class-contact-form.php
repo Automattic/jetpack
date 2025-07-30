@@ -603,6 +603,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'], $form ) : null;
 		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
+		$has_custom_redirect       = 'redirect' === $form->get_attribute( 'customThankyou' ) && $form->get_attribute( 'customThankyouRedirect' );
 
 		$default_context = array(
 			'formId'                         => $id,
@@ -617,6 +618,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'submissionSuccess'              => $submission_success,
 			'submissionError'                => null,
 			'elementId'                      => $element_id,
+			'hasCustomRedirect'              => $has_custom_redirect,
 		);
 
 		if ( $is_multistep ) {

@@ -338,7 +338,7 @@ const { state } = store( NAMESPACE, {
 
 			context.isSubmitting = true;
 
-			if ( context.isResponseWithoutReloadEnabled ) {
+			if ( context.isResponseWithoutReloadEnabled && ! context.hasCustomRedirect ) {
 				event.preventDefault();
 				event.stopPropagation();
 				context.submissionError = null;
