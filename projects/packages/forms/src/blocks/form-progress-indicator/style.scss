@@ -7,7 +7,7 @@
 	position: relative;
 	overflow: visible;
 	border-radius: calc(var(--jp-form-progress-height) / 2);
-	background-color: var(--wp--style--color--background, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+	background-color: var(--jetpack-progress-bg-color, var(--wp--style--color--background, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color))));
 
 
 	// Progress bar element for line style
@@ -129,8 +129,7 @@
 			&.is-active::before,
 			&.is-completed::before {
 				// Use progress color first, then theme contrast (usually dark)
-				background-color:
- var(--jetpack-progress-color, var(--wp--preset--color--contrast, currentColor));
+				background-color: var(--jetpack-progress-color, var(--wp--preset--color--contrast, currentColor));
 			}
 		}
 
