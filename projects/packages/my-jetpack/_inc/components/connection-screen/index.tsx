@@ -1,5 +1,6 @@
 import { AdminPage } from '@automattic/jetpack-components';
 import { getJetpackAdminPageUrl, getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { Flex, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useEffect, type FC } from 'react';
@@ -18,7 +19,10 @@ const ConnectionScreen: FC = () => {
 	return (
 		<AdminPage showBackground={ false } showFooter={ false }>
 			<div className={ styles[ 'redirect-block' ] }>
-				{ __( 'Redirecting…', 'jetpack-my-jetpack' ) }
+				<Flex justify="start">
+					<Spinner style={ { margin: 0 } } />
+					{ __( 'Redirecting…', 'jetpack-my-jetpack' ) }
+				</Flex>
 			</div>
 		</AdminPage>
 	);
