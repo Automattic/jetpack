@@ -164,18 +164,14 @@ class Jetpack_Newsletter_Category_Helper_Test extends WP_UnitTestCase {
 	 * Test save_category_ids() handles array of arrays with term_id.
 	 */
 	public function test_save_category_ids_term_id_array() {
-		$input    = array(
+		$input = array(
 			array( 'term_id' => 123 ),
 			array( 'term_id' => 456 ),
 			array( 'term_id' => 789 ),
 		);
-		$expected = array(
-			array( 'term_id' => 123 ),
-			array( 'term_id' => 456 ),
-			array( 'term_id' => 789 ),
-		);
-		$result   = Jetpack_Newsletter_Category_Helper::save_category_ids( $input );
-		$this->assertEquals( $expected, $result );
+
+		$result = Jetpack_Newsletter_Category_Helper::save_category_ids( $input );
+		$this->assertEquals( $input, $result );
 	}
 
 	/**
