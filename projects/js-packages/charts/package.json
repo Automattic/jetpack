@@ -13,23 +13,6 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"scripts": {
-		"clean": "rm -rf dist",
-		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage",
-		"storybook": "cd ../storybook && pnpm run storybook:dev",
-		"compile-ts": "tsc --pretty",
-		"clean-build": "rm -rf dist/",
-		"typecheck": "tsc --noEmit",
-		"build": "pnpm run build:prod",
-		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
-		"build:dev": "rollup -c --environment NODE_ENV:development",
-		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && pnpm run build:types",
-		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types"
-	},
-	"main": "./dist/cjs/index.js",
-	"module": "./dist/mjs/index.js",
-	"types": "./dist/types/index.d.ts",
 	"sideEffects": [
 		"*.css",
 		"*.scss"
@@ -41,11 +24,11 @@
 			"require": "./dist/cjs/index.js",
 			"types": "./dist/types/index.d.ts"
 		},
-		"./visx/*": {
-			"jetpack:src": "./src/visx/*",
-			"import": "./dist/mjs/visx/*/index.js",
-			"require": "./dist/cjs/visx/*/index.js",
-			"types": "./dist/types/visx/*/index.d.ts"
+		"./*": {
+			"jetpack:src": "./src/components/*",
+			"import": "./dist/mjs/components/*/index.js",
+			"require": "./dist/cjs/components/*/index.js",
+			"types": "./dist/types/components/*/index.d.ts"
 		},
 		"./providers/*": {
 			"jetpack:src": "./src/providers/*",
@@ -54,12 +37,29 @@
 			"types": "./dist/types/providers/*/index.d.ts"
 		},
 		"./style.css": "./dist/mjs/style.css",
-		"./*": {
-			"jetpack:src": "./src/components/*",
-			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.js",
-			"types": "./dist/types/components/*/index.d.ts"
+		"./visx/*": {
+			"jetpack:src": "./src/visx/*",
+			"import": "./dist/mjs/visx/*/index.js",
+			"require": "./dist/cjs/visx/*/index.js",
+			"types": "./dist/types/visx/*/index.d.ts"
 		}
+	},
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/mjs/index.js",
+	"types": "./dist/types/index.d.ts",
+	"scripts": {
+		"build": "pnpm run build:prod",
+		"build:dev": "rollup -c --environment NODE_ENV:development",
+		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
+		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types",
+		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && pnpm run build:types",
+		"clean": "rm -rf dist",
+		"clean-build": "rm -rf dist/",
+		"compile-ts": "tsc --pretty",
+		"storybook": "cd ../storybook && pnpm run storybook:dev",
+		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",

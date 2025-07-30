@@ -13,6 +13,16 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		".": {
+			"react-native": "./index.native.js",
+			"default": "./index.js"
+		},
+		"./components": "./src/components/index.js",
+		"./icons": "./src/icons.js",
+		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
+		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
+	},
 	"scripts": {
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage"
@@ -54,15 +64,5 @@
 		"jetpack-js-tools": "workspace:*",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
-	},
-	"exports": {
-		".": {
-			"react-native": "./index.native.js",
-			"default": "./index.js"
-		},
-		"./components": "./src/components/index.js",
-		"./icons": "./src/icons.js",
-		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
-		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
 	}
 }

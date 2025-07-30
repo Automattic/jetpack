@@ -2,8 +2,16 @@
 	"name": "@automattic/jetpack-idc",
 	"version": "1.0.16",
 	"description": "Jetpack Connection Component",
-	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
@@ -27,13 +35,5 @@
 	"peerDependencies": {
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0"
-	},
-	"type": "module",
-	"exports": {
-		".": "./index.jsx"
-	},
-	"sideEffects": [
-		"*.css",
-		"*.scss"
-	]
+	}
 }
