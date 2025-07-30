@@ -21,7 +21,6 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.5rem;
 		position: relative;
 		z-index: 1;
 
@@ -35,6 +34,10 @@
 		color: currentColor;
 		white-space: nowrap;
 		display: none; // Hidden by default, shown when step names enabled
+		position: absolute;
+		top: calc(100% + 0.5rem);
+		left: 50%;
+		transform: translateX(-50%);
 	}
 
 	// Show step labels when enabled
@@ -88,13 +91,6 @@
 			display: none;
 		}
 
-		// Position step labels below the line
-		.jetpack-form-progress-indicator-step-label {
-			position: absolute;
-			top: calc(100% + 0.5rem);
-			left: 50%;
-			transform: translateX(-50%);
-		}
 	}
 
 	// Dots style - larger dots with numbers/checkmarks
