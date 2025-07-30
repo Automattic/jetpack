@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove redundant sending on "nocache" headers on the My Jetpack admin screen, as these are already sent by WordPress

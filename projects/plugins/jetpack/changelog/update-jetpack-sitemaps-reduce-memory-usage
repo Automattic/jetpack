@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Sitemap: Reduce memory usage when generating sitemaps.
