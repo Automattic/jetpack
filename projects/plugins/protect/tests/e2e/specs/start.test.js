@@ -4,8 +4,8 @@ import { connect } from '../flows/connection';
 test.describe( 'Jetpack Protect Plugin', () => {
 	test.beforeEach( async ( { page, admin, testUtils } ) => {
 		await testUtils.disconnect();
-		await testUtils.requestUtils.activatePlugin( 'jetpack-protect' );
-		await testUtils.requestUtils.deactivatePlugin( 'e2e-waf-data-interceptor' );
+		await testUtils.executeWpCommand( 'plugin activate jetpack-protect' );
+		await testUtils.executeWpCommand( 'plugin deactivate e2e-waf-data-interceptor' );
 
 		/**
 		 * Connect the site via the initial setup page's "start for free" option.
