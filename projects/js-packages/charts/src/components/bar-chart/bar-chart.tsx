@@ -16,7 +16,6 @@ import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
-import type { EnhancedDataPoint } from '../shared/use-zero-value-display';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode } from 'react';
 
