@@ -2032,36 +2032,61 @@ class Contact_Form_Plugin {
 	 * @return array            Associative array with keys expected by core.
 	 */
 	public function internal_personal_data_exporter( $email, $page = 1, $per_page = 250 ) {
+		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
+
+		return array(
+			'data' => $this->internal_personal_data_formater( $post_ids ),
+			'done' => count( $post_ids ) < $per_page,
+		);
+	}
+
+	/**
+	 * Formats personal data for export.
+	 *
+	 * @param  array $post_ids Array of post IDs to format.
+	 *
+	 * @return array $export_data Formatted personal data for export.
+	 */
+	public function internal_personal_data_formater( $post_ids ) {
 		$export_data = array();
-		$post_ids    = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
-
 		foreach ( $post_ids as $post_id ) {
-			$post_fields = $this->get_parsed_field_contents_of_post( $post_id );
-
-			if ( ! is_array( $post_fields ) || empty( $post_fields['_feedback_subject'] ) ) {
-				continue; // Corrupt data.
-			}
-
-			$post_fields['_feedback_main_comment'] = $this->get_post_content_for_csv_export( $post_id );
-			$post_fields                           = $this->map_parsed_field_contents_of_post_to_field_names( $post_fields );
-
-			if ( ! is_array( $post_fields ) || empty( $post_fields ) ) {
-				continue; // No fields to export.
-			}
-
-			$post_meta = $this->get_post_meta_for_csv_export( $post_id );
-			$post_meta = is_array( $post_meta ) ? $post_meta : array();
-
 			$post_export_data = array();
-			$post_data        = array_merge( $post_fields, $post_meta );
-			ksort( $post_data );
+			$feedback         = Feedback::get( $post_id );
+			if ( ! $feedback ) {
+				continue;
+			}
+			$fields             = $feedback->get_compiled_fields( 'personal_export', 'all' );
+			$post_export_data[] = array(
+				'name'  => __( 'Date', 'jetpack-forms' ),
+				'value' => $feedback->get_time(),
+			);
 
-			foreach ( $post_data as $post_data_key => $post_data_value ) {
+			$post_export_data[] = array(
+				'name'  => __( 'Source Title', 'jetpack-forms' ),
+				'value' => $feedback->get_entry_title(),
+			);
+
+			$post_export_data[] = array(
+				'name'  => __( 'Source URL:', 'jetpack-forms' ),
+				'value' => $feedback->get_entry_permalink(),
+			);
+
+			foreach ( $fields as $field ) {
 				$post_export_data[] = array(
-					'name'  => preg_replace( '/^[0-9]+_/', '', $post_data_key ),
-					'value' => $post_data_value,
+					'name'  => $field['label'],
+					'value' => $field['value'],
 				);
 			}
+
+			$post_export_data[] = array(
+				'name'  => __( 'Consent', 'jetpack-forms' ),
+				'value' => $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' ),
+			);
+
+			$post_export_data[] = array(
+				'name'  => __( 'IP Address', 'jetpack-forms' ),
+				'value' => $feedback->get_ip_address(),
+			);
 
 			$export_data[] = array(
 				'group_id'    => 'feedback',
@@ -2071,10 +2096,7 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		return array(
-			'data' => $export_data,
-			'done' => count( $post_ids ) < $per_page,
-		);
+		return $export_data;
 	}
 
 	/**
