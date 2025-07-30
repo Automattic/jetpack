@@ -74,9 +74,9 @@ const FormProgressIndicatorEdit = ( {
 			<div className="jetpack-form-progress-indicator--wrapper">
 				<div { ...blockProps }>
 					<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
-					{ ( showStepNames || isDotStyle ) && finalSteps.length > 0 && (
-						<div className="jetpack-form-progress-indicator-steps">
-							{ finalSteps.map( ( step, index ) => {
+					<div className="jetpack-form-progress-indicator-steps">
+						{ finalSteps.length > 0 &&
+							finalSteps.map( ( step, index ) => {
 								const isActive = index === currentStepInfo.index;
 								const isCompleted = index < currentStepInfo.index;
 
@@ -101,8 +101,7 @@ const FormProgressIndicatorEdit = ( {
 									</div>
 								);
 							} ) }
-						</div>
-					) }
+					</div>
 				</div>
 			</div>
 			<StepControls formClientId={ parentFormId } showToggle={ false } showNavigation={ true } />
