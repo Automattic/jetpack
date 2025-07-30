@@ -343,11 +343,19 @@ const { state } = store( NAMESPACE, {
 				event.stopPropagation();
 				context.submissionError = null;
 
-				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
+				const { success, error, data, refreshArgs, redirectUrl } = yield submitForm(
+					context.formHash
+				);
 
 				if ( success ) {
 					setSubmissionData( data );
 					context.submissionSuccess = true;
+
+					if ( redirectUrl ) {
+						// If a redirect URL is provided, we can use it to navigate.
+						window.location = redirectUrl;
+						return;
+					}
 
 					if ( refreshArgs ) {
 						const url = new URL( window.location.href );

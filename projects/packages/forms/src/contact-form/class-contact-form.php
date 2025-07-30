@@ -2276,7 +2276,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'contact-form-hash' => $this->hash,
 			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
 		);
-
+		$redirect     = $this->get_redirect_url( $refresh_args, $id, $post_id );
 		// If the request accepts JSON, return a JSON response instead of redirecting
 		$accepts_json = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
@@ -2288,6 +2288,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'success'     => true,
 					'data'        => self::get_json_data( $post_id, $this ),
 					'refreshArgs' => $refresh_args,
+					'redirectUrl' => $this->has_custom_redirect() ? $redirect : '',
 				)
 			);
 
@@ -2298,30 +2299,62 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return self::success_message( $post_id, $this );
 		}
 
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
+		wp_redirect( $redirect );
+		exit( 0 );
+	}
+
+	/**
+	 * Check if the contact form has a custom redirect.
+	 *
+	 * @return bool True if the contact form has a custom redirect, false otherwise.
+	 */
+	public function has_custom_redirect() {
+		if ( ! empty( $this->get_attribute( 'customThankyouRedirect' ) ) && 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
+			return true;
+		}
+		/**
+		 * Filter to check if the contact form has a redirect filter.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param bool $has_redirect True if the contact form has a redirect filter, false otherwise.
+		 */
+		return (bool) has_filter( 'grunion_contact_form_redirect_url' );
+	}
+
+	/**
+	 * Get the URL where the reader is redirected after submitting a form.
+	 *
+	 * @param array $refresh_args The arguments to be added to the redirect URL.
+	 * @param int   $id           Contact Form ID.
+	 * @param int   $post_id      Post ID.
+	 *
+	 * @return string The redirect URL.
+	 */
+	public function get_redirect_url( $refresh_args, $id, $post_id ) {
 		$redirect        = '';
 		$custom_redirect = false;
 		if ( 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
 			$custom_redirect = true;
 			$redirect        = esc_url_raw( $this->get_attribute( 'customThankyouRedirect' ) );
 		}
-
 		if ( ! $redirect ) {
 			$custom_redirect = false;
 			$redirect        = wp_get_referer();
 		}
-
 		if ( ! $redirect ) { // wp_get_referer() returns false if the referer is the same as the current page.
 			$custom_redirect = false;
 			$redirect        = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		}
-
 		if ( ! $custom_redirect ) {
 			$redirect = add_query_arg(
 				urlencode_deep( $refresh_args ),
 				$redirect
 			);
 		}
-
 		/**
 		 * Filter the URL where the reader is redirected after submitting a form.
 		 *
@@ -2333,11 +2366,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param int $id Contact Form ID.
 		 * @param int $post_id Post ID.
 		 */
-		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
-
-		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
-		wp_redirect( $redirect );
-		exit( 0 );
+		return apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
 	}
 
 	/**

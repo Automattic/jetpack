@@ -2891,4 +2891,76 @@ EOT;
 		// Assert that we have 6 unique form ids.
 		$this->assertCount( 6, array_unique( array( $form_id, $form_id_2, $form_id_3, $form_id_4, $form_id_5, $form_id_6 ) ), 'There should be 6 unique forms' );
 	}
+
+	public function test_get_redirect_url() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+
+		$attributes = array(
+			'customThankyou'         => 'redirect',
+			'customThankyouRedirect' => 'https://example.com/thank-you',
+		);
+
+		$form = new Contact_Form( $attributes, '' );
+
+		// Test with custom thank you redirect URL.
+		$redirect_url = $form->get_redirect_url( array(), 123, $post_id );
+		$this->assertEquals( 'https://example.com/thank-you', $redirect_url, 'Redirect URL should match the custom thank you redirect URL.' );
+
+		// Test with no custom thank you redirect URL.
+		unset( $attributes['customThankyouRedirect'] );
+		$previous_request_uri         = $_REQUEST['_wp_http_referer'] ?? '';
+		$_REQUEST['_wp_http_referer'] = '/test-uri';
+
+		$form_no_redirect         = new Contact_Form( $attributes, '' );
+		$redirect_url_no_redirect = $form_no_redirect->get_redirect_url( array(), 123, $post_id );
+
+		if ( ! empty( $previous_request_uri ) ) {
+			$_REQUEST['_wp_http_referer'] = $previous_request_uri;
+		} else {
+			unset( $_REQUEST['_wp_http_referer'] );
+		}
+		// Restore the original request URI.
+
+		$this->assertEquals( '/test-uri', $redirect_url_no_redirect, 'Redirect URL should be empty when no custom thank you redirect URL is set.' );
+
+		$form_has_filter = new Contact_Form( $attributes, '' );
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redeirect_filter' ), 10 );
+		$redirect_url_via_filter = $form_has_filter->get_redirect_url( array(), 123, $post_id );
+		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redeirect_filter' ), 10 );
+		$this->assertEquals( 'https://example.com/redirected', $redirect_url_via_filter, 'Redirect URL should match the filter return value.' );
+	}
+
+	public function redeirect_filter() {
+		return 'https://example.com/redirected';
+	}
+
+	public function test_has_custom_redirect() {
+		$attributes = array(
+			'customThankyou'         => 'redirect',
+			'customThankyouRedirect' => 'https://example.com/thank-you',
+		);
+
+		$form = new Contact_Form( $attributes, '' );
+
+		$this->assertTrue( $form->has_custom_redirect(), 'Form should have a custom redirect URL.' );
+
+		unset( $attributes['customThankyouRedirect'] );
+
+		$form_no_redirect = new Contact_Form( $attributes, '' );
+
+		$this->assertFalse( $form_no_redirect->has_custom_redirect(), 'Form should not have a custom redirect URL.' );
+
+		$form_has_filter = new Contact_Form( $attributes, '' );
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redeirect_filter' ), 10, 3 );
+		$this->assertTrue( $form_has_filter->has_custom_redirect(), 'Form should have a custom redirect URL.' );
+		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redeirect_filter' ), 10 );
+	}
 }
