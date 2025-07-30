@@ -147,7 +147,7 @@ jobs:
             if [[ $CODE -ne 0 ]]; then
               echo 'Unable to load site! Something is wrong with the site.'
             else
-              echo 'No issues slurping site with `curl`.
+              echo 'No issues slurping site with `curl`.'
             fi
           fi
           echo "::endgroup::"
