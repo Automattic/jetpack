@@ -148,9 +148,13 @@ export async function ensureMockPremiumFeaturesState( mockPremiumFeatures ) {
 		await executeWpCommand( 'plugin activate e2e-mock-premium-features' );
 		// Set the features to mock as a proper PHP array using WP-CLI's --format=json
 		const featuresJson = JSON.stringify( mockPremiumFeatures );
-		await executeWpCommand(
-			`option update e2e_mock_premium_features '${ featuresJson }' --format=json`
-		);
+		await executeWpCommand( [
+			'option',
+			'update',
+			'e2e_mock_premium_features',
+			featuresJson,
+			'--format=json',
+		] );
 	} else {
 		logger.prerequisites( 'Unmocking Premium Features' );
 		await executeWpCommand( 'plugin deactivate e2e-mock-premium-features' );
