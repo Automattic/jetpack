@@ -744,6 +744,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 	public function test_interpersonal_data_exporter() {
 		global $post;
+
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'1_field' => 'value1',
@@ -766,7 +767,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				),
 				array(
 					'name'  => 'Source Title',
-					'value' => '',
+					'value' => 'Cool Post Title', // the default value in the create_legacy_feedback
 				),
 				array(
 					'name'  => 'Source URL:',
