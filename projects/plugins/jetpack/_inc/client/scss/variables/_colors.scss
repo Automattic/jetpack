@@ -1,5 +1,4 @@
 @use "sass:color";
-@use "../functions/colors";
 
 // ==========================================================================
 // WordPress.com Colors
@@ -59,7 +58,7 @@ $alert-purple: #855da6;
 $alert-hot-red: #eb0001; // 2019
 
 // Link hovers
-$link-highlight: colors.tint($blue-medium, 20%);
+$link-highlight: color.mix(#fff, $blue-medium, 20%);
 
 // Essentials
 $black: #000;
