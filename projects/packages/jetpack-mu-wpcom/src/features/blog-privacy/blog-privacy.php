@@ -22,7 +22,7 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Blog_Privacy;
  * @param int|string  $public The value of the blog_public option.
  * @return string
  */
-function robots_txt( ?string $output, $public ): string {
+function robots_txt( $output, $public ): string {
 	if ( ! is_string( $output ) ) {
 		$output = '';
 	}
