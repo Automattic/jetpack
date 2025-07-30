@@ -56,30 +56,6 @@ export function getDotComCredentials(): Credentials {
 }
 
 /**
- * Reads and returns the content of the file expected to store an URL.
- * The file path is stored in config.
- * No validation is done on the file content, so an invalid URL can be returned.
- *
- * @return {string} the file content, or undefined in file doesn't exist or cannot be read
- */
-export function getReusableUrlFromFile(): string {
-	let urlFromFile;
-	try {
-		urlFromFile = fs
-			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
-			.replace( 'http:', 'https:' );
-	} catch ( error ) {
-		if ( error.code === 'ENOENT' ) {
-			// We expect this, reduce noise in logs
-			logger.warn( "Tunnels file doesn't exist" );
-		} else {
-			logger.error( error );
-		}
-	}
-	return urlFromFile;
-}
-
-/**
  * There are two ways to set the target site url:
  * 1. Write it in 'temp.tunnels' file
  * 2. Configure a test site in local config and use a TEST_SITE env variable with the config property name. This overrides any value written in file
@@ -87,18 +63,27 @@ export function getReusableUrlFromFile(): string {
  *
  * @return {string} URL.
  */
-export function resolveSiteUrl() {
+export function resolveSiteUrl(): string {
 	let url;
 
 	if ( process.env.TEST_SITE ) {
 		url = config.get( `testSites.${ process.env.TEST_SITE }` ).get( 'url' );
 	} else {
 		logger.debug( 'Checking for existing tunnel url' );
-		url = getReusableUrlFromFile();
+		const filePath = config.get( 'temp.tunnels' );
+		try {
+			url = fs.readFileSync( filePath, 'utf8' ).replace( 'http:', 'https:' );
+		} catch ( error ) {
+			if ( error.code === 'ENOENT' ) {
+				logger.warn( `"${ filePath }" file doesn't exist` );
+			} else {
+				logger.error( error );
+			}
+		}
 	}
 
 	validateUrl( url );
-	logger.debug( `Using site ${ url }` );
+	logger.debug( `Using site url: ${ url }` );
 	return url;
 }
 
