@@ -10,6 +10,7 @@ import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
+import { useZeroValueDisplay } from '../shared/use-zero-value-display';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import styles from './bar-chart.module.scss';
@@ -22,6 +23,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
+	showZeroValues?: boolean;
 }
 
 // Validation function similar to LineChart
@@ -63,6 +65,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
+	showZeroValues = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
@@ -73,10 +76,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const dataSorted = useChartDataTransform( data );
 
+	// Transform data to add a small value for zero bars to make them visible
+	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
+		enabled: showZeroValues,
+	} );
+
 	// Create legend items using the reusable hook
 	const legendItems = useChartLegendData( dataSorted, providerTheme );
-
-	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
+	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
@@ -307,7 +314,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
 				<BarGroup padding={ chartOptions.barGroup.padding }>
-					{ dataSorted.map( ( seriesData, index ) => (
+					{ dataWithVisibleZeros.map( ( seriesData, index ) => (
 						<BarSeries
 							key={ seriesData?.label }
 							dataKey={ seriesData?.label }
