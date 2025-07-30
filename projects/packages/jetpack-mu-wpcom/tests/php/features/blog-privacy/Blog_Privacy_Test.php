@@ -121,6 +121,13 @@ AI_BLOCKS;
 			'wpcom_data_sharing_opt_out' => '1',
 			'expected'                   => 'TEST', // Private overrides wpcom_data_sharing_opt_out setting.
 		);
+
+		yield 'discourage search, bad content'    => array(
+			'init_content'               => null, // We'll treat this like an empty string.
+			'blog_public'                => '0',
+			'wpcom_data_sharing_opt_out' => null,
+			'expected'                   => "\n$ai_blocks",
+		);
 	}
 
 	/**
