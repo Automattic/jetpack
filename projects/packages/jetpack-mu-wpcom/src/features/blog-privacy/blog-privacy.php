@@ -27,7 +27,7 @@ function robots_txt( $output, $public ): string {
 		$output = '';
 	}
 
-	$public = (int) $public;
+	$public = (int) get_option( 'blog_public' );
 
 	// If the site is completely private, don't bother with the additional restrictions.
 	// For blog_public=0, WP.com Disallows all user agents and Core does not (relying on <meta name="robots">).
