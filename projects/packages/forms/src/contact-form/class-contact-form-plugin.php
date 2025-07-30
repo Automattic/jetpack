@@ -1569,9 +1569,7 @@ class Contact_Form_Plugin {
 	 */
 	public function widget_atts( $text ) {
 		Contact_Form::style( true );
-		if ( ! is_string( $text ) ) {
-			return $text;
-		}
+
 		return preg_replace( '/\[contact-form([^a-zA-Z_-])/', '[contact-form widget="' . $this->current_widget_id . '"\\1', $text );
 	}
 
