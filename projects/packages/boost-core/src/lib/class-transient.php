@@ -110,6 +110,26 @@ class Transient {
 	}
 
 	/**
+	 * Delete all `Transient` values from the database. Ignores cache.
+	 *
+	 * @return void
+	 */
+	public static function delete_all_ignore_cache() {
+		global $wpdb;
+
+		$prefix_search_pattern = $wpdb->esc_like( self::OPTION_PREFIX ) . '%';
+
+		//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				$prefix_search_pattern
+			)
+		);
+		wp_cache_flush_group( 'options' );
+	}
+
+	/**
 	 * Delete a cache entry.
 	 *
 	 * @param string $key Cache key name.
