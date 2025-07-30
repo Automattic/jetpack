@@ -18,8 +18,8 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Blog_Privacy;
 /**
  * Filters the robots.txt contents based on the value of the wpcom_data_sharing_opt_out option.
  *
- * @param string|null $output The contents of robots.txt.
- * @param int|string  $public The value of the blog_public option.
+ * @param string $output The contents of robots.txt.
+ * @param bool   $public Whether the site is considered public.
  * @return string
  */
 function robots_txt( $output, $public ): string {
