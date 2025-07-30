@@ -60,6 +60,7 @@ const legendStoryArgs = {
 export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...legendStoryArgs,
+	containerHeight: '350px',
 };
 
 export const AlignmentPositioning: StoryObj< StoryArgs > = Template.bind( {} );
@@ -67,7 +68,7 @@ AlignmentPositioning.args = {
 	...legendStoryArgs,
 	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
-	containerHeight: '400px',
+	containerHeight: '350px',
 };
 
 export const VerticalOrientation: StoryObj< StoryArgs > = Template.bind( {} );
@@ -76,5 +77,5 @@ VerticalOrientation.args = {
 	legendOrientation: 'vertical',
 	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
-	containerHeight: '500px',
+	containerHeight: '350px',
 };

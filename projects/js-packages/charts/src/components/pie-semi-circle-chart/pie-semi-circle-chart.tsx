@@ -16,6 +16,8 @@ import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import type { FC, MouseEvent } from 'react';
 
+const PAD_ANGLE = 0.03; // Padding between segments
+
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Width of the chart in pixels; height would be half of this value calculated automatically.
@@ -178,25 +180,25 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		);
 	}
 
+	// Calculate chart dimensions
+	//TODO: we might want to accept height as a prop in the future, because the height of container might not always be enough.
 	const height = width / 2;
-	const pad = 0.03;
+	// The chart only takes the height minus the legend height.
+	const chartHeight =
+		height - ( showLegend && legendAlignmentVertical === 'top' ? legendHeight : 0 );
+	const radius = Math.min( width / 2, chartHeight );
+	const innerRadius = radius * ( 1 - thickness );
 
-	// Use padding for the overall chart dimensions
-	const chartWidth = width - pad * 2;
-	const chartHeight = height - pad;
-	const radius = Math.min( chartWidth, chartHeight * 2 ) / 2;
-
-	const innerRadius = radius * ( 1 - thickness + pad );
-
-	// Map the data to include index for color assignment
+	// Map data with index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
 		...d,
 		index,
 	} ) );
 
-	// Set the clockwise direction based on the prop
+	// Configure pie angles based on clockwise direction
 	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
 	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
+
 	return (
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
@@ -209,21 +211,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		>
 			<svg
 				width={ width }
-				height={
-					height + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
-				}
-				viewBox={ `0 0 ${ width } ${
-					height + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
-				}` }
+				height={ radius }
+				viewBox={ `0 0 ${ width } ${ chartHeight }` }
 				data-testid="pie-chart-svg"
 			>
-				{ /* Main chart group that contains both the pie and text elements */ }
-				<Group
-					top={
-						radius + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
-					}
-					left={ radius }
-				>
+				{ /* Main chart group centered horizontally and positioned at bottom */ }
+				<Group top={ chartHeight } left={ width / 2 }>
 					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
@@ -231,7 +224,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						outerRadius={ radius }
 						innerRadius={ innerRadius }
 						cornerRadius={ 3 }
-						padAngle={ pad }
+						padAngle={ PAD_ANGLE }
 						startAngle={ startAngle }
 						endAngle={ endAngle }
 						pieSort={ accessors.sort }
@@ -253,11 +246,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						} }
 					</Pie>
 
+					{ /* Label and note text */ }
 					<Group>
 						<Text
 							textAnchor="middle"
 							verticalAnchor="start"
-							y={ -40 } // double font size to make room for a note
+							y={ -40 } // Position above the chart with space for note
 							className={ styles.label }
 						>
 							{ label }
@@ -265,7 +259,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						<Text
 							textAnchor="middle"
 							verticalAnchor="start"
-							y={ -20 } // font size with padding
+							y={ -20 } // Position between label and chart
 							className={ styles.note }
 						>
 							{ note }
