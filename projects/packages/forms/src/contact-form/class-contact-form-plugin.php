@@ -36,6 +36,13 @@ class Contact_Form_Plugin {
 	public $current_widget_id;
 
 	/**
+	 * The Sidebar ID of the sidebar currently being processed.  Used to build the unique contact-form ID for forms embedded in sidebars.
+	 *
+	 * @var string
+	 */
+	public $current_sidebar_id;
+
+	/**
 	 * If the contact form field is being used.
 	 *
 	 * @var bool
@@ -175,9 +182,8 @@ class Contact_Form_Plugin {
 
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
 		add_action( 'dynamic_sidebar', array( $this, 'track_current_widget' ) );
-
-		// Add a "widget" shortcode attribute to all contact-form shortcodes embedded in widgets
-		add_filter( 'widget_text', array( $this, 'widget_atts' ), 0 );
+		add_action( 'dynamic_sidebar_before', array( $this, 'track_current_widget_before' ) );
+		add_action( 'dynamic_sidebar_after', array( $this, 'track_current_widget_after' ) );
 
 		// If Text Widgets don't get shortcode processed, hack ours into place.
 		if (
@@ -1554,6 +1560,39 @@ class Contact_Form_Plugin {
 	 */
 	public function track_current_widget( $widget ) {
 		$this->current_widget_id = $widget['id'];
+	}
+
+	/**
+	 * Tracks the sidebar currently being processed.
+	 * Attached to `dynamic_sidebar_before`
+	 *
+	 * @see $current_sidebar_id - the current sidebar ID.
+	 *
+	 * @param string $index The sidebar index.
+	 */
+	public function track_current_widget_before( $index ) {
+		$this->current_sidebar_id = $index;
+	}
+
+	/**
+	 * Clear the current widget context.
+	 */
+	public function track_current_widget_after() {
+		$this->current_sidebar_id = '';
+		$this->current_widget_id  = '';
+	}
+
+	/**
+	 * Gets the current widget context.
+	 *
+	 * @return string The current widget context or false if not set.
+	 */
+	public function get_current_widget_context() {
+		// If we don't have a current widget ID or sidebar ID, we
+		if ( empty( $this->current_widget_id ) || empty( $this->current_sidebar_id ) ) {
+			return '';
+		}
+		return $this->current_widget_id . '-' . $this->current_sidebar_id;
 	}
 
 	/**

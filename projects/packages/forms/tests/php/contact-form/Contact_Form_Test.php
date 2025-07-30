@@ -2656,6 +2656,18 @@ EOT;
 			$expected,
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
+
+		// Check that the function return null if the function gets null.
+		$this->assertNull(
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
+			Util::grunion_contact_form_apply_block_attribute( null, array( 'foo' => 'bar' ) )
+		);
+
+		// Check that the function returns an array if the function gets an empty array.
+		$this->assertEquals(
+			array(), // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
+			Util::grunion_contact_form_apply_block_attribute( array(), array( 'foo' => 'bar' ) )
+		);
 	}
 	/**
 	 * Helper function that tracks the ids of the feedbacks that got created.
@@ -2690,7 +2702,7 @@ EOT;
 				'name'    => 'First form name 2',
 				'message' => 'First form message 2',
 			),
-			'g' . $post->ID . '-2-1' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
+			'g' . $post->ID . '-1' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
 		);
 
 		$form2   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
@@ -2997,24 +3009,389 @@ EOT;
 
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
+	/**
+	 * Test compute_id method with basic attributes
+	 */
+	public function test_compute_id_with_basic_attributes() {
+		global $post;
 
-	public function test_get_forms_count() {
-		$form = new Contact_Form(
-			array(
-				'to'      => 'test@email.com',
-				'subject' => 'Test Form',
-			)
-		);
-		$this->assertInstanceOf( Contact_Form::class, $form, 'Form should be a Contact_Form instance after creation' );
-		$this->assertSame( 1, Contact_Form::get_forms_count(), 'Forms count should be 1 after first form creation' );
-		$form = new Contact_Form(
-			array(
-				'to'      => 'test@email.com',
-				'subject' => 'Test Form',
-			)
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
 		);
 
-		$this->assertInstanceOf( Contact_Form::class, $form, 'Form should be a Contact_Form instance after creation' );
-		$this->assertEquals( 2, Contact_Form::get_forms_count(), 'Forms count should be 2 after second form creation' );
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty' );
+		$this->assertStringContainsString( (string) $post->ID, $computed_id, 'Computed ID should contain post ID' );
 	}
-} // end class
+
+	/**
+	 * Test compute_id method with null post
+	 */
+	public function test_compute_id_with_null_post() {
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, null );
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty' );
+		$this->assertStringNotContainsString( (string) $this->post->ID, $computed_id, 'Computed ID should not contain post ID when post is null' );
+	}
+
+	/**
+	 * Test compute_id method with widget attribute
+	 */
+	public function test_compute_id_with_widget_attribute() {
+		global $post;
+
+		$attributes = array(
+			'to'     => 'test@example.com',
+			'widget' => 'sidebar-1',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertStringContainsString( 'widget', $computed_id, 'Widget form ID should contain "widget"' );
+		$this->assertStringContainsString( 'sidebar-1', $computed_id, 'Widget form ID should contain widget ID' );
+	}
+
+	/**
+	 * Test compute_id method with different page numbers
+	 */
+	public function test_compute_id_with_different_page_numbers() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$id_page_1 = Contact_Form::compute_id( $attributes, $post, 1 );
+		$id_page_2 = Contact_Form::compute_id( $attributes, $post, 2 );
+
+		$this->assertNotEquals( $id_page_1, $id_page_2, 'IDs should be different for different page numbers' );
+		$this->assertEquals( $post->ID, $id_page_1, 'Page 1 ID should match post ID' );
+		$this->assertEquals( $post->ID . '-2', $id_page_2, 'Page 2 ID should match post ID' );
+	}
+
+	/**
+	 * Test compute_id method generates consistent IDs
+	 */
+	public function test_compute_id_generates_consistent_ids() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$id1 = Contact_Form::compute_id( $attributes, $post, 1 );
+		$id2 = Contact_Form::compute_id( $attributes, $post, 1 );
+
+		$this->assertEquals( $id1, $id2, 'Same attributes should generate same ID' );
+	}
+
+	/**
+	 * Test compute_id method with different attributes generates different IDs
+	 */
+	public function test_compute_id_with_different_attributes_generates_different_ids() {
+		$attributes1 = array(
+			'to'      => 'test1@example.com',
+			'subject' => 'Test Subject 1',
+		);
+
+		$form1 = new Contact_Form( $attributes1 );
+		$id1   = $form1->get_attribute( 'id' );
+
+		$attributes2 = array(
+			'to'      => 'test2@example.com',
+			'subject' => 'Test Subject 2',
+		);
+
+		$form2 = new Contact_Form( $attributes2 );
+		$id2   = $form2->get_attribute( 'id' );
+
+		$this->assertNotEquals( $id1, $id2, 'Different form objects should generate equals ID if the match is IDs' );
+	}
+
+	/**
+	 * Test compute_id method with different attributes generates different IDs
+	 */
+	public function test_contact_form_constructor_set_id_parameter() {
+
+		$attributes1 = array(
+			'to'      => 'test1@example.com',
+			'subject' => 'Test Subject 1',
+			'id'      => 'form-1',
+		);
+
+		$form1 = new Contact_Form( $attributes1, '', false );
+		$id1   = $form1->get_attribute( 'id' );
+
+		$form2 = new Contact_Form( $attributes1, '', false );
+		$id2   = $form2->get_attribute( 'id' );
+
+		$this->assertEquals( 'form-1', $id1, 'If you pass false for the 3rd parameter, the ID should match the one provided in the attributes' );
+		$this->assertEquals( 'form-1', $id2, 'If you pass false for the 3rd parameter, the ID should match the one provided in the attributes' );
+	}
+
+	/**
+	 * Test compute_id method with empty attributes
+	 */
+	public function test_compute_id_with_empty_attributes() {
+		global $post;
+
+		$attributes = array();
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string even with empty attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty even with empty attributes' );
+	}
+
+	/**
+	 * Test compute_id method with special characters in attributes
+	 */
+	public function test_compute_id_with_special_characters() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test+special@example.com',
+			'subject' => 'Test Subject with "quotes" and symbols!@#$%',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle special characters' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with special characters' );
+	}
+
+	/**
+	 * Test compute_id method with form count increment
+	 */
+	public function test_compute_id_with_form_count_increment() {
+		global $post;
+
+		// Reset forms count for consistent testing
+		Contact_Form::$forms = array();
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		// Create first form to increment count
+		$id1   = Contact_Form::compute_id( $attributes, $post );
+		$form1 = new Contact_Form( $attributes );
+
+		// Create second form to increment count again
+		$id2   = Contact_Form::compute_id( $attributes, $post );
+		$form2 = new Contact_Form( $attributes );
+
+		$id3 = Contact_Form::compute_id( $attributes, $post );
+		$id4 = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertNotEquals( $id1, $id2, 'IDs should be different when form count increases' );
+		$this->assertEquals( $id1, $form1->get_attribute( 'id' ), 'IDs should match the form object' );
+		$this->assertEquals( $id2, $form2->get_attribute( 'id' ), 'IDs should match the form object' );
+		$this->assertEquals( 2, Contact_Form::get_forms_count(), 'Forms count should be 2 after second form creation' );
+		$this->assertEquals( $id3, $id4, "IDs should match since calling the function should't have side effects" );
+	}
+
+	/**
+	 * Test compute_id method with block template attributes
+	 */
+	public function test_compute_id_with_block_template_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'                  => 'test@example.com',
+			'block_template'      => 'contact-template',
+			'block_template_part' => 'header-part',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle block template attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with block template attributes' );
+	}
+
+	/**
+	 * Test compute_id method with all possible attribute combinations
+	 */
+	public function test_compute_id_with_comprehensive_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'                    => 'comprehensive@example.com',
+			'subject'               => 'Comprehensive Test',
+			'widget'                => false,
+			'block_template'        => 'test-template',
+			'block_template_part'   => 'test-part',
+			'customThankyou'        => 'message',
+			'customThankyouMessage' => 'Thank you!',
+			'jetpackCRM'            => true,
+			'className'             => 'test-class',
+			'hiddenFields'          => array( 'field1' => 'value1' ),
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post, 3 );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle comprehensive attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with comprehensive attributes' );
+		$this->assertStringContainsString( '-3', $computed_id, 'ID should contain page number' );
+	}
+
+	/**
+	 * Test compute_id method maintains uniqueness across different posts
+	 */
+	public function test_compute_id_uniqueness_across_posts() {
+		// Create another post for testing
+		$second_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Second Test Post',
+				'post_content' => 'Second test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+
+		$second_post = get_post( $second_post_id );
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Same Subject',
+		);
+
+		$id_post1 = Contact_Form::compute_id( $attributes, $this->post );
+		$id_post2 = Contact_Form::compute_id( $attributes, $second_post );
+
+		$this->assertNotEquals( $id_post1, $id_post2, 'Same attributes on different posts should generate different IDs' );
+
+		// Clean up
+		wp_delete_post( $second_post_id, true );
+	}
+
+	/**
+	 * Test compute_id method with numeric values in attributes
+	 */
+	public function test_compute_id_with_numeric_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'          => 'test@example.com',
+			'subject'     => 'Test Subject',
+			'widget'      => 123,
+			'some_number' => 456.789,
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle numeric attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with numeric attributes' );
+	}
+
+	/**
+	 * Test compute_id method with boolean attributes
+	 */
+	public function test_compute_id_with_boolean_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'         => 'test@example.com',
+			'jetpackCRM' => true,
+			'widget'     => false,
+			'required'   => true,
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle boolean attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with boolean attributes' );
+	}
+
+	/**
+	 * Test compute_id method with array attributes
+	 */
+	public function test_compute_id_with_array_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'             => 'test@example.com',
+			'hiddenFields'   => array(
+				'field1' => 'value1',
+				'field2' => 'value2',
+			),
+			'salesforceData' => array(
+				'organizationId' => '12345',
+			),
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle array attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with array attributes' );
+	}
+
+	public function test_test_context_in_form_id_creation() {
+
+		$attributes   = array();
+		$post_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'First Test Post',
+				'post_content' => 'First test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+		$post         = get_post( $post_post_id );
+
+		$form_id = Contact_Form::compute_id( $attributes, $post );
+		Contact_Form::increment_form_context_count( $attributes, $post );
+		$this->assertStringContainsString( (string) $post_post_id, $form_id, 'Form ID should contain the post ID of the first post' );
+
+		$form_id_2 = Contact_Form::compute_id( $attributes, $post );
+		$this->assertStringContainsString( (string) $post_post_id, $form_id_2, 'Form ID should contain the post ID of the first post' );
+		$this->assertNotEquals( $form_id, $form_id_2, 'Form IDs should be different for different instances' );
+
+		$second_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Second Test Post',
+				'post_content' => 'Second test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+		$second_post    = get_post( $second_post_id );
+
+		$form_id_3 = Contact_Form::compute_id( $attributes, $second_post );
+		Contact_Form::increment_form_context_count( $attributes, $second_post );
+
+		$this->assertStringContainsString( (string) $second_post_id, $form_id_3, 'Form ID should contain the post ID of the second post' );
+
+		$form_id_4 = Contact_Form::compute_id( $attributes, $second_post );
+		$this->assertStringContainsString( (string) $second_post_id, $form_id_4, 'Form ID should contain the post ID of the second post' );
+		$this->assertNotEquals( $form_id_3, $form_id_4, 'Form IDs should be different for different instances' );
+
+		$attributes['widget'] = 'sidebar';
+
+		$form_id_5 = Contact_Form::compute_id( $attributes, $second_post );
+		Contact_Form::increment_form_context_count( $attributes, $second_post );
+		$this->assertStringContainsString( 'widget-sidebar', $form_id_5, 'Form ID should contain the post ID of the second post' );
+
+		$form_id_6 = Contact_Form::compute_id( $attributes, $second_post );
+		$this->assertStringContainsString( 'widget-sidebar', $form_id_6, 'Form ID should contain the post ID of the second post' );
+		$this->assertNotEquals( $form_id_5, $form_id_6, 'Form IDs should be different for different instances' );
+
+		// Assert that we have 6 unique form ids.
+		$this->assertCount( 6, array_unique( array( $form_id, $form_id_2, $form_id_3, $form_id_4, $form_id_5, $form_id_6 ) ), 'There should be 6 unique forms' );
+	}
+}

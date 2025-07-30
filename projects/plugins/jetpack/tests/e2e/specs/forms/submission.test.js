@@ -56,9 +56,18 @@ test.describe( 'Forms: Submission', () => {
 			await expect(
 				previewPage.getByRole( 'heading', { name: 'Your message has been sent' } )
 			).toBeVisible();
-			await expect( previewPage.getByText( 'John Doe' ) ).toBeVisible();
-			await expect( previewPage.getByText( 'john@doe.com' ) ).toBeVisible();
-			await expect( previewPage.getByText( 'Hello, world!' ) ).toBeVisible();
+
+			// The form should disappear after submission.
+			await expect( form ).toBeHidden();
+
+			// The success wrapper should appear after submission.
+			const successWrapper = previewPage.locator( '.contact-form-submission' );
+			await expect( successWrapper ).toBeVisible();
+
+			// The form contents should be visible in the success wrapper.
+			await expect( successWrapper.getByText( 'John Doe' ) ).toBeVisible();
+			await expect( successWrapper.getByText( 'john@doe.com' ) ).toBeVisible();
+			await expect( successWrapper.getByText( 'Hello, world!' ) ).toBeVisible();
 		} );
 	} );
 
@@ -124,13 +133,23 @@ test.describe( 'Forms: Submission', () => {
 			await formToSubmit.getByRole( 'button', { name: 'Contact Us' } ).click();
 
 			// Check the correct form was submitted.
-			const submittedForm = previewPage.locator( `#${ formId }` );
+			const submittedFormWrapper = previewPage.locator( `#${ formId }` );
 			await expect(
-				submittedForm.getByRole( 'heading', { name: 'Your message has been sent' } )
+				submittedFormWrapper.getByRole( 'heading', { name: 'Your message has been sent' } )
 			).toBeVisible();
-			await expect( submittedForm.getByText( 'John Doe' ) ).toBeVisible();
-			await expect( submittedForm.getByText( 'john@doe.com' ) ).toBeVisible();
-			await expect( submittedForm.getByText( 'Hello, world!' ) ).toBeVisible();
+
+			const submittedForm = submittedFormWrapper.getByRole( 'form', { name: 'Submit this form' } );
+
+			// The form should disappear after submission.
+			await expect( submittedForm ).toBeHidden();
+
+			// The success wrapper should appear after submission.
+			const successWrapper = submittedFormWrapper.locator( '.contact-form-submission' );
+			await expect( successWrapper ).toBeVisible();
+
+			await expect( successWrapper.getByText( 'John Doe' ) ).toBeVisible();
+			await expect( successWrapper.getByText( 'john@doe.com' ) ).toBeVisible();
+			await expect( successWrapper.getByText( 'Hello, world!' ) ).toBeVisible();
 
 			// Check the other forms were not submitted.
 			const firstForm = previewPage.getByRole( 'form', { name: 'First form' } );

@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import config from 'config';
+import { execWpCommand } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
 import pwConfig from '../playwright.config.mjs';
-import { execWpCommand } from './utils-helper.js';
+import { executeWpCommand } from '../utils/cli.ts';
 
 /**
  * Persist plan data.
@@ -26,7 +27,7 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
  * @return {string} output
  */
 export async function activatePlanDataInterceptor() {
-	return await execWpCommand( 'plugin activate e2e-plan-data-interceptor' );
+	return await executeWpCommand( 'plugin activate e2e-plan-data-interceptor' );
 }
 
 /**
@@ -35,7 +36,7 @@ export async function activatePlanDataInterceptor() {
  * @return {string} ID
  */
 async function getSiteId() {
-	const output = await execWpCommand( 'jetpack options get id' );
+	const output = await executeWpCommand( 'jetpack options get id' );
 	return output.split( ':' )[ 1 ].trim();
 }
 
@@ -556,7 +557,7 @@ export async function syncPlanData( page ) {
 	let isSame = false;
 	let fePlan = null;
 
-	const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
+	const planJson = await executeWpCommand( 'option get jetpack_active_plan --format=json' );
 	const bePlan = JSON.parse( planJson );
 
 	let i = 0;

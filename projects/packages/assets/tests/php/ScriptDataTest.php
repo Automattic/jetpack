@@ -47,6 +47,14 @@ class ScriptDataTest extends TestCase {
 				return 'http://example.com/';
 			}
 		);
+		Functions\when( 'wp_enqueue_script' )->justReturn( true );
+		Functions\when( 'wp_scripts' )->justReturn(
+			new class() {
+				public function get_data( $handle, $key ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- variables needed for function signature.
+					return null;
+				}
+			}
+		);
 		Functions\when( 'has_site_icon' )->justReturn( false );
 		Functions\when( 'wp_get_current_user' )->alias(
 			function () {
@@ -85,26 +93,24 @@ class ScriptDataTest extends TestCase {
 
 		Monkey\Filters\expectApplied( 'jetpack_admin_js_script_data' )->andReturn( array( 'foo' => 'bar' ) );
 
-		$captured = null;
-		Functions\when( 'wp_print_inline_script_tag' )->alias(
-			function ( $arg ) use ( &$captured ) {
-				$captured = $arg;
+		$add_inline_args = array( null, '', null );
+		Functions\when( 'wp_add_inline_script' )->alias(
+			function ( $handle, $data, $position ) use ( &$add_inline_args ) {
+				$add_inline_args = array( $handle, $data, $position );
 			}
 		);
-		// wp_add_inline_script should not be called in this context.
-		Functions\expect( 'wp_add_inline_script' )->never();
 
 		Script_Data::render_script_data();
 
-		if ( ! is_string( $captured ) ) {
-			$this->fail( 'wp_print_inline_script_tag should be called' );
-		}
-		$this->assertStringContainsString( 'window.JetpackScriptData', $captured );
-		$this->assertStringContainsString( '"foo":"bar"', $captured );
+		$this->assertNotEmpty( $add_inline_args, 'wp_add_inline_script should be called' );
+		list( $handle, $data, $position ) = $add_inline_args;
+		$this->assertSame( Script_Data::SCRIPT_HANDLE, $handle );
+		$this->assertStringContainsString( 'window.JetpackScriptData', $data );
+		$this->assertStringContainsString( '"foo":"bar"', $data );
+		$this->assertSame( 'before', $position );
 	}
 
 	public function test_render_script_data_for_unauthenticated_rest_request() {
-		// Reset static property in case previous test set it.
 		$ref = new \ReflectionProperty( Script_Data::class, 'did_render_script_data' );
 		$ref->setAccessible( true );
 		$ref->setValue( null, false );
@@ -120,26 +126,24 @@ class ScriptDataTest extends TestCase {
 
 		Monkey\Filters\expectApplied( 'jetpack_public_js_script_data' )->andReturn( array( 'public' => 'baz' ) );
 
-		$captured = null;
-		Functions\when( 'wp_print_inline_script_tag' )->alias(
-			function ( $arg ) use ( &$captured ) {
-				$captured = $arg;
+		$add_inline_args = array( null, '', null );
+		Functions\when( 'wp_add_inline_script' )->alias(
+			function ( $handle, $data, $position ) use ( &$add_inline_args ) {
+				$add_inline_args = array( $handle, $data, $position );
 			}
 		);
-		// wp_add_inline_script should not be called in this context.
-		Functions\expect( 'wp_add_inline_script' )->never();
 
 		Script_Data::render_script_data();
 
-		if ( ! is_string( $captured ) ) {
-			$this->fail( 'wp_print_inline_script_tag should be called' );
-		}
-		$this->assertStringContainsString( 'window.JetpackScriptData', $captured );
-		$this->assertStringContainsString( '"public":"baz"', $captured );
+		$this->assertNotEmpty( $add_inline_args, 'wp_add_inline_script should be called' );
+		list( $handle, $data, $position ) = $add_inline_args;
+		$this->assertSame( Script_Data::SCRIPT_HANDLE, $handle );
+		$this->assertStringContainsString( 'window.JetpackScriptData', $data );
+		$this->assertStringContainsString( '"public":"baz"', $data );
+		$this->assertSame( 'before', $position );
 	}
 
 	public function test_render_script_data_for_authenticated_rest_request_with_block_editor_assets() {
-		// Reset static property in case previous test set it.
 		$ref = new \ReflectionProperty( Script_Data::class, 'did_render_script_data' );
 		$ref->setAccessible( true );
 		$ref->setValue( null, false );
@@ -161,7 +165,6 @@ class ScriptDataTest extends TestCase {
 				$add_inline_args = array( $handle, $data, $position );
 			}
 		);
-		Functions\expect( 'wp_print_inline_script_tag' )->never();
 
 		Script_Data::render_script_data();
 
@@ -170,6 +173,109 @@ class ScriptDataTest extends TestCase {
 		$this->assertSame( Script_Data::SCRIPT_HANDLE, $handle );
 		$this->assertStringContainsString( 'window.JetpackScriptData', $data );
 		$this->assertStringContainsString( '"foo":"bar"', $data );
+		$this->assertSame( 'before', $position );
+	}
+
+	public function test_render_script_data_with_no_data() {
+		$ref = new \ReflectionProperty( Script_Data::class, 'did_render_script_data' );
+		$ref->setAccessible( true );
+		$ref->setValue( null, false );
+
+		Functions\when( 'is_admin' )->justReturn( false );
+		Functions\when( 'wp_is_serving_rest_request' )->justReturn( false );
+		Functions\when( 'current_user_can' )->justReturn( false );
+		Functions\when( 'did_action' )->alias(
+			function () {
+				return false;
+			}
+		);
+
+		Monkey\Filters\expectApplied( 'jetpack_public_js_script_data' )->andReturn( array() );
+
+		// Should not call wp_add_inline_script if no data.
+		Functions\expect( 'wp_add_inline_script' )->never();
+
+		Script_Data::render_script_data();
+		$this->assertTrue( true, 'No data should result in no script output.' );
+	}
+
+	public function test_render_script_data_for_front_end_public_context_with_data() {
+		// Simulate front-end context
+		Functions\when( 'is_admin' )->justReturn( false );
+		Functions\when( 'wp_is_serving_rest_request' )->justReturn( false );
+		Functions\when( 'current_user_can' )->justReturn( false );
+		Functions\when( 'did_action' )->alias(
+			function ( $hook = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- variables needed for function signature.
+				return false;
+			}
+		);
+		Monkey\Filters\expectApplied( 'jetpack_public_js_script_data' )->andReturn( array( 'public' => 'front' ) );
+
+		$add_inline_args = array( null, '', null );
+		Functions\when( 'wp_add_inline_script' )->alias(
+			function ( $handle, $data, $position ) use ( &$add_inline_args ) {
+				$add_inline_args = array( $handle, $data, $position );
+			}
+		);
+
+		Script_Data::render_script_data();
+
+		$this->assertNotEmpty( $add_inline_args, 'wp_add_inline_script should be called' );
+		list( $handle, $data, $position ) = $add_inline_args;
+		$this->assertSame( Script_Data::SCRIPT_HANDLE, $handle );
+		$this->assertStringContainsString( 'window.JetpackScriptData', $data );
+		$this->assertStringContainsString( '"public":"front"', $data );
+		$this->assertSame( 'before', $position );
+	}
+
+	public function test_no_public_script_if_no_public_data() {
+		Functions\when( 'is_admin' )->justReturn( false );
+		Functions\when( 'wp_is_serving_rest_request' )->justReturn( false );
+		Functions\when( 'current_user_can' )->justReturn( false );
+		Functions\when( 'did_action' )->alias(
+			function ( $hook = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- variables needed for function signature.
+				return false;
+			}
+		);
+		Monkey\Filters\expectApplied( 'jetpack_public_js_script_data' )->andReturn( array() );
+
+		Functions\expect( 'wp_add_inline_script' )->never();
+
+		Script_Data::render_script_data();
+
+		$this->assertTrue( true, 'No public data should result in no script output.' );
+	}
+
+	public function test_render_script_data_for_admin_context_outputs_admin_data_only() {
+		// Simulate admin context
+		Functions\when( 'is_admin' )->justReturn( true );
+		Functions\when( 'wp_is_serving_rest_request' )->justReturn( false );
+		Functions\when( 'current_user_can' )->justReturn( true );
+		Functions\when( 'did_action' )->alias(
+			function ( $hook = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- variables needed for function signature.
+				return false;
+			}
+		);
+		// Admin data should be used
+		Monkey\Filters\expectApplied( 'jetpack_admin_js_script_data' )->andReturn( array( 'admin' => 'data' ) );
+		// Public data should not be used, but we mock it to ensure it's ignored
+		Monkey\Filters\expectApplied( 'jetpack_public_js_script_data' )->andReturn( array( 'public' => 'should_not_be_used' ) );
+
+		$add_inline_args = array( null, '', null );
+		Functions\when( 'wp_add_inline_script' )->alias(
+			function ( $handle, $data, $position ) use ( &$add_inline_args ) {
+				$add_inline_args = array( $handle, $data, $position );
+			}
+		);
+
+		Script_Data::render_script_data();
+
+		$this->assertNotEmpty( $add_inline_args, 'wp_add_inline_script should be called' );
+		list( $handle, $data, $position ) = $add_inline_args;
+		$this->assertSame( Script_Data::SCRIPT_HANDLE, $handle );
+		$this->assertStringContainsString( 'window.JetpackScriptData', $data );
+		$this->assertStringContainsString( '"admin":"data"', $data );
+		$this->assertStringNotContainsString( 'should_not_be_used', $data );
 		$this->assertSame( 'before', $position );
 	}
 }

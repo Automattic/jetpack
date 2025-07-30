@@ -3,6 +3,13 @@ import { sharedDecorator } from '../../../stories/decorator-config';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
+type StoryArgs = React.ComponentProps< typeof PieChart > & {
+	theme?: string | object;
+	resize?: string;
+	containerWidth?: string;
+	containerHeight?: string;
+};
+
 const data = [
 	{
 		label: 'MacOS',
@@ -24,7 +31,7 @@ const data = [
 	},
 ];
 
-const meta = {
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Chart',
 	component: PieChart,
 	parameters: {
@@ -74,13 +81,14 @@ const meta = {
 			},
 		},
 		theme: {
-			control: 'select',
-			options: {
+			control: { type: 'select' as const },
+			options: [ 'default', 'jetpack', 'woo' ],
+			mapping: {
 				default: undefined,
 				jetpack: jetpackTheme,
 				woo: wooTheme,
 			},
-			defaultValue: undefined,
+			defaultValue: 'default',
 		},
 		maxWidth: {
 			control: {
@@ -104,10 +112,10 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof PieChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
-type Story = StoryObj< typeof PieChart >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
