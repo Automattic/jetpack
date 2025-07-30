@@ -1,15 +1,11 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { connect } from '../flows/connection';
 
 test.describe( 'Jetpack Protect Plugin', () => {
 	test.beforeEach( async ( { page, admin, testUtils } ) => {
 		await testUtils.disconnect();
-
-		await prerequisitesBuilder( page )
-			.withActivePlugins( [ 'jetpack-protect' ] )
-			.withInactivePlugins( [ 'e2e-waf-data-interceptor' ] )
-			.build();
+		await testUtils.requestUtils.activatePlugin( 'jetpack-protect' );
+		await testUtils.requestUtils.deactivatePlugin( 'e2e-waf-data-interceptor' );
 
 		/**
 		 * Connect the site via the initial setup page's "start for free" option.

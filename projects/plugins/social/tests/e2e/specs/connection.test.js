@@ -1,19 +1,12 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { connect } from '../flows/index.js';
 import { JetpackSocialPage } from '../pages/index.js';
-import playwrightConfig from '../playwright.config.mjs';
 
-test.beforeAll( async ( { browser, testUtils } ) => {
+test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.disconnect();
 	await testUtils.executeWpCommand( 'option delete jetpack-social_show_pricing_page' );
-
-	const page = await browser.newPage( playwrightConfig.use );
-	await prerequisitesBuilder( page )
-		.withInactivePlugins( [ 'jetpack' ] )
-		.withActivePlugins( [ 'jetpack-social' ] )
-		.build();
-	await page.close();
+	await testUtils.requestUtils.deactivatePlugin( 'jetpack' );
+	await testUtils.requestUtils.activatePlugin( 'jetpack-social' );
 } );
 
 test( 'Jetpack Social connection', async ( { page } ) => {

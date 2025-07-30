@@ -17,6 +17,7 @@ import {
 } from './connection.ts';
 import {
 	getConfigTestSite,
+	getDotComCredentials,
 	getSiteCredentials,
 	isLocalSite,
 	resetEnvironment,
@@ -70,7 +71,7 @@ class TestUtils {
 	resolveSiteUrl: typeof resolveSiteUrl = resolveSiteUrl;
 	isLocalSite: typeof isLocalSite = isLocalSite;
 	getSiteCredentials: typeof getSiteCredentials = getSiteCredentials;
-	getDotComCredentials: typeof getSiteCredentials = getSiteCredentials;
+	getDotComCredentials: typeof getDotComCredentials = getDotComCredentials;
 	resetEnvironment: typeof resetEnvironment = resetEnvironment;
 }
 
