@@ -179,22 +179,9 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		$redirect_args = array( 'page' => 'my-jetpack' );
-
-		if ( 'connect-user' === $step ) {
-			$redirect_uri = wp_sanitize_redirect(
-				add_query_arg( $redirect_args, admin_url( 'admin.php' ) )
-			);
-
-			// Redirect the user to connect their account.
-			// This will exit on redirect.
-			$connection->connect_user( null, $redirect_uri );
-
-			return;
-		}
-
-		// Handle onboarding redirects based on connection status.
+		// Handle onboarding redirects based on connection status
 		$should_redirect = false;
+		$redirect_args   = array( 'page' => 'my-jetpack' );
 
 		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
 			// Redirect to onboarding if not connected
