@@ -123,6 +123,13 @@ export const settings = {
 			isEligible: ( attributes, innerBlocks, { innerHTML } ) => {
 				return innerHTML && innerHTML.includes( 'jetpack-form-progress-indicator-bar' );
 			},
+			migrate: attributes => {
+				// Ensure showStepNames defaults to false if not set
+				return {
+					...attributes,
+					showStepNames: attributes.showStepNames !== undefined ? attributes.showStepNames : false,
+				};
+			},
 		},
 	],
 };
