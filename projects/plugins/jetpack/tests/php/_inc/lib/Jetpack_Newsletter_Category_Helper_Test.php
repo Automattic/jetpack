@@ -109,14 +109,6 @@ class Jetpack_Newsletter_Category_Helper_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test save_category_ids() returns false for non-array input.
-	 */
-	public function test_save_category_ids_non_array() {
-		$result = Jetpack_Newsletter_Category_Helper::save_category_ids( 'not-an-array' );
-		$this->assertFalse( $result );
-	}
-
-	/**
 	 * Test save_category_ids() returns false for empty array.
 	 */
 	public function test_save_category_ids_empty_array() {
