@@ -120,6 +120,9 @@ export const settings = {
 					</div>
 				);
 			},
+			isEligible: ( attributes, innerBlocks, { innerHTML } ) => {
+				return innerHTML && innerHTML.includes( 'jetpack-form-progress-indicator-bar' );
+			},
 		},
 	],
 };
