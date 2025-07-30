@@ -1,7 +1,7 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
 	"version": "3.7.3",
+	"private": true,
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
 	"bugs": {
@@ -14,7 +14,12 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"scripts": {},
+	"exports": {
+		".": "./src/index.js",
+		"./babel": "./src/babel.js",
+		"./babel/preset": "./src/babel-preset.js",
+		"./webpack": "./src/webpack.js"
+	},
 	"dependencies": {
 		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
@@ -64,11 +69,5 @@
 		"typescript": {
 			"optional": true
 		}
-	},
-	"exports": {
-		".": "./src/index.js",
-		"./webpack": "./src/webpack.js",
-		"./babel": "./src/babel.js",
-		"./babel/preset": "./src/babel-preset.js"
 	}
 }
