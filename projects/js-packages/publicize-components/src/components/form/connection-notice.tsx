@@ -1,4 +1,4 @@
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
@@ -20,7 +20,7 @@ export const ConnectionNotice: FC = () => {
 						'jetpack-publicize-components'
 					) }
 					&nbsp;
-					<a href={ getMyJetpackUrl( '&step=connect-user' ) }>
+					<a href={ getUserConnectionUrl() }>
 						{ __( 'Connect now', 'jetpack-publicize-components' ) }
 					</a>
 				</p>

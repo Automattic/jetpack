@@ -2,6 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from 'react';
+import { getUserConnectionUrl } from '../../helpers/get-user-connection-url';
 import { STORE_ID } from '../../state/store';
 
 const { apiRoot, apiNonce } =
@@ -19,7 +20,7 @@ export default function useRestoreConnection() {
 
 	const { disconnectUserSuccess, setConnectionErrors } = useDispatch( STORE_ID );
 
-	const USER_CONNECTION_URL = '/wp-admin/admin.php?page=my-jetpack&step=connect-user';
+	const USER_CONNECTION_URL = getUserConnectionUrl();
 
 	/**
 	 * Initiate connection restore.

@@ -1,5 +1,5 @@
 import { Col, TermsOfService, Text } from '@automattic/jetpack-components';
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
@@ -49,7 +49,7 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 		const onActionButtonClick = ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
 			if ( requiresUserConnection ) {
 				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click' );
-				window.location.href = getMyJetpackUrl( '&step=connect-user' );
+				window.location.href = getUserConnectionUrl();
 			} else {
 				connectSite( e );
 			}

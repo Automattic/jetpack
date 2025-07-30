@@ -1,5 +1,5 @@
-import { useConnection } from '@automattic/jetpack-connection';
-import { getMyJetpackUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getUserConnectionUrl, useConnection } from '@automattic/jetpack-connection';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Button, PanelBody, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/editor';
@@ -30,7 +30,7 @@ const NewsletterMenu = ( { openPreviewModal } ) => {
 	const isSendEmailEnabled = ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 
 	const { isUserConnected } = useConnection();
-	const connectUrl = getMyJetpackUrl( '&step=connect-user' );
+	const connectUrl = getUserConnectionUrl();
 	const shouldPromptForConnection = ! isSimpleSite() && ! isUserConnected;
 
 	const openTestEmailModal = () => setIsTestEmailModalOpen( true );

@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL, getBlobByURL } from '@wordpress/blob';
 import {
@@ -415,7 +415,7 @@ export default function VideoPressEdit( {
 								analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
 									block: 'VideoPress',
 								} );
-								return ( window.location.href = getMyJetpackUrl( '&step=connect-user' ) );
+								return ( window.location.href = getUserConnectionUrl() );
 							}
 							analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
 								block: 'VideoPress',
@@ -618,7 +618,7 @@ export default function VideoPressEdit( {
 						analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
 							block: 'VideoPress',
 						} );
-						return ( window.location.href = getMyJetpackUrl( '&step=connect-user' ) );
+						return ( window.location.href = getUserConnectionUrl() );
 					}
 					analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
 						block: 'VideoPress',

@@ -1,4 +1,5 @@
 import { Button, Text } from '@automattic/jetpack-components';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
@@ -220,7 +221,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Button
 						onClick={ activateLicenseClickHandler }
-						href={ getMyJetpackUrl( isUserConnected ? '#/add-license' : '&step=connect-user' ) }
+						href={ isUserConnected ? getMyJetpackUrl( '#/add-license' ) : getUserConnectionUrl() }
 						variant="link"
 						weight="regular"
 					>

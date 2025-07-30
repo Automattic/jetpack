@@ -1,4 +1,4 @@
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { useCallback, useMemo } from 'react';
 import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -39,7 +39,7 @@ export default function ConnectionsSection() {
 	}, [ products, isLoading, isError ] );
 
 	const onConnectUser = useCallback( () => {
-		window.location.href = getMyJetpackUrl( '&step=connect-user' );
+		window.location.href = getUserConnectionUrl();
 	}, [] );
 	return (
 		<ConnectionStatusCard
