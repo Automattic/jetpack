@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Script Data: Ensure we always enqueue instead of print script data.
