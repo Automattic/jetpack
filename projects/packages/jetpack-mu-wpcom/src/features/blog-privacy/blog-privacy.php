@@ -27,6 +27,7 @@ function robots_txt( $output, $public ): string {
 		$output = '';
 	}
 
+	// WordPress passes in a bool. Re-fetch as an int to handle our custom "-1" value.
 	$public = (int) get_option( 'blog_public' );
 
 	// If the site is completely private, don't bother with the additional restrictions.
