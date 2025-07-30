@@ -3,28 +3,18 @@
 
 // Editor-specific overrides
 .wp-block-jetpack-form-progress-indicator {
-	// In editor, show steps when enabled (class-based approach)
-	&.show-step-names .jetpack-form-progress-indicator-steps {
-		display: flex;
-	}
-
-	// In editor, always show steps for dots style (even without showStepNames)
-	&.is-style-dots .jetpack-form-progress-indicator-steps {
+	// In editor, always show the steps container
+	.jetpack-form-progress-indicator-steps {
 		display: grid !important;
 	}
 
-	// Step names need to be shown when enabled in editor
-	.jetpack-form-progress-indicator-steps:empty {
-		display: none;
-	}
-
-	// Editor-specific: Show step numbers in dots style
-	&.is-style-dots .jetpack-form-progress-indicator-step-number {
-		display: flex !important; // Override the display: none from line style
-	}
-
-	// Show labels when showStepNames is true (works for both line and dots style)
+	// Show labels when showStepNames is true (class-based approach for editor)
 	&.show-step-names .jetpack-form-progress-indicator-step-label {
 		display: block !important;
+	}
+
+	// Ensure step numbers are visible in dots style in editor
+	&.is-style-dots .jetpack-form-progress-indicator-step-number {
+		display: flex !important;
 	}
 }

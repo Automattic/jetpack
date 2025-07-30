@@ -811,13 +811,6 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		// Find the progress bar and add width binding
-		$processor = new \WP_HTML_Tag_Processor( $processor->get_updated_html() );
-		while ( $processor->next_tag( array( 'class_name' => 'jetpack-form-progress-indicator-bar' ) ) ) {
-			$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
-			break;
-		}
-
 		// Always populate the steps HTML - the container is always in the markup
 		$steps_html = '';
 

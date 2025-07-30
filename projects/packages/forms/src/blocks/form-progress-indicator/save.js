@@ -15,7 +15,6 @@ const FormProgressIndicatorSave = ( { attributes } ) => {
 			data-show-step-names={ showStepNames }
 		>
 			<div { ...blockProps }>
-				<div className="jetpack-form-progress-indicator-bar"></div>
 				<div className="jetpack-form-progress-indicator-steps"></div>
 			</div>
 		</div>

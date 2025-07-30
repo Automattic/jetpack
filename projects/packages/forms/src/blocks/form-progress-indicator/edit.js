@@ -22,13 +22,6 @@ const FormProgressIndicatorEdit = ( {
 	const contextSteps = context?.[ 'jetpack/form-steps' ] || [];
 	const finalSteps = contextSteps.length > 0 ? contextSteps : steps;
 
-	let progress = finalSteps.length
-		? ( ( currentStepInfo.index + 1 ) / finalSteps.length ) * 100
-		: 10;
-	if ( currentStepInfo.index === -1 && finalSteps.length > 0 ) {
-		progress = ( 1 / finalSteps.length ) * 100; // Assume the first step is active
-	}
-
 	const blockProps = useBlockProps( {
 		className: `${ className || '' }${ showStepNames ? ' show-step-names' : '' }`,
 		style: {
@@ -39,11 +32,6 @@ const FormProgressIndicatorEdit = ( {
 
 	const isDotStyle =
 		className?.includes( 'is-style-dots' ) || blockProps.className?.includes( 'is-style-dots' );
-
-	// Only need to set width – colours come from core style engine variables.
-	const progressBarStyle = {
-		width: `${ progress }%`,
-	};
 
 	return (
 		<>
@@ -73,7 +61,6 @@ const FormProgressIndicatorEdit = ( {
 			</InspectorControls>
 			<div className="jetpack-form-progress-indicator--wrapper">
 				<div { ...blockProps }>
-					<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
 					<div className="jetpack-form-progress-indicator-steps">
 						{ finalSteps.length > 0 &&
 							finalSteps.map( ( step, index ) => {
