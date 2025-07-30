@@ -36,6 +36,13 @@ class Contact_Form_Plugin {
 	public $current_widget_id;
 
 	/**
+	 * The Sidebar ID of the sidebar currently being processed.  Used to build the unique contact-form ID for forms embedded in sidebars.
+	 *
+	 * @var string
+	 */
+	public $current_sidebar_id;
+
+	/**
 	 * If the contact form field is being used.
 	 *
 	 * @var bool
@@ -175,9 +182,8 @@ class Contact_Form_Plugin {
 
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
 		add_action( 'dynamic_sidebar', array( $this, 'track_current_widget' ) );
-
-		// Add a "widget" shortcode attribute to all contact-form shortcodes embedded in widgets
-		add_filter( 'widget_text', array( $this, 'widget_atts' ), 0 );
+		add_action( 'dynamic_sidebar_before', array( $this, 'track_current_widget_before' ) );
+		add_action( 'dynamic_sidebar_after', array( $this, 'track_current_widget_after' ) );
 
 		// If Text Widgets don't get shortcode processed, hack ours into place.
 		if (
@@ -1557,6 +1563,39 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Tracks the sidebar currently being processed.
+	 * Attached to `dynamic_sidebar_before`
+	 *
+	 * @see $current_sidebar_id - the current sidebar ID.
+	 *
+	 * @param string $index The sidebar index.
+	 */
+	public function track_current_widget_before( $index ) {
+		$this->current_sidebar_id = $index;
+	}
+
+	/**
+	 * Clear the current widget context.
+	 */
+	public function track_current_widget_after() {
+		$this->current_sidebar_id = '';
+		$this->current_widget_id  = '';
+	}
+
+	/**
+	 * Gets the current widget context.
+	 *
+	 * @return string The current widget context or false if not set.
+	 */
+	public function get_current_widget_context() {
+		// If we don't have a current widget ID or sidebar ID, we
+		if ( empty( $this->current_widget_id ) || empty( $this->current_sidebar_id ) ) {
+			return '';
+		}
+		return $this->current_widget_id . '-' . $this->current_sidebar_id;
+	}
+
+	/**
 	 * Adds a "widget" attribute to every contact-form embedded in a text widget.
 	 * Used to tell the difference between post-embedded contact-forms and widget-embedded contact-forms
 	 * Attached to `widget_text`
@@ -2209,141 +2248,85 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Prepares feedback post data for CSV export.
+	 * Returns an array of feedback data for export.
 	 *
-	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
+	 * @param array $feedback_ids Array of feedback IDs to fetch the data for.
 	 *
 	 * @return array
 	 */
-	public function get_export_data_for_posts( $post_ids ) {
+	public function get_export_feedback_data( $feedback_ids ) {
+		$feedback_data = array();
+		$field_names   = array();
 
-		$posts_data  = array();
-		$field_names = array();
-		$result      = array();
-
-		/**
-		 * Fetch posts and get the possible field names for later use
-		 */
-		foreach ( $post_ids as $post_id ) {
-
-			/**
-			 * Fetch post main data, because we need the subject and author data for the feedback form.
-			 */
-			$post_real_data = $this->get_parsed_field_contents_of_post( $post_id );
-
-			/**
-			 * Whether the feedback post has JSON data or not.
-			 * This is used as optional parameter on legacy functions.
-			 */
-			$post_has_json_data = $this->has_json_data( $post_id );
-
-			/**
-			 * If `$post_real_data` is not an array or there is no `_feedback_subject` set,
-			 * then something must be wrong with the feedback post. Skip it.
-			 */
-			if ( ! is_array( $post_real_data ) || ! isset( $post_real_data['_feedback_subject'] ) ) {
-				continue;
+		foreach ( $feedback_ids as $feedback_id ) {
+			$response = Feedback::get( $feedback_id );
+			if ( ! $response instanceof Feedback ) {
+				continue; // Skip if the feedback is not an instance of Feedback.
 			}
-
-			/**
-			 * Fetch main post comment. This is from the default textarea fields.
-			 * If it is non-empty, then we add it to data, otherwise skip it.
-			 */
-			$post_comment_content = $this->get_post_content_for_csv_export( $post_id );
-			if ( ! empty( $post_comment_content ) ) {
-				$post_real_data['_feedback_main_comment'] = $post_comment_content;
-			}
-
-			/**
-			 * Map parsed fields to proper field names
-			 */
-			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data, ! $post_has_json_data );
-
-			/**
-			 * Fetch post meta data.
-			 */
-			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id, $post_has_json_data );
-
-			/**
-			 * If `$post_meta_data` is not an array or if it is empty, then there is no
-			 * extra feedback to work with. Create an empty array.
-			 */
-			if ( ! is_array( $post_meta_data ) || empty( $post_meta_data ) ) {
-				$post_meta_data = array();
-			}
-
-			/**
-			 * Prepend the feedback subject to the list of fields.
-			 */
-			$post_meta_data = array_merge(
-				$mapped_fields,
-				$post_meta_data
-			);
-
-			/**
-			 * Save post metadata for later usage.
-			 */
-			$posts_data[ $post_id ] = $post_meta_data;
-
-			/**
-			 * Save field names, so we can use them as header fields later in the CSV.
-			 */
-			$field_names = array_merge( $field_names, array_keys( $post_meta_data ) );
+			$feedback_data[ $feedback_id ] = $response;
+			$field_names                   = array_merge( $field_names, $response->get_compiled_fields( 'csv', 'label' ) );
 		}
 
 		/**
 		 * Make sure the field names are unique, because we don't want duplicate data.
 		 */
 		$field_names = array_unique( $field_names );
+		return $this->format_feedback_data_for_csv( $feedback_data, $field_names );
+	}
 
-		/**
-		 * Sort the field names by the field id number
-		 */
-		sort( $field_names, SORT_NUMERIC );
+	/**
+	 * Returns an array of feedback data for CSV export.
+	 *
+	 * @param array $feedback_data Array of feedback data to fetch the results for.
+	 * @param array $field_names   Array of field names to include in the results.
+	 *
+	 * @return array
+	 */
+	private function format_feedback_data_for_csv( $feedback_data, $field_names ) {
+		$results = array();
+		foreach ( $feedback_data as $feedback_id => $feedback ) {
 
-		$well_known_column_names = $this->get_well_known_column_names();
-		$result                  = array();
-
-		/**
-		 * Loop through every post, which is essentially CSV row.
-		 */
-		foreach ( $posts_data as $post_id => $single_post_data ) {
+			if ( ! $feedback instanceof Feedback ) {
+				continue; // Skip if the feedback is not an instance of Feedback.
+			}
+			$results[ __( 'ID', 'jetpack-forms' ) ][]     = $feedback_id;
+			$results[ __( 'Date', 'jetpack-forms' ) ][]   = $feedback->get_time();
+			$results[ __( 'Title', 'jetpack-forms' ) ][]  = $feedback->get_entry_title();
+			$results[ __( 'Source', 'jetpack-forms' ) ][] = $feedback->get_entry_short_permalink();
 			/**
 			 * Go through all the possible fields and check if the field is available
-			 * in the current post.
+			 * in the current feedback.
 			 *
 			 * If it is - add the data as a value.
 			 * If it is not - add an empty string, which is just a placeholder in the CSV.
 			 */
 			foreach ( $field_names as $single_field_name ) {
-				$renamed_field = isset( $well_known_column_names[ $single_field_name ] )
-					? $well_known_column_names[ $single_field_name ]
-					: $single_field_name;
-
-				/**
-				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
-				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
-				 * TODO: to return fieldnames based on field label, we need to work both field names and post data:
-				 * unique -> sort -> unique/rename
-				 * $renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
-				 */
-
-				if ( ! isset( $result[ $renamed_field ] ) ) {
-					$result[ $renamed_field ] = array();
+				if ( ! isset( $results[ $single_field_name ] ) ) {
+					$results[ $single_field_name ] = array();
 				}
-
-				if (
-					isset( $single_post_data[ $single_field_name ] )
-					&& ! empty( $single_post_data[ $single_field_name ] )
-				) {
-					$result[ $renamed_field ][] = trim( $single_post_data[ $single_field_name ] );
-				} else {
-					$result[ $renamed_field ][] = '';
-				}
+				$results[ $single_field_name ][] = $feedback->get_field_value_by_label( $single_field_name, 'csv' );
 			}
-		}
 
-		return $result;
+			$results[ __( 'Consent', 'jetpack-forms' ) ][]    = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+			$results[ __( 'IP Address', 'jetpack-forms' ) ][] = $feedback->get_ip_address();
+
+		}
+		return $results;
+	}
+
+	/**
+	 * Prepares feedback post data for CSV export.
+	 *
+	 * @deprecated since $$next-version$$
+	 *
+	 * @see get_export_feedback_data()
+	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
+	 *
+	 * @return array
+	 */
+	public function get_export_data_for_posts( $post_ids ) {
+		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_feedback_data()' );
+		return $this->get_export_feedback_data( $post_ids );
 	}
 
 	/**
@@ -2353,9 +2336,12 @@ class Contact_Form_Plugin {
 	 * - Positive values render AFTER any form field/value column: 1, 30, 93...
 	 *   Mind using high numbering on these ones as the prefix is used on regular inputs: 1_Name, 2_Email, etc
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @return array
 	 */
 	public function get_well_known_column_names() {
+		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_column_names()' );
 		return array(
 			'-9_title'         => __( 'Title', 'jetpack-forms' ),
 			'-6_source'        => __( 'Source', 'jetpack-forms' ),
@@ -2435,23 +2421,7 @@ class Contact_Form_Plugin {
 
 		$feedbacks = get_posts( $args );
 
-		if ( empty( $feedbacks ) ) {
-			return;
-		}
-
-		/**
-		 * Prepare data for export.
-		 */
-		$data = $this->get_export_data_for_posts( $feedbacks );
-
-		/**
-		 * If `$data` is empty, there's nothing we can do below.
-		 */
-		if ( ! is_array( $data ) || empty( $data ) ) {
-			return;
-		}
-
-		return $data;
+		return $this->get_export_feedback_data( $feedbacks );
 	}
 
 	/**
