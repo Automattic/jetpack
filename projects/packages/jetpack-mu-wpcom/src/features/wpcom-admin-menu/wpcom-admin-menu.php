@@ -109,10 +109,12 @@ function wpcom_add_stats_menu() {
 	/**
 	 * If the site is Atomic and the module is disabled, the page doesn't exist.
 	 */
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- We need to suppress it for WordPress.com tests.
 	if ( $host->is_atomic_platform() && ! Jetpack::is_module_active( 'stats' ) ) {
 		return;
 	}
 
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	add_menu_page( __( 'Stats', 'jetpack-mu-wpcom' ), __( 'Stats', 'jetpack-mu-wpcom' ), 'view_stats', 'admin.php?page=stats', null, 'dashicons-chart-bar', 3 );
 }
 
