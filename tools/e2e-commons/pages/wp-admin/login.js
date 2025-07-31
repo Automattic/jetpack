@@ -1,7 +1,7 @@
-import { getSiteCredentials } from '../../helpers/utils-helper.js';
 import logger from '../../logger.js';
 import pwConfig from '../../playwright.config.mjs';
 import { takeScreenshot } from '../../reporters/index.js';
+import { getSiteCredentials } from '../../utils/environment.ts';
 import WpPage from '../wp-page.js';
 
 export default class WPLoginPage extends WpPage {
