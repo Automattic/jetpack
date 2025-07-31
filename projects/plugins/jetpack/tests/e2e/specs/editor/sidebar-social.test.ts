@@ -5,7 +5,7 @@ test.describe( 'Editor sidebar: Social', () => {
 	test( 'Activation of publicize from the editor', async ( { admin, editor } ) => {
 		await admin.createNewPost( { title: 'Testing Social Sidebar' } );
 
-		logger.action( 'Open Jetpack sidebar' );
+		logger.debug( 'Open Jetpack sidebar' );
 
 		await editor.openSettings( 'Jetpack' );
 
@@ -15,7 +15,7 @@ test.describe( 'Editor sidebar: Social', () => {
 			name: 'Share this post',
 		} );
 
-		logger.action( 'Expand "Share this post" panel' );
+		logger.debug( 'Expand "Share this post" panel' );
 		await socialPanel.click();
 
 		const activateSocialLink = settingsSidebar.getByRole( 'link', {

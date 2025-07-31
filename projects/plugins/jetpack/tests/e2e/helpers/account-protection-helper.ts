@@ -9,7 +9,7 @@ const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];
  * Enable automatic rules
  * @return {Promise<void>} wp-cli 'jetpack-waf generate_rules' command output
  */
-export async function insertTestUsers() {
+export async function insertTestUsers(): Promise< void > {
 	logger.debug( 'Inserting test users' );
 
 	// Create user accounts with compromised passwords.
@@ -29,7 +29,7 @@ export async function insertTestUsers() {
  * Delete test users created by insertTestUsers
  * @return {Promise<void>} wp-cli 'user delete' command output
  */
-export async function deleteTestUsers() {
+export async function deleteTestUsers(): Promise< void > {
 	logger.debug( 'Deleting test users' );
 
 	// Delete users by role name
@@ -79,9 +79,9 @@ export async function getAccountProtectionAuthCodeFromTransient(
 
 /**
  * Submits the credentials on the login page.
- * @param {import('playwright').Page} page     - The Playwright page object.
- * @param {string}                    username - The username to log in with.
- * @param {string}                    password - The password to log in with.
+ * @param {Page}   page     - The Playwright page object.
+ * @param {string} username - The username to log in with.
+ * @param {string} password - The password to log in with.
  * @return {Promise<void>} Resolves when the login is complete.
  */
 export async function submitCredentials(
@@ -96,8 +96,8 @@ export async function submitCredentials(
 
 /**
  * Submits the verification code on the account protection page.
- * @param {import('playwright').Page} page     - The Playwright page object.
- * @param {string}                    authCode - The verification code to submit.
+ * @param {Page}   page     - The Playwright page object.
+ * @param {string} authCode - The verification code to submit.
  * @return {Promise<void>} Resolves when the verification code is submitted.
  */
 export async function submitTheVerificationCode( page: Page, authCode: string ): Promise< void > {
