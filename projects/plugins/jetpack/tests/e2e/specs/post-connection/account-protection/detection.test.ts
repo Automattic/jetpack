@@ -6,7 +6,6 @@ import {
 	deleteTestUsers,
 	submitCredentials,
 	submitTheVerificationCode,
-	signOut,
 } from '../../../helpers/account-protection-helper.ts';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
@@ -30,60 +29,52 @@ test.afterAll( async () => {
 	await deleteTestUsers();
 } );
 
+test.beforeEach( async ( { page } ) => {
+	await page.context().clearCookies();
+	await page.goto( '/wp-login.php' );
+} );
+
 test.describe.parallel( 'Compromised Password Detection', () => {
-	test( 'Detects compromised passwords', async ( { page } ) => {
-		for ( const role of PRIVILEGED_ROLES ) {
-			await test.step( `Enforces account protection 2FA for ${ role } users`, async () => {
-				await page.goto( '/wp-login.php' );
-				await submitCredentials( page, role, 'password' );
+	for ( const role of PRIVILEGED_ROLES ) {
+		test( `Enforces account protection 2FA for ${ role } users`, async ( { page } ) => {
+			await submitCredentials( page, role, 'password' );
 
-				await expect(
-					page.getByRole( 'textbox', { name: 'Enter verification code' } )
-				).toBeVisible();
+			await expect(
+				page.getByRole( 'textbox', { name: 'Enter verification code' } )
+			).toBeVisible();
 
-				expect( page.url() ).toContain( 'token=' );
+			expect( page.url() ).toContain( 'token=' );
 
-				// Get the token and auth code.
-				const token = getAccountProtectionTokenFromUrl( page.url() );
-				const authCode = await getAccountProtectionAuthCodeFromTransient( token );
+			// Get the token and auth code.
+			const token = getAccountProtectionTokenFromUrl( page.url() );
+			const authCode = await getAccountProtectionAuthCodeFromTransient( token );
 
-				expect( authCode ).toBeTruthy();
+			expect( authCode ).toBeTruthy();
 
-				await submitTheVerificationCode( page, authCode );
+			await submitTheVerificationCode( page, authCode );
 
-				await expect(
-					page.getByRole( 'link', { name: 'Proceed without updating' } )
-				).toBeVisible();
+			await expect( page.getByRole( 'link', { name: 'Proceed without updating' } ) ).toBeVisible();
 
-				// Proceed to wp-admin.
-				await page.getByRole( 'link', { name: 'Proceed without updating' } ).click();
+			// Proceed to wp-admin.
+			await page.getByRole( 'link', { name: 'Proceed without updating' } ).click();
 
-				expect( page.url() ).toContain( '/wp-admin' );
-
-				// Sign out.
-				await signOut( page );
-
-				expect( page.url() ).toContain( '/wp-login.php' );
-			} );
-		}
-
-		for ( const role of NON_PRIVILEGED_ROLES ) {
-			await test.step( `Bypasses account protection 2FA for ${ role } users`, async () => {
-				await page.goto( '/wp-login.php' );
-				await submitCredentials( page, role, 'password' );
-				expect( page.url() ).toContain( '/wp-admin' );
-			} );
-		}
-
-		await test.step( `Bypasses account protection 2FA for users with secure passwords`, async () => {
-			await page.goto( '/wp-login.php' );
-			await submitCredentials( page, 'secure_user', '87h23foi2uhfljhdakdh9812df' );
 			expect( page.url() ).toContain( '/wp-admin' );
 		} );
+	}
+
+	for ( const role of NON_PRIVILEGED_ROLES ) {
+		test( `Bypasses account protection 2FA for ${ role } users`, async ( { page } ) => {
+			await submitCredentials( page, role, 'password' );
+			expect( page.url() ).toContain( '/wp-admin' );
+		} );
+	}
+
+	test( `Bypasses account protection 2FA for users with secure passwords`, async ( { page } ) => {
+		await submitCredentials( page, 'secure_user', '87h23foi2uhfljhdakdh9812df' );
+		expect( page.url() ).toContain( '/wp-admin' );
 	} );
 
 	test( 'Password reset after verification', async ( { page } ) => {
-		await page.goto( '/wp-login.php' );
 		await submitCredentials( page, 'administrator', 'password' );
 
 		await expect( page.getByRole( 'textbox', { name: 'Enter verification code' } ) ).toBeVisible();

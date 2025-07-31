@@ -65,7 +65,7 @@ export function getAccountProtectionTokenFromUrl( url: string ): string | null {
  * @return {Promise<string>} account protection auth code
  */
 export async function getAccountProtectionAuthCodeFromTransient(
-	token: string
+	token: string | null
 ): Promise< string > {
 	const transient = await executeWpCommand(
 		`transient get jetpack_account_protection_${ token } --format=json`
@@ -103,16 +103,4 @@ export async function submitCredentials(
 export async function submitTheVerificationCode( page: Page, authCode: string ): Promise< void > {
 	await page.getByRole( 'textbox', { name: 'Enter verification code' } ).fill( authCode );
 	await page.getByRole( 'button', { name: 'Verify' } ).click();
-}
-
-/**
- * Signs out the user from the admin bar.
- * @param {import('playwright').Page} page - The Playwright page object.
- * @return {Promise<void>} Resolves when the user is signed out.
- */
-export async function signOut( page: Page ): Promise< void > {
-	const accountBarSelector = '#wp-admin-bar-my-account';
-	const logoutOptionSelector = '#wp-admin-bar-logout';
-	await page.locator( accountBarSelector ).hover();
-	await page.locator( logoutOptionSelector ).click();
 }
