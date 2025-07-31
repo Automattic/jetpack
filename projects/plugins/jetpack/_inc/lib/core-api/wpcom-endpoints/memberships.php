@@ -282,6 +282,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	public function create_product( WP_REST_Request $request ) {
 		$payload = $this->get_payload_for_product( $request );
 
+		if ( is_wp_error( $payload ) ) {
+			return $payload;
+		}
+
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
 			try {
@@ -304,6 +308,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	public function update_product( \WP_REST_Request $request ) {
 		$product_id = $request->get_param( 'product_id' );
 		$payload    = $this->get_payload_for_product( $request );
+
+		if ( is_wp_error( $payload ) ) {
+			return $payload;
+		}
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
@@ -502,20 +510,27 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * Get a payload for creating or updating products by parsing the request.
 	 *
 	 * @param WP_REST_Request $request The request for this endpoint, containing the details needed to build the payload.
-	 * @return array The built payload.
+	 * @return array|WP_Error The built payload or WP_Error on validation failure.
 	 */
 	private function get_payload_for_product( WP_REST_Request $request ) {
 		$is_editable             = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type                    = isset( $request['type'] ) ? $request['type'] : null;
 		$tier                    = isset( $request['tier'] ) ? $request['tier'] : null;
 		$buyer_can_change_amount = isset( $request['buyer_can_change_amount'] ) && (bool) $request['buyer_can_change_amount'];
+		$interval                = $request['interval'];
+
+		// Validate tier field usage.
+		$tier_validation = $this->validate_tier_field( $request, $tier, $type, $interval );
+		if ( is_wp_error( $tier_validation ) ) {
+			return $tier_validation;
+		}
 
 		$payload = array(
 			'title'                        => $request['title'],
 			'price'                        => $request['price'],
 			'currency'                     => $request['currency'],
 			'buyer_can_change_amount'      => $buyer_can_change_amount,
-			'interval'                     => $request['interval'],
+			'interval'                     => $interval,
 			'type'                         => $type,
 			'welcome_email_content'        => $request['welcome_email_content'],
 			'subscribe_as_site_subscriber' => $request['subscribe_as_site_subscriber'],
@@ -530,7 +545,111 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		if ( null !== $is_editable ) {
 			$payload['is_editable'] = $is_editable;
 		}
+
 		return $payload;
+	}
+
+	/**
+	 * Validate tier field usage for newsletter plans.
+	 *
+	 * @param WP_REST_Request $request  The request object.
+	 * @param string|null     $tier     The tier value to validate.
+	 * @param string|null     $type     The product type.
+	 * @param string          $interval The product interval.
+	 * @return WP_Error|null  Error object if validation fails, null if successful.
+	 */
+	private function validate_tier_field( WP_REST_Request $request, $tier, $type, $interval ) {
+		// Only apply tier validation for newsletter plans with type 'tier'.
+		if ( null === $tier || 'tier' !== $type ) {
+			return null;
+		}
+
+		// Monthly plans should not have a tier field.
+		if ( '1 month' === $interval ) {
+			return new WP_Error( 'invalid_tier_usage', __( 'Monthly plans should not have a tier field. The tier field is only used to link yearly plans to their corresponding monthly plans.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		// Yearly plans must have a valid tier that points to a monthly plan.
+		if ( '1 year' === $interval ) {
+			return $this->validate_yearly_tier( $request, $tier );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Validate yearly tier requirements.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @param string|int      $tier    The tier value to validate.
+	 * @return WP_Error|null  Error object if validation fails, null if successful.
+	 */
+	private function validate_yearly_tier( WP_REST_Request $request, $tier ) {
+		if ( ! is_numeric( $tier ) || $tier <= 0 ) {
+			return new WP_Error( 'invalid_tier_id', __( 'Yearly plans must have a valid tier ID that points to an existing monthly plan.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		if ( ! $this->is_wpcom() ) {
+			return null; // Validation will happen on WPCOM side.
+		}
+
+		return $this->validate_tier_references( $request, $tier );
+	}
+
+	/**
+	 * Validate that the tier references a valid monthly plan and check for duplicates.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @param string|int      $tier    The tier value to validate.
+	 * @return WP_Error|null  Error object if validation fails, null if successful.
+	 */
+	private function validate_tier_references( WP_REST_Request $request, $tier ) {
+		require_lib( 'memberships' );
+		Memberships_Store_Sandbox::get_instance()->init( true );
+
+		// Check if the referenced monthly plan exists and is actually a monthly plan.
+		$monthly_plan = Memberships_Product::get_from_post( get_current_blog_id(), $tier );
+		if ( is_wp_error( $monthly_plan ) || ! $monthly_plan ) {
+			return new WP_Error( 'tier_not_found', __( 'The specified tier ID does not correspond to an existing monthly plan.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		$monthly_plan_data = $monthly_plan->to_array();
+		if ( '1 month' !== $monthly_plan_data['interval'] ) {
+			return new WP_Error( 'invalid_tier_interval', __( 'The specified tier ID must point to a monthly plan (1 month interval).', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		return $this->check_duplicate_tier_references( $request, $tier );
+	}
+
+	/**
+	 * Check for duplicate tier references.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @param string|int      $tier    The tier value to check.
+	 * @return WP_Error|null  Error object if duplicate found, null if successful.
+	 */
+	private function check_duplicate_tier_references( WP_REST_Request $request, $tier ) {
+		$existing_yearly_plans = Memberships_Product::get_product_list( get_current_blog_id(), 'tier', null, false );
+		if ( is_wp_error( $existing_yearly_plans ) ) {
+			return new WP_Error( 'product_list_error', __( 'Could not retrieve existing products to check for duplicate tier references.', 'jetpack' ), array( 'status' => 500 ) );
+		}
+
+		// Ensure the result is iterable before foreach.
+		if ( ! is_array( $existing_yearly_plans ) && ! $existing_yearly_plans instanceof Traversable ) {
+			return new WP_Error( 'invalid_product_list', __( 'Unexpected error: product list is not iterable.', 'jetpack' ), array( 'status' => 500 ) );
+		}
+
+		foreach ( $existing_yearly_plans as $existing_plan ) {
+			if ( isset( $existing_plan['tier'] ) && (string) $existing_plan['tier'] === (string) $tier && '1 year' === $existing_plan['interval'] ) {
+				// If this is an update, allow it to reference itself.
+				$product_id = $request->get_param( 'product_id' );
+				if ( ! $product_id || (string) $existing_plan['id'] !== (string) $product_id ) {
+					return new WP_Error( 'duplicate_tier_reference', __( 'Another yearly plan already references this monthly plan. Each monthly plan can only have one corresponding yearly plan.', 'jetpack' ), array( 'status' => 400 ) );
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**
