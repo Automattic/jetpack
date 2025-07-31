@@ -1,5 +1,4 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { WpPage } from '_jetpack-e2e-commons/pages/index.js';
 import { enableAutomaticRules, generateRules } from '../../helpers/waf-helper.js';
 
 test.describe.parallel( 'WAF Blocking', () => {
@@ -12,11 +11,9 @@ test.describe.parallel( 'WAF Blocking', () => {
 		await generateRules();
 	} );
 
-	test( 'Block a simple request', async ( { page, baseURL } ) => {
+	test( 'Block a simple request', async ( { page } ) => {
 		await test.step( 'Block it', async () => {
-			const blockedPage = new WpPage( page, { pageName: 'Blocked request' } );
-
-			const response = await blockedPage.goto( `${ baseURL }/?blubb=<script>` );
+			const response = await page.goto( '/?blubb=<script>' );
 			expect( response.status() ).toStrictEqual( 403 );
 
 			/*
