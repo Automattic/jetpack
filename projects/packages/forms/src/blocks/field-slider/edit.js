@@ -6,7 +6,7 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 
 export default function SliderFieldEdit( props ) {
 	const { attributes, setAttributes } = props;
-	const { min = 0, max = 100, default: defaultValue = 50, width, id, required } = attributes;
+	const { min = 0, max = 100, default: defaultValue = 0, width, id, required } = attributes;
 
 	const updateMin = newMin => {
 		const parsedMin = parseInt( newMin ) || 0;
@@ -53,7 +53,7 @@ export default function SliderFieldEdit( props ) {
 			setAttributes( {
 				min: attributes.min ?? 0,
 				max: attributes.max ?? 100,
-				default: attributes.default ?? 50,
+				default: attributes.default ?? 0,
 			} );
 		}
 	}, [ attributes.min, attributes.max, attributes.default, setAttributes ] );

@@ -2217,7 +2217,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
 		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
-		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 50;
+		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
 		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
 
 		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );

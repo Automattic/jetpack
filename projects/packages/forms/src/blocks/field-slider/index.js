@@ -26,7 +26,7 @@ const settings = {
 		},
 		default: {
 			type: 'number',
-			default: 50,
+			default: 0,
 		},
 	},
 	edit,
@@ -46,7 +46,7 @@ const settings = {
 		attributes: {
 			min: 0,
 			max: 100,
-			default: 50,
+			default: 0,
 		},
 		innerBlocks: [
 			{
