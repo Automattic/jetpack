@@ -34,7 +34,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 			shapeHeight = 16,
 			shapeMargin = '2px 4px 2px 0',
 			labelAlign = 'left',
-			labelFlex = '1',
+			labelFlex = '0 0 auto',
 			labelMargin = '0 4px',
 			itemMargin = '0',
 			itemDirection = 'row',
@@ -133,6 +133,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 									{ label.text }
 									{ items.find( item => item.label === label.text )?.value && (
 										<span className={ styles[ 'legend-item-value' ] }>
+											{ ' ' }
 											{ items.find( item => item.label === label.text )?.value }
 										</span>
 									) }
