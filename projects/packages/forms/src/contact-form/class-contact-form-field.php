@@ -2224,7 +2224,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		ob_start();
 		?>
-		<div class="jetpack-field-slider__input-row">
+		<div class="jetpack-field-slider__input-row"
+			data-wp-context='
+			<?php
+			echo wp_json_encode(
+				array(
+					'min'     => $min,
+					'max'     => $max,
+					'default' => $starting_value,
+				)
+			);
+			?>
+			'>
 			<span class="jetpack-field-slider__min-label"><?php echo esc_html( $min ); ?></span>
 			<div class="jetpack-field-slider__input-container">
 				<input
