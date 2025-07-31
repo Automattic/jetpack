@@ -23,9 +23,12 @@ export const settings = {
 		},
 		color: {
 			text: true,
-			background: false, // Disable default background to avoid wrapper styling
+			background: true, // Keep background support for backward compatibility
+			gradients: true,
 			__experimentalDefaultControls: {
+				background: true,
 				text: true,
+				gradient: true,
 			},
 		},
 		__experimentalBorder: {
@@ -85,7 +88,39 @@ export const settings = {
 	],
 	transforms: {},
 	example: {},
+	// Accept legacy markup (single progress bar div) as still valid to avoid validation errors.
+	isValid: ( attrs, innerBlocks, { innerHTML } ) => {
+		return (
+			innerHTML &&
+			innerHTML.includes( 'jetpack-form-progress-indicator-bar' ) &&
+			! innerHTML.includes( 'jetpack-form-progress-indicator-steps' )
+		);
+	},
 	deprecated: [
+		// v1 – original implementation with only progress bar (no steps container)
+		{
+			// When block was saved before attributes like showStepNames existed.
+			attributes: {
+				showStepNames: { type: 'boolean' },
+				progressColor: { type: 'string' },
+				backgroundColor: { type: 'string' },
+			},
+			isEligible: attrs => attrs.showStepNames === undefined,
+			save: () => {
+				const blockProps = useBlockProps.save();
+				return (
+					<div className="jetpack-form-progress-indicator--wrapper">
+						<div { ...blockProps }>
+							<div className="jetpack-form-progress-indicator-bar"></div>
+						</div>
+					</div>
+				);
+			},
+			migrate: attributes => ( {
+				...attributes,
+				showStepNames: false,
+			} ),
+		},
 		{
 			attributes: {
 				showStepNames: {
@@ -112,7 +147,12 @@ export const settings = {
 				);
 			},
 			isEligible: ( attributes, innerBlocks, { innerHTML } ) => {
-				return innerHTML && innerHTML.includes( 'jetpack-form-progress-indicator-bar' );
+				// Eligible when markup contains the legacy bar element but NOT the new steps container.
+				return (
+					innerHTML &&
+					innerHTML.includes( 'jetpack-form-progress-indicator-bar' ) &&
+					! innerHTML.includes( 'jetpack-form-progress-indicator-steps' )
+				);
 			},
 			migrate: attributes => {
 				// Ensure showStepNames defaults to false if not set
