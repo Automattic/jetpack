@@ -3,11 +3,17 @@
  * Featured Image in Email Test file.
  *
  * @package wpcomsh
+ * @covers ::wpcomsh_featured_image_in_email_default
  */
+
+use PHPUnit\Framework\Attributes\CoversFunction;
 
 /**
  * Class FeaturedImageInEmailTest.
+ *
+ * @covers ::wpcomsh_featured_image_in_email_default
  */
+#[CoversFunction( 'wpcomsh_featured_image_in_email_default' )]
 class FeaturedImageInEmailTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
