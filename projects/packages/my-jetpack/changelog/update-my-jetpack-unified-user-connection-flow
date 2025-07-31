@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Unified user connection flow by directly redirecting to wordpress.com.
+Updated connection screen to redirect to Calypso.
