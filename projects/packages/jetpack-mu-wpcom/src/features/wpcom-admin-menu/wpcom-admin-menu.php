@@ -318,7 +318,6 @@ function wpcom_add_jetpack_submenu() {
 		'newsletter',
 		'podcasting',
 		'jetpack#/settings',
-		'jetpack#/dashboard',
 	);
 	$ordered_submenu = array();
 

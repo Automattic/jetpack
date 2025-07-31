@@ -53,7 +53,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 		$jetpack_react = new Jetpack_React_Page();
-		$jetpack_react->jetpack_add_dashboard_sub_nav_item();
 		$jetpack_react->jetpack_add_settings_sub_nav_item();
 
 		$jetpack_stats = new Dashboard();
