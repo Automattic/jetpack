@@ -265,30 +265,23 @@ class Jetpack_Options {
 	 * @return bool True if external storage should be checked for this option.
 	 */
 	private static function should_use_external_storage( $name ) {
-		// Only handle specific connection options
-		$external_options = array( 'blog_token', 'id' );
-		if ( ! in_array( $name, $external_options, true ) ) {
+		// Quick bailout for unsupported options or killswitch
+		if ( ! in_array( $name, array( 'blog_token', 'id' ), true ) ||
+			( defined( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) && constant( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) ) ) {
 			return false;
 		}
-
-		if ( defined( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) && constant( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) ) {
-			return false;
-		}
-
-		// Default: disabled (environments can override)
-		$default = false;
 
 		/**
 		 * Filter to control whether external storage should be used for a given option.
-		 * Environments use this to enable external storage.
+		 * Environments use this to opt-in to external storage for their sites.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool   $enabled     Whether external storage should be used.
+		 * @param bool   $enabled     Whether external storage should be used (default: false).
 		 * @param string $option_name Option name, _without_ `jetpack_%` prefix.
 		 * @return bool True to use external storage, false to use database only.
 		 */
-		return (bool) apply_filters( 'jetpack_should_use_external_storage', $default, $name );
+		return apply_filters( 'jetpack_should_use_external_storage', false, $name );
 	}
 
 	/**
