@@ -1,3 +1,4 @@
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
@@ -53,6 +54,31 @@ export const settings = {
 	edit: edit,
 	save: save,
 	example: {},
+	deprecated: [
+		{
+			// Legacy markup did not include the data-step-label attribute that is now written by the block.
+			attributes: {
+				align: { type: 'string' },
+				backgroundColor: { type: 'string' },
+				gradient: { type: 'string' },
+				textColor: { type: 'string' },
+				style: { type: 'object' },
+				stepLabel: { type: 'string' },
+			},
+			isEligible: ( attributes, innerBlocks, { innerHTML } ) => {
+				// Eligible when markup does NOT contain the new data attribute.
+				return innerHTML && ! innerHTML.includes( 'data-step-label' );
+			},
+			save: () => {
+				// Replicate legacy output – simply render inner blocks without extra dataset.
+				const blockProps = useBlockProps.save();
+				const innerBlocksProps = useInnerBlocksProps.save( blockProps );
+
+				return <div { ...innerBlocksProps } />;
+			},
+			migrate: attributes => attributes, // No attribute changes required.
+		},
+	],
 };
 
 export default {
