@@ -259,6 +259,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * Validates the form input
 	 */
 	public function validate() {
+		// If the field is already invalid, don't validate it again.
+		if ( $this->is_error() ) {
+			return;
+		}
+
 		$field_type = $this->maybe_override_type();
 		// If it's not required, there's nothing to validate
 		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
