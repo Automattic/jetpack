@@ -599,29 +599,33 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin       = Contact_Form_Plugin::init();
 		$current_post = Utility::create_post_context();
 		$post_ids     = array();
-		$post_ids[]   = Utility::create_legacy_feedback(
+
+		$post_id_1  = Utility::create_legacy_feedback(
 			array(
 				'1_field_A' => 'value1',
 				'2_field_B' => 'value2',
 			)
 		);
+		$post_1     = get_post( $post_id_1 );
+		$post_ids[] = $post_id_1;
 
-		$post_ids[] = Utility::create_legacy_feedback(
+		$post_id_2  = Utility::create_legacy_feedback(
 			array(
 				'1_field_A' => 'value1',
 				'2_field_C' => 'value2',
 			)
 		);
+		$post_2     = get_post( $post_id_2 );
+		$post_ids[] = $post_id_2;
 
-		$current_time    = current_time( 'mysql' );
 		$default_consent = 'No';
 		$ip              = 'https://127.0.0.1';
 
 		$this->assertEquals(
 			array(
 
-				'ID'         => array( $post_ids[0], $post_ids[1] ),
-				'Date'       => array( $current_time, $current_time ),
+				'ID'         => array( $post_id_1, $post_id_2 ),
+				'Date'       => array( $post_1->post_date, $post_2->post_date ),
 				'Title'      => array( $current_post->post_title, $current_post->post_title ),
 				'field_A'    => array( 'value1', 'value1' ),
 				'field_B'    => array( 'value2', '' ),
@@ -740,5 +744,66 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		}
 
 		Utility::destroy_post_context( $current_post );
+	}
+
+	public function test_interpersonal_data_exporter() {
+		global $post;
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'value2',
+				'email'   => 'hello@example.com',
+			)
+		);
+
+		$plugin   = Contact_Form_Plugin::init();
+		$exporter = $plugin->internal_personal_data_formater( array( $post_id ) );
+
+		$assert = array(
+			'group_id'    => 'feedback',
+			'group_label' => 'Feedback',
+			'item_id'     => 'feedback-' . $post_id,
+			'data'        => array(
+				array(
+					'name'  => 'Date',
+					'value' => get_post_field( 'post_date', $post_id ),
+				),
+				array(
+					'name'  => 'Source Title',
+					'value' => 'Cool Post Title', // the default value in the create_legacy_feedback
+				),
+				array(
+					'name'  => 'Source URL:',
+					'value' => get_permalink( $post->ID ),
+				),
+				array(
+					'name'  => 'field',
+					'value' => 'value1',
+				),
+				array(
+					'name'  => 'field',
+					'value' => 'value2',
+				),
+				array(
+					'name'  => 'email',
+					'value' => 'hello@example.com',
+				),
+				array(
+					'name'  => 'Consent',
+					'value' => 'No',
+				),
+				array(
+					'name'  => 'IP Address',
+					'value' => 'https://127.0.0.1',
+				), // same as the default value in the create_legacy_feedback
+			),
+		);
+
+		$this->assertEquals(
+			$assert,
+			$exporter[0]
+		);
+		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
 	}
 }

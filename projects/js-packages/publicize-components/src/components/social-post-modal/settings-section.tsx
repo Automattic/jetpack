@@ -1,4 +1,4 @@
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { Notice, Panel } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -71,7 +71,7 @@ export function SettingsSection( { onReShared } ) {
 						isDismissible={ false }
 						actions={ [
 							{
-								url: getMyJetpackUrl( '#/connection' ),
+								url: getUserConnectionUrl(),
 								label: __( 'Connect now', 'jetpack-publicize-components' ),
 								variant: 'link',
 							},
