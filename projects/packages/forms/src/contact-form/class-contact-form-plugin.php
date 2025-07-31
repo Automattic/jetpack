@@ -3101,16 +3101,11 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
-		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
-			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
-				if ( 'jetpack/input-range' === ( $inner_block['blockName'] ?? '' ) ) {
-					$attrs           = $inner_block['attrs'] ?? array();
-					$atts['min']     = isset( $attrs['min'] ) && $attrs['min'] !== '' ? $attrs['min'] : 0;
-					$atts['max']     = isset( $attrs['max'] ) && $attrs['max'] !== '' ? $attrs['max'] : 100;
-					$atts['default'] = isset( $attrs['default'] ) && $attrs['default'] !== '' ? $attrs['default'] : 50;
-				}
-			}
-		}
+		// Get min, max, and default from the parent block's attributes.
+		$parent_attrs    = $block->parsed_block['attrs'] ?? array();
+		$atts['min']     = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
+		$atts['max']     = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
+		$atts['default'] = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 50;
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );

@@ -14,13 +14,40 @@ const settings = {
 		foreground: getIconColor(),
 		src: <SliderIcon />,
 	},
+	attributes: {
+		...defaultSettings.attributes,
+		min: {
+			type: 'number',
+			default: 0,
+		},
+		max: {
+			type: 'number',
+			default: 100,
+		},
+		default: {
+			type: 'number',
+			default: 50,
+		},
+	},
 	edit,
 	save,
 	supports: {
 		...defaultSettings.supports,
 		interactivity: true,
 	},
+	providesContext: {
+		...defaultSettings.providesContext,
+		'jetpack/field-slider-min': 'min',
+		'jetpack/field-slider-max': 'max',
+		'jetpack/field-slider-default': 'default',
+		'jetpack/field-slider-onChangeDefault': 'onChangeDefault',
+	},
 	example: {
+		attributes: {
+			min: 0,
+			max: 100,
+			default: 50,
+		},
 		innerBlocks: [
 			{
 				name: 'jetpack/label',
@@ -30,11 +57,7 @@ const settings = {
 			},
 			{
 				name: 'jetpack/input-range',
-				attributes: {
-					min: 0,
-					max: 100,
-					default: 50,
-				},
+				attributes: {},
 			},
 		],
 	},

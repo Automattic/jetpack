@@ -1,21 +1,24 @@
 import './editor.scss';
-import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { __ } from '@wordpress/i18n';
+import { useBlockProps } from '@wordpress/block-editor';
 
 export default function SliderInputEdit( props ) {
-	const { attributes, setAttributes } = props;
-	const { min, max, default: defaultValue } = attributes;
+	const { context = {} } = props;
 
-	const onChange = event => {
-		setAttributes( { default: Number( event.target.value ) } );
-	};
+	const min = context[ 'jetpack/field-slider-min' ];
+	const max = context[ 'jetpack/field-slider-max' ];
+	const defaultValue = context[ 'jetpack/field-slider-default' ];
+	const onChangeDefault = context[ 'jetpack/field-slider-onChangeDefault' ];
 
 	const blockProps = useBlockProps( {
 		className: 'jetpack-input-range',
 	} );
 
-	// Mimic the Interactivity API's getSliderPosition logic
+	const onChange = event => {
+		if ( onChangeDefault ) {
+			onChangeDefault( event.target.value );
+		}
+	};
+
 	const getSliderPosition = () => {
 		const minNum = Number( min );
 		const maxNum = Number( max );
@@ -27,67 +30,27 @@ export default function SliderInputEdit( props ) {
 	};
 
 	return (
-		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<NumberControl
-						key="min"
-						label={ __( 'Minimum value', 'jetpack-forms' ) }
-						value={ min }
-						onChange={ newMin => setAttributes( { min: newMin } ) }
-						max={ max }
-						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
-						help={ __(
-							'The minimum value to accept in the slider. Leaving empty allows any negative and positive values.',
-							'jetpack-forms'
-						) }
-					/>
-					<NumberControl
-						key="max"
-						label={ __( 'Maximum value', 'jetpack-forms' ) }
-						value={ max }
-						onChange={ newMax => setAttributes( { max: newMax } ) }
+		<div { ...blockProps }>
+			<div className="jetpack-field-slider__row">
+				<span className="jetpack-field-slider__min-label">{ min }</span>
+				<div className="jetpack-field-slider__input-container">
+					<input
+						type="range"
 						min={ min }
-						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
-						help={ __( 'The maximum value to accept in the slider.', 'jetpack-forms' ) }
-					/>
-					<NumberControl
-						key="startingValue"
-						label={ __( 'Starting value', 'jetpack-forms' ) }
+						max={ max }
 						value={ defaultValue }
-						onChange={ newValue => setAttributes( { default: newValue } ) }
-						min={ min }
-						max={ max }
-						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
-						help={ __( 'The value the slider will start at.', 'jetpack-forms' ) }
+						onChange={ onChange }
+						className="jetpack-field-slider__range"
 					/>
-				</PanelBody>
-			</InspectorControls>
-			<div { ...blockProps }>
-				<div className="jetpack-field-slider__row">
-					<span className="jetpack-field-slider__min-label">{ min }</span>
-					<div className="jetpack-field-slider__input-container">
-						<input
-							type="range"
-							min={ min }
-							max={ max }
-							value={ defaultValue }
-							onChange={ onChange }
-							className="jetpack-field-slider__range"
-						/>
-						<div
-							className="jetpack-field-slider__value-indicator"
-							style={ { left: getSliderPosition() } }
-						>
-							{ defaultValue }
-						</div>
+					<div
+						className="jetpack-field-slider__value-indicator"
+						style={ { left: getSliderPosition() } }
+					>
+						{ defaultValue }
 					</div>
-					<span className="jetpack-field-slider__max-label">{ max }</span>
 				</div>
+				<span className="jetpack-field-slider__max-label">{ max }</span>
 			</div>
-		</>
+		</div>
 	);
 }
