@@ -25,18 +25,6 @@ export function boostPrerequisitesBuilder( page ) {
 	};
 
 	return {
-		withActiveModules( modules = [] ) {
-			state.modules.active = modules;
-			return this;
-		},
-		withInactiveModules( modules = [] ) {
-			state.modules.inactive = modules;
-			return this;
-		},
-		withLoggedIn( shouldBeLoggedIn ) {
-			state.loggedIn = shouldBeLoggedIn;
-			return this;
-		},
 		withConnection( shouldBeConnected ) {
 			state.connected = shouldBeConnected;
 			return this;

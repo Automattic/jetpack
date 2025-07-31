@@ -24,8 +24,10 @@ test.describe( 'LCP Image Optimization module', () => {
 		await page.close();
 	} );
 
-	test( 'LCP optimization UI should be toggled off when module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lcp' ] ).build();
+	test( 'LCP optimization UI should be toggled off when module is inactive', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateBoostModule( [ 'lcp' ] );
 		await JetpackBoostPage.visit( page );
 
 		await expect(
@@ -34,8 +36,10 @@ test.describe( 'LCP Image Optimization module', () => {
 		).not.toBeChecked();
 	} );
 
-	test( 'LCP optimization should start analysis when module is activated', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lcp' ] ).build();
+	test( 'LCP optimization should start analysis when module is activated', async ( {
+		testUtils,
+	} ) => {
+		await testUtils.deactivateBoostModule( [ 'lcp' ] );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		// Don't await the click, as it will trigger the analysis, we will await the status change instead

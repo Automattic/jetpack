@@ -1,9 +1,14 @@
 {
 	"private": true,
 	"description": "Check that a Pull Request has reviews from required teams.",
-	"main": "index.js",
-	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"main": "index.js",
+	"scripts": {
+		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt",
+		"test": "jest --config=tests/jest.config.js --verbose",
+		"test-coverage": "pnpm run test --coverage"
+	},
 	"dependencies": {
 		"@actions/core": "1.11.1",
 		"@actions/github": "6.0.1",
@@ -14,10 +19,5 @@
 	"devDependencies": {
 		"@vercel/ncc": "0.36.1",
 		"jest": "30.0.4"
-	},
-	"scripts": {
-		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt",
-		"test": "jest --config=tests/jest.config.js --verbose",
-		"test-coverage": "pnpm run test --coverage"
 	}
 }

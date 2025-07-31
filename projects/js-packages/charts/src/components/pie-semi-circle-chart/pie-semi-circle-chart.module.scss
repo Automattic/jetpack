@@ -4,17 +4,24 @@
 	text-align: center;
 
 	&-legend {
-		margin-top: 1rem;
+
+		&.is-on-top {
+			margin-bottom: 1rem; // Add space between legend and pie chart
+		}
+
+		&.is-on-bottom {
+			margin-top: 1rem; // Add space between pie chart and legend
+		}
 	}
 
 	.label {
-		margin-bottom: 0;  // Add space between label and pie chart
-		font-weight: 600;    // Make label more prominent than note
-		font-size: 16px;     // Set explicit font size
+		margin-bottom: 0; // Add space between label and pie chart
+		font-weight: 600; // Make label more prominent than note
+		font-size: 16px; // Set explicit font size
 	}
 
 	.note {
-		margin-top: 0;     // Add space between pie chart and note
-		font-size: 14px;     // Slightly smaller text for hierarchy
+		margin-top: 0; // Add space between pie chart and note
+		font-size: 14px; // Slightly smaller text for hierarchy
 	}
 }

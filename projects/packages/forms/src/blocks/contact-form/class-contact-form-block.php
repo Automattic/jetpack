@@ -524,7 +524,7 @@ class Contact_Form_Block {
 
 		$data = array(
 			'defaults' => array(
-				'to'                   => Contact_Form::get_default_to( $post ? $post->post_author : null ),
+				'to'                   => Contact_Form::get_default_to( $post ? Contact_Form::get_post_property( $post, 'post_author' ) : null ),
 				'subject'              => Contact_Form::get_default_subject( array() ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,

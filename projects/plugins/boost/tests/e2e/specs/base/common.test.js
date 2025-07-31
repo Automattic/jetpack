@@ -38,13 +38,15 @@ test.describe( 'Common tests', () => {
 		);
 	} );
 
-	test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option', async () => {
+	test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option', async ( {
+		testUtils,
+	} ) => {
 		// Generate Critical CSS to ensure that on plugin deactivation it is cleared.
 		// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv( true )
-			.withActiveModules( [ 'critical_css' ] )
-			.build();
+		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).build();
+
+		await testUtils.activateBoostModule( 'critical_css' );
+
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		// Wait for generation progress UI first
@@ -78,6 +80,6 @@ test.describe( 'Common tests', () => {
 		expect( result.length, 'No DB records are found' ).toBe( 0 );
 
 		// Ensure the plugin is activated again so future tests can run reset commands via withCleanEnv.
-		await execWpCommand( 'plugin activate jetpack-boost' );
+		await testUtils.executeWpCommand( 'plugin activate jetpack-boost' );
 	} );
 } );

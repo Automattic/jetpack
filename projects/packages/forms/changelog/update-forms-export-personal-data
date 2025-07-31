@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: update internal_personal_data_exporter to use new Feedback class

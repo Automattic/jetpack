@@ -1,18 +1,20 @@
 import { Button, Text } from '@automattic/jetpack-components';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
+import { PRODUCT_STATUSES } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
+import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
 import styles from './style.module.scss';
@@ -188,17 +190,19 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		'jetpack-my-jetpack'
 	);
 
+	const planPurchaseDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+
 	const planManageClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
 	}, [ recordEvent ] );
 
-	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
+	const planPurchaseClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
+	}, [ recordEvent ] );
+
 	const activateLicenseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
-		if ( ! isUserConnected ) {
-			navigateToConnectionPage();
-		}
-	}, [ navigateToConnectionPage, isUserConnected, recordEvent ] );
+	}, [ recordEvent ] );
 
 	let activateLicenceDescription = __( 'Activate a license', 'jetpack-my-jetpack' );
 	if ( ! isUserConnected ) {
@@ -208,7 +212,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		);
 	}
 
-	const { loadAddLicenseScreen = '', adminUrl = '' } = getMyJetpackWindowInitialState();
+	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
 
 	return (
 		<ul>
@@ -219,14 +223,25 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 					</ExternalLink>
 				</li>
 			) }
+			{ ! hasComplete && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Button
+						onClick={ planPurchaseClickHandler }
+						href={ getPurchasePlanUrl() }
+						weight="regular"
+						variant="link"
+						isExternalLink={ true }
+					>
+						{ planPurchaseDescription }
+					</Button>
+				</li>
+			) }
 
 			{ ! hasComplete && loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Button
 						onClick={ activateLicenseClickHandler }
-						href={
-							isUserConnected ? `${ adminUrl }admin.php?page=my-jetpack#/add-license` : undefined
-						}
+						href={ isUserConnected ? getMyJetpackUrl( '#/add-license' ) : getUserConnectionUrl() }
 						variant="link"
 						weight="regular"
 					>

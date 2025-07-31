@@ -1,5 +1,5 @@
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
 
 /**
  * Enable automatic rules
@@ -7,8 +7,8 @@ import logger from '_jetpack-e2e-commons/logger.js';
  */
 export async function enableAutomaticRules() {
 	logger.sync( 'Enabling automatic firewall rules' );
-	const optionUpdated = execWpCommand( 'option update jetpack_waf_automatic_rules 1' );
-	const rulesGenerated = execWpCommand( 'jetpack-waf generate_rules' );
+	const optionUpdated = executeWpCommand( 'option update jetpack_waf_automatic_rules 1' );
+	const rulesGenerated = executeWpCommand( 'jetpack-waf generate_rules' );
 	return optionUpdated && rulesGenerated;
 }
 
@@ -18,5 +18,5 @@ export async function enableAutomaticRules() {
  */
 export async function generateRules() {
 	logger.sync( 'Generating firewall rules' );
-	return execWpCommand( 'jetpack-waf generate_rules' );
+	return executeWpCommand( 'jetpack-waf generate_rules' );
 }

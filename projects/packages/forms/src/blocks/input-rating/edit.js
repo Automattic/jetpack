@@ -1,75 +1,55 @@
-import {
-	useBlockProps,
-	InspectorControls,
-	store as blockEditorStore,
-} from '@wordpress/block-editor';
-import { PanelBody, RangeControl } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import Stars from './stars';
+import { useBlockProps } from '@wordpress/block-editor';
+import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { DEFAULT_GLYPHS } from './constants';
+import Symbols from './symbols';
+import './editor.scss';
 
-export default function RatingInputEdit( { clientId, attributes, setAttributes } ) {
-	const { max, default: defaultValue } = attributes;
+/**
+ * Rating Input Edit Component
+ *
+ * Interactive rating component that renders clickable symbols (stars, hearts, etc.)
+ * and handles user input. Reads values from parent field-rating block via context.
+ *
+ * @param {object}   props               - Component props from WordPress block editor
+ * @param {object}   props.context       - Block context values from parent block
+ * @param {Function} props.setAttributes - Function to update block attributes
+ * @param {string}   props.clientId      - Unique identifier for the block instance
+ * @return {import('react').JSX.Element} Rating input editor component
+ */
+export default function RatingInputEdit( { context, setAttributes, clientId } ) {
+	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
+	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
+	const className = context?.[ 'jetpack/field-rating-className' ] || 'is-style-stars';
+	const onChangeDefault = context?.[ 'jetpack/field-rating-onChangeDefault' ] || ( () => {} );
 
-	const { parentClientId } = useSelect(
-		select => {
-			const { getBlockRootClientId } = select( blockEditorStore );
-			return { parentClientId: getBlockRootClientId( clientId ) };
+	useEffect( () => {
+		setAttributes( { className } );
+	}, [ className, setAttributes ] );
+
+	// Get icon component based on className
+	const icon = className.includes( 'is-style-hearts' )
+		? DEFAULT_GLYPHS.hearts.icon
+		: DEFAULT_GLYPHS.stars.icon;
+
+	const blockProps = useBlockProps( {
+		'aria-label': __( 'Rating input', 'jetpack-forms' ),
+		className: 'jetpack-rating-input-wrapper',
+		style: {
+			// Set the CSS variable that the frontend styles expect
+			'--jetpack--contact-form--rating-star-color': 'currentColor',
 		},
-		[ clientId ]
-	);
-
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
-
-	const updateMax = newMax => {
-		// update local attribute so the control reflects immediately
-		const newProps = {
-			max: newMax,
-			default: newMax < defaultValue ? newMax : defaultValue,
-		};
-		setAttributes( newProps );
-
-		// propagate to parent field-rating so it is saved and rendered on front-end
-		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, newProps );
-		}
-	};
-
-	const updateDefault = newVal => {
-		setAttributes( { default: newVal } );
-
-		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, {
-				default: newVal,
-			} );
-		}
-	};
-
-	const blockProps = useBlockProps();
+	} );
 
 	return (
-		<>
-			<InspectorControls>
-				<PanelBody title="Rating settings">
-					<RangeControl
-						label="Highest rating"
-						min={ 2 }
-						max={ 10 }
-						value={ max }
-						onChange={ updateMax }
-					/>
-					<RangeControl
-						label="Default value"
-						min={ 0 }
-						max={ max }
-						value={ defaultValue }
-						onChange={ updateDefault }
-					/>
-				</PanelBody>
-			</InspectorControls>
-
-			<div { ...blockProps }>
-				<Stars max={ max } value={ defaultValue } onChange={ updateDefault } />
-			</div>
-		</>
+		<div { ...blockProps }>
+			<Symbols
+				max={ max }
+				value={ defaultValue }
+				onChange={ onChangeDefault }
+				icon={ icon }
+				uniqueId={ clientId }
+			/>
+		</div>
 	);
 }
