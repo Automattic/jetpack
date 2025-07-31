@@ -1,18 +1,12 @@
-import pwConfig from '../../playwright.config.mjs';
-import WpPage from '../wp-page.js';
+import { Editor } from '@wordpress/e2e-test-utils-playwright';
 
-export default class BlockEditorPage extends WpPage {
-	constructor( page ) {
-		const url = pwConfig.use.baseURL + '/wp-admin/post-new.php';
-		super( page, { expectedSelectors: [ '#editor' ], url } );
-	}
-
+export default class EditorPage extends Editor {
 	/**
 	 * Returns the editor top bar locator.
 	 *
 	 * @return {import('@playwright/test').Locator} The editor top bar locator.
 	 */
-	getEditorTopBar() {
+	getEditorTopBar(): import('@playwright/test').Locator {
 		return this.page.getByRole( 'region', { name: 'Editor top bar' } );
 	}
 
@@ -21,7 +15,7 @@ export default class BlockEditorPage extends WpPage {
 	 *
 	 * @return {import('@playwright/test').Locator} The editor settings sidebar locator.
 	 */
-	getEditorSettingsSidebar() {
+	getEditorSettingsSidebar(): import('@playwright/test').Locator {
 		return this.page.getByRole( 'region', { name: 'Editor settings' } );
 	}
 
@@ -30,7 +24,7 @@ export default class BlockEditorPage extends WpPage {
 	 *
 	 * @return {import('@playwright/test').Locator} The more options button locator.
 	 */
-	getMoreOptionsButton() {
+	getMoreOptionsButton(): import('@playwright/test').Locator {
 		return this.getEditorTopBar().getByRole( 'button', {
 			name: 'Options',
 			exact: true,
@@ -47,7 +41,7 @@ export default class BlockEditorPage extends WpPage {
 	 * @param {import('@playwright/test').Locator} target - Target button.
 	 * @return {Promise<boolean>} True if target is in an expanded state. False otherwise.
 	 */
-	async #targetIsOpen( target ) {
+	async #targetIsOpen( target: import('@playwright/test').Locator ): Promise< boolean > {
 		const checked = await target.getAttribute( 'aria-checked' );
 		const pressed = await target.getAttribute( 'aria-pressed' );
 		const expanded = await target.getAttribute( 'aria-expanded' );
@@ -61,7 +55,7 @@ export default class BlockEditorPage extends WpPage {
 	 *
 	 * @param {string} target - The target to open. Can be 'Settings', 'Jetpack', 'Jetpack Social'.
 	 */
-	async openSettings( target = 'Settings' ) {
+	async openSettings( target: string = 'Settings' ) {
 		let button = this.getEditorTopBar().getByLabel( target );
 
 		// For other pinned settings, we need to open the options menu
