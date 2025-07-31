@@ -119,7 +119,12 @@ const entries = {
 };
 
 // CSS that needs to have the rtl files renamed using the above RenamerPlugin.
-const weirdRtlEntries = {};
+const weirdRtlEntries = {
+	'_inc/build/subscriptions/subscriptions.min': path.join(
+		__dirname,
+		'../modules/subscriptions/subscriptions.css'
+	),
+};
 
 // Non-minified CSS, that also needs to have the rtl files renamed using the above RenamerPlugin.
 const weirdRtlNominEntries = {};

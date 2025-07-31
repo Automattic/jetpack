@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Subscriptions: improve performance of the legacy Subscriptions widget, by allowing inlining the CSS, and minifying the CSS in production environments.
