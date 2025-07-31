@@ -13,6 +13,26 @@ import {
 import { validateField } from '../../contact-form/js/validate-helper';
 import { focusNextInput, dispatchSubmitEvent, submitForm } from './shared';
 
+const isEmptyValue = value => {
+	if ( value === null || value === undefined ) {
+		return true;
+	}
+
+	if ( typeof value === 'string' && value.trim() === '' ) {
+		return true;
+	}
+
+	if ( Array.isArray( value ) && value.length === 0 ) {
+		return true;
+	}
+
+	if ( typeof value === 'object' && Object.keys( value ).length === 0 ) {
+		return true;
+	}
+
+	return false;
+};
+
 const withSyncEvent =
 	originalWithSyncEvent ||
 	( cb =>
@@ -132,17 +152,15 @@ const { state } = store( NAMESPACE, {
 			if ( context?.maxSteps && context.maxSteps > 0 ) {
 				return false;
 			}
-			return ! Object.values( context.fields ).some( field => field.value.trim() !== '' );
+
+			return ! Object.values( context.fields ).some( field => ! isEmptyValue( field.value ) );
 		},
 
 		get isFieldEmpty() {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
-			return !! (
-				field.value === '' ||
-				( Array.isArray( field.value ) && field.value.length === 0 )
-			);
+			return isEmptyValue( field?.value );
 		},
 
 		get hasFieldValue() {
