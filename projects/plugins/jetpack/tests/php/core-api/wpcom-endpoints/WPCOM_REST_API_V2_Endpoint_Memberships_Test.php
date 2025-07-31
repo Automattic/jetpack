@@ -1,15 +1,21 @@
 <?php
 /**
  * Tests for /wpcom/v2/external-media endpoints.
+ *
+ * @covers WPCOM_REST_API_V2_Endpoint_Memberships
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Memberships_Test
+ *
+ * @covers \WPCOM_REST_API_V2_Endpoint_Memberships
  */
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_Memberships::class )]
 class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase {
 
 	/**
