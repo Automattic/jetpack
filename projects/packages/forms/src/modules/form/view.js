@@ -312,6 +312,7 @@ const { state } = store( NAMESPACE, {
 		onFormReset: () => {
 			const context = getContext();
 			context.fields = [];
+			context.showErrors = false;
 
 			// Dispatch custom events to reset all fields
 			const formElement = document.getElementById( context.elementId );
