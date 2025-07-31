@@ -298,6 +298,9 @@ const { state } = store( NAMESPACE, {
 				newValues = newValues.filter( v => v !== value );
 			}
 
+			// If the new values array is empty, we set it to an empty string.
+			newValues = newValues.length > 0 ? newValues : '';
+
 			updateField( fieldId, newValues );
 		},
 
