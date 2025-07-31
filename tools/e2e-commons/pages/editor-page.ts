@@ -1,30 +1,31 @@
+import { Locator } from '@playwright/test';
 import { Editor } from '@wordpress/e2e-test-utils-playwright';
 
 export default class EditorPage extends Editor {
 	/**
 	 * Returns the editor top bar locator.
 	 *
-	 * @return {import('@playwright/test').Locator} The editor top bar locator.
+	 * @return {Locator} The editor top bar locator.
 	 */
-	getEditorTopBar(): import('@playwright/test').Locator {
+	getEditorTopBar(): Locator {
 		return this.page.getByRole( 'region', { name: 'Editor top bar' } );
 	}
 
 	/**
 	 * Returns the editor settings sidebar locator.
 	 *
-	 * @return {import('@playwright/test').Locator} The editor settings sidebar locator.
+	 * @return {Locator} The editor settings sidebar locator.
 	 */
-	getEditorSettingsSidebar(): import('@playwright/test').Locator {
+	getEditorSettingsSidebar(): Locator {
 		return this.page.getByRole( 'region', { name: 'Editor settings' } );
 	}
 
 	/**
 	 * Returns the more options button instance.
 	 *
-	 * @return {import('@playwright/test').Locator} The more options button locator.
+	 * @return {Locator} The more options button locator.
 	 */
-	getMoreOptionsButton(): import('@playwright/test').Locator {
+	getMoreOptionsButton(): Locator {
 		return this.getEditorTopBar().getByRole( 'button', {
 			name: 'Options',
 			exact: true,
@@ -38,10 +39,10 @@ export default class EditorPage extends Editor {
 	 * If the toggle is in the on state or otherwise in an expanded
 	 * state, this method will return true. Otherwise, false.
 	 *
-	 * @param {import('@playwright/test').Locator} target - Target button.
+	 * @param {Locator} target - Target button.
 	 * @return {Promise<boolean>} True if target is in an expanded state. False otherwise.
 	 */
-	async #targetIsOpen( target: import('@playwright/test').Locator ): Promise< boolean > {
+	async #targetIsOpen( target: Locator ): Promise< boolean > {
 		const checked = await target.getAttribute( 'aria-checked' );
 		const pressed = await target.getAttribute( 'aria-pressed' );
 		const expanded = await target.getAttribute( 'aria-expanded' );
