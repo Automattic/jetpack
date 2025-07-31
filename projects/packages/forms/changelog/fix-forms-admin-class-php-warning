@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix PHP warning in forms admin class.

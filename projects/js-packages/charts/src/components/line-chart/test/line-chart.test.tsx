@@ -338,7 +338,7 @@ describe( 'LineChart', () => {
 			expect( legendGlyphs ).toHaveLength( 2 );
 		} );
 
-		test( 'renders legend glyphs when withLegendGlyph is false', () => {
+		test( 'does not render legend glyphs when withLegendGlyph is false', () => {
 			renderWithTheme( {
 				withLegendGlyph: false,
 				showLegend: true,

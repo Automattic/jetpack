@@ -1,20 +1,13 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import logger from '_jetpack-e2e-commons/logger.js';
 import BlockEditorPage from '_jetpack-e2e-commons/pages/wp-admin/block-editor.js';
 import { connect } from '../flows/index.js';
-import playwrightConfig from '../playwright.config.mjs';
 
-test.beforeAll( async ( { browser, testUtils } ) => {
+test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.disconnect();
 	await testUtils.executeWpCommand( 'option delete jetpack-social_show_pricing_page' );
-
-	const page = await browser.newPage( playwrightConfig.use );
-	await prerequisitesBuilder( page )
-		.withInactivePlugins( [ 'jetpack' ] )
-		.withActivePlugins( [ 'jetpack-social' ] )
-		.build();
-	await page.close();
+	await testUtils.requestUtils.deactivatePlugin( 'jetpack' );
+	await testUtils.requestUtils.activatePlugin( 'jetpack-social' );
 } );
 
 test( 'Jetpack Social sidebar', async ( { page, admin } ) => {

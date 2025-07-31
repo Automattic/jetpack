@@ -2,17 +2,6 @@
 /**
  * The Jetpack Connection Protected Owner Error Handler class file.
  *
- * USAGE EXAMPLES:
- *
- * 1. Basic usage (automatic - no code required):
- *    The class automatically handles protected owner errors when they occur.
- *
- * 2. Check if enhanced features are available:
- *    $handler = Protected_Owner_Error_Handler::get_instance();
- *    if ( $handler->has_enhanced_error_handling() ) {
- *        // Enhanced features are available
- *    }
- *
  * @package wpcomsh
  */
 
@@ -31,9 +20,6 @@ namespace Automattic\WPComSH\Connection;
  * user creation form when creating missing protected owner accounts. It overrides the
  * default User_Admin class behavior to ensure the WP.com invitation checkbox is not
  * pre-checked when creating protected owner accounts.
- *
- * Automatically uses enhanced error handling when available in newer connection package versions,
- * with backward compatibility for older versions.
  *
  * @since 7.0.0
  */
@@ -138,14 +124,8 @@ class Protected_Owner_Error_Handler {
 		$user_id   = '0';
 		$timestamp = $raw_error['timestamp'] ?? time();
 
-		// Check if we have the new Error_Handler class with build_action_error_data method
-		// This provides enhanced error data for newer connection package versions
-		$error_data = $this->build_enhanced_error_data( $raw_error );
-
-		// Fallback to legacy error data if enhanced method is not available
-		if ( false === $error_data ) {
-			$error_data = $this->build_legacy_error_data( $raw_error );
-		}
+		// Build error data using the connection package build_action_error_data method
+		$error_data = $this->build_error_data( $raw_error );
 
 		$error_details = array(
 			'error_code'    => $error_code,
@@ -167,24 +147,18 @@ class Protected_Owner_Error_Handler {
 	}
 
 	/**
-	 * Build enhanced error data using the new connection package methods
+	 * Build error data using the connection package methods
 	 *
-	 * This method leverages the new build_action_error_data method available in
-	 * new connection package version to provide enhanced
-	 * error handling with secondary button support.
+	 * This method leverages the build_action_error_data method from the
+	 * connection package to provide consistent error handling.
 	 *
 	 * @param array $raw_error The raw error data from the stored option.
-	 * @return array|false Enhanced error data array or false if method not available.
+	 * @return array Error data array.
 	 */
-	private function build_enhanced_error_data( $raw_error ) {
-		// Check if enhanced error handling is available
-		if ( ! $this->has_enhanced_error_handling() ) {
-			return false;
-		}
-
+	private function build_error_data( $raw_error ) {
 		$error_handler = \Automattic\Jetpack\Connection\Error_Handler::get_instance();
 
-		// Build enhanced error data with improved action handling
+		// Build error data with action handling
 		$args = array(
 			'action'         => 'create_missing_account',
 			'action_label'   => __( 'Create Account', 'wpcomsh' ),
@@ -198,52 +172,12 @@ class Protected_Owner_Error_Handler {
 			),
 			'tracking_event' => 'jetpack_protected_owner_create_account_click',
 			'extra_data'     => array(
-				'email'       => $raw_error['email'],
-				'error_type'  => $raw_error['error_type'],
-				'support_url' => admin_url( 'user-new.php' ), // Backward compatibility
+				'email'      => $raw_error['email'],
+				'error_type' => $raw_error['error_type'],
 			),
 		);
 
 		return $error_handler->build_action_error_data( $args );
-	}
-
-	/**
-	 * Build legacy error data for backward compatibility
-	 *
-	 * This method provides the original error data structure for older
-	 * connection package versions that don't support the enhanced features.
-	 *
-	 * @since 7.0.0
-	 *
-	 * @param array $raw_error The raw error data from the stored option.
-	 * @return array Legacy error data array.
-	 */
-	private function build_legacy_error_data( $raw_error ) {
-		$legacy_data = array(
-			'email'       => $raw_error['email'],
-			'error_type'  => $raw_error['error_type'],
-			'action'      => 'create_missing_account',
-			'support_url' => admin_url( 'user-new.php' ),
-		);
-
-		return $legacy_data;
-	}
-
-	/**
-	 * Check if enhanced error handling is available
-	 *
-	 * This method can be used to determine if the current connection package version
-	 * supports the enhanced error handling features.
-	 *
-	 * @return bool True if enhanced features are available, false otherwise.
-	 */
-	public function has_enhanced_error_handling() {
-		if ( ! class_exists( '\Automattic\Jetpack\Connection\Error_Handler' ) ) {
-			return false;
-		}
-
-		$error_handler = \Automattic\Jetpack\Connection\Error_Handler::get_instance();
-		return method_exists( $error_handler, 'build_action_error_data' );
 	}
 
 	/**

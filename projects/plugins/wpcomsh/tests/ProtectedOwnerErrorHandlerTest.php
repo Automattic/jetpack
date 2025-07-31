@@ -43,22 +43,9 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test has_enhanced_error_handling method.
+	 * Test build_error_data method.
 	 */
-	public function test_has_enhanced_error_handling() {
-		$result = $this->handler->has_enhanced_error_handling();
-		$this->assertIsBool( $result );
-	}
-
-	/**
-	 * Test build_enhanced_error_data method when enhanced error handling is available.
-	 */
-	public function test_build_enhanced_error_data_when_available() {
-		// Skip if enhanced error handling is not available
-		if ( ! $this->handler->has_enhanced_error_handling() ) {
-			$this->markTestSkipped( 'Enhanced error handling not available' );
-		}
-
+	public function test_build_error_data() {
 		$raw_error = array(
 			'error_type' => 'missing_owner',
 			'email'      => 'test@example.com',
@@ -66,7 +53,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
-		$method     = $reflection->getMethod( 'build_enhanced_error_data' );
+		$method     = $reflection->getMethod( 'build_error_data' );
 		$method->setAccessible( true );
 
 		$result = $method->invoke( $this->handler, $raw_error );
@@ -74,51 +61,8 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$this->assertIsArray( $result );
 		$this->assertEquals( 'create_missing_account', $result['action'] );
 		$this->assertEquals( 'test@example.com', $result['email'] );
-	}
-
-	/**
-	 * Test build_enhanced_error_data method when enhanced error handling is not available.
-	 */
-	public function test_build_enhanced_error_data_when_not_available() {
-		// Skip if enhanced error handling is available
-		if ( $this->handler->has_enhanced_error_handling() ) {
-			$this->markTestSkipped( 'Enhanced error handling is available' );
-		}
-
-		$raw_error = array(
-			'error_type' => 'missing_owner',
-			'email'      => 'test@example.com',
-		);
-
-		// Use reflection to access private method
-		$reflection = new ReflectionClass( $this->handler );
-		$method     = $reflection->getMethod( 'build_enhanced_error_data' );
-		$method->setAccessible( true );
-
-		$result = $method->invoke( $this->handler, $raw_error );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test build_legacy_error_data method.
-	 */
-	public function test_build_legacy_error_data() {
-		$raw_error = array(
-			'error_type' => 'missing_owner',
-			'email'      => 'test@example.com',
-		);
-
-		// Use reflection to access private method
-		$reflection = new ReflectionClass( $this->handler );
-		$method     = $reflection->getMethod( 'build_legacy_error_data' );
-		$method->setAccessible( true );
-
-		$result = $method->invoke( $this->handler, $raw_error );
-
-		$this->assertIsArray( $result );
-		$this->assertEquals( 'test@example.com', $result['email'] );
-		$this->assertEquals( 'create_missing_account', $result['action'] );
+		$this->assertEquals( 'missing_owner', $result['error_type'] );
+		$this->assertArrayHasKey( 'blog_id', $result );
 	}
 
 	/**

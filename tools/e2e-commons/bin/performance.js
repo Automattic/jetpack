@@ -3,9 +3,9 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 import path from 'path';
 import { URL } from 'url';
 import { mergeWith } from 'lodash-es';
-import { prerequisitesBuilder } from '../env/prerequisites.js';
 import pwConfig from '../playwright.config.mjs';
 import { executeWpCommand, executeCommand } from '../utils/cli.ts';
+import { connect } from '../utils/connection.ts';
 
 const __dirname = new URL( '.', import.meta.url ).pathname;
 
@@ -37,7 +37,7 @@ async function envSetup( type ) {
 	if ( type === 'base' ) {
 		await executeWpCommand( 'plugin deactivate jetpack' );
 	} else if ( type === 'jetpack' ) {
-		await prerequisitesBuilder().withConnection( true ).build();
+		await connect();
 		await executeWpCommand( 'jetpack module deactivate sso' );
 	}
 

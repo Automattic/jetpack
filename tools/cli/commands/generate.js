@@ -661,6 +661,7 @@ function createPackageJson( packageJson, answers ) {
 			'test-coverage': 'pnpm run test --coverage',
 		};
 
+		packageJson.devDependencies ??= {};
 		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
 
 		if ( answers.typescript.endsWith( '-webpack' ) ) {
