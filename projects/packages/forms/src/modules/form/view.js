@@ -132,7 +132,7 @@ const { state } = store( NAMESPACE, {
 			if ( context?.maxSteps && context.maxSteps > 0 ) {
 				return false;
 			}
-			return ! Object.values( context.fields ).some( field => field.value !== '' );
+			return ! Object.values( context.fields ).some( field => field.value.trim() !== '' );
 		},
 
 		get isFieldEmpty() {
