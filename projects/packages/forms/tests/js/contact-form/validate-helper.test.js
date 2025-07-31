@@ -160,6 +160,7 @@ describe( 'validateField', () => {
 
 		test( 'invalidates incorrect number formats', () => {
 			expect( validateField( 'number', '123a', true ) ).toBe( 'invalid_number' );
+			expect( validateField( 'number', 'a', true ) ).toBe( 'invalid_number' );
 		} );
 
 		test( 'invalidates incorrect max number formats', () => {
@@ -168,6 +169,30 @@ describe( 'validateField', () => {
 
 		test( 'invalidates incorrect minnumber formats', () => {
 			expect( validateField( 'number', '9', true, { min: 10 } ) ).toBe( 'invalid_min_number' );
+		} );
+	} );
+
+	describe( 'file validation', () => {
+		test( 'validates file format', () => {
+			expect( validateField( 'file', [], false ) ).toBe( 'yes' );
+			expect(
+				validateField( 'file', [ { name: 'file.txt', size: 12345, isUploaded: true } ], false )
+			).toBe( 'yes' );
+			expect(
+				validateField( 'file', [ { name: 'file.txt', size: 12345, isUploaded: true } ], true )
+			).toBe( 'yes' );
+		} );
+
+		test( 'invalidates incorrect file formats', () => {
+			expect( validateField( 'file', [ { error: true } ], true ) ).toBe(
+				'invalid_file_has_errors'
+			);
+			expect( validateField( 'file', [ { isUploaded: false } ], true ) ).toBe(
+				'invalid_file_uploading'
+			);
+			expect( validateField( 'file', [ { isUploaded: false } ], false ) ).toBe(
+				'invalid_file_uploading'
+			);
 		} );
 	} );
 

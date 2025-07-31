@@ -147,9 +147,6 @@ export const validateField = ( type, value, isRequired, extra = null ) => {
 		case 'telephone':
 			regex = /^\+?[0-9\s\-()]+$/;
 			break;
-		case 'number':
-			regex = /^[0-9]+$/;
-			break;
 	}
 
 	if ( regex && ! regex.test( value ) ) {
