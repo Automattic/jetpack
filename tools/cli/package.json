@@ -2,7 +2,6 @@
 	"name": "jetpack-cli",
 	"version": "1.0.0",
 	"private": true,
-	"type": "module",
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -14,6 +13,7 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
 	"bin": {
 		"jetpack": "bin/jetpack.js"
 	},

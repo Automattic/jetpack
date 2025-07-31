@@ -13,12 +13,17 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		".": "./index.jsx",
+		"./action-types": "./src/state/action-types",
+		"./state": "./src/state"
+	},
 	"scripts": {
 		"build": "pnpm run clean && webpack",
 		"clean": "rm -rf build/",
-		"watch": "pnpm run build && pnpm webpack watch",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
@@ -30,10 +35,5 @@
 		"typescript": "5.8.3",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
-	},
-	"exports": {
-		".": "./index.jsx",
-		"./state": "./src/state",
-		"./action-types": "./src/state/action-types"
 	}
 }
