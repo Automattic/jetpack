@@ -1,5 +1,6 @@
 import { jetpackTheme, wooTheme } from '../../../providers/theme';
 import { sharedDecorator } from '../../../stories/decorator-config';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -39,6 +40,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	decorators: sharedDecorator,
 	argTypes: {
+		...legendArgTypes,
 		size: {
 			control: {
 				type: 'range',
@@ -197,6 +199,53 @@ export const ErrorStates: Story = {
 		docs: {
 			description: {
 				story: 'Examples of how the pie chart handles various error states and edge cases.',
+			},
+		},
+	},
+};
+
+export const CustomLegendPositioning: Story = {
+	args: {
+		data: [
+			{
+				label: 'Desktop',
+				value: 45000,
+				valueDisplay: '45K',
+				percentage: 45,
+			},
+			{
+				label: 'Mobile',
+				value: 35000,
+				valueDisplay: '35K',
+				percentage: 35,
+			},
+			{
+				label: 'Tablet',
+				value: 20000,
+				valueDisplay: '20K',
+				percentage: 20,
+			},
+		],
+		thickness: 1, // Full pie chart
+		gapScale: 0.03,
+		padding: 20,
+		cornerScale: 0.03,
+		withTooltips: true,
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignmentHorizontal: 'center',
+		legendAlignmentVertical: 'top',
+		legendShape: 'circle',
+		size: 400,
+		containerWidth: '432px',
+		containerHeight: '480px',
+		resize: 'none',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Pie chart with top-center positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with device usage data.',
 			},
 		},
 	},

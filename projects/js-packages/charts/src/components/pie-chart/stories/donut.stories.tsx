@@ -1,5 +1,6 @@
 import { jetpackTheme, wooTheme } from '../../../providers/theme';
 import { sharedDecorator } from '../../../stories/decorator-config';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
 import { PieChart } from '../../pie-chart';
@@ -35,6 +36,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	decorators: sharedDecorator,
 	argTypes: {
+		...legendArgTypes,
 		size: {
 			control: {
 				type: 'range',
@@ -189,7 +191,6 @@ export const Doughnut: Story = {
 	args: {
 		...Default.args,
 		thickness: 0.5,
-		padding: 0,
 		gapScale: 0.03,
 		cornerScale: 0.03,
 		size: 600,
@@ -225,6 +226,51 @@ export const WithTooltipsDoughnut: Story = {
 		docs: {
 			description: {
 				story: 'Doughnut chart with interactive tooltips that appear on hover.',
+			},
+		},
+	},
+};
+
+export const CustomLegendPositioning: Story = {
+	args: {
+		...Default.args,
+		thickness: 0.4,
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignmentHorizontal: 'left',
+		legendAlignmentVertical: 'top',
+		data: [
+			{
+				label: 'Desktop',
+				value: 45000,
+				valueDisplay: '45K',
+				percentage: 45,
+			},
+			{
+				label: 'Mobile',
+				value: 35000,
+				valueDisplay: '35K',
+				percentage: 35,
+			},
+			{
+				label: 'Tablet',
+				value: 20000,
+				valueDisplay: '20K',
+				percentage: 20,
+			},
+		],
+		children: (
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -8 }>
+					Distribution
+				</Text>
+			</Group>
+		),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Donut chart with vertical legend positioned at the top left.',
 			},
 		},
 	},
