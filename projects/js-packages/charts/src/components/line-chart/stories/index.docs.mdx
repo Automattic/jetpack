@@ -291,17 +291,17 @@ Display series information with automatic color matching:
 
 Use different shapes and custom glyphs in legends:
 
-<Canvas of={ LineChartStories.CustomLegendPositioning } />
-
-	<Source
-		language="jsx"
-		code={ `<LineChart
-			data={data}
-			showLegend={true}
-			legendAlignmentHorizontal="right"
-			legendAlignmentVertical="top"
-		/>` }
-	/>
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		showLegend={true}
+		legendAlignmentHorizontal="right"
+		legendAlignmentVertical="top"
+		legendShape="circle"
+		withLegendGlyph={true}
+	/>` }
+/>
 
 ## Advanced Customization
 
