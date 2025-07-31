@@ -67,6 +67,8 @@ jest.mock( '@wordpress/components', () => ( {
 	},
 	__experimentalToggleGroupControlOption: () => null, // We're not using the actual implementation
 	__experimentalText: ( { children } ) => <span data-testid="experimental-text">{ children }</span>,
+	__experimentalItemGroup: ( { children } ) => <div data-testid="item-group">{ children }</div>,
+	__experimentalItem: ( { children } ) => <div data-testid="item">{ children }</div>,
 	SVG: props => <svg { ...props } />,
 	Path: props => <path { ...props } />,
 } ) );

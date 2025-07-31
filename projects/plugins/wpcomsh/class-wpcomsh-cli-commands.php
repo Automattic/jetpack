@@ -1163,7 +1163,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		/**
 		 * Runs comprehensive site diagnostics including Jetpack status, admin users, plugins, purchases, and PHP errors
 		 *
-		 * @subcommand diagnostic
+		 * @subcommand diag
 		 */
 		public function diagnostic( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			WP_CLI::log( WP_CLI::colorize( '%B=== SITE DIAGNOSTICS ===%n' ) );
@@ -1229,7 +1229,27 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::log( '' );
 
-			// 4. WPCOMSH Purchases (formatted as table)
+			// 4. Theme Status
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Theme Status ---%n' ) );
+			$theme_status_result = WP_CLI::runcommand(
+				'theme status',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $theme_status_result->return_code ) {
+				WP_CLI::log( $theme_status_result->stdout );
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RTheme status command failed:%n' ) );
+				WP_CLI::log( $theme_status_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 5. WPCOMSH Purchases (formatted as table)
 			WP_CLI::log( WP_CLI::colorize( '%Y--- Site Purchases ---%n' ) );
 			$purchases_result = WP_CLI::runcommand(
 				'wpcomsh purchases --format=json',
@@ -1270,7 +1290,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::log( '' );
 
-			// 5. PHP Errors (filtered to recent fatals and errors)
+			// 6. PHP Errors (filtered to recent fatals and errors)
 			WP_CLI::log( WP_CLI::colorize( '%Y--- Recent PHP Errors ---%n' ) );
 			$php_errors_result = WP_CLI::runcommand(
 				'php-errors',

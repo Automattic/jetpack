@@ -1,7 +1,7 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-partner-coupon",
 	"version": "1.0.9",
+	"private": true,
 	"description": "This package aims to add components to make it easier to redeem partner coupons",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/partner-coupon/#readme",
 	"bugs": {
@@ -15,9 +15,19 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage"
+	},
+	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@wordpress/i18n": "5.26.0",
+		"clsx": "2.1.1",
+		"prop-types": "15.8.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
@@ -38,15 +48,5 @@
 	"peerDependencies": {
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0"
-	},
-	"dependencies": {
-		"@automattic/jetpack-components": "workspace:*",
-		"@automattic/jetpack-connection": "workspace:*",
-		"@wordpress/i18n": "5.26.0",
-		"clsx": "2.1.1",
-		"prop-types": "15.8.1"
-	},
-	"exports": {
-		".": "./index.jsx"
 	}
 }

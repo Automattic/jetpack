@@ -1,6 +1,6 @@
-import { getDotComCredentials, getSiteCredentials } from '../helpers/utils-helper';
 import logger from '../logger';
 import { executeWpCommand } from '../utils/cli.ts';
+import { getDotComCredentials, getSiteCredentials } from './environment.ts';
 import { partnerProvisionConnection } from './partner-provision.ts';
 import { TestUtils } from '.';
 
@@ -11,7 +11,9 @@ export async function connect() {
 	const creds = getDotComCredentials();
 	const siteCreds = getSiteCredentials();
 	await executeWpCommand( `user update ${ siteCreds.username } --user_email=${ creds.email }` );
-
+	if ( ! creds.userId ) {
+		throw new Error( 'userId is undefined' );
+	}
 	await partnerProvisionConnection( creds.userId, 'free', siteCreds.username );
 }
 

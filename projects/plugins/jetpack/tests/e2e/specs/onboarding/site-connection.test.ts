@@ -1,5 +1,5 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { Onboarding } from '_jetpack-e2e-commons/flows/onboarding.ts';
+import { Onboarding } from '../../helpers/onboarding.ts';
 
 test.beforeEach( async ( { testUtils } ) => {
 	await testUtils.disconnect();
