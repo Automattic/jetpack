@@ -878,7 +878,7 @@ class Admin {
 	public function grunion_manage_post_row_actions( $actions ) {
 		global $post;
 
-		if ( 'feedback' !== $post->post_type ) {
+		if ( ! ( $post instanceof \WP_Post ) || 'feedback' !== $post->post_type ) {
 			return $actions;
 		}
 

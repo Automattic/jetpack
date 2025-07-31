@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts: Fix TS errors related to missing React import in stories
