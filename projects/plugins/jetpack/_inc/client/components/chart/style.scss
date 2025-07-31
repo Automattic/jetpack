@@ -7,7 +7,7 @@
 @use "../../scss/layout";
 @use "../../scss/mixins/clear-fix";
 @use "../../scss/mixins/long-content-fade";
-@use "../../scss/mixin_icons";
+@use "../../scss/mixins/icons";
 
 .dops-chart {
 	position: relative;
@@ -353,7 +353,7 @@
 
 		&::before {
 
-			@include mixin_icons.noticons;
+			@include icons.noticons;
 			content: "\f456";
 			position: absolute;
 			top: 23px;

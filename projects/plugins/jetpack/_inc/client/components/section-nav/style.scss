@@ -2,7 +2,7 @@
 @use "../../scss/z-index";
 @use "../../scss/calypso-colors";
 @use "../../scss/mixins/breakpoints";
-@use "../../scss/mixin_icons";
+@use "../../scss/mixins/icons";
 @use "../../scss/typography";
 
 /**
@@ -65,7 +65,7 @@
 
 	&::after {
 
-		@include mixin_icons.dashicons;
+		@include icons.dashicons;
 		content: "\f347";
 		line-height: 16px;
 		color: rgba(calypso-colors.$gray, 0.5);
@@ -75,7 +75,7 @@
 
 		&::after {
 
-			@include mixin_icons.dashicons;
+			@include icons.dashicons;
 			content: "\f343";
 		}
 	}
