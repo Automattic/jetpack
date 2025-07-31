@@ -1,106 +1,159 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { RecommendationsPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
+
+test.beforeEach( async ( { testUtils, requestUtils } ) => {
+	const cleanupCMDs = [
+		'jetpack module deactivate monitor',
+		'jetpack module deactivate related-posts',
+		'jetpack module deactivate subscriptions',
+	];
+
+	for ( const cmd of cleanupCMDs ) {
+		await testUtils.executeWpCommand( cmd );
+	}
+
+	// Reset the recommendations data
+	await requestUtils.rest( {
+		method: 'POST',
+		path: '/jetpack/v4/recommendations/data',
+		data: {
+			data: {
+				onboardingViewed: [],
+				selectedRecommendations: [],
+				skippedRecommendations: [],
+				viewedRecommendations: [],
+			},
+		},
+	} );
+} );
 
 test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
-	let recommendationsPage;
-
 	await test.step( 'Navigate to the Recommendations module', async () => {
-		recommendationsPage = await RecommendationsPage.visit( page );
-		const isPageVisible = await recommendationsPage.areSiteTypeQuestionsVisible();
-		expect( isPageVisible, 'Site type questions should be visible' ).toBeTruthy();
+		await page.goto( '/wp-admin/admin.php?page=jetpack#/recommendations' );
+
 		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'site-type' ),
+			page.url().includes( 'site-type' ),
 			'URL should be in sync with the step name'
 		).toBeTruthy();
 	} );
 
 	await test.step( 'Check Personal and Other checkboxes', async () => {
-		await recommendationsPage.checkPersonalSiteType();
-		expect(
-			await recommendationsPage.isPersonalSiteTypeChecked(),
+		await page.getByRole( 'checkbox', { name: 'This is a personal site' } ).check();
+
+		await expect(
+			page.getByRole( 'checkbox', { name: 'This is a personal site' } ),
 			'Personal site type should be checked'
-		).toBeTruthy();
-		expect(
-			await recommendationsPage.isAgencyTypeUnchecked(),
+		).toBeChecked();
+		await expect(
+			page.getByRole( 'checkbox', { name: 'This is an e-commerce site' } ),
 			'Business type should be checked'
-		).toBeFalsy();
-		expect(
-			await recommendationsPage.isStoreTypeUnchecked(),
+		).not.toBeChecked();
+		await expect(
+			page.getByRole( 'checkbox', { name: 'I build or manage this site' } ),
 			'Store type should be checked'
-		).toBeFalsy();
+		).not.toBeChecked();
 	} );
 
 	await test.step( 'Enable Monitoring and continue to Related Post step', async () => {
-		await recommendationsPage.saveSiteTypeAndContinue();
-		await recommendationsPage.reload();
-		const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
-		expect( isMonitorStep, 'Monitor step should be visible' ).toBeTruthy();
+		await page.getByRole( 'link', { name: 'Continue' } ).click();
+		await page.reload();
+
+		await expect(
+			page.getByRole( 'link', { name: 'Enable Downtime Monitoring' } ),
+			'Monitor step should be visible'
+		).toBeVisible();
 		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'monitor' ),
+			page.url().includes( 'monitor' ),
 			'URL should be in sync with the step name'
 		).toBeTruthy();
-		await recommendationsPage.enableMonitoringAndContinue();
-		await recommendationsPage.reload();
-		const isRelatedPostsStep = await recommendationsPage.isEnableRelatedPostsButtonVisible();
-		expect( isRelatedPostsStep, 'Related posts step should be visible' ).toBeTruthy();
+
+		await page.getByRole( 'link', { name: 'Enable Downtime Monitoring' } ).click();
+		await page.reload();
+
+		await expect(
+			page.getByRole( 'link', { name: 'Enable Related Posts' } ),
+			'Related posts step should be visible'
+		).toBeVisible();
 		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'related-posts' ),
+			page.url().includes( 'related-posts' ),
 			'URL should be in sync with the step name'
 		).toBeTruthy();
 	} );
 
 	await test.step( 'Enable Related Posts and continue to Newsletter step', async () => {
-		await recommendationsPage.enableRelatedPostsAndContinue();
-		await recommendationsPage.reload();
-		const isNewsletterStep = await recommendationsPage.isEnableNewsletterButtonVisible();
-		expect( isNewsletterStep, 'Newsletter step should be visible' ).toBeTruthy();
+		await page.getByRole( 'link', { name: 'Enable Related Posts' } ).click();
+		await page.reload();
+
+		await expect(
+			page.getByRole( 'link', { name: 'Enable Newsletter' } ),
+			'Newsletter step should be visible'
+		).toBeVisible();
 		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'newsletter' ),
+			page.url().includes( 'newsletter' ),
 			'URL should be in sync with the step name'
 		).toBeTruthy();
 	} );
 
 	await test.step( 'Enable Newsletter and continue to Site Accelerator', async () => {
-		await recommendationsPage.enableNewsletterAndContinue();
-		await recommendationsPage.reload();
-		const isSiteAcceleratorStep = await recommendationsPage.isEnableSiteAcceleratorButtonVisible();
-		expect( isSiteAcceleratorStep, 'Site Accelerator step should be visible' ).toBeTruthy();
+		await page.getByRole( 'link', { name: 'Enable Newsletter' } ).click();
+		await page.reload();
+
+		await expect(
+			page.getByRole( 'link', { name: 'Enable Site Accelerator' } ),
+			'Site Accelerator step should be visible'
+		).toBeVisible();
 		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'site-accelerator' ),
+			page.url().includes( 'site-accelerator' ),
 			'URL should be in sync with the step name'
 		).toBeTruthy();
 	} );
 
 	await test.step( 'Skip Site Accelerator and continue to VaultPress Backup card', async () => {
-		await recommendationsPage.skipSiteAcceleratorAndContinue();
-		await recommendationsPage.reload();
-		const isVaultPressBackupStep = await recommendationsPage.isTryVaultPressBackupButtonVisible();
-		expect( isVaultPressBackupStep, 'VaultPress Backup step should be visible' ).toBeTruthy();
+		await page.getByRole( 'link', { name: 'Not now' } ).click();
+		await page.reload();
+
+		await expect(
+			page.getByRole( 'link', { name: 'Get a discount for your first' } ),
+			'VaultPress Backup step should be visible'
+		).toBeVisible();
 		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'vaultpress-backup' ),
+			page.url().includes( 'vaultpress-backup' ),
 			'URL should be in sync with the step name'
 		).toBeTruthy();
 	} );
 
 	await test.step( 'Skip VaultPress Backup card and continue to Summary', async () => {
-		await recommendationsPage.skipVaultPressBackupAndContinue();
-		await recommendationsPage.reload();
-		const isSummaryContent = await recommendationsPage.isSummaryContentVisible();
-		const isSummarySidebar = await recommendationsPage.isSummarySidebarVisible();
+		await page.getByRole( 'link', { name: 'Not now' } ).click();
+		await page.reload();
+
+		await expect(
+			page.locator( '.jp-recommendations-summary__content' ),
+			'Summary content should be visible'
+		).toBeVisible();
+		await expect(
+			page.locator( '.jp-recommendations-summary__sidebar' ),
+			'Summary sidebar should be visible'
+		).toBeVisible();
+
 		expect(
-			isSummaryContent && isSummarySidebar,
-			'Summary content and Summary sidebar should be visible'
-		).toBeTruthy();
-		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'summary' ),
+			page.url().includes( 'summary' ),
 			'URL should be in sync with the step name'
 		).toBeTruthy();
 	} );
 
 	await test.step( 'Verify Monitoring, Newsletter, and Related Posts are enabled', async () => {
-		const isMonitoringFeatureEnabled = await recommendationsPage.isMonitoringFeatureEnabled();
-		const isRelatedPostsFeatureEnabled = await recommendationsPage.isRelatedPostsFeatureEnabled();
-		const isNewsletterFeatureEnabled = await recommendationsPage.isNewsletterFeatureEnabled();
+		const isMonitoringFeatureEnabled = await page
+			.locator(
+				'.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Downtime Monitoring"'
+			)
+			.isVisible();
+		const isRelatedPostsFeatureEnabled = await page
+			.locator(
+				'.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Related Posts"'
+			)
+			.isVisible();
+		const isNewsletterFeatureEnabled = await page
+			.locator( '.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Newsletter"' )
+			.isVisible();
 		expect(
 			isMonitoringFeatureEnabled && isNewsletterFeatureEnabled && isRelatedPostsFeatureEnabled,
 			'Monitoring feature, Newsletter, and Related Posts should be enabled'
@@ -108,8 +161,12 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 	} );
 
 	await test.step( 'Verify Site Accelerator is disabled', async () => {
-		const isSiteAcceleratorFeatureEnabled =
-			await recommendationsPage.isSiteAcceleratorFeatureEnabled();
-		expect( isSiteAcceleratorFeatureEnabled, 'Site Accelerator should be disabled' ).toBeTruthy();
+		const isSiteAcceleratorFeatureEnabled = page.locator(
+			'.jp-recommendations-feature-summary:not(.is-feature-enabled) >> a >> text="Site Accelerator"'
+		);
+		await expect(
+			isSiteAcceleratorFeatureEnabled,
+			'Site Accelerator should be disabled'
+		).toBeVisible();
 	} );
 } );
