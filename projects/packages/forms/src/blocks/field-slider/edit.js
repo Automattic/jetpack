@@ -8,21 +8,6 @@ export default function SliderFieldEdit( props ) {
 	const { attributes, setAttributes } = props;
 	const { min = 0, max = 100, default: defaultValue = 50, width, id, required } = attributes;
 
-	// Ensure min, max, and default are always set when the block is first added
-	useEffect( () => {
-		if (
-			attributes.min === undefined ||
-			attributes.max === undefined ||
-			attributes.default === undefined
-		) {
-			setAttributes( {
-				min: attributes.min ?? 0,
-				max: attributes.max ?? 100,
-				default: attributes.default ?? 50,
-			} );
-		}
-	}, [ attributes.min, attributes.max, attributes.default, setAttributes ] );
-
 	const updateMin = newMin => {
 		const parsedMin = parseInt( newMin ) || 0;
 		const validatedMin = Math.min( parsedMin, max );
@@ -43,7 +28,7 @@ export default function SliderFieldEdit( props ) {
 		} );
 	};
 
-	// Single onChangeDefault function for both InspectorControls and context
+	// This is passed to child input-range block via context.
 	const onChangeDefault = useCallback(
 		newDefault => {
 			const parsedDefault = parseInt( newDefault ) || 0;
@@ -53,10 +38,25 @@ export default function SliderFieldEdit( props ) {
 		[ max, min, setAttributes ]
 	);
 
-	// Make callback available in block attributes for context
+	// Make callback available in block attributes for context.
 	useEffect( () => {
 		setAttributes( { onChangeDefault } );
 	}, [ onChangeDefault, setAttributes ] );
+
+	// Ensure min, max, and default are always set when the block is first added.
+	useEffect( () => {
+		if (
+			attributes.min === undefined ||
+			attributes.max === undefined ||
+			attributes.default === undefined
+		) {
+			setAttributes( {
+				min: attributes.min ?? 0,
+				max: attributes.max ?? 100,
+				default: attributes.default ?? 50,
+			} );
+		}
+	}, [ attributes.min, attributes.max, attributes.default, setAttributes ] );
 
 	const blockProps = useBlockProps( {
 		className: `jetpack-field jetpack-field-slider${
