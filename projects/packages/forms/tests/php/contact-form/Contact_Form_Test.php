@@ -3070,4 +3070,36 @@ EOT;
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after resetting.' );
 		$this->assertEquals( array(), $form->get_error_messages() );
 	}
+
+	public function test_validate_empty_form() {
+		$name    = '';
+		$email   = '';
+		$message = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'    => $name,
+				'email'   => $email,
+				'message' => $message,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' /][contact-field label='Email' type='email' /][contact-field label='Message' type='textarea' /]"
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array( 'Please fill out at least one field.' ), $form->get_error_messages() );
+		Contact_Form::reset_errors();
+	}
 }
