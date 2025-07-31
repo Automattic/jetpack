@@ -53,7 +53,9 @@ describe( 'PieChart', () => {
 			renderWithTheme( {
 				data: [ { label: 'A', percentage: 100, value: 100 } ],
 			} );
-			expect( screen.getByText( 'A' ) ).toBeInTheDocument();
+			// Use getAllByText since 'A' appears in both chart and legend
+			const labels = screen.getAllByText( 'A' );
+			expect( labels.length ).toBeGreaterThan( 0 );
 		} );
 	} );
 
