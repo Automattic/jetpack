@@ -11,10 +11,6 @@
  * @package automattic/jetpack
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
-
 /**
  * Copyright (c) Automattic. All rights reserved.
  *
@@ -36,6 +32,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * GNU General Public License for more details.
  * **********************************************************************
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * WPCom_Markdown class.
