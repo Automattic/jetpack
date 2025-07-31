@@ -214,9 +214,6 @@ class Jetpack_Options {
 			}
 		}
 
-		// Fallback to database
-		$database_value = self::get_option_from_database( $name, $default );
-
 		/**
 		 * Filter Jetpack Options.
 		 * Can be useful in environments when Jetpack is running with a different setup
@@ -227,7 +224,7 @@ class Jetpack_Options {
 		 * @param string $name Option name, _without_ `jetpack_%` prefix.
 		 * @return string $value, unless the filters modify it.
 		 */
-		return apply_filters( 'jetpack_options', $database_value, $name );
+		return apply_filters( 'jetpack_options', self::get_option_from_database( $name, $default ), $name );
 	}
 
 	/**
