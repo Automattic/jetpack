@@ -16,19 +16,6 @@
 		word-wrap: break-word;
 	}
 
-	.components-placeholder__fieldset {
-		display: flex;
-	}
-
-	.components-placeholder__learn_more {
-		flex-basis: 100%;
-		margin-top: 1em;
-
-		span {
-			display: revert;
-		}
-	}
-
 	&.is-list-layout .jetpack-top-posts-item {
 		margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 	}
