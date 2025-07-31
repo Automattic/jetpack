@@ -1,7 +1,6 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as LineChartStories from './index.stories';
 import * as GlyphStories from './glyph.stories';
-import * as LegendStories from './legend.stories';
 
 <Meta title="JS Packages/Charts/Types/Line Chart" of={ LineChartStories } />
 
@@ -275,7 +274,7 @@ Charts are fully keyboard accessible with Tab navigation and arrow key data poin
 
 Display series information with automatic color matching:
 
-<Canvas of={ LegendStories.Default } />
+<Canvas of={ LineChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -292,7 +291,7 @@ Display series information with automatic color matching:
 
 Use different shapes and custom glyphs in legends:
 
-<Canvas of={ LegendStories.AlignmentPositioning } />
+<Canvas of={ LineChartStories.CustomLegendPositioning } />
 
 	<Source
 		language="jsx"

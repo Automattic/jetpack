@@ -1,6 +1,5 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as BarChartStories from './index.stories';
-import * as LegendStories from './legend.stories';
 
 <Meta title="JS Packages/Charts/Types/Bar Chart" of={ BarChartStories } />
 
@@ -276,7 +275,7 @@ By default, bars with zero values have no visual height, making them difficult t
 
 Display series information with automatic color and pattern matching:
 
-<Canvas of={ LegendStories.Default } />
+<Canvas of={ BarChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -294,7 +293,7 @@ Display series information with automatic color and pattern matching:
 
 Control legend placement with alignment options:
 
-<Canvas of={ LegendStories.AlignmentPositioning } />
+<Canvas of={ BarChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -310,7 +309,7 @@ Control legend placement with alignment options:
 
 Display legends vertically for charts with many series:
 
-<Canvas of={ LegendStories.VerticalOrientation } />
+<Canvas of={ BarChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -326,7 +325,7 @@ Display legends vertically for charts with many series:
 
 Legends work seamlessly with both orientations:
 
-<Canvas of={ LegendStories.HorizontalBars } />
+<Canvas of={ BarChartStories.CustomLegendPositioning } />
 
 ## Advanced Customization
 
