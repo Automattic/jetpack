@@ -2,7 +2,7 @@ import logger from '../logger.js';
 import { TestUtils } from './index.ts';
 
 /**
- * Set plan data using the e2e-helper REST API endpoint
+ * Set plan data using the e2e-plan-helper REST API endpoint
  *
  * @param planType - Jetpack plan slug (jetpack_free or jetpack_complete)
  * @return Promise that resolves when plan data is set
@@ -16,7 +16,7 @@ export async function setMockPlanData(
 	try {
 		const response = await this.requestUtils.rest( {
 			method: 'POST',
-			path: '/e2e-helper/v1/plan-data',
+			path: '/e2e-plan-helper/v1/plan-data',
 			data: {
 				plan_type: planType,
 			},

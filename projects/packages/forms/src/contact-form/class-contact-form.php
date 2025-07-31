@@ -133,8 +133,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', true );
 
 		// Set up the default subject and recipient for this form.
-		$default_to      = self::get_default_to( $this->current_post ? $this->current_post->post_author : null );
-		$default_subject = self::get_default_subject( $attributes );
+		$post_author_id  = self::get_post_property( $this->current_post, 'post_author' );
+		$default_to      = self::get_default_to( $post_author_id );
+		$default_subject = self::get_default_subject( $attributes, $this->current_post );
 
 		if ( ! isset( $attributes ) || ! is_array( $attributes ) ) {
 			$attributes = array();
@@ -371,7 +372,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The default recipient email address.
 	 */
 	public static function get_default_to( $post_author_id = null ) {
-
 		if ( $post_author_id ) {
 			$post_author = get_userdata( $post_author_id );
 			if ( ! empty( $post_author->user_email ) ) {
@@ -385,23 +385,53 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Safely get a property from post data (object or array).
+	 *
+	 * @param mixed  $post_data Post data (object or array).
+	 * @param string $property  Property name to get.
+	 *
+	 * @return mixed|null The property value or null if not found.
+	 */
+	public static function get_post_property( $post_data, $property ) {
+		if ( ! $post_data ) {
+			return null;
+		}
+
+		if ( is_object( $post_data ) && isset( $post_data->$property ) ) {
+			return $post_data->$property;
+		} elseif ( is_array( $post_data ) && isset( $post_data[ $property ] ) ) {
+			return $post_data[ $property ];
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get the default subject for the contact form.
 	 *
 	 * @param array $attributes The attributes of the contact form.
+	 * @param mixed $post_data Optional post data (object or array).
 	 *
 	 * @return string The default subject for the contact form.
 	 */
-	public static function get_default_subject( $attributes ) {
+	public static function get_default_subject( $attributes, $post_data = null ) {
 		global $post;
 		// Get the default subject for the contact form.
 		$default_subject = '[' . get_option( 'blogname' ) . ']';
 
-		if ( $post ) {
+		// Get post title safely
+		$post_title = self::get_post_property( $post_data, 'post_title' );
+
+		if ( ! $post_title && $post ) {
+			$post_title = self::get_post_property( $post, 'post_title' );
+		}
+
+		if ( $post_title ) {
 			$default_subject = sprintf(
 				// translators: the blog name and post title.
 				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack-forms' ),
 				$default_subject,
-				Contact_Form_Plugin::strip_tags( $post->post_title )
+				Contact_Form_Plugin::strip_tags( $post_title )
 			);
 		}
 
@@ -573,20 +603,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'], $form ) : null;
 		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
+		$has_custom_redirect       = $form->has_custom_redirect();
 
 		$default_context = array(
-			'formId'                         => $id,
-			'formHash'                       => $form->hash,
-			'showErrors'                     => false, // We toggle this to true when we want to show the user errors right away.
-			'errors'                         => array(), // This should be a associative array.
-			'fields'                         => array(),
-			'isMultiStep'                    => $is_multistep, // Whether the form is a multistep form.
-			'isResponseWithoutReloadEnabled' => $form->is_response_without_reload_enabled,
-			'submissionData'                 => $submission_data,
-			'formattedSubmissionData'        => $formatted_submission_data,
-			'submissionSuccess'              => $submission_success,
-			'submissionError'                => null,
-			'elementId'                      => $element_id,
+			'formId'                  => $id,
+			'formHash'                => $form->hash,
+			'showErrors'              => false, // We toggle this to true when we want to show the user errors right away.
+			'errors'                  => array(), // This should be a associative array.
+			'fields'                  => array(),
+			'isMultiStep'             => $is_multistep, // Whether the form is a multistep form.
+			'useAjax'                 => $form->is_response_without_reload_enabled && ! $has_custom_redirect,
+			'submissionData'          => $submission_data,
+			'formattedSubmissionData' => $formatted_submission_data,
+			'submissionSuccess'       => $submission_success,
+			'submissionError'         => null,
+			'elementId'               => $element_id,
 		);
 
 		if ( $is_multistep ) {
@@ -688,7 +719,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				data-wp-class--submission-success=\"context.submissionSuccess\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
-				data-wp-class--is-ajax-form=\"context.isResponseWithoutReloadEnabled\"
+				data-wp-class--is-ajax-form=\"context.useAjax\"
 				novalidate >\n";
 
 			if ( $is_multistep ) { // This makes the "enter" key work in multi-step forms as expected.
@@ -1661,7 +1692,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 					return false;
 				}
-			} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || $this->current_post->ID !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+			} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || self::get_post_property( $this->current_post, 'ID' ) !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
 		}
@@ -1946,8 +1977,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$entry_permalink = '';
 
 		if ( $this->current_post ) {
-			$entry_title     = $this->current_post->post_title;
-			$entry_permalink = esc_url( self::get_permalink( $this->current_post->ID ) );
+			$entry_title     = self::get_post_property( $this->current_post, 'post_title' );
+			$entry_permalink = esc_url( self::get_permalink( self::get_post_property( $this->current_post, 'ID' ) ) );
 		} elseif ( $widget ) {
 			$entry_title     = __( 'Sidebar Widget', 'jetpack-forms' );
 			$entry_permalink = esc_url( home_url( '/' ) );
@@ -1983,7 +2014,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $block_template || $block_template_part || $widget ) {
 			$url = home_url( '/' );
 		} else {
-			$url = self::get_permalink( $this->current_post ? $this->current_post->ID : 0 );
+			$url = self::get_permalink( $this->current_post ? self::get_post_property( $this->current_post, 'ID' ) : 0 );
 		}
 
 		// translators: the time of the form submission.
@@ -2048,7 +2079,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'post_date'    => addslashes( $feedback_time ),
 				'post_type'    => 'feedback',
 				'post_status'  => addslashes( $feedback_status ),
-				'post_parent'  => $this->current_post ? (int) $this->current_post->ID : 0,
+				'post_parent'  => $this->current_post ? (int) self::get_post_property( $this->current_post, 'ID' ) : 0,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\n{$comment_ip_text}JSON_DATA\n" . @wp_json_encode( $all_values, true ), array() ) ), // so that search will pick up this data
@@ -2298,6 +2329,44 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return self::success_message( $post_id, $this );
 		}
 
+		$redirect = $this->get_redirect_url( $refresh_args, $id, $post_id );
+
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
+		wp_redirect( $redirect );
+		exit( 0 );
+	}
+
+	/**
+	 * Check if the contact form has a custom redirect.
+	 *
+	 * @return bool True if the contact form has a custom redirect, false otherwise.
+	 */
+	public function has_custom_redirect() {
+		if ( ! empty( $this->get_attribute( 'customThankyouRedirect' ) ) && 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
+			return true;
+		}
+		/**
+		 * Filter to check if the contact form has a redirect filter.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param bool $has_redirect True if the contact form has a redirect filter, false otherwise.
+		 */
+		return (bool) has_filter( 'grunion_contact_form_redirect_url' );
+	}
+
+	/**
+	 * Get the URL where the reader is redirected after submitting a form.
+	 *
+	 * @param array $refresh_args The arguments to be added to the redirect URL.
+	 * @param int   $id           Contact Form ID.
+	 * @param int   $post_id      Post ID.
+	 *
+	 * @return string The redirect URL.
+	 */
+	public function get_redirect_url( $refresh_args, $id, $post_id ) {
 		$redirect        = '';
 		$custom_redirect = false;
 		if ( 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
@@ -2333,11 +2402,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param int $id Contact Form ID.
 		 * @param int $post_id Post ID.
 		 */
-		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
-
-		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
-		wp_redirect( $redirect );
-		exit( 0 );
+		return apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
 	}
 
 	/**

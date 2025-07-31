@@ -76,8 +76,7 @@ configure_wp_env() {
 
 	$BASE_CMD wp plugin activate jetpack
 	$BASE_CMD wp plugin activate e2e-direct-filesystem
-	$BASE_CMD wp plugin activate e2e-helper
-	$BASE_CMD wp plugin activate e2e-plan-data-interceptor
+	$BASE_CMD wp plugin activate e2e-plan-helper
 	$BASE_CMD wp plugin activate e2e-waf-data-interceptor
 	$BASE_CMD wp plugin activate e2e-search-test-helper
 	$BASE_CMD wp plugin activate e2e-wpcom-request-interceptor

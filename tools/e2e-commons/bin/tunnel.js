@@ -8,7 +8,6 @@ import config from 'config';
 import localtunnel from 'localtunnel';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
 
 const tunnelConfig = config.get( 'tunnel' );
 
@@ -33,6 +32,30 @@ yargs( hideBin( process.argv ) )
 	.command( 'off', 'Closes a local tunnel', () => {}, tunnelOff )
 	.help( 'h' )
 	.alias( 'h', 'help' ).argv;
+
+/**
+ * Reads and returns the content of the file expected to store an URL.
+ * The file path is stored in config.
+ * No validation is done on the file content, so an invalid URL can be returned.
+ *
+ * @return {string} the file content, or undefined in file doesn't exist or cannot be read
+ */
+export function getReusableUrlFromFile() {
+	let urlFromFile;
+	try {
+		urlFromFile = fs
+			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
+			.replace( 'http:', 'https:' );
+	} catch ( error ) {
+		if ( error.code === 'ENOENT' ) {
+			// We expect this, reduce noise in logs
+			console.warn( "Tunnels file doesn't exist" );
+		} else {
+			console.error( error );
+		}
+	}
+	return urlFromFile;
+}
 
 /**
  * This allows overriding the tunnel with a custom tunnel like ngrok.
