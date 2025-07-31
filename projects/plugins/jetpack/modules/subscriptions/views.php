@@ -4,6 +4,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Subscriptions_Widget main view class.
  */

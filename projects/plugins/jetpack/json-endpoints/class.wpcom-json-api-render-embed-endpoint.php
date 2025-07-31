@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Render_Embed_Endpoint(
 	array(
 		'description'          => 'Get a rendered embed for a site. Note: The current user must have publishing access.',

@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Extensions\Rating_Star;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Load generic function definitions.
 require_once __DIR__ . '/rating-meta.php';
 

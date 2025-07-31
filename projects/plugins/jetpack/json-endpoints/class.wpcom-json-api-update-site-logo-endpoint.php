@@ -7,6 +7,10 @@
  * Delete site logo settings: /sites/%s/logo/delete
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Site_Logo_Endpoint(
 	array(
 		'description'          => 'Set site logo settings',

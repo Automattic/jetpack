@@ -6,6 +6,11 @@
  *
  * @phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Comment endpoint class.
  */

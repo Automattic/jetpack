@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // POST /sites/%s/plugins/%s/delete
 new Jetpack_JSON_API_Plugins_Delete_Endpoint(
 	array(
