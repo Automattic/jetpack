@@ -2891,4 +2891,110 @@ EOT;
 		// Assert that we have 6 unique form ids.
 		$this->assertCount( 6, array_unique( array( $form_id, $form_id_2, $form_id_3, $form_id_4, $form_id_5, $form_id_6 ) ), 'There should be 6 unique forms' );
 	}
+
+	/**
+	 * Test get_post_property method with various scenarios
+	 */
+	public function test_get_post_property() {
+		global $post;
+
+		// Test null/false/empty inputs
+		$this->assertNull( Contact_Form::get_post_property( null, 'ID' ), 'Should return null for null post data' );
+		$this->assertNull( Contact_Form::get_post_property( false, 'ID' ), 'Should return null for false post data' );
+		$this->assertNull( Contact_Form::get_post_property( 'not an object nor array', 'ID' ), 'Should return null for non-object/array post data' );
+
+		// Test object properties
+		$this->assertEquals( $post->ID, Contact_Form::get_post_property( $post, 'ID' ), 'Should return object property value' );
+		$this->assertEquals( $post->post_title, Contact_Form::get_post_property( $post, 'post_title' ), 'Should return object string property' );
+		$this->assertNull( Contact_Form::get_post_property( $post, 'non_existent_property' ), 'Should return null for non-existent object property' );
+
+		// Test array properties
+		$array_post = array(
+			'ID'         => 123,
+			'post_title' => 'Test Post',
+			'meta'       => array( 'key' => 'value' ),
+		);
+		$this->assertEquals( 123, Contact_Form::get_post_property( $array_post, 'ID' ), 'Should return array property value' );
+		$this->assertEquals( 'Test Post', Contact_Form::get_post_property( $array_post, 'post_title' ), 'Should return array string property' );
+		$this->assertEquals( array( 'key' => 'value' ), Contact_Form::get_post_property( $array_post, 'meta' ), 'Should return array property with nested array' );
+		$this->assertNull( Contact_Form::get_post_property( $array_post, 'non_existent_property' ), 'Should return null for non-existent array property' );
+
+		// Test empty array
+		$this->assertNull( Contact_Form::get_post_property( array(), 'ID' ), 'Should return null for empty array' );
+	}
+
+	/**
+	 * Test get_redirect_url method with various scenarios
+	 */
+	public function test_get_redirect_url() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+
+		$attributes = array(
+			'customThankyou'         => 'redirect',
+			'customThankyouRedirect' => 'https://example.com/thank-you',
+		);
+
+		$form = new Contact_Form( $attributes, '' );
+
+		// Test with custom thank you redirect URL.
+		$redirect_url = $form->get_redirect_url( array(), 123, $post_id );
+		$this->assertEquals( 'https://example.com/thank-you', $redirect_url, 'Redirect URL should match the custom thank you redirect URL.' );
+
+		// Test with no custom thank you redirect URL.
+		unset( $attributes['customThankyouRedirect'] );
+		$previous_request_uri         = $_REQUEST['_wp_http_referer'] ?? '';
+		$_REQUEST['_wp_http_referer'] = '/test-uri';
+
+		$form_no_redirect         = new Contact_Form( $attributes, '' );
+		$redirect_url_no_redirect = $form_no_redirect->get_redirect_url( array(), 123, $post_id );
+
+		if ( ! empty( $previous_request_uri ) ) {
+			$_REQUEST['_wp_http_referer'] = $previous_request_uri;
+		} else {
+			unset( $_REQUEST['_wp_http_referer'] );
+		}
+		// Restore the original request URI.
+
+		$this->assertEquals( '/test-uri', $redirect_url_no_redirect, 'Redirect URL should be empty when no custom thank you redirect URL is set.' );
+
+		$form_has_filter = new Contact_Form( $attributes, '' );
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+		$redirect_url_via_filter = $form_has_filter->get_redirect_url( array(), 123, $post_id );
+		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+		$this->assertEquals( 'https://example.com/redirected', $redirect_url_via_filter, 'Redirect URL should match the filter return value.' );
+	}
+
+	public function redirect_filter() {
+		return 'https://example.com/redirected';
+	}
+
+	public function test_has_custom_redirect() {
+		$attributes = array(
+			'customThankyou'         => 'redirect',
+			'customThankyouRedirect' => 'https://example.com/thank-you',
+		);
+
+		$form = new Contact_Form( $attributes, '' );
+
+		$this->assertTrue( $form->has_custom_redirect(), 'Form should have a custom redirect URL.' );
+
+		unset( $attributes['customThankyouRedirect'] );
+
+		$form_no_redirect = new Contact_Form( $attributes, '' );
+
+		$this->assertFalse( $form_no_redirect->has_custom_redirect(), 'Form should not have a custom redirect URL.' );
+
+		$form_has_filter = new Contact_Form( $attributes, '' );
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10, 3 );
+		$this->assertTrue( $form_has_filter->has_custom_redirect(), 'Form should have a custom redirect URL.' );
+		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+	}
 }

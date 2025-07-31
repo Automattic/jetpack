@@ -410,6 +410,8 @@ abstract class Base_Admin_Menu {
 				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
 			}
 
+			$menu_item[5] = preg_replace( '|[^a-zA-Z0-9_:.]|', '-', $menu_item[5] );
+
 			if ( str_starts_with( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
 				$svg_items[]   = array(
 					'icon' => $menu_item[6],
