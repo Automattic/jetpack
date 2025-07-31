@@ -458,15 +458,14 @@ class Jetpack_PostImages {
 		);
 
 		while ( $scanner->next_delimiter() ) {
-			$type               = $scanner->get_delimiter_type();
-			$block_type         = $scanner->get_block_type();
-			$is_supported_block = in_array( $block_type, $supported_blocks, true );
-
+			$type = $scanner->get_delimiter_type();
 			// Only process opening delimiters for supported block types.
 			if ( Block_Scanner::OPENER !== $type ) {
 				continue;
 			}
 
+			$block_type         = $scanner->get_block_type();
+			$is_supported_block = in_array( $block_type, $supported_blocks, true );
 			if ( ! $is_supported_block ) {
 				continue;
 			}
