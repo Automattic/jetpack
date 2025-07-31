@@ -1,5 +1,3 @@
-import type { LegendShape } from '@visx/legend/lib/types';
-
 // Base legend defaults shared across all charts
 export const LEGEND_DEFAULTS = {
 	showLegend: true,
@@ -11,7 +9,7 @@ export const LEGEND_DEFAULTS = {
 // Individual chart defaults - tree-shakeable
 export const BAR_CHART_DEFAULTS = {
 	...LEGEND_DEFAULTS,
-	legendShape: 'rect' as LegendShape< any, number >,
+	legendShape: 'rect' as const,
 	withPatterns: false,
 	showZeroValues: false,
 	orientation: 'vertical' as const,
@@ -19,7 +17,7 @@ export const BAR_CHART_DEFAULTS = {
 
 export const LINE_CHART_DEFAULTS = {
 	...LEGEND_DEFAULTS,
-	legendShape: 'line' as LegendShape< any, number >,
+	legendShape: 'line' as const,
 	withLegendGlyph: false,
 	withTooltips: true,
 	withGradientFill: false,
@@ -29,7 +27,7 @@ export const LINE_CHART_DEFAULTS = {
 
 export const PIE_CHART_DEFAULTS = {
 	...LEGEND_DEFAULTS,
-	legendShape: 'circle' as LegendShape< any, number >,
+	legendShape: 'circle' as const,
 	thickness: 1,
 	padding: 20,
 	gapScale: 0,
@@ -38,7 +36,7 @@ export const PIE_CHART_DEFAULTS = {
 
 export const PIE_SEMI_CIRCLE_CHART_DEFAULTS = {
 	...LEGEND_DEFAULTS,
-	legendShape: 'circle' as LegendShape< any, number >,
+	legendShape: 'circle' as const,
 	thickness: 0.4,
 	clockwise: true,
 } as const;
