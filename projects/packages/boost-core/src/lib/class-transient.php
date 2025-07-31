@@ -110,6 +110,33 @@ class Transient {
 	}
 
 	/**
+	 * Delete all `Transient` values from the database.
+	 *
+	 * @return void
+	 */
+	public static function delete_bulk() {
+		global $wpdb;
+
+		$prefix_search_pattern = $wpdb->esc_like( self::OPTION_PREFIX ) . '%';
+
+		//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				$prefix_search_pattern
+			)
+		);
+
+		if (
+			function_exists( 'wp_cache_flush_group' ) &&
+			function_exists( 'wp_cache_supports' ) &&
+			wp_cache_supports( 'flush_group' )
+		) {
+			wp_cache_flush_group( 'options' );
+		}
+	}
+
+	/**
 	 * Delete a cache entry.
 	 *
 	 * @param string $key Cache key name.
