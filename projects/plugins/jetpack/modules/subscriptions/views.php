@@ -2,6 +2,8 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Jetpack_Subscriptions_Widget main view class.
  */
@@ -65,12 +67,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$widget_ops
 		);
 
-		if ( self::is_jetpack() &&
-			(
+		if (
+			self::is_jetpack()
+			&& (
 				is_active_widget( false, false, $this->id_base ) ||
 				is_active_widget( false, false, 'monster' ) ||
 				is_customize_preview()
 			)
+			&& ! wp_is_block_theme()
 		) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
@@ -95,13 +99,18 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @since 4.5.0
 	 */
 	public function enqueue_style() {
-		wp_register_style(
+		$path = Assets::get_file_url_for_environment(
+			'_inc/build/subscriptions/subscriptions.min.css',
+			'modules/subscriptions/subscriptions.css'
+		);
+
+		wp_enqueue_style(
 			'jetpack-subscriptions',
-			plugins_url( 'subscriptions.css', __FILE__ ),
+			$path,
 			array(),
 			JETPACK__VERSION
 		);
-		wp_enqueue_style( 'jetpack-subscriptions' );
+		wp_style_add_data( 'jetpack-subscriptions', 'path', $path );
 	}
 
 	/**
@@ -114,6 +123,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() && self::is_current_user_subscribed() ) {
 			return null;
 		}
+
+		// Enqueue styles.
+		self::enqueue_style();
+
 		if ( self::is_jetpack() &&
 			/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
 			false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
