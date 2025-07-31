@@ -834,7 +834,7 @@ class Jetpack_Widget_Conditions {
 				if ( $scanner->opens_block() ) {
 					$attributes = $scanner->allocate_and_return_parsed_attributes();
 
-					if ( empty( $attributes['conditions']['rules'] ) ) {
+					if ( ! is_array( $attributes ) || empty( $attributes['conditions']['rules'] ) ) {
 						// No Rules: Display widget.
 						return $instance;
 					}
