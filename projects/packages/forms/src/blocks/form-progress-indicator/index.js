@@ -99,23 +99,14 @@ export const settings = {
 					type: 'string',
 				},
 			},
-			save: ( { attributes } ) => {
-				const { showStepNames, progressColor, backgroundColor } = attributes;
-				const blockProps = useBlockProps.save( {
-					style: {
-						'--jetpack-progress-color': progressColor || undefined,
-						'--jetpack-progress-bg-color': backgroundColor || undefined,
-					},
-				} );
+			save: () => {
+				// Legacy output only included the progress bar element.
+				const blockProps = useBlockProps.save();
 
 				return (
-					<div
-						className="jetpack-form-progress-indicator--wrapper"
-						data-show-step-names={ showStepNames }
-					>
+					<div className="jetpack-form-progress-indicator--wrapper">
 						<div { ...blockProps }>
 							<div className="jetpack-form-progress-indicator-bar"></div>
-							<div className="jetpack-form-progress-indicator-steps"></div>
 						</div>
 					</div>
 				);
