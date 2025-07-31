@@ -2758,12 +2758,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $error_message The error message.
 	 */
 	public function add_error( $error_code, $error_message ) {
-		if ( ! is_wp_error( $this->errors ) ) {
-			$this->errors = new \WP_Error();
+		$id = $this->get_attribute( 'id' );
+		if ( ! isset( self::$static_errors[ $id ] ) ) {
+			self::$static_errors[ $id ] = new \WP_Error();
 		}
-		// for backward compatibility, we need to add the error code and message
-		$this->errors->add( $error_code, $error_message );
-		self::$static_errors[ $this->get_attribute( 'id' ) ] = $this->errors;
+		self::$static_errors[ $id ]->add( $error_code, $error_message );
+		$this->errors = self::$static_errors[ $id ];
 	}
 	/**
 	 * Check if the contact form has errors.

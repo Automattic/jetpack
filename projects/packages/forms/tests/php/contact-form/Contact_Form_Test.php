@@ -3057,5 +3057,17 @@ EOT;
 		// message should be not empty.
 		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
 		$this->assertEquals( array( 'Message field is required.' ), $form->get_error_messages() );
+		Contact_Form::reset_errors();
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array(), $form->get_error_messages() );
+
+		$form->add_error( 'custom_error', 'This is a custom error message.' );
+		$this->assertTrue( $form->has_errors(), 'Form should have custom error after adding it.' );
+		$this->assertEquals( array( 'This is a custom error message.' ), $form->get_error_messages(), 'Form should return custom error message.' );
+
+		// Reset errors and check again.
+		Contact_Form::reset_errors( $form->get_attribute( 'id' ) );
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after resetting.' );
+		$this->assertEquals( array(), $form->get_error_messages() );
 	}
 }
