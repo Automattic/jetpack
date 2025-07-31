@@ -25,19 +25,13 @@ function wpcomsh_get_site_creation_timestamp() {
 		return $cached_creation_timestamp;
 	}
 
-	// Get the WordPress.com site ID from Jetpack options
-	$jetpack_options = get_option( 'jetpack_options' );
-	if ( ! is_array( $jetpack_options ) || ! isset( $jetpack_options['id'] ) ) {
-		return $default_timestamp;
-	}
-
-	$site_id = (int) $jetpack_options['id'];
+	// Make authenticated API request to get site creation date
+	$site_id = Automattic\Jetpack\Connection\Manager::get_site_id( true );
 
 	if ( ! $site_id ) {
 		return $default_timestamp;
 	}
 
-	// Make authenticated API request to get site creation date
 	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
 		sprintf( '/sites/%d?force=wpcom&options=created_at', $site_id ),
 		'1.1'
