@@ -250,7 +250,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function has_value() {
 		$field_id    = $this->get_attribute( 'id' );
-		$field_value = isset( $_POST[ $field_id ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+		$field_value = isset( $_POST[ $field_id ] ) ? trim( sanitize_text_field( wp_unslash( $_POST[ $field_id ] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 
 		return ! empty( $field_value );
 	}
