@@ -5,16 +5,26 @@
 	// Default styles - unified for both line and dots
 	position: relative;
 	overflow: visible;
+	width: 100%;
+	box-sizing: border-box;
 
 	// Step container - used for both dots and line styles
 	.jetpack-form-progress-indicator-steps {
-		display: grid;
-		grid-auto-flow: column;
-		grid-auto-columns: 1fr;
-		align-items: center;
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
 		width: 100%;
 		padding: 0;
 		position: relative;
+		overflow: hidden;
+
+		.jetpack-form-progress-indicator-step:first-child {
+			align-items: flex-start;
+		}
+
+		.jetpack-form-progress-indicator-step:last-child {
+			align-items: flex-end;
+		}
 	}
 
 	.jetpack-form-progress-indicator-step {
@@ -23,6 +33,8 @@
 		align-items: center;
 		position: relative;
 		z-index: 1;
+		min-width: 6rem;
+		max-width: 100%;
 
 		&.is-active .jetpack-form-progress-indicator-step-label {
 			font-weight: 600;
@@ -34,10 +46,55 @@
 		color: currentColor;
 		white-space: nowrap;
 		display: none; // Hidden by default, shown when step names enabled
+		margin-top: 0.5rem;
+		width: 100%;
+		text-align: center;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	// Ensure first and last step labels align with the form edges, regardless of
+	// whether the step names wrapper attribute is present. This fixes alignment
+	// in the editor when the block is using the default "line" style.
+	.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-step-label {
+		text-align: left;
+	}
+
+	.jetpack-form-progress-indicator-step:last-child .jetpack-form-progress-indicator-step-label {
+		text-align: right;
+	}
+
+	// Line element - shared between both styles
+	.jetpack-form-progress-indicator-line {
 		position: absolute;
-		top: calc(100% + 0.5rem);
-		left: 50%;
-		transform: translateX(-50%);
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: var(--jp-form-progress-height);
+		background-color: var(--jetpack-progress-bg-color, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+		z-index: 0;
+		display: none; // Hidden by default
+	}
+
+	// Dot element - hidden by default, shown in dots style
+	.jetpack-form-progress-indicator-dot {
+		display: none;
+	}
+
+	// Active and completed steps get the progress color on their line
+	.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-line,
+	.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-line {
+		background-color: var(--jetpack-progress-color, var(--wp--preset--color--primary, currentColor));
+	}
+
+	// Rounded corners for first and last line elements
+	.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-line {
+		border-top-left-radius: calc(var(--jp-form-progress-height) / 2);
+		border-bottom-left-radius: calc(var(--jp-form-progress-height) / 2);
+	}
+
+	.jetpack-form-progress-indicator-step:last-child .jetpack-form-progress-indicator-line {
+		border-top-right-radius: calc(var(--jp-form-progress-height) / 2);
+		border-bottom-right-radius: calc(var(--jp-form-progress-height) / 2);
 	}
 
 	// Show step labels when enabled
@@ -49,116 +106,84 @@
 
 		// Add the same spacing as other form blocks when step names are shown
 		margin-bottom: var(--wp--style--block-gap, 1.5rem);
+
+		// First and last step labels align with form edges
+		.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-step-label {
+			text-align: left;
+		}
+
+		.jetpack-form-progress-indicator-step:last-child .jetpack-form-progress-indicator-step-label {
+			text-align: right;
+		}
+
 	}
 
-	// Line style (default) - make steps look like a progress line
-	&:not(.is-style-dots) {
-		height: var(--jp-form-progress-height);
-		background-color: var(--jetpack-progress-bg-color, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
-		border-radius: calc(var(--jp-form-progress-height) / 2);
-
+	// Line style - show line elements as progress bar
+	&.is-style-line {
+		// Remove gaps between steps to create continuous bar
 		.jetpack-form-progress-indicator-steps {
-			height: 100%;
-			align-items: center;
+			gap: 0;
 		}
 
 		.jetpack-form-progress-indicator-step {
-			flex-direction: row;
-			gap: 0;
-			height: 100%;
-
-			// Active and completed steps get the progress color
-			&.is-active,
-			&.is-completed {
-				background-color: var(--jetpack-progress-color, var(--wp--preset--color--primary, currentColor));
-			}
-
-			// First step gets left rounded corners
-			&:first-child {
-				border-top-left-radius: calc(var(--jp-form-progress-height) / 2);
-				border-bottom-left-radius: calc(var(--jp-form-progress-height) / 2);
-			}
-
-			// Last step gets right rounded corners
-			&:last-child {
-				border-top-right-radius: calc(var(--jp-form-progress-height) / 2);
-				border-bottom-right-radius: calc(var(--jp-form-progress-height) / 2);
-			}
+			flex: 1; // Equal width segments
 		}
 
-		// Hide step numbers in line style
-		.jetpack-form-progress-indicator-step-number {
-			display: none;
+		.jetpack-form-progress-indicator-line {
+			display: block;
+			position: relative;
+			margin: 0; // Remove any margins
 		}
-
 	}
 
 	// Dots style - larger dots with numbers/checkmarks
 	&.is-style-dots {
-		padding: 0 1rem; // Add padding to ensure dots aren't cut off
-
-		.jetpack-form-progress-indicator-step {
-			// Connecting line between dots (only for steps that aren't last)
-			&:not(:last-child)::after {
-				content: "";
-				position: absolute;
-				top: 1rem; // Half of dot height (2rem / 2)
-				left: 50%;
-				height: 2px;
-				background-color: var(--jetpack-progress-bg-color, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
-				z-index: 0;
-				transform: translateX(1rem); // Move line to start from right edge of dot
-				width: calc(100% - 2rem); // Subtract the dot width
-			}
-
-			// Dot background
-			&::before {
-				content: "";
-				display: block;
-				width: 2rem;
-				height: 2rem;
-				border-radius: 50%;
-				background-color: var(--jetpack-progress-bg-color, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
-				transition: background-color 0.3s ease;
-				position: relative;
-				z-index: 2;
-			}
-
-			&.is-active::before,
-			&.is-completed::before {
-				background-color: var(--jetpack-progress-color, var(--wp--preset--color--contrast, currentColor));
-			}
+		// Show dot container
+		.jetpack-form-progress-indicator-dot {
+			display: flex;
+			width: 2rem;
+			height: 2rem;
+			border-radius: 50%;
+			background-color: var(--jetpack-progress-bg-color, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+			transition: background-color 0.3s ease;
+			position: relative;
+			z-index: 2;
+			align-items: center;
+			justify-content: center;
 		}
 
 		// Step number/checkmark inside the dot
 		.jetpack-form-progress-indicator-step-number {
-			position: absolute;
-			top: 0;
-			left: 50%;
-			transform: translateX(-50%);
-			width: 2rem;
-			height: 2rem;
-			display: flex;
-			align-items: center;
-			justify-content: center;
 			font-size: 0.875rem;
 			font-weight: 600;
-			z-index: 3;
 			line-height: 1;
 			color: var(--wp--preset--color--contrast, currentColor);
 		}
 
-		// Active step numbers
-		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-step-number {
+		// Active and completed dots
+		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot,
+		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-dot {
+			background-color: var(--jetpack-progress-color, var(--wp--preset--color--contrast, currentColor));
+		}
+
+		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-step-number,
+		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
 			color: var(--wp--preset--color--base, #fff);
 			text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
 		}
 
 		// Completed step numbers
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
-			color: var(--wp--preset--color--base, #fff);
-			text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
 			font-size: 1.125rem;
+		}
+
+		// Show connecting lines between dots
+		.jetpack-form-progress-indicator-step:not(:last-child) .jetpack-form-progress-indicator-line {
+			display: block;
+			top: 1rem;
+			height: 2px;
+			left: 2rem; // Start from right edge of current dot
+			width: 100vw; // Extend across screen
 		}
 	}
 }

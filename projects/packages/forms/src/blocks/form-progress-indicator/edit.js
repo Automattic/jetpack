@@ -75,15 +75,18 @@ const FormProgressIndicatorEdit = ( {
 										}${ isCompleted ? ' is-completed' : '' }` }
 										data-step-index={ index }
 									>
+										<div className="jetpack-form-progress-indicator-line"></div>
 										{ isDotStyle && (
-											<span className="jetpack-form-progress-indicator-step-number">
-												{ isCompleted ? '✓' : index + 1 }
-											</span>
+											<div className="jetpack-form-progress-indicator-dot">
+												<span className="jetpack-form-progress-indicator-step-number">
+													{ isCompleted ? '✓' : index + 1 }
+												</span>
+											</div>
 										) }
 										{ showStepNames && (
-											<span className="jetpack-form-progress-indicator-step-label">
+											<div className="jetpack-form-progress-indicator-step-label">
 												{ step.label }
-											</span>
+											</div>
 										) }
 									</div>
 								);

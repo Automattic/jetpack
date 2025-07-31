@@ -783,7 +783,6 @@ class Contact_Form_Plugin {
 
 		// Get step data - try block context first, then parse from content
 		$form_steps       = $block->context['jetpack/form-steps'] ?? array();
-		$show_step_names  = $attributes['showStepNames'] ?? false;
 		$progress_color   = $attributes['progressColor'] ?? '';
 		$background_color = $attributes['backgroundColor'] ?? '';
 
@@ -826,18 +825,23 @@ class Contact_Form_Plugin {
 		// Build steps HTML from the data
 		foreach ( $form_steps as $index => $step ) {
 			$step_label = $step['label'] ?? 'Step ' . ( $index + 1 );
-			$label_html = $show_step_names ? sprintf( '<span class="jetpack-form-progress-indicator-step-label">%s</span>', esc_html( $step_label ) ) : '';
+			$label_html = sprintf( '<div class="jetpack-form-progress-indicator-step-label">%s</div>', esc_html( $step_label ) );
 
 			// Add step number for dots style with dynamic content binding
 			$step_number_html = sprintf( '<span class="jetpack-form-progress-indicator-step-number" data-wp-text="state.getStepContent">%d</span>', $index + 1 );
+			$dot_html         = sprintf( '<div class="jetpack-form-progress-indicator-dot">%s</div>', $step_number_html );
+
+			// Add line element
+			$line_html = '<div class="jetpack-form-progress-indicator-line"></div>';
 
 			// For initial render, assume currentStep = 1 (first step)
 			$is_initially_active = $index === 0 ? ' is-active' : '';
 			$step_html           = sprintf(
-				'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" %s>%s%s</div>',
+				'<div class="jetpack-form-progress-indicator-step%s" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" %s>%s%s%s</div>',
 				$is_initially_active,
 				wp_interactivity_data_wp_context( array( 'stepIndex' => $index ) ),
-				$step_number_html,
+				$line_html,
+				$dot_html,
 				$label_html
 			);
 			$steps_html         .= $step_html;

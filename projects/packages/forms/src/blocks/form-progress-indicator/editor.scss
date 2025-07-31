@@ -5,7 +5,7 @@
 .wp-block-jetpack-form-progress-indicator {
 	// In editor, always show the steps container
 	.jetpack-form-progress-indicator-steps {
-		display: grid !important;
+		display: flex !important;
 	}
 
 	// Show labels when showStepNames is true (class-based approach for editor)
