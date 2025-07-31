@@ -1240,6 +1240,16 @@ class Contact_Form_Plugin {
 			}
 
 			$form->validate();
+
+			if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
+				return $form->errors;
+			}
+
+			if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+				Post_To_Url::init();
+			}
+			// Process the form
+			return $form->process_submission();
 		}
 
 		if ( $is_widget ) {
