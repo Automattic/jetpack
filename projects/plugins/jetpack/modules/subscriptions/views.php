@@ -2,6 +2,8 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Jetpack_Subscriptions_Widget main view class.
  */
@@ -97,13 +99,18 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @since 4.5.0
 	 */
 	public function enqueue_style() {
-		wp_register_style(
+		$path = Assets::get_file_url_for_environment(
+			'_inc/build/subscriptions/subscriptions.min.css',
+			'modules/subscriptions/subscriptions.css'
+		);
+
+		wp_enqueue_style(
 			'jetpack-subscriptions',
-			plugins_url( 'subscriptions.css', __FILE__ ),
+			$path,
 			array(),
 			JETPACK__VERSION
 		);
-		wp_enqueue_style( 'jetpack-subscriptions' );
+		wp_style_add_data( 'jetpack-subscriptions', 'path', $path );
 	}
 
 	/**
