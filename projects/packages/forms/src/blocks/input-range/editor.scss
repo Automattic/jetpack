@@ -8,7 +8,7 @@
 
 .jetpack-field-slider__min-label,
 .jetpack-field-slider__max-label {
-	font-size: .9em;
+	font-size: 0.9em;
 	text-align: center;
 }
 
@@ -45,7 +45,7 @@
 	border-radius: 50%;
 	cursor: pointer;
 	transition: background 0.3s;
-	box-shadow: 0 0 2px rgba(0,0,0,0.2);
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
 .jetpack-field-slider__range::-moz-range-thumb,
@@ -58,7 +58,7 @@
 	transition: background 0.3s;
 }
 
-.jetpack-field-slider__range:focus::-webkit-slider-thumb, 
+.jetpack-field-slider__range:focus::-webkit-slider-thumb,
 .jetpack-field-slider__range:focus::-moz-range-thumb,
 .jetpack-field-slider__range::-ms-fill-lower,
 .jetpack-field-slider__range::-ms-fill-upper,
@@ -78,4 +78,4 @@
 	padding: 2px 8px;
 	font-size: 0.7em;
 	z-index: 2;
-} 
+}

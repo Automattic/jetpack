@@ -8,7 +8,7 @@
 
 .jetpack-field-slider__min-label,
 .jetpack-field-slider__max-label {
-	font-size: .9em;
+	font-size: 0.9em;
 	text-align: center;
 }
 
@@ -46,7 +46,7 @@
 	border-radius: 50%;
 	cursor: pointer;
 	transition: background 0.3s;
-	box-shadow: 0 0 2px rgba(0,0,0,0.2);
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
 .jetpack-field-slider__input-container input[type="range"]::-moz-range-thumb,
