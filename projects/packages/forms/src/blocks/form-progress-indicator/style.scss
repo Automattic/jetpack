@@ -1,6 +1,9 @@
 .wp-block-jetpack-form-progress-indicator {
 	--jp-form-progress-height: 0.75rem;
 	--jp-form-progress-bg-color: #e0e0e0;
+	// Derived colour vars for easier reuse
+	--jp-progress-bg: var(--jetpack-progress-bg-color, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+	--jp-progress-color: var(--jetpack-progress-color, var(--wp--preset--color--primary, currentColor));
 
 	// Default styles - unified for both line and dots
 	position: relative;
@@ -70,7 +73,7 @@
 		left: 0;
 		width: 100%;
 		height: var(--jp-form-progress-height);
-		background-color: var(--jetpack-progress-bg-color, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+		background-color: var(--jp-progress-bg);
 		z-index: 0;
 		display: none; // Hidden by default
 	}
@@ -83,7 +86,7 @@
 	// Active and completed steps get the progress color on their line
 	.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-line,
 	.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-line {
-		background-color: var(--jetpack-progress-color, var(--wp--preset--color--primary, currentColor));
+		background-color: var(--jp-progress-color);
 	}
 
 	// Rounded corners for first and last line elements
@@ -107,14 +110,7 @@
 		// Add the same spacing as other form blocks when step names are shown
 		margin-bottom: var(--wp--style--block-gap, 1.5rem);
 
-		// First and last step labels align with form edges
-		.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-step-label {
-			text-align: left;
-		}
-
-		.jetpack-form-progress-indicator-step:last-child .jetpack-form-progress-indicator-step-label {
-			text-align: right;
-		}
+		// Alignment handled globally above – no extra rules needed here.
 
 	}
 
@@ -144,7 +140,7 @@
 			width: 2rem;
 			height: 2rem;
 			border-radius: 50%;
-			background-color: var(--jetpack-progress-bg-color, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+			background-color: var(--jp-progress-bg);
 			transition: background-color 0.3s ease;
 			position: relative;
 			z-index: 2;
@@ -163,7 +159,7 @@
 		// Active and completed dots
 		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot,
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-dot {
-			background-color: var(--jetpack-progress-color, var(--wp--preset--color--contrast, currentColor));
+			background-color: var(--jp-progress-color);
 		}
 
 		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-step-number,
