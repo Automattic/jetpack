@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Widget Conditions Module: improve performance of block processing during conditional checking
