@@ -1,5 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -118,9 +119,7 @@ const ActivationScreen = props => {
 								'jetpack-licensing'
 							),
 							{
-								connectLink: (
-									<a href="admin.php?page=my-jetpack#/connection?returnTo=add-license" />
-								),
+								connectLink: <a href={ getUserConnectionUrl() } />,
 							}
 						)
 					);

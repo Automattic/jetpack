@@ -1,6 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { useMemo } from 'react';
 import type { DataPointDate, BaseChartProps, SeriesData } from '../../types';
+import type { EnhancedDataPoint } from '../shared/use-zero-value-display';
 import type { TickFormatter } from '@visx/axis';
 
 const formatDateTick = ( timestamp: number ) => {
@@ -52,7 +53,11 @@ export function useBarChartOptions(
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
 		const labelAccessor = ( d: DataPointDate ) => d?.label || d?.date;
-		const valueAccessor = ( d: DataPointDate ) => d?.value;
+		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ) => {
+			// Use visualValue for bar rendering if available (for zero values), otherwise use value
+			const enhancedPoint = d as EnhancedDataPoint;
+			return enhancedPoint?.visualValue !== undefined ? enhancedPoint.visualValue : d?.value;
+		};
 
 		return {
 			vertical: {

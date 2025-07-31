@@ -1514,6 +1514,21 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Check if the site has the summer-special-2025 blog sticker.
+	 *
+	 * @return bool
+	 */
+	public function is_summer_special_2025() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'summer-special-2025' );
+		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			// For atomic sites
+			return wpcomsh_is_site_sticker_active( 'summer-special-2025' );
+		}
+		return false;
+	}
+
+	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 *
 	 * @return string
