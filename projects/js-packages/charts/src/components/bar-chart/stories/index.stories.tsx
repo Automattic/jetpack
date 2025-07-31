@@ -235,6 +235,28 @@ export const HorizontalBarChart: Story = {
 	},
 };
 
+// Story showcasing basic legend functionality
+export const WithLegend: Story = {
+	args: {
+		withTooltips: true,
+		data: data.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		showLegend: true,
+		// Using default legend positioning (horizontal, center, bottom)
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bar chart with default legend positioning (horizontal orientation, center alignment, bottom placement).',
+			},
+		},
+	},
+};
+
 // Story showcasing legend customization controls
 export const CustomLegendPositioning: Story = {
 	args: {
