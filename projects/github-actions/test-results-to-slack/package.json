@@ -1,8 +1,6 @@
 {
 	"private": true,
 	"description": "GitHub Action to send Slack notifications with test results",
-	"author": "Automattic",
-	"license": "GPL-2.0-or-later",
 	"keywords": [
 		"wordpress",
 		"automattic",
@@ -11,7 +9,14 @@
 		"action",
 		"tests"
 	],
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
 	"main": "src/index.js",
+	"scripts": {
+		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
+		"test-coverage": "pnpm run test --coverage"
+	},
 	"dependencies": {
 		"@actions/core": "1.11.1",
 		"@actions/github": "6.0.1",
@@ -23,10 +28,5 @@
 		"@vercel/ncc": "0.36.1",
 		"jest": "30.0.4",
 		"undici": "5.29.0"
-	},
-	"scripts": {
-		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
-		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
-		"test-coverage": "pnpm run test --coverage"
 	}
 }

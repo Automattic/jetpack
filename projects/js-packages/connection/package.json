@@ -11,8 +11,21 @@
 		"url": "https://github.com/Automattic/jetpack.git",
 		"directory": "projects/js-packages/connection"
 	},
-	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"./state/store.jsx",
+		"*.css",
+		"*.scss"
+	],
+	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
+	"scripts": {
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage"
+	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
@@ -26,6 +39,7 @@
 		"@wordpress/element": "6.26.0",
 		"@wordpress/i18n": "5.26.0",
 		"@wordpress/icons": "10.26.0",
+		"@wordpress/url": "4.26.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.1",
 		"prop-types": "^15.7.2"
@@ -47,18 +61,5 @@
 	"peerDependencies": {
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0"
-	},
-	"type": "module",
-	"exports": {
-		".": "./index.jsx"
-	},
-	"sideEffects": [
-		"./state/store.jsx",
-		"*.css",
-		"*.scss"
-	],
-	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage"
 	}
 }

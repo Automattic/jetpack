@@ -504,6 +504,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$response['newsletter_has_active_plan'] = count( Jetpack_Memberships::get_all_newsletter_plan_ids( false ) ) > 0;
 		}
 
+		// Make sure we are returning a consistent type
+		if ( ! class_exists( 'Jetpack_Newsletter_Category_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
+		}
+		$response['wpcom_newsletter_categories'] = Jetpack_Newsletter_Category_Helper::get_category_ids();
+
 		return rest_ensure_response( $response );
 	}
 
@@ -648,6 +654,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				// Remove module from list so we don't go through it again.
 				unset( $params[ $option ] );
 			}
+		}
+
+		if ( ! class_exists( 'Jetpack_Newsletter_Category_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
 		}
 
 		foreach ( $params as $option => $value ) {
@@ -1050,43 +1060,24 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
-				case 'wpcom_newsletter_categories':
-					$sanitized_category_ids = (array) $value;
-
-					array_walk_recursive(
-						$sanitized_category_ids,
-						function ( &$value ) {
-							if ( is_int( $value ) && $value > 0 ) {
-								return;
-							}
-
-							$value = (int) $value;
-							if ( $value <= 0 ) {
-								$value = null;
-							}
-						}
-					);
-
-					$sanitized_category_ids = array_unique(
-						array_filter(
-							$sanitized_category_ids,
-							function ( $category_id ) {
-								return $category_id !== null;
-							}
-						)
-					);
-
-					$new_value = array_map(
-						function ( $category_id ) {
-							return array( 'term_id' => $category_id );
-						},
-						$sanitized_category_ids
-					);
-
-					if ( ! update_option( $option, $new_value ) ) {
-						$updated = false;
-						$error   = esc_html__( 'WPCOM Newsletter Categories failed to process.', 'jetpack' );
+				case Jetpack_Newsletter_Category_Helper::NEWSLETTER_CATEGORIES_OPTION:
+					if ( ! is_array( $value ) || empty( $value ) ) {
+						break;
 					}
+
+					// If we are already current, do nothing
+					$current_value = Jetpack_Newsletter_Category_Helper::get_category_ids();
+					if ( $value === $current_value ) {
+						break;
+					}
+
+					if ( Jetpack_Newsletter_Category_Helper::save_category_ids( $value ) ) {
+						$updated = true;
+					} else {
+						$updated = false;
+						$error   = esc_html__( 'Newsletter category did not update.', 'jetpack' );
+					}
+
 					break;
 
 				default:

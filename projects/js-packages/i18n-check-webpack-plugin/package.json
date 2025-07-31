@@ -2,10 +2,6 @@
 	"name": "@automattic/i18n-check-webpack-plugin",
 	"version": "1.1.25",
 	"description": "A Webpack plugin to check that WordPress i18n hasn't been mangled by Webpack optimizations.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/i18n-check-webpack-plugin/#readme",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] I18n Check Webpack Plugin"
-	},
 	"keywords": [
 		"webpack",
 		"plugin",
@@ -14,6 +10,10 @@
 		"gettext",
 		"i18n"
 	],
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/i18n-check-webpack-plugin/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] I18n Check Webpack Plugin"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
@@ -21,6 +21,13 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		".": "./src/I18nCheckPlugin.js",
+		"./GettextEntries": "./src/GettextEntries.js",
+		"./GettextEntry": "./src/GettextEntry.js",
+		"./GettextExtractor": "./src/GettextExtractor.js",
+		"./I18nSafeMangleExportsPlugin": "./src/I18nSafeMangleExportsPlugin.js"
+	},
 	"scripts": {
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage"
@@ -38,12 +45,5 @@
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
 		"webpack": "^5.94.0"
-	},
-	"exports": {
-		".": "./src/I18nCheckPlugin.js",
-		"./I18nSafeMangleExportsPlugin": "./src/I18nSafeMangleExportsPlugin.js",
-		"./GettextExtractor": "./src/GettextExtractor.js",
-		"./GettextEntries": "./src/GettextEntries.js",
-		"./GettextEntry": "./src/GettextEntry.js"
 	}
 }

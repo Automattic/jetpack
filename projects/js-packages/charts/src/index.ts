@@ -29,7 +29,7 @@ export { formatMetricValue } from './components/leaderboard-chart';
 export type * from './types';
 export type * from './visx/types';
 
-export type { LineStyles, GridStyles } from '@visx/xychart';
+export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 
 export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
 export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';

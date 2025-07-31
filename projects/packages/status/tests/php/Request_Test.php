@@ -141,6 +141,12 @@ class Request_Test extends TestCase {
 				'expected_result'    => false,
 				'should_set_headers' => false,
 			),
+			'WPCOM_CLI_SCRIPT constant' => array(
+				'function_mocks'     => $default_functions,
+				'constants'          => array( 'WPCOM_CLI_SCRIPT' => true ),
+				'expected_result'    => false,
+				'should_set_headers' => false,
+			),
 			'json request'              => array(
 				'function_mocks'     => array_merge( $default_functions, array( 'wp_is_json_request' => true ) ),
 				'constants'          => array(),
