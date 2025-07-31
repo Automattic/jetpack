@@ -326,6 +326,11 @@ class Util {
 	 * @return string
 	 */
 	public static function grunion_contact_form_apply_block_attribute( $content, $new_attr ) {
+		if ( ! is_string( $content ) ) {
+			// If the content is not a string, we cannot process it.
+			return $content;
+		}
+
 		if ( false === stripos( $content, 'wp:jetpack/contact-form' ) ) {
 			return $content;
 		}

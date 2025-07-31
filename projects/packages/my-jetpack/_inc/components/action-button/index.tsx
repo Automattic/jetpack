@@ -1,4 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -230,7 +231,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
-					href: '#/connection?skip_pricing=true',
+					href: getUserConnectionUrl(),
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: fixUserConnectionHandler,

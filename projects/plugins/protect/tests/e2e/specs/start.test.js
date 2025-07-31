@@ -1,21 +1,11 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import {
-	BASE_DOCKER_CMD,
-	execSyncShellCommand,
-	execWpCommand,
-} from '_jetpack-e2e-commons/helpers/utils-helper.js';
-import { disconnect } from '_jetpack-e2e-commons/utils/index.ts';
 import { connect } from '../flows/connection';
 
 test.describe( 'Jetpack Protect Plugin', () => {
-	test.beforeEach( async ( { page, admin, requestUtils } ) => {
-		await disconnect( requestUtils );
-
-		await prerequisitesBuilder( page )
-			.withActivePlugins( [ 'jetpack-protect' ] )
-			.withInactivePlugins( [ 'e2e-waf-data-interceptor' ] )
-			.build();
+	test.beforeEach( async ( { page, admin, testUtils } ) => {
+		await testUtils.disconnect();
+		await testUtils.executeWpCommand( 'plugin activate jetpack-protect' );
+		await testUtils.executeWpCommand( 'plugin deactivate e2e-waf-data-interceptor' );
 
 		/**
 		 * Connect the site via the initial setup page's "start for free" option.
@@ -26,9 +16,9 @@ test.describe( 'Jetpack Protect Plugin', () => {
 		 * Ensure the WAF rules are generated ahead of time, and
 		 * enforce compatible permissions for the E2E environment.
 		 */
-		await execWpCommand( 'jetpack-waf generate_rules' );
-		execSyncShellCommand(
-			`${ BASE_DOCKER_CMD } exec-silent -- chown -R www-data:www-data /var/www/html/wp-content/jetpack-waf`
+		await testUtils.executeWpCommand( 'jetpack-waf generate_rules' );
+		await testUtils.executeContainerCommand(
+			'exec-silent -- chown -R www-data:www-data /var/www/html/wp-content/jetpack-waf'
 		);
 
 		// to do: should not need to manually reload the page here

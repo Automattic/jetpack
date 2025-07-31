@@ -234,19 +234,23 @@ class Storage_Post_Type {
 		);
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete(
-			$wpdb->options,
-			array( 'option_name' => '_transient_' . $this->post_type_slug() . '_%' ),
-			array( '%s' )
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				'_transient_' . $this->post_type_slug() . '_%'
+			)
 		);
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete(
-			$wpdb->options,
-			array( 'option_name' => '_transient_timeout_' . $this->post_type_slug() . '_%' ),
-			array( '%s' )
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				'_transient_timeout_' . $this->post_type_slug() . '_%'
+			)
 		);
 
 		wp_cache_flush_group( $this->post_type_slug() );
+		wp_cache_flush_group( 'options' );
 	}
 
 	/**

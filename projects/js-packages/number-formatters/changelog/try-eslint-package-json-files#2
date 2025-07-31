@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Sort and clean up package.json. Should be no change to functionality.
+
+

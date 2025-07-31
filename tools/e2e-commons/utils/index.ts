@@ -1,9 +1,78 @@
-export {
+import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
+import {
+	executeCommand,
+	executeContainerCommand,
+	executeWpCommand,
+	executeJetpackCommand,
+	executeJetpackBoostCommand,
+	executeWpDbQuery,
+} from './cli.ts';
+import {
 	connect,
-	saveJetpackPrivateOptionsToStorageState,
-	disconnectUser,
-	disconnectSite,
 	disconnect,
-	isUserConnected,
+	disconnectSite,
+	disconnectUser,
 	isSiteConnected,
-} from './connection-utils.ts';
+	isUserConnected,
+} from './connection.ts';
+import {
+	getConfigTestSite,
+	getDotComCredentials,
+	getSiteCredentials,
+	isLocalSite,
+	resetEnvironment,
+	resolveSiteUrl,
+} from './environment.ts';
+import { activateBoostModule, deactivateBoostModule } from './jetpack-boost.ts';
+import { activateModule, deactivateModule, isModuleActive } from './jetpack.ts';
+import { authenticateUser } from './login.ts';
+import { setMockPlanData } from './plan.ts';
+
+class TestUtils {
+	requestUtils: RequestUtils;
+
+	constructor( requestUtils: RequestUtils ) {
+		this.requestUtils = requestUtils;
+	}
+
+	// Authentication utilities
+	authenticateUser: typeof authenticateUser = authenticateUser.bind( this );
+
+	// Connection utilities
+	isUserConnected: typeof isUserConnected = isUserConnected.bind( this );
+	isSiteConnected: typeof isSiteConnected = isSiteConnected.bind( this );
+	connect: typeof connect = connect.bind( this );
+	disconnectUser: typeof disconnectUser = disconnectUser.bind( this );
+	disconnectSite: typeof disconnectSite = disconnectSite.bind( this );
+	disconnect: typeof disconnect = disconnect.bind( this );
+
+	// CLI utilities
+	executeCommand: typeof executeCommand = executeCommand;
+	executeWpCommand: typeof executeWpCommand = executeWpCommand;
+	executeJetpackCommand: typeof executeJetpackCommand = executeJetpackCommand;
+	executeContainerCommand: typeof executeContainerCommand = executeContainerCommand;
+	executeJetpackBoostCommand: typeof executeJetpackBoostCommand = executeJetpackBoostCommand;
+	executeWpDbQuery: typeof executeWpDbQuery = executeWpDbQuery;
+
+	// Jetpack specific utilities
+	activateModule: typeof activateModule = activateModule;
+	deactivateModule: typeof deactivateModule = deactivateModule;
+	isModuleActive: typeof isModuleActive = isModuleActive;
+
+	// Jetpack Boost specific utilities
+	activateBoostModule: typeof activateBoostModule = activateBoostModule;
+	deactivateBoostModule: typeof deactivateBoostModule = deactivateBoostModule;
+
+	// Plan utilities
+	setMockPlanData: typeof setMockPlanData = setMockPlanData.bind( this );
+
+	// Environment utilities
+	getConfigTestSite: typeof getConfigTestSite = getConfigTestSite;
+	resolveSiteUrl: typeof resolveSiteUrl = resolveSiteUrl;
+	isLocalSite: typeof isLocalSite = isLocalSite;
+	getSiteCredentials: typeof getSiteCredentials = getSiteCredentials;
+	getDotComCredentials: typeof getDotComCredentials = getDotComCredentials;
+	resetEnvironment: typeof resetEnvironment = resetEnvironment;
+}
+
+export { TestUtils };

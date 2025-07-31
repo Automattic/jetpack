@@ -1,7 +1,7 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-external-media",
 	"version": "0.4.6",
+	"private": true,
 	"description": "The external media feature allows users to select and import photos from external media",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/external-media/#readme",
 	"bugs": {
@@ -21,18 +21,6 @@
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js",
 		"clean": "rm -rf src/build/",
 		"watch": "pnpm run build-production-js && pnpm webpack watch"
-	},
-	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.28.0",
-		"@babel/plugin-transform-react-jsx": "7.27.1",
-		"@babel/preset-react": "7.27.1",
-		"jetpack-js-tools": "workspace:*",
-		"sass-embedded": "1.87.0",
-		"sass-loader": "16.0.5",
-		"typescript": "^5.0.4",
-		"webpack": "5.94.0",
-		"webpack-cli": "6.0.1"
 	},
 	"dependencies": {
 		"@automattic/jetpack-ai-client": "workspace:*",
@@ -59,5 +47,17 @@
 		"moment": "2.30.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.28.0",
+		"@babel/plugin-transform-react-jsx": "7.27.1",
+		"@babel/preset-react": "7.27.1",
+		"jetpack-js-tools": "workspace:*",
+		"sass-embedded": "1.87.0",
+		"sass-loader": "16.0.5",
+		"typescript": "^5.0.4",
+		"webpack": "5.94.0",
+		"webpack-cli": "6.0.1"
 	}
 }
