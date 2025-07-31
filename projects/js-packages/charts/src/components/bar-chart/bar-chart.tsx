@@ -2,6 +2,7 @@ import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@vi
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react';
+import { BAR_CHART_DEFAULTS } from '../../constants/chart-defaults';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
@@ -55,17 +56,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	className,
 	margin,
 	withTooltips = false,
-	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendAlignmentHorizontal = 'center',
-	legendAlignmentVertical = 'bottom',
-	legendShape = 'rect',
+	showLegend = BAR_CHART_DEFAULTS.showLegend,
+	legendOrientation = BAR_CHART_DEFAULTS.legendOrientation,
+	legendAlignmentHorizontal = BAR_CHART_DEFAULTS.legendAlignmentHorizontal,
+	legendAlignmentVertical = BAR_CHART_DEFAULTS.legendAlignmentVertical,
+	legendShape = BAR_CHART_DEFAULTS.legendShape,
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
 	options = {},
-	orientation = 'vertical',
-	withPatterns = false,
-	showZeroValues = false,
+	orientation = BAR_CHART_DEFAULTS.orientation,
+	withPatterns = BAR_CHART_DEFAULTS.withPatterns,
+	showZeroValues = BAR_CHART_DEFAULTS.showZeroValues,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts

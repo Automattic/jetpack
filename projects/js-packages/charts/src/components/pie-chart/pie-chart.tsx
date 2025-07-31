@@ -2,6 +2,7 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
+import { PIE_CHART_DEFAULTS } from '../../constants/chart-defaults';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
@@ -88,16 +89,16 @@ const PieChartInternal = ( {
 	chartId: providedChartId,
 	withTooltips = false,
 	className,
-	showLegend,
-	legendOrientation,
-	legendAlignmentHorizontal = 'center',
-	legendAlignmentVertical = 'bottom',
-	legendShape = 'circle',
+	showLegend = PIE_CHART_DEFAULTS.showLegend,
+	legendOrientation = PIE_CHART_DEFAULTS.legendOrientation,
+	legendAlignmentHorizontal = PIE_CHART_DEFAULTS.legendAlignmentHorizontal,
+	legendAlignmentVertical = PIE_CHART_DEFAULTS.legendAlignmentVertical,
+	legendShape = PIE_CHART_DEFAULTS.legendShape,
 	size,
-	thickness = 1,
-	padding = 20,
-	gapScale = 0,
-	cornerScale = 0,
+	thickness = PIE_CHART_DEFAULTS.thickness,
+	padding = PIE_CHART_DEFAULTS.padding,
+	gapScale = PIE_CHART_DEFAULTS.gapScale,
+	cornerScale = PIE_CHART_DEFAULTS.cornerScale,
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();

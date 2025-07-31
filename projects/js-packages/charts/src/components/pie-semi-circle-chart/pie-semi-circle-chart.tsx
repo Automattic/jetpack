@@ -5,9 +5,11 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
+import { PIE_SEMI_CIRCLE_CHART_DEFAULTS } from '../../constants/chart-defaults';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -77,14 +79,14 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
 	chartId: providedChartId,
 	width = 400,
-	thickness = 0.4,
-	clockwise = true,
+	thickness = PIE_SEMI_CIRCLE_CHART_DEFAULTS.thickness,
+	clockwise = PIE_SEMI_CIRCLE_CHART_DEFAULTS.clockwise,
 	withTooltips = false,
-	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendAlignmentHorizontal = 'center',
-	legendAlignmentVertical = 'bottom',
-	legendShape = 'circle',
+	showLegend = PIE_SEMI_CIRCLE_CHART_DEFAULTS.showLegend,
+	legendOrientation = PIE_SEMI_CIRCLE_CHART_DEFAULTS.legendOrientation,
+	legendAlignmentHorizontal = PIE_SEMI_CIRCLE_CHART_DEFAULTS.legendAlignmentHorizontal,
+	legendAlignmentVertical = PIE_SEMI_CIRCLE_CHART_DEFAULTS.legendAlignmentVertical,
+	legendShape = PIE_SEMI_CIRCLE_CHART_DEFAULTS.legendShape,
 	label,
 	note,
 	className,
@@ -138,16 +140,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ providerTheme.colors ]
 	);
 
-	// Create legend items with color from accessors (which respects item.color)
-	const legendItems = useMemo(
-		() =>
-			data.map( ( item, index ) => ( {
-				label: item.label,
-				value: item.valueDisplay || item.value.toString(),
-				color: accessors.fill( { ...item, index } ),
-			} ) ),
-		[ data, accessors ]
-	);
+	// Memoize legend options to prevent unnecessary re-calculations
+	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendData( data, providerTheme, legendOptions );
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -286,10 +283,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
 					alignmentVertical={ legendAlignmentVertical }
-					className={ clsx( styles[ 'pie-semi-circle-chart-legend' ], {
-						[ styles[ 'is-on-top' ] ]: legendAlignmentVertical === 'top',
-						[ styles[ 'is-on-bottom' ] ]: legendAlignmentVertical === 'bottom',
-					} ) }
 					shape={ legendShape }
 					ref={ legendRef }
 					chartId={ chartId }
