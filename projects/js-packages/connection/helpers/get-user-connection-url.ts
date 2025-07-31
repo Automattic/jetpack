@@ -10,7 +10,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 export function getUserConnectionUrl( redirectUrl?: string | null ): string {
 	return addQueryArgs( getJetpackAdminPageUrl(), {
-		// This is handled in \Automattic\Jetpack\Connection\Webhooks::controller()
+		// 'connect_url_redirect' is handled in \Automattic\Jetpack\Connection\Webhooks::controller()
 		connect_url_redirect: 1,
 		redirect_after_auth: redirectUrl ?? getMyJetpackUrl(),
 	} );
