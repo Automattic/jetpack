@@ -76,16 +76,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $forms_context = array();
 
 	/**
-	 * The default attributes for the contact form.
-	 *
-	 * @var WP_Error
-	 */
-	public static $static_errors;
-	/**
-	 * The default attributes for the contact form.
+	 * Array of WP_Error objects that are keyed by form id.
 	 *
 	 * @var array
 	 */
+	public static $static_errors = array();
 
 	/**
 	 * Whether to print the grunion.css style when processing the contact-form shortcode
