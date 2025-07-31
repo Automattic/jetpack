@@ -1,7 +1,7 @@
 @use "sass:color";
 @use "../../scss/z-index";
 @use "../../scss/calypso-colors";
-@use "../../scss/mixin_breakpoint";
+@use "../../scss/mixins/breakpoints";
 @use "../../scss/mixin_icons";
 @use "../../scss/typography";
 
@@ -22,7 +22,7 @@
 		visibility: hidden;
 	}
 
-	@include mixin_breakpoint.breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		box-shadow:
 			0 0 0 1px calypso-colors.$light-gray-700,
 			0 1px 1px 1px  rgba(0, 0, 0, 0.04);
@@ -34,21 +34,21 @@
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 
 		&.has-pinned-items {
 			padding-right: 60px;
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint( "660px-660px" ) {
+	@include breakpoints.breakpoint( "660px-660px" ) {
 
 		&.has-pinned-items {
 			padding-right: 50px;
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		margin-bottom: 9px;
 	}
 }
@@ -88,7 +88,7 @@
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		display: none;
 	}
 }
@@ -118,7 +118,7 @@
 	box-sizing: border-box;
 	width: 100%;
 
-	@include mixin_breakpoint.breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 
 		.dops-section-nav.is-open & {
 			padding-bottom: 15px;
@@ -127,7 +127,7 @@
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		display: flex;
 		align-items: center;
 
@@ -149,7 +149,7 @@
 		border-top: none;
 	}
 
-	@include mixin_breakpoint.breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: none;
 
 		.dops-section-nav.is-open & {
@@ -157,7 +157,7 @@
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		margin-top: 0;
 		padding-top: 0;
 		border-top: none;
@@ -191,7 +191,7 @@
 	text-transform: uppercase;
 	line-height: 12px;
 
-	@include mixin_breakpoint.breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 
 		.has-siblings & {
 			display: block;
@@ -214,7 +214,7 @@
 // which contain items
 .dops-section-nav-tabs {
 
-	@include mixin_breakpoint.breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		width: 0;
 		flex: 1 0 auto;
 
@@ -232,7 +232,7 @@
 	margin: 0;
 	list-style: none;
 
-	@include mixin_breakpoint.breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		display: flex;
 		width: 100%;
 		overflow: hidden;
@@ -254,7 +254,7 @@
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		width: auto;
 		flex: none;
 		border-bottom: 2px solid transparent;
@@ -335,7 +335,7 @@
 		}
 	}
 
-	@include mixin_breakpoint.breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		display: block;
 		width: auto;
 		padding: 8px 0;
@@ -414,7 +414,7 @@
 // -- This is a styling section for a distinct purpose.
 .dops-section-nav {
 
-	@include mixin_breakpoint.breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 
 		.dops-search.is-pinned {
 			height: 46px;
