@@ -2,7 +2,8 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { defineConfig, devices } from '@playwright/test';
 import config from 'config';
-import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper.js';
+import logger from '../logger.js';
+import { resolveSiteUrl } from '../utils/environment.ts';
 
 const rootPath = fileURLToPath( new URL( '..', import.meta.url ) );
 
@@ -10,11 +11,6 @@ const reporter = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
 	[ 'allure-playwright' ],
-	[
-		`${ fileURLToPath(
-			new URL( '../' + config.get( 'dirs.reporters' ), import.meta.url )
-		) }/reporter.js`,
-	],
 ];
 
 if ( process.env.CI ) {
@@ -41,8 +37,16 @@ if ( process.env.TEST_SITE ) {
 // This is needed because writeFileSync doesn't create parent dirs and will fail
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
+const resolvedBaseURL = resolveSiteUrl();
+
 // Ensure the environment variables for `@wordpress/e2e-test-utils-playwright` are set
-setWpEnvVars();
+const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
+logger.debug( `Using '${ testSite }' test site config` );
+const site = config.get( `testSites.${ testSite }` );
+
+process.env.WP_BASE_URL = resolvedBaseURL;
+process.env.WP_USERNAME = site.username;
+process.env.WP_PASSWORD = site.password;
 
 export const setupProjects = [
 	{
@@ -67,7 +71,7 @@ const playwrightConfig = defineConfig( {
 	reporter,
 	forbidOnly: !! process.env.CI,
 	use: {
-		baseURL: resolveSiteUrl(),
+		baseURL: resolvedBaseURL,
 		headless: true,
 		viewport: { width: 1280, height: 1600 },
 		ignoreHTTPSErrors: true,

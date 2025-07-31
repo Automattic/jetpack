@@ -1,10 +1,14 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-require_once ABSPATH . 'wp-admin/includes/file.php';
-
 use Automattic\Jetpack\Automatic_Install_Skin;
 use Automattic\Jetpack\Connection\Client;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
+require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+require_once ABSPATH . 'wp-admin/includes/file.php';
 
 /**
  * Themes install endpoint class.

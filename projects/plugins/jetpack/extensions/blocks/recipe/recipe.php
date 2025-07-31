@@ -9,6 +9,10 @@
 
 use Automattic\Jetpack\Blocks;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action(
 	'init',
 	function () {

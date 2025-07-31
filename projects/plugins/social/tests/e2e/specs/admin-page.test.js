@@ -1,10 +1,9 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import logger from '_jetpack-e2e-commons/logger.js';
 
-test.beforeEach( async ( { page, testUtils } ) => {
+test.beforeEach( async ( { testUtils } ) => {
 	await testUtils.disconnect();
-	await prerequisitesBuilder( page ).withActivePlugins( [ 'jetpack-social' ] ).build();
+	await testUtils.requestUtils.activatePlugin( 'jetpack-social' );
 } );
 
 test( 'Jetpack Social admin page', async ( { page, admin } ) => {

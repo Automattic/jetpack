@@ -402,7 +402,7 @@ class Jetpack_Boost {
 		( new Critical_CSS_Storage() )->clear();
 
 		// Delete all transients created by boost.
-		Transient::delete_by_prefix( '' );
+		Transient::delete_bulk();
 
 		// Clear getting started value
 		( new Getting_Started_Entry() )->set( false );

@@ -15,6 +15,10 @@ use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class.json-api-date.php';
 require_once __DIR__ . '/class.json-api-post-base.php';
 
