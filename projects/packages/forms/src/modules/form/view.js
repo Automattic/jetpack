@@ -10,28 +10,8 @@ import {
 /*
  * Internal dependencies
  */
-import { validateField } from '../../contact-form/js/validate-helper';
+import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper';
 import { focusNextInput, dispatchSubmitEvent, submitForm } from './shared';
-
-const isEmptyValue = value => {
-	if ( value === null || value === undefined ) {
-		return true;
-	}
-
-	if ( typeof value === 'string' && value.trim() === '' ) {
-		return true;
-	}
-
-	if ( Array.isArray( value ) && value.length === 0 ) {
-		return true;
-	}
-
-	if ( typeof value === 'object' && Object.keys( value ).length === 0 ) {
-		return true;
-	}
-
-	return false;
-};
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -297,9 +277,6 @@ const { state } = store( NAMESPACE, {
 			} else {
 				newValues = newValues.filter( v => v !== value );
 			}
-
-			// If the new values array is empty, we set it to an empty string.
-			newValues = newValues.length > 0 ? newValues : '';
 
 			updateField( fieldId, newValues );
 		},
