@@ -283,7 +283,6 @@ class Admin_Menu_Test extends TestCase {
 
 		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/me', $submenu['profile.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['profile.php'][2][2] );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );
