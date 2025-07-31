@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\TOS;
 
 use Automattic\Jetpack\Connection\Client;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Makes a request to the WP.com legal endpoint to mark the Terms of Service as accepted.
  */

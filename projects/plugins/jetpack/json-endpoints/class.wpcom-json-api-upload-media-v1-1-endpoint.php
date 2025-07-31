@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/media/new
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint(
 	array(
 		'description'                => 'Upload a new piece of media.',

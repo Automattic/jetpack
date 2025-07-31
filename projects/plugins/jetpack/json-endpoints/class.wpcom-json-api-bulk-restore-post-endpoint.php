@@ -2,6 +2,11 @@
 /**
  * Endpoint: /sites/%s/posts/restore
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Bulk_Restore_Post_Endpoint(
 	array(
 		'description'          => 'Restore multiple posts.',

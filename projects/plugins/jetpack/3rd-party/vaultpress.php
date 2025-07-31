@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Notify user that VaultPress has been disabled. Hide VaultPress notice that requested attention.
  *

@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/customcss
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_CustomCss_Endpoint(
 	array(
 		'description'          => 'Set custom-css data for a site.',

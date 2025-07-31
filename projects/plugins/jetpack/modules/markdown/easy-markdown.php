@@ -11,6 +11,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Copyright (c) Automattic. All rights reserved.
  *
