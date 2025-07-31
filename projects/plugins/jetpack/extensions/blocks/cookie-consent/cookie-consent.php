@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Extensions\CookieConsent;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const COOKIE_NAME = 'eucookielaw';
 
 /**

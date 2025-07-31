@@ -3,6 +3,10 @@
 use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * User create endpoint class.
  *
