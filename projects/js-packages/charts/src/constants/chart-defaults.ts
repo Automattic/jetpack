@@ -1,6 +1,6 @@
 // Base legend defaults shared across all charts
 export const LEGEND_DEFAULTS = {
-	showLegend: true,
+	showLegend: false,
 	legendOrientation: 'horizontal' as const,
 	legendAlignmentHorizontal: 'center' as const,
 	legendAlignmentVertical: 'bottom' as const,

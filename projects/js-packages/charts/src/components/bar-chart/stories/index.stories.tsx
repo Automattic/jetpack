@@ -226,6 +226,13 @@ SmartFormatting.parameters = {
 	},
 };
 
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
 export const HorizontalBars: Story = {
 	args: {
 		...Default.args,

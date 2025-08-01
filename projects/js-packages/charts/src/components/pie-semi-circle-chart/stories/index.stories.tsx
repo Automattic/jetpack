@@ -109,6 +109,13 @@ export const WithTooltips: Story = {
 	},
 };
 
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
 const responsiveArgs = { ...Default.args, resize: 'both' };
 delete responsiveArgs.width;
 export const Responsiveness: Story = {

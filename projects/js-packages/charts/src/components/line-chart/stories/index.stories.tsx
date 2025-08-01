@@ -35,6 +35,12 @@ SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
+export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegend.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+};
+
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {
