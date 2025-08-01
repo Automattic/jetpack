@@ -60,7 +60,7 @@ class Feedback_Field {
 	 */
 	public function __construct( $key, $label, $value, $type = 'basic', $meta = array() ) {
 		$this->key   = $key;
-		$this->label = mb_convert_encoding( $label, 'UTF-8', 'HTML-ENTITIES' );
+		$this->label = is_string( $label ) ? html_entity_decode( $label, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : '';
 		$this->value = $value;
 		$this->type  = $type;
 		$this->meta  = $meta;
@@ -78,10 +78,24 @@ class Feedback_Field {
 	/**
 	 * Get the label of the field.
 	 *
+	 * @param string $context The context in which the label is being rendered (default is 'default').
+	 * @param int    $count   The count of the label occurrences (default is 1).
+	 *
 	 * @return string
 	 */
-	public function get_label() {
-		return $this->label;
+	public function get_label( $context = 'default', $count = 1 ) {
+
+		$postfix = $count > 1 ? " ({$count})" : '';
+
+		if ( 'api' === $context ) {
+			if ( empty( $this->label ) ) {
+				return __( 'Field', 'jetpack-forms' ) . $postfix;
+			}
+
+			return $this->label . $postfix;
+		}
+		// For API context, we return the label as is.
+		return $this->label . $postfix;
 	}
 
 	/**

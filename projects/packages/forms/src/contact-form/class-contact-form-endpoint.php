@@ -568,7 +568,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['subject'] = $response->get_subject();
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = $response->get_compiled_fields( 'api', 'key-value' );
+			$data['fields'] = $response->get_compiled_fields( 'api', 'label-value' );
 		}
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {

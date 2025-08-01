@@ -753,7 +753,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			array(
 				'1_field' => 'value1',
 				'2_field' => 'value2',
-				'email'   => 'hello@example.com',
+				'3_email' => 'hello@example.com',
 			)
 		);
 

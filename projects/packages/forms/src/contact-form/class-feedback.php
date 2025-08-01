@@ -248,7 +248,7 @@ class Feedback {
 	public function get_field_value_by_label( $label, $context = 'default' ) {
 		// This method is used to get the value of a field by its label.
 		foreach ( $this->fields as $field ) {
-			if ( $field->get_label() === $label ) {
+			if ( $field->get_label( $context ) === $label ) {
 				return $field->get_render_value( $context );
 			}
 		}
@@ -328,13 +328,22 @@ class Feedback {
 	 */
 	public function get_compiled_fields( $context = 'default', $array_shape = 'all' ) {
 		$compiled_fields = array();
+
+		$count_field_labels = array();
 		foreach ( $this->fields as $field ) {
 			if ( $field->compile_field( $context ) ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 
+			if ( ! isset( $count_field_labels[ $field->get_label( $context ) ] ) ) {
+				$count_field_labels[ $field->get_label( $context ) ] = 1;
+			} else {
+				++$count_field_labels[ $field->get_label( $context ) ];
+			}
+
 			// Compile the field based on the requested shape.
 			switch ( $array_shape ) {
+				case 'default':
 				case 'all':
 					$compiled_fields[ $field->get_key() ] = array(
 						'label' => $field->get_label( $context ),
@@ -355,6 +364,9 @@ class Feedback {
 					break;
 				case 'key-value':
 					$compiled_fields[ $field->get_key() ] = $field->get_render_value( $context );
+					break;
+				case 'label-value':
+						$compiled_fields[ $field->get_label( $context, $count_field_labels[ $field->get_label( $context ) ] ) ] = $field->get_render_value( $context );
 					break;
 			}
 		}
@@ -956,7 +968,7 @@ class Feedback {
 			return $matches[1];
 		}
 		// If no number prefix, return the key as is
-		return $key;
+		return null;
 	}
 
 	/**
