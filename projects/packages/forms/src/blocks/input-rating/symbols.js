@@ -116,6 +116,11 @@ export default function Symbols( {
 								aria-hidden="true"
 								className="jetpack-field-rating__button"
 								onKeyDown={ event => handleKeyDown( event, position ) }
+								onClick={ () => {
+									// eslint-disable-next-line no-console
+									console.log( 'set!', value );
+									handleSelect( value );
+								} }
 							>
 								<span className={ isSelected ? 'is-rating-filled' : 'is-rating-unfilled' }>
 									{ icon }
