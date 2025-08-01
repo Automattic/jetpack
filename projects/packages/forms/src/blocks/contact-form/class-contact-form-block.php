@@ -375,6 +375,13 @@ class Contact_Form_Block {
 					),
 				)
 			);
+			Blocks::jetpack_register_block(
+				'jetpack/field-slider',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_slider' ),
+					'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				)
+			);
 		}
 
 		// Paid file field block
