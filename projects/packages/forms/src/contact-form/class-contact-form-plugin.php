@@ -870,8 +870,18 @@ class Contact_Form_Plugin {
 	 * @return array|null The parent form block or null if not found.
 	 */
 	private static function find_parent_form_block( $block ) {
-		global $post;
+		// Try to get the post ID from block context if available.
+		$post_id = null;
+		if ( $block && isset( $block->context ) && isset( $block->context['postId'] ) ) {
+			$post_id = $block->context['postId'];
+		}
 
+		$post = null;
+		if ( $post_id ) {
+			$post = get_post( $post_id );
+		} else {
+			$post = get_post();
+		}
 		if ( ! $post || ! $post->post_content ) {
 			return null;
 		}
