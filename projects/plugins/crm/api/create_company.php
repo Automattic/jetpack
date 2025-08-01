@@ -98,22 +98,22 @@ $new_user_api_source_long  = __( 'API Action fired to create company', 'zero-bs-
 
 $external_api_name = jpcrm_api_process_external_api_name();
 if ( $external_api_name !== false ) {
-	$existing_user_api_source_short = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$existing_user_api_source_short = sprintf(
 		// Translators: %s is a dynamic service name invoking the API.
 		__( 'Updated by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
 		$external_api_name
 	);
-	$existing_user_api_source_long = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$existing_user_api_source_long = sprintf(
 		// Translators: %s is a dynamic service name invoking the API.
 		__( '%s fired an API Action to update this company', 'zero-bs-crm' ),
 		$external_api_name
 	);
-	$new_user_api_source_short = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$new_user_api_source_short = sprintf(
 		// Translators: %s is a dynamic service name invoking the API.
 		__( 'Created by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
 		$external_api_name
 	);
-	$new_user_api_source_long = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$new_user_api_source_long = sprintf(
 		// Translators: %s is a dynamic service name invoking the API.
 		__( '%s fired an API Action to create this company', 'zero-bs-crm' ),
 		$external_api_name
