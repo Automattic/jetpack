@@ -74,22 +74,16 @@ export default function InboxView() {
 	// Users can use `registerEntityAction` and `registerEntityField` to register them.
 	// https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/README.md#registerentityaction
 	// https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/README.md#registerentityfield
-	const unlock = getUnlock();
 	const { feedbackEntityActions, feedbackEntityFields } = useSelect( select => {
-		// Bail out, we couldn't unlock private APIs
-		if ( ! unlock ) {
-			return {
-				feedbackEntityActions: [],
-				feedbackEntityFields: [],
-			};
+		const unlock = getUnlock();
+		const { getEntityActions, getEntityFields } = unlock ? unlock( select( editorStore ) ) : {};
+		if ( typeof getEntityFields !== 'function' && typeof getEntityFields !== 'function' ) {
+			return { feedbackEntityActions: [], feedbackEntityFields: [] };
 		}
 
-		const { getEntityActions, getEntityFields } = unlock( select( editorStore ) );
 		return {
-			feedbackEntityActions:
-				typeof getEntityFields === 'function' ? getEntityActions( 'postType', 'feedback' ) : [],
-			feedbackEntityFields:
-				typeof getEntityFields === 'function' ? getEntityFields( 'postType', 'feedback' ) : [],
+			feedbackEntityActions: getEntityActions( 'postType', 'feedback' ),
+			feedbackEntityFields: getEntityFields( 'postType', 'feedback' ),
 		};
 	} );
 
