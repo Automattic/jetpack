@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react';
 import { ThemeProvider } from '../../../providers/theme';
@@ -61,7 +61,7 @@ describe( 'PieSemiCircleChart', () => {
 			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
 		];
 
-		renderPieChart( { data: testData, withTooltips: true } );
+		renderPieChart( { data: testData, withTooltips: true, width: 400 } );
 
 		const segments = screen.getAllByTestId( 'pie-segment' );
 		const firstSegment = segments[ 0 ];
@@ -85,7 +85,7 @@ describe( 'PieSemiCircleChart', () => {
 			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
 		];
 
-		renderPieChart( { data: testData, withTooltips: true } );
+		renderPieChart( { data: testData, withTooltips: true, width: 400 } );
 
 		const segments = screen.getAllByTestId( 'pie-segment' );
 		const firstSegment = segments[ 0 ];
@@ -95,14 +95,17 @@ describe( 'PieSemiCircleChart', () => {
 		} );
 
 		// Wait for tooltip to be visible - it should show in the BaseTooltip component
-		await expect( screen.findByText( 'MacOS' ) ).resolves.toBeInTheDocument();
+		const tooltip = await screen.findByRole( 'tooltip' );
+		expect( tooltip ).toHaveTextContent( 'MacOS' );
 
 		await act( async () => {
 			await user.unhover( firstSegment );
 		} );
 
-		// Verify tooltip is gone - checking for the tooltip data specifically
-		await expect( screen.findByText( '30K' ) ).rejects.toThrow();
+		// Verify tooltip is gone - checking for the tooltip role specifically
+		await waitFor( () => {
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	it( 'applies custom className', () => {
