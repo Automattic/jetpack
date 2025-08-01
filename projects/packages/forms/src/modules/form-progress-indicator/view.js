@@ -26,7 +26,7 @@ store( 'jetpack/form', {
 		get getStepContent() {
 			const context = getContext();
 			if ( context.currentStep > context.stepIndex + 1 ) {
-				return '✓';
+				return '<span role="img" aria-label="Completed">&check;</span>';
 			}
 			return context.stepIndex + 1;
 		},
