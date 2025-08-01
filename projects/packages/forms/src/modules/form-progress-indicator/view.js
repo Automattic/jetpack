@@ -4,7 +4,7 @@ store( 'jetpack/form', {
 	state: {
 		get getStepProgress() {
 			const context = getContext();
-			return ( context.currentStep / context.maxSteps ) * 100 + '%';
+			return ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 + '%';
 		},
 		get getDotsProgress() {
 			const context = getContext();

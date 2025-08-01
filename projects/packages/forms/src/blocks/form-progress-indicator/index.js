@@ -106,7 +106,9 @@ export const settings = {
 			},
 			migrate: ( attributes, innerBlocks, { innerHTML } ) => {
 				// Replace is-style-default with is-style-line in innerHTML
-				const updatedInnerHTML = innerHTML.replace( 'is-style-default', 'is-style-line' );
+				// Use regex to handle multiple occurrences and variations in spacing/formatting
+				const updatedInnerHTML = innerHTML.replace( /is-style-default/g, 'is-style-line' );
+
 				return [ attributes, innerBlocks, { innerHTML: updatedInnerHTML } ];
 			},
 		},

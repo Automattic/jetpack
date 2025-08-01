@@ -803,7 +803,6 @@ class Contact_Form_Plugin {
 		$processor = new \WP_HTML_Tag_Processor( $content );
 		$processor->next_tag();
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
-		$processor->set_attribute( 'data-wp-init', 'actions.initializeProgress' );
 
 		// Process legacy progress bar elements
 		while ( $processor->next_tag() ) {
@@ -850,7 +849,6 @@ class Contact_Form_Plugin {
 		}
 
 		// Add progress element for both styles (uses different state getters)
-		$is_dots_style    = strpos( $updated_content, 'is-style-dots' ) !== false;
 		$progress_state   = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
 		$progress_element = '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
 
