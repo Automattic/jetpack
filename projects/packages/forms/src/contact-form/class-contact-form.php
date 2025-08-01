@@ -1369,6 +1369,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
+			! isset( $_POST['jetpack_contact_form_jwt'] )
+			&&
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
 			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
