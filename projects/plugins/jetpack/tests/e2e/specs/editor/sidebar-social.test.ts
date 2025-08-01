@@ -1,28 +1,21 @@
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import logger from '_jetpack-e2e-commons/logger.js';
-import { BlockEditorPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 
 test.describe( 'Editor sidebar: Social', () => {
-	test( 'Activation of publicize from the editor', async ( { admin, page } ) => {
-		logger.sync( 'Creating new post' );
-
-		/**
-		 * @type {BlockEditorPage}
-		 */
-		const blockEditor = await BlockEditorPage.visit( page );
-
+	test( 'Activation of publicize from the editor', async ( { admin, editor } ) => {
 		await admin.createNewPost( { title: 'Testing Social Sidebar' } );
 
-		logger.action( 'Open Jetpack sidebar' );
-		await blockEditor.openSettings( 'Jetpack' );
+		logger.debug( 'Open Jetpack sidebar' );
 
-		const settingsSidebar = blockEditor.getEditorSettingsSidebar();
+		await editor.openSettings( 'Jetpack' );
+
+		const settingsSidebar = editor.getEditorSettingsSidebar();
 
 		const socialPanel = settingsSidebar.getByRole( 'button', {
 			name: 'Share this post',
 		} );
 
-		logger.action( 'Expand "Share this post" panel' );
+		logger.debug( 'Expand "Share this post" panel' );
 		await socialPanel.click();
 
 		const activateSocialLink = settingsSidebar.getByRole( 'link', {

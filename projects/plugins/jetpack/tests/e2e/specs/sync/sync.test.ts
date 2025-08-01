@@ -7,7 +7,7 @@ import {
 	enableDedicatedSync,
 	disableDedicatedSync,
 	isSyncQueueEmpty,
-} from '../../helpers/sync-helper.js';
+} from '../../helpers/sync-helper.ts';
 
 test.describe( 'Sync', () => {
 	const wpcomRestAPIBase = 'https://public-api.wordpress.com/rest/';

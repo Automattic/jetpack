@@ -1,36 +1,31 @@
-import pwConfig from '../../playwright.config.mjs';
-import WpPage from '../wp-page.js';
+import { Locator } from '@playwright/test';
+import { Editor } from '@wordpress/e2e-test-utils-playwright';
 
-export default class BlockEditorPage extends WpPage {
-	constructor( page ) {
-		const url = pwConfig.use.baseURL + '/wp-admin/post-new.php';
-		super( page, { expectedSelectors: [ '#editor' ], url } );
-	}
-
+export default class EditorPage extends Editor {
 	/**
 	 * Returns the editor top bar locator.
 	 *
-	 * @return {import('@playwright/test').Locator} The editor top bar locator.
+	 * @return {Locator} The editor top bar locator.
 	 */
-	getEditorTopBar() {
+	getEditorTopBar(): Locator {
 		return this.page.getByRole( 'region', { name: 'Editor top bar' } );
 	}
 
 	/**
 	 * Returns the editor settings sidebar locator.
 	 *
-	 * @return {import('@playwright/test').Locator} The editor settings sidebar locator.
+	 * @return {Locator} The editor settings sidebar locator.
 	 */
-	getEditorSettingsSidebar() {
+	getEditorSettingsSidebar(): Locator {
 		return this.page.getByRole( 'region', { name: 'Editor settings' } );
 	}
 
 	/**
 	 * Returns the more options button instance.
 	 *
-	 * @return {import('@playwright/test').Locator} The more options button locator.
+	 * @return {Locator} The more options button locator.
 	 */
-	getMoreOptionsButton() {
+	getMoreOptionsButton(): Locator {
 		return this.getEditorTopBar().getByRole( 'button', {
 			name: 'Options',
 			exact: true,
@@ -44,10 +39,10 @@ export default class BlockEditorPage extends WpPage {
 	 * If the toggle is in the on state or otherwise in an expanded
 	 * state, this method will return true. Otherwise, false.
 	 *
-	 * @param {import('@playwright/test').Locator} target - Target button.
+	 * @param {Locator} target - Target button.
 	 * @return {Promise<boolean>} True if target is in an expanded state. False otherwise.
 	 */
-	async #targetIsOpen( target ) {
+	async #targetIsOpen( target: Locator ): Promise< boolean > {
 		const checked = await target.getAttribute( 'aria-checked' );
 		const pressed = await target.getAttribute( 'aria-pressed' );
 		const expanded = await target.getAttribute( 'aria-expanded' );
@@ -61,7 +56,7 @@ export default class BlockEditorPage extends WpPage {
 	 *
 	 * @param {string} target - The target to open. Can be 'Settings', 'Jetpack', 'Jetpack Social'.
 	 */
-	async openSettings( target = 'Settings' ) {
+	async openSettings( target: string = 'Settings' ) {
 		let button = this.getEditorTopBar().getByLabel( target );
 
 		// For other pinned settings, we need to open the options menu
