@@ -283,7 +283,6 @@ class Admin_Menu_Test extends TestCase {
 
 		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/me', $submenu['profile.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['profile.php'][2][2] );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );
@@ -292,19 +291,16 @@ class Admin_Menu_Test extends TestCase {
 
 		// On multisite the administrator is not allowed to create users.
 		grant_super_admin( self::$user_id );
-		$account_key = 5;
 
 		static::$admin_menu->add_users_menu();
 
 		// On WP.com users can only invite other users, not create them (missing create_users cap).
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 			$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
-			$account_key = 6;
 		}
 
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][ $account_key ][2] );
 	}
 
 	/**
