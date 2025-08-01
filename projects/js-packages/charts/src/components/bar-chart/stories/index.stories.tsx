@@ -235,27 +235,6 @@ export const HorizontalBars: Story = {
 	},
 };
 
-// Story showcasing legend hidden (non-default behavior)
-export const WithoutLegend: Story = {
-	args: {
-		withTooltips: true,
-		data: data.slice( 0, 3 ), // Use first 3 series for cleaner display
-		gridVisibility: 'x',
-		maxWidth: 1200,
-		aspectRatio: 0.5,
-		resizeDebounceTime: 300,
-		showLegend: false,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Bar chart with legend explicitly hidden. By default, legends are shown for all charts.',
-			},
-		},
-	},
-};
-
 // Story showcasing legend customization controls
 export const CustomLegendPositioning: Story = {
 	args: {

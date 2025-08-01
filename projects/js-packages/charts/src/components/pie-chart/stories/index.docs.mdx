@@ -55,7 +55,7 @@ The simplest pie chart requires only a `data` prop with percentage-based data:
 
 - **`padding`** (default: `20`): Padding around the chart in pixels
 - **`withTooltips`** (default: `false`): Enables interactive tooltips on hover
-- **`showLegend`** (default: `false`): Shows a legend for the chart data
+- **`showLegend`** (default: `true`): Shows a legend for the chart data
 - **`thickness`** (default: `1`): Thickness of the pie chart segments (0-1). Values less than 1 create donut charts
 - **`gapScale`** (default: `0`): Scale of gaps between segments (0-1)
 - **`cornerScale`** (default: `0`): Scale of corner rounding for segments (0-1)
@@ -230,7 +230,7 @@ Main component for rendering pie and donut charts.
 | `gapScale`                  | `number`                        | `0`            | Scale of gaps between segments (0-1)                                              |
 | `cornerScale`               | `number`                        | `0`            | Scale of corner rounding for segments (0-1)                                       |
 | `withTooltips`              | `boolean`                       | `false`        | Enable interactive tooltips on hover                                              |
-| `showLegend`                | `boolean`                       | `false`        | Display chart legend                                                              |
+| `showLegend`                | `boolean`                       | `true`         | Display chart legend                                                              |
 | `legendOrientation`         | `'horizontal' \| 'vertical'`    | `'horizontal'` | Legend layout direction                                                           |
 | `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'`     | Horizontal legend alignment                                                       |
 | `legendAlignmentVertical`   | `'top' \| 'bottom'`             | `'bottom'`     | Vertical legend position                                                          |
