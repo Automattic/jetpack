@@ -38,6 +38,11 @@ const FormProgressIndicatorEdit = ( { clientId, context } ) => {
 		progressPercentage = ( currentStep / finalSteps.length ) * 100;
 	}
 
+	// Show 25% progress in "All steps" view for line style to preview the bar
+	if ( ! isDotStyle && currentStepInfo.index === -1 ) {
+		progressPercentage = 25;
+	}
+
 	return (
 		<>
 			<div className="jetpack-form-progress-indicator--wrapper">
