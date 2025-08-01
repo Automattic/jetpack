@@ -37,27 +37,54 @@ class MailPoet_Integration {
 	 * Get or create a MailPoet list for Jetpack Forms.
 	 *
 	 * @param mixed       $mailpoet_api The MailPoet API instance.
-	 * @param string|null $list_name Optional. The name of the list to get or create. Defaults to 'Jetpack Form Subscribers'.
+	 * @param string|null $list_id Optional. The ID of the list to use if it exists.
+	 * @param string|null $list_name Optional. The name of the list to create if no ID is provided. Defaults to 'Jetpack Form Subscribers'.
 	 * @return string|null List ID or null on failure.
 	 */
-	protected static function get_or_create_list_id( $mailpoet_api, $list_name = null ) {
-		$default_list_name        = 'Jetpack Form Subscribers';
-		$default_list_description = 'Subscribers from Jetpack Forms';
-		$list_name                = $list_name ? $list_name : $default_list_name;
-		$list_description         = $list_name === $default_list_name ? $default_list_description : $list_name;
+	protected static function get_or_create_list_id( $mailpoet_api, $list_id = null, $list_name = null ) {
+		// 1. If listId is provided, check if it exists
+		if ( $list_id ) {
+			try {
+				$lists = $mailpoet_api->getLists();
+				foreach ( $lists as $list ) {
+					if ( $list['id'] === $list_id && empty( $list['deleted_at'] ) ) {
+						return $list['id'];
+					}
+				}
+			} catch ( \Exception $e ) { // phpcs:ignore Squiz.PHP.EmptyCatchComment,Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				// Intentionally empty: fall through to next step
+			}
+		}
+
+		// 2. If listName is provided, create a new list
+		if ( $list_name ) {
+			try {
+				$new_list = $mailpoet_api->addList(
+					array(
+						'name'        => $list_name,
+						'description' => 'Created by Jetpack Forms',
+					)
+				);
+				return $new_list['id'];
+			} catch ( \Exception $e ) { // phpcs:ignore Squiz.PHP.EmptyCatchComment,Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				// Intentionally empty: fall through to default
+			}
+		}
+
+		// 3. Fallback: use or create the default list
+		$default_list_name        = 'Jetpack Forms';
+		$default_list_description = __( 'Subscribers from Jetpack Forms', 'jetpack-forms' );
 		try {
 			$lists = $mailpoet_api->getLists();
-			// Look for an existing list with the given name (not deleted)
 			foreach ( $lists as $list ) {
-				if ( $list['name'] === $list_name && empty( $list['deleted_at'] ) ) {
+				if ( $list['name'] === $default_list_name && empty( $list['deleted_at'] ) ) {
 					return $list['id'];
 				}
 			}
-			// Not found, create it
 			$new_list = $mailpoet_api->addList(
 				array(
-					'name'        => $list_name,
-					'description' => $list_description,
+					'name'        => $default_list_name,
+					'description' => $default_list_description,
 				)
 			);
 			return $new_list['id'];
@@ -151,7 +178,7 @@ class MailPoet_Integration {
 			return;
 		}
 
-		if ( empty( $form->attributes['connectMailPoet'] ) ) {
+		if ( empty( $form->attributes['mailpoet']['enabledForForm'] ?? null ) ) {
 			return;
 		}
 
@@ -161,7 +188,12 @@ class MailPoet_Integration {
 			return;
 		}
 
-		$list_id = self::get_or_create_list_id( $mailpoet_api );
+		// Get listId and listName from the mailpoet attribute
+		$mailpoet_attr = is_array( $form->attributes['mailpoet'] ) ? $form->attributes['mailpoet'] : array();
+		$list_id       = $mailpoet_attr['listId'] ?? null;
+		$list_name     = $mailpoet_attr['listName'] ?? null;
+
+		$list_id = self::get_or_create_list_id( $mailpoet_api, $list_id, $list_name );
 		if ( ! $list_id ) {
 			// Could not get or create the list; bail out.
 			return;
@@ -174,5 +206,22 @@ class MailPoet_Integration {
 		}
 
 		self::add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data );
+	}
+
+	/**
+	 * Get all MailPoet lists.
+	 *
+	 * @return array List of MailPoet lists, or empty array on failure.
+	 */
+	public static function get_all_lists() {
+		$mailpoet_api = self::get_api();
+		if ( ! $mailpoet_api ) {
+			return array();
+		}
+		try {
+			return $mailpoet_api->getLists();
+		} catch ( \Exception $e ) {
+			return array();
+		}
 	}
 }
