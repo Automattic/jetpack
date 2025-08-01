@@ -4,7 +4,7 @@ import logger from '_jetpack-e2e-commons/logger.js';
 /**
  * Connect Jetpack Social
  * @param {Page}    page    - Playwright page object
- * @param {boolean} premium - Whether to connect with a Premium plan
+ * @param {boolean} premium - If true, selects the Social premium plan and proceeds with purchase steps; if false, selects the free plan.
  */
 export async function connect( page: Page, premium: boolean = false ) {
 	logger.debug( 'Connect Jetpack Social' );
