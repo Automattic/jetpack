@@ -233,15 +233,6 @@ export const WithLegend: Story = {
 	},
 };
 
-export const HorizontalBars: Story = {
-	args: {
-		...Default.args,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
-		orientation: 'horizontal',
-		gridVisibility: 'none',
-	},
-};
-
 // Story showcasing legend customization controls
 export const CustomLegendPositioning: Story = {
 	args: {
@@ -264,6 +255,15 @@ export const CustomLegendPositioning: Story = {
 					'Bar chart with top-right positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
 			},
 		},
+	},
+};
+
+export const HorizontalBars: Story = {
+	args: {
+		...Default.args,
+		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+		orientation: 'horizontal',
+		gridVisibility: 'none',
 	},
 };
 
