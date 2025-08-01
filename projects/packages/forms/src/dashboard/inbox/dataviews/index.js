@@ -15,17 +15,13 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo, useState, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
 import { isEmpty } from 'lodash';
 import { useSearchParams } from 'react-router';
-export const { unlock } = __dangerousOptInToUnstableAPIsOnlyForCoreModules(
-	'I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.',
-	'@wordpress/editor'
-);
 /**
  * Internal dependencies
  */
 import InboxStatusToggle from '../../components/inbox-status-toggle';
+import { getUnlock } from '../../hooks/get-unlock';
 import useInboxData from '../../hooks/use-inbox-data';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';
@@ -78,7 +74,16 @@ export default function InboxView() {
 	// Users can use `registerEntityAction` and `registerEntityField` to register them.
 	// https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/README.md#registerentityaction
 	// https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/README.md#registerentityfield
+	const unlock = getUnlock();
 	const { feedbackEntityActions, feedbackEntityFields } = useSelect( select => {
+		// Bail out, we couldn't unlock private APIs
+		if ( ! unlock ) {
+			return {
+				feedbackEntityActions: [],
+				feedbackEntityFields: [],
+			};
+		}
+
 		const { getEntityActions, getEntityFields } = unlock( select( editorStore ) );
 		return {
 			feedbackEntityActions:
