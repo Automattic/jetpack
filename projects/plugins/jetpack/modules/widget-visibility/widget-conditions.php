@@ -829,24 +829,26 @@ class Jetpack_Widget_Conditions {
 				return $instance;
 			}
 
-				// Find the first block that opens
+			// Find the first block that opens
 			while ( $scanner->next_delimiter() ) {
-				if ( $scanner->opens_block() ) {
-					$attributes = $scanner->allocate_and_return_parsed_attributes();
-
-					if ( ! is_array( $attributes ) || empty( $attributes['conditions']['rules'] ) ) {
-						// No Rules: Display widget.
-						return $instance;
-					}
-
-					if ( self::filter_widget_check_conditions( $attributes['conditions'] ) ) {
-						// Rules passed checks: Display widget.
-						return $instance;
-					}
-
-					// Rules failed checks: Hide widget.
-					return false;
+				if ( ! $scanner->opens_block() ) {
+					continue;
 				}
+
+				$attributes = $scanner->allocate_and_return_parsed_attributes();
+
+				if ( ! is_array( $attributes ) || empty( $attributes['conditions']['rules'] ) ) {
+					// No Rules: Display widget.
+					return $instance;
+				}
+
+				if ( self::filter_widget_check_conditions( $attributes['conditions'] ) ) {
+					// Rules passed checks: Display widget.
+					return $instance;
+				}
+
+				// Rules failed checks: Hide widget.
+				return false;
 			}
 		}
 
