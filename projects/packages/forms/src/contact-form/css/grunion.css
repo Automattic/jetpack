@@ -923,8 +923,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-list input.consent,
 .contact-form .is-style-list input.checkbox,
-.contact-form .grunion-field-wrap:not(.is-style-browser) input.checkbox-multiple,
-.contact-form .grunion-field-wrap:not(.is-style-browser) input.radio {
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple,
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio {
 	position: relative;
 
 	box-sizing: border-box;
@@ -946,13 +946,13 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(0.15em);
 }
 
-.contact-form .grunion-field-wrap:not(.is-style-browser) input.radio {
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio {
 	border-radius: 50%;
 }
 
 .contact-form .is-style-list input.consent:checked::before,
 .contact-form .is-style-list input.checkbox:checked::before,
-.contact-form .grunion-field-wrap:not(.is-style-browser) input.checkbox-multiple:checked::before {
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked::before {
 	content: "\2713";
 	position: absolute;
 
@@ -970,7 +970,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translate(-50%, -50%);
 }
 
-.contact-form .grunion-field-wrap:not(.is-style-browser) input.radio:checked::before {
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio:checked::before {
 	background: currentColor;
 	border-radius: 50%;
 	content: "";
