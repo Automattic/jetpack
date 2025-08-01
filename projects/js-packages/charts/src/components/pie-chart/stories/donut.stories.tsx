@@ -231,6 +231,13 @@ export const WithTooltipsDoughnut: Story = {
 	},
 };
 
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
 export const CustomLegendPositioning: Story = {
 	args: {
 		...Default.args,
