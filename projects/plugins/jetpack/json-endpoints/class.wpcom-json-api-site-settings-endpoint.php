@@ -403,7 +403,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_relatedposts_show_date'   => ! empty( $jetpack_relatedposts_options['show_date'] ),
 						'jetpack_relatedposts_show_headline' => ! empty( $jetpack_relatedposts_options['show_headline'] ),
 						'jetpack_relatedposts_show_thumbnails' => ! empty( $jetpack_relatedposts_options['show_thumbnails'] ),
-						'jetpack_search_enabled'           => (bool) $jetpack_search_active,
+						'jetpack_search_enabled'           => $jetpack_search_active,
 						'jetpack_search_supported'         => (bool) $jetpack_search_supported,
 						'default_category'                 => (int) get_option( 'default_category' ),
 						'post_categories'                  => (array) $post_categories,
