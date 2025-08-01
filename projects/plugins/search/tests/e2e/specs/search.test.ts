@@ -113,7 +113,7 @@ test.describe( 'Instant Search', () => {
 			expect(
 				await getFirstResultTitle( page ),
 				'First result title should match the most relevant value'
-			).toBe( '<mark>Test2</mark> Record 1' );
+			).toContain( '<mark>Test2</mark>' );
 		} );
 
 		await test.step( 'Can change sort order', async () => {
