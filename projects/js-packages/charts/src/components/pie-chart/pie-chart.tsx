@@ -2,12 +2,11 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import { PIE_CHART_DEFAULTS } from '../../constants/chart-defaults';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
-import { Legend } from '../legend';
+import { Legend, SHARED_LEGEND_DEFAULTS } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -15,6 +14,15 @@ import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { SVGProps, MouseEvent, ReactNode } from 'react';
+
+const PIE_CHART_DEFAULTS = {
+	...SHARED_LEGEND_DEFAULTS,
+	legendShape: 'circle' as const,
+	thickness: 1,
+	padding: 20,
+	gapScale: 0,
+	cornerScale: 0,
+} as const;
 
 interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
