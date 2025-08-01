@@ -1,3 +1,4 @@
+import { Page } from '@playwright/test';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
 	disableInstantSearch,
@@ -9,10 +10,9 @@ import {
 	setDefaultSort,
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
-import { SearchConfigure } from '../pages/wp-admin/index.js';
 
 test.describe( 'Search Configure', () => {
-	let searchConfigure;
+	const SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*%2Fwp%2Fv2%2Fsettings/;
 
 	test.beforeAll( async ( { testUtils } ) => {
 		await clearSearchPlanInfo();
@@ -36,58 +36,92 @@ test.describe( 'Search Configure', () => {
 
 	test.beforeEach( async ( { page } ) => {
 		await searchAPIRoute( page );
-		searchConfigure = await SearchConfigure.visit( page );
-		await searchConfigure.waitForNetworkIdle();
+
+		await page.goto( '/wp-admin/admin.php?page=jetpack-search-configure' );
+
+		await expect( page.getByRole( 'heading', { name: 'Customize Jetpack Search' } ) ).toBeVisible( {
+			timeout: 30000,
+		} );
 	} );
 
-	// eslint-disable-next-line playwright/expect-expect -- expects are inside `checkSettings` helper function
-	test( 'Can configure search overlay', async () => {
-		await test.step( 'Can change and reflect settings', async () => {
-			await searchConfigure.chooseDarkTheme();
-			await searchConfigure.choosePinkAsHighlightColor();
-			await searchConfigure.chooseProductFormat();
-			await searchConfigure.chooseNewestAsDefaultSort();
-			await searchConfigure.clickSaveButton();
-
-			await checkSettings();
+	test( 'Can configure search overlay', async ( { page } ) => {
+		await test.step( 'Choose dark theme', async () => {
+			await page.getByRole( 'button', { name: 'Dark Theme' } ).click();
 		} );
 
-		await test.step( 'Settings stick after reload', async () => {
-			// Reload the page.
-			await searchConfigure.reload();
-			await searchConfigure.waitForNetworkIdle();
+		await test.step( 'Choose pink as highlight color', async () => {
+			await page.getByRole( 'option', { name: 'Pale pink' } ).click();
+		} );
 
-			await checkSettings();
+		await test.step( 'Choose product format', async () => {
+			await page.getByRole( 'radio', { name: 'Product (for WooCommerce' } ).check();
+		} );
+
+		await test.step( 'Choose newest as default sort', async () => {
+			await page.locator( '#jetpack-instant-search__search-sort-select' ).selectOption( 'newest' );
+		} );
+
+		await test.step( 'Click save button and wait for API response', async () => {
+			await page.getByRole( 'button', { name: 'Save' } ).click();
+			await page.waitForResponse( resp => SEARCH_SETTING_API_PATTERN.test( resp.url() ) );
+		} );
+
+		await test.step( 'Check that settings are applied', async () => {
+			await checkSettings( page );
+		} );
+
+		await test.step( 'Reload the page', async () => {
+			await page.reload();
+			await expect(
+				page.getByRole( 'img', { name: 'Loading' } ),
+				'Loading indicator should be hidden'
+			).toBeHidden();
+		} );
+
+		await test.step( 'Check that settings are still applied', async () => {
+			await checkSettings( page );
 		} );
 	} );
 
 	/**
 	 * Check the settings.
+	 * @param {Page} page - The Playwright page object.
+	 * @return {Promise<void>} - A promise that resolves when the check is complete.
 	 */
-	async function checkSettings() {
-		// Settings changed.
-		expect( await searchConfigure.isDarkTheme(), "Theme should be 'dark'" ).toBeTruthy();
-		expect(
-			await searchConfigure.isHighlightPink(),
-			"Highlight color should be 'pink'"
-		).toBeTruthy();
-		expect( await searchConfigure.isFormatProduct(), "Format should be 'product'" ).toBeTruthy();
-		expect(
-			await searchConfigure.isDefaultSortNewest(),
+	async function checkSettings( page ) {
+		// todo: replace with toContainClass when Playwright is updated to 1.52:
+		// https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-contain-class
+		await expect(
+			page.getByRole( 'button', { name: 'Dark Theme' } ).getAttribute( 'class' ),
+			'Dark theme should be selected'
+		).resolves.toContain( 'jp-search-configure-theme-button--selected' );
+
+		await expect(
+			page.getByRole( 'option', { name: 'Pale pink' } ),
+			"Selected Highlight color should be 'pink'"
+		).toHaveAttribute( 'aria-selected', 'true' );
+
+		await expect(
+			page.getByRole( 'radio', { name: 'Product (for WooCommerce' } ),
+			"Selected Format should be 'product'"
+		).toBeChecked();
+
+		await expect(
+			page.locator( '#jetpack-instant-search__search-sort-select' ),
 			"Default sort should be 'newest'"
-		).toBeTruthy();
+		).toHaveValue( 'newest' );
+
 		// Settings reflected on preview.
-		expect(
-			await searchConfigure.isPreviewDarkTheme(),
+		await expect(
+			page.locator(
+				'.jetpack-instant-search.jetpack-instant-search__overlay.jetpack-instant-search__overlay--dark'
+			),
 			"Preview theme should be 'dark'"
-		).toBeTruthy();
-		expect(
-			await searchConfigure.isPreviewFormatProduct(),
+		).toBeVisible();
+
+		await expect(
+			page.locator( 'ol.jetpack-instant-search__search-results-list.is-format-product' ),
 			"'Preview format should be 'product''"
-		).toBeTruthy();
-		expect(
-			await searchConfigure.isPreviewDefaultSortNewest(),
-			"Preview default sort should be 'newest'"
-		).toBeTruthy();
+		).toBeVisible();
 	}
 } );
