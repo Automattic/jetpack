@@ -1,7 +1,6 @@
 @use "../../scss/functions/rem";
 @use "../../scss/calypso-colors";
-@use "../../scss/mixin_clear-fix";
-@use "../../scss/mixin_long-content-fade";
+@use "../../scss/mixins/long-content-fade";
 
 .dops-section-header.dops-card {
 	display: flex;
@@ -45,7 +44,7 @@
 
 	&::before {
 
-		@include mixin_long-content-fade.long-content-fade( $size: 8px, $color : calypso-colors.$white );
+		@include long-content-fade.long-content-fade( $size: 8px, $color : calypso-colors.$white );
 	}
 
 	.has-card-badge & {
