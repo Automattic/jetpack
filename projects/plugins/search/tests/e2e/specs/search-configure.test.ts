@@ -9,7 +9,7 @@ import {
 	setResultFormat,
 	setDefaultSort,
 	clearSearchPlanInfo,
-} from '../helpers/search-helper.js';
+} from '../helpers/search-helper.ts';
 
 test.describe( 'Search Configure', () => {
 	const SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*%2Fwp%2Fv2%2Fsettings/;

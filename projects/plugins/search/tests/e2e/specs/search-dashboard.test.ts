@@ -4,7 +4,7 @@ import {
 	enableInstantSearch,
 	disableInstantSearch,
 	clearSearchPlanInfo,
-} from '../helpers/search-helper.js';
+} from '../helpers/search-helper.ts';
 
 const SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*jetpack\/v4\/search\/settings/;
 
