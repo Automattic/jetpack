@@ -78,7 +78,6 @@ return [
     // PhanTypeConversionFromArray : 5 occurrences
     // PhanUndeclaredClassReference : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
-    // PhanImpossibleTypeComparisonInGlobalScope : 4 occurrences
     // PhanPluginDuplicateExpressionBinaryOp : 4 occurrences
     // PhanPluginNeverReturnMethod : 4 occurrences
     // PhanTypeVoidAssignment : 4 occurrences
@@ -90,6 +89,7 @@ return [
     // PhanTypeMismatchDimAssignment : 3 occurrences
     // PhanTypeMissingReturn : 3 occurrences
     // PhanUndeclaredTrait : 3 occurrences
+    // PhanImpossibleTypeComparisonInGlobalScope : 2 occurrences
     // PhanParamTooFew : 2 occurrences
     // PhanParamTooManyInternal : 2 occurrences
     // PhanPluginDuplicateExpressionAssignment : 2 occurrences
@@ -153,8 +153,8 @@ return [
         'admin/system/partials/title.block.php' => ['PhanUndeclaredGlobalVariable'],
         'admin/system/system-status.page.php' => ['PhanRedundantCondition', 'PhanTypePossiblyInvalidDimOffset'],
         'api/companies.php' => ['PhanPluginSimplifyExpressionBool'],
-        'api/create_company.php' => ['PhanImpossibleTypeComparisonInGlobalScope', 'PhanPossiblyUndeclaredGlobalVariable'],
-        'api/create_customer.php' => ['PhanImpossibleTypeComparisonInGlobalScope', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypePossiblyInvalidDimOffset'],
+        'api/create_company.php' => ['PhanPossiblyUndeclaredGlobalVariable'],
+        'api/create_customer.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanTypePossiblyInvalidDimOffset'],
         'api/create_event.php' => ['PhanImpossibleTypeComparisonInGlobalScope'],
         'api/create_transaction.php' => ['PhanImpossibleTypeComparisonInGlobalScope', 'PhanPossiblyUndeclaredGlobalVariable'],
         'api/customers.php' => ['PhanPluginSimplifyExpressionBool'],
