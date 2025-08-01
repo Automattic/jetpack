@@ -250,9 +250,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function has_value() {
 		$field_id    = $this->get_attribute( 'id' );
-		$field_value = isset( $_POST[ $field_id ] ) ? trim( sanitize_text_field( wp_unslash( $_POST[ $field_id ] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+		$field_value = isset( $_POST[ $field_id ] ) ? wp_unslash( $_POST[ $field_id ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes.
 
-		return ! empty( $field_value );
+		if ( is_array( $field_value ) ) {
+			if ( empty( $field_value ) ) {
+				return false;
+			}
+			return ! empty( array_filter( $field_value ) );
+		}
+		return ! empty( trim( $field_value ) );
 	}
 
 	/**
@@ -306,6 +312,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+				} else {
+					// Check that the selected options are valid
+					$options           = (array) $this->get_attribute( 'options' );
+					$non_empty_options = array_filter(
+						$options,
+						function ( $option ) {
+							return $option !== '';
+						}
+					);
+					foreach ( $field_value  as $field_value_item ) {
+						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
+							/* translators: %s is the name of a form field */
+							$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+							break;
+						}
+					}
 				}
 				break;
 			case 'number':

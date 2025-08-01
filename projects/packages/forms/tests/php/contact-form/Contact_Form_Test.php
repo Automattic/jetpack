@@ -3001,15 +3001,15 @@ EOT;
 	public function test_validate_form() {
 		$name    = 'John Doe';
 		$email   = 'john@example.com';
-		$message = 'Test message';
+		$choose  = array( 'truth' );
 		$form_id = Utility::get_form_id();
 
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'    => $name,
-				'email'   => $email,
-				'message' => $message,
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
 			),
 			'g' . $form_id
 		);
@@ -3019,27 +3019,29 @@ EOT;
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+			'[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type="email" required="1"/][contact-field label="Choose" type="checkbox-multiple"  options="truth,dare"  required="1"]'
 		);
 
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
-
+		$this->assertEquals( array(), $form->get_error_messages() );
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 	}
 
 	public function test_validate_form_with_errors() {
-		$name    = 'John Doe';
-		$email   = 'john@example.com';
-		$message = '';
+		$name    = ''; // required field
+		$email   = 'hello@world'; // Invalid email
+		$choose  = array( '' ); // required field
+		$pick    = array( 'not-a-value' ); // required field
 		$form_id = Utility::get_form_id();
 
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'    => $name,
-				'email'   => $email,
-				'message' => $message,
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
+				'pick'   => $pick,
 			),
 			'g' . $form_id
 		);
@@ -3049,14 +3051,22 @@ EOT;
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/][contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
 
 		// message should be not empty.
 		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
-		$this->assertEquals( array( 'Message field is required.' ), $form->get_error_messages() );
+		$this->assertEquals(
+			array(
+				'Name field is required.',
+				'Email requires a valid email address.',
+				'Choose requires at least one selection.',
+				'Pick requires at least one selection.',
+			),
+			$form->get_error_messages()
+		);
 		Contact_Form::reset_errors();
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 		$this->assertEquals( array(), $form->get_error_messages() );
@@ -3074,15 +3084,15 @@ EOT;
 	public function test_validate_empty_form() {
 		$name    = '';
 		$email   = '';
-		$message = '';
+		$choose  = array( '' );
 		$form_id = Utility::get_form_id();
 
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'    => $name,
-				'email'   => $email,
-				'message' => $message,
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
 			),
 			'g' . $form_id
 		);
@@ -3092,7 +3102,7 @@ EOT;
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Name' type='name' /][contact-field label='Email' type='email' /][contact-field label='Message' type='textarea' /]"
+			'[contact-field label="Name" type="name" /][contact-field label="Email" type="email" /][contact-field label="Choose" type="checkbox-multiple" options="truth,dare" /]'
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
