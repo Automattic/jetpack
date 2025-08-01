@@ -98,6 +98,9 @@ async function fixDeps( pkg ) {
 			}
 		}
 
+		// @todo Move this to wpPkgs when all indirect deps on `@wordpress/dataviews` are on v5.
+		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
+
 		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
 		// https://github.com/WordPress/gutenberg/issues/60975
 		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
