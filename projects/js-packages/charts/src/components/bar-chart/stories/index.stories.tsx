@@ -226,7 +226,7 @@ SmartFormatting.parameters = {
 	},
 };
 
-export const HorizontalBarChart: Story = {
+export const HorizontalBars: Story = {
 	args: {
 		...Default.args,
 		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
@@ -235,23 +235,22 @@ export const HorizontalBarChart: Story = {
 	},
 };
 
-// Story showcasing basic legend functionality
-export const WithLegend: Story = {
+// Story showcasing legend hidden (non-default behavior)
+export const WithoutLegend: Story = {
 	args: {
 		withTooltips: true,
-		data: data.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		data: data.slice( 0, 3 ), // Use first 3 series for cleaner display
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
-		showLegend: true,
-		// Using default legend positioning (horizontal, center, bottom)
+		showLegend: false,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Bar chart with default legend positioning (horizontal orientation, center alignment, bottom placement).',
+					'Bar chart with legend explicitly hidden. By default, legends are shown for all charts.',
 			},
 		},
 	},
@@ -266,6 +265,7 @@ export const CustomLegendPositioning: Story = {
 		maxWidth: 1200,
 		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+		// showLegend defaults to true, explicitly keeping for demonstration
 		showLegend: true,
 		legendOrientation: 'vertical',
 		legendAlignmentHorizontal: 'right',

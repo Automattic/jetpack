@@ -61,7 +61,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
 - **`withTooltips`**: Enable interactive tooltips (`false` by default)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
-- **`showLegend`**: Display chart legend (`false` by default)
+- **`showLegend`**: Display chart legend (`true` by default)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
 - **`margin`**: Custom chart margins
 - **`options`**: Advanced axis and scale configuration
@@ -87,7 +87,7 @@ Standard vertical bar charts with categories on the x-axis and values on the y-a
 
 Horizontal bar charts with categories on the y-axis and values on the x-axis, ideal for long category names:
 
-<Canvas of={ BarChartStories.HorizontalBarChart } />
+<Canvas of={ BarChartStories.HorizontalBars } />
 
 <Source
 	language="jsx"
@@ -273,9 +273,9 @@ By default, bars with zero values have no visual height, making them difficult t
 
 ### Basic Legend
 
-Display series information with automatic color and pattern matching:
+Display series information with automatic color and pattern matching (enabled by default):
 
-<Canvas of={ BarChartStories.WithLegend } />
+<Canvas of={ BarChartStories.Default } />
 
 <Source
 	language="jsx"
@@ -325,7 +325,7 @@ Display legends vertically for charts with many series:
 
 Legends work seamlessly with both orientations:
 
-<Canvas of={ BarChartStories.HorizontalBarChart } />
+<Canvas of={ BarChartStories.HorizontalBars } />
 
 ## Advanced Customization
 
@@ -485,7 +485,7 @@ Main chart component with responsive behavior by default.
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
 | `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
-| `showLegend` | `boolean` | `false` | Display chart legend |
+| `showLegend` | `boolean` | `true` | Display chart legend |
 | `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
 | `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Horizontal legend alignment |
 | `legendAlignmentVertical` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
