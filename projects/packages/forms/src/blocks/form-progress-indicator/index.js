@@ -105,10 +105,25 @@ export const settings = {
 				);
 			},
 			migrate: ( attributes, innerBlocks, { innerHTML } ) => {
-				// Replace is-style-default with is-style-line in innerHTML
-				// Use regex to handle multiple occurrences and variations in spacing/formatting
-				const updatedInnerHTML = innerHTML.replace( /is-style-default/g, 'is-style-line' );
+				// Use DOM parser for reliable HTML manipulation
+				if ( typeof DOMParser !== 'undefined' ) {
+					const parser = new DOMParser();
+					const doc = parser.parseFromString( innerHTML, 'text/html' );
 
+					// Find all elements with is-style-default class
+					const elements = doc.querySelectorAll( '.is-style-default' );
+					elements.forEach( element => {
+						element.classList.remove( 'is-style-default' );
+						element.classList.add( 'is-style-line' );
+					} );
+
+					// Return the updated HTML
+					const updatedInnerHTML = doc.body.innerHTML;
+					return [ attributes, innerBlocks, { innerHTML: updatedInnerHTML } ];
+				}
+
+				// Fallback to regex for environments where DOMParser isn't available
+				const updatedInnerHTML = innerHTML.replace( /is-style-default/g, 'is-style-line' );
 				return [ attributes, innerBlocks, { innerHTML: updatedInnerHTML } ];
 			},
 		},
