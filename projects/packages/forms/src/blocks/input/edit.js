@@ -7,6 +7,7 @@ import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-en
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import { ALLOWED_FORMATS } from '../shared/util/constants.js';
+import './editor.scss';
 
 const SYNCED_ATTRIBUTE_KEYS = [
 	'backgroundColor',
@@ -69,12 +70,13 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 
 	if ( type === 'textarea' ) {
 		return (
-			<textarea
-				{ ...blockProps }
-				onChange={ onChange }
-				value={ isSelected ? placeholder : '' }
-				placeholder={ placeholder }
-			/>
+			<div { ...blockProps }>
+				<textarea
+					onChange={ onChange }
+					value={ isSelected ? placeholder : '' }
+					placeholder={ placeholder }
+				/>
+			</div>
 		);
 	}
 
@@ -86,14 +88,15 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 
 	return (
 		<>
-			<input
-				{ ...blockProps }
-				onChange={ onChange }
-				onKeyDown={ onKeyDown }
-				type="text"
-				value={ isSelected ? placeholder : '' }
-				placeholder={ placeholder }
-			/>
+			<div { ...blockProps }>
+				<input
+					onChange={ onChange }
+					onKeyDown={ onKeyDown }
+					type="text"
+					value={ isSelected ? placeholder : '' }
+					placeholder={ placeholder }
+				/>
+			</div>
 			{ type === 'number' && (
 				<InspectorControls>
 					<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>

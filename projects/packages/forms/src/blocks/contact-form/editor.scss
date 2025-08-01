@@ -51,10 +51,6 @@
 		flex-direction: row;
 		gap: var(--wp--style--block-gap, 1.5rem);
 
-		> div {
-			flex: 1 1 100%;
-		}
-
 		.wp-block {
 			flex: 0 0 100%;
 			margin-top: 0;
@@ -326,21 +322,22 @@
 	padding: 0;
 }
 
-.jetpack-field__textarea {
-	display: block;
-	min-height: 200px;
-}
 
 // Default field styles. (browser default styles)
 .jetpack-field {
 
+	.jetpack-field__textarea {
+		min-height: 200px;
+	}
+
 	.jetpack-field__input,
 	.jetpack-field__textarea {
-		width: 100%;
 		box-sizing: border-box;
 		box-shadow: unset;
 		padding: 16px;
 		margin: 0;
+		display: flex;
+		gap: 8px;
 	}
 
 	// Reduced specificity to 0,1,0 so that global styles can override it.

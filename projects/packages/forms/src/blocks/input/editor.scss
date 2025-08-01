@@ -1,0 +1,48 @@
+.jetpack-contact-form .jetpack-field {
+
+	.jetpack-field__input,
+	.jetpack-field__textarea {
+		box-sizing: border-box;
+
+		input,
+		textarea {
+			border: 0;
+			line-height: inherit;
+			font-size: inherit;
+			flex: 1;
+			outline: none;
+			color: inherit;
+			font-family: inherit;
+			background: inherit;
+			width: inherit;
+			box-sizing: border-box;
+			resize: none;
+
+			&::before,
+			&::after {
+				box-sizing: inherit;
+			}
+		}
+	}
+
+	.jetpack-field__input {
+
+		.jetpack-field__input-prefix {
+			font-size: inherit;
+			border: 0;
+			line-height: inherit;
+			color: inherit;
+			font-family: inherit;
+
+			select {
+				font-size: inherit;
+				border: 0;
+				line-height: inherit;
+				color: inherit;
+				font-family: inherit;
+				outline: none;
+				background: inherit;
+			}
+		}
+	}
+}
