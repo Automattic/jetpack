@@ -840,7 +840,8 @@ class Contact_Form_Plugin {
 				$steps_html .= '<div class="jetpack-form-progress-indicator-dot">';
 				$steps_html .= sprintf(
 					'<span class="jetpack-form-progress-indicator-step-number" data-wp-text="state.getStepContent" aria-label="%s">%d</span>',
-					esc_attr( sprintf( __( 'Step %d', 'jetpack' ), $i + 1 ) ),
+					// Translators: %d: The step number in the progress indicator.
+					esc_attr( sprintf( __( 'Step %d', 'jetpack-forms' ), $i + 1 ) ),
 					$i + 1
 				);
 				$steps_html .= '</div>';
