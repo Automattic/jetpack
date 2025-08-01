@@ -242,7 +242,7 @@ export const CustomLegendPositioning: Story = {
 		maxWidth: 1200,
 		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
-		// showLegend defaults to true, explicitly keeping for demonstration
+		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
 		legendOrientation: 'vertical',
 		legendAlignmentHorizontal: 'right',
