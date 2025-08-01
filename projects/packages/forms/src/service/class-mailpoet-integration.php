@@ -72,8 +72,8 @@ class MailPoet_Integration {
 		}
 
 		// 3. Fallback: use or create the default list
-		$default_list_name        = 'Jetpack Form Subscribers';
-		$default_list_description = 'Subscribers from Jetpack Forms';
+		$default_list_name        = 'Jetpack Forms';
+		$default_list_description = __( 'Subscribers from Jetpack Forms', 'jetpack-forms' );
 		try {
 			$lists = $mailpoet_api->getLists();
 			foreach ( $lists as $list ) {

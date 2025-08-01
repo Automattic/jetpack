@@ -101,7 +101,7 @@ const MailPoetCard = ( {
 	};
 	return (
 		<IntegrationCard
-			title={ __( 'MailPoet Email Marketing', 'jetpack-forms' ) }
+			title={ __( 'MailPoet email marketing', 'jetpack-forms' ) }
 			description={ __(
 				'Send newsletters and marketing emails directly from your site.',
 				'jetpack-forms'
@@ -143,21 +143,25 @@ const MailPoetCard = ( {
 			) : (
 				<div>
 					{ mailpoetLists?.length ? (
-						<SelectControl
-							label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
-							value={ mailpoet.listId }
-							options={ mailpoetLists.map( list => ( { label: list.name, value: list.id } ) ) }
-							onChange={ value => {
-								const selected = mailpoetLists.find( l => l.id === value );
-								setAttributes( {
-									mailpoet: {
-										...mailpoet,
-										listId: selected?.id ?? null,
-										listName: selected?.name ?? null,
-									},
-								} );
-							} }
-						/>
+						<p className="integration-card__description">
+							<SelectControl
+								label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
+								value={ mailpoet.listId }
+								options={ mailpoetLists.map( list => ( { label: list.name, value: list.id } ) ) }
+								onChange={ value => {
+									const selected = mailpoetLists.find( l => l.id === value );
+									setAttributes( {
+										mailpoet: {
+											...mailpoet,
+											listId: selected?.id ?? null,
+											listName: selected?.name ?? null,
+										},
+									} );
+								} }
+								__next40pxDefaultSize={ true }
+								__nextHasNoMarginBottom={ true }
+							/>
+						</p>
 					) : (
 						<p className="integration-card__description">
 							{ __(
@@ -167,9 +171,9 @@ const MailPoetCard = ( {
 						</p>
 					) }
 					<p className="integration-card__description">
-						<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
+						<ExternalLink href={ settingsUrl }>
 							{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }
-						</Button>
+						</ExternalLink>
 					</p>
 				</div>
 			) }

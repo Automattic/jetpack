@@ -90,9 +90,12 @@
 		color: var(--jp-gray-50);
 		font-size: 13px;
 		line-height: 1.5;
-		margin-top: 0;
 		width: 100%;
 		order: 3;
+
+		&:first-of-type {
+			margin-top: 0;
+		}
 
 		@media (max-width: 782px) {
 			text-wrap: balance;
@@ -123,10 +126,11 @@
 		padding-top: 8px;
 		padding-bottom: 24px;
 		padding-left: 60px; // this is to align with the row above's icon + gap (44 + 16)
-		padding-right: 20px;
+		padding-right: 40px;
 
 		@media (max-width: 782px) {
 			padding-left: 46px;
+			padding-right: 20px;
 		}
 	}
 
