@@ -52,8 +52,7 @@ export const CHART_DEFAULTS = {
 export type ChartType = keyof typeof CHART_DEFAULTS;
 
 // Get all defaults for a specific chart type - use when chart type is dynamic
-export const getChartDefaults = < T extends ChartType >( chartType: T ) =>
-	CHART_DEFAULTS[ chartType ];
+export const getChartDefaults = ( chartType: ChartType ) => CHART_DEFAULTS[ chartType ];
 
 // Get only legend-related defaults (backward compatible)
 export const getChartLegendDefaults = ( chartType: ChartType ) => ( {
