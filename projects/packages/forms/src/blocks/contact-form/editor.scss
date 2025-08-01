@@ -417,7 +417,7 @@
 		min-width: auto;
 	}
 
-	:where( .jetpack-field-option__checkbox),
+	:where(.jetpack-field-option__checkbox),
 	:where(.jetpack-option__type) {
 		all: initial;
 		color: currentColor;
