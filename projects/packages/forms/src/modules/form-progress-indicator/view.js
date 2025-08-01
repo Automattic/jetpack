@@ -6,18 +6,20 @@ store( 'jetpack/form', {
 			const context = getContext();
 			return ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 + '%';
 		},
-	},
-	actions: {
-		initializeProgress() {
-			// Initialize progress indicator when the form loads
+		get isStepActive() {
 			const context = getContext();
-			// Ensure we have a valid transition value
-			if (
-				! context.transition ||
-				! [ 'none', 'fade', 'slide', 'fade-slide' ].includes( context.transition )
-			) {
-				context.transition = 'fade-slide'; // Default transition if not set or invalid
+			return context.currentStep === context.stepIndex + 1;
+		},
+		get isStepCompleted() {
+			const context = getContext();
+			return context.currentStep > context.stepIndex + 1;
+		},
+		get getStepContent() {
+			const context = getContext();
+			if ( context.currentStep > context.stepIndex + 1 ) {
+				return '✓';
 			}
+			return context.stepIndex + 1;
 		},
 	},
 } );

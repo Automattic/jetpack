@@ -1,29 +1,141 @@
 .wp-block-jetpack-form-progress-indicator {
 	--jp-form-progress-height: 0.75rem;
-
-	// Use theme colors with fallbacks
 	--jp-form-progress-bg-color: #e0e0e0;
+	--jp-progress-bg: var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color));
+	--jp-progress-color: var(--wp--preset--color--primary, currentColor);
 
-	// Essential structure
-	height: var(--jp-form-progress-height);
 	position: relative;
-	overflow: hidden;
-	border-radius: calc(var(--jp-form-progress-height) / 2);
-	background-color: var(--wp--style--color--background, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+	overflow: visible;
+	width: 100%;
+	box-sizing: border-box;
 
-	// Progress bar element - rendered as a child element to match the frontend
-	.jetpack-form-progress-indicator-bar {
-		content: "";
-		display: block;
+	.jetpack-form-progress-indicator-steps {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		width: 100%;
+		padding: 0;
+		position: relative;
+		overflow: hidden;
+
+		.jetpack-form-progress-indicator-step:first-child {
+			align-items: flex-start;
+		}
+
+		.jetpack-form-progress-indicator-step:last-child {
+			align-items: flex-end;
+		}
+	}
+
+	.jetpack-form-progress-indicator-step {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		position: relative;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.jetpack-form-progress-indicator-line {
 		position: absolute;
 		top: 0;
 		left: 0;
-		height: 100%;
-		width: 1%;
-		min-width: var(--jp-form-progress-height);
-		transition: width 0.3s ease-in-out;
-		z-index: 1;
-		background-color: currentColor;
-		border-radius: calc(var(--jp-form-progress-height) / 2);
+		width: 100%;
+		height: var(--jp-form-progress-height);
+		background-color: var(--jp-progress-bg);
+		z-index: 0;
+		display: none;
+		transition: background-color 0.3s ease-in-out;
 	}
+
+	.jetpack-form-progress-indicator-dot {
+		display: none;
+	}
+
+	.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-line,
+	.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-line {
+		background-color: var(--jp-progress-color);
+	}
+
+	.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-line {
+		border-top-left-radius: calc(var(--jp-form-progress-height) / 2);
+		border-bottom-left-radius: calc(var(--jp-form-progress-height) / 2);
+	}
+
+	.jetpack-form-progress-indicator-step:last-child .jetpack-form-progress-indicator-line {
+		border-top-right-radius: calc(var(--jp-form-progress-height) / 2);
+		border-bottom-right-radius: calc(var(--jp-form-progress-height) / 2);
+	}
+
+	&.is-style-line {
+
+		.jetpack-form-progress-indicator-steps {
+			gap: 0;
+		}
+
+		.jetpack-form-progress-indicator-step {
+			flex: 1;
+		}
+
+		.jetpack-form-progress-indicator-line {
+			display: block;
+			position: relative;
+			margin: 0;
+		}
+	}
+
+	&.is-style-dots {
+
+		.jetpack-form-progress-indicator-dot {
+			display: flex;
+			width: 2rem;
+			height: 2rem;
+			border-radius: 50%;
+			background-color: var(--jp-progress-bg);
+			transition: background-color 0.3s ease;
+			position: relative;
+			z-index: 10;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.jetpack-form-progress-indicator-step-number {
+			font-size: 0.875rem;
+			font-weight: 600;
+			line-height: 1;
+			color: var(--wp--preset--color--contrast, currentColor);
+			transition: color 0.3s ease-in-out;
+		}
+
+		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot,
+		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-dot {
+			background-color: var(--jp-progress-color);
+		}
+
+		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-step-number,
+		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
+			color: var(--wp--preset--color--base, #fff);
+			text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+		}
+
+		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
+			font-size: 1.125rem;
+		}
+
+		.jetpack-form-progress-indicator-step:not(:first-child) .jetpack-form-progress-indicator-line {
+			display: block;
+			top: 1rem;
+			height: 2px;
+			left: calc(-100% + 1rem);
+			width: calc(150% - 1rem);
+			z-index: 1;
+		}
+
+		.jetpack-form-progress-indicator-step:last-child .jetpack-form-progress-indicator-line {
+			left: -50%;
+			width: calc(150% - 1rem);
+			z-index: 1;
+		}
+	}
+
 }

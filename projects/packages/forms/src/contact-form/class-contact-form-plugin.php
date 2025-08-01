@@ -749,27 +749,40 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the progress indicator.
 	 *
-	 * @param array  $attributes - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $attributes - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the progress indicator.
 	 */
-	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
+	public static function gutenblock_render_form_progress_indicator( $attributes, $content, $block ) {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 		if ( empty( $version ) ) {
 			$version = '0.1';
 		}
 
-		// Enqueue the frontend style for the progress indicator.
+		$step_blocks = array();
+		$max_steps   = 1;
+
+		if ( $block && isset( $block->parsed_block ) ) {
+			$parent_block = self::find_parent_form_block( $block );
+
+			if ( $parent_block ) {
+				$step_blocks = self::get_form_steps_in_block( $parent_block );
+				if ( ! empty( $step_blocks ) ) {
+					$max_steps = count( $step_blocks );
+				}
+			}
+		}
+
 		$style_handle = 'jetpack-form-progress-indicator-style';
-		$style_path   = '../../dist/blocks/form-progress-indicator/style.css'; // Path from the 404 error
+		$style_path   = '../../dist/blocks/form-progress-indicator/style.css';
 		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
 			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
 		}
 
-		// Enqueue the interactivity script module (matching form-step pattern).
 		$script_handle = 'jetpack-form-progress-indicator';
-		$script_path   = '../../dist/modules/form-progress-indicator/view.js'; // Path from previous 404 error
+		$script_path   = '../../dist/modules/form-progress-indicator/view.js';
 		\wp_enqueue_script_module(
 			$script_handle,
 			plugins_url( $script_path, __FILE__ ),
@@ -778,9 +791,21 @@ class Contact_Form_Plugin {
 		);
 
 		$processor = new \WP_HTML_Tag_Processor( $content );
+
+		// Check if this is dots style
+		$is_dots_style = false;
+		if ( $processor->next_tag( array( 'class_name' => 'wp-block-jetpack-form-progress-indicator' ) ) ) {
+			$classes       = $processor->get_attribute( 'class' );
+			$is_dots_style = strpos( $classes, 'is-style-dots' ) !== false;
+		}
+
+		// Reset processor
+		$processor = new \WP_HTML_Tag_Processor( $content );
 		$processor->next_tag();
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+		$processor->set_attribute( 'data-wp-init', 'actions.initializeProgress' );
 
+		// Process legacy progress bar elements
 		while ( $processor->next_tag() ) {
 			$class = $processor->get_attribute( 'class' );
 			if ( 'jetpack-form-progress-indicator-bar' === $class ) {
@@ -788,7 +813,221 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		return $processor->get_updated_html();
+		// Get the updated HTML after processing attributes
+		$updated_content = $processor->get_updated_html();
+
+		// Build steps HTML using the actual number of form steps
+		$steps_html = '';
+		for ( $i = 0; $i < $max_steps; $i++ ) {
+			$step_classes = 'jetpack-form-progress-indicator-step';
+			if ( $i === 0 ) { // First step is active by default
+				$step_classes .= ' is-active';
+			}
+
+			$step_context = array( 'stepIndex' => $i );
+
+			$steps_html .= sprintf(
+				'<div class="%s" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" data-wp-context=\'%s\' data-step-index="%d">',
+				esc_attr( $step_classes ),
+				wp_json_encode( $step_context ),
+				$i
+			);
+
+			// Add line element for all styles
+			$steps_html .= '<div class="jetpack-form-progress-indicator-line"></div>';
+
+			// Add dot element only for dots style
+			if ( $is_dots_style ) {
+				$steps_html .= '<div class="jetpack-form-progress-indicator-dot">';
+				$steps_html .= sprintf(
+					'<span class="jetpack-form-progress-indicator-step-number" data-wp-text="state.getStepContent">%d</span>',
+					$i + 1
+				);
+				$steps_html .= '</div>';
+			}
+
+			$steps_html .= '</div>';
+		}
+
+		// Replace the empty steps container with the populated one
+		$updated_content = str_replace(
+			'<div class="jetpack-form-progress-indicator-steps"></div>',
+			'<div class="jetpack-form-progress-indicator-steps">' . $steps_html . '</div>',
+			$updated_content
+		);
+
+		return $updated_content;
+	}
+
+	/**
+	 * Find the parent contact form block for a given progress indicator block.
+	 *
+	 * @param WP_Block $block The progress indicator block.
+	 * @return array|null The parent form block or null if not found.
+	 */
+	private static function find_parent_form_block( $block ) {
+		global $post;
+
+		if ( ! $post || ! $post->post_content ) {
+			return null;
+		}
+
+		$parsed_blocks = parse_blocks( $post->post_content );
+
+		if ( $block && isset( $block->context ) ) {
+			if ( isset( $block->context['jetpack/contact-form-id'] ) ) {
+				return self::find_form_block_by_context( $parsed_blocks, $block->context['jetpack/contact-form-id'] );
+			}
+		}
+
+		return self::find_form_block_containing_progress_indicator( $parsed_blocks );
+	}
+
+	/**
+	 * Find a specific contact form block by its context data.
+	 *
+	 * @param array $blocks Array of parsed blocks.
+	 * @param mixed $form_context The form context data to match.
+	 * @return array|null The form block or null if not found.
+	 */
+	private static function find_form_block_by_context( $blocks, $form_context ) {
+		foreach ( $blocks as $block ) {
+			// Check if this is a contact form block
+			if ( 'jetpack/contact-form' === $block['blockName'] ) {
+				// Try to match this form with the context
+				// Context might contain form ID, attributes, or other identifying data
+				if ( self::form_matches_context( $block, $form_context ) ) {
+					return $block;
+				}
+			}
+
+			// Recursively check inner blocks
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$result = self::find_form_block_by_context( $block['innerBlocks'], $form_context );
+				if ( $result ) {
+					return $result;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check if a form block matches the given context.
+	 *
+	 * @param array $form_block The form block to check.
+	 * @param mixed $form_context The context to match against.
+	 * @return bool True if the form matches the context.
+	 */
+	private static function form_matches_context( $form_block, $form_context ) {
+		// Context should be the formId string directly
+		if ( is_string( $form_context ) && isset( $form_block['attrs']['formId'] ) ) {
+			return $form_context === $form_block['attrs']['formId'];
+		}
+
+		// If context is an array with form attributes/ID, match against those
+		if ( is_array( $form_context ) ) {
+			// Check if context has identifying attributes we can match
+			if ( isset( $form_context['formId'] ) && isset( $form_block['attrs']['formId'] ) ) {
+				return $form_context['formId'] === $form_block['attrs']['formId'];
+			}
+		}
+
+		// If we can't match specifically, fall back to simple comparison
+		return false;
+	}
+
+	/**
+	 * Recursively find the contact form block that contains a progress indicator.
+	 *
+	 * @param array $blocks Array of parsed blocks.
+	 * @return array|null The form block or null if not found.
+	 */
+	private static function find_form_block_containing_progress_indicator( $blocks ) {
+		foreach ( $blocks as $block ) {
+			// Check if this is a contact form block
+			if ( 'jetpack/contact-form' === $block['blockName'] ) {
+				// Check if it contains a progress indicator
+				if ( self::block_contains_progress_indicator( $block ) ) {
+					return $block;
+				}
+			}
+
+			// Recursively check inner blocks
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$result = self::find_form_block_containing_progress_indicator( $block['innerBlocks'] );
+				if ( $result ) {
+					return $result;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check if a block contains a progress indicator.
+	 *
+	 * @param array $block The block to check.
+	 * @return bool True if the block contains a progress indicator.
+	 */
+	private static function block_contains_progress_indicator( $block ) {
+		// Check current block
+		if ( 'jetpack/form-progress-indicator' === $block['blockName'] ) {
+			return true;
+		}
+
+		// Check inner blocks recursively
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				if ( self::block_contains_progress_indicator( $inner_block ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get form step blocks within a contact form block.
+	 *
+	 * @param array $form_block The form block to search.
+	 * @return array Array of form step blocks found.
+	 */
+	private static function get_form_steps_in_block( $form_block ) {
+		$step_blocks = array();
+
+		if ( ! empty( $form_block['innerBlocks'] ) ) {
+			$step_blocks = self::get_steps_recursive( $form_block['innerBlocks'] );
+		}
+
+		return $step_blocks;
+	}
+
+	/**
+	 * Recursively get form step blocks.
+	 *
+	 * @param array $blocks Array of blocks to search.
+	 * @return array Array of form step blocks found.
+	 */
+	private static function get_steps_recursive( $blocks ) {
+		$step_blocks = array();
+
+		foreach ( $blocks as $block ) {
+			// Check if this is a form step block
+			if ( 'jetpack/form-step' === $block['blockName'] ) {
+				$step_blocks[] = $block;
+			}
+
+			// Recursively check inner blocks
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$step_blocks = array_merge( $step_blocks, self::get_steps_recursive( $block['innerBlocks'] ) );
+			}
+		}
+
+		return $step_blocks;
 	}
 
 	/**

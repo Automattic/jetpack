@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { Rect } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../shared/components/render-material-icon';
@@ -11,6 +12,7 @@ export const settings = {
 	apiVersion: 3,
 	category: 'contact-form',
 	ancestor: [ 'jetpack/contact-form' ],
+	usesContext: [ 'jetpack/contact-form-id', 'jetpack/contact-form-steps' ],
 	supports: {
 		html: false,
 		reusable: false,
@@ -57,8 +59,80 @@ export const settings = {
 	edit: edit,
 	save: save,
 	attributes: {},
+	styles: [
+		{
+			name: 'line',
+			label: __( 'Line', 'jetpack-forms' ),
+			isDefault: true,
+		},
+		{
+			name: 'dots',
+			label: __( 'Dots', 'jetpack-forms' ),
+		},
+	],
 	transforms: {},
 	example: {},
+	deprecated: [
+		// Deprecate old "default" style name in favor of explicit "line" style
+		{
+			attributes: {},
+			styles: [
+				{
+					name: 'default',
+					label: __( 'Default', 'jetpack-forms' ),
+					isDefault: true,
+				},
+				{
+					name: 'dots',
+					label: __( 'Dots', 'jetpack-forms' ),
+				},
+			],
+			save: () => {
+				const blockProps = useBlockProps.save();
+				return (
+					<div className="jetpack-form-progress-indicator--wrapper">
+						<div { ...blockProps }>
+							<div className="jetpack-form-progress-indicator-steps"></div>
+						</div>
+					</div>
+				);
+			},
+			isEligible: ( attributes, innerBlocks, { innerHTML } ) => {
+				return (
+					innerHTML &&
+					innerHTML.includes( 'jetpack-form-progress-indicator-steps' ) &&
+					innerHTML.includes( 'is-style-default' )
+				);
+			},
+			migrate: ( attributes, innerBlocks, { innerHTML } ) => {
+				// Replace is-style-default with is-style-line in innerHTML
+				const updatedInnerHTML = innerHTML.replace( 'is-style-default', 'is-style-line' );
+				return [ attributes, innerBlocks, { innerHTML: updatedInnerHTML } ];
+			},
+		},
+		// Deprecate old progress bar structure
+		{
+			attributes: {},
+			save: () => {
+				const blockProps = useBlockProps.save();
+				return (
+					<div className="jetpack-form-progress-indicator--wrapper">
+						<div { ...blockProps }>
+							<div className="jetpack-form-progress-indicator-bar"></div>
+						</div>
+					</div>
+				);
+			},
+			isEligible: ( attributes, innerBlocks, { innerHTML } ) => {
+				return (
+					innerHTML &&
+					innerHTML.includes( 'jetpack-form-progress-indicator-bar' ) &&
+					! innerHTML.includes( 'jetpack-form-progress-indicator-steps' )
+				);
+			},
+			migrate: attributes => attributes,
+		},
+	],
 };
 
 export default {

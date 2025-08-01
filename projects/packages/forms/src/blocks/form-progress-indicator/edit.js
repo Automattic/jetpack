@@ -1,31 +1,57 @@
 import { useBlockProps } from '@wordpress/block-editor';
+import { Icon, check } from '@wordpress/icons';
 import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import useStepNavigation from '../shared/hooks/use-step-navigation';
 
 import './editor.scss';
 
-const FormProgressIndicatorEdit = ( { clientId } ) => {
+const FormProgressIndicatorEdit = ( { clientId, context } ) => {
 	const parentFormId = useParentFormClientId( clientId );
 	const { currentStepInfo, steps } = useStepNavigation( parentFormId );
 
-	let progress = steps.length ? ( ( currentStepInfo.index + 1 ) / steps.length ) * 100 : 10;
-	if ( currentStepInfo.index === -1 && steps.length > 0 ) {
-		progress = ( 1 / steps.length ) * 100; // Assume the first step is active
-	}
+	const contextSteps = context?.[ 'jetpack/contact-form-steps' ] || [];
 
 	const blockProps = useBlockProps();
 
-	// Only need to set width – colours come from core style engine variables.
-	const progressBarStyle = {
-		width: `${ progress }%`,
-	};
+	const isDotStyle = blockProps.className && blockProps.className.includes( 'is-style-dots' );
+
+	let finalSteps = [ { label: 'Step 1' }, { label: 'Step 2' }, { label: 'Step 3' } ];
+	if ( contextSteps.length > 0 ) {
+		finalSteps = contextSteps;
+	} else if ( steps.length > 0 ) {
+		finalSteps = steps;
+	}
 
 	return (
 		<>
 			<div className="jetpack-form-progress-indicator--wrapper">
 				<div { ...blockProps }>
-					<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
+					<div className="jetpack-form-progress-indicator-steps">
+						{ finalSteps.map( ( step, index ) => {
+							const isActive = index === currentStepInfo.index;
+							const isCompleted = index < currentStepInfo.index;
+
+							return (
+								<div
+									key={ index }
+									className={ `jetpack-form-progress-indicator-step${
+										isActive ? ' is-active' : ''
+									}${ isCompleted ? ' is-completed' : '' }` }
+									data-step-index={ index }
+								>
+									<div className="jetpack-form-progress-indicator-line"></div>
+									{ isDotStyle && (
+										<div className="jetpack-form-progress-indicator-dot">
+											<span className="jetpack-form-progress-indicator-step-number">
+												{ isCompleted ? <Icon icon={ check } /> : index + 1 }
+											</span>
+										</div>
+									) }
+								</div>
+							);
+						} ) }
+					</div>
 				</div>
 			</div>
 			<StepControls formClientId={ parentFormId } showToggle={ false } showNavigation={ true } />

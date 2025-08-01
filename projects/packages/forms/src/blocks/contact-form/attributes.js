@@ -52,4 +52,12 @@ export default {
 			listName: null,
 		},
 	},
+	formId: {
+		type: 'string',
+		default: '',
+	},
+	steps: {
+		type: 'array',
+		default: [],
+	},
 };

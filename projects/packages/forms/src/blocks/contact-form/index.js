@@ -61,7 +61,9 @@ export const settings = {
 	},
 	attributes: defaultAttributes,
 	providesContext: {
-		'jetpack/form-class-name': 'className',
+		'jetpack/contact-form-class-name': 'className',
+		'jetpack/contact-form-id': 'formId',
+		'jetpack/contact-form-steps': 'steps',
 	},
 	edit,
 	save: () => {
