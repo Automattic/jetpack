@@ -2,11 +2,10 @@ import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@vi
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react';
-import { BAR_CHART_DEFAULTS } from '../../constants/chart-defaults';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
-import { Legend } from '../legend';
+import { Legend, SHARED_LEGEND_DEFAULTS } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -26,6 +25,14 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
 }
+
+const BAR_CHART_DEFAULTS = {
+	...SHARED_LEGEND_DEFAULTS,
+	legendShape: 'rect' as const,
+	withPatterns: false,
+	showZeroValues: false,
+	orientation: 'vertical' as const,
+} as const;
 
 // Validation function similar to LineChart
 const validateData = ( data: SeriesData[] ) => {
