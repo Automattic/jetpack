@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\Social_Image_Generator as SIG;
-use Automattic\Jetpack\Publicize\Social_Image_Generator\Fonts;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 use WP_Error;
 use WP_REST_Request;
@@ -79,13 +78,40 @@ class Social_Image_Generator_Controller extends Base_Controller {
 					'font'      => array(
 						'description' => __( 'The font slug.', 'jetpack-publicize-pkg' ),
 						'type'        => 'string',
-						'enum'        => array_merge( Fonts::FONTS, array( '' ) ),
 					),
 				),
 				'schema'              => array(
 					'$schema' => 'http://json-schema.org/draft-04/schema#',
 					'title'   => 'publicize-sig-generate-token',
 					'type'    => 'string',
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/font-options',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_font_options' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
+				'schema'              => array(
+					'$schema' => 'http://json-schema.org/draft-04/schema#',
+					'title'   => 'publicize-sig-font-options',
+					'type'    => 'array',
+					'items'   => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'    => array(
+								'type'        => 'string',
+								'description' => __( 'Unique identifier for the font.', 'jetpack-publicize-pkg' ),
+							),
+							'label' => array(
+								'type'        => 'string',
+								'description' => __( 'The font label.', 'jetpack-publicize-pkg' ),
+							),
+						),
+					),
 				),
 			)
 		);
@@ -128,5 +154,36 @@ class Social_Image_Generator_Controller extends Base_Controller {
 				$request->get_param( 'font' )
 			)
 		);
+	}
+
+	/**
+	 * Returns the available font options for the social image generator.
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return WP_REST_Response The response containing the font options.
+	 */
+	public function get_font_options( $request ) {
+		l( 'Fetching font options for Social Image Generator.' );
+		if ( Utils::is_wpcom() ) {
+			require_lib( 'publicize/util/social-image-generator' );
+
+			$fonts = \Publicize\Social_Image_Generator\get_font_options();
+
+			$font_options = array();
+
+			foreach ( $fonts as $id => [ 'label' => $label ] ) {
+				$font_options[] = compact( 'id', 'label' );
+			}
+
+			return rest_ensure_response( $font_options );
+		}
+
+		$response = $this->proxy_request_to_wpcom_as_blog(
+			$request,
+			'font-options'
+		);
+
+		return rest_ensure_response( $response );
 	}
 }

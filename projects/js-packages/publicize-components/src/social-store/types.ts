@@ -135,3 +135,8 @@ export type SharesData = {
 	shared_posts_count: number;
 	is_share_limit_enabled: boolean;
 };
+
+export type SocialImageFontOption = {
+	id: string;
+	label: string;
+};

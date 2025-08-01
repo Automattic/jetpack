@@ -3,8 +3,8 @@ import { Button, Modal, BaseControl, SelectControl } from '@wordpress/components
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useMediaDetails from '../../../../hooks/use-media-details';
+import { useSocialImageFontOptions } from '../../../../hooks/use-social-image-font-options';
 import MediaPicker from '../../../media-picker';
-import { getFontOptions } from '../../utils';
 import TemplatePicker from '../picker';
 import styles from './styles.module.scss';
 
@@ -58,6 +58,7 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null,
 		},
 		[ setSelectedFont ]
 	);
+	const { isLoading: isLoadingFontOptions, fontOptions } = useSocialImageFontOptions();
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
@@ -101,7 +102,8 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null,
 						__next40pxDefaultSize
 						label={ __( 'Font', 'jetpack-publicize-components' ) }
 						value={ selectedFont ?? '' }
-						options={ getFontOptions() }
+						disabled={ isLoadingFontOptions }
+						options={ fontOptions }
 						onChange={ onFontChange }
 					/>
 

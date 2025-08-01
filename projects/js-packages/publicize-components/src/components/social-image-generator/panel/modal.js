@@ -11,10 +11,10 @@ import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
+import { useSocialImageFontOptions } from '../../../hooks/use-social-image-font-options';
 import GeneratedImagePreview from '../../generated-image-preview';
 import MediaPicker from '../../media-picker';
 import TemplatePicker from '../template-picker/picker';
-import { getFontOptions } from '../utils';
 import styles from './styles.module.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
@@ -77,6 +77,8 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 		},
 		[ setEditedImageId ]
 	);
+
+	const { isLoading: isLoadingFontOptions, fontOptions } = useSocialImageFontOptions();
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
@@ -147,7 +149,8 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 					__next40pxDefaultSize
 					label={ __( 'Font', 'jetpack-publicize-components' ) }
 					value={ selectedFont ?? '' }
-					options={ getFontOptions() }
+					disabled={ isLoadingFontOptions }
+					options={ fontOptions }
 					onChange={ setSelectedFont }
 				/>
 				<div className={ styles.footer }>

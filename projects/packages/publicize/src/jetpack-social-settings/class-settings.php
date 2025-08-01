@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Publicize\Jetpack_Social_Settings;
 
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Publicize\Social_Image_Generator\Fonts;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 
 /**
@@ -165,7 +164,6 @@ class Settings {
 							),
 							'font'             => array(
 								'type' => 'string',
-								'enum' => array_merge( Fonts::FONTS, array( '' ) ),
 							),
 							'default_image_id' => array(
 								'type' => 'number',
