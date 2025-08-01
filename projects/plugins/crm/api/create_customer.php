@@ -242,7 +242,7 @@ if (
 	// wp_send_json($json_params); //sends back to Zapier the customer that's been sent to it.
 
 	// thorough much? lol.
-	if ( ! empty( $new_contact ) && $new_contact !== false && $new_contact !== -1 ) {
+	if ( ! empty( $new_contact ) && $new_contact !== -1 ) {
 
 		// return what was passed...
 		// this is legacy funk.. not ideal at all, should probs reload.
