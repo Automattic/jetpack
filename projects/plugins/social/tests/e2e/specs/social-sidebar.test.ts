@@ -1,6 +1,5 @@
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import logger from '_jetpack-e2e-commons/logger.js';
-import { connect } from '../flows/index.js';
+import { connect } from '../helpers/index.js';
 
 test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.disconnect();
@@ -14,16 +13,12 @@ test( 'Jetpack Social sidebar', async ( { page, admin, editor } ) => {
 		await connect( page );
 	} );
 
-	await test.step( 'Goto post edit page', async () => {
-		logger.action( 'Create new post' );
+	await test.step( 'Goto post edit page and create a new post', async () => {
 		await admin.createNewPost( { title: 'Jetpack Social test post' } );
 	} );
 
 	await test.step( 'Check Social sidebar', async () => {
-		logger.action( 'Open Jetpack Social sidebar' );
 		await editor.openSettings( 'Jetpack Social' );
-
-		logger.action( 'Checking for "Preview" button' );
 		const previewButton = editor
 			.getEditorSettingsSidebar()
 			.getByRole( 'button', { name: 'Open Social Previews', exact: true } );

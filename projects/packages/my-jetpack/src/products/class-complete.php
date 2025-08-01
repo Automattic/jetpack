@@ -257,6 +257,7 @@ class Complete extends Module_Product {
 			'social',
 			'stats',
 			'videopress',
+			'jetpack-ai',
 		);
 	}
 
