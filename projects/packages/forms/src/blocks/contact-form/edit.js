@@ -637,12 +637,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				classNames={ formClassnames }
 			/>
 		);
-
-		// Reset the padding of the block. Once the user picks a variation this padding gets set to the default one.
-		blockProps.style.paddingTop = 0;
-		blockProps.style.paddingBottom = 0;
-		blockProps.style.paddingLeft = 0;
-		blockProps.style.paddingRight = 0;
 	} else {
 		elt = (
 			<>
