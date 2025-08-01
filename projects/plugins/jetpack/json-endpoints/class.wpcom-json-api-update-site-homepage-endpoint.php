@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/homepage
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Site_Homepage_Endpoint(
 	array(
 		'description'          => 'Set site homepage settings',

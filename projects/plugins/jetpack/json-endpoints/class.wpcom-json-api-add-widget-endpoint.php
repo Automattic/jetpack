@@ -5,6 +5,10 @@
  * Endpoint: https://public-api.wordpress.com/rest/v1.1/sites/$site/widgets/new
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Add_Widgets_Endpoint(
 	array(
 		'description'          => 'Activate a group of widgets on a site. The bulk version of using the /new endpoint',

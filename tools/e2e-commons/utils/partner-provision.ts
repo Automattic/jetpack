@@ -16,7 +16,11 @@ import { executeCommand, executeJetpackCommand } from '../utils/cli.ts';
  * @param {string} user   - Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-export async function partnerProvisionConnection( userId, plan = 'free', user ) {
+export async function partnerProvisionConnection(
+	userId: string,
+	plan: string = 'free',
+	user: string
+): Promise< boolean > {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 	const __dirname = url.fileURLToPath( new URL( '.', import.meta.url ) );
@@ -43,4 +47,16 @@ export async function partnerProvisionConnection( userId, plan = 'free', user ) 
 	await executeJetpackCommand( `authorize_user --user=${ user } --token=${ json.access_token }` );
 
 	return true;
+}
+
+/**
+ * Cancels partner plan
+ */
+export async function cancelPartnerPlan() {
+	logger.info( `Cancelling partner plan` );
+	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
+	const __dirname = url.fileURLToPath( new URL( '.', import.meta.url ) );
+	const scriptPath = path.resolve( __dirname, '../../partner-cancel.sh' );
+	const cmd = `sh ${ scriptPath } --partner_id=${ clientID } --partner_secret=${ clientSecret } --allow-root`;
+	await executeCommand( cmd );
 }

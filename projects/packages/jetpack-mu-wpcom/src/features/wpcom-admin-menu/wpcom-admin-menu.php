@@ -181,15 +181,6 @@ function wpcom_add_hosting_menu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/sites/settings/site/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
 	// By default, WordPress adds a submenu item for the parent menu item, which we don't want.
 	remove_submenu_page(
 		$parent_slug,

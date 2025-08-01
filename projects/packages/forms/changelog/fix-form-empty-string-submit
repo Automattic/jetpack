@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: trim the value before validating if empty form

@@ -4,6 +4,10 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Sync\Functions;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Base class for working with plugins.
  */

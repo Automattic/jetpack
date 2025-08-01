@@ -1,6 +1,6 @@
 @use "@automattic/jetpack-base-styles/style";
 @use "../../scss/variables/colors";
-@use "../../scss/mixin_breakpoint";
+@use "../../scss/mixins/breakpoints";
 @use "../../scss/mixins/ui";
 
 .plugin-dash-item {
@@ -39,7 +39,7 @@
 				}
 			}
 
-			@include mixin_breakpoint.breakpoint( "<480px" ) {
+			@include breakpoints.breakpoint( "<480px" ) {
 
 				.dops-banner__icon {
 					display: none;

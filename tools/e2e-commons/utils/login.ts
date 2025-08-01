@@ -2,11 +2,17 @@ import { TestUtils } from '.';
 
 /**
  * Utility function to authenticate a user in the WordPress site by sending a POST request to the login endpoint.
- * @param testUtils   - Instance of TestUtils that contains the requestUtils.
- * @param credentials - User credentials object. It should have `username` and `password` properties.
- * @param siteUrl     - Optional site URL to prepend to the login endpoint.
+ * @param testUtils            - Instance of TestUtils that contains the requestUtils.
+ * @param credentials          - User credentials object. It should have `username` and `password` properties.
+ * @param credentials.username - Username of the user to authenticate.
+ * @param credentials.password - Password of the user to authenticate.
+ * @param siteUrl              - Optional site URL to prepend to the login endpoint.
  */
-export async function authenticateUser( testUtils: TestUtils, credentials, siteUrl = '' ) {
+export async function authenticateUser(
+	testUtils: TestUtils,
+	credentials: { username: string; password: string },
+	siteUrl = ''
+) {
 	await testUtils.requestUtils.request.post( `${ siteUrl ? siteUrl : '.' }/wp-login.php`, {
 		form: {
 			log: credentials.username,

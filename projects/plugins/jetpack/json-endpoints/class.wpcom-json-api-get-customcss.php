@@ -5,6 +5,10 @@
  * Endpoint: https://public-api.wordpress.com/rest/v1.1/sites/$site/customcss/
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Get_CustomCss_Endpoint(
 	array(
 		'description'      => 'Retrieve custom-css data for a site.',

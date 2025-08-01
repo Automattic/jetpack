@@ -128,7 +128,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withStartGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	glyphStyle?: SVGProps< SVGCircleElement >;
-	withLegendGlyph: boolean;
+	withLegendGlyph?: boolean;
 	withTooltipCrosshairs?: {
 		showVertical?: boolean;
 		showHorizontal?: boolean;

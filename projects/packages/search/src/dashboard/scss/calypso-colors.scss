@@ -55,7 +55,7 @@ $alert-green:            #4ab866;
 $alert-purple:           #855da6;
 
 // Link hovers
-$link-highlight:         tint($blue-medium, 20%);
+$link-highlight:         color.mix(#fff, $blue-medium, 20%);
 
 // Essentials
 $white:                  rgba(255, 255, 255, 1);

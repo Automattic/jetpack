@@ -142,9 +142,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			// // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/jetpack-subscribers/' . $this->domain, null );
 		}
-
-		// Users who can't 'list_users' will see "Profile" menu & "Profile > Account Settings" as submenu.
-		add_submenu_page( $slug, esc_attr__( 'Account Settings', 'jetpack-masterbar' ), __( 'Account Settings', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me/account' );
 	}
 
 	/**

@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -374,22 +378,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						)
 					);
 
-					$newsletter_categories   = maybe_unserialize( get_option( 'wpcom_newsletter_categories', array() ) );
-					$newsletter_category_ids = array_filter(
-						array_map(
-							function ( $newsletter_category ) {
-								if ( is_array( $newsletter_category ) && isset( $newsletter_category['term_id'] ) ) {
-									// This is the expected format.
-									return (int) $newsletter_category['term_id'];
-								} elseif ( is_numeric( $newsletter_category ) ) {
-									// This is a previous format caused by a bug.
-									return (int) $newsletter_category;
-								}
-								return null;
-							},
-							$newsletter_categories
-						)
-					);
+					// Make sure we are returning a consistent type
+					if ( ! class_exists( 'Jetpack_Newsletter_Category_Helper' ) ) {
+						require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
+					}
+					$newsletter_category_ids = Jetpack_Newsletter_Category_Helper::get_category_ids();
 
 					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
@@ -672,6 +665,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$jetpack_relatedposts_options = array();
 		$sharing_options              = array();
 		$updated                      = array();
+
+		if ( ! class_exists( 'Jetpack_Newsletter_Category_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
+		}
 
 		foreach ( $input as $key => $value ) {
 
@@ -1070,42 +1067,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
-				case 'wpcom_newsletter_categories':
-					$sanitized_category_ids = (array) $value;
-
-					array_walk_recursive(
-						$sanitized_category_ids,
-						function ( &$value ) {
-							if ( is_int( $value ) && $value > 0 ) {
-								return;
-							}
-
-							$value = (int) $value;
-							if ( $value <= 0 ) {
-								$value = null;
-							}
-						}
-					);
-
-					$sanitized_category_ids = array_unique(
-						array_filter(
-							$sanitized_category_ids,
-							function ( $category_id ) {
-								return $category_id !== null;
-							}
-						)
-					);
-
-					$new_value = array_map(
-						function ( $category_id ) {
-							return array( 'term_id' => $category_id );
-						},
-						$sanitized_category_ids
-					);
-
-					if ( update_option( $key, $new_value ) ) {
-						$updated[ $key ] = $sanitized_category_ids;
+				case Jetpack_Newsletter_Category_Helper::NEWSLETTER_CATEGORIES_OPTION:
+					$update_newsletter_categories = Jetpack_Newsletter_Category_Helper::save_category_ids( (array) $value );
+					if ( $update_newsletter_categories ) {
+						$updated[ $key ] = $update_newsletter_categories;
 					}
+
 					break;
 
 				case 'wpcom_newsletter_categories_enabled':

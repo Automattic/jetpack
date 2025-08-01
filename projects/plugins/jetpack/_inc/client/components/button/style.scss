@@ -1,7 +1,6 @@
 @use "sass:color";
 @use "../../scss/functions/rem";
 @use "../../scss/calypso-colors";
-@use "../../scss/color-functions";
 @use "../../scss/typography";
 
 // ==========================================================================
@@ -150,7 +149,7 @@
 	&[disabled],
 	&:disabled {
 		background: color.adjust(calypso-colors.$alert-red, $lightness: 20%);
-		border-color: color-functions.tint(calypso-colors.$alert-red, 30%);
+		border-color: color.mix(#fff, calypso-colors.$alert-red, 30%);
 	}
 }
 
