@@ -180,7 +180,7 @@ if (
 	 * apply_filters('post_do_this', $args);  // etc..
 	 */
 
-	$new_company = zeroBS_integrations_addOrUpdateCompany(
+	$new_company_id = zeroBS_integrations_addOrUpdateCompany(
 		'api',
 		$email,
 		$update_args,
@@ -196,22 +196,22 @@ if (
 	// } are we assigning to a user?
 	if ( ! empty( $assign ) ) {
 		// set owner
-		zeroBS_setOwner( $new_company, $assign, ZBS_TYPE_COMPANY );
+		zeroBS_setOwner( $new_company_id, $assign, ZBS_TYPE_COMPANY );
 	}
 
 	// old way just returned what was sent...
 	// wp_send_json($json_params); //sends back to Zapier the customer that's been sent to it.
 
 	// thorough much? lol.
-	if ( ! empty( $new_company ) && $new_company !== false && $new_company !== -1 ) {
+	if ( ! empty( $new_company_id ) && $new_company_id !== false && $new_company_id !== -1 ) {
 
 		// return what was passed...
 		// this is legacy funk.. not ideal at all, should probs reload.
 		$return_params = $new_company;
 
 		// add id if new
-		if ( $new_company > 0 ) {
-			$return_params['id'] = $new_company;
+		if ( $new_company_id > 0 ) {
+			$return_params['id'] = $new_company_id;
 		}
 
 		// return
