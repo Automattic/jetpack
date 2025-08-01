@@ -23,11 +23,30 @@ const FormProgressIndicatorEdit = ( { clientId, context } ) => {
 		finalSteps = steps;
 	}
 
+	// Calculate progress percentage
+	const completedSteps = finalSteps.filter(
+		( step, index ) => index < currentStepInfo.index
+	).length;
+	const currentStep = currentStepInfo.index + 1;
+
+	// For dots: completed steps / (total - 1), for line: current step / total
+	let progressPercentage;
+	if ( isDotStyle ) {
+		progressPercentage =
+			finalSteps.length > 1 ? ( completedSteps / ( finalSteps.length - 1 ) ) * 100 : 0;
+	} else {
+		progressPercentage = ( currentStep / finalSteps.length ) * 100;
+	}
+
 	return (
 		<>
 			<div className="jetpack-form-progress-indicator--wrapper">
 				<div { ...blockProps }>
 					<div className="jetpack-form-progress-indicator-steps">
+						<div
+							className="jetpack-form-progress-indicator-progress"
+							style={ { width: `${ progressPercentage }%` } }
+						></div>
 						{ finalSteps.map( ( step, index ) => {
 							const isActive = index === currentStepInfo.index;
 							const isCompleted = index < currentStepInfo.index;

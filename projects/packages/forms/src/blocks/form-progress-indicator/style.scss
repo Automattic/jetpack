@@ -26,51 +26,60 @@
 		flex: 0 0 auto;
 	}
 
-	.jetpack-form-progress-indicator-line {
+	// Shared background line for both styles
+	.jetpack-form-progress-indicator-steps::before {
+		content: "";
 		position: absolute;
-		top: 0;
+		top: 50%;
 		left: 0;
-		width: 100%;
-		height: var(--jp-form-progress-height);
+		right: 0;
+		height: 2px;
 		background-color: var(--jp-progress-bg);
-		z-index: 0;
+		transform: translateY(-50%);
+		z-index: 1;
+	}
+
+	// Shared progress element for both styles
+	.jetpack-form-progress-indicator-progress {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		height: 2px;
+		background-color: var(--jp-progress-color);
+		transform: translateY(-50%);
+		z-index: 2;
+		transition: width 0.4s ease;
+		width: 0%;
+	}
+
+	.jetpack-form-progress-indicator-line {
 		display: none;
-		transition: background-color 0.3s ease-in-out;
 	}
 
 	.jetpack-form-progress-indicator-dot {
 		display: none;
 	}
 
-	.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-line,
-	.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-line {
-		background-color: var(--jp-progress-color);
-	}
-
-	.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-line {
-		border-top-left-radius: calc(var(--jp-form-progress-height) / 2);
-		border-bottom-left-radius: calc(var(--jp-form-progress-height) / 2);
-	}
-
-	.jetpack-form-progress-indicator-step:last-child .jetpack-form-progress-indicator-line {
-		border-top-right-radius: calc(var(--jp-form-progress-height) / 2);
-		border-bottom-right-radius: calc(var(--jp-form-progress-height) / 2);
-	}
-
 	&.is-style-line {
 
 		.jetpack-form-progress-indicator-steps {
 			gap: 0;
+
+			// Override shared background line height for line style
+			&::before {
+				height: var(--jp-form-progress-height);
+				border-radius: calc(var(--jp-form-progress-height) / 2);
+			}
 		}
 
 		.jetpack-form-progress-indicator-step {
 			flex: 1 1 0;
 		}
 
-		.jetpack-form-progress-indicator-line {
-			display: block;
-			position: relative;
-			margin: 0;
+		// Override shared progress element height for line style
+		.jetpack-form-progress-indicator-progress {
+			height: var(--jp-form-progress-height);
+			border-radius: calc(var(--jp-form-progress-height) / 2);
 		}
 	}
 
@@ -110,18 +119,6 @@
 
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
 			font-size: 1.125rem;
-		}
-
-		.jetpack-form-progress-indicator-steps::before {
-			content: "";
-			position: absolute;
-			top: 1rem;
-			left: 1rem;
-			right: 1rem;
-			height: 2px;
-			background:
- linear-gradient(to right, var(--jp-progress-bg) 0%, var(--jp-progress-bg) 100%);
-			z-index: 1;
 		}
 	}
 

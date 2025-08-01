@@ -849,10 +849,15 @@ class Contact_Form_Plugin {
 			$steps_html .= '</div>';
 		}
 
+		// Add progress element for both styles (uses different state getters)
+		$is_dots_style    = strpos( $updated_content, 'is-style-dots' ) !== false;
+		$progress_state   = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
+		$progress_element = '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
+
 		// Replace the empty steps container with the populated one
 		$updated_content = str_replace(
 			'<div class="jetpack-form-progress-indicator-steps"></div>',
-			'<div class="jetpack-form-progress-indicator-steps">' . $steps_html . '</div>',
+			'<div class="jetpack-form-progress-indicator-steps">' . $progress_element . $steps_html . '</div>',
 			$updated_content
 		);
 
