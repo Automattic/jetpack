@@ -128,6 +128,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		hasAnyInnerBlocks,
 		postAuthorEmail,
 		selectedBlockClientId,
+		onlySubmitBlock,
 	} = useSelect(
 		select => {
 			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
