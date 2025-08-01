@@ -26,30 +26,32 @@
 		flex: 0 0 auto;
 	}
 
-	// Shared background line for both styles
+	// Default to line style (thicker line with rounded corners)
 	.jetpack-form-progress-indicator-steps::before {
 		content: "";
 		position: absolute;
 		top: 50%;
 		left: 0;
 		right: 0;
-		height: 2px;
+		height: var(--jp-form-progress-height);
 		background-color: var(--jp-progress-bg);
 		transform: translateY(-50%);
 		z-index: 1;
+		border-radius: calc(var(--jp-form-progress-height) / 2);
 	}
 
-	// Shared progress element for both styles
+	// Default to line style (thicker progress element)
 	.jetpack-form-progress-indicator-progress {
 		position: absolute;
 		top: 50%;
 		left: 0;
-		height: 2px;
+		height: var(--jp-form-progress-height);
 		background-color: var(--jp-progress-color);
 		transform: translateY(-50%);
 		z-index: 2;
 		transition: width 0.4s ease;
 		width: 0%;
+		border-radius: calc(var(--jp-form-progress-height) / 2);
 	}
 
 	.jetpack-form-progress-indicator-line {
@@ -64,26 +66,25 @@
 
 		.jetpack-form-progress-indicator-steps {
 			gap: 0;
-
-			// Override shared background line height for line style
-			&::before {
-				height: var(--jp-form-progress-height);
-				border-radius: calc(var(--jp-form-progress-height) / 2);
-			}
 		}
 
 		.jetpack-form-progress-indicator-step {
 			flex: 1 1 0;
 		}
-
-		// Override shared progress element height for line style
-		.jetpack-form-progress-indicator-progress {
-			height: var(--jp-form-progress-height);
-			border-radius: calc(var(--jp-form-progress-height) / 2);
-		}
 	}
 
 	&.is-style-dots {
+
+		// Override default line style with thin lines for dots
+		.jetpack-form-progress-indicator-steps::before {
+			height: 2px;
+			border-radius: 0;
+		}
+
+		.jetpack-form-progress-indicator-progress {
+			height: 2px;
+			border-radius: 0;
+		}
 
 		.jetpack-form-progress-indicator-dot {
 			display: flex;
