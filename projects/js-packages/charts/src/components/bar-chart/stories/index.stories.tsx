@@ -258,7 +258,7 @@ export const CustomLegendPositioning: Story = {
 	},
 };
 
-export const HorizontalBars: Story = {
+export const HorizontalBarChart: Story = {
 	args: {
 		...Default.args,
 		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
