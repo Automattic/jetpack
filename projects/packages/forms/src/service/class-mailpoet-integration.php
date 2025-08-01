@@ -190,8 +190,8 @@ class MailPoet_Integration {
 
 		// Get listId and listName from the mailpoet attribute
 		$mailpoet_attr = is_array( $form->attributes['mailpoet'] ) ? $form->attributes['mailpoet'] : array();
-		$list_id       = isset( $mailpoet_attr['listId'] ) ? $mailpoet_attr['listId'] : null;
-		$list_name     = isset( $mailpoet_attr['listName'] ) ? $mailpoet_attr['listName'] : null;
+		$list_id       = $mailpoet_attr['listId'] ?? null;
+		$list_name     = $mailpoet_attr['listName'] ?? null;
 
 		$list_id = self::get_or_create_list_id( $mailpoet_api, $list_id, $list_name );
 		if ( ! $list_id ) {
