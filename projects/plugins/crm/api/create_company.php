@@ -218,7 +218,7 @@ if ( $external_api_name !== false ) {
 					// ^^ this'll be either: ID if added, no of rows if updated, or FALSE if failed to insert/update
 
 					// } are we assigning to a user?
-					if ( isset( $assign ) && ! empty( $assign ) ) {
+					if ( ! empty( $assign ) ) {
 						// set owner
 						zeroBS_setOwner( $newCompany, $assign, ZBS_TYPE_COMPANY );
 					}

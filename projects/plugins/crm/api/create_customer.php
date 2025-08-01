@@ -263,7 +263,7 @@ if ( $external_api_name !== false ) {
 						// do_action('zbs_new_customer', $newCust);
 
 						// } are we assigning to a user?
-					if ( isset( $assign ) && ! empty( $assign ) && $assign > -1 ) {
+					if ( ! empty( $assign ) && $assign > -1 ) {
 						// set owner
 						zeroBS_setOwner( $newCust, $assign, ZBS_TYPE_CONTACT );
 					}
