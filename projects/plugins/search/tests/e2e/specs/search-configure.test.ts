@@ -1,50 +1,36 @@
 import { Page } from '@playwright/test';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import {
-	disableInstantSearch,
-	enableInstantSearch,
-	searchAPIRoute,
-	setTheme,
-	setHighlightColor,
-	setResultFormat,
-	setDefaultSort,
-	clearSearchPlanInfo,
-} from '../helpers/search-helper.ts';
+import { test, expect } from '../fixtures/test.ts';
 
 test.describe( 'Search Configure', () => {
 	const SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*%2Fwp%2Fv2%2Fsettings/;
 
-	test.beforeAll( async ( { testUtils } ) => {
-		await clearSearchPlanInfo();
-		await testUtils.activateModule( 'search' );
-		await enableInstantSearch();
+	test.beforeAll( async ( { searchUtils } ) => {
+		await searchUtils.clearSearchPlanInfo();
+		await searchUtils.activateModule( 'search' );
+		await searchUtils.enableInstantSearch();
 
 		// initialize the settings we are going to manipulate.
-		await setTheme();
-		await setHighlightColor();
-		await setResultFormat();
-		await setDefaultSort();
+		await searchUtils.setTheme();
+		await searchUtils.setHighlightColor();
+		await searchUtils.setResultFormat();
+		await searchUtils.setDefaultSort();
 	} );
 
-	test.afterAll( async () => {
-		await setTheme();
-		await setHighlightColor();
-		await setResultFormat();
-		await setDefaultSort();
-		await disableInstantSearch();
+	test.afterAll( async ( { searchUtils } ) => {
+		await searchUtils.setTheme();
+		await searchUtils.setHighlightColor();
+		await searchUtils.setResultFormat();
+		await searchUtils.setDefaultSort();
+		await searchUtils.disableInstantSearch();
 	} );
 
-	test.beforeEach( async ( { page } ) => {
-		await searchAPIRoute( page );
-
+	test( 'Can configure search overlay', async ( { page } ) => {
 		await page.goto( '/wp-admin/admin.php?page=jetpack-search-configure' );
 
 		await expect( page.getByRole( 'heading', { name: 'Customize Jetpack Search' } ) ).toBeVisible( {
 			timeout: 30000,
 		} );
-	} );
 
-	test( 'Can configure search overlay', async ( { page } ) => {
 		await test.step( 'Choose dark theme', async () => {
 			await page.getByRole( 'button', { name: 'Dark Theme' } ).click();
 		} );

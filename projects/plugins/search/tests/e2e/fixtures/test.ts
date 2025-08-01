@@ -1,151 +1,15 @@
-import { Page } from '@playwright/test';
+/**
+ * External dependencies
+ */
+import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+/**
+ * Internal dependencies
+ */
 import logger from '_jetpack-e2e-commons/logger.js';
-import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
+import { SearchUtils } from '../utils/index.js';
 
-const SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
-
-/**
- * Enable Instant Search.
- * @return {string} wp-cli command output
- */
-export async function enableInstantSearch(): Promise< string > {
-	return executeWpCommand( 'option update instant_search_enabled 1' );
-}
-
-/**
- * Disable Instant Search.
- * @return {string} wp-cli command output
- */
-export async function disableInstantSearch(): Promise< string > {
-	return executeWpCommand( 'option update instant_search_enabled 0' );
-}
-
-/**
- * Set Search result format setting.
- * @param {string} format - Setting value.
- * @return {string} wp-cli command output
- */
-export async function setResultFormat( format: string = 'expanded' ): Promise< string > {
-	return executeWpCommand( `option update jetpack_search_result_format ${ format }` );
-}
-
-/**
- * Set Search theme setting.
- * @param {string} theme - Setting value.
- * @return {string} wp-cli command output
- */
-export async function setTheme( theme: string = 'light' ): Promise< string > {
-	return executeWpCommand( `option update jetpack_search_result_format ${ theme }` );
-}
-
-/**
- * Set highlight color setting.
- * @param {string} color - Setting value.
- * @return {string} wp-cli command output
- */
-export async function setHighlightColor( color: string = '#FFFFFF' ): Promise< string > {
-	return executeWpCommand( `option update jetpack_search_highlight_color ${ color }` );
-}
-
-/**
- * Set default sort setting.
- * @param {string} defaultSort - Setting value.
- * @return {string} wp-cli command output
- */
-export async function setDefaultSort( defaultSort: string = 'relevance' ): Promise< string > {
-	return executeWpCommand( `option update jetpack_search_default_sort ${ defaultSort }` );
-}
-
-/**
- * Enable Search auto-config
- * @return {string} wp-cli command output
- */
-export async function searchAutoConfig(): Promise< string > {
-	// Run auto config to add search widget / block with user ID `1`.
-	return await executeWpCommand( 'jetpack-search auto_config 1' );
-}
-
-/**
- * Clear Search plan info
- * @return {string} wp-cli command output
- */
-export async function clearSearchPlanInfo(): Promise< string > {
-	// When running locally, sometimes there could be data in the option - better clear it.
-	return await executeWpCommand( 'option delete jetpack_search_plan_info' );
-}
-
-/**
- * The function intercepts requests made to WPCOM Search API and returns mocked
- * results to the frontend. It also simulates sorting and filtering.
- *
- * The route returns `searchResultForTest1` for query `test1`.
- * And returns `searchResultForTest2` for any other queries.
- *
- * NOTE: The route sometimes is not persisted after page reloads so would need to
- * call the function again to make sure.
- *
- * @param {Page} page - instance of a Playwright Page type
- * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
- */
-export async function searchAPIRoute( page: Page ): Promise< void > {
-	await page.route( SEARCH_API_PATTERN, ( route, request ) => {
-		logger.info( `intercepted search API call: ${ request.url() }` );
-		const url = new URL( request.url() );
-		const params = url.searchParams;
-
-		// loads response for queries
-		let body;
-		switch ( params.get( 'query' ) ) {
-			case 'test1':
-				body = { ...searchResultForTest1 };
-				break;
-			case 'test2':
-			default:
-				body = { ...searchResultForTest2 };
-				break;
-		}
-
-		// deal with sorting
-		switch ( params.get( 'sort' ) ) {
-			case 'date_asc': {
-				// put record 2 first
-				const tmpResult1 = body.results[ 0 ];
-				body.results[ 0 ] = body.results[ 1 ];
-				body.results[ 1 ] = tmpResult1;
-				break;
-			}
-			case 'date_desc': {
-				// put record 3 first
-				const tmpResult2 = body.results[ 0 ];
-				body.results[ 0 ] = body.results[ 2 ];
-				body.results[ 2 ] = tmpResult2;
-				break;
-			}
-			case 'score_default':
-			default:
-				// the original sorting
-				break;
-		}
-
-		// deal with filtering: only works with one category and one tag by filtering the results array
-		const category = params.get( 'filter[bool][must][0][term][category.slug]' );
-		const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
-
-		if ( category ) {
-			body.results = body.results.filter( v => v?.categories?.includes( category ) );
-		}
-
-		if ( tag ) {
-			body.results = body.results.filter( v => v?.tags?.includes( tag ) );
-		}
-
-		route.fulfill( {
-			contentType: 'application/json',
-			headers: { 'Access-Control-Allow-Origin': '*' },
-			body: JSON.stringify( body ),
-		} );
-	} );
-}
+export const SEARCH_API_PATTERN =
+	/^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
 
 export const searchResultForTest1 = {
 	total: 3,
@@ -470,3 +334,90 @@ export const searchResultForTest2 = {
 		},
 	},
 };
+
+const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
+	searchUtils: [
+		async ( { requestUtils }, use ) => {
+			await use( new SearchUtils( requestUtils ) );
+		},
+		{ scope: 'worker' },
+	],
+
+	/**
+	 * The fixture intercepts requests made to WPCOM Search API and returns mocked
+	 * results to the frontend. It also simulates sorting and filtering.
+	 *
+	 * The route returns `searchResultForTest1` for query `test1`.
+	 * And returns `searchResultForTest2` for any other queries.
+	 *
+	 * NOTE: The route sometimes is not persisted after page reloads so would need to
+	 * call the function again to make sure.
+	 *
+	 * @param {Page} page - instance of a Playwright Page type
+	 * @param        use  - function to call with the page instance
+	 * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
+	 */
+	page: async ( { page }, use ) => {
+		await page.route( SEARCH_API_PATTERN, ( route, request ) => {
+			logger.info( `intercepted search API call: ${ request.url() }` );
+			const url = new URL( request.url() );
+			const params = url.searchParams;
+
+			// loads response for queries
+			let body;
+			switch ( params.get( 'query' ) ) {
+				case 'test1':
+					body = { ...searchResultForTest1 };
+					break;
+				case 'test2':
+				default:
+					body = { ...searchResultForTest2 };
+					break;
+			}
+
+			// deal with sorting
+			switch ( params.get( 'sort' ) ) {
+				case 'date_asc': {
+					// put record 2 first
+					const tmpResult1 = body.results[ 0 ];
+					body.results[ 0 ] = body.results[ 1 ];
+					body.results[ 1 ] = tmpResult1;
+					break;
+				}
+				case 'date_desc': {
+					// put record 3 first
+					const tmpResult2 = body.results[ 0 ];
+					body.results[ 0 ] = body.results[ 2 ];
+					body.results[ 2 ] = tmpResult2;
+					break;
+				}
+				case 'score_default':
+				default:
+					// the original sorting
+					break;
+			}
+
+			// deal with filtering: only works with one category and one tag by filtering the results array
+			const category = params.get( 'filter[bool][must][0][term][category.slug]' );
+			const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
+
+			if ( category ) {
+				body.results = body.results.filter( v => v?.categories?.includes( category ) );
+			}
+
+			if ( tag ) {
+				body.results = body.results.filter( v => v?.tags?.includes( tag ) );
+			}
+
+			route.fulfill( {
+				contentType: 'application/json',
+				headers: { 'Access-Control-Allow-Origin': '*' },
+				body: JSON.stringify( body ),
+			} );
+		} );
+
+		await use( page );
+	},
+} );
+
+export { test, expect };

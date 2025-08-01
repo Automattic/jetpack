@@ -1,20 +1,15 @@
 import { Page } from '@playwright/test';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import {
-	enableInstantSearch,
-	disableInstantSearch,
-	searchAPIRoute,
-	searchAutoConfig,
-	clearSearchPlanInfo,
+	test,
+	expect,
 	searchResultForTest1 as originalSearchResultForTest1,
 	searchResultForTest2 as originalSearchResultForTest2,
-} from '../helpers/search-helper.ts';
+	SEARCH_API_PATTERN,
+} from '../fixtures/test.ts';
 
 // Create deep copies to prevent mutations during tests
 const searchResultForTest1 = JSON.parse( JSON.stringify( originalSearchResultForTest1 ) );
 const searchResultForTest2 = JSON.parse( JSON.stringify( originalSearchResultForTest2 ) );
-
-const SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
 
 /**
  * Returns the inner HTML of the first search result title.
@@ -45,19 +40,15 @@ async function submitSearchQuery( page: Page, query: string ): Promise< void > {
 }
 
 test.describe( 'Instant Search', () => {
-	test.beforeAll( async ( { testUtils } ) => {
-		await clearSearchPlanInfo();
-		await testUtils.activateModule( 'search' );
-		await enableInstantSearch();
-		await searchAutoConfig();
+	test.beforeAll( async ( { searchUtils } ) => {
+		await searchUtils.clearSearchPlanInfo();
+		await searchUtils.activateModule( 'search' );
+		await searchUtils.enableInstantSearch();
+		await searchUtils.searchAutoConfig();
 	} );
 
-	test.afterAll( async () => {
-		await disableInstantSearch();
-	} );
-
-	test.beforeEach( async ( { page } ) => {
-		await searchAPIRoute( page );
+	test.afterAll( async ( { searchUtils } ) => {
+		await searchUtils.disableInstantSearch();
 	} );
 
 	test( 'Can perform search with default settings', async ( { page } ) => {
