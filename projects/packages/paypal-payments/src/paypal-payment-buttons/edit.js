@@ -334,8 +334,12 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 								'jetpack-paypal-payments'
 							),
 							{
-								SignupLink: <ExternalLink href={ getPayPalSignupUrl() } />,
-								LoginLink: <ExternalLink href={ getPayPalLoginUrl() } />,
+								SignupLink: (
+									<ExternalLink href={ getPayPalSignupUrl() } data-testid="external-link" />
+								),
+								LoginLink: (
+									<ExternalLink href={ getPayPalLoginUrl() } data-testid="external-link" />
+								),
 								strong: <strong />,
 							}
 						) }
