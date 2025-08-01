@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: handle placeholder for textareas in the editor the same way input tags do
