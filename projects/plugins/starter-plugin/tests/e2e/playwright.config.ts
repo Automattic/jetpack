@@ -7,7 +7,7 @@ export default {
 	projects: [
 		...setupProjects,
 		{
-			name: 'jetpack e2e',
+			name: 'jetpack starter-plugin e2e',
 			testMatch: '**/specs/**',
 			dependencies: [ 'global authentication' ],
 		},
