@@ -792,12 +792,7 @@ class Contact_Form_Plugin {
 
 		$processor = new \WP_HTML_Tag_Processor( $content );
 
-		// Check if this is dots style
-		$is_dots_style = false;
-		if ( $processor->next_tag( array( 'class_name' => 'wp-block-jetpack-form-progress-indicator' ) ) ) {
-			$classes       = $processor->get_attribute( 'class' );
-			$is_dots_style = strpos( $classes, 'is-style-dots' ) !== false;
-		}
+		$is_dots_style = isset( $attributes['className'] ) && strpos( $attributes['className'], 'is-style-dots' ) !== false;
 
 		// Reset processor
 		$processor = new \WP_HTML_Tag_Processor( $content );
