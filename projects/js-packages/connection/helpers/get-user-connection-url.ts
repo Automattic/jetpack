@@ -2,9 +2,27 @@ import { getJetpackAdminPageUrl, getMyJetpackUrl } from '@automattic/jetpack-scr
 import { addQueryArgs } from '@wordpress/url';
 
 export type UserConnectionUrlOptions = {
+	/**
+	 * The URL to redirect to after authentication.
+	 *
+	 * Defaults to the My Jetpack URL if not provided.
+	 */
 	redirect_url?: string | null;
+
+	/**
+	 * The `from` to pass to Calypso for identification.
+	 *
+	 * This is typically used to identify the source of the connection request.
+	 * If not provided, defaults to 'my-jetpack'.
+	 */
 	from?: string | null;
-	skip_pricing?: boolean | null;
+
+	/**
+	 * Whether to skip the pricing page after authentication.
+	 *
+	 * @default true
+	 */
+	skip_pricing?: boolean;
 };
 
 /**
