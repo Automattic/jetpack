@@ -5,7 +5,7 @@ import baseConfig, {
 export default {
 	...baseConfig,
 	projects: [
-		...setupProjects,
+		...setupProjects.filter( project => project.name !== 'connection setup' ),
 		{
 			name: 'jetpack protect e2e',
 			testMatch: '**/specs/**',
