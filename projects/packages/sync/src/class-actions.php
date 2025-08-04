@@ -786,6 +786,7 @@ class Actions {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
+		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_product_meta_lookup_sync_module' ) );
 
 		if ( ! class_exists( CustomOrdersTableController::class ) ) {
 			return;
@@ -852,6 +853,21 @@ class Actions {
 	 */
 	public static function add_woocommerce_hpos_order_sync_module( $sync_modules ) {
 		$sync_modules[] = WooCommerce_HPOS_Orders::class;
+		return $sync_modules;
+	}
+
+	/**
+	 * Adds Woo's Product Meta Lookup sync module to existing modules for sending.
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array A list of sync modules that now includes Woo's Product Meta Lookup module.
+	 */
+	public static function add_woocommerce_product_meta_lookup_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce_Product_Meta_Lookup';
 		return $sync_modules;
 	}
 
