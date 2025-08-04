@@ -63,7 +63,6 @@ export const settings = {
 	providesContext: {
 		'jetpack/contact-form-class-name': 'className',
 		'jetpack/contact-form-id': 'formId',
-		'jetpack/contact-form-steps': 'steps',
 	},
 	edit,
 	save: () => {

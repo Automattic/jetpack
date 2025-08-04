@@ -56,8 +56,4 @@ export default {
 		type: 'string',
 		default: '',
 	},
-	steps: {
-		type: 'array',
-		default: [],
-	},
 };
