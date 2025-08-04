@@ -1,5 +1,4 @@
 import { Page } from '@playwright/test';
-import { Admin } from '@wordpress/e2e-test-utils-playwright';
 import { expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import logger from '_jetpack-e2e-commons/logger.js';
 
@@ -8,7 +7,7 @@ import logger from '_jetpack-e2e-commons/logger.js';
  * @param {Page}  page  - Playwright page object
  * @param {Admin} admin - e2e-utils admin object
  */
-export async function connect( page: Page, admin: Admin ) {
+export async function connect( page: Page, admin ) {
 	logger.debug( 'Connect Jetpack Protect' );
 
 	await admin.visitAdminPage( 'admin.php', 'page=jetpack-protect' );
