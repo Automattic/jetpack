@@ -802,7 +802,10 @@ class Contact_Form_Plugin {
 		// Reset processor
 		$processor = new \WP_HTML_Tag_Processor( $content );
 		$processor->next_tag();
-		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+
+		// Remove the interactive attributes so it inherits from parent form
+		$processor->remove_attribute( 'data-wp-interactive' );
+		$processor->remove_attribute( 'data-wp-context' );
 
 		// Process legacy progress bar elements
 		while ( $processor->next_tag() ) {
@@ -819,9 +822,6 @@ class Contact_Form_Plugin {
 		$steps_html = '';
 		for ( $i = 0; $i < $max_steps; $i++ ) {
 			$step_classes = 'jetpack-form-progress-indicator-step';
-			if ( $i === 0 ) { // First step is active by default
-				$step_classes .= ' is-active';
-			}
 
 			$step_context = array( 'stepIndex' => $i );
 
@@ -838,12 +838,13 @@ class Contact_Form_Plugin {
 			// Add dot element only for dots style
 			if ( $is_dots_style ) {
 				$steps_html .= '<div class="jetpack-form-progress-indicator-dot">';
+				$steps_html .= '<span class="jetpack-form-progress-indicator-step-number">';
 				$steps_html .= sprintf(
-					'<span class="jetpack-form-progress-indicator-step-number" data-wp-text="state.getStepContent" aria-label="%s">%d</span>',
-					// Translators: %d: The step number in the progress indicator.
-					esc_attr( sprintf( __( 'Step %d', 'jetpack-forms' ), $i + 1 ) ),
+					'<span class="step-number" data-wp-class--is-hidden="state.isStepCompleted">%d</span>',
 					$i + 1
 				);
+				$steps_html .= '<span class="step-checkmark" data-wp-class--is-hidden="state.isStepNotCompleted" role="img" aria-label="' . esc_attr__( 'Completed', 'jetpack-forms' ) . '">✓</span>';
+				$steps_html .= '</span>';
 				$steps_html .= '</div>';
 			}
 
@@ -854,9 +855,9 @@ class Contact_Form_Plugin {
 		$progress_state   = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
 		$progress_element = '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
 
-		// Replace the empty steps container with the populated one
+		// Replace the steps container with the populated one
 		$updated_content = str_replace(
-			'<div class="jetpack-form-progress-indicator-steps"></div>',
+			'<div class="jetpack-form-progress-indicator-steps"><div class="jetpack-form-progress-indicator-progress"></div></div>',
 			'<div class="jetpack-form-progress-indicator-steps">' . $progress_element . $steps_html . '</div>',
 			$updated_content
 		);

@@ -23,12 +23,9 @@ store( 'jetpack/form', {
 			const context = getContext();
 			return context.currentStep > context.stepIndex + 1;
 		},
-		get getStepContent() {
+		get isStepNotCompleted() {
 			const context = getContext();
-			if ( context.currentStep > context.stepIndex + 1 ) {
-				return '<span role="img" aria-label="Completed">&check;</span>';
-			}
-			return context.stepIndex + 1;
+			return context.currentStep <= context.stepIndex + 1;
 		},
 	},
 } );

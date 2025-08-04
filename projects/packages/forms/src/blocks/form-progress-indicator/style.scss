@@ -121,6 +121,11 @@
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
 			font-size: 1.125rem;
 		}
+
+		// Hide elements based on state
+		.is-hidden {
+			display: none !important;
+		}
 	}
 
 }
