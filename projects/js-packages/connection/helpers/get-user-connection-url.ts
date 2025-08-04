@@ -20,6 +20,6 @@ export function getUserConnectionUrl( options: UserConnectionUrlOptions = {} ): 
 		// 'connect_url_redirect' is handled in \Automattic\Jetpack\Connection\Webhooks::controller()
 		connect_url_redirect: 1,
 		redirect_after_auth: redirectUrl ?? getMyJetpackUrl(),
-		from: from ?? 'jetpack-onboarding',
+		from: from ?? 'my-jetpack',
 	} );
 }
