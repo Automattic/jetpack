@@ -563,7 +563,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(
 			'jp-forms-view',
-			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),
+			plugins_url( 'dist/modules/form/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
 			\JETPACK__VERSION
 		);
