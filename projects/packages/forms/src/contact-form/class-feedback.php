@@ -962,16 +962,16 @@ class Feedback {
 	 * Extract the label from a key that might be in the format "1_label".
 	 *
 	 * @param string $key The key to extract the label from.
-	 * @return string|null The extracted label.
+	 * @return string The extracted label.
 	 */
 	private static function extract_label_from_key( $key ) {
 		// Check if the key starts with a number followed by underscore and has content after underscore
 		if ( preg_match( '/^\d+_(.+)$/', $key, $matches ) ) {
 			return $matches[1];
 		}
-		// If the key is just a number followed by underscore (like "2_"), return null
+		// If the key is just a number followed by underscore (like "2_"), return empty string
 		if ( preg_match( '/^\d+_$/', $key ) ) {
-			return null;
+			return '';
 		}
 		// If the key doesn't start with a number followed by underscore, return the key as is
 		return $key;
