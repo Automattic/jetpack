@@ -149,19 +149,24 @@
 			}
 		}
 
-		// Hide elements based on state
-		.is-hidden {
-			display: none !important;
+		// Show/hide elements based on step state
+		.step-number {
+			display: inline;
 		}
 
-		// Hide checkmarks by default, show only when step is completed
 		.step-checkmark {
+			display: none;
+		}
+
+		// Completed steps: hide number, show checkmark
+		.jetpack-form-progress-indicator-step.is-completed .step-number {
 			display: none;
 		}
 
 		.jetpack-form-progress-indicator-step.is-completed .step-checkmark {
 			display: inline;
 		}
+		// (already handled by existing CSS above)
 	}
 
 }

@@ -12,7 +12,6 @@ export const settings = {
 	apiVersion: 3,
 	category: 'contact-form',
 	ancestor: [ 'jetpack/contact-form' ],
-	usesContext: [ 'jetpack/contact-form-steps' ],
 	supports: {
 		html: false,
 		reusable: false,

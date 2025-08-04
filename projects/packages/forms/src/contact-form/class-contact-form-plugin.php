@@ -817,10 +817,10 @@ class Contact_Form_Plugin {
 				$steps_html .= '<div class="jetpack-form-progress-indicator-dot">';
 				$steps_html .= '<span class="jetpack-form-progress-indicator-step-number">';
 				$steps_html .= sprintf(
-					'<span class="step-number" data-wp-class--is-hidden="state.isStepCompleted">%d</span>',
+					'<span class="step-number">%d</span>',
 					$i + 1
 				);
-				$steps_html .= '<span class="step-checkmark" data-wp-class--is-hidden="state.isStepNotCompleted" role="img" aria-label="' . esc_attr__( 'Completed', 'jetpack-forms' ) . '"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/></svg></span>';
+				$steps_html .= '<span class="step-checkmark" role="img" aria-label="' . esc_attr__( 'Completed', 'jetpack-forms' ) . '"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/></svg></span>';
 				$steps_html .= '</span>';
 				$steps_html .= '</div>';
 				$steps_html .= '</div>';

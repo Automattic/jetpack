@@ -11,17 +11,5 @@ store( 'jetpack/form', {
 			const context = getContext();
 			return calculateProgressPercentage( context.currentStep, context.maxSteps, true ) + '%';
 		},
-		get isStepActive() {
-			const context = getContext();
-			return context.currentStep === context.stepIndex + 1;
-		},
-		get isStepCompleted() {
-			const context = getContext();
-			return context.currentStep > context.stepIndex + 1;
-		},
-		get isStepNotCompleted() {
-			const context = getContext();
-			return context.currentStep <= context.stepIndex + 1;
-		},
 	},
 } );
