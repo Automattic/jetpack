@@ -798,10 +798,6 @@ class Contact_Form_Plugin {
 		$processor = new \WP_HTML_Tag_Processor( $content );
 		$processor->next_tag();
 
-		// Remove the interactive attributes so it inherits from parent form
-		$processor->remove_attribute( 'data-wp-interactive' );
-		$processor->remove_attribute( 'data-wp-context' );
-
 		// Process legacy progress bar elements
 		while ( $processor->next_tag() ) {
 			$class = $processor->get_attribute( 'class' );
@@ -813,25 +809,21 @@ class Contact_Form_Plugin {
 		// Get the updated HTML after processing attributes
 		$updated_content = $processor->get_updated_html();
 
-		// Build steps HTML using the actual number of form steps
+		// Build steps HTML only for dots style
 		$steps_html = '';
-		for ( $i = 0; $i < $max_steps; $i++ ) {
-			$step_classes = 'jetpack-form-progress-indicator-step';
+		if ( $is_dots_style ) {
+			for ( $i = 0; $i < $max_steps; $i++ ) {
+				$step_classes = 'jetpack-form-progress-indicator-step';
 
-			$step_context = array( 'stepIndex' => $i );
+				$step_context = array( 'stepIndex' => $i );
 
-			$steps_html .= sprintf(
-				'<div class="%s" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" data-wp-context=\'%s\' data-step-index="%d">',
-				esc_attr( $step_classes ),
-				wp_json_encode( $step_context ),
-				$i
-			);
+				$steps_html .= sprintf(
+					'<div class="%s" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" data-wp-context=\'%s\'>',
+					esc_attr( $step_classes ),
+					wp_json_encode( $step_context )
+				);
 
-			// Add line element for all styles
-			$steps_html .= '<div class="jetpack-form-progress-indicator-line"></div>';
-
-			// Add dot element only for dots style
-			if ( $is_dots_style ) {
+				$steps_html .= '<div class="jetpack-form-progress-indicator-line"></div>';
 				$steps_html .= '<div class="jetpack-form-progress-indicator-dot">';
 				$steps_html .= '<span class="jetpack-form-progress-indicator-step-number">';
 				$steps_html .= sprintf(
@@ -841,9 +833,8 @@ class Contact_Form_Plugin {
 				$steps_html .= '<span class="step-checkmark" data-wp-class--is-hidden="state.isStepNotCompleted" role="img" aria-label="' . esc_attr__( 'Completed', 'jetpack-forms' ) . '"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/></svg></span>';
 				$steps_html .= '</span>';
 				$steps_html .= '</div>';
+				$steps_html .= '</div>';
 			}
-
-			$steps_html .= '</div>';
 		}
 
 		// Add progress element for both styles (uses different state getters)
