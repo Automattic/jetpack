@@ -1,5 +1,15 @@
+import { Page } from '@playwright/test';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { connect } from '../flows/connection';
+import { connect } from '../flows/connection.ts';
+
+/**
+ * Checks for and then closes the "Changes saved" notice.
+ * @param {Page} page - Playwright page object
+ */
+async function closeChangesSavedNotice( page: Page ) {
+	await expect( page.getByText( 'Changes saved' ) ).toBeVisible();
+	await page.getByRole( 'button', { name: 'Dismiss notice.' } ).click();
+}
 
 test.describe( 'Jetpack Protect Plugin', () => {
 	test.beforeEach( async ( { page, admin, testUtils } ) => {
@@ -36,20 +46,20 @@ test.describe( 'Jetpack Protect Plugin', () => {
 			// Test the setting is present and enabled by default
 			const bruteForceToggle = page.locator( '#inspector-toggle-control-1' );
 			await expect( page.getByRole( 'heading', { name: 'Brute force protection' } ) ).toBeVisible();
-			await expect( bruteForceToggle ).toBeEnabled();
-			await expect( bruteForceToggle ).toBeChecked();
+			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
+			await expect( bruteForceToggle, 'Brute force protection should be on' ).toBeChecked();
 
 			// Test turning brute force off
 			await bruteForceToggle.click();
-			await expect( page.getByText( 'Changes saved' ) ).toBeVisible();
-			await expect( bruteForceToggle ).toBeEnabled();
-			await expect( bruteForceToggle ).not.toBeChecked();
+			await closeChangesSavedNotice( page );
+			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
+			await expect( bruteForceToggle, 'Brute force protection should be off' ).not.toBeChecked();
 
 			// Test turning brute force on
 			await bruteForceToggle.click();
-			await expect( page.getByText( 'Changes saved' ) ).toBeVisible();
-			await expect( bruteForceToggle ).toBeEnabled();
-			await expect( bruteForceToggle ).toBeChecked();
+			await closeChangesSavedNotice( page );
+			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
+			await expect( bruteForceToggle, 'Brute force protection should be on' ).toBeChecked();
 		} );
 
 		await test.step( 'Test the IP block list settings', async () => {
@@ -58,43 +68,41 @@ test.describe( 'Jetpack Protect Plugin', () => {
 
 			// Test the default block list state
 			await expect( page.getByRole( 'heading', { name: 'Block IP addresses' } ) ).toBeVisible();
-			await expect( blockListToggle ).toBeEnabled();
-			await expect( blockListToggle ).not.toBeChecked();
+			await expect( blockListToggle, 'Block list toggle should be enabled' ).toBeEnabled();
+			await expect( blockListToggle, 'Block list should be off' ).not.toBeChecked();
 
 			// Test turning the block list on
 			await blockListToggle.click();
-			await expect( blockListToggle ).toBeEnabled();
-			await expect( blockListToggle ).toBeChecked();
+			await expect( blockListToggle, 'Block list toggle should be enabled' ).toBeEnabled();
+			await expect( blockListToggle, 'Block list should be on' ).toBeChecked();
 			await expect( blockListTextarea ).toBeVisible();
 
 			// Test adding an IP address to the block list
 			await blockListTextarea.fill( '192.168.1.1' );
 			await page.getByRole( 'button', { name: 'Save block list' } ).click();
-			await expect( blockListToggle ).toBeEnabled();
-			await expect( page.getByText( 'Changes saved' ) ).toBeVisible();
+			await expect( blockListToggle, 'Block list toggle should be enabled' ).toBeEnabled();
+			await closeChangesSavedNotice( page );
 		} );
 
 		await test.step( 'Test the IP allow list settings', async () => {
 			const trustedIPsToggle = page.locator( '#inspector-toggle-control-3' );
-			const allowListTextarea = page.locator( '#jetpack_waf_ip_allow_list' );
 			const saveAllowListButton = page.getByRole( 'button', { name: 'Save allow list' } );
 
 			// Validate the default allow list state
 			await expect( page.getByRole( 'heading', { name: 'Trusted IP addresses' } ) ).toBeVisible();
-			await expect( trustedIPsToggle ).toBeEnabled();
-			await expect( trustedIPsToggle ).not.toBeChecked();
+			await expect( trustedIPsToggle, 'Trusted IPs toggle should be enabled' ).toBeEnabled();
+			await expect( trustedIPsToggle, 'Trusted IPs should be off' ).not.toBeChecked();
 
 			// Test turning the allow list on
 			await trustedIPsToggle.click();
-			await expect( trustedIPsToggle ).toBeEnabled();
-			await expect( trustedIPsToggle ).toBeChecked();
-			await expect( allowListTextarea ).toBeVisible();
+			await expect( trustedIPsToggle, 'Trusted IPs toggle should be enabled' ).toBeEnabled();
+			await expect( trustedIPsToggle, 'Trusted IPs should be on' ).toBeChecked();
 
 			// Test adding an IP address to the allow list
-			await allowListTextarea.fill( '192.168.1.1' );
+			await page.locator( '#jetpack_waf_ip_allow_list' ).fill( '192.168.1.1' );
 			await saveAllowListButton.click();
-			await expect( trustedIPsToggle ).toBeEnabled();
-			await expect( page.getByText( 'Changes saved' ) ).toBeVisible();
+			await expect( trustedIPsToggle, 'Trusted IPs toggle should be enabled' ).toBeEnabled();
+			await closeChangesSavedNotice( page );
 		} );
 
 		await test.step( 'Test the data sharing settings', async () => {
@@ -102,20 +110,29 @@ test.describe( 'Jetpack Protect Plugin', () => {
 			const advancedDataSharingToggle = page.locator( '#inspector-toggle-control-5' );
 
 			// Test the default state
-			await expect( basicDataSharingToggle ).toBeEnabled();
-			await expect( basicDataSharingToggle ).toBeChecked();
-			await expect( advancedDataSharingToggle ).toBeEnabled();
-			await expect( advancedDataSharingToggle ).not.toBeChecked();
+			await expect(
+				basicDataSharingToggle,
+				'Basic data sharing toggle should be enabled'
+			).toBeEnabled();
+			await expect( basicDataSharingToggle, 'Basic data sharing should be on' ).toBeChecked();
+			await expect(
+				advancedDataSharingToggle,
+				'Advanced data sharing toggle should be enabled'
+			).toBeEnabled();
+			await expect(
+				advancedDataSharingToggle,
+				'Advanced data sharing should be off'
+			).not.toBeChecked();
 
 			// Test turning basic data sharing off
 			await basicDataSharingToggle.click();
-			await expect( page.getByText( 'Changes saved' ) ).toBeVisible();
+			await closeChangesSavedNotice( page );
 
 			// Test turning advanced data sharing on
 			await advancedDataSharingToggle.click();
-			await expect( page.getByText( 'Changes saved' ) ).toBeVisible();
-			await expect( basicDataSharingToggle ).toBeChecked();
-			await expect( advancedDataSharingToggle ).toBeChecked();
+			await closeChangesSavedNotice( page );
+			await expect( basicDataSharingToggle, 'Basic data sharing should be on' ).toBeChecked();
+			await expect( advancedDataSharingToggle, 'Advanced data sharing should be on' ).toBeChecked();
 		} );
 	} );
 } );
