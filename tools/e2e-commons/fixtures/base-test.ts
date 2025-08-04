@@ -53,4 +53,4 @@ test.afterEach( async ( { testUtils } ) => {
 	);
 } );
 
-export { test, expect };
+export { test, expect, Admin };

@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test';
-import { expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { expect, Admin } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import logger from '_jetpack-e2e-commons/logger.js';
 
 /**
@@ -7,7 +7,7 @@ import logger from '_jetpack-e2e-commons/logger.js';
  * @param {Page}  page  - Playwright page object
  * @param {Admin} admin - e2e-utils admin object
  */
-export async function connect( page: Page, admin ) {
+export async function connect( page: Page, admin: Admin ) {
 	logger.debug( 'Connect Jetpack Protect' );
 
 	await admin.visitAdminPage( 'admin.php', 'page=jetpack-protect' );
