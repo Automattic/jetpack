@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.9-beta - 2025-08-04
+### Enhancements
+- Forms: Add slider field block. [#44150]
+- Forms: Submit forms without page reload. [#44422]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Performance: Improve processing of blocks with the Blogging Prompt feature. [#44519]
+- Sitemap: Reduce memory usage when generating sitemaps. [#44453]
+- Social: Improve performance when sanitizing OpenGraph tags. [#44569]
+- Social: Improve performance when selecting images for OpenGraph tags. [#44567]
+- Subscriptions: Improve performance of the legacy Subscriptions widget. [#44546]
+- Widget Conditions Module: Improve performance of block processing during conditional checking. [#44575]
+- WooCommerce Analytics Module: Improve performance of block processing during Analytics gathering. [#44544]
+
+### Bug fixes
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link. [#44535]
+- Newsletter: Fix bug in category settings. [#44537]
+- Subscriptions: Avoid enqueuing the legacy widget's stylesheet in block-based themes. [#44555]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add promotional sticker to `/sites` endpoint. [#44492]
+- Forms: Enable Jetpack AI to generate multistep forms. [#44452]
+- Forms: Update the way that the form id is being created for consistency and fix bugs. [#44501]
+- Infinite Scroll: Prevent PHP warnings when settings are malformed. [#44525]
+- Memberships: Add validation for newsletter plan tiers. [#44436]
+- Prevent PHP errors when directly accessing various files. [#44574]
+- Remove Dashboard link from Jetpack admin menu. [#44565]
+- Remove redundant setting of no-store directive on Cache-Control response header on Jetpack admin screen. [#44322]
+- Top Post and Pages Block: Style fixes for block placeholder. [#44572]
+
 ## 14.9-a.7 - 2025-07-28
 ### Enhancements
 - Open Graph Meta tags: Add a new fallback image to display on the home page. [#44336]

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Connection: extended get_option so it can work with external storage.

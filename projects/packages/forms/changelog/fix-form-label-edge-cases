@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Forms: fix label encoding issues, and handle empty- and duplicate label names

@@ -2191,7 +2191,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the slider field.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.1.0
 	 *
 	 * @param int    $id The field ID.
 	 * @param string $label The field label.
@@ -2271,7 +2271,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Enqueues scripts and styles needed for the slider field.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.1.0
 	 *
 	 * @return void
 	 */
