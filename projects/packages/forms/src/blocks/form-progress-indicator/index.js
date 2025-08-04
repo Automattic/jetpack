@@ -1,4 +1,3 @@
-import { useBlockProps } from '@wordpress/block-editor';
 import { Rect } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../shared/components/render-material-icon';
@@ -72,81 +71,28 @@ export const settings = {
 	transforms: {},
 	example: {},
 	deprecated: [
-		// Deprecate old "default" style name in favor of explicit "line" style
 		{
-			attributes: {},
-			styles: [
-				{
-					name: 'default',
-					label: __( 'Default', 'jetpack-forms' ),
-					isDefault: true,
-				},
-				{
-					name: 'dots',
-					label: __( 'Dots', 'jetpack-forms' ),
-				},
-			],
-			save: () => {
-				const blockProps = useBlockProps.save();
+			save() {
+				return null; // not used – just satisfies the API
+			},
+			isEligible( attrs, innerBlocks, { innerHTML = '' } ) {
 				return (
-					<div className="jetpack-form-progress-indicator--wrapper">
-						<div { ...blockProps }>
-							<div className="jetpack-form-progress-indicator-steps"></div>
-						</div>
-					</div>
+					innerHTML.includes( 'is-style-default' ) ||
+					innerHTML.includes( 'jetpack-form-progress-indicator-bar' )
 				);
 			},
-			isEligible: ( attributes, innerBlocks, { innerHTML } ) => {
-				return (
-					innerHTML &&
-					innerHTML.includes( 'jetpack-form-progress-indicator-steps' ) &&
-					innerHTML.includes( 'is-style-default' )
-				);
-			},
-			migrate: ( attributes, innerBlocks, { innerHTML } ) => {
-				// Use DOM parser for reliable HTML manipulation
-				if ( typeof DOMParser !== 'undefined' ) {
-					const parser = new DOMParser();
-					const doc = parser.parseFromString( innerHTML, 'text/html' );
+			migrate( attrs, innerBlocks, { innerHTML = '' } ) {
+				const migratedHTML = innerHTML
+					// style slug rename
+					.replace( /is-style-default/g, 'is-style-line' )
+					// old bar markup → new steps markup
+					.replace(
+						/<div class="jetpack-form-progress-indicator-bar"><\/div>/,
+						'<div class="jetpack-form-progress-indicator-steps"><div class="jetpack-form-progress-indicator-progress"></div></div>'
+					);
 
-					// Find all elements with is-style-default class
-					const elements = doc.querySelectorAll( '.is-style-default' );
-					elements.forEach( element => {
-						element.classList.remove( 'is-style-default' );
-						element.classList.add( 'is-style-line' );
-					} );
-
-					// Return the updated HTML
-					const updatedInnerHTML = doc.body.innerHTML;
-					return [ attributes, innerBlocks, { innerHTML: updatedInnerHTML } ];
-				}
-
-				// Fallback to regex for environments where DOMParser isn't available
-				const updatedInnerHTML = innerHTML.replace( /is-style-default/g, 'is-style-line' );
-				return [ attributes, innerBlocks, { innerHTML: updatedInnerHTML } ];
+				return [ attrs, innerBlocks, { innerHTML: migratedHTML } ];
 			},
-		},
-		// Deprecate old progress bar structure
-		{
-			attributes: {},
-			save: () => {
-				const blockProps = useBlockProps.save();
-				return (
-					<div className="jetpack-form-progress-indicator--wrapper">
-						<div { ...blockProps }>
-							<div className="jetpack-form-progress-indicator-bar"></div>
-						</div>
-					</div>
-				);
-			},
-			isEligible: ( attributes, innerBlocks, { innerHTML } ) => {
-				return (
-					innerHTML &&
-					innerHTML.includes( 'jetpack-form-progress-indicator-bar' ) &&
-					! innerHTML.includes( 'jetpack-form-progress-indicator-steps' )
-				);
-			},
-			migrate: attributes => attributes,
 		},
 	],
 };
