@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use WP_Error;
@@ -944,6 +945,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the method exists first
 					}
 				}
+				// Add MailPoet lists to details
+				$response['details']['lists'] = MailPoet_Integration::get_all_lists();
 				break;
 		}
 

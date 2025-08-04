@@ -13,6 +13,8 @@ global $wpdb, $zbs;  // } Req
 
 $settings = $zbs->settings->getAll();
 
+$sbupdated = false;
+
 // } Act on any edits!
 if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
@@ -54,11 +56,10 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 </p>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
-		echo '</div><br>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+	echo '</div><br>';
 }
 ?>
 

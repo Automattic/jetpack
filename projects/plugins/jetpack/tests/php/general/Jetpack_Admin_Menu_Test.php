@@ -53,7 +53,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 		$jetpack_react = new Jetpack_React_Page();
-		$jetpack_react->jetpack_add_dashboard_sub_nav_item();
 		$jetpack_react->jetpack_add_settings_sub_nav_item();
 
 		$jetpack_stats = new Dashboard();
@@ -78,7 +77,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$backup_submenu_position     = array_search( 'Jetpack VaultPress Backup', $submenu_names, true );
 		$search_submenu_position     = array_search( 'Jetpack Search', $submenu_names, true );
 		$settings_submenu_position   = array_search( 'Settings', $submenu_names, true );
-		$dashboard_submenu_position  = array_search( 'Dashboard', $submenu_names, true );
 
 		// Some sites - multisites / WoA for example - may not have all of the menu items.
 		if ( in_array( 'My Jetpack', $submenu_names, true ) ) {
@@ -95,6 +93,5 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertLessThan( $backup_submenu_position, $videopress_submenu_position, 'Jetpack VideoPress should be above Jetpack VaultPress Backup in the submenu order.' );
 		$this->assertLessThan( $search_submenu_position, $backup_submenu_position, 'Jetpack VaultPress Backup should be above Search in the submenu order.' );
 		$this->assertLessThan( $settings_submenu_position, $search_submenu_position, 'Search should be above Settings in the submenu order.' );
-		$this->assertLessThan( $dashboard_submenu_position, $settings_submenu_position, 'Settings should be above Dashboard in the submenu order.' );
 	}
 }

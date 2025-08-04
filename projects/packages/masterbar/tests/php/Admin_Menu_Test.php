@@ -338,7 +338,7 @@ class Admin_Menu_Test extends TestCase {
 		Jetpack_Admin_UI_Admin::admin_menu_hook_callback();
 		static::$admin_menu->add_jetpack_menu();
 
-		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
+		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][2][2] );
 	}
 
 	/**

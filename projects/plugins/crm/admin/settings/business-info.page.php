@@ -9,9 +9,11 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit( 0 );
 }
 
-global $wpdb, $zbs;  // } Req
+global $zbs;
 
 $settings = $zbs->settings->getAll();
+
+$sbupdated = false;
 
 // } Act on any edits!
 if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
@@ -84,11 +86,10 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 <p id="sbDesc"><?php esc_html_e( 'Set up your general business information. This is used across Jetpack CRM in features such as invoicing, mail campaigns, and email notifications.', 'zero-bs-crm' ); ?></p>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
-		echo '</div><br>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+	echo '</div><br>';
 }
 ?>
 
