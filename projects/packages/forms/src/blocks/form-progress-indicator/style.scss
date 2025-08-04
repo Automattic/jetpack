@@ -49,7 +49,7 @@
 		background-color: var(--jp-progress-color);
 		transform: translateY(-50%);
 		z-index: 2;
-		transition: width 0.4s ease;
+		transition: width 0.3s ease;
 		width: 0%;
 		border-radius: calc(var(--jp-form-progress-height) / 2);
 	}
@@ -84,6 +84,7 @@
 		.jetpack-form-progress-indicator-progress {
 			height: 2px;
 			border-radius: 0;
+			transition: width 0.3s ease; // Match the dot animation delay
 		}
 
 		.jetpack-form-progress-indicator-dot {
@@ -92,11 +93,13 @@
 			height: 2rem;
 			border-radius: 50%;
 			background-color: var(--jp-progress-bg);
-			transition: background-color 0.3s ease;
+			transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
 			position: relative;
 			z-index: 10;
 			align-items: center;
 			justify-content: center;
+			transform: scale(1);
+			opacity: 1;
 		}
 
 		.jetpack-form-progress-indicator-step-number {
@@ -107,19 +110,43 @@
 			transition: color 0.3s ease-in-out;
 		}
 
-		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot,
+		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot {
+			animation: dotAppear 0.3s ease-out;
+			animation-delay: 0.3s; // Wait for progress bar to finish
+			animation-fill-mode: both;
+			background-color: var(--jp-progress-color);
+			transition-delay: 0.3s; // Delay color change to match progress bar
+		}
+
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-dot {
 			background-color: var(--jp-progress-color);
 		}
 
-		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-step-number,
-		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
+		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-step-number {
 			color: var(--wp--preset--color--base, #fff);
 			text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+			transition-delay: 0.3s; // Delay text color change to match progress bar
 		}
 
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
+			color: var(--wp--preset--color--base, #fff);
+			text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
 			font-size: 1.125rem;
+		}
+
+		@keyframes dotAppear {
+
+			0% {
+				transform: scale(1);
+			}
+
+			50% {
+				transform: scale(1.2);
+			}
+
+			100% {
+				transform: scale(1);
+			}
 		}
 
 		// Hide elements based on state
