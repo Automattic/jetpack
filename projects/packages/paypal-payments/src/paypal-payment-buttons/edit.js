@@ -9,9 +9,11 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalText as Text,
+	__experimentalItemGroup as ItemGroup,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalItem as Item,
 } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PayPalIcon from './icon';
 import './editor.scss';
@@ -324,6 +326,34 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 				instructions={ buttonType === 'stacked' ? stackedInstructions : singleInstructions }
 				notices={ notice }
 			>
+				<ItemGroup>
+					<Item>
+						{ createInterpolateElement(
+							__(
+								'1. <SignupLink><strong>Sign up</strong></SignupLink> or <LoginLink><strong>log in</strong></LoginLink> to PayPal to get your Payment Button code.',
+								'jetpack-paypal-payments'
+							),
+							{
+								SignupLink: <ExternalLink href={ getPayPalSignupUrl() } />,
+								LoginLink: <ExternalLink href={ getPayPalLoginUrl() } />,
+								strong: <strong />,
+							}
+						) }
+					</Item>
+					<Item>
+						{ 'stacked' === buttonType &&
+							__(
+								'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code).',
+								'jetpack-paypal-payments'
+							) }
+						{ 'single' === buttonType &&
+							__(
+								'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Single Button.',
+								'jetpack-paypal-payments'
+							) }
+					</Item>
+					<Item>{ __( '3. Paste the code below.', 'jetpack-paypal-payments' ) }</Item>
+				</ItemGroup>
 				<ToggleGroupControl
 					label={ __( 'Button type', 'jetpack-paypal-payments' ) }
 					value={ buttonType }
@@ -357,16 +387,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 						label={ __( 'Single Button', 'jetpack-paypal-payments' ) }
 					/>
 				</ToggleGroupControl>
-				<Text>
-					<ExternalLink href={ getPayPalSignupUrl() }>
-						<strong>{ __( 'Sign up', 'jetpack-paypal-payments' ) }</strong>
-					</ExternalLink>{ ' ' }
-					{ __( 'or', 'jetpack-paypal-payments' ) }{ ' ' }
-					<ExternalLink href={ getPayPalLoginUrl() }>
-						<strong>{ __( 'log in', 'jetpack-paypal-payments' ) }</strong>
-					</ExternalLink>{ ' ' }
-					{ __( 'to PayPal to get your Payment Button code.', 'jetpack-paypal-payments' ) }
-				</Text>
 				{ 'stacked' === buttonType && (
 					<PlainText
 						value={ rawHeadCode }

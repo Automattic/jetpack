@@ -1,0 +1,23 @@
+import { __ } from '@wordpress/i18n';
+import edit from './edit';
+import RangeIcon from './icon';
+import save from './save';
+
+const name = 'input-range';
+const settings = {
+	title: __( 'Slider input', 'jetpack-forms' ),
+	description: __( 'A slider input for selecting a value.', 'jetpack-forms' ),
+	icon: <RangeIcon />,
+	category: 'contact-form',
+	parent: [ 'jetpack/field-slider' ],
+	edit,
+	save,
+	usesContext: [
+		'jetpack/field-slider-min',
+		'jetpack/field-slider-max',
+		'jetpack/field-slider-default',
+		'jetpack/field-slider-onChangeDefault',
+	],
+};
+
+export default { name, settings };

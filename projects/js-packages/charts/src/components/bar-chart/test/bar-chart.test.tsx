@@ -446,7 +446,13 @@ describe( 'BarChart', () => {
 			const user = userEvent.setup();
 			const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
 				<div role="tooltip" data-testid="custom-tooltip">
-					Custom: { tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString() }
+					Custom:{ ' ' }
+					{ tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString( 'ja-JP', {
+						weekday: 'long',
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric',
+					} ) }
 				</div>
 			) );
 
@@ -459,7 +465,7 @@ describe( 'BarChart', () => {
 			await user.keyboard( '{ArrowRight}' );
 
 			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '2024年1月1日月曜日' );
 
 			const customTooltip = screen.getByTestId( 'custom-tooltip' );
 			expect( customTooltip ).toBeInTheDocument();

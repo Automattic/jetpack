@@ -1,6 +1,11 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Sharing button endpoint class.
  */

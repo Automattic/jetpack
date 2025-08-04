@@ -11,6 +11,10 @@
 
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class.json-api-metadata.php';
 require_once __DIR__ . '/class.json-api-date.php';
 require_once ABSPATH . 'wp-admin/includes/post.php';

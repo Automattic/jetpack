@@ -1,19 +1,32 @@
-import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { createInterpolateElement } from '@wordpress/element';
+import {
+	Button,
+	ExternalLink,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	SelectControl,
+} from '@wordpress/components';
+import { createInterpolateElement, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MailPoetIcon from '../../../../icons/mailpoet';
 import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../../types';
 
 interface MailPoetCardProps extends SingleIntegrationCardProps {
-	connectMailPoet: boolean;
-	setAttributes: ( attrs: { connectMailPoet: boolean } ) => void;
+	mailpoet: {
+		enabledForForm: boolean;
+		listId?: string | null;
+		listName?: string | null;
+	};
+	setAttributes: ( attrs: {
+		mailpoet: { enabledForForm: boolean; listId?: string | null; listName?: string | null };
+	} ) => void;
 }
+
+type MailPoetList = { id: string; name: string };
 
 const MailPoetCard = ( {
 	isExpanded,
 	onToggle,
-	connectMailPoet,
+	mailpoet,
 	setAttributes,
 	data,
 	refreshStatus,
@@ -24,12 +37,51 @@ const MailPoetCard = ( {
 		marketingUrl = '',
 	} = data || {};
 
+	const mailpoetLists: MailPoetList[] = useMemo(
+		() => ( Array.isArray( data?.details?.lists ) ? ( data.details.lists as MailPoetList[] ) : [] ),
+		[ data?.details?.lists ]
+	);
+
+	useEffect( () => {
+		if ( ! mailpoet.enabledForForm ) {
+			return;
+		}
+
+		// If there are no lists, clear the selection
+		if ( mailpoetLists.length === 0 ) {
+			if ( mailpoet.listId || mailpoet.listName ) {
+				setAttributes( {
+					mailpoet: {
+						...mailpoet,
+						listId: null,
+						listName: null,
+					},
+				} );
+			}
+			return;
+		}
+
+		// If no list is selected, or the selected list no longer exists, set to the first available
+		const listIsValid =
+			mailpoet.listId && mailpoetLists.some( list => list.id === mailpoet.listId );
+		if ( ! listIsValid ) {
+			setAttributes( {
+				mailpoet: {
+					...mailpoet,
+					listId: mailpoetLists[ 0 ].id,
+					listName: mailpoetLists[ 0 ].name,
+				},
+			} );
+		}
+	}, [ mailpoet, mailpoetLists, setAttributes ] );
+
 	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: connectMailPoet ?? false,
+		headerToggleValue: mailpoet?.enabledForForm ?? false,
 		isHeaderToggleEnabled: true,
-		onHeaderToggleChange: ( value: boolean ) => setAttributes( { connectMailPoet: value } ),
+		onHeaderToggleChange: ( value: boolean ) =>
+			setAttributes( { mailpoet: { ...mailpoet, enabledForForm: value } } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_mailpoet_click',
@@ -47,10 +99,9 @@ const MailPoetCard = ( {
 			'jetpack-forms'
 		),
 	};
-
 	return (
 		<IntegrationCard
-			title={ __( 'MailPoet Email Marketing', 'jetpack-forms' ) }
+			title={ __( 'MailPoet email marketing', 'jetpack-forms' ) }
 			description={ __(
 				'Send newsletters and marketing emails directly from your site.',
 				'jetpack-forms'
@@ -91,12 +142,39 @@ const MailPoetCard = ( {
 				</div>
 			) : (
 				<div>
+					{ mailpoetLists?.length ? (
+						<p className="integration-card__description">
+							<SelectControl
+								label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
+								value={ mailpoet.listId }
+								options={ mailpoetLists.map( list => ( { label: list.name, value: list.id } ) ) }
+								onChange={ value => {
+									const selected = mailpoetLists.find( l => l.id === value );
+									setAttributes( {
+										mailpoet: {
+											...mailpoet,
+											listId: selected?.id ?? null,
+											listName: selected?.name ?? null,
+										},
+									} );
+								} }
+								__next40pxDefaultSize={ true }
+								__nextHasNoMarginBottom={ true }
+							/>
+						</p>
+					) : (
+						<p className="integration-card__description">
+							{ __(
+								'You do not have any MailPoet lists yet. Click the dashboard button below to create one, or contacts will be added to a "Jetpack Forms Subscribers" list.',
+								'jetpack-forms'
+							) }
+						</p>
+					) }
 					<p className="integration-card__description">
-						{ __( 'You can now send marketing emails with MailPoet.', 'jetpack-forms' ) }
+						<ExternalLink href={ settingsUrl }>
+							{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }
+						</ExternalLink>
 					</p>
-					<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
-						{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }
-					</Button>
 				</div>
 			) }
 		</IntegrationCard>

@@ -9,6 +9,10 @@
  * Restore a post: /sites/%s/posts/%d/restore
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Post_Endpoint(
 	array(
 		'description'          => 'Create a post.',
