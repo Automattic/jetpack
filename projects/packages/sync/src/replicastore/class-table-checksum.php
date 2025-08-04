@@ -351,6 +351,14 @@ class Table_Checksum {
 				'filter_values'             => array(),
 				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_hpos_tables',
 			),
+			'wc_product_meta_lookup'     => array(
+				'table'                     => "{$wpdb->prefix}wc_product_meta_lookup",
+				'range_field'               => 'product_id',
+				'key_fields'                => array( 'product_id' ),
+				'checksum_fields'           => array( 'virtual', 'downloadable', 'stock_quantity', 'min_price', 'max_price', 'onsale' ),
+				'checksum_text_fields'      => array( 'sku', 'stock_status' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_tables',
+			),
 			'users'                      => array(
 				'table'                     => $wpdb->users,
 				'range_field'               => 'ID',
