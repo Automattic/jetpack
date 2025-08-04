@@ -7,12 +7,10 @@
 		input,
 		textarea {
 			border: 0;
-			line-height: inherit;
-			font-size: inherit;
+			font: inherit;
 			flex: 1;
 			outline: none;
 			color: inherit;
-			font-family: inherit;
 			background: inherit;
 			width: inherit;
 			box-sizing: border-box;
@@ -28,18 +26,14 @@
 	.jetpack-field__input {
 
 		.jetpack-field__input-prefix {
-			font-size: inherit;
+			font: inherit;
 			border: 0;
-			line-height: inherit;
 			color: inherit;
-			font-family: inherit;
 
 			select {
-				font-size: inherit;
+				font: inherit;
 				border: 0;
-				line-height: inherit;
 				color: inherit;
-				font-family: inherit;
 				outline: none;
 				background: inherit;
 			}
