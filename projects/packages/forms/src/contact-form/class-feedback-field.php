@@ -53,7 +53,7 @@ class Feedback_Field {
 	 * Constructor.
 	 *
 	 * @param string $key   The key of the field.
-	 * @param string $label The label of the field.
+	 * @param mixed  $label The label of the field. Non-string values will be converted to empty string.
 	 * @param mixed  $value The value of the field.
 	 * @param string $type  The type of the field (default is 'basic').
 	 * @param array  $meta  Additional metadata for the field (default is an empty array).
