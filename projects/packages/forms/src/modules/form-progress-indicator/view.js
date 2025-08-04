@@ -1,19 +1,15 @@
 import { getContext, store } from '@wordpress/interactivity';
+import { calculateProgressPercentage } from '../../blocks/shared/util/progress-calculation';
 
 store( 'jetpack/form', {
 	state: {
 		get getStepProgress() {
 			const context = getContext();
-			return ( Math.max( 1, context.currentStep ) / context.maxSteps ) * 100 + '%';
+			return calculateProgressPercentage( context.currentStep, context.maxSteps, false ) + '%';
 		},
 		get getDotsProgress() {
 			const context = getContext();
-			const totalSteps = context.maxSteps;
-			if ( totalSteps <= 1 ) {
-				return '0%';
-			}
-			const completedSteps = Math.max( 0, context.currentStep - 1 );
-			return ( completedSteps / ( totalSteps - 1 ) ) * 100 + '%';
+			return calculateProgressPercentage( context.currentStep, context.maxSteps, true ) + '%';
 		},
 		get isStepActive() {
 			const context = getContext();

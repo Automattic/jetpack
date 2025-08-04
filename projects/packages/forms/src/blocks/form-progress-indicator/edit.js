@@ -1,45 +1,25 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { Icon, check } from '@wordpress/icons';
+import { SVG, Path } from '@wordpress/components';
 import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import useStepNavigation from '../shared/hooks/use-step-navigation';
+import { calculateProgressPercentage } from '../shared/util/progress-calculation';
 
 import './editor.scss';
 
-const FormProgressIndicatorEdit = ( { clientId, context } ) => {
+const FormProgressIndicatorEdit = ( { clientId } ) => {
 	const parentFormId = useParentFormClientId( clientId );
 	const { currentStepInfo, steps } = useStepNavigation( parentFormId );
 
-	const contextSteps = context?.[ 'jetpack/contact-form-steps' ] || [];
-
 	const blockProps = useBlockProps();
-
 	const isDotStyle = blockProps.className && blockProps.className.includes( 'is-style-dots' );
 
-	let finalSteps = [ { label: 'Step 1' }, { label: 'Step 2' }, { label: 'Step 3' } ];
-	if ( contextSteps.length > 0 ) {
-		finalSteps = contextSteps;
-	} else if ( steps.length > 0 ) {
-		finalSteps = steps;
-	}
-
-	// Calculate progress percentage
-	const completedSteps = finalSteps.filter(
-		( step, index ) => index < currentStepInfo.index
-	).length;
+	// Use shared progress calculation logic
 	const currentStep = currentStepInfo.index + 1;
-
-	// For dots: completed steps / (total - 1), for line: current step / total
-	let progressPercentage;
-	if ( isDotStyle ) {
-		progressPercentage =
-			finalSteps.length > 1 ? ( completedSteps / ( finalSteps.length - 1 ) ) * 100 : 0;
-	} else {
-		progressPercentage = ( currentStep / finalSteps.length ) * 100;
-	}
+	let progressPercentage = calculateProgressPercentage( currentStep, steps.length, isDotStyle );
 
 	// Show 25% progress in "All steps" view for line style to preview the bar
-	if ( ! isDotStyle && currentStepInfo.index === -1 ) {
+	if ( ! isDotStyle && currentStepInfo.index === -1 && steps.length > 0 ) {
 		progressPercentage = 25;
 	}
 
@@ -52,7 +32,7 @@ const FormProgressIndicatorEdit = ( { clientId, context } ) => {
 							className="jetpack-form-progress-indicator-progress"
 							style={ { width: `${ progressPercentage }%` } }
 						></div>
-						{ finalSteps.map( ( step, index ) => {
+						{ steps.map( ( step, index ) => {
 							const isActive = index === currentStepInfo.index;
 							const isCompleted = index < currentStepInfo.index;
 
@@ -68,7 +48,21 @@ const FormProgressIndicatorEdit = ( { clientId, context } ) => {
 									{ isDotStyle && (
 										<div className="jetpack-form-progress-indicator-dot">
 											<span className="jetpack-form-progress-indicator-step-number">
-												{ isCompleted ? <Icon icon={ check } /> : index + 1 }
+												{ isCompleted ? (
+													<SVG
+														width="24"
+														height="24"
+														viewBox="0 0 24 24"
+														xmlns="http://www.w3.org/2000/svg"
+													>
+														<Path
+															d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z"
+															fill="currentColor"
+														/>
+													</SVG>
+												) : (
+													index + 1
+												) }
 											</span>
 										</div>
 									) }
