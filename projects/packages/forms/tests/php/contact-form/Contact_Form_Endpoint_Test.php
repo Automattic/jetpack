@@ -517,7 +517,7 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
-		// var_dump( $data );
+
 		// Verify file field data in response
 		$this->assertArrayHasKey( 'fields', $data );
 		$this->assertArrayHasKey( 'file', $data['fields'] );
