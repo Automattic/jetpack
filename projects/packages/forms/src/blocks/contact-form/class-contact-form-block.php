@@ -48,6 +48,7 @@ class Contact_Form_Block {
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
 		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'register_feature' ) );
+		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
 	}
 	/**
 	 * Register the contact form block feature flag.
@@ -484,6 +485,71 @@ class Contact_Form_Block {
 		if ( ! apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
 			\Jetpack_Gutenberg::set_extension_available( 'field-file' );
 		}
+	}
+
+	/**
+	 * Render the gutenblock form.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string
+	 */
+	/**
+	 * Static storage for form step count.
+	 *
+	 * @var int
+	 */
+	private static $form_step_count = 1;
+
+	/**
+	 * Hook into pre_render_block to count form steps before inner blocks render.
+	 *
+	 * @param string|null $pre_render   The pre-rendered content. Default null.
+	 * @param array       $parsed_block The block being rendered.
+	 * @return string|null
+	 */
+	public static function pre_render_contact_form( $pre_render, $parsed_block ) {
+		// Only process contact form blocks
+		if ( $parsed_block['blockName'] !== 'jetpack/contact-form' ) {
+			return $pre_render;
+		}
+
+		// Count and store form steps
+		self::$form_step_count = self::count_form_steps_in_block( $parsed_block );
+
+		return $pre_render; // Don't actually pre-render, let normal rendering continue
+	}
+
+	/**
+	 * Count form step blocks in a contact form block.
+	 *
+	 * @param array $block The contact form block.
+	 * @return int Number of form steps found.
+	 */
+	private static function count_form_steps_in_block( $block ) {
+		$step_count = 0;
+
+		if ( isset( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				if ( $inner_block['blockName'] === 'jetpack/form-step' ) {
+					++$step_count;
+				}
+				// Also check nested blocks (like step containers)
+				$step_count += self::count_form_steps_in_block( $inner_block );
+			}
+		}
+
+		return $step_count;
+	}
+
+	/**
+	 * Get the step count for forms (used by progress indicator).
+	 *
+	 * @return int The step count.
+	 */
+	public static function get_form_step_count() {
+		return self::$form_step_count;
 	}
 
 	/**

@@ -749,31 +749,21 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the progress indicator.
 	 *
-	 * @param array    $attributes - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $attributes - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the progress indicator.
 	 */
-	public static function gutenblock_render_form_progress_indicator( $attributes, $content, $block ) {
+	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 		if ( empty( $version ) ) {
 			$version = '0.1';
 		}
 
-		$step_blocks = array();
-		$max_steps   = 1;
+		$max_steps = 1;
 
-		if ( $block && isset( $block->parsed_block ) ) {
-			$parent_block = self::find_parent_form_block( $block );
-
-			if ( $parent_block ) {
-				$step_blocks = self::get_form_steps_in_block( $parent_block );
-				if ( ! empty( $step_blocks ) ) {
-					$max_steps = count( $step_blocks );
-				}
-			}
-		}
+		// Get step count from Contact_Form_Block
+		$max_steps = Contact_Form_Block::get_form_step_count();
 
 		$style_handle = 'jetpack-form-progress-indicator-style';
 		$style_path   = '../../dist/blocks/form-progress-indicator/style.css';
@@ -849,187 +839,6 @@ class Contact_Form_Plugin {
 		);
 
 		return $updated_content;
-	}
-
-	/**
-	 * Find the parent contact form block for a given progress indicator block.
-	 *
-	 * @param WP_Block $block The progress indicator block.
-	 * @return array|null The parent form block or null if not found.
-	 */
-	private static function find_parent_form_block( $block ) {
-		// Try to get the post ID from block context if available.
-		$post_id = null;
-		if ( $block && isset( $block->context ) && isset( $block->context['postId'] ) ) {
-			$post_id = $block->context['postId'];
-		}
-
-		$post = null;
-		if ( $post_id ) {
-			$post = get_post( $post_id );
-		} else {
-			$post = get_post();
-		}
-		if ( ! $post || ! $post->post_content ) {
-			return null;
-		}
-
-		$parsed_blocks = parse_blocks( $post->post_content );
-
-		if ( $block && isset( $block->context ) ) {
-			if ( isset( $block->context['jetpack/contact-form-id'] ) ) {
-				return self::find_form_block_by_context( $parsed_blocks, $block->context['jetpack/contact-form-id'] );
-			}
-		}
-
-		return self::find_form_block_containing_progress_indicator( $parsed_blocks );
-	}
-
-	/**
-	 * Find a specific contact form block by its context data.
-	 *
-	 * @param array $blocks Array of parsed blocks.
-	 * @param mixed $form_context The form context data to match.
-	 * @return array|null The form block or null if not found.
-	 */
-	private static function find_form_block_by_context( $blocks, $form_context ) {
-		foreach ( $blocks as $block ) {
-			// Check if this is a contact form block
-			if ( 'jetpack/contact-form' === $block['blockName'] ) {
-				// Try to match this form with the context
-				// Context might contain form ID, attributes, or other identifying data
-				if ( self::form_matches_context( $block, $form_context ) ) {
-					return $block;
-				}
-			}
-
-			// Recursively check inner blocks
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				$result = self::find_form_block_by_context( $block['innerBlocks'], $form_context );
-				if ( $result ) {
-					return $result;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Check if a form block matches the given context.
-	 *
-	 * @param array $form_block The form block to check.
-	 * @param mixed $form_context The context to match against.
-	 * @return bool True if the form matches the context.
-	 */
-	private static function form_matches_context( $form_block, $form_context ) {
-		// Context should be the formId string directly
-		if ( is_string( $form_context ) && isset( $form_block['attrs']['formId'] ) ) {
-			return $form_context === $form_block['attrs']['formId'];
-		}
-
-		// If context is an array with form attributes/ID, match against those
-		if ( is_array( $form_context ) ) {
-			// Check if context has identifying attributes we can match
-			if ( isset( $form_context['formId'] ) && isset( $form_block['attrs']['formId'] ) ) {
-				return $form_context['formId'] === $form_block['attrs']['formId'];
-			}
-		}
-
-		// If we can't match specifically, fall back to simple comparison
-		return false;
-	}
-
-	/**
-	 * Recursively find the contact form block that contains a progress indicator.
-	 *
-	 * @param array $blocks Array of parsed blocks.
-	 * @return array|null The form block or null if not found.
-	 */
-	private static function find_form_block_containing_progress_indicator( $blocks ) {
-		foreach ( $blocks as $block ) {
-			// Check if this is a contact form block
-			if ( 'jetpack/contact-form' === $block['blockName'] ) {
-				// Check if it contains a progress indicator
-				if ( self::block_contains_progress_indicator( $block ) ) {
-					return $block;
-				}
-			}
-
-			// Recursively check inner blocks
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				$result = self::find_form_block_containing_progress_indicator( $block['innerBlocks'] );
-				if ( $result ) {
-					return $result;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Check if a block contains a progress indicator.
-	 *
-	 * @param array $block The block to check.
-	 * @return bool True if the block contains a progress indicator.
-	 */
-	private static function block_contains_progress_indicator( $block ) {
-		// Check current block
-		if ( 'jetpack/form-progress-indicator' === $block['blockName'] ) {
-			return true;
-		}
-
-		// Check inner blocks recursively
-		if ( ! empty( $block['innerBlocks'] ) ) {
-			foreach ( $block['innerBlocks'] as $inner_block ) {
-				if ( self::block_contains_progress_indicator( $inner_block ) ) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get form step blocks within a contact form block.
-	 *
-	 * @param array $form_block The form block to search.
-	 * @return array Array of form step blocks found.
-	 */
-	private static function get_form_steps_in_block( $form_block ) {
-		$step_blocks = array();
-
-		if ( ! empty( $form_block['innerBlocks'] ) ) {
-			$step_blocks = self::get_steps_recursive( $form_block['innerBlocks'] );
-		}
-
-		return $step_blocks;
-	}
-
-	/**
-	 * Recursively get form step blocks.
-	 *
-	 * @param array $blocks Array of blocks to search.
-	 * @return array Array of form step blocks found.
-	 */
-	private static function get_steps_recursive( $blocks ) {
-		$step_blocks = array();
-
-		foreach ( $blocks as $block ) {
-			// Check if this is a form step block
-			if ( 'jetpack/form-step' === $block['blockName'] ) {
-				$step_blocks[] = $block;
-			}
-
-			// Recursively check inner blocks
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				$step_blocks = array_merge( $step_blocks, self::get_steps_recursive( $block['innerBlocks'] ) );
-			}
-		}
-
-		return $step_blocks;
 	}
 
 	/**
