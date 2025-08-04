@@ -113,21 +113,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouRedirect,
 		formTitle,
 		variationName,
-		formId,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
-	useEffect( () => {
-		if ( ! formId ) {
-			setAttributes( { formId: `form-${ clientId }` } );
-		}
-	}, [ formId, clientId, setAttributes ] );
-
 	const steps = useFormSteps( clientId );
-
-	useEffect( () => {
-		setAttributes( { steps } );
-	}, [ steps, setAttributes ] );
 
 	const submitButton = useFindBlockRecursively(
 		clientId,

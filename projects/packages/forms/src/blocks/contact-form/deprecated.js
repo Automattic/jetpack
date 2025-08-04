@@ -15,6 +15,32 @@ const deprecatedAttributes = [
 	'hasFormSettingsSet',
 ];
 
+const v3 = {
+	attributes: {
+		...defaultAttributes,
+	},
+	supports: {
+		html: false,
+	},
+	migrate: ( attributes, innerBlocks, { clientId } ) => {
+		// Generate formId using clientId if it doesn't exist
+		if ( ! attributes.formId ) {
+			return [
+				{
+					...attributes,
+					formId: `form-${ clientId }`,
+				},
+				innerBlocks,
+			];
+		}
+		return [ attributes, innerBlocks ];
+	},
+	isEligible: attributes => {
+		return ! attributes.formId || attributes.formId === '';
+	},
+	save: () => <InnerBlocks.Content />,
+};
+
 const v2 = {
 	attributes: {
 		...defaultAttributes,
@@ -91,4 +117,4 @@ const v1 = {
 	save: () => <InnerBlocks.Content />,
 };
 
-export default [ v2, v1 ];
+export default [ v3, v2, v1 ];

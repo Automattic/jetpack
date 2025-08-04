@@ -153,6 +153,15 @@
 		.is-hidden {
 			display: none !important;
 		}
+
+		// Hide checkmarks by default, show only when step is completed
+		.step-checkmark {
+			display: none;
+		}
+
+		.jetpack-form-progress-indicator-step.is-completed .step-checkmark {
+			display: inline;
+		}
 	}
 
 }
