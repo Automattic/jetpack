@@ -335,10 +335,12 @@ class Feedback {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 
-			if ( ! isset( $count_field_labels[ $field->get_label( $context ) ] ) ) {
-				$count_field_labels[ $field->get_label( $context ) ] = 1;
+			$label = $field->get_label( $context );
+
+			if ( ! isset( $count_field_labels[ $label ] ) ) {
+				$count_field_labels[ $label ] = 1;
 			} else {
-				++$count_field_labels[ $field->get_label( $context ) ];
+				++$count_field_labels[ $label ];
 			}
 
 			// Compile the field based on the requested shape.
@@ -346,13 +348,13 @@ class Feedback {
 				case 'default':
 				case 'all':
 					$compiled_fields[ $field->get_key() ] = array(
-						'label' => $field->get_label( $context ),
+						'label' => $label,
 						'value' => $field->get_render_value( $context ),
 					);
 					break;
 				case 'label|value':
 					$compiled_fields[] = array(
-						'label' => $field->get_label( $context ),
+						'label' => $label,
 						'value' => $field->get_render_value( $context ),
 					);
 					break;
@@ -360,13 +362,13 @@ class Feedback {
 					$compiled_fields[] = $field->get_render_value( $context );
 					break;
 				case 'label':
-					$compiled_fields[] = $field->get_label( $context );
+					$compiled_fields[] = $label;
 					break;
 				case 'key-value':
 					$compiled_fields[ $field->get_key() ] = $field->get_render_value( $context );
 					break;
 				case 'label-value':
-						$compiled_fields[ $field->get_label( $context, $count_field_labels[ $field->get_label( $context ) ] ) ] = $field->get_render_value( $context );
+						$compiled_fields[ $field->get_label( $context, $count_field_labels[ $label ] ) ] = $field->get_render_value( $context );
 					break;
 			}
 		}
