@@ -2,7 +2,7 @@ import { getJetpackAdminPageUrl, getMyJetpackUrl } from '@automattic/jetpack-scr
 import { addQueryArgs } from '@wordpress/url';
 
 export type UserConnectionUrlOptions = {
-	redirectUrl?: string | null;
+	redirect_url?: string | null;
 	from?: string | null;
 	skip_pricing?: boolean | null;
 };
@@ -15,12 +15,12 @@ export type UserConnectionUrlOptions = {
  * @return The URL for user connection.
  */
 export function getUserConnectionUrl( options: UserConnectionUrlOptions = {} ): string {
-	const { redirectUrl, from, skip_pricing = true } = options;
+	const { redirect_url, from, skip_pricing = true } = options;
 
 	return addQueryArgs( getJetpackAdminPageUrl(), {
 		// 'connect_url_redirect' is handled in \Automattic\Jetpack\Connection\Webhooks::controller()
 		connect_url_redirect: 1,
-		redirect_after_auth: redirectUrl ?? getMyJetpackUrl(),
+		redirect_after_auth: redirect_url ?? getMyJetpackUrl(),
 		from: from ?? 'my-jetpack',
 		skip_pricing,
 	} );
