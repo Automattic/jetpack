@@ -9,11 +9,11 @@ const debug = debugFactory( 'jetpack-forms:interactivity' );
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
 
-const getForm = formHash => {
-	return document.getElementById( 'jp-form-' + formHash );
+const getForm = ( formHash: string ) => {
+	return document.getElementById( 'jp-form-' + formHash ) as HTMLFormElement | null;
 };
 
-export const focusNextInput = formHash => {
+export const focusNextInput = ( formHash: string ) => {
 	const form = getForm( formHash );
 
 	if ( ! form ) {
@@ -23,11 +23,11 @@ export const focusNextInput = formHash => {
 	const currentStep = form.querySelector( '.is-current-step' );
 	const focusableElements = currentStep.querySelectorAll(
 		'input, select, textarea, .jetpack-form-file-field__dropzone-inner, [tabindex]:not([disabled])'
-	);
+	) as NodeListOf< HTMLElement >;
 	focusableElements[ 0 ]?.focus();
 };
 
-export const dispatchSubmitEvent = formHash => {
+export const dispatchSubmitEvent = ( formHash: string ) => {
 	const form = getForm( formHash );
 
 	if ( ! form ) {
@@ -42,7 +42,7 @@ export const dispatchSubmitEvent = formHash => {
 	);
 };
 
-export const submitForm = async formHash => {
+export const submitForm = async ( formHash: string ) => {
 	const form = getForm( formHash );
 
 	if ( ! form ) {
