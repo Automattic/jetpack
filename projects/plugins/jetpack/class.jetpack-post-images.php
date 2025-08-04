@@ -423,7 +423,7 @@ class Jetpack_PostImages {
 	 *
 	 * @since 6.9.0
 	 * @since 14.8 Updated to use Block_Delimiter for improved performance.
-	 * @since $$next-version$$ Updated to use Block_Scanner for improved performance.
+	 * @since 14.9 Updated to use Block_Scanner for improved performance.
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 * @param int   $width      Minimum Image width.

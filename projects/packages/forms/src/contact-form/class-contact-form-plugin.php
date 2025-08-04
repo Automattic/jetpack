@@ -2341,7 +2341,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Prepares feedback post data for CSV export.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.1.0
 	 *
 	 * @see get_export_feedback_data()
 	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
@@ -2349,7 +2349,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_export_data_for_posts( $post_ids ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_feedback_data()' );
+		_deprecated_function( __METHOD__, 'package-5.1.0', 'Contact_Form_Plugin::get_export_feedback_data()' );
 		return $this->get_export_feedback_data( $post_ids );
 	}
 
@@ -2360,12 +2360,12 @@ class Contact_Form_Plugin {
 	 * - Positive values render AFTER any form field/value column: 1, 30, 93...
 	 *   Mind using high numbering on these ones as the prefix is used on regular inputs: 1_Name, 2_Email, etc
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.1.0
 	 *
 	 * @return array
 	 */
 	public function get_well_known_column_names() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_column_names()' );
+		_deprecated_function( __METHOD__, 'package-5.1.0', 'Contact_Form_Plugin::get_export_column_names()' );
 		return array(
 			'-9_title'         => __( 'Title', 'jetpack-forms' ),
 			'-6_source'        => __( 'Source', 'jetpack-forms' ),

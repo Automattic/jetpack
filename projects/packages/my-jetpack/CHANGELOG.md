@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.22.0] - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Update @wordpress/dataviews to 5.0.0. [#44376]
+
+### Fixed
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+
 ## [5.21.0] - 2025-07-30
 ### Removed
 - Remove redundant sending on "nocache" headers on the My Jetpack admin screen, as these are already sent by WordPress. [#44322]
@@ -2276,6 +2284,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.22.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.21.0...5.22.0
 [5.21.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.2...5.21.0
 [5.20.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.1...5.20.2
 [5.20.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.0...5.20.1

@@ -199,7 +199,7 @@ class Jetpack_Options {
 			 * Filter to provide external storage for Jetpack connection options.
 			 * External storage is checked first, with database as fallback.
 			 *
-			 * @since $$next-version$$
+			 * @since 6.17.0
 			 *
 			 * @param mixed  $value   Current value (null to let database handle).
 			 * @param string $name    Option name, _without_ `jetpack_%` prefix.
@@ -256,7 +256,7 @@ class Jetpack_Options {
 	/**
 	 * Determines if external storage should be used for a given option.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.17.0
 	 *
 	 * @param string $name Option name, _without_ `jetpack_%` prefix.
 	 * @return bool True if external storage should be checked for this option.
@@ -272,7 +272,7 @@ class Jetpack_Options {
 		 * Filter to control whether external storage should be used for a given option.
 		 * Environments use this to opt-in to external storage for their sites.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.17.0
 		 *
 		 * @param bool   $enabled     Whether external storage should be used (default: false).
 		 * @param string $option_name Option name, _without_ `jetpack_%` prefix.

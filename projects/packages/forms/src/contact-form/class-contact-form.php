@@ -1019,7 +1019,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function get_compiled_form( $feedback_id, $form = null ) {
 
 		if ( $form ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$', '$form is deprecated' );
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
 		}
 		$compiled_form = self::get_raw_compiled_form_data( $feedback_id );
 
@@ -1058,15 +1058,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param int          $feedback_id - the feedback ID.
 	 * @param Contact_Form $form - the form. This parameter is deprecated and will be removed in the next version.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 5.1.0
 	 *
 	 * @return array $json_data
 	 */
 	public static function get_json_data( $feedback_id, $form = null ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Feedback::get( $feedback_id )->get_compiled_fields(\'ajax\', \'label|value\' )' );
+		_deprecated_function( __METHOD__, '5.1.0', 'Feedback::get( $feedback_id )->get_compiled_fields(\'ajax\', \'label|value\' )' );
 
 		if ( $form ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$', '$form is deprecated' );
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
 		}
 
 		$response = Feedback::get( $feedback_id );
@@ -1088,7 +1088,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static function get_raw_compiled_form_data( $feedback_id, $form = null ) {
 
 		if ( $form ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$', '$form is deprecated' );
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
 		}
 
 		$response = Feedback::get( $feedback_id );

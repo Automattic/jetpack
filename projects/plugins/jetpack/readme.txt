@@ -326,23 +326,24 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9-a.7 - 2025-07-28
+### 14.9-beta - 2025-08-04
 #### Enhancements
-- Open Graph Meta tags: Add a new fallback image to display on the home page.
-- Open Graph meta tags: Support site logos when generating fallback Image Meta tags.
+- Forms: Add slider field block.
+- Forms: Submit forms without page reload.
+- My Jetpack: Unify the user connection flow with a unified screen.
+- Performance: Improve processing of blocks with the Blogging Prompt feature.
+- Sitemap: Reduce memory usage when generating sitemaps.
+- Social: Improve performance when sanitizing OpenGraph tags.
+- Social: Improve performance when selecting images for OpenGraph tags.
+- Subscriptions: Improve performance of the legacy Subscriptions widget.
+- Widget Conditions Module: Improve performance of block processing during conditional checking.
+- WooCommerce Analytics Module: Improve performance of block processing during Analytics gathering.
 
 #### Bug fixes
-- Carousel: Fix disabling all photon args when opening an image in a lightbox.
-- Clear PayPal Payment button block parameters when changing block type.
-- Forms: Fix padding on input and textarea fields.
-- Forms: Fix the way forms are submitted.
-- Forms: Enqueue view script only when the form is rendered.
-- JITM: Remove jQuery dependency.
-- Mailchimp block: Fix links to accommodate for a bug in Gutenberg.
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- Related Posts: Ensure results are available via REST API directly.
-- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page.
-- Subscriptions: Display floating subscription button on mobile devices as well when enabled.
+- My Jetpack: Prevent expiration alerts for products covered by active bundles.
+- My Jetpack: Restore plan purchase link.
+- Newsletter: Fix bug in category settings.
+- Subscriptions: Avoid enqueuing the legacy widget's stylesheet in block-based themes.
 
 --------
 
