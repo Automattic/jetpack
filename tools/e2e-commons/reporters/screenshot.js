@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import config from 'config';
-import { fileNameFormatter } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
+import { fileNameFormatter } from '../utils/formatting.ts';
 
 /**
  * Takes a screenshot of the given page

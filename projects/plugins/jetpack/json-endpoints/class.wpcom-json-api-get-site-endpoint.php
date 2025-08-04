@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_GET_Site_Endpoint(
 	array(
 		'description'                          => 'Get information about a site.',
@@ -208,6 +212,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_created_with_blank_canvas_design',
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
+		'is_summer_special_2025',
 		'site_intent',
 		'site_partner_bundle',
 		'onboarding_segment',
@@ -884,6 +889,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_difm_lite_in_progress':
 					$options[ $key ] = $site->is_difm_lite_in_progress();
+					break;
+				case 'is_summer_special_2025':
+					$options[ $key ] = $site->is_summer_special_2025();
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();

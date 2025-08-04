@@ -1,0 +1,69 @@
+import { __ } from '@wordpress/i18n';
+import SliderIcon from '../input-range/icon';
+import defaultSettings from '../shared/settings';
+import { getIconColor } from '../shared/util/block-icons';
+import edit from './edit';
+import save from './save';
+
+const name = 'field-slider';
+const settings = {
+	...defaultSettings,
+	title: __( 'Slider field', 'jetpack-forms' ),
+	description: __( 'Collect a value from site visitors using a slider field.', 'jetpack-forms' ),
+	icon: {
+		foreground: getIconColor(),
+		src: <SliderIcon />,
+	},
+	attributes: {
+		...defaultSettings.attributes,
+		min: {
+			type: 'number',
+			default: 0,
+		},
+		max: {
+			type: 'number',
+			default: 100,
+		},
+		default: {
+			type: 'number',
+			default: 0,
+		},
+	},
+	edit,
+	save,
+	supports: {
+		...defaultSettings.supports,
+		interactivity: true,
+	},
+	providesContext: {
+		...defaultSettings.providesContext,
+		'jetpack/field-slider-min': 'min',
+		'jetpack/field-slider-max': 'max',
+		'jetpack/field-slider-default': 'default',
+		'jetpack/field-slider-onChangeDefault': 'onChangeDefault',
+	},
+	example: {
+		attributes: {
+			min: 0,
+			max: 100,
+			default: 0,
+		},
+		innerBlocks: [
+			{
+				name: 'jetpack/label',
+				attributes: {
+					label: __( 'Slider', 'jetpack-forms' ),
+				},
+			},
+			{
+				name: 'jetpack/input-range',
+				attributes: {},
+			},
+		],
+	},
+};
+
+export default {
+	name,
+	settings,
+};

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Add safeguards when getting post properties during AJAX calls

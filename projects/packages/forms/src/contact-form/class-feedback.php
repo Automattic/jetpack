@@ -25,6 +25,15 @@ class Feedback {
 	protected $fields = array();
 
 	/**
+	 * Static cache for feedback fields.
+	 *
+	 * This is used to avoid recomputing the feedback fields for the same post ID.
+	 *
+	 * @var array
+	 */
+	private static $feedback_fields = array();
+
+	/**
 	 * Does the response have files attached to it?
 	 *
 	 * @var bool
@@ -118,14 +127,18 @@ class Feedback {
 	 * @return static|null
 	 */
 	public static function get( $feedback_post_id ) {
-
 		$feedback_post = get_post( $feedback_post_id );
 		if ( ! $feedback_post || self::POST_TYPE !== $feedback_post->post_type ) {
 			return null;
 		}
 
+		if ( isset( self::$feedback_fields[ $feedback_post->ID ] ) ) {
+			return self::$feedback_fields[ $feedback_post->ID ];
+		}
+
 		$instance = new self();
 		$instance->load_from_post( $feedback_post );
+		self::$feedback_fields[ $feedback_post->ID ] = $instance;
 		return $instance;
 	}
 
@@ -160,7 +173,7 @@ class Feedback {
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
-		$this->has_consent     = ( strtolower( $this->get_first_field_of_type( 'consent' ) ) === 'yes' );
+		$this->has_consent     = ( in_array( strtolower( $this->get_first_field_of_type( 'consent' ) ), array( 'yes', 'true', '1' ), true ) );
 
 		$this->legacy_feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}

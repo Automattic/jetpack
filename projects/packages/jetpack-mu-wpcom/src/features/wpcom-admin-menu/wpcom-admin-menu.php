@@ -181,15 +181,6 @@ function wpcom_add_hosting_menu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/sites/settings/site/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
 	// By default, WordPress adds a submenu item for the parent menu item, which we don't want.
 	remove_submenu_page(
 		$parent_slug,
@@ -318,7 +309,6 @@ function wpcom_add_jetpack_submenu() {
 		'newsletter',
 		'podcasting',
 		'jetpack#/settings',
-		'jetpack#/dashboard',
 	);
 	$ordered_submenu = array();
 
@@ -548,6 +538,15 @@ function wpcom_add_tools_menu() {
 		'wpcom-erase-personal-data',
 		'wpcom_display_export_erase_personal_data_page'
 	);
+
+	add_submenu_page(
+		'tools.php',
+		__( 'Site Health', 'jetpack-mu-wpcom' ),
+		__( 'Site Health', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'wpcom-site-health',
+		'wpcom_display_site_health_page'
+	);
 }
 add_action( 'admin_menu', 'wpcom_add_tools_menu' );
 
@@ -571,5 +570,24 @@ function wpcom_display_export_erase_personal_data_page() {
 		localized_wpcom_url( 'https://wordpress.com/support/your-site-and-the-gdpr/' ),
 		__( 'Learn more', 'jetpack-mu-wpcom' ),
 		plugins_url( 'images/performance.svg', __FILE__ )
+	);
+}
+
+/**
+ * Displays a callout on Simple Sites for Tools > Site Health menu.
+ *
+ * @return void
+ */
+function wpcom_display_site_health_page() {
+	wpcom_display_callout(
+		'dashicons-admin-site-alt3',
+		__( 'Your site\'s in good hands', 'jetpack-mu-wpcom' ),
+		array(
+			__( 'No need to stress over performance or security checks, WordPress.com handles that for you behind the scenes.', 'jetpack-mu-wpcom' ),
+			__( 'That way, your site stays fast, safe, and reliable, without any extra effort from you.', 'jetpack-mu-wpcom' ),
+		),
+		localized_wpcom_url( 'https://wordpress.com/support/choose-a-host/#frequently-asked-questions-about-managed-hosting-with-word-press-com' ),
+		__( 'Learn more', 'jetpack-mu-wpcom' ),
+		plugins_url( 'images/cloud.svg', __FILE__ )
 	);
 }

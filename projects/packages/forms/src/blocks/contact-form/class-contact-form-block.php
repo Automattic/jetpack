@@ -375,6 +375,13 @@ class Contact_Form_Block {
 					),
 				)
 			);
+			Blocks::jetpack_register_block(
+				'jetpack/field-slider',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_slider' ),
+					'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				)
+			);
 		}
 
 		// Paid file field block
@@ -524,7 +531,7 @@ class Contact_Form_Block {
 
 		$data = array(
 			'defaults' => array(
-				'to'                   => Contact_Form::get_default_to( $post ? $post->post_author : null ),
+				'to'                   => Contact_Form::get_default_to( $post ? Contact_Form::get_post_property( $post, 'post_author' ) : null ),
 				'subject'              => Contact_Form::get_default_subject( array() ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,

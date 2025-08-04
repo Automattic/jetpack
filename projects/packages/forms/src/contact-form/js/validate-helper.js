@@ -37,6 +37,13 @@ export const validateDate = ( value, format ) => {
 	return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 };
 
+/**
+ * Validate a number value.
+ *
+ * @param  string value - The value to validate.
+ * @param  object extra  - Additional validation options.
+ * @returns {string} - The validation result.
+ */
 function validateNumber( value, extra ) {
 	// Change the regex to accept both integers and decimals
 	const regex = /^-?\d+(\.\d+)?$/;
@@ -56,6 +63,38 @@ function validateNumber( value, extra ) {
 
 	return 'yes';
 }
+/**
+ * Check if a value is considered empty.
+ *
+ * @param {*} value - The value to check.
+ * @returns {boolean} - True if the value is empty, false otherwise.
+ */
+export const isEmptyValue = value => {
+	if ( value === null || value === undefined ) {
+		return true;
+	}
+
+	if ( typeof value === 'string' && value.trim() === '' ) {
+		return true;
+	}
+
+	if (
+		Array.isArray( value ) &&
+		( value.length === 0 || value.every( item => isEmptyValue( item ) ) )
+	) {
+		return true;
+	}
+
+	if (
+		typeof value === 'object' &&
+		( Object.keys( value ).length === 0 ||
+			Object.values( value ).every( item => isEmptyValue( item ) ) )
+	) {
+		return true;
+	}
+
+	return false;
+};
 
 /**
  * return true or the field error.
@@ -67,18 +106,15 @@ function validateNumber( value, extra ) {
  * @returns {string}
  */
 export const validateField = ( type, value, isRequired, extra = null ) => {
-	if ( value === '' && isRequired ) {
+	if ( isEmptyValue( value ) && isRequired ) {
 		return 'is_required';
 	}
 
-	if ( ! isRequired && value === '' ) {
+	if ( ! isRequired && isEmptyValue( value ) ) {
 		// No need to validate anything.
 		return 'yes';
 	}
 
-	if ( 'checkbox-multiple' === type ) {
-		return value.length !== 0 ? 'yes' : 'is_required';
-	}
 	if ( 'date' === type ) {
 		return validateDate( value, extra ) ? 'yes' : 'invalid_date';
 	}
@@ -110,9 +146,6 @@ export const validateField = ( type, value, isRequired, extra = null ) => {
 			break;
 		case 'telephone':
 			regex = /^\+?[0-9\s\-()]+$/;
-			break;
-		case 'number':
-			regex = /^[0-9]+$/;
 			break;
 	}
 

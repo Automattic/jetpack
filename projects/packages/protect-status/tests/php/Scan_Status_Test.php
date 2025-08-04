@@ -290,6 +290,15 @@ class Scan_Status_Test extends BaseTestCase {
 										'fixable'        => null,
 										'status'         => 'current',
 										'source'         => 'https://wpvulndb.com/vulnerabilities/10220',
+										'extension'      => new Extension_Model(
+											array(
+												'type'    => 'plugin',
+												'slug'    => 'woocommerce',
+												'name'    => 'WooCommerce',
+												'version' => '3.0.0',
+												'checked' => null,
+											)
+										),
 									)
 								),
 							),

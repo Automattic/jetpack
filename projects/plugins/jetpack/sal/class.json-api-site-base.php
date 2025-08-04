@@ -15,6 +15,10 @@ use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class.json-api-date.php';
 require_once __DIR__ . '/class.json-api-post-base.php';
 
@@ -1509,6 +1513,21 @@ abstract class SAL_Site {
 		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 			// For atomic sites
 			return wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
+		}
+		return false;
+	}
+
+	/**
+	 * Check if the site has the summer-special-2025 blog sticker.
+	 *
+	 * @return bool
+	 */
+	public function is_summer_special_2025() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'summer-special-2025' );
+		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			// For atomic sites
+			return wpcomsh_is_site_sticker_active( 'summer-special-2025' );
 		}
 		return false;
 	}

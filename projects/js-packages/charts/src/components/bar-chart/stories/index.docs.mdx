@@ -253,6 +253,23 @@ Charts are fully keyboard accessible:
 - **Enter/Space**: Activate tooltips
 - **Escape**: Close active tooltips
 
+## Zero Value Display
+
+### Visual Enhancement for Zero Values
+
+By default, bars with zero values have no visual height, making them difficult to identify. The `showZeroValues` feature provides better user experience by giving zero values a minimum visual height while preserving data integrity:
+
+<Canvas of={ BarChartStories.ZeroValueComparison } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={dataWithZeros}
+		showZeroValues={true}
+		withTooltips={true}
+	/>` }
+/>
+
 ## Legends
 
 ### Basic Legend
@@ -468,6 +485,7 @@ Main chart component with responsive behavior by default.
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
+| `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
 | `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Horizontal legend alignment |
@@ -478,10 +496,6 @@ Main chart component with responsive behavior by default.
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
 | `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
 | `className` | `string` | - | Additional CSS class name |
-| `onPointerDown` | `(event: EventHandlerParams) => void` | - | Pointer down event handler |
-| `onPointerUp` | `(event: EventHandlerParams) => void` | - | Pointer up event handler |
-| `onPointerMove` | `(event: EventHandlerParams) => void` | - | Pointer move event handler |
-| `onPointerOut` | `(event: PointerEvent) => void` | - | Pointer out event handler |
 
 ### SeriesData Type
 

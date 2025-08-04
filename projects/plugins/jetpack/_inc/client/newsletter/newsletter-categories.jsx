@@ -54,7 +54,10 @@ function NewsletterCategories( props ) {
 		dispatch,
 	} = props;
 
-	const checkedCategoriesIds = newsletterCategories.map( mapCategoriesIds );
+	const checkedCategoriesIds = useMemo(
+		() => newsletterCategories?.map( mapCategoriesIds ) ?? [],
+		[ newsletterCategories ]
+	);
 
 	const mappedCategories = useMemo(
 		() =>

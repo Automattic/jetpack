@@ -10,7 +10,7 @@ import {
 /*
  * Internal dependencies
  */
-import { validateField } from '../../contact-form/js/validate-helper';
+import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper';
 import { focusNextInput, dispatchSubmitEvent, submitForm } from './shared';
 
 const withSyncEvent =
@@ -132,17 +132,15 @@ const { state } = store( NAMESPACE, {
 			if ( context?.maxSteps && context.maxSteps > 0 ) {
 				return false;
 			}
-			return ! Object.values( context.fields ).some( field => field.value !== '' );
+
+			return ! Object.values( context.fields ).some( field => ! isEmptyValue( field.value ) );
 		},
 
 		get isFieldEmpty() {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
-			return !! (
-				field.value === '' ||
-				( Array.isArray( field.value ) && field.value.length === 0 )
-			);
+			return isEmptyValue( field?.value );
 		},
 
 		get hasFieldValue() {
@@ -291,6 +289,7 @@ const { state } = store( NAMESPACE, {
 		onFormReset: () => {
 			const context = getContext();
 			context.fields = [];
+			context.showErrors = false;
 
 			// Dispatch custom events to reset all fields
 			const formElement = document.getElementById( context.elementId );
@@ -338,7 +337,7 @@ const { state } = store( NAMESPACE, {
 
 			context.isSubmitting = true;
 
-			if ( context.isResponseWithoutReloadEnabled ) {
+			if ( context.useAjax ) {
 				event.preventDefault();
 				event.stopPropagation();
 				context.submissionError = null;

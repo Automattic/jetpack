@@ -153,6 +153,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionsclasses'           => null,
 				'optionsstyles'            => null,
 				'align'                    => null,
+				'variation'                => null,
 			),
 			$attributes,
 			'contact-field'
@@ -476,7 +477,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$extra_attrs = array();
 
-		if ( $field_type === 'number' ) {
+		if ( $field_type === 'number' || $field_type === 'slider' ) {
 			if ( is_numeric( $this->get_attribute( 'min' ) ) ) {
 				$extra_attrs['min'] = $this->get_attribute( 'min' );
 			}
@@ -1925,6 +1926,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'number':
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
 				break;
+			case 'slider':
+				$field .= $this->render_slider_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				break;
 			case 'file':
 				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
@@ -2089,10 +2093,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
 
+		/*
+		 * Determine which icon SVG to use based on CSS classes.
+		 * Check field_classes for style classes (this is where WordPress puts them).
+		 */
+
+		$has_hearts_style = false !== strpos( $this->field_classes, 'is-style-hearts' );
+
+		// SVG icon definitions - keep in sync with JavaScript icons.js
+		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="currentColor" stroke="var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333))" stroke-width="2" stroke-linejoin="round"></path></svg>';
+		$heart_svg = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" stroke="var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333))" stroke-width="2" stroke-linejoin="round"></path></svg>';
+
+		$icon_svg = $has_hearts_style ? $heart_svg : $star_svg;
+
 		$spans = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
 			$spans .= sprintf(
-				'<label class="jetpack-field-rating__label">
+				'<label class="jetpack-field-rating__label">%6$s
 					<input
 						class="jetpack-field-rating__input"
 						type="radio"
@@ -2106,7 +2123,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$required ? 'required aria-required="true"' : '',
 				esc_attr( $id ),
 				esc_attr( $i ),
-				esc_attr( $max_rating )
+				esc_attr( $max_rating ),
+				$icon_svg
 			);
 		}
 
@@ -2168,5 +2186,110 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$spans,
 			$this->field_classes
 		) . $this->get_error_div( $id, 'rating' );
+	}
+
+	/**
+	 * Return the HTML for the slider field.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $id The field ID.
+	 * @param string $label The field label.
+	 * @param string $value The field value.
+	 * @param string $class The field class.
+	 * @param bool   $required Whether the field is required.
+	 * @param string $required_field_text The required field text.
+	 * @param string $placeholder The field placeholder.
+	 * @param array  $extra_attrs Extra attributes (e.g., min, max).
+	 *
+	 * @return string HTML for the slider field.
+	 */
+	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$this->enqueue_slider_field_assets();
+		$this->set_invalid_message( 'slider', __( 'Please select a valid value', 'jetpack-forms' ) );
+		if ( isset( $extra_attrs['min'] ) ) {
+			// translators: %d is the minimum value.
+			$this->set_invalid_message( 'min_slider', __( 'Please select a value that is no less than %d.', 'jetpack-forms' ) );
+		}
+		if ( isset( $extra_attrs['max'] ) ) {
+			// translators: %d is the maximum value.
+			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
+		}
+		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
+		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
+		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
+		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
+
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
+
+		ob_start();
+		?>
+		<div class="jetpack-field-slider__input-row"
+			data-wp-context='
+			<?php
+			echo wp_json_encode(
+				array(
+					'min'     => $min,
+					'max'     => $max,
+					'default' => $starting_value,
+				)
+			);
+			?>
+			'>
+			<span class="jetpack-field-slider__min-label"><?php echo esc_html( $min ); ?></span>
+			<div class="jetpack-field-slider__input-container">
+				<input
+					type="range"
+					name="<?php echo esc_attr( $id ); ?>"
+					id="<?php echo esc_attr( $id ); ?>"
+					value="<?php echo esc_attr( $current_value ); ?>"
+					min="<?php echo esc_attr( $min ); ?>"
+					max="<?php echo esc_attr( $max ); ?>"
+					class="<?php echo esc_attr( $class ); ?>"
+					placeholder="<?php echo esc_attr( $placeholder ); ?>"
+					<?php
+					if ( $required ) :
+						?>
+						required<?php endif; ?>
+					data-wp-bind--value="state.getSliderValue"
+					data-wp-on--input="actions.onSliderChange"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+				/>
+				<div
+					class="jetpack-field-slider__value-indicator"
+					data-wp-text="state.getSliderValue"
+					data-wp-style--left="state.getSliderPosition"
+				><?php echo esc_html( $current_value ); ?></div>
+			</div>
+			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
+		</div>
+		<?php
+		$field .= ob_get_clean();
+		return $field . $this->get_error_div( $id, 'slider' );
+	}
+
+	/**
+	 * Enqueues scripts and styles needed for the slider field.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	private function enqueue_slider_field_assets() {
+		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		\wp_enqueue_style(
+			'jetpack-form-slider-field',
+			plugins_url( '../../dist/contact-form/css/slider-field.css', __FILE__ ),
+			array(),
+			$version
+		);
+
+		\wp_enqueue_script_module(
+			'jetpack-form-slider-field',
+			plugins_url( '../../dist/modules/slider-field/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
 	}
 }

@@ -1,4 +1,4 @@
-@use "../../scss/mixin_breakpoint";
+@use "../../scss/mixins/breakpoints";
 @use "../../scss/variables/colors";
 
 .jp-product-activated-label {
@@ -33,7 +33,7 @@
 		background: var(--jp-green-50);
 	}
 
-	@include mixin_breakpoint.breakpoint( ">960px" ) {
+	@include breakpoints.breakpoint( ">960px" ) {
 		justify-content: flex-end;
 	}
 

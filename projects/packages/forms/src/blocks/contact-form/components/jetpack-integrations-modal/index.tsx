@@ -98,7 +98,7 @@ const IntegrationsModal = ( {
 						onToggle={ () => toggleCard( 'mailpoet' ) }
 						data={ findIntegrationById( 'mailpoet' ) }
 						refreshStatus={ refreshIntegrations }
-						connectMailPoet={ attributes.connectMailPoet }
+						mailpoet={ attributes.mailpoet }
 						setAttributes={ setAttributes }
 					/>
 				) }

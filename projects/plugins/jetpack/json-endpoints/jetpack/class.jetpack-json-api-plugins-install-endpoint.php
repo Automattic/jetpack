@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Plugins_Installer;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 require_once ABSPATH . 'wp-admin/includes/file.php';
 // POST /sites/%s/plugins/%s/install

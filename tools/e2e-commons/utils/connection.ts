@@ -1,5 +1,5 @@
-import { getDotComCredentials } from '../helpers/utils-helper';
 import logger from '../logger';
+import { getDotComCredentials } from './environment.ts';
 import { TestUtils } from '.';
 
 /**
@@ -17,7 +17,7 @@ export async function connect( this: TestUtils ) {
  * Connect Jetpack site.
  * @return {Promise<void>} Resolves when the connection is complete.
  */
-export async function connectSite( this: TestUtils ) {
+export async function connectSite( this: TestUtils ): Promise< void > {
 	if ( await isSiteConnected.call( this ) ) {
 		logger.debug( 'Site is already connected, no need to connect.' );
 		return;
@@ -40,7 +40,7 @@ export async function connectSite( this: TestUtils ) {
  * @param  clientId - Client ID from the authorize URL.
  * @return {Promise<void>} Resolves when the connection is complete.
  */
-export async function connectUser( this: TestUtils, clientId: string ) {
+export async function connectUser( this: TestUtils, clientId: string ): Promise< void > {
 	if ( await isUserConnected.call( this ) ) {
 		logger.debug( 'User is already connected, no need to connect.' );
 		return;
@@ -84,7 +84,7 @@ export async function connectUser( this: TestUtils, clientId: string ) {
  * Disconnect Jetpack.
  * @return {Promise<void>} Resolves when the disconnect is complete.
  */
-export async function disconnect() {
+export async function disconnect(): Promise< void > {
 	await disconnectUser.call( this );
 	await disconnectSite.call( this );
 }
@@ -93,7 +93,7 @@ export async function disconnect() {
  * Disconnect user from WordPress.com.
  * @return {Promise<void>} Resolves when the disconnect is complete.
  */
-export async function disconnectUser( this: TestUtils ) {
+export async function disconnectUser( this: TestUtils ): Promise< void > {
 	if ( ! ( await isUserConnected.call( this ) ) ) {
 		logger.debug( 'User is not connected, no need to disconnect.' );
 		return;
@@ -118,7 +118,7 @@ export async function disconnectUser( this: TestUtils ) {
  * Disconnect Jetpack installation from WordPress.com.
  * @return {Promise<void>} Resolves when the disconnect is complete.
  */
-export async function disconnectSite() {
+export async function disconnectSite(): Promise< void > {
 	if ( ! ( await isSiteConnected.call( this ) ) ) {
 		logger.debug( 'Site is not connected, no need to disconnect.' );
 		return;
