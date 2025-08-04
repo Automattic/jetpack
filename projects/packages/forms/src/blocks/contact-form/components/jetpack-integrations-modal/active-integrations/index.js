@@ -32,7 +32,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				}
 				break;
 			case 'mailpoet':
-				if ( integration.isActive && attributes.connectMailPoet ) {
+				if ( integration.isActive && attributes.mailpoet?.enabledForForm ) {
 					acc.push( {
 						...integration,
 						icon: <MailPoetOrangeIcon width={ 30 } height={ 30 } />,

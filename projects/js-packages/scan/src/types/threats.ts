@@ -38,6 +38,10 @@ export type Threat = {
 				fixer: ThreatFixType;
 				target?: string | null;
 				extensionStatus?: string | null;
+				extras?: {
+					isBulkFixable?: boolean;
+					isDotorg?: boolean;
+				};
 		  }
 		| false;
 

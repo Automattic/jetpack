@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: avoid enqueuing the legacy widget's stylesheet in block-based themes.

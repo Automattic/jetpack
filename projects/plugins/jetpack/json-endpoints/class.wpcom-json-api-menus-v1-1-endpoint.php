@@ -2,6 +2,10 @@
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Menus abstract endpoint class.
  */

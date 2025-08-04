@@ -10,6 +10,8 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 
 global $zbs;  // } Req
 
+$sbupdated = false;
+
 // } Act on any edits!
 if ( isset( $_POST['editwplflicense'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
@@ -195,13 +197,8 @@ if ( ! zeroBSCRM_isLocal( true ) ) {
 ?>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-
-		// echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">'; zeroBSCRM_html_msg(0,__('Settings Updated',"zero-bs-crm")); echo '</div>';
-		echo zeroBSCRM_UI2_messageHTML( 'info', '', __( 'Settings Updated', 'zero-bs-crm' ) );
-
-	}
+if ( $sbupdated ) {
+	echo zeroBSCRM_UI2_messageHTML( 'info', '', __( 'Settings Updated', 'zero-bs-crm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 ?>
 <?php

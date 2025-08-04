@@ -4,6 +4,11 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Base class for WPCOM_JSON_API_Date.
  */

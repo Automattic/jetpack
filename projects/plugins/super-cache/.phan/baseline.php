@@ -45,7 +45,6 @@ return [
     // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanPluginDuplicateIfCondition : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
-    // PhanRedundantConditionInGlobalScope : 1 occurrence
     // PhanRedundantConditionInLoop : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeConversionFromArray : 1 occurrence
@@ -61,7 +60,7 @@ return [
         'advanced-cache.php' => ['PhanPluginSimplifyExpressionBool'],
         'inc/delete-cache-button.php' => ['PhanPluginNeverReturnFunction', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'ossdl-cdn.php' => ['PhanUndeclaredClassMethod'],
-        'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
+        'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/debug.php' => ['PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/easy.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
         'partials/lockdown.php' => ['PhanUndeclaredGlobalVariable'],

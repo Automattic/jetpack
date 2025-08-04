@@ -1,7 +1,7 @@
 {
-	"private": true,
 	"name": "_TBD_",
-	"version": "_TBD_",
+	"version": "0.0.0+TBD",
+	"private": true,
 	"description": "_TBD_",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -19,6 +19,5 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true"
-	},
-	"devDependencies": {}
+	}
 }

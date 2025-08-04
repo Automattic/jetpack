@@ -16,13 +16,18 @@ import useSharePost from '../use-share-post';
  * @return {boolean} Whether re-sharing is possible.
  */
 export function useIsReSharingPossible() {
-	const { isPublicizeEnabled } = usePublicizeConfig();
+	const { isPublicizeEnabled, needsUserConnection } = usePublicizeConfig();
 	const isSharingPossible = useIsSharingPossible();
 	const { isFetching } = useSharePost();
 
 	const { isCurrentPostPublished: isPostPublished, isSavingPost } = useSelect( editorStore, [] );
 
 	return (
-		isPublicizeEnabled && isSharingPossible && ! isFetching && isPostPublished() && ! isSavingPost()
+		isPublicizeEnabled &&
+		isSharingPossible &&
+		! isFetching &&
+		isPostPublished() &&
+		! isSavingPost() &&
+		! needsUserConnection
 	);
 }

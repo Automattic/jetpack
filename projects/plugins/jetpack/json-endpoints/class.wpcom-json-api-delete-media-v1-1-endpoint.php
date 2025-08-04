@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint(
 	array(
 		'description'          => 'Delete a piece of media. Note: Media is deleted and not trashed.',

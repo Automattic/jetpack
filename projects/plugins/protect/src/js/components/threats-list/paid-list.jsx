@@ -19,6 +19,8 @@ const ThreatAccordionItem = ( {
 	context,
 	description,
 	diff,
+	extension,
+	signature,
 	filename,
 	firstDetected,
 	fixedIn,
@@ -74,7 +76,7 @@ const ThreatAccordionItem = ( {
 			event.preventDefault();
 			setModal( {
 				type: 'FIX_THREAT',
-				props: { id, fixable, label, icon, severity },
+				props: { id, signature, extension, fixable, label, icon, severity },
 			} );
 		};
 	};
@@ -204,6 +206,8 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 								context,
 								description,
 								diff,
+								extension,
+								signature,
 								filename,
 								firstDetected,
 								fixedIn,
@@ -225,6 +229,8 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 									context={ context }
 									description={ description }
 									diff={ diff }
+									extension={ extension }
+									signature={ signature }
 									filename={ filename }
 									firstDetected={ firstDetected }
 									fixedIn={ fixedIn }

@@ -13,6 +13,10 @@
  * @package jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Include the tiled gallery for loading.
  */

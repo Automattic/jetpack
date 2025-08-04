@@ -1,7 +1,7 @@
 @use "sass:color";
 @use "../../scss/z-index";
 @use "../../scss/calypso-colors";
-@use "../../scss/mixin_icons";
+@use "../../scss/mixins/icons";
 
 /**
  * Select Dropdown
@@ -69,7 +69,7 @@
 
 	&::after {
 
-		@include mixin_icons.dashicons;
+		@include icons.dashicons;
 		content: "\f347";
 		position: absolute;
 		right: 13px;
@@ -107,7 +107,7 @@
 
 		&::after {
 
-			@include mixin_icons.dashicons;
+			@include icons.dashicons;
 			content: "\f343";
 		}
 	}

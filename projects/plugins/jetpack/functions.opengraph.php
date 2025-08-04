@@ -11,7 +11,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Block_Delimiter;
+use Automattic\Block_Scanner;
 use Automattic\Jetpack\Status\Host;
 
 add_action( 'wp_head', 'jetpack_og_tags' );
@@ -783,13 +783,20 @@ function jetpack_og_remove_query_blocks( $description ) {
 	$depth          = 0;
 	$in_query_block = false;
 
-	foreach ( Block_Delimiter::scan_delimiters( $description ) as $where => $delimiter ) {
-		list( $match_at, $length ) = $where;
+	$scanner = Block_Scanner::create( $description );
+	if ( ! $scanner ) {
+		return $description;
+	}
+
+	while ( $scanner->next_delimiter() ) {
+		$span     = $scanner->get_span();
+		$match_at = $span->start;
+		$length   = $span->length;
 
 		// Check if this is a query block.
-		if ( $delimiter->is_block_type( 'query' ) ) {
-			switch ( $delimiter->get_delimiter_type() ) {
-				case Block_Delimiter::OPENER:
+		if ( $scanner->is_block_type( 'query' ) ) {
+			switch ( $scanner->get_delimiter_type() ) {
+				case Block_Scanner::OPENER:
 					if ( ! $in_query_block ) {
 						// Copy content before the query block.
 						$output        .= substr( $description, $offset, $match_at - $offset );
@@ -798,7 +805,7 @@ function jetpack_og_remove_query_blocks( $description ) {
 					++$depth;
 					break;
 
-				case Block_Delimiter::CLOSER:
+				case Block_Scanner::CLOSER:
 					--$depth;
 					if ( $in_query_block && $depth === 0 ) {
 						// We've exited the query block, continue from after it.
@@ -815,7 +822,7 @@ function jetpack_og_remove_query_blocks( $description ) {
 					}
 					break;
 
-				case Block_Delimiter::VOID:
+				case Block_Scanner::VOID:
 					// Void query blocks should be removed entirely.
 					if ( ! $in_query_block ) {
 						$output .= substr( $description, $offset, $match_at - $offset );

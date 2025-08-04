@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint(
 	array(
 		'description'          => 'Create a post autosave.',
