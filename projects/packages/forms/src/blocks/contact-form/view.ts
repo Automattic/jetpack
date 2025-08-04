@@ -14,7 +14,7 @@ window.addEventListener( 'load', () => {
 } );
 
 function handleFormStyles() {
-	const formNodes = document.querySelectorAll( FRONTEND_SELECTOR );
+	const formNodes = document.querySelectorAll( FRONTEND_SELECTOR ) as NodeListOf< HTMLElement >;
 
 	for ( const formNode of formNodes ) {
 		const styleVariables = generateStyleVariables( formNode );
