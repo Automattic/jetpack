@@ -170,7 +170,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return int Number of items yet to be enqueued.
+	 * @return array Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
@@ -257,7 +257,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 
 		if ( function_exists( 'wc_get_product' ) ) {
 			$product = wc_get_product( $product_id );
-			if ( $product instanceof WC_Product && is_callable( array( $product, 'get_cogs_value' ) ) ) {
+			if ( $product instanceof \WC_Product && is_callable( array( $product, 'get_cogs_value' ) ) ) {
 				$lookup_data['cogs_amount'] = $product->get_cogs_value();
 			}
 		}
