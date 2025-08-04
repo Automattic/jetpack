@@ -3437,7 +3437,7 @@ p {
 					'meta' => (array) wp_get_attachment_metadata( $post_id ),
 				);
 
-				return (array) array( $response );
+				return array( $response );
 			}
 
 			$attachment_id = media_handle_upload(

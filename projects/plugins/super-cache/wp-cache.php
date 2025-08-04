@@ -3503,7 +3503,7 @@ function wp_cron_preload_cache() {
 					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), 'Refreshing: ' . print_r( $rows, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				}
 
-				foreach ( (array) $rows as $url ) {
+				foreach ( $rows as $url ) {
 					set_time_limit( 60 );
 					if ( $url === '' ) {
 						continue;
