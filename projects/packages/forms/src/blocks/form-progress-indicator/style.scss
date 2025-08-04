@@ -103,8 +103,8 @@
 		}
 
 		.jetpack-form-progress-indicator-step-number {
-			font-size: 0.875rem;
-			font-weight: 600;
+			font-size: var(--wp--preset--font-size--small, 0.875em);
+			font-weight: var(--wp--custom--typography--font-weight--medium, 600);
 			line-height: 1;
 			color: var(--wp--preset--color--contrast, currentColor);
 			transition: color 0.3s ease-in-out;
