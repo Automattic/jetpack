@@ -31,7 +31,7 @@ export async function setResultFormat( format: string = 'expanded' ): Promise< s
  * @return {string} wp-cli command output
  */
 export async function setTheme( theme: string = 'light' ): Promise< string > {
-	return executeWpCommand( `option update jetpack_search_result_format ${ theme }` );
+	return executeWpCommand( `option update jetpack_search_color_theme ${ theme }` );
 }
 
 /**
