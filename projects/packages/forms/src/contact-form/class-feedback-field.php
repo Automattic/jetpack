@@ -94,7 +94,7 @@ class Feedback_Field {
 
 			return $this->label . $postfix;
 		}
-		// For API context, we return the label as is.
+
 		return $this->label . $postfix;
 	}
 
