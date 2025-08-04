@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Carousel: Preload only adjacent images instead of all at once, reducing memory usage and preventing crashes on large galleries.
