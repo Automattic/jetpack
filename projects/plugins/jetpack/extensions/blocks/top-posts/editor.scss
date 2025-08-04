@@ -2,8 +2,17 @@
  * Editor styles for Top Posts
  */
 
-.wp-block-jetpack-top-posts .components-placeholder__fieldset {
-	display: block;
+.wp-block-jetpack-top-posts {
+
+	.components-placeholder__learn-more {
+		flex-basis: 100%;
+		margin-top: 1em;
+
+		span {
+			display: revert;
+		}
+	}
+
 }
 
 .jetpack-top-posts__error {
