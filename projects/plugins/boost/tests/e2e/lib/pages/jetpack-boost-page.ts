@@ -157,14 +157,9 @@ export default class JetpackBoostPage {
 		return this.page.isVisible( selector );
 	}
 
-	async isTheCriticalCssMetaInformationVisible() {
-		const selector = '[data-testid="critical-css-meta"]';
-		return this.page.isVisible( selector );
-	}
-
 	async expectCriticalCssMetaInfoToBeVisible() {
 		await expect(
-			this.page.locator( '[data-testid="critical-css-meta"]' ),
+			this.page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
 		).toBeVisible( { timeout: 4 * 60 * 1000 } );
 	}
@@ -180,10 +175,6 @@ export default class JetpackBoostPage {
 	// 	const selector = '[data-testid="critical-css-meta"] .failures';
 	// 	return this.page.isVisible( selector );
 	// }
-
-	async navigateToCriticalCSSAdvancedRecommendations() {
-		await this.page.click( 'text=Advanced Recommendations' );
-	}
 
 	async isCriticalCSSAdvancedRecommendationsVisible() {
 		const selector = '.jb-critical-css__advanced';
