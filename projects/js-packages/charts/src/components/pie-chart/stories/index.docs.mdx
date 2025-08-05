@@ -114,6 +114,21 @@ The chart validates:
 - **Negative values**: Prevents invalid negative values
 - **Single data points**: Handles edge cases gracefully
 
+### Legend Display
+
+Pie charts support integrated legends to identify segments:
+
+<Canvas of={ PieChartStories.WithLegend } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		size={ 400 }
+		data={ data }
+		showLegend={ true }
+	/>` }
+/>
+
 ### Legend Positioning
 
 Control legend alignment and positioning:
@@ -135,6 +150,7 @@ Control legend alignment and positioning:
 
 Use vertical orientation for space-efficient legend placement:
 
+<Canvas of={ PieChartStories.CustomLegendPositioning } />
 <Source
 	language="jsx"
 	code={ `<PieChart
@@ -146,6 +162,32 @@ Use vertical orientation for space-efficient legend placement:
 		legendAlignmentVertical="top"
 	/>` }
 />
+
+### Standalone Legend for Pie Charts
+
+For complex layouts or dashboards, use the Legend component separately:
+
+<Source
+	language="jsx"
+	code={ `import { Legend } from '@automattic/charts';
+
+<PieChart 
+	chartId="distribution-chart" 
+	size={ 400 }
+	data={ data } 
+	showLegend={ false } 
+/>
+
+{/* Legend can be positioned independently */}
+<Legend chartId="distribution-chart" orientation="vertical" />` }
+/>
+
+This approach is particularly useful for:
+- Placing legends outside the chart's bounding box
+- Creating unified legend panels for multiple pie charts
+- Responsive designs where legends need to reflow
+
+See the [Legend component documentation](?path=/docs/js-packages-charts-composites-legend--docs) for more examples.
 
 ## Styling and Customization
 

@@ -287,9 +287,11 @@ Display series information with automatic color matching:
 	/>` }
 />
 
-### Custom Legend Shapes
+### Legend Positioning
 
-Use different shapes and custom glyphs in legends:
+Control legend placement and alignment:
+
+<Canvas of={ LineChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -302,6 +304,48 @@ Use different shapes and custom glyphs in legends:
 		withLegendGlyph={true}
 	/>` }
 />
+
+### Vertical Legend
+
+Display legends vertically for better space utilization:
+
+<Canvas of={ LineChartStories.CustomLegendPositioning } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		showLegend={true}
+		legendOrientation="vertical"
+		legendAlignmentHorizontal="right"
+	/>` }
+/>
+
+### Standalone Legend Integration
+
+For dashboard layouts or custom positioning, use the Legend component independently:
+
+<Source
+	language="jsx"
+	code={ `import { Legend } from '@automattic/charts';
+
+<LineChart 
+	chartId="metrics-chart" 
+	data={data} 
+	showLegend={false}
+	withGradientFill={false}
+/>
+
+{/* Legend can be placed anywhere */}
+<Legend chartId="metrics-chart" orientation="horizontal" />` }
+/>
+
+This enables:
+- Flexible legend positioning outside chart area
+- Shared legend panels for multiple charts
+- Better responsive behavior on small screens
+
+See the [Legend component documentation](?path=/docs/js-packages-charts-composites-legend--docs) for advanced customization and dashboard examples.
 
 ## Advanced Customization
 

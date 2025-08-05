@@ -289,6 +289,23 @@ Display series information with automatic color and pattern matching:
 	/>` }
 />
 
+**Note:** Legends are not enabled by default. Set `showLegend={true}` to display them.
+
+### Legend Positioning
+
+Control legend placement with alignment options:
+
+<Canvas of={ BarChartStories.CustomLegendPositioning } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		showLegend={true}
+		legendAlignmentHorizontal="right"
+		legendAlignmentVertical="top"
+	/>` }
+/>
 ### Vertical Legend
 
 Display legends vertically for charts with many series:
@@ -306,6 +323,30 @@ Display legends vertically for charts with many series:
 	/>` }
 />
 
+### Standalone Legend Integration
+
+For more flexible layouts, use the Legend component separately:
+
+<Source
+	language="jsx"
+	code={ `import { Legend } from '@automattic/charts';
+
+<BarChart 
+	chartId="sales-chart" 
+	data={data} 
+	showLegend={false} 
+/>
+
+{/* Place legend anywhere in your layout */}
+<Legend chartId="sales-chart" orientation="vertical" />` }
+/>
+
+This approach enables:
+- Positioning legends outside chart boundaries
+- Creating centralized legend panels for dashboards
+- Responsive layouts with legends that reflow independently
+
+See the [Legend component documentation](?path=/docs/js-packages-charts-composites-legend--docs) for advanced usage and customization options.
 ## Advanced Customization
 
 ### Grid Configuration

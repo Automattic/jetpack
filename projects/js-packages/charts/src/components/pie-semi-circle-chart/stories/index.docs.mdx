@@ -224,6 +224,20 @@ The chart automatically integrates with the charts theme system, using predefine
 
 ## Legend Integration
 
+### Basic Legend
+
+Display a legend to identify chart segments:
+
+<Canvas of={ PieSemiCircleChartStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `<PieSemiCircleChart
+	data={ data }
+	showLegend={ true }
+/>` }
+/>
+
 ### Legend Positioning
 
 Control legend placement using alignment properties:
@@ -259,6 +273,31 @@ Customize legend indicators with different shapes:
 	legendShape="rect" // Options: 'rect', 'circle', 'line'
 />` }
 />
+
+### Standalone Legend for Semi-Circle Charts
+
+For flexible layouts, use the Legend component independently:
+
+<Source
+	language="jsx"
+	code={ `import { Legend } from '@automattic/charts';
+
+<PieSemiCircleChart 
+	chartId="gauge-chart" 
+	data={ data } 
+	showLegend={ false } 
+/>
+
+{/* Position legend separately */}
+<Legend chartId="gauge-chart" orientation="horizontal" />` }
+/>
+
+This is especially useful for:
+- Dashboard layouts where multiple gauges share a legend area
+- Mobile-responsive designs where legends need different positioning
+- Complex layouts where the semi-circle chart's unique shape requires custom legend placement
+
+See the [Legend component documentation](?path=/docs/js-packages-charts-composites-legend--docs) for advanced examples.
 
 ## Error Handling
 
