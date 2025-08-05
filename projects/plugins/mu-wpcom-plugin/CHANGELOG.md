@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.10.0 - 2025-08-05
+### Added
+- Add archives endpoint support. [#44028]
+- Settings: Add tracking for launch action. [#43859]
+- Code editors: Add advanced code and CSS editors. [#44232]
+
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Sync: Ignore the ActivityPub Outbox CPT [#44222]
+- Update package dependencies. [#43839] [#44206]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- Update JITMs to remove jQuery dependency. [#43783]
+
 ## 2.9.0 - 2025-06-06
 ### Added
 - Featured Content: Add messaging to clarify that the tag name is case-sensitive. [#43165]
