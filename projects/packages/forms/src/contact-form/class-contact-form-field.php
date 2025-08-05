@@ -227,12 +227,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function add_error( $message ) {
 		$this->error = true;
-
-		if ( ! is_wp_error( $this->form->errors ) ) {
-			$this->form->errors = new \WP_Error();
-		}
-
-		$this->form->errors->add( $this->get_attribute( 'id' ), $message );
+		$this->form->add_error( $this->get_attribute( 'id' ), $message );
 	}
 
 	/**
@@ -247,12 +242,41 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Check if the field has a value.
+	 *
+	 * This is used to determine if the field has been filled out by the user.
+	 *
+	 * @return bool True if the field has a value, false otherwise.
+	 */
+	public function has_value() {
+		$field_id    = $this->get_attribute( 'id' );
+		$field_value = isset( $_POST[ $field_id ] ) ? wp_unslash( $_POST[ $field_id ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes.
+
+		if ( is_array( $field_value ) ) {
+			if ( empty( $field_value ) ) {
+				return false;
+			}
+			return ! empty( array_filter( $field_value ) );
+		}
+		return ! empty( trim( $field_value ) );
+	}
+
+	/**
 	 * Validates the form input
 	 */
 	public function validate() {
+		// If the field is already invalid, don't validate it again.
+		if ( $this->is_error() ) {
+			return;
+		}
+
 		$field_type = $this->maybe_override_type();
 		// If it's not required, there's nothing to validate
-		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
+		if ( ! $this->get_attribute( 'required' ) && ! $this->has_value() ) {
+			return;
+		}
+
+		if ( ! $this->is_field_renderable( $field_type ) ) {
 			return;
 		}
 
@@ -277,28 +301,44 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field_value
 				) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'email':
 				// Make sure the email address is valid
 				if ( ! is_string( $field_value ) || ! is_email( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a valid email address.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'checkbox-multiple':
 				// Check that there is at least one option selected
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+				} else {
+					// Check that the selected options are valid
+					$options           = (array) $this->get_attribute( 'options' );
+					$non_empty_options = array_filter(
+						$options,
+						function ( $option ) {
+							return $option !== '';
+						}
+					);
+					foreach ( $field_value  as $field_value_item ) {
+						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
+							/* translators: %s is the name of a form field */
+							$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+							break;
+						}
+					}
 				}
 				break;
 			case 'number':
 				// Make sure the number address is valid
 				if ( ! is_numeric( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a number.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'file':
@@ -312,7 +352,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				// Just check for presence of any text
 				if ( ! is_string( $field_value ) || ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s is required', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s field is required.', 'jetpack-forms' ), $field_label ) );
 				}
 		}
 	}
