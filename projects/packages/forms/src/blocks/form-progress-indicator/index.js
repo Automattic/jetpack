@@ -81,9 +81,9 @@ export const settings = {
 		innerBlocks: [],
 	},
 	deprecated: [
-		// Version with dimensions support
+		// Previous versions with different supports or structure
 		{
-			apiVersion: 3,
+			apiVersion: 2,
 			attributes: {
 				progressColor: {
 					type: 'string',
@@ -112,45 +112,6 @@ export const settings = {
 					},
 				},
 			},
-			save: () => null,
-			migrate( attributes ) {
-				const newAttributes = { ...attributes };
-
-				// Convert horizontal margins to padding if they exist
-				if ( attributes.style?.spacing?.margin ) {
-					const { margin } = attributes.style.spacing;
-					const newStyle = { ...attributes.style };
-
-					// Initialize padding if it doesn't exist
-					if ( ! newStyle.spacing.padding ) {
-						newStyle.spacing.padding = {};
-					}
-
-					// Convert left/right margins to left/right padding
-					if ( margin.left && ! newStyle.spacing.padding.left ) {
-						newStyle.spacing.padding.left = margin.left;
-					}
-					if ( margin.right && ! newStyle.spacing.padding.right ) {
-						newStyle.spacing.padding.right = margin.right;
-					}
-
-					// Keep only top/bottom margins
-					newStyle.spacing.margin = {
-						...( margin.top && { top: margin.top } ),
-						...( margin.bottom && { bottom: margin.bottom } ),
-					};
-
-					newAttributes.style = newStyle;
-				}
-
-				return newAttributes;
-			},
-		},
-		// Version with old jetpack-form-progress-indicator-bar structure
-		{
-			apiVersion: 2,
-			attributes: {},
-			supports: {},
 			save() {
 				return (
 					<div className="jetpack-form-progress-indicator--wrapper">
@@ -161,8 +122,57 @@ export const settings = {
 				);
 			},
 			migrate( attributes ) {
-				// Return the same attributes - no changes needed
-				return attributes;
+				const newAttributes = { ...attributes };
+
+				if ( attributes.style ) {
+					const newStyle = { ...attributes.style };
+
+					// Convert horizontal margins to padding if they exist
+					if ( newStyle.spacing?.margin ) {
+						const { margin } = newStyle.spacing;
+
+						// Initialize padding if it doesn't exist
+						if ( ! newStyle.spacing.padding ) {
+							newStyle.spacing.padding = {};
+						}
+
+						// Convert left/right margins to left/right padding
+						if ( margin.left && ! newStyle.spacing.padding.left ) {
+							newStyle.spacing.padding.left = margin.left;
+						}
+						if ( margin.right && ! newStyle.spacing.padding.right ) {
+							newStyle.spacing.padding.right = margin.right;
+						}
+
+						// Keep only top/bottom margins
+						newStyle.spacing.margin = {
+							...( margin.top && { top: margin.top } ),
+							...( margin.bottom && { bottom: margin.bottom } ),
+						};
+					}
+
+					// Remove minHeight from dimensions since it's no longer supported
+					if ( newStyle.dimensions?.minHeight ) {
+						const { minHeight, ...remainingDimensions } = newStyle.dimensions;
+						if ( Object.keys( remainingDimensions ).length === 0 ) {
+							delete newStyle.dimensions;
+						} else {
+							newStyle.dimensions = remainingDimensions;
+						}
+					}
+
+					// Migrate standard colors to custom semantic colors
+					if ( newStyle.color?.background && ! newAttributes.progressBackgroundColor ) {
+						newAttributes.progressBackgroundColor = newStyle.color.background;
+					}
+					if ( newStyle.color?.text && ! newAttributes.progressColor ) {
+						newAttributes.progressColor = newStyle.color.text;
+					}
+
+					newAttributes.style = newStyle;
+				}
+
+				return newAttributes;
 			},
 		},
 	],
