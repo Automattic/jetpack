@@ -4,15 +4,17 @@ import clsx from 'clsx';
 import { getActiveStyleName } from '../../../../../plugins/jetpack/extensions/shared/block-styles';
 import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
-import useStepNavigation from '../shared/hooks/use-step-navigation';
 import { calculateProgressPercentage } from '../shared/util/progress-calculation';
 import { settings } from './';
 
 import './editor.scss';
 
-const FormProgressIndicatorEdit = ( { clientId } ) => {
+const FormProgressIndicatorEdit = ( { clientId, context } ) => {
 	const parentFormId = useParentFormClientId( clientId );
-	const { currentStepInfo, steps } = useStepNavigation( parentFormId );
+
+	// Get data from context - provide mock data for previews when context is missing
+	const steps = context?.[ 'jetpack/form-steps' ] || [ 1, 2, 3 ];
+	const currentStepInfo = context?.[ 'jetpack/form-current-step' ] || { index: 0 };
 
 	const blockProps = useBlockProps();
 	const activeStyleName = getActiveStyleName( settings.styles, blockProps.className );

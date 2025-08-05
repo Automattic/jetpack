@@ -57,6 +57,7 @@ export const settings = {
 	edit: edit,
 	save: save,
 	attributes: {},
+	usesContext: [ 'jetpack/form-steps', 'jetpack/form-current-step' ],
 	styles: [
 		{
 			name: 'line',
@@ -69,7 +70,12 @@ export const settings = {
 		},
 	],
 	transforms: {},
-	example: {},
+	example: {
+		attributes: {
+			className: 'is-style-dots',
+		},
+		innerBlocks: [],
+	},
 	deprecated: [
 		// Version with old jetpack-form-progress-indicator-bar structure
 		{
