@@ -66,6 +66,11 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	private function get_yoast_cornerstone_pages() {
+		$urls = array();
+		if ( ! function_exists( 'wpseo_init' ) ) {
+			return $urls;
+		}
+
 		$max_pages                 = $this->get_max_pages();
 		$yoast_cornerstone_content = get_posts(
 			array(
@@ -75,8 +80,6 @@ class Cornerstone_Pages implements Has_Setup {
 				'posts_per_page' => $max_pages,
 			)
 		);
-
-		$urls = array();
 
 		foreach ( $yoast_cornerstone_content as $post ) {
 			$permalink = get_permalink( $post->ID );
