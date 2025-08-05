@@ -1,3 +1,4 @@
+/* eslint-disable playwright/expect-expect */
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
 import { DashboardPage, Sidebar, ThemesPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
@@ -60,10 +61,11 @@ test.describe( 'Critical CSS module', () => {
 		await testUtils.activateBoostModule( 'critical_css' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
-		expect(
-			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
-			'Critical CSS meta information should be visible'
-		).toBeTruthy();
+		// expect(
+		// 	await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+		// 	'Critical CSS meta information should be visible'
+		// ).toBeTruthy();
+		await jetpackBoostPage.expectCriticalCssMetaInfoToBeVisible();
 	} );
 
 	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async ( {
@@ -72,10 +74,11 @@ test.describe( 'Critical CSS module', () => {
 		await testUtils.deactivateBoostModule( 'critical_css' );
 		await testUtils.activateBoostModule( 'critical_css' );
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect(
-			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
-			'Critical CSS meta information should be visible'
-		).toBeTruthy();
+		// expect(
+		// 	await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+		// 	'Critical CSS meta information should be visible'
+		// ).toBeTruthy();
+		await jetpackBoostPage.expectCriticalCssMetaInfoToBeVisible();
 	} );
 
 	test( 'Critical CSS should be available on the frontend when the module is active', async () => {
@@ -102,10 +105,11 @@ test.describe( 'Critical CSS module', () => {
 		);
 		const jetpackBoostPage = await JetpackBoostPage.init( page );
 
-		expect(
-			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
-			'Critical CSS meta information should be visible'
-		).toBeTruthy();
+		// expect(
+		// 	await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+		// 	'Critical CSS meta information should be visible'
+		// ).toBeTruthy();
+		await jetpackBoostPage.expectCriticalCssMetaInfoToBeVisible();
 	} );
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async ( {
@@ -117,15 +121,16 @@ test.describe( 'Critical CSS module', () => {
 
 		page.getByRole( 'button', { name: 'Regenerate' } ).click();
 
-		expect(
-			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
-			'Critical CSS generation progress indicator should be visible'
-		).toBeTruthy();
+		// expect(
+		// 	await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
+		// 	'Critical CSS generation progress indicator should be visible'
+		// ).toBeTruthy();
 
-		expect(
-			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
-			'Critical CSS meta information should be visible'
-		).toBeTruthy();
+		// expect(
+		// 	await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+		// 	'Critical CSS meta information should be visible'
+		// ).toBeTruthy();
+		await jetpackBoostPage.expectCriticalCssMetaInfoToBeVisible();
 
 		await jetpackBoostPage.navigateToCriticalCSSAdvancedRecommendations();
 		expect(
@@ -133,9 +138,10 @@ test.describe( 'Critical CSS module', () => {
 			'Critical CSS advanced recommendations should be visible'
 		).toBeTruthy();
 		await jetpackBoostPage.navigateToMainSettingsPage();
-		expect(
-			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
-			'Critical CSS meta information should be visible'
-		).toBeTruthy();
+		// expect(
+		// 	await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+		// 	'Critical CSS meta information should be visible'
+		// ).toBeTruthy();
+		await jetpackBoostPage.expectCriticalCssMetaInfoToBeVisible();
 	} );
 } );
