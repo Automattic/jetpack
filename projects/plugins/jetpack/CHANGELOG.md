@@ -2,134 +2,106 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.9-beta - 2025-08-04
+## 14.9 - 2025-08-05
 ### Enhancements
+- Add new PayPal Payment block (beta). [#43932]
+- Forms: Add "Empty trash" button. [#44225]
+- Forms: Add Gravatars in form responses. [#44270]
+- Forms: Add link to disconnect Google. [#44253]
 - Forms: Add slider field block. [#44150]
+- Forms: Add tip that spam will automatically be deleted after 15 days. [#44226]
+- Forms: Improve email copy-to-clipboard visually and make it less hidden. [#44264]
+- Forms: Make phone fields clickable [#44291]
+- Forms: Refresh look of responses in dashboard. [#44262]
 - Forms: Submit forms without page reload. [#44422]
+- Forms: Update integration links. [#44255]
+- Forms: Update the date picker to remove jQuery and add a more performant version with keyboard navigation. [#43939]
+- Forms: Use sentence case in default consent text. [#44078]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
 - My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Open Graph Meta tags: Add a new fallback image to display on the home page. [#44336]
+- Open Graph meta tags: Support site logos when generating fallback Image Meta tags. [#44473]
 - Performance: Improve processing of blocks with the Blogging Prompt feature. [#44519]
+- Podcast player block: Improve page load performance by removing use of `lodash`. [#44319]
 - Sitemap: Reduce memory usage when generating sitemaps. [#44453]
 - Social: Improve performance when sanitizing OpenGraph tags. [#44569]
 - Social: Improve performance when selecting images for OpenGraph tags. [#44567]
+- Story block: Improve page load performance by removing use of `lodash`. [#44319]
 - Subscriptions: Improve performance of the legacy Subscriptions widget. [#44546]
+- Update PayPal Payment Buttons block to support rendering previews. [#44359]
+- Use the `view_stats` cap for the Jetpack Stats menu item instead of `manage_options`. [#44194]
 - Widget Conditions Module: Improve performance of block processing during conditional checking. [#44575]
 - WooCommerce Analytics Module: Improve performance of block processing during Analytics gathering. [#44544]
 
-### Bug fixes
-- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
-- My Jetpack: Restore plan purchase link. [#44535]
-- Newsletter: Fix bug in category settings. [#44537]
-- Subscriptions: Avoid enqueuing the legacy widget's stylesheet in block-based themes. [#44555]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add promotional sticker to `/sites` endpoint. [#44492]
-- Forms: Enable Jetpack AI to generate multistep forms. [#44452]
-- Forms: Update the way that the form id is being created for consistency and fix bugs. [#44501]
-- Infinite Scroll: Prevent PHP warnings when settings are malformed. [#44525]
-- Memberships: Add validation for newsletter plan tiers. [#44436]
-- Prevent PHP errors when directly accessing various files. [#44574]
-- Remove Dashboard link from Jetpack admin menu. [#44565]
-- Remove redundant setting of no-store directive on Cache-Control response header on Jetpack admin screen. [#44322]
-- Top Post and Pages Block: Style fixes for block placeholder. [#44572]
-
-## 14.9-a.7 - 2025-07-28
-### Enhancements
-- Open Graph Meta tags: Add a new fallback image to display on the home page. [#44336]
-- Open Graph meta tags: Support site logos when generating fallback Image Meta tags. [#44473]
-
-### Bug fixes
-- Carousel: Fix disabling all photon args when opening an image in a lightbox. [#44396]
-- Clear PayPal Payment button block parameters when changing block type. [#44388]
-- Forms: Fix padding on input and textarea fields. [#44401]
-- Forms: Fix the way forms are submitted. [#44399]
-- Forms: Enqueue view script only when the form is rendered. [#44460]
-- JITM: Remove jQuery dependency. [#43783]
-- Mailchimp block: Fix links to accommodate for a bug in Gutenberg. [#44474]
-- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
-- Related Posts: Ensure results are available via REST API directly. [#44371]
-- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page. [#44377]
-- Subscriptions: Display floating subscription button on mobile devices as well when enabled. [#44415]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Assistant: Fix Jetpack AI links on block editor. [#44405]
-- Autoupdate: Prevent warnings when data is malformed. [#44420]
-- Connection: Remove hard-coded custom errors and added support for dynamic errors. [#44281]
-- Dashboard: Prevent failure if stats endpoint returns an error. [#44417]
-- Site Abstraction Layer: Prevent PHP warnings by ensuring we use variables in the correct format. [#44413]
-- Slideshow block: Ensure image shows in editor when only one image is present. [#44457]
-- Testing: Add instructions for Jetpack 14.9. [#44497]
-
-## 14.9-a.5 - 2025-07-21
-### Enhancements
-- Add new PayPal Payment block (beta). [#43932]
-- Forms: Add Gravatars in form responses. [#44270]
-- Forms: Make phone fields clickable [#44291]
-- Forms: Use sentence case in default consent text. [#44078]
-- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
-- Podcast player block: Improve page load performance by removing use of `lodash`. [#44319]
-- Story block: Improve page load performance by removing use of `lodash`. [#44319]
-- Update PayPal Payment Buttons block to support rendering previews. [#44359]
-
-### Bug fixes
-- Dashboard: Use UTC for Jetpack Stats chart. [#44380]
-- Forms: Fix the way forms are submitted. [#44360]
-- Social: Fix image validation when images sizes are customised. [#44368]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Code Modernization: Replace usage of certain `preg_match()` checks with `str_contains()`. [#44324]
-- E2E tests: Remove redundant logic in test fixture and converted the fixture to Typscript. [#44327]
-- Editor assets endpoint: Reinstate missing Jetpack assets via handle-based exclusion logic. [#44274]
-- Subscriptions Widget: Add fallback values. [#44265]
-- Update dependencies. [#44099]
-- Update package dependencies. [#44356]
-- Widgets: Prevent PHP warning on legacy Twitter Timeline widget. [#44317]
-
-## 14.9-a.3 - 2025-07-14
-### Enhancements
-- Forms: Add "Empty trash" button. [#44225]
-- Forms: Add link to disconnect Google. [#44253]
-- Forms: Add tip that spam will automatically be deleted after 15 days. [#44226]
-- Forms: Improve email copy-to-clipboard visually and make it less hidden. [#44264]
-- Forms: Refresh look of responses in dashboard. [#44262]
-- Forms: Update integration links. [#44255]
-- Use the `view_stats` cap for the Jetpack Stats menu item instead of `manage_options`. [#44194]
-
-### Improved compatibility
-- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Block editor: Ensure editor assets endpoint excludes disallowed plugin assets. [#44093]
-- Catch PHP warnings if theme font definitions are in non-standard format. [#44235]
-- Comment Subscription Popup Modal: Fix PHP warning. [#44278]
-- Forms: Change test script and add component tests. [#44225]
-- Media: Prevent warnings in logs by checking for a directory before attempting to create a new file. [#44231]
-- Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
-- Update package dependencies. [#44206] [#44217]
-
-## 14.9-a.1 - 2025-07-07
-### Enhancements
-- Forms: Update the date picker to remove jQuery and add a more performant version with keyboard navigation. [#43939]
-
 ### Improved compatibility
 - Blocks: Prevent PHP errors when `jetpack_set_available_extensions` filter returns an unexpected data type. [#44166]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
 
 ### Bug fixes
 - Accessibility: Remove deprecated `clip` property from screen reader text with `clip-path`. [#44027]
 - Blocks: Return an error when a filter returns a non-array. [#44144]
+- Carousel: Fix disabling all photon args when opening an image in a lightbox. [#44396]
+- Clear PayPal Payment button block parameters when changing block type. [#44388]
+- Dashboard: Use UTC for Jetpack Stats chart. [#44380]
+- Forms: Enqueue view script only when the form is rendered. [#44460]
+- Forms: Fix padding on input and textarea fields. [#44401]
+- Forms: Fix the way forms are submitted. [#44360]
+- Forms: Fix the way forms are submitted. [#44399]
+- JITM: Remove jQuery dependency. [#43783]
+- Mailchimp block: Fix links to accommodate for a bug in Gutenberg. [#44474]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link. [#44535]
+- Newsletter: Fix bug in category settings. [#44537]
+- Related Posts: Ensure results are available via REST API directly. [#44371]
 - Sharing: Display correct Open Graph meta tags when a page uses a Query Loop block. [#44155]
+- Social: Fix image validation when images sizes are customised. [#44368]
+- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page. [#44377]
+- Subscriptions: Avoid enqueuing the legacy widget's stylesheet in block-based themes. [#44555]
+- Subscriptions: Display floating subscription button on mobile devices as well when enabled. [#44415]
 - VideoPress: Fix video row action button clickability by properly hiding stats on hover. [#44167]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add promotional sticker to `/sites` endpoint. [#44492]
+- AI Assistant: Fix Jetpack AI links on block editor. [#44405]
+- Autoupdate: Prevent warnings when data is malformed. [#44420]
+- Block editor: Ensure editor assets endpoint excludes disallowed plugin assets. [#44093]
+- Catch PHP warnings if theme font definitions are in non-standard format. [#44235]
+- Code Modernization: Replace usage of certain `preg_match()` checks with `str_contains()`. [#44324]
+- Comment Subscription Popup Modal: Fix PHP warning. [#44278]
 - Compatibility: Remove utility and selector import fallbacks as we no longer need to ensure compatibility in those cases. [#44164]
+- Connection: Remove hard-coded custom errors and added support for dynamic errors. [#44281]
+- Dashboard: Prevent failure if stats endpoint returns an error. [#44417]
 - Dashboard: Remove hosting information from initial state, as it is now retrieved via site utility functions. [#44133]
+- E2E tests: Remove redundant logic in test fixture and converted the fixture to Typscript. [#44327]
+- Editor assets endpoint: Reinstate missing Jetpack assets via handle-based exclusion logic. [#44274]
+- Forms: Change test script and add component tests. [#44225]
+- Forms: Enable Jetpack AI to generate multistep forms. [#44452]
+- Forms: Update the way that the form id is being created for consistency and fix bugs. [#44501]
+- Infinite Scroll: Prevent PHP warnings when settings are malformed. [#44525]
+- Media: Prevent warnings in logs by checking for a directory before attempting to create a new file. [#44231]
+- Memberships: Add validation for newsletter plan tiers. [#44436]
 - Newsletter: Fix bug in settings. [#44152]
+- Prevent PHP errors when directly accessing various files. [#44574]
+- Remove Dashboard link from Jetpack admin menu. [#44565]
+- Remove redundant setting of no-store directive on Cache-Control response header on Jetpack admin screen. [#44322]
 - SAL: Ensure that we don't check for properties on null. [#44195]
 - SEO tags: Do not use Open Graph utility function to strip query blocks when Open Graph functions are not availabe. [#44178]
+- Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
+- Site Abstraction Layer: Prevent PHP warnings by ensuring we use variables in the correct format. [#44413]
+- Slideshow block: Ensure image shows in editor when only one image is present. [#44457]
 - Social: Hide Social admin page if the site is not connected. [#44168]
 - Subscriptions: Disable option to add featured image to emails on private sites. [#44182]
+- Subscriptions Widget: Add fallback values. [#44265]
 - Support: Open the Jetpack Dashboard support link in the Help Center instead of redirecting to a new page. [#44172]
+- Testing: Add instructions for Jetpack 14.9. [#44497]
+- Top Post and Pages Block: Style fixes for block placeholder. [#44572]
 - Update composer.lock [#44170]
+- Update dependencies. [#44099]
 - Update package dependencies. [#44148] [#44151]
+- Update package dependencies. [#44206] [#44217]
+- Update package dependencies. [#44356]
+- Widgets: Prevent PHP warning on legacy Twitter Timeline widget. [#44317]
 - WordAds: Remove usage of `is_singular_post` to highlight that current page is available for inline ads. [#44186]
 
 ## 14.8 - 2025-07-01
