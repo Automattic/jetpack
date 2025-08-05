@@ -21,20 +21,6 @@ export default class Sidebar {
 		return await this._selectJetpackMenuItem( jetpackMenuSelector, menuItemSelector );
 	}
 
-	async selectInstalledPlugins() {
-		const pluginsSelector = '#menu-plugins';
-		const itemSelector = '#menu-plugins a[href*="plugins.php"]';
-
-		return await this._selectMenuItem( pluginsSelector, itemSelector );
-	}
-
-	async selectThemes() {
-		const pluginsSelector = '#menu-appearance';
-		const itemSelector = '#menu-appearance a[href*="themes.php"]';
-
-		return await this._selectMenuItem( pluginsSelector, itemSelector );
-	}
-
 	async _selectMenuItem( menuSelector: string, menuItemSelector: string ) {
 		const menuElement = this.page.locator( menuSelector );
 		const classes = await this.page.locator( menuSelector ).getAttribute( 'class' );
