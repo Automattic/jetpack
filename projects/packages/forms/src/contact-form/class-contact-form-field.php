@@ -272,7 +272,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field_type = $this->maybe_override_type();
 		// If it's not required, there's nothing to validate
-		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
+		if ( ! $this->get_attribute( 'required' ) && ! $this->has_value() ) {
+			return;
+		}
+
+		if ( ! $this->is_field_renderable( $field_type ) ) {
 			return;
 		}
 

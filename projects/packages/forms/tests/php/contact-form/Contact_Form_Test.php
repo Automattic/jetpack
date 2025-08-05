@@ -3040,6 +3040,7 @@ EOT;
 			array(
 				'name'   => $name,
 				'email'  => $email,
+				'invite' => 'hello@world', // not required
 				'choose' => $choose,
 				'pick'   => $pick,
 			),
@@ -3051,7 +3052,7 @@ EOT;
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/][contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Invite' type='email' /][contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/][contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
@@ -3062,6 +3063,7 @@ EOT;
 			array(
 				'Name field is required.',
 				'Email requires a valid email address.',
+				'Invite requires a valid email address.',
 				'Choose requires at least one selection.',
 				'Pick requires at least one selection.',
 			),
