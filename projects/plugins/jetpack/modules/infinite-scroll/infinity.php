@@ -1535,9 +1535,17 @@ class The_Neverending_Home_Page {
 				// If sharing counts are not initialized for any reason, we initialize them here.
 				if ( ! is_array( $jetpack_sharing_counts ) ) {
 					$jetpack_sharing_counts = array();
+				} else {
+					// Filter out non-string and non-integer values to avoid warnings with array_flip.
+					$flippable_jetpack_sharing_counts = array_filter(
+						$jetpack_sharing_counts,
+						function ( $value ) {
+							return is_string( $value ) || is_int( $value );
+						}
+					);
 				}
 
-				$results['postflair'] = array_flip( $jetpack_sharing_counts );
+				$results['postflair'] = array_flip( $flippable_jetpack_sharing_counts );
 			}
 		} else {
 			/** This action is already documented in modules/infinite-scroll/infinity.php */
