@@ -1,5 +1,5 @@
 import WpPage from '_jetpack-e2e-commons/pages/wp-page.js';
-import pwConfig from '../../../playwright.config.mjs';
+import pwConfig from '../../../playwright.config.ts';
 
 export default class FirstPostPage extends WpPage {
 	constructor( page ) {
