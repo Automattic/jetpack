@@ -1,5 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { SVG, Path } from '@wordpress/components';
+import clsx from 'clsx';
 import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import useStepNavigation from '../shared/hooks/use-step-navigation';
@@ -39,9 +40,10 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 							return (
 								<div
 									key={ index }
-									className={ `jetpack-form-progress-indicator-step${
-										isActive ? ' is-active' : ''
-									}${ isCompleted ? ' is-completed' : '' }` }
+									className={ clsx( 'jetpack-form-progress-indicator-step', {
+										'is-active': isActive,
+										'is-completed': isCompleted,
+									} ) }
 									data-step-index={ index }
 								>
 									<div className="jetpack-form-progress-indicator-line"></div>
