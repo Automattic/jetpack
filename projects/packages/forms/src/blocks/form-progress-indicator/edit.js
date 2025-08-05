@@ -32,10 +32,6 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 			<div className="jetpack-form-progress-indicator--wrapper">
 				<div { ...blockProps }>
 					<div className="jetpack-form-progress-indicator-steps">
-						<div
-							className="jetpack-form-progress-indicator-progress"
-							style={ { width: `${ progressPercentage }%` } }
-						></div>
 						{ steps.map( ( step, index ) => {
 							const isActive = index === currentStepInfo.index;
 							const isCompleted = index < currentStepInfo.index;
@@ -74,6 +70,10 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 								</div>
 							);
 						} ) }
+						<div
+							className="jetpack-form-progress-indicator-progress"
+							style={ { width: `${ progressPercentage }%` } }
+						></div>
 					</div>
 				</div>
 			</div>

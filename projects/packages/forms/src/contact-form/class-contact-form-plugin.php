@@ -788,10 +788,6 @@ class Contact_Form_Plugin {
 		$html .= sprintf( '<div class="%s">', $block_classes );
 		$html .= '<div class="jetpack-form-progress-indicator-steps">';
 
-		// Add progress element for both styles (uses different state getters)
-		$progress_state = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
-		$html          .= '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
-
 		// Add steps HTML only for dots style
 		if ( $is_dots_style ) {
 			for ( $i = 0; $i < $max_steps; $i++ ) {
@@ -815,6 +811,9 @@ class Contact_Form_Plugin {
 				$html .= '</div>';
 			}
 		}
+
+		$progress_state = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
+		$html          .= '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
 
 		$html .= '</div>'; // close steps
 		$html .= '</div>'; // close block
