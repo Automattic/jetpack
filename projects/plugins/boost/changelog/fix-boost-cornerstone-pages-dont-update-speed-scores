@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled.
