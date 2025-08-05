@@ -74,6 +74,14 @@
 		}
 	}
 
+	// Progress bar transitions for all styles
+	@media not (prefers-reduced-motion) {
+
+		.jetpack-form-progress-indicator-progress {
+			transition: width var(--jp-progress-animation-duration) ease;
+		}
+	}
+
 	&.is-style-dots {
 
 		// Override default line style with thin lines for dots
@@ -120,11 +128,6 @@
 		}
 
 		@media not (prefers-reduced-motion) {
-			// Progress bar transitions
-			.jetpack-form-progress-indicator-progress {
-				transition: width var(--jp-progress-animation-duration) ease;
-			}
-
 			// Transitions and animations for steps that aren't the first one
 			// (avoid first-load animation)
 			.jetpack-form-progress-indicator-step:not(:first-child) {
