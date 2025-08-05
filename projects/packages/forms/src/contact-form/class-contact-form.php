@@ -122,7 +122,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @var bool
 	 */
-	public $has_verified_jwt = false;
+	public $has_verified_jwt = false; // This value is not used any more, but we keep it for backward compatibility.
 
 	/**
 	 * The source of the feedback entry.
