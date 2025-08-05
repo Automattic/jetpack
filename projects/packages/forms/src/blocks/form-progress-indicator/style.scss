@@ -111,7 +111,7 @@
 		}
 
 		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot {
-			animation: dotAppear 0.3s ease-out;
+			animation: jetpack_forms_dotAppear 0.3s ease-out;
 			animation-delay: 0.3s; // Wait for progress bar to finish
 			animation-fill-mode: both;
 			background-color: var(--jp-progress-color);
@@ -134,7 +134,7 @@
 			font-size: 1.125rem;
 		}
 
-		@keyframes dotAppear {
+		@keyframes jetpack_forms_dotAppear {
 
 			0% {
 				transform: scale(1);
