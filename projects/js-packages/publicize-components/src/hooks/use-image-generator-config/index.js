@@ -9,6 +9,7 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
 	imageType: sigSettings?.image_type ?? null,
 	imageId: sigSettings?.image_id ?? null,
 	template: sigSettings?.template ?? null,
+	font: sigSettings?.font ?? '',
 	token: sigSettings?.token ?? null,
 	defaultImageId: sigSettings?.default_image_id ?? 0,
 } );
@@ -21,6 +22,7 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
  * @property {string}   imageType      - Optional. Type of the image in the generated image.
  * @property {number}   imageId        - Optional. ID of the image in the generated image.
  * @property {string}   template       - Template for the generated image.
+ * @property {string}   font           - Font for the image text.
  * @property {number}   defaultImageId - Optional. ID of the default image.
  * @property {Function} setIsEnabled   - Callback to enable or disable the image generator for a post.
  * @property {Function} updateProperty - Callback to update various SIG settings.
