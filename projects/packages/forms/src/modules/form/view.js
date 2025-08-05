@@ -417,7 +417,9 @@ const { state } = store( NAMESPACE, {
 			}
 		} ),
 
-		goBack: () => {
+		goBack: event => {
+			event.preventDefault();
+			event.stopPropagation();
 			const context = getContext();
 
 			const form = document.getElementById( context.elementId );
@@ -435,7 +437,6 @@ const { state } = store( NAMESPACE, {
 			url.searchParams.delete( 'contact-form-hash' );
 			url.searchParams.delete( '_wpnonce' );
 			window.history.replaceState( null, '', url.toString() );
-			return false;
 		},
 	},
 
