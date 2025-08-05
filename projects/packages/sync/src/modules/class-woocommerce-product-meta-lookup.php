@@ -13,6 +13,13 @@ use WP_Error;
  * Class to handle sync for WooCommerce Product Meta Lookup table.
  */
 class WooCommerce_Product_Meta_Lookup extends Module {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		// Preprocess action to be sent by Jetpack sync for wp_delete_post.
+		add_action( 'delete_post', array( $this, 'action_wp_delete_post' ), 10, 1 );
+	}
 
 	/**
 	 * Sync module name.
@@ -70,15 +77,16 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 		// Listen to product creation and updates - these hooks trigger lookup table updates
 		add_action( 'woocommerce_new_product', $callable, 10, 1 );
 		add_action( 'woocommerce_update_product', $callable, 10, 1 );
-		add_action( 'woocommerce_delete_product', $callable, 10, 1 );
 
 		// Listen to variation creation and updates (they also affect lookup table)
 		add_action( 'woocommerce_new_product_variation', $callable, 10, 1 );
 		add_action( 'woocommerce_update_product_variation', $callable, 10, 1 );
-		add_action( 'woocommerce_delete_product_variation', $callable, 10, 1 );
 
 		// Listen to specific stock update.
 		add_action( 'woocommerce_updated_product_stock', $callable, 10, 1 );
+
+		// Listen to product deletion via wp_delete_post (more reliable than WC hooks)
+		add_action( 'jetpack_sync_woocommerce_product_deleted', $callable, 10, 1 );
 
 		// Add filters to expand product data before sync
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_product', array( $this, 'expand_product_data' ) );
@@ -86,6 +94,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_product_variation', array( $this, 'expand_product_data' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_product_variation', array( $this, 'expand_product_data' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_updated_product_stock', array( $this, 'expand_product_data' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_woocommerce_product_deleted', array( $this, 'expand_product_data' ) );
 	}
 
 	/**
@@ -118,6 +127,25 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	public function init_before_send() {
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_product_meta_lookup', array( $this, 'build_full_sync_action_array' ) );
+	}
+
+	/**
+	 * Handle wp_delete_post action and trigger custom product deletion sync for WooCommerce products.
+	 *
+	 * @param int $post_id The post ID being deleted.
+	 */
+	public function action_wp_delete_post( $post_id ) {
+		$post_type = get_post_type( $post_id );
+
+		// Only process WooCommerce product and product variation post types
+		if ( in_array( $post_type, array( 'product', 'product_variation' ), true ) ) {
+			/**
+			 * Fires when a WooCommerce product is deleted via wp_delete_post.
+			 *
+			 * @param int $post_id The product ID being deleted.
+			 */
+			do_action( 'jetpack_sync_woocommerce_product_deleted', $post_id );
+		}
 	}
 
 	/**
@@ -255,7 +283,9 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 		// Attempt to retrieve the WooCommerce product object and its COGS value.
 		$lookup_data['cogs_amount'] = null;
 
-		if ( function_exists( 'wc_get_product' ) ) {
+		$cogs_enabled = class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) && \Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled( 'cost_of_goods_sold' );
+
+		if ( $cogs_enabled && function_exists( 'wc_get_product' ) ) {
 			$product = wc_get_product( $product_id );
 			if ( $product instanceof \WC_Product && is_callable( array( $product, 'get_cogs_value' ) ) ) {
 				$lookup_data['cogs_amount'] = $product->get_cogs_value();
