@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Full Sync: Ensure the full syunc limits values are int, no matter what is stored in Settings
