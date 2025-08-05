@@ -777,7 +777,11 @@
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
 
+			// Load current image immediately
 			loadFullImage( carousel.slides[ index ] );
+
+			// Preload adjacent images in background
+			preloadAdjacentImages( index );
 
 			if (
 				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
@@ -1308,6 +1312,38 @@
 			}
 		}
 
+		function preloadAdjacentImages( currentIndex ) {
+			var indicesToPreload = [];
+			var totalSlides = carousel.slides.length;
+
+			// Only preload adjacent images if we have more than one slide (matching loop condition)
+			if ( totalSlides > 1 ) {
+				// Previous image (with loop handling)
+				var prevIndex = currentIndex > 0 ? currentIndex - 1 : totalSlides - 1;
+				indicesToPreload.push( prevIndex );
+
+				// Next image (with loop handling)
+				var nextIndex = currentIndex < totalSlides - 1 ? currentIndex + 1 : 0;
+				indicesToPreload.push( nextIndex );
+			}
+
+			indicesToPreload.forEach( function ( index ) {
+				var slide = carousel.slides[ index ];
+				if ( slide ) {
+					// Load in background without showing
+					loadFullImage( slide );
+
+					// Also load background image if enabled
+					if (
+						Number( jetpackCarouselStrings.display_background_image ) === 1 &&
+						! slide.backgroundImage
+					) {
+						loadBackgroundImage( slide );
+					}
+				}
+			} );
+		}
+
 		function loadBackgroundImage( slide ) {
 			var currentSlide = slide.el;
 
@@ -1438,7 +1474,6 @@
 					// Initially, the image is a 1x1 transparent gif.
 					// The preview is shown as a background image on the slide itself.
 					var image = new Image();
-					image.src = attrs.src;
 
 					var slideEl = document.createElement( 'div' );
 					slideEl.classList.add( 'swiper-slide' );

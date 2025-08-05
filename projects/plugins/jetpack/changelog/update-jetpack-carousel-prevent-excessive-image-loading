@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Carousel: Fix crashes on large galleries and reduce server requests, by preloading only adjacent images instead of all at once.
