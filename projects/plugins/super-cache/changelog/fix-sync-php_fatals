@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Pass all params to `wp_login` action.
-
-
