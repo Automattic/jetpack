@@ -777,25 +777,32 @@ class Contact_Form_Plugin {
 
 		$is_dots_style = isset( $attributes['className'] ) && strpos( $attributes['className'], 'is-style-dots' ) !== false;
 
-		// Build inline styles for custom colors
-		$style_vars = array();
+		// Build custom CSS variables for progress indicator colors
+		$custom_styles = array();
 
 		if ( isset( $attributes['progressColor'] ) ) {
-			$style_vars[] = '--jp-progress-color: ' . esc_attr( $attributes['progressColor'] );
+			$custom_styles[] = '--jp-progress-color: ' . esc_attr( $attributes['progressColor'] );
 		}
 
 		if ( isset( $attributes['progressBackgroundColor'] ) ) {
-			$style_vars[] = '--jp-progress-bg: ' . esc_attr( $attributes['progressBackgroundColor'] );
+			$custom_styles[] = '--jp-progress-bg: ' . esc_attr( $attributes['progressBackgroundColor'] );
 		}
 
-		// Text color is handled by get_block_wrapper_attributes
+		// Use WordPress Style Engine for block supports (dimensions, spacing, etc.)
+		$generated_styles = wp_style_engine_get_styles( $attributes['style'] ?? null );
+
+		// Combine all styles
+		$all_styles = array_filter( array_merge( $custom_styles, explode( ';', $generated_styles['css'] ) ) );
 
 		$extra_attributes = array();
-		if ( ! empty( $style_vars ) ) {
-			$extra_attributes['style'] = implode( '; ', $style_vars );
+		if ( ! empty( $all_styles ) ) {
+			$extra_attributes['style'] = implode( '; ', $all_styles );
 		}
 
-		// Use core function to handle block supports
+		if ( ! empty( $generated_styles['classnames'] ) ) {
+			$extra_attributes['class'] = $generated_styles['classnames'];
+		}
+
 		$wrapper_attributes = get_block_wrapper_attributes( $extra_attributes );
 
 		// Build the complete HTML structure

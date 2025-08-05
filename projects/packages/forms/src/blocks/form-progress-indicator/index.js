@@ -60,9 +60,6 @@ export const settings = {
 		progressBackgroundColor: {
 			type: 'string',
 		},
-		style: {
-			type: 'object',
-		},
 	},
 	usesContext: [ 'jetpack/form-steps', 'jetpack/form-current-step' ],
 	styles: [
