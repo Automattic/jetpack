@@ -1,5 +1,4 @@
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
@@ -7,7 +6,7 @@ import { JetpackBoostPage } from '../../lib/pages/index.js';
 test.describe( 'LCP Image Optimization module', () => {
 	let page;
 
-	test.beforeAll( async ( { browser } ) => {
+	test.beforeAll( async ( { browser, testUtils } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
@@ -15,11 +14,11 @@ test.describe( 'LCP Image Optimization module', () => {
 			.withSpeedScoreMocked( true )
 			.build();
 
-		await execWpCommand( 'plugin activate e2e-mock-lcp-optimization-api' );
+		await testUtils.executeWpCommand( 'plugin activate e2e-mock-lcp-optimization-api' );
 	} );
 
-	test.afterAll( async () => {
-		await execWpCommand( 'plugin deactivate e2e-mock-lcp-optimization-api' );
+	test.afterAll( async ( { testUtils } ) => {
+		await testUtils.executeWpCommand( 'plugin deactivate e2e-mock-lcp-optimization-api' );
 
 		await page.close();
 	} );

@@ -5,6 +5,10 @@
  *            /sites/%s/posts/slug:%s -> $blog_id, $post_id
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Get_Post_Endpoint(
 	array(
 		'description'                          => 'Get a single post (by ID).',

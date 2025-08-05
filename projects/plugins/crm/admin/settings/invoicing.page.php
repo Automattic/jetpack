@@ -30,6 +30,8 @@ if(!isset($whwpCountryList)) require_once( ZEROBSCRM_INCLUDE_PATH . 'wh.countryc
 
 */
 
+$sbupdated = false;
+
 // } Act on any edits!
 if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
@@ -169,11 +171,10 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 <p id="sbDesc"><?php esc_html_e( 'Tailor CRM invoicing to work for your business or organisation.', 'zero-bs-crm' ); ?></p>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
-		echo '</div><br>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+	echo '</div><br>';
 }
 ?>
 

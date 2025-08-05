@@ -10,6 +10,10 @@
 
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Template variables.
  *

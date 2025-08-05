@@ -45,8 +45,6 @@ return [
     // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanPluginDuplicateIfCondition : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
-    // PhanRedundantConditionInGlobalScope : 1 occurrence
-    // PhanRedundantConditionInLoop : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeConversionFromArray : 1 occurrence
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 1 occurrence
@@ -61,7 +59,7 @@ return [
         'advanced-cache.php' => ['PhanPluginSimplifyExpressionBool'],
         'inc/delete-cache-button.php' => ['PhanPluginNeverReturnFunction', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'ossdl-cdn.php' => ['PhanUndeclaredClassMethod'],
-        'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
+        'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/debug.php' => ['PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/easy.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
         'partials/lockdown.php' => ['PhanUndeclaredGlobalVariable'],
@@ -79,7 +77,7 @@ return [
         'wp-cache-base.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'wp-cache-phase1.php' => ['PhanTypeNonVarPassByRef'],
         'wp-cache-phase2.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateIfCondition', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNull', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredVariableDim'],
-        'wp-cache.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfAdd', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUndeclaredVariableDim'],
+        'wp-cache.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfAdd', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUndeclaredVariableDim'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

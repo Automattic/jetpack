@@ -4,7 +4,7 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 14.9-a.7
+ * Version: 14.9-beta
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -14,27 +14,31 @@
  * @package automattic/jetpack
  */
 
+/*
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
-/*
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '6.7' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '7.2' );
-define( 'JETPACK__VERSION', '14.9-a.7' );
+define( 'JETPACK__VERSION', '14.9-beta' );
 
 /**
  * Constant used to fetch the connection owner token

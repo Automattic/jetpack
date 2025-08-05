@@ -9,9 +9,11 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit( 0 );
 }
 
-global $wpdb, $zbs;  // } Req
+global $zbs;
 
 $settings = $zbs->settings->getAll();
+
+$sbupdated = false;
 
 // } Act on any edits!
 if ( isset( $_POST['editzbsmail'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
@@ -72,11 +74,10 @@ if ( isset( $_POST['editzbsmail'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 </p>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
-		echo '</div>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+	echo '</div>';
 }
 ?>
 

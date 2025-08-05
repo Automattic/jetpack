@@ -44,8 +44,12 @@ export default {
 			sendToSalesforce: false,
 		},
 	},
-	connectMailPoet: {
-		type: 'boolean',
-		default: false,
+	mailpoet: {
+		type: 'object',
+		default: {
+			enabledForForm: false,
+			listId: null,
+			listName: null,
+		},
 	},
 };

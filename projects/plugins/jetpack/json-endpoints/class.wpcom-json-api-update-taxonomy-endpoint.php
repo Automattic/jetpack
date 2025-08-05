@@ -11,6 +11,10 @@
  * Delete a tag:          /sites/%s/tags/slug:%s/delete
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint(
 	array(
 		'description'          => 'Create a new category.',

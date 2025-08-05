@@ -8,6 +8,10 @@
 
 use Automattic\Jetpack\Backup\V0005\Helper_Script_Manager;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * API endpoint /sites/%s/install-backup-helper-script
  * This API endpoint installs a Helper Script to assist Jetpack Backup fetch data

@@ -32,6 +32,8 @@ if ( ! zeroBSCRM_isExtensionInstalled( 'portal' ) ) {
 
 $settings = $zbs->settings->getAll();
 
+$sbupdated = false;
+
 // } Act on any edits!
 if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
@@ -76,7 +78,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	$zbsStatusSetting          = 'all';
 	$zbsStatusSettingPotential = array();
 	$zbsStatuses               = explode( ',', $zbsStatusStr );
-	if ( is_array( $zbsStatuses ) ) {
+
 		foreach ( $zbsStatuses as $statusStr ) {
 
 			// permify
@@ -85,7 +87,6 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 			// check post
 			if ( isset( $_POST[ 'wpzbscrm_portaluser_group_' . $statusKey ] ) ) {
 				$zbsStatusSettingPotential[] = $statusKey;
-			}
 		}
 	}
 
@@ -158,11 +159,10 @@ if ( current_user_can( 'admin_zerobs_manage_options' ) && ! zeroBSCRM_isExtensio
 
 <p id="sbDesc"><?php esc_html_e( 'Configure your Client Portal settings here.', 'zero-bs-crm' ); ?></p>
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
-		echo '</div><br>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+	echo '</div><br>';
 }
 ?>
 
@@ -355,7 +355,7 @@ if ( isset( $sbupdated ) ) {
 					}
 
 					$zbsStatuses = explode( ',', $zbsStatusStr );
-					if ( is_array( $zbsStatuses ) ) {
+					if ( count( $zbsStatuses ) > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						// each status
 						foreach ( $zbsStatuses as $statusStr ) {

@@ -6,6 +6,11 @@
  */
 
 use Automattic\Jetpack\Status;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List modules v1.2 endpoint.
  *

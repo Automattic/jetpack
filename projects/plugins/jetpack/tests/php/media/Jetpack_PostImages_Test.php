@@ -1058,13 +1058,14 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if an array of images can be extracted from Image blocks using Block_Delimiter.
+	 * Test if an array of images can be extracted from Image blocks using Block_Scanner.
 	 *
 	 * @since 14.8
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
-	public function test_from_blocks_with_block_delimiter() {
-		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
-			$this->markTestSkipped( 'Block_Delimiter not available' );
+	public function test_from_blocks_with_block_scanner() {
+		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
+			$this->markTestSkipped( 'Block_Scanner not available' );
 		}
 
 		$post_info = $this->get_post_with_image_block();
@@ -1079,13 +1080,14 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if an array of images can be extracted from Gallery blocks using Block_Delimiter.
+	 * Test if an array of images can be extracted from Gallery blocks using Block_Scanner.
 	 *
 	 * @since 14.8
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
-	public function test_from_blocks_with_gallery_block_delimiter() {
-		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
-			$this->markTestSkipped( 'Block_Delimiter not available' );
+	public function test_from_blocks_with_gallery_block_scanner() {
+		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
+			$this->markTestSkipped( 'Block_Scanner not available' );
 		}
 
 		$post_info = $this->get_post_with_gallery_block();
@@ -1100,13 +1102,14 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if an array of images can be extracted from Columns blocks using Block_Delimiter.
+	 * Test if an array of images can be extracted from Columns blocks using Block_Scanner.
 	 *
 	 * @since 14.8
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
-	public function test_from_blocks_with_columns_block_delimiter() {
-		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
-			$this->markTestSkipped( 'Block_Delimiter not available' );
+	public function test_from_blocks_with_columns_block_scanner() {
+		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
+			$this->markTestSkipped( 'Block_Scanner not available' );
 		}
 
 		$post_info = $this->get_post_with_columns_block();
@@ -1121,13 +1124,14 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if an array of images can be extracted from Story blocks using Block_Delimiter.
+	 * Test if an array of images can be extracted from Story blocks using Block_Scanner.
 	 *
 	 * @since 14.8
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
-	public function test_from_blocks_with_story_block_delimiter() {
-		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
-			$this->markTestSkipped( 'Block_Delimiter not available' );
+	public function test_from_blocks_with_story_block_scanner() {
+		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
+			$this->markTestSkipped( 'Block_Scanner not available' );
 		}
 
 		$media_types = array( 'image', 'videopress' );
@@ -1144,13 +1148,14 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if an array of images can be extracted from mixed blocks using Block_Delimiter.
+	 * Test if an array of images can be extracted from mixed blocks using Block_Scanner.
 	 *
 	 * @since 14.8
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
-	public function test_from_blocks_with_mixed_blocks_delimiter() {
-		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
-			$this->markTestSkipped( 'Block_Delimiter not available' );
+	public function test_from_blocks_with_mixed_blocks_scanner() {
+		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
+			$this->markTestSkipped( 'Block_Scanner not available' );
 		}
 
 		$img_name       = 'image.jpg';

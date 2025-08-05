@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Block_Delimiter;
+use Automattic\Block_Scanner;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
 /**
@@ -423,6 +423,7 @@ class Jetpack_PostImages {
 	 *
 	 * @since 6.9.0
 	 * @since 14.8 Updated to use Block_Delimiter for improved performance.
+	 * @since 14.9 Updated to use Block_Scanner for improved performance.
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 * @param int   $width      Minimum Image width.
@@ -437,8 +438,13 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
+		$scanner = Block_Scanner::create( $html_info['html'] );
+		if ( ! $scanner ) {
+			return $images;
+		}
+
 		/*
-		 * Use Block_Delimiter to parse our post content HTML,
+		 * Use Block_Scanner to parse our post content HTML,
 		 * and find all the block delimiters for supported blocks,
 		 * whether they're parent or nested blocks.
 		 */
@@ -451,18 +457,20 @@ class Jetpack_PostImages {
 			'jetpack/story',
 		);
 
-		foreach ( Block_Delimiter::scan_delimiters( $html_info['html'] ) as $where => $delimiter ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		while ( $scanner->next_delimiter() ) {
+			$type = $scanner->get_delimiter_type();
 			// Only process opening delimiters for supported block types.
-			if ( Block_Delimiter::OPENER !== $delimiter->get_delimiter_type() ) {
+			if ( Block_Scanner::OPENER !== $type ) {
 				continue;
 			}
 
-			$block_type = $delimiter->allocate_and_return_block_type();
-			if ( ! in_array( $block_type, $supported_blocks, true ) ) {
+			$block_type         = $scanner->get_block_type();
+			$is_supported_block = in_array( $block_type, $supported_blocks, true );
+			if ( ! $is_supported_block ) {
 				continue;
 			}
 
-			$attributes   = $delimiter->allocate_and_return_parsed_attributes() ?? array();
+			$attributes   = $scanner->allocate_and_return_parsed_attributes() ?? array();
 			$block_images = self::get_images_from_block_attributes( $block_type, $attributes, $html_info, $width, $height );
 
 			if ( ! empty( $block_images ) ) {

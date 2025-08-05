@@ -2341,7 +2341,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Prepares feedback post data for CSV export.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.1.0
 	 *
 	 * @see get_export_feedback_data()
 	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
@@ -2349,7 +2349,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_export_data_for_posts( $post_ids ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_feedback_data()' );
+		_deprecated_function( __METHOD__, 'package-5.1.0', 'Contact_Form_Plugin::get_export_feedback_data()' );
 		return $this->get_export_feedback_data( $post_ids );
 	}
 
@@ -2360,12 +2360,12 @@ class Contact_Form_Plugin {
 	 * - Positive values render AFTER any form field/value column: 1, 30, 93...
 	 *   Mind using high numbering on these ones as the prefix is used on regular inputs: 1_Name, 2_Email, etc
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.1.0
 	 *
 	 * @return array
 	 */
 	public function get_well_known_column_names() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_column_names()' );
+		_deprecated_function( __METHOD__, 'package-5.1.0', 'Contact_Form_Plugin::get_export_column_names()' );
 		return array(
 			'-9_title'         => __( 'Title', 'jetpack-forms' ),
 			'-6_source'        => __( 'Source', 'jetpack-forms' ),
@@ -3088,6 +3088,26 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_rating( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'rating', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the slider field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
+		// Get min, max, and default from the parent block's attributes.
+		$parent_attrs    = $block->parsed_block['attrs'] ?? array();
+		$atts['min']     = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
+		$atts['max']     = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
+		$atts['default'] = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
+
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 }

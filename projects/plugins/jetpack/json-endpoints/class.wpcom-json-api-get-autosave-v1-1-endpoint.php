@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint(
 	array(
 		'description'     => 'Get the most recent autosave for a post.',

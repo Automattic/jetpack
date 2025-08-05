@@ -1,3 +1,4 @@
+import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
 import type { ReactNode } from 'react';
 
 /**
@@ -120,6 +121,14 @@ declare global {
 			};
 		};
 		MSStream?: unknown;
+		ajaxurl?: string;
+		jpDatePicker?: {
+			lang: ILanguage;
+			offset: string;
+		};
+		jetpackForms?: {
+			generateStyleVariables: ( formNode: HTMLElement ) => Record< string, string >;
+		};
 	}
 }
 

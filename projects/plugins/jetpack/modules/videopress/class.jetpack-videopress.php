@@ -4,6 +4,11 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\VideoPress\Attachment_Handler;
 use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * VideoPress in Jetpack
  */
