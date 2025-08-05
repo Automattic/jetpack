@@ -1,59 +1,52 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { FirstPostPage } from '../../lib/pages/index.js';
+import { test, expect } from '../../lib/fixtures/test.ts';
+import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'Image CDN', () => {
-	let page;
-
 	test.beforeAll( async ( { browser } ) => {
-		page = await browser.newPage( playwrightConfig.use );
+		const page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
 			.withMockConnection( true )
 			.withSpeedScoreMocked( true )
 			.build();
-	} );
-
-	test.afterAll( async () => {
 		await page.close();
 	} );
 
 	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async ( {
 		testUtils,
+		page,
 	} ) => {
 		await testUtils.deactivateBoostModule( 'image_guide' );
+		await page.goto( '/?p=1' );
 
-		const firstPostPage = await FirstPostPage.visit( page );
-
-		expect(
-			await firstPostPage.isImageGuideScriptPresent(),
+		await expect(
+			page.locator( '#jetpack-boost-guide-js' ),
 			'Image Guide script shouldn`t be present'
-		).toBeFalsy();
+		).toHaveCount( 0 );
 	} );
 
 	test( 'Image Guide functionality should be active when the module is active', async ( {
 		testUtils,
+		page,
 	} ) => {
 		await testUtils.activateBoostModule( 'image_guide' );
 		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
-		const firstPostPage = await FirstPostPage.visit( page );
+		await page.goto( '/?p=1' );
 
-		expect(
-			await firstPostPage.isImageGuideScriptPresent(),
-			'Image Guide script should be present'
-		).toBeTruthy();
+		await expect( async () => {
+			const count = await page.locator( '#jetpack-boost-guide-js' ).count();
+			expect( count, 'Image Guide script should be present' ).toBeGreaterThan( 0 );
+		} ).toPass( { timeout: 10000 } );
 
-		expect(
-			await firstPostPage.isImageGuideAdminBarItemPresent(),
+		await expect(
+			page.locator( '#wp-toolbar #jetpack-boost-guide-bar' ),
 			'Image Guide admin bar item should be present'
-		).toBeTruthy();
+		).toBeVisible();
 
-		console.log( await firstPostPage.isImageGuideUIPresent() );
-
-		expect(
-			await firstPostPage.isImageGuideUIPresent(),
+		await expect(
+			page.locator( '.jetpack-boost-guide > .guide' ),
 			'Image Guide UI item should be present'
-		).toBeTruthy();
+		).toBeVisible();
 	} );
 } );
