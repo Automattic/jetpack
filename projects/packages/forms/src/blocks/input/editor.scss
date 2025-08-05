@@ -4,8 +4,8 @@
 	.jetpack-field__textarea {
 		box-sizing: border-box;
 
-		input.jetpack-field__input-element,
-		textarea.jetpack-field__input-element {
+		// these class is used to style input and textarea elements
+		.jetpack-field__input-element {
 			border: 0;
 			font: inherit;
 			flex: 1;
@@ -35,7 +35,8 @@
 			border: 0;
 			color: inherit;
 
-			select.jetpack-field__input-element {
+			// these class is used to style select elements
+			.jetpack-field__input-element {
 				font: inherit;
 				border: 0;
 				color: inherit;
