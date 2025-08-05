@@ -6,7 +6,7 @@ export default {
 	...baseConfig,
 	actionTimeout: 40 * 1000,
 	projects: [
-		...setupProjects,
+		...setupProjects.filter( project => project.name !== 'connection setup' ),
 		{
 			name: 'jetpack boost e2e',
 			testMatch: '**/specs/**',
