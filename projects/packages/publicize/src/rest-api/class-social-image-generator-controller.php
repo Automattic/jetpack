@@ -50,10 +50,13 @@ class Social_Image_Generator_Controller extends Base_Controller {
 			$this->namespace,
 			'/' . $this->rest_base . '/generate-token',
 			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'generate_preview_token' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
-				'args'                => array(
+				'methods'                        => WP_REST_Server::CREATABLE,
+				'callback'                       => array( $this, 'generate_preview_token' ),
+				'permission_callback'            => array( $this, 'permissions_check' ),
+				'private_site_security_settings' => array(
+					'allow_blog_token_access' => true,
+				),
+				'args'                           => array(
 					'text'      => array(
 						'description' => __( 'The text to be used to generate the image.', 'jetpack-publicize-pkg' ),
 						'type'        => 'string',
@@ -76,7 +79,7 @@ class Social_Image_Generator_Controller extends Base_Controller {
 						'enum'        => Templates::TEMPLATES,
 					),
 				),
-				'schema'              => array(
+				'schema'                         => array(
 					'$schema' => 'http://json-schema.org/draft-04/schema#',
 					'title'   => 'publicize-sig-generate-token',
 					'type'    => 'string',
