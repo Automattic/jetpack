@@ -763,16 +763,14 @@ class Contact_Form_Plugin {
 		$max_steps = Contact_Form_Block::get_form_step_count();
 
 		$style_handle = 'jetpack-form-progress-indicator-style';
-		$style_path   = '../../dist/blocks/form-progress-indicator/style.css';
 		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
-			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+			wp_enqueue_style( $style_handle, plugins_url( 'dist/blocks/form-progress-indicator/style.css', dirname( __DIR__ ) ), array(), $version );
 		}
 
 		$script_handle = 'jetpack-form-progress-indicator';
-		$script_path   = '../../dist/modules/form-progress-indicator/view.js';
 		\wp_enqueue_script_module(
 			$script_handle,
-			plugins_url( $script_path, __FILE__ ),
+			plugins_url( 'dist/modules/form-progress-indicator/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
 			$version
 		);
