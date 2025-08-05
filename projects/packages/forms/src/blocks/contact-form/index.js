@@ -58,11 +58,6 @@ export const settings = {
 			margin: true,
 		},
 		align: [ 'wide', 'full' ],
-		layout: {
-			default: {
-				type: 'constrained',
-			},
-		},
 	},
 	attributes: defaultAttributes,
 	providesContext: {

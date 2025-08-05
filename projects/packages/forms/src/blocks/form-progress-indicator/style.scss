@@ -12,11 +12,6 @@
 	width: 100%;
 	box-sizing: border-box;
 
-	// Ensure all child elements respect the container width
-	* {
-		box-sizing: border-box;
-	}
-
 	.jetpack-form-progress-indicator-steps {
 		display: flex;
 		justify-content: space-between;
