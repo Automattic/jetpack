@@ -104,13 +104,6 @@ function zeroBS_contact_actions( $cID = -1, $cObj = false ) {
 
 						}
 						
-						// Add Generate Statement action
-						$actions_array['viewstatement'] = array(
-							'url'   => jpcrm_esc_link( 'view', $cID, 'zerobs_customer' ) . '&tab=statement',
-							'label' => __( 'Generate Statement', 'zero-bs-crm' ),
-							'ico'   => 'file text outline icon',
-						);
-						
 						$actions_array['sendstatement'] = array(
 
 							// take out url if JS fired action 'url' => '#sendstatement',
