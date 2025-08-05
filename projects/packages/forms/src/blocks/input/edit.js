@@ -72,6 +72,7 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 		return (
 			<div { ...blockProps }>
 				<textarea
+					className="jetpack-field__input-element"
 					onChange={ onChange }
 					value={ isSelected ? placeholder : '' }
 					placeholder={ placeholder }
@@ -90,6 +91,7 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 		<>
 			<div { ...blockProps }>
 				<input
+					className="jetpack-field__input-element"
 					onChange={ onChange }
 					onKeyDown={ onKeyDown }
 					type="text"

@@ -4,8 +4,8 @@
 	.jetpack-field__textarea {
 		box-sizing: border-box;
 
-		input,
-		textarea {
+		input.jetpack-field__input-element,
+		textarea.jetpack-field__input-element {
 			border: 0;
 			font: inherit;
 			flex: 1;
@@ -15,10 +15,15 @@
 			width: inherit;
 			box-sizing: border-box;
 			resize: none;
+			padding: 0;
 
 			&::before,
 			&::after {
 				box-sizing: inherit;
+			}
+
+			&:focus {
+				box-shadow: none;
 			}
 		}
 	}
@@ -30,12 +35,17 @@
 			border: 0;
 			color: inherit;
 
-			select {
+			select.jetpack-field__input-element {
 				font: inherit;
 				border: 0;
 				color: inherit;
 				outline: none;
 				background: inherit;
+				padding: 0;
+
+				&:focus {
+					box-shadow: none;
+				}
 			}
 		}
 	}
