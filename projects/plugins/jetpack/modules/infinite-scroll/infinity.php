@@ -633,7 +633,7 @@ class The_Neverending_Home_Page {
 
 		// code inspired by WP_Query class
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
-			$search_terms = self::wp_query()->query_vars['search_terms'];
+			$search_terms = self::wp_query()->query_vars['search_terms'] ?? null;
 			// if the search string has only short terms or stopwords, or is 10+ terms long, match it as sentence
 			if ( empty( $search_terms ) || ! is_countable( $search_terms ) || count( $search_terms ) > 9 ) {
 				$search_terms = array( self::wp_query()->get( 's' ) );
@@ -890,6 +890,7 @@ class The_Neverending_Home_Page {
 			if (
 				is_a( $taxonomy, 'WP_Taxonomy' )
 				&& is_countable( $taxonomy->object_type )
+				&& ! empty( $taxonomy->object_type )
 				&& count( $taxonomy->object_type ) < 2
 			) {
 				$post_type = $taxonomy->object_type[0];
