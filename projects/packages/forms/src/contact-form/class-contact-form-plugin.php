@@ -775,17 +775,32 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		// Build block classes
-		$block_classes = 'wp-block-jetpack-form-progress-indicator';
-		if ( isset( $attributes['className'] ) ) {
-			$block_classes .= ' ' . esc_attr( $attributes['className'] );
+		$is_dots_style = isset( $attributes['className'] ) && strpos( $attributes['className'], 'is-style-dots' ) !== false;
+
+		// Build inline styles for custom colors
+		$style_vars = array();
+
+		if ( isset( $attributes['progressColor'] ) ) {
+			$style_vars[] = '--jp-progress-color: ' . esc_attr( $attributes['progressColor'] );
 		}
 
-		$is_dots_style = isset( $attributes['className'] ) && strpos( $attributes['className'], 'is-style-dots' ) !== false;
+		if ( isset( $attributes['progressBackgroundColor'] ) ) {
+			$style_vars[] = '--jp-progress-bg: ' . esc_attr( $attributes['progressBackgroundColor'] );
+		}
+
+		// Text color is handled by get_block_wrapper_attributes
+
+		$extra_attributes = array();
+		if ( ! empty( $style_vars ) ) {
+			$extra_attributes['style'] = implode( '; ', $style_vars );
+		}
+
+		// Use core function to handle block supports
+		$wrapper_attributes = get_block_wrapper_attributes( $extra_attributes );
 
 		// Build the complete HTML structure
 		$html  = '<div class="jetpack-form-progress-indicator--wrapper">';
-		$html .= sprintf( '<div class="%s">', $block_classes );
+		$html .= sprintf( '<div %s>', $wrapper_attributes );
 		$html .= '<div class="jetpack-form-progress-indicator-steps">';
 
 		// Add steps HTML only for dots style

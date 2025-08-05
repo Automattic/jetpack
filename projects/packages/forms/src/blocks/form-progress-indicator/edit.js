@@ -1,5 +1,6 @@
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
 import { SVG, Path } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { getActiveStyleName } from '../../../../../plugins/jetpack/extensions/shared/block-styles';
 import StepControls from '../shared/components/form-step-controls';
@@ -9,14 +10,27 @@ import { settings } from './';
 
 import './editor.scss';
 
-const FormProgressIndicatorEdit = ( { clientId, context } ) => {
+const FormProgressIndicatorEdit = ( { clientId, context, attributes, setAttributes } ) => {
 	const parentFormId = useParentFormClientId( clientId );
 
 	// Get data from context - provide mock data for previews when context is missing
 	const steps = context?.[ 'jetpack/form-steps' ] || [ 1, 2, 3 ];
 	const currentStepInfo = context?.[ 'jetpack/form-current-step' ] || { index: 0 };
 
-	const blockProps = useBlockProps();
+	// Extract color attributes - use semantic names
+	const { progressColor, progressBackgroundColor, textColor, style } = attributes;
+
+	// Build style object with CSS custom properties for colors
+	const colorStyles = {
+		'--jp-progress-color': progressColor,
+		'--jp-progress-bg': progressBackgroundColor,
+		// Text color comes from standard color support
+		'--jp-progress-text-color': textColor || style?.color?.text,
+	};
+
+	const blockProps = useBlockProps( {
+		style: colorStyles,
+	} );
 	const activeStyleName = getActiveStyleName( settings.styles, blockProps.className );
 	const isDotStyle = activeStyleName === 'dots';
 
@@ -31,6 +45,23 @@ const FormProgressIndicatorEdit = ( { clientId, context } ) => {
 
 	return (
 		<>
+			<InspectorControls>
+				<PanelColorSettings
+					title={ __( 'Color settings', 'jetpack-forms' ) }
+					colorSettings={ [
+						{
+							value: progressColor,
+							onChange: color => setAttributes( { progressColor: color } ),
+							label: __( 'Progress color', 'jetpack-forms' ),
+						},
+						{
+							value: progressBackgroundColor,
+							onChange: color => setAttributes( { progressBackgroundColor: color } ),
+							label: __( 'Track color', 'jetpack-forms' ),
+						},
+					] }
+				/>
+			</InspectorControls>
 			<div className="jetpack-form-progress-indicator--wrapper">
 				<div { ...blockProps }>
 					<div className="jetpack-form-progress-indicator-steps">

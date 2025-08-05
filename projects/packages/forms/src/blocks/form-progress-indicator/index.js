@@ -21,13 +21,10 @@ export const settings = {
 			margin: true,
 		},
 		color: {
-			background: true,
 			text: true,
 			gradients: true,
 			__experimentalDefaultControls: {
-				background: true,
 				text: true,
-				gradient: true,
 			},
 		},
 	},
@@ -56,7 +53,17 @@ export const settings = {
 	},
 	edit: edit,
 	save: save,
-	attributes: {},
+	attributes: {
+		progressColor: {
+			type: 'string',
+		},
+		progressBackgroundColor: {
+			type: 'string',
+		},
+		style: {
+			type: 'object',
+		},
+	},
 	usesContext: [ 'jetpack/form-steps', 'jetpack/form-current-step' ],
 	styles: [
 		{

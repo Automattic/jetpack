@@ -1,8 +1,10 @@
 .wp-block-jetpack-form-progress-indicator {
 	--jp-form-progress-height: 0.75rem;
 	--jp-form-progress-bg-color: #e0e0e0;
-	--jp-progress-bg: var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color));
-	--jp-progress-color: var(--wp--preset--color--primary, currentColor);
+	// Use theme button colors as defaults
+	--jp-progress-bg: var(--wp--preset--color--tertiary, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+	--jp-progress-color: var(--wp--preset--color--primary, var(--wp--preset--color--contrast, currentColor));
+	--jp-progress-text-color: var(--wp--preset--color--base, #fff);
 	--jp-progress-animation-duration: 0.2s;
 
 	position: relative;
@@ -79,11 +81,13 @@
 		.jetpack-form-progress-indicator-steps::before {
 			height: 2px;
 			border-radius: 0;
+			background-color: var(--jp-progress-bg); // Track color for inactive line
 		}
 
 		.jetpack-form-progress-indicator-progress {
 			height: 2px;
 			border-radius: 0;
+			background-color: var(--jp-progress-color); // Progress color for active line
 		}
 
 		.jetpack-form-progress-indicator-dot {
@@ -91,6 +95,7 @@
 			width: 2rem;
 			height: 2rem;
 			border-radius: 50%;
+			// Inactive dots use track color
 			background-color: var(--jp-progress-bg);
 			position: relative;
 			z-index: 10;
@@ -100,34 +105,19 @@
 			opacity: 1;
 		}
 
-		// Override default background for first step immediately
-		.jetpack-form-progress-indicator-step:first-child {
-
-			.jetpack-form-progress-indicator-dot {
-				background-color: var(--jp-progress-color);
-			}
-		}
-
 		.jetpack-form-progress-indicator-step-number {
 			font-size: var(--wp--preset--font-size--small, 0.875em);
 			font-weight: var(--wp--custom--typography--font-weight--medium, 600);
 			line-height: 1;
-			color: var(--wp--preset--color--contrast, currentColor);
+			// Step numbers use text color
+			color: var(--jp-progress-text-color);
 		}
 
+		// Active and completed states use progress color
 		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot,
-		.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-dot {
-			background-color: var(--jp-progress-color);
-		}
-
+		.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-dot,
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-dot {
 			background-color: var(--jp-progress-color);
-		}
-
-		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-step-number,
-		.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-step-number {
-			color: var(--wp--preset--color--base, #fff);
-			text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
 		}
 
 		@media not (prefers-reduced-motion) {
@@ -165,8 +155,7 @@
 		}
 
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-step-number {
-			color: var(--wp--preset--color--base, #fff);
-			text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+			color: var(--jp-progress-text-color);
 			font-size: 1.125rem;
 		}
 
