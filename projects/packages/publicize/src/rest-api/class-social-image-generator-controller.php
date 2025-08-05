@@ -164,7 +164,6 @@ class Social_Image_Generator_Controller extends Base_Controller {
 	 * @return WP_REST_Response The response containing the font options.
 	 */
 	public function get_font_options( $request ) {
-		l( 'Fetching font options for Social Image Generator.' );
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/util/social-image-generator' );
 
