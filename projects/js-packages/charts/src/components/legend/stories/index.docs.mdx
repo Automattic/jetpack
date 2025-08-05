@@ -1,0 +1,276 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as LegendStories from './index.stories';
+
+<Meta title="JS Packages/Charts/Composites/Legend" of={ LegendStories } />
+
+# Legend
+
+Flexible legend component that can be used standalone or integrated with charts through context, enabling consistent and customizable data visualization legends.
+
+<Canvas of={ LegendStories.Horizontal } />
+
+## Overview
+
+The Legend component provides a versatile solution for displaying chart legends either embedded within charts or as standalone components. Built with accessibility and flexibility in mind, it supports automatic data synchronization through chart context integration:
+
+<Source
+	language="jsx"
+	code={ `import { Legend } from '@automattic/charts';
+
+// Standalone with manual data
+<Legend 
+	items={[
+		{ label: 'Series 1', value: '45%', color: '#3858E9' },
+		{ label: 'Series 2', value: '55%', color: '#80C8FF' }
+	]}
+	orientation="horizontal"
+/>
+
+// Integrated with chart context
+<Legend chartId="revenue-chart" orientation="vertical" />` }
+/>
+
+## Basic Usage
+
+### Manual Data Legend
+
+The simplest legend implementation with manually provided data:
+
+<Canvas of={ LegendStories.Horizontal } />
+
+<Source
+	language="jsx"
+	code={ `<Legend
+	items={[
+		{ label: 'Desktop', value: '65%', color: '#3858E9' },
+		{ label: 'Mobile', value: '35%', color: '#80C8FF' }
+	]}
+	orientation="horizontal"
+/>` }
+/>
+
+### Required Props
+
+- **`items`**: Array of legend items (when not using `chartId`)
+  - `label`: Display text for the legend item
+  - `value`: Optional value to display
+  - `color`: Color for the legend marker
+
+### Optional Props
+
+- **`chartId`**: ID to retrieve legend data from chart context
+- **`orientation`**: Layout direction (`'horizontal'` or `'vertical'`, defaults to `'horizontal'`)
+- **`alignmentHorizontal`**: Horizontal alignment (`'left'`, `'center'`, `'right'`)
+- **`alignmentVertical`**: Vertical alignment (`'top'`, `'middle'`, `'bottom'`)
+- **`shape`**: Marker shape (`'rect'`, `'circle'`, `'line'`)
+
+## Chart Context Integration
+
+### Automatic Data Synchronization
+
+Charts with a `chartId` automatically register their legend data in the context:
+
+<Canvas of={ LegendStories.StandaloneLegendWithChartId } />
+
+<Source
+	language="jsx"
+	code={ `<ChartProvider>
+	{/* Chart registers legend data with chartId */}
+	<LineChart
+		chartId="sales-chart"
+		data={salesData}
+		showLegend={false} // Hide embedded legend
+	/>
+	
+	{/* Legend retrieves data automatically */}
+	<Legend chartId="sales-chart" orientation="horizontal" />
+</ChartProvider>` }
+/>
+
+### How Context Integration Works
+
+1. **Chart Registration**: Charts with `chartId` register their legend data
+2. **Automatic Updates**: Legend updates when chart data changes
+3. **Flexible Placement**: Position legends anywhere in your layout
+4. **No Prop Drilling**: Avoid passing data through component layers
+
+## Legend Positioning
+
+### Alignment Options
+
+Control legend placement with alignment properties:
+
+<Canvas of={ LegendStories.AlignmentOptions } />
+
+### Orientation Variations
+
+<Canvas of={ LegendStories.Vertical } />
+
+<Source
+	language="jsx"
+	code={ `// Horizontal (default)
+<Legend items={items} orientation="horizontal" />
+
+// Vertical
+<Legend items={items} orientation="vertical" />
+
+// With custom alignment
+<Legend 
+	items={items}
+	orientation="vertical"
+	alignmentHorizontal="right"
+	alignmentVertical="top"
+/>` }
+/>
+
+## Styling and Customization
+
+### Legend Shapes
+
+Customize marker appearance with different shapes:
+
+<Canvas of={ LegendStories.CustomShape } />
+
+<Source
+	language="jsx"
+	code={ `<Legend
+	items={items}
+	shape="circle" // 'rect' | 'circle' | 'line'
+/>` }
+/>
+
+### Custom Styling
+
+The Legend component inherits theme styles and supports custom styling through the BaseLegend props.
+
+## Advanced Usage
+
+### Dashboard Layout Example
+
+Real-world implementation with multiple charts and centralized legends:
+
+<Canvas of={ LegendStories.DashboardExample } />
+
+This example demonstrates:
+- Multiple charts with hidden embedded legends
+- Centralized legend panel for better organization
+- Responsive layout considerations
+- Clean, maintainable code structure
+
+### Using the useChartLegendData Hook
+
+For custom legend implementations:
+
+<Source
+	language="jsx"
+	code={ `import { useChartLegendData } from '@automattic/charts';
+
+const CustomLegend = ({ data }) => {
+	const theme = useChartTheme();
+	const legendItems = useChartLegendData(data, theme, {
+		showValues: true,
+		formatValue: (value) => \`\${value}%\`
+	});
+	
+	return <Legend items={legendItems} />;
+};` }
+/>
+
+## Accessibility
+
+### Keyboard Support
+
+- **Tab**: Navigate between legend items
+- **Enter/Space**: Toggle series visibility (when interactive)
+- **Arrow Keys**: Navigate in vertical orientation
+
+### Screen Reader Support
+
+- Semantic HTML structure with proper ARIA labels
+- Descriptive text for series identification
+- Hidden decorative elements
+
+### Focus Management
+
+- Clear focus indicators
+- Logical tab order
+- Preserved focus on updates
+
+## Browser Compatibility
+
+The Legend component works across all modern browsers with full feature support.
+
+## API Reference
+
+### Legend
+
+Main legend component for displaying chart series information.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `items` | `LegendItem[]` | - | Array of legend items to display |
+| `chartId` | `string` | - | ID to retrieve data from chart context |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout direction |
+| `alignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Horizontal alignment |
+| `alignmentVertical` | `'top' \| 'middle' \| 'bottom'` | `'middle'` | Vertical alignment |
+| `shape` | `'rect' \| 'circle' \| 'line'` | `'rect'` | Legend marker shape |
+
+### LegendItem Type
+
+```typescript
+type LegendItem = {
+	label: string;
+	value?: string;
+	color: string;
+	pattern?: PatternType;
+	hidden?: boolean;
+};
+```
+
+### useChartLegendData Hook
+
+```typescript
+function useChartLegendData(
+	data: SeriesData[],
+	theme: ChartTheme,
+	options?: {
+		showValues?: boolean;
+		formatValue?: (value: number) => string;
+	}
+): LegendItem[]
+```
+
+## Migration Guide
+
+### From Embedded to Standalone Legends
+
+<Source
+	language="jsx"
+	code={ `// Before: Embedded legend
+<BarChart
+	data={data}
+	showLegend={true}
+	legendPosition="bottom"
+/>
+
+// After: Standalone legend
+<ChartProvider>
+	<BarChart
+		chartId="my-chart"
+		data={data}
+		showLegend={false}
+	/>
+	<Legend 
+		chartId="my-chart"
+		orientation="horizontal"
+	/>
+</ChartProvider>` }
+/>
+
+Benefits of migration:
+- Flexible positioning outside chart bounds
+- Consistent legend styling across charts
+- Better responsive behavior
+- Centralized legend management
