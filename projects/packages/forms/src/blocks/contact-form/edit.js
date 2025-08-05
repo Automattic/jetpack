@@ -6,6 +6,7 @@ import {
 	InspectorAdvancedControls,
 	InspectorControls,
 	useBlockProps,
+	InnerBlocks,
 	useInnerBlocksProps,
 	store as blockEditorStore,
 	BlockControls,
@@ -221,6 +222,47 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		select => select( blockEditorStore ).getBlocks( clientId ),
 		[ clientId ]
 	);
+
+	// Track previous block count to detect insertions
+	const previousBlockCountRef = useRef( currentInnerBlocks.length );
+
+	// Effect to handle block insertion and reordering
+	useEffect( () => {
+		const currentBlockCount = currentInnerBlocks.length;
+		const previousBlockCount = previousBlockCountRef.current;
+
+		// Detect if a block was just inserted
+		const blockWasInserted = currentBlockCount > previousBlockCount;
+
+		if ( blockWasInserted && currentInnerBlocks.length > 1 ) {
+			// Find the submit button
+			const submitButtonIndex = currentInnerBlocks.findIndex(
+				block =>
+					block.name === 'jetpack/button' &&
+					( block.attributes?.customVariant === 'submit' || block.attributes?.element === 'button' )
+			);
+
+			// If there's a submit button and it's not the last block, reorder
+			if ( submitButtonIndex !== -1 && submitButtonIndex === currentInnerBlocks.length - 2 ) {
+				// Move the submit button to the end
+				const reorderedBlocks = [ ...currentInnerBlocks ];
+				const [ submitButtonBlock ] = reorderedBlocks.splice( submitButtonIndex, 1 );
+				reorderedBlocks.push( submitButtonBlock );
+
+				// Update the blocks without creating an undo step
+				__unstableMarkNextChangeAsNotPersistent();
+				replaceInnerBlocks( clientId, reorderedBlocks, false );
+			}
+		}
+
+		// Update the previous block count
+		previousBlockCountRef.current = currentBlockCount;
+	}, [
+		currentInnerBlocks,
+		clientId,
+		replaceInnerBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	// Deep-scan helper – user might drop a Step block inside nested structures.
 	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {
@@ -628,7 +670,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				/>
 			);
 		}
-	} else if ( ! hasAnyInnerBlocks || onlySubmitBlock ) {
+	} else if ( ! hasAnyInnerBlocks ) {
 		elt = (
 			<VariationPicker
 				blockName={ name }
@@ -636,6 +678,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				clientId={ clientId }
 				classNames={ formClassnames }
 			/>
+		);
+	} else if ( onlySubmitBlock ) {
+		elt = (
+			<>
+				<div className="is-form-empty">
+					<InnerBlocks.ButtonBlockAppender />
+				</div>
+				<div { ...innerBlocksProps } />
+			</>
 		);
 	} else {
 		elt = (
