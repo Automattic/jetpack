@@ -389,7 +389,7 @@ class The_Neverending_Home_Page {
 		if ( 0 === $entries ) {
 			return (bool) ( ! is_countable( self::wp_query()->posts ) || ( count( self::wp_query()->posts ) < $posts_per_page ) );
 		}
-		$paged = max( 1, self::wp_query()->get( 'paged' ) );
+		$paged = max( 1, (int) self::wp_query()->get( 'paged' ) );
 
 		// Are there enough posts for more than the first page?
 		if ( $entries <= $posts_per_page ) {
