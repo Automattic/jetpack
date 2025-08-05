@@ -114,7 +114,36 @@ export const settings = {
 			},
 			save: () => null,
 			migrate( attributes ) {
-				return attributes;
+				const newAttributes = { ...attributes };
+
+				// Convert horizontal margins to padding if they exist
+				if ( attributes.style?.spacing?.margin ) {
+					const { margin } = attributes.style.spacing;
+					const newStyle = { ...attributes.style };
+
+					// Initialize padding if it doesn't exist
+					if ( ! newStyle.spacing.padding ) {
+						newStyle.spacing.padding = {};
+					}
+
+					// Convert left/right margins to left/right padding
+					if ( margin.left && ! newStyle.spacing.padding.left ) {
+						newStyle.spacing.padding.left = margin.left;
+					}
+					if ( margin.right && ! newStyle.spacing.padding.right ) {
+						newStyle.spacing.padding.right = margin.right;
+					}
+
+					// Keep only top/bottom margins
+					newStyle.spacing.margin = {
+						...( margin.top && { top: margin.top } ),
+						...( margin.bottom && { bottom: margin.bottom } ),
+					};
+
+					newAttributes.style = newStyle;
+				}
+
+				return newAttributes;
 			},
 		},
 		// Version with old jetpack-form-progress-indicator-bar structure
