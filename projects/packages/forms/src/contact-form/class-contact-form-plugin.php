@@ -749,18 +749,15 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the progress indicator.
 	 *
-	 * @param array  $attributes - the block attributes.
-	 * @param string $content - html content.
+	 * @param array $attributes - the block attributes.
 	 *
 	 * @return string HTML for the progress indicator.
 	 */
-	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
+	public static function gutenblock_render_form_progress_indicator( $attributes ) {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 		if ( empty( $version ) ) {
 			$version = '0.1';
 		}
-
-		$max_steps = 1;
 
 		// Get step count from Contact_Form_Block
 		$max_steps = Contact_Form_Block::get_form_step_count();
@@ -780,65 +777,52 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		$processor = new \WP_HTML_Tag_Processor( $content );
+		// Build block classes
+		$block_classes = 'wp-block-jetpack-form-progress-indicator';
+		if ( isset( $attributes['className'] ) ) {
+			$block_classes .= ' ' . esc_attr( $attributes['className'] );
+		}
 
 		$is_dots_style = isset( $attributes['className'] ) && strpos( $attributes['className'], 'is-style-dots' ) !== false;
 
-		// Reset processor
-		$processor = new \WP_HTML_Tag_Processor( $content );
-		$processor->next_tag();
+		// Build the complete HTML structure
+		$html  = '<div class="jetpack-form-progress-indicator--wrapper">';
+		$html .= sprintf( '<div class="%s">', $block_classes );
+		$html .= '<div class="jetpack-form-progress-indicator-steps">';
 
-		// Process legacy progress bar elements
-		while ( $processor->next_tag() ) {
-			$class = $processor->get_attribute( 'class' );
-			if ( 'jetpack-form-progress-indicator-bar' === $class ) {
-				$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
-			}
-		}
+		// Add progress element for both styles (uses different state getters)
+		$progress_state = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
+		$html          .= '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
 
-		// Get the updated HTML after processing attributes
-		$updated_content = $processor->get_updated_html();
-
-		// Build steps HTML only for dots style
-		$steps_html = '';
+		// Add steps HTML only for dots style
 		if ( $is_dots_style ) {
 			for ( $i = 0; $i < $max_steps; $i++ ) {
-				$step_classes = 'jetpack-form-progress-indicator-step';
-
 				$step_context = array( 'stepIndex' => $i );
 
-				$steps_html .= sprintf(
-					'<div class="%s" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" data-wp-context=\'%s\'>',
-					esc_attr( $step_classes ),
+				$html .= sprintf(
+					'<div class="jetpack-form-progress-indicator-step" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" data-wp-context=\'%s\'>',
 					wp_json_encode( $step_context )
 				);
 
-				$steps_html .= '<div class="jetpack-form-progress-indicator-line"></div>';
-				$steps_html .= '<div class="jetpack-form-progress-indicator-dot">';
-				$steps_html .= '<span class="jetpack-form-progress-indicator-step-number">';
-				$steps_html .= sprintf(
+				$html .= '<div class="jetpack-form-progress-indicator-line"></div>';
+				$html .= '<div class="jetpack-form-progress-indicator-dot">';
+				$html .= '<span class="jetpack-form-progress-indicator-step-number">';
+				$html .= sprintf(
 					'<span class="step-number">%d</span>',
 					$i + 1
 				);
-				$steps_html .= '<span class="step-checkmark" role="img" aria-label="' . esc_attr__( 'Completed', 'jetpack-forms' ) . '"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/></svg></span>';
-				$steps_html .= '</span>';
-				$steps_html .= '</div>';
-				$steps_html .= '</div>';
+				$html .= '<span class="step-checkmark" role="img" aria-label="' . esc_attr__( 'Completed', 'jetpack-forms' ) . '"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/></svg></span>';
+				$html .= '</span>';
+				$html .= '</div>';
+				$html .= '</div>';
 			}
 		}
 
-		// Add progress element for both styles (uses different state getters)
-		$progress_state   = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
-		$progress_element = '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
+		$html .= '</div>'; // close steps
+		$html .= '</div>'; // close block
+		$html .= '</div>'; // close wrapper
 
-		// Replace the steps container with the populated one
-		$updated_content = str_replace(
-			'<div class="jetpack-form-progress-indicator-steps"><div class="jetpack-form-progress-indicator-progress"></div></div>',
-			'<div class="jetpack-form-progress-indicator-steps">' . $progress_element . $steps_html . '</div>',
-			$updated_content
-		);
-
-		return $updated_content;
+		return $html;
 	}
 
 	/**
