@@ -574,6 +574,9 @@ class The_Neverending_Home_Page {
 		$excluded_posts = array();
 		// loop through posts returned by wp_query call
 		foreach ( self::wp_query()->get_posts() as $post ) {
+			if ( ! $post instanceof \WP_Post ) {
+				continue;
+			}
 
 			$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
 			$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
