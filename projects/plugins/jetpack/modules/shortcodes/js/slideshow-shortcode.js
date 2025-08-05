@@ -126,9 +126,9 @@ JetpackSlideshow.prototype.finishInit_ = function () {
 				}
 			}
 		} );
-	} else {
-		this.element.children( ':first' ).show();
-		this.element.css( 'position', 'relative' );
+	} else if ( this.element.children.length ) {
+		this.element.children[ 0 ].style.display = 'block';
+		this.element.style.position = 'relative';
 	}
 	this.initialized_ = true;
 };
