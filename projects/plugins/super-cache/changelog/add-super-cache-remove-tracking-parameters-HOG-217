@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Caching: ignore Yandex parameters so those visitors are served from the cache.
