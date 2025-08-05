@@ -1,68 +1,72 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { JetpackBoostPage, FirstPostPage } from '../../lib/pages/index.js';
+import { test, expect } from '../../lib/fixtures/test.ts';
 
 test.describe( 'Image CDN', () => {
-	let page;
-
 	test.beforeAll( async ( { browser } ) => {
-		page = await browser.newPage( playwrightConfig.use );
+		const page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
 			.withConnection( true )
 			.withSpeedScoreMocked( true )
 			.build();
-	} );
-
-	test.afterAll( async () => {
 		await page.close();
 	} );
 
 	test( 'No Image CDN meta information should show on the admin when the module is inactive', async ( {
 		testUtils,
+		jetpackBoostPage,
+		page,
 	} ) => {
 		await testUtils.deactivateBoostModule( 'image_cdn' );
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		await jetpackBoostPage.visit();
 
-		expect(
-			await jetpackBoostPage.isImageCdnUpgradeSectionVisible(),
-			'Image CDN upgrade section should not be visible'
-		).toBeFalsy();
+		await expect(
+			page.getByRole( 'button', { name: 'Auto-resize lazy images and' } ),
+			'Image CDN upgrade section should be visible'
+		).toBeHidden();
 	} );
 
 	test( 'Image CDN functionality shouldn`t be active when the module is inactive', async ( {
 		testUtils,
+		page,
 	} ) => {
 		await testUtils.deactivateBoostModule( 'image_cdn' );
 		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
-		const firstPostPage = await FirstPostPage.visit( page );
+		await page.goto( '/?p=1' );
 
 		expect(
 			// The image is added via a helper plugin.
-			await firstPostPage.page.locator( '[id="e2e-test-image"]' ).getAttribute( 'src' ),
+			await page.locator( '[id="e2e-test-image"]' ).getAttribute( 'src' ),
 			'Image shouldn`t use CDN'
 		).not.toMatch( /https:\/\/.*\.wp\.com/ );
 	} );
 
-	test( 'Upgrade section should be visible when the module is active', async ( { testUtils } ) => {
+	test( 'Upgrade section should be visible when the module is active', async ( {
+		testUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
 		await testUtils.activateBoostModule( 'image_cdn' );
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		await jetpackBoostPage.visit();
 
-		expect(
-			await jetpackBoostPage.isImageCdnUpgradeSectionVisible(),
+		await expect(
+			page.getByRole( 'button', { name: 'Auto-resize lazy images and' } ),
 			'Image CDN upgrade section should be visible'
-		).toBeTruthy();
+		).toBeVisible();
 	} );
 
-	test( 'Image should be loaded via CDN when Image CDN is active', async ( { testUtils } ) => {
+	test( 'Image should be loaded via CDN when Image CDN is active', async ( {
+		testUtils,
+		page,
+	} ) => {
 		await testUtils.activateBoostModule( 'image_cdn' );
 		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
-		const firstPostPage = await FirstPostPage.visit( page );
+		await page.goto( '/?p=1' );
 
 		expect(
 			// The image is added via a helper plugin.
-			await firstPostPage.page.locator( '[id="e2e-test-image"]' ).getAttribute( 'src' ),
+			await page.locator( '[id="e2e-test-image"]' ).getAttribute( 'src' ),
 			'Image should use CDN'
 		).toMatch( /https:\/\/.*\.wp\.com/ );
 	} );

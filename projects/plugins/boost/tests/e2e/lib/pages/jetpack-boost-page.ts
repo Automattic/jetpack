@@ -202,12 +202,6 @@ export default class JetpackBoostPage {
 		return this.page.locator( selector ).waitFor( { timeout: 3 * 60 * 1000 } );
 	}
 
-	async isImageCdnUpgradeSectionVisible() {
-		const selector =
-			'[data-testid="module-image_cdn"] >> text=Auto-resize lazy images and adjust their quality.';
-		return this.page.isVisible( selector );
-	}
-
 	async navigateToMainSettingsPage() {
 		await this.page.click( 'text=Go back' );
 	}
