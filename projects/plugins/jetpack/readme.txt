@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9-beta - 2025-08-04
+### 14.9 - 2025-08-05
 #### Enhancements
 - Add new PayPal Payment block (beta).
 - Forms: Add "Empty trash" button.
