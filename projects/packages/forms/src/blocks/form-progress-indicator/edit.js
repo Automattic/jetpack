@@ -1,4 +1,11 @@
-import { useBlockProps, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import {
+	useBlockProps,
+	InspectorControls,
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
+	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
+} from '@wordpress/block-editor';
+/* eslint-enable @wordpress/no-unsafe-wp-apis */
 import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -19,6 +26,9 @@ const FormProgressIndicatorEdit = ( { clientId, context, attributes, setAttribut
 
 	// Extract color attributes - use semantic names
 	const { progressColor, progressBackgroundColor, textColor, style } = attributes;
+
+	// Get WordPress color/gradient settings for the color panel
+	const colorGradientSettings = useMultipleOriginColorsAndGradients();
 
 	// Build style object with CSS custom properties for colors
 	const colorStyles = {
@@ -45,69 +55,68 @@ const FormProgressIndicatorEdit = ( { clientId, context, attributes, setAttribut
 
 	return (
 		<>
-			<InspectorControls>
-				<PanelColorSettings
-					title={ __( 'Color settings', 'jetpack-forms' ) }
-					colorSettings={ [
+			<InspectorControls group="color">
+				<ColorGradientSettingsDropdown
+					panelId={ clientId }
+					settings={ [
 						{
-							value: progressColor,
-							onChange: color => setAttributes( { progressColor: color } ),
+							colorValue: progressColor,
+							onColorChange: color => setAttributes( { progressColor: color } ),
 							label: __( 'Progress color', 'jetpack-forms' ),
 						},
 						{
-							value: progressBackgroundColor,
-							onChange: color => setAttributes( { progressBackgroundColor: color } ),
+							colorValue: progressBackgroundColor,
+							onColorChange: color => setAttributes( { progressBackgroundColor: color } ),
 							label: __( 'Track color', 'jetpack-forms' ),
 						},
 					] }
+					{ ...colorGradientSettings }
 				/>
 			</InspectorControls>
-			<div className="jetpack-form-progress-indicator--wrapper">
-				<div { ...blockProps }>
-					<div className="jetpack-form-progress-indicator-steps">
-						{ steps.map( ( step, index ) => {
-							const isActive = index === currentStepInfo.index;
-							const isCompleted = index < currentStepInfo.index;
+			<div { ...blockProps }>
+				<div className="jetpack-form-progress-indicator-steps">
+					{ steps.map( ( step, index ) => {
+						const isActive = index === currentStepInfo.index;
+						const isCompleted = index < currentStepInfo.index;
 
-							return (
-								<div
-									key={ index }
-									className={ clsx( 'jetpack-form-progress-indicator-step', {
-										'is-active': isActive,
-										'is-completed': isCompleted,
-									} ) }
-									data-step-index={ index }
-								>
-									<div className="jetpack-form-progress-indicator-line"></div>
-									{ isDotStyle && (
-										<div className="jetpack-form-progress-indicator-dot">
-											<span className="jetpack-form-progress-indicator-step-number">
-												{ isCompleted ? (
-													<SVG
-														width="24"
-														height="24"
-														viewBox="0 0 24 24"
-														xmlns="http://www.w3.org/2000/svg"
-													>
-														<Path
-															d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z"
-															fill="currentColor"
-														/>
-													</SVG>
-												) : (
-													index + 1
-												) }
-											</span>
-										</div>
-									) }
-								</div>
-							);
-						} ) }
-						<div
-							className="jetpack-form-progress-indicator-progress"
-							style={ { width: `${ progressPercentage }%` } }
-						></div>
-					</div>
+						return (
+							<div
+								key={ index }
+								className={ clsx( 'jetpack-form-progress-indicator-step', {
+									'is-active': isActive,
+									'is-completed': isCompleted,
+								} ) }
+								data-step-index={ index }
+							>
+								<div className="jetpack-form-progress-indicator-line"></div>
+								{ isDotStyle && (
+									<div className="jetpack-form-progress-indicator-dot">
+										<span className="jetpack-form-progress-indicator-step-number">
+											{ isCompleted ? (
+												<SVG
+													width="24"
+													height="24"
+													viewBox="0 0 24 24"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<Path
+														d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z"
+														fill="currentColor"
+													/>
+												</SVG>
+											) : (
+												index + 1
+											) }
+										</span>
+									</div>
+								) }
+							</div>
+						);
+					} ) }
+					<div
+						className="jetpack-form-progress-indicator-progress"
+						style={ { width: `${ progressPercentage }%` } }
+					></div>
 				</div>
 			</div>
 			<StepControls formClientId={ parentFormId } showToggle={ false } showNavigation={ true } />

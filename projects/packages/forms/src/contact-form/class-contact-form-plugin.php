@@ -799,15 +799,15 @@ class Contact_Form_Plugin {
 			$extra_attributes['style'] = implode( '; ', $all_styles );
 		}
 
+		// Add generated classnames if any
 		if ( ! empty( $generated_styles['classnames'] ) ) {
 			$extra_attributes['class'] = $generated_styles['classnames'];
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes( $extra_attributes );
 
-		// Build the complete HTML structure
-		$html  = '<div class="jetpack-form-progress-indicator--wrapper">';
-		$html .= sprintf( '<div %s>', $wrapper_attributes );
+		// Build the complete HTML structure - apply wrapper attributes to the main wrapper
+		$html  = sprintf( '<div %s>', $wrapper_attributes );
 		$html .= '<div class="jetpack-form-progress-indicator-steps">';
 
 		// Add steps HTML only for dots style
@@ -838,8 +838,7 @@ class Contact_Form_Plugin {
 		$html          .= '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
 
 		$html .= '</div>'; // close steps
-		$html .= '</div>'; // close block
-		$html .= '</div>'; // close wrapper
+		$html .= '</div>'; // close block wrapper
 
 		return $html;
 	}
