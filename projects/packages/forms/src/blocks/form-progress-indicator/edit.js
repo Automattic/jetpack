@@ -32,8 +32,8 @@ const FormProgressIndicatorEdit = ( { clientId, context, attributes, setAttribut
 
 	// Build style object with CSS custom properties for colors
 	const colorStyles = {
-		'--jp-progress-color': progressColor,
-		'--jp-progress-bg': progressBackgroundColor,
+		'--jp-progress-active-color': progressColor,
+		'--jp-progress-track-color': progressBackgroundColor,
 		// Text color comes from standard color support
 		'--jp-progress-text-color': textColor || style?.color?.text,
 	};

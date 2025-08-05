@@ -2,8 +2,8 @@
 	--jp-form-progress-height: 0.75rem;
 	--jp-form-progress-bg-color: #e0e0e0;
 	// Use theme button colors as defaults
-	--jp-progress-bg: var(--wp--preset--color--tertiary, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
-	--jp-progress-color: var(--wp--preset--color--primary, var(--wp--preset--color--contrast, currentColor));
+	--jp-progress-track-color: var(--wp--preset--color--tertiary, var(--wp--preset--color--secondary, var(--jp-form-progress-bg-color)));
+	--jp-progress-active-color: var(--wp--preset--color--primary, var(--wp--preset--color--contrast, currentColor));
 	--jp-progress-text-color: var(--wp--preset--color--base, #fff);
 	--jp-progress-animation-duration: 0.2s;
 
@@ -36,7 +36,7 @@
 		left: 0;
 		right: 0;
 		height: var(--jp-form-progress-height);
-		background-color: var(--jp-progress-bg);
+		background-color: var(--jp-progress-track-color);
 		transform: translateY(-50%);
 		z-index: 1;
 		border-radius: calc(var(--jp-form-progress-height) / 2);
@@ -48,7 +48,7 @@
 		top: 50%;
 		left: 0;
 		height: var(--jp-form-progress-height);
-		background-color: var(--jp-progress-color);
+		background-color: var(--jp-progress-active-color);
 		transform: translateY(-50%);
 		z-index: 2;
 		width: 0%;
@@ -80,13 +80,13 @@
 		.jetpack-form-progress-indicator-steps::before {
 			height: 2px;
 			border-radius: 0;
-			background-color: var(--jp-progress-bg); // Track color for inactive line
+			background-color: var(--jp-progress-track-color); // Track color for inactive line
 		}
 
 		.jetpack-form-progress-indicator-progress {
 			height: 2px;
 			border-radius: 0;
-			background-color: var(--jp-progress-color); // Progress color for active line
+			background-color: var(--jp-progress-active-color); // Progress color for active line
 		}
 
 		.jetpack-form-progress-indicator-dot {
@@ -95,7 +95,7 @@
 			height: 2rem;
 			border-radius: 50%;
 			// Inactive dots use track color
-			background-color: var(--jp-progress-bg);
+			background-color: var(--jp-progress-track-color);
 			position: relative;
 			z-index: 10;
 			align-items: center;
@@ -116,7 +116,7 @@
 		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot,
 		.jetpack-form-progress-indicator-step:first-child .jetpack-form-progress-indicator-dot,
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-dot {
-			background-color: var(--jp-progress-color);
+			background-color: var(--jp-progress-active-color);
 		}
 
 		@media not (prefers-reduced-motion) {

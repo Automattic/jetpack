@@ -20,11 +20,9 @@ export const settings = {
 		},
 		color: {
 			text: true,
-			background: true,
 			gradients: true,
 			__experimentalDefaultControls: {
 				text: true,
-				background: true,
 			},
 		},
 	},

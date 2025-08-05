@@ -781,14 +781,14 @@ class Contact_Form_Plugin {
 		$custom_styles = array();
 
 		if ( isset( $attributes['progressColor'] ) ) {
-			$custom_styles[] = '--jp-progress-color: ' . esc_attr( $attributes['progressColor'] );
+			$custom_styles[] = '--jp-progress-active-color: ' . esc_attr( $attributes['progressColor'] );
 		}
 
 		if ( isset( $attributes['progressBackgroundColor'] ) ) {
-			$custom_styles[] = '--jp-progress-bg: ' . esc_attr( $attributes['progressBackgroundColor'] );
+			$custom_styles[] = '--jp-progress-track-color: ' . esc_attr( $attributes['progressBackgroundColor'] );
 		}
 
-		// Use WordPress Style Engine for block supports (dimensions, spacing, etc.)
+		// Use WordPress Style Engine for block supports (dimensions, spacing, background, etc.)
 		$generated_styles = wp_style_engine_get_styles( $attributes['style'] ?? null );
 
 		// Combine all styles
