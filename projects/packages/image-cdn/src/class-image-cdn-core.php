@@ -386,6 +386,7 @@ class Image_CDN_Core {
 			'/^(commons|upload)\.wikimedia\.org$/',
 			'/\.wikipedia\.org$/',
 			'/^m\.media-amazon\.com$/',
+			'/^covers\.openlibrary\.org$/',
 		);
 
 		$host = wp_parse_url( $image_url, PHP_URL_HOST );
