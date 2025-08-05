@@ -1,0 +1,122 @@
+import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
+import { test, expect } from '../../lib/fixtures/test.ts';
+
+test.describe( 'Concatenate JS and CSS', () => {
+	test.beforeAll( async ( { browser } ) => {
+		const page = await browser.newPage( playwrightConfig.use );
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
+			.build();
+		await page.close();
+	} );
+
+	test( 'No Concatenate meta information should show on the admin when the modules are inactive', async ( {
+		testUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await test.step( 'Deactivate minify_js and minify_css modules and visit Boost page', async () => {
+			await testUtils.deactivateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await jetpackBoostPage.visit();
+		} );
+
+		await expect(
+			page.locator( '[data-testid="meta-minify_js_excludes"]' ),
+			'Concatenate JS meta information should not be visible'
+		).toBeHidden();
+		await expect(
+			page.locator( '[data-testid="meta-minify_css_excludes"]' ),
+			'Concatenate CSS meta information should not be visible'
+		).toBeHidden();
+	} );
+
+	test( 'Concatenation shouldn`t occur when the modules are inactive', async ( {
+		testUtils,
+		page,
+	} ) => {
+		await test.step( 'Deactivate minify_js and minify_css modules, setup assets and visit homepage', async () => {
+			await testUtils.deactivateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
+			await page.goto( '/' );
+		} );
+
+		expect(
+			// This script is enqueued via a helper plugin.
+			( await page.locator( '[id="e2e-script-one-js"]' ).count() ) > 0,
+			'JS concatenation shouldn`t occur when the module is inactive'
+		).toBeTruthy();
+		expect(
+			// This style is enqueued via a helper plugin.
+			( await page.locator( '[id="e2e-style-one-css"]' ).count() ) > 0,
+			'CSS concatenation shouldn`t occur when the module is inactive'
+		).toBeTruthy();
+	} );
+
+	test( 'Meta information should be visible when the modules are active', async ( {
+		testUtils,
+		page,
+		jetpackBoostPage,
+	} ) => {
+		await test.step( 'Activate minify_js and minify_css modules', async () => {
+			await testUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await jetpackBoostPage.visit();
+		} );
+
+		await expect(
+			page.locator( '[data-testid="meta-minify_css_excludes"]' ),
+			'Concatenate CSS meta information should be visible'
+		).toBeVisible();
+	} );
+
+	test( 'Concatenation occurs when modules are active', async ( { testUtils, page } ) => {
+		await test.step( 'Activate minify_js and minify_css modules, setup assets and visit homepage', async () => {
+			await testUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
+			await page.goto( '/' );
+		} );
+
+		await expect( async () => {
+			// e2e-script-one and e2e-script-two are enqueued by a helper plugin. When concatenation is enabled,
+			// they should be concatenated into a single script.
+			const count = await page
+				.locator( '[data-handles*="e2e-script-one"][data-handles*="e2e-script-two"]' )
+				.count();
+			expect( count, 'JS Concatenation occurs when module is active' ).toBeGreaterThan( 0 );
+		} ).toPass( { timeout: 10000 } );
+
+		await expect( async () => {
+			// e2e-style-one and e2e-style-two are enqueued by a helper plugin. When concatenation is enabled,
+			// they should be concatenated into a single style.
+			const count = await page
+				.locator( '[data-handles*="e2e-style-one"][data-handles*="e2e-style-two"]' )
+				.count();
+			expect( count, 'CSS Concatenation occurs when module is active' ).toBeGreaterThan( 0 );
+		} ).toPass( { timeout: 10000 } );
+	} );
+
+	test( 'Assets that are excluded by default shouldn`t be concatenated', async ( {
+		testUtils,
+		page,
+	} ) => {
+		await test.step( 'Activate minify_js and minify_css modules, setup assets and visit homepage', async () => {
+			await testUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
+			await page.goto( '/' );
+		} );
+
+		await expect( async () => {
+			// jQuery is enqueued by a helper plugin.
+			const count = await page.locator( '[id="jquery-core-js"]' ).count();
+			expect( count, 'jQuery should not be concatenated' ).toBeGreaterThan( 0 );
+		} ).toPass( { timeout: 10000 } );
+
+		await expect( async () => {
+			// Admin bar stylesheet is enqueued by default when logged-in.
+			const count = await page.locator( '[id="admin-bar-css"]' ).count();
+			expect( count, 'Admin bar stylesheet should not be concatenated' ).toBeGreaterThan( 0 );
+		} ).toPass( { timeout: 10000 } );
+	} );
+} );

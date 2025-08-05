@@ -14,8 +14,8 @@ test.describe( 'Getting started page', () => {
 		await page.close();
 	} );
 
-	test.beforeEach( async ( { admin } ) => {
-		await admin.visitAdminPage( 'admin.php', 'page=jetpack-boost' );
+	test.beforeEach( async ( { jetpackBoostPage } ) => {
+		await jetpackBoostPage.visit();
 	} );
 
 	test( 'User should see the getting started pricing table', async ( { page } ) => {
@@ -49,7 +49,6 @@ test.describe( 'Getting started page', () => {
 		await page.getByRole( 'button', { name: 'Start for free' } ).click();
 		await expect( page ).toHaveURL( /page=jetpack-boost(?:#\/)?$/, { timeout: 180000 } );
 
-		// await jetpackBoostPage.waitForScoreLoadingToFinish();
 		await jetpackBoostPage.expectScoreToBeVisible();
 	} );
 } );

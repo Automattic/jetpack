@@ -11,6 +11,10 @@ export default class JetpackBoostPage {
 		this.page = page;
 	}
 
+	async visit() {
+		await this.page.goto( '/wp-admin/admin.php?page=jetpack-boost' );
+	}
+
 	/**
 	 * Select the free plan from getting started page.
 	 */
@@ -201,16 +205,6 @@ export default class JetpackBoostPage {
 		// return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
 		// todo replace with expect(locator).toBeVisible()
 		return this.page.locator( selector ).waitFor( { timeout: 3 * 60 * 1000 } );
-	}
-
-	async isConcatenateJsMetaVisible() {
-		const selector = '[data-testid="meta-minify_js_excludes"]';
-		return this.page.isVisible( selector );
-	}
-
-	async isConcatenateCssMetaVisible() {
-		const selector = '[data-testid="meta-minify_css_excludes"]';
-		return this.page.isVisible( selector );
 	}
 
 	async isImageCdnUpgradeSectionVisible() {
