@@ -180,7 +180,7 @@ if ( $sbupdated ) {
 			</tr>
 
 			<tr>
-				<td class="wfieldname"><label><?php esc_html_e( 'Include these statuses in the transaction total value', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Tick which statuses to include when calculating total transaction value and total overall value of contacts.', 'zero-bs-crm' ); ?>
+				<td class="wfieldname"><label><?php esc_html_e( 'Include these statuses in total values and as payments against invoices', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Tick which statuses to include when calculating total transaction value, total overall value of contacts, and as payments against invoices in statements.', 'zero-bs-crm' ); ?>
 					<br /><br /></td>
 				<td style="width:540px" id="jpcrm-transaction-include-status">
 					<?php

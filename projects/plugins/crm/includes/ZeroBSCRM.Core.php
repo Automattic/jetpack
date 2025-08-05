@@ -1296,6 +1296,7 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Forms.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InvoiceBuilder.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.QuoteBuilder.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-statement-tab.php';
 
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SystemChecks.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.IntegrationFuncs.php';

@@ -620,11 +620,23 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 
 				} elseif ( is_array( $partials ) ) {
 
+					// Get transaction statuses that should be included in total value
+					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$transaction_statuses_to_include = $zbs->DAL->transactions->getTransactionStatusesToInclude();
+
 					foreach ( $partials as $partial ) {
 
-						// ignore if status_bool (non-completed status)
+						// Check if this transaction status should be included
+						$should_include_transaction = false;
+						if ( $transaction_statuses_to_include === 'all' ) {
+							$should_include_transaction = true;
+						} elseif ( is_array( $transaction_statuses_to_include ) && isset( $partial['status'] ) ) {
+							$should_include_transaction = in_array( $partial['status'], $transaction_statuses_to_include, true );
+						}
+
+						// ignore if status_bool (non-completed status) or if transaction status not included
 						$partial['status_bool'] = (int) $partial['status_bool'];
-						if ( isset( $partial ) && $partial['status_bool'] == 1 && isset( $partial['total'] ) && $partial['total'] > 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+						if ( isset( $partial ) && $partial['status_bool'] == 1 && isset( $partial['total'] ) && $partial['total'] > 0 && $should_include_transaction ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
 							// v3.0+ has + or - partials. Account for that:
 							if ( $partial['type_accounting'] === 'credit' ) {

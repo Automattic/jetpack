@@ -2472,23 +2472,24 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
      *
      * @return array 
      */
-    function getTransactionStatusesToInclude(){
+		public function getTransactionStatusesToInclude() {
 
-        // load (accept from cache)
-        $setting = $this->DAL()->setting( 'transinclude_status', 'all', true );
+			// load (accept from cache)
+			$setting = $this->DAL()->setting( 'transinclude_status', 'all', true );
 
-        if (is_string($setting) && strpos($setting, ',') > 0){
+			// If it's already an array, return it
+			if ( is_array( $setting ) ) {
+				return $setting;
+			}
 
-            return explode(',', $setting);
-        } elseif (is_array($setting)){
+			// If it's a string with commas, split it
+			if ( is_string( $setting ) && strpos( $setting, ',' ) > 0 ) {
+				return explode( ',', $setting );
+			}
 
-            return $setting;
-            
-        }
-
-        return 'all';
-        
-    }
+			// If it's 'all' or any other string, return 'all'
+			return 'all';
+		}
 
     /**
      * returns an SQL query addition which will allow filtering of transactions

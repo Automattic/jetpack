@@ -67,40 +67,115 @@
 	.action-button {
 		cursor: pointer;
 		display: inline-block;
-		min-height: 1em;
-		outline: none;
-		border: none;
-		vertical-align: baseline;
-		//background: #E0E1E2 none;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-		margin: 0 0.25em 0 0;
-		padding: 0.78571429em 1.5em 0.78571429em;
-		line-height: 1;
-		font-style: normal;
-		text-align: center;
-		text-decoration: none;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		user-select: none;
-		transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
-		will-change: "";
-		-webkit-tap-highlight-color: transparent;
-
-		font-size: 1rem;
-
-		//background: transparent none !important;
-		font-weight: 400;
-		border-radius: 0.28571429rem;
-		text-transform: none;
-		text-shadow: none !important;
-
-		box-shadow: 0 0 0 1px #21ba45 inset !important;
-		color: #21ba45 !important;
-
-		background: #fff !important;
 	}
 
+	// Statement tab styles
+	.zbs-statement-tab-content {
+
+		.zbs-statement-preview {
+			margin-bottom: 20px;
+		}
+
+		.zbs-statement-html-preview {
+
+			.ui.segment {
+				max-height: 600px;
+				overflow-y: auto;
+				padding: 20px;
+			}
+		}
+
+		// Statement action buttons - consolidated styles
+		#zbs-statement-actions {
+			margin-top: 1rem;
+
+			.ui.segment {
+				padding: 1rem;
+			}
+
+			.ui.buttons {
+				display: flex;
+				justify-content: center;
+				gap: 1rem;
+				flex-wrap: wrap;
+
+				.ui.button {
+					height: auto;
+					padding: 0.75rem 1rem;
+					font-size: 0.9rem;
+					min-width: 140px;
+					margin: 0.25rem;
+
+					@media (max-width: 768px) {
+						padding: 0.5rem 0.75rem;
+						font-size: 0.8rem;
+						min-width: 120px;
+					}
+				}
+			}
+		}
+
+		// Initial statement actions (before generation)
+		.zbs-statement-actions {
+
+			.ui.segment {
+				text-align: center;
+				padding: 2rem;
+
+				h3 {
+					margin-bottom: 0.5rem;
+				}
+
+				p {
+					margin-bottom: 1.5rem;
+					color: #666;
+				}
+
+				.ui.buttons {
+					justify-content: center;
+
+					.ui.button {
+						min-width: 160px;
+					}
+				}
+			}
+		}
+
+		// General button styles
+		.ui.buttons {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			max-width: 100%;
+
+			.ui.button {
+				flex: 0 1 auto;
+				min-width: 0;
+				max-width: 100%;
+				margin-left: 5px;
+			}
+		}
+
+		// Stackable grid specific fixes
+		.ui.stackable.grid {
+
+			.six.wide.column {
+
+				@media (max-width: 768px) {
+					width: 100% !important;
+
+					.ui.buttons {
+						justify-content: center;
+					}
+				}
+			}
+		}
+
+		// Remove bottom border from all tabs
+		[data-tab] {
+			border-bottom: none !important;
+		}
+	}
 }
 
 // prev: #zerobs-customer-tags-box
