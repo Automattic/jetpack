@@ -28,6 +28,15 @@ use WP_Error;
 class Contact_Form_Plugin {
 
 	/**
+	 * Error codes for form submission failures
+	 */
+	const ERROR_INVALID_FORM_ID_OR_HASH = '001';
+	const ERROR_INVALID_JWT             = '002';
+	const ERROR_POST_NOT_ACCESSIBLE     = '003';
+	const ERROR_POST_PASSWORD_REQUIRED  = '004';
+	const ERROR_NO_FORM_FOUND           = '005';
+
+	/**
 	 *
 	 * The Widget ID of the widget currently being processed.  Used to build the unique contact-form ID for forms embedded in widgets.
 	 *
@@ -1220,7 +1229,7 @@ class Contact_Form_Plugin {
 		// phpcs:enable
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
-			return false;
+			return new WP_Error( self::ERROR_INVALID_FORM_ID_OR_HASH, __( 'Invalid form ID or hash provided.', 'jetpack-forms' ) );
 		}
 
 		if ( is_user_logged_in() ) {
@@ -1236,7 +1245,7 @@ class Contact_Form_Plugin {
 			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
 			if ( ! $form ) { // fail early if the JWT is invalid.
 				// If the JWT is invalid, we can't process the form.
-				return false;
+				return new WP_Error( self::ERROR_INVALID_JWT, __( 'Invalid JWT provided.', 'jetpack-forms' ) );
 			}
 		}
 
@@ -1334,12 +1343,12 @@ class Contact_Form_Plugin {
 
 			if ( ! is_post_publicly_viewable( $id ) && ! current_user_can( 'read_post', $id ) ) {
 				// The user can't see the post.
-				return false;
+				return new WP_Error( self::ERROR_POST_NOT_ACCESSIBLE, __( 'The post is not accessible.', 'jetpack-forms' ) );
 			}
 
 			if ( post_password_required( $id ) ) {
 				// The post is password-protected and the password is not provided.
-				return false;
+				return new WP_Error( self::ERROR_POST_PASSWORD_REQUIRED, __( 'The post is password-protected and the password is not provided.', 'jetpack-forms' ) );
 			}
 
 			$post = get_post( $id );
@@ -1392,7 +1401,7 @@ class Contact_Form_Plugin {
 		}
 
 		if ( ! $form ) {
-			return false;
+			return new WP_Error( self::ERROR_NO_FORM_FOUND, __( 'No form found.', 'jetpack-forms' ) );
 		}
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
@@ -1415,15 +1424,51 @@ class Contact_Form_Plugin {
 	public function ajax_request() {
 		$submission_result = self::process_form_submission();
 
-		if ( ! $submission_result ) {
+		if ( is_wp_error( $submission_result ) ) {
+			$error_code    = $submission_result->get_error_code();
+			$error_message = $submission_result->get_error_message();
+
+			// Set appropriate HTTP status codes based on error type
+			$http_status = 400; // Default to Bad Request
+
+			switch ( $error_code ) {
+				case self::ERROR_INVALID_FORM_ID_OR_HASH:
+				case self::ERROR_INVALID_JWT:
+				case \Automattic\Jetpack\Forms\ContactForm\Contact_Form::ERROR_WIDGET_ID_MISMATCH:
+				case \Automattic\Jetpack\Forms\ContactForm\Contact_Form::ERROR_BLOCK_TEMPLATE_ID_MISMATCH:
+				case \Automattic\Jetpack\Forms\ContactForm\Contact_Form::ERROR_BLOCK_TEMPLATE_PART_ID_MISMATCH:
+				case \Automattic\Jetpack\Forms\ContactForm\Contact_Form::ERROR_POST_ID_MISMATCH:
+					$http_status = 400; // Bad Request
+					break;
+				case self::ERROR_POST_NOT_ACCESSIBLE:
+				case self::ERROR_POST_PASSWORD_REQUIRED:
+					$http_status = 403; // Forbidden
+					break;
+				case self::ERROR_NO_FORM_FOUND:
+					$http_status = 404; // Not Found
+					break;
+				default:
+					$http_status = 500; // Internal Server Error
+					break;
+			}
+
+			header( 'HTTP/1.1 ' . $http_status . ' ' . $this->get_http_status_text( $http_status ), $http_status, true );
+			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
+
+			// Display only the error code in the user-facing error message.
+			if ( preg_match( '/^\d{3}$/', $error_code ) ) {
+				esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
+				echo '<p>' . esc_html__( 'Error code: ', 'jetpack-forms' ) . esc_html( $error_code ) . '</p>';
+			} else {
+				echo esc_html( $error_message );
+			}
+
+			echo '</li></ul></div>';
+		} elseif ( ! $submission_result ) {
+			// Fallback for any remaining false returns
 			header( 'HTTP/1.1 500 Server Error', 500, true );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
-			echo '</li></ul></div>';
-		} elseif ( is_wp_error( $submission_result ) ) {
-			header( 'HTTP/1.1 400 Bad Request', 403, true );
-			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
-			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 		} else {
 			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
@@ -1437,6 +1482,23 @@ class Contact_Form_Plugin {
 		}
 
 		die( 0 );
+	}
+
+	/**
+	 * Get HTTP status text for error codes
+	 *
+	 * @param int $status_code HTTP status code.
+	 * @return string Status text
+	 */
+	private function get_http_status_text( $status_code ) {
+		$status_texts = array(
+			400 => 'Bad Request',
+			403 => 'Forbidden',
+			404 => 'Not Found',
+			500 => 'Internal Server Error',
+		);
+
+		return isset( $status_texts[ $status_code ] ) ? $status_texts[ $status_code ] : 'Unknown Error';
 	}
 
 	/**

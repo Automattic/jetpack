@@ -111,6 +111,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $has_verified_jwt = false;
 
 	/**
+	 * Error codes for form submission failures
+	 */
+	const ERROR_WIDGET_ID_MISMATCH              = '006';
+	const ERROR_BLOCK_TEMPLATE_ID_MISMATCH      = '007';
+	const ERROR_BLOCK_TEMPLATE_PART_ID_MISMATCH = '008';
+	const ERROR_POST_ID_MISMATCH                = '009';
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -1603,18 +1611,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Make sure we're processing the form we think we're processing... probably a redundant check.
 			if ( $widget ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return new WP_Error( self::ERROR_WIDGET_ID_MISMATCH, __( 'The widget ID does not match the form ID.', 'jetpack-forms' ) );
 				}
 			} elseif ( $block_template ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return new WP_Error( self::ERROR_BLOCK_TEMPLATE_ID_MISMATCH, __( 'The block template ID does not match the form ID.', 'jetpack-forms' ) );
 				}
 			} elseif ( $block_template_part ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return new WP_Error( self::ERROR_BLOCK_TEMPLATE_PART_ID_MISMATCH, __( 'The block template part ID does not match the form ID.', 'jetpack-forms' ) );
 				}
 			} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || self::get_post_property( $this->current_post, 'ID' ) !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
+				return new WP_Error( self::ERROR_POST_ID_MISMATCH, __( 'The post ID does not match the form ID.', 'jetpack-forms' ) );
 			}
 		}
 

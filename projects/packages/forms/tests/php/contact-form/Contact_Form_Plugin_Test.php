@@ -554,7 +554,79 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 
-		$this->assertFalse( $result, 'Expected a WP_Error when processing the form submission.' );
+		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
+		$this->assertSame( '002', $result->get_error_code(), 'Expected the error code to be "002".' );
+
+		$this->teardown_post_for_test( $previous_post );
+	}
+
+	/**
+	 * Test that error codes are returned instead of false for form submission failures when the form ID and hash are invalid.
+	 */
+	public function test_form_submission_invalid_form_id_and_hash() {
+		$plugin = Contact_Form_Plugin::init();
+
+		// Test invalid form ID and hash
+		$_POST['contact-form-id']   = null;
+		$_POST['contact-form-hash'] = null;
+
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( '001', $result->get_error_code() );
+		$this->assertEquals( 'Invalid form ID or hash provided.', $result->get_error_message() );
+	}
+
+	/**
+	 * Test that error codes are returned instead of false for form submission failures when the post is not accessible.
+	 */
+	public function test_form_submission_post_not_accessible() {
+		$plugin = Contact_Form_Plugin::init();
+
+		$_POST['contact-form-id']   = '123456';
+		$_POST['contact-form-hash'] = '123456';
+
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( '003', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that error codes are returned instead of false for form submission failures when the post is password-protected and the password is not provided.
+	 */
+	public function test_form_submission_post_password_required() {
+		$previous_post = $this->setup_token_test();
+		add_filter( 'post_password_required', array( $this, 'return_true_for_post_password_required' ) );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( '004', $result->get_error_code() );
+
+		$this->teardown_post_for_test( $previous_post );
+
+		remove_filter( 'post_password_required', array( $this, 'return_true_for_post_password_required' ) );
+	}
+
+	/**
+	 * Test that error codes are returned instead of false for form submission failures when the form is not found.
+	 */
+	public function test_form_submission_form_not_found() {
+		$previous_post = $this->setup_token_test();
+
+		// Remove the JWT from the POST data and set the hash to a wrong value so that the form is not found.
+		unset( $_POST['jetpack_contact_form_jwt'] );
+		$_POST['contact-form-hash'] = 'wrong-hash';
+
+		$plugin = Contact_Form_Plugin::init();
+
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( '005', $result->get_error_code() );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
@@ -589,6 +661,11 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		unset( $_POST['contact-form-hash'] );
 		unset( $_POST['jetpack_contact_form_jwt'] );
 		unset( $_POST['contact-form-id'] );
+		unset( $_POST['contact-form-hash'] );
+	}
+
+	public function return_true_for_post_password_required() {
+		return true;
 	}
 
 	public function return_error_for_test() {
