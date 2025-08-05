@@ -435,6 +435,7 @@ const { state } = store( NAMESPACE, {
 			url.searchParams.delete( 'contact-form-hash' );
 			url.searchParams.delete( '_wpnonce' );
 			window.history.replaceState( null, '', url.toString() );
+			return false;
 		},
 	},
 
