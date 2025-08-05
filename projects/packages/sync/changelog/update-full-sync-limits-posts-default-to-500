@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Full Sync: Updated chunk_size default full sync limit to 500 for posts module.

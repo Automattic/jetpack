@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Page Cache: Fix php warnings related to opcache calls when API is disabled.

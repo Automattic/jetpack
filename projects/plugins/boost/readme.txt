@@ -183,27 +183,26 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.2.1 - 2025-07-24
+### 4.3.0-beta - 2025-08-05
 #### Added
-- Critical CSS: Exclude post types of popular builder plugins from generation.
-- General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality.
-- My Jetpack: Added analytics for empty product search results.
+- Page Cache: Ignore Yandex parameters so those visitors are served from the cache.
 
 #### Changed
-- Cornerstone Pages: Ensure Home URL is always a predefined Cornerstone Page
-- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript
-- Improves performance of wpcom comments liking by caching and minimizing API requests.
-- My Jetpack: Enabled access to My Jetpack on WP Multisite.
-- Update package dependencies.
+- Image CDN: Ignore images from openlibrary.org.
+- Misc: Speed up uninstall process.
+- My Jetpack: Unify the user connection flow with a unified screen.
 
-#### Deprecated
-- Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via a temporary filter.
+#### Removed
+- Image Size Analysis: feature has been removed. Filter will no longer enable the ISA.
 
 #### Fixed
-- General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2
-- Update JITMs to remove jQuery dependency
-
-Note: There was no public 4.2.0 release.
+- Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive.
+- Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled.
+- LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images
+- My Jetpack: Fixing footer alignment for diconnected accounts.
+- My Jetpack: Prevent expiration alerts for products covered by active bundles
+- My Jetpack: Restoring plan purchase link.
+- Page Cache: Fix php warnings related to opcache calls when API is disabled.
 
 --------
 
