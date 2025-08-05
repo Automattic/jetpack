@@ -1784,19 +1784,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$form->fields[] = $field;
 		}
 
-		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
-			! isset( $_POST['jetpack_contact_form_jwt'] )
-			&&
-			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
-			&&
-			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
-			&&
-			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, wp_unslash( $_POST['contact-form-hash'] ) )
-		) { // phpcs:enable
-			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
-			$field->validate();
-		}
-
 		// Output HTML
 		return $field->render();
 	}
