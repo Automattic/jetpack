@@ -7,6 +7,10 @@
 
 declare( strict_types = 1 );
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Core class used to retrieve the block editor assets via the REST API.
  */
