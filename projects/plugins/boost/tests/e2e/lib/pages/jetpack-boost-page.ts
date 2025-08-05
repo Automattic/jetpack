@@ -15,6 +15,10 @@ export default class JetpackBoostPage {
 		await this.page.goto( '/wp-admin/admin.php?page=jetpack-boost' );
 	}
 
+	async getCornerstonePagesTextarea() {
+		return this.page.locator( '#jb-cornerstone-pages' );
+	}
+
 	/**
 	 * Select the free plan from getting started page.
 	 */
@@ -273,76 +277,62 @@ export default class JetpackBoostPage {
 		} ).toPass();
 	}
 
-	async isCornerstonePagesContentVisible() {
-		return await this.page.getByText( 'List the most important pages' ).isVisible();
-	}
-
+	/**
+	 * Opens the Cornerstone Pages panel if not already open and checks if it is visible.
+	 */
 	async openCornerstonePagesPanel() {
-		const panelToggle = this.page.locator( 'text=Cornerstone Pages' ).first();
-		if ( ! ( await this.isCornerstonePagesContentVisible() ) ) {
+		const panelToggle = this.page.getByRole( 'button', { name: 'Cornerstone Pages' } ).first();
+		const panelContent = this.page.getByText( 'List the most important pages' );
+		if ( ! ( await panelContent.isVisible() ) ) {
 			await panelToggle.click();
-			await this.isCornerstonePagesContentVisible();
+			await expect( panelContent, 'Panel content should be visible' ).toBeVisible();
 		}
 	}
 
-	// async enterCornerstonePageUrl( url ) {
-	// 	const textarea = this.page.locator( '#jb-cornerstone-pages' );
-	// 	await textarea.fill( url );
-	// }
-
-	async clearCornerstonePageInput() {
-		const textarea = this.page.locator( '#jb-cornerstone-pages' );
-		await textarea.fill( '' );
+	/**
+	 * Enters the provided URL into the Cornerstone Pages input field.
+	 * @param url - The URL to enter in the Cornerstone Pages input field.
+	 */
+	async enterCornerstonePageUrl( url: string ) {
+		( await this.getCornerstonePagesTextarea() ).clear();
+		await ( await this.getCornerstonePagesTextarea() ).fill( url );
 	}
 
-	// async addCornerstonePage( url ) {
-	// 	await this.enterCornerstonePageUrl( url );
-	// 	const saveButton = this.page.locator( 'text=Save' ).first();
-	// 	await saveButton.click();
-	// }
+	/**
+	 * Enters the URL into the Cornerstone Pages input field and clicks the Save button.
+	 * It also waits for a success notice to appear indicating that the cornerstone pages have been saved
+	 * @param url - The URL to add as a cornerstone page.
+	 */
+	async addCornerstonePage( url: string ) {
+		await this.enterCornerstonePageUrl( url );
+		await this.page.getByRole( 'button', { name: 'Save' } ).first().click();
+		await this.expectNoticeToBeVisible( 'Cornerstone pages saved' );
+	}
 
 	async getCornerstonePageInputValue() {
-		const textarea = this.page.locator( '#jb-cornerstone-pages' );
-		return await textarea.inputValue();
+		return ( await this.getCornerstonePagesTextarea() ).inputValue();
 	}
 
-	async isCornerstoneSaveButtonDisabled() {
-		const saveButton = this.page.locator( 'text=Save' ).first();
-		return await saveButton.isDisabled();
+	/**
+	 * Waits for a notice to appear and checks its visibility.
+	 * @param {string|RegExp} message - The message to wait for.
+	 */
+	async expectNoticeToBeVisible( message: string | RegExp ) {
+		await expect(
+			this.page.getByTestId( 'snackbar' ).getByText( message ),
+			`Should show ${ message } notice`
+		).toBeVisible();
 	}
 
-	async isCornerstoneUpgradeCTAVisible() {
-		const selector = 'text=Premium users can add up to 10 cornerstone pages';
-		return this.page.isVisible( selector );
+	async togglePrerenderOption( enabled ) {
+		const toggle = this.page.locator( '[data-testid="prerender-cornerstone-pages-title"] input' );
+		const isCurrentlyChecked = await toggle.isChecked();
+
+		if ( isCurrentlyChecked !== enabled ) {
+			await toggle.click();
+		}
+		await this.expectNoticeToBeVisible( `Prerender ${ enabled ? 'enabled' : 'disabled' }` );
 	}
-
-	async isPremiumFeatureDetected() {
-		return await this.page
-			.getByRole( 'button', { name: 'Cornerstone Pages Upgraded' } )
-			.isVisible();
-	}
-
-	// async waitForNotice( message ) {
-	// 	const notice = this.page.locator( `.components-snackbar:has-text("${ message }")` );
-	// 	await notice.waitFor( {
-	// 		timeout: 10000,
-	// 	} );
-	// }
-
-	// Prerender methods
-	async isPrerenderToggleVisible() {
-		const selector = 'text=Prerender Cornerstone Pages';
-		return this.page.isVisible( selector );
-	}
-
-	// async togglePrerenderOption( enabled ) {
-	// 	const toggle = this.page.locator( '[data-testid="prerender-cornerstone-pages-title"] input' );
-	// 	const isCurrentlyChecked = await toggle.isChecked();
-
-	// 	if ( isCurrentlyChecked !== enabled ) {
-	// 		await toggle.click();
-	// 	}
-	// }
 
 	// async waitForLcpOptimizationStatus( status, timeout = 30000 ) {
 	// 	// Map status to the expected UI indicators

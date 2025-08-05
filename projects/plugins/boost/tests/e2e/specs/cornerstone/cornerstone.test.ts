@@ -1,58 +1,58 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { JetpackBoostPage } from '../../lib/pages/index.js';
+import { test, expect } from '../../lib/fixtures/test.ts';
 
 /* global Jetpack_Boost */
 
 test.describe( 'Cornerstone Pages', () => {
-	let page;
-
 	test.beforeAll( async ( { browser } ) => {
-		page = await browser.newPage( playwrightConfig.use );
+		const page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
 			.withMockConnection( true )
 			.withSpeedScoreMocked( true )
 			.build();
-	} );
-
-	test.afterAll( async () => {
 		await page.close();
 	} );
 
-	test.afterEach( async ( { testUtils } ) => {
+	test.beforeEach( async ( { jetpackBoostPage } ) => {
+		await jetpackBoostPage.visit();
+	} );
+
+	test.afterEach( async ( { testUtils, page } ) => {
 		await boostPrerequisitesBuilder( page ).withPremiumFeaturesMocked( [] ).build();
 		// Reset cornerstone pages before each test to ensure atomicity
 		// Using option delete ensures the system properly initializes an empty array
 		await testUtils.executeWpCommand( 'option delete jetpack_boost_ds_cornerstone_pages_list' );
 	} );
 
-	test( 'Cornerstone Pages panel should be visible and toggleable', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-
+	test( 'Cornerstone Pages panel should be visible and toggleable', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		// Test panel toggle functionality - title should be visible but content should be collapsed
-		const panelToggle = page.locator( 'text=Cornerstone Pages' ).first();
+		const panelToggle = page.getByRole( 'button', { name: 'Cornerstone Pages' } ).first();
 		await expect( panelToggle, 'Panel title should be visible' ).toBeVisible();
 
 		// Panel content should NOT be visible initially (collapsed by default)
-		expect(
-			await jetpackBoostPage.isCornerstonePagesContentVisible(),
+		await expect(
+			page.getByText( 'List the most important pages' ),
 			'Cornerstone Pages content should be collapsed by default'
-		).toBeFalsy();
+		).toBeHidden();
 
-		// Test opening the panel
-		await panelToggle.click();
+		// Open the panel
+		await jetpackBoostPage.openCornerstonePagesPanel();
 
-		expect(
-			await jetpackBoostPage.isCornerstonePagesContentVisible(),
+		await expect(
+			page.getByText( 'List the most important pages' ),
 			'Panel content should be visible when opened'
-		).toBeTruthy();
+		).toBeVisible();
 	} );
 
-	test( 'Should display predefined pages (homepage) correctly', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-
+	test( 'Should display predefined pages (homepage) correctly', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		// Open the panel
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
@@ -70,15 +70,14 @@ test.describe( 'Cornerstone Pages', () => {
 		).toBeVisible();
 	} );
 
-	test( 'Should allow adding valid custom cornerstone pages on free plan', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	test( 'Should allow adding valid custom cornerstone pages on free plan', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		const testUrl = '/test-page';
 		await jetpackBoostPage.addCornerstonePage( testUrl );
-
-		// Wait for save success notice
-		await jetpackBoostPage.waitForNotice( 'Cornerstone pages saved' );
 
 		// Verify the page was added (should show "Homepage + 1 page" in the title summary)
 		await expect(
@@ -87,32 +86,29 @@ test.describe( 'Cornerstone Pages', () => {
 		).toBeVisible();
 	} );
 
-	test( 'Should validate URLs correctly and show error messages', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	test( 'Should validate URLs correctly and show error messages', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Test invalid URL (different site)
 		await jetpackBoostPage.enterCornerstonePageUrl( 'https://example.com/test' );
 		await expect(
-			page.locator( 'text=The URL seems to be a different site' ),
+			page.getByText( 'The URL seems to be a different site' ),
 			'Should show error for different site URL'
 		).toBeVisible();
 
 		// Test homepage URL (should be rejected)
 		const homeUrl = await page.evaluate( () => Jetpack_Boost.site.url );
-		await jetpackBoostPage.clearCornerstonePageInput();
 		await jetpackBoostPage.enterCornerstonePageUrl( homeUrl );
 		await expect(
-			page.locator( 'text=The homepage does not need to be added' ),
+			page.getByText( 'The homepage does not need to be added' ),
 			'Should show error for homepage URL'
 		).toBeVisible();
-
-		// Clear the input for next tests
-		await jetpackBoostPage.clearCornerstonePageInput();
 	} );
 
-	test( 'Should enforce free plan limit of 1 custom page', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	test( 'Should enforce free plan limit of 1 custom page', async ( { jetpackBoostPage, page } ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Try to add 2 pages (should fail on free plan)
@@ -125,48 +121,53 @@ test.describe( 'Cornerstone Pages', () => {
 		).toBeVisible();
 
 		// Verify save button is disabled
-		expect(
-			await jetpackBoostPage.isCornerstoneSaveButtonDisabled(),
+		await expect(
+			page.getByRole( 'button', { name: 'Save' } ).first(),
 			'Save button should be disabled with validation error'
-		).toBeTruthy();
+		).toBeDisabled();
 	} );
 
-	test( 'Should allow adding up to 10 pages on premium plan', async () => {
+	test( 'Should allow adding up to 10 pages on premium plan', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		// Mock premium features using the new plugin approach
 		await boostPrerequisitesBuilder( page )
 			.withPremiumFeaturesMocked( [ 'cornerstone-10-pages' ] )
 			.build();
+		// reload for the mock to take effect
+		await page.reload();
 
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Verify that premium features are detected
-		expect(
-			await jetpackBoostPage.isPremiumFeatureDetected(),
+		await expect(
+			page.getByRole( 'button', { name: 'Cornerstone Pages Upgraded' } ),
 			'Premium features should be detected by the frontend'
-		).toBeTruthy();
+		).toBeVisible();
 
 		// Add 10 pages
 		const tenPages = Array.from( { length: 10 }, ( _, i ) => `/page-${ i + 1 }` ).join( '\n' );
 		await jetpackBoostPage.addCornerstonePage( tenPages );
 
-		// Wait for save success notice
-		await jetpackBoostPage.waitForNotice( 'Cornerstone pages saved' );
-
 		// Verify the pages were added
 		await expect(
-			page.locator( 'text=Homepage + 10 pages' ),
+			page.getByText( 'Homepage + 10 pages' ),
 			'Should display correct page count in summary for 10 pages'
 		).toBeVisible();
 	} );
 
-	test( 'Should enforce premium plan limit of 10 custom pages', async () => {
+	test( 'Should enforce premium plan limit of 10 custom pages', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		// Mock premium features using the new plugin approach
 		await boostPrerequisitesBuilder( page )
 			.withPremiumFeaturesMocked( [ 'cornerstone-10-pages' ] )
 			.build();
+		// reload for the mock to take effect
+		await page.reload();
 
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Try to add 11 pages
@@ -174,39 +175,35 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.enterCornerstonePageUrl( elevenPages );
 
 		await expect(
-			page.locator( 'text=You can add up to 10 cornerstone page URLs' ),
+			page.getByText( 'You can add up to 10 cornerstone page URLs' ),
 			'Should show limit error for premium plan'
 		).toBeVisible();
 
 		// Verify save button is disabled
-		expect(
-			await jetpackBoostPage.isCornerstoneSaveButtonDisabled(),
+		await expect(
+			page.getByRole( 'button', { name: 'Save' } ).first(),
 			'Save button should be disabled with validation error'
-		).toBeTruthy();
+		).toBeDisabled();
 	} );
 
-	test( 'Should show upgrade CTA for premium features on free plan', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	test( 'Should show upgrade CTA for premium features on free plan', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
-		expect(
-			await jetpackBoostPage.isCornerstoneUpgradeCTAVisible(),
-			'Upgrade CTA should be visible on free plan'
-		).toBeTruthy();
-
 		await expect(
-			page.locator( 'text=Premium users can add up to 10 cornerstone pages' ),
-			'Should show premium limit in upgrade message'
+			page.getByText( 'Premium users can add up to 10 cornerstone pages' ),
+			'Upgrade CTA should be visible on free plan'
 		).toBeVisible();
 	} );
 
-	test( 'Should show load default pages functionality', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	test( 'Should show load default pages functionality', async ( { jetpackBoostPage, page } ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Check that load default button exists
 		await expect(
-			page.locator( 'text=Load default pages' ),
+			page.getByText( 'Load default pages' ),
 			'Load default pages button should be visible'
 		).toBeVisible();
 
@@ -214,89 +211,81 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.enterCornerstonePageUrl( testUrls );
 
 		// Test load default pages functionality (if there are default pages configured)
-		const loadDefaultButton = page.getByRole( 'button', { name: 'Load default pages' } );
-		await loadDefaultButton.click();
+		await page.getByRole( 'button', { name: 'Load default pages' } ).click();
 
 		// Should show some default pages loaded
-		expect(
-			await jetpackBoostPage.getCornerstonePageInputValue(),
+		await expect(
+			await jetpackBoostPage.getCornerstonePagesTextarea(),
 			'Should have no content after loading defaults'
-		).toBeFalsy();
+		).toHaveValue( '' );
 	} );
 
-	test( 'Prerender toggle should be visible when speculation_rules module is available', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	test( 'Prerender toggle should be visible when speculation_rules module is available', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
-		expect(
-			await jetpackBoostPage.isPrerenderToggleVisible(),
+		await expect(
+			page.getByText( 'Prerender Cornerstone Pages' ),
 			'Prerender toggle should be visible when speculation_rules is available'
-		).toBeTruthy();
+		).toBeVisible();
 
 		// Test toggle functionality
 		await jetpackBoostPage.togglePrerenderOption( true );
-		await jetpackBoostPage.waitForNotice( 'Prerender enabled' );
-
 		await jetpackBoostPage.togglePrerenderOption( false );
-		await jetpackBoostPage.waitForNotice( 'Prerender disabled' );
 	} );
 
-	test( 'Should handle relative URLs correctly', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	test( 'Should handle relative URLs correctly', async ( { jetpackBoostPage, page } ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Test relative URL (should work)
 		const relativeUrl = '/about-us';
-		await jetpackBoostPage.clearCornerstonePageInput();
 		await jetpackBoostPage.addCornerstonePage( relativeUrl );
-
-		// Wait for save success notice
-		await jetpackBoostPage.waitForNotice( 'Cornerstone pages saved' );
 
 		// Verify it was saved properly
 		await expect(
-			page.locator( 'text=Homepage + 1 page' ),
+			page.getByText( 'Homepage + 1 page' ),
 			'Should accept and save relative URLs'
 		).toBeVisible();
 	} );
 
-	test( 'Should persist cornerstone pages across page reloads', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+	test( 'Should persist cornerstone pages across page reloads', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		const testUrl = '/persistent-page';
 		await jetpackBoostPage.addCornerstonePage( testUrl );
-		await jetpackBoostPage.waitForNotice( 'Cornerstone pages saved' );
 
 		// Reload the page
 		await page.reload();
-		const jetpackBoostPageReloaded = await JetpackBoostPage.visit( page );
-		await jetpackBoostPageReloaded.openCornerstonePagesPanel();
+		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Check that the page is still there
-		const inputValue = await jetpackBoostPageReloaded.getCornerstonePageInputValue();
-		expect(
-			inputValue.includes( testUrl ),
-			'Cornerstone pages should persist across page reloads'
-		).toBeTruthy();
+		const inputValue = await ( await jetpackBoostPage.getCornerstonePagesTextarea() ).inputValue();
+		expect( inputValue, 'Cornerstone pages should persist across page reloads' ).toContain(
+			testUrl
+		);
 	} );
 
-	test( 'Should show correct summary in panel title based on number of pages', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-
+	test( 'Should show correct summary in panel title based on number of pages', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		// Should show "Added: Homepage" when no custom pages
 		await expect(
-			page.locator( 'text=Added: Homepage' ),
+			page.getByText( 'Added: Homepage' ),
 			'Should show only homepage when no custom pages'
 		).toBeVisible();
 
 		await jetpackBoostPage.openCornerstonePagesPanel();
 		await jetpackBoostPage.addCornerstonePage( '/test-summary' );
-		await jetpackBoostPage.waitForNotice( 'Cornerstone pages saved' );
 
 		// Should show "Added: Homepage + 1 page"
 		await expect(
-			page.locator( 'text=Added: Homepage + 1 page' ),
+			page.getByText( 'Added: Homepage + 1 page' ),
 			'Should show correct count with 1 custom page'
 		).toBeVisible();
 	} );
