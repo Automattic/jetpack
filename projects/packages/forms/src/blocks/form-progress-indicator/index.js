@@ -71,27 +71,23 @@ export const settings = {
 	transforms: {},
 	example: {},
 	deprecated: [
+		// Version with old jetpack-form-progress-indicator-bar structure
 		{
+			apiVersion: 2,
+			attributes: {},
+			supports: {},
 			save() {
-				return null; // not used – just satisfies the API
-			},
-			isEligible( attrs, innerBlocks, { innerHTML = '' } ) {
 				return (
-					innerHTML.includes( 'is-style-default' ) ||
-					innerHTML.includes( 'jetpack-form-progress-indicator-bar' )
+					<div className="jetpack-form-progress-indicator--wrapper">
+						<div className="wp-block-jetpack-form-progress-indicator">
+							<div className="jetpack-form-progress-indicator-bar"></div>
+						</div>
+					</div>
 				);
 			},
-			migrate( attrs, innerBlocks, { innerHTML = '' } ) {
-				const migratedHTML = innerHTML
-					// style slug rename
-					.replace( /is-style-default/g, 'is-style-line' )
-					// old bar markup → new steps markup
-					.replace(
-						/<div class="jetpack-form-progress-indicator-bar"><\/div>/,
-						'<div class="jetpack-form-progress-indicator-steps"><div class="jetpack-form-progress-indicator-progress"></div></div>'
-					);
-
-				return [ attrs, innerBlocks, { innerHTML: migratedHTML } ];
+			migrate( attributes ) {
+				// Return the same attributes - no changes needed
+				return attributes;
 			},
 		},
 	],
