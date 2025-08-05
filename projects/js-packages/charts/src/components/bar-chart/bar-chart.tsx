@@ -5,7 +5,7 @@ import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
-import { Legend, SHARED_LEGEND_DEFAULTS } from '../legend';
+import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -25,14 +25,6 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
 }
-
-const BAR_CHART_DEFAULTS = {
-	...SHARED_LEGEND_DEFAULTS,
-	legendShape: 'rect' as const,
-	withPatterns: false,
-	showZeroValues: false,
-	orientation: 'vertical' as const,
-} as const;
 
 // Validation function similar to LineChart
 const validateData = ( data: SeriesData[] ) => {
@@ -63,17 +55,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	className,
 	margin,
 	withTooltips = false,
-	showLegend = BAR_CHART_DEFAULTS.showLegend,
-	legendOrientation = BAR_CHART_DEFAULTS.legendOrientation,
-	legendAlignmentHorizontal = BAR_CHART_DEFAULTS.legendAlignmentHorizontal,
-	legendAlignmentVertical = BAR_CHART_DEFAULTS.legendAlignmentVertical,
-	legendShape = BAR_CHART_DEFAULTS.legendShape,
+	showLegend = false,
+	legendOrientation = 'horizontal',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
+	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
 	options = {},
-	orientation = BAR_CHART_DEFAULTS.orientation,
-	withPatterns = BAR_CHART_DEFAULTS.withPatterns,
-	showZeroValues = BAR_CHART_DEFAULTS.showZeroValues,
+	orientation = 'vertical',
+	withPatterns = false,
+	showZeroValues = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts

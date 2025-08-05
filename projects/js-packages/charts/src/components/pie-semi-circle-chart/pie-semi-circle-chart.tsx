@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
-import { Legend, SHARED_LEGEND_DEFAULTS } from '../legend';
+import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -18,13 +18,6 @@ import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import type { FC, MouseEvent } from 'react';
 
 const PAD_ANGLE = 0.03; // Padding between segments
-
-const PIE_SEMI_CIRCLE_CHART_DEFAULTS = {
-	...SHARED_LEGEND_DEFAULTS,
-	legendShape: 'circle' as const,
-	thickness: 0.4,
-	clockwise: true,
-} as const;
 
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -85,14 +78,14 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
 	chartId: providedChartId,
 	width = 400,
-	thickness = PIE_SEMI_CIRCLE_CHART_DEFAULTS.thickness,
-	clockwise = PIE_SEMI_CIRCLE_CHART_DEFAULTS.clockwise,
+	thickness = 0.4,
+	clockwise = true,
 	withTooltips = false,
-	showLegend = PIE_SEMI_CIRCLE_CHART_DEFAULTS.showLegend,
-	legendOrientation = PIE_SEMI_CIRCLE_CHART_DEFAULTS.legendOrientation,
-	legendAlignmentHorizontal = PIE_SEMI_CIRCLE_CHART_DEFAULTS.legendAlignmentHorizontal,
-	legendAlignmentVertical = PIE_SEMI_CIRCLE_CHART_DEFAULTS.legendAlignmentVertical,
-	legendShape = PIE_SEMI_CIRCLE_CHART_DEFAULTS.legendShape,
+	showLegend = false,
+	legendOrientation = 'horizontal',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
+	legendShape = 'circle',
 	label,
 	note,
 	className,

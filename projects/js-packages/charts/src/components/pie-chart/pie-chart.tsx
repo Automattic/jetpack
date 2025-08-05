@@ -6,7 +6,7 @@ import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { ChartContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
-import { Legend, SHARED_LEGEND_DEFAULTS } from '../legend';
+import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -14,15 +14,6 @@ import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { SVGProps, MouseEvent, ReactNode } from 'react';
-
-const PIE_CHART_DEFAULTS = {
-	...SHARED_LEGEND_DEFAULTS,
-	legendShape: 'circle' as const,
-	thickness: 1,
-	padding: 20,
-	gapScale: 0,
-	cornerScale: 0,
-} as const;
 
 interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -97,16 +88,16 @@ const PieChartInternal = ( {
 	chartId: providedChartId,
 	withTooltips = false,
 	className,
-	showLegend = PIE_CHART_DEFAULTS.showLegend,
-	legendOrientation = PIE_CHART_DEFAULTS.legendOrientation,
-	legendAlignmentHorizontal = PIE_CHART_DEFAULTS.legendAlignmentHorizontal,
-	legendAlignmentVertical = PIE_CHART_DEFAULTS.legendAlignmentVertical,
-	legendShape = PIE_CHART_DEFAULTS.legendShape,
+	showLegend = false,
+	legendOrientation = 'horizontal',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
+	legendShape = 'circle',
 	size,
-	thickness = PIE_CHART_DEFAULTS.thickness,
-	padding = PIE_CHART_DEFAULTS.padding,
-	gapScale = PIE_CHART_DEFAULTS.gapScale,
-	cornerScale = PIE_CHART_DEFAULTS.cornerScale,
+	thickness = 1,
+	padding = 20,
+	gapScale = 0,
+	cornerScale = 0,
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();

@@ -19,7 +19,7 @@ import {
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
-import { Legend, SHARED_LEGEND_DEFAULTS } from '../legend';
+import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
@@ -119,16 +119,6 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 			return curveLinear;
 	}
 };
-
-const LINE_CHART_DEFAULTS = {
-	...SHARED_LEGEND_DEFAULTS,
-	legendShape: 'line' as const,
-	withLegendGlyph: false,
-	withTooltips: true,
-	withGradientFill: false,
-	smoothing: true,
-	withStartGlyphs: false,
-} as const;
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
@@ -245,21 +235,21 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 			height,
 			className,
 			margin,
-			withTooltips = LINE_CHART_DEFAULTS.withTooltips,
+			withTooltips = true,
 			withTooltipCrosshairs,
-			showLegend = LINE_CHART_DEFAULTS.showLegend,
-			legendOrientation = LINE_CHART_DEFAULTS.legendOrientation,
-			legendAlignmentHorizontal = LINE_CHART_DEFAULTS.legendAlignmentHorizontal,
-			legendAlignmentVertical = LINE_CHART_DEFAULTS.legendAlignmentVertical,
+			showLegend = false,
+			legendOrientation = 'horizontal',
+			legendAlignmentHorizontal = 'center',
+			legendAlignmentVertical = 'bottom',
 			renderGlyph = defaultRenderGlyph,
 			glyphStyle = {},
-			legendShape = LINE_CHART_DEFAULTS.legendShape,
-			withLegendGlyph = LINE_CHART_DEFAULTS.withLegendGlyph,
-			withGradientFill = LINE_CHART_DEFAULTS.withGradientFill,
-			smoothing = LINE_CHART_DEFAULTS.smoothing,
+			legendShape = 'line',
+			withLegendGlyph = false,
+			withGradientFill = false,
+			smoothing = true,
 			curveType,
 			renderTooltip = renderDefaultTooltip,
-			withStartGlyphs = LINE_CHART_DEFAULTS.withStartGlyphs,
+			withStartGlyphs = false,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
