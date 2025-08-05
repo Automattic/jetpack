@@ -111,11 +111,17 @@
 		}
 
 		.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot {
-			animation: jetpack_forms_dotAppear 0.3s ease-out;
-			animation-delay: 0.3s; // Wait for progress bar to finish
-			animation-fill-mode: both;
 			background-color: var(--jp-progress-color);
 			transition-delay: 0.3s; // Delay color change to match progress bar
+		}
+
+		@media not (prefers-reduced-motion) {
+
+			.jetpack-form-progress-indicator-step.is-active .jetpack-form-progress-indicator-dot {
+				animation: jetpack_forms_dotAppear 0.3s ease-out;
+				animation-delay: 0.3s; // Wait for progress bar to finish
+				animation-fill-mode: both;
+			}
 		}
 
 		.jetpack-form-progress-indicator-step.is-completed .jetpack-form-progress-indicator-dot {
