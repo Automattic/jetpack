@@ -260,13 +260,23 @@ export default class JetpackBoostPage {
 		);
 	}
 
-	async isScoreVisible() {
+	/**
+	 * Expects the overall score header and speed scores to be visible and valid.
+	 * Waits for both mobile and desktop scores to be greater than 0.
+	 */
+	async expectScoreToBeVisible() {
 		await expect(
-			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } )
+			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
+			'Overall score heading should be visible'
 		).toBeVisible();
-		return (
-			( await this.getSpeedScore( 'mobile' ) ) > 0 && ( await this.getSpeedScore( 'desktop' ) ) > 0
-		);
+		await expect( async () => {
+			const mobileScore = await this.getSpeedScore( 'mobile' );
+			expect( mobileScore, 'Mobile score should be greater than 0' ).toBeGreaterThan( 0 );
+		} ).toPass();
+		await expect( async () => {
+			const desktopScore = await this.getSpeedScore( 'desktop' );
+			expect( desktopScore, 'Desktop score should be greater than 0' ).toBeGreaterThan( 0 );
+		} ).toPass();
 	}
 
 	async isCornerstonePagesContentVisible() {

@@ -1,3 +1,4 @@
+/* eslint-disable playwright/expect-expect */
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
@@ -41,7 +42,8 @@ test.describe( 'Speed Score feature', () => {
 		await jetpackBoostPage.clickRefreshSpeedScore();
 
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
-		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be displayed' ).toBeTruthy();
+		// expect( await jetpackBoostPage.isScoreVisible(), 'Score should be displayed' ).toBeTruthy();
+		await jetpackBoostPage.expectScoreToBeVisible();
 	} );
 
 	test( 'Should be able to click info icon next to overall score and see the detailed overall score description popin', async () => {

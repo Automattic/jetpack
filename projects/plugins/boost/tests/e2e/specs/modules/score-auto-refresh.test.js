@@ -1,3 +1,4 @@
+/* eslint-disable playwright/expect-expect */
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
@@ -28,21 +29,24 @@ test.describe( 'Auto refresh of speed scores', () => {
 		test( `Enabling ${ moduleSlug } should refresh scores`, async () => {
 			await jetpackBoostPage.waitForScoreLoadingToFinish();
 
-			expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
+			// expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
+			await jetpackBoostPage.expectScoreToBeVisible();
 
 			await jetpackBoostPage.toggleModule( moduleSlug, true );
 
 			await new Promise( resolve => setTimeout( resolve, 2100 ) ); // Score refresh starts after 2 seconds delay
 
 			await jetpackBoostPage.waitForScoreLoadingToFinish();
-			expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
+			// expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
+			await jetpackBoostPage.expectScoreToBeVisible();
 		} );
 	} );
 
 	test( 'Score refresh should debounce between multiple module toggle', async () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 
-		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
+		// expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
+		await jetpackBoostPage.expectScoreToBeVisible();
 
 		// Wait a second before toggling another.
 		await new Promise( resolve => setTimeout( resolve, 1000 ) );
