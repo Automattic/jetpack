@@ -14,17 +14,17 @@ export const settings = {
 	supports: {
 		html: false,
 		reusable: false,
-		dimensions: {
-			minHeight: true,
-		},
 		spacing: {
-			margin: true,
+			margin: [ 'top', 'bottom' ],
+			padding: true,
 		},
 		color: {
 			text: true,
+			background: true,
 			gradients: true,
 			__experimentalDefaultControls: {
 				text: true,
+				background: true,
 			},
 		},
 	},
@@ -81,6 +81,42 @@ export const settings = {
 		innerBlocks: [],
 	},
 	deprecated: [
+		// Version with dimensions support
+		{
+			apiVersion: 3,
+			attributes: {
+				progressColor: {
+					type: 'string',
+				},
+				progressBackgroundColor: {
+					type: 'string',
+				},
+			},
+			supports: {
+				html: false,
+				reusable: false,
+				dimensions: {
+					minHeight: true,
+				},
+				spacing: {
+					margin: true,
+					padding: true,
+				},
+				color: {
+					text: true,
+					background: true,
+					gradients: true,
+					__experimentalDefaultControls: {
+						text: true,
+						background: true,
+					},
+				},
+			},
+			save: () => null,
+			migrate( attributes ) {
+				return attributes;
+			},
+		},
 		// Version with old jetpack-form-progress-indicator-bar structure
 		{
 			apiVersion: 2,
