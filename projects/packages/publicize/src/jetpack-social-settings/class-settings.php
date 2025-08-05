@@ -162,6 +162,9 @@ class Settings {
 							'template'         => array(
 								'type' => 'string',
 							),
+							'font'             => array(
+								'type' => 'string',
+							),
 							'default_image_id' => array(
 								'type' => 'number',
 							),
@@ -438,5 +441,20 @@ class Settings {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Get the default font.
+	 *
+	 * @return string
+	 */
+	public function sig_get_default_font() {
+		$this->migrate_old_option();
+		$sig_settings = get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS );
+		if ( empty( $sig_settings ) || ! is_array( $sig_settings ) ) {
+			return '';
+		}
+
+		return $sig_settings['font'] ?? '';
 	}
 }

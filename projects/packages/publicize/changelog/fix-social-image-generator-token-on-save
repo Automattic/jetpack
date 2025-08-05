@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed image generator token reset on save resulting in font not being saved.

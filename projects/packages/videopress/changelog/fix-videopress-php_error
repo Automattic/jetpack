@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent PHP fatal if URL is not a string.

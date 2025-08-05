@@ -164,6 +164,10 @@ class UtilsTest extends BaseTestCase {
 			// Missing VideoPress GUID (shortened URL)
 			'https://v.wordpress.com/',
 			'http://v.wordpress.com/',
+
+			// Not a string
+			array( 'https://v.wordpress.com/' ),
+			null,
 		);
 
 		foreach ( $invalid_urls as $url ) {

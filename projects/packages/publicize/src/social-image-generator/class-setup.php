@@ -45,7 +45,8 @@ class Setup {
 		$token = fetch_token(
 			$post_settings->get_custom_text(),
 			$post_settings->get_image_url(),
-			$post_settings->get_template()
+			$post_settings->get_template(),
+			$post_settings->get_font()
 		);
 
 		if ( is_wp_error( $token ) ) {

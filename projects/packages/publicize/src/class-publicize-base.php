@@ -1143,6 +1143,7 @@ abstract class Publicize_Base {
 				'image_generator_settings' => array(
 					'template'         => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'default_image_id' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_image_id(),
+					'font'             => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_font(),
 					'enabled'          => false,
 				),
 				'version'                  => 2,
@@ -1188,6 +1189,9 @@ abstract class Publicize_Base {
 									'type' => 'number',
 								),
 								'template'         => array(
+									'type' => 'string',
+								),
+								'font'             => array(
 									'type' => 'string',
 								),
 								'token'            => array(
