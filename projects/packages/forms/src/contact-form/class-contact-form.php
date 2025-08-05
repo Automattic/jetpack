@@ -934,8 +934,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $submission_success ) {
 			$classes .= ' submission-success';
 		}
+		$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
+
 		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
-		$html .= '<p class="go-back-message"> <a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		$html .= '<p class="go-back-message"><a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
