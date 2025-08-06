@@ -23,14 +23,20 @@
 	}
 }
 
-// Primary column with green border
+// Primary column with green border and SVG gradient background
 .pricing-column-primary {
+	border-radius: 8px;
 
 	> :first-child {
 		border-style: solid;
 		border-color: #008710;
 		border-width: 1.5px 1.5px 0;
 		border-radius: 8px 8px 0 0;
+
+		background-image: url(./gradient.svg);
+		background-repeat: no-repeat;
+		background-size: 450px;
+		background-position-x: 170px;
 	}
 
 	> :last-child {
