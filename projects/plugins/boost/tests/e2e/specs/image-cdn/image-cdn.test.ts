@@ -1,9 +1,12 @@
 import { test, expect } from '../../lib/fixtures/test.ts';
+import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'Image CDN', () => {
-	test.beforeAll( async ( { boostUtils } ) => {
+	test.beforeAll( async ( { browser, boostUtils } ) => {
+		const page = await browser.newPage( playwrightConfig.use );
 		await boostUtils.resetEnvironment();
-		await boostUtils.connect();
+		await boostUtils.connectIfNeeded( page );
+		await page.close();
 		await boostUtils.mockSpeedScore();
 	} );
 

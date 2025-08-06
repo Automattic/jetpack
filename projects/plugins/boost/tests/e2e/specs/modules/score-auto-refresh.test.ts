@@ -74,7 +74,7 @@ test.describe( 'Auto refresh of speed scores', () => {
 		} );
 
 		await test.step( 'Verify module toggle operations complete successfully', async () => {
-			await Promise.all( [ renderBlockingPromise ] );
+			await renderBlockingPromise;
 		} );
 	} );
 } );

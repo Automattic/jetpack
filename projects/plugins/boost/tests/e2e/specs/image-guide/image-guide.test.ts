@@ -1,6 +1,6 @@
 import { test, expect } from '../../lib/fixtures/test.ts';
 
-test.describe( 'Image CDN', () => {
+test.describe( 'Image Guide', () => {
 	test.beforeAll( async ( { boostUtils } ) => {
 		await boostUtils.resetEnvironment();
 		await boostUtils.mockConnection();
