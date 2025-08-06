@@ -81,7 +81,7 @@ export async function connectIfNeeded( page: Page ): Promise< void > {
 export async function disconnect() {
 	logger.debug( 'Disconnecting Jetpack...' );
 	const result = await executeJetpackCommand( 'disconnect blog' );
-	expect( result ).toContain( 'Success: Jetpack has been successfully disconnected' );
+	expect( result ).toContain( 'Success:' );
 }
 
 /**

@@ -3,7 +3,7 @@ import { test, expect } from '../../lib/fixtures/test.ts';
 test.describe( 'Getting started page', () => {
 	test.beforeEach( async ( { boostUtils } ) => {
 		await boostUtils.resetEnvironment();
-		await boostUtils.mockSpeedScore();
+		await boostUtils.disconnect();
 	} );
 
 	test.beforeEach( async ( { jetpackBoostPage } ) => {
@@ -37,7 +37,10 @@ test.describe( 'Getting started page', () => {
 	test( 'User should be able to get started with the free plan', async ( {
 		page,
 		jetpackBoostPage,
+		boostUtils,
 	} ) => {
+		await boostUtils.mockSpeedScore();
+
 		await page.getByRole( 'button', { name: 'Start for free' } ).click();
 		await expect( page ).toHaveURL( /page=jetpack-boost(?:#\/)?$/, { timeout: 180000 } );
 
