@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.18.0] - 2025-08-05
+### Changed
+- Full Sync: Ensure the full syunc limits values are int, no matter what is stored in Settings [#44626]
+- Full Sync: Updated chunk_size default full sync limit to 500 for posts module. [#44609]
+
+### Fixed
+- Prevent PHP fatal during login. [#44620]
+
+## [4.17.0] - 2025-08-04
+### Removed
+- Remove custom environment_type handling. [#44576]
+
 ## [4.16.0] - 2025-07-28
 ### Changed
 - Full Sync: Adjust chunk size in case full sync gets stuck. [#44454]
@@ -1503,6 +1515,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.18.0]: https://github.com/Automattic/jetpack-sync/compare/v4.17.0...v4.18.0
+[4.17.0]: https://github.com/Automattic/jetpack-sync/compare/v4.16.0...v4.17.0
 [4.16.0]: https://github.com/Automattic/jetpack-sync/compare/v4.15.2...v4.16.0
 [4.15.2]: https://github.com/Automattic/jetpack-sync/compare/v4.15.1...v4.15.2
 [4.15.1]: https://github.com/Automattic/jetpack-sync/compare/v4.15.0...v4.15.1

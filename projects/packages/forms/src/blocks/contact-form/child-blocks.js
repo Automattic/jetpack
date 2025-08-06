@@ -16,6 +16,7 @@ import JetpackNumberField from '../field-number';
 import JetpackRatingField from '../field-rating';
 import JetpackDropdownField from '../field-select';
 import JetpackSingleChoiceField from '../field-single-choice';
+import JetpackFieldSlider from '../field-slider';
 import JetpackTelephoneField from '../field-telephone';
 import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
@@ -26,6 +27,7 @@ import JetpackStepContainer from '../form-step-container';
 import JetpackStepDivider from '../form-step-divider';
 import JetpackStepNavigation from '../form-step-navigation';
 import JetpackInput from '../input';
+import JetpackSliderInput from '../input-range';
 import JetpackRatingInput from '../input-rating';
 import JetpackLabel from '../label';
 import JetpackOption from '../option';
@@ -51,7 +53,9 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
-	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackRatingField, JetpackRatingInput ] : [] ),
+	...( getJetpackBlocksVariation() === 'beta'
+		? [ JetpackRatingField, JetpackRatingInput, JetpackFieldSlider, JetpackSliderInput ]
+		: [] ),
 
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to

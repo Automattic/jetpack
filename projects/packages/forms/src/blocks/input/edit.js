@@ -66,7 +66,14 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 	}
 
 	if ( type === 'textarea' ) {
-		return <textarea { ...blockProps } onChange={ onChange } value={ placeholder } />;
+		return (
+			<textarea
+				{ ...blockProps }
+				onChange={ onChange }
+				value={ isSelected ? placeholder : '' }
+				placeholder={ placeholder }
+			/>
+		);
 	}
 
 	return (

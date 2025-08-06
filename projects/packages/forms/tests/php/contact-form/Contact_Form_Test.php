@@ -2468,7 +2468,7 @@ EOT;
 				'hiddenField2' => 'value2',
 			), // Hidden fields to include in the form.
 			'stepTransition'         => 'fade-slide',
-			'connectMailPoet'        => false,
+			'mailpoet'               => '',
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                        = $attributes;
@@ -2996,5 +2996,122 @@ EOT;
 		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10, 3 );
 		$this->assertTrue( $form_has_filter->has_custom_redirect(), 'Form should have a custom redirect URL.' );
 		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+	}
+
+	public function test_validate_form() {
+		$name    = 'John Doe';
+		$email   = 'john@example.com';
+		$choose  = array( 'truth' );
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type="email" required="1"/][contact-field label="Choose" type="checkbox-multiple"  options="truth,dare"  required="1"]'
+		);
+
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+		$this->assertEquals( array(), $form->get_error_messages() );
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+	}
+
+	public function test_validate_form_with_errors() {
+		$name    = ''; // required field
+		$email   = 'hello@world'; // Invalid email
+		$choose  = array( '' ); // required field
+		$pick    = array( 'not-a-value' ); // required field
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'invite' => 'hello@world', // not required
+				'choose' => $choose,
+				'pick'   => $pick,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Invite' type='email' /][contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/][contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals(
+			array(
+				'Name field is required.',
+				'Email requires a valid email address.',
+				'Invite requires a valid email address.',
+				'Choose requires at least one selection.',
+				'Pick requires at least one selection.',
+			),
+			$form->get_error_messages()
+		);
+		Contact_Form::reset_errors();
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array(), $form->get_error_messages() );
+
+		$form->add_error( 'custom_error', 'This is a custom error message.' );
+		$this->assertTrue( $form->has_errors(), 'Form should have custom error after adding it.' );
+		$this->assertEquals( array( 'This is a custom error message.' ), $form->get_error_messages(), 'Form should return custom error message.' );
+
+		// Reset errors and check again.
+		Contact_Form::reset_errors( $form->get_attribute( 'id' ) );
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after resetting.' );
+		$this->assertEquals( array(), $form->get_error_messages() );
+	}
+
+	public function test_validate_empty_form() {
+		$name    = '';
+		$email   = '';
+		$choose  = array( '' );
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Name" type="name" /][contact-field label="Email" type="email" /][contact-field label="Choose" type="checkbox-multiple" options="truth,dare" /]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array( 'Please fill out at least one field.' ), $form->get_error_messages() );
+		Contact_Form::reset_errors();
 	}
 }

@@ -1,6 +1,5 @@
 @use "sass:color";
 @use "../_inc/client/scss/variables/colors";
-@use "../_inc/client/scss/functions/colors" as colorfuncs;
 @use "../_inc/client/scss/calypso-colors";
 
 #TB_window.jetpack-disconnect-modal {
@@ -176,7 +175,7 @@
 					&[disabled],
 					&:disabled {
 						background: color.adjust(colors.$alert-red, $lightness: 20%);
-						border-color: colorfuncs.tint(colors.$alert-red, 30%);
+						border-color: color.mix(#fff, colors.$alert-red, 30%);
 					}
 				}
 			}

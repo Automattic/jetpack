@@ -1,3 +1,4 @@
+import { legendArgTypes } from '../../../stories/legend-config';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
 import largeValuesData from './large-values-sample';
@@ -12,6 +13,10 @@ type StoryArgs = React.ComponentProps< typeof LineChart > & {
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
+	argTypes: {
+		...lineChartMetaArgs.argTypes,
+		...legendArgTypes,
+	},
 };
 
 export default meta;
@@ -28,6 +33,32 @@ Default.args = {
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
+};
+
+export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegend.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+};
+
+export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
+CustomLegendPositioning.args = {
+	data: sampleData,
+	showLegend: true,
+	height: 400,
+	legendAlignmentHorizontal: 'left',
+	legendAlignmentVertical: 'top',
+	legendOrientation: 'horizontal',
+	withLegendGlyph: true,
+};
+
+CustomLegendPositioning.parameters = {
+	docs: {
+		description: {
+			story:
+				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
+		},
+	},
 };
 
 // Story with custom dimensions

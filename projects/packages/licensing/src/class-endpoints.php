@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Licensing;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
@@ -109,7 +108,7 @@ class Endpoints {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_user_licenses',
-				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+				'permission_callback' => __CLASS__ . '::can_manage_options_check',
 			)
 		);
 
@@ -122,7 +121,7 @@ class Endpoints {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_user_license_counts',
-				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+				'permission_callback' => __CLASS__ . '::can_manage_options_check',
 			)
 		);
 
@@ -135,7 +134,7 @@ class Endpoints {
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
-				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+				'permission_callback' => __CLASS__ . '::can_manage_options_check',
 				'args'                => array(
 					'last_detached_count' => array(
 						'required'          => true,
@@ -155,7 +154,7 @@ class Endpoints {
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::attach_jetpack_licenses',
-				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+				'permission_callback' => __CLASS__ . '::can_manage_options_check',
 				'args'                => array(
 					'licenses' => array(
 						'required' => true,
@@ -184,23 +183,6 @@ class Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_jetpack_license_key', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
-	}
-
-	/**
-	 * Verify that user can view and update user-licensing data.
-	 *
-	 * @since 1.7.0
-	 *
-	 * @return bool Whether the user is currently connected and they are the connection owner.
-	 */
-	public static function user_licensing_permission_check() {
-		$connection_manager = new Connection_Manager( 'jetpack' );
-
-		if ( $connection_manager->is_user_connected() && $connection_manager->is_connection_owner() ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_permission_manage_user_licenses', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**

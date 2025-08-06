@@ -76,6 +76,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $forms_context = array();
 
 	/**
+	 * Array of WP_Error objects that are keyed by form id.
+	 *
+	 * @var array
+	 */
+	public static $static_errors = array();
+
+	/**
 	 * Whether to print the grunion.css style when processing the contact-form shortcode
 	 *
 	 * @var bool
@@ -169,7 +176,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack-forms' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
-			'connectMailPoet'        => false, // Whether to send contact to MailPoet.
+			'mailpoet'               => null,
 			'className'              => null,
 			'postToUrl'              => null,
 			'salesforceData'         => null,
@@ -563,7 +570,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(
 			'jp-forms-view',
-			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),
+			plugins_url( 'dist/modules/form/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
 			\JETPACK__VERSION
 		);
@@ -600,7 +607,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Initial data used to render the success message when the page is reloaded after a successful submission
 		// Don't show the feedback details unless the nonce matches
-		$submission_data           = $is_reload_after_success && $is_reload_nonce_valid ? self::get_json_data( (int) $_GET['contact-form-sent'], $form ) : null;
+		$submission_data = null;
+		if ( $is_reload_after_success && $is_reload_nonce_valid ) {
+			$response = Feedback::get( (int) $_GET['contact-form-sent'] );
+			if ( $response ) {
+				$submission_data = $response->get_compiled_fields( 'web', 'label|value' );
+			}
+		}
 		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
 		$has_custom_redirect       = $form->has_custom_redirect();
@@ -608,7 +621,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$default_context = array(
 			'formId'                  => $id,
 			'formHash'                => $form->hash,
-			'showErrors'              => false, // We toggle this to true when we want to show the user errors right away.
+			'showErrors'              => $form->has_errors(), // We toggle this to true when we want to show the user errors right away.
 			'errors'                  => array(), // This should be a associative array.
 			'fields'                  => array(),
 			'isMultiStep'             => $is_multistep, // Whether the form is a multistep form.
@@ -648,10 +661,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= self::render_ajax_success_wrapper( $form, $submission_success, $formatted_submission_data );
 		}
 
-		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
+		if ( $form->has_errors() ) {
 			// There are errors.  Display them
 			$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack-forms' ) . "</h3>\n<ul class='form-errors'>\n";
-			foreach ( $form->errors->get_error_messages() as $message ) {
+			foreach ( $form->get_error_messages() as $message ) {
 				$r .= "\t<li class='form-error-message'>" . esc_html( $message ) . "</li>\n";
 			}
 			$r .= "</ul>\n</div>\n\n";
@@ -921,8 +934,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $submission_success ) {
 			$classes .= ' submission-success';
 		}
+		$back_url  = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
+		$back_url .= '#contact-form-' . $form->get_attribute( 'id' );
+
 		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
-		$html .= '<p class="go-back-message"> <a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		$html .= '<p class="go-back-message"><a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
@@ -994,7 +1010,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 			$message      = wp_kses( $raw_message, $allowed_html );
 		} else {
-			$compiled_form = self::get_compiled_form( $feedback_id, $form );
+			$compiled_form = self::get_compiled_form( $feedback_id );
 			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
 		}
 
@@ -1006,12 +1022,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * of lines.
 	 *
 	 * @param int          $feedback_id - the feedback ID.
-	 * @param Contact_Form $form - the form.
+	 * @param Contact_Form $form - the form. This parameter is deprecated and will be removed in the next version.
 	 *
 	 * @return array $lines
 	 */
-	public static function get_compiled_form( $feedback_id, $form ) {
-		$compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
+	public static function get_compiled_form( $feedback_id, $form = null ) {
+
+		if ( $form ) {
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
+		}
+		$compiled_form = self::get_raw_compiled_form_data( $feedback_id );
 
 		foreach ( $compiled_form as $field_index => $data ) {
 			$safe_display_value = self::escape_and_sanitize_field_value( $data['value'] );
@@ -1046,140 +1066,48 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Returns the JSON data for the form submission.
 	 *
 	 * @param int          $feedback_id - the feedback ID.
-	 * @param Contact_Form $form - the form.
+	 * @param Contact_Form $form - the form. This parameter is deprecated and will be removed in the next version.
+	 *
+	 * @deprecated 5.1.0
 	 *
 	 * @return array $json_data
 	 */
-	public static function get_json_data( $feedback_id, $form ) {
-		$raw_data  = self::get_raw_compiled_form_data( $feedback_id, $form );
-		$json_data = array();
+	public static function get_json_data( $feedback_id, $form = null ) {
+		_deprecated_function( __METHOD__, '5.1.0', 'Feedback::get( $feedback_id )->get_compiled_fields(\'ajax\', \'label|value\' )' );
 
-		// Sort by field index to maintain the correct order
-		ksort( $raw_data );
-
-		// Handle file upload field (new structure with field_id and files array)
-		foreach ( $raw_data as $field_data ) {
-			$value = $field_data['value'];
-			$label = $field_data['label'];
-
-			if ( self::is_file_upload_field( $value ) ) {
-				$files = $value['files'];
-
-				if ( empty( $files ) ) {
-					continue;
-				}
-
-				foreach ( $files as $file ) {
-					if ( ! empty( $file['file_id'] ) ) {
-						$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
-						$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
-
-						$json_data[] = array(
-							'label' => $label,
-							'value' => array(
-								'name' => $file_name,
-								'size' => $file_size,
-							),
-						);
-					}
-				}
-			} else {
-				$json_data[] = array(
-					'label' => $label,
-					'value' => $value,
-				);
-			}
+		if ( $form ) {
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
 		}
 
-		return $json_data;
+		$response = Feedback::get( $feedback_id );
+		if ( ! $response ) {
+			return array();
+		}
+
+		return $response->get_compiled_fields( 'ajax', 'label|value' );
 	}
 
 	/**
 	 * Retrieves raw compiled form data.
 	 *
 	 * @param int          $feedback_id - the feedback ID.
-	 * @param Contact_Form $form - the form.
+	 * @param Contact_Form $form - the form. This parameter is deprecated and will be removed in the next version.
 	 *
 	 * @return array $raw_data Associative array where keys are field_index and values are arrays with 'label' and 'value'.
 	 */
-	private static function get_raw_compiled_form_data( $feedback_id, $form ) {
-		$feedback       = get_post( $feedback_id );
-		$field_ids      = $form->get_field_ids();
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
+	private static function get_raw_compiled_form_data( $feedback_id, $form = null ) {
 
-		// Maps field_ids to post_meta keys
-		$field_value_map = array(
-			'name'     => 'author',
-			'email'    => 'author_email',
-			'url'      => 'author_url',
-			'subject'  => 'subject',
-			'textarea' => false, // not a post_meta key.  This is stored in post_content
-		);
-
-		$raw_data = array();
-
-		// "Standard" field allowed list.
-		foreach ( $field_value_map as $type => $meta_key ) {
-			if ( isset( $field_ids[ $type ] ) ) {
-				$field = $form->fields[ $field_ids[ $type ] ];
-				$value = null;
-
-				if ( $meta_key ) {
-					if ( isset( $content_fields[ "_feedback_{$meta_key}" ] ) ) {
-						if ( 'name' === $type ) {
-							// If a form contains both email and name fields but the user doesn't provide a name, we don't need to show the name field
-							// in the success message after submision. We have this specific check because in the above case the `author` field gets
-							// a fallback value of the provided email and is used in the backend in various places.
-							if ( isset( $content_fields['_feedback_author_email'] ) && $content_fields['_feedback_author'] === $content_fields['_feedback_author_email'] ) {
-								continue;
-							}
-						}
-						$value = $content_fields[ "_feedback_{$meta_key}" ];
-					}
-				} else {
-					// The feedback content is stored as the first "half" of post_content
-					$current_value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
-									$feedback->post_content : '';
-					list( $current_value ) = explode( '<!--more-->', $current_value );
-					$value                 = trim( $current_value );
-				}
-
-				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = $field->get_attribute( 'label' );
-
-				$raw_data[ $field_index ] = array(
-					'label' => $field_label,
-					'value' => $value,
-				);
-			}
+		if ( $form ) {
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
 		}
 
-		// "Non-standard" fields
-		if ( $field_ids['extra'] ) {
-			// array indexed by field label (not field id)
-			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
-			/**
-			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
-			 */
-			if ( is_array( $extra_fields ) && ! empty( $extra_fields ) ) {
-
-				$extra_field_keys = array_keys( $extra_fields );
-
-				$i = 0;
-				foreach ( $field_ids['extra'] as $field_id ) {
-					$field                    = $form->fields[ $field_id ];
-					$field_index              = array_search( $field_id, $field_ids['all'], true );
-					$field_label              = $field->get_attribute( 'label' );
-					$value                    = isset( $extra_field_keys[ $i ] ) && isset( $extra_fields[ $extra_field_keys[ $i ] ] ) ? $extra_fields[ $extra_field_keys[ $i ] ] : '';
-					$raw_data[ $field_index ] = array(
-						'label' => $field_label,
-						'value' => $value,
-					);
-					++$i;
-				}
-			}
+		$response = Feedback::get( $feedback_id );
+		if ( $response instanceof Feedback ) {
+			// If the response is an instance of Feedback, we can use its method to get compiled fields.
+			return $response->get_compiled_fields( 'web', 'all' );
 		}
-		return $raw_data;
+
+		return array();
 	}
 
 	/**
@@ -1192,7 +1120,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
+		$compiled_form = array();
+		$response      = Feedback::get( $feedback_id );
+
+		if ( $response instanceof Feedback ) {
+			// If the response is an instance of Feedback, we can use its method to get compiled fields.
+			$compiled_form = $response->get_compiled_fields( 'email', 'all' );
+		}
 
 		/**
 		 * This filter allows a site owner to customize the response to be emailed, by adding their own HTML around it for example.
@@ -1228,9 +1162,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 			}
 		}
-
-		// Sorting lines by the field index
-		ksort( $compiled_form );
 
 		return $compiled_form;
 	}
@@ -1441,6 +1372,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
+			! isset( $_POST['jetpack_contact_form_jwt'] )
+			&&
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
 			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
@@ -2314,10 +2247,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $this->is_response_without_reload_enabled && $accepts_json ) {
 			header( 'Content-Type: application/json' );
 
+			$data     = array();
+			$response = Feedback::get( $post_id );
+			if ( $response instanceof Feedback ) {
+				$data = $response->get_compiled_fields( 'ajax', 'label|value' );
+			}
 			echo wp_json_encode(
 				array(
 					'success'     => true,
-					'data'        => self::get_json_data( $post_id, $this ),
+					'data'        => $data,
 					'refreshArgs' => $refresh_args,
 				)
 			);
@@ -2780,5 +2718,81 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$theme_json_class = get_class( $theme_json_data );
 		return new $theme_json_class( $data, 'default' );
+	}
+
+	/**
+	 * Validate the contact form fields.
+	 *
+	 * This method checks each field for errors and ensures that at least one field has a value.
+	 * If no fields have values and there are no errors, it adds an error indicating that the form is empty.
+	 */
+	public function validate() {
+		$has_value = false;
+		// Validate the form fields before processing the form.
+		foreach ( $this->fields as $field ) {
+			$field->validate();
+			if ( ! $has_value && $field->has_value() ) {
+				$has_value = true;
+			}
+		}
+
+		if ( ! $has_value && ! $this->has_errors() ) {
+			$this->add_error( 'empty', __( 'Please fill out at least one field.', 'jetpack-forms' ) );
+		}
+	}
+
+	/**
+	 * Reset the static errors for the contact form.
+	 *
+	 * @param string $id The ID of the contact form to reset errors for. If null, resets all static errors.
+	 *
+	 * This method is used to clear the static errors stored in the class.
+	 */
+	public static function reset_errors( $id = null ) {
+		if ( $id && isset( self::$static_errors[ $id ] ) ) {
+			unset( self::$static_errors[ $id ] );
+			return;
+		}
+		self::$static_errors = array();
+	}
+
+	/**
+	 * Add an error to the contact form.
+	 *
+	 * @param string $error_code    The error code.
+	 * @param string $error_message The error message.
+	 */
+	public function add_error( $error_code, $error_message ) {
+		$id = $this->get_attribute( 'id' );
+		if ( ! isset( self::$static_errors[ $id ] ) ) {
+			self::$static_errors[ $id ] = new \WP_Error();
+		}
+		self::$static_errors[ $id ]->add( $error_code, $error_message );
+		$this->errors = self::$static_errors[ $id ];
+	}
+	/**
+	 * Check if the contact form has errors.
+	 *
+	 * @return bool True if the contact form has errors, false otherwise.
+	 */
+	public function has_errors() {
+		$id = $this->get_attribute( 'id' );
+		if ( ! isset( self::$static_errors[ $id ] ) ) {
+			return false;
+		}
+		return is_wp_error( self::$static_errors[ $id ] ) && ! empty( self::$static_errors[ $id ]->get_error_codes() );
+	}
+
+	/**
+	 * Get the error messages of the contact form.
+	 *
+	 * @return array The errors of the contact form.
+	 */
+	public function get_error_messages() {
+		if ( ! $this->has_errors() ) {
+			return array();
+		}
+		$id = $this->get_attribute( 'id' );
+		return self::$static_errors[ $id ]->get_error_messages();
 	}
 }

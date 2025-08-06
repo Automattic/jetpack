@@ -8,6 +8,7 @@ import { useCallback, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -138,16 +139,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ providerTheme.colors ]
 	);
 
-	// Create legend items with color from accessors (which respects item.color)
-	const legendItems = useMemo(
-		() =>
-			data.map( ( item, index ) => ( {
-				label: item.label,
-				value: item.valueDisplay || item.value.toString(),
-				color: accessors.fill( { ...item, index } ),
-			} ) ),
-		[ data, accessors ]
-	);
+	// Memoize legend options to prevent unnecessary re-calculations
+	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendData( data, providerTheme, legendOptions );
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -286,10 +282,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
 					alignmentVertical={ legendAlignmentVertical }
-					className={ clsx( styles[ 'pie-semi-circle-chart-legend' ], {
-						[ styles[ 'is-on-top' ] ]: legendAlignmentVertical === 'top',
-						[ styles[ 'is-on-bottom' ] ]: legendAlignmentVertical === 'bottom',
-					} ) }
 					shape={ legendShape }
 					ref={ legendRef }
 					chartId={ chartId }

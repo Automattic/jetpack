@@ -3,9 +3,14 @@ import {
 	useInnerBlocksProps,
 	InspectorControls,
 	BlockControls,
+	BlockContextProvider,
 } from '@wordpress/block-editor';
-import { PanelBody, RangeControl } from '@wordpress/components';
-import { useEffect, useCallback } from '@wordpress/element';
+import {
+	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	PanelBody,
+	RangeControl,
+} from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import RatingToolbar from '../shared/components/rating-toolbar';
@@ -44,10 +49,6 @@ export default function RatingFieldEdit( props ) {
 		[ max, setAttributes ]
 	);
 
-	useEffect( () => {
-		setAttributes( { onChangeDefault } );
-	}, [ onChangeDefault, setAttributes ] );
-
 	const updateClassName = newClassName => {
 		setAttributes( { className: newClassName } );
 	};
@@ -85,17 +86,29 @@ export default function RatingFieldEdit( props ) {
 				/>
 			</BlockControls>
 
-			<div { ...innerBlocksProps } />
+			<BlockContextProvider
+				value={ {
+					'jetpack/field-rating-max': max,
+					'jetpack/field-rating-default': defaultValue,
+					'jetpack/field-rating-className': className,
+					'jetpack/field-rating-onChangeDefault': onChangeDefault,
+				} }
+			>
+				<div { ...innerBlocksProps } />
+			</BlockContextProvider>
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<RangeControl
+					<NumberControl
+						__next40pxDefaultSize
+						__unstableInputWidth="50%"
+						help={ __( 'Highest rating users can select (2–10).', 'jetpack-forms' ) }
 						label={ __( 'Maximum rating', 'jetpack-forms' ) }
-						help={ __( 'Highest rating value users can select (2–10)', 'jetpack-forms' ) }
-						min={ 2 }
 						max={ 10 }
-						value={ max }
+						min={ 2 }
 						onChange={ updateMax }
+						spinControls="custom"
+						value={ max }
 					/>
 					<RangeControl
 						label={ __( 'Default rating', 'jetpack-forms' ) }

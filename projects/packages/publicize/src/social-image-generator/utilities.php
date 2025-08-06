@@ -39,13 +39,15 @@ function get_image_url( $post_id ) {
  * @param string $text Text to use in the generated image.
  * @param string $image_url Image to use in the generated image.
  * @param string $template Template to use in the generated image.
+ * @param string $font Font to use in the generated image.
  * @return array
  */
-function get_token_body( $text, $image_url, $template ) {
+function get_token_body( $text, $image_url, $template, $font = '' ) {
 	return array(
 		'text'      => $text,
 		'image_url' => $image_url,
 		'template'  => $template,
+		'font'      => $font,
 	);
 }
 
@@ -55,11 +57,12 @@ function get_token_body( $text, $image_url, $template ) {
  * @param string $text      The text that will be displayed on the generated image.
  * @param string $image_url The background image URL to be used in the generated image.
  * @param string $template  The template slug to use for generating the image.
+ * @param string $font The font slug to use for the text in the image.
  * @return string|WP_Error  The generated token or a WP_Error object if there's been a problem.
  */
-function fetch_token( $text, $image_url, $template ) {
+function fetch_token( $text, $image_url, $template, $font = '' ) {
 
-	$args = get_token_body( $text, $image_url, $template );
+	$args = get_token_body( $text, $image_url, $template, $font );
 
 	if ( Utils::is_wpcom() ) {
 		require_lib( 'social-image-generator-token' );

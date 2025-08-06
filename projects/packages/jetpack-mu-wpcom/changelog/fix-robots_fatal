@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Handle robots.txt when data passed to `robots_txt` filter is malformed.

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Interactive rating symbol row with full accessibility support.
@@ -105,10 +105,12 @@ export default function Symbols( {
 								checked={ value === position }
 								onChange={ handleSelect( position ) }
 								className="jetpack-field-rating__input screen-reader-text"
-								aria-label={ `${ position } ${ __( 'out of', 'jetpack-forms' ) } ${ max } ${ __(
-									'stars',
-									'jetpack-forms'
-								) }` }
+								aria-label={ sprintf(
+									// translators: 1: selected symbol. 2: total number of symbols.
+									__( '%1$d out of %2$d symbols', 'jetpack-forms' ),
+									position,
+									max
+								) }
 							/>
 							<span
 								role="presentation"

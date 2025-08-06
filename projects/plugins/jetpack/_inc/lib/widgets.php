@@ -362,7 +362,7 @@ class Jetpack_Widgets {
 		$last_position = 0;
 		foreach ( $widgets as $widget_id ) {
 			$widget = self::get_widget_by_id( $widget_id );
-			if ( (int) $widget['position'] > (int) $last_position ) {
+			if ( (int) $widget['position'] > $last_position ) {
 				$last_position = (int) $widget['position'];
 			}
 		}

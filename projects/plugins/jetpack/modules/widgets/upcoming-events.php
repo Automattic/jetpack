@@ -85,7 +85,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 		<label for="<?php echo esc_attr( $this->get_field_id( 'count' ) ); ?>"><?php esc_html_e( 'Items to show:', 'jetpack' ); ?></label>
 		<select id="<?php echo esc_attr( $this->get_field_id( 'count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>">
 			<?php for ( $i = 1; $i <= 10; $i++ ) { ?>
-				<option <?php selected( $instance['count'], $i ); ?>><?php echo (int) $i; ?></option>
+				<option <?php selected( $instance['count'], $i ); ?>><?php echo esc_html( (string) $i ); ?></option>
 			<?php } ?>
 			<option value="0" <?php selected( $instance['count'], 0 ); ?>><?php esc_html_e( 'All', 'jetpack' ); ?></option>
 		</select>

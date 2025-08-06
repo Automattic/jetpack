@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Social Notes: Add a fallback title for Social Notes, which can be customized via the 'jetpack_social_notes_default_title' filter.
