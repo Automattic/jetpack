@@ -9,13 +9,11 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalText as Text,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalItemGroup as ItemGroup,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalItem as Item,
 } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PayPalIcon from './icon';
 import './editor.scss';
@@ -330,13 +328,29 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			>
 				<ItemGroup>
 					<Item>
-						{ __( '1. Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
+						{ createInterpolateElement(
+							__(
+								'1. <SignupLink><strong>Sign up</strong></SignupLink> or <LoginLink><strong>log in</strong></LoginLink> to PayPal to get your Payment Button code.',
+								'jetpack-paypal-payments'
+							),
+							{
+								SignupLink: <ExternalLink href={ getPayPalSignupUrl() } />,
+								LoginLink: <ExternalLink href={ getPayPalLoginUrl() } />,
+								strong: <strong />,
+							}
+						) }
 					</Item>
 					<Item>
-						{ __(
-							'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.',
-							'jetpack-paypal-payments'
-						) }
+						{ 'stacked' === buttonType &&
+							__(
+								'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code).',
+								'jetpack-paypal-payments'
+							) }
+						{ 'single' === buttonType &&
+							__(
+								'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Single Button.',
+								'jetpack-paypal-payments'
+							) }
 					</Item>
 					<Item>{ __( '3. Paste the code below.', 'jetpack-paypal-payments' ) }</Item>
 				</ItemGroup>
@@ -405,16 +419,6 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					aria-label={ 'stacked' === buttonType ? stackedButtonCodeLabel : singleButtonCodeLabel }
 					name="paypal-payment-buttons-code-body"
 				/>
-				<Text>
-					<ExternalLink href={ getPayPalSignupUrl() }>
-						<strong>{ __( 'Sign up', 'jetpack-paypal-payments' ) }</strong>
-					</ExternalLink>{ ' ' }
-					{ __( 'or', 'jetpack-paypal-payments' ) }{ ' ' }
-					<ExternalLink href={ getPayPalLoginUrl() }>
-						<strong>{ __( 'log in', 'jetpack-paypal-payments' ) }</strong>
-					</ExternalLink>{ ' ' }
-					{ __( 'to PayPal to get your Payment Button code.', 'jetpack-paypal-payments' ) }
-				</Text>
 			</Placeholder>
 		</div>
 	);

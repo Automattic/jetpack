@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react';
 import { ThemeProvider } from '../../../providers/theme';
@@ -61,7 +61,7 @@ describe( 'PieSemiCircleChart', () => {
 			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
 		];
 
-		renderPieChart( { data: testData, withTooltips: true } );
+		renderPieChart( { data: testData, withTooltips: true, width: 400 } );
 
 		const segments = screen.getAllByTestId( 'pie-segment' );
 		const firstSegment = segments[ 0 ];
@@ -71,11 +71,10 @@ describe( 'PieSemiCircleChart', () => {
 			await user.hover( firstSegment );
 		} );
 
-		// Check for tooltip content with flexible text matching
-		const tooltipText = screen.getByText( content => {
-			return content.includes( 'MacOS' ) || content.includes( '30K' );
-		} );
-		expect( tooltipText ).toBeInTheDocument();
+		// Check for tooltip by looking for the specific tooltip role
+		const tooltip = screen.getByRole( 'tooltip' );
+		expect( tooltip ).toHaveTextContent( 'MacOS' );
+		expect( tooltip ).toHaveTextContent( '30K' );
 	} );
 
 	it( 'hides tooltip on mouse leave', async () => {
@@ -86,7 +85,7 @@ describe( 'PieSemiCircleChart', () => {
 			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
 		];
 
-		renderPieChart( { data: testData, withTooltips: true } );
+		renderPieChart( { data: testData, withTooltips: true, width: 400 } );
 
 		const segments = screen.getAllByTestId( 'pie-segment' );
 		const firstSegment = segments[ 0 ];
@@ -95,21 +94,18 @@ describe( 'PieSemiCircleChart', () => {
 			await user.hover( firstSegment );
 		} );
 
-		// More flexible text matching
-		const tooltipText = screen.getByText( content => {
-			return content.includes( 'MacOS' ) || content.includes( '30K' );
-		} );
-		expect( tooltipText ).toBeInTheDocument();
+		// Wait for tooltip to be visible - it should show in the BaseTooltip component
+		const tooltip = await screen.findByRole( 'tooltip' );
+		expect( tooltip ).toHaveTextContent( 'MacOS' );
 
 		await act( async () => {
 			await user.unhover( firstSegment );
 		} );
 
-		// More flexible text matching for absence
-		const tooltipAfterUnhover = screen.queryByText( content => {
-			return content.includes( 'MacOS' ) || content.includes( '30K' );
+		// Verify tooltip is gone - checking for the tooltip role specifically
+		await waitFor( () => {
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
-		expect( tooltipAfterUnhover ).not.toBeInTheDocument();
 	} );
 
 	it( 'applies custom className', () => {

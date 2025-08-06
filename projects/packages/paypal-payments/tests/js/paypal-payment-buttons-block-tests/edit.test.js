@@ -66,7 +66,6 @@ jest.mock( '@wordpress/components', () => ( {
 		);
 	},
 	__experimentalToggleGroupControlOption: () => null, // We're not using the actual implementation
-	__experimentalText: ( { children } ) => <span data-testid="experimental-text">{ children }</span>,
 	__experimentalItemGroup: ( { children } ) => <div data-testid="item-group">{ children }</div>,
 	__experimentalItem: ( { children } ) => <div data-testid="item">{ children }</div>,
 	SVG: props => <svg { ...props } />,
@@ -91,7 +90,34 @@ jest.mock( '@wordpress/element', () => {
 		useEffect: jest.fn().mockImplementation( ( callback, deps ) => {
 			React.useEffect( () => callback(), deps ); // eslint-disable-line react-hooks/exhaustive-deps
 		} ),
-		createInterpolateElement: text => text,
+		createInterpolateElement: ( text, elements ) => {
+			// Simple mock implementation for createInterpolateElement
+			// Replace the text with actual React elements
+			let result = text;
+
+			// Replace SignupLink and LoginLink with actual ExternalLink components
+			if ( elements.SignupLink ) {
+				result = React.createElement(
+					React.Fragment,
+					null,
+					'1. ',
+					React.cloneElement(
+						elements.SignupLink,
+						{ 'data-testid': 'external-link' },
+						React.createElement( 'strong', null, 'Sign up' )
+					),
+					' or ',
+					React.cloneElement(
+						elements.LoginLink,
+						{ 'data-testid': 'external-link' },
+						React.createElement( 'strong', null, 'log in' )
+					),
+					' to PayPal to get your Payment Button code.'
+				);
+			}
+
+			return result;
+		},
 	};
 } );
 
@@ -376,18 +402,6 @@ describe( 'Edit', () => {
 
 		// Reset mock
 		isWpcomPlatformSite.mockReturnValue( false );
-	} );
-
-	describe( 'Instruction Elements', () => {
-		it( 'renders simplified instruction text', () => {
-			render( <Edit { ...defaultProps } /> );
-			const instructionText = screen.getByTestId( 'experimental-text' );
-			expect( instructionText ).toBeInTheDocument();
-			expect( instructionText ).toHaveTextContent( 'Sign up' );
-			expect( instructionText ).toHaveTextContent( 'or' );
-			expect( instructionText ).toHaveTextContent( 'log in' );
-			expect( instructionText ).toHaveTextContent( 'to PayPal to get your Payment Button code.' );
-		} );
 	} );
 
 	describe( 'Parameter Clearing on Button Type Toggle', () => {

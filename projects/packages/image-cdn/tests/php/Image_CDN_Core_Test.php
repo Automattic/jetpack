@@ -487,6 +487,10 @@ class Image_CDN_Core_Test extends BaseTestCase {
 				true,
 				'http://m.media-amazon.com/images/I/41YeeCMUwTL._SL300_.jpg',
 			),
+			'Banned Open Library domain' => array(
+				true,
+				'https://covers.openlibrary.org/b/id/10728667-L.jpg',
+			),
 		);
 	}
 

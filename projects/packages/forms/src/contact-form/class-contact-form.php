@@ -76,6 +76,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $forms_context = array();
 
 	/**
+	 * Array of WP_Error objects that are keyed by form id.
+	 *
+	 * @var array
+	 */
+	public static $static_errors = array();
+
+	/**
 	 * Whether to print the grunion.css style when processing the contact-form shortcode
 	 *
 	 * @var bool
@@ -169,7 +176,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack-forms' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
-			'connectMailPoet'        => false, // Whether to send contact to MailPoet.
+			'mailpoet'               => null,
 			'className'              => null,
 			'postToUrl'              => null,
 			'salesforceData'         => null,
@@ -563,7 +570,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(
 			'jp-forms-view',
-			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),
+			plugins_url( 'dist/modules/form/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
 			\JETPACK__VERSION
 		);
@@ -614,7 +621,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$default_context = array(
 			'formId'                  => $id,
 			'formHash'                => $form->hash,
-			'showErrors'              => false, // We toggle this to true when we want to show the user errors right away.
+			'showErrors'              => $form->has_errors(), // We toggle this to true when we want to show the user errors right away.
 			'errors'                  => array(), // This should be a associative array.
 			'fields'                  => array(),
 			'isMultiStep'             => $is_multistep, // Whether the form is a multistep form.
@@ -654,10 +661,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= self::render_ajax_success_wrapper( $form, $submission_success, $formatted_submission_data );
 		}
 
-		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
+		if ( $form->has_errors() ) {
 			// There are errors.  Display them
 			$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack-forms' ) . "</h3>\n<ul class='form-errors'>\n";
-			foreach ( $form->errors->get_error_messages() as $message ) {
+			foreach ( $form->get_error_messages() as $message ) {
 				$r .= "\t<li class='form-error-message'>" . esc_html( $message ) . "</li>\n";
 			}
 			$r .= "</ul>\n</div>\n\n";
@@ -927,8 +934,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $submission_success ) {
 			$classes .= ' submission-success';
 		}
+		$back_url  = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
+		$back_url .= '#contact-form-' . $form->get_attribute( 'id' );
+
 		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
-		$html .= '<p class="go-back-message"> <a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		$html .= '<p class="go-back-message"><a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
@@ -1019,7 +1029,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function get_compiled_form( $feedback_id, $form = null ) {
 
 		if ( $form ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$', '$form is deprecated' );
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
 		}
 		$compiled_form = self::get_raw_compiled_form_data( $feedback_id );
 
@@ -1058,15 +1068,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param int          $feedback_id - the feedback ID.
 	 * @param Contact_Form $form - the form. This parameter is deprecated and will be removed in the next version.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 5.1.0
 	 *
 	 * @return array $json_data
 	 */
 	public static function get_json_data( $feedback_id, $form = null ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Feedback::get( $feedback_id )->get_compiled_fields(\'ajax\', \'label|value\' )' );
+		_deprecated_function( __METHOD__, '5.1.0', 'Feedback::get( $feedback_id )->get_compiled_fields(\'ajax\', \'label|value\' )' );
 
 		if ( $form ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$', '$form is deprecated' );
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
 		}
 
 		$response = Feedback::get( $feedback_id );
@@ -1088,7 +1098,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static function get_raw_compiled_form_data( $feedback_id, $form = null ) {
 
 		if ( $form ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$', '$form is deprecated' );
+			_deprecated_argument( __METHOD__, '5.1.0', '$form is deprecated' );
 		}
 
 		$response = Feedback::get( $feedback_id );
@@ -1362,6 +1372,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
+			! isset( $_POST['jetpack_contact_form_jwt'] )
+			&&
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
 			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
@@ -2706,5 +2718,81 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$theme_json_class = get_class( $theme_json_data );
 		return new $theme_json_class( $data, 'default' );
+	}
+
+	/**
+	 * Validate the contact form fields.
+	 *
+	 * This method checks each field for errors and ensures that at least one field has a value.
+	 * If no fields have values and there are no errors, it adds an error indicating that the form is empty.
+	 */
+	public function validate() {
+		$has_value = false;
+		// Validate the form fields before processing the form.
+		foreach ( $this->fields as $field ) {
+			$field->validate();
+			if ( ! $has_value && $field->has_value() ) {
+				$has_value = true;
+			}
+		}
+
+		if ( ! $has_value && ! $this->has_errors() ) {
+			$this->add_error( 'empty', __( 'Please fill out at least one field.', 'jetpack-forms' ) );
+		}
+	}
+
+	/**
+	 * Reset the static errors for the contact form.
+	 *
+	 * @param string $id The ID of the contact form to reset errors for. If null, resets all static errors.
+	 *
+	 * This method is used to clear the static errors stored in the class.
+	 */
+	public static function reset_errors( $id = null ) {
+		if ( $id && isset( self::$static_errors[ $id ] ) ) {
+			unset( self::$static_errors[ $id ] );
+			return;
+		}
+		self::$static_errors = array();
+	}
+
+	/**
+	 * Add an error to the contact form.
+	 *
+	 * @param string $error_code    The error code.
+	 * @param string $error_message The error message.
+	 */
+	public function add_error( $error_code, $error_message ) {
+		$id = $this->get_attribute( 'id' );
+		if ( ! isset( self::$static_errors[ $id ] ) ) {
+			self::$static_errors[ $id ] = new \WP_Error();
+		}
+		self::$static_errors[ $id ]->add( $error_code, $error_message );
+		$this->errors = self::$static_errors[ $id ];
+	}
+	/**
+	 * Check if the contact form has errors.
+	 *
+	 * @return bool True if the contact form has errors, false otherwise.
+	 */
+	public function has_errors() {
+		$id = $this->get_attribute( 'id' );
+		if ( ! isset( self::$static_errors[ $id ] ) ) {
+			return false;
+		}
+		return is_wp_error( self::$static_errors[ $id ] ) && ! empty( self::$static_errors[ $id ]->get_error_codes() );
+	}
+
+	/**
+	 * Get the error messages of the contact form.
+	 *
+	 * @return array The errors of the contact form.
+	 */
+	public function get_error_messages() {
+		if ( ! $this->has_errors() ) {
+			return array();
+		}
+		$id = $this->get_attribute( 'id' );
+		return self::$static_errors[ $id ]->get_error_messages();
 	}
 }

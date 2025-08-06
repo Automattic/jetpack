@@ -5,9 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2025-08-04
+### Added
+- Add Conversion Funnel Chart document to Storybook index page. [#44548]
+
+### Fixed
+- Tests: Specify locale in tooltip tests. [#44594]
+
 ## [0.23.1] - 2025-08-01
 ### Fixed
-- Line Chart: Improve pointer event types [#44510]
+- Line Chart: Improve pointer event types. [#44510]
 
 ## [0.23.0] - 2025-07-30
 ### Added
@@ -340,6 +347,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.24.0]: https://github.com/Automattic/charts/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/Automattic/charts/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/Automattic/charts/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/Automattic/charts/compare/v0.21.0...v0.22.0

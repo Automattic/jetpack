@@ -54,7 +54,7 @@ class Note {
 			/**
 			 * Filters whether to override the empty title for Social Notes on the frontend.
 			 *
-			 * @since $$next-version$$
+			 * @since 7.1.0
 			 *
 			 * @param bool $override_empty_title Whether to override the empty title for Social Notes on the frontend.
 			 */
@@ -243,7 +243,7 @@ class Note {
 			/**
 			 * Filters the default title for a Social Note.
 			 *
-			 * @since $$next-version$$
+			 * @since 7.1.0
 			 *
 			 * @param string $title The default title.
 			 * @param \WP_Post $post The post.

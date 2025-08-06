@@ -25,6 +25,8 @@ global $whwpCountryList;
 if(!isset($whwpCountryList)) require_once( ZEROBSCRM_INCLUDE_PATH . 'wh.countrycode.lib.php');
 */
 
+$default_font_reinstalled = false;
+
 // check for default font reinstalls
 if ( isset( $_GET['reinstall_default_font'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// check nonce
@@ -68,6 +70,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() && ! empty( $_
 	$reinstall_font  = false;
 
 }
+
+$font_installed = false;
 
 // install a font/reinstall one
 if ( isset( $font_to_install ) && $font_to_install !== '' ) {
@@ -120,6 +124,8 @@ if ( isset( $font_to_install ) && $font_to_install !== '' ) {
 
 	}
 }
+
+$sbupdated = false;
 
 // Act on any edits!
 if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
@@ -199,17 +205,17 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	}
 
 	// default fonts reinstalled dialogs
-	if ( isset( $default_font_reinstalled ) && $default_font_reinstalled ) {
+	if ( $default_font_reinstalled ) {
 		echo zeroBSCRM_UI2_messageHTML( 'success', __( 'Default fonts reinstalled', 'zero-bs-crm' ), __( 'Default fonts reinstalled successfully.', 'zero-bs-crm' ) ) . '<br>';
 	}
 
 	// font installed dialogs
-	if ( isset( $font_installed ) && $font_installed ) {
+	if ( $font_installed ) {
 		echo zeroBSCRM_UI2_messageHTML( 'success', __( 'Font installed', 'zero-bs-crm' ), __( 'Font installed successfully: ', 'zero-bs-crm' ) . $font_installed_name ) . '<br>';
 	}
 
 	// general settings save
-	if ( isset( $sbupdated ) && $sbupdated ) {
+	if ( $sbupdated ) {
 		echo zeroBSCRM_UI2_messageHTML( 'success', __( 'Settings Updated', 'zero-bs-crm' ) ) . '<br>';
 	}
 

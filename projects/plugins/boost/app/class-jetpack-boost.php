@@ -281,7 +281,7 @@ class Jetpack_Boost {
 	/**
 	 * Clean up Image Size Analysis data from the database.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.3.0
 	 */
 	private function cleanup_image_size_analysis_data() {
 		global $wpdb;

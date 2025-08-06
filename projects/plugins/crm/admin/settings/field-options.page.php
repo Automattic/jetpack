@@ -13,6 +13,8 @@ global $wpdb, $zbs;  // } Req
 
 $settings = $zbs->settings->getAll();
 
+$sbupdated = false;
+
 // } Act on any edits!
 if ( isset( $_POST['editwplf'] ) ) {
 	// check nonce
@@ -148,11 +150,10 @@ $fieldOverride = $settings['fieldoverride'];
 <p id="sbDesc"><?php esc_html_e( 'Using this page you can manage the default fields, statuses and other field options used throughout your CRM', 'zero-bs-crm' ); ?></p>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Custom Fields Updated', 'zero-bs-crm' ) );
-		echo '</div>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Custom Fields Updated', 'zero-bs-crm' ) );
+	echo '</div>';
 }
 ?>
 
@@ -382,7 +383,7 @@ if ( isset( $sbupdated ) ) {
 									<?php
 
 									$zbsStatuses = explode( ',', $zbsStatusStr );
-									if ( is_array( $zbsStatuses ) ) {
+									if ( count( $zbsStatuses ) > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 										foreach ( $zbsStatuses as $statusStr ) {
 
 											?>

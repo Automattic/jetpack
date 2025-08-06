@@ -484,15 +484,15 @@ IP: 127.0.0.1
 
 <!--more-->
 
-JSON_DATA{"name":"Test Author","email":"author@example.com","g1-file":{"field_id":"g1-file","files":[{"file_id":123,"name":"test.jpg","size":1024,"type":"image/jpeg"}]}}',
+JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field_id":"g1-file","files":[{"file_id":123,"name":"test.jpg","size":1024,"type":"image/jpeg"}]}}',
 			)
 		);
 
 		// Add test metadata
 		$all_fields = array(
-			'name'    => 'Test Author',
-			'email'   => 'author@example.com',
-			'g1-file' => array(
+			'1_name'  => 'Test Author',
+			'2_email' => 'author@example.com',
+			'3_file'  => array(
 				'field_id' => 'g1-file',
 				'files'    => array(
 					array(
@@ -520,10 +520,10 @@ JSON_DATA{"name":"Test Author","email":"author@example.com","g1-file":{"field_id
 
 		// Verify file field data in response
 		$this->assertArrayHasKey( 'fields', $data );
-		$this->assertArrayHasKey( 'g1-file', $data['fields'] );
-		$this->assertArrayHasKey( 'files', $data['fields']['g1-file'] );
+		$this->assertArrayHasKey( 'file', $data['fields'] );
+		$this->assertArrayHasKey( 'files', $data['fields']['file'] );
 
-		$file = $data['fields']['g1-file']['files'][0];
+		$file = $data['fields']['file']['files'][0];
 		$this->assertEquals( 123, $file['file_id'] );
 		$this->assertEquals( 'test.jpg', $file['name'] );
 		$this->assertEquals( '1 KB', $file['size'] );

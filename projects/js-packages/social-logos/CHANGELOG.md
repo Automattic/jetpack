@@ -1,3 +1,7 @@
+## [3.2.8] - 2025-08-04
+### Changed
+- Internal updates.
+
 ## [3.2.7] - 2025-07-23
 ### Changed
 - Internal updates.
@@ -248,6 +252,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.2.8]: https://github.com/Automattic/social-logos/compare/v3.2.7...v3.2.8
 [3.2.7]: https://github.com/Automattic/social-logos/compare/v3.2.6...v3.2.7
 [3.2.6]: https://github.com/Automattic/social-logos/compare/v3.2.5...v3.2.6
 [3.2.5]: https://github.com/Automattic/social-logos/compare/v3.2.4...v3.2.5

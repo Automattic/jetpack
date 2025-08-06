@@ -69,6 +69,8 @@ $custom_field_table_data = array(
 	),
 );
 
+$sbupdated = false;
+
 // Act on any edited custom fields, if POST is set
 if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 
@@ -402,12 +404,11 @@ $current_custom_fields = array_merge( $custom_fields, $settings['customfields'] 
 <p id="sbDesc"><?php esc_html_e( 'Using this page you can add or edit custom fields for your CRM', 'zero-bs-crm' ); ?></p>
 
 <?php
-if ( isset( $sbupdated ) && $sbupdated ) {
+if ( $sbupdated ) {
 	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
 	zeroBSCRM_html_msg( 0, __( 'Custom Fields Updated', 'zero-bs-crm' ) );
 	echo '</div>';
 }
-
 ?>
 
 <div id="sbA" class="zbs-settings-custom-fields">

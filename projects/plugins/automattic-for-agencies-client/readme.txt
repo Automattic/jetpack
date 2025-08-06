@@ -44,19 +44,10 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.6.0 - 2025-06-04
+### 0.7.0 - 2025-08-06
 #### Changed
-- Code: First pass of style coding standards.
-- Dashboard: Mark external link as external.
-- E2E Tests: Update config file encryption algorithm.
+- My Jetpack: Unify the user connection flow with a unified screen.
+- Sync: Ignore the ActivityPub Outbox CPT.
+- Update dependencies.
 - Update package dependencies.
-
-#### Removed
-- General: Update minimum WordPress version to 6.7.
-
-#### Fixed
-- Block editor: Fix layout issues with the Media Library modal buttons.
-- Code: Update stylesheets to use hex instead of named colors.
-- Linting: Do additional stylesheet cleanup.
-- Resolve parsing error that was resulting in a blank page.
 
