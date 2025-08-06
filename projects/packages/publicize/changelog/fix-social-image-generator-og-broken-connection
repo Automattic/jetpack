@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+REST API: provide a more explicit error message when a request cannot be made because of connection issues.
