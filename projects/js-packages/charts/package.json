@@ -88,7 +88,6 @@
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
-		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.0",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
@@ -96,7 +95,6 @@
 		"@babel/preset-env": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"@babel/preset-typescript": "7.27.1",
-		"@rollup/plugin-babel": "6.0.4",
 		"@rollup/plugin-commonjs": "26.0.1",
 		"@rollup/plugin-json": "6.1.0",
 		"@rollup/plugin-node-resolve": "15.3.0",

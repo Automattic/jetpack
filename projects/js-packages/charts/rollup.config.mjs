@@ -1,4 +1,3 @@
-import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
@@ -73,12 +72,6 @@ const mainConfig = {
 				verbatimModuleSyntax: true, // Preserve import/export syntax exactly
 			},
 			exclude: [ 'node_modules', 'dist', '**/stories/**', '**/*.test.{ts,tsx}' ],
-		} ),
-		babel( {
-			babelHelpers: 'bundled',
-			exclude: 'node_modules/**',
-			extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
-			plugins: [ [ '@automattic/babel-plugin-preserve-i18n' ] ],
 		} ),
 	],
 	onwarn( warning, warn ) {
