@@ -10,6 +10,9 @@ import JetpackConsentField from '../field-consent/';
 import JetpackDateField from '../field-date';
 import JetpackEmailField from '../field-email';
 import JetpackFieldFile from '../field-file';
+import JetpackImageChoiceField from '../field-image-choice';
+import JetpackImageChoicesField from '../field-image-choices';
+import JetpackImageSelectField from '../field-image-select';
 import JetpackMultipleChoiceField from '../field-multiple-choice';
 import JetpackNameField from '../field-name';
 import JetpackNumberField from '../field-number';
@@ -77,5 +80,8 @@ export const childBlocks = [
 				JetpackStepNavigation,
 				JetpackProgressIndicator,
 		  ]
+		: [] ),
+	...( hasFeatureFlag( 'image-select-field' )
+		? [ JetpackImageSelectField, JetpackImageChoiceField, JetpackImageChoicesField ]
 		: [] ),
 ];
