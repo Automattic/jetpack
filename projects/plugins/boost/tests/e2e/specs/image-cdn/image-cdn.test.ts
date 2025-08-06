@@ -3,19 +3,12 @@ import { test, expect } from '../../lib/fixtures/test.ts';
 test.describe( 'Image CDN', () => {
 	test.beforeAll( async ( { boostUtils } ) => {
 		await boostUtils.resetEnvironment();
-		await boostUtils.mockConnection();
+		await boostUtils.connect();
 		await boostUtils.mockSpeedScore();
 	} );
 
 	test.afterAll( async ( { boostUtils } ) => {
 		await boostUtils.unMockSpeedScore();
-	} );
-
-	test.afterEach( async ( { boostUtils } ) => {
-		// Make sure the e2e-appended-image plugin is deactivated to avoid interference with other tests.
-		await boostUtils.executeWpCommand(
-			'plugin deactivate e2e-appended-image/e2e-appended-image.php'
-		);
 	} );
 
 	test( 'No Image CDN meta information should show on the admin when the module is inactive', async ( {
