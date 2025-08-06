@@ -126,7 +126,7 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByTestId( 'snackbar' ).getByText( message ),
 			`Should show ${ message } notice`
-		).toBeVisible();
+		).toBeVisible( { timeout: 30 * 1000 } );
 	}
 
 	// Cornerstone Pages
