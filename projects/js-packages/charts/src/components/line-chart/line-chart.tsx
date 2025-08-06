@@ -2,6 +2,7 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
 	useId,
@@ -399,7 +400,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 				>
 					<div
 						role="grid"
-						aria-label="line chart"
+						aria-label={ __( 'Line chart', 'jetpack-charts' ) }
 						tabIndex={ 0 }
 						onKeyDown={ onChartKeyDown }
 						onFocus={ onChartFocus }

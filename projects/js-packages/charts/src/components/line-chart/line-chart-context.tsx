@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { createContext, useContext } from 'react';
 
 export interface LineChartRef {
@@ -22,7 +23,9 @@ export const LineChartContext = createContext< LineChartContextValue | null >( n
 export const useLineChartContext = (): LineChartContextValue => {
 	const context = useContext( LineChartContext );
 	if ( ! context ) {
-		throw new Error( 'useLineChartContext must be used within a LineChart component' );
+		throw new Error(
+			__( 'useLineChartContext must be used within a LineChart component', 'jetpack-charts' )
+		);
 	}
 	return context;
 };

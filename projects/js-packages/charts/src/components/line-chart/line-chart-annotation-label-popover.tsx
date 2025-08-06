@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import Gridicon from 'gridicons';
 import { useEffect, useId, useRef, useState } from 'react';
@@ -72,7 +73,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 					height: `${ POPOVER_BUTTON_SIZE }px`,
 					transform: `translate(${ POPOVER_BUTTON_SIZE / 2 }px, 0)`,
 				} }
-				aria-label={ title || 'View details' }
+				aria-label={ title || __( 'View details', 'jetpack-charts' ) }
 			>
 				{ renderLabel( { title, subtitle } ) }
 			</button>
@@ -97,7 +98,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 							popovertargetaction: 'hide',
 						} as ButtonWithPopover ) }
 						className={ styles[ 'line-chart__annotation-label-popover-close-button' ] }
-						aria-label="Close"
+						aria-label={ __( 'Close', 'jetpack-charts' ) }
 					>
 						<Gridicon icon="cross" size={ 16 } />
 					</button>

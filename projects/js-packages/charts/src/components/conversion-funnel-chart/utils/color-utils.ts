@@ -1,3 +1,5 @@
+import { __ } from '@wordpress/i18n';
+
 /**
  * Convert hex color to rgba with specified opacity
  * This is genuinely reusable across chart components
@@ -9,28 +11,35 @@
 export const hexToRgba = ( hex: string, alpha: number ): string => {
 	// Validate hex format
 	if ( typeof hex !== 'string' ) {
-		throw new Error( 'Hex color must be a string' );
+		throw new Error( __( 'Hex color must be a string', 'jetpack-charts' ) );
 	}
 
 	// Check if hex starts with #
 	if ( ! hex.startsWith( '#' ) ) {
-		throw new Error( 'Hex color must start with #' );
+		throw new Error( __( 'Hex color must start with #', 'jetpack-charts' ) );
 	}
 
 	// Check length (should be 7 characters: # + 6 hex digits)
 	if ( hex.length !== 7 ) {
-		throw new Error( 'Hex color must be 7 characters long (e.g., #ff0000)' );
+		throw new Error(
+			__( 'Hex color must be 7 characters long (e.g., #ff0000)', 'jetpack-charts' )
+		);
 	}
 
 	// Check if all characters after # are valid hex digits
 	const hexDigits = hex.slice( 1 );
 	if ( ! /^[0-9a-fA-F]{6}$/.test( hexDigits ) ) {
-		throw new Error( 'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed' );
+		throw new Error(
+			__(
+				'Hex color contains invalid characters. Only 0–9, a–f, A–F are allowed',
+				'jetpack-charts'
+			)
+		);
 	}
 
 	// Validate alpha
 	if ( typeof alpha !== 'number' || isNaN( alpha ) ) {
-		throw new Error( 'Alpha must be a number' );
+		throw new Error( __( 'Alpha must be a number', 'jetpack-charts' ) );
 	}
 
 	const r = parseInt( hex.slice( 1, 3 ), 16 );
