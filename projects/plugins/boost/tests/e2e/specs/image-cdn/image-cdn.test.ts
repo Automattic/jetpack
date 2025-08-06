@@ -1,16 +1,9 @@
-import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 
 test.describe( 'Image CDN', () => {
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
-		await page.close();
+	test.beforeAll( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockSpeedScore();
 	} );
 
 	test( 'No Image CDN meta information should show on the admin when the module is inactive', async ( {
@@ -32,7 +25,9 @@ test.describe( 'Image CDN', () => {
 		page,
 	} ) => {
 		await boostUtils.deactivateBoostModule( 'image_cdn' );
-		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
+		await boostUtils.executeWpCommand(
+			'plugin activate e2e-appended-image/e2e-appended-image.php'
+		);
 		await page.goto( '/?p=1' );
 
 		expect(
@@ -61,7 +56,9 @@ test.describe( 'Image CDN', () => {
 		page,
 	} ) => {
 		await boostUtils.activateBoostModule( 'image_cdn' );
-		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
+		await boostUtils.executeWpCommand(
+			'plugin activate e2e-appended-image/e2e-appended-image.php'
+		);
 		await page.goto( '/?p=1' );
 
 		expect(

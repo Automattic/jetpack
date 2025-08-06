@@ -3,20 +3,34 @@ import {
 	executeJetpackBoostCommand,
 	activateBoostModule,
 	deactivateBoostModule,
+	isConnected,
+	connectIfNeeded,
+	disconnect,
+	unMockPremiumFeatures,
+	mockPremiumFeatures,
+	unMockSpeedScore,
+	mockSpeedScore,
+	createTestPosts,
+	mockConnection,
+	unMockConnection,
+	resetEnvironment,
 } from './boost-utils.ts';
 
 class BoostUtils extends TestUtils {
 	executeJetpackBoostCommand: typeof executeJetpackBoostCommand = executeJetpackBoostCommand;
 	activateBoostModule: typeof activateBoostModule = activateBoostModule;
 	deactivateBoostModule: typeof deactivateBoostModule = deactivateBoostModule;
-	// enableInstantSearch: typeof enableInstantSearch = enableInstantSearch;
-	// disableInstantSearch: typeof disableInstantSearch = disableInstantSearch;
-	// setResultFormat: typeof setResultFormat = setResultFormat;
-	// setTheme: typeof setTheme = setTheme;
-	// setHighlightColor: typeof setHighlightColor = setHighlightColor;
-	// setDefaultSort: typeof setDefaultSort = setDefaultSort;
-	// searchAutoConfig: typeof searchAutoConfig = searchAutoConfig;
-	// clearSearchPlanInfo: typeof clearSearchPlanInfo = clearSearchPlanInfo;
+	isConnected: typeof isConnected = isConnected;
+	connectIfNeeded: typeof connectIfNeeded = connectIfNeeded;
+	disconnect: typeof disconnect = disconnect;
+	mockSpeedScore: typeof mockSpeedScore = mockSpeedScore;
+	unMockSpeedScore: typeof unMockSpeedScore = unMockSpeedScore;
+	mockPremiumFeatures: typeof mockPremiumFeatures = mockPremiumFeatures;
+	unMockPremiumFeatures: typeof unMockPremiumFeatures = unMockPremiumFeatures;
+	createTestPosts: typeof createTestPosts = createTestPosts;
+	mockConnection: typeof mockConnection = mockConnection;
+	unMockConnection: typeof unMockConnection = unMockConnection;
+	resetEnvironment: typeof resetEnvironment = resetEnvironment;
 }
 
 export { BoostUtils };

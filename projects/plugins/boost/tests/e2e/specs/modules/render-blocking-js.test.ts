@@ -1,19 +1,13 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
-import playwrightConfig from '../../playwright.config.ts';
 
 const testPostTitle = 'Hello World with JavaScript';
 
 test.describe( 'Render Blocking JS module', () => {
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withMockConnection( true )
-			.withSpeedScoreMocked( true )
-			.withTestContent( [ testPostTitle ] )
-			.build();
-		await page.close();
+	test.beforeAll( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockConnection();
+		await boostUtils.mockSpeedScore();
+		await boostUtils.createTestPosts( [ testPostTitle ] );
 	} );
 
 	test( 'JavaScript on a post should be at its original position in the document when the module is inactive', async ( {
@@ -21,6 +15,7 @@ test.describe( 'Render Blocking JS module', () => {
 		page,
 	} ) => {
 		await boostUtils.deactivateBoostModule( 'render_blocking_js' );
+
 		await page.goto( '/' );
 		await page.getByRole( 'link', { name: testPostTitle } ).click();
 		// For this test we are checking if the JavaScript from the test content is still inside its original parent element
@@ -40,6 +35,7 @@ test.describe( 'Render Blocking JS module', () => {
 		// For this test we are checking if the JavaScript from the test content is not anymore in its parent element.
 		// which has the "render-blocking-js" class.
 		await boostUtils.activateBoostModule( 'render_blocking_js' );
+
 		await page.goto( '/' );
 		await page.getByRole( 'link', { name: testPostTitle } ).click();
 		await expect( page.locator( '#blockingScript' ).locator( 'xpath=..' ) ).not.toHaveClass(

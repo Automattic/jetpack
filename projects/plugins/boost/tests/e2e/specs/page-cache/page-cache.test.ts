@@ -1,19 +1,15 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 import { PermalinksPage } from '../../lib/pages/index.js';
 import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'Cache module', () => {
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withMockConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
+	test.beforeAll( async ( { browser, boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockConnection();
+		await boostUtils.mockSpeedScore();
 
 		// Page Cache needs a pretty permalink structure to work properly.
+		const page = await browser.newPage( playwrightConfig.use );
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.useDayNameStructure();
 		await page.close();

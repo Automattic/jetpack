@@ -1,16 +1,12 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'Auto refresh of speed scores', () => {
 	test.beforeAll( async ( { browser, boostUtils } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
-
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withConnection( true )
-			.withSpeedScoreMocked( false )
-			.build();
+		await boostUtils.resetEnvironment();
+		await boostUtils.connectIfNeeded( page );
+		await boostUtils.unMockSpeedScore();
 
 		await boostUtils.deactivateBoostModule( [ 'critical_css', 'render_blocking_js' ] );
 		await page.close();

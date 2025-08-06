@@ -1,17 +1,11 @@
-import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { executeWpDbQuery } from '_jetpack-e2e-commons/utils/cli.ts';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 
 test.describe( 'Common tests', () => {
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withMockConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
-		await page.close();
+	test.beforeAll( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockConnection();
+		await boostUtils.mockSpeedScore();
 	} );
 
 	test( 'Click on the plugins page should navigate to Boost settings page', async ( {
@@ -47,7 +41,7 @@ test.describe( 'Common tests', () => {
 		// Generate Critical CSS to ensure that on plugin deactivation it is cleared.
 		// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 		await test.step( 'Setup clean environment and activate critical CSS module', async () => {
-			await boostPrerequisitesBuilder( page ).withCleanEnv( true ).build();
+			await boostUtils.resetEnvironment();
 			await boostUtils.activateBoostModule( 'critical_css' );
 		} );
 

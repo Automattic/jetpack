@@ -1,18 +1,11 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { expect, test } from '../../lib/fixtures/test.ts';
-import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'LCP Image Optimization module', () => {
-	test.beforeAll( async ( { browser, boostUtils } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withMockConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
-
+	test.beforeAll( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockConnection();
+		await boostUtils.mockSpeedScore();
 		await boostUtils.executeWpCommand( 'plugin activate e2e-mock-lcp-optimization-api' );
-		await page.close();
 	} );
 
 	test.afterAll( async ( { boostUtils } ) => {

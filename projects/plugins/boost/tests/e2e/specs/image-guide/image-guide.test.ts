@@ -1,16 +1,10 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
-import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'Image CDN', () => {
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withMockConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
-		await page.close();
+	test.beforeAll( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockConnection();
+		await boostUtils.mockSpeedScore();
 	} );
 
 	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async ( {
@@ -31,7 +25,9 @@ test.describe( 'Image CDN', () => {
 		page,
 	} ) => {
 		await boostUtils.activateBoostModule( 'image_guide' );
-		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
+		await boostUtils.executeWpCommand(
+			'plugin activate e2e-appended-image/e2e-appended-image.php'
+		);
 		await page.goto( '/?p=1' );
 
 		await expect( async () => {

@@ -1,15 +1,12 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 
 test.describe( 'Speed Score feature', () => {
-	test.beforeAll( async ( { browser } ) => {
+	test.beforeAll( async ( { browser, boostUtils } ) => {
+		await boostUtils.resetEnvironment();
 		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withConnection( true )
-			.withSpeedScoreMocked( false )
-			.build();
+		await boostUtils.connectIfNeeded( page );
 		await page.close();
+		await boostUtils.unMockSpeedScore();
 	} );
 
 	// eslint-disable-next-line playwright/expect-expect

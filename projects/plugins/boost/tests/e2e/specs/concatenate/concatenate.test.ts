@@ -1,16 +1,10 @@
-import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 
 test.describe( 'Concatenate JS and CSS', () => {
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withMockConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
-		await page.close();
+	test.beforeAll( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockConnection();
+		await boostUtils.mockSpeedScore();
 	} );
 
 	test( 'No Concatenate meta information should show on the admin when the modules are inactive', async ( {
@@ -39,7 +33,9 @@ test.describe( 'Concatenate JS and CSS', () => {
 	} ) => {
 		await test.step( 'Deactivate minify_js and minify_css modules, setup assets and visit homepage', async () => {
 			await boostUtils.deactivateBoostModule( [ 'minify_js', 'minify_css' ] );
-			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
+			await boostUtils.executeWpCommand(
+				'plugin activate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php'
+			);
 			await page.goto( '/' );
 		} );
 
@@ -78,7 +74,9 @@ test.describe( 'Concatenate JS and CSS', () => {
 	test( 'Concatenation occurs when modules are active', async ( { boostUtils, page } ) => {
 		await test.step( 'Activate minify_js and minify_css modules, setup assets and visit homepage', async () => {
 			await boostUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
-			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
+			await boostUtils.executeWpCommand(
+				'plugin activate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php'
+			);
 			await page.goto( '/' );
 		} );
 
@@ -107,7 +105,9 @@ test.describe( 'Concatenate JS and CSS', () => {
 	} ) => {
 		await test.step( 'Activate minify_js and minify_css modules, setup assets and visit homepage', async () => {
 			await boostUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
-			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
+			await boostUtils.executeWpCommand(
+				'plugin activate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php'
+			);
 			await page.goto( '/' );
 		} );
 

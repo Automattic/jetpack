@@ -1,29 +1,23 @@
-import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 
 /* global Jetpack_Boost */
 
 test.describe( 'Cornerstone Pages', () => {
-	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withMockConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
-		await page.close();
+	test.beforeAll( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockConnection();
+		await boostUtils.mockSpeedScore();
 	} );
 
 	test.beforeEach( async ( { jetpackBoostPage } ) => {
 		await jetpackBoostPage.visit();
 	} );
 
-	test.afterEach( async ( { testUtils, page } ) => {
-		await boostPrerequisitesBuilder( page ).withPremiumFeaturesMocked( [] ).build();
+	test.afterEach( async ( { boostUtils } ) => {
+		await boostUtils.unMockPremiumFeatures();
 		// Reset cornerstone pages before each test to ensure atomicity
 		// Using option delete ensures the system properly initializes an empty array
-		await testUtils.executeWpCommand( 'option delete jetpack_boost_ds_cornerstone_pages_list' );
+		await boostUtils.executeWpCommand( 'option delete jetpack_boost_ds_cornerstone_pages_list' );
 	} );
 
 	test( 'Cornerstone Pages panel should be visible and toggleable', async ( {
@@ -127,11 +121,10 @@ test.describe( 'Cornerstone Pages', () => {
 	test( 'Should allow adding up to 10 pages on premium plan', async ( {
 		jetpackBoostPage,
 		page,
+		boostUtils,
 	} ) => {
 		// Mock premium features using the new plugin approach
-		await boostPrerequisitesBuilder( page )
-			.withPremiumFeaturesMocked( [ 'cornerstone-10-pages' ] )
-			.build();
+		await boostUtils.mockPremiumFeatures( [ 'cornerstone-10-pages' ] );
 		// reload for the mock to take effect
 		await page.reload();
 
@@ -157,11 +150,10 @@ test.describe( 'Cornerstone Pages', () => {
 	test( 'Should enforce premium plan limit of 10 custom pages', async ( {
 		jetpackBoostPage,
 		page,
+		boostUtils,
 	} ) => {
 		// Mock premium features using the new plugin approach
-		await boostPrerequisitesBuilder( page )
-			.withPremiumFeaturesMocked( [ 'cornerstone-10-pages' ] )
-			.build();
+		await boostUtils.mockPremiumFeatures( [ 'cornerstone-10-pages' ] );
 		// reload for the mock to take effect
 		await page.reload();
 

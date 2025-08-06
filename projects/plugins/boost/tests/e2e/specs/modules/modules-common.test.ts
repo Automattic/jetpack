@@ -1,4 +1,3 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 import playwrightConfig from '../../playwright.config.ts';
 
@@ -9,14 +8,11 @@ const modules = [
 ];
 
 test.describe.serial( 'Modules', () => {
-	test.beforeAll( async ( { browser } ) => {
+	test.beforeAll( async ( { browser, boostUtils } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
-
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
+		await boostUtils.resetEnvironment();
+		await boostUtils.connectIfNeeded( page );
+		await boostUtils.mockSpeedScore();
 		await page.close();
 	} );
 

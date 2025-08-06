@@ -1,20 +1,14 @@
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
-import playwrightConfig from '../../playwright.config.ts';
 
 test.describe.serial( 'Critical CSS module', () => {
 	let previousTheme = null;
 
-	test.beforeAll( async ( { browser, boostUtils } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withMockConnection( true )
-			.withSpeedScoreMocked( true )
-			.build();
+	test.beforeAll( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockConnection();
+		await boostUtils.mockSpeedScore();
 
 		await boostUtils.executeWpCommand( 'plugin activate e2e-critical-css-force-errors' );
-		await page.close();
 	} );
 
 	test.afterAll( async ( { boostUtils } ) => {

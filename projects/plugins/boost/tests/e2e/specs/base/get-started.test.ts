@@ -1,17 +1,9 @@
-import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from '../../lib/fixtures/test.ts';
 
 test.describe( 'Getting started page', () => {
-	test.beforeEach( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withConnection( false )
-			.withSpeedScoreMocked( true )
-			.build();
-
-		await page.close();
+	test.beforeEach( async ( { boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		await boostUtils.mockSpeedScore();
 	} );
 
 	test.beforeEach( async ( { jetpackBoostPage } ) => {
