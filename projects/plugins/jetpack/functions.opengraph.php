@@ -418,7 +418,7 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 	// Only attempt to generate a dynamic fallback image if we have a healthy connection to WPCOM.
 	if (
 		( new Host() )->is_wpcom_simple()
-		|| ( new Connection_Manager() )->is_user_connected()
+		|| ( new Connection_Manager() )->is_connected()
 	) {
 		/**
 		 * Allow filtering the template to use with Social Image Generator.
