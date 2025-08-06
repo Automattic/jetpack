@@ -1,7 +1,7 @@
 import { test, expect } from '../../lib/fixtures/test.ts';
 
 test.describe.serial( 'Critical CSS module', () => {
-	let previousTheme = null;
+	let previousTheme;
 
 	test.beforeAll( async ( { boostUtils } ) => {
 		await boostUtils.resetEnvironment();
