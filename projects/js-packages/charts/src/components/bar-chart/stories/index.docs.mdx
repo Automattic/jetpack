@@ -275,7 +275,7 @@ By default, bars with zero values have no visual height, making them difficult t
 
 Display series information with automatic color and pattern matching:
 
-<Canvas of={ BarChartStories.Default } />
+<Canvas of={ BarChartStories.WithLegend } />
 
 <Source
 	language="jsx"
@@ -286,22 +286,6 @@ Display series information with automatic color and pattern matching:
 		legendAlignmentHorizontal="center"
 		legendAlignmentVertical="bottom"
 		legendShape="rect"
-	/>` }
-/>
-
-### Legend Positioning
-
-Control legend placement with alignment options:
-
-<Canvas of={ BarChartStories.CustomLegendPositioning } />
-
-<Source
-	language="jsx"
-	code={ `<BarChart
-		data={data}
-		showLegend={true}
-		legendAlignmentHorizontal="right"
-		legendAlignmentVertical="top"
 	/>` }
 />
 
@@ -317,15 +301,10 @@ Display legends vertically for charts with many series:
 		data={data}
 		showLegend={true}
 		legendOrientation="vertical"
-		legendAlignmentHorizontal="right"
+		legendAlignmentHorizontal="left"
+		legendAlignmentVertical="top"
 	/>` }
 />
-
-### Legends with Horizontal Bars
-
-Legends work seamlessly with both orientations:
-
-<Canvas of={ BarChartStories.HorizontalBarChart } />
 
 ## Advanced Customization
 
