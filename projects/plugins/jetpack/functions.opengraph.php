@@ -614,7 +614,7 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 		! is_wp_error( $token )
 		|| (
 			is_wp_error( $token )
-			&& 'rest_unauthorized' === $token->get_error_code()
+			&& 'invalid_user_permission_publicize' === $token->get_error_code()
 		)
 	) {
 		set_transient( $transient_name, $token, DAY_IN_SECONDS );
