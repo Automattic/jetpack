@@ -1,14 +1,11 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
-import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { JetpackBoostPage, PermalinksPage } from '../../lib/pages/index.js';
+import { test, expect } from '../../lib/fixtures/test.ts';
+import { PermalinksPage } from '../../lib/pages/index.js';
+import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'Cache module', () => {
-	let page;
-
 	test.beforeAll( async ( { browser } ) => {
-		page = await browser.newPage( playwrightConfig.use );
+		const page = await browser.newPage( playwrightConfig.use );
 
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
@@ -19,6 +16,7 @@ test.describe( 'Cache module', () => {
 		// Page Cache needs a pretty permalink structure to work properly.
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.useDayNameStructure();
+		await page.close();
 	} );
 
 	// Disabling the module before each test, because each test will decide if
@@ -27,16 +25,15 @@ test.describe( 'Cache module', () => {
 		await testUtils.deactivateBoostModule( 'page_cache' );
 	} );
 
-	test.afterAll( async () => {
-		await page.close();
-	} );
-
-	test( 'No Page Cache meta information should show on the admin when the module is inactive', async () => {
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect(
-			await jetpackBoostPage.isThePageCacheMetaInformationVisible(),
+	test( 'No Page Cache meta information should show on the admin when the module is inactive', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await jetpackBoostPage.visit();
+		await expect(
+			page.getByTestId( 'page-cache-meta' ),
 			'Page Cache meta information should not be visible'
-		).toBeFalsy();
+		).toBeHidden();
 	} );
 
 	// Make sure there's no cache header when module is disabled.
@@ -59,38 +56,44 @@ test.describe( 'Cache module', () => {
 			).toBeFalsy();
 		} );
 
-		await PostFrontendPage.visit( newPage );
+		await newPage.goto( '/' );
 
 		await newPage.close();
 		await newContext.close();
 	} );
 
 	// Make sure there's an error message when trying to enable Page Cache with plain permalinks.
-	test( 'Enabling Page Cache should show error notice when plain permalinks are enabled', async () => {
+	test( 'Enabling Page Cache should show error notice when plain permalinks are enabled', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.usePlainStructure();
 
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		await jetpackBoostPage.toggleModule( 'page_cache', true );
-		expect(
-			await jetpackBoostPage.waitForPageCachePermalinksErrorVisibility(),
+		await jetpackBoostPage.visit();
+		await jetpackBoostPage.toggleModule( 'page_cache', true, false );
+		await expect(
+			page.getByTestId( 'module-page_cache' ).getByText( 'Permalink settings must be updated' ),
 			'Page Cache should show permalink error message when using plain permalink structure'
-		).toBeTruthy();
+		).toBeVisible();
 	} );
 
 	// Make sure Page Cache meta is visible when module is active.
-	test( 'Page Cache meta information should show on the admin when the module is active', async () => {
+	test( 'Page Cache meta information should show on the admin when the module is active', async ( {
+		jetpackBoostPage,
+		page,
+	} ) => {
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.useDayNameStructure();
 
 		// Activate the module.
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		await jetpackBoostPage.visit();
 		await jetpackBoostPage.toggleModule( 'page_cache', true );
 
-		expect(
-			await jetpackBoostPage.waitForPageCacheMetaInfoVisibility(),
+		await expect(
+			page.getByTestId( 'module-page_cache' ).getByRole( 'button', { name: 'Clear Cache' } ),
 			'Page Cache meta information should be visible'
-		).toBeTruthy();
+		).toBeVisible();
 	} );
 
 	// Make sure there's a cache header when module is enabled.
@@ -130,10 +133,10 @@ test.describe( 'Cache module', () => {
 			).toBeTruthy();
 		} );
 
-		await PostFrontendPage.visit( newPage );
+		await newPage.goto( '/' );
 
 		// Visit again to make sure the cache is hit.
-		await PostFrontendPage.visit( newPage );
+		await newPage.goto( '/' );
 
 		await newPage.close();
 		await newContext.close();

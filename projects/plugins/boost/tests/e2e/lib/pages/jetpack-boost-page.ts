@@ -1,4 +1,5 @@
 import { expect, Page } from '@playwright/test';
+import logger from '_jetpack-e2e-commons/logger.js';
 
 // const apiEndpointsRegex = {
 // 	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
@@ -88,35 +89,50 @@ export default class JetpackBoostPage {
 	// 	);
 	// }
 
-	// /**
-	//  * Toggle a module and wait for the success notice to appear.
-	//  *
-	//  * @param {string}  moduleName    - The name of the module to toggle.
-	//  * @param {boolean} expectedState - The expected state of the module.
-	//  */
-	// async toggleModule( moduleName, expectedState ) {
-	// 	console.log( `toggleModule > ${ moduleName } > ${ expectedState }` );
+	/**
+	 * Toggle a module and wait for the success notice to appear.
+	 *
+	 * @param {string}  moduleName     - The name of the module to toggle. It should match the data-testid attribute of the module's checkbox.
+	 * @param {boolean} targetState    - The target state of the module. The function will check if the module is currently in the opposite state first and fail if not.
+	 * @param           checkForNotice - Whether to check for the success notice after toggling the module. Defaults to true.
+	 */
+	async toggleModule( moduleName: string, targetState: boolean, checkForNotice = true ) {
+		logger.debug( `toggleModule > ${ moduleName } > ${ targetState ? 'on' : 'off' }` );
 
-	// 	const stateSelector = expectedState ? ':not(.is-checked)' : '.is-checked';
-	// 	const locator = `[data-testid="module-${ moduleName }"] .components-form-toggle${ stateSelector } input`;
+		const checkbox = this.page.getByTestId( `module-${ moduleName }` ).getByRole( 'checkbox' );
 
-	// 	const toggle = this.page.locator( locator );
+		if ( targetState ) {
+			await expect(
+				checkbox,
+				`Checkbox for ${ moduleName } should be unchecked before toggling`
+			).not.toBeChecked();
+			await checkbox.check();
+			await expect(
+				checkbox,
+				`Checkbox for ${ moduleName } should be checked after toggling`
+			).toBeChecked();
+		} else {
+			await expect(
+				checkbox,
+				`Checkbox for ${ moduleName } should be checked before toggling`
+			).toBeChecked();
+			await checkbox.uncheck();
+			await expect(
+				checkbox,
+				`Checkbox for ${ moduleName } should be unchecked after toggling`
+			).not.toBeChecked();
+		}
 
-	// 	toggle.click();
-
-	// 	// Wait for the success notice to appear
-	// 	const expectedMessage = expectedState ? 'Module activated' : 'Module deactivated';
-	// 	const notice = this.page.locator( `.components-snackbar:has-text("${ expectedMessage }")` );
-	// 	await notice.waitFor( {
-	// 		timeout: 10000,
-	// 	} );
-
-	// 	// Wait for the notice to disappear
-	// 	await notice.waitFor( {
-	// 		timeout: 10000,
-	// 		state: 'hidden',
-	// 	} );
-	// }
+		if ( checkForNotice ) {
+			// Wait for the success notice to appear after toggling the module
+			await expect(
+				this.page
+					.locator( '.components-snackbar' )
+					.getByText( `Module ${ targetState ? 'activated' : 'deactivated' }` ),
+				`Notice for ${ moduleName } should be visible after toggling`
+			).toBeVisible();
+		}
+	}
 
 	// async waitForModuleState( moduleName, expectedState = true ) {
 	// 	console.log( 'before >', expectedState );
@@ -176,11 +192,6 @@ export default class JetpackBoostPage {
 		// return this.waitForElementToBeVisible( selector );
 		// todo replace with expect(locator).toBeVisible()
 		return this.page.locator( selector ).waitFor();
-	}
-
-	async isThePageCacheMetaInformationVisible() {
-		const selector = '[data-testid="page-cache-meta"]';
-		return this.page.isVisible( selector );
 	}
 
 	async waitForPageCacheMetaInfoVisibility() {
