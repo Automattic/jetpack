@@ -12,6 +12,10 @@
 
 .jetpack-field-rating {
 	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
 
 	/* Checked (filled) rating icons */
 	.jetpack-field-rating__label:has(> input[type="radio"].jetpack-field-rating__input:checked),
@@ -34,16 +38,14 @@
 	}
 
 	.jetpack-field-rating__label {
-		display: inline-block;
+		display: inline-flex;
 		margin-bottom: 0;
 		cursor: pointer;
 		overflow: hidden;
 		color: var(--jetpack--contact-form--background-color, #fff);
+		flex-shrink: 0;
 
-		// spacing between symbols
-		&:not(:first-of-type) {
-			margin-left: 8px;
-		}
+		// spacing between symbols is now handled by parent flex gap
 
 		.jetpack-field-rating__icon {
 			width: 1em;
