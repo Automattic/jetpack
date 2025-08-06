@@ -47,6 +47,7 @@ test.describe( 'Common tests', () => {
 		// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 		await test.step( 'Setup clean environment and activate critical CSS module', async () => {
 			await boostUtils.resetEnvironment();
+			await boostUtils.mockConnection();
 			await boostUtils.activateBoostModule( 'critical_css' );
 		} );
 
