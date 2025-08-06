@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Forms: Fix rating field causing unsaved post state by replacing useEffect pattern with BlockContextProvider

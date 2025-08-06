@@ -3,13 +3,14 @@ import {
 	useInnerBlocksProps,
 	InspectorControls,
 	BlockControls,
+	BlockContextProvider,
 } from '@wordpress/block-editor';
 import {
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	PanelBody,
 	RangeControl,
 } from '@wordpress/components';
-import { useEffect, useCallback } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import RatingToolbar from '../shared/components/rating-toolbar';
@@ -48,10 +49,6 @@ export default function RatingFieldEdit( props ) {
 		[ max, setAttributes ]
 	);
 
-	useEffect( () => {
-		setAttributes( { onChangeDefault } );
-	}, [ onChangeDefault, setAttributes ] );
-
 	const updateClassName = newClassName => {
 		setAttributes( { className: newClassName } );
 	};
@@ -89,7 +86,16 @@ export default function RatingFieldEdit( props ) {
 				/>
 			</BlockControls>
 
-			<div { ...innerBlocksProps } />
+			<BlockContextProvider
+				value={ {
+					'jetpack/field-rating-max': max,
+					'jetpack/field-rating-default': defaultValue,
+					'jetpack/field-rating-className': className,
+					'jetpack/field-rating-onChangeDefault': onChangeDefault,
+				} }
+			>
+				<div { ...innerBlocksProps } />
+			</BlockContextProvider>
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
