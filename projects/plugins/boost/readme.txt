@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.3.0-beta - 2025-08-05
+### 4.3.0 - 2025-08-06
 #### Added
 - Page Cache: Ignore Yandex parameters so those visitors are served from the cache.
 
