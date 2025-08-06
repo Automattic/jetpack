@@ -64,10 +64,7 @@ test.describe( 'Cornerstone Pages', () => {
 		).toBeVisible();
 
 		// Check the homepage label
-		await expect(
-			page.locator( 'text=Homepage:' ),
-			'Homepage label should be visible'
-		).toBeVisible();
+		await expect( page.getByText( 'Homepage:' ), 'Homepage label should be visible' ).toBeVisible();
 	} );
 
 	test( 'Should allow adding valid custom cornerstone pages on free plan', async ( {
@@ -81,7 +78,7 @@ test.describe( 'Cornerstone Pages', () => {
 
 		// Verify the page was added (should show "Homepage + 1 page" in the title summary)
 		await expect(
-			page.locator( 'text=Homepage + 1 page' ),
+			page.getByText( 'Homepage + 1 page' ),
 			'Should display correct page count in summary'
 		).toBeVisible();
 	} );
@@ -116,7 +113,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.enterCornerstonePageUrl( testUrls );
 
 		await expect(
-			page.locator( 'text=You can add only 1 cornerstone page URL' ),
+			page.getByText( 'You can add only 1 cornerstone page URL' ),
 			'Should show limit error for free plan'
 		).toBeVisible();
 

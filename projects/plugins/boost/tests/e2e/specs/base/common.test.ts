@@ -43,7 +43,6 @@ test.describe( 'Common tests', () => {
 		testUtils,
 		admin,
 		page,
-		jetpackBoostPage,
 	} ) => {
 		// Generate Critical CSS to ensure that on plugin deactivation it is cleared.
 		// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
@@ -54,8 +53,14 @@ test.describe( 'Common tests', () => {
 
 		await test.step( 'Navigate to Boost settings and verify Critical CSS generation', async () => {
 			await admin.visitAdminPage( 'admin.php', 'page=jetpack-boost' );
-			await jetpackBoostPage.expectCriticalCssGenerationProgressUIToBeVisible();
-			await jetpackBoostPage.expectCriticalCssMetaInfoToBeVisible();
+			await expect(
+				page.locator( '.jb-critical-css-progress' ),
+				'Critical CSS generation progress indicator should be visible'
+			).toBeVisible();
+			await expect(
+				page.getByTestId( 'critical-css-meta' ),
+				'Critical CSS meta information should be visible'
+			).toBeVisible( { timeout: 4 * 60 * 1000 } );
 		} );
 
 		await test.step( 'Deactivate Jetpack Boost plugin', async () => {
@@ -83,8 +88,5 @@ test.describe( 'Common tests', () => {
 				'jb-critical-css-dismissed-recommendations option is not found in DB'
 			).toBe( 0 );
 		} );
-
-		// Ensure the plugin is activated again so future tests can run reset commands via withCleanEnv.
-		await testUtils.executeWpCommand( 'plugin activate jetpack-boost' );
 	} );
 } );

@@ -47,12 +47,10 @@ test.describe.serial( 'Critical CSS module', () => {
 	} ) => {
 		await testUtils.deactivateBoostModule( 'critical_css' );
 		await page.goto( '/' );
-		expect(
-			await page.locator( '#jetpack-boost-critical-css' ).count( {
-				timeout: 5 * 1000,
-			} ),
+		await expect(
+			page.locator( '#jetpack-boost-critical-css' ),
 			'No Critical CSS should be displayed'
-		).toBe( 0 );
+		).toHaveCount( 0 );
 	} );
 
 	test( 'Critical CSS should be generated when the module is active', async ( {

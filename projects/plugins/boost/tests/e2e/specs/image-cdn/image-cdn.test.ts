@@ -37,7 +37,7 @@ test.describe( 'Image CDN', () => {
 
 		expect(
 			// The image is added via a helper plugin.
-			await page.locator( '[id="e2e-test-image"]' ).getAttribute( 'src' ),
+			await page.locator( '#e2e-test-image' ).getAttribute( 'src' ),
 			'Image shouldn`t use CDN'
 		).not.toMatch( /https:\/\/.*\.wp\.com/ );
 	} );
@@ -66,7 +66,7 @@ test.describe( 'Image CDN', () => {
 
 		expect(
 			// The image is added via a helper plugin.
-			await page.locator( '[id="e2e-test-image"]' ).getAttribute( 'src' ),
+			await page.locator( '#e2e-test-image' ).getAttribute( 'src' ),
 			'Image should use CDN'
 		).toMatch( /https:\/\/.*\.wp\.com/ );
 	} );

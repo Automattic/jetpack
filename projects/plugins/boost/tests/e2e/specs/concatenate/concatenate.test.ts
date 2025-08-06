@@ -24,11 +24,11 @@ test.describe( 'Concatenate JS and CSS', () => {
 		} );
 
 		await expect(
-			page.locator( '[data-testid="meta-minify_js_excludes"]' ),
+			page.getByTestId( 'meta-minify_js_excludes' ),
 			'Concatenate JS meta information should not be visible'
 		).toBeHidden();
 		await expect(
-			page.locator( '[data-testid="meta-minify_css_excludes"]' ),
+			page.getByTestId( 'meta-minify_css_excludes' ),
 			'Concatenate CSS meta information should not be visible'
 		).toBeHidden();
 	} );
@@ -43,16 +43,20 @@ test.describe( 'Concatenate JS and CSS', () => {
 			await page.goto( '/' );
 		} );
 
-		expect(
+		await expect( async () => {
 			// This script is enqueued via a helper plugin.
-			( await page.locator( '[id="e2e-script-one-js"]' ).count() ) > 0,
-			'JS concatenation shouldn`t occur when the module is inactive'
-		).toBeTruthy();
-		expect(
+			expect(
+				( await page.locator( '#e2e-script-one-js' ).count() ) > 0,
+				'JS concatenation shouldn`t occur when the module is inactive'
+			).toBeTruthy();
+		} ).toPass();
+		await expect( async () => {
 			// This style is enqueued via a helper plugin.
-			( await page.locator( '[id="e2e-style-one-css"]' ).count() ) > 0,
-			'CSS concatenation shouldn`t occur when the module is inactive'
-		).toBeTruthy();
+			expect(
+				( await page.locator( '#e2e-style-one-css' ).count() ) > 0,
+				'CSS concatenation shouldn`t occur when the module is inactive'
+			).toBeTruthy();
+		} ).toPass();
 	} );
 
 	test( 'Meta information should be visible when the modules are active', async ( {
@@ -66,7 +70,7 @@ test.describe( 'Concatenate JS and CSS', () => {
 		} );
 
 		await expect(
-			page.locator( '[data-testid="meta-minify_css_excludes"]' ),
+			page.getByTestId( 'meta-minify_css_excludes' ),
 			'Concatenate CSS meta information should be visible'
 		).toBeVisible();
 	} );
@@ -109,13 +113,13 @@ test.describe( 'Concatenate JS and CSS', () => {
 
 		await expect( async () => {
 			// jQuery is enqueued by a helper plugin.
-			const count = await page.locator( '[id="jquery-core-js"]' ).count();
+			const count = await page.locator( '#jquery-core-js' ).count();
 			expect( count, 'jQuery should not be concatenated' ).toBeGreaterThan( 0 );
 		} ).toPass( { timeout: 10000 } );
 
 		await expect( async () => {
 			// Admin bar stylesheet is enqueued by default when logged-in.
-			const count = await page.locator( '[id="admin-bar-css"]' ).count();
+			const count = await page.locator( '#admin-bar-css' ).count();
 			expect( count, 'Admin bar stylesheet should not be concatenated' ).toBeGreaterThan( 0 );
 		} ).toPass( { timeout: 10000 } );
 	} );

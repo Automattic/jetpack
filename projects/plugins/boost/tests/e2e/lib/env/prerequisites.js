@@ -342,6 +342,7 @@ async function ensureTestPosts( testPostTitles ) {
 async function ensureCleanState( shouldReset ) {
 	if ( shouldReset ) {
 		logger.prerequisites( 'Resetting Jetpack Boost' );
+		await executeWpCommand( 'plugin activate jetpack-boost' );
 		await executeWpCommand( 'jetpack-boost reset' );
 	}
 }

@@ -117,28 +117,6 @@ export default class JetpackBoostPage {
 			} before toggling`
 		).toBeChecked( { checked: targetState } );
 
-		// if ( targetState ) {
-		// 	await expect(
-		// 		checkbox,
-		// 		`Checkbox for ${ moduleName } should be unchecked before toggling`
-		// 	).not.toBeChecked();
-		// 	await checkbox.check();
-		// 	await expect(
-		// 		checkbox,
-		// 		`Checkbox for ${ moduleName } should be checked after toggling`
-		// 	).toBeChecked();
-		// } else {
-		// 	await expect(
-		// 		checkbox,
-		// 		`Checkbox for ${ moduleName } should be checked before toggling`
-		// 	).toBeChecked();
-		// 	await checkbox.uncheck();
-		// 	await expect(
-		// 		checkbox,
-		// 		`Checkbox for ${ moduleName } should be unchecked after toggling`
-		// 	).not.toBeChecked();
-		// }
-
 		if ( checkForNotice ) {
 			// Wait for the success notice to appear after toggling the module
 			await expect(
@@ -149,28 +127,6 @@ export default class JetpackBoostPage {
 			).toBeVisible();
 		}
 	}
-
-	// async waitForModuleState( moduleName, expectedState = true ) {
-	// 	console.log( 'before >', expectedState );
-	// 	const toggleSwitch = this.page.locator(
-	// 		`.jb-feature-toggle-${ moduleName } .components-form-toggle`
-	// 	);
-
-	// 	// Wait for the toggle to reach the expected state
-	// 	await toggleSwitch.waitFor();
-
-	// 	// Wait for the element to have the expected class state
-	// 	await expect( async () => {
-	// 		const classNames = await toggleSwitch.getAttribute( 'class' );
-	// 		const isChecked = classNames?.includes( 'is-checked' );
-	// 		return expectedState ? isChecked : ! isChecked;
-	// 	} ).toPass( { timeout: 10_000 } );
-
-	// 	// Return whether the expected state was achieved
-	// 	const classNames = await toggleSwitch.getAttribute( 'class' );
-	// 	const actualState = classNames?.includes( 'is-checked' );
-	// 	return actualState === expectedState;
-	// }
 
 	async getSpeedScore( platform ) {
 		const parent = `div.jb-score-bar--${ platform }  .jb-score-bar__filler`;
@@ -187,27 +143,6 @@ export default class JetpackBoostPage {
 	async isScorebarLoading( platform ) {
 		const selector = `div.jb-score-bar--${ platform }  .jb-score-bar__loading`;
 		return this.page.isVisible( selector );
-	}
-
-	async expectCriticalCssMetaInfoToBeVisible() {
-		await expect(
-			this.page.getByTestId( 'critical-css-meta' ),
-			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 4 * 60 * 1000 } );
-	}
-
-	async expectCriticalCssGenerationProgressUIToBeVisible() {
-		await expect(
-			this.page.locator( '.jb-critical-css-progress' ),
-			'Critical CSS generation progress indicator should be visible'
-		).toBeVisible();
-	}
-
-	async isCriticalCSSAdvancedRecommendationsVisible() {
-		const selector = '.jb-critical-css__advanced';
-		// return this.waitForElementToBeVisible( selector );
-		// todo replace with expect(locator).toBeVisible()
-		return this.page.locator( selector ).waitFor();
 	}
 
 	async waitForPageCacheMetaInfoVisibility() {
@@ -335,7 +270,11 @@ export default class JetpackBoostPage {
 		).toBeVisible();
 	}
 
-	async togglePrerenderOption( enabled ) {
+	/**
+	 * Toggles the prerender option for Cornerstone Pages.
+	 * @param {boolean} enabled - Whether to enable or disable prerendering.
+	 */
+	async togglePrerenderOption( enabled: boolean ) {
 		const toggle = this.page.locator( '[data-testid="prerender-cornerstone-pages-title"] input' );
 		const isCurrentlyChecked = await toggle.isChecked();
 
