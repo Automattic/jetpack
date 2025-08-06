@@ -13,7 +13,7 @@ import './search-result-expanded.scss';
  * @return {Element} - Expanded search result component.
  */
 export default function SearchResultExpanded( props ) {
-	const { isMultiSite, locale = 'en-US', showPostDate } = props;
+	const { isMultiSite, locale = 'en-US', showPostDate, overlayOptions = {} } = props;
 	const { result_type, fields, highlight } = props.result;
 
 	if ( result_type !== 'post' ) {
@@ -34,9 +34,45 @@ export default function SearchResultExpanded( props ) {
 		return cats;
 	};
 
-	const firstImage = Array.isArray( fields[ 'image.url.raw' ] )
+	// Get the original image URL
+	let firstImage = Array.isArray( fields[ 'image.url.raw' ] )
 		? fields[ 'image.url.raw' ][ 0 ]
 		: fields[ 'image.url.raw' ];
+
+	// Apply filters to the image URL
+	if ( window.wp && window.wp.hooks ) {
+		firstImage = window.wp.hooks.applyFilters(
+			'jetpack.instantSearch.searchResultImageUrl',
+			firstImage,
+			{
+				fields,
+				postType: fields.post_type,
+				postId: fields.post_id,
+				overlayOptions,
+			}
+		);
+	}
+
+	// If no image and fallback is enabled, get fallback image
+	if ( ! firstImage && overlayOptions.enableFallbackImage && overlayOptions.fallbackImageUrl ) {
+		let fallbackImage = overlayOptions.fallbackImageUrl.replace( /^https?:\/\//, '' );
+
+		// Apply filters to the fallback image URL
+		if ( window.wp && window.wp.hooks ) {
+			fallbackImage = window.wp.hooks.applyFilters(
+				'jetpack.instantSearch.searchResultFallbackImage',
+				fallbackImage,
+				{
+					fields,
+					postType: fields.post_type,
+					postId: fields.post_id,
+					overlayOptions,
+				}
+			);
+		}
+
+		firstImage = fallbackImage;
+	}
 
 	if ( Array.isArray( fields.author ) ) {
 		if ( fields.author.length > 3 ) {

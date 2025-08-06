@@ -308,6 +308,7 @@ class SearchApp extends Component {
 							hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 							additionalBlogIds={ this.props.options.additionalBlogIds }
 							showPostDate={ this.state.overlayOptions.enablePostDate }
+							overlayOptions={ this.state.overlayOptions }
 						/>
 					</Overlay>,
 					document.body
