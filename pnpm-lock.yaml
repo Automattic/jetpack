@@ -392,6 +392,9 @@ importers:
         specifier: 2.5.0
         version: 2.5.0
     devDependencies:
+      '@automattic/babel-plugin-preserve-i18n':
+        specifier: 1.0.0
+        version: 1.0.0
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
@@ -413,6 +416,9 @@ importers:
       '@babel/preset-typescript':
         specifier: 7.27.1
         version: 7.27.1(@babel/core@7.28.0)
+      '@rollup/plugin-babel':
+        specifier: 6.0.4
+        version: 6.0.4(@babel/core@7.28.0)(rollup@3.29.5)
       '@rollup/plugin-commonjs':
         specifier: 26.0.1
         version: 26.0.1(rollup@3.29.5)
