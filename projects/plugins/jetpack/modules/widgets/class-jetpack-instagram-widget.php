@@ -8,6 +8,10 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * This is the actual Instagram widget along with other code that only applies to the widget.
  */

@@ -13,6 +13,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
 
 if ( ! function_exists( 'wpme_dec2sixtwo' ) ) {

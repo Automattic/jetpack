@@ -16,6 +16,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 $GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 Assets::add_resource_hint( '//c0.wp.com', 'preconnect' );
