@@ -605,8 +605,18 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 
 	$token = \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
 
-	// If we have a token, cache it for a day.
-	if ( ! is_wp_error( $token ) ) {
+	/*
+	 * We want to cache 2 types of responses:
+	 * - Successful responses with a token.
+	 * - WP_Error responses that denote a WordPress.com connection issue.
+	 */
+	if (
+		! is_wp_error( $token )
+		|| (
+			is_wp_error( $token )
+			&& 'rest_unauthorized' === $token->get_error_code()
+		)
+	) {
 		set_transient( $transient_name, $token, DAY_IN_SECONDS );
 	}
 
