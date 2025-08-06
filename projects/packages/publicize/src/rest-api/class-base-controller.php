@@ -88,23 +88,25 @@ abstract class Base_Controller extends WP_REST_Controller {
 			);
 		}
 
-		if ( ! $this->allow_requests_as_blog || ! self::is_authorized_blog_request() ) {
+		if ( $this->allow_requests_as_blog && self::is_authorized_blog_request() ) {
+			return true;
+		} else {
 			return new WP_Error(
 				'rest_unauthorized',
-				__( 'You must be connected to WordPress.com to access this data.', 'jetpack-publicize-pkg' ),
+				__( 'Please connect your user account to WordPress.com', 'jetpack-publicize-pkg' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
 
-		if ( ! $publicize->current_user_can_access_publicize_data() ) {
-			return new WP_Error(
-				'invalid_user_permission_publicize',
-				__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack-publicize-pkg' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
+		if ( $publicize->current_user_can_access_publicize_data() ) {
+			return true;
 		}
 
-		return true;
+		return new WP_Error(
+			'invalid_user_permission_publicize',
+			__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack-publicize-pkg' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**
