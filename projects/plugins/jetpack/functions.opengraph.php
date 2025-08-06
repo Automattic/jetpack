@@ -13,6 +13,7 @@
 
 use Automattic\Block_Scanner;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Host;
 
 add_action( 'wp_head', 'jetpack_og_tags' );
@@ -415,10 +416,16 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
 	}
 
-	// Only attempt to generate a dynamic fallback image if we have a healthy connection to WPCOM.
+	/*
+	 * Only attempt to generate a dynamic fallback image
+	 * if we have a healthy connection to WPCOM.
+	 * and if the site has the right plan.
+	 */
 	if (
-		( new Host() )->is_wpcom_simple()
+		( ( new Host() )->is_wpcom_simple()
 		|| ( new Connection_Manager() )->is_connected()
+		)
+		&& Current_Plan::supports( 'social-image-generator' )
 	) {
 		/**
 		 * Allow filtering the template to use with Social Image Generator.
