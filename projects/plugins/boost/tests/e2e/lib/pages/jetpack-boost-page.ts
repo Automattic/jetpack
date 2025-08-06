@@ -1,10 +1,6 @@
 import { expect, Page } from '@playwright/test';
 import logger from '_jetpack-e2e-commons/logger.js';
 
-// const apiEndpointsRegex = {
-// 	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
-// };
-
 export default class JetpackBoostPage {
 	page: Page;
 
@@ -12,12 +8,11 @@ export default class JetpackBoostPage {
 		this.page = page;
 	}
 
+	/**
+	 * Visit the Jetpack Boost page in the WordPress admin.
+	 */
 	async visit() {
 		await this.page.goto( '/wp-admin/admin.php?page=jetpack-boost' );
-	}
-
-	async getCornerstonePagesTextarea() {
-		return this.page.locator( '#jb-cornerstone-pages' );
 	}
 
 	/**
@@ -28,66 +23,8 @@ export default class JetpackBoostPage {
 		await button.click();
 
 		// We should wait a longer time to ensure the connection/plan is complete/established.
-		await this.isOverallScoreHeaderShown( 30 * 1000 );
+		await this.expectScoreToBeLoading();
 	}
-
-	// /**
-	//  * Check if the site looks disconnected from WordPress.com based on elements on the dashboard page.
-	//  * Specifically checks for a "Connect" button.
-	//  *
-	//  * @return {boolean}  - True if the dashboard looks disconnected. (Not offline mode)
-	//  */
-	// async isAwaitingConnection() {
-	// 	// return await this.isElementVisible( '.jb-connection button' );
-	// 	return await this.page.locator( '.jb-connection button' ).isVisible();
-	// }
-
-	// /**
-	//  * Check if the site looks connected to WordPress.com based on elements on the dashboard page.
-	//  * Looks for a "Site Score" area, which is not in "offline" mode.
-	//  *
-	//  * @return {boolean} - True if the dashboard looks connected to WordPRess.com.
-	//  */
-	// async isConnected(): Promise< boolean > {
-	// 	const [ showingScoreArea, isOffline ] = await Promise.all( [
-	// 		this.page.locator( '[data-testid="speed-scores"]' ).isVisible(),
-	// 		this.page.locator( '[data-testid="speed-scores-offline"]' ).isVisible(),
-	// 	] );
-
-	// 	return showingScoreArea && ! isOffline;
-	// }
-
-	async isOverallScoreHeaderShown( timeout? ) {
-		return await this.page.locator( '[data-testid="speed-scores"]' ).isVisible( { timeout } );
-	}
-
-	// async isSiteScoreLoading() {
-	// 	const selector = this.page.locator( '[data-testid="speed-scores"]' );
-	// 	const classNames = await selector.getAttribute( 'class' );
-	// 	return classNames?.includes( 'loading' );
-	// }
-
-	// async waitForApiResponse( apiEndpointId, moduleName, expectedState ) {
-	// 	await this.page.waitForResponse(
-	// 		async response => {
-	// 			const isSuccess = response.status() === 200;
-	// 			if ( ! isSuccess ) {
-	// 				return false;
-	// 			}
-
-	// 			const isMatch = response.url().match( apiEndpointsRegex[ apiEndpointId ] );
-	// 			if ( ! isMatch ) {
-	// 				return false;
-	// 			}
-
-	// 			const body = ( await response.json() )?.JSON;
-	// 			console.log( `body[ ${ moduleName } ]?.active >`, body[ moduleName ]?.active );
-	// 			console.log( 'expectedState >', expectedState );
-	// 			return body[ moduleName ]?.active === expectedState;
-	// 		},
-	// 		{ timeout: 2 * 60 * 1000 }
-	// 	);
-	// }
 
 	/**
 	 * Toggle a module and wait for the success notice to appear.
@@ -119,16 +56,16 @@ export default class JetpackBoostPage {
 
 		if ( checkForNotice ) {
 			// Wait for the success notice to appear after toggling the module
-			await expect(
-				this.page
-					.locator( '.components-snackbar' )
-					.getByText( `Module ${ targetState ? 'activated' : 'deactivated' }` ),
-				`Notice for ${ moduleName } should be visible after toggling`
-			).toBeVisible();
+			this.expectNoticeToBeVisible( `Module ${ targetState ? 'activated' : 'deactivated' }` );
 		}
 	}
 
-	async getSpeedScore( platform ) {
+	/**
+	 * Returns the score for a specific platform.
+	 * @param  platform - The platform to get the score for, either 'desktop' or 'mobile'.
+	 * @return {Promise<number>} - The score for the specified platform.
+	 */
+	async getSpeedScore( platform: string ): Promise< number > {
 		const parent = `div.jb-score-bar--${ platform }  .jb-score-bar__filler`;
 
 		const score = this.page.locator( parent + ' .jb-score-bar__score' );
@@ -138,56 +75,6 @@ export default class JetpackBoostPage {
 		} );
 
 		return Number( await score.textContent() );
-	}
-
-	async isScorebarLoading( platform ) {
-		const selector = `div.jb-score-bar--${ platform }  .jb-score-bar__loading`;
-		return this.page.isVisible( selector );
-	}
-
-	async waitForPageCacheMetaInfoVisibility() {
-		const selector = '[data-testid="page-cache-meta"]';
-		// return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
-		// todo replace with expect(locator).toBeVisible()
-		return this.page.locator( selector ).waitFor( { timeout: 3 * 60 * 1000 } );
-	}
-
-	async waitForPageCachePermalinksErrorVisibility() {
-		const selector = '[data-testid="module-page_cache"] >> text=Permalink settings must be updated';
-		// return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
-		// todo replace with expect(locator).toBeVisible()
-		return this.page.locator( selector ).waitFor( { timeout: 3 * 60 * 1000 } );
-	}
-
-	async navigateToMainSettingsPage() {
-		await this.page.click( 'text=Go back' );
-	}
-
-	async clickRefreshSpeedScore() {
-		const selector = '[data-testid="speed-scores-top"] >> text=Refresh';
-		await this.page.click( selector );
-	}
-
-	async waitForScoreLoadingToFinish() {
-		await this.isOverallScoreHeaderShown();
-
-		const selector = '[data-testid="speed-scores-top"] h2:text("Loading…")';
-		/* It needs a large timeout because speed score updates take time */
-		// return this.waitForElementToBeDetached( selector, 180000 ); // 3 minutes
-		await this.page.locator( selector ).waitFor( { state: 'detached', timeout: 180000 } );
-	}
-
-	async isScoreDescriptionPopinVisible() {
-		const selector =
-			'[data-testid="speed-scores-top"] .icon-tooltip-wrapper .components-popover__content';
-		return this.page.isVisible( selector );
-	}
-
-	async isScoreLoading() {
-		await expect( this.page.getByRole( 'heading', { name: 'Loading…' } ) ).toBeVisible();
-		return (
-			( await this.isScorebarLoading( 'desktop' ) ) && ( await this.isScorebarLoading( 'mobile' ) )
-		);
 	}
 
 	/**
@@ -202,7 +89,7 @@ export default class JetpackBoostPage {
 		await expect( async () => {
 			const mobileScore = await this.getSpeedScore( 'mobile' );
 			expect( mobileScore, 'Mobile score should be greater than 0' ).toBeGreaterThan( 0 );
-		} ).toPass( {} );
+		} ).toPass();
 		await expect( async () => {
 			const desktopScore = await this.getSpeedScore( 'desktop' );
 			expect( desktopScore, 'Desktop score should be greater than 0' ).toBeGreaterThan( 0 );
@@ -221,6 +108,23 @@ export default class JetpackBoostPage {
 			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
 			'Overall score heading should not be visible'
 		).toBeHidden();
+	}
+
+	/**
+	 * Waits for a notice to appear and checks its visibility.
+	 * @param {string|RegExp} message - The message to wait for.
+	 */
+	async expectNoticeToBeVisible( message: string | RegExp ) {
+		await expect(
+			this.page.getByTestId( 'snackbar' ).getByText( message ),
+			`Should show ${ message } notice`
+		).toBeVisible();
+	}
+
+	// Cornerstone Pages
+
+	async getCornerstonePagesTextarea() {
+		return this.page.locator( '#jb-cornerstone-pages' );
 	}
 
 	/**
@@ -253,21 +157,6 @@ export default class JetpackBoostPage {
 		await this.enterCornerstonePageUrl( url );
 		await this.page.getByRole( 'button', { name: 'Save' } ).first().click();
 		await this.expectNoticeToBeVisible( 'Cornerstone pages saved' );
-	}
-
-	async getCornerstonePageInputValue() {
-		return ( await this.getCornerstonePagesTextarea() ).inputValue();
-	}
-
-	/**
-	 * Waits for a notice to appear and checks its visibility.
-	 * @param {string|RegExp} message - The message to wait for.
-	 */
-	async expectNoticeToBeVisible( message: string | RegExp ) {
-		await expect(
-			this.page.getByTestId( 'snackbar' ).getByText( message ),
-			`Should show ${ message } notice`
-		).toBeVisible();
 	}
 
 	/**

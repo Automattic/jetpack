@@ -265,7 +265,7 @@ export async function ensureMockConnectionState( mockConnection ) {
 export async function connect( page ) {
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
 	await jetpackBoostPage.chooseFreePlan();
-	await jetpackBoostPage.isOverallScoreHeaderShown();
+	await jetpackBoostPage.expectScoreToBeLoading();
 }
 
 /**
