@@ -8,11 +8,17 @@
 		color: inherit;
 	}
 
-	/* Unfilled ratings need transparent fill to show only stroke */
+	/* Unfilled ratings use stroke only (fill=none in SVG) */
 	.is-rating-unfilled {
 
+		/* Already handled by fill="none" in SVG */
+	}
+
+	/* Filled ratings need fill */
+	.is-rating-filled {
+
 		.jetpack-field-rating__icon path {
-			fill: transparent;
+			fill: currentColor;
 		}
 	}
 }
