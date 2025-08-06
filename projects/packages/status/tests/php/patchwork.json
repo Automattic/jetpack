@@ -1,3 +1,10 @@
 {
-	"redefinable-internals": [ "defined", "constant", "headers_sent", "headers_list", "header" ]
+	"redefinable-internals": [
+		"defined",
+		"constant",
+		"headers_sent",
+		"headers_list",
+		"header",
+		"function_exists"
+	]
 }

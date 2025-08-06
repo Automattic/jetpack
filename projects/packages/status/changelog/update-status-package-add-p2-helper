@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Status: Add two new helper functions for p2 and wpcom site id checks, plus tests
