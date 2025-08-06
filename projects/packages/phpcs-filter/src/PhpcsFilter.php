@@ -2,7 +2,7 @@
 /**
  * Deprecated.
  *
- * @deprecated Since $$next-version$$. Use PHP_CodeSniffer\Filters\Automattic\JetpackPhpcsFilter instead.
+ * @deprecated Since 3.1.0. Use PHP_CodeSniffer\Filters\Automattic\JetpackPhpcsFilter instead.
  * @package automattic/jetpack-phpcs-filter
  */
 
@@ -16,7 +16,7 @@ use PHP_CodeSniffer\Ruleset;
 /**
  * Deprecated.
  *
- * @deprecated Since $$next-version$$. Use PHP_CodeSniffer\Filters\Automattic\JetpackPhpcsFilter instead.
+ * @deprecated Since 3.1.0. Use PHP_CodeSniffer\Filters\Automattic\JetpackPhpcsFilter instead.
  */
 class PhpcsFilter extends JetpackPhpcsFilter {
 
