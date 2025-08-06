@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Open Graph Meta tags: do not attempt to generate a fallback image when the site is not connected to WordPress.com.
