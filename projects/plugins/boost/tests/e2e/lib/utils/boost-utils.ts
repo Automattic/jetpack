@@ -1,4 +1,17 @@
-import { executeJetpackBoostCommand } from './cli';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
+
+/**
+ * Executes a Jetpack Boost CLI command.
+ *
+ * @param {string | string[]} command - Jetpack Boost CLI command (without 'jetpack-boost' prefix)
+ * @return {Promise<string>} Command output
+ */
+export async function executeJetpackBoostCommand( command: string | string[] ): Promise< string > {
+	if ( Array.isArray( command ) ) {
+		return executeWpCommand( [ 'jetpack-boost', ...command ] );
+	}
+	return executeWpCommand( `jetpack-boost ${ command }` );
+}
 
 /**
  * Activates one or more Jetpack modules
