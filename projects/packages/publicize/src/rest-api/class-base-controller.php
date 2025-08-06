@@ -88,8 +88,16 @@ abstract class Base_Controller extends WP_REST_Controller {
 			);
 		}
 
-		if ( $this->allow_requests_as_blog && self::is_authorized_blog_request() ) {
-			return true;
+		if ( $this->allow_requests_as_blog ) {
+			if ( self::is_authorized_blog_request() ) {
+				return true;
+			}
+
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'You must be connected to WordPress.com to access this data.', 'jetpack-publicize-pkg' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 
 		if ( $publicize->current_user_can_access_publicize_data() ) {
