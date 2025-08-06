@@ -461,62 +461,52 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @param int $post_id The ID of the post to resend the email for.
 	 */
 	public function resend_email( $post_id ) {
-		$comment_author_email = false;
+		$response = Feedback::get( $post_id );
+		if ( ! $response ) {
+			return;
+		}
+		// resend the original email
+		$comment_author_email = $response->get_author_email();
 		$reply_to_addr        = false;
 		$message              = '';
 		$to                   = false;
 		$headers              = false;
 		$blog_url             = wp_parse_url( site_url() );
 
-		// resend the original email
-		$email          = get_post_meta( $post_id, '_feedback_email', true );
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+		$email  = get_post_meta( $post_id, '_feedback_email', true );
+		$author = $response->get_author();
 
-		if ( ! empty( $email ) && ! empty( $content_fields ) ) {
-			if ( isset( $content_fields['_feedback_author_email'] ) ) {
-				$comment_author_email = $content_fields['_feedback_author_email'];
-			}
-
-			if ( isset( $email['to'] ) ) {
-				$to = $email['to'];
-			}
-
-			if ( isset( $email['message'] ) ) {
-				$message = $email['message'];
-			}
-
-			if ( isset( $email['headers'] ) ) {
+		if ( isset( $email['headers'] ) ) {
 				$headers = $email['headers'];
-			} else {
-				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
+		} else {
+			$headers = 'From: "' . $author . '" <wordpress@' . $blog_url['host'] . ">\r\n";
 
-				if ( ! empty( $comment_author_email ) ) {
-					$reply_to_addr = $comment_author_email;
-				} elseif ( is_array( $to ) ) {
-					$reply_to_addr = $to[0];
-				}
-
-				if ( $reply_to_addr ) {
-					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
-				}
-
-				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
+			if ( ! empty( $comment_author_email ) ) {
+				$reply_to_addr = $comment_author_email;
+			} elseif ( is_array( $to ) ) {
+				$reply_to_addr = $to[0];
 			}
 
-			/**
-			 * Filters the subject of the email sent after a contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
-			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
-			 */
-			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
+			if ( $reply_to_addr ) {
+				$headers .= 'Reply-To: "' . $author . '" <' . $reply_to_addr . ">\r\n";
+			}
 
-			Contact_Form::wp_mail( $to, $subject, $message, $headers );
+			$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
 		}
+
+		/**
+		 * Filters the subject of the email sent after a contact form submission.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
+		 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
+		 */
+		$subject = $response->get_subject();
+
+		Contact_Form::wp_mail( $to, $subject, $message, $headers );
 	}
 
 	/**
@@ -797,8 +787,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	private function get_integration( $slug ) {
 		$config       = $this->get_supported_integrations()[ $slug ];
 		$status       = $config['type'] === 'plugin'
-			? $this->get_plugin_status( $slug )
-			: $this->get_service_status( $slug );
+		? $this->get_plugin_status( $slug )
+		: $this->get_service_status( $slug );
 		$status['id'] = $slug;
 		return $status;
 	}

@@ -293,7 +293,7 @@ class Feedback {
 	 *
 	 * @return array An array of entry values.
 	 */
-	private function get_entry_values() {
+	public function get_entry_values() {
 		// This is a convenience method to get the entry values in a simple array format.
 		$entry_values = array(
 			'email_marketing_consent' => (string) $this->has_consent ? 'yes' : 'no',
@@ -316,6 +316,40 @@ class Feedback {
 	public function get_all_values() {
 		// This is a legacy method to maintain compatibility with older code.
 		return array_merge( $this->get_compiled_fields( 'default', 'key-value' ), $this->get_entry_values() );
+	}
+
+	/**
+	 * Get all values of the response.
+	 *
+	 * @return array An array of all values, including fields and entry values.
+	 */
+	public function get_all_values_legacy() {
+		return array(
+			'_feedback_author'       => $this->get_author(),
+			'_feedback_author_email' => $this->get_author_email(),
+			'_feedback_author_url'   => $this->get_author_url(),
+			'_feedback_subject'      => $this->get_subject(),
+			'_feedback_ip'           => $this->get_ip_address(),
+			'_feedback_all_fields'   => $this->get_all_values(),
+		);
+	}
+	/**
+	 * Get extra values of the response.
+	 * These are the values that are not part of the main fields.
+	 *
+	 * @return array An array of extra values.
+	 */
+	public function get_extra_values() {
+		$count        = count( $this->fields );
+		$extra_values = array();
+		foreach ( $this->fields as $field ) {
+			if ( ! in_array( $field->get_type(), array( 'name', 'email', 'message' ), true ) ) {
+				$extra_values[ $count . '_' . $field->get_label() ] = $field->get_render_value( 'default' );
+			}
+			++$count; // Increment count to ensure unique keys for extra values.
+		}
+
+		return $extra_values;
 	}
 
 	/**
@@ -615,9 +649,11 @@ class Feedback {
 				'post_parent'    => $this->source->get_id(),
 			)
 		);
+		if ( ! is_wp_error( $post_id ) ) {
+			return $post_id; // Return the error if there is one.
+		}
 
-		$feedback_post = get_post( $post_id );
-		return $feedback_post ?? 0;
+		return 0;
 	}
 
 	/**
