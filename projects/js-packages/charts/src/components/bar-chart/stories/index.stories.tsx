@@ -245,14 +245,14 @@ export const CustomLegendPositioning: Story = {
 		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
 		legendOrientation: 'vertical',
-		legendAlignmentHorizontal: 'right',
+		legendAlignmentHorizontal: 'left',
 		legendAlignmentVertical: 'top',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Bar chart with top-right positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
+					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
 			},
 		},
 	},
