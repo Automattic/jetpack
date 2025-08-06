@@ -7,12 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - 2025-08-06
 ### Changed
-- Scripts: Changed imports for hosting checks. [#43972]
+- Scripts: Change imports for hosting checks. [#43972]
 - Update dependencies. [#43785]
-- Update package dependencies. [#44020]
-- Update package dependencies. [#44148]
-- Update package dependencies. [#44151]
-- Update package dependencies. [#44356]
+- Update package dependencies. [#44020] [#44148] [#44151] [#44356]
 
 ### Removed
 - Utilities: Remove post editor fallback as we no longer need to ensure compatibility. [#44164]
