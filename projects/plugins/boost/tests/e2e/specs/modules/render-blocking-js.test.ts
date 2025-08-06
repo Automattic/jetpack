@@ -10,6 +10,11 @@ test.describe( 'Render Blocking JS module', () => {
 		await boostUtils.createTestPosts( [ testPostTitle ] );
 	} );
 
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
+	} );
+
 	test( 'JavaScript on a post should be at its original position in the document when the module is inactive', async ( {
 		boostUtils,
 		page,

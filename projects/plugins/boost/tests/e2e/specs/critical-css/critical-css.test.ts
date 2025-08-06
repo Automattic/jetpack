@@ -12,6 +12,8 @@ test.describe.serial( 'Critical CSS module', () => {
 	} );
 
 	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
 		await boostUtils.executeWpCommand( 'plugin deactivate e2e-critical-css-force-errors' );
 
 		if ( previousTheme !== null ) {

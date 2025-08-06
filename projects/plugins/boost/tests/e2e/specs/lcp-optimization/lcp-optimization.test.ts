@@ -9,6 +9,8 @@ test.describe( 'LCP Image Optimization module', () => {
 	} );
 
 	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
 		await boostUtils.executeWpCommand( 'plugin deactivate e2e-mock-lcp-optimization-api' );
 	} );
 

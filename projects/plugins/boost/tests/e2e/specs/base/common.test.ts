@@ -8,6 +8,11 @@ test.describe( 'Common tests', () => {
 		await boostUtils.mockSpeedScore();
 	} );
 
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
+	} );
+
 	test( 'Click on the plugins page should navigate to Boost settings page', async ( {
 		admin,
 		page,

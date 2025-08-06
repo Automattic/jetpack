@@ -16,6 +16,10 @@ test.describe.serial( 'Modules', () => {
 		await page.close();
 	} );
 
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockSpeedScore();
+	} );
+
 	modules.forEach( ( [ moduleSlug, moduleState ] ) => {
 		test( `The ${ moduleSlug } module should be ${ moduleState } by default`, async ( {
 			jetpackBoostPage,

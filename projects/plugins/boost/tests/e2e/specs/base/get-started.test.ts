@@ -3,7 +3,6 @@ import { test, expect } from '../../lib/fixtures/test.ts';
 test.describe( 'Getting started page', () => {
 	test.beforeEach( async ( { boostUtils } ) => {
 		await boostUtils.resetEnvironment();
-		await boostUtils.disconnect();
 	} );
 
 	test.beforeEach( async ( { jetpackBoostPage } ) => {
@@ -45,5 +44,7 @@ test.describe( 'Getting started page', () => {
 		await expect( page ).toHaveURL( /page=jetpack-boost(?:#\/)?$/, { timeout: 180000 } );
 
 		await jetpackBoostPage.expectScoreToBeVisible();
+
+		await boostUtils.unMockSpeedScore();
 	} );
 } );

@@ -7,6 +7,11 @@ test.describe( 'Image CDN', () => {
 		await boostUtils.mockSpeedScore();
 	} );
 
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
+	} );
+
 	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async ( {
 		boostUtils,
 		page,

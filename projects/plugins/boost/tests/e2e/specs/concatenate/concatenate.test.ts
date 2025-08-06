@@ -7,6 +7,11 @@ test.describe( 'Concatenate JS and CSS', () => {
 		await boostUtils.mockSpeedScore();
 	} );
 
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
+	} );
+
 	test( 'No Concatenate meta information should show on the admin when the modules are inactive', async ( {
 		boostUtils,
 		jetpackBoostPage,

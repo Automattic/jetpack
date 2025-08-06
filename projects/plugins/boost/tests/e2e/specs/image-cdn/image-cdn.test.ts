@@ -6,6 +6,10 @@ test.describe( 'Image CDN', () => {
 		await boostUtils.mockSpeedScore();
 	} );
 
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockSpeedScore();
+	} );
+
 	test( 'No Image CDN meta information should show on the admin when the module is inactive', async ( {
 		boostUtils,
 		jetpackBoostPage,

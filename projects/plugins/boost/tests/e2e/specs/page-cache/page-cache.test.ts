@@ -16,6 +16,11 @@ test.describe( 'Cache module', () => {
 		await page.close();
 	} );
 
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
+	} );
+
 	// Disabling the module before each test, because each test will decide if
 	// it needs the module enabled or not.
 	test.beforeEach( async ( { boostUtils } ) => {

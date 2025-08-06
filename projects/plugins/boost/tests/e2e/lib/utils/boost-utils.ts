@@ -186,5 +186,7 @@ export async function createTestPosts( testPostTitles: string[] ): Promise< void
 export async function resetEnvironment() {
 	logger.debug( 'Resetting Jetpack Boost' );
 	await executeWpCommand( 'plugin activate jetpack-boost' );
+	await disconnect();
+	await unMockConnection();
 	await executeWpCommand( 'jetpack-boost reset' );
 }

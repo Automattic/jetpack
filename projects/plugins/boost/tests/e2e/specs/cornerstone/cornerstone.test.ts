@@ -9,6 +9,11 @@ test.describe( 'Cornerstone Pages', () => {
 		await boostUtils.mockSpeedScore();
 	} );
 
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
+	} );
+
 	test.beforeEach( async ( { jetpackBoostPage } ) => {
 		await jetpackBoostPage.visit();
 	} );
