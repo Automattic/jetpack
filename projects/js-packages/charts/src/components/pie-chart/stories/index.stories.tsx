@@ -216,6 +216,21 @@ export const Responsiveness: Story = {
 	},
 };
 
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendOrientation: 'horizontal',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Pie chart with horizontal legend displaying data categories.',
+			},
+		},
+	},
+};
+
 export const ErrorStates: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>

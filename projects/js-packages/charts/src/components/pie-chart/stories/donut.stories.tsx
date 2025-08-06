@@ -234,41 +234,12 @@ export const WithTooltipsDoughnut: Story = {
 export const WithLegend: Story = {
 	args: {
 		...Default.args,
-		showLegend: true,
-	},
-};
-
-export const CustomLegendPositioning: Story = {
-	args: {
-		...Default.args,
 		thickness: 0.4,
 		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignmentHorizontal: 'left',
-		legendAlignmentVertical: 'top',
-		data: [
-			{
-				label: 'Desktop',
-				value: 45000,
-				valueDisplay: '45K',
-				percentage: 45,
-			},
-			{
-				label: 'Mobile',
-				value: 35000,
-				valueDisplay: '35K',
-				percentage: 35,
-			},
-			{
-				label: 'Tablet',
-				value: 20000,
-				valueDisplay: '20K',
-				percentage: 20,
-			},
-		],
+		legendOrientation: 'horizontal',
 		children: (
 			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -8 }>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 }>
 					Distribution
 				</Text>
 			</Group>
@@ -277,7 +248,7 @@ export const CustomLegendPositioning: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: 'Donut chart with vertical legend positioned at the top left.',
+				story: 'Donut chart with horizontal legend displaying data distribution.',
 			},
 		},
 	},
