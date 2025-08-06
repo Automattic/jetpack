@@ -22,21 +22,26 @@ class External_Storage {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $event_type  The event type (fallback_empty, fallback_error, unavailable).
+	 * @param string $event_type  The event type (error, empty, unavailable).
 	 * @param string $option_name The option name that triggered the event.
 	 * @param string $details     Additional details about the event.
 	 * @param string $environment The environment identifier (atomic, vip, etc.).
 	 */
 	public static function log_event( $event_type, $option_name, $details = '', $environment = 'unknown' ) {
-		// Only log meaningful events
 		$should_log = false;
 
-		if ( 'fallback_error' === $event_type ) {
-			$should_log = true; // Always log errors
-		} elseif ( 'fallback_empty' === $event_type ) {
-			$should_log = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) || self::is_critical_option( $option_name );
+		if ( 'error' === $event_type ) {
+			// Report external storage errors for supported environments
+			$should_log = self::should_report_for_environment();
+		} elseif ( 'empty' === $event_type ) {
+			// Use delay mechanism to distinguish disconnection from a delay
+			$should_log = self::should_report_for_environment() && self::should_report_empty_state( $option_name );
 		} elseif ( 'unavailable' === $event_type ) {
-			$should_log = ( defined( 'WP_DEBUG' ) && WP_DEBUG );
+			// Log locally but don't report to WordPress.com
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( sprintf( 'External storage unavailable: %s in %s%s', $option_name, $environment, $details ? ' - ' . $details : '' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			return;
 		}
 
 		if ( ! $should_log || ! class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
@@ -66,30 +71,81 @@ class External_Storage {
 	}
 
 	/**
-	 * Check if an option is critical and should always be logged.
+	 * Check if empty state should be reported for this option.
 	 *
-	 * Critical options are essential for Jetpack connection functionality.
+	 * Only certain connection options (like blog_token, id) trigger empty state
+	 * reporting with the 10-minute delay mechanism. Other options are ignored.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param string $option_name The option name.
-	 * @return bool True if critical, false otherwise.
+	 * @return bool True if empty state should be reported for this option.
 	 */
-	public static function is_critical_option( $option_name ) {
+	public static function should_report_empty_for_option( $option_name ) {
 		/**
-		 * Filter the list of critical external storage options.
-		 *
-		 * Critical options have their fallback events logged even when not in debug mode.
+		 * Filter the list of options that trigger empty state reporting.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array $critical_options Array of critical option names.
+		 * @param array $reportable_options Array of option names that should trigger empty state reporting.
 		 */
-		$critical_options = apply_filters(
-			'jetpack_external_storage_critical_options',
+		$reportable_options = apply_filters(
+			'jetpack_external_storage_reportable_empty_options',
 			array( 'blog_token', 'id' )
 		);
 
-		return in_array( $option_name, $critical_options, true );
+		return in_array( $option_name, $reportable_options, true );
+	}
+
+	/**
+	 * Determine if the current environment should report external storage errors.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True if this environment should report external storage errors.
+	 */
+	private static function should_report_for_environment() {
+		if ( defined( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) && constant( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determine if we should report an empty state based on delay mechanism.
+	 * We need this due to delays in writing in external storage vs writing into the database.
+	 * On first encounter of empty state, sets a transient. On subsequent encounters
+	 * after 10 minutes, allows reporting (indicating likely disconnection, not sync delay).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $option_name The option name that was empty.
+	 * @return bool True if we should report this empty state, false otherwise.
+	 */
+	private static function should_report_empty_state( $option_name ) {
+		// Only report empty state for monitored options
+		if ( ! self::should_report_empty_for_option( $option_name ) ) {
+			return false;
+		}
+
+		$delay_key        = 'jetpack_external_storage_empty_delay_' . $option_name;
+		$first_empty_time = get_transient( $delay_key );
+
+		if ( false === $first_empty_time ) {
+			// First time encountering empty state - set delay transient and don't report yet
+			set_transient( $delay_key, time(), 15 * MINUTE_IN_SECONDS ); // Keep for 15 minutes
+			return false;
+		}
+
+		// Check if 10 minutes have passed since first empty encounter
+		$delay_threshold = 10 * MINUTE_IN_SECONDS;
+		if ( ( time() - $first_empty_time ) >= $delay_threshold ) {
+			// 10+ minutes of empty state - likely disconnection, report it
+			delete_transient( $delay_key );
+			return true;
+		}
+
+		return false;
 	}
 }

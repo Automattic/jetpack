@@ -125,9 +125,8 @@ class Error_Handler {
 		'invalid_nonce',
 		'signature_mismatch',
 		'invalid_connection_owner',
-		'external_storage_fallback_empty',
-		'external_storage_fallback_error',
-		'external_storage_unavailable',
+		'external_storage_empty',
+		'external_storage_error',
 	);
 
 	/**
