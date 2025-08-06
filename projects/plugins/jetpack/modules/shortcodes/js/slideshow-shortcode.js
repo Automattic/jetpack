@@ -85,10 +85,11 @@ JetpackSlideshow.prototype.makeZeroWidthSpan = function () {
 
 JetpackSlideshow.prototype.finishInit_ = function () {
 	this.showLoadingImage( false );
-	this.renderControls_();
 
 	var self = this;
 	if ( this.images.length > 1 ) {
+		this.renderControls_();
+
 		// Initialize Cycle instance.
 		jQuery( this.element ).cycle( {
 			fx: this.transition,
