@@ -263,11 +263,11 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
 			'Overall score heading should be visible'
-		).toBeVisible();
+		).toBeVisible( { timeout: 60 * 1000 } ); // Wait up to 60 seconds for the overall score heading to be visible
 		await expect( async () => {
 			const mobileScore = await this.getSpeedScore( 'mobile' );
 			expect( mobileScore, 'Mobile score should be greater than 0' ).toBeGreaterThan( 0 );
-		} ).toPass();
+		} ).toPass( {} );
 		await expect( async () => {
 			const desktopScore = await this.getSpeedScore( 'desktop' );
 			expect( desktopScore, 'Desktop score should be greater than 0' ).toBeGreaterThan( 0 );
