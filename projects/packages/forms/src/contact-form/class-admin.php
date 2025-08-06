@@ -205,7 +205,8 @@ class Admin {
 
 		$sheet = Google_Drive::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
 
-		$grunion->record_tracks_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
+		$track_event = new Track_Form_Events();
+		$track_event->record_tracks_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
 
 		wp_send_json(
 			array(
@@ -410,6 +411,9 @@ class Admin {
 	public function grunion_display_form_view() {
 		if ( current_user_can( 'edit_posts' ) ) {
 			Form_View::display();
+
+			$track_event = new Track_Form_Events();
+			$track_event->record_tracks_event( 'forms_open_form_builder' );
 		}
 		exit( 0 );
 	}

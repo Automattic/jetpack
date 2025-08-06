@@ -16,7 +16,6 @@ use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Jetpack_Options;
 use WP_Block;
 use WP_Block_Patterns_Registry;
 use WP_Block_Type_Registry;
@@ -1231,13 +1230,17 @@ class Contact_Form_Plugin {
 		$is_block_template      = str_starts_with( $id, 'block-template-' );
 		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
+		$track_event = new Track_Form_Events();
+
 		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) {
 			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
 			if ( ! $form ) { // fail early if the JWT is invalid.
 				// If the JWT is invalid, we can't process the form.
+				$track_event->record_bump_event( 'form_submission_attempt', 'invalid_jwt' );
 				return false;
 			}
 
+			$track_event->record_bump_event( 'form_submission_attempt', 'valid_jwt' );
 			$form->validate();
 
 			if ( $form->has_errors() ) {
@@ -1248,8 +1251,11 @@ class Contact_Form_Plugin {
 				Post_To_Url::init();
 			}
 			// Process the form
+
 			return $form->process_submission();
 		}
+
+		$track_event->record_bump_event( 'form_submission_attempt', 'missing_jwt' );
 
 		if ( $is_widget ) {
 			// It's a form embedded in a text widget
@@ -2531,8 +2537,9 @@ class Contact_Form_Plugin {
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+		$track_event = new Track_Form_Events();
+		$track_event->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
 
-		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
 		exit( 0 );
 	}
 
@@ -2596,45 +2603,15 @@ class Contact_Form_Plugin {
 	 * @param string $event_name - the name of the event.
 	 * @param array  $event_props - event properties to send.
 	 *
+	 * @deprecated since $$next-version$$ Use Automattic\Jetpack\Tracking instead.
+	 *
 	 * @return null|void
 	 */
 	public function record_tracks_event( $event_name, $event_props ) {
-		/*
-		 * Event details.
-		 */
-		$event_user = wp_get_current_user();
+		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'use  Automattic\Jetpack\Forms\ContactForm\Track_Form_Events()->record_track_event()' );
 
-		/*
-		 * Record event.
-		 * We use different libs on wpcom and Jetpack.
-		 */
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$event_name             = 'wpcom_' . $event_name;
-			$event_props['blog_id'] = get_current_blog_id();
-			// logged out visitor, record event with blog owner.
-			if ( empty( $event_user->ID ) ) {
-				$event_user_id = wpcom_get_blog_owner( $event_props['blog_id'] );
-				$event_user    = get_userdata( $event_user_id );
-			}
-
-			require_lib( 'tracks/client' );
-			tracks_record_event( $event_user, $event_name, $event_props );
-		} else {
-			$user_connected = ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
-			if ( ! $user_connected ) {
-				return;
-			}
-			// logged out visitor, record event with Jetpack master user.
-			if ( empty( $event_user->ID ) ) {
-				$master_user_id = Jetpack_Options::get_option( 'master_user' );
-				if ( ! empty( $master_user_id ) ) {
-					$event_user = get_userdata( $master_user_id );
-				}
-			}
-
-			$tracking = new Tracking();
-			$tracking->record_user_event( $event_name, $event_props, $event_user );
-		}
+		$track_event = new Track_Form_Events();
+		$track_event->record_tracks_event( $event_name, $event_props );
 	}
 
 	/**

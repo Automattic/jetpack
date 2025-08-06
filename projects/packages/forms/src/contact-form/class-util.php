@@ -288,15 +288,13 @@ class Util {
 	public static function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values = array(), $extra_values = array() ) {
 		$post = get_post( $post_id );
 		if ( $post ) {
-			$extra = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
+			$extra = 'in_post';
 		} else {
 			$extra = 'no-post';
 		}
 
-		/** This action is documented in jetpack/modules/widgets/social-media-icons.php */
-		do_action( 'jetpack_bump_stats_extras', 'jetpack_forms_message_sent', $extra );
-
-		$form_type = isset( $extra_values['widget'] ) ? 'widget' : 'block';
+		$track_event = new Track_Form_Events();
+		$track_event->record_bump_event( 'jetpack_forms_message_sent', array( 'extra' => $extra ) );
 
 		$context = '';
 		if ( isset( $extra_values['block_template'] ) ) {
@@ -305,13 +303,11 @@ class Util {
 			$context = 'template_part';
 		}
 
-		$plugin = Contact_Form_Plugin::init();
-
-		$plugin->record_tracks_event(
+		$track_event->record_tracks_event(
 			'jetpack_forms_message_sent',
 			array(
 				'post_id'     => $post_id,
-				'form_type'   => $form_type,
+				'form_type'   => isset( $extra_values['widget'] ) ? 'widget' : 'block',
 				'context'     => $context,
 				'has_consent' => empty( $all_values['email_marketing_consent'] ) ? 0 : 1,
 			)
