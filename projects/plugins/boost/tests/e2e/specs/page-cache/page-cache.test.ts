@@ -1,5 +1,4 @@
 import { test, expect } from '../../lib/fixtures/test.ts';
-import { PermalinksPage } from '../../lib/pages/index.js';
 import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'Cache module', () => {
@@ -10,8 +9,10 @@ test.describe( 'Cache module', () => {
 
 		// Page Cache needs a pretty permalink structure to work properly.
 		const page = await browser.newPage( playwrightConfig.use );
-		const permalinksPage = await PermalinksPage.visit( page );
-		await permalinksPage.useDayNameStructure();
+		// user day name structure
+		await boostUtils.executeWpCommand(
+			'option set permalink_structure "/%year%/%monthnum%/%day%/%postname%/"'
+		);
 		await page.close();
 	} );
 
@@ -62,10 +63,10 @@ test.describe( 'Cache module', () => {
 	test( 'Enabling Page Cache should show error notice when plain permalinks are enabled', async ( {
 		jetpackBoostPage,
 		page,
+		boostUtils,
 	} ) => {
-		const permalinksPage = await PermalinksPage.visit( page );
-		await permalinksPage.usePlainStructure();
-
+		// user plain structure
+		await boostUtils.executeWpCommand( 'option set permalink_structure ""' );
 		await jetpackBoostPage.visit();
 		await jetpackBoostPage.toggleModule( 'page_cache', true, false );
 		await expect(
@@ -78,9 +79,12 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache meta information should show on the admin when the module is active', async ( {
 		jetpackBoostPage,
 		page,
+		boostUtils,
 	} ) => {
-		const permalinksPage = await PermalinksPage.visit( page );
-		await permalinksPage.useDayNameStructure();
+		// user day name structure
+		await boostUtils.executeWpCommand(
+			'option set permalink_structure "/%year%/%monthnum%/%day%/%postname%/"'
+		);
 
 		// Activate the module.
 		await jetpackBoostPage.visit();
