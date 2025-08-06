@@ -171,11 +171,6 @@ export default class JetpackBoostPage {
 		).toBeVisible();
 	}
 
-	// async isTheCriticalCssFailureMessageVisible() {
-	// 	const selector = '[data-testid="critical-css-meta"] .failures';
-	// 	return this.page.isVisible( selector );
-	// }
-
 	async isCriticalCSSAdvancedRecommendationsVisible() {
 		const selector = '.jb-critical-css__advanced';
 		// return this.waitForElementToBeVisible( selector );
@@ -210,16 +205,6 @@ export default class JetpackBoostPage {
 		const selector = '[data-testid="speed-scores-top"] >> text=Refresh';
 		await this.page.click( selector );
 	}
-
-	// async currentPageTitleIs( expected ) {
-	// 	const actualTitle = await this.page.evaluate( () => {
-	// 		const selector = '[data-testid="speed-scores-top"] h2';
-
-	// 		return document.querySelector( selector ).textContent;
-	// 	} );
-
-	// 	return actualTitle.match( expected );
-	// }
 
 	async waitForScoreLoadingToFinish() {
 		await this.isOverallScoreHeaderShown();
@@ -318,47 +303,4 @@ export default class JetpackBoostPage {
 		}
 		await this.expectNoticeToBeVisible( `Prerender ${ enabled ? 'enabled' : 'disabled' }` );
 	}
-
-	// async waitForLcpOptimizationStatus( status, timeout = 30000 ) {
-	// 	// Map status to the expected UI indicators
-	// 	const statusSelectors = {
-	// 		pending: "text=Jetpack Boost is optimizing your Cornerstone Page's LCP for you.",
-	// 		analyzed: 'text=Last optimized',
-	// 		error: '.jb-feature-content-lcp .failures',
-	// 	};
-
-	// 	const selector = statusSelectors[ status ];
-	// 	if ( ! selector ) {
-	// 		throw new Error( `Unknown LCP status: ${ status }` );
-	// 	}
-
-	// 	// return this.waitForElementToBeVisible( selector, timeout );
-	// 	// todo replace with expect(locator).toBeVisible()
-	// 	return this.page.locator( selector ).waitFor( { timeout } );
-	// }
-
-	// async isLcpLastOptimizedVisible() {
-	// 	const selector = '[data-testid="module-lcp"] .successes:has-text("Last optimized")';
-	// 	return this.page.isVisible( selector );
-	// }
-
-	async enableLcpOptimizationButton() {
-		const button = this.page.locator( '[data-testid="module-lcp"] input' );
-		await button.click();
-	}
-
-	async clickLcpOptimizeButton() {
-		const button = this.page.getByRole( 'button', { name: 'Optimize' } );
-		await button.click();
-	}
-
-	async isLcpOptimizeButtonDisabled() {
-		const button = this.page.getByRole( 'button', { name: 'Optimize' } );
-		return await button.isDisabled();
-	}
-
-	// async isLcpBetaPillVisible() {
-	// 	const selector = '[data-testid="module-lcp"] .pill:has-text("Beta")';
-	// 	return this.page.isVisible( selector );
-	// }
 }

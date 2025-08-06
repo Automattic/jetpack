@@ -1,13 +1,10 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { JetpackBoostPage } from '../../lib/pages/index.js';
+import { expect, test } from '../../lib/fixtures/test.ts';
+import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'LCP Image Optimization module', () => {
-	let page;
-
 	test.beforeAll( async ( { browser, testUtils } ) => {
-		page = await browser.newPage( playwrightConfig.use );
+		const page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
 			.withMockConnection( true )
@@ -15,63 +12,67 @@ test.describe( 'LCP Image Optimization module', () => {
 			.build();
 
 		await testUtils.executeWpCommand( 'plugin activate e2e-mock-lcp-optimization-api' );
+		await page.close();
 	} );
 
 	test.afterAll( async ( { testUtils } ) => {
 		await testUtils.executeWpCommand( 'plugin deactivate e2e-mock-lcp-optimization-api' );
-
-		await page.close();
 	} );
 
 	test( 'LCP optimization UI should be toggled off when module is inactive', async ( {
 		testUtils,
+		jetpackBoostPage,
+		page,
 	} ) => {
 		await testUtils.deactivateBoostModule( [ 'lcp' ] );
-		await JetpackBoostPage.visit( page );
+		await jetpackBoostPage.visit();
 
 		await expect(
-			page.locator( '[data-testid="module-lcp"] input' ),
+			page.getByTestId( 'module-lcp' ).getByRole( 'checkbox' ),
 			'LCP optimization UI should not be visible when module is inactive'
 		).not.toBeChecked();
 	} );
 
 	test( 'LCP optimization should start analysis when module is activated', async ( {
 		testUtils,
+		jetpackBoostPage,
+		page,
 	} ) => {
 		await testUtils.deactivateBoostModule( [ 'lcp' ] );
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		await jetpackBoostPage.visit();
 
 		// Don't await the click, as it will trigger the analysis, we will await the status change instead
-		jetpackBoostPage.enableLcpOptimizationButton();
+		await page.getByTestId( 'module-lcp' ).getByRole( 'checkbox' ).check();
 
 		// Should show pending state initially
-		expect(
-			await jetpackBoostPage.waitForLcpOptimizationStatus( 'pending' ),
+		await expect(
+			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
 			'LCP optimization should show pending status during analysis'
-		).toBeTruthy();
-		expect(
-			await jetpackBoostPage.isLcpOptimizeButtonDisabled(),
+		).toBeVisible();
+
+		await expect(
+			page.getByRole( 'button', { name: 'Optimize' } ),
 			'Optimize button should be disabled during pending state'
-		).toBeTruthy();
+		).toBeDisabled();
 
 		// Wait for analysis to complete
-		expect(
-			await jetpackBoostPage.waitForLcpOptimizationStatus( 'analyzed' ),
+		await expect(
+			page.getByText( 'Last optimized' ),
 			'LCP optimization should complete analysis and show analyzed state'
-		).toBeTruthy();
+		).toBeVisible();
 
 		// Click the Optimize button
-		await jetpackBoostPage.clickLcpOptimizeButton();
+		await page.getByRole( 'button', { name: 'Optimize' } ).click();
 
 		// Should show pending state after clicking optimize
-		expect(
-			await jetpackBoostPage.waitForLcpOptimizationStatus( 'pending' ),
+		await expect(
+			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
 			'LCP optimization should show pending status after clicking Optimize button'
-		).toBeTruthy();
+		).toBeVisible();
 
-		expect(
-			await jetpackBoostPage.waitForLcpOptimizationStatus( 'analyzed' ),
+		await expect(
+			page.getByText( 'Last optimized' ),
 			'LCP optimization should complete re-analysis and show analyzed state'
-		).toBeTruthy();
+		).toBeVisible();
 	} );
 } );
