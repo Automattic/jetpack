@@ -12,6 +12,7 @@
  */
 
 use Automattic\Block_Scanner;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 
 add_action( 'wp_head', 'jetpack_og_tags' );
@@ -414,29 +415,26 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
 	}
 
-	/**
-	 * Allow filtering the template to use with Social Image Generator.
-	 * Available templates: highway, dois, fullscreen, edge.
-	 *
-	 * @since 14.9
-	 *
-	 * @param string $template The template to use.
-	 */
-	$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
+	// Only attempt to generate a dynamic fallback image if we have a healthy connection to WPCOM.
+	if (
+		( new Host() )->is_wpcom_simple()
+		|| ( new Connection_Manager() )->is_user_connected()
+	) {
+		/**
+		 * Allow filtering the template to use with Social Image Generator.
+		 * Available templates: highway, dois, fullscreen, edge.
+		 *
+		 * @since 14.9
+		 *
+		 * @param string $template The template to use.
+		 */
+		$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
 
-	// Let's generate the image.
-	$image = jetpack_og_generate_fallback_social_image( $site_image, $template );
-
-	// Final fallback if everything else fails, the blank image.
-	if ( empty( $image['src'] ) ) {
-		return array(
-			'src'    => jetpack_og_get_site_fallback_blank_image(),
-			'width'  => $width,
-			'height' => $height,
-		);
+		// Let's generate the image.
+		$site_image = jetpack_og_generate_fallback_social_image( $site_image, $template );
 	}
 
-	return $image;
+	return $site_image;
 }
 
 /**
