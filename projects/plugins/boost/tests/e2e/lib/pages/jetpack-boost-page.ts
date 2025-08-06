@@ -101,27 +101,43 @@ export default class JetpackBoostPage {
 
 		const checkbox = this.page.getByTestId( `module-${ moduleName }` ).getByRole( 'checkbox' );
 
-		if ( targetState ) {
-			await expect(
-				checkbox,
-				`Checkbox for ${ moduleName } should be unchecked before toggling`
-			).not.toBeChecked();
-			await checkbox.check();
-			await expect(
-				checkbox,
-				`Checkbox for ${ moduleName } should be checked after toggling`
-			).toBeChecked();
-		} else {
-			await expect(
-				checkbox,
-				`Checkbox for ${ moduleName } should be checked before toggling`
-			).toBeChecked();
-			await checkbox.uncheck();
-			await expect(
-				checkbox,
-				`Checkbox for ${ moduleName } should be unchecked after toggling`
-			).not.toBeChecked();
-		}
+		await expect(
+			checkbox,
+			`Checkbox for ${ moduleName } should be ${
+				targetState ? 'unchecked' : 'checked'
+			} before toggling`
+		).toBeChecked( { checked: ! targetState } );
+
+		await checkbox.click();
+
+		await expect(
+			checkbox,
+			`Checkbox for ${ moduleName } should be ${
+				targetState ? 'checked' : 'unchecked'
+			} before toggling`
+		).toBeChecked( { checked: targetState } );
+
+		// if ( targetState ) {
+		// 	await expect(
+		// 		checkbox,
+		// 		`Checkbox for ${ moduleName } should be unchecked before toggling`
+		// 	).not.toBeChecked();
+		// 	await checkbox.check();
+		// 	await expect(
+		// 		checkbox,
+		// 		`Checkbox for ${ moduleName } should be checked after toggling`
+		// 	).toBeChecked();
+		// } else {
+		// 	await expect(
+		// 		checkbox,
+		// 		`Checkbox for ${ moduleName } should be checked before toggling`
+		// 	).toBeChecked();
+		// 	await checkbox.uncheck();
+		// 	await expect(
+		// 		checkbox,
+		// 		`Checkbox for ${ moduleName } should be unchecked after toggling`
+		// 	).not.toBeChecked();
+		// }
 
 		if ( checkForNotice ) {
 			// Wait for the success notice to appear after toggling the module
