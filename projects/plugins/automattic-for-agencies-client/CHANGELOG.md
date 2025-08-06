@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.7.0 - 2025-08-06
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update dependencies. [#43796]
+- Update package dependencies. [#43839] [#44020] [#44148] [#44151] [#44206] [#44217] [#44356]
+
 ## 0.6.0 - 2025-06-04
 ### Changed
 - Code: First pass of style coding standards. [#42734]
