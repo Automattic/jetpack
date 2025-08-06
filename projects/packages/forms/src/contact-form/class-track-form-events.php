@@ -24,7 +24,7 @@ class Track_Form_Events {
 	 *
 	 * @return null|void
 	 */
-	public function record_tracks_event( $event_name, $event_props ) {
+	public function record_tracks_event( $event_name, $event_props = array() ) {
 		/*
 		 * Event details.
 		 */
