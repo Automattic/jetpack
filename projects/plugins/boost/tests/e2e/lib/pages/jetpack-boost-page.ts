@@ -16,6 +16,14 @@ export default class JetpackBoostPage {
 	}
 
 	/**
+	 * Connection flow.
+	 */
+	async connect() {
+		await this.chooseFreePlan();
+		await this.expectScoreToBeLoading();
+	}
+
+	/**
 	 * Select the free plan from getting started page.
 	 */
 	async chooseFreePlan() {

@@ -231,7 +231,8 @@ export async function ensureConnectedState( requiredConnected, page ) {
 		logger.prerequisites( 'Jetpack Boost is already connected, moving on' );
 	} else if ( requiredConnected && ! isConnected ) {
 		logger.prerequisites( 'Connecting Jetpack Boost' );
-		await connect( page );
+		const jetpackBoostPage = new JetpackBoostPage( page );
+		await jetpackBoostPage.connect();
 	} else if ( ! requiredConnected && isConnected ) {
 		logger.prerequisites( 'Disconnecting Jetpack Boost' );
 		await disconnect();
@@ -256,16 +257,6 @@ export async function ensureMockConnectionState( mockConnection ) {
 		// Update the WP option jb_get_started to true.
 		await executeWpCommand( 'option update jb_get_started 1' );
 	}
-}
-
-/**
- * Connect.
- * @param {page} page - Playwright page instance.
- */
-export async function connect( page ) {
-	const jetpackBoostPage = await JetpackBoostPage.visit( page );
-	await jetpackBoostPage.chooseFreePlan();
-	await jetpackBoostPage.expectScoreToBeLoading();
 }
 
 /**
