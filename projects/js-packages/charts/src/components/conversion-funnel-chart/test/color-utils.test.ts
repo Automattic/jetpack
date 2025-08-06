@@ -97,19 +97,19 @@ describe( 'hexToRgba', () => {
 
 			it( 'throws error for invalid hex characters', () => {
 				expect( () => hexToRgba( '#gggggg', 1 ) ).toThrow(
-					'Hex color contains invalid characters. Only 0–9, a–f, A–F are allowed'
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
 				);
 				expect( () => hexToRgba( '#ff00gg', 1 ) ).toThrow(
-					'Hex color contains invalid characters. Only 0–9, a–f, A–F are allowed'
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
 				);
 				expect( () => hexToRgba( '#zz0000', 1 ) ).toThrow(
-					'Hex color contains invalid characters. Only 0–9, a–f, A–F are allowed'
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
 				);
 				expect( () => hexToRgba( '#ff@000', 1 ) ).toThrow(
-					'Hex color contains invalid characters. Only 0–9, a–f, A–F are allowed'
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
 				);
 				expect( () => hexToRgba( '#ff 000', 1 ) ).toThrow(
-					'Hex color contains invalid characters. Only 0–9, a–f, A–F are allowed'
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
 				);
 			} );
 

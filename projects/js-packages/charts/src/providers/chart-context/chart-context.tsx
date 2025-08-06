@@ -1,4 +1,3 @@
-import { __ } from '@wordpress/i18n';
 import { createContext, useContext, useCallback, useState, useMemo } from 'react';
 import type { ChartContextValue, ChartRegistration } from './types';
 import type { FC, ReactNode } from 'react';
@@ -47,9 +46,7 @@ export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
 export const useChartContext = (): ChartContextValue => {
 	const context = useContext( ChartContext );
 	if ( ! context ) {
-		throw new Error(
-			__( 'useChartContext must be used within a ChartProvider', 'jetpack-charts' )
-		);
+		throw new Error( 'useChartContext must be used within a ChartProvider' );
 	}
 	return context;
 };
