@@ -1233,7 +1233,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "781f78eb3303aab7be574e82a0da7d0b22ab6b66"
+                "reference": "2781fe2e68b74e34348f529fd944ce9ac3f638ad"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1257,7 +1257,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.9.x-dev"
+                    "dev-trunk": "0.10.x-dev"
                 }
             },
             "autoload": {
