@@ -17,10 +17,10 @@ test.describe( 'Render Blocking JS module', () => {
 	} );
 
 	test( 'JavaScript on a post should be at its original position in the document when the module is inactive', async ( {
-		testUtils,
+		boostUtils,
 		page,
 	} ) => {
-		await testUtils.deactivateBoostModule( 'render_blocking_js' );
+		await boostUtils.deactivateBoostModule( 'render_blocking_js' );
 		await page.goto( '/' );
 		await page.getByRole( 'link', { name: testPostTitle } ).click();
 		// For this test we are checking if the JavaScript from the test content is still inside its original parent element
@@ -33,13 +33,13 @@ test.describe( 'Render Blocking JS module', () => {
 	} );
 
 	test( 'JavaScript on a post should be pushed at the bottom of the document when the module is active', async ( {
-		testUtils,
+		boostUtils,
 		page,
 	} ) => {
 		// Since the render blocking js module grab all JavaScript from a document and pushed it at the bottom of the DOM.
 		// For this test we are checking if the JavaScript from the test content is not anymore in its parent element.
 		// which has the "render-blocking-js" class.
-		await testUtils.activateBoostModule( 'render_blocking_js' );
+		await boostUtils.activateBoostModule( 'render_blocking_js' );
 		await page.goto( '/' );
 		await page.getByRole( 'link', { name: testPostTitle } ).click();
 		await expect( page.locator( '#blockingScript' ).locator( 'xpath=..' ) ).not.toHaveClass(

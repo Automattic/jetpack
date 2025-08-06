@@ -12,7 +12,6 @@ export function boostPrerequisitesBuilder( page ) {
 	const state = {
 		testPostTitles: [],
 		clean: undefined,
-		modules: { active: undefined, inactive: undefined },
 		connected: undefined,
 		mockConnection: undefined,
 		jetpackDeactivated: undefined,
@@ -67,7 +66,6 @@ export function boostPrerequisitesBuilder( page ) {
  * @param {boolean} state.clean               - Whether to reset the environment.
  * @param {boolean} state.connected           - Whether the site should be connected.
  * @param {object}  state.plugins             - Plugins state, see ensurePluginsState()
- * @param {object}  state.modules             - Modules state, see ensureModulesState()
  * @param {Array}   state.testPostTitles      -
  * @param {boolean} state.mockSpeedScore      -
  * @param {Array}   state.mockPremiumFeatures - Premium features to mock
@@ -77,7 +75,6 @@ export function boostPrerequisitesBuilder( page ) {
  */
 async function buildPrerequisites( state, page ) {
 	const functions = {
-		modules: () => ensureModulesState( state.modules ),
 		connected: () => ensureConnectedState( state.connected, page ),
 		mockConnection: () => ensureMockConnectionState( state.mockConnection ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
@@ -99,26 +96,6 @@ async function buildPrerequisites( state, page ) {
 				throw Error( `Unknown state "${ option }: ${ state[ option ] }"!` );
 			}
 		}
-	}
-}
-
-/**
- * Ensure modules are active/inactive
- * @param {object}   modules          - State
- * @param {string[]} modules.active   - Modules to activate.
- * @param {string[]} modules.inactive - Modules to deactivate.
- */
-export async function ensureModulesState( modules ) {
-	if ( modules.active ) {
-		await activateModules( modules.active );
-	} else {
-		logger.prerequisites( 'Cannot find list of modules to activate!' );
-	}
-
-	if ( modules.inactive ) {
-		await deactivateModules( modules.inactive );
-	} else {
-		logger.prerequisites( 'Cannot find list of modules to deactivate!' );
 	}
 }
 

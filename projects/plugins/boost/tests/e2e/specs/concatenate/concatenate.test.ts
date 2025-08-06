@@ -14,12 +14,12 @@ test.describe( 'Concatenate JS and CSS', () => {
 	} );
 
 	test( 'No Concatenate meta information should show on the admin when the modules are inactive', async ( {
-		testUtils,
+		boostUtils,
 		jetpackBoostPage,
 		page,
 	} ) => {
 		await test.step( 'Deactivate minify_js and minify_css modules and visit Boost page', async () => {
-			await testUtils.deactivateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await boostUtils.deactivateBoostModule( [ 'minify_js', 'minify_css' ] );
 			await jetpackBoostPage.visit();
 		} );
 
@@ -34,11 +34,11 @@ test.describe( 'Concatenate JS and CSS', () => {
 	} );
 
 	test( 'Concatenation shouldn`t occur when the modules are inactive', async ( {
-		testUtils,
+		boostUtils,
 		page,
 	} ) => {
 		await test.step( 'Deactivate minify_js and minify_css modules, setup assets and visit homepage', async () => {
-			await testUtils.deactivateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await boostUtils.deactivateBoostModule( [ 'minify_js', 'minify_css' ] );
 			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
 			await page.goto( '/' );
 		} );
@@ -60,12 +60,12 @@ test.describe( 'Concatenate JS and CSS', () => {
 	} );
 
 	test( 'Meta information should be visible when the modules are active', async ( {
-		testUtils,
+		boostUtils,
 		page,
 		jetpackBoostPage,
 	} ) => {
 		await test.step( 'Activate minify_js and minify_css modules', async () => {
-			await testUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await boostUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
 			await jetpackBoostPage.visit();
 		} );
 
@@ -75,9 +75,9 @@ test.describe( 'Concatenate JS and CSS', () => {
 		).toBeVisible();
 	} );
 
-	test( 'Concatenation occurs when modules are active', async ( { testUtils, page } ) => {
+	test( 'Concatenation occurs when modules are active', async ( { boostUtils, page } ) => {
 		await test.step( 'Activate minify_js and minify_css modules, setup assets and visit homepage', async () => {
-			await testUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await boostUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
 			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
 			await page.goto( '/' );
 		} );
@@ -102,11 +102,11 @@ test.describe( 'Concatenate JS and CSS', () => {
 	} );
 
 	test( 'Assets that are excluded by default shouldn`t be concatenated', async ( {
-		testUtils,
+		boostUtils,
 		page,
 	} ) => {
 		await test.step( 'Activate minify_js and minify_css modules, setup assets and visit homepage', async () => {
-			await testUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
+			await boostUtils.activateBoostModule( [ 'minify_js', 'minify_css' ] );
 			await boostPrerequisitesBuilder( page ).withEnqueuedAssets( true ).build();
 			await page.goto( '/' );
 		} );

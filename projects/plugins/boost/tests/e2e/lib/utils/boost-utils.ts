@@ -22,7 +22,7 @@ export async function executeJetpackBoostCommand( command: string | string[] ): 
 export async function activateBoostModule( modules: string | string[] ): Promise< void > {
 	const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
 	for ( const mod of moduleArray ) {
-		await executeJetpackBoostCommand( `module activate ${ mod }`, true );
+		await executeJetpackBoostCommand( `module activate ${ mod }` );
 	}
 }
 
@@ -35,6 +35,6 @@ export async function activateBoostModule( modules: string | string[] ): Promise
 export async function deactivateBoostModule( modules: string | string[] ): Promise< void > {
 	const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
 	for ( const mod of moduleArray ) {
-		await executeJetpackBoostCommand( `module deactivate ${ mod }`, true );
+		await executeJetpackBoostCommand( `module deactivate ${ mod }` );
 	}
 }

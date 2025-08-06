@@ -21,8 +21,8 @@ test.describe( 'Cache module', () => {
 
 	// Disabling the module before each test, because each test will decide if
 	// it needs the module enabled or not.
-	test.beforeEach( async ( { testUtils } ) => {
-		await testUtils.deactivateBoostModule( 'page_cache' );
+	test.beforeEach( async ( { boostUtils } ) => {
+		await boostUtils.deactivateBoostModule( 'page_cache' );
 	} );
 
 	test( 'No Page Cache meta information should show on the admin when the module is inactive', async ( {
@@ -100,9 +100,9 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should be present when module is active', async ( {
 		browser,
 		baseURL,
-		testUtils,
+		boostUtils,
 	} ) => {
-		await testUtils.activateBoostModule( 'page_cache' );
+		await boostUtils.activateBoostModule( 'page_cache' );
 
 		// Ensure default storageState is empty.
 		const newContext = await browser.newContext( { storageState: {} } );

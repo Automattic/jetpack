@@ -5,7 +5,7 @@ import playwrightConfig from '../../playwright.config.ts';
 test.describe.serial( 'Critical CSS module', () => {
 	let previousTheme = null;
 
-	test.beforeAll( async ( { browser, testUtils } ) => {
+	test.beforeAll( async ( { browser, boostUtils } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
@@ -13,15 +13,15 @@ test.describe.serial( 'Critical CSS module', () => {
 			.withSpeedScoreMocked( true )
 			.build();
 
-		await testUtils.executeWpCommand( 'plugin activate e2e-critical-css-force-errors' );
+		await boostUtils.executeWpCommand( 'plugin activate e2e-critical-css-force-errors' );
 		await page.close();
 	} );
 
-	test.afterAll( async ( { testUtils } ) => {
-		await testUtils.executeWpCommand( 'plugin deactivate e2e-critical-css-force-errors' );
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.executeWpCommand( 'plugin deactivate e2e-critical-css-force-errors' );
 
 		if ( previousTheme !== null ) {
-			await testUtils.executeWpCommand( `theme activate ${ previousTheme }` );
+			await boostUtils.executeWpCommand( `theme activate ${ previousTheme }` );
 		}
 	} );
 
@@ -29,11 +29,11 @@ test.describe.serial( 'Critical CSS module', () => {
 	// which is an onerous task in a test.
 
 	test( 'No Critical CSS meta information should show on the admin when the module is inactive', async ( {
-		testUtils,
+		boostUtils,
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await testUtils.deactivateBoostModule( 'critical_css' );
+		await boostUtils.deactivateBoostModule( 'critical_css' );
 		await jetpackBoostPage.visit();
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
@@ -42,10 +42,10 @@ test.describe.serial( 'Critical CSS module', () => {
 	} );
 
 	test( 'No Critical CSS should be available on the frontend when the module is inactive', async ( {
-		testUtils,
+		boostUtils,
 		page,
 	} ) => {
-		await testUtils.deactivateBoostModule( 'critical_css' );
+		await boostUtils.deactivateBoostModule( 'critical_css' );
 		await page.goto( '/' );
 		await expect(
 			page.locator( '#jetpack-boost-critical-css' ),
@@ -54,11 +54,11 @@ test.describe.serial( 'Critical CSS module', () => {
 	} );
 
 	test( 'Critical CSS should be generated when the module is active', async ( {
-		testUtils,
+		boostUtils,
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await testUtils.activateBoostModule( 'critical_css' );
+		await boostUtils.activateBoostModule( 'critical_css' );
 		await jetpackBoostPage.visit();
 
 		await expect(
@@ -68,12 +68,12 @@ test.describe.serial( 'Critical CSS module', () => {
 	} );
 
 	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async ( {
-		testUtils,
+		boostUtils,
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await testUtils.deactivateBoostModule( 'critical_css' );
-		await testUtils.activateBoostModule( 'critical_css' );
+		await boostUtils.deactivateBoostModule( 'critical_css' );
+		await boostUtils.activateBoostModule( 'critical_css' );
 		await jetpackBoostPage.visit();
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
@@ -90,11 +90,11 @@ test.describe.serial( 'Critical CSS module', () => {
 	} );
 
 	test( 'Critical CSS Admin message should show when the theme is changed', async ( {
-		testUtils,
+		boostUtils,
 		page,
 		admin,
 	} ) => {
-		await testUtils.activateBoostModule( 'critical_css' );
+		await boostUtils.activateBoostModule( 'critical_css' );
 		await admin.visitAdminPage( 'themes.php' );
 		// Remember the current theme so we can switch back to it during cleanup.
 		previousTheme = await page.locator( '.theme.active' ).getAttribute( 'data-slug' );
@@ -115,11 +115,11 @@ test.describe.serial( 'Critical CSS module', () => {
 	} );
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async ( {
-		testUtils,
+		boostUtils,
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await testUtils.activateBoostModule( 'critical_css' );
+		await boostUtils.activateBoostModule( 'critical_css' );
 
 		await jetpackBoostPage.visit();
 

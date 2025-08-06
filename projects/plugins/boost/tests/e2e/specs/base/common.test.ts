@@ -40,7 +40,7 @@ test.describe( 'Common tests', () => {
 	} );
 
 	test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option', async ( {
-		testUtils,
+		boostUtils,
 		admin,
 		page,
 	} ) => {
@@ -48,7 +48,7 @@ test.describe( 'Common tests', () => {
 		// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 		await test.step( 'Setup clean environment and activate critical CSS module', async () => {
 			await boostPrerequisitesBuilder( page ).withCleanEnv( true ).build();
-			await testUtils.activateBoostModule( 'critical_css' );
+			await boostUtils.activateBoostModule( 'critical_css' );
 		} );
 
 		await test.step( 'Navigate to Boost settings and verify Critical CSS generation', async () => {

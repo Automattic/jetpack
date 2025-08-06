@@ -14,10 +14,10 @@ test.describe( 'Image CDN', () => {
 	} );
 
 	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async ( {
-		testUtils,
+		boostUtils,
 		page,
 	} ) => {
-		await testUtils.deactivateBoostModule( 'image_guide' );
+		await boostUtils.deactivateBoostModule( 'image_guide' );
 		await page.goto( '/?p=1' );
 
 		await expect(
@@ -27,10 +27,10 @@ test.describe( 'Image CDN', () => {
 	} );
 
 	test( 'Image Guide functionality should be active when the module is active', async ( {
-		testUtils,
+		boostUtils,
 		page,
 	} ) => {
-		await testUtils.activateBoostModule( 'image_guide' );
+		await boostUtils.activateBoostModule( 'image_guide' );
 		await boostPrerequisitesBuilder( page ).withAppendedImage( true ).build();
 		await page.goto( '/?p=1' );
 

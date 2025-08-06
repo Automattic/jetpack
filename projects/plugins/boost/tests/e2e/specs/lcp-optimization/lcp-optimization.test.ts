@@ -3,7 +3,7 @@ import { expect, test } from '../../lib/fixtures/test.ts';
 import playwrightConfig from '../../playwright.config.ts';
 
 test.describe( 'LCP Image Optimization module', () => {
-	test.beforeAll( async ( { browser, testUtils } ) => {
+	test.beforeAll( async ( { browser, boostUtils } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv()
@@ -11,20 +11,20 @@ test.describe( 'LCP Image Optimization module', () => {
 			.withSpeedScoreMocked( true )
 			.build();
 
-		await testUtils.executeWpCommand( 'plugin activate e2e-mock-lcp-optimization-api' );
+		await boostUtils.executeWpCommand( 'plugin activate e2e-mock-lcp-optimization-api' );
 		await page.close();
 	} );
 
-	test.afterAll( async ( { testUtils } ) => {
-		await testUtils.executeWpCommand( 'plugin deactivate e2e-mock-lcp-optimization-api' );
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.executeWpCommand( 'plugin deactivate e2e-mock-lcp-optimization-api' );
 	} );
 
 	test( 'LCP optimization UI should be toggled off when module is inactive', async ( {
-		testUtils,
+		boostUtils,
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await testUtils.deactivateBoostModule( [ 'lcp' ] );
+		await boostUtils.deactivateBoostModule( [ 'lcp' ] );
 		await jetpackBoostPage.visit();
 
 		await expect(
@@ -34,11 +34,11 @@ test.describe( 'LCP Image Optimization module', () => {
 	} );
 
 	test( 'LCP optimization should start analysis when module is activated', async ( {
-		testUtils,
+		boostUtils,
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await testUtils.deactivateBoostModule( [ 'lcp' ] );
+		await boostUtils.deactivateBoostModule( [ 'lcp' ] );
 		await jetpackBoostPage.visit();
 
 		// Don't await the click, as it will trigger the analysis, we will await the status change instead
