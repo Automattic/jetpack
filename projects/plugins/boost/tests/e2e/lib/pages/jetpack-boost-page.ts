@@ -275,6 +275,20 @@ export default class JetpackBoostPage {
 	}
 
 	/**
+	 * Expects the loading state of the score to be visible.
+	 */
+	async expectScoreToBeLoading() {
+		await expect(
+			this.page.getByRole( 'heading', { name: 'Loading…' } ),
+			'Loading… heading should be visible'
+		).toBeVisible();
+		await expect(
+			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
+			'Overall score heading should not be visible'
+		).toBeHidden();
+	}
+
+	/**
 	 * Opens the Cornerstone Pages panel if not already open and checks if it is visible.
 	 */
 	async openCornerstonePagesPanel() {
