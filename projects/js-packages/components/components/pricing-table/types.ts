@@ -38,6 +38,11 @@ export type PricingTableColumnProps = {
 	 * Items to show in a column.
 	 */
 	children: ReactElement[];
+
+	/**
+	 * Additional CSS class name to apply to the column.
+	 */
+	className?: string;
 };
 
 export type PricingTableHeaderProps = {

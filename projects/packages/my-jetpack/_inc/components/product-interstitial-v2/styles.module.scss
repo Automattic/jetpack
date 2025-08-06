@@ -1,0 +1,47 @@
+// ProductInterstitialV2 specific styles to add borders matching Figma design
+
+// Border styles for pricing columns
+.pricing-column-bordered {
+
+	> :first-child {
+		border-style: solid;
+		border-color: var(--jp-gray-10);
+		border-width: 1.5px 1.5px 0;
+		border-radius: 8px 8px 0 0;
+	}
+
+	> :last-child {
+		border-style: solid;
+		border-color: var(--jp-gray-10);
+		border-width: 0 1.5px 1.5px;
+		border-radius: 0 0 8px 8px;
+	}
+
+	> :not(:first-child):not(:last-child) {
+		border-left: 1.5px solid var(--jp-gray-10);
+		border-right: 1.5px solid var(--jp-gray-10);
+	}
+}
+
+// Primary column with green border
+.pricing-column-primary {
+
+	> :first-child {
+		border-style: solid;
+		border-color: #008710;
+		border-width: 1.5px 1.5px 0;
+		border-radius: 8px 8px 0 0;
+	}
+
+	> :last-child {
+		border-style: solid;
+		border-color: #008710;
+		border-width: 0 1.5px 1.5px;
+		border-radius: 0 0 8px 8px;
+	}
+
+	> :not(:first-child):not(:last-child) {
+		border-left: 1.5px solid #008710;
+		border-right: 1.5px solid #008710;
+	}
+}

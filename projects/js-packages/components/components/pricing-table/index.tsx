@@ -110,11 +110,12 @@ export const PricingTableHeader: FC< PricingTableHeaderProps > = ( { children } 
 export const PricingTableColumn: FC< PricingTableColumnProps > = ( {
 	primary = false,
 	children,
+	className,
 } ) => {
 	let index = 0;
 
 	return (
-		<div className={ clsx( styles.card, { [ styles[ 'is-primary' ] ]: primary } ) }>
+		<div className={ clsx( styles.card, { [ styles[ 'is-primary' ] ]: primary }, className ) }>
 			{ Children.map( children, child => {
 				const item = child as ReactElement<
 					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >

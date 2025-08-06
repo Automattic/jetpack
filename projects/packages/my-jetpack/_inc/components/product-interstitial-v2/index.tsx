@@ -5,6 +5,7 @@ import {
 	PricingTableItem,
 } from '@automattic/jetpack-components';
 import { ReactNode } from 'react';
+import styles from './styles.module.scss';
 
 type Placement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
@@ -68,8 +69,16 @@ const ProductInterstitialV2 = ( {
 					);
 				} );
 
+				const columnClassName = column.primary
+					? styles[ 'pricing-column-primary' ]
+					: styles[ 'pricing-column-bordered' ];
+
 				return (
-					<PricingTableColumn key={ columnIndex } primary={ column.primary }>
+					<PricingTableColumn
+						key={ columnIndex }
+						primary={ column.primary }
+						className={ columnClassName }
+					>
 						{ [
 							<PricingTableHeader key="header">{ column.header }</PricingTableHeader>,
 							...pricingItems,
