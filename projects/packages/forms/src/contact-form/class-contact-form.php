@@ -1056,9 +1056,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		}
 
-		// Sorting lines by the field index
-		ksort( $compiled_form );
-
 		return $compiled_form;
 	}
 
