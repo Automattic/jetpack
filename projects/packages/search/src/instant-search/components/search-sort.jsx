@@ -40,13 +40,10 @@ export default class SearchSort extends Component {
 						id="jetpack-instant-search__search-sort-select"
 						onBlur={ this.handleSelectChange }
 						onChange={ this.handleSelectChange }
+						value={ this.props.value }
 					>
 						{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
-							<option
-								value={ sortKey }
-								key={ sortKey }
-								selected={ this.props.value === sortKey ? 'selected' : '' }
-							>
+							<option value={ sortKey } key={ sortKey }>
 								{ label }
 							</option>
 						) ) }
@@ -62,14 +59,13 @@ export default class SearchSort extends Component {
 			>
 				<div className="screen-reader-text">{ __( 'Sort by:', 'jetpack-search-pkg' ) } </div>
 				{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
-					<>
+					<React.Fragment key={ sortKey }>
 						<button
 							aria-current={ this.props.value === sortKey ? 'true' : 'false' }
 							className={ `jetpack-instant-search__search-sort-option ${
 								this.props.value === sortKey ? 'is-selected' : ''
 							}` }
 							data-value={ sortKey }
-							key={ sortKey }
 							onClick={ this.handleClick }
 						>
 							{ label }
@@ -81,7 +77,7 @@ export default class SearchSort extends Component {
 						) : (
 							''
 						) }
-					</>
+					</React.Fragment>
 				) ) }
 			</div>
 		);
