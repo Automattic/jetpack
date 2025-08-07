@@ -15,6 +15,10 @@
 
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Portfolio' ) ) {
 		// Temporarily require the file here to prevent possible deprecation notices for a short period of time.
