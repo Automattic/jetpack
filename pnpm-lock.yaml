@@ -5636,8 +5636,8 @@ importers:
         specifier: 6.6.3
         version: 6.6.3
       '@wordpress/eslint-plugin':
-        specifier: 22.13.0
-        version: 22.13.0(@babel/core@7.28.0)(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3))(eslint-plugin-jsdoc@51.4.1(eslint@9.32.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0))(eslint-plugin-playwright@2.2.1(eslint@9.32.0))(eslint-plugin-prettier@5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.32.0))(eslint-plugin-react@7.37.5(eslint@9.32.0))(eslint@9.32.0)(typescript@5.8.3)(wp-prettier@3.0.3)
+        specifier: 22.12.0
+        version: 22.12.0(@babel/core@7.28.0)(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3))(eslint-plugin-jsdoc@51.4.1(eslint@9.32.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0))(eslint-plugin-playwright@2.2.1(eslint@9.32.0))(eslint-plugin-prettier@5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.32.0))(eslint-plugin-react@7.37.5(eslint@9.32.0))(eslint@9.32.0)(typescript@5.8.3)(wp-prettier@3.0.3)
       '@wordpress/jest-console':
         specifier: 8.27.0
         version: 8.27.0(jest@30.0.4)
@@ -9193,8 +9193,8 @@ packages:
     resolution: {integrity: sha512-1LBB/xOFBUySSmVpd2nFwIZ8fVnP8dLNFl0wLprHVLtW6ZcdykO2ITY9bkaHu2lZ9HLRgHL7A/3R7MsJ1azYkg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/eslint-plugin@22.13.0':
-    resolution: {integrity: sha512-cD7NpkCwH3bPhNcS16P0SEvlXrlx5XN5yCT7CZo3DReRTFlOMKswIg/csqFgvypIW8L2Qla5Rzva1qVsWnQEvg==}
+  '@wordpress/eslint-plugin@22.12.0':
+    resolution: {integrity: sha512-MBNMbVBMU/NBn3cSa+v/o3Avq6+A0nzVkiLGdvTfE1MG8C9/AQDopV4jA6RN0zAw/vxgEm5roGqU/0QZ8MhoAw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@babel/core': '>=7'
@@ -21725,7 +21725,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
 
-  '@wordpress/eslint-plugin@22.13.0(@babel/core@7.28.0)(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3))(eslint-plugin-jsdoc@51.4.1(eslint@9.32.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0))(eslint-plugin-playwright@2.2.1(eslint@9.32.0))(eslint-plugin-prettier@5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.32.0))(eslint-plugin-react@7.37.5(eslint@9.32.0))(eslint@9.32.0)(typescript@5.8.3)(wp-prettier@3.0.3)':
+  '@wordpress/eslint-plugin@22.12.0(@babel/core@7.28.0)(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3))(eslint-plugin-jsdoc@51.4.1(eslint@9.32.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0))(eslint-plugin-playwright@2.2.1(eslint@9.32.0))(eslint-plugin-prettier@5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.32.0))(eslint-plugin-react@7.37.5(eslint@9.32.0))(eslint@9.32.0)(typescript@5.8.3)(wp-prettier@3.0.3)':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/eslint-parser': 7.27.5(@babel/core@7.28.0)(eslint@9.32.0)
