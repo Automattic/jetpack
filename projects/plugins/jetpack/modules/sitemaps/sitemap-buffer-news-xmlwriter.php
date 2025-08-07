@@ -20,7 +20,6 @@ class Jetpack_Sitemap_Buffer_News_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWr
 		// Add generator comment
 		$this->writer->writeComment( "generator='jetpack-" . JETPACK__VERSION . "'" );
 		$this->writer->writeComment( 'Jetpack_Sitemap_Buffer_News_XMLWriter' );
-		$this->writer->writeComment( 'TEST COMMENT - GENERATED AT: ' . gmdate( 'Y-m-d H:i:s' ) );
 
 		// Add stylesheet
 		$this->writer->writePi(
