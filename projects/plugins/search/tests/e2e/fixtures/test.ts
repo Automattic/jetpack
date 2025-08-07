@@ -359,7 +359,7 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 	 */
 	page: async ( { page }, use ) => {
 		await page.route( SEARCH_API_PATTERN, ( route, request ) => {
-			logger.info( `intercepted search API call: ${ request.url() }` );
+			logger.debug( `intercepted search API call: ${ request.url() }` );
 			const url = new URL( request.url() );
 			const params = url.searchParams;
 
