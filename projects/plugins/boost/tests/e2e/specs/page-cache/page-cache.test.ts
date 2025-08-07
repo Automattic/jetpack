@@ -44,11 +44,11 @@ test.describe( 'Cache module', () => {
 		baseURL,
 	} ) => {
 		// Ensure default storageState is empty.
-		const newContext = await browser.newContext( { storageState: {} } );
+		const newContext = await browser.newContext( { storageState: undefined } );
 		const newPage = await newContext.newPage();
 
 		newPage.on( 'response', response => {
-			if ( response.url().replace( /\/$/, '' ) !== baseURL.replace( /\/$/, '' ) ) {
+			if ( response.url().replace( /\/$/, '' ) !== baseURL?.replace( /\/$/, '' ) ) {
 				return;
 			}
 
