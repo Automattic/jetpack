@@ -173,7 +173,7 @@ function wpcom_add_hosting_menu() {
 	);
 
 	// Temporary "Hosting > Marketing" menu for existing users that shows a callout informing that the screen has moved to "Tools > Marketing".
-	if ( get_current_user_id() < 269660000 ) {
+	if ( get_current_user_id() < 269750000 ) {
 		add_submenu_page(
 			$parent_slug,
 			esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
