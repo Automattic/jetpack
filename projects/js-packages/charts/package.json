@@ -134,7 +134,7 @@
 		"sass-loader": "^16.0.0",
 		"storybook": "9.0.15",
 		"tsconfig-paths-webpack-plugin": "4.2.0",
-		"typescript": "5.8.3",
+		"typescript": "5.9.2",
 		"webpack": "^5.88.0",
 		"webpack-cli": "^6.0.0"
 	},
