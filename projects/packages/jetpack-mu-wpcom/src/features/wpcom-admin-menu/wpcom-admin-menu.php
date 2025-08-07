@@ -265,7 +265,6 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
 		add_submenu_page(
