@@ -344,16 +344,18 @@ trait Woo_Analytics_Trait {
 	 * @return void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null ) {
-		if ( ! isset( $properties['session_id'] ) && $this->is_clickhouse( $event_name ) ) {
+		if ( ! isset( $properties['session_id'] ) && $this->should_send_to_clickhouse( $event_name ) ) {
 			$this->maybe_start_session();
-		}
-
-		if ( ! $this->is_initial_page_view( $event_name ) && ! isset( $properties['is_engaged'] ) && ! $this->is_engaged_session() ) {
-			$this->record_engagement( $properties );
 		}
 
 		$js = $this->process_event_properties( $event_name, $properties, $product_id );
 		wc_enqueue_js( "_wca.push({$js});" );
+
+		// If the event is an initial page view, we don't need to record engagement.
+		if ( $this->is_initial_page_view( $event_name ) ) {
+			return;
+		}
+		$this->maybe_record_engagement( $properties );
 	}
 
 	/**
@@ -362,7 +364,17 @@ trait Woo_Analytics_Trait {
 	 * @param array $properties Optional array of (key => value) event properties.
 	 * @return void
 	 */
-	public function record_engagement( $properties = array() ) {
+	private function maybe_record_engagement( $properties = array() ) {
+		if ( ! $this->is_clickhouse_enabled() ) {
+			// For now, engagement is only recorded when ClickHouse is enabled to prevent changes to current event tracking.
+			return;
+		}
+
+		if ( ! empty( $properties['is_engaged'] ) || $this->is_engaged_session() ) {
+			// Engagement event was already recorded.
+			return;
+		}
+
 		$event_js                    = $this->process_event_properties( 'woocommerceanalytics_session_engagement', $properties );
 		$add_engagement_to_cookie_js = "
 		    const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
@@ -506,7 +518,7 @@ trait Woo_Analytics_Trait {
 		$js = "{'_en': '" . esc_js( $event_name ) . "'";
 
 		// ch param is needed to identify ClickHouse queries in the JS Analytics library.
-		if ( $this->is_clickhouse( $event_name ) ) {
+		if ( $this->should_send_to_clickhouse( $event_name ) ) {
 			$js .= ",'ch':'1'";
 		}
 
@@ -842,13 +854,32 @@ trait Woo_Analytics_Trait {
 	}
 
 	/**
+	 * Check if ClickHouse is enabled.
+	 *
+	 * @return bool
+	 */
+	private function is_clickhouse_enabled() {
+		/**
+		 * Filter to enable/disable ClickHouse event tracking.
+		 *
+		 * @module woocommerce-analytics
+		 *
+		 * @since 0.5.0
+		 *
+		 * @param bool $enabled Whether ClickHouse event tracking is enabled.
+		 */
+		return apply_filters( 'woocommerce_analytics_clickhouse_enabled', false );
+	}
+
+	/**
 	 * Check if the event should be sent to ClickHouse
 	 *
 	 * @param string $event The event name.
 	 * @return bool True if it should be sent to ClickHouse
 	 */
-	private function is_clickhouse( $event ) {
-		return in_array( $event, $this->get_clickhouse_events(), true );
+	private function should_send_to_clickhouse( $event ) {
+		return $this->is_clickhouse_enabled() &&
+			in_array( $event, $this->get_clickhouse_events(), true );
 	}
 
 	/**
