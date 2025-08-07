@@ -20,6 +20,7 @@ const ALLOWED_BLOCKS = [
 	'jetpack/field-date',
 	'jetpack/field-telephone',
 	'jetpack/field-number',
+	'jetpack/field-time',
 	'jetpack/field-textarea',
 	'jetpack/field-checkbox',
 	'jetpack/field-checkbox-multiple',

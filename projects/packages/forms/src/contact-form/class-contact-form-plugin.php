@@ -1086,6 +1086,20 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Render the time field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the time field.
+	 */
+	public static function gutenblock_render_field_time( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'time', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {

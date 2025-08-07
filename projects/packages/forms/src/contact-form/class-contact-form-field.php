@@ -341,6 +341,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$this->add_error( sprintf( __( '%s requires a number.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
+			case 'time':
+				// Make sure the number address is valid
+				if ( ! preg_match( '/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/', $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires a time', 'jetpack-forms' ), $field_label ) );
+				}
+				break;
 			case 'file':
 				// Make sure the file field is not empty
 				if ( ! is_array( $field_value ) || empty( $field_value[0] ) ) {
@@ -730,7 +737,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		// this is a hack for Firefox to prevent users from falsly entering a something other then a number into a number field.
+		// this is a hack for Firefox to prevent users from falsely entering a something other than a number into a number field.
 		if ( $type === 'number' ) {
 			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
 		}
@@ -1489,7 +1496,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for the email field.
+	 * Return the HTML for the date field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -1603,6 +1610,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 			$is_loaded = true;
 		}
+
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the time field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return string HTML
+	 */
+	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->set_invalid_message( 'time', __( 'Please enter a valid time.', 'jetpack-forms' ) );
+
+		$field  = $this->render_label( 'time', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'time', $id, $value, $class, $placeholder, $required );
 
 		return $field;
 	}
@@ -1981,6 +2010,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$required,
 					$required_field_text
 				);
+				break;
+			case 'time':
+				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );

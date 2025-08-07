@@ -149,6 +149,7 @@ class Current_Plan {
 			),
 			'supports' => array(
 				'field-file', // Forms
+				'social-image-generator',
 			),
 		),
 	);

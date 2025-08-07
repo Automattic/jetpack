@@ -74,6 +74,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		'jetpack/field-telephone',
 		'jetpack/field-text',
 		'jetpack/field-textarea',
+		'jetpack/field-time',
 		'jetpack/field-url',
 		'jetpack/gif',
 		'jetpack/goodreads',
