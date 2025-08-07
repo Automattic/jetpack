@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix React browser console warnings in Search configuration page
