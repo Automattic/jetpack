@@ -17,6 +17,10 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Contact_Form_Endpoint
  * Used as 'rest_controller_class' parameter when 'feedback' post type is

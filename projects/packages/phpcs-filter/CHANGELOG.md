@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.0 - 2025-08-06
+### Added
+- Filter may now be loaded by using `--filter=Automattic\JetpackPhpcsFilter` instead of requiring a vendor path. [#44071]
+
+### Deprecated
+- Loading via `--filter=vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php` is deprecated. If you need to use a path rather than a classname, use `vendor/automattic/jetpack-phpcs-filter/src/JetpackPhpcsFilter.php`. [#44071]
+
 ## 3.0.1 - 2025-05-13
 ### Changed
 - Update dependencies. [#42002]

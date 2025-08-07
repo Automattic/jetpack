@@ -193,6 +193,10 @@ ${ postContent }
 		 * when performing a new AI suggestion request.
 		 */
 		dequeueAiAssistantFeatureAsyncRequest();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_request', {
+			feature: 'jetpack-ai-content-lens',
+			model: model,
+		} );
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 

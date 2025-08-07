@@ -7,6 +7,10 @@
 
 declare( strict_types = 1 );
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Core class used to retrieve the block editor assets via the REST API.
  */
@@ -74,6 +78,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		'jetpack/field-telephone',
 		'jetpack/field-text',
 		'jetpack/field-textarea',
+		'jetpack/field-time',
 		'jetpack/field-url',
 		'jetpack/gif',
 		'jetpack/goodreads',

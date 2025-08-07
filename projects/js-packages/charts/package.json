@@ -80,6 +80,7 @@
 		"@visx/text": "^3.12.0",
 		"@visx/tooltip": "^3.12.0",
 		"@visx/xychart": "^3.12.0",
+		"@wordpress/i18n": "^5.26.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
 		"deepmerge": "4.3.1",

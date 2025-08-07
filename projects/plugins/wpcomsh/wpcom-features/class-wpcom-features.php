@@ -700,6 +700,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// EMAIL_PROFESSIONAL - Access to Titan email hosting, often referred to as WordPress.com "Professional Email".
 		self::EMAIL_PROFESSIONAL                => array(
@@ -786,6 +787,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::INSTALL_WOO_ONBOARDING_PLUGINS    => array(
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
@@ -1278,6 +1280,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		/*

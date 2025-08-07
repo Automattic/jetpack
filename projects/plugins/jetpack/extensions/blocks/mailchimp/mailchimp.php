@@ -14,6 +14,10 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable

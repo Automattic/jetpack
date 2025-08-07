@@ -2,14 +2,15 @@ import { createBlock } from '@wordpress/blocks';
 import { __, sprintf } from '@wordpress/i18n';
 
 const textFields = [
-	'jetpack/field-text',
+	'jetpack/field-date',
 	'jetpack/field-email',
 	'jetpack/field-name',
-	'jetpack/field-url',
-	'jetpack/field-telephone',
-	'jetpack/field-textarea',
 	'jetpack/field-number',
-	'jetpack/field-date',
+	'jetpack/field-telephone',
+	'jetpack/field-text',
+	'jetpack/field-textarea',
+	'jetpack/field-time',
+	'jetpack/field-url',
 ];
 
 const choiceFields = [ 'jetpack/field-checkbox-multiple', 'jetpack/field-radio' ];
@@ -55,6 +56,11 @@ const fieldConfig = {
 	'jetpack/field-date': {
 		type: 'text',
 		label: __( 'Date', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
+	},
+	'jetpack/field-time': {
+		type: 'time',
+		label: __( 'Time', 'jetpack-forms' ),
 		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-select': {

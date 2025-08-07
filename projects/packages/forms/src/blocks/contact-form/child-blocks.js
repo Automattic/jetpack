@@ -20,6 +20,7 @@ import JetpackFieldSlider from '../field-slider';
 import JetpackTelephoneField from '../field-telephone';
 import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
+import JetpackTimeField from '../field-time';
 import JetpackUrlField from '../field-url';
 import JetpackProgressIndicator from '../form-progress-indicator';
 import JetpackStep from '../form-step';
@@ -54,7 +55,13 @@ export const childBlocks = [
 	JetpackTextareaField,
 	JetpackFieldFile,
 	...( getJetpackBlocksVariation() === 'beta'
-		? [ JetpackRatingField, JetpackRatingInput, JetpackFieldSlider, JetpackSliderInput ]
+		? [
+				JetpackRatingField,
+				JetpackRatingInput,
+				JetpackFieldSlider,
+				JetpackSliderInput,
+				JetpackTimeField,
+		  ]
 		: [] ),
 
 	// The following are required for these blocks to be parsed correctly in block

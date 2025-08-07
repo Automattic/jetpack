@@ -17,5 +17,6 @@
 - `jetpack/field-text`
 - `jetpack/field-textarea`
 - `jetpack/field-url`
+- `jetpack/field-time`
 
 *\** All `field-` blocks are child blocks of `jetpack/contact-form`.

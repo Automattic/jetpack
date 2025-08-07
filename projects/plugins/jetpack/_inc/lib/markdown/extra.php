@@ -12,6 +12,9 @@
 #
 # Tweaked to remove WordPress interface
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 define( 'MARKDOWN_VERSION',  "1.0.2" ); # 29 Nov 2013
 define( 'MARKDOWNEXTRA_VERSION',  "1.2.8" ); # 29 Nov 2013
