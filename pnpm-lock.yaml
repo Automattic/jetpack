@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-Uk5V4pcQnAzgpogF3Yc61uX6/hoET4e6ZE7Yq+XsDoo=
+pnpmfileChecksum: sha256-80X+LwZzi3B3Ss8BdIhHQSKfInpgGNU9HhlqQqC5EaA=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -5912,7 +5912,7 @@ packages:
     peerDependencies:
       '@wordpress/data': ^10.8.0
       '@wordpress/element': ^6.8.0
-      '@wordpress/i18n': ^5.8.0
+      '@wordpress/i18n': ^6
       debug: ^4.3.3
       react: ^18.3.1
       react-dom: ^18.3.1
