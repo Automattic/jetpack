@@ -265,6 +265,18 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
+	// Jetpack > Newsletter.
+	if ( $is_simple_site ) {
+		add_submenu_page(
+			'jetpack',
+			__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/settings/newsletter/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
+
 	if ( $uses_wp_admin_interface ) {
 		// Jetpack > Activity Log.
 		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
@@ -276,18 +288,6 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/activity-log/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-
-		// Jetpack > Newsletter.
-		if ( $is_simple_site ) {
-			add_submenu_page(
-				'jetpack',
-				__( 'Newsletter', 'jetpack-mu-wpcom' ),
-				__( 'Newsletter', 'jetpack-mu-wpcom' ),
-				'manage_options',
-				'https://wordpress.com/settings/newsletter/' . $domain,
-				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			);
-		}
 	}
 
 	// Re-order menu.
