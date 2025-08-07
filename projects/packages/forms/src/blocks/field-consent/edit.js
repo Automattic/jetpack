@@ -134,9 +134,10 @@ export default function ConsentFieldEdit( props ) {
 	// Ensure the className is set to 'is-style-list' if it is empty or not set.
 	useEffect( () => {
 		if ( className === '' || ! className ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( { className: 'is-style-list' } );
 		}
-	}, [ className, setAttributes ] ); // This effect is a placeholder for any future side effects.
+	}, [ className, setAttributes, __unstableMarkNextChangeAsNotPersistent ] ); // This effect is a placeholder for any future side effects.
 
 	const onShareFieldAttributesChange = useCallback(
 		value => {
