@@ -148,7 +148,8 @@
 		text-wrap: pretty;
 	}
 
-	&__service-icon--google-sheets {
+	&__service-icon--google-sheets,
+	&__service-icon--mailpoet {
 		border-radius: 0 !important;
 	}
 }
