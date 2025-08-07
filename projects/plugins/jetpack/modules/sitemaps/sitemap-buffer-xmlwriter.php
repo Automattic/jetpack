@@ -179,8 +179,10 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 				$this->writer->startElement( $tag );
 				$this->array_to_xml( $value );
 				$this->writer->endElement();
+			} elseif ( 'loc' === $tag || 'image:loc' === $tag || 'video:content_loc' === $tag || 'video:thumbnail_loc' === $tag ) {
+				$this->writer->writeElement( $tag, esc_url( $value ) );
 			} else {
-				$this->writer->writeElement( $tag, strval( $value ) );
+				$this->writer->writeElement( $tag, esc_html( strval( $value ) ) );
 			}
 		}
 	}
