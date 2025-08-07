@@ -1,15 +1,5 @@
 /* Rating input block – front-end styles */
 
-.screen-reader-text {
-	position: absolute !important;
-	clip: rect(1px, 1px, 1px, 1px);
-	word-wrap: normal !important;
-	border: 0;
-	height: 1px;
-	overflow: hidden;
-	width: 1px;
-}
-
 .jetpack-rating-options.has-small-font-size {
 	--rating-icon-size: var(--wp--preset--font-size--small, 13px);
 }
@@ -26,25 +16,11 @@
 	--rating-icon-size: var(--wp--preset--font-size--x-large, 42px);
 }
 
-// Color support: Apply custom color when color is picked
-.jetpack-rating-options.has-text-color.has-text-color {
-	// Apply custom stroke color to ALL rating labels
+// Color support: when a custom text color is picked, let children inherit it
+.jetpack-rating-options.has-text-color {
+
 	.jetpack-field-rating__label {
 		color: inherit;
-
-		.jetpack-field-rating__icon path {
-			stroke: currentColor;
-		}
-	}
-
-	// Apply custom fill color ONLY to active/selected states
-	input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label .jetpack-field-rating__icon path,
-	.jetpack-field-rating__label:hover .jetpack-field-rating__icon path,
-	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label .jetpack-field-rating__icon path,
-	.contact-form-field:has(~ .contact-form-field input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label .jetpack-field-rating__icon path,
-	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option .jetpack-field-rating__label:hover) .jetpack-field-rating__label .jetpack-field-rating__icon path,
-	.contact-form-field:has(~ .contact-form-field .jetpack-field-rating__label:hover) .jetpack-field-rating__label .jetpack-field-rating__icon path {
-		fill: currentColor;
 	}
 }
 
@@ -65,24 +41,20 @@
 		align-items: center;
 	}
 
-	.jetpack-field-rating .jetpack-rating-options .contact-form-field {
+	.jetpack-rating-options .contact-form-field {
 		margin: 0;
 		padding: 0;
 		position: relative;
-		display: inline-block;
-		width: 0;
-		height: 0;
+		display: inline-flex;
+		align-items: center;
 		overflow: visible;
 	}
 
-	// All filled states (checked, hover, and previous siblings)
+	// Filled states: checked, hover, and previous siblings
 	input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
 	.jetpack-field-rating__label:hover,
-	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label,
-	.contact-form-field:has(~ .contact-form-field input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label,
-	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option .jetpack-field-rating__label:hover) .jetpack-field-rating__label,
-	.contact-form-field:has(~ .contact-form-field .jetpack-field-rating__label:hover) .jetpack-field-rating__label {
-		// Removed color rule - now handled by color picker override
+	:is(.wp-block-jetpack-option, .contact-form-field):has(~ :is(.wp-block-jetpack-option, .contact-form-field) input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label,
+	:is(.wp-block-jetpack-option, .contact-form-field):has(~ :is(.wp-block-jetpack-option, .contact-form-field) .jetpack-field-rating__label:hover) .jetpack-field-rating__label {
 
 		.jetpack-field-rating__icon path {
 			fill: currentColor;
@@ -119,5 +91,14 @@
 		clip: rect(1px, 1px, 1px, 1px);
 		overflow: hidden;
 	}
+}
+
+/* Ensure layout works even outside the field wrapper in the editor */
+.jetpack-rating-options {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 0.2em;
+	align-items: center;
 }
 
