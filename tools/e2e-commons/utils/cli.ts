@@ -162,19 +162,6 @@ export async function executeJetpackCommand( command: string | string[] ): Promi
 }
 
 /**
- * Executes a Jetpack Boost CLI command.
- *
- * @param {string | string[]} command - Jetpack Boost CLI command (without 'jetpack-boost' prefix)
- * @return {Promise<string>} Command output
- */
-export async function executeJetpackBoostCommand( command: string | string[] ): Promise< string > {
-	if ( Array.isArray( command ) ) {
-		return executeWpCommand( [ 'jetpack-boost', ...command ] );
-	}
-	return executeWpCommand( `jetpack-boost ${ command }` );
-}
-
-/**
  * Executes a WordPress database query using wp-cli.
  *
  * @param {string}   query   - SQL query to execute
