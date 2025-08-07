@@ -1,0 +1,48 @@
+.jetpack-contact-form .jetpack-field.jetpack-field-phone {
+
+	.jetpack-field__input,
+	.jetpack-field__textarea {
+		box-sizing: border-box;
+
+		input,
+		textarea {
+			font: inherit;
+			border: 0;
+			flex: 1;
+			outline: none;
+			color: inherit;
+			background: inherit;
+			width: inherit;
+			box-sizing: border-box;
+			resize: none;
+			padding-top: 0;
+
+			&::before,
+			&::after {
+				box-sizing: inherit;
+			}
+		}
+	}
+
+	.jetpack-field__input {
+		// this here while we work on wrapping the inputs
+		display: flex;
+		gap: 8px;
+
+		.jetpack-field__input-prefix {
+			font: inherit;
+			border: 0;
+			color: inherit;
+
+			select {
+				vertical-align: text-bottom;
+				font: inherit;
+				border: 0;
+				line-height: inherit;
+				color: inherit;
+				outline: none;
+				background: inherit;
+			}
+		}
+	}
+}

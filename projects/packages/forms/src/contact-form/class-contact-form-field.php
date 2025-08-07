@@ -1628,10 +1628,117 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		wp_enqueue_style(
+			'jetpack-form-field-time',
+			plugins_url( '../../dist/blocks/field-time/style.css', __FILE__ ),
+			array(),
+			Constants::get_constant( 'JETPACK__VERSION' )
+		);
+
 		$this->set_invalid_message( 'time', __( 'Please enter a valid time.', 'jetpack-forms' ) );
 
-		$field  = $this->render_label( 'time', $id, $label, $required, $required_field_text );
-		$field .= $this->render_input_field( 'time', $id, $value, $class, $placeholder, $required );
+		$field = $this->render_label( 'time', $id, $label, $required, $required_field_text );
+
+		$value_minutes = '';
+		$value_hours   = '';
+
+		$class_minutes = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="$1 jetpack-field-time__minutes-input"', $class );
+		$class_hours   = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="$1 jetpack-field-time__hours-input"', $class );
+		ob_start();
+		?>
+		<div class="jetpack-forms-field-time">
+			<div class="jetpack-field-time__hours-input-wrap">
+				<label for="<?php echo esc_attr( $id . '-hours' ); ?>" class="visually-hidden">
+					<?php esc_html_e( 'Hours', 'jetpack-forms' ); ?>
+				</label>
+				<input
+					<?php echo $class_minutes; ?>
+					style="<?php echo esc_attr( $this->field_styles ); ?>"
+					autocomplete="off"
+					inputmode="numeric"
+					max="23"
+					min="0"
+					<?php
+					if ( $required ) :
+						?>
+						required<?php endif; ?>
+					step="1"
+					id="<?php echo esc_attr( $id . '-hours' ); ?>"
+					type="number"
+					value="<?php echo esc_attr( $value_hours ); ?>"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+				>
+			</div>
+			<span class="jetpack-field-time__separator" aria-hidden="true">:</span>
+			<div class="jetpack-field-time__minutes-input-wrap">
+				<label for="<?php echo esc_attr( $id . '-minutes' ); ?>" class="visually-hidden">
+					<?php esc_html_e( 'Minutes', 'jetpack-forms' ); ?>
+				</label>
+				<input
+					<?php echo $class_hours; ?>
+					style="<?php echo esc_attr( $this->field_styles ); ?>"
+					autocomplete="off"
+					inputmode="numeric"
+					max="59"
+					min="0"
+					<?php
+					if ( $required ) :
+						?>
+						required<?php endif; ?>
+					step="1"
+					id="<?php echo esc_attr( $id . '-minutes' ); ?>"
+					type="number"
+					value="<?php echo esc_attr( $value_minutes ); ?>"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+				>
+			</div>
+		</div>
+		<?php
+		/*
+		?>
+		<div class="jetpack-field-slider__input-row"
+			data-wp-context='
+			<?php
+			echo wp_json_encode(
+				array(
+					'min'     => $min,
+					'max'     => $max,
+					'default' => $starting_value,
+				)
+			);
+			?>
+			'>
+			<span class="jetpack-field-slider__min-label"><?php echo esc_html( $min ); ?></span>
+			<div class="jetpack-field-slider__input-container">
+				<input
+					type="range"
+					name="<?php echo esc_attr( $id ); ?>"
+					id="<?php echo esc_attr( $id ); ?>"
+					value="<?php echo esc_attr( $current_value ); ?>"
+					min="<?php echo esc_attr( $min ); ?>"
+					max="<?php echo esc_attr( $max ); ?>"
+					class="<?php echo esc_attr( $class ); ?>"
+					placeholder="<?php echo esc_attr( $placeholder ); ?>"
+					<?php
+					if ( $required ) :
+						?>
+						required<?php endif; ?>
+					data-wp-bind--value="state.getSliderValue"
+					data-wp-on--input="actions.onSliderChange"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+				/>
+				<div
+					class="jetpack-field-slider__value-indicator"
+					data-wp-text="state.getSliderValue"
+					data-wp-style--left="state.getSliderPosition"
+				><?php echo esc_html( $current_value ); ?></div>
+			</div>
+			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
+		</div>
+		<?php
+		*/
+		$field .= ob_get_clean();
+		return $field . $this->get_error_div( $id, 'slider' );
 
 		return $field;
 	}

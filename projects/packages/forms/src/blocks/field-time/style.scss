@@ -1,0 +1,54 @@
+.jetpack-forms-field-time {
+	display: flex;
+}
+
+.jetpack-field-time__separator {
+	display: inline-block;
+	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
+
+	color: var(--jetpack--contact-form--text-color);
+	font-family: var(--jetpack--contact-form--font-family);
+	font-size: var(--jetpack--contact-form--font-size);
+
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	border-left-width: 0;
+	border-right-width: 0;
+	border-radius: unset;
+	max-width: 100px;
+	background-color: var(--jetpack--contact-form--input-background);
+}
+
+.jetpack-field-time__minutes-input-wrap,
+.jetpack-field-time__hours-input-wrap {
+	box-sizing: border-box;
+	width: calc(60px);
+	z-index: 2; // Ensures outline is always visible and not under separator
+}
+
+/* Remove native arrow buttons */
+.jetpack-field-time__hours-input,
+.jetpack-field-time__minutes-input {
+	-moz-appearance: textfield;
+	appearance: textfield;
+
+	&::-webkit-outer-spin-button,
+	&::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+}
+
+.jetpack-field-time__hours-input {
+	border-left: 0;
+	padding-left: 0;
+	text-align: center;
+}
+
+.jetpack-field-time__minutes-input {
+	border-right: 0;
+	padding-right: 0;
+	text-align: center;
+}
