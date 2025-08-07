@@ -1,7 +1,6 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as PieChartStories from './index.stories';
 import * as DonutStories from './donut.stories';
-import * as LegendStories from './pie-legend.stories';
 
 <Meta title="JS Packages/Charts/Types/Pie Chart" of={ PieChartStories } />
 
@@ -119,7 +118,7 @@ The chart validates:
 
 Control legend alignment and positioning:
 
-<Canvas of={ LegendStories.AlignmentPositioning } />
+<Canvas of={ PieChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -135,8 +134,6 @@ Control legend alignment and positioning:
 ### Vertical Legend
 
 Use vertical orientation for space-efficient legend placement:
-
-<Canvas of={ LegendStories.VerticalOrientation } />
 
 <Source
 	language="jsx"

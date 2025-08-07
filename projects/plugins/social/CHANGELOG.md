@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 7.1.0 - 2025-08-05
+### Added
+- Social Image Generator: Add font option. [#44514]
+- My Jetpack: Add analytics for empty product search results. [#44344]
+- Social Notes: Add a fallback title that can be customized via the `jetpack_social_notes_default_title` filter. [#43864]
+
+### Changed
+- E2E tests: Remove redundant logic in test fixture and converted the fixture to Typscript. [#44327]
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update package dependencies. [#43839] [#44206]
+
+### Fixed
+- Ensure images load in connections management when concatenating JS. [#43655]
+- Fix image validation when images sizes are customised. [#44368]
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link in footer. [#44535]
+- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page. [#44377]
+- Social Notes: Update filter name to match recent changes in WordPress. [#43947]
+- Social Previews: Fix a bug with text overflowing with Mastodon. [#44019]
+- Update JITMs to remove jQuery dependency. [#43783]
+
 ## 7.0.0 - 2025-05-22
 ### Added
 - Added option to set default image for Social Image Generator. [#43461]

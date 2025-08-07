@@ -224,7 +224,7 @@ describe( 'BarChart', () => {
 
 				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
 				expect( chart ).toHaveAttribute( 'role', 'grid' );
-				expect( chart ).toHaveAttribute( 'aria-label', 'bar chart' );
+				expect( chart ).toHaveAttribute( 'aria-label', 'Bar chart' );
 			} );
 
 			test( 'chart container can receive focus', async () => {

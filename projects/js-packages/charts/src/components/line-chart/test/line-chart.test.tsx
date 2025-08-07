@@ -555,7 +555,7 @@ describe( 'LineChart', () => {
 
 				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
 				expect( chart ).toHaveAttribute( 'role', 'grid' );
-				expect( chart ).toHaveAttribute( 'aria-label', 'line chart' );
+				expect( chart ).toHaveAttribute( 'aria-label', 'Line chart' );
 			} );
 
 			test( 'chart container can receive focus', async () => {

@@ -227,12 +227,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function add_error( $message ) {
 		$this->error = true;
-
-		if ( ! is_wp_error( $this->form->errors ) ) {
-			$this->form->errors = new \WP_Error();
-		}
-
-		$this->form->errors->add( $this->get_attribute( 'id' ), $message );
+		$this->form->add_error( $this->get_attribute( 'id' ), $message );
 	}
 
 	/**
@@ -247,12 +242,41 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Check if the field has a value.
+	 *
+	 * This is used to determine if the field has been filled out by the user.
+	 *
+	 * @return bool True if the field has a value, false otherwise.
+	 */
+	public function has_value() {
+		$field_id    = $this->get_attribute( 'id' );
+		$field_value = isset( $_POST[ $field_id ] ) ? wp_unslash( $_POST[ $field_id ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes.
+
+		if ( is_array( $field_value ) ) {
+			if ( empty( $field_value ) ) {
+				return false;
+			}
+			return ! empty( array_filter( $field_value ) );
+		}
+		return ! empty( trim( $field_value ) );
+	}
+
+	/**
 	 * Validates the form input
 	 */
 	public function validate() {
+		// If the field is already invalid, don't validate it again.
+		if ( $this->is_error() ) {
+			return;
+		}
+
 		$field_type = $this->maybe_override_type();
 		// If it's not required, there's nothing to validate
-		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
+		if ( ! $this->get_attribute( 'required' ) && ! $this->has_value() ) {
+			return;
+		}
+
+		if ( ! $this->is_field_renderable( $field_type ) ) {
 			return;
 		}
 
@@ -277,28 +301,51 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field_value
 				) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'email':
 				// Make sure the email address is valid
 				if ( ! is_string( $field_value ) || ! is_email( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a valid email address.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'checkbox-multiple':
 				// Check that there is at least one option selected
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+				} else {
+					// Check that the selected options are valid
+					$options           = (array) $this->get_attribute( 'options' );
+					$non_empty_options = array_filter(
+						$options,
+						function ( $option ) {
+							return $option !== '';
+						}
+					);
+					foreach ( $field_value  as $field_value_item ) {
+						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
+							/* translators: %s is the name of a form field */
+							$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+							break;
+						}
+					}
 				}
 				break;
 			case 'number':
 				// Make sure the number address is valid
 				if ( ! is_numeric( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a number.', 'jetpack-forms' ), $field_label ) );
+				}
+				break;
+			case 'time':
+				// Make sure the number address is valid
+				if ( ! preg_match( '/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/', $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires a time', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'file':
@@ -312,7 +359,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				// Just check for presence of any text
 				if ( ! is_string( $field_value ) || ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s is required', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s field is required.', 'jetpack-forms' ), $field_label ) );
 				}
 		}
 	}
@@ -690,7 +737,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		// this is a hack for Firefox to prevent users from falsly entering a something other then a number into a number field.
+		// this is a hack for Firefox to prevent users from falsely entering a something other than a number into a number field.
 		if ( $type === 'number' ) {
 			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
 		}
@@ -1449,7 +1496,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for the email field.
+	 * Return the HTML for the date field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -1563,6 +1610,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 			$is_loaded = true;
 		}
+
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the time field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return string HTML
+	 */
+	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->set_invalid_message( 'time', __( 'Please enter a valid time.', 'jetpack-forms' ) );
+
+		$field  = $this->render_label( 'time', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'time', $id, $value, $class, $placeholder, $required );
 
 		return $field;
 	}
@@ -1941,6 +2010,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$required,
 					$required_field_text
 				);
+				break;
+			case 'time':
+				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );

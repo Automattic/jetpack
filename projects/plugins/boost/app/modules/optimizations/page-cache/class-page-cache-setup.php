@@ -421,6 +421,11 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	 * Clear opcache for a file.
 	 */
 	private static function clear_opcache( $file ) {
+		// If API functions are restricted, we can't do anything.
+		if ( ini_get( 'opcache.restrict_api' ) ) {
+			return;
+		}
+
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( $file, true );
 		}

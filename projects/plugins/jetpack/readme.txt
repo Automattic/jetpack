@@ -326,7 +326,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9-beta - 2025-08-04
+### 14.9.1 - 2025-08-06
+#### Bug fixes
+- Open Graph Meta tags: Do not attempt to generate a fallback image when the site is not connected to WordPress.com. [#44661]
+
+### 14.9 - 2025-08-05
 #### Enhancements
 - Add new PayPal Payment block (beta).
 - Forms: Add "Empty trash" button.

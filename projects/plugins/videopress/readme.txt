@@ -84,25 +84,23 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.4 - 2025-06-10
+### 2.5 - 2025-08-05
 #### Added
-- Add more error logging.
-- Add My Jetpack tour.
+- My Jetpack: Added analytics for empty product search results.
 
 #### Changed
-- E2E Tests: Update config file encryption algorithm.
-- My Jetpack: Hide backup failure notice when backups are deactivated.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- My Jetpack: Update the onboarding UI, changing it to a single button
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests.
+- My Jetpack: Enable access to My Jetpack on WP Multisite.
+- My Jetpack: Unify the user connection flow with a unified screen.
+- My Jetpack: Update Stats card to include a chart for better analytics.
+- Sync: Ignore the ActivityPub Outbox CPT
 - Update package dependencies.
 
-#### Removed
-- General: Update minimum WordPress version to 6.7.
-
 #### Fixed
-- Block editor: Fix layout issues with the Media Library modal buttons.
-- My Jetpack: Fix Onboarding UI responsiveness at 600px.
-- My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Prevent social login from getting stuck when email input is not empty.
-- Update E2E tests.
+- JITM: Fix ineffective caching due to expired plugin sync transient.
+- My Jetpack: Fix footer alignment for disconnected accounts.
+- My Jetpack: Prevent expiration alerts for products covered by active bundles.
+- My Jetpack: Restore plan purchase link.
+- Update JITMs to remove jQuery dependency.
+- Fix video row action button clickability by properly hiding stats on hover.
 
