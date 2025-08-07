@@ -2,8 +2,27 @@
 /**
  * External Storage utilities for Jetpack Connection.
  *
- * Provides centralized logging for external storage implementations
- * across different environments (Atomic, VIP, custom).
+ * Provides centralized logic for external storage implementations
+ * across different environments (WoA, VIP, other).
+ *
+ * Usage Example:
+ *
+ *     // 1. Create a storage provider class with required methods:
+ *     class My_Storage_Provider {
+ *         public function is_available() { return true; }
+ *         public function should_handle( $option_name ) {
+ *             return in_array( $option_name, array( 'blog_token', 'id' ), true );
+ *         }
+ *         public function get( $option_name ) {
+ *             // Return value from your external storage or null
+ *         }
+ *         public function get_environment_id() { return 'my_env'; } // Optional but recommended
+ *     }
+ *
+ *     // 2. Register the provider:
+ *     External_Storage::register_provider( new My_Storage_Provider() );
+ *
+ *     // 3. External storage is now automatically used by Jetpack_Options::get_option()
  *
  * @package automattic/jetpack-connection
  */
@@ -16,6 +35,105 @@ namespace Automattic\Jetpack\Connection;
  * @since $$next-version$$
  */
 class External_Storage {
+
+	/**
+	 * Registered storage provider.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var object|null
+	 */
+	private static $provider = null;
+
+	/**
+	 * Register a storage provider for external storage.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param object $provider Storage provider object with required methods.
+	 * @return bool True if provider was registered successfully, false otherwise.
+	 */
+	public static function register_provider( $provider ) {
+		if ( ! self::validate_provider( $provider ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Invalid storage provider registered: missing required methods' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			return false;
+		}
+		self::$provider = $provider;
+		return true;
+	}
+
+	/**
+	 * Validate that a storage provider has all required methods.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param object $provider The storage provider to validate.
+	 * @return bool True if provider has all required methods, false otherwise.
+	 */
+	private static function validate_provider( $provider ) {
+		$required_methods = array( 'is_available', 'should_handle', 'get' );
+		foreach ( $required_methods as $method ) {
+			if ( ! method_exists( $provider, $method ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Get option value from external storage provider.
+	 *
+	 * Returns null if no provider is registered or if the provider can't provide the value (triggers database fallback).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $option_name The option name to retrieve.
+	 * @return mixed The option value from external storage, or null for database fallback.
+	 */
+	public static function get_option( $option_name ) {
+		$provider = self::$provider;
+
+		// Check if we have a registered provider
+		if ( null === $provider ) {
+			return null; // No provider registered, use database
+		}
+
+		// Get environment ID from provider
+		$environment = method_exists( $provider, 'get_environment_id' ) ? $provider->get_environment_id() : 'unknown';
+
+		// Check if provider is available in current environment
+		if ( ! $provider->is_available() ) {
+			self::log_event( 'unavailable', $option_name, 'External storage not available', $environment );
+			return null;
+		}
+
+		// Check if provider should handle this option
+		if ( ! $provider->should_handle( $option_name ) ) {
+			return null;
+		}
+
+		// Try to get value from the provider
+		try {
+			$value = $provider->get( $option_name );
+
+			// Check if we got a valid value (excluding null, false, empty string, and zero)
+			if ( null !== $value && false !== $value && '' !== $value && 0 !== $value ) {
+				return $value;
+			}
+
+			// Empty value - log it
+			self::log_event( 'empty', $option_name, '', $environment );
+
+		} catch ( \Exception $e ) {
+			// Provider threw an exception
+			self::log_event( 'error', $option_name, $e->getMessage(), $environment );
+		}
+
+		// Provider couldn't provide value, return null for database fallback
+		return null;
+	}
 
 	/**
 	 * Log external storage events to the Jetpack Connection Error_Handler.
@@ -71,33 +189,6 @@ class External_Storage {
 	}
 
 	/**
-	 * Check if empty state should be reported for this option.
-	 *
-	 * Only certain connection options (like blog_token, id) trigger empty state
-	 * reporting with the 10-minute delay mechanism. Other options are ignored.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $option_name The option name.
-	 * @return bool True if empty state should be reported for this option.
-	 */
-	public static function should_report_empty_for_option( $option_name ) {
-		/**
-		 * Filter the list of options that trigger empty state reporting.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $reportable_options Array of option names that should trigger empty state reporting.
-		 */
-		$reportable_options = apply_filters(
-			'jetpack_external_storage_reportable_empty_options',
-			array( 'blog_token', 'id' )
-		);
-
-		return in_array( $option_name, $reportable_options, true );
-	}
-
-	/**
 	 * Determine if the current environment should report external storage errors.
 	 *
 	 * @since $$next-version$$
@@ -124,11 +215,6 @@ class External_Storage {
 	 * @return bool True if we should report this empty state, false otherwise.
 	 */
 	private static function should_report_empty_state( $option_name ) {
-		// Only report empty state for monitored options
-		if ( ! self::should_report_empty_for_option( $option_name ) ) {
-			return false;
-		}
-
 		$delay_key        = 'jetpack_external_storage_empty_delay_' . $option_name;
 		$first_empty_time = get_transient( $delay_key );
 

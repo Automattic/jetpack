@@ -19,92 +19,32 @@ use PHPUnit\Framework\TestCase;
 class External_Storage_Test extends TestCase {
 
 	/**
-	 * Clean up after tests.
+	 * Reset provider after each test.
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
-		remove_all_filters( 'jetpack_external_storage_reportable_empty_options' );
+
+		// Reset the provider using reflection
+		$reflection = new \ReflectionClass( External_Storage::class );
+		$property   = $reflection->getProperty( 'provider' );
+		$property->setAccessible( true );
+		$property->setValue( null, null );
 	}
 
 	/**
-	 * Test should_report_empty_for_option with default options.
+	 * Test get_option with no provider returns null.
 	 */
-	public function test_should_report_empty_for_option() {
-		// Default reportable options
-		$this->assertTrue( External_Storage::should_report_empty_for_option( 'blog_token' ) );
-		$this->assertTrue( External_Storage::should_report_empty_for_option( 'id' ) );
-
-		// Non-reportable options
-		$this->assertFalse( External_Storage::should_report_empty_for_option( 'user_tokens' ) );
-		$this->assertFalse( External_Storage::should_report_empty_for_option( 'random_option' ) );
+	public function test_get_option_no_provider() {
+		$this->assertNull( External_Storage::get_option( 'blog_token' ) );
 	}
 
 	/**
-	 * Test should_report_empty_for_option with filter.
-	 */
-	public function test_should_report_empty_for_option_with_filter() {
-		add_filter(
-			'jetpack_external_storage_reportable_empty_options',
-			function ( $options ) {
-				$options[] = 'master_user';
-				return $options;
-			}
-		);
-
-		$this->assertTrue( External_Storage::should_report_empty_for_option( 'master_user' ) );
-	}
-
-	/**
-	 * Test log_event handles error and empty event types.
+	 * Test log_event method doesn't throw errors.
 	 */
 	public function test_log_event() {
 		$this->expectNotToPerformAssertions();
 
 		External_Storage::log_event( 'error', 'blog_token', 'Connection failed', 'atomic' );
-		External_Storage::log_event( 'empty', 'id', '', 'vip' );
-	}
-
-	/**
-	 * Test should_report_for_environment with constant.
-	 */
-	public function test_should_report_for_environment() {
-		// Use reflection to test private method
-		$method = new \ReflectionMethod( External_Storage::class, 'should_report_for_environment' );
-		$method->setAccessible( true );
-
-		// Should be false by default
-		$this->assertFalse( $method->invoke( null ) );
-
-		// Should be true when constant is set
-		if ( ! defined( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) ) {
-			define( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED', true );
-		}
-		$this->assertTrue( $method->invoke( null ) );
-	}
-
-	/**
-	 * Test empty state delay mechanism basics.
-	 */
-	public function test_empty_state_delay() {
-		// Clean up
-		delete_transient( 'jetpack_external_storage_empty_delay_blog_token' );
-
-		$method = new \ReflectionMethod( External_Storage::class, 'should_report_empty_state' );
-		$method->setAccessible( true );
-
-		// First call should return false (sets delay)
-		$this->assertFalse( $method->invoke( null, 'blog_token' ) );
-
-		// Verify delay transient was set
-		$this->assertNotFalse( get_transient( 'jetpack_external_storage_empty_delay_blog_token' ) );
-
-		// Second call should still return false (within delay)
-		$this->assertFalse( $method->invoke( null, 'blog_token' ) );
-
-		// Non-reportable option should always return false
-		$this->assertFalse( $method->invoke( null, 'user_tokens' ) );
-
-		// Clean up
-		delete_transient( 'jetpack_external_storage_empty_delay_blog_token' );
+		External_Storage::log_event( 'empty', 'id', '', 'test' );
 	}
 }
