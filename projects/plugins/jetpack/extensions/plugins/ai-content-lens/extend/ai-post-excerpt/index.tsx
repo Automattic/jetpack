@@ -141,6 +141,7 @@ function AiPostExcerpt() {
 
 	// Show custom prompt number of words
 	const currentExcerpt = suggestion || excerpt;
+	// @ts-expect-error count requires only 2 arguments, 3rd one is optional
 	const numberOfWords = count( currentExcerpt, 'words' );
 	const helpNumberOfWords = sprintf(
 		// Translators: %1$s is the number of words in the excerpt.
