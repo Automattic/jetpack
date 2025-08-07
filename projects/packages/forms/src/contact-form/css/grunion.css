@@ -122,6 +122,10 @@
 	align-items: center;
 }
 
+.is-style-list.is-style-list label.consent {
+	align-items: baseline;
+}
+
 .contact-form label.consent-implicit input {
 	display: none;
 }
