@@ -386,7 +386,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
 		// Temporary "Settings > Newsletter" menu for existing users that shows a callout informing that the screen has moved to "Jetpack (> Settings) > Newsletter".
-		if ( get_current_user_id() < 269660000 ) {
+		if ( get_current_user_id() < 269750000 ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-newsletter/' . $this->domain, null, 7 );
 		}
