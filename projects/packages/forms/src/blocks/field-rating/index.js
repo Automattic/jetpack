@@ -1,6 +1,5 @@
 import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { DEFAULT_GLYPHS } from '../input-rating/constants';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import defaultSettings from '../shared/settings';
 import { getIconColor } from '../shared/util/block-icons';
@@ -8,12 +7,18 @@ import edit from './edit';
 import save from './save';
 
 const name = 'field-rating';
-const glyphs = DEFAULT_GLYPHS;
-const stylesArray = Object.entries( glyphs ).map( ( [ key, { label } ] ) => ( {
-	name: key,
-	label,
-	isDefault: key === 'stars',
-} ) );
+const stylesArray = [
+	{
+		name: 'stars',
+		label: __( 'Stars', 'jetpack-forms' ),
+		isDefault: true,
+	},
+	{
+		name: 'hearts',
+		label: __( 'Hearts', 'jetpack-forms' ),
+		isDefault: false,
+	},
+];
 const settings = {
 	...defaultSettings,
 	title: __( 'Rating field', 'jetpack-forms' ),

@@ -2185,14 +2185,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$initial_rating = (int) $value ? (int) $value : 0;
 
-		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
+		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text );
 
 		/*
 		 * Determine which icon SVG to use based on CSS classes.
-		 * Check field_classes for style classes (this is where WordPress puts them).
+		 * Check the block's className attribute for style variations.
 		 */
-
-		$has_hearts_style = false !== strpos( $this->field_classes, 'is-style-hearts' );
+		$block_class_name = $this->get_attribute( 'className' );
+		$has_hearts_style = false !== strpos( $block_class_name, 'is-style-hearts' );
 
 		// SVG icon definitions - keep in sync with JavaScript icons.js
 		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg>';
@@ -2200,25 +2200,31 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$icon_svg = $has_hearts_style ? $heart_svg : $star_svg;
 
-		$spans = '';
+		$options = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
-			$spans .= sprintf(
-				'<label class="jetpack-field-rating__label">%6$s
+			$radio_id = $id . '-' . $i;
+			$options .= sprintf(
+				'<div class="contact-form-field wp-block-jetpack-option">
 					<input
-						class="jetpack-field-rating__input"
+						id="%7$s"
 						type="radio"
-						data-wp-on--change="actions.onFieldChange"
-						%1$s
-						%2$s
 						name="%3$s"
-						value="%4$s/%5$s" />
-				</label>',
+						value="%4$s/%5$s"
+						data-wp-on--change="actions.onFieldChange"
+						class="jetpack-field-rating__input radio grunion-field"
+						%1$s
+						%2$s /> 
+					<label for="%7$s" class="jetpack-field-rating__label grunion-radio-label rating">
+						%6$s
+					</label>
+				</div>',
 				checked( $i, $initial_rating, false ),
 				$required ? 'required aria-required="true"' : '',
 				esc_attr( $id ),
 				esc_attr( $i ),
 				esc_attr( $max_rating ),
-				$icon_svg
+				$icon_svg,
+				esc_attr( $radio_id )
 			);
 		}
 
@@ -2274,11 +2280,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 
-		return $label_html . sprintf(
-			'<div class="jetpack-field-rating %3$s" %1$s>%2$s</div>',
+		return sprintf(
+			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating %3$s" %1$s>
+				%5$s
+				<div class="jetpack-rating-options %6$s">%2$s</div>
+			</fieldset>',
 			$style_attr,
-			$spans,
-			$this->field_classes
+			$options,
+			$this->field_classes,
+			esc_attr( $id ),
+			$label_html,
+			esc_attr( $block_class_name )
 		) . $this->get_error_div( $id, 'rating' );
 	}
 

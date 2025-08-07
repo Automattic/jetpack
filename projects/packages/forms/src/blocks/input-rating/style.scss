@@ -10,16 +10,47 @@
 	width: 1px;
 }
 
+// Fieldset wrapper for rating field
 .jetpack-field-rating {
-	position: relative;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	align-items: center;
+	border: none;
+	margin: 0;
+	padding: 0;
 
-	/* Checked (filled) rating icons */
-	.jetpack-field-rating__label:has(> input[type="radio"].jetpack-field-rating__input:checked),
-	.jetpack-field-rating__label:has(~ .jetpack-field-rating__label .jetpack-field-rating__input:checked) {
+
+	.jetpack-rating-options {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 0.2em;
+		align-items: center;
+
+		// Store font-size classes as custom property
+		&.has-small-font-size {
+			--rating-icon-size: var(--wp--preset--font-size--small);
+		}
+
+		&.has-medium-font-size {
+			--rating-icon-size: var(--wp--preset--font-size--medium);
+		}
+
+		&.has-large-font-size {
+			--rating-icon-size: var(--wp--preset--font-size--large);
+		}
+
+		&.has-x-large-font-size {
+			--rating-icon-size: var(--wp--preset--font-size--x-large);
+		}
+	}
+
+	.jetpack-field-rating .jetpack-rating-options .contact-form-field {
+		margin: 0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	/* Checked (filled) rating icons - fill current and all previous */
+	input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label {
 		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
 
 		.jetpack-field-rating__icon path {
@@ -27,9 +58,18 @@
 		}
 	}
 
-	/* Hover effects - only when hovering individual labels */
-	.jetpack-field-rating__label:hover,
-	.jetpack-field-rating__label:has(~ .jetpack-field-rating__label:hover) {
+	/* Fill all previous rating icons when one is selected */
+	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label,
+	.contact-form-field:has(~ .contact-form-field input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label {
+		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
+
+		.jetpack-field-rating__icon path {
+			fill: currentColor;
+		}
+	}
+
+	/* Hover effects */
+	.jetpack-field-rating__label:hover {
 		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
 
 		.jetpack-field-rating__icon path {
@@ -41,37 +81,17 @@
 		display: inline-flex;
 		margin-bottom: 0;
 		cursor: pointer;
-		overflow: hidden;
-		color: var(--jetpack--contact-form--background-color, #fff);
-		flex-shrink: 0;
-
-		// spacing between symbols is now handled by parent flex gap
+		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, currentColor));
 
 		.jetpack-field-rating__icon {
-			width: 1em;
-			height: 1em;
+			width: var(--rating-icon-size, 1em);
+			height: var(--rating-icon-size, 1em);
 			display: block;
 		}
 	}
 
-	.contact-form & input[type="radio"].jetpack-field-rating__input {
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
-		font-family: inherit;
-		font-size: inherit;
-		color: inherit;
-		cursor: pointer;
 
-		&::before {
-			font-family: inherit;
-			font-size: 1em;
-			content: "★";
-			display: block;
-			width: 1em;
-			color: inherit;
-			-webkit-text-stroke: 2px var(--jetpack--contact-form--border-color, #8c8f94);
-		}
+	input[type="radio"].jetpack-field-rating__input {
 		// Visually hide the actual radio but keep it accessible for screen readers
 		position: absolute;
 		opacity: 0;
@@ -80,3 +100,4 @@
 		margin: 0;
 	}
 }
+
