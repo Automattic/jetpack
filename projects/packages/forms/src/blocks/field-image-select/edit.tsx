@@ -50,14 +50,14 @@ export default function ImageSelectFieldEdit( props ) {
 					required,
 				},
 			],
-			[ 'jetpack/field-image-choices' ],
+			[ 'jetpack/form-image-select-choices' ],
 		];
 	}, [ required ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-image-select__wrapper' },
 		{
-			allowedBlocks: [ 'jetpack/label', 'jetpack/field-image-choices' ],
+			allowedBlocks: [ 'jetpack/label', 'jetpack/form-image-select-choices' ],
 			template,
 			templateLock: 'all',
 		}

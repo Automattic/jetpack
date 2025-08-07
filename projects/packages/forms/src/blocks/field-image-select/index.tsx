@@ -46,13 +46,13 @@ const settings = {
 				},
 			},
 			{
-				name: 'jetpack/field-image-choices',
+				name: 'jetpack/form-image-select-choices',
 				attributes: {
 					multiple: false,
 				},
 				innerBlocks: [
 					{
-						name: 'jetpack/field-image-choice',
+						name: 'jetpack/form-image-select-choice',
 						innerBlocks: [
 							{
 								name: 'jetpack/label',
@@ -67,13 +67,13 @@ const settings = {
 							{
 								name: 'core/image',
 								attributes: {
-									url: 'https://placehold.co/200x200',
+									url: 'https://s.w.org/images/core/5.3/Glacial_lakes%2C_Bhutan.jpg',
 								},
 							},
 						],
 					},
 					{
-						name: 'jetpack/field-image-choice',
+						name: 'jetpack/form-image-select-choice',
 						innerBlocks: [
 							{
 								name: 'jetpack/label',
@@ -88,7 +88,7 @@ const settings = {
 							{
 								name: 'core/image',
 								attributes: {
-									url: 'https://placehold.co/200x200',
+									url: 'https://s.w.org/images/core/5.3/Sediment_off_the_Yucatan_Peninsula.jpg',
 								},
 							},
 						],

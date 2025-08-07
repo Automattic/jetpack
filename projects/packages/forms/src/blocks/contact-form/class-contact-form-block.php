@@ -462,16 +462,16 @@ class Contact_Form_Block {
 			);
 
 			Blocks::jetpack_register_block(
-				'jetpack/field-image-choices',
+				'jetpack/form-image-select-choices',
 				array(
-					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_choices' ),
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choices' ),
 				)
 			);
 
 			Blocks::jetpack_register_block(
-				'jetpack/field-image-choice',
+				'jetpack/form-image-select-choice',
 				array(
-					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_choice' ),
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choice' ),
 				)
 			);
 		}

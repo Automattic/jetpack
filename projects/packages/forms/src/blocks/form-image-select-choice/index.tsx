@@ -10,19 +10,14 @@ import defaultSettings from '../shared/settings';
 import edit from './edit';
 import save from './save';
 
-const name = 'field-image-choice';
+const name = 'form-image-select-choice';
 
 const settings = {
 	...defaultSettings,
 	title: __( 'Image choice field', 'jetpack-forms' ),
-	keywords: [
-		__( 'Image', 'jetpack-forms' ),
-		__( 'Image choice', 'jetpack-forms' ),
-		__( 'Image choice field', 'jetpack-forms' ),
-	],
 	description: __( 'An image option for a image select field.', 'jetpack-forms' ),
 	icon,
-	parent: [ 'jetpack/field-image-choices' ],
+	parent: [ 'jetpack/form-image-select-choices' ],
 	edit,
 	attributes: {
 		...defaultSettings.attributes,
@@ -43,7 +38,7 @@ const settings = {
 			{
 				name: 'core/image',
 				attributes: {
-					url: 'https://placehold.co/200x200',
+					url: 'https://s.w.org/images/core/5.3/Glacial_lakes%2C_Bhutan.jpg',
 				},
 			},
 		],

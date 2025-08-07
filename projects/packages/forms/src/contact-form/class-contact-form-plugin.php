@@ -1123,8 +1123,8 @@ class Contact_Form_Plugin {
 	 *
 	 * @return string HTML for the image choices form field.
 	 */
-	public static function gutenblock_render_field_image_choices( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-choices', $block );
+	public static function gutenblock_render_form_image_select_choices( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select-choices', $block );
 
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
@@ -1138,8 +1138,8 @@ class Contact_Form_Plugin {
 	 *
 	 * @return string HTML for the image choice form field.
 	 */
-	public static function gutenblock_render_field_image_choice( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-choice', $block );
+	public static function gutenblock_render_form_image_select_choice( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select-choice', $block );
 
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}

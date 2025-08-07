@@ -10,16 +10,11 @@ import defaultSettings from '../shared/settings';
 import edit from './edit';
 import save from './save';
 
-const name = 'field-image-choices';
+const name = 'form-image-select-choices';
 
 const settings = {
 	...defaultSettings,
 	title: __( 'Image choices field', 'jetpack-forms' ),
-	keywords: [
-		__( 'Image', 'jetpack-forms' ),
-		__( 'Image choices', 'jetpack-forms' ),
-		__( 'Image choices field', 'jetpack-forms' ),
-	],
 	description: __( 'A list of image choices for a image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/field-image-select' ],
@@ -31,7 +26,7 @@ const settings = {
 	example: {
 		innerBlocks: [
 			{
-				name: 'jetpack/field-image-choice',
+				name: 'jetpack/form-image-select-choice',
 				innerBlocks: [
 					{
 						name: 'jetpack/label',
@@ -46,13 +41,13 @@ const settings = {
 					{
 						name: 'core/image',
 						attributes: {
-							url: 'https://placehold.co/200x200',
+							url: 'https://s.w.org/images/core/5.3/Glacial_lakes%2C_Bhutan.jpg',
 						},
 					},
 				],
 			},
 			{
-				name: 'jetpack/field-image-choice',
+				name: 'jetpack/form-image-select-choice',
 				innerBlocks: [
 					{
 						name: 'jetpack/label',
@@ -67,7 +62,7 @@ const settings = {
 					{
 						name: 'core/image',
 						attributes: {
-							url: 'https://placehold.co/200x200',
+							url: 'https://s.w.org/images/core/5.3/Sediment_off_the_Yucatan_Peninsula.jpg',
 						},
 					},
 				],
