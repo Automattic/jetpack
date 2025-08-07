@@ -28,6 +28,8 @@ const settings = {
 		'jetpack/field-text',
 		'jetpack/field-textarea',
 		'jetpack/field-time',
+		'jetpack/field-image-select',
+		'jetpack/form-image-select-choice',
 		// Do not include 'jetpack/field-file' since it prevents the label from being duplicated.
 	],
 	supports: {

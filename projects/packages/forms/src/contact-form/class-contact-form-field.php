@@ -1637,6 +1637,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return the HTML for the image select field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$field = $this->render_label( 'image-select', $id, $label, $required, $required_field_text );
+		// TODO: Implement the image select field rendering.
+
+		return $field;
+	}
+
+	/**
 	 * Return the HTML for the number field.
 	 *
 	 * @param int    $id - the ID.
@@ -2013,6 +2032,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 			case 'time':
 				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'image-select':
+				$field .= $this->render_image_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
