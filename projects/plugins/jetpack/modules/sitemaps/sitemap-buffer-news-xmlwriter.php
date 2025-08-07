@@ -62,30 +62,7 @@ class Jetpack_Sitemap_Buffer_News_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWr
 	 */
 	protected function append_item( $array ) {
 		if ( ! empty( $array['url'] ) ) {
-			$this->writer->startElement( 'url' );
-
-			// Add URL elements
-			foreach ( $array['url'] as $tag => $value ) {
-				if ( $tag === 'news:news' ) {
-					$this->writer->startElement( 'news:news' );
-					foreach ( $value as $news_tag => $news_value ) {
-						if ( $news_tag === 'news:publication' ) {
-							$this->writer->startElement( 'news:publication' );
-							foreach ( $news_value as $pub_tag => $pub_value ) {
-								$this->writer->writeElement( $pub_tag, strval( $pub_value ) );
-							}
-							$this->writer->endElement(); // news:publication
-						} else {
-							$this->writer->writeElement( $news_tag, strval( $news_value ) );
-						}
-					}
-					$this->writer->endElement(); // news:news
-				} else {
-					$this->writer->writeElement( $tag, strval( $value ) );
-				}
-			}
-
-			$this->writer->endElement(); // url
+			$this->array_to_xml( $array );
 		}
 	}
 }

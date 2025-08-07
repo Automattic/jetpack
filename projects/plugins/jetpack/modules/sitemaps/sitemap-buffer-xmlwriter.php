@@ -163,6 +163,29 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	abstract protected function append_item( $array );
 
 	/**
+	 * Recursively writes XML elements from an associative array.
+	 *
+	 * This method iterates through an array and writes XML elements using the XMLWriter instance.
+	 * If a value in the array is itself an array, it calls itself recursively.
+	 *
+	 * @access protected
+	 * @since $$next-version$$
+	 *
+	 * @param array $data The array to convert to XML.
+	 */
+	protected function array_to_xml( $data ) {
+		foreach ( (array) $data as $tag => $value ) {
+			if ( is_array( $value ) ) {
+				$this->writer->startElement( $tag );
+				$this->array_to_xml( $value );
+				$this->writer->endElement();
+			} else {
+				$this->writer->writeElement( $tag, strval( $value ) );
+			}
+		}
+	}
+
+	/**
 	 * Retrieve the contents of the buffer.
 	 *
 	 * @since 14.6
