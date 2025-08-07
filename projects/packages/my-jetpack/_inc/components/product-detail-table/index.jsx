@@ -152,12 +152,12 @@ const ProductDetailTableColumn = ( {
 	const defaultCtaLabel =
 		! isBundle && hasPaidPlanForProduct
 			? sprintf(
-					/* translators: placeholder is product name. */
+					/* translators: %s: the product name. */
 					__( 'Install %s', 'jetpack-my-jetpack' ),
 					productMoniker
 			  )
 			: sprintf(
-					/* translators: placeholder is product name. */
+					/* translators: %s: the product name. */
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
 			  );

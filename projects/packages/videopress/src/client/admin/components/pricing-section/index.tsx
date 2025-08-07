@@ -47,7 +47,7 @@ const PricingPage = ( { onRedirecting } ) => {
 						promoLabel={
 							yearlyPrice?.discount
 								? sprintf(
-										/* translators: placeholder is the number of videos */
+										/* translators: %1$s: the discount amount */
 										__( '%1$s%% off', 'jetpack-videopress-pkg' ),
 										yearlyPrice.discount
 								  )

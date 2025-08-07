@@ -53,7 +53,7 @@ const HistoryAdminSectionHero: FC = () => {
 					<AdminSectionHero.Heading showIcon>
 						{ numAllThreats > 0
 							? sprintf(
-									/* translators: %s: Total number of threats  */
+									/* translators: %1$s: Total number of threats, %2$s: singular or plural form of "threat" */
 									__( '%1$s previously active %2$s', 'jetpack-protect' ),
 									numAllThreats,
 									numAllThreats === 1 ? 'threat' : 'threats'

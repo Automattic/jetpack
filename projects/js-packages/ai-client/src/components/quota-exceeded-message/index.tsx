@@ -167,7 +167,7 @@ const DefaultUpgradePrompt = ( {
 
 		const upgradeDescription = createInterpolateElement(
 			sprintf(
-				/* Translators: number of requests */
+				/* Translators: %d: the number of requests allowed */
 				__(
 					'You have reached the requests limit for your current plan. <strong>Upgrade now to increase your requests limit to %d.</strong>',
 					'jetpack-ai-client'
@@ -182,7 +182,7 @@ const DefaultUpgradePrompt = ( {
 		return (
 			<Nudge
 				buttonText={ sprintf(
-					/* Translators: number of requests */
+					/* Translators: %d: the number of requests */
 					__( 'Upgrade to %d requests', 'jetpack-ai-client' ),
 					nextTier.limit
 				) }

@@ -27,7 +27,7 @@ const useBadInstallNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md';
 
 		const errorMessage = sprintf(
-			// translators: %s is the name of the plugin that has a bad installation.
+			// translators: %1$s: the name of the plugin that has a bad installation.
 			__(
 				'Your installation of %1$s is incomplete. If you installed %1$s from GitHub, please refer to the developer documentation to set up your development environment.',
 				'jetpack-my-jetpack'
