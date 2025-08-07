@@ -10,7 +10,6 @@
 	width: 1px;
 }
 
-// Font-size class mappings for icon sizing
 .jetpack-field-rating.has-small-font-size {
 	--rating-icon-size: var(--wp--preset--font-size--small, 13px);
 }
@@ -27,13 +26,11 @@
 	--rating-icon-size: var(--wp--preset--font-size--x-large, 42px);
 }
 
-// Fieldset wrapper for rating field
 .jetpack-field-rating {
 	border: none;
 	margin: 0;
 	padding: 0;
 
-	// Reset legend font-size to normal
 	legend {
 		font-size: 1rem;
 	}
@@ -56,27 +53,20 @@
 		overflow: visible;
 	}
 
-	/* Checked (filled) rating icons - fill current and all previous */
-	input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label {
-		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
-
-		.jetpack-field-rating__icon path {
-			fill: currentColor;
-		}
-	}
-
-	/* Fill all previous rating icons when one is selected */
-	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label,
-	.contact-form-field:has(~ .contact-form-field input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label {
-		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
-
-		.jetpack-field-rating__icon path {
-			fill: currentColor;
-		}
-	}
-
-	/* Hover effects */
-	.jetpack-field-rating__label:hover {
+	input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
+	.jetpack-field-rating__label:hover,
+	.wp-block-jetpack-option:has(
+		~ .wp-block-jetpack-option input[type="radio"].jetpack-field-rating__input:checked
+	) .jetpack-field-rating__label,
+	.contact-form-field:has(
+		~ .contact-form-field input[type="radio"].jetpack-field-rating__input:checked
+	) .jetpack-field-rating__label,
+	.wp-block-jetpack-option:has(
+		~ .wp-block-jetpack-option .jetpack-field-rating__label:hover
+	) .jetpack-field-rating__label,
+	.contact-form-field:has(
+		~ .contact-form-field .jetpack-field-rating__label:hover
+	) .jetpack-field-rating__label {
 		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
 
 		.jetpack-field-rating__icon path {
@@ -100,7 +90,6 @@
 
 
 	input[type="radio"].jetpack-field-rating__input {
-		// Visually hide the actual radio but keep it accessible for screen readers
 		position: absolute;
 		opacity: 0;
 		width: 1px;

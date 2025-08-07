@@ -67,5 +67,3 @@ export default function RatingToolbar( { className, max, onUpdateClassName, onUp
 		</>
 	);
 }
-
-// Shared toolbar component with comprehensive controls for rating configuration

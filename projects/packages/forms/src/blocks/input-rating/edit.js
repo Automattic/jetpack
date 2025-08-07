@@ -54,7 +54,7 @@ export default function RatingInputEdit( { context, clientId } ) {
 		onChangeDefault( defaultValue === position ? 0 : position );
 	};
 
-	// Generate rating options matching frontend structure
+	// Generate rating options
 	const ratingOptions = [];
 	for ( let i = 1; i <= max; i++ ) {
 		const radioId = `rating-${ clientId }-${ i }`;
