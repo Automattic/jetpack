@@ -10,12 +10,33 @@
 	width: 1px;
 }
 
+// Font-size class mappings for icon sizing
+.jetpack-field-rating.has-small-font-size {
+	--rating-icon-size: var(--wp--preset--font-size--small, 13px);
+}
+
+.jetpack-field-rating.has-medium-font-size {
+	--rating-icon-size: var(--wp--preset--font-size--medium, 20px);
+}
+
+.jetpack-field-rating.has-large-font-size {
+	--rating-icon-size: var(--wp--preset--font-size--large, 36px);
+}
+
+.jetpack-field-rating.has-x-large-font-size {
+	--rating-icon-size: var(--wp--preset--font-size--x-large, 42px);
+}
+
 // Fieldset wrapper for rating field
 .jetpack-field-rating {
 	border: none;
 	margin: 0;
 	padding: 0;
 
+	// Reset legend font-size to normal
+	legend {
+		font-size: 1rem;
+	}
 
 	.jetpack-rating-options {
 		display: flex;
@@ -23,30 +44,16 @@
 		flex-wrap: wrap;
 		gap: 0.2em;
 		align-items: center;
-
-		// Store font-size classes as custom property
-		&.has-small-font-size {
-			--rating-icon-size: var(--wp--preset--font-size--small);
-		}
-
-		&.has-medium-font-size {
-			--rating-icon-size: var(--wp--preset--font-size--medium);
-		}
-
-		&.has-large-font-size {
-			--rating-icon-size: var(--wp--preset--font-size--large);
-		}
-
-		&.has-x-large-font-size {
-			--rating-icon-size: var(--wp--preset--font-size--x-large);
-		}
 	}
 
 	.jetpack-field-rating .jetpack-rating-options .contact-form-field {
 		margin: 0;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
+		padding: 0;
+		position: relative;
+		display: inline-block;
+		width: 0;
+		height: 0;
+		overflow: visible;
 	}
 
 	/* Checked (filled) rating icons - fill current and all previous */
@@ -87,6 +94,7 @@
 			width: var(--rating-icon-size, 1em);
 			height: var(--rating-icon-size, 1em);
 			display: block;
+			font-size: inherit;
 		}
 	}
 
@@ -95,9 +103,13 @@
 		// Visually hide the actual radio but keep it accessible for screen readers
 		position: absolute;
 		opacity: 0;
-		width: 0;
-		height: 0;
+		width: 1px;
+		height: 1px;
 		margin: 0;
+		padding: 0;
+		border: 0;
+		clip: rect(1px, 1px, 1px, 1px);
+		overflow: hidden;
 	}
 }
 

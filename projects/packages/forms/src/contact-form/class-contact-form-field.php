@@ -2191,8 +2191,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * Determine which icon SVG to use based on CSS classes.
 		 * Check the block's className attribute for style variations.
 		 */
-		$block_class_name = $this->get_attribute( 'className' );
-		$has_hearts_style = false !== strpos( $block_class_name, 'is-style-hearts' );
+		// Check fieldwrapperclasses which contains the actual selected style variant
+		$wrapper_classes  = $this->get_attribute( 'fieldwrapperclasses' ) ? $this->get_attribute( 'fieldwrapperclasses' ) : '';
+		$has_hearts_style = false !== strpos( $wrapper_classes, 'is-style-hearts' );
 
 		// SVG icon definitions - keep in sync with JavaScript icons.js
 		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg>';
@@ -2211,10 +2212,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						name="%3$s"
 						value="%4$s/%5$s"
 						data-wp-on--change="actions.onFieldChange"
-						class="jetpack-field-rating__input radio grunion-field"
+						class="jetpack-field-rating__input"
 						%1$s
 						%2$s /> 
-					<label for="%7$s" class="jetpack-field-rating__label grunion-radio-label rating">
+					<label for="%7$s" class="jetpack-field-rating__label">
 						%6$s
 					</label>
 				</div>',
@@ -2283,14 +2284,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		return sprintf(
 			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating %3$s" %1$s>
 				%5$s
-				<div class="jetpack-rating-options %6$s">%2$s</div>
+				<div class="jetpack-rating-options">%2$s</div>
 			</fieldset>',
 			$style_attr,
 			$options,
 			$this->field_classes,
 			esc_attr( $id ),
-			$label_html,
-			esc_attr( $block_class_name )
+			$label_html
 		) . $this->get_error_div( $id, 'rating' );
 	}
 
