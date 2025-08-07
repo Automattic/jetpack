@@ -433,12 +433,20 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							{ dataSorted.map( ( seriesData, index ) => {
 								const stroke =
 									seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
+
+								// Get theme-based line styles for comparison type
+								const themeLineStyle = seriesData.options?.type
+									? providerTheme?.lineChart?.lineStyles?.[ seriesData.options.type ]
+									: undefined;
+
 								const lineProps =
 									seriesData.options?.seriesLineStyle ??
+									themeLineStyle ??
 									providerTheme?.seriesLineStyles?.[
-										index % providerTheme.seriesLineStyles.length
+										index % ( providerTheme.seriesLineStyles?.length || 1 )
 									] ??
 									{};
+
 								return (
 									<g key={ seriesData?.label || index }>
 										{ withStartGlyphs && (

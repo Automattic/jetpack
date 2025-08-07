@@ -351,3 +351,62 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 		},
 	},
 };
+
+export const ComparisonSeries: StoryObj< typeof LineChart > = Template.bind( {} );
+ComparisonSeries.args = {
+	data: [
+		{
+			label: 'Current Year Sales',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 100 },
+				{ date: new Date( '2024-02-01' ), value: 120 },
+				{ date: new Date( '2024-03-01' ), value: 110 },
+				{ date: new Date( '2024-04-01' ), value: 140 },
+				{ date: new Date( '2024-05-01' ), value: 160 },
+				{ date: new Date( '2024-06-01' ), value: 180 },
+				{ date: new Date( '2024-07-01' ), value: 200 },
+				{ date: new Date( '2024-08-01' ), value: 190 },
+				{ date: new Date( '2024-09-01' ), value: 210 },
+				{ date: new Date( '2024-10-01' ), value: 220 },
+				{ date: new Date( '2024-11-01' ), value: 240 },
+				{ date: new Date( '2024-12-01' ), value: 260 },
+			],
+			options: {
+				stroke: '#98C8DF', // Use first color from default theme
+			},
+		},
+		{
+			label: 'Previous Year Sales (Comparison)',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 90 },
+				{ date: new Date( '2024-02-01' ), value: 95 },
+				{ date: new Date( '2024-03-01' ), value: 105 },
+				{ date: new Date( '2024-04-01' ), value: 115 },
+				{ date: new Date( '2024-05-01' ), value: 125 },
+				{ date: new Date( '2024-06-01' ), value: 130 },
+				{ date: new Date( '2024-07-01' ), value: 140 },
+				{ date: new Date( '2024-08-01' ), value: 135 },
+				{ date: new Date( '2024-09-01' ), value: 150 },
+				{ date: new Date( '2024-10-01' ), value: 155 },
+				{ date: new Date( '2024-11-01' ), value: 165 },
+				{ date: new Date( '2024-12-01' ), value: 170 },
+			],
+			options: {
+				stroke: '#98C8DF', // Use first color from default theme
+				type: 'comparison', // Uses comparison line style from theme
+			},
+		},
+	],
+	showLegend: true,
+	height: 400,
+	smoothing: false,
+};
+
+ComparisonSeries.parameters = {
+	docs: {
+		description: {
+			story:
+				'Demonstrates the comparison series type feature with two data series: one regular series (Current Year Sales) with default styling, and one comparison series (Previous Year Sales) with the comparison type that applies special styling defined in the theme. The comparison series will use the lineChart.lineStyles.comparison styling from the active theme, which typically renders as a dashed or different styled line to visually distinguish it from regular data series.',
+		},
+	},
+};
