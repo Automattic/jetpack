@@ -409,14 +409,17 @@ trait Woo_Analytics_Trait {
 
 			$session_expiration = $this->get_session_expiration_time();
 			$event_js           = $this->process_event_properties( 'woocommerceanalytics_session_started' );
-			$cookie_js          = "
-            const sessionData = JSON.stringify({
-                    session_id: '$this->session_id',
-                    landing_page: encodeURIComponent('$this->landing_page'),
-                    expires: '$session_expiration',
-            });
-            document.cookie = `woocommerceanalytics_session=\${sessionData}; expires=$session_expiration; path=/; secure; samesite=strict`;
-            ";
+			$session_data       = wp_json_encode(
+				array(
+					'session_id'   => $this->session_id,
+					'landing_page' => $this->landing_page,
+					'expires'      => $session_expiration,
+				)
+			);
+
+			$cookie_js = "
+					document.cookie = `woocommerceanalytics_session={$session_data}; expires=$session_expiration; path=/; secure; samesite=strict`;
+			";
 			wc_enqueue_js( $cookie_js ); // save the session cookie for further events in the session
 			wc_enqueue_js( "_wca.push({$event_js});" ); // trigger session started event
 		}
@@ -828,7 +831,13 @@ trait Woo_Analytics_Trait {
 	 * @return string
 	 */
 	public function get_current_url() {
-		return sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
+		$scheme      = is_ssl() ? 'https' : 'http';
+		$host        = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+
+		$full_url = $scheme . '://' . $host . $request_uri;
+
+		return sanitize_url( $full_url );
 	}
 
 	/**
