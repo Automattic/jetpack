@@ -1,28 +1,8 @@
 /* Rating input block – front-end styles */
 
-.jetpack-rating-options.has-small-font-size {
-	--rating-icon-size: var(--wp--preset--font-size--small, 13px);
-}
+// Size: rely on core font-size supports; icons use 1em and scale with font-size
 
-.jetpack-rating-options.has-medium-font-size {
-	--rating-icon-size: var(--wp--preset--font-size--medium, 20px);
-}
-
-.jetpack-rating-options.has-large-font-size {
-	--rating-icon-size: var(--wp--preset--font-size--large, 36px);
-}
-
-.jetpack-rating-options.has-x-large-font-size {
-	--rating-icon-size: var(--wp--preset--font-size--x-large, 42px);
-}
-
-// Color support: when a custom text color is picked, let children inherit it
-.jetpack-rating-options.has-text-color {
-
-	.jetpack-field-rating__label {
-		color: inherit;
-	}
-}
+// Color: rely on inheritance (core color support) and variable fallback
 
 .jetpack-field-rating {
 	border: none;
@@ -33,21 +13,16 @@
 		font-size: 1rem;
 	}
 
-	.jetpack-rating-options {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		gap: 0.2em;
-		align-items: center;
-	}
-
 	.jetpack-rating-options .contact-form-field {
 		margin: 0;
 		padding: 0;
-		position: relative;
 		display: inline-flex;
 		align-items: center;
-		overflow: visible;
+	}
+
+	/* Ensure theme label font-size overrides don't shrink the icons */
+	.jetpack-rating-options .jetpack-field-rating__label {
+		font-size: inherit;
 	}
 
 	// Filled states: checked, hover, and previous siblings
@@ -65,11 +40,11 @@
 		display: inline-flex;
 		margin-bottom: 0;
 		cursor: pointer;
-		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, var(--jetpack--contact-form--text-color, currentColor)));
+		color: inherit;
 
 		.jetpack-field-rating__icon {
-			width: var(--rating-icon-size, 1em);
-			height: var(--rating-icon-size, 1em);
+			width: 1em;
+			height: 1em;
 			display: block;
 			font-size: inherit;
 
