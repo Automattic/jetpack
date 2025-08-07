@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-date.php';
 
 /**

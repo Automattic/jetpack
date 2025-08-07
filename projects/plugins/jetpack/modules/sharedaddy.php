@@ -19,6 +19,10 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'sharing_init' ) ) {
 	require __DIR__ . '/sharedaddy/sharedaddy.php';
 }

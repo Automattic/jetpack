@@ -5,6 +5,10 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_featured_images_fallback_get_image' ) ) {
 
 	/**

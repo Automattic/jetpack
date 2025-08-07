@@ -6,6 +6,10 @@
  * @since 13.1
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Media uploaded by the Jetpack app helper API.
  *

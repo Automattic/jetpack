@@ -10,6 +10,10 @@
  * Add a few extras from GitHub's Markdown implementation. Must be used in a WordPress environment.
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 
 	/**
