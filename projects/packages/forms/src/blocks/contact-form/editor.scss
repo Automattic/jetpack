@@ -448,6 +448,7 @@
 			height: 1em;
 			justify-content: center;
 			width: 1em;
+			transform: translateY(-0.35em);
 		}
 
 		&[type="radio"]::before {
@@ -482,10 +483,6 @@
 			display: block; /* display: flex causes baselines to not align */
 			transform: translateY(0.15em);
 		}
-	}
-
-	.jetpack-field-option.field-option-checkbox {
-		align-items: center;
 	}
 
 	.jetpack-field-multiple__list .jetpack-field-option.field-option-checkbox {
