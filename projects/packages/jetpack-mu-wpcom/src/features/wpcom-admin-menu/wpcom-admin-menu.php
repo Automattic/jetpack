@@ -265,14 +265,24 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Newsletter.
 	if ( $is_simple_site ) {
+		// Jetpack > Newsletter.
 		add_submenu_page(
 			'jetpack',
 			__( 'Newsletter', 'jetpack-mu-wpcom' ),
 			__( 'Newsletter', 'jetpack-mu-wpcom' ),
 			'manage_options',
 			'https://wordpress.com/settings/newsletter/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+
+		// Jetpack > Traffic
+		add_submenu_page(
+			'jetpack',
+			__( 'Traffic', 'jetpack-mu-wpcom' ),
+			__( 'Traffic', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/marketing/traffic/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 	}
@@ -311,6 +321,7 @@ function wpcom_add_jetpack_submenu() {
 		'subscribers',
 		'newsletter',
 		'podcasting',
+		'traffic',
 		'jetpack#/settings',
 	);
 	$ordered_submenu = array();
