@@ -10,20 +10,42 @@
 	width: 1px;
 }
 
-.jetpack-field-rating.has-small-font-size {
+.jetpack-rating-options.has-small-font-size {
 	--rating-icon-size: var(--wp--preset--font-size--small, 13px);
 }
 
-.jetpack-field-rating.has-medium-font-size {
+.jetpack-rating-options.has-medium-font-size {
 	--rating-icon-size: var(--wp--preset--font-size--medium, 20px);
 }
 
-.jetpack-field-rating.has-large-font-size {
+.jetpack-rating-options.has-large-font-size {
 	--rating-icon-size: var(--wp--preset--font-size--large, 36px);
 }
 
-.jetpack-field-rating.has-x-large-font-size {
+.jetpack-rating-options.has-x-large-font-size {
 	--rating-icon-size: var(--wp--preset--font-size--x-large, 42px);
+}
+
+// Color support: Apply custom color when color is picked
+.jetpack-rating-options.has-text-color.has-text-color {
+	// Apply custom stroke color to ALL rating labels
+	.jetpack-field-rating__label {
+		color: inherit;
+
+		.jetpack-field-rating__icon path {
+			stroke: currentColor;
+		}
+	}
+
+	// Apply custom fill color ONLY to active/selected states
+	input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label .jetpack-field-rating__icon path,
+	.jetpack-field-rating__label:hover .jetpack-field-rating__icon path,
+	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label .jetpack-field-rating__icon path,
+	.contact-form-field:has(~ .contact-form-field input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label .jetpack-field-rating__icon path,
+	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option .jetpack-field-rating__label:hover) .jetpack-field-rating__label .jetpack-field-rating__icon path,
+	.contact-form-field:has(~ .contact-form-field .jetpack-field-rating__label:hover) .jetpack-field-rating__label .jetpack-field-rating__icon path {
+		fill: currentColor;
+	}
 }
 
 .jetpack-field-rating {
@@ -53,21 +75,14 @@
 		overflow: visible;
 	}
 
+	// All filled states (checked, hover, and previous siblings)
 	input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
 	.jetpack-field-rating__label:hover,
-	.wp-block-jetpack-option:has(
-		~ .wp-block-jetpack-option input[type="radio"].jetpack-field-rating__input:checked
-	) .jetpack-field-rating__label,
-	.contact-form-field:has(
-		~ .contact-form-field input[type="radio"].jetpack-field-rating__input:checked
-	) .jetpack-field-rating__label,
-	.wp-block-jetpack-option:has(
-		~ .wp-block-jetpack-option .jetpack-field-rating__label:hover
-	) .jetpack-field-rating__label,
-	.contact-form-field:has(
-		~ .contact-form-field .jetpack-field-rating__label:hover
-	) .jetpack-field-rating__label {
-		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
+	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label,
+	.contact-form-field:has(~ .contact-form-field input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label,
+	.wp-block-jetpack-option:has(~ .wp-block-jetpack-option .jetpack-field-rating__label:hover) .jetpack-field-rating__label,
+	.contact-form-field:has(~ .contact-form-field .jetpack-field-rating__label:hover) .jetpack-field-rating__label {
+		// Removed color rule - now handled by color picker override
 
 		.jetpack-field-rating__icon path {
 			fill: currentColor;
@@ -78,16 +93,20 @@
 		display: inline-flex;
 		margin-bottom: 0;
 		cursor: pointer;
-		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, currentColor));
+		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, var(--jetpack--contact-form--text-color, currentColor)));
 
 		.jetpack-field-rating__icon {
 			width: var(--rating-icon-size, 1em);
 			height: var(--rating-icon-size, 1em);
 			display: block;
 			font-size: inherit;
+
+			path {
+				fill: none;
+				stroke: currentColor;
+			}
 		}
 	}
-
 
 	input[type="radio"].jetpack-field-rating__input {
 		position: absolute;

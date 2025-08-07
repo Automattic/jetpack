@@ -5,20 +5,9 @@ import defaultSettings from '../shared/settings';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 import save from './save';
+import variations from './variations';
 
 const name = 'field-rating';
-const stylesArray = [
-	{
-		name: 'stars',
-		label: __( 'Stars', 'jetpack-forms' ),
-		isDefault: true,
-	},
-	{
-		name: 'hearts',
-		label: __( 'Hearts', 'jetpack-forms' ),
-		isDefault: false,
-	},
-];
 const settings = {
 	...defaultSettings,
 	title: __( 'Rating field', 'jetpack-forms' ),
@@ -69,7 +58,10 @@ const settings = {
 		'jetpack/field-rating-default': 'default',
 		'jetpack/field-rating-className': 'className',
 	},
-	styles: stylesArray,
+	supports: {
+		...defaultSettings.supports,
+	},
+	variations,
 	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],
 	edit,
 	save,

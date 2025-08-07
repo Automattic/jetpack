@@ -2,7 +2,6 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 	InspectorControls,
-	BlockControls,
 	BlockContextProvider,
 } from '@wordpress/block-editor';
 import {
@@ -13,7 +12,6 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import RatingToolbar from '../shared/components/rating-toolbar';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 /**
@@ -27,7 +25,7 @@ import useFormWrapper from '../shared/hooks/use-form-wrapper';
  */
 export default function RatingFieldEdit( props ) {
 	const { attributes, setAttributes, clientId } = props;
-	const { max = 5, default: defaultValue = 0, required, id, width, className = '' } = attributes;
+	const { max = 5, default: defaultValue = 0, required, id, width } = attributes;
 
 	useFormWrapper( props );
 
@@ -48,10 +46,6 @@ export default function RatingFieldEdit( props ) {
 		},
 		[ max, setAttributes ]
 	);
-
-	const updateClassName = newClassName => {
-		setAttributes( { className: newClassName } );
-	};
 
 	const blockProps = useBlockProps( {
 		className: `jetpack-field jetpack-field-rating${
@@ -77,20 +71,11 @@ export default function RatingFieldEdit( props ) {
 
 	return (
 		<>
-			<BlockControls __experimentalShareWithChildBlocks>
-				<RatingToolbar
-					className={ className }
-					max={ max }
-					onUpdateClassName={ updateClassName }
-					onUpdateMax={ updateMax }
-				/>
-			</BlockControls>
-
 			<BlockContextProvider
 				value={ {
 					'jetpack/field-rating-max': max,
 					'jetpack/field-rating-default': defaultValue,
-					'jetpack/field-rating-className': className,
+					'jetpack/field-rating-className': attributes.className || '',
 					'jetpack/field-rating-onChangeDefault': onChangeDefault,
 				} }
 			>

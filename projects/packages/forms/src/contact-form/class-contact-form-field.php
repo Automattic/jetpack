@@ -2282,9 +2282,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 
 		return sprintf(
-			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating %3$s" %1$s>
+			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s>
 				%5$s
-				<div class="jetpack-rating-options">%2$s</div>
+				<div class="jetpack-rating-options %3$s">%2$s</div>
 			</fieldset>',
 			$style_attr,
 			$options,
