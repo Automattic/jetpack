@@ -1117,31 +1117,21 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the image choices field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
-	 *
 	 * @return string HTML for the image choices form field.
 	 */
-	public static function gutenblock_render_form_image_select_choices( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select-choices', $block );
-
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_form_image_select_choices() {
+		// TODO: Implement the block rendering
+		return '';
 	}
 
 	/**
 	 * Render the image choice field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
-	 *
 	 * @return string HTML for the image choice form field.
 	 */
-	public static function gutenblock_render_form_image_select_choice( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select-choice', $block );
-
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_form_image_select_choice() {
+		// TODO: Implement the block rendering
+		return '';
 	}
 
 	/**
