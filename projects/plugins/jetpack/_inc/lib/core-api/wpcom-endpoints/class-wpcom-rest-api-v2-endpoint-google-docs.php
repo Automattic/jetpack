@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Extensions\GoogleDocsEmbed;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Google Docs block endpoint.
  */

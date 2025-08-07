@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * REST API endpoint wpcom/v3/sites/%s/blogging-prompts.
  */

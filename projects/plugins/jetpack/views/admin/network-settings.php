@@ -10,6 +10,10 @@
 
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	?>
 	<div class="updated"><p><?php esc_html_e( 'Jetpack Network Settings Updated!', 'jetpack' ); ?></p></div>
