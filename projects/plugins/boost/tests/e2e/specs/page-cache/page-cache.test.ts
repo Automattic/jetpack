@@ -110,13 +110,13 @@ test.describe( 'Cache module', () => {
 		await boostUtils.activateBoostModule( 'page_cache' );
 
 		// Ensure default storageState is empty.
-		const newContext = await browser.newContext( { storageState: {} } );
+		const newContext = await browser.newContext( { storageState: undefined } );
 		const newPage = await newContext.newPage();
 
 		let totalVisits = 0;
 
 		newPage.on( 'response', response => {
-			if ( response.url().replace( /\/$/, '' ) !== baseURL.replace( /\/$/, '' ) ) {
+			if ( response.url().replace( /\/$/, '' ) !== baseURL?.replace( /\/$/, '' ) ) {
 				return;
 			}
 
