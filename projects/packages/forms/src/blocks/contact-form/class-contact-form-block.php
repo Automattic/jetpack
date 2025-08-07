@@ -58,7 +58,7 @@ class Contact_Form_Block {
 	 */
 	public static function register_feature( $features ) {
 		// Features under development.
-		$features['image-select-field'] = apply_filters( 'jetpack_forms_enable_image_select_field', false );
+		$features['image-select-field'] = apply_filters( 'forms_alpha', false );
 
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
@@ -452,7 +452,7 @@ class Contact_Form_Block {
 		);
 
 		// Block under development.
-		if ( apply_filters( 'jetpack_forms_enable_image_select_field', false ) ) {
+		if ( apply_filters( 'forms_alpha', false ) ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-image-select',
 				array(
