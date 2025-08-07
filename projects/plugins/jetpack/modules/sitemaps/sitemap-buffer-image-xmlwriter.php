@@ -67,6 +67,15 @@ class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 			return;
 		}
 
+		if ( isset( $array['url']['image:image'] ) ) {
+			if ( empty( $array['url']['image:image']['image:title'] ) ) {
+				unset( $array['url']['image:image']['image:title'] );
+			}
+			if ( empty( $array['url']['image:image']['image:caption'] ) ) {
+				unset( $array['url']['image:image']['image:caption'] );
+			}
+		}
+
 		$this->array_to_xml( $array );
 	}
 }
