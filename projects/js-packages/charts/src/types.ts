@@ -34,16 +34,19 @@ export type DataPointDate = {
 	label?: string;
 };
 
+export type SeriesDataOptions = {
+	gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
+	stroke?: string;
+	seriesLineStyle?: LineStyles;
+	legendShapeStyle?: CSSProperties;
+	type?: 'comparison';
+};
+
 export type SeriesData = {
 	group?: string;
 	label: string;
 	data: DataPointDate[] | DataPoint[];
-	options?: {
-		gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
-		stroke?: string;
-		seriesLineStyle?: LineStyles;
-		legendShapeStyle?: CSSProperties;
-	};
+	options?: SeriesDataOptions;
 };
 
 export type MultipleDataPointsDate = {
@@ -132,6 +135,9 @@ export type ChartTheme = {
 		positiveChangeColor?: string;
 		/** Color for negative change indicators */
 		negativeChangeColor?: string;
+	};
+	lineChart?: {
+		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
 };
 
