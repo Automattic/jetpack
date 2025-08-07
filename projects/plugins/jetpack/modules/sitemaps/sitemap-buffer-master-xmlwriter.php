@@ -39,13 +39,7 @@ class Jetpack_Sitemap_Buffer_Master_XMLWriter extends Jetpack_Sitemap_Buffer_XML
 	 */
 	protected function append_item( $array ) {
 		if ( ! empty( $array['sitemap'] ) ) {
-			$this->writer->startElement( 'sitemap' );
-
-			foreach ( $array['sitemap'] as $tag => $value ) {
-				$this->writer->writeElement( $tag, strval( $value ) );
-			}
-
-			$this->writer->endElement(); // sitemap
+			$this->array_to_xml( $array );
 		}
 	}
 }
