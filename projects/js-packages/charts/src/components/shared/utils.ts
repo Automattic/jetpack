@@ -47,19 +47,17 @@ export function getSeriesLineStyles(
 	index: number,
 	providerTheme: ChartTheme
 ): LineStyles {
-	// Get theme-based line styles for comparison type
-	const themeLineStyle = seriesData.options?.type
-		? providerTheme?.lineChart?.lineStyles?.[ seriesData.options.type ]
-		: undefined;
+	// Get theme-based line styles for line type
+	const themeSemanticLineStyle = providerTheme?.lineChart?.lineStyles?.[ seriesData.options?.type ];
 
-	// Priority order: custom series style > theme comparison style > default theme series style
-	const lineProps =
-		seriesData.options?.seriesLineStyle ??
-		themeLineStyle ??
-		providerTheme?.seriesLineStyles?.[ index % ( providerTheme.seriesLineStyles?.length || 1 ) ] ??
-		{};
+	// Get theme-based line styles for index of series data
+	const themeSeriesLineStyle =
+		providerTheme?.seriesLineStyles?.[ index % providerTheme.seriesLineStyles.length ];
 
-	return lineProps;
+	// Priority order: custom series style > theme line type style > default theme series style
+	return (
+		seriesData.options?.seriesLineStyle ?? themeSemanticLineStyle ?? themeSeriesLineStyle ?? {}
+	);
 }
 
 /**
