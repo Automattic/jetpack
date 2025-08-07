@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSeriesStyles } from '../shared/utils';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
 
@@ -70,22 +71,17 @@ function processSeriesData(
 	renderGlyph?: React.ComponentType< unknown >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( series: SeriesData, index: number ) => {
-		const color = series.options?.stroke ?? theme.colors[ index % theme.colors.length ];
+		const { stroke, lineStyles } = getSeriesStyles( series, index, theme );
 		const baseItem = createBaseLegendItem(
 			series.label,
 			showValues ? series.data?.length?.toString() || '0' : '',
-			color
+			stroke
 		);
-
-		// Get theme-based line styles for comparison type
-		const themeLineStyle = series.options?.type
-			? theme?.lineChart?.lineStyles?.[ series.options.type ]
-			: undefined;
 
 		// Create shape style that includes comparison styling
 		const shapeStyle = {
 			...( series.options?.legendShapeStyle ?? {} ),
-			...( themeLineStyle ?? {} ),
+			...lineStyles,
 		};
 
 		const hasShapeStyle = Object.keys( shapeStyle ).length > 0;

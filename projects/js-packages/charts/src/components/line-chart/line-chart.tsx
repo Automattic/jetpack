@@ -25,6 +25,7 @@ import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
+import { getSeriesStyles } from '../shared/utils';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import LineChartAnnotation from './line-chart-annotation';
@@ -431,21 +432,12 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.y } />
 
 							{ dataSorted.map( ( seriesData, index ) => {
-								const stroke =
-									seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
+								const { stroke, lineStyles } = getSeriesStyles( seriesData, index, providerTheme );
 
-								// Get theme-based line styles for comparison type
-								const themeLineStyle = seriesData.options?.type
-									? providerTheme?.lineChart?.lineStyles?.[ seriesData.options.type ]
-									: undefined;
-
-								const lineProps =
-									seriesData.options?.seriesLineStyle ??
-									themeLineStyle ??
-									providerTheme?.seriesLineStyles?.[
-										index % ( providerTheme.seriesLineStyles?.length || 1 )
-									] ??
-									{};
+								const lineProps = {
+									stroke,
+									...lineStyles,
+								};
 
 								return (
 									<g key={ seriesData?.label || index }>
