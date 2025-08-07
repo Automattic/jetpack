@@ -1448,6 +1448,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			case 'file':
 				$str = __( 'Upload a file', 'jetpack-forms' );
 				break;
+			case 'time':
+				$str = __( 'Time', 'jetpack-forms' );
+				break;
 			default:
 				$str = null;
 		}
