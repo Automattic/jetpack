@@ -8,7 +8,7 @@ import { getBlockType } from '@wordpress/blocks';
 import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldWidth from '../shared/components/jetpack-field-width';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
@@ -131,12 +131,15 @@ export default function ConsentFieldEdit( props ) {
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
 
+	const hasUpgradedToNewStyle = useRef( 1 );
 	// Ensure the className is set to 'is-style-list' if it is empty or not set.
+	// By updating the className on the second render, we can make sure that the block doesn't trigger a "Save" action.
 	useEffect( () => {
-		if ( className === '' || ! className ) {
+		if ( ! className && hasUpgradedToNewStyle.current === 2 ) {
 			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( { className: 'is-style-list' } );
 		}
+		hasUpgradedToNewStyle.current = 2;
 	}, [ className, setAttributes, __unstableMarkNextChangeAsNotPersistent ] ); // This effect is a placeholder for any future side effects.
 
 	const onShareFieldAttributesChange = useCallback(

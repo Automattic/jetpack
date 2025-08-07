@@ -66,7 +66,7 @@ export default function CheckboxFieldEdit( props ) {
 	// Ensure the className is set to 'is-style-list' if it is empty or not set.
 	// By updating the className on the second render, we can make sure that the block doesn't trigger a "Save" action.
 	useEffect( () => {
-		if ( className === '' || ( ! className && hasUpgradedToNewStyle.current === 2 ) ) {
+		if ( ! className && hasUpgradedToNewStyle.current === 2 ) {
 			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( { className: 'is-style-list' } );
 		}
