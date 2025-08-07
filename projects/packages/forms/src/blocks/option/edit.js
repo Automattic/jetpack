@@ -102,7 +102,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 
 	return (
 		<li { ...blockProps }>
-			<input type={ type } className="jetpack-option__type" tabIndex="-1" />
+			<input type={ type } disabled className="jetpack-option__type" tabIndex="-1" />
 			<RichText
 				ref={ useEnterRef }
 				identifier="label"
