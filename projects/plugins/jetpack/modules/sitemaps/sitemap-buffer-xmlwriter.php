@@ -226,18 +226,26 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		// Ensure root is started on first append and account its bytes.
 		$this->ensure_root_started();
 
+		// Attempt to render the item. Subclasses may decide to skip writing
+		// if the input structure is invalid for that sitemap type.
 		$this->append_item( $array );
-		// Mark non-empty only if we actually appended an item.
-		$this->is_empty_flag = false;
 
-		$new_content    = $this->writer->outputMemory( true );
-		$this->content .= $new_content;
+		// Capture only the bytes produced by this item.
+		$new_content = $this->writer->outputMemory( true );
 
-		// Update capacities after successful append
+		// If nothing was written, treat as a no-op: keep the buffer "empty"
+		// and do not consume item/byte capacities.
+		if ( '' === $new_content ) {
+			return true;
+		}
+
+		// Persist newly written bytes and update capacities.
+		$this->content       .= $new_content;
 		$this->item_capacity -= 1;
 		$this->byte_capacity -= strlen( $new_content );
+		$this->is_empty_flag  = false;
 
-		// Check both capacity limits
+		// Check both capacity limits.
 		if ( 0 >= $this->item_capacity || $this->byte_capacity <= 0 ) {
 			$this->is_full_flag = true;
 		}
