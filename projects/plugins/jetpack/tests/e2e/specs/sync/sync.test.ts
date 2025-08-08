@@ -1,5 +1,5 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
-import logger from '_jetpack-e2e-commons/logger';
+import { test, expect } from '@fixtures/base-test';
+import logger from '@logger';
 import {
 	enableSync,
 	disableSync,
@@ -7,7 +7,7 @@ import {
 	enableDedicatedSync,
 	disableDedicatedSync,
 	isSyncQueueEmpty,
-} from '../../helpers/sync-helper';
+} from '@helpers/sync-helper';
 
 test.describe( 'Sync', () => {
 	const wpcomRestAPIBase = 'https://public-api.wordpress.com/rest/';

@@ -1,5 +1,5 @@
-import logger from '_jetpack-e2e-commons/logger';
-import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
+import logger from '@logger';
+import { executeWpCommand } from '@utils/cli';
 
 /**
  * Enable automatic rules

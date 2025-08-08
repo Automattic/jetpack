@@ -1,4 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import { test, expect } from '@fixtures/base-test';
 
 test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.activateModule( 'account-protection' );
