@@ -18,7 +18,9 @@ export default function ImageChoiceFieldEdit( props ) {
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const { isInnerBlockSelected } = useSelect(
 		select => {
-			const { hasSelectedInnerBlock } = select( blockEditorStore );
+			const { hasSelectedInnerBlock } = select( blockEditorStore ) as {
+				hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
+			};
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
 			};

@@ -11,7 +11,7 @@ import { createBlock } from '@wordpress/blocks';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -32,7 +32,10 @@ export default function ImageSelectFieldEdit( props ) {
 
 	const { isInnerBlockSelected, choicesBlock } = useSelect(
 		select => {
-			const { hasSelectedInnerBlock, getBlock } = select( blockEditorStore );
+			const { hasSelectedInnerBlock, getBlock } = select( blockEditorStore ) as {
+				hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
+				getBlock: ( clientId: string ) => Block;
+			};
 
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
@@ -60,7 +63,17 @@ export default function ImageSelectFieldEdit( props ) {
 			return;
 		}
 
-		const newChoiceBlock = createBlock( 'jetpack/form-image-select-choice' );
+		const newIndex = choicesBlock.innerBlocks.length + 1;
+		const newChoiceBlock = createBlock( 'jetpack/form-image-select-choice', {}, [
+			createBlock( 'jetpack/label', {
+				label: sprintf(
+					// translators: %d is the number of the image choice field.
+					__( 'Image choice %d', 'jetpack-forms' ),
+					newIndex
+				),
+			} ),
+			createBlock( 'core/image' ),
+		] );
 
 		insertBlock( newChoiceBlock, choicesBlock.innerBlocks.length, choicesBlock.clientId );
 	}, [ choicesBlock, insertBlock ] );
