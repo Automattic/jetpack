@@ -23,7 +23,7 @@ test.describe( 'Sync', () => {
 		wpcomBlogId = JSON.parse( jetpackOptions ).id;
 		wpcomForcedPostsUrl =
 			wpcomRestAPIBase + `v1/sites/${ wpcomBlogId }/posts?force=wpcom&search=Sync`;
-		logger.sync( `START: ${ jetpackOptions }` );
+		logger.debug( `START: ${ jetpackOptions }` );
 	} );
 
 	test.beforeEach( async () => {
