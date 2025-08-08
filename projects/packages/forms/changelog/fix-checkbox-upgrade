@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix logic for only upgrade once to work on simple sites
