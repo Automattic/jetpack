@@ -1,4 +1,5 @@
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -22,17 +23,9 @@ import {
 	FEATURE_JETPACK_SOCIAL,
 	FEATURE_POST_BY_EMAIL,
 	getJetpackProductUpsellByFeature,
+	getPlanClass,
 	FEATURE_JETPACK_BLAZE,
 	FEATURE_JETPACK_EARN,
-	// Plan slugs used to detect Personal/Premium tiers (non-Jetpack plan constants)
-	PLAN_PERSONAL,
-	PLAN_PERSONAL_MONTHLY,
-	PLAN_PERSONAL_2_YEARS,
-	PLAN_PERSONAL_3_YEARS,
-	PLAN_PREMIUM,
-	PLAN_PREMIUM_MONTHLY,
-	PLAN_PREMIUM_2_YEARS,
-	PLAN_PREMIUM_3_YEARS,
 } from 'lib/plans/constants';
 import ProStatus from 'pro-status';
 import {
@@ -96,28 +89,14 @@ export const SettingsCard = inprops => {
 		backupsEnabled = vpData?.data?.features?.backups ?? false,
 		scanEnabled = vpData?.data?.features?.security ?? false;
 
-	// Determine if the current plan is Personal or Premium (including legacy slugs and multi-year variants)
-	const isPersonalOrPremiumPlan = () => {
-		const currentPlanSlug = props.sitePlan?.product_slug;
-		if ( ! currentPlanSlug ) {
-			return false;
-		}
-		const personalPremiumSlugs = new Set( [
-			PLAN_PERSONAL,
-			PLAN_PERSONAL_MONTHLY,
-			PLAN_PERSONAL_2_YEARS,
-			PLAN_PERSONAL_3_YEARS,
-			PLAN_PREMIUM,
-			PLAN_PREMIUM_MONTHLY,
-			PLAN_PREMIUM_2_YEARS,
-			PLAN_PREMIUM_3_YEARS,
-		] );
-		return personalPremiumSlugs.has( currentPlanSlug );
-	};
-
 	// Build a direct checkout URL to Business on WordPress.com when applicable
+	const isWpcom = isWpcomPlatformSite();
+	const currentPlanClass = props.sitePlan?.product_slug
+		? getPlanClass( props.sitePlan.product_slug )
+		: '';
+	const isBusinessPlan = currentPlanClass === 'is-business-plan';
 	const businessCheckoutHref =
-		isPersonalOrPremiumPlan() && props.blogID
+		isWpcom && ! isBusinessPlan && props.blogID
 			? `https://wordpress.com/checkout/${ props.blogID }/business`
 			: null;
 
