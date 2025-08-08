@@ -346,6 +346,9 @@ class Contact_Form_Test extends BaseTestCase {
 		// Default metadata should be saved.
 		$extra_fields = get_post_meta( $submission->ID, '_feedback_extra_fields', true );
 
+		$response = Feedback::get( $feedback_id );
+
+		$this->assertEquals( $extra_fields, $response->get_extra_values(), 'The extra fields should match the response from the Feedback class' );
 		$this->assertCount( 3, $extra_fields, 'There should be exactly three extra fields when one of the fields is name, and the others are an extra dropdown, radio button field and text field' );
 
 		/*

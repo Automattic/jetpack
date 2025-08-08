@@ -254,6 +254,24 @@ class Feedback {
 		}
 		return '';
 	}
+
+	/**
+	 * This is a helper function that helps us check if the value has matched a non-basic field.
+	 *
+	 * @param string $value The value of the field to check.
+	 *
+	 * @return bool True if a matching non-basic field is found, false otherwise.
+	 */
+	private function has_matching_non_basic_field_by_value( $value = '' ) {
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_type() !== 'basic' ) {
+				if ( $field->get_render_value() === $value ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	/**
 	 * Get the value of the field based on the first type found.
 	 *
@@ -318,6 +336,56 @@ class Feedback {
 		return array_merge( $this->get_compiled_fields( 'default', 'key-value' ), $this->get_entry_values() );
 	}
 
+	/**
+	 * Get extra values.
+	 * This is a legacy method to maintain compatibility with older code.
+	 *
+	 * @return array An array of extra values, including entry values
+	 */
+	public function get_extra_values() {
+		$count         = 1;
+		$_extra_fields = array();
+		foreach ( $this->fields as $field ) {
+			if ( $field->compile_field( 'default' ) ) {
+				continue;
+			}
+			if ( $field->get_type() === 'basic' && $this->has_matching_non_basic_field_by_value( $field->get_render_value() ) ) {
+				++$count;
+				continue; // Skip fields that are already present in the non-extra fields.
+			}
+			$_extra_fields[] = $field;
+			++$count; // Increment count to ensure unique keys for extra values.
+		}
+		$extra_values = array();
+
+		$is_present       = array();
+		$non_extra_fields = array( 'email', 'name', 'url', 'subject', 'textarea', 'ip' );
+		foreach ( $_extra_fields as $field ) {
+			if ( ! in_array( $field->get_type(), $non_extra_fields, true ) || isset( $is_present[ $field->get_type() ] ) ) {
+				$extra_values[ $count . '_' . $field->get_label() ] = $field->get_render_value( 'default' );
+				++$count; // Increment count to ensure unique keys for extra values.
+			} else {
+				$is_present[ $field->get_type() ] = true;
+			}
+		}
+		return $extra_values;
+	}
+
+	/**
+	 * Get all values of the response.
+	 *
+	 * @return array An array of all values, including fields and entry values.
+	 */
+	public function get_all_legacy_values() {
+		return array(
+			'_feedback_author'       => $this->get_author(),
+			'_feedback_author_email' => $this->get_author_email(),
+			'_feedback_author_url'   => $this->get_author_url(),
+			'_feedback_subject'      => $this->get_subject(),
+			'_feedback_ip'           => $this->get_ip_address(),
+			'_feedback_all_fields'   => $this->get_all_values(),
+		);
+	}
 	/**
 	 * Return the compiled fields for the given context.
 	 *

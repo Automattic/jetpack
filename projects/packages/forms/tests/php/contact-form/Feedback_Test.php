@@ -1522,4 +1522,42 @@ class Feedback_Test extends BaseTestCase {
 			}
 		}
 	}
+
+	public function test_get_extra_values() {
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'text'    => 'Test text',
+				'email'   => 'john.smith@example.com',
+				'email_2' => 'john.smith@example2.com',
+				'website' => 'https://johnsmith.dev',
+				'message' => 'Hello, this is a test message from our contact form.',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Text' type='text' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Email_2' type='email' required='1'/][contact-field label='Website' type='url' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response              = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id      = $response->save();
+		$saved_response        = Feedback::get( $feedback_post_id );
+		$expected_extra_values = array(
+			'6_Text'    => 'Test text',
+			'7_Email_2' => 'john.smith@example2.com',
+		);
+
+		$this->assertNotEmpty( $response->get_extra_values(), 'Extra values should not be empty for the form submission' );
+		$this->assertEquals( $response->get_extra_values(), $saved_response->get_extra_values(), 'Extra values should match the saved form submission' );
+		$response_extra = $response->get_extra_values();
+		$saved_extra    = $saved_response->get_extra_values();
+		$this->assertEquals( $expected_extra_values, $response_extra, 'Extra values should match the expected extra values' );
+		$this->assertEquals( $expected_extra_values, $saved_extra, 'Saved extra values should match the expected extra values' );
+	}
 }
