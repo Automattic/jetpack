@@ -29,6 +29,28 @@
 		display: contents;
 	}
 
+	// Border styles for all columns (default gray borders)
+	> :first-child {
+		border-style: solid;
+		border-color: var(--jp-gray-10);
+		border-width: 1.5px 1.5px 0;
+		border-top-left-radius: 8px;
+		border-top-right-radius: 8px;
+	}
+
+	> :last-child {
+		border-style: solid;
+		border-color: var(--jp-gray-10);
+		border-width: 0 1.5px 1.5px;
+		border-bottom-left-radius: 8px;
+		border-bottom-right-radius: 8px;
+	}
+
+	> :not(:first-child):not(:last-child) {
+		border-left: 1.5px solid var(--jp-gray-10);
+		border-right: 1.5px solid var(--jp-gray-10);
+	}
+
 	&.is-primary {
 
 		> * {
@@ -46,18 +68,33 @@
 				box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
 			}
 		}
-	}
 
-	> :first-child {
-		border-top-left-radius: var(--jp-border-radius);
-		border-top-right-radius: var(--jp-border-radius);
-		border-width: 1px 1px 0;
-	}
+		// Primary column with green border and gradient background
+		> :first-child {
+			border-style: solid;
+			border-color: #008710;
+			border-width: 1.5px 1.5px 0;
+			border-top-left-radius: 8px;
+			border-top-right-radius: 8px;
 
-	> :last-child {
-		border-width: 0 1px 1px;
-		border-bottom-left-radius: var(--jp-border-radius);
-		border-bottom-right-radius: var(--jp-border-radius);
+			background-image: url(./gradient.svg);
+			background-repeat: no-repeat;
+			background-size: 450px;
+			background-position-x: 170px;
+		}
+
+		> :last-child {
+			border-style: solid;
+			border-color: #008710;
+			border-width: 0 1.5px 1.5px;
+			border-bottom-left-radius: 8px;
+			border-bottom-right-radius: 8px;
+		}
+
+		> :not(:first-child):not(:last-child) {
+			border-left: 1.5px solid #008710;
+			border-right: 1.5px solid #008710;
+		}
 	}
 }
 
