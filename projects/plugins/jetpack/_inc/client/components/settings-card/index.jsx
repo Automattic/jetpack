@@ -91,7 +91,7 @@ export const SettingsCard = inprops => {
 		scanEnabled = vpData?.data?.features?.security ?? false;
 
 	// Build a direct checkout URL to Business on WordPress.com when applicable
-	const isWpcom = isWpcomPlatformSite();
+	const isWpcom = typeof isWpcomPlatformSite === 'function' ? isWpcomPlatformSite() : false;
 	const currentPlanSlug = props.sitePlan?.product_slug ?? '';
 	const currentPlanClass = currentPlanSlug ? getPlanClass( currentPlanSlug ) : '';
 	const isBusinessPlan = currentPlanClass === 'is-business-plan';

@@ -39,7 +39,8 @@ function Blaze( props ) {
 	const { can_init: canInit, reason } = blazeAvailable;
 
 	// On WordPress.com, hide Blaze settings entirely when it cannot initialize, regardless of plan
-	if ( isWpcomPlatformSite() && ! canInit ) {
+	const isWpcom = typeof isWpcomPlatformSite === 'function' ? isWpcomPlatformSite() : false;
+	if ( isWpcom && ! canInit ) {
 		return null;
 	}
 

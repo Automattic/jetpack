@@ -44,7 +44,7 @@ class Media extends Component {
 		}
 
 		// Hide entire VideoPress settings on WordPress.com when not on Business plan
-		const isWpcom = isWpcomPlatformSite();
+		const isWpcom = typeof isWpcomPlatformSite === 'function' ? isWpcomPlatformSite() : false;
 		const currentPlanSlug = this.props.sitePlan?.product_slug ?? '';
 		const currentPlanClass = currentPlanSlug ? getPlanClass( currentPlanSlug ) : '';
 		const isBusinessPlan = currentPlanClass === 'is-business-plan';
