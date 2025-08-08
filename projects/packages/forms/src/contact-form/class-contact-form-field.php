@@ -1644,8 +1644,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$value_minutes = '';
 		$value_hours   = '';
 
-		$class_minutes = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="$1 jetpack-field-time__minutes-input"', $class );
-		$class_hours   = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="$1 jetpack-field-time__hours-input"', $class );
+		$class_minutes = preg_replace( "/class=['\"]([^'\"]*)['\"]/", '$1 jetpack-field-time__minutes-input', $class );
+		$class_hours   = preg_replace( "/class=['\"]([^'\"]*)['\"]/", '$1 jetpack-field-time__hours-input', $class );
 
 		ob_start();
 		?>
@@ -1655,8 +1655,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<?php esc_html_e( 'Hours', 'jetpack-forms' ); ?>
 				</label>
 				<input
-					<?php echo $class_minutes; ?>
 					autocomplete="off"
+					class="<?php echo esc_attr( $class_minutes ); ?>"
 					data-wp-bind--aria-invalid="state.fieldHasErrors"
 					data-wp-on--change="actions.onFieldChange"
 					id="<?php echo esc_attr( $id . '-hours' ); ?>"
@@ -1679,8 +1679,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<?php esc_html_e( 'Minutes', 'jetpack-forms' ); ?>
 				</label>
 				<input
-					<?php echo $class_hours; ?>
 					autocomplete="off"
+					class="<?php echo esc_attr( $class_hours ); ?>"
 					data-wp-bind--aria-invalid="state.fieldHasErrors"
 					id="<?php echo esc_attr( $id . '-minutes' ); ?>"
 					inputmode="numeric"
