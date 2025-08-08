@@ -937,7 +937,7 @@ if ( isset( $_GET['share'] ) ) {
 }
 
 /**
- * Gets the url to customise the sharing buttons WP-Admin.
+ * Gets the url to customise the sharing buttons in WP-Admin.
  *
  * @return string the customisation URL.
  */
