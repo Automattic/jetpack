@@ -1,27 +1,12 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { SVG, Path } from '@wordpress/components';
-
-/**
- * Rating Input Edit Component
- *
- * Interactive rating component that renders clickable symbols (stars, hearts, etc.)
- * and handles user input. Reads values from parent field-rating block via context.
- *
- * @param {object} props            - Component props from WordPress block editor
- * @param {object} props.context    - Block context values from parent block
- * @param {string} props.clientId   - Unique identifier for the block instance
- * @param {object} props.attributes - Block attributes
- * @return {import('react').JSX.Element} Rating input editor component
- */
-export default function RatingInputEdit( { attributes, context, clientId } ) {
+export default function RatingInputEdit( { context, clientId } ) {
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
 	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
 	const className = context?.[ 'jetpack/field-rating-className' ] || '';
 	const onChangeDefault = context?.[ 'jetpack/field-rating-onChangeDefault' ] || ( () => {} );
 
-	// Build className and style without using experimental APIs
-	const colorClassName = attributes?.className || '';
-	const style = attributes?.style || undefined;
+	// Color and other support classes are injected by useBlockProps
 
 	// Get icon SVG based on className - default is stars
 	const isHeartsStyle = className && className.includes( 'is-style-hearts' );
@@ -50,8 +35,7 @@ export default function RatingInputEdit( { attributes, context, clientId } ) {
 	const iconSvg = isHeartsStyle ? heartSvg : starSvg;
 
 	const blockProps = useBlockProps( {
-		className: `jetpack-field-rating__options ${ colorClassName }`.trim(),
-		style,
+		className: 'jetpack-field-rating__options',
 	} );
 
 	const handleChange = position => {
