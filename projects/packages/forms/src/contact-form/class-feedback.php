@@ -256,23 +256,6 @@ class Feedback {
 	}
 
 	/**
-	 * This is a helper function that helps us check if the value has matched a non-basic field.
-	 *
-	 * @param string $value The value of the field to check.
-	 *
-	 * @return bool True if a matching non-basic field is found, false otherwise.
-	 */
-	private function has_matching_non_basic_field_by_value( $value = '' ) {
-		foreach ( $this->fields as $field ) {
-			if ( $field->get_type() !== 'basic' ) {
-				if ( $field->get_render_value() === $value ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	/**
 	 * Get the value of the field based on the first type found.
 	 *
 	 * @param string      $type The type of the field to look for.
@@ -343,13 +326,23 @@ class Feedback {
 	 * @return array An array of extra values, including entry values
 	 */
 	public function get_legacy_extra_values() {
-		$count         = 1;
-		$_extra_fields = array();
+		$count            = 1;
+		$_extra_fields    = array();
+		$special_fields   = array();
+		$non_extra_fields = array( 'email', 'name', 'url', 'subject', 'textarea', 'ip' );
+
+		// Create a map of special fields to check agains their values.
+		foreach ( $this->fields as $field ) {
+			if ( in_array( $field->get_type(), $non_extra_fields, true ) && $field->get_render_value() ) {
+				$special_fields[ $field->get_render_value() ] = true;
+			}
+		}
+
 		foreach ( $this->fields as $field ) {
 			if ( $field->compile_field( 'default' ) ) {
 				continue;
 			}
-			if ( $field->get_type() === 'basic' && $this->has_matching_non_basic_field_by_value( $field->get_render_value() ) ) {
+			if ( $field->get_type() === 'basic' && isset( $special_fields[ $field->get_render_value() ] ) ) {
 				++$count;
 				continue; // Skip fields that are already present in the non-extra fields.
 			}
