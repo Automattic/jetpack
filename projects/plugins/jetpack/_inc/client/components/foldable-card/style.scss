@@ -2,13 +2,13 @@
 @use "../../scss/functions/rem";
 @use "../../scss/calypso-colors";
 @use "../../scss/calypso-mixins";
-@use "../../scss/mixin_clear-fix";
+@use "../../scss/mixins/clear-fix";
 
 
 // Multisite
 .dops-foldable-card.dops-card {
 
-	@include mixin_clear-fix.clear-fix;
+	@include clear-fix.clear-fix;
 	position: relative;
 	transition: margin 0.15s linear;
 	padding: 0;

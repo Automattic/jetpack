@@ -1,13 +1,12 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-inspect",
-	"version": "2.0.0-a.3",
+	"version": "2.0.0-a.5",
+	"private": true,
 	"description": "A debugging plugin to inspect Jetpack interactions with WordPress.com.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Inspect"
 	},
-	"type": "module",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
@@ -15,6 +14,7 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
 	"scripts": {
 		"build": "pnpm build-js",
 		"build-js": "rollup -c rollup.config.js",
@@ -32,7 +32,7 @@
 		"@rollup/plugin-node-resolve": "15.3.0",
 		"@rollup/plugin-terser": "0.4.3",
 		"@rollup/plugin-typescript": "12.1.0",
-		"@wordpress/i18n": "5.26.0",
+		"@wordpress/i18n": "6.0.0",
 		"postcss": "8.4.47",
 		"rollup": "3.29.5",
 		"rollup-plugin-livereload": "2.0.5",

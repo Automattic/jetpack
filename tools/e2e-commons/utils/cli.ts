@@ -84,13 +84,31 @@ function parseCommandString( cmdString: string ): { command: string; args: strin
 /**
  * Executes a shell command using execFile.
  *
- * @param {string} cmd - shell command string to execute
+ * @param {string | string[]} cmd - shell command string or array of [command, ...args] to execute
  * @return {Promise<string>} command output
  */
-export async function executeCommand( cmd: string ): Promise< string > {
-	logger.debug( `Executing command: ${ maskSecrets( cmd ) }` );
+export async function executeCommand( cmd: string | string[] ): Promise< string > {
+	let command: string;
+	let args: string[];
 
-	const { command, args } = parseCommandString( cmd );
+	if ( Array.isArray( cmd ) ) {
+		// Array input: [command, arg1, arg2, ...]
+		command = cmd[ 0 ];
+		args = cmd.slice( 1 );
+
+		if ( ! validateCommand( command ) ) {
+			const error = `Command '${ command }' not allowed`;
+			logger.error( error );
+			throw new Error( error );
+		}
+
+		logger.debug( `Executing command: ${ maskSecrets( cmd.join( ' ' ) ) }` );
+	} else {
+		logger.debug( `Executing command: ${ maskSecrets( cmd ) }` );
+		const parsed = parseCommandString( cmd );
+		command = parsed.command;
+		args = parsed.args;
+	}
 
 	try {
 		const { stdout, stderr } = await execFileAsync( command, args );
@@ -106,54 +124,50 @@ export async function executeCommand( cmd: string ): Promise< string > {
 /**
  * Executes a shell command within the Docker container.
  *
- * @param {string} cmd - shell command to run in container
+ * @param {string | string[]} cmd - shell command to run in container
  * @return {Promise<string>} command output
  */
-export async function executeContainerCommand( cmd: string ): Promise< string > {
-	return executeCommand( `pnpm jetpack docker --type e2e --name t1 ${ cmd }` );
+export async function executeContainerCommand( cmd: string | string[] ): Promise< string > {
+	const containerCommand = [ 'pnpm', 'jetpack', 'docker', '--type', 'e2e', '--name', 't1' ];
+	if ( Array.isArray( cmd ) ) {
+		return executeCommand( [ ...containerCommand, ...cmd ] );
+	}
+	return executeCommand( `${ containerCommand.join( ' ' ) } ${ cmd }` );
 }
 
 /**
  * Executes a WordPress CLI command.
  *
- * @param {string}  command     - WordPress CLI command (without 'wp' prefix)
- * @param {boolean} inContainer - Whether to run command in Docker container (default: true)
+ * @param {string | string[]} command - WordPress CLI command (without 'wp' prefix) as string or array of arguments
  * @return {Promise<string>} Command output
  */
-export async function executeWpCommand(
-	command: string,
-	inContainer: boolean = true
-): Promise< string > {
-	if ( inContainer ) {
-		return executeContainerCommand( `wp -- ${ command }` );
+export async function executeWpCommand( command: string | string[] ): Promise< string > {
+	if ( Array.isArray( command ) ) {
+		return executeContainerCommand( [ 'wp', '--', ...command ] );
 	}
-	return executeCommand( `wp ${ command }` );
+	return executeContainerCommand( `wp -- ${ command }` );
 }
 
 /**
  * Executes a Jetpack CLI command.
  *
- * @param {string}  command     - Jetpack CLI command (without 'jetpack' prefix)
- * @param {boolean} inContainer - Whether to run command in Docker container (default: true)
+ * @param {string | string[]} command - Jetpack CLI command (without 'jetpack' prefix)
  * @return {Promise<string>} Command output
  */
-export async function executeJetpackCommand(
-	command: string,
-	inContainer: boolean = true
-): Promise< string > {
-	return await executeWpCommand( `jetpack ${ command }`, inContainer );
+export async function executeJetpackCommand( command: string | string[] ): Promise< string > {
+	if ( Array.isArray( command ) ) {
+		return executeWpCommand( [ 'jetpack', ...command ] );
+	}
+	return executeWpCommand( `jetpack ${ command }` );
 }
 
 /**
- * Executes a Jetpack Boost CLI command.
+ * Executes a WordPress database query using wp-cli.
  *
- * @param {string}  command     - Jetpack Boost CLI command (without 'jetpack-boost' prefix)
- * @param {boolean} inContainer - Whether to run command in Docker container (default: true)
- * @return {Promise<string>} Command output
+ * @param {string}   query   - SQL query to execute
+ * @param {string[]} options - Additional wp db query options (e.g., ['--skip-column-names', '--single-transaction'])
+ * @return {Promise<string>} Query output
  */
-export async function executeJetpackBoostCommand(
-	command: string,
-	inContainer: boolean = true
-): Promise< string > {
-	return await executeWpCommand( `jetpack-boost ${ command }`, inContainer );
+export async function executeWpDbQuery( query: string, options: string[] = [] ): Promise< string > {
+	return executeWpCommand( [ 'db', 'query', query, ...options ] );
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix the ordering of fields on submit when JS is disabled

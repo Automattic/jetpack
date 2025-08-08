@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: Fix PHP warning during generation if there are no posts or pages on the website.

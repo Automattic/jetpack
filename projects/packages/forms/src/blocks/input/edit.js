@@ -17,7 +17,7 @@ const SYNCED_ATTRIBUTE_KEYS = [
 	'textColor',
 ];
 
-const TEXT_FIELDS = [ 'number', 'text', 'email', 'url', 'tel' ];
+const TEXT_FIELDS = [ 'number', 'text', 'email', 'url', 'tel', 'time' ];
 
 const getInputClass = type => {
 	if ( type === 'dropdown' ) {
@@ -46,9 +46,11 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 
 	const onChange = useCallback(
 		event => {
-			setAttributes( { placeholder: event.target.value } );
+			if ( type !== 'time' ) {
+				setAttributes( { placeholder: event.target.value } );
+			}
 		},
-		[ setAttributes ]
+		[ setAttributes, type ]
 	);
 
 	if ( type === 'dropdown' ) {
@@ -66,7 +68,20 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 	}
 
 	if ( type === 'textarea' ) {
-		return <textarea { ...blockProps } onChange={ onChange } value={ placeholder } />;
+		return (
+			<textarea
+				{ ...blockProps }
+				onChange={ onChange }
+				value={ isSelected ? placeholder : '' }
+				placeholder={ placeholder }
+			/>
+		);
+	}
+
+	if ( type === 'time' ) {
+		return (
+			<input { ...blockProps } onChange={ onChange } onKeyDown={ onKeyDown } type="time" value="" />
+		);
 	}
 
 	return (

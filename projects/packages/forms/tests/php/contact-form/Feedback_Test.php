@@ -1392,7 +1392,7 @@ class Feedback_Test extends BaseTestCase {
 				),
 				'message'  => 'Compiled fields should return key-value pairs only.',
 			),
-			'label-value_format' => array(
+			'label|value_format' => array(
 				'format'   => 'label|value',
 				'expected' => array(
 					array(
@@ -1423,6 +1423,16 @@ class Feedback_Test extends BaseTestCase {
 					$test_message,
 				),
 				'message'  => 'Compiled fields should return only values as indexed array.',
+			),
+			'label-value_format' => array(
+				'format'   => 'label-value',
+				'expected' => array(
+					'Name'    => $test_name,
+					'Email'   => $test_email,
+					'Website' => $test_website,
+					'Message' => $test_message,
+				),
+				'message'  => 'Compiled fields should return only labels as indexed array.',
 			),
 			'label_format'       => array(
 				'format'   => 'label',
@@ -1492,7 +1502,7 @@ class Feedback_Test extends BaseTestCase {
 		$url     = 'https://wordpress.com';
 		$post_id = Utility::create_legacy_feedback(
 			array(
-				'file upload' => array(
+				'1_file upload' => array(
 					'field_id' => 'file_upload',
 					'files'    => array( $file ),
 				),

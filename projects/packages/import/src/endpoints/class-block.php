@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Block
  */

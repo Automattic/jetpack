@@ -375,8 +375,10 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	private function build_next_sitemap_index_of_type( $index_type, $next_type, $state ) {
 		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
+		$sitemap_type_exists = isset( $state['max'][ $sitemap_type ] ) && is_array( $state['max'][ $sitemap_type ] );
+
 		// If only 0 or 1 sitemaps were built, advance to the next type and return.
-		if ( 1 >= $state['max'][ $sitemap_type ]['number'] ) {
+		if ( $sitemap_type_exists && 1 >= $state['max'][ $sitemap_type ]['number'] ) {
 			Jetpack_Sitemap_State::check_in(
 				array(
 					'sitemap-type'  => $next_type,
@@ -492,7 +494,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			return;
 		}
 
-		if ( 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
+		if ( isset( $max[ JP_PAGE_SITEMAP_TYPE ] ) && 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
 				$page['filename']      = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, 1 );
 				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'] );
@@ -514,7 +516,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			);
 		}
 
-		if ( 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
+		if ( isset( $max[ JP_IMAGE_SITEMAP_TYPE ] ) && 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
 				$image['filename']      = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, 1 );
 				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'] );
@@ -536,7 +538,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			);
 		}
 
-		if ( 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
+		if ( isset( $max[ JP_VIDEO_SITEMAP_TYPE ] ) && 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 				$video['filename']      = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
 				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'] );
@@ -949,11 +951,15 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			$this->logger->report( "-- Building $index_debug_name" );
 		}
 
-		$buffer = new Jetpack_Sitemap_Buffer_Master(
+		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
+			'master',
 			JP_SITEMAP_MAX_ITEMS,
 			JP_SITEMAP_MAX_BYTES,
 			$datetime
 		);
+		if ( ! $buffer ) {
+			return false;
+		}
 
 		// Add pointer to the previous sitemap index (unless we're at the first one).
 		if ( 1 !== $number ) {

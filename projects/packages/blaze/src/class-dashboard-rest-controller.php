@@ -598,7 +598,7 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_dsp_stats( $req ) {
 		$version = $req->get_param( 'api_version' ) ?? 'v1';
-		return $this->get_dsp_generic( "{$version}/stats", $req );
+		return $this->edit_dsp_generic( "{$version}/stats", $req );
 	}
 
 	/**

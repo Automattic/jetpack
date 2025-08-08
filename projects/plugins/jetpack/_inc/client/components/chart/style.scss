@@ -5,9 +5,8 @@
 @use "../../scss/z-index";
 @use "../../scss/calypso-colors";
 @use "../../scss/layout";
-@use "../../scss/mixin_clear-fix";
-@use "../../scss/mixin_long-content-fade";
-@use "../../scss/mixin_icons";
+@use "../../scss/mixins/clear-fix";
+@use "../../scss/mixins/icons";
 
 .dops-chart {
 	position: relative;
@@ -228,7 +227,7 @@
 
 .dops-chart__legend {
 
-	@include mixin_clear-fix.clear-fix;
+	@include clear-fix.clear-fix;
 	margin-bottom: -8px;
 }
 
@@ -353,7 +352,7 @@
 
 		&::before {
 
-			@include mixin_icons.noticons;
+			@include icons.noticons;
 			content: "\f456";
 			position: absolute;
 			top: 23px;
@@ -378,7 +377,7 @@
 
 		ul {
 
-			@include mixin_clear-fix.clear-fix;
+			@include clear-fix.clear-fix;
 			list-style: none;
 			margin: 0;
 			padding: 0;

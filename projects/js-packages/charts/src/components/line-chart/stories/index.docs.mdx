@@ -1,7 +1,6 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as LineChartStories from './index.stories';
 import * as GlyphStories from './glyph.stories';
-import * as LegendStories from './legend.stories';
 
 <Meta title="JS Packages/Charts/Types/Line Chart" of={ LineChartStories } />
 
@@ -61,14 +60,41 @@ The simplest line chart requires only a `data` prop with time-series data:
 
 ### Optional Props
 
+**Layout & Dimensions:**
 - **`width`**: Chart width in pixels (responsive by default)
 - **`height`**: Chart height in pixels (responsive by default)
-- **`withTooltips`**: Enable interactive tooltips (`true` by default)
-- **`showLegend`**: Display chart legend (`false` by default)
-- **`curveType`**: Line curve style (`'smooth'`, `'linear'`, `'monotone'`)
-- **`withGradientFill`**: Fill area under lines with gradient (`false` by default)
 - **`margin`**: Custom chart margins
+- **`className`**: Additional CSS class name for the chart container
+- **`chartId`**: Unique identifier for the chart (auto-generated if not provided)
+
+**Visual Styling:**
+- **`curveType`**: Line curve style (`'smooth'`, `'linear'`, `'monotone'`)
+- **`smoothing`**: Legacy smoothing parameter (deprecated, use `curveType` instead)
+- **`withGradientFill`**: Fill area under lines with gradient (`false` by default)
+- **`withStartGlyphs`**: Show markers at the first data point of each series (`false` by default)
+- **`renderGlyph`**: Custom glyph render function
+- **`glyphStyle`**: Styling for chart glyphs
+
+**Interactivity:**
+- **`withTooltips`**: Enable interactive tooltips (`true` by default)
+- **`withTooltipCrosshairs`**: Show crosshair guides with tooltips
+- **`renderTooltip`**: Custom tooltip render function
+- **`onPointerDown`**: Pointer down event handler
+- **`onPointerUp`**: Pointer up event handler
+- **`onPointerMove`**: Pointer move event handler
+- **`onPointerOut`**: Pointer out event handler
+
+**Legend:**
+- **`showLegend`**: Display chart legend (`false` by default)
+- **`legendOrientation`**: Legend layout orientation (`'horizontal'` by default)
+- **`legendAlignmentHorizontal`**: Horizontal legend alignment (`'center'` by default)
+- **`legendAlignmentVertical`**: Vertical legend alignment (`'bottom'` by default)
+- **`legendShape`**: Shape used in legend markers (`'line'` by default)
+- **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
+
+**Advanced:**
 - **`options`**: Advanced axis and scale configuration
+- **`children`**: Child components (e.g., annotations)
 
 ## Curve Types
 
@@ -248,7 +274,7 @@ Charts are fully keyboard accessible with Tab navigation and arrow key data poin
 
 Display series information with automatic color matching:
 
-<Canvas of={ LegendStories.Default } />
+<Canvas of={ LineChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -265,17 +291,17 @@ Display series information with automatic color matching:
 
 Use different shapes and custom glyphs in legends:
 
-<Canvas of={ LegendStories.AlignmentPositioning } />
-
-	<Source
-		language="jsx"
-		code={ `<LineChart
-			data={data}
-			showLegend={true}
-			legendAlignmentHorizontal="right"
-			legendAlignmentVertical="top"
-		/>` }
-	/>
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		showLegend={true}
+		legendAlignmentHorizontal="right"
+		legendAlignmentVertical="top"
+		legendShape="circle"
+		withLegendGlyph={true}
+	/>` }
+/>
 
 ## Advanced Customization
 
@@ -462,29 +488,29 @@ Main chart component with responsive behavior by default.
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
-| `width` | `number` | responsive | Chart width in pixels |
-| `height` | `number` | responsive | Chart height in pixels |
-| `curveType` | `'smooth' \| 'linear' \| 'monotone'` | `'smooth'` | Line curve interpolation type |
+| `width` | `number?` | responsive | Chart width in pixels |
+| `height` | `number?` | responsive | Chart height in pixels |
+| `curveType` | `'smooth' \| 'linear' \| 'monotone'?` | `'smooth'` | Line curve interpolation type |
 | `withGradientFill` | `boolean` | `false` | Fill area under lines with gradient |
 | `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
-| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }` | - | Show crosshair guides with tooltips |
+| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }?` | - | Show crosshair guides with tooltips |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
 | `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Horizontal legend alignment |
 | `legendAlignmentVertical` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
 | `legendShape` | `LegendShape` | `'line'` | Shape used in legend markers |
-| `withStartGlyphs` | `boolean` | `false` | Show markers at the first data point of each series |
-| `withLegendGlyph` | `boolean` | `false` | Use custom glyphs in legend |
-| `renderGlyph` | `(props: GlyphProps) => ReactNode` | - | Custom glyph render function |
-| `glyphStyle` | `SVGProps<SVGCircleElement>` | `{}` | Styling for chart glyphs |
-| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
-| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
-| `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
-| `onPointerDown` | `(event: EventHandlerParams) => void` | - | Pointer down event handler |
-| `onPointerUp` | `(event: EventHandlerParams) => void` | - | Pointer up event handler |
-| `onPointerMove` | `(event: EventHandlerParams) => void` | - | Pointer move event handler |
-| `onPointerOut` | `(event: PointerEvent) => void` | - | Pointer out event handler |
-| `children` | `ReactNode` | - | Child components (e.g., annotations) |
+| `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
+| `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |
+| `renderGlyph` | `(props: GlyphProps) => ReactNode?` | - | Custom glyph render function |
+| `glyphStyle` | `SVGProps<SVGCircleElement>?` | `{}` | Styling for chart glyphs |
+| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
+| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
+| `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
+| `onPointerDown` | `(event: EventHandlerParams) => void?` | - | Pointer down event handler |
+| `onPointerUp` | `(event: EventHandlerParams) => void?` | - | Pointer up event handler |
+| `onPointerMove` | `(event: EventHandlerParams) => void?` | - | Pointer move event handler |
+| `onPointerOut` | `(event: PointerEvent) => void?` | - | Pointer out event handler |
+| `children` | `ReactNode?` | - | Child components (e.g., annotations) |
 
 ### LineChart.AnnotationsOverlay
 

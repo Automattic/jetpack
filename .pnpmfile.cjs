@@ -98,6 +98,9 @@ async function fixDeps( pkg ) {
 			}
 		}
 
+		// @todo Move this to wpPkgs when all indirect deps on `@wordpress/dataviews` are on v5.
+		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
+
 		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
 		// https://github.com/WordPress/gutenberg/issues/60975
 		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
@@ -315,6 +318,15 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
 		pkg.peerDependenciesMeta ??= {};
 		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
+	}
+
+	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
+	if (
+		pkg.name === '@automattic/launchpad' &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
+	) {
+		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
 	}
 
 	return pkg;

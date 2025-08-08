@@ -82,4 +82,17 @@ export async function hydrateStores() {
 			},
 		] );
 	}
+
+	if (
+		! wpcomEntities.some( ( { name } ) => name === 'publicize/social-image-generator/font-options' )
+	) {
+		await addEntities( [
+			{
+				kind: 'wpcom/v2',
+				name: 'publicize/social-image-generator/font-options',
+				baseURL: '/wpcom/v2/publicize/social-image-generator/font-options',
+				label: __( 'Publicize font options', 'jetpack-publicize-components' ),
+			},
+		] );
+	}
 }

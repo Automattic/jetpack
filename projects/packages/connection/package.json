@@ -12,9 +12,6 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"browserslist": [
-		"extends @wordpress/browserslist-config"
-	],
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-js",
 		"build-js": "webpack",
@@ -24,18 +21,21 @@
 		"validate": "pnpm exec validate-es dist/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-idc": "workspace:*",
-		"@wordpress/data": "10.26.0",
-		"@wordpress/element": "6.26.0"
+		"@wordpress/data": "10.27.0",
+		"@wordpress/element": "6.27.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.0",
 		"@babel/preset-env": "7.28.0",
 		"@babel/runtime": "7.27.6",
-		"@wordpress/browserslist-config": "6.26.0",
+		"@wordpress/browserslist-config": "6.27.0",
 		"glob": "11.0.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",

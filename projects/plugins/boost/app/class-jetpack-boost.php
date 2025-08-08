@@ -281,7 +281,7 @@ class Jetpack_Boost {
 	/**
 	 * Clean up Image Size Analysis data from the database.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.3.0
 	 */
 	private function cleanup_image_size_analysis_data() {
 		global $wpdb;
@@ -402,7 +402,7 @@ class Jetpack_Boost {
 		( new Critical_CSS_Storage() )->clear();
 
 		// Delete all transients created by boost.
-		Transient::delete_by_prefix( '' );
+		Transient::delete_bulk();
 
 		// Clear getting started value
 		( new Getting_Started_Entry() )->set( false );

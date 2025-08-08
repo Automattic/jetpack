@@ -2,6 +2,11 @@
 /**
  * Endpoint: /sites/%s/comment-history/%d
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_GET_Comment_History_Endpoint(
 	array(
 		'description'     => 'Get the audit history for given comment',

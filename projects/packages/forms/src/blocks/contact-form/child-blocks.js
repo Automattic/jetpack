@@ -10,22 +10,28 @@ import JetpackConsentField from '../field-consent/';
 import JetpackDateField from '../field-date';
 import JetpackEmailField from '../field-email';
 import JetpackFieldFile from '../field-file';
+import JetpackImageSelectField from '../field-image-select';
 import JetpackMultipleChoiceField from '../field-multiple-choice';
 import JetpackNameField from '../field-name';
 import JetpackNumberField from '../field-number';
 import JetpackRatingField from '../field-rating';
 import JetpackDropdownField from '../field-select';
 import JetpackSingleChoiceField from '../field-single-choice';
+import JetpackFieldSlider from '../field-slider';
 import JetpackTelephoneField from '../field-telephone';
 import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
+import JetpackTimeField from '../field-time';
 import JetpackUrlField from '../field-url';
+import JetpackImageChoiceField from '../form-image-select-choice';
+import JetpackImageChoicesField from '../form-image-select-choices';
 import JetpackProgressIndicator from '../form-progress-indicator';
 import JetpackStep from '../form-step';
 import JetpackStepContainer from '../form-step-container';
 import JetpackStepDivider from '../form-step-divider';
 import JetpackStepNavigation from '../form-step-navigation';
 import JetpackInput from '../input';
+import JetpackSliderInput from '../input-range';
 import JetpackRatingInput from '../input-rating';
 import JetpackLabel from '../label';
 import JetpackOption from '../option';
@@ -51,7 +57,15 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
-	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackRatingField, JetpackRatingInput ] : [] ),
+	...( getJetpackBlocksVariation() === 'beta'
+		? [
+				JetpackRatingField,
+				JetpackRatingInput,
+				JetpackFieldSlider,
+				JetpackSliderInput,
+				JetpackTimeField,
+		  ]
+		: [] ),
 
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
@@ -66,5 +80,8 @@ export const childBlocks = [
 				JetpackStepNavigation,
 				JetpackProgressIndicator,
 		  ]
+		: [] ),
+	...( hasFeatureFlag( 'image-select-field' )
+		? [ JetpackImageSelectField, JetpackImageChoiceField, JetpackImageChoicesField ]
 		: [] ),
 ];

@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Removed backward compatibility for old version of Error_Handler class.

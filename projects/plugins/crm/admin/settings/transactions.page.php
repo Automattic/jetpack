@@ -14,6 +14,8 @@ global $wpdb, $zbs;  // } Req
 $confirmAct = false;
 $settings   = $zbs->settings->getAll();
 
+$sbupdated = false;
+
 // } Act on any edits!
 if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
@@ -26,7 +28,6 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	$zbsStatusStr              = zeroBSCRM_getTransactionsStatuses();
 	$zbsStatuses               = explode( ',', $zbsStatusStr );
 
-	if ( is_array( $zbsStatuses ) ) {
 		foreach ( $zbsStatuses as $statusStr ) {
 
 			// permify
@@ -35,7 +36,6 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 			// check post
 			if ( isset( $_POST[ 'wpzbscrm_transstatus_group_' . $statusKey ] ) ) {
 				$zbsStatusSettingPotential[] = $statusStr;
-			}
 		}
 	}
 
@@ -115,15 +115,16 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// reload
 	$settings = $zbs->settings->getAll();
 
+	$sbupdated = true;
+
 }
 
 ?>
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
-		echo '</div>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+	echo '</div>';
 }
 ?>
 
@@ -193,7 +194,7 @@ if ( isset( $sbupdated ) ) {
 					$zbsStatusStr = zeroBSCRM_getTransactionsStatuses();
 
 					$zbsStatuses = explode( ',', $zbsStatusStr );
-					if ( is_array( $zbsStatuses ) ) {
+					if ( count( $zbsStatuses ) > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						// each status
 						foreach ( $zbsStatuses as $statusStr ) {

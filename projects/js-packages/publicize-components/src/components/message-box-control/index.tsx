@@ -79,7 +79,7 @@ export default function MessageBoxControl( {
 			placeholder={ placeholder }
 			rows={ 4 }
 			help={ sprintf(
-				/* translators: placeholder is a number. */
+				/* translators: %d: the number of characters remaining. */
 				_n(
 					'%d character remaining',
 					'%d characters remaining',

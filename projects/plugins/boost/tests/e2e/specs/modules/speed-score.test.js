@@ -1,57 +1,47 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { JetpackBoostPage } from '../../lib/pages/index.js';
+import { test, expect } from '../../lib/fixtures/test.ts';
 
 test.describe( 'Speed Score feature', () => {
-	let page;
-	let jetpackBoostPage;
-
-	test.beforeAll( async ( { browser } ) => {
-		page = await browser.newPage();
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withConnection( true )
-			.withSpeedScoreMocked( false )
-			.build();
-	} );
-
-	test.afterAll( async () => {
+	test.beforeAll( async ( { browser, boostUtils } ) => {
+		await boostUtils.resetEnvironment();
+		const page = await browser.newPage();
+		await boostUtils.connectIfNeeded( page );
 		await page.close();
+		await boostUtils.unMockSpeedScore();
 	} );
 
-	test.beforeEach( async () => {
-		jetpackBoostPage = await JetpackBoostPage.visit( page );
+	// eslint-disable-next-line playwright/expect-expect
+	test( 'The Speed Score section should display a mobile and desktop speed score greater than zero', async ( {
+		jetpackBoostPage,
+	} ) => {
+		await jetpackBoostPage.visit();
+		await jetpackBoostPage.expectScoreToBeVisible();
 	} );
 
-	test( 'The Speed Score section should display a mobile and desktop speed score greater than zero', async () => {
-		await jetpackBoostPage.waitForScoreLoadingToFinish();
-
-		expect(
-			await jetpackBoostPage.getSpeedScore( 'mobile' ),
-			'Mobile speed score should be greater than 0'
-		).toBeGreaterThan( 0 );
-		expect(
-			await jetpackBoostPage.getSpeedScore( 'desktop' ),
-			'Desktop speed score should be greater than 0'
-		).toBeGreaterThan( 0 );
+	// eslint-disable-next-line playwright/expect-expect
+	test( 'The Speed Scores should be able to refresh', async ( { jetpackBoostPage } ) => {
+		await jetpackBoostPage.visit();
+		await jetpackBoostPage.expectScoreToBeVisible();
+		await jetpackBoostPage.page.getByRole( 'button', { name: 'Refresh' } ).click();
+		await jetpackBoostPage.expectScoreToBeLoading();
+		await jetpackBoostPage.expectScoreToBeVisible();
 	} );
 
-	test( 'The Speed Scores should be able to refresh', async () => {
-		await jetpackBoostPage.waitForScoreLoadingToFinish();
-		await jetpackBoostPage.clickRefreshSpeedScore();
-
-		await jetpackBoostPage.waitForScoreLoadingToFinish();
-		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be displayed' ).toBeTruthy();
-	} );
-
-	test( 'Should be able to click info icon next to overall score and see the detailed overall score description popin', async () => {
-		await jetpackBoostPage.waitForScoreLoadingToFinish();
-		await jetpackBoostPage.page.click(
-			'[data-testid="speed-scores-top"] .icon-tooltip-wrapper > button'
-		);
-		expect(
-			await jetpackBoostPage.isScoreDescriptionPopinVisible(),
+	test( 'Should be able to click info icon next to overall score and see the detailed overall score description popin', async ( {
+		jetpackBoostPage,
+	} ) => {
+		await jetpackBoostPage.visit();
+		await jetpackBoostPage.expectScoreToBeVisible();
+		await jetpackBoostPage.page
+			.getByTestId( 'speed-scores-top' )
+			.getByTestId( 'icon-tooltip_wrapper' )
+			.getByRole( 'button' )
+			.click();
+		await expect(
+			jetpackBoostPage.page
+				.getByTestId( 'speed-scores-top' )
+				.getByTestId( 'icon-tooltip_wrapper' )
+				.getByText( 'Your Overall Score is' ),
 			'Score description should be visible'
-		).toBeTruthy();
+		).toBeVisible();
 	} );
 } );

@@ -3,12 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import useImageGeneratorConfig from '../../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../../hooks/use-media-details';
+import * as fontOptions from '../../../../hooks/use-social-image-font-options';
 import SocialImageGeneratorSettingsModal from '../modal';
 
 // Mock dependencies
 jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
 jest.mock( '../../../../hooks/use-image-generator-config', () => jest.fn() );
 jest.mock( '../../../../hooks/use-media-details', () => jest.fn() );
+jest.spyOn( fontOptions, 'useSocialImageFontOptions' ).mockImplementation();
 jest.mock( '../../../generated-image-preview', () => {
 	return function MockGeneratedImagePreview() {
 		return <div data-testid="generated-image-preview">Generated Preview</div>;
@@ -81,6 +83,14 @@ const setupMocks = ( config = {} ) => {
 	useSelect.mockImplementation( () => ( {
 		title: 'Test Post Title',
 	} ) );
+
+	fontOptions.useSocialImageFontOptions.mockReturnValue( {
+		isLoading: false,
+		fontOptions: [
+			{ label: 'Font 1', value: 'font-1' },
+			{ label: 'Font 2', value: 'font-2' },
+		],
+	} );
 };
 
 describe( 'SocialImageGeneratorSettingsModal', () => {

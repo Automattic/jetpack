@@ -308,7 +308,7 @@ export const SEO = withModuleSettingsFormHelpers(
 											/>
 											<div className={ frontPageMetaCharCountClasses }>
 												{ sprintf(
-													/* translators: placeholder is number of characters */
+													/* translators: %d: the number of characters */
 													_n(
 														'%d character',
 														'%d characters',

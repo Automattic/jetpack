@@ -26,12 +26,16 @@ import {
 	defaultExtensionAlias,
 	defaultMainFields,
 } from 'eslint-import-resolver-typescript';
+// @todo Remove use of eslint-json-compat-utils (and jsonc-eslint-parser) once https://github.com/JoshuaKGoldberg/eslint-plugin-package-json/issues/655 is fixed.
+import { toCompatPlugin as jsonToCompatPlugin } from 'eslint-json-compat-utils';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
 import eslintPluginN from 'eslint-plugin-n';
+import eslintPluginPackageJson from 'eslint-plugin-package-json';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginYouDontNeedLodashUnderscore from 'eslint-plugin-you-dont-need-lodash-underscore';
+import { glob } from 'glob';
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
@@ -129,6 +133,18 @@ export function makeBaseConfig( configurl, opts = {} ) {
 
 	const envConditionNames =
 		process.env.npm_config_jetpack_webpack_config_resolve_conditions?.split( ',' ) ?? [];
+
+	const jsPackageJsons = glob
+		.sync( path.join( rootdir, 'projects/js-packages/*/package.json' ) )
+		.map( p => path.relative( basedir, p ) )
+		.filter( p => ! p.startsWith( '../' ) );
+	const nonPrivateJsPackageJsons = jsPackageJsons.filter( p => {
+		try {
+			return ! JSON.parse( fs.readFileSync( path.join( basedir, p ) ) )?.private;
+		} catch {
+			return false;
+		}
+	} );
 
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
@@ -444,6 +460,41 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			plugins: { json: eslintJson },
 			language: 'json/json5',
 			extends: [ 'json/recommended' ],
+		},
+
+		// package.json files.
+		{
+			name: 'Package.json - base',
+			files: [ '**/package.json' ],
+			plugins: {
+				'package-json': jsonToCompatPlugin( eslintPluginPackageJson ),
+			},
+			rules: {
+				...eslintPluginPackageJson.configs.recommended.rules,
+
+				// Empty browserslist does something.
+				'package-json/no-empty-fields': [ 'error', { ignoreProperties: [ 'browserslist' ] } ],
+
+				// Maybe someday, but not yet.
+				'package-json/require-type': 'off',
+			},
+		},
+		{
+			name: 'Package.json - Only js-packages need a name',
+			files: [ '**/package.json' ],
+			ignores: jsPackageJsons,
+			rules: {
+				'package-json/require-name': 'off',
+			},
+		},
+		{
+			name: 'Package.json - Only published js-packages need various fields',
+			files: [ '**/package.json' ],
+			ignores: nonPrivateJsPackageJsons,
+			rules: {
+				'package-json/require-description': 'off',
+				'package-json/require-version': 'off',
+			},
 		},
 
 		// Jest.

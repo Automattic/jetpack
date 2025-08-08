@@ -247,6 +247,23 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertSame( array( 'files' => array() ), $field->get_render_value( 'api' ) );
 		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 	}
+
+	public function test_render_label_in_different_contexts() {
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
+		$this->assertEquals( 'test_label', $field->get_label() );
+
+		$field = new Feedback_Field( 'test_key', '', 'test_value' );
+		$this->assertSame( '', $field->get_label() );
+
+		$field = new Feedback_Field( 'test_key', null, 'test_value' );
+		$this->assertSame( '', $field->get_label() );
+
+		$field = new Feedback_Field( 'test_key', false, 'test_value' );
+		$this->assertSame( '', $field->get_label() );
+
+		$field = new Feedback_Field( 'test_key', 'á&#044; ç&#044; ü&#044; ń&#044; ğ', 'test_value' );
+		$this->assertSame( 'á, ç, ü, ń, ğ', $field->get_label() );
+	}
 	/**
 	 * Helper function to return a URL for the file.
 	 *

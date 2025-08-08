@@ -1,11 +1,7 @@
 {
 	"name": "@automattic/i18n-loader-webpack-plugin",
-	"version": "2.0.80",
+	"version": "2.0.81",
 	"description": "A Webpack plugin to load WordPress i18n when Webpack lazy-loads a bundle.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/i18n-loader-webpack-plugin/#readme",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] I18n Loader Webpack Plugin"
-	},
 	"keywords": [
 		"webpack",
 		"plugin",
@@ -15,6 +11,10 @@
 		"gettext",
 		"i18n"
 	],
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/i18n-loader-webpack-plugin/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] I18n Loader Webpack Plugin"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
@@ -22,6 +22,9 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		".": "./src/I18nLoaderPlugin.js"
+	},
 	"scripts": {
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage"
@@ -30,16 +33,13 @@
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"@wordpress/dependency-extraction-webpack-plugin": "6.26.0",
-		"@wordpress/i18n": "5.26.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.27.0",
+		"@wordpress/i18n": "6.0.0",
 		"jest": "30.0.4",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
 	},
 	"peerDependencies": {
 		"webpack": "^5.94.0"
-	},
-	"exports": {
-		".": "./src/I18nLoaderPlugin.js"
 	}
 }

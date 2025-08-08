@@ -1,7 +1,8 @@
-<?php
-/*
-!
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+/**
  * Admin Page: Settings: API settings
+ *
+ * @package automattic/jetpack-crm
  */
 
 // stop direct access
@@ -13,14 +14,14 @@ global $zbs;
 
 $unconfirmed = false;
 
-if ( isset( $_POST['generate-api-creds'] ) && $_POST['generate-api-creds'] == 1 ) {
+if ( isset( $_POST['generate-api-creds'] ) && $_POST['generate-api-creds'] === '1' ) {
 
 	if (
-		isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'generate-api-creds' )
+		isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'generate-api-creds' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		&& zeroBSCRM_isZBSAdminOrAdmin()
 	) {
 
-		if ( ! isset( $_POST['really_generate'] ) || $_POST['really_generate'] != 1 ) {
+		if ( ! isset( $_POST['really_generate'] ) || $_POST['really_generate'] !== '1' ) {
 
 			$unconfirmed = true;
 
@@ -35,15 +36,21 @@ if ( isset( $_POST['generate-api-creds'] ) && $_POST['generate-api-creds'] == 1 
 	}
 }
 
-$api_key    = zeroBSCRM_getAPIKey();
-$api_secret = zeroBSCRM_getAPISecret();
+$api_key = zeroBSCRM_getAPIKey();
 
 $endpoint_url = zeroBSCRM_getAPIEndpoint();
 
 // Warning if permalinks not pretty
 if ( ! zeroBSCRM_checkPrettyPermalinks() ) {
 	$permalinks_url = admin_url( 'options-permalink.php' );
-	echo "<div class='ui error message danger' style='display:block;'><i class='exclamation circle icon white'></i>" . wp_kses( sprintf( __( 'Permalinks need to be pretty for the API to be available. Update your <a href="%s">Permalink settings</a>.', 'zero-bs-crm' ), esc_url( $permalinks_url ) ), $zbs->acceptable_restricted_html ) . '</div>';
+	echo "<div class='ui error message danger' style='display:block;'><i class='exclamation circle icon white'></i>" . wp_kses(
+		sprintf(
+			/* Translators: %s is the URL to the permalink settings. */
+			__( 'Permalinks need to be pretty for the API to be available. Update your <a href="%s">Permalink settings</a>.', 'zero-bs-crm' ),
+			esc_url( $permalinks_url )
+		),
+		$zbs->acceptable_restricted_html
+	) . '</div>';
 }
 
 ?>
@@ -61,7 +68,7 @@ if ( ! zeroBSCRM_checkPrettyPermalinks() ) {
 </style>
 <?php
 
-if ( $api_key == '' ) {
+if ( empty( $api_key ) ) {
 
 	?>
 

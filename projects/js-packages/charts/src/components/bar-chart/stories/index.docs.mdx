@@ -1,6 +1,5 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as BarChartStories from './index.stories';
-import * as LegendStories from './legend.stories';
 
 <Meta title="JS Packages/Charts/Types/Bar Chart" of={ BarChartStories } />
 
@@ -276,7 +275,7 @@ By default, bars with zero values have no visual height, making them difficult t
 
 Display series information with automatic color and pattern matching:
 
-<Canvas of={ LegendStories.Default } />
+<Canvas of={ BarChartStories.WithLegend } />
 
 <Source
 	language="jsx"
@@ -290,27 +289,11 @@ Display series information with automatic color and pattern matching:
 	/>` }
 />
 
-### Legend Positioning
-
-Control legend placement with alignment options:
-
-<Canvas of={ LegendStories.AlignmentPositioning } />
-
-<Source
-	language="jsx"
-	code={ `<BarChart
-		data={data}
-		showLegend={true}
-		legendAlignmentHorizontal="right"
-		legendAlignmentVertical="top"
-	/>` }
-/>
-
 ### Vertical Legend
 
 Display legends vertically for charts with many series:
 
-<Canvas of={ LegendStories.VerticalOrientation } />
+<Canvas of={ BarChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -318,15 +301,10 @@ Display legends vertically for charts with many series:
 		data={data}
 		showLegend={true}
 		legendOrientation="vertical"
-		legendAlignmentHorizontal="right"
+		legendAlignmentHorizontal="left"
+		legendAlignmentVertical="top"
 	/>` }
 />
-
-### Legends with Horizontal Bars
-
-Legends work seamlessly with both orientations:
-
-<Canvas of={ LegendStories.HorizontalBars } />
 
 ## Advanced Customization
 
@@ -496,10 +474,6 @@ Main chart component with responsive behavior by default.
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
 | `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
 | `className` | `string` | - | Additional CSS class name |
-| `onPointerDown` | `(event: EventHandlerParams) => void` | - | Pointer down event handler |
-| `onPointerUp` | `(event: EventHandlerParams) => void` | - | Pointer up event handler |
-| `onPointerMove` | `(event: EventHandlerParams) => void` | - | Pointer move event handler |
-| `onPointerOut` | `(event: PointerEvent) => void` | - | Pointer out event handler |
 
 ### SeriesData Type
 

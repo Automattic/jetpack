@@ -434,7 +434,7 @@ class Main extends Component {
 					title={
 						this.props.connectingUserFeatureLabel &&
 						sprintf(
-							/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+							/* translators: %s: a feature label (e.g. SEO, Notifications) */
 							__( 'Unlock %s and more amazing features', 'jetpack' ),
 							this.props.connectingUserFeatureLabel
 						)

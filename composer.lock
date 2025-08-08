@@ -198,7 +198,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "3112a798d2da2b1a08adb7196bef7480bd114e3e"
+                "reference": "ec72456a83f9569f5d2867e4155accda4be95bb5"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -213,7 +213,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 }
             },
             "autoload": {

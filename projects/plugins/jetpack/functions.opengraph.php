@@ -11,7 +11,9 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Block_Delimiter;
+use Automattic\Block_Scanner;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Host;
 
 add_action( 'wp_head', 'jetpack_og_tags' );
@@ -414,29 +416,32 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
 	}
 
-	/**
-	 * Allow filtering the template to use with Social Image Generator.
-	 * Available templates: highway, dois, fullscreen, edge.
-	 *
-	 * @since 14.9
-	 *
-	 * @param string $template The template to use.
+	/*
+	 * Only attempt to generate a dynamic fallback image
+	 * if we have a healthy connection to WPCOM.
+	 * and if the site has the right plan.
 	 */
-	$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
+	if (
+		( ( new Host() )->is_wpcom_simple()
+		|| ( new Connection_Manager() )->is_connected()
+		)
+		&& Current_Plan::supports( 'social-image-generator' )
+	) {
+		/**
+		 * Allow filtering the template to use with Social Image Generator.
+		 * Available templates: highway, dois, fullscreen, edge.
+		 *
+		 * @since 14.9
+		 *
+		 * @param string $template The template to use.
+		 */
+		$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
 
-	// Let's generate the image.
-	$image = jetpack_og_generate_fallback_social_image( $site_image, $template );
-
-	// Final fallback if everything else fails, the blank image.
-	if ( empty( $image['src'] ) ) {
-		return array(
-			'src'    => jetpack_og_get_site_fallback_blank_image(),
-			'width'  => $width,
-			'height' => $height,
-		);
+		// Let's generate the image.
+		$site_image = jetpack_og_generate_fallback_social_image( $site_image, $template );
 	}
 
-	return $image;
+	return $site_image;
 }
 
 /**
@@ -600,8 +605,18 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 
 	$token = \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
 
-	// If we have a token, cache it for a day.
-	if ( ! is_wp_error( $token ) ) {
+	/*
+	 * We want to cache 2 types of responses:
+	 * - Successful responses with a token.
+	 * - WP_Error responses that denote a WordPress.com connection issue.
+	 */
+	if (
+		! is_wp_error( $token )
+		|| (
+			is_wp_error( $token )
+			&& 'invalid_user_permission_publicize' === $token->get_error_code()
+		)
+	) {
 		set_transient( $transient_name, $token, DAY_IN_SECONDS );
 	}
 
@@ -783,13 +798,20 @@ function jetpack_og_remove_query_blocks( $description ) {
 	$depth          = 0;
 	$in_query_block = false;
 
-	foreach ( Block_Delimiter::scan_delimiters( $description ) as $where => $delimiter ) {
-		list( $match_at, $length ) = $where;
+	$scanner = Block_Scanner::create( $description );
+	if ( ! $scanner ) {
+		return $description;
+	}
+
+	while ( $scanner->next_delimiter() ) {
+		$span     = $scanner->get_span();
+		$match_at = $span->start;
+		$length   = $span->length;
 
 		// Check if this is a query block.
-		if ( $delimiter->is_block_type( 'query' ) ) {
-			switch ( $delimiter->get_delimiter_type() ) {
-				case Block_Delimiter::OPENER:
+		if ( $scanner->is_block_type( 'query' ) ) {
+			switch ( $scanner->get_delimiter_type() ) {
+				case Block_Scanner::OPENER:
 					if ( ! $in_query_block ) {
 						// Copy content before the query block.
 						$output        .= substr( $description, $offset, $match_at - $offset );
@@ -798,7 +820,7 @@ function jetpack_og_remove_query_blocks( $description ) {
 					++$depth;
 					break;
 
-				case Block_Delimiter::CLOSER:
+				case Block_Scanner::CLOSER:
 					--$depth;
 					if ( $in_query_block && $depth === 0 ) {
 						// We've exited the query block, continue from after it.
@@ -815,7 +837,7 @@ function jetpack_og_remove_query_blocks( $description ) {
 					}
 					break;
 
-				case Block_Delimiter::VOID:
+				case Block_Scanner::VOID:
 					// Void query blocks should be removed entirely.
 					if ( ! $in_query_block ) {
 						$output .= substr( $description, $offset, $match_at - $offset );

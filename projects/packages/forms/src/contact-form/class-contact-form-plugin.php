@@ -1086,6 +1086,55 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Render the time field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the time field.
+	 */
+	public static function gutenblock_render_field_time( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'time', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the image select field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the image select form field.
+	 */
+	public static function gutenblock_render_field_image_select( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select', $block );
+
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the image choices field.
+	 *
+	 * @return string HTML for the image choices form field.
+	 */
+	public static function gutenblock_render_form_image_select_choices() {
+		// TODO: Implement the block rendering
+		return '';
+	}
+
+	/**
+	 * Render the image choice field.
+	 *
+	 * @return string HTML for the image choice form field.
+	 */
+	public static function gutenblock_render_form_image_select_choice() {
+		// TODO: Implement the block rendering
+		return '';
+	}
+
+	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
@@ -1231,13 +1280,24 @@ class Contact_Form_Plugin {
 		$is_block_template      = str_starts_with( $id, 'block-template-' );
 		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
-		$form = false;
 		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) {
 			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
 			if ( ! $form ) { // fail early if the JWT is invalid.
 				// If the JWT is invalid, we can't process the form.
 				return false;
 			}
+
+			$form->validate();
+
+			if ( $form->has_errors() ) {
+				return $form->errors;
+			}
+
+			if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+				Post_To_Url::init();
+			}
+			// Process the form
+			return $form->process_submission();
 		}
 
 		if ( $is_widget ) {
@@ -1358,10 +1418,9 @@ class Contact_Form_Plugin {
 				apply_filters( 'the_content', $content );
 			}
 		}
-		if ( ! $form ) {
-			// In future version we will be able to skip this step.
-			$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
-		}
+
+		// In future version we will be able to skip this step.
+		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
@@ -1377,7 +1436,9 @@ class Contact_Form_Plugin {
 				$attributes = get_post_meta( $id, "_g_feedback_shortcode_atts_{$hash}", true );
 				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
 					foreach ( array_filter( $attributes ) as $param => $value ) {
-						$parameters .= " $param=\"$value\"";
+						if ( is_scalar( $value ) ) {
+							$parameters .= " $param=\"$value\"";
+						}
 					}
 				}
 
@@ -1393,8 +1454,8 @@ class Contact_Form_Plugin {
 			return false;
 		}
 
-		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
-			return $form->errors;
+		if ( $form->has_errors() ) {
+			return false;
 		}
 
 		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
@@ -2030,36 +2091,61 @@ class Contact_Form_Plugin {
 	 * @return array            Associative array with keys expected by core.
 	 */
 	public function internal_personal_data_exporter( $email, $page = 1, $per_page = 250 ) {
+		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
+
+		return array(
+			'data' => $this->internal_personal_data_formater( $post_ids ),
+			'done' => count( $post_ids ) < $per_page,
+		);
+	}
+
+	/**
+	 * Formats personal data for export.
+	 *
+	 * @param  array $post_ids Array of post IDs to format.
+	 *
+	 * @return array $export_data Formatted personal data for export.
+	 */
+	public function internal_personal_data_formater( $post_ids ) {
 		$export_data = array();
-		$post_ids    = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
-
 		foreach ( $post_ids as $post_id ) {
-			$post_fields = $this->get_parsed_field_contents_of_post( $post_id );
-
-			if ( ! is_array( $post_fields ) || empty( $post_fields['_feedback_subject'] ) ) {
-				continue; // Corrupt data.
-			}
-
-			$post_fields['_feedback_main_comment'] = $this->get_post_content_for_csv_export( $post_id );
-			$post_fields                           = $this->map_parsed_field_contents_of_post_to_field_names( $post_fields );
-
-			if ( ! is_array( $post_fields ) || empty( $post_fields ) ) {
-				continue; // No fields to export.
-			}
-
-			$post_meta = $this->get_post_meta_for_csv_export( $post_id );
-			$post_meta = is_array( $post_meta ) ? $post_meta : array();
-
 			$post_export_data = array();
-			$post_data        = array_merge( $post_fields, $post_meta );
-			ksort( $post_data );
+			$feedback         = Feedback::get( $post_id );
+			if ( ! $feedback ) {
+				continue;
+			}
+			$fields             = $feedback->get_compiled_fields( 'personal_export', 'all' );
+			$post_export_data[] = array(
+				'name'  => __( 'Date', 'jetpack-forms' ),
+				'value' => $feedback->get_time(),
+			);
 
-			foreach ( $post_data as $post_data_key => $post_data_value ) {
+			$post_export_data[] = array(
+				'name'  => __( 'Source Title', 'jetpack-forms' ),
+				'value' => $feedback->get_entry_title(),
+			);
+
+			$post_export_data[] = array(
+				'name'  => __( 'Source URL:', 'jetpack-forms' ),
+				'value' => $feedback->get_entry_permalink(),
+			);
+
+			foreach ( $fields as $field ) {
 				$post_export_data[] = array(
-					'name'  => preg_replace( '/^[0-9]+_/', '', $post_data_key ),
-					'value' => $post_data_value,
+					'name'  => $field['label'],
+					'value' => $field['value'],
 				);
 			}
+
+			$post_export_data[] = array(
+				'name'  => __( 'Consent', 'jetpack-forms' ),
+				'value' => $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' ),
+			);
+
+			$post_export_data[] = array(
+				'name'  => __( 'IP Address', 'jetpack-forms' ),
+				'value' => $feedback->get_ip_address(),
+			);
 
 			$export_data[] = array(
 				'group_id'    => 'feedback',
@@ -2069,10 +2155,7 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		return array(
-			'data' => $export_data,
-			'done' => count( $post_ids ) < $per_page,
-		);
+		return $export_data;
 	}
 
 	/**
@@ -2317,7 +2400,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Prepares feedback post data for CSV export.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.1.0
 	 *
 	 * @see get_export_feedback_data()
 	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
@@ -2325,7 +2408,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_export_data_for_posts( $post_ids ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_feedback_data()' );
+		_deprecated_function( __METHOD__, 'package-5.1.0', 'Contact_Form_Plugin::get_export_feedback_data()' );
 		return $this->get_export_feedback_data( $post_ids );
 	}
 
@@ -2336,12 +2419,12 @@ class Contact_Form_Plugin {
 	 * - Positive values render AFTER any form field/value column: 1, 30, 93...
 	 *   Mind using high numbering on these ones as the prefix is used on regular inputs: 1_Name, 2_Email, etc
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.1.0
 	 *
 	 * @return array
 	 */
 	public function get_well_known_column_names() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_column_names()' );
+		_deprecated_function( __METHOD__, 'package-5.1.0', 'Contact_Form_Plugin::get_export_column_names()' );
 		return array(
 			'-9_title'         => __( 'Title', 'jetpack-forms' ),
 			'-6_source'        => __( 'Source', 'jetpack-forms' ),
@@ -3064,6 +3147,26 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_rating( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'rating', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the slider field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
+		// Get min, max, and default from the parent block's attributes.
+		$parent_attrs    = $block->parsed_block['attrs'] ?? array();
+		$atts['min']     = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
+		$atts['max']     = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
+		$atts['default'] = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
+
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 }

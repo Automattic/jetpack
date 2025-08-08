@@ -77,7 +77,7 @@ describe( 'TemplatePickerModal', () => {
 		} );
 		await user.click( saveButton );
 
-		expect( handleSave ).toHaveBeenCalledWith( { imageId: null, template: 'edge' } );
+		expect( handleSave ).toHaveBeenCalledWith( { imageId: null, template: 'edge', font: '' } );
 		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 
@@ -112,7 +112,7 @@ describe( 'TemplatePickerModal', () => {
 		} );
 		await user.click( saveButton );
 
-		expect( handleSave ).toHaveBeenCalledWith( { imageId, template: null } );
+		expect( handleSave ).toHaveBeenCalledWith( { imageId, template: null, font: '' } );
 		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -124,7 +124,7 @@ const RenamerPlugin = {
 module.exports = [
 	{
 		...sharedWebpackConfig,
-		entry: glob.sync( path.join( scriptSrcDir, '*.js' ) ).reduce( ( acc, filepath ) => {
+		entry: glob.sync( path.join( scriptSrcDir, '*.{js,ts,tsx}' ) ).reduce( ( acc, filepath ) => {
 			acc[ 'js/' + path.parse( filepath ).name ] = filepath;
 			return acc;
 		}, {} ),

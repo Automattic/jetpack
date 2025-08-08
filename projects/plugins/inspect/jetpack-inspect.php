@@ -7,7 +7,7 @@
  *
  * @wordpress-plugin
  * Plugin Name: Jetpack Inspect
- * Version: 2.0.0-a.3
+ * Version: 2.0.0-a.5
  * Plugin URI: https://automattic.com
  * Description: Inspect HTTP incoming and outgoing requests and responses.
  * Author: pyronaur

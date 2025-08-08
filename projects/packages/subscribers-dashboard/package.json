@@ -1,7 +1,7 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-subscribers-dashboard",
-	"version": "0.1.24",
+	"version": "0.2.0",
+	"private": true,
 	"description": "WP Admin page to manage subscribers",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/subscribers-dashboard/#readme",
 	"bugs": {
@@ -14,17 +14,24 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"exports": {
+		"./components/*": "./_inc/components/*"
+	},
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
-		"build-js": "webpack --config webpack.config.js",
 		"build-client": "pnpm webpack --config webpack.config.js",
+		"build-js": "webpack --config webpack.config.js",
 		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
-		"validate": "pnpm exec validate-es build/",
 		"clean": "rm -rf build/",
-		"watch": "pnpm run build && pnpm webpack watch",
 		"test": "jest --config=tests/jest.config.js",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
@@ -43,17 +50,17 @@
 		"@automattic/typography": "1.0.0",
 		"@automattic/viewport-react": "1.0.1",
 		"@tanstack/react-query": "5.75.1",
-		"@wordpress/api-fetch": "7.26.0",
-		"@wordpress/base-styles": "6.2.0",
-		"@wordpress/components": "29.12.0",
-		"@wordpress/compose": "7.26.0",
-		"@wordpress/data": "10.26.0",
-		"@wordpress/dataviews": "4.17.0",
-		"@wordpress/date": "5.26.0",
-		"@wordpress/element": "6.26.0",
-		"@wordpress/i18n": "5.26.0",
-		"@wordpress/icons": "10.26.0",
-		"@wordpress/url": "4.26.0",
+		"@wordpress/api-fetch": "7.27.0",
+		"@wordpress/base-styles": "6.3.0",
+		"@wordpress/components": "30.0.0",
+		"@wordpress/compose": "7.27.0",
+		"@wordpress/data": "10.27.0",
+		"@wordpress/dataviews": "5.0.0",
+		"@wordpress/date": "5.27.0",
+		"@wordpress/element": "6.27.0",
+		"@wordpress/i18n": "6.0.0",
+		"@wordpress/icons": "10.27.0",
+		"@wordpress/url": "4.27.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.1",
 		"gridicons": "3.4.2",
@@ -61,13 +68,6 @@
 		"react-router": "7.6.2",
 		"wpcom-proxy-request": "^7.0.3"
 	},
-	"exports": {
-		"./components/*": "./_inc/components/*"
-	},
-	"sideEffects": [
-		"*.css",
-		"*.scss"
-	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.0",

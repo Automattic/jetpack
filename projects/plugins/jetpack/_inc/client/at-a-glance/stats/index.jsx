@@ -92,7 +92,7 @@ export class DashStats extends Component {
 			} else if ( 'week' === unit ) {
 				chartLabel = gmdateI18n( shortMonthFormat, date );
 				tooltipLabel = sprintf(
-					/* translators: placeholder is a date. */
+					/* translators: %s: a date. */
 					__( 'Week of %s', 'jetpack' ),
 					gmdateI18n( longMonthFormat, date )
 				);
@@ -118,7 +118,7 @@ export class DashStats extends Component {
 					{
 						label: tooltipLabel,
 						value: sprintf(
-							/* translators: placeholder is a number */
+							/* translators: %s: the number of views */
 							__( 'Views: %s', 'jetpack' ),
 							formatNumber( views )
 						),

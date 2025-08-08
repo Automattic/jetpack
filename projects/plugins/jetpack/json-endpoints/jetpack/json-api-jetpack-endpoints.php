@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 $json_jetpack_endpoints_dir = __DIR__ . '/';
 
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-endpoint.php';

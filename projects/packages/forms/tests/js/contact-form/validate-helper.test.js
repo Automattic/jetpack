@@ -1,5 +1,9 @@
 // Add these mocks at the top of your test file
-import { validateField, validateDate } from '../../../src/contact-form/js/validate-helper';
+import {
+	validateField,
+	validateDate,
+	isEmptyValue,
+} from '../../../src/contact-form/js/validate-helper';
 
 // To run these test:
 // cd projects/packages/forms && pnpm test
@@ -97,14 +101,20 @@ describe( 'validateField', () => {
 	describe( 'required field validation', () => {
 		test( 'returns is_required for empty required fields', () => {
 			expect( validateField( 'text', '', true ) ).toBe( 'is_required' );
+			expect( validateField( 'text', ' ', true ) ).toBe( 'is_required' );
 			expect( validateField( 'email', '', true ) ).toBe( 'is_required' );
 			expect( validateField( 'number', '', true ) ).toBe( 'is_required' );
+			expect( validateField( 'multiple-checkboxes', [], true ) ).toBe( 'is_required' );
+			expect( validateField( 'multiple-checkboxes', [ '' ], true ) ).toBe( 'is_required' );
 		} );
 
 		test( 'returns yes for empty optional fields', () => {
 			expect( validateField( 'text', '', false ) ).toBe( 'yes' );
 			expect( validateField( 'email', '', false ) ).toBe( 'yes' );
 			expect( validateField( 'number', '', false ) ).toBe( 'yes' );
+			expect( validateField( 'text', ' ', false ) ).toBe( 'yes' );
+			expect( validateField( 'multiple-checkboxes', [], false ) ).toBe( 'yes' );
+			expect( validateField( 'multiple-checkboxes', [ ' ' ], false ) ).toBe( 'yes' );
 		} );
 	} );
 
@@ -150,6 +160,7 @@ describe( 'validateField', () => {
 
 		test( 'invalidates incorrect number formats', () => {
 			expect( validateField( 'number', '123a', true ) ).toBe( 'invalid_number' );
+			expect( validateField( 'number', 'a', true ) ).toBe( 'invalid_number' );
 		} );
 
 		test( 'invalidates incorrect max number formats', () => {
@@ -158,6 +169,30 @@ describe( 'validateField', () => {
 
 		test( 'invalidates incorrect minnumber formats', () => {
 			expect( validateField( 'number', '9', true, { min: 10 } ) ).toBe( 'invalid_min_number' );
+		} );
+	} );
+
+	describe( 'file validation', () => {
+		test( 'validates file format', () => {
+			expect( validateField( 'file', [], false ) ).toBe( 'yes' );
+			expect(
+				validateField( 'file', [ { name: 'file.txt', size: 12345, isUploaded: true } ], false )
+			).toBe( 'yes' );
+			expect(
+				validateField( 'file', [ { name: 'file.txt', size: 12345, isUploaded: true } ], true )
+			).toBe( 'yes' );
+		} );
+
+		test( 'invalidates incorrect file formats', () => {
+			expect( validateField( 'file', [ { error: true } ], true ) ).toBe(
+				'invalid_file_has_errors'
+			);
+			expect( validateField( 'file', [ { isUploaded: false } ], true ) ).toBe(
+				'invalid_file_uploading'
+			);
+			expect( validateField( 'file', [ { isUploaded: false } ], false ) ).toBe(
+				'invalid_file_uploading'
+			);
 		} );
 	} );
 
@@ -200,6 +235,62 @@ describe( 'validateField', () => {
 	describe( 'fallthrough validation', () => {
 		test( 'returns yes for unrecognized field types with values', () => {
 			expect( validateField( 'unknown-type', 'some value', true ) ).toBe( 'yes' );
+		} );
+	} );
+
+	describe( 'isEmptyValue function', () => {
+		test( 'returns true for null and undefined', () => {
+			expect( isEmptyValue( null ) ).toBe( true );
+			expect( isEmptyValue( undefined ) ).toBe( true );
+		} );
+
+		test( 'returns true for empty strings', () => {
+			expect( isEmptyValue( '' ) ).toBe( true );
+			expect( isEmptyValue( ' ' ) ).toBe( true ); // whitespace only
+			expect( isEmptyValue( '\t\n' ) ).toBe( true ); // tabs and newlines
+		} );
+
+		test( 'returns true for empty arrays', () => {
+			expect( isEmptyValue( [] ) ).toBe( true );
+			expect( isEmptyValue( [ '' ] ) ).toBe( true );
+			expect( isEmptyValue( [ ' ' ] ) ).toBe( true );
+			expect( isEmptyValue( [ {} ] ) ).toBe( true );
+		} );
+
+		test( 'returns true for empty objects', () => {
+			expect( isEmptyValue( {} ) ).toBe( true );
+			expect( isEmptyValue( { key: null } ) ).toBe( true ); // object with null value is not empty
+		} );
+
+		test( 'returns false for non-empty strings', () => {
+			expect( isEmptyValue( 'hello' ) ).toBe( false );
+			expect( isEmptyValue( ' hello ' ) ).toBe( false );
+			expect( isEmptyValue( '0' ) ).toBe( false );
+		} );
+
+		test( 'returns false for non-empty arrays', () => {
+			expect( isEmptyValue( [ 'option' ] ) ).toBe( false );
+		} );
+
+		test( 'returns false for non-empty objects', () => {
+			expect( isEmptyValue( { key: 'value' } ) ).toBe( false );
+		} );
+
+		test( 'returns false for numbers including zero', () => {
+			expect( isEmptyValue( 0 ) ).toBe( false );
+			expect( isEmptyValue( 42 ) ).toBe( false );
+			expect( isEmptyValue( -1 ) ).toBe( false );
+			expect( isEmptyValue( 0.5 ) ).toBe( false );
+		} );
+
+		test( 'returns false for boolean values', () => {
+			expect( isEmptyValue( true ) ).toBe( false );
+			expect( isEmptyValue( false ) ).toBe( false );
+		} );
+
+		test( 'returns false for functions', () => {
+			expect( isEmptyValue( function () {} ) ).toBe( false );
+			expect( isEmptyValue( () => {} ) ).toBe( false );
 		} );
 	} );
 } );

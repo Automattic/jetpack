@@ -8,6 +8,10 @@
  * Delete a term:     /sites/%s/taxonomies/%s/terms/slug:%s/delete
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Term_Endpoint(
 	array(
 		'description'          => 'Create a new term.',

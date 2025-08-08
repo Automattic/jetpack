@@ -193,6 +193,27 @@ class Jetpack_Options {
 	 * @return mixed
 	 */
 	public static function get_option( $name, $default = false ) {
+		// Check if external storage should be used for this option
+		if ( self::should_use_external_storage( $name ) ) {
+			/**
+			 * Filter to provide external storage for Jetpack connection options.
+			 * External storage is checked first, with database as fallback.
+			 *
+			 * @since 6.17.0
+			 *
+			 * @param mixed  $value   Current value (null to let database handle).
+			 * @param string $name    Option name, _without_ `jetpack_%` prefix.
+			 * @param mixed  $default Default value if option doesn't exist.
+			 * @return mixed External storage value, or null to fall back to database.
+			 */
+			$external_value = apply_filters( 'jetpack_external_storage_get', null, $name, $default );
+
+			// If external storage provided a value, use it
+			if ( null !== $external_value ) {
+				return $external_value;
+			}
+		}
+
 		/**
 		 * Filter Jetpack Options.
 		 * Can be useful in environments when Jetpack is running with a different setup
@@ -230,6 +251,34 @@ class Jetpack_Options {
 		}
 
 		return $default;
+	}
+
+	/**
+	 * Determines if external storage should be used for a given option.
+	 *
+	 * @since 6.17.0
+	 *
+	 * @param string $name Option name, _without_ `jetpack_%` prefix.
+	 * @return bool True if external storage should be checked for this option.
+	 */
+	private static function should_use_external_storage( $name ) {
+		// Quick bailout for unsupported options or killswitch
+		if ( ! in_array( $name, array( 'blog_token', 'id' ), true ) ||
+			( defined( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) && constant( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) ) ) {
+			return false;
+		}
+
+		/**
+		 * Filter to control whether external storage should be used for a given option.
+		 * Environments use this to opt-in to external storage for their sites.
+		 *
+		 * @since 6.17.0
+		 *
+		 * @param bool   $enabled     Whether external storage should be used (default: false).
+		 * @param string $option_name Option name, _without_ `jetpack_%` prefix.
+		 * @return bool True to use external storage, false to use database only.
+		 */
+		return apply_filters( 'jetpack_should_use_external_storage', false, $name );
 	}
 
 	/**

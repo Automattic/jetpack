@@ -84,7 +84,7 @@ function UsageControl( {
 	if ( nextResetDate && planType === PLAN_TYPE_TIERED ) {
 		daysUntilResetMessage = createInterpolateElement(
 			sprintf(
-				// translators: %1$d: number of days until the next usage count reset
+				// translators: %1$d: number of days until the next usage count reset, %2$s: date of next reset
 				__( 'Requests will reset to <strong>%1$d</strong> on %2$s.', 'jetpack' ),
 				requestsLimit,
 				nextResetDate

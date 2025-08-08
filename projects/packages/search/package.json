@@ -1,18 +1,29 @@
 {
 	"private": true,
 	"description": "Package for Jetpack Search products",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/search/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Search"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/packages/search"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
 	"main": "main.js",
 	"directories": {
 		"test": "tests"
 	},
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard && pnpm run build-inline",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
-		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
-		"build-instant": "webpack --config ./tools/webpack.instant.config.js",
-		"build-inline": "webpack --config ./tools/webpack.inline.config.js",
 		"build-customberg": "webpack --config ./tools/webpack.customberg.config.js",
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
+		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
+		"build-inline": "webpack --config ./tools/webpack.inline.config.js",
+		"build-instant": "webpack --config ./tools/webpack.instant.config.js",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf build/ .cache/",
 		"test": "concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
 		"test-coverage": "pnpm run test-scripts --coverage",
@@ -21,17 +32,9 @@
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "concurrently 'pnpm:build-instant --watch' 'pnpm:build-customberg --watch' 'pnpm:build-dashboard --watch' 'pnpm:build-inline --watch'"
 	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack",
-		"directory": "projects/packages/search"
-	},
-	"author": "Automattic",
-	"license": "GPL-2.0-or-later",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Package] Search"
-	},
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/search/#readme",
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/color-studio": "4.1.0",
@@ -42,16 +45,16 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
-		"@wordpress/base-styles": "6.2.0",
-		"@wordpress/block-editor": "14.21.0",
-		"@wordpress/components": "29.12.0",
-		"@wordpress/core-data": "7.26.0",
-		"@wordpress/data": "10.26.0",
-		"@wordpress/element": "6.26.0",
-		"@wordpress/i18n": "5.26.0",
-		"@wordpress/icons": "10.26.0",
-		"@wordpress/url": "4.26.0",
-		"@wordpress/viewport": "6.26.0",
+		"@wordpress/base-styles": "6.3.0",
+		"@wordpress/block-editor": "15.0.0",
+		"@wordpress/components": "30.0.0",
+		"@wordpress/core-data": "7.27.0",
+		"@wordpress/data": "10.27.0",
+		"@wordpress/element": "6.27.0",
+		"@wordpress/i18n": "6.0.0",
+		"@wordpress/icons": "10.27.0",
+		"@wordpress/url": "4.27.0",
+		"@wordpress/viewport": "6.27.0",
 		"clsx": "2.1.1",
 		"debounce": "2.2.0",
 		"fast-json-stable-stringify": "2.1.0",
@@ -81,8 +84,8 @@
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/preact": "3.2.4",
 		"@testing-library/react": "16.3.0",
-		"@wordpress/browserslist-config": "6.26.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "6.26.0",
+		"@wordpress/browserslist-config": "6.27.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.27.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.0.0",
 		"concurrently": "7.6.0",
@@ -97,8 +100,5 @@
 		"size-limit": "11.2.0",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
-	},
-	"browserslist": [
-		"extends @wordpress/browserslist-config"
-	]
+	}
 }

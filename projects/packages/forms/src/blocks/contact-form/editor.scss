@@ -201,6 +201,10 @@
 	}
 }
 
+.is-form-empty .block-editor-inserter {
+	width: 100%;
+}
+
 .form-placeholder__patterns-modal {
 	max-width: 1200px;
 
@@ -327,6 +331,7 @@
 	min-height: 200px;
 }
 
+// Default field styles. (browser default styles)
 .jetpack-field {
 
 	.jetpack-field__input,
@@ -361,6 +366,7 @@
 		margin-bottom: 0;
 	}
 
+	.jetpack-option__type,
 	&.jetpack-field-checkbox .jetpack-field-option__checkbox,
 	&.jetpack-field-consent .jetpack-field-option__checkbox {
 		margin: 0 0.75rem 0 0;
@@ -368,6 +374,28 @@
 		opacity: 1;
 	}
 
+	.jetpack-field-consent__checkbox + .jetpack-field-label {
+		line-height: normal;
+	}
+
+	.jetpack-field-option {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+	}
+
+}
+
+// Default field styles other the plain.
+.jetpack-field:not(.is-style-plain) {
+
+	&.jetpack-field-consent .jetpack-field-option__checkbox {
+		margin: 0 0.75rem 0 0;
+		border-color: currentColor;
+		opacity: 1;
+	}
+
+	.jetpack-field-option__checkbox.jetpack-field-option__checkbox,
 	.jetpack-option__type.jetpack-option__type {
 		align-items: center;
 		display: flex;
@@ -389,6 +417,7 @@
 		min-width: auto;
 	}
 
+	:where(.jetpack-field-option__checkbox),
 	:where(.jetpack-option__type) {
 		all: initial;
 		color: currentColor;
@@ -419,6 +448,7 @@
 			height: 1em;
 			justify-content: center;
 			width: 1em;
+			transform: translateY(-0.35em);
 		}
 
 		&[type="radio"]::before {
@@ -430,6 +460,7 @@
 		line-height: normal;
 	}
 
+	.jetpack-field-option__checkbox,
 	.jetpack-field-option {
 		display: flex;
 		align-items: center;
@@ -452,6 +483,10 @@
 			display: block; /* display: flex causes baselines to not align */
 			transform: translateY(0.15em);
 		}
+	}
+
+	.jetpack-field-multiple__list .jetpack-field-option.field-option-checkbox {
+		align-items: baseline;
 	}
 }
 

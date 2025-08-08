@@ -1,5 +1,6 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
@@ -259,7 +260,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
 			data-testid="bar-chart"
 			role="grid"
-			aria-label="bar chart"
+			aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 			style={ {
 				width,
 				height,

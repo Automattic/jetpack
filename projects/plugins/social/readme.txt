@@ -104,25 +104,33 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 7.0.0 - 2025-05-22
+### 7.1.0 - 2025-08-05
 #### Added
-- Added option to set default image for Social Image Generator.
+- Social Image Generator: Add font option.
+- My Jetpack: Add analytics for empty product search results.
+- Social Notes: Add a fallback title that can be customized via the `jetpack_social_notes_default_title` filter.
 
 #### Changed
-- E2E Tests: Update config file encryption algorithm.
-- jetpack-assets now requires jetpack-status so updating composer lock files.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- My Jetpack: Updated the onboarding UI, changing it to a single button.
+- E2E tests: Remove redundant logic in test fixture and converted the fixture to Typscript.
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests.
+- My Jetpack: Enable access to My Jetpack on WP Multisite.
+- My Jetpack: Hide backup failure notice when backups are deactivated.
+- My Jetpack: Unify the user connection flow with a unified screen.
+- My Jetpack: Update Stats card to include a chart for better analytics.
+- Sync: Ignore the ActivityPub Outbox CPT.
 - Update package dependencies.
 
-#### Removed
-- General: Update minimum WordPress version to 6.7.
-
 #### Fixed
-- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
-- My Jetpack: Fixed Onboarding UI responsiveness at 600px.
-- My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Fix social login getting stuck when email input not empty.
+- Ensure images load in connections management when concatenating JS.
+- Fix image validation when images sizes are customised.
+- JITM: Fix ineffective caching due to expired plugin sync transient.
+- My Jetpack: Fix footer alignment for disconnected accounts.
+- My Jetpack: Prevent expiration alerts for products covered by active bundles.
+- My Jetpack: Restore plan purchase link in footer.
+- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page.
+- Social Notes: Update filter name to match recent changes in WordPress.
+- Social Previews: Fix a bug with text overflowing with Mastodon.
+- Update JITMs to remove jQuery dependency.
 
 == Upgrade Notice ==
 
