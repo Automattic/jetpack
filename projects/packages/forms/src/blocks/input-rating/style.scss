@@ -27,8 +27,7 @@
 		.jetpack-field-rating__icon {
 			width: 1em;
 			height: 1em;
-			display: block;
-			font-size: inherit;
+
 
 			path {
 				fill: none;
@@ -53,8 +52,5 @@
 /* Ensure layout works even outside the field wrapper in the editor */
 .jetpack-rating-options {
 	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	align-items: center;
 }
 
