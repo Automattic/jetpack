@@ -40,6 +40,7 @@ const settings = {
 		},
 	},
 	supports: {
+		inserter: false,
 		reusable: false,
 		html: false,
 		// Mimic the layout settings of the core Group block.
