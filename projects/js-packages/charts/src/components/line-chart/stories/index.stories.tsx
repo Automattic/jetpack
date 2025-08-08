@@ -41,26 +41,6 @@ WithLegend.args = {
 	showLegend: true,
 };
 
-export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomLegendPositioning.args = {
-	data: sampleData,
-	showLegend: true,
-	height: 400,
-	legendAlignmentHorizontal: 'left',
-	legendAlignmentVertical: 'top',
-	legendOrientation: 'horizontal',
-	withLegendGlyph: true,
-};
-
-CustomLegendPositioning.parameters = {
-	docs: {
-		description: {
-			story:
-				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
-		},
-	},
-};
-
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {

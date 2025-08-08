@@ -233,31 +233,6 @@ export const WithLegend: Story = {
 	},
 };
 
-// Story showcasing legend customization controls
-export const CustomLegendPositioning: Story = {
-	args: {
-		withTooltips: true,
-		data: data.slice( 0, 3 ), // Use first 3 series for cleaner legend
-		gridVisibility: 'x',
-		maxWidth: 1200,
-		aspectRatio: 0.5,
-		resizeDebounceTime: 300,
-		// showLegend defaults to false, explicitly enabling for demonstration
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignmentHorizontal: 'left',
-		legendAlignmentVertical: 'top',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
-			},
-		},
-	},
-};
-
 export const HorizontalBarChart: Story = {
 	args: {
 		...Default.args,

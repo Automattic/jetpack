@@ -116,51 +116,6 @@ export const WithLegend: Story = {
 	},
 };
 
-export const CustomLegendPositioning: Story = {
-	args: {
-		containerWidth: '600px',
-		containerHeight: '350px',
-		resize: 'none',
-		thickness: 0.4,
-		data: [
-			{
-				label: 'MacOS',
-				value: 30000,
-				valueDisplay: '30K',
-				percentage: 30,
-			},
-			{
-				label: 'Linux',
-				value: 22000,
-				valueDisplay: '22K',
-				percentage: 22,
-			},
-			{
-				label: 'Windows',
-				value: 48000,
-				valueDisplay: '48K',
-				percentage: 48,
-			},
-		],
-		label: 'OS',
-		note: 'Windows +10%',
-		withTooltips: true,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignmentHorizontal: 'right',
-		legendAlignmentVertical: 'top',
-		legendShape: 'circle',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Semi-circle pie chart with right-top positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with OS usage data.',
-			},
-		},
-	},
-};
-
 const responsiveArgs = { ...Default.args, resize: 'both' };
 delete responsiveArgs.width;
 export const Responsiveness: Story = {
