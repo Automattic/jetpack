@@ -94,6 +94,22 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	protected $root_started = false;
 
 	/**
+	 * Mirror DOMDocument built on-demand for jetpack_print_sitemap compatibility.
+	 *
+	 * @since $$next-version$$
+	 * @var DOMDocument|null
+	 */
+	protected $dom_document = null;
+
+	/**
+	 * Tracks whether XMLWriter document has been finalized (closed and flushed).
+	 *
+	 * @since $$next-version$$
+	 * @var bool
+	 */
+	protected $is_finalized = false;
+
+	/**
 	 * Construct a new Jetpack_Sitemap_Buffer_XMLWriter.
 	 *
 	 * @since 14.6
@@ -164,6 +180,25 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		$this->content       .= $root_chunk;
 		$this->byte_capacity -= strlen( $root_chunk );
 		$this->root_started   = true;
+	}
+
+	/**
+	 * Finalize writer output once by closing the root and document and flushing.
+	 *
+	 * @since $$next-version$$
+	 * @access protected
+	 * @return void
+	 */
+	protected function finalize_writer_output() {
+		if ( $this->is_finalized ) {
+			return;
+		}
+		$this->ensure_root_started();
+		$this->writer->endElement(); // End root element (urlset/sitemapindex)
+		$this->writer->endDocument();
+		$final_content      = $this->writer->outputMemory( true );
+		$this->content     .= $final_content;
+		$this->is_finalized = true;
 	}
 
 	/**
@@ -251,13 +286,10 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @return string The contents of the buffer.
 	 */
 	public function contents() {
-		// If contents is requested, ensure the root exists so closing tags are valid.
-		$this->ensure_root_started();
-		$this->writer->endElement(); // End root element (urlset/sitemapindex)
-		$this->writer->endDocument();
-		$final_content  = $this->writer->outputMemory( true );
-		$this->content .= $final_content;
-
+		$this->finalize_writer_output();
+		if ( $this->dom_document instanceof DOMDocument ) {
+			return $this->dom_document->saveXML();
+		}
 		if ( empty( $this->content ) ) {
 			// If buffer is empty, return a minimal valid XML structure
 			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>";
@@ -313,6 +345,19 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @return null
 	 */
 	public function get_document() {
-		return null;
+		if ( $this->dom_document instanceof DOMDocument ) {
+			return $this->dom_document;
+		}
+
+		$this->finalize_writer_output();
+
+		$dom                     = new DOMDocument( '1.0', 'UTF-8' );
+		$dom->formatOutput       = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$dom->preserveWhiteSpace = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		// Load current XML content into DOM for compatibility with filters.
+		@$dom->loadXML( $this->content ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Avoid fatal on unexpected content
+
+		$this->dom_document = $dom;
+		return $this->dom_document;
 	}
 }
