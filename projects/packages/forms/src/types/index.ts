@@ -2,6 +2,20 @@ import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
 import type { ReactNode } from 'react';
 
 /**
+ * Represents a Gutenberg block
+ */
+export type Block = {
+	attributes?: {
+		[ key: string ]: unknown;
+	};
+	clientId?: string;
+	innerBlocks?: Block[];
+	isValid?: boolean;
+	name?: string;
+	originalContent?: string;
+};
+
+/**
  * Describes an integration (plugin or service) available for Jetpack Forms.
  */
 export interface Integration {

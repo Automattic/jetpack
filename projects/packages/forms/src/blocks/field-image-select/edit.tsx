@@ -5,9 +5,12 @@ import {
 	store as blockEditorStore,
 	useBlockProps,
 	useInnerBlocksProps,
+	BlockControls,
 } from '@wordpress/block-editor';
-import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { createBlock } from '@wordpress/blocks';
+import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
@@ -16,16 +19,26 @@ import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+/**
+ * Types
+ */
+import type { Block } from '../../types';
 
 export default function ImageSelectFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes, name } = props;
 	const { id, required, width } = attributes;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
-	const { isInnerBlockSelected } = useSelect(
+	const { insertBlock } = useDispatch( blockEditorStore );
+
+	const { isInnerBlockSelected, choicesBlock } = useSelect(
 		select => {
-			const { hasSelectedInnerBlock } = select( blockEditorStore );
+			const { hasSelectedInnerBlock, getBlock } = select( blockEditorStore );
+
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
+				choicesBlock: getBlock( clientId )?.innerBlocks.find(
+					( block: Block ) => block.name === 'jetpack/form-image-select-choices'
+				),
 			};
 		},
 		[ clientId ]
@@ -41,6 +54,17 @@ export default function ImageSelectFieldEdit( props ) {
 		style: blockStyle,
 	} );
 
+	const addChoice = useCallback( () => {
+		// If there is no choices block, return
+		if ( ! choicesBlock ) {
+			return;
+		}
+
+		const newChoiceBlock = createBlock( 'jetpack/form-image-select-choice' );
+
+		insertBlock( newChoiceBlock, choicesBlock.innerBlocks.length, choicesBlock.clientId );
+	}, [ choicesBlock, insertBlock ] );
+
 	const template = useMemo( () => {
 		return [
 			[
@@ -50,7 +74,12 @@ export default function ImageSelectFieldEdit( props ) {
 					required,
 				},
 			],
-			[ 'jetpack/form-image-select-choices' ],
+			[
+				'jetpack/form-image-select-choices',
+				{
+					multiple: false,
+				},
+			],
 		];
 	}, [ required ] );
 
@@ -59,13 +88,20 @@ export default function ImageSelectFieldEdit( props ) {
 		{
 			allowedBlocks: [ 'jetpack/label', 'jetpack/form-image-select-choices' ],
 			template,
-			templateLock: 'all',
+			templateLock: 'all', // The field must have exactly one label and one choices block.
 		}
 	);
 
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
+
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarButton onClick={ addChoice }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
+				</ToolbarGroup>
+			</BlockControls>
+
 			<JetpackFieldControls
 				id={ id }
 				required={ required }

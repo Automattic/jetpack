@@ -18,12 +18,11 @@ export default function ImageChoiceFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes } = props;
 	const { id, required, width } = attributes;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
-	const { isInnerBlockSelected, innerBlocks } = useSelect(
+	const { isInnerBlockSelected } = useSelect(
 		select => {
-			const { getBlock, hasSelectedInnerBlock } = select( blockEditorStore );
+			const { hasSelectedInnerBlock } = select( blockEditorStore );
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
-				innerBlocks: getBlock( clientId ).innerBlocks,
 			};
 		},
 		[ clientId ]
@@ -36,18 +35,26 @@ export default function ImageChoiceFieldEdit( props ) {
 		style: blockStyle,
 	} );
 
+	// Starts with 3 empty choices.
+	const template = [
+		[ 'jetpack/form-image-select-choice' ],
+		[ 'jetpack/form-image-select-choice' ],
+		[ 'jetpack/form-image-select-choice' ],
+	];
+
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-image-choices__wrapper' },
 		{
 			allowedBlocks: [ 'jetpack/form-image-select-choice' ],
-			template: innerBlocks,
-			templateLock: 'all',
+			template,
+			templateLock: false, // Allow adding, removing, and moving choices
 		}
 	);
 
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
+
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
