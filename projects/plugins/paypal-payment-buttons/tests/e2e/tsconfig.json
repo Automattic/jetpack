@@ -1,0 +1,12 @@
+{
+	"extends": "_jetpack-e2e-commons/tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@e2e-commons/*": [ "node_modules/_jetpack-e2e-commons/*" ],
+			"@logger": [ "node_modules/_jetpack-e2e-commons/logger" ],
+			"@fixtures/*": [ "node_modules/_jetpack-e2e-commons/fixtures/*", "fixtures/*" ],
+			"@utils/*": [ "node_modules/_jetpack-e2e-commons/utils/*" ]
+		}
+	}
+}
