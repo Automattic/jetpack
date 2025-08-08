@@ -1265,8 +1265,8 @@ importers:
         specifier: 2.1.0-beta.12
         version: 2.1.0-beta.12(@babel/runtime@7.27.6)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/ui':
-        specifier: 1.0.1
-        version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.2
+        version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/annotations':
         specifier: 3.27.0
         version: 3.27.0(react@18.3.1)
@@ -2479,8 +2479,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@automattic/ui':
-        specifier: 1.0.1
-        version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.2
+        version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@gravatar-com/hovercards':
         specifier: 0.10.8
         version: 0.10.8
@@ -3033,8 +3033,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
       '@automattic/ui':
-        specifier: 1.0.1
-        version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.2
+        version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: 5.75.1
         version: 5.75.1(react@18.3.1)
@@ -5955,8 +5955,8 @@ packages:
   '@automattic/typography@1.0.0':
     resolution: {integrity: sha512-TnT+vPaNUXQYwDsPCPxhNY0d4LnOKvrb0SizUCC5iybo5sfOlX/rYalGDyz6nPQDF0EBaQwMf7qhVsflFR0cBg==}
 
-  '@automattic/ui@1.0.1':
-    resolution: {integrity: sha512-SPjnWrn9ouhjBMUZXR7s+E+y7+neKpM/YARYnH2TwbiKoetAg8+Qjp+LOZbMsMGfiKNRpB9i+cOvW9Is7zUUGw==}
+  '@automattic/ui@1.0.2':
+    resolution: {integrity: sha512-V95/4x2x4V5s3JCJBMPcfqNhK6fJh2OYEEcTATG6jLb49BsNNrL8FGWFUR2JjrOIU+LuFVdKn3GtfwOGML7jBA==}
     peerDependencies:
       react: ^18.3.1
       react-dom: ^18.3.1
@@ -16549,7 +16549,7 @@ snapshots:
 
   '@automattic/typography@1.0.0': {}
 
-  '@automattic/ui@1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/ui@1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/base-styles': 5.23.0
       '@wordpress/compose': 7.23.0(react@18.3.1)
