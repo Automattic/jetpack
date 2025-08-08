@@ -20,6 +20,13 @@ export function makeE2eConfig( configurl, opts = {} ) {
 				jpConnect: true,
 			},
 		},
+		settings: {
+			'import/resolver': {
+				typescript: {
+					project: 'tools/e2e-commons/tsconfig.json',
+				},
+			},
+		},
 		rules: {
 			'no-console': 'off',
 			'n/no-process-exit': 'off',

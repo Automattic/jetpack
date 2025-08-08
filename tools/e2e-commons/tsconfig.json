@@ -9,9 +9,7 @@
 		"paths": {
 			"@fixtures/*": [ "fixtures/*" ],
 			"@utils/*": [ "./utils/*" ],
-			"@logger": [ "./logger.ts" ],
-			"@pages": [ "./pages/index.ts" ],
-			"@pages/*": [ "./pages/*" ]
+			"@logger": [ "./logger.ts" ]
 		}
 	}
 }
