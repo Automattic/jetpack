@@ -15,6 +15,13 @@ export default function SliderInputEdit( props ) {
 		className: `jetpack-input-range${ isSelected ? ' is-selected' : '' }`,
 	} );
 
+	const removeLeadingZero = val => {
+		if ( typeof val === 'string' && val.length > 1 ) {
+			return val.replace( /^0+/, '' ) || '0';
+		}
+		return val;
+	};
+
 	const onChange = event => {
 		if ( onChangeDefault ) {
 			onChangeDefault( event.target.value );
@@ -37,7 +44,7 @@ export default function SliderInputEdit( props ) {
 				<input
 					type="number"
 					className="jetpack-field-slider__min-input"
-					value={ min }
+					value={ removeLeadingZero( String( min ) ) }
 					onChange={ e => {
 						onChangeMin && onChangeMin( e.target.value === '' ? 0 : e.target.value );
 					} }
@@ -61,7 +68,7 @@ export default function SliderInputEdit( props ) {
 				<input
 					type="number"
 					className="jetpack-field-slider__max-input"
-					value={ max }
+					value={ removeLeadingZero( String( max ) ) }
 					onChange={ e => {
 						onChangeMax && onChangeMax( e.target.value === '' ? 0 : e.target.value );
 					} }
