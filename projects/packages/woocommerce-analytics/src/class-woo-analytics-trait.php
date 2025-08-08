@@ -381,9 +381,10 @@ trait Woo_Analytics_Trait {
 		if ( empty( $session_data ) ) {
 			return;
 		}
-		$session_data['is_engaged'] = true;
-		$encoded_session_data       = wp_json_encode( $session_data );
-		$cookie_js                  = "document.cookie = 'woocommerceanalytics_session={$encoded_session_data}; expires={$session_data['expires']}; path=/; secure; samesite=strict';";
+		$session_data['is_engaged']   = true;
+		$session_data['landing_page'] = rawurlencode( $session_data['landing_page'] );
+		$encoded_session_data         = wp_json_encode( $session_data );
+		$cookie_js                    = "document.cookie = 'woocommerceanalytics_session={$encoded_session_data}; expires={$session_data['expires']}; path=/; secure; samesite=strict';";
 		wc_enqueue_js( $cookie_js );
 
 		wc_enqueue_js( "_wca.push({$event_js});" );
