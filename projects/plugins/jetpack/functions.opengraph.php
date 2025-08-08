@@ -410,6 +410,27 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 
 	// Let's get the site's representative image.
 	$site_image = jetpack_og_get_site_image( $width, $height );
+
+	/**
+	 * Define your own site's representative image,
+	 * to override any fallback image found by looking through site's logo, site icon, and blavatar.
+	 * This will allow you to overwrite the default fallback image generated dynamically.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $site_image Your own site's representative image.
+	 * @param array $site_image The site's representative image picked by Jetpack. {
+	 *     @type string $src    The source of the image.
+	 *     @type int    $width  The width of the image.
+	 *     @type int    $height The height of the image.
+	 *     @type string $type   The type of the image.
+	 * }
+	 */
+	$custom_site_image = apply_filters( 'jetpack_og_default_site_image', array(), $site_image );
+	if ( ! empty( $custom_site_image['src'] ) ) {
+		return $custom_site_image;
+	}
+
 	if ( empty( $site_image['src'] ) ) {
 		// When using the default blank image, use a different template in Social Image Generator.
 		$template          = 'highway';
