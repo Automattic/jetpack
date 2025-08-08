@@ -154,6 +154,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionsstyles'            => null,
 				'align'                    => null,
 				'variation'                => null,
+				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
 			),
 			$attributes,
 			'contact-field'
@@ -2178,47 +2179,51 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
 		// Read block attributes needed for rendering.
-
-		$max_attr = $this->get_attribute( 'max' );
-
+		$max_attr   = $this->get_attribute( 'max' );
 		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
 
 		$initial_rating = (int) $value ? (int) $value : 0;
 
-		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
+		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text );
 
 		/*
-		 * Determine which icon SVG to use based on CSS classes.
-		 * Check field_classes for style classes (this is where WordPress puts them).
+		 * Determine which icon SVG to use based on the 'iconstyle' attribute.
+		 * Note: attribute name is lowercase due to WordPress shortcode processing
 		 */
-
-		$has_hearts_style = false !== strpos( $this->field_classes, 'is-style-hearts' );
+		$icon_style       = $this->get_attribute( 'iconstyle' );
+		$has_hearts_style = ( 'hearts' === $icon_style );
 
 		// SVG icon definitions - keep in sync with JavaScript icons.js
-		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="currentColor" stroke="var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333))" stroke-width="2" stroke-linejoin="round"></path></svg>';
-		$heart_svg = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" stroke="var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333))" stroke-width="2" stroke-linejoin="round"></path></svg>';
+		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg>';
+		$heart_svg = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg>';
 
 		$icon_svg = $has_hearts_style ? $heart_svg : $star_svg;
 
-		$spans = '';
+		$options = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
-			$spans .= sprintf(
-				'<label class="jetpack-field-rating__label">%6$s
+			$radio_id = $id . '-' . $i;
+			$options .= sprintf(
+				'<div class="jetpack-field-rating__option">
 					<input
-						class="jetpack-field-rating__input"
+						id="%1$s"
 						type="radio"
+						name="%2$s"
+						value="%3$s/%4$s"
 						data-wp-on--change="actions.onFieldChange"
-						%1$s
-						%2$s
-						name="%3$s"
-						value="%4$s/%5$s" />
-				</label>',
-				checked( $i, $initial_rating, false ),
-				$required ? 'required aria-required="true"' : '',
-				esc_attr( $id ),
-				esc_attr( $i ),
-				esc_attr( $max_rating ),
-				$icon_svg
+						class="jetpack-field-rating__input"
+						%5$s
+						%6$s /> 
+					<label for="%1$s" class="jetpack-field-rating__label">
+						%7$s
+					</label>
+				</div>',
+				esc_attr( $radio_id ),         // %1$s: id and label for
+				esc_attr( $id ),               // %2$s: name
+				esc_attr( $i ),                // %3$s: value (current rating)
+				esc_attr( $max_rating ),       // %4$s: value (max rating)
+				checked( $i, $initial_rating, false ), // %5$s: checked attribute
+				$required ? 'required' : '',   // %6$s: required attribute
+				$icon_svg                      // %7$s: icon SVG
 			);
 		}
 
@@ -2274,11 +2279,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 
-		return $label_html . sprintf(
-			'<div class="jetpack-field-rating %3$s" %1$s>%2$s</div>',
+		return sprintf(
+			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s>
+				%5$s
+				<div class="jetpack-field-rating__options %3$s">%2$s</div>
+			</fieldset>',
 			$style_attr,
-			$spans,
-			$this->field_classes
+			$options,
+			$this->field_classes,
+			esc_attr( $id ),
+			$label_html
 		) . $this->get_error_div( $id, 'rating' );
 	}
 
