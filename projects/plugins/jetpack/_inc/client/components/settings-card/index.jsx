@@ -24,6 +24,15 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_JETPACK_BLAZE,
 	FEATURE_JETPACK_EARN,
+	// Plan slugs used to detect Personal/Premium tiers (non-Jetpack plan constants)
+	PLAN_PERSONAL,
+	PLAN_PERSONAL_MONTHLY,
+	PLAN_PERSONAL_2_YEARS,
+	PLAN_PERSONAL_3_YEARS,
+	PLAN_PREMIUM,
+	PLAN_PREMIUM_MONTHLY,
+	PLAN_PREMIUM_2_YEARS,
+	PLAN_PREMIUM_3_YEARS,
 } from 'lib/plans/constants';
 import ProStatus from 'pro-status';
 import {
@@ -42,9 +51,10 @@ import {
 	isMultisite,
 	userCanManageModules,
 	shouldInitializeBlaze,
+	getSiteId,
 } from 'state/initial-state';
 import { getModuleOverride, getModule } from 'state/modules';
-import { siteHasFeature, isFetchingSiteData } from 'state/site';
+import { siteHasFeature, isFetchingSiteData, getSitePlan } from 'state/site';
 
 export const SettingsCard = inprops => {
 	const props = {
@@ -85,6 +95,31 @@ export const SettingsCard = inprops => {
 		vpData = props.vaultPressData,
 		backupsEnabled = vpData?.data?.features?.backups ?? false,
 		scanEnabled = vpData?.data?.features?.security ?? false;
+
+	// Determine if the current plan is Personal or Premium (including legacy slugs and multi-year variants)
+	const isPersonalOrPremiumPlan = () => {
+		const currentPlanSlug = props.sitePlan?.product_slug;
+		if ( ! currentPlanSlug ) {
+			return false;
+		}
+		const personalPremiumSlugs = new Set( [
+			PLAN_PERSONAL,
+			PLAN_PERSONAL_MONTHLY,
+			PLAN_PERSONAL_2_YEARS,
+			PLAN_PERSONAL_3_YEARS,
+			PLAN_PREMIUM,
+			PLAN_PREMIUM_MONTHLY,
+			PLAN_PREMIUM_2_YEARS,
+			PLAN_PREMIUM_3_YEARS,
+		] );
+		return personalPremiumSlugs.has( currentPlanSlug );
+	};
+
+	// Build a direct checkout URL to Business on WordPress.com when applicable
+	const businessCheckoutHref =
+		isPersonalOrPremiumPlan() && props.blogID
+			? `https://wordpress.com/checkout/${ props.blogID }/business`
+			: null;
 
 	// Non admin users only get Publicize and Post by Email settings.
 	if (
@@ -154,7 +189,7 @@ export const SettingsCard = inprops => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ props.adsUpgradeUrl }
+						href={ businessCheckoutHref || props.adsUpgradeUrl }
 						rna
 					/>
 				) : (
@@ -187,7 +222,7 @@ export const SettingsCard = inprops => {
 							callToAction={ upgradeLabel() }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
-							href={ props.securityUpgradeUrl }
+							href={ businessCheckoutHref || props.securityUpgradeUrl }
 							rna
 						/>
 					) : (
@@ -215,7 +250,7 @@ export const SettingsCard = inprops => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ props.scanUpgradeUrl }
+						href={ businessCheckoutHref || props.scanUpgradeUrl }
 						rna
 					/>
 				) : (
@@ -351,7 +386,7 @@ export const SettingsCard = inprops => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ props.gaUpgradeUrl }
+						href={ businessCheckoutHref || props.gaUpgradeUrl }
 						rna
 					/>
 				) : (
@@ -403,7 +438,7 @@ export const SettingsCard = inprops => {
 						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
-						href={ props.spamUpgradeUrl }
+						href={ businessCheckoutHref || props.spamUpgradeUrl }
 						rna
 					/>
 				);
@@ -422,7 +457,7 @@ export const SettingsCard = inprops => {
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
 						feature={ feature }
-						href={ props.simplePaymentsUpgradeUrl }
+						href={ businessCheckoutHref || props.simplePaymentsUpgradeUrl }
 						rna
 					/>
 				) : (
@@ -593,6 +628,8 @@ SettingsCard.propTypes = {
 
 export default connect( state => {
 	return {
+		sitePlan: getSitePlan( state ),
+		blogID: getSiteId( state ),
 		fetchingSiteData: isFetchingSiteData( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		userCanManageModules: userCanManageModules( state ),
