@@ -1523,6 +1523,52 @@ class Feedback_Test extends BaseTestCase {
 		}
 	}
 
+	public function test_legacy_get_all_legacy_values() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'value2',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+
+		$expected_legacy_values = array(
+			'_feedback_author'       => 'Test User',
+			'_feedback_author_email' => 'test@email.com',
+			'_feedback_author_url'   => 'http://example.com',
+			'_feedback_subject'      => 'Test Subject',
+			'_feedback_ip'           => 'https://127.0.0.1',
+			'_feedback_all_fields'   => array(
+				'1_field'                 => 'value1',
+				'2_field'                 => 'value2',
+				'email_marketing_consent' => 'no',
+				'entry_title'             => 'Cool Post Title',
+				'entry_permalink'         => '',
+				'feedback_id'             => 'skip',
+			),
+		);
+
+		$response_legacy = $response->get_all_legacy_values();
+
+		$this->assertNotEmpty( $response_legacy, 'Legacy values should not be empty for the legacy feedback' );
+
+		foreach ( $expected_legacy_values as $key => $value ) {
+			$this->assertArrayHasKey( $key, $response_legacy, 'Extra values should contain the expected key: ' . $key );
+
+			if ( is_array( $value ) ) {
+				foreach ( $value as $sub_key => $sub_value ) {
+					$this->assertArrayHasKey( $sub_key, $response_legacy[ $key ], 'Extra values should contain the expected sub-key: ' . $sub_key );
+					if ( $sub_value !== 'skip' ) {
+						$this->assertEquals( $sub_value, $response_legacy[ $key ][ $sub_key ], 'Extra values should match the expected sub-value for key: ' . $sub_key );
+					}
+				}
+			} else {
+				$this->assertEquals( $value, $response_legacy[ $key ], 'Extra values should match the expected value for key: ' . $key );
+			}
+		}
+	}
+
 	public function test_get_all_legacy_values() {
 		$form_id = Utility::get_form_id( array( 'widget' => 'widget' ) );
 		// Create a form submission
@@ -1586,8 +1632,8 @@ class Feedback_Test extends BaseTestCase {
 					}
 				}
 			} elseif ( $value !== 'skip' ) {
-					$this->assertEquals( $value, $response_legacy[ $key ], 'Extra values should match the expected value for key: ' . $key );
-					$this->assertEquals( $value, $saved_legacy[ $key ], 'Saved extra values should match the expected value for key: ' . $key );
+				$this->assertEquals( $value, $response_legacy[ $key ], 'Extra values should match the expected value for key: ' . $key );
+				$this->assertEquals( $value, $saved_legacy[ $key ], 'Saved extra values should match the expected value for key: ' . $key );
 			}
 		}
 	}
@@ -1628,5 +1674,22 @@ class Feedback_Test extends BaseTestCase {
 		$saved_extra    = $saved_response->get_legacy_extra_values();
 		$this->assertEquals( $expected_extra_values, $response_extra, 'Extra values should match the expected extra values' );
 		$this->assertEquals( $expected_extra_values, $saved_extra, 'Saved extra values should match the expected extra values' );
+	}
+
+	public function test_legacy_get_legacy_extra_values() {
+		$post_id                = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'value2',
+			)
+		);
+		$expected_legacy_values = array(
+			'3_field' => 'value1',
+			'4_field' => 'value2',
+		);
+		$response               = Feedback::get( $post_id );
+		$response_legacy        = $response->get_legacy_extra_values();
+		$this->assertNotEmpty( $response_legacy, 'Legacy values should not be empty for the legacy feedback' );
+		$this->assertEquals( $expected_legacy_values, $response_legacy, 'Legacy extra values should match the expected extra values' );
 	}
 }
