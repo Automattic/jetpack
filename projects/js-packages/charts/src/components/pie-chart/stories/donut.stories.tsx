@@ -239,7 +239,7 @@ export const WithLegend: Story = {
 		legendOrientation: 'horizontal',
 		children: (
 			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 }>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -8 }>
 					Distribution
 				</Text>
 			</Group>
