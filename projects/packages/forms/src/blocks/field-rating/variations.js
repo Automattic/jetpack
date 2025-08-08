@@ -35,7 +35,7 @@ const variations = [
 	},
 	{
 		name: 'hearts',
-		title: __( 'Hearts Rating', 'jetpack-forms' ),
+		title: __( 'Hearts rating field', 'jetpack-forms' ),
 		description: __( 'Rating field with heart icons', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
