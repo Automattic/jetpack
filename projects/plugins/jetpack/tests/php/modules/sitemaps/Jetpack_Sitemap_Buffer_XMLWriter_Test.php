@@ -384,13 +384,9 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 		$doc = $buffer->get_document();
 		$this->assertInstanceOf( DOMDocument::class, $doc );
 
-		// Root element should exist; guard for static analysis.
+		// Root element should exist.
 		$root = $doc->documentElement; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$this->assertNotNull( $root, 'Root element should exist on DOMDocument' );
-		if ( ! $root ) {
-			$this->fail( 'Root element missing from DOMDocument' );
-			return;
-		}
 
 		$url = $doc->createElement( 'url' );
 		$loc = $doc->createElement( 'loc', 'https://example.com/second' );

@@ -350,7 +350,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * This is only here to satisfy the jetpack_print_sitemap filter.
 	 *
 	 * @since 14.6
-	 * @return null
+	 * @return DOMDocument DOM representation of the current sitemap contents.
 	 */
 	public function get_document() {
 		if ( $this->dom_document instanceof DOMDocument ) {
