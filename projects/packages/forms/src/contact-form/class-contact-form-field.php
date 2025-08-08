@@ -2188,12 +2188,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text );
 
 		/*
-		 * Determine which icon SVG to use based on CSS classes.
-		 * Check the block's className attribute for style variations.
+		 * Determine which icon SVG to use based on explicit attribute.
+		 * Prefer the block attribute 'iconStyle' (stars|hearts).
 		 */
-		// Check fieldwrapperclasses which contains the actual selected style variant
-		$wrapper_classes  = $this->get_attribute( 'fieldwrapperclasses' ) ? $this->get_attribute( 'fieldwrapperclasses' ) : '';
-		$has_hearts_style = false !== strpos( $wrapper_classes, 'is-style-hearts' );
+		$icon_style       = $this->get_attribute( 'iconStyle' );
+		$has_hearts_style = ( 'hearts' === $icon_style );
 
 		// SVG icon definitions - keep in sync with JavaScript icons.js
 		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg>';

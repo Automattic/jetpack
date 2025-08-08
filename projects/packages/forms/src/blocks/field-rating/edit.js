@@ -75,7 +75,7 @@ export default function RatingFieldEdit( props ) {
 				value={ {
 					'jetpack/field-rating-max': max,
 					'jetpack/field-rating-default': defaultValue,
-					'jetpack/field-rating-className': attributes.className || '',
+					'jetpack/field-rating-iconStyle': attributes.iconStyle || 'stars',
 					'jetpack/field-rating-onChangeDefault': onChangeDefault,
 				} }
 			>

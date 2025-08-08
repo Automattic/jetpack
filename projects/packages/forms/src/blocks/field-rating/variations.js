@@ -28,9 +28,8 @@ const variations = [
 				</SVG>
 			),
 		},
-		attributes: {
-			className: 'is-style-stars',
-		},
+		attributes: { iconStyle: 'stars' },
+		isActive: [ 'iconStyle' ],
 		scope: [ 'inserter', 'transform' ],
 		isDefault: true,
 	},
@@ -58,9 +57,8 @@ const variations = [
 				</SVG>
 			),
 		},
-		attributes: {
-			className: 'is-style-hearts',
-		},
+		attributes: { iconStyle: 'hearts' },
+		isActive: [ 'iconStyle' ],
 		scope: [ 'inserter', 'transform' ],
 		isDefault: false,
 	},

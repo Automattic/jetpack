@@ -51,12 +51,17 @@ const settings = {
 			default: 0,
 			role: 'content',
 		},
+		iconStyle: {
+			type: 'string',
+			default: 'stars',
+			role: 'appearance',
+		},
 	},
 	providesContext: {
 		...defaultSettings.providesContext,
 		'jetpack/field-rating-max': 'max',
 		'jetpack/field-rating-default': 'default',
-		'jetpack/field-rating-className': 'className',
+		'jetpack/field-rating-iconStyle': 'iconStyle',
 	},
 	supports: {
 		...defaultSettings.supports,

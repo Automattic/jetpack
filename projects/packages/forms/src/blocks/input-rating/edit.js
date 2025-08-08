@@ -3,13 +3,13 @@ import { SVG, Path } from '@wordpress/components';
 export default function RatingInputEdit( { context, clientId } ) {
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
 	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
-	const className = context?.[ 'jetpack/field-rating-className' ] || '';
+	const iconStyle = context?.[ 'jetpack/field-rating-iconStyle' ] || 'stars';
 	const onChangeDefault = context?.[ 'jetpack/field-rating-onChangeDefault' ] || ( () => {} );
 
 	// Color and other support classes are injected by useBlockProps
 
-	// Get icon SVG based on className - default is stars
-	const isHeartsStyle = className && className.includes( 'is-style-hearts' );
+	// Get icon SVG based on iconStyle (default: stars)
+	const isHeartsStyle = iconStyle === 'hearts';
 	const starSvg = (
 		<SVG className="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true">
 			<Path
