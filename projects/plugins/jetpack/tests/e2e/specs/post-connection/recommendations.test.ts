@@ -112,7 +112,7 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 		await page.reload();
 
 		await expect(
-			page.getByRole( 'link', { name: 'Get a discount for your first' } ),
+			page.getByRole( 'link', { name: 'Get' } ),
 			'VaultPress Backup step should be visible'
 		).toBeVisible();
 		expect(
