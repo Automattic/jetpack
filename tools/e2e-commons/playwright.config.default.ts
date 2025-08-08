@@ -5,7 +5,7 @@ import config from 'config';
 import logger from '@logger';
 import { resolveSiteUrl } from '@utils/environment';
 
-const rootPath = fileURLToPath( new URL( '..', import.meta.url ) );
+const rootPath = fileURLToPath( new URL( '.', import.meta.url ) );
 
 const reporter: ReporterDescription[] = [
 	[ 'list' ],
@@ -14,14 +14,7 @@ const reporter: ReporterDescription[] = [
 ];
 
 if ( process.env.CI ) {
-	reporter.push(
-		[ 'github' ],
-		[
-			`${ fileURLToPath(
-				new URL( '../' + config.get( 'dirs.reporters' ), import.meta.url )
-			) }/flaky-tests-reporter.ts`,
-		]
-	);
+	reporter.push( [ 'github' ], [ `${ rootPath }/reporters/flaky-tests-reporter.ts` ] );
 }
 
 process.env.STORAGE_STATE_DIR_PATH = `${ rootPath }/.state`.replaceAll( '//', '/' );
