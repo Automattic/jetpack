@@ -217,9 +217,9 @@ export default compose(
 		}
 
 		// If not in cache, calculate new value
-		const { getMedia } = select( 'core' );
+		const { getEntityRecord } = select( 'core' );
 		const resizedImages = ids.reduce( ( currentResizedImages, id ) => {
-			const image = getMedia( id );
+			const image = getEntityRecord( 'postType', 'attachment', id );
 			const sizes = image?.media_details?.sizes;
 			return [ ...currentResizedImages, { id, sizes } ];
 		}, [] );

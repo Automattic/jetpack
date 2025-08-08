@@ -106,66 +106,48 @@ describe( 'GeneratedImagePreview', () => {
 		const CUSTOM_ID = 1;
 		const FEATURED_ID = 2;
 		const DEFAULT_ID = 10;
-		const getMediaMock = id => ( {
+		const getEntityRecordMock = ( kind, name, id ) => ( {
 			source_url: id,
 		} );
 
 		it( 'should use the default image if the type is default', () => {
-			const imageUrl = calculateImageUrl(
-				'default',
-				CUSTOM_ID,
-				FEATURED_ID,
-				DEFAULT_ID,
-				getMediaMock
+			const imageUrl = calculateImageUrl( 'default', CUSTOM_ID, FEATURED_ID, DEFAULT_ID, mediaId =>
+				getEntityRecordMock( 'postType', 'attachment', mediaId )
 			);
 			expect( imageUrl ).toBe( DEFAULT_ID );
 		} );
 
 		it( 'should use the default image if the type is null and there is no featured image', () => {
-			const imageUrl = calculateImageUrl( null, 0, 0, DEFAULT_ID, getMediaMock );
+			const imageUrl = calculateImageUrl( null, 0, 0, DEFAULT_ID, mediaId =>
+				getEntityRecordMock( 'postType', 'attachment', mediaId )
+			);
 			expect( imageUrl ).toBe( DEFAULT_ID );
 		} );
 
 		it( 'should use the custom image if the type is custom', () => {
-			const imageUrl = calculateImageUrl(
-				'custom',
-				CUSTOM_ID,
-				FEATURED_ID,
-				DEFAULT_ID,
-				getMediaMock
+			const imageUrl = calculateImageUrl( 'custom', CUSTOM_ID, FEATURED_ID, DEFAULT_ID, mediaId =>
+				getEntityRecordMock( 'postType', 'attachment', mediaId )
 			);
 			expect( imageUrl ).toBe( CUSTOM_ID );
 		} );
 
 		it( 'should use the featured image if the type is featured', () => {
-			const imageUrl = calculateImageUrl(
-				'featured',
-				CUSTOM_ID,
-				FEATURED_ID,
-				DEFAULT_ID,
-				getMediaMock
+			const imageUrl = calculateImageUrl( 'featured', CUSTOM_ID, FEATURED_ID, DEFAULT_ID, mediaId =>
+				getEntityRecordMock( 'postType', 'attachment', mediaId )
 			);
 			expect( imageUrl ).toBe( FEATURED_ID );
 		} );
 
 		it( 'should return null if type is none', () => {
-			const imageUrl = calculateImageUrl(
-				'none',
-				CUSTOM_ID,
-				FEATURED_ID,
-				DEFAULT_ID,
-				getMediaMock
+			const imageUrl = calculateImageUrl( 'none', CUSTOM_ID, FEATURED_ID, DEFAULT_ID, mediaId =>
+				getEntityRecordMock( 'postType', 'attachment', mediaId )
 			);
 			expect( imageUrl ).toBeNull();
 		} );
 
 		it( 'should return null the type is custom but there is no image picked', () => {
-			const imageUrl = calculateImageUrl(
-				'custom',
-				undefined,
-				FEATURED_ID,
-				DEFAULT_ID,
-				getMediaMock
+			const imageUrl = calculateImageUrl( 'custom', undefined, FEATURED_ID, DEFAULT_ID, mediaId =>
+				getEntityRecordMock( 'postType', 'attachment', mediaId )
 			);
 			expect( imageUrl ).toBeNull();
 		} );
@@ -182,7 +164,9 @@ describe( 'GeneratedImagePreview', () => {
 		} );
 
 		it( 'should return null if type is default but defaultImageId is 0', () => {
-			const imageUrl = calculateImageUrl( 'default', null, 0, 0, getMediaMock );
+			const imageUrl = calculateImageUrl( 'default', null, 0, 0, mediaId =>
+				getEntityRecordMock( 'postType', 'attachment', mediaId )
+			);
 			expect( imageUrl ).toBeNull();
 		} );
 	} );

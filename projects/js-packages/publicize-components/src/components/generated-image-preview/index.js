@@ -60,7 +60,7 @@ export const calculateImageUrl = (
 	customImageId,
 	featuredImageId,
 	defaultImageId,
-	getMedia
+	getEntityRecord
 ) => {
 	if ( hasNoValidImage( imageType, customImageId, featuredImageId, defaultImageId ) ) {
 		return null;
@@ -68,7 +68,7 @@ export const calculateImageUrl = (
 
 	const usedImageId = getImageId( imageType, customImageId, featuredImageId, defaultImageId );
 
-	const media = getMedia( usedImageId );
+	const media = getEntityRecord( 'postType', 'attachment', usedImageId );
 	if ( ! media ) {
 		return FEATURED_IMAGE_STILL_LOADING;
 	}
@@ -98,12 +98,8 @@ export default function GeneratedImagePreview( {
 		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 		return {
 			title: select( editorStore ).getEditedPostAttribute( 'title' ),
-			imageUrl: calculateImageUrl(
-				imageType,
-				imageId,
-				featuredImage,
-				defaultImageId,
-				select( 'core' ).getMedia
+			imageUrl: calculateImageUrl( imageType, imageId, featuredImage, defaultImageId, mediaID =>
+				select( 'core' ).getEntityRecord( 'postType', 'attachment', mediaID )
 			),
 		};
 	} );
