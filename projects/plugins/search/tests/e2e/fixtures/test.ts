@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
-import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-/**
- * Internal dependencies
- */
-import logger from '_jetpack-e2e-commons/logger.js';
-import { SearchUtils } from '../utils/index.js';
+import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import logger from '_jetpack-e2e-commons/logger';
+import { SearchUtils } from '../utils/index';
 
 export const SEARCH_API_PATTERN =
 	/^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;

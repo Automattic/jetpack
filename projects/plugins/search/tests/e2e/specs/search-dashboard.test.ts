@@ -1,10 +1,10 @@
 import { Page, Locator } from '@playwright/test';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
 import {
 	enableInstantSearch,
 	disableInstantSearch,
 	clearSearchPlanInfo,
-} from '../utils/search-utils.ts';
+} from '../utils/search-utils';
 
 const SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*jetpack\/v4\/search\/settings/;
 

@@ -5,7 +5,7 @@ import {
 	searchResultForTest1 as originalSearchResultForTest1,
 	searchResultForTest2 as originalSearchResultForTest2,
 	SEARCH_API_PATTERN,
-} from '../fixtures/test.ts';
+} from '../fixtures/test';
 
 // Create deep copies to prevent mutations during tests
 const searchResultForTest1 = JSON.parse( JSON.stringify( originalSearchResultForTest1 ) );
