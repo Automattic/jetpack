@@ -342,7 +342,7 @@ class Feedback {
 	 *
 	 * @return array An array of extra values, including entry values
 	 */
-	public function get_extra_values() {
+	public function get_legacy_extra_values() {
 		$count         = 1;
 		$_extra_fields = array();
 		foreach ( $this->fields as $field ) {

@@ -1523,7 +1523,7 @@ class Feedback_Test extends BaseTestCase {
 		}
 	}
 
-	public function test_get_extra_values() {
+	public function get_legacy_extra_values() {
 		$form_id = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -1553,10 +1553,10 @@ class Feedback_Test extends BaseTestCase {
 			'7_Email_2' => 'john.smith@example2.com',
 		);
 
-		$this->assertNotEmpty( $response->get_extra_values(), 'Extra values should not be empty for the form submission' );
-		$this->assertEquals( $response->get_extra_values(), $saved_response->get_extra_values(), 'Extra values should match the saved form submission' );
-		$response_extra = $response->get_extra_values();
-		$saved_extra    = $saved_response->get_extra_values();
+		$this->assertNotEmpty( $response->get_legacy_extra_values(), 'Extra values should not be empty for the form submission' );
+		$this->assertEquals( $response->get_legacy_extra_values(), $saved_response->get_legacy_extra_values(), 'Extra values should match the saved form submission' );
+		$response_extra = $response->get_legacy_extra_values();
+		$saved_extra    = $saved_response->get_legacy_extra_values();
 		$this->assertEquals( $expected_extra_values, $response_extra, 'Extra values should match the expected extra values' );
 		$this->assertEquals( $expected_extra_values, $saved_extra, 'Saved extra values should match the expected extra values' );
 	}
