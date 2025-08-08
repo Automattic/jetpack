@@ -41,6 +41,15 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	protected $is_full_flag;
 
 	/**
+	 * Flag which detects when the buffer is empty.
+	 * Set true on construction and flipped to false only after a successful append.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
+	 */
+	protected $is_empty_flag = true;
+
+	/**
 	 * The most recent timestamp seen by the buffer.
 	 *
 	 * @access protected
@@ -86,9 +95,10 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @param string $time The initial datetime of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function __construct( $item_limit, $byte_limit, $time ) {
-		$this->is_full_flag = false;
-		$this->timestamp    = $time;
-		$this->finder       = new Jetpack_Sitemap_Finder();
+		$this->is_full_flag  = false;
+		$this->is_empty_flag = true;
+		$this->timestamp     = $time;
+		$this->finder        = new Jetpack_Sitemap_Finder();
 
 		$this->writer = new XMLWriter();
 		$this->writer->openMemory();
@@ -136,6 +146,8 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		$this->content  .= $current_content;
 
 		$this->append_item( $array );
+		// Mark non-empty only if we actually appended an item.
+		$this->is_empty_flag = false;
 
 		$new_content    = $this->writer->outputMemory( true );
 		$this->content .= $new_content;
@@ -179,10 +191,9 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 				$this->writer->startElement( $tag );
 				$this->array_to_xml( $value );
 				$this->writer->endElement();
-			} elseif ( 'loc' === $tag || 'image:loc' === $tag || 'video:content_loc' === $tag || 'video:thumbnail_loc' === $tag ) {
-				$this->writer->writeElement( $tag, esc_url( $value ) );
 			} else {
-				$this->writer->writeElement( $tag, esc_html( strval( $value ) ) );
+				// Write raw text; XMLWriter will escape XML-reserved chars, matching DOMDocument behavior.
+				$this->writer->writeElement( $tag, (string) $value );
 			}
 		}
 	}
@@ -223,9 +234,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
 	public function is_empty() {
-		$current        = $this->writer->outputMemory( true );
-		$this->content .= $current;
-		return empty( $this->content );
+		return $this->is_empty_flag;
 	}
 
 	/**
