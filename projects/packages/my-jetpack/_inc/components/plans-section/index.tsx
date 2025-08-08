@@ -204,7 +204,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 	}, [ recordEvent ] );
 
-	let activateLicenceDescription = __( 'Activate a license', 'jetpack-my-jetpack' );
+	let activateLicenceDescription: string = __( 'Activate a license', 'jetpack-my-jetpack' );
 	if ( ! isUserConnected ) {
 		activateLicenceDescription = __(
 			'Activate a license (requires a user connection)',
