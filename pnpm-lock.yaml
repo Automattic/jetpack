@@ -4759,8 +4759,8 @@ importers:
         specifier: 4.27.0
         version: 4.27.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/wordcount':
-        specifier: 4.27.0
-        version: 4.27.0
+        specifier: 4.28.0
+        version: 4.28.0
       bounding-client-rect:
         specifier: 1.0.5
         version: 1.0.5
@@ -9458,6 +9458,10 @@ packages:
 
   '@wordpress/wordcount@4.27.0':
     resolution: {integrity: sha512-XIDqA9YnYC5yH6Lyk25m+q8wYH2sp+2p5ROrOp2gQ0Due+wUycAIgvzJsbnQoMn0PZrqgaETxFymtkQhGWj6Ug==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/wordcount@4.28.0':
+    resolution: {integrity: sha512-6/tZ7KpVjKRREegyFtV2k+T+zlZSetCvGHzZfbDW5gB3eWOftUUrGbvrJTXTF0FDlYFWStQ1EKPDb2/4zwTNxQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@xmldom/xmldom@0.9.8':
@@ -22553,6 +22557,10 @@ snapshots:
       - utf-8-validate
 
   '@wordpress/wordcount@4.27.0':
+    dependencies:
+      '@babel/runtime': 7.27.6
+
+  '@wordpress/wordcount@4.28.0':
     dependencies:
       '@babel/runtime': 7.27.6
 

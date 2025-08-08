@@ -88,7 +88,7 @@
 		"@wordpress/url": "4.27.0",
 		"@wordpress/viewport": "6.27.0",
 		"@wordpress/widgets": "4.27.0",
-		"@wordpress/wordcount": "4.27.0",
+		"@wordpress/wordcount": "4.28.0",
 		"bounding-client-rect": "1.0.5",
 		"clipboard": "2.0.6",
 		"clsx": "2.1.1",
