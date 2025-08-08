@@ -8,6 +8,7 @@ export interface ChartProviderProps {
 	children: ReactNode;
 }
 
+// TODO: We should probably rename this to GlobalChartsProvider?
 export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 
