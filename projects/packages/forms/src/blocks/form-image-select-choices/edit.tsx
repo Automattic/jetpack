@@ -11,12 +11,10 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 
 export default function ImageChoiceFieldEdit( props ) {
-	const { attributes, clientId, isSelected, setAttributes } = props;
-	const { id, required, width } = attributes;
+	const { attributes, clientId, isSelected } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const { isInnerBlockSelected } = useSelect(
 		select => {
@@ -54,14 +52,6 @@ export default function ImageChoiceFieldEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
-
-			<JetpackFieldControls
-				id={ id }
-				required={ required }
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				width={ width }
-			/>
 		</div>
 	);
 }

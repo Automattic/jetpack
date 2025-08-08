@@ -13,12 +13,10 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 
 export default function ImageChoiceFieldEdit( props ) {
-	const { attributes, clientId, isSelected, setAttributes } = props;
-	const { id, required, width } = attributes;
+	const { attributes, clientId, isSelected } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const { isInnerBlockSelected, imageBlockAttributes } = useSelect(
 		select => {
@@ -49,32 +47,24 @@ export default function ImageChoiceFieldEdit( props ) {
 						__( 'Image choice %d', 'jetpack-forms' ),
 						1
 					),
-					required,
 				},
 			],
 			[ 'core/image' ],
 		];
-	}, [ required ] );
+	}, [] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-image-choice__wrapper' },
 		{
 			allowedBlocks: [ 'jetpack/label', 'core/image' ],
 			template,
-			templateLock: 'all',
+			templateLock: 'all', // The choice must have exactly one label and one image.
 		}
 	);
 
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
-			<JetpackFieldControls
-				id={ id }
-				required={ required }
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				width={ width }
-			/>
 		</div>
 	);
 }

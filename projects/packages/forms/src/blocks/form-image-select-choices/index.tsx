@@ -6,22 +6,19 @@ import { gallery as icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import defaultSettings from '../shared/settings';
 import edit from './edit';
 import save from './save';
 
 const name = 'form-image-select-choices';
 
 const settings = {
-	...defaultSettings,
+	apiVersion: 3,
 	title: __( 'Image choices field', 'jetpack-forms' ),
 	description: __( 'A list of image choices for a image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/field-image-select' ],
 	edit,
-	attributes: {
-		...defaultSettings.attributes,
-	},
+	attributes: {},
 	save,
 	example: {
 		innerBlocks: [
