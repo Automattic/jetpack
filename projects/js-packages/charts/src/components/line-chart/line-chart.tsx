@@ -20,9 +20,11 @@ import {
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
+import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
+import { SingleChartContext, type SingleChartRef } from '../shared/single-chart-context';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
@@ -30,7 +32,6 @@ import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import LineChartAnnotation from './line-chart-annotation';
 import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
-import { LineChartContext, type LineChartRef } from './line-chart-context';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../shared/with-responsive';
@@ -196,7 +197,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
-	chartRef?: Ref< LineChartRef >;
+	chartRef?: Ref< SingleChartRef >;
 	width: number;
 	height: number;
 	margin?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -227,7 +228,7 @@ const LineChartScalesRef: FC< {
 	return null; // This component only provides the ref interface
 };
 
-const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
+const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 	(
 		{
 			data,
@@ -268,7 +269,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
-		const internalChartRef = useRef< LineChartRef >( null );
+		const internalChartRef = useRef< SingleChartRef >( null );
 
 		// Forward the external ref to the internal ref
 		useImperativeHandle(
@@ -378,7 +379,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		}
 
 		return (
-			<LineChartContext.Provider
+			<SingleChartContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
@@ -525,7 +526,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 
 					{ children }
 				</div>
-			</LineChartContext.Provider>
+			</SingleChartContext.Provider>
 		);
 	}
 );
@@ -533,21 +534,22 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 type LineChartAnnotationComponents = {
 	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
 	Annotation: typeof LineChartAnnotation;
+	Legend: typeof Legend;
 };
 
 type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
 
 type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & React.RefAttributes< LineChartRef >
+	LineChartBaseProps & React.RefAttributes< SingleChartRef >
 > &
 	LineChartAnnotationComponents;
 
 type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< LineChartRef >
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
 > &
 	LineChartAnnotationComponents;
 
-const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => {
+const LineChart = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( ChartContext );
 
 	// If we're already in a ChartProvider context, don't create a new one
@@ -564,18 +566,22 @@ const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => 
 } ) as LineChartComponent;
 
 LineChart.displayName = 'LineChart';
-LineChart.AnnotationsOverlay = LineChartAnnotationsOverlay;
-LineChart.Annotation = LineChartAnnotation;
 
-// Export unwrapped component for testing
-export { LineChart as LineChartUnresponsive };
+// Attach subcomponents to create composition API
+const LineChartUnresponsive = attachSubComponents( LineChart, {
+	Legend: Legend,
+	AnnotationsOverlay: LineChartAnnotationsOverlay,
+	Annotation: LineChartAnnotation,
+} ) as LineChartComponent;
 
-const ResponsiveLineChart: LineChartResponsiveComponent = Object.assign(
-	withResponsive< LineChartProps >( LineChart ) as LineChartResponsiveComponent,
-	{
-		AnnotationsOverlay: LineChartAnnotationsOverlay,
-		Annotation: LineChartAnnotation,
-	}
-);
+// Create responsive version with composition API
+const ResponsiveLineChart = withResponsive< LineChartProps >( LineChart );
 
-export default ResponsiveLineChart;
+// Attach subcomponents to responsive version as well
+const LineChartWithComposition = attachSubComponents( ResponsiveLineChart, {
+	Legend: Legend,
+	AnnotationsOverlay: LineChartAnnotationsOverlay,
+	Annotation: LineChartAnnotation,
+} ) as LineChartResponsiveComponent;
+
+export { LineChartWithComposition as default, LineChartUnresponsive };
