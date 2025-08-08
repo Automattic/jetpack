@@ -880,15 +880,22 @@ export function getPlanTermSuffix( plan ) {
 	if ( typeof plan !== 'string' || plan.length === 0 ) {
 		return '';
 	}
-	if ( /-monthly$/.test( plan ) ) {
-		return 'monthly';
+
+	// Explicit handling for Personal and Premium checkout plan slugs
+	switch ( plan ) {
+		case PLAN_PREMIUM_MONTHLY:
+		case PLAN_PERSONAL_MONTHLY:
+			return 'monthly';
+
+		case PLAN_PREMIUM_2_YEARS:
+		case PLAN_PERSONAL_2_YEARS:
+			return '2-years';
+
+		case PLAN_PREMIUM_3_YEARS:
+		case PLAN_PERSONAL_3_YEARS:
+			return '3-years';
 	}
-	if ( /-2y$/.test( plan ) ) {
-		return '2-years';
-	}
-	if ( /-3y$/.test( plan ) ) {
-		return '3-years';
-	}
+
 	return '';
 }
 
