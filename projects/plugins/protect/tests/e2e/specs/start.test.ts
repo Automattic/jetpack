@@ -1,6 +1,6 @@
 import { Page } from '@playwright/test';
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { connect } from '../flows/connection.ts';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
+import { connect } from '../flows/connection';
 
 /**
  * Checks for and then closes the "Changes saved" notice.
