@@ -5,7 +5,7 @@ import {
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
-import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, ToggleControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
@@ -149,13 +149,6 @@ export default function ConsentFieldEdit( props ) {
 		[ setAttributes ]
 	);
 
-	const onConsentTypeChange = useCallback(
-		value => {
-			setAttributes( { consentType: value } );
-		},
-		[ setAttributes ]
-	);
-
 	return (
 		<>
 			<div { ...innerBlocksProps } />
@@ -169,27 +162,6 @@ export default function ConsentFieldEdit( props ) {
 						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
 						__nextHasNoMarginBottom
 					/>
-				</PanelBody>
-				<PanelBody title={ __( 'Consent settings', 'jetpack-forms' ) }>
-					<BaseControl __nextHasNoMarginBottom>
-						<SelectControl
-							label={ __( 'Permission to email', 'jetpack-forms' ) }
-							value={ consentType }
-							options={ [
-								{
-									label: __( 'Mention that you can email', 'jetpack-forms' ),
-									value: 'implicit',
-								},
-								{
-									label: __( 'Add a privacy checkbox', 'jetpack-forms' ),
-									value: 'explicit',
-								},
-							] }
-							onChange={ onConsentTypeChange }
-							__nextHasNoMarginBottom
-							__next40pxDefaultSize
-						/>
-					</BaseControl>
 				</PanelBody>
 			</InspectorControls>
 		</>

@@ -1,17 +1,22 @@
 import { Path } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import defaultSettings from '../shared/settings';
 import { getIconColor } from '../shared/util/block-icons';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
+import variations from './variations';
 
 const name = 'field-consent';
 const settings = {
 	...defaultSettings,
 	title: __( 'Terms consent', 'jetpack-forms' ),
-	keywords: [ __( 'Consent', 'jetpack-forms' ) ],
+	keywords: [
+		__( 'Consent', 'jetpack-forms' ),
+		__( 'Permission', 'jetpack-forms' ),
+		_x( 'TOS', 'Terms of Service', 'jetpack-forms' ),
+	],
 	description: __(
 		'Communicate site terms and offer visitors consent to those terms.',
 		'jetpack-forms'
@@ -54,6 +59,7 @@ const settings = {
 	},
 	deprecated,
 	save,
+	variations,
 	example: {
 		innerBlocks: [
 			{
