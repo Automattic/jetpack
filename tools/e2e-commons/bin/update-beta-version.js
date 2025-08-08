@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'url';
-import pwConfig from '../playwright.config.mjs';
+import pwConfig from '../playwright.config';
 
 // Below call should be BEFORE requiring config, so library wil pick it up.
 process.env.NODE_CONFIG_DIR = fileURLToPath( new URL( '../config', import.meta.url ) );
-const { getSiteCredentials } = await import( '../utils/environment.ts' );
+const { getSiteCredentials } = await import( '@utils/environment' );
 
 /**
  * Get HTTP Authentication header value

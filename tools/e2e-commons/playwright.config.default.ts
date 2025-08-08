@@ -2,8 +2,8 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { defineConfig, devices, ReporterDescription } from '@playwright/test';
 import config from 'config';
-import logger from './logger.ts';
-import { resolveSiteUrl } from './utils/environment.ts';
+import logger from '@logger';
+import { resolveSiteUrl } from '@utils/environment';
 
 const rootPath = fileURLToPath( new URL( '..', import.meta.url ) );
 

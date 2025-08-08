@@ -1,9 +1,17 @@
 {
 	"compilerOptions": {
 		"allowImportingTsExtensions": true,
-		"module": "nodenext",
+		"module": "ES2022",
+		"moduleResolution": "bundler",
 		"noEmit": true,
-		"target": "ESNext",
-		"baseUrl": "."
+		"target": "ES2022",
+		"baseUrl": ".",
+		"paths": {
+			"@fixtures/*": [ "fixtures/*" ],
+			"@utils/*": [ "./utils/*" ],
+			"@logger": [ "./logger.ts" ],
+			"@pages": [ "./pages/index.ts" ],
+			"@pages/*": [ "./pages/*" ]
+		}
 	}
 }

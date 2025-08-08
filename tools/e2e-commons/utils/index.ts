@@ -5,7 +5,7 @@ import {
 	executeWpCommand,
 	executeJetpackCommand,
 	executeWpDbQuery,
-} from './cli.ts';
+} from './cli';
 import {
 	connect,
 	disconnect,
@@ -13,7 +13,7 @@ import {
 	disconnectUser,
 	isSiteConnected,
 	isUserConnected,
-} from './connection.ts';
+} from './connection';
 import {
 	getConfigTestSite,
 	getDotComCredentials,
@@ -21,10 +21,10 @@ import {
 	isLocalSite,
 	resetEnvironment,
 	resolveSiteUrl,
-} from './environment.ts';
-import { activateModule, deactivateModule, isModuleActive } from './jetpack.ts';
-import { authenticateUser } from './login.ts';
-import { setMockPlanData } from './plan.ts';
+} from './environment';
+import { activateModule, deactivateModule, isModuleActive } from './jetpack';
+import { authenticateUser } from './login';
+import { setMockPlanData } from './plan';
 
 class TestUtils {
 	requestUtils: RequestUtils;
