@@ -320,6 +320,15 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
 	}
 
+	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
+	if (
+		pkg.name === '@automattic/launchpad' &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
+	) {
+		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+	}
+
 	return pkg;
 }
 
