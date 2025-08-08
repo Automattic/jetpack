@@ -39,12 +39,8 @@ export default function SliderInputEdit( props ) {
 					className="jetpack-field-slider__min-input"
 					value={ min }
 					onChange={ e => {
-						const val = e.target.value.replace( /[^\d-]/g, '' );
-						onChangeMin && onChangeMin( val === '' ? 0 : val );
+						onChangeMin && onChangeMin( e.target.value === '' ? 0 : e.target.value );
 					} }
-					min={ Number.MIN_SAFE_INTEGER }
-					max={ max }
-					style={ { width: '3em', textAlign: 'center' } }
 				/>
 				<div className="jetpack-field-slider__input-container">
 					<input
@@ -67,12 +63,8 @@ export default function SliderInputEdit( props ) {
 					className="jetpack-field-slider__max-input"
 					value={ max }
 					onChange={ e => {
-						const val = e.target.value.replace( /[^\d-]/g, '' );
-						onChangeMax && onChangeMax( val === '' ? 0 : val );
+						onChangeMax && onChangeMax( e.target.value === '' ? 0 : e.target.value );
 					} }
-					min={ min }
-					max={ Number.MAX_SAFE_INTEGER }
-					style={ { width: '3em', textAlign: 'center' } }
 				/>
 			</div>
 		</div>
