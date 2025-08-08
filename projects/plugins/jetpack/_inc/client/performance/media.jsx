@@ -1,4 +1,5 @@
 import { ProgressBar, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
@@ -13,6 +14,7 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
 	FEATURE_VIDEO_HOSTING_JETPACK,
+	getPlanClass,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
@@ -38,6 +40,15 @@ class Media extends Component {
 		const foundVideoPress = this.props.isModuleFound( 'videopress' );
 
 		if ( ! foundVideoPress ) {
+			return null;
+		}
+
+		// Hide entire VideoPress settings on WordPress.com when not on Business plan
+		const isWpcom = isWpcomPlatformSite();
+		const currentPlanSlug = this.props.sitePlan?.product_slug ?? '';
+		const currentPlanClass = currentPlanSlug ? getPlanClass( currentPlanSlug ) : '';
+		const isBusinessPlan = currentPlanClass === 'is-business-plan';
+		if ( isWpcom && ! isBusinessPlan ) {
 			return null;
 		}
 
