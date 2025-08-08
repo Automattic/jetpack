@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Sitemaps: The XMLWriter sitemap implementation now behaves more like the original implementation
+
+
