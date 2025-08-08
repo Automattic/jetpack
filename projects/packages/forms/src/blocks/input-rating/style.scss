@@ -19,7 +19,7 @@
 
 				path {
 					fill: none;
-					stroke: currentColor;
+					stroke: var(--jetpack--contact-form--rating-star-color, currentColor);
 				}
 			}
 		}
@@ -39,12 +39,12 @@
 
 		// Filled states: current (checked/hover)
 		:is(input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label, .jetpack-field-rating__label:hover) .jetpack-field-rating__icon path {
-			fill: currentColor;
+			fill: var(--jetpack--contact-form--rating-star-color, currentColor);
 		}
 
 		/* Filled states: previous siblings */
 		.jetpack-field-rating__option:has(~ .jetpack-field-rating__option :is(input[type="radio"].jetpack-field-rating__input:checked, .jetpack-field-rating__label:hover)) .jetpack-field-rating__label .jetpack-field-rating__icon path {
-			fill: currentColor;
+			fill: var(--jetpack--contact-form--rating-star-color, currentColor);
 		}
 	}
 }
