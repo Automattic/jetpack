@@ -154,6 +154,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionsstyles'            => null,
 				'align'                    => null,
 				'variation'                => null,
+				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
 			),
 			$attributes,
 			'contact-field'
@@ -2178,9 +2179,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
 		// Read block attributes needed for rendering.
-
-		$max_attr = $this->get_attribute( 'max' );
-
+		$max_attr   = $this->get_attribute( 'max' );
 		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
 
 		$initial_rating = (int) $value ? (int) $value : 0;
@@ -2188,10 +2187,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text );
 
 		/*
-		 * Determine which icon SVG to use based on explicit attribute.
-		 * Prefer the block attribute 'iconStyle' (stars|hearts).
+		 * Determine which icon SVG to use based on the 'iconstyle' attribute.
+		 * Note: attribute name is lowercase due to WordPress shortcode processing
 		 */
-		$icon_style       = $this->get_attribute( 'iconStyle' );
+		$icon_style       = $this->get_attribute( 'iconstyle' );
 		$has_hearts_style = ( 'hearts' === $icon_style );
 
 		// SVG icon definitions - keep in sync with JavaScript icons.js
