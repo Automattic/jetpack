@@ -40,7 +40,7 @@ You can add the PayPal Payment Buttons block in your post or page, by following 
 ### Add a PayPal Payment Buttons block
 
 1. Select the PayPal Payment Buttons block from the block picker. You can recognize the block by its green credit card icon.
-2. <a href="https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp&at_code=wp">Sign up</a> or <a href="https://www.paypal.com/ncp/buttons/create?utm_source=wp&at_code=wp">log in</a> to PayPal to get your Payment Button code.
+2. [Sign up](https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp&at_code=wp) or [log in](https://www.paypal.com/ncp/buttons/create?utm_source=wp&at_code=wp) to PayPal to get your Payment Button code.
 3. Choose between Stacked Buttons and Single Buttons based on your needs.
    - **Stacked Buttons (Recommended)**: This option lets you present all of your product information and PayPal payment method upfront on your website.
    - **Single Buttons**: This option lets you quickly paste a single button on your site, with no product information.
@@ -77,7 +77,7 @@ By repeating the process above, you can add as many PayPal Payment Buttons block
 
 = Can I test with a sandbox account? =
 
-It is possible to perform test payments with the PayPal Payment Buttons block. To get started you would need to create a <a href="https://developer.paypal.com/home/">PayPal Developer account</a>. Once you are logged into your PayPal developer account, you can access or create new sandbox accounts. You will need to make note of your sandbox business account and personal account email addresses and passwords. Once you have this information, you would login to the <a href="https://www.sandbox.paypal.com/">PayPal Sandbox site</a> with the sandbox business account. Create a <a href="https://www.sandbox.paypal.com/ncp/buttons/create?utm_source=wp&at_code=wp">payment button on the PayPal sandbox site</a>. Follow the instructions above to add the payment button code to your PayPal Payment Buttons block. Publish the post or page that contains the block. Then use the sandbox personal account to complete the purchase. All successful test payments will show up in the business sandbox account on the PayPal Sandbox.
+It is possible to perform test payments with the PayPal Payment Buttons block. To get started you would need to create a [PayPal Developer account](https://developer.paypal.com/home/). Once you are logged into your PayPal developer account, you can access or create new sandbox accounts. You will need to make note of your sandbox business account and personal account email addresses and passwords. Once you have this information, you would login to the [PayPal Sandbox site](https://www.sandbox.paypal.com/) with the sandbox business account. Create a [payment button on the PayPal sandbox site](https://www.sandbox.paypal.com/ncp/buttons/create?utm_source=wp&at_code=wp). Follow the instructions above to add the payment button code to your PayPal Payment Buttons block. Publish the post or page that contains the block. Then use the sandbox personal account to complete the purchase. All successful test payments will show up in the business sandbox account on the PayPal Sandbox.
 
 == Changelog ==
 
