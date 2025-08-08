@@ -114,7 +114,7 @@ export function UpsellNotice() {
 				<br />
 
 				{ sprintf(
-					/* translators: placeholder is the product name of the plan. */
+					/* translators: %s: the product name of the plan. */
 					__( 'This feature is for sites with a %s plan.', 'jetpack-publicize-components' ),
 					planName
 				) }
@@ -132,7 +132,7 @@ export function UpsellNotice() {
 		<div className="jetpack-publicize__upsell">
 			<div className="jetpack-publicize__upsell-description">
 				{ sprintf(
-					/* translators: placeholder is the product name of the plan. */
+					/* translators: %s: the product name of the plan. */
 					__(
 						'To re-share a post, you need to upgrade to the %s plan',
 						'jetpack-publicize-components'

@@ -77,7 +77,7 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 			createNotice(
 				'is-info',
 				sprintf(
-					/* translators: placeholder is a feature name, such as "Image CDN". */
+					/* translators: %s: a feature name, such as "Image CDN". */
 					__( 'Activating %s…', 'jetpack' ),
 					getModule( getState(), slug ).name
 				),
@@ -97,7 +97,7 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 					createNotice(
 						'is-success',
 						sprintf(
-							/* translators: placeholder is a feature name, such as "Image CDN". */
+							/* translators: %s: a feature name, such as "Image CDN". */
 							__( '%s has been activated.', 'jetpack' ),
 							getModule( getState(), slug ).name
 						),
@@ -143,7 +143,7 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 			createNotice(
 				'is-info',
 				sprintf(
-					/* translators: placeholder is a feature name, such as "Image CDN". */
+					/* translators: %s: a feature name, such as "Image CDN". */
 					__( 'Deactivating %s…', 'jetpack' ),
 					getModule( getState(), slug ).name
 				),
@@ -163,7 +163,7 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 					createNotice(
 						'is-success',
 						sprintf(
-							/* translators: placeholder is a feature name, such as "Image CDN". */
+							/* translators: %s: a feature name, such as "Image CDN". */
 							__( '%s has been deactivated.', 'jetpack' ),
 							getModule( getState(), slug ).name
 						),
@@ -212,7 +212,7 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 			createNotice(
 				'is-info',
 				sprintf(
-					/* translators: placeholder is a feature name, such as "Image CDN". */
+					/* translators: %s: a feature name, such as "Image CDN". */
 					__( 'Updating %s settings…', 'jetpack' ),
 					getModule( getState(), slug ).name
 				),
@@ -233,7 +233,7 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 					createNotice(
 						'is-success',
 						sprintf(
-							/* translators: placeholder is a feature name, such as "Image CDN". */
+							/* translators: %s: a feature name, such as "Image CDN". */
 							__( 'Updated %s settings.', 'jetpack' ),
 							getModule( getState(), slug ).name
 						),
@@ -283,7 +283,7 @@ export const regeneratePostByEmailAddress = () => {
 			createNotice(
 				'is-info',
 				sprintf(
-					/* translators: placeholder is a feature name, such as "Post By Email". */
+					/* translators: %s: a feature name, such as "Post By Email". */
 					__( 'Updating %s address…', 'jetpack' ),
 					getModule( getState(), slug ).name
 				),
@@ -307,7 +307,7 @@ export const regeneratePostByEmailAddress = () => {
 					createNotice(
 						'is-success',
 						sprintf(
-							/* translators: placeholder is a feature name, such as "Post By Email". */
+							/* translators: %s: a feature name, such as "Post By Email". */
 							__( 'Regenerated %s address.', 'jetpack' ),
 							getModule( getState(), slug ).name
 						),

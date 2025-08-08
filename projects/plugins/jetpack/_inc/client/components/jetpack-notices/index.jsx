@@ -76,7 +76,7 @@ export class OfflineModeNotice extends Component {
 			if ( offlineMode.constant ) {
 				reasons.push(
 					sprintf(
-						/* translators: placeholder is a constant, such as WP_LOCAL_DEV. */
+						/* translators: %s: a PHP constant, such as WP_LOCAL_DEV. */
 						__( 'The %s constant is defined', 'jetpack' ),
 						'JETPACK_DEV_DEBUG'
 					)
@@ -85,7 +85,7 @@ export class OfflineModeNotice extends Component {
 			if ( offlineMode.wpLocalConstant ) {
 				reasons.push(
 					sprintf(
-						/* translators: placeholder is a constant, such as WP_LOCAL_DEV. */
+						/* translators: %s: a PHP constant, such as WP_LOCAL_DEV. */
 						__( 'The %s constant is defined', 'jetpack' ),
 						'WP_LOCAL_DEV'
 					)

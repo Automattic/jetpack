@@ -15,7 +15,7 @@ export function timeSince( date: number ) {
 	let interval = seconds / 31536000; // 364 days
 	if ( interval > 1 ) {
 		return sprintf(
-			// translators: placeholder is a number amount of years i.e. "5 years ago".
+			// translators: %s: the number of years ago (e.g. "5 years ago").
 			_n( '%s year ago', '%s years ago', Math.floor( interval ), 'jetpack-my-jetpack' ),
 			Math.floor( interval )
 		);
@@ -24,7 +24,7 @@ export function timeSince( date: number ) {
 	interval = seconds / 2592000; // 30 days
 	if ( interval > 1 ) {
 		return sprintf(
-			// translators: placeholder is a number amount of months i.e. "5 months ago".
+			// translators: %s: the number of months ago (e.g. "5 months ago").
 			_n( '%s month ago', '%s months ago', Math.floor( interval ), 'jetpack-my-jetpack' ),
 			Math.floor( interval )
 		);
@@ -33,7 +33,7 @@ export function timeSince( date: number ) {
 	interval = seconds / 86400; // 1 day
 	if ( interval > 1 ) {
 		return sprintf(
-			// translators: placeholder is a number amount of days i.e. "5 days ago".
+			// translators: %s: the number of days ago (e.g. "5 days ago").
 			_n( '%s day ago', '%s days ago', Math.floor( interval ), 'jetpack-my-jetpack' ),
 			Math.floor( interval )
 		);
@@ -42,7 +42,7 @@ export function timeSince( date: number ) {
 	interval = seconds / 3600; // 1 hour
 	if ( interval > 1 ) {
 		return sprintf(
-			// translators: placeholder is a number amount of hours i.e. "5 hours ago".
+			// translators: %s: the number of hours ago (e.g. "5 hours ago").
 			_n( '%s hour ago', '%s hours ago', Math.floor( interval ), 'jetpack-my-jetpack' ),
 			Math.floor( interval )
 		);
@@ -51,7 +51,7 @@ export function timeSince( date: number ) {
 	interval = seconds / 60; // 1 minute
 	if ( interval > 1 ) {
 		return sprintf(
-			// translators: placeholder is a number amount of minutes i.e. "5 minutes ago".
+			// translators: %s: the number of minutes ago (e.g. "5 minutes ago").
 			_n( '%s minute ago', '%s minutes ago', Math.floor( interval ), 'jetpack-my-jetpack' ),
 			Math.floor( interval )
 		);

@@ -65,7 +65,7 @@ class DashStatsBottom extends Component {
 							{ '-' === s.bestDay.count
 								? '-'
 								: sprintf(
-										/* Translators: placeholder is a number of views. */
+										/* Translators: %s: the number of views. */
 										_n( '%s View', '%s Views', s.bestDay.count, 'jetpack' ),
 										formatNumber( s.bestDay.count )
 								  ) }

@@ -55,7 +55,7 @@ const ScanAdminSectionHero: FC = () => {
 					<AdminSectionHero.Heading showIcon>
 						{ numThreats > 0
 							? sprintf(
-									/* translators: %s: Total number of threats/vulnerabilities */
+									/* translators: %1$s: the total number of threats/vulnerabilities, %2$s: the singular or plural form of "threat" or "vulnerability". */
 									__( '%1$s %2$s found', 'jetpack-protect' ),
 									numThreats,
 									hasPlan
@@ -63,7 +63,7 @@ const ScanAdminSectionHero: FC = () => {
 										: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
 							  )
 							: sprintf(
-									/* translators: %s: Pluralized type of threat/vulnerability */
+									/* translators: %s: the pluralized type of threat/vulnerability. */
 									__( 'No %s found', 'jetpack-protect' ),
 									hasPlan
 										? __( 'threats', 'jetpack-protect' )

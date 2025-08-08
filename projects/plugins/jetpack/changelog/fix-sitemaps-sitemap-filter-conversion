@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Sitemaps: The XMLWriter sitemap implementation now correctly handles nested data from filters, preventing "Array to string conversion" errors and malformed XML.
+
+

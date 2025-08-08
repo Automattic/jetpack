@@ -60,13 +60,7 @@ class Jetpack_Sitemap_Buffer_Page_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWr
 	 */
 	protected function append_item( $array ) {
 		if ( ! empty( $array['url'] ) ) {
-			$this->writer->startElement( 'url' );
-
-			foreach ( $array['url'] as $tag => $value ) {
-				$this->writer->writeElement( $tag, strval( $value ) );
-			}
-
-			$this->writer->endElement(); // url
+			$this->array_to_xml( $array );
 		}
 	}
 }

@@ -19,4 +19,8 @@
 - `jetpack/field-url`
 - `jetpack/field-time`
 
+### Under development
+
+- `jetpack/field-image-select`
+
 *\** All `field-` blocks are child blocks of `jetpack/contact-form`.

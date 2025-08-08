@@ -6,6 +6,10 @@
  */
 namespace Automattic\Jetpack\Search\Compatibility;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_filter( 'jetpack_search_classic_search_enabled', __NAMESPACE__ . '\enable_classic_search_for_unsupported_browsers', 10, 1 );
 
 /**

@@ -43,7 +43,7 @@ const PricingCard: FC< PricingCardProps > = ( {
 						<img
 							src={ props.icon }
 							alt={ sprintf(
-								/* translators: placeholder is a product name */
+								/* translators: %s: the product name */
 								__( 'Icon for the product %s', 'jetpack-components' ),
 								props.title
 							) }

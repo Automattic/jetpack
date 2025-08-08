@@ -78,8 +78,8 @@ const MailPoetCard = ( {
 	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: mailpoet?.enabledForForm ?? false,
-		isHeaderToggleEnabled: true,
+		headerToggleValue: ( mailpoetActiveWithKey && mailpoet?.enabledForForm ) ?? false,
+		isHeaderToggleEnabled: mailpoetActiveWithKey,
 		onHeaderToggleChange: ( value: boolean ) =>
 			setAttributes( { mailpoet: { ...mailpoet, enabledForForm: value } } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',

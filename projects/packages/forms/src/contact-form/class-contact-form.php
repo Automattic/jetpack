@@ -709,7 +709,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 * @param $post $GLOBALS['post'] Post global variable.
 			 * @param int $id Contact Form ID.
 			 */
-			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id, $page );
+			$url                     = apply_filters( 'grunion_contact_form_form_action', $url, $GLOBALS['post'], $id, $page );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
 			if ( $submission_success ) {
@@ -934,8 +934,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $submission_success ) {
 			$classes .= ' submission-success';
 		}
-		$back_url  = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
-		$back_url .= '#contact-form-' . $form->get_attribute( 'id' );
+		$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
 
 		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
 		$html .= '<p class="go-back-message"><a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';

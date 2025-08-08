@@ -28,7 +28,7 @@ const ConnectUserBar = props => {
 		<Card compact className="jp-connect-user-bar__card">
 			<span>
 				{ sprintf(
-					/* translators: placeholder is text adding extra instructions on what to do next. */
+					/* translators: %s: text adding extra instructions on what to do next. */
 					__( 'This feature is provided by the WordPress.com cloud. %s', 'jetpack' ),
 					text
 				) }

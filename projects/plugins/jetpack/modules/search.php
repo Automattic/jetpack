@@ -17,6 +17,10 @@
 use Automattic\Jetpack\Search\Classic_Search;
 use Automattic\Jetpack\Search\Helper as Search_Helper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * These are old legacy class names that were deprecated due to the move to packages.
  *

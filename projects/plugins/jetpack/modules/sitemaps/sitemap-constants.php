@@ -7,6 +7,10 @@
  * @author Automattic
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Number of seconds between sitemap and news sitemap updates in development code.
  * In production, sitemaps are cached for 12 hours.

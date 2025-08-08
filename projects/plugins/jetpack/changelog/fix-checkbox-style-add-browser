@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Forms: fix default checkboxes styles, and allow for "browser" styles as a choice.
