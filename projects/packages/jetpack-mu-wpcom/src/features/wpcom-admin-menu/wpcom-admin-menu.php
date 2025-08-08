@@ -206,6 +206,12 @@ function wpcom_add_jetpack_submenu() {
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
+	$has_summer_special_2025 = (
+		function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'summer-special-2025' )
+	) || (
+		function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( 'summer-special-2025' )
+	);
+
 	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
 	$is_personal_or_premium = false;
 	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
@@ -214,7 +220,7 @@ function wpcom_add_jetpack_submenu() {
 		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
 	}
 
-	if ( ! $is_simple_site && $is_personal_or_premium ) {
+	if ( ! $has_summer_special_2025 && $is_personal_or_premium ) {
 		// Jetpack > Stats.
 		wpcom_hide_submenu_page( 'jetpack', 'stats' );
 	}
