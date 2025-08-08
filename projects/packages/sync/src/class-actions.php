@@ -856,17 +856,17 @@ class Actions {
 	}
 
 	/**
-	 * Adds Woo's Product Meta Lookup sync module to existing modules for sending.
+	 * Adds Woo's Products sync module to existing modules for sending.
 	 *
 	 * @param array $sync_modules The list of sync modules declared prior to this filter.
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return array A list of sync modules that now includes Woo's Product Meta Lookup module.
+	 * @return array A list of sync modules that now includes Woo's Products module.
 	 */
-	public static function add_woocommerce_product_meta_lookup_sync_module( $sync_modules ) {
-		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce_Product_Meta_Lookup';
+	public static function add_woocommerce_products_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce_Products';
 		return $sync_modules;
 	}
 

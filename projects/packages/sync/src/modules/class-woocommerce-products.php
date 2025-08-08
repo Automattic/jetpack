@@ -1,6 +1,6 @@
 <?php
 /**
- * WooCommerce Product Meta Lookup sync module.
+ * WooCommerce Products sync module.
  *
  * @package automattic/jetpack-sync
  */
@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\Sync\Modules;
 use WP_Error;
 
 /**
- * Class to handle sync for WooCommerce Product Meta Lookup table.
+ * Class to handle sync for WooCommerce Products table.
  */
-class WooCommerce_Product_Meta_Lookup extends Module {
+class WooCommerce_Products extends Module {
 	/**
 	 * Constructor.
 	 */
@@ -29,7 +29,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 * @return string
 	 */
 	public function name() {
-		return 'woocommerce_product_meta_lookup';
+		return 'woocommerce_products';
 	}
 
 	/**
@@ -41,7 +41,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 */
 	public function table() {
 		global $wpdb;
-		return $wpdb->prefix . 'wc_product_meta_lookup';
+		return $wpdb->prefix . 'wc_products';
 	}
 
 	/**
@@ -63,22 +63,22 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 * @return string
 	 */
 	public function full_sync_action_name() {
-		return 'jetpack_full_sync_woocommerce_product_meta_lookup';
+		return 'jetpack_full_sync_woocommerce_products';
 	}
 
 	/**
-	 * Initialize WooCommerce Product Lookup action listeners.
+	 * Initialize WooCommerce Products action listeners.
 	 *
 	 * @access public
 	 *
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_listeners( $callable ) {
-		// Listen to product creation and updates - these hooks trigger lookup table updates
+		// Listen to product creation and updates - these hooks trigger products table updates
 		add_action( 'woocommerce_new_product', $callable, 10, 1 );
 		add_action( 'woocommerce_update_product', $callable, 10, 1 );
 
-		// Listen to variation creation and updates (they also affect lookup table)
+		// Listen to variation creation and updates (they also affect products table)
 		add_action( 'woocommerce_new_product_variation', $callable, 10, 1 );
 		add_action( 'woocommerce_update_product_variation', $callable, 10, 1 );
 
@@ -98,14 +98,14 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	}
 
 	/**
-	 * Initialize WooCommerce Product Lookup action listeners for full sync.
+	 * Initialize WooCommerce Products action listeners for full sync.
 	 *
 	 * @access public
 	 *
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_full_sync_listeners( $callable ) {
-		add_action( 'jetpack_full_sync_woocommerce_product_meta_lookup', $callable );
+		add_action( 'jetpack_full_sync_woocommerce_products', $callable );
 	}
 
 	/**
@@ -116,7 +116,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 * @return array Full sync actions of this module.
 	 */
 	public function get_full_sync_actions() {
-		return array( 'jetpack_full_sync_woocommerce_product_meta_lookup' );
+		return array( 'jetpack_full_sync_woocommerce_products' );
 	}
 
 	/**
@@ -126,7 +126,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 */
 	public function init_before_send() {
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_product_meta_lookup', array( $this, 'build_full_sync_action_array' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_products', array( $this, 'build_full_sync_action_array' ) );
 	}
 
 	/**
@@ -149,7 +149,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	}
 
 	/**
-	 * Expand product data to include lookup table information.
+	 * Expand product data to include products table information.
 	 *
 	 * @param array $args The hook arguments.
 	 * @return array $args The hook arguments with expanded data.
@@ -161,18 +161,18 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 
 		$product_id = $args[0];
 
-		// Get the product lookup data
-		$lookup_data = $this->get_product_lookup_by_ids( array( $product_id ) );
+		// Get the product data
+		$product_data = $this->get_product_by_ids( array( $product_id ) );
 
-		if ( ! empty( $lookup_data ) ) {
-			$args[1] = reset( $lookup_data ); // Get the first (and only) result
+		if ( ! empty( $product_data ) ) {
+			$args[1] = reset( $product_data ); // Get the first (and only) result
 		}
 
 		return $args;
 	}
 
 	/**
-	 * Enqueue the WooCommerce Product Lookup actions for full sync.
+	 * Enqueue the WooCommerce Products actions for full sync.
 	 *
 	 * @access public
 	 *
@@ -183,7 +183,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		return $this->enqueue_all_ids_as_action(
-			'jetpack_full_sync_woocommerce_product_meta_lookup',
+			'jetpack_full_sync_woocommerce_products',
 			$this->table(),
 			'product_id',
 			$this->get_where_sql( $config ),
@@ -221,15 +221,15 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 * @return array|object|WP_Error|null
 	 */
 	public function get_objects_by_id( $object_type, $ids ) {
-		if ( 'product_meta_lookup' !== $object_type || empty( $ids ) || ! is_array( $ids ) ) {
+		if ( 'product' !== $object_type || empty( $ids ) || ! is_array( $ids ) ) {
 			return array();
 		}
 
-		return $this->get_product_lookup_by_ids( $ids );
+		return $this->get_product_by_ids( $ids );
 	}
 
 	/**
-	 * Returns a list of product lookup objects by their IDs.
+	 * Returns a list of product objects by their IDs.
 	 *
 	 * @param array  $ids List of product IDs to fetch.
 	 * @param string $order Either 'ASC' or 'DESC'.
@@ -238,7 +238,7 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 	 *
 	 * @return array|object|null
 	 */
-	public function get_product_lookup_by_ids( $ids, $order = '' ) {
+	public function get_product_by_ids( $ids, $order = '' ) {
 		global $wpdb;
 
 		if ( ! is_array( $ids ) ) {
@@ -264,51 +264,51 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 		$results = $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
 
 		// Transform the data to include cogs_amount
-		return array_map( array( $this, 'transform_product_lookup_data' ), $results );
+		return array_map( array( $this, 'transform_product_data' ), $results );
 	}
 
 	/**
-	 * Transform product lookup data to include cogs_amount and other computed fields.
+	 * Transform product data to include cogs_amount and other computed fields.
 	 *
-	 * @param array $lookup_data Raw lookup table data.
+	 * @param array $product_data Raw products table data.
 	 * @return array Transformed data with cogs_amount.
 	 */
-	public function transform_product_lookup_data( $lookup_data ) {
-		if ( empty( $lookup_data['product_id'] ) ) {
-			return $lookup_data;
+	public function transform_product_data( $product_data ) {
+		if ( empty( $product_data['product_id'] ) ) {
+			return $product_data;
 		}
 
-		$product_id = $lookup_data['product_id'];
+		$product_id = $product_data['product_id'];
 
 		// Attempt to retrieve the WooCommerce product object and its COGS value.
-		$lookup_data['cogs_amount'] = null;
+		$product_data['cogs_amount'] = null;
 
 		$cogs_enabled = class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) && \Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled( 'cost_of_goods_sold' );
 
 		if ( $cogs_enabled && function_exists( 'wc_get_product' ) ) {
 			$product = wc_get_product( $product_id );
 			if ( $product instanceof \WC_Product && is_callable( array( $product, 'get_cogs_value' ) ) ) {
-				$lookup_data['cogs_amount'] = $product->get_cogs_value();
+				$product_data['cogs_amount'] = $product->get_cogs_value();
 			}
 		}
 
-		return $lookup_data;
+		return $product_data;
 	}
 
 	/**
-	 * Build the full sync action object for WooCommerce product lookup.
+	 * Build the full sync action object for WooCommerce products.
 	 *
 	 * @access public
 	 *
-	 * @param array $args An array with the product lookup data and the previous end.
+	 * @param array $args An array with the product data and the previous end.
 	 *
-	 * @return array An array with the product lookup data and the previous end.
+	 * @return array An array with the product data and the previous end.
 	 */
 	public function build_full_sync_action_array( $args ) {
-		list( $filtered_product_lookup, $previous_end ) = $args;
+		list( $filtered_product, $previous_end ) = $args;
 		return array(
-			'product_meta_lookup' => $filtered_product_lookup['objects'],
-			'previous_end'        => $previous_end,
+			'product'      => $filtered_product['objects'],
+			'previous_end' => $previous_end,
 		);
 	}
 
@@ -328,29 +328,29 @@ class WooCommerce_Product_Meta_Lookup extends Module {
 			return array();
 		}
 
-		// Fetch the product lookup data in DESC order for the next chunk logic to work.
-		$product_lookup_data = $this->get_product_lookup_by_ids( $product_ids, 'DESC' );
+		// Fetch the product data in DESC order for the next chunk logic to work.
+		$product_data = $this->get_product_by_ids( $product_ids, 'DESC' );
 
 		// If no data was fetched, make sure to return the expected structure so that status is updated correctly.
-		if ( empty( $product_lookup_data ) ) {
+		if ( empty( $product_data ) ) {
 			return array(
 				'object_ids' => $product_ids,
 				'objects'    => array(),
 			);
 		}
-		// Filter the product lookup data based on the maximum size constraints.
+		// Filter the product data based on the maximum size constraints.
 		// We don't have separate metadata, so we pass empty array for metadata.
-		list( $filtered_product_ids, $filtered_product_lookup_data, ) = $this->filter_objects_and_metadata_by_size(
-			'product_meta_lookup',
-			$product_lookup_data,
-			array(), // No separate metadata for product lookup table
+		list( $filtered_product_ids, $filtered_product_data, ) = $this->filter_objects_and_metadata_by_size(
+			'product',
+			$product_data,
+			array(), // No separate metadata for products table
 			0,       // No individual meta size limit since we don't have separate metadata
 			self::MAX_SIZE_FULL_SYNC
 		);
 
 		return array(
 			'object_ids' => $filtered_product_ids,
-			'objects'    => $filtered_product_lookup_data,
+			'objects'    => $filtered_product_data,
 		);
 	}
 }
