@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Goodreads block endpoint.
  */

@@ -20,6 +20,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Activate the Site Logo plugin.
  *

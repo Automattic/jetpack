@@ -28,6 +28,10 @@ use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 	return;
 }

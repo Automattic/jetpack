@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
  * code debug mode, it shouldn't use minified assets. Note that this filter is not being used

@@ -5,6 +5,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 	/**

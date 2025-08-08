@@ -8,6 +8,10 @@
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Admin_Menu
  */

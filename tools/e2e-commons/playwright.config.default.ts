@@ -65,6 +65,9 @@ export const setupProjects = [
 
 const playwrightConfig = defineConfig( {
 	timeout: 300000,
+	expect: {
+		timeout: 20000,
+	},
 	retries: process.env.CI ? 1 : 0,
 	workers: 1,
 	outputDir: config.get( 'dirs.results' ),

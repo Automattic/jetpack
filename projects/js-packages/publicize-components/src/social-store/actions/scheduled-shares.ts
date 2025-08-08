@@ -22,7 +22,10 @@ export function createScheduledShare(
 		// If the creation was not successful, show an error notice.
 		if ( ! success ) {
 			const lastError = getLastEntitySaveError( 'wpcom/v2', 'publicize/scheduled-actions' );
-			let message = __( 'There was an error scheduling the post.', 'jetpack-publicize-components' );
+			let message: string = __(
+				'There was an error scheduling the post.',
+				'jetpack-publicize-components'
+			);
 			if ( lastError?.message ) {
 				message += ' ' + lastError.message;
 			}
@@ -60,7 +63,10 @@ export function deleteScheduledShare( id: number ) {
 		if ( ! success ) {
 			const lastError = getLastEntityDeleteError( 'wpcom/v2', 'publicize/scheduled-actions', id );
 
-			let message = __( 'There was an error deleting the item.', 'jetpack-publicize-components' );
+			let message: string = __(
+				'There was an error deleting the item.',
+				'jetpack-publicize-components'
+			);
 
 			if ( lastError?.message ) {
 				message += ' ' + lastError.message;

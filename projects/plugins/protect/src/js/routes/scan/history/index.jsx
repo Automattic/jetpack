@@ -68,19 +68,19 @@ const ScanHistoryRoute = () => {
 				switch ( filter ) {
 					case 'fixed':
 						return sprintf(
-							/* translators: placeholder is the amount of fixed threats found on the site. */
+							/* translators: %s: count of fixed threats found on the site. */
 							__( 'All %s fixed threats', 'jetpack-protect' ),
 							list.length
 						);
 					case 'ignored':
 						return sprintf(
-							/* translators: placeholder is the amount of ignored threats found on the site. */
+							/* translators: %s: count of ignored threats found on the site. */
 							__( 'All %s ignored threats', 'jetpack-protect' ),
 							list.length
 						);
 					default:
 						return sprintf(
-							/* translators: placeholder is the amount of threats found on the site. */
+							/* translators: %s: count of threats found on the site. */
 							__( 'All %s threats', 'jetpack-protect' ),
 							list.length
 						);
@@ -89,7 +89,7 @@ const ScanHistoryRoute = () => {
 				switch ( filter ) {
 					case 'fixed':
 						return sprintf(
-							/* translators: placeholder is the amount of fixed WordPress threats found on the site. */
+							/* translators: %1$s: count of fixed WordPress threats found on the site. */
 							_n(
 								'%1$s fixed WordPress threat',
 								'%1$s fixed WordPress threats',
@@ -100,7 +100,7 @@ const ScanHistoryRoute = () => {
 						);
 					case 'ignored':
 						return sprintf(
-							/* translators: placeholder is the amount of ignored WordPress threats found on the site. */
+							/* translators: %1$s: count of ignored WordPress threats found on the site. */
 							_n(
 								'%1$s ignored WordPress threat',
 								'%1$s ignored WordPress threats',
@@ -111,7 +111,7 @@ const ScanHistoryRoute = () => {
 						);
 					default:
 						return sprintf(
-							/* translators: placeholder is the amount of WordPress threats found on the site. */
+							/* translators: %1$s: count of WordPress threats found on the site. */
 							_n(
 								'%1$s WordPress threat',
 								'%1$s WordPress threats',
@@ -125,7 +125,7 @@ const ScanHistoryRoute = () => {
 				switch ( filter ) {
 					case 'fixed':
 						return sprintf(
-							/* translators: placeholder is the amount of fixed file threats found on the site. */
+							/* translators: %1$s: count of fixed file threats found on the site. */
 							_n(
 								'%1$s fixed file threat',
 								'%1$s fixed file threats',
@@ -136,7 +136,7 @@ const ScanHistoryRoute = () => {
 						);
 					case 'ignored':
 						return sprintf(
-							/* translators: placeholder is the amount of ignored file threats found on the site. */
+							/* translators: %1$s: count of ignored file threats found on the site. */
 							_n(
 								'%1$s ignored file threat',
 								'%1$s ignored file threats',
@@ -147,7 +147,7 @@ const ScanHistoryRoute = () => {
 						);
 					default:
 						return sprintf(
-							/* translators: placeholder is the amount of file threats found on the site. */
+							/* translators: %1$s: count of file threats found on the site. */
 							_n( '%1$s file threat', '%1$s file threats', list.length, 'jetpack-protect' ),
 							list.length
 						);
@@ -156,7 +156,7 @@ const ScanHistoryRoute = () => {
 				switch ( filter ) {
 					case 'fixed':
 						return sprintf(
-							/* translators: placeholder is the amount of fixed database threats found on the site. */
+							/* translators: %1$s: count of fixed database threats found on the site. */
 							_n(
 								'%1$s fixed database threat',
 								'%1$s fixed database threats',
@@ -167,7 +167,7 @@ const ScanHistoryRoute = () => {
 						);
 					case 'ignored':
 						return sprintf(
-							/* translators: placeholder is the amount of ignored database threats found on the site. */
+							/* translators: %1$s: count of ignored database threats found on the site. */
 							_n(
 								'%1$s ignored database threat',
 								'%1$s ignored database threats',
@@ -178,7 +178,7 @@ const ScanHistoryRoute = () => {
 						);
 					default:
 						return sprintf(
-							/* translators: placeholder is the amount of database threats found on the site. */
+							/* translators: %1$s: count of database threats found on the site. */
 							_n( '%1$s database threat', '%1$s database threats', list.length, 'jetpack-protect' ),
 							list.length
 						);
@@ -187,7 +187,7 @@ const ScanHistoryRoute = () => {
 				switch ( filter ) {
 					case 'fixed':
 						return sprintf(
-							/* translators: Translates to "123 fixed threats in Example Plugin (1.2.3)" */
+							/* translators: Translates to "123 fixed threats in Example Plugin (1.2.3)". %1$s: count of threats, %2$s: plugin name, %3$s: plugin version */
 							_n(
 								'%1$s fixed threat in %2$s %3$s',
 								'%1$s fixed threats in %2$s %3$s',
@@ -200,7 +200,7 @@ const ScanHistoryRoute = () => {
 						);
 					case 'ignored':
 						return sprintf(
-							/* translators: Translates to "123 ignored threats in Example Plugin (1.2.3)" */
+							/* translators: Translates to "123 ignored threats in Example Plugin (1.2.3)". %1$s: count of threats, %2$s: plugin name, %3$s: plugin version */
 							_n(
 								'%1$s ignored threat in %2$s %3$s',
 								'%1$s ignored threats in %2$s %3$s',
@@ -213,7 +213,7 @@ const ScanHistoryRoute = () => {
 						);
 					default:
 						return sprintf(
-							/* translators: Translates to "123 threats in Example Plugin (1.2.3)" */
+							/* translators: Translates to "123 threats in Example Plugin (1.2.3)". %1$s: count of threats, %2$s: plugin name, %3$s: plugin version */
 							_n(
 								'%1$s threat in %2$s %3$s',
 								'%1$s threats in %2$s %3$s',

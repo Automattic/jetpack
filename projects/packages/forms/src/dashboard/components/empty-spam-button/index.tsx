@@ -60,7 +60,7 @@ const EmptySpamButton = (): JSX.Element => {
 					deleted === 1
 						? __( 'Response deleted permanently.', 'jetpack-forms' )
 						: sprintf(
-								/* translators: The number of responses. */
+								/* translators: %d: The number of responses. */
 								_n(
 									'%d response deleted permanently.',
 									'%d responses deleted permanently.',
@@ -124,7 +124,7 @@ const EmptySpamButton = (): JSX.Element => {
 				<p>
 					{ selectedResponsesCount > 0
 						? sprintf(
-								// translators: placeholder is a number of trash total
+								// translators: %d: the number of responses in spam
 								_n(
 									'%d response in spam will be deleted forever. This action cannot be undone.',
 									'All %d responses in spam will be deleted forever. This action cannot be undone.',

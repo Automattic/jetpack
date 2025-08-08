@@ -100,14 +100,14 @@ const FooterInfo = () => {
 		<div className={ styles[ 'info-section' ] }>
 			<Title>
 				{ sprintf(
-					// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+					// translators: %s: the number of total vulnerabilities listed (e.g. "22,000").
 					__( 'Over %s listed vulnerabilities', 'jetpack-protect' ),
 					totalVulnerabilitiesFormatted
 				) }
 			</Title>
 			<Text mb={ 3 }>
 				{ sprintf(
-					// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+					// translators: %s: the number of total vulnerabilities listed (e.g. "22,000").
 					__(
 						'Every day we check your plugin, theme, and WordPress versions against our %s listed vulnerabilities powered by WPScan, an Automattic brand.',
 						'jetpack-protect'

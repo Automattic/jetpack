@@ -346,9 +346,6 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack-masterbar' ), __( 'Marketing', 'jetpack-masterbar' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 1 );
-
 		// Temporary "Tools > Monetize" menu for existing users that shows a callout informing that the screen has moved to "Jetpack > Monetize".
 		if ( ! $this->use_wp_admin_interface() && get_current_user_id() < 268854000 ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
@@ -385,8 +382,12 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
+		// Temporary "Settings > Newsletter" menu for existing users that shows a callout informing that the screen has moved to "Jetpack (> Settings) > Newsletter".
+		if ( get_current_user_id() < 269750000 ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-newsletter/' . $this->domain, null, 7 );
+		}
+
 		// Temporary "Settings > Podcasting" menu for existing users that shows a callout informing that the screen has moved to "Jetpack > Podcasting".
 		if ( get_current_user_id() < 268901000 ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.

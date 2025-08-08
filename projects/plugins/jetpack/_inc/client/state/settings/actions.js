@@ -87,7 +87,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 			// then we try to let Javascript stringify the error object.
 			error: error =>
 				sprintf(
-					/* translators: placeholder is an error code or an error message. */
+					/* translators: %s: an error code or an error message. */
 					__( 'Error updating settings. %s', 'jetpack' ),
 					error.message || error.code || error.name || error
 				),
