@@ -56,7 +56,7 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 		};
 
 		const oneProductMessage = sprintf(
-			/* translators: placeholder is product name. */
+			/* translators: %s: the product name. */
 			__(
 				'Jetpack %s needs a user connection to WordPress.com to be able to work.',
 				'jetpack-my-jetpack'

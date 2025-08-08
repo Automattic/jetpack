@@ -66,7 +66,7 @@ const AllowList = class extends Component {
 				this.props.createNotice(
 					'is-error',
 					sprintf(
-						/* translators: placeholder is an error code or an error message. */
+						/* translators: %s: an error code or an error message. */
 						__( 'Error updating settings. %s', 'jetpack' ),
 						error.message || error.code
 					),
@@ -180,7 +180,7 @@ const AllowList = class extends Component {
 										<div className="current-ip">
 											<div className="jp-form-label-wide">
 												{ sprintf(
-													/* translators: placeholder is an IP address. */
+													/* translators: %s: an IP address. */
 													__( 'Your current IP: %s', 'jetpack' ),
 													this.props.currentIp
 												) }

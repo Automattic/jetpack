@@ -30,7 +30,7 @@ function getProductDescription( product ) {
 			return amount;
 	}
 	return sprintf(
-		// translators: %s: amount, plan interval
+		// translators: %1$s: formatted price, %2$s: plan interval
 		__( '%1$s / %2$s', 'jetpack' ),
 		amount,
 		interval

@@ -32,7 +32,7 @@ const getGenericErrorMessage = numberOfErrors => {
 	return numberOfErrors.length === 1
 		? __( 'An error occurred.', 'jetpack-forms' )
 		: sprintf(
-				/* translators: The number of responses. */
+				/* translators: %d: the number of responses. */
 				_n(
 					'An error occurred for %d response.',
 					'An error occurred for %d responses.',
@@ -62,7 +62,7 @@ export const markAsSpamAction = {
 				items.length === 1
 					? __( 'Response marked as spam.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response marked as spam.',
 								'%d responses marked as spam.',
@@ -120,7 +120,7 @@ export const markAsNotSpamAction = {
 				items.length === 1
 					? __( 'Response marked as not spam.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response marked as not spam.',
 								'%d responses marked as not spam.',
@@ -176,7 +176,7 @@ export const restoreAction = {
 				items.length === 1
 					? __( 'Response restored.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response restored.',
 								'%d responses restored.',
@@ -225,7 +225,7 @@ export const moveToTrashAction = {
 				items.length === 1
 					? __( 'Response moved to trash.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response moved to trash.',
 								'%d responses moved to trash.',
@@ -281,7 +281,7 @@ export const deleteAction = {
 				items.length === 1
 					? __( 'Response deleted permanently.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response deleted permanently.',
 								'%d responses deleted permanently.',

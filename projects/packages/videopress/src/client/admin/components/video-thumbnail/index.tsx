@@ -125,7 +125,7 @@ const UploadingThumbnail = ( {
 
 	const uploadPercentage = `${ Math.floor( uploadProgress * 100 ) }%`;
 	const uploadingText = sprintf(
-		/* translators: placeholder is the upload percentage */
+		/* translators: %s: the upload percentage */
 		__( 'Uploading %s', 'jetpack-videopress-pkg' ),
 		uploadPercentage
 	);

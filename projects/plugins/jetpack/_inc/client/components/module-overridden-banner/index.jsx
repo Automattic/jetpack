@@ -30,7 +30,7 @@ class ModuleOverridenBanner extends JetpackBanner {
 				icon="cog"
 				description={ createInterpolateElement(
 					sprintf(
-						/* translators: placeholder is a feature name. */
+						/* translators: %s: a feature name. */
 						__(
 							'%s has been disabled by a site administrator. <link>Learn more</link>.',
 							'jetpack'

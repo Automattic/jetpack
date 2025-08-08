@@ -93,7 +93,7 @@ const fieldConfig = {
 		type: 'checkbox',
 		label: '',
 		labelPlaceholder: sprintf(
-			/* translators: placeholder is a type of consent: implicit or explicit */
+			/* translators: %s: a type of consent: implicit or explicit */
 			__( 'Add %s consent message…', 'jetpack-forms' ),
 			'implicit'
 		),

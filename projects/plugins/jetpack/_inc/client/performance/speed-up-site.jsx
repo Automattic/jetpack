@@ -58,7 +58,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					success: __( 'Site accelerator is no longer speeding up your site!', 'jetpack' ),
 					error: error =>
 						sprintf(
-							/* translators: placeholder is an error code. */
+							/* translators: %s: an error code. */
 							__( 'Error disabling site accelerator. %s', 'jetpack' ),
 							error
 						),
@@ -87,7 +87,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					success: __( 'Site accelerator is now speeding up your site!', 'jetpack' ),
 					error: error =>
 						sprintf(
-							/* translators: placeholder is an error code. */
+							/* translators: %s: an error code. */
 							__( 'Error enabling Site accelerator. %s', 'jetpack' ),
 							error
 						),

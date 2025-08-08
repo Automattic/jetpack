@@ -73,7 +73,7 @@ describe( 'Recommendations – Site Type', () => {
 		render( <SiteTypeQuestion />, {
 			initialState: buildInitialState(),
 		} );
-		expect( screen.getByText( 'Tell us more about Test Site?' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Tell us more about Test Site.' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'I build or manage this site for a client' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'This is an e-commerce site' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'This is a personal site' ) ).toBeInTheDocument();
