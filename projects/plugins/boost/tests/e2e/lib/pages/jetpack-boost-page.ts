@@ -1,5 +1,5 @@
+import logger from '@logger';
 import { expect, Page } from '@playwright/test';
-import logger from '_jetpack-e2e-commons/logger';
 
 export default class JetpackBoostPage {
 	page: Page;

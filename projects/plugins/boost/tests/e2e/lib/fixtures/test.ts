@@ -1,6 +1,6 @@
-import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
-import JetpackBoostPage from '../pages/jetpack-boost-page';
-import { BoostUtils } from '../utils/index';
+import { test as baseTest, expect } from '@fixtures/base-test';
+import JetpackBoostPage from '@pages/jetpack-boost-page';
+import { BoostUtils } from '@utils/index';
 
 const test = baseTest.extend< { jetpackBoostPage: JetpackBoostPage }, { boostUtils: BoostUtils } >(
 	{

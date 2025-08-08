@@ -3,11 +3,13 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
+			"@*": [ "." ],
 			"@e2e-commons/*": [ "node_modules/_jetpack-e2e-commons/*" ],
 			"@logger": [ "node_modules/_jetpack-e2e-commons/logger" ],
 			"@fixtures/*": [ "node_modules/_jetpack-e2e-commons/fixtures/*", "lib/fixtures/*" ],
-			"@utils/*": [ "node_modules/_jetpack-e2e-commons/utils/*", "lib/utils/*" ],
-			"@helpers/*": [ "helpers/*" ]
+			"@e2e-commons-utils/*": [ "node_modules/_jetpack-e2e-commons/utils/*" ],
+			"@utils/*": [ "lib/utils/*" ],
+			"@pages/*": [ "lib/pages/*" ]
 		}
 	}
 }

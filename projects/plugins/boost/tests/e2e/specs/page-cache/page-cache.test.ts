@@ -1,5 +1,5 @@
-import { test, expect } from '../../lib/fixtures/test';
-import playwrightConfig from '../../playwright.config';
+import { test, expect } from '@fixtures/test';
+import playwrightConfig from 'playwright.config';
 
 test.describe( 'Cache module', () => {
 	test.beforeAll( async ( { browser, boostUtils } ) => {

@@ -1,4 +1,4 @@
-import { test, expect } from '../../lib/fixtures/test';
+import { test, expect } from '@fixtures/test';
 
 test.describe.serial( 'Critical CSS module', () => {
 	let previousTheme;

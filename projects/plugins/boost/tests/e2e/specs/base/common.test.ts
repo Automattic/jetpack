@@ -1,5 +1,5 @@
-import { executeWpDbQuery } from '_jetpack-e2e-commons/utils/cli';
-import { test, expect } from '../../lib/fixtures/test';
+import { executeWpDbQuery } from '@e2e-commons-utils/cli';
+import { test, expect } from '@fixtures/test';
 
 test.describe( 'Common tests', () => {
 	test.beforeAll( async ( { boostUtils } ) => {
