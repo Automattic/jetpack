@@ -47,7 +47,7 @@ class Help_Center {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
 
-		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && WPCOM_SUPPORT_BLOG_IDS !== null && is_array( WPCOM_SUPPORT_BLOG_IDS ) && in_array( get_current_blog_id(), WPCOM_SUPPORT_BLOG_IDS, true );
+		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
 	}
 
 	/**
