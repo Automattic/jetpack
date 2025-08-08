@@ -1,6 +1,6 @@
-import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
-import logger from '_jetpack-e2e-commons/logger';
-import { SearchUtils } from '../utils/index';
+import { test as baseTest, expect } from '@fixtures/base-test';
+import logger from '@logger';
+import { SearchUtils } from '@utils/index';
 
 export const SEARCH_API_PATTERN =
 	/^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;

@@ -1,4 +1,4 @@
-import { TestUtils } from '_jetpack-e2e-commons/utils/index';
+import { TestUtils } from '@e2e-common-utils/index';
 import {
 	clearSearchPlanInfo,
 	disableInstantSearch,
