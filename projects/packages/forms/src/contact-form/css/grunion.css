@@ -887,7 +887,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin-left: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 }
 
-/* fields with multiple options */
+/* fields with multiple options or inputs */
+.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-time__fieldset,
 .wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset {
 	padding: 8px 0 0 0;
 	border: 0;

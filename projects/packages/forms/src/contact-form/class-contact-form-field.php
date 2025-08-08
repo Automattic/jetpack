@@ -1623,11 +1623,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
-	 * @param string $placeholder - the field placeholder content.
 	 *
 	 * @return string HTML
 	 */
-	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		wp_enqueue_style(
 			'jetpack-form-field-time',
 			plugins_url( '../../dist/blocks/field-time/style.css', __FILE__ ),
@@ -1637,13 +1636,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$this->set_invalid_message( 'time', __( 'Please enter a valid time.', 'jetpack-forms' ) );
 
-		$field = $this->render_label( 'time', $id, $label, $required, $required_field_text );
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+		$field       = "<fieldset {$fieldset_id} class='jetpack-field-time__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
+
+		$field .= $this->render_legend_as_label( 'time', $id, $label, $required, $required_field_text );
 
 		$value_minutes = '';
 		$value_hours   = '';
 
 		$class_minutes = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="$1 jetpack-field-time__minutes-input"', $class );
 		$class_hours   = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="$1 jetpack-field-time__hours-input"', $class );
+
 		ob_start();
 		?>
 		<div class="jetpack-forms-field-time">
@@ -1653,20 +1656,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				</label>
 				<input
 					<?php echo $class_minutes; ?>
-					style="<?php echo esc_attr( $this->field_styles ); ?>"
 					autocomplete="off"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+					data-wp-on--change="actions.onFieldChange"
+					id="<?php echo esc_attr( $id . '-hours' ); ?>"
 					inputmode="numeric"
 					max="23"
 					min="0"
+					step="1"
+					style="<?php echo esc_attr( $this->field_styles ); ?>"
+					type="number"
+					value="<?php echo esc_attr( $value_hours ); ?>"
 					<?php
 					if ( $required ) :
 						?>
 						required<?php endif; ?>
-					step="1"
-					id="<?php echo esc_attr( $id . '-hours' ); ?>"
-					type="number"
-					value="<?php echo esc_attr( $value_hours ); ?>"
-					data-wp-bind--aria-invalid="state.fieldHasErrors"
 				>
 			</div>
 			<span class="jetpack-field-time__separator" aria-hidden="true">:</span>
@@ -1676,71 +1680,29 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				</label>
 				<input
 					<?php echo $class_hours; ?>
-					style="<?php echo esc_attr( $this->field_styles ); ?>"
 					autocomplete="off"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+					id="<?php echo esc_attr( $id . '-minutes' ); ?>"
 					inputmode="numeric"
 					max="59"
 					min="0"
+					step="1"
+					style="<?php echo esc_attr( $this->field_styles ); ?>"
+					type="number"
+					value="<?php echo esc_attr( $value_minutes ); ?>"
 					<?php
 					if ( $required ) :
 						?>
 						required<?php endif; ?>
-					step="1"
-					id="<?php echo esc_attr( $id . '-minutes' ); ?>"
-					type="number"
-					value="<?php echo esc_attr( $value_minutes ); ?>"
-					data-wp-bind--aria-invalid="state.fieldHasErrors"
 				>
 			</div>
 		</div>
 		<?php
-		/*
-		?>
-		<div class="jetpack-field-slider__input-row"
-			data-wp-context='
-			<?php
-			echo wp_json_encode(
-				array(
-					'min'     => $min,
-					'max'     => $max,
-					'default' => $starting_value,
-				)
-			);
-			?>
-			'>
-			<span class="jetpack-field-slider__min-label"><?php echo esc_html( $min ); ?></span>
-			<div class="jetpack-field-slider__input-container">
-				<input
-					type="range"
-					name="<?php echo esc_attr( $id ); ?>"
-					id="<?php echo esc_attr( $id ); ?>"
-					value="<?php echo esc_attr( $current_value ); ?>"
-					min="<?php echo esc_attr( $min ); ?>"
-					max="<?php echo esc_attr( $max ); ?>"
-					class="<?php echo esc_attr( $class ); ?>"
-					placeholder="<?php echo esc_attr( $placeholder ); ?>"
-					<?php
-					if ( $required ) :
-						?>
-						required<?php endif; ?>
-					data-wp-bind--value="state.getSliderValue"
-					data-wp-on--input="actions.onSliderChange"
-					data-wp-bind--aria-invalid="state.fieldHasErrors"
-				/>
-				<div
-					class="jetpack-field-slider__value-indicator"
-					data-wp-text="state.getSliderValue"
-					data-wp-style--left="state.getSliderPosition"
-				><?php echo esc_html( $current_value ); ?></div>
-			</div>
-			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
-		</div>
-		<?php
-		*/
-		$field .= ob_get_clean();
-		return $field . $this->get_error_div( $id, 'slider' );
 
-		return $field;
+		$field .= ob_get_clean();
+		$field .= '</fieldset>';
+
+		return $field . $this->get_error_div( $id, 'time' );
 	}
 
 	/**
@@ -2138,7 +2100,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				);
 				break;
 			case 'time':
-				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text );
 				break;
 			case 'image-select':
 				$field .= $this->render_image_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
