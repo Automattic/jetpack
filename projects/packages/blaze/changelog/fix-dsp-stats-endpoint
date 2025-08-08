@@ -1,5 +1,6 @@
 Significance: patch
 Type: fixed
-Comment: minor fix
+
+Fixed the stats endpoint for DSP
 
 
