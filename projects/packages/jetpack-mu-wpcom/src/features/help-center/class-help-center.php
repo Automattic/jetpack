@@ -386,7 +386,7 @@ class Help_Center {
 	 */
 	public function get_help_center_url() {
 		$help_url        = 'https://wordpress.com/help?help-center=home';
-		$is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), WPCOM_SUPPORT_BLOG_IDS, true );
+		$is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && is_array( WPCOM_SUPPORT_BLOG_IDS ) && in_array( get_current_blog_id(), WPCOM_SUPPORT_BLOG_IDS, true );
 
 		if ( $this->is_jetpack_disconnected() || ( $this->is_loading_on_frontend() && ! $is_support_site ) ) {
 			return $help_url;
