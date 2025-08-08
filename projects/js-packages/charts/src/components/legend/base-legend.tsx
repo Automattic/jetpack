@@ -51,8 +51,6 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 		const domain = legendScale.domain();
 
 		// For right-aligned vertical legends, use row-reverse to align text consistently
-		const isRightAlignedVertical = orientation === 'vertical' && alignmentHorizontal === 'right';
-		const adjustedItemDirection = isRightAlignedVertical ? 'row-reverse' : itemDirection;
 
 		const getShapeStyle = useCallback(
 			( { index }: { index: number } ) => {
@@ -90,7 +88,11 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 								data-testid="legend-item"
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }
-								flexDirection={ adjustedItemDirection }
+								flexDirection={
+									orientation === 'vertical' && alignmentHorizontal === 'right'
+										? 'row-reverse'
+										: itemDirection
+								}
 								{ ...legendItemProps }
 							>
 								{ items[ i ]?.renderGlyph ? (
