@@ -50,7 +50,7 @@ export default function RatingInputEdit( { attributes, context, clientId } ) {
 	const iconSvg = isHeartsStyle ? heartSvg : starSvg;
 
 	const blockProps = useBlockProps( {
-		className: `jetpack-rating-options ${ colorClassName }`.trim(),
+		className: `jetpack-field-rating__options ${ colorClassName }`.trim(),
 		style,
 	} );
 
