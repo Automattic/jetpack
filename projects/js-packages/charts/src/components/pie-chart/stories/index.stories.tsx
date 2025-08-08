@@ -149,13 +149,6 @@ export const WithTooltips: Story = {
 	},
 };
 
-export const WithLegend: Story = {
-	args: {
-		...Default.args,
-		showLegend: true,
-	},
-};
-
 export const CustomLegendPositioning: Story = {
 	args: {
 		data: [
