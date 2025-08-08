@@ -1,5 +1,5 @@
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
-import { isWoASite } from '@automattic/jetpack-script-data';
+import { isWoASite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import Card from 'components/card';
@@ -37,6 +37,11 @@ function Blaze( props ) {
 	} = props;
 
 	const { can_init: canInit, reason } = blazeAvailable;
+
+	// On WordPress.com, hide Blaze settings entirely when it cannot initialize, regardless of plan
+	if ( isWpcomPlatformSite() && ! canInit ) {
+		return null;
+	}
 
 	if ( isWoASite() && ! blazeDashboardEnabled ) {
 		return null;
