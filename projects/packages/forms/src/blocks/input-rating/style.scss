@@ -38,14 +38,48 @@
 		}
 
 		// Filled states: current (checked/hover)
-		:is(input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label, .jetpack-field-rating__label:hover) .jetpack-field-rating__icon path {
-			fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+		:is(
+		input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
+		.jetpack-field-rating__label:hover
+	) {
+
+			.jetpack-field-rating__icon path {
+				fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+			}
 		}
 
 		/* Filled states: previous siblings */
-		.jetpack-field-rating__option:has(~ .jetpack-field-rating__option :is(input[type="radio"].jetpack-field-rating__input:checked, .jetpack-field-rating__label:hover)) .jetpack-field-rating__label .jetpack-field-rating__icon path {
-			fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+		.jetpack-field-rating__option {
+
+			&:has(
+			~ .jetpack-field-rating__option :is(
+				input[type="radio"].jetpack-field-rating__input:checked,
+				.jetpack-field-rating__label:hover
+			)
+		) {
+
+				.jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+				}
+			}
 		}
+
+		/* Unfill all options to the right of the hovered one (container scoped) */
+		&:has(.jetpack-field-rating__label:hover) {
+
+			.jetpack-field-rating__option:has(.jetpack-field-rating__label:hover) ~ .jetpack-field-rating__option {
+
+				.jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: none;
+				}
+
+				input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: none;
+				}
+			}
+		}
+
+		/* (duplicates removed) */
 	}
 }
 
