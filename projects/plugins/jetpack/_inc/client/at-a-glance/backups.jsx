@@ -19,6 +19,7 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 	getPlanClass,
+	getPlanTermSuffix,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import {
@@ -120,14 +121,8 @@ class DashBackups extends Component {
 		const isBusinessPlan = currentPlanSlug
 			? getPlanClass( currentPlanSlug ) === 'is-business-plan'
 			: false;
-		let businessPlanPath = 'business';
-		if ( /-monthly$/.test( currentPlanSlug ) ) {
-			businessPlanPath = 'business-monthly';
-		} else if ( /-2y$/.test( currentPlanSlug ) ) {
-			businessPlanPath = 'business-2y';
-		} else if ( /-3y$/.test( currentPlanSlug ) ) {
-			businessPlanPath = 'business-3y';
-		}
+		const termSuffix = getPlanTermSuffix( currentPlanSlug );
+		const businessPlanPath = termSuffix ? `business-${ termSuffix }` : 'business';
 		const businessCheckoutHref =
 			isWpcom && ! isBusinessPlan && this.props.blogID
 				? `https://wordpress.com/checkout/${ this.props.blogID }/${ businessPlanPath }`

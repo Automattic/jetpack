@@ -869,6 +869,30 @@ export function getMonthlyPlanByYearly( plan ) {
 }
 
 /**
+ * Returns the plan term suffix for a given plan slug, formatted for checkout paths.
+ * Recognizes '-monthly', '-2y', and '-3y' suffixes in slugs and returns
+ * 'monthly', '2-years', '3-years' respectively; defaults to '' (yearly or unspecified).
+ *
+ * @param {string} plan - The plan slug
+ * @return {string} One of 'monthly', '2-years', '3-years', or '' when no explicit term found
+ */
+export function getPlanTermSuffix( plan ) {
+	if ( typeof plan !== 'string' || plan.length === 0 ) {
+		return '';
+	}
+	if ( /-monthly$/.test( plan ) ) {
+		return 'monthly';
+	}
+	if ( /-2y$/.test( plan ) ) {
+		return '2-years';
+	}
+	if ( /-3y$/.test( plan ) ) {
+		return '3-years';
+	}
+	return '';
+}
+
+/**
  * Determines if the plan or product is a special gifted offering.
  *
  * @param {string} planOrProductSlug - A plan or product slug.

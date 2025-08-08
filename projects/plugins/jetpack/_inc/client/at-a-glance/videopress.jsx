@@ -7,7 +7,11 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
-import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
+import {
+	getJetpackProductUpsellByFeature,
+	FEATURE_VIDEOPRESS,
+	FEATURE_VIDEO_UPLOADS,
+} from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import {
 	connectUser,
@@ -39,6 +43,22 @@ class DashVideoPress extends Component {
 	activateVideoPress = () => this.props.updateOptions( { videopress: true } );
 
 	getContent() {
+		const {
+			hasConnectedOwner,
+			hasVideoPressFeature,
+			hasVideoUploadsFeature,
+			hasVideoPressUnlimitedStorage,
+			isFetching,
+			isOffline,
+			upgradeUrl,
+			videoPressStorageUsed,
+		} = this.props;
+
+		// If the site does not support video uploads, hide the entire VideoPress DashItem
+		if ( ! hasVideoUploadsFeature ) {
+			return null;
+		}
+
 		const labelName = __( 'VideoPress', 'jetpack' );
 
 		const support = {
@@ -48,16 +68,6 @@ class DashVideoPress extends Component {
 			),
 			link: getRedirectUrl( 'jetpack-support-videopress' ),
 		};
-
-		const {
-			hasConnectedOwner,
-			hasVideoPressFeature,
-			hasVideoPressUnlimitedStorage,
-			isFetching,
-			isOffline,
-			upgradeUrl,
-			videoPressStorageUsed,
-		} = this.props;
 
 		const shouldDisplayStorage =
 			hasVideoPressFeature && ! hasVideoPressUnlimitedStorage && null !== videoPressStorageUsed;
@@ -182,6 +192,7 @@ export default connect(
 			siteHasFeature( state, 'videopress-1tb-storage' ) ||
 			siteHasFeature( state, 'videopress-unlimited-storage' ) ||
 			siteHasFeature( state, 'videopress' ),
+		hasVideoUploadsFeature: siteHasFeature( state, FEATURE_VIDEO_UPLOADS ),
 		hasVideoPressUnlimitedStorage: siteHasFeature( state, 'videopress-unlimited-storage' ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),

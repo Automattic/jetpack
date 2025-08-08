@@ -24,6 +24,7 @@ import {
 	FEATURE_POST_BY_EMAIL,
 	getJetpackProductUpsellByFeature,
 	getPlanClass,
+	getPlanTermSuffix,
 	FEATURE_JETPACK_BLAZE,
 	FEATURE_JETPACK_EARN,
 } from 'lib/plans/constants';
@@ -95,16 +96,9 @@ export const SettingsCard = inprops => {
 	const currentPlanClass = currentPlanSlug ? getPlanClass( currentPlanSlug ) : '';
 	const isBusinessPlan = currentPlanClass === 'is-business-plan';
 
-	// Determine Business plan variant based on current plan term (monthly/2y/3y). Default to yearly (no suffix)
-	let businessPlanPath = 'business';
-	if ( /-monthly$/.test( currentPlanSlug ) ) {
-		businessPlanPath = 'business-monthly';
-	} else if ( /-2y$/.test( currentPlanSlug ) ) {
-		businessPlanPath = 'business-2y';
-	} else if ( /-3y$/.test( currentPlanSlug ) ) {
-		businessPlanPath = 'business-3y';
-	}
-
+	// Determine Business plan variant based on current plan term
+	const termSuffix = getPlanTermSuffix( currentPlanSlug );
+	const businessPlanPath = termSuffix ? `business-${ termSuffix }` : 'business';
 	const businessCheckoutHref =
 		isWpcom && ! isBusinessPlan && props.blogID
 			? `https://wordpress.com/checkout/${ props.blogID }/${ businessPlanPath }`
