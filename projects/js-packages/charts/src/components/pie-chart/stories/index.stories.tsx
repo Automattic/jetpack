@@ -177,6 +177,23 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithLegendTopRight: Story = {
+	args: {
+		...WithLegend.args,
+		legendAlignmentHorizontal: 'right',
+		legendAlignmentVertical: 'top',
+	},
+};
+
+export const WithLegendVertical: Story = {
+	args: {
+		...WithLegend.args,
+		legendOrientation: 'vertical',
+		legendAlignmentHorizontal: 'right',
+		legendAlignmentVertical: 'top',
+	},
+};
+
 export const ErrorStates: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
