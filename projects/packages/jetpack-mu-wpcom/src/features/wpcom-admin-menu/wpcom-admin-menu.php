@@ -210,7 +210,7 @@ function wpcom_add_jetpack_submenu() {
 	$is_personal = false;
 	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
 		$current_plan = \Automattic\Jetpack\Current_Plan::get();
-		$plan_class   = isset( $current_plan['class'] ) ? $current_plan['class'] : '';
+		$plan_class   = $current_plan['class'] ?? '';
 		$is_personal  = $plan_class === 'personal';
 	}
 
