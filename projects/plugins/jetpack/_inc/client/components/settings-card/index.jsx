@@ -91,13 +91,23 @@ export const SettingsCard = inprops => {
 
 	// Build a direct checkout URL to Business on WordPress.com when applicable
 	const isWpcom = isWpcomPlatformSite();
-	const currentPlanClass = props.sitePlan?.product_slug
-		? getPlanClass( props.sitePlan.product_slug )
-		: '';
+	const currentPlanSlug = props.sitePlan?.product_slug ?? '';
+	const currentPlanClass = currentPlanSlug ? getPlanClass( currentPlanSlug ) : '';
 	const isBusinessPlan = currentPlanClass === 'is-business-plan';
+
+	// Determine Business plan variant based on current plan term (monthly/2y/3y). Default to yearly (no suffix)
+	let businessPlanPath = 'business';
+	if ( /-monthly$/.test( currentPlanSlug ) ) {
+		businessPlanPath = 'business-monthly';
+	} else if ( /-2y$/.test( currentPlanSlug ) ) {
+		businessPlanPath = 'business-2y';
+	} else if ( /-3y$/.test( currentPlanSlug ) ) {
+		businessPlanPath = 'business-3y';
+	}
+
 	const businessCheckoutHref =
 		isWpcom && ! isBusinessPlan && props.blogID
-			? `https://wordpress.com/checkout/${ props.blogID }/business`
+			? `https://wordpress.com/checkout/${ props.blogID }/${ businessPlanPath }`
 			: null;
 
 	// Non admin users only get Publicize and Post by Email settings.
