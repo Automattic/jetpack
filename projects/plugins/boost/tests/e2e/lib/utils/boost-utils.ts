@@ -1,6 +1,6 @@
 import { expect, Page } from '@playwright/test';
-import logger from '_jetpack-e2e-commons/logger.js';
-import { executeJetpackCommand, executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
+import logger from '_jetpack-e2e-commons/logger';
+import { executeJetpackCommand, executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
 import { JetpackBoostPage } from '../pages';
 
 /**
