@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import { Admin, test as baseTest, expect } from '@wordpress/e2e-test-utils-playwright';
 import { allure } from 'allure-playwright';
 import logger from '@logger';
 import { TestUtils } from '@utils/index';
-/**
- * Internal dependencies
- */
 import { EditorPage, Sidebar } from '../pages';
 
 const test = baseTest.extend<
