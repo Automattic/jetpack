@@ -375,22 +375,17 @@ trait Woo_Analytics_Trait {
 			return;
 		}
 
-		$event_js                    = $this->process_event_properties( 'woocommerceanalytics_session_engagement', $properties );
-		$add_engagement_to_cookie_js = "
-		    const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
-	            const [name, value] = cookie.split('=');
-			    acc[name] = value;
-				return acc;
-    		}, {});
+		$event_js = $this->process_event_properties( 'woocommerceanalytics_session_engagement', $properties );
 
-    		if (cookies.woocommerceanalytics_session) {
-            	let sessionData = JSON.parse(decodeURIComponent(cookies.woocommerceanalytics_session));
-                sessionData.is_engaged = true;
-           	    document.cookie = `woocommerceanalytics_session=\${JSON.stringify(sessionData)}; expires=\${sessionData.expires}; path=/; secure; samesite=strict`;
-   		 	}
-        ";
+		$session_data = $this->get_session_cookie();
+		if ( empty( $session_data ) ) {
+			return;
+		}
+		$session_data['is_engaged'] = true;
+		$encoded_session_data       = wp_json_encode( $session_data );
+		$cookie_js                  = "document.cookie = 'woocommerceanalytics_session={$encoded_session_data}; expires={$session_data['expires']}; path=/; secure; samesite=strict';";
+		wc_enqueue_js( $cookie_js );
 
-		wc_enqueue_js( $add_engagement_to_cookie_js );
 		wc_enqueue_js( "_wca.push({$event_js});" );
 		$this->engaged_session = true;
 	}
