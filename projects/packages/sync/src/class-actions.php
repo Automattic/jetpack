@@ -786,7 +786,6 @@ class Actions {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
-		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_product_meta_lookup_sync_module' ) );
 
 		if ( ! class_exists( CustomOrdersTableController::class ) ) {
 			return;
