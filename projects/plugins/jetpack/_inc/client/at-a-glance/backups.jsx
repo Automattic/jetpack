@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isWoASite } from '@automattic/jetpack-script-data';
+import { isWoASite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -18,6 +18,7 @@ import analytics from 'lib/analytics';
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
+	getPlanClass,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import {
@@ -27,8 +28,8 @@ import {
 	getVaultPressData,
 } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { getPartnerCoupon, showBackups } from 'state/initial-state';
-import { siteHasFeature, isFetchingSiteData } from 'state/site';
+import { getPartnerCoupon, showBackups, getSiteId } from 'state/initial-state';
+import { siteHasFeature, isFetchingSiteData, getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
 import BackupUpgrade from './backup-upgrade';
@@ -113,6 +114,25 @@ class DashBackups extends Component {
 	getJetpackBackupBanner() {
 		const { partnerCoupon, upgradeUrl, siteRawUrl, trackUpgradeButtonView } = this.props;
 
+		// Build Business checkout URL variant for WordPress.com non-Business plans, respecting term
+		const isWpcom = isWpcomPlatformSite();
+		const currentPlanSlug = this.props.sitePlan?.product_slug ?? '';
+		const isBusinessPlan = currentPlanSlug
+			? getPlanClass( currentPlanSlug ) === 'is-business-plan'
+			: false;
+		let businessPlanPath = 'business';
+		if ( /-monthly$/.test( currentPlanSlug ) ) {
+			businessPlanPath = 'business-monthly';
+		} else if ( /-2y$/.test( currentPlanSlug ) ) {
+			businessPlanPath = 'business-2y';
+		} else if ( /-3y$/.test( currentPlanSlug ) ) {
+			businessPlanPath = 'business-3y';
+		}
+		const businessCheckoutHref =
+			isWpcom && ! isBusinessPlan && this.props.blogID
+				? `https://wordpress.com/checkout/${ this.props.blogID }/${ businessPlanPath }`
+				: null;
+
 		if ( this.props.hasConnectedOwner ) {
 			if ( partnerCoupon && 'jetpack_backup_daily' === partnerCoupon.product.slug ) {
 				const checkoutUrl = getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
@@ -156,7 +176,7 @@ class DashBackups extends Component {
 							'jetpack'
 						) }
 						disableHref="false"
-						href={ upgradeUrl }
+						href={ businessCheckoutHref || upgradeUrl }
 						eventFeature="backups"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
@@ -518,6 +538,8 @@ class DashBackups extends Component {
 export default connect(
 	state => {
 		return {
+			sitePlan: getSitePlan( state ),
+			blogID: getSiteId( state ),
 			vaultPressData: getVaultPressData( state ),
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
