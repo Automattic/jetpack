@@ -6,7 +6,7 @@ import { allure } from 'allure-playwright';
 /**
  * Internal dependencies
  */
-import logger from '../logger.js';
+import logger from '../logger.ts';
 import EditorPage from '../pages/editor-page.ts';
 import { TestUtils } from '../utils/index.js';
 

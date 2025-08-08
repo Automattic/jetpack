@@ -1,5 +1,7 @@
 declare const process: {
 	env: {
+		CI: string;
+		CONSOLE_LOG_LEVEL: string;
 		TEST_SITE?: string;
 		JETPACK_SKIP_CONNECT?: string;
 		SHOW_SECRETS?: string;

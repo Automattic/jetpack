@@ -1,6 +1,6 @@
 import fs from 'fs';
 import config from 'config';
-import logger from '../logger.js';
+import logger from '../logger.ts';
 import { executeCommand } from './cli.js';
 
 interface TestSite {

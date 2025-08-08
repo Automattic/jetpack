@@ -1,13 +1,13 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, ReporterDescription } from '@playwright/test';
 import config from 'config';
-import logger from '../logger.js';
-import { resolveSiteUrl } from '../utils/environment.ts';
+import logger from './logger.ts';
+import { resolveSiteUrl } from './utils/environment.ts';
 
 const rootPath = fileURLToPath( new URL( '..', import.meta.url ) );
 
-const reporter = [
+const reporter: ReporterDescription[] = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
 	[ 'allure-playwright' ],

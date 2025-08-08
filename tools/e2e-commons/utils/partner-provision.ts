@@ -1,8 +1,8 @@
 import path from 'path';
 import * as url from 'url';
 import config from 'config';
-import logger from '../logger.js';
-import pwConfig from '../playwright.config.mjs';
+import logger from '../logger.ts';
+import pwConfig from '../playwright.config.ts';
 import { executeCommand, executeJetpackCommand } from '../utils/cli.ts';
 
 /**

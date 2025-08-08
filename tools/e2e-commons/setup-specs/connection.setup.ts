@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { expect, test } from '../fixtures/base-test.ts';
-import logger from '../logger.js';
+import logger from '../logger.ts';
 
 test( 'connect site', async ( { testUtils } ) => {
 	// Used to ease development and debugging.

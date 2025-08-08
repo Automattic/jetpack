@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { test as setup } from '../fixtures/base-test';
+import { test as setup } from '../fixtures/base-test.ts';
 
 setup( 'authenticate users', async ( { testUtils } ) => {
 	await setup.step( 'authenticate local user', async () => {

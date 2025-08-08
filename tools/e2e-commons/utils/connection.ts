@@ -1,4 +1,4 @@
-import logger from '../logger';
+import logger from '../logger.ts';
 import { executeWpCommand } from '../utils/cli.ts';
 import { getDotComCredentials, getSiteCredentials } from './environment.ts';
 import { partnerProvisionConnection } from './partner-provision.ts';
