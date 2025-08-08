@@ -41,6 +41,22 @@ WithLegend.args = {
 	showLegend: true,
 };
 
+export const WithLegendTopRight: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegendTopRight.args = {
+	...WithLegend.args,
+	legendAlignmentHorizontal: 'right',
+	legendAlignmentVertical: 'top',
+	legendShape: 'circle',
+	withLegendGlyph: true,
+};
+
+export const WithLegendVertical: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegendVertical.args = {
+	...WithLegend.args,
+	legendOrientation: 'vertical',
+	legendAlignmentHorizontal: 'right',
+};
+
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {
