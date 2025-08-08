@@ -22,6 +22,13 @@ class Help_Center {
 	private static $instance = null;
 
 	/**
+	 * Whether the current site is a support site.
+	 *
+	 * @var bool
+	 */
+	private $is_support_site = false;
+
+	/**
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
