@@ -134,6 +134,7 @@ export const PricingTableColumn: FC< PricingTableColumnProps > = ( {
 
 const PricingTable: FC< PricingTableProps > = ( {
 	title,
+	headerLogo,
 	items,
 	children,
 	showIntroOfferDisclaimer = false,
@@ -152,7 +153,10 @@ const PricingTable: FC< PricingTableProps > = ( {
 				}
 			>
 				<div className={ styles.table }>
-					<Text variant="headline-small">{ title }</Text>
+					<div>
+						{ headerLogo && <div className={ styles[ 'header-logo' ] }>{ headerLogo }</div> }
+						<Text variant="headline-small">{ title }</Text>
+					</div>
 					{ isLg &&
 						items.map( ( item, i ) => (
 							<div

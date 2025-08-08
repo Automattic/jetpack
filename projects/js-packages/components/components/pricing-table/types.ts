@@ -8,6 +8,11 @@ export type PricingTableProps = {
 	title: string;
 
 	/**
+	 * Optional header logo to display above the title.
+	 */
+	headerLogo?: ReactNode;
+
+	/**
 	 * Array of items to display in the pricing table.
 	 */
 	items: {

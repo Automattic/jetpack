@@ -33,6 +33,7 @@ export type PricingColumnConfig = {
 
 export type ProductInterstitialV2Props = {
 	title: string;
+	headerLogo?: ReactNode;
 	items: PricingTableItemConfig[];
 	columns: PricingColumnConfig[];
 	showIntroOfferDisclaimer?: boolean;
@@ -40,6 +41,7 @@ export type ProductInterstitialV2Props = {
 
 const ProductInterstitialV2 = ( {
 	title,
+	headerLogo,
 	items,
 	columns,
 	showIntroOfferDisclaimer = false,
@@ -47,6 +49,7 @@ const ProductInterstitialV2 = ( {
 	return (
 		<PricingTable
 			title={ title }
+			headerLogo={ headerLogo }
 			items={ items }
 			showIntroOfferDisclaimer={ showIntroOfferDisclaimer }
 		>

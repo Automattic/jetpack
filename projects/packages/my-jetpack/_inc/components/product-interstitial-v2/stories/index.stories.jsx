@@ -2,6 +2,7 @@ import { Button, ProductPrice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { HashRouter, Routes, Route } from 'react-router';
 import ProductInterstitialV2 from '..';
+import Logo from '../../../../../../js-packages/publicize-components/src/components/admin-page/page-header/logo';
 
 export default {
 	title: 'Packages/My Jetpack/Product Interstitial V2',
@@ -50,6 +51,7 @@ const socialFeatures = [
 
 const DefaultArgs = {
 	title: __( 'Write once, post everywhere', 'jetpack-my-jetpack' ),
+	headerLogo: <Logo height={ 32 } />,
 	items: socialFeatures,
 	columns: [
 		{
@@ -111,6 +113,12 @@ export const WithoutDisclaimer = Template.bind( {} );
 WithoutDisclaimer.args = {
 	...DefaultArgs,
 	showIntroOfferDisclaimer: false,
+};
+
+export const WithLogo = Template.bind( {} );
+WithLogo.args = {
+	...DefaultArgs,
+	headerLogo: <Logo height={ 40 } />,
 };
 
 export const MultipleColumns = Template.bind( {} );
