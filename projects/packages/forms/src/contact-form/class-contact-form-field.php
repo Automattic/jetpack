@@ -2206,25 +2206,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$options .= sprintf(
 				'<div class="jetpack-field-rating__option">
 					<input
-						id="%7$s"
+						id="%1$s"
 						type="radio"
-						name="%3$s"
-						value="%4$s/%5$s"
+						name="%2$s"
+						value="%3$s/%4$s"
 						data-wp-on--change="actions.onFieldChange"
 						class="jetpack-field-rating__input"
-						%1$s
-						%2$s /> 
-					<label for="%7$s" class="jetpack-field-rating__label">
-						%6$s
+						%5$s
+						%6$s /> 
+					<label for="%1$s" class="jetpack-field-rating__label">
+						%7$s
 					</label>
 				</div>',
-				checked( $i, $initial_rating, false ),
-				$required ? 'required aria-required="true"' : '',
-				esc_attr( $id ),
-				esc_attr( $i ),
-				esc_attr( $max_rating ),
-				$icon_svg,
-				esc_attr( $radio_id )
+				esc_attr( $radio_id ),         // %1$s: id and label for
+				esc_attr( $id ),               // %2$s: name
+				esc_attr( $i ),                // %3$s: value (current rating)
+				esc_attr( $max_rating ),       // %4$s: value (max rating)
+				checked( $i, $initial_rating, false ), // %5$s: checked attribute
+				$required ? 'required' : '',   // %6$s: required attribute
+				$icon_svg                      // %7$s: icon SVG
 			);
 		}
 
