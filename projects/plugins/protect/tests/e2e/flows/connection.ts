@@ -1,6 +1,6 @@
+import { expect, Admin } from '@fixtures/base-test';
+import logger from '@logger';
 import { Page } from '@playwright/test';
-import { expect, Admin } from '_jetpack-e2e-commons/fixtures/base-test';
-import logger from '_jetpack-e2e-commons/logger';
 
 /**
  * Connect Jetpack Protect
