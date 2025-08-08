@@ -11,6 +11,18 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
+
+		&.legend--horizontal-align-left {
+			align-items: flex-start;
+		}
+
+		&.legend--horizontal-align-center {
+			align-items: center;
+		}
+
+		&.legend--horizontal-align-right {
+			align-items: flex-end;
+		}
 	}
 
 	// Vertical alignment positioning
