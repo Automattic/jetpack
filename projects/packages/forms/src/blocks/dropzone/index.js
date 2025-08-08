@@ -10,7 +10,7 @@ const settings = {
 	apiVersion: 3,
 	title: __( 'File upload dropzone', 'jetpack-forms' ),
 	description: __( 'A dropzone for file uploads.', 'jetpack-forms' ),
-	parent: [],
+	parent: [ 'jetpack/field-file' ],
 	allowedBlocks: [
 		'core/buttons',
 		'core/heading',
@@ -40,7 +40,6 @@ const settings = {
 		},
 	},
 	supports: {
-		inserter: false,
 		reusable: false,
 		html: false,
 		// Mimic the layout settings of the core Group block.
