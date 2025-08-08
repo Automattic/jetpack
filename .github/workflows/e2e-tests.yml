@@ -172,6 +172,7 @@ jobs:
         if: env.USE_CLOUDFLARE_TUNNEL
         run: |
           curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/download/2025.7.0/cloudflared-linux-amd64.deb
+          echo "a65ceb838f1deb941f7ea9101ff54eaba04179135fd562456a59ea293479e113  cloudflared.deb" | sha256sum -c
           sudo dpkg -i cloudflared.deb
 
       - name: Install monorepo
