@@ -356,14 +356,14 @@ class Feedback {
 			$_extra_fields[] = $field;
 			++$count; // Increment count to ensure unique keys for extra values.
 		}
-		$extra_values = array();
-
-		$is_present       = array();
-		$non_extra_fields = array( 'email', 'name', 'url', 'subject', 'textarea', 'ip' );
+		$extra_values       = array();
+		$extra_fields_count = $count;
+		$is_present         = array();
+		$non_extra_fields   = array( 'email', 'name', 'url', 'subject', 'textarea', 'ip' );
 		foreach ( $_extra_fields as $field ) {
 			if ( ! in_array( $field->get_type(), $non_extra_fields, true ) || isset( $is_present[ $field->get_type() ] ) ) {
-				$extra_values[ $count . '_' . $field->get_label() ] = $field->get_render_value( 'default' );
-				++$count; // Increment count to ensure unique keys for extra values.
+				$extra_values[ $extra_fields_count . '_' . $field->get_label() ] = $field->get_render_value( 'default' );
+				++$extra_fields_count; // Increment count to ensure unique keys for extra values.
 			} else {
 				$is_present[ $field->get_type() ] = true;
 			}
