@@ -2,55 +2,50 @@
 
 .jetpack-field-rating {
 
-	/* Ensure theme label font-size overrides don't shrink the icons */
-	.jetpack-rating-options .jetpack-field-rating__label {
-		font-size: inherit;
-	}
+	/* Layout */
+	.jetpack-rating-options {
+		display: flex;
 
-	// Filled states: checked, hover, and previous siblings
-	input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
-	.jetpack-field-rating__label:hover,
-	:is(.wp-block-jetpack-option, .contact-form-field):has(~ :is(.wp-block-jetpack-option, .contact-form-field) input[type="radio"].jetpack-field-rating__input:checked) .jetpack-field-rating__label,
-	:is(.wp-block-jetpack-option, .contact-form-field):has(~ :is(.wp-block-jetpack-option, .contact-form-field) .jetpack-field-rating__label:hover) .jetpack-field-rating__label {
+		.jetpack-field-rating__label {
 
-		.jetpack-field-rating__icon path {
+			/* Guard against theme label font-size overrides (e.g., Twenty Sixteen) */
+			font-size: inherit;
+			display: inline-flex;
+			cursor: pointer;
+
+			.jetpack-field-rating__icon {
+				width: 1em;
+				height: 1em;
+
+				path {
+					fill: none;
+					stroke: currentColor;
+				}
+			}
+		}
+
+		/* Accessibly hide the actual radios */
+		input[type="radio"].jetpack-field-rating__input {
+			position: absolute;
+			opacity: 0;
+			width: 1px;
+			height: 1px;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			clip: rect(1px, 1px, 1px, 1px);
+			overflow: hidden;
+		}
+
+		// Filled states: current (checked/hover)
+		:is(input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label, .jetpack-field-rating__label:hover) .jetpack-field-rating__icon path {
+			fill: currentColor;
+		}
+
+		/* Filled states: previous siblings */
+		.jetpack-field-rating__option:has(~ .jetpack-field-rating__option :is(input[type="radio"].jetpack-field-rating__input:checked, .jetpack-field-rating__label:hover)) .jetpack-field-rating__label .jetpack-field-rating__icon path {
 			fill: currentColor;
 		}
 	}
-
-	.jetpack-field-rating__label {
-		display: inline-flex;
-		margin-bottom: 0;
-		cursor: pointer;
-		color: inherit;
-
-		.jetpack-field-rating__icon {
-			width: 1em;
-			height: 1em;
-
-
-			path {
-				fill: none;
-				stroke: currentColor;
-			}
-		}
-	}
-
-	input[type="radio"].jetpack-field-rating__input {
-		position: absolute;
-		opacity: 0;
-		width: 1px;
-		height: 1px;
-		margin: 0;
-		padding: 0;
-		border: 0;
-		clip: rect(1px, 1px, 1px, 1px);
-		overflow: hidden;
-	}
-}
-
-/* Ensure layout works even outside the field wrapper in the editor */
-.jetpack-rating-options {
-	display: flex;
 }
 

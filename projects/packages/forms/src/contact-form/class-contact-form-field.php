@@ -2205,7 +2205,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
 			$radio_id = $id . '-' . $i;
 			$options .= sprintf(
-				'<div class="contact-form-field wp-block-jetpack-option">
+				'<div class="jetpack-field-rating__option">
 					<input
 						id="%7$s"
 						type="radio"

@@ -63,7 +63,7 @@ export default function RatingInputEdit( { attributes, context, clientId } ) {
 	for ( let i = 1; i <= max; i++ ) {
 		const radioId = `rating-${ clientId }-${ i }`;
 		ratingOptions.push(
-			<div key={ i } className="contact-form-field wp-block-jetpack-option">
+			<div key={ i } className="jetpack-field-rating__option">
 				<input
 					id={ radioId }
 					type="radio"
