@@ -233,6 +233,23 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithLegendTopRight: Story = {
+	args: {
+		...WithLegend.args,
+		legendAlignmentHorizontal: 'right',
+		legendAlignmentVertical: 'top',
+	},
+};
+
+export const WithLegendVertical: Story = {
+	args: {
+		...WithLegend.args,
+		legendOrientation: 'vertical',
+		legendAlignmentHorizontal: 'left',
+		legendAlignmentVertical: 'top',
+	},
+};
+
 export const HorizontalBarChart: Story = {
 	args: {
 		...Default.args,
