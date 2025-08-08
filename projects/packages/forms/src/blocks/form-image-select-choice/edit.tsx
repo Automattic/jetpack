@@ -8,12 +8,12 @@ import {
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import { getImageChoiceLabel } from './label';
 /**
  * Types
  */
@@ -58,11 +58,7 @@ export default function ImageChoiceFieldEdit( props ) {
 			[
 				'jetpack/label',
 				{
-					label: sprintf(
-						// translators: %d is the number of the image choice field.
-						__( 'Image choice %d', 'jetpack-forms' ),
-						choiceIndex
-					),
+					label: getImageChoiceLabel( choiceIndex ),
 				},
 			],
 			[ 'core/image' ],

@@ -11,11 +11,12 @@ import { createBlock } from '@wordpress/blocks';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { getImageChoiceLabel } from '../form-image-select-choice/label';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
@@ -66,11 +67,7 @@ export default function ImageSelectFieldEdit( props ) {
 		const newIndex = choicesBlock.innerBlocks.length + 1;
 		const newChoiceBlock = createBlock( 'jetpack/form-image-select-choice', {}, [
 			createBlock( 'jetpack/label', {
-				label: sprintf(
-					// translators: %d is the number of the image choice field.
-					__( 'Image choice %d', 'jetpack-forms' ),
-					newIndex
-				),
+				label: getImageChoiceLabel( newIndex ),
 			} ),
 			createBlock( 'core/image' ),
 		] );
