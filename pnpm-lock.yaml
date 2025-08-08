@@ -1147,7 +1147,7 @@ importers:
     dependencies:
       '@wordpress/date':
         specifier: ^5.19.0
-        version: 5.26.0
+        version: 5.27.0
       debug:
         specifier: ^4.4.0
         version: 4.4.1
@@ -2783,7 +2783,7 @@ importers:
         version: 4.27.0
       '@wordpress/dom-ready':
         specifier: ^4.8.1
-        version: 4.26.0
+        version: 4.27.0
       '@wordpress/edit-post':
         specifier: 8.27.0
         version: 8.27.0(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2816,7 +2816,7 @@ importers:
         version: 1.27.0
       '@wordpress/router':
         specifier: ^1.8.11
-        version: 1.26.0(react@18.3.1)
+        version: 1.27.0(react@18.3.1)
       '@wordpress/url':
         specifier: 4.27.0
         version: 4.27.0
@@ -5612,8 +5612,8 @@ importers:
         specifier: 7.27.1
         version: 7.27.1(@babel/core@7.28.0)
       '@eslint/compat':
-        specifier: 1.3.1
-        version: 1.3.1(eslint@9.32.0)
+        specifier: 1.3.2
+        version: 1.3.2(eslint@9.32.0)
       '@eslint/eslintrc':
         specifier: 3.3.1
         version: 3.3.1
@@ -5637,7 +5637,7 @@ importers:
         version: 6.6.3
       '@wordpress/eslint-plugin':
         specifier: 22.14.0
-        version: 22.14.0(@babel/core@7.28.0)(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3))(eslint-plugin-jsdoc@51.4.1(eslint@9.32.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0))(eslint-plugin-playwright@2.2.1(eslint@9.32.0))(eslint-plugin-prettier@5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.32.0))(eslint-plugin-react@7.37.5(eslint@9.32.0))(eslint@9.32.0)(typescript@5.8.3)(wp-prettier@3.0.3)
+        version: 22.14.0(@babel/core@7.28.0)(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3))(eslint-plugin-jsdoc@51.4.1(eslint@9.32.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0))(eslint-plugin-playwright@2.2.2(eslint@9.32.0))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.32.0))(eslint-plugin-react@7.37.5(eslint@9.32.0))(eslint@9.32.0)(typescript@5.8.3)(wp-prettier@3.0.3)
       '@wordpress/jest-console':
         specifier: 8.27.0
         version: 8.27.0(jest@30.0.4)
@@ -5693,14 +5693,14 @@ importers:
         specifier: 17.21.3
         version: 17.21.3(eslint@9.32.0)(typescript@5.8.3)
       eslint-plugin-package-json:
-        specifier: 0.47.0
-        version: 0.47.0(eslint@9.32.0)(jsonc-eslint-parser@2.4.0)
+        specifier: 0.52.1
+        version: 0.52.1(eslint@9.32.0)(jsonc-eslint-parser@2.4.0)
       eslint-plugin-playwright:
-        specifier: 2.2.1
-        version: 2.2.1(eslint@9.32.0)
+        specifier: 2.2.2
+        version: 2.2.2(eslint@9.32.0)
       eslint-plugin-prettier:
-        specifier: 5.5.3
-        version: 5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3)
+        specifier: 5.5.4
+        version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3)
       eslint-plugin-react:
         specifier: 7.37.5
         version: 7.37.5(eslint@9.32.0)
@@ -5771,8 +5771,8 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
       typescript-eslint:
-        specifier: 8.38.0
-        version: 8.38.0(eslint@9.32.0)(typescript@5.8.3)
+        specifier: 8.39.0
+        version: 8.39.0(eslint@9.32.0)(typescript@5.8.3)
       yaml:
         specifier: 2.2.2
         version: 2.2.2
@@ -6962,8 +6962,8 @@ packages:
     resolution: {integrity: sha512-CCZCDJuduB9OUkFkY2IgppNZMi2lBQgD2qzwXkEia16cge2pijY/aXi96CJMquDMn3nJdlPV1A5KrJEXwfLNzQ==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
 
-  '@eslint/compat@1.3.1':
-    resolution: {integrity: sha512-k8MHony59I5EPic6EQTCNOuPoVBnoYXkP+20xvwFjN7t0qI3ImyvyBgg+hIVPwC8JaxVjjUZld+cLfBLFDLucg==}
+  '@eslint/compat@1.3.2':
+    resolution: {integrity: sha512-jRNwzTbd6p2Rw4sZ1CgWRS8YMtqG15YyZf7zvb6gY2rB2u6n+2Z+ELW0GtL0fQgyl0pr4Y/BzBfng/BdsereRA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.40 || 9
@@ -8664,63 +8664,63 @@ packages:
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
 
-  '@typescript-eslint/eslint-plugin@8.38.0':
-    resolution: {integrity: sha512-CPoznzpuAnIOl4nhj4tRr4gIPj5AfKgkiJmGQDaq+fQnRJTYlcBjbX3wbciGmpoPf8DREufuPRe1tNMZnGdanA==}
+  '@typescript-eslint/eslint-plugin@8.39.0':
+    resolution: {integrity: sha512-bhEz6OZeUR+O/6yx9Jk6ohX6H9JSFTaiY0v9/PuKT3oGK0rn0jNplLmyFUGV+a9gfYnVNwGDwS/UkLIuXNb2Rw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
-      '@typescript-eslint/parser': ^8.38.0
+      '@typescript-eslint/parser': ^8.39.0
       eslint: ^8.57.0 || ^9.0.0
-      typescript: '>=4.8.4 <5.9.0'
+      typescript: '>=4.8.4 <6.0.0'
 
-  '@typescript-eslint/parser@8.38.0':
-    resolution: {integrity: sha512-Zhy8HCvBUEfBECzIl1PKqF4p11+d0aUJS1GeUiuqK9WmOug8YCmC4h4bjyBvMyAMI9sbRczmrYL5lKg/YMbrcQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      eslint: ^8.57.0 || ^9.0.0
-      typescript: '>=4.8.4 <5.9.0'
-
-  '@typescript-eslint/project-service@8.38.0':
-    resolution: {integrity: sha512-dbK7Jvqcb8c9QfH01YB6pORpqX1mn5gDZc9n63Ak/+jD67oWXn3Gs0M6vddAN+eDXBCS5EmNWzbSxsn9SzFWWg==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      typescript: '>=4.8.4 <5.9.0'
-
-  '@typescript-eslint/scope-manager@8.38.0':
-    resolution: {integrity: sha512-WJw3AVlFFcdT9Ri1xs/lg8LwDqgekWXWhH3iAF+1ZM+QPd7oxQ6jvtW/JPwzAScxitILUIFs0/AnQ/UWHzbATQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@typescript-eslint/tsconfig-utils@8.38.0':
-    resolution: {integrity: sha512-Lum9RtSE3EroKk/bYns+sPOodqb2Fv50XOl/gMviMKNvanETUuUcC9ObRbzrJ4VSd2JalPqgSAavwrPiPvnAiQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      typescript: '>=4.8.4 <5.9.0'
-
-  '@typescript-eslint/type-utils@8.38.0':
-    resolution: {integrity: sha512-c7jAvGEZVf0ao2z+nnz8BUaHZD09Agbh+DY7qvBQqLiz8uJzRgVPj5YvOh8I8uEiH8oIUGIfHzMwUcGVco/SJg==}
+  '@typescript-eslint/parser@8.39.0':
+    resolution: {integrity: sha512-g3WpVQHngx0aLXn6kfIYCZxM6rRJlWzEkVpqEFLT3SgEDsp9cpCbxxgwnE504q4H+ruSDh/VGS6nqZIDynP+vg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
-      typescript: '>=4.8.4 <5.9.0'
+      typescript: '>=4.8.4 <6.0.0'
 
-  '@typescript-eslint/types@8.38.0':
-    resolution: {integrity: sha512-wzkUfX3plUqij4YwWaJyqhiPE5UCRVlFpKn1oCRn2O1bJ592XxWJj8ROQ3JD5MYXLORW84063z3tZTb/cs4Tyw==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@typescript-eslint/typescript-estree@8.38.0':
-    resolution: {integrity: sha512-fooELKcAKzxux6fA6pxOflpNS0jc+nOQEEOipXFNjSlBS6fqrJOVY/whSn70SScHrcJ2LDsxWrneFoWYSVfqhQ==}
+  '@typescript-eslint/project-service@8.39.0':
+    resolution: {integrity: sha512-CTzJqaSq30V/Z2Og9jogzZt8lJRR5TKlAdXmWgdu4hgcC9Kww5flQ+xFvMxIBWVNdxJO7OifgdOK4PokMIWPew==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
-      typescript: '>=4.8.4 <5.9.0'
+      typescript: '>=4.8.4 <6.0.0'
 
-  '@typescript-eslint/utils@8.38.0':
-    resolution: {integrity: sha512-hHcMA86Hgt+ijJlrD8fX0j1j8w4C92zue/8LOPAFioIno+W0+L7KqE8QZKCcPGc/92Vs9x36w/4MPTJhqXdyvg==}
+  '@typescript-eslint/scope-manager@8.39.0':
+    resolution: {integrity: sha512-8QOzff9UKxOh6npZQ/4FQu4mjdOCGSdO3p44ww0hk8Vu+IGbg0tB/H1LcTARRDzGCC8pDGbh2rissBuuoPgH8A==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@typescript-eslint/tsconfig-utils@8.39.0':
+    resolution: {integrity: sha512-Fd3/QjmFV2sKmvv3Mrj8r6N8CryYiCS8Wdb/6/rgOXAWGcFuc+VkQuG28uk/4kVNVZBQuuDHEDUpo/pQ32zsIQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      typescript: '>=4.8.4 <6.0.0'
+
+  '@typescript-eslint/type-utils@8.39.0':
+    resolution: {integrity: sha512-6B3z0c1DXVT2vYA9+z9axjtc09rqKUPRmijD5m9iv8iQpHBRYRMBcgxSiKTZKm6FwWw1/cI4v6em35OsKCiN5Q==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
-      typescript: '>=4.8.4 <5.9.0'
+      typescript: '>=4.8.4 <6.0.0'
 
-  '@typescript-eslint/visitor-keys@8.38.0':
-    resolution: {integrity: sha512-pWrTcoFNWuwHlA9CvlfSsGWs14JxfN1TH25zM5L7o0pRLhsoZkDnTsXfQRJBEWJoV5DL0jf+Z+sxiud+K0mq1g==}
+  '@typescript-eslint/types@8.39.0':
+    resolution: {integrity: sha512-ArDdaOllnCj3yn/lzKn9s0pBQYmmyme/v1HbGIGB0GB/knFI3fWMHloC+oYTJW46tVbYnGKTMDK4ah1sC2v0Kg==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@typescript-eslint/typescript-estree@8.39.0':
+    resolution: {integrity: sha512-ndWdiflRMvfIgQRpckQQLiB5qAKQ7w++V4LlCHwp62eym1HLB/kw7D9f2e8ytONls/jt89TEasgvb+VwnRprsw==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      typescript: '>=4.8.4 <6.0.0'
+
+  '@typescript-eslint/utils@8.39.0':
+    resolution: {integrity: sha512-4GVSvNA0Vx1Ktwvf4sFE+exxJ3QGUorQG1/A5mRfRNZtkBT2xrA/BCO2H0eALx/PnvCS6/vmYwRdDA41EoffkQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0
+      typescript: '>=4.8.4 <6.0.0'
+
+  '@typescript-eslint/visitor-keys@8.39.0':
+    resolution: {integrity: sha512-ldgiJ+VAhQCfIjeOgu8Kj5nSxds0ktPOSO9p4+0VDH2R2pLvQraaM5Oen2d7NxzMCm+Sn/vJT+mv2H5u6b/3fA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@ungap/structured-clone@1.3.0':
@@ -9139,10 +9139,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/date@5.26.0':
-    resolution: {integrity: sha512-UgiOgtZTn1QSnNN9iaoGzJzb8TL6sFMcST0Y8nD8tdpaVRCFKCb13m9YKf2a+KHKqZiYnHvg3Re2CV33r8fMMw==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/date@5.27.0':
     resolution: {integrity: sha512-DZ5OJlU8OliLpDaGi0KHhlphCujbppzAfb3y34CpWydSnSRSfVgzjzc2R4p17RIa9Vj9C6Q8FsnNBAiywaz39g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9155,10 +9151,6 @@ packages:
 
   '@wordpress/deprecated@4.27.0':
     resolution: {integrity: sha512-1rJTK7iy0oSE6eFUCBqCGG/wYuF62WoNDLF1G1Do+TdFGB4WxckHwTr5TuwtIG4CdoMjsPYIh2EnI3ziFOsHkA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/dom-ready@4.26.0':
-    resolution: {integrity: sha512-VfKcvB2XtXZHluits/RY9O4VhpZ+YG5SQVN07SwbtSg1vaFJSkUnp31qOsLuVrFyhiUUYkZ/liCpO/vbalZqxQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/dom-ready@4.27.0':
@@ -9294,10 +9286,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/keycodes@4.26.0':
-    resolution: {integrity: sha512-R+mKsQoHdqxnay2f5DOMbqCP0BnKwgWNGoBGCazviy0gfesvEbNPpOOtJS8magujILSgg6tQ4UQcz5Y0bx7Dig==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/keycodes@4.27.0':
     resolution: {integrity: sha512-fWyEcLI2rAZn6FwVBITGFxo8aS7EQrt8icOdxS5Es3Ii8DneQUl2gtXs3tq9viX4cWCno7cEt+dpuuv2gPxwoQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9382,12 +9370,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/router@1.26.0':
-    resolution: {integrity: sha512-vZ/bGySmLP+OD4v1JwdfDFjsKDj2a1U6zBIx2EicToWGuBJxzbQlykQnphrdt6f7zv5NAmD1xdVBCdEapYKd4w==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      react: ^18.0.0
-
   '@wordpress/router@1.27.0':
     resolution: {integrity: sha512-41Mo68UX4u2912NO49DdhXqGgxMSHxi4Ex38kVN9veJRWObev6sCFYWPPe7DkRLjwEXHe7+JqNZI4u7LhGkcrw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9400,10 +9382,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
-
-  '@wordpress/shortcode@4.26.0':
-    resolution: {integrity: sha512-Qfxub220cTw8NRTPJYNBTcMzkElGpDCUAWQwYS7DAVcbfIB0tQL39gNNm1hhLTo/G7esHaf7P9fuYSVKlsVQaA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/shortcode@4.27.0':
     resolution: {integrity: sha512-7UyI2Exqt789MrWO4LQWtvfdBisAVDUfHgTj8Rqq3QJ6dE5zlxM1UJwaxIQArFv39gS1hOibfNUxigKFQ+IW9A==}
@@ -9449,10 +9427,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/warning@3.27.0':
-    resolution: {integrity: sha512-AGcCLU2urtV7C4i4Oji8tL9froFPDie+99A2N3tqjZU1v7Csw4UgDrptYRyENjhXLBe9ZzVlf1mZmgH/MQPAHA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/warning@3.28.0':
     resolution: {integrity: sha512-Hn2wrdgBDRcmBjpEXd5q+bz4qvLMSYoZa0b3uo1Ja9ONNh8eHGnILIAxBk/OmFrCjmXqY6bydTVBRcvXaBq0MQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9463,10 +9437,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
-
-  '@wordpress/wordcount@4.27.0':
-    resolution: {integrity: sha512-XIDqA9YnYC5yH6Lyk25m+q8wYH2sp+2p5ROrOp2gQ0Due+wUycAIgvzJsbnQoMn0PZrqgaETxFymtkQhGWj6Ug==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/wordcount@4.28.0':
     resolution: {integrity: sha512-6/tZ7KpVjKRREegyFtV2k+T+zlZSetCvGHzZfbDW5gB3eWOftUUrGbvrJTXTF0FDlYFWStQ1EKPDb2/4zwTNxQ==}
@@ -11190,21 +11160,21 @@ packages:
     peerDependencies:
       eslint: '>=8.23.0'
 
-  eslint-plugin-package-json@0.47.0:
-    resolution: {integrity: sha512-851T5tgcJ28CzwDoDczeLyOIaje90dwFjdsiDy117fwOzauVaKeeDTWZo6xrp6TOtWlzSGOPiJE8EAJPK/XaWw==}
+  eslint-plugin-package-json@0.52.1:
+    resolution: {integrity: sha512-tj9bpYCcCD2ciVSGf+Ky48NROC19Nlwv43AmLw5A+aVfjbupNJyLb/qdCKMPIsLk1+uCxDoV3yMb5ARRESU6ng==}
     engines: {node: ^=20.19.0 || >=22.12.0}
     peerDependencies:
       eslint: '>=8.0.0'
       jsonc-eslint-parser: ^2.0.0
 
-  eslint-plugin-playwright@2.2.1:
-    resolution: {integrity: sha512-vYGKs9Y0H2A7tvvuKBF11w2aJa7diS9JRJbo/3Y5nU12RRgZummSUKvfZbickRdNVmt65R4lSrWn8Nyali2a3w==}
+  eslint-plugin-playwright@2.2.2:
+    resolution: {integrity: sha512-j0jKpndIPOXRRP9uMkwb9l/nSmModOU3452nrFdgFJoEv/435J1onk8+aITzjDW8DfypxgmVaDMdmVIa6F7I0w==}
     engines: {node: '>=16.6.0'}
     peerDependencies:
       eslint: '>=8.40.0'
 
-  eslint-plugin-prettier@5.5.3:
-    resolution: {integrity: sha512-NAdMYww51ehKfDyDhv59/eIItUVzU0Io9H2E8nHNGKEeeqlnci+1gCvrHib6EmZdf6GxF+LCV5K7UC65Ezvw7w==}
+  eslint-plugin-prettier@5.5.4:
+    resolution: {integrity: sha512-swNtI95SToIz05YINMA6Ox5R057IMAmWZ26GqPxusAp1TZzj+IdY9tXNWWD3vkF/wEqydCONcwjTFpxybBqZsg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       '@types/eslint': '>=8.0.0'
@@ -13549,8 +13519,8 @@ packages:
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
 
-  package-json-validator@0.23.0:
-    resolution: {integrity: sha512-HJokcABTkX8Calu86WCG0EknqWwf+doB7Xk3/EnXoO5/mjHC8H+D66UDZBjHtyZ1MIo0lrdSasbdOCHlr80n6Q==}
+  package-json-validator@0.27.0:
+    resolution: {integrity: sha512-ygXIc+9YS9Te1Z4gLIpITt6YTdIA/oHJgwcQH00YWQofAoGZxVdI51a/ZZp5y28SpNBM+g5EtIzQpBAEn0PoSQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
@@ -15659,12 +15629,12 @@ packages:
   typescript-compare@0.0.2:
     resolution: {integrity: sha512-8ja4j7pMHkfLJQO2/8tut7ub+J3Lw2S3061eJLFQcvs3tsmJKp8KG5NtpLn7KcY2w08edF74BSVN7qJS0U6oHA==}
 
-  typescript-eslint@8.38.0:
-    resolution: {integrity: sha512-FsZlrYK6bPDGoLeZRuvx2v6qrM03I0U0SnfCLPs/XCCPCFD80xU9Pg09H/K+XFa68uJuZo7l/Xhs+eDRg2l3hg==}
+  typescript-eslint@8.39.0:
+    resolution: {integrity: sha512-lH8FvtdtzcHJCkMOKnN73LIn6SLTpoojgJqDAxPm1jCR14eWSGPX8ul/gggBdPMk/d5+u9V854vTYQ8T5jF/1Q==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
-      typescript: '>=4.8.4 <5.9.0'
+      typescript: '>=4.8.4 <6.0.0'
 
   typescript-logic@0.0.0:
     resolution: {integrity: sha512-zXFars5LUkI3zP492ls0VskH3TtdeHCqu0i7/duGt60i5IGPIpAHE/DWo5FqJ6EjQ15YKXrt+AETjv60Dat34Q==}
@@ -17706,7 +17676,7 @@ snapshots:
   '@es-joy/jsdoccomment@0.52.0':
     dependencies:
       '@types/estree': 1.0.8
-      '@typescript-eslint/types': 8.38.0
+      '@typescript-eslint/types': 8.39.0
       comment-parser: 1.4.1
       esquery: 1.6.0
       jsdoc-type-pratt-parser: 4.1.0
@@ -17793,7 +17763,7 @@ snapshots:
 
   '@eslint-community/regexpp@4.12.1': {}
 
-  '@eslint/compat@1.3.1(eslint@9.32.0)':
+  '@eslint/compat@1.3.2(eslint@9.32.0)':
     optionalDependencies:
       eslint: 9.32.0
 
@@ -19576,7 +19546,7 @@ snapshots:
 
   '@tanstack/eslint-plugin-query@5.74.7(eslint@9.32.0)(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/utils': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/utils': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
       eslint: 9.32.0
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -19897,7 +19867,7 @@ snapshots:
       '@wordpress/components': 30.0.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.27.0(react@18.3.1)
       '@wordpress/element': 6.27.0
-      '@wordpress/keycodes': 4.26.0
+      '@wordpress/keycodes': 4.27.0
       react-autosize-textarea: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
@@ -19911,7 +19881,7 @@ snapshots:
       '@wordpress/components': 30.0.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.27.0(react@18.3.1)
       '@wordpress/element': 6.27.0
-      '@wordpress/shortcode': 4.26.0
+      '@wordpress/shortcode': 4.27.0
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - react
@@ -19929,14 +19899,14 @@ snapshots:
       '@types/node': 20.19.0
     optional: true
 
-  '@typescript-eslint/eslint-plugin@8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.32.0)(typescript@5.8.3))(eslint@9.32.0)(typescript@5.8.3)':
+  '@typescript-eslint/eslint-plugin@8.39.0(@typescript-eslint/parser@8.39.0(eslint@9.32.0)(typescript@5.8.3))(eslint@9.32.0)(typescript@5.8.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.1
-      '@typescript-eslint/parser': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
-      '@typescript-eslint/scope-manager': 8.38.0
-      '@typescript-eslint/type-utils': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
-      '@typescript-eslint/utils': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
-      '@typescript-eslint/visitor-keys': 8.38.0
+      '@typescript-eslint/parser': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/scope-manager': 8.39.0
+      '@typescript-eslint/type-utils': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/utils': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/visitor-keys': 8.39.0
       eslint: 9.32.0
       graphemer: 1.4.0
       ignore: 7.0.0
@@ -19946,41 +19916,41 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.38.0(eslint@9.32.0)(typescript@5.8.3)':
+  '@typescript-eslint/parser@8.39.0(eslint@9.32.0)(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/scope-manager': 8.38.0
-      '@typescript-eslint/types': 8.38.0
-      '@typescript-eslint/typescript-estree': 8.38.0(typescript@5.8.3)
-      '@typescript-eslint/visitor-keys': 8.38.0
+      '@typescript-eslint/scope-manager': 8.39.0
+      '@typescript-eslint/types': 8.39.0
+      '@typescript-eslint/typescript-estree': 8.39.0(typescript@5.8.3)
+      '@typescript-eslint/visitor-keys': 8.39.0
       debug: 4.4.1
       eslint: 9.32.0
       typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/project-service@8.38.0(typescript@5.8.3)':
+  '@typescript-eslint/project-service@8.39.0(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.38.0(typescript@5.8.3)
-      '@typescript-eslint/types': 8.38.0
+      '@typescript-eslint/tsconfig-utils': 8.39.0(typescript@5.8.3)
+      '@typescript-eslint/types': 8.39.0
       debug: 4.4.1
       typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/scope-manager@8.38.0':
+  '@typescript-eslint/scope-manager@8.39.0':
     dependencies:
-      '@typescript-eslint/types': 8.38.0
-      '@typescript-eslint/visitor-keys': 8.38.0
+      '@typescript-eslint/types': 8.39.0
+      '@typescript-eslint/visitor-keys': 8.39.0
 
-  '@typescript-eslint/tsconfig-utils@8.38.0(typescript@5.8.3)':
+  '@typescript-eslint/tsconfig-utils@8.39.0(typescript@5.8.3)':
     dependencies:
       typescript: 5.8.3
 
-  '@typescript-eslint/type-utils@8.38.0(eslint@9.32.0)(typescript@5.8.3)':
+  '@typescript-eslint/type-utils@8.39.0(eslint@9.32.0)(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/types': 8.38.0
-      '@typescript-eslint/typescript-estree': 8.38.0(typescript@5.8.3)
-      '@typescript-eslint/utils': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/types': 8.39.0
+      '@typescript-eslint/typescript-estree': 8.39.0(typescript@5.8.3)
+      '@typescript-eslint/utils': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
       debug: 4.4.1
       eslint: 9.32.0
       ts-api-utils: 2.1.0(typescript@5.8.3)
@@ -19988,14 +19958,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/types@8.38.0': {}
+  '@typescript-eslint/types@8.39.0': {}
 
-  '@typescript-eslint/typescript-estree@8.38.0(typescript@5.8.3)':
+  '@typescript-eslint/typescript-estree@8.39.0(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/project-service': 8.38.0(typescript@5.8.3)
-      '@typescript-eslint/tsconfig-utils': 8.38.0(typescript@5.8.3)
-      '@typescript-eslint/types': 8.38.0
-      '@typescript-eslint/visitor-keys': 8.38.0
+      '@typescript-eslint/project-service': 8.39.0(typescript@5.8.3)
+      '@typescript-eslint/tsconfig-utils': 8.39.0(typescript@5.8.3)
+      '@typescript-eslint/types': 8.39.0
+      '@typescript-eslint/visitor-keys': 8.39.0
       debug: 4.4.1
       fast-glob: 3.3.3
       is-glob: 4.0.3
@@ -20006,20 +19976,20 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@8.38.0(eslint@9.32.0)(typescript@5.8.3)':
+  '@typescript-eslint/utils@8.39.0(eslint@9.32.0)(typescript@5.8.3)':
     dependencies:
       '@eslint-community/eslint-utils': 4.7.0(eslint@9.32.0)
-      '@typescript-eslint/scope-manager': 8.38.0
-      '@typescript-eslint/types': 8.38.0
-      '@typescript-eslint/typescript-estree': 8.38.0(typescript@5.8.3)
+      '@typescript-eslint/scope-manager': 8.39.0
+      '@typescript-eslint/types': 8.39.0
+      '@typescript-eslint/typescript-estree': 8.39.0(typescript@5.8.3)
       eslint: 9.32.0
       typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/visitor-keys@8.38.0':
+  '@typescript-eslint/visitor-keys@8.39.0':
     dependencies:
-      '@typescript-eslint/types': 8.38.0
+      '@typescript-eslint/types': 8.39.0
       eslint-visitor-keys: 4.2.1
 
   '@ungap/structured-clone@1.3.0': {}
@@ -20512,8 +20482,8 @@ snapshots:
       '@wordpress/token-list': 3.27.0
       '@wordpress/upload-media': 0.12.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/warning': 3.28.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       clsx: 2.1.1
       colord: 2.9.3
@@ -20572,8 +20542,8 @@ snapshots:
       '@wordpress/token-list': 3.27.0
       '@wordpress/upload-media': 0.12.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/warning': 3.28.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       clsx: 2.1.1
       colord: 2.9.3
@@ -20632,8 +20602,8 @@ snapshots:
       '@wordpress/token-list': 3.27.0
       '@wordpress/upload-media': 0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/warning': 3.28.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       clsx: 2.1.1
       colord: 2.9.3
@@ -20691,7 +20661,7 @@ snapshots:
       '@wordpress/server-side-render': 6.3.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
       '@wordpress/viewport': 6.27.0(react@18.3.1)
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       clsx: 2.1.1
       colord: 2.9.3
@@ -20746,7 +20716,7 @@ snapshots:
       '@wordpress/server-side-render': 6.3.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
       '@wordpress/viewport': 6.27.0(react@18.3.1)
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       clsx: 2.1.1
       colord: 2.9.3
@@ -20801,7 +20771,7 @@ snapshots:
       '@wordpress/server-side-render': 6.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
       '@wordpress/viewport': 6.27.0(react@18.3.1)
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       clsx: 2.1.1
       colord: 2.9.3
@@ -20842,7 +20812,7 @@ snapshots:
       '@wordpress/private-apis': 1.27.0
       '@wordpress/rich-text': 7.27.0(react@18.3.1)
       '@wordpress/shortcode': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       colord: 2.9.3
       fast-deep-equal: 3.1.3
@@ -20950,7 +20920,7 @@ snapshots:
       '@wordpress/primitives': 4.27.0(react@18.3.1)
       '@wordpress/private-apis': 1.27.0
       '@wordpress/rich-text': 7.27.0(react@18.3.1)
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       clsx: 2.1.1
       colord: 2.9.3
@@ -21005,7 +20975,7 @@ snapshots:
       '@wordpress/primitives': 4.27.0(react@18.3.1)
       '@wordpress/private-apis': 1.27.0
       '@wordpress/rich-text': 7.27.0(react@18.3.1)
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       clsx: 2.1.1
       colord: 2.9.3
@@ -21160,7 +21130,7 @@ snapshots:
       '@wordpress/sync': 1.27.0
       '@wordpress/undo-manager': 1.27.0
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       equivalent-key-map: 0.2.2
       fast-deep-equal: 3.1.3
@@ -21194,7 +21164,7 @@ snapshots:
       '@wordpress/sync': 1.27.0
       '@wordpress/undo-manager': 1.27.0
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       equivalent-key-map: 0.2.2
       fast-deep-equal: 3.1.3
@@ -21228,7 +21198,7 @@ snapshots:
       '@wordpress/sync': 1.27.0
       '@wordpress/undo-manager': 1.27.0
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       equivalent-key-map: 0.2.2
       fast-deep-equal: 3.1.3
@@ -21285,7 +21255,7 @@ snapshots:
       '@wordpress/primitives': 4.27.0(react@18.3.1)
       '@wordpress/private-apis': 1.27.0
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       clsx: 2.1.1
       react: 18.3.1
       remove-accents: 0.5.0
@@ -21331,7 +21301,7 @@ snapshots:
       '@wordpress/primitives': 4.27.0(react@18.3.1)
       '@wordpress/private-apis': 1.27.0
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       clsx: 2.1.1
       react: 18.3.1
       remove-accents: 0.5.0
@@ -21363,13 +21333,6 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@wordpress/date@5.26.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@wordpress/deprecated': 4.27.0
-      moment: 2.30.1
-      moment-timezone: 0.5.48
-
   '@wordpress/date@5.27.0':
     dependencies:
       '@babel/runtime': 7.27.6
@@ -21386,10 +21349,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
       '@wordpress/hooks': 4.27.0
-
-  '@wordpress/dom-ready@4.26.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
 
   '@wordpress/dom-ready@4.27.0':
     dependencies:
@@ -21445,7 +21404,7 @@ snapshots:
       '@wordpress/private-apis': 1.27.0
       '@wordpress/url': 4.27.0
       '@wordpress/viewport': 6.27.0(react@18.3.1)
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       '@wordpress/widgets': 4.27.0(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx: 2.1.1
       memize: 2.1.0
@@ -21489,7 +21448,7 @@ snapshots:
       '@wordpress/private-apis': 1.27.0
       '@wordpress/url': 4.27.0
       '@wordpress/viewport': 6.27.0(react@18.3.1)
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       '@wordpress/widgets': 4.27.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx: 2.1.1
       memize: 2.1.0
@@ -21533,7 +21492,7 @@ snapshots:
       '@wordpress/private-apis': 1.27.0
       '@wordpress/url': 4.27.0
       '@wordpress/viewport': 6.27.0(react@18.3.1)
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       '@wordpress/widgets': 4.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx: 2.1.1
       memize: 2.1.0
@@ -21583,8 +21542,8 @@ snapshots:
       '@wordpress/rich-text': 7.27.0(react@18.3.1)
       '@wordpress/server-side-render': 6.3.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/warning': 3.28.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       client-zip: 2.5.0
       clsx: 2.1.1
@@ -21642,8 +21601,8 @@ snapshots:
       '@wordpress/rich-text': 7.27.0(react@18.3.1)
       '@wordpress/server-side-render': 6.3.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/warning': 3.28.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       client-zip: 2.5.0
       clsx: 2.1.1
@@ -21701,8 +21660,8 @@ snapshots:
       '@wordpress/rich-text': 7.27.0(react@18.3.1)
       '@wordpress/server-side-render': 6.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
-      '@wordpress/wordcount': 4.27.0
+      '@wordpress/warning': 3.28.0
+      '@wordpress/wordcount': 4.28.0
       change-case: 4.1.2
       client-zip: 2.5.0
       clsx: 2.1.1
@@ -21739,7 +21698,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
 
-  '@wordpress/eslint-plugin@22.14.0(@babel/core@7.28.0)(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3))(eslint-plugin-jsdoc@51.4.1(eslint@9.32.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0))(eslint-plugin-playwright@2.2.1(eslint@9.32.0))(eslint-plugin-prettier@5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.32.0))(eslint-plugin-react@7.37.5(eslint@9.32.0))(eslint@9.32.0)(typescript@5.8.3)(wp-prettier@3.0.3)':
+  '@wordpress/eslint-plugin@22.14.0(@babel/core@7.28.0)(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3))(eslint-plugin-jsdoc@51.4.1(eslint@9.32.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0))(eslint-plugin-playwright@2.2.2(eslint@9.32.0))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.32.0))(eslint-plugin-react@7.37.5(eslint@9.32.0))(eslint@9.32.0)(typescript@5.8.3)(wp-prettier@3.0.3)':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/eslint-parser': 7.27.5(@babel/core@7.28.0)(eslint@9.32.0)
@@ -21752,8 +21711,8 @@ snapshots:
       eslint-plugin-jest: 29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3)
       eslint-plugin-jsdoc: 51.4.1(eslint@9.32.0)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.32.0)
-      eslint-plugin-playwright: 2.2.1(eslint@9.32.0)
-      eslint-plugin-prettier: 5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3)
+      eslint-plugin-playwright: 2.2.2(eslint@9.32.0)
+      eslint-plugin-prettier: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3)
       eslint-plugin-react: 7.37.5(eslint@9.32.0)
       eslint-plugin-react-hooks: 5.2.0(eslint@9.32.0)
       globals: 13.24.0
@@ -21789,7 +21748,7 @@ snapshots:
       '@wordpress/private-apis': 1.27.0
       '@wordpress/router': 1.27.0(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       client-zip: 2.5.0
       clsx: 2.1.1
@@ -21829,7 +21788,7 @@ snapshots:
       '@wordpress/private-apis': 1.27.0
       '@wordpress/router': 1.27.0(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       client-zip: 2.5.0
       clsx: 2.1.1
@@ -21869,7 +21828,7 @@ snapshots:
       '@wordpress/private-apis': 1.27.0
       '@wordpress/router': 1.27.0(react@18.3.1)
       '@wordpress/url': 4.27.0
-      '@wordpress/warning': 3.27.0
+      '@wordpress/warning': 3.28.0
       change-case: 4.1.2
       client-zip: 2.5.0
       clsx: 2.1.1
@@ -22012,11 +21971,6 @@ snapshots:
       '@wordpress/element': 6.27.0
       '@wordpress/keycodes': 4.27.0
       react: 18.3.1
-
-  '@wordpress/keycodes@4.26.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@wordpress/i18n': 5.26.0
 
   '@wordpress/keycodes@4.27.0':
     dependencies:
@@ -22323,17 +22277,6 @@ snapshots:
       memize: 2.1.0
       react: 18.3.1
 
-  '@wordpress/router@1.26.0(react@18.3.1)':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@wordpress/compose': 7.27.0(react@18.3.1)
-      '@wordpress/element': 6.27.0
-      '@wordpress/private-apis': 1.27.0
-      '@wordpress/url': 4.27.0
-      history: 5.3.0
-      react: 18.3.1
-      route-recognizer: 0.3.4
-
   '@wordpress/router@1.27.0(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.27.6
@@ -22384,11 +22327,6 @@ snapshots:
       - '@emotion/is-prop-valid'
       - '@types/react'
       - supports-color
-
-  '@wordpress/shortcode@4.26.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      memize: 2.1.0
 
   '@wordpress/shortcode@4.27.0':
     dependencies:
@@ -22489,8 +22427,6 @@ snapshots:
       '@wordpress/element': 6.27.0
       react: 18.3.1
 
-  '@wordpress/warning@3.27.0': {}
-
   '@wordpress/warning@3.28.0': {}
 
   '@wordpress/widgets@4.27.0(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -22567,10 +22503,6 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
-
-  '@wordpress/wordcount@4.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
 
   '@wordpress/wordcount@4.28.0':
     dependencies:
@@ -24479,7 +24411,7 @@ snapshots:
 
   eslint-plugin-jest@29.0.1(eslint@9.32.0)(jest@30.0.4)(typescript@5.8.3):
     dependencies:
-      '@typescript-eslint/utils': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/utils': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
       eslint: 9.32.0
     optionalDependencies:
       jest: 30.0.4
@@ -24542,7 +24474,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  eslint-plugin-package-json@0.47.0(eslint@9.32.0)(jsonc-eslint-parser@2.4.0):
+  eslint-plugin-package-json@0.52.1(eslint@9.32.0)(jsonc-eslint-parser@2.4.0):
     dependencies:
       '@altano/repository-tools': 2.0.1
       change-case: 5.4.4
@@ -24551,7 +24483,7 @@ snapshots:
       eslint: 9.32.0
       eslint-fix-utils: 0.4.0(eslint@9.32.0)
       jsonc-eslint-parser: 2.4.0
-      package-json-validator: 0.23.0
+      package-json-validator: 0.27.0
       semver: 7.7.1
       sort-object-keys: 1.1.3
       sort-package-json: 3.4.0
@@ -24559,12 +24491,12 @@ snapshots:
     transitivePeerDependencies:
       - '@types/estree'
 
-  eslint-plugin-playwright@2.2.1(eslint@9.32.0):
+  eslint-plugin-playwright@2.2.2(eslint@9.32.0):
     dependencies:
       eslint: 9.32.0
       globals: 13.24.0
 
-  eslint-plugin-prettier@5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3):
+  eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.32.0))(eslint@9.32.0)(wp-prettier@3.0.3):
     dependencies:
       eslint: 9.32.0
       prettier: wp-prettier@3.0.3
@@ -24619,8 +24551,8 @@ snapshots:
 
   eslint-plugin-testing-library@7.6.3(eslint@9.32.0)(typescript@5.8.3):
     dependencies:
-      '@typescript-eslint/scope-manager': 8.38.0
-      '@typescript-eslint/utils': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/scope-manager': 8.39.0
+      '@typescript-eslint/utils': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
       eslint: 9.32.0
     transitivePeerDependencies:
       - supports-color
@@ -27607,7 +27539,7 @@ snapshots:
 
   package-json-from-dist@1.0.1: {}
 
-  package-json-validator@0.23.0:
+  package-json-validator@0.27.0:
     dependencies:
       semver: 7.7.2
       validate-npm-package-license: 3.0.4
@@ -29903,12 +29835,12 @@ snapshots:
     dependencies:
       typescript-logic: 0.0.0
 
-  typescript-eslint@8.38.0(eslint@9.32.0)(typescript@5.8.3):
+  typescript-eslint@8.39.0(eslint@9.32.0)(typescript@5.8.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.32.0)(typescript@5.8.3))(eslint@9.32.0)(typescript@5.8.3)
-      '@typescript-eslint/parser': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
-      '@typescript-eslint/typescript-estree': 8.38.0(typescript@5.8.3)
-      '@typescript-eslint/utils': 8.38.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/eslint-plugin': 8.39.0(@typescript-eslint/parser@8.39.0(eslint@9.32.0)(typescript@5.8.3))(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/parser': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
+      '@typescript-eslint/typescript-estree': 8.39.0(typescript@5.8.3)
+      '@typescript-eslint/utils': 8.39.0(eslint@9.32.0)(typescript@5.8.3)
       eslint: 9.32.0
       typescript: 5.8.3
     transitivePeerDependencies:
