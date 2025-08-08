@@ -206,6 +206,19 @@ function wpcom_add_jetpack_submenu() {
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
+	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
+	$is_personal_or_premium = false;
+	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
+		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
+		$plan_class             = isset( $current_plan['class'] ) ? $current_plan['class'] : '';
+		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
+	}
+
+	if ( ! $is_simple_site && $is_personal_or_premium ) {
+		// Jetpack > Stats.
+		wpcom_hide_submenu_page( 'jetpack', 'stats' );
+	}
+
 	// Jetpack > Scan.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
