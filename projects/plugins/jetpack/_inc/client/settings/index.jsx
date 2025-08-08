@@ -42,7 +42,7 @@ class Settings extends Component {
 					<div className="jp-no-results">
 						{ searchTerm
 							? sprintf(
-									/* translators: placeholder is a searchterm entered in searchform. */
+									/* translators: %s: a search term entered in search form. */
 									__( 'No search results found for %s', 'jetpack' ),
 									searchTerm
 							  )

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: Revert back to the variation picker if the form only has the submit button.

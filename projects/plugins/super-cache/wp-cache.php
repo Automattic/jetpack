@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 3.0.0
+ * Version: 3.0.1
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -1741,7 +1741,7 @@ function wpsc_edit_tracking_parameters() {
 	wpsc_update_tracking_parameters();
 
 	if ( ! isset( $wpsc_tracking_parameters ) ) {
-		$wpsc_tracking_parameters = array( 'fbclid', 'ref', 'gclid', 'fb_source', 'mc_cid', 'mc_eid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_expid', 'mtm_source', 'mtm_medium', 'mtm_campaign', 'mtm_keyword', 'mtm_content', 'mtm_cid', 'mtm_group', 'mtm_placement' );
+		$wpsc_tracking_parameters = array( 'fbclid', 'ref', 'gclid', 'fb_source', 'mc_cid', 'mc_eid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_expid', 'mtm_source', 'mtm_medium', 'mtm_campaign', 'mtm_keyword', 'mtm_content', 'mtm_cid', 'mtm_group', 'mtm_placement', 'ysclid', 'srsltid', 'yclid' );
 	}
 
 	if ( ! isset( $wpsc_ignore_tracking_parameters ) ) {
@@ -3503,7 +3503,7 @@ function wp_cron_preload_cache() {
 					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), 'Refreshing: ' . print_r( $rows, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				}
 
-				foreach ( (array) $rows as $url ) {
+				foreach ( $rows as $url ) {
 					set_time_limit( 60 );
 					if ( $url === '' ) {
 						continue;

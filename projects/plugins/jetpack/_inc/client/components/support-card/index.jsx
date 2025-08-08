@@ -110,7 +110,7 @@ class SupportCard extends Component {
 						<p className="jp-support-card__description">
 							{ hasSupport
 								? sprintf(
-										/* translators: placeholder is either Jetpack or WordPress.com */
+										/* translators: %s: either Jetpack or WordPress.com */
 										__( 'Your paid plan gives you access to prioritized %s support.', 'jetpack' ),
 										isWoASite() ? 'WordPress.com' : 'Jetpack'
 								  )

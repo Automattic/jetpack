@@ -537,13 +537,24 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	public function test_process_from_with_jwt() {
-		$previous_post = $this->setup_token_test();
+		$previous_post = $this->setup_token_test( null, 'Test User' );
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 
 		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
 		$this->assertEquals( 'check_spam', $result->get_error_code(), 'Expected the error code to be "check_spam".' );
+
+		$this->teardown_post_for_test( $previous_post );
+	}
+
+	public function test_process_from_with_jwt_validation_error() {
+		$previous_post = $this->setup_token_test( null );
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
+		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error code to be "check_spam".' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
@@ -559,7 +570,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->teardown_post_for_test( $previous_post );
 	}
 
-	private function setup_token_test( $token = null ) {
+	private function setup_token_test( $token = null, $name = null ) {
 		global $post;
 		$post_id = wp_insert_post(
 			array(
@@ -578,6 +589,11 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$_POST['jetpack_contact_form_jwt'] = $token ?? $form->get_jwt();
 		$_POST['contact-form-hash']        = $form->hash;
 		$_POST['contact-form-id']          = $post_id;
+
+		if ( $name ) {
+			$_POST[ 'g' . $post_id . '-name' ] = $name;
+		}
+
 		return $previous_post;
 	}
 
@@ -589,6 +605,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		unset( $_POST['contact-form-hash'] );
 		unset( $_POST['jetpack_contact_form_jwt'] );
 		unset( $_POST['contact-form-id'] );
+		unset( $_POST[ 'g' . $post->ID . '-name' ] );
 	}
 
 	public function return_error_for_test() {
@@ -753,7 +770,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			array(
 				'1_field' => 'value1',
 				'2_field' => 'value2',
-				'email'   => 'hello@example.com',
+				'3_email' => 'hello@example.com',
 			)
 		);
 

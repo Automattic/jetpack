@@ -1,6 +1,5 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as DonutStories from './donut.stories';
-import * as LegendStories from './donut-legend.stories';
 
 <Meta title="JS Packages/Charts/Types/Donut Chart" of={ DonutStories } />
 
@@ -168,7 +167,7 @@ Tooltips work seamlessly with donut charts:
 
 Combine legends with donut charts for comprehensive data presentation:
 
-<Canvas of={ LegendStories.Default } />
+<Canvas of={ DonutStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"

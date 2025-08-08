@@ -1,3 +1,4 @@
+import { legendArgTypes } from '../../../stories/legend-config';
 import largeValuesData from '../../line-chart/stories/large-values-sample';
 import trafficData from '../../line-chart/stories/site-traffic-sample';
 import BarChart from '../bar-chart';
@@ -49,6 +50,7 @@ const meta: Meta< typeof BarChart > = {
 				max: 10000,
 			},
 		},
+		...legendArgTypes,
 	},
 } satisfies Meta< typeof BarChart >;
 
@@ -220,6 +222,38 @@ SmartFormatting.parameters = {
 		description: {
 			story:
 				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
+		},
+	},
+};
+
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
+// Story showcasing legend customization controls
+export const CustomLegendPositioning: Story = {
+	args: {
+		withTooltips: true,
+		data: data.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		// showLegend defaults to false, explicitly enabling for demonstration
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignmentHorizontal: 'left',
+		legendAlignmentVertical: 'top',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
+			},
 		},
 	},
 };

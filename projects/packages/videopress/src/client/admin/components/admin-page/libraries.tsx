@@ -85,7 +85,7 @@ export const VideoLibraryWrapper = ( {
 
 	const singularTotalVideosLabel = __( '1 Video', 'jetpack-videopress-pkg' );
 	const pluralTotalVideosLabel = sprintf(
-		/* translators: placeholder is the number of videos */
+		/* translators: %s: the number of videos */
 		__( '%s Videos', 'jetpack-videopress-pkg' ),
 		totalVideos
 	);
@@ -196,7 +196,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 					{ search.trim()
 						? createInterpolateElement(
 								sprintf(
-									/* translators: placeholder is the search term */
+									/* translators: %s: the search term */
 									__( 'No videos match your search for <em>%s</em>.', 'jetpack-videopress-pkg' ),
 									search
 								),

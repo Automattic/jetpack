@@ -38,7 +38,7 @@ export default function Upgrade( {
 		'jetpack'
 	);
 	const tierLimitUpgradePrompt = sprintf(
-		/* translators: number is the request limit for the current tier/plan */
+		/* translators: %d: the request limit for the current tier/plan */
 		__(
 			'You have reached the limit of <strong>%d requests</strong>. <button><span>Upgrade to continue generating feedback.</span></button>',
 			'jetpack'

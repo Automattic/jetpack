@@ -555,7 +555,7 @@ describe( 'LineChart', () => {
 
 				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
 				expect( chart ).toHaveAttribute( 'role', 'grid' );
-				expect( chart ).toHaveAttribute( 'aria-label', 'line chart' );
+				expect( chart ).toHaveAttribute( 'aria-label', 'Line chart' );
 			} );
 
 			test( 'chart container can receive focus', async () => {
@@ -697,7 +697,13 @@ describe( 'LineChart', () => {
 			const user = userEvent.setup();
 			const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
 				<div role="tooltip" data-testid="custom-tooltip">
-					Custom: { tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString() }
+					Custom:{ ' ' }
+					{ tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString( 'ja-JP', {
+						weekday: 'long',
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric',
+					} ) }
 				</div>
 			) );
 
@@ -709,7 +715,7 @@ describe( 'LineChart', () => {
 			// Click on right arrow key to focus on the first tooltip.
 			await user.keyboard( '{ArrowRight}' );
 			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '2024年1月1日月曜日' );
 
 			const customTooltip = screen.getByTestId( 'custom-tooltip' );
 			expect( customTooltip ).toBeInTheDocument();

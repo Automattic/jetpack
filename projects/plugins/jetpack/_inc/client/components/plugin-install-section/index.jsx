@@ -69,7 +69,7 @@ const PluginInstallSection = ( {
 				<Spinner />
 				<p>
 					{ sprintf(
-						/* translators: "%s" is the name of the plugin. i.e. Boost, CRM, etc. */
+						/* translators: %s: the name of the plugin. i.e. Boost, CRM, etc. */
 						__( 'Installing %s', 'jetpack' ),
 						pluginName
 					) }
@@ -82,7 +82,7 @@ const PluginInstallSection = ( {
 				<Spinner />
 				<p>
 					{ sprintf(
-						/* translators: "%s" is the name of the plugin. i.e. Boost, CRM, etc. */
+						/* translators: %s: the name of the plugin. i.e. Boost, CRM, etc. */
 						__( 'Activating %s', 'jetpack' ),
 						pluginName
 					) }
@@ -93,7 +93,7 @@ const PluginInstallSection = ( {
 		return (
 			<JetpackBanner
 				callToAction={ sprintf(
-					/* translators: "%s" is the name of the plugin. i.e. Boost, CRM, etc. */
+					/* translators: %s: the name of the plugin. i.e. Boost, CRM, etc. */
 					__( 'Install %s', 'jetpack' ),
 					pluginName
 				) }
@@ -106,7 +106,7 @@ const PluginInstallSection = ( {
 		return (
 			<JetpackBanner
 				callToAction={ sprintf(
-					/* translators: "%s" is the name of the plugin. i.e. Boost, CRM, etc. */
+					/* translators: %s: the name of the plugin. i.e. Boost, CRM, etc. */
 					__( 'Activate %s', 'jetpack' ),
 					pluginName
 				) }
@@ -119,7 +119,7 @@ const PluginInstallSection = ( {
 	return (
 		<JetpackBanner
 			callToAction={ sprintf(
-				/* translators: "%s" is the name of the plugin. i.e. Boost, CRM, etc. */
+				/* translators: %s: the name of the plugin. i.e. Boost, CRM, etc. */
 				__( 'Manage %s', 'jetpack' ),
 				pluginName
 			) }

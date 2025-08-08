@@ -417,7 +417,9 @@ const { state } = store( NAMESPACE, {
 			}
 		} ),
 
-		goBack: () => {
+		goBack: event => {
+			event.preventDefault();
+			event.stopPropagation();
 			const context = getContext();
 
 			const form = document.getElementById( context.elementId );

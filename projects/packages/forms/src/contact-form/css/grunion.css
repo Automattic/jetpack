@@ -54,6 +54,7 @@
 .contact-form input[type="tel"],
 .contact-form input[type="url"],
 .contact-form input[type="number"],
+.contact-form input[type="time"],
 .contact-form textarea
 ) {
 	box-sizing: border-box;
@@ -85,8 +86,8 @@
 
 .contact-form input[type="radio"],
 .contact-form input[type="checkbox"] {
-	width: 1rem;
-	height: 1rem;
+	width: 1em;
+	height: 1em;
 	margin: 0 0.75rem 0 0;
 }
 
@@ -119,6 +120,10 @@
 .contact-form label.consent {
 	display: flex;
 	align-items: center;
+}
+
+.is-style-list.is-style-list label.consent {
+	align-items: baseline;
 }
 
 .contact-form label.consent-implicit input {
@@ -247,12 +252,14 @@
 .textwidget .contact-form input[type="tel"],
 .textwidget .contact-form input[type="url"],
 .textwidget .contact-form input[type="number"],
+.textwidget .contact-form input[type="time"],
 .textwidget .contact-form textarea,
 .wp-block-column .contact-form input[type="text"],
 .wp-block-column .contact-form input[type="email"],
 .wp-block-column .contact-form input[type="tel"],
 .wp-block-column .contact-form input[type="url"],
 .wp-block-column .contact-form input[type="number"],
+.wp-block-column .contact-form input[type="time"],
 .wp-block-column .contact-form textarea {
 	width: 100%;
 }
@@ -377,7 +384,8 @@
 	.contact-form input[type="email"],
 	.contact-form input[type="tel"],
 	.contact-form input[type="url"],
-	.contact-form input[type="number"] {
+	.contact-form input[type="number"],
+	.contact-form input[type="time"] {
 		width: 50%;
 	}
 
@@ -390,7 +398,8 @@
 	.wp-block-jetpack-contact-form input[type="email"],
 	.wp-block-jetpack-contact-form input[type="tel"],
 	.wp-block-jetpack-contact-form input[type="url"],
-	.wp-block-jetpack-contact-form input[type="number"] {
+	.wp-block-jetpack-contact-form input[type="number"],
+	.wp-block-jetpack-contact-form input[type="time"] {
 		width: 100%;
 	}
 }
@@ -916,8 +925,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: var(--jetpack--contact-form--font-size);
 }
 
-.contact-form .grunion-field-wrap input.checkbox-multiple,
-.contact-form .grunion-field-wrap input.radio {
+.contact-form .is-style-list input.consent,
+.contact-form .is-style-list input.checkbox,
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple,
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio {
 	position: relative;
 
 	box-sizing: border-box;
@@ -927,6 +938,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	 * set from global styles or from block styles */
 	font-size: inherit;
 	width: 1em;
+	min-width: 1em;
 	height: 1em;
 	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
 	padding: 0;
@@ -938,11 +950,13 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(0.15em);
 }
 
-.contact-form .grunion-field-wrap input.radio {
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio {
 	border-radius: 50%;
 }
 
-.contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
+.contact-form .is-style-list input.consent:checked::before,
+.contact-form .is-style-list input.checkbox:checked::before,
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked::before {
 	content: "\2713";
 	position: absolute;
 
@@ -960,7 +974,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translate(-50%, -50%);
 }
 
-.contact-form .grunion-field-wrap input.radio:checked::before {
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio:checked::before {
 	background: currentColor;
 	border-radius: 50%;
 	content: "";

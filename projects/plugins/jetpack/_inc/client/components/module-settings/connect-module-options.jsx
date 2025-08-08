@@ -56,7 +56,7 @@ export function connectModuleOptions( Component ) {
 					success: __( 'Regenerated Post by Email address.', 'jetpack' ),
 					error: error =>
 						sprintf(
-							/* translators: placeholder is an error message. */
+							/* translators: %s: an error message. */
 							__( 'Error regenerating Post by Email address. %s', 'jetpack' ),
 							error
 						),

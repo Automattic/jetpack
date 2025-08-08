@@ -33,7 +33,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 	if ( isComingSoon ) {
 		return {
 			lg: COMING_SOON_TEXT,
-			// translators: Name of the current feature
+			// translators: %s: Name of the current feature
 			default: sprintf( __( '%s coming soon', 'jetpack-components' ), featureNameLabel ),
 		};
 	}
@@ -43,7 +43,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 		default: isIncluded
 			? featureNameLabel
 			: sprintf(
-					/* translators: Name of the current feature */
+					/* translators: %s: Name of the current feature */
 					__( '%s not included', 'jetpack-components' ),
 					featureNameLabel
 			  ),

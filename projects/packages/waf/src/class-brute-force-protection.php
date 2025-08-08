@@ -571,8 +571,8 @@ class Brute_Force_Protection {
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
 	 * to the ip address allow list
 	 *
-	 * @param string $user_login - the user loggign in.
-	 * @param string $user - the user.
+	 * @param string   $user_login - the user logging in.
+	 * @param \WP_User $user - the user.
 	 */
 	public function log_successful_login( $user_login, $user = null ) {
 		if ( ! $user ) { // For do_action( 'wp_login' ) calls that lacked passing the 2nd arg.

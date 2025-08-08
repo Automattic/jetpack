@@ -213,7 +213,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									promoLabel={
 										discountPercentage > 0 &&
 										sprintf(
-											// translators: Discount percentage (e.g. 50%).
+											// translators: %s: the discount percentage (e.g. 50%).
 											__( '%s off', 'jetpack-search-pkg' ),
 											`${ discountPercentage }%`
 										)

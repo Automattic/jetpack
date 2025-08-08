@@ -7,6 +7,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Load shortcode utils.
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/shortcode-utils.php';
 

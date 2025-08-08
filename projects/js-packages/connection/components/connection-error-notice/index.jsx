@@ -67,7 +67,7 @@ const ConnectionErrorNotice = props => {
 			<div className={ styles.message }>
 				{ icon }
 				{ sprintf(
-					/* translators: placeholder is the error. */
+					/* translators: %s: the error. */
 					__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack-connection-js' ),
 					restoreConnectionError
 				) }

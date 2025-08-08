@@ -9,7 +9,9 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit( 0 );
 }
 
-global $wpdb, $zbs;  // } Req
+global $zbs;
+
+$sbupdated = false;
 
 // } Act on any edits!
 if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editcompanysettings'] ) ) {
@@ -63,6 +65,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editcompanysettings'] ) ) {
 	}
 
 	$zbs->settings->update( 'customisedfields', $customisedFields );
+	$sbupdated = true;
 
 }
 
@@ -73,10 +76,8 @@ $customisedFields = $zbs->settings->get( 'customisedfields' );
 ?>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo zeroBSCRM_UI2_messageHTML( 'success', __( 'Settings Updated', 'zero-bs-crm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
+if ( $sbupdated ) {
+	echo zeroBSCRM_UI2_messageHTML( 'success', __( 'Settings Updated', 'zero-bs-crm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 ?>
 

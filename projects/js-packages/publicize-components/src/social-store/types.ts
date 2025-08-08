@@ -90,6 +90,7 @@ export type SocialImageGeneratorConfig = {
 	enabled: boolean;
 	template?: string;
 	default_image_id?: number;
+	font?: string;
 };
 
 export type UtmSettingsConfig = {
@@ -133,4 +134,9 @@ export type SharesData = {
 	to_be_publicized_count: number;
 	shared_posts_count: number;
 	is_share_limit_enabled: boolean;
+};
+
+export type SocialImageFontOption = {
+	id: string;
+	label: string;
 };

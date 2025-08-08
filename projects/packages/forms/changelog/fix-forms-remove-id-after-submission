@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Do not append form HTML id on post-submission link

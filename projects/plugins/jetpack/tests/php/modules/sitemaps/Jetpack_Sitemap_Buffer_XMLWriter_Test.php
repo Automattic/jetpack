@@ -311,4 +311,90 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 		$buffer->view_time( '2024-03-30 12:00:00' );
 		$this->assertEquals( '2024-03-31 12:00:00', $buffer->last_modified() );
 	}
+
+	/**
+	 * Ensure that a subclass no-op append keeps the buffer empty and does not consume item capacity.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 14.6
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_noop_append_keeps_buffer_empty() {
+		$buffer = new Jetpack_Sitemap_Buffer_Video_XMLWriter(
+			1, // Max items
+			4096, // Max bytes
+			'1970-01-01 00:00:00'
+		);
+
+		// Missing required 'video:video' makes append_item() a no-op in the video buffer.
+		$noop_item = array(
+			'url' => array(
+				'loc'     => 'https://example.com/page',
+				'lastmod' => '2024-01-01 00:00:00',
+			),
+		);
+
+		$this->assertTrue( $buffer->append( $noop_item ) );
+		$this->assertTrue( $buffer->is_empty(), 'Buffer should remain empty after a no-op append.' );
+
+		// Now append a valid video item; should succeed despite prior no-op, and mark non-empty.
+		$valid_item = array(
+			'url' => array(
+				'loc'         => 'https://example.com/page',
+				'lastmod'     => '2024-01-02 00:00:00',
+				'video:video' => array(
+					'video:title'         => 'Title',
+					'video:thumbnail_loc' => 'https://example.com/thumb.jpg',
+					'video:content_loc'   => 'https://example.com/video.mp4',
+				),
+			),
+		);
+		$this->assertTrue( $buffer->append( $valid_item ) );
+		$this->assertFalse( $buffer->is_empty(), 'Buffer should be non-empty after a valid append.' );
+
+		$content = $buffer->contents();
+		$this->assertStringContainsString( '<video:video>', $content );
+		$this->assertStringContainsString( '<loc>https://example.com/page</loc>', $content );
+	}
+
+	/**
+	 * Mutating the DOMDocument returned by get_document() should be reflected in contents().
+	 *
+	 * @group jetpack-sitemap
+	 * @since 14.6
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_dom_mutation_affects_contents() {
+		$buffer = new Jetpack_Sitemap_Buffer_Page_XMLWriter(
+			2,
+			8192,
+			'1970-01-01 00:00:00'
+		);
+
+		$buffer->append(
+			array(
+				'url' => array(
+					'loc'     => 'https://example.com/first',
+					'lastmod' => '2024-03-31 12:00:00',
+				),
+			)
+		);
+
+		// Obtain DOM mirror and inject an additional <url> node.
+		$doc = $buffer->get_document();
+		$this->assertInstanceOf( DOMDocument::class, $doc );
+
+		// Root element should exist.
+		$root = $doc->documentElement; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->assertNotNull( $root, 'Root element should exist on DOMDocument' );
+
+		$url = $doc->createElement( 'url' );
+		$loc = $doc->createElement( 'loc', 'https://example.com/second' );
+		$url->appendChild( $loc );
+		$root->appendChild( $url );
+
+		$xml = $buffer->contents();
+		$this->assertStringContainsString( '<loc>https://example.com/first</loc>', $xml );
+		$this->assertStringContainsString( '<loc>https://example.com/second</loc>', $xml );
+	}
 }

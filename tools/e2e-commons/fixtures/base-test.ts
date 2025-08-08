@@ -8,9 +8,13 @@ import { allure } from 'allure-playwright';
  */
 import logger from '../logger.js';
 import EditorPage from '../pages/editor-page.ts';
+import Sidebar from '../pages/sidebar.ts';
 import { TestUtils } from '../utils/index.js';
 
-const test = baseTest.extend< { admin: Admin; editor: EditorPage }, { testUtils: TestUtils } >( {
+const test = baseTest.extend<
+	{ admin: Admin; editor: EditorPage; sidebar: Sidebar },
+	{ testUtils: TestUtils }
+>( {
 	page: async ( { page }, use ) => {
 		page.on( 'pageerror', exception => {
 			logger.error( `Page error: "${ exception }"` );
@@ -38,6 +42,10 @@ const test = baseTest.extend< { admin: Admin; editor: EditorPage }, { testUtils:
 	editor: async ( { page }, use ) => {
 		await use( new EditorPage( { page } ) );
 	},
+
+	sidebar: async ( { page }, use ) => {
+		await use( new Sidebar( page ) );
+	},
 } );
 
 test.beforeEach( async ( { testUtils } ) => {
@@ -53,4 +61,4 @@ test.afterEach( async ( { testUtils } ) => {
 	);
 } );
 
-export { test, expect };
+export { test, expect, Admin };

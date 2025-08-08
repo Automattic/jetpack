@@ -248,7 +248,7 @@ class Feedback {
 	public function get_field_value_by_label( $label, $context = 'default' ) {
 		// This method is used to get the value of a field by its label.
 		foreach ( $this->fields as $field ) {
-			if ( $field->get_label() === $label ) {
+			if ( $field->get_label( $context ) === $label ) {
 				return $field->get_render_value( $context );
 			}
 		}
@@ -328,22 +328,33 @@ class Feedback {
 	 */
 	public function get_compiled_fields( $context = 'default', $array_shape = 'all' ) {
 		$compiled_fields = array();
+
+		$count_field_labels = array();
 		foreach ( $this->fields as $field ) {
 			if ( $field->compile_field( $context ) ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 
+			$label = $field->get_label( $context );
+
+			if ( ! isset( $count_field_labels[ $label ] ) ) {
+				$count_field_labels[ $label ] = 1;
+			} else {
+				++$count_field_labels[ $label ];
+			}
+
 			// Compile the field based on the requested shape.
 			switch ( $array_shape ) {
+				case 'default':
 				case 'all':
 					$compiled_fields[ $field->get_key() ] = array(
-						'label' => $field->get_label( $context ),
+						'label' => $label,
 						'value' => $field->get_render_value( $context ),
 					);
 					break;
 				case 'label|value':
 					$compiled_fields[] = array(
-						'label' => $field->get_label( $context ),
+						'label' => $label,
 						'value' => $field->get_render_value( $context ),
 					);
 					break;
@@ -351,10 +362,13 @@ class Feedback {
 					$compiled_fields[] = $field->get_render_value( $context );
 					break;
 				case 'label':
-					$compiled_fields[] = $field->get_label( $context );
+					$compiled_fields[] = $label;
 					break;
 				case 'key-value':
 					$compiled_fields[ $field->get_key() ] = $field->get_render_value( $context );
+					break;
+				case 'label-value':
+						$compiled_fields[ $field->get_label( $context, $count_field_labels[ $label ] ) ] = $field->get_render_value( $context );
 					break;
 			}
 		}
@@ -951,11 +965,15 @@ class Feedback {
 	 * @return string The extracted label.
 	 */
 	private static function extract_label_from_key( $key ) {
-		// Check if the key starts with a number followed by underscore
+		// Check if the key starts with a number followed by underscore and has content after underscore
 		if ( preg_match( '/^\d+_(.+)$/', $key, $matches ) ) {
 			return $matches[1];
 		}
-		// If no number prefix, return the key as is
+		// If the key is just a number followed by underscore (like "2_"), return empty string
+		if ( preg_match( '/^\d+_$/', $key ) ) {
+			return '';
+		}
+		// If the key doesn't start with a number followed by underscore, return the key as is
 		return $key;
 	}
 
