@@ -2,15 +2,17 @@ import './editor.scss';
 import { useBlockProps } from '@wordpress/block-editor';
 
 export default function SliderInputEdit( props ) {
-	const { context = {} } = props;
+	const { context = {}, isSelected } = props;
 
 	const min = context[ 'jetpack/field-slider-min' ];
 	const max = context[ 'jetpack/field-slider-max' ];
 	const defaultValue = context[ 'jetpack/field-slider-default' ];
 	const onChangeDefault = context[ 'jetpack/field-slider-onChangeDefault' ];
+	const onChangeMin = context[ 'jetpack/field-slider-onChangeMin' ];
+	const onChangeMax = context[ 'jetpack/field-slider-onChangeMax' ];
 
 	const blockProps = useBlockProps( {
-		className: 'jetpack-input-range',
+		className: `jetpack-input-range${ isSelected ? ' is-selected' : '' }`,
 	} );
 
 	const onChange = event => {
@@ -32,7 +34,18 @@ export default function SliderInputEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div className="jetpack-field-slider__row">
-				<span className="jetpack-field-slider__min-label">{ min }</span>
+				<input
+					type="number"
+					className="jetpack-field-slider__min-input"
+					value={ min }
+					onChange={ e => {
+						const val = e.target.value.replace( /[^\d-]/g, '' );
+						onChangeMin && onChangeMin( val === '' ? 0 : val );
+					} }
+					min={ Number.MIN_SAFE_INTEGER }
+					max={ max }
+					style={ { width: '3em', textAlign: 'center' } }
+				/>
 				<div className="jetpack-field-slider__input-container">
 					<input
 						type="range"
@@ -49,7 +62,18 @@ export default function SliderInputEdit( props ) {
 						{ defaultValue }
 					</div>
 				</div>
-				<span className="jetpack-field-slider__max-label">{ max }</span>
+				<input
+					type="number"
+					className="jetpack-field-slider__max-input"
+					value={ max }
+					onChange={ e => {
+						const val = e.target.value.replace( /[^\d-]/g, '' );
+						onChangeMax && onChangeMax( val === '' ? 0 : val );
+					} }
+					min={ min }
+					max={ Number.MAX_SAFE_INTEGER }
+					style={ { width: '3em', textAlign: 'center' } }
+				/>
 			</div>
 		</div>
 	);

@@ -8,25 +8,31 @@ export default function SliderFieldEdit( props ) {
 	const { attributes, setAttributes } = props;
 	const { min = 0, max = 100, default: defaultValue = 0, width, id, required } = attributes;
 
-	const updateMin = newMin => {
-		const parsedMin = parseInt( newMin ) || 0;
-		const validatedMin = Math.min( parsedMin, max );
-		const validatedDefault = Math.max( defaultValue, validatedMin );
-		setAttributes( {
-			min: validatedMin,
-			default: validatedDefault,
-		} );
-	};
+	const onChangeMin = useCallback(
+		newMin => {
+			const parsedMin = parseInt( newMin ) || 0;
+			const validatedMin = Math.min( parsedMin, max );
+			const validatedDefault = Math.max( defaultValue, validatedMin );
+			setAttributes( {
+				min: validatedMin,
+				default: validatedDefault,
+			} );
+		},
+		[ max, defaultValue, setAttributes ]
+	);
 
-	const updateMax = newMax => {
-		const parsedMax = parseInt( newMax ) || 0;
-		const validatedMax = Math.max( parsedMax, min );
-		const validatedDefault = Math.min( defaultValue, validatedMax );
-		setAttributes( {
-			max: validatedMax,
-			default: validatedDefault,
-		} );
-	};
+	const onChangeMax = useCallback(
+		newMax => {
+			const parsedMax = parseInt( newMax ) || 0;
+			const validatedMax = Math.max( parsedMax, min );
+			const validatedDefault = Math.min( defaultValue, validatedMax );
+			setAttributes( {
+				max: validatedMax,
+				default: validatedDefault,
+			} );
+		},
+		[ min, defaultValue, setAttributes ]
+	);
 
 	// This is passed to child input-range block via context.
 	const onChangeDefault = useCallback(
@@ -40,8 +46,8 @@ export default function SliderFieldEdit( props ) {
 
 	// Make callback available in block attributes for context.
 	useEffect( () => {
-		setAttributes( { onChangeDefault } );
-	}, [ onChangeDefault, setAttributes ] );
+		setAttributes( { onChangeDefault, onChangeMin, onChangeMax } );
+	}, [ onChangeDefault, onChangeMin, onChangeMax, setAttributes ] );
 
 	// Ensure min, max, and default are always set when the block is first added.
 	useEffect( () => {
@@ -89,7 +95,7 @@ export default function SliderFieldEdit( props ) {
 						min={ Number.MIN_SAFE_INTEGER }
 						max={ max }
 						value={ min }
-						onChange={ updateMin }
+						onChange={ onChangeMin }
 					/>
 					<NumberControl
 						label={ __( 'Maximum value', 'jetpack-forms' ) }
@@ -97,7 +103,7 @@ export default function SliderFieldEdit( props ) {
 						min={ min }
 						max={ Number.MAX_SAFE_INTEGER }
 						value={ max }
-						onChange={ updateMax }
+						onChange={ onChangeMax }
 					/>
 					<NumberControl
 						label={ __( 'Default value', 'jetpack-forms' ) }
