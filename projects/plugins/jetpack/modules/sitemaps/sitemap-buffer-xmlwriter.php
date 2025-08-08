@@ -86,6 +86,14 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	protected $content = '';
 
 	/**
+	 * Tracks whether the root element has been started.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
+	 */
+	protected $root_started = false;
+
+	/**
 	 * Construct a new Jetpack_Sitemap_Buffer_XMLWriter.
 	 *
 	 * @since 14.6
@@ -108,7 +116,17 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		$this->item_capacity = max( 1, (int) $item_limit );
 		$this->byte_capacity = max( 1, (int) $byte_limit );
 
+		// Capture and account the XML declaration bytes to mirror DOM behavior.
+		$declaration          = $this->writer->outputMemory( true );
+		$this->content       .= $declaration;
+		$this->byte_capacity -= strlen( $declaration );
+
+		// Allow subclasses to write comments and processing instructions only.
 		$this->initialize_buffer();
+
+		// Capture pre-root bytes (comments/PI). Do not subtract from capacity.
+		$pre_root_output = $this->writer->outputMemory( true );
+		$this->content  .= $pre_root_output;
 	}
 
 	/**
@@ -119,6 +137,34 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @since 14.6
 	 */
 	abstract protected function initialize_buffer();
+
+	/**
+	 * Start the root element (e.g., urlset or sitemapindex) and write its attributes.
+	 * Implemented by subclasses.
+	 *
+	 * @since $$next-version$$
+	 * @access protected
+	 * @return void
+	 */
+	abstract protected function start_root();
+
+	/**
+	 * Ensure the root element has been started and account its bytes once.
+	 *
+	 * @since $$next-version$$
+	 * @access protected
+	 * @return void
+	 */
+	protected function ensure_root_started() {
+		if ( $this->root_started ) {
+			return;
+		}
+		$this->start_root();
+		$root_chunk           = $this->writer->outputMemory( true );
+		$this->content       .= $root_chunk;
+		$this->byte_capacity -= strlen( $root_chunk );
+		$this->root_started   = true;
+	}
 
 	/**
 	 * Append an item to the buffer.
@@ -142,8 +188,8 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 			return false;
 		}
 
-		$current_content = $this->writer->outputMemory( true );
-		$this->content  .= $current_content;
+		// Ensure root is started on first append and account its bytes.
+		$this->ensure_root_started();
 
 		$this->append_item( $array );
 		// Mark non-empty only if we actually appended an item.
@@ -205,6 +251,8 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @return string The contents of the buffer.
 	 */
 	public function contents() {
+		// If contents is requested, ensure the root exists so closing tags are valid.
+		$this->ensure_root_started();
 		$this->writer->endElement(); // End root element (urlset/sitemapindex)
 		$this->writer->endDocument();
 		$final_content  = $this->writer->outputMemory( true );

@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
-	 * Initialize the buffer with required headers and root element.
+	 * Initialize the buffer with required headers (no root element here).
 	 */
 	protected function initialize_buffer() {
 		// Add generator comment
@@ -29,8 +29,12 @@ class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 			'xml-stylesheet',
 			'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'image-sitemap.xsl' ) . '"'
 		);
+	}
 
-		// Start root element with namespaces
+	/**
+	 * Start the root element and write its namespaces.
+	 */
+	protected function start_root() {
 		$this->writer->startElement( 'urlset' );
 
 		/**
