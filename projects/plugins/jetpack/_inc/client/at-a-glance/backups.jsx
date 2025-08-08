@@ -113,7 +113,7 @@ class DashBackups extends Component {
 	};
 
 	getJetpackBackupBanner() {
-		const { partnerCoupon, upgradeUrl, siteRawUrl, trackUpgradeButtonView } = this.props;
+		const { partnerCoupon, upgradeUrl, siteRawUrl, trackUpgradeButtonView, blogID } = this.props;
 
 		// Build Business checkout URL variant for WordPress.com non-Business plans, respecting term
 		const isWpcom = isWpcomPlatformSite();
@@ -124,8 +124,8 @@ class DashBackups extends Component {
 		const termSuffix = getPlanTermSuffix( currentPlanSlug );
 		const businessPlanPath = termSuffix ? `business-${ termSuffix }` : 'business';
 		const businessCheckoutHref =
-			isWpcom && ! isBusinessPlan && this.props.blogID
-				? `https://wordpress.com/checkout/${ this.props.blogID }/${ businessPlanPath }`
+			isWpcom && ! isBusinessPlan && blogID
+				? `https://wordpress.com/checkout/${ blogID }/${ businessPlanPath }`
 				: null;
 
 		if ( this.props.hasConnectedOwner ) {
