@@ -1521,6 +1521,8 @@ class Feedback_Test extends BaseTestCase {
 				$this->assertEquals( 'file', $field->get_type() );
 			}
 		}
+
+		$this->assertSame( '', $saved_response->get_field_value_by_label( 'non existing field' ) );
 	}
 
 	public function test_legacy_get_all_legacy_values() {
@@ -1680,12 +1682,13 @@ class Feedback_Test extends BaseTestCase {
 		$post_id                = Utility::create_legacy_feedback(
 			array(
 				'1_field' => 'value1',
-				'2_field' => 'value2',
+				'2_field' => 'test@email.com',
+				'3_field' => 'value2',
 			)
 		);
 		$expected_legacy_values = array(
-			'3_field' => 'value1',
-			'4_field' => 'value2',
+			'4_field' => 'value1',
+			'5_field' => 'value2',
 		);
 		$response               = Feedback::get( $post_id );
 		$response_legacy        = $response->get_legacy_extra_values();
