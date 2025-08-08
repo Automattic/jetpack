@@ -80,7 +80,7 @@ class PayPal_Payment_Buttons {
 	 */
 	public function register_paypal_block() {
 		// Get the path to the dist directory in the paypal-payments package
-		$package_dir = dirname( __DIR__ ) . '/vendor/automattic/jetpack-paypal-payments';
+		$package_dir = dirname( __DIR__ ) . '/jetpack_vendor/automattic/jetpack-paypal-payments';
 		$dist_dir    = $package_dir . '/dist/paypal-payment-buttons';
 
 		if ( ! is_dir( $dist_dir ) ) {
