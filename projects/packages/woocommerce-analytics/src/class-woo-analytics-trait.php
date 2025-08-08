@@ -287,13 +287,14 @@ trait Woo_Analytics_Trait {
 	 */
 	public function get_common_properties() {
 		$session_id         = $this->get_session_id();
+		$landing_page       = $this->get_landing_page();
 		$site_info          = array(
 			'session_id'                         => $session_id,
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => $this->get_current_url(),
-			'landing_page'                       => $this->get_landing_page(),
+			'landing_page'                       => $landing_page,
 			'woo_version'                        => WC()->version,
 			'wp_version'                         => get_bloginfo( 'version' ),
 			'store_admin'                        => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
