@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-HGbvtrlt4Ko6kNuYeM88SPVZwU6lnlASmjxriP7alV0=
+pnpmfileChecksum: sha256-Xz7MKP7joIW9KVR3v8BiBo/q/jrzuLydTJDfoMP9mzs=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -8101,6 +8101,9 @@ packages:
     resolution: {integrity: sha512-mDQxylxGGCQSK7tJPkD144J8jWh9IU9ziJMHfB84PKpI/V5ZgqMDnpr2bssTrUaGDqU5e1/z8KcRF+Melhs9pQ==}
     peerDependencies:
       storybook: ^8.6.14
+    peerDependenciesMeta:
+      storybook:
+        optional: true
 
   '@storybook/addon-docs@9.0.15':
     resolution: {integrity: sha512-HOb45DkF23T1tRzakb9q33qnBRso15S/GM28ippPZWi5ZXR9RAyKVgOSMA/ViEpK4ezASxN+Tee+H7m4ksEFZw==}

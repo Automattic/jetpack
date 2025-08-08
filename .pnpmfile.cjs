@@ -329,6 +329,14 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
 	}
 
+	// Make this optional to avoid peer dependency warnings.
+	// This repo uses Storybook 9, where this package is empty anyway.
+	// A previous attempt to fix this upstream failed: https://github.com/Automattic/wp-calypso/pull/103291
+	if ( pkg.name === '@storybook/addon-actions' ) {
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta.storybook = { optional: true };
+	}
+
 	return pkg;
 }
 
