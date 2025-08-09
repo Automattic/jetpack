@@ -40,11 +40,9 @@ import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, Ref, SVGProps } from 'react';
 
-// ============================================================================
-// Types and Interfaces
-// ============================================================================
-
 type CurveType = 'smooth' | 'linear' | 'monotone';
+
+const X_TICK_WIDTH = 100;
 
 export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
 	glyphStyle?: SVGProps< SVGCircleElement >;
@@ -89,16 +87,6 @@ type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
 	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
 > &
 	LineChartAnnotationComponents;
-
-// ============================================================================
-// Constants and Utility Functions
-// ============================================================================
-
-const X_TICK_WIDTH = 100;
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
 
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
@@ -189,10 +177,6 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-// ============================================================================
-// Helper Components
-// ============================================================================
-
 const StartGlyph: FC< {
 	data: SeriesData;
 	index: number;
@@ -263,14 +247,6 @@ const LineChartScalesRef: FC< {
 	return null; // This component only provides the ref interface
 };
 
-// ============================================================================
-// Main Chart Components
-// ============================================================================
-
-/**
- * Core LineChart component that contains the main chart logic.
- * This is the base implementation that other decorators wrap around.
- */
 const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 	(
 		{
@@ -576,13 +552,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 // ============================================================================
 // Component Layer Architecture
-// ============================================================================
-
-/**
- * LineChart component with GlobalChartsProvider integration.
- * This layer manages the global chart context and ensures proper provider wrapping.
- * Uses forwardRef to maintain ref forwarding through the component chain.
- */
 const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
@@ -601,20 +570,12 @@ const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( pr
 
 LineChartWithProvider.displayName = 'LineChart';
 
-/**
- * Base LineChart component with composition API (subcomponents attached).
- * This is the non-responsive version that requires explicit width/height.
- */
 const LineChart = attachSubComponents( LineChartWithProvider, {
 	Legend: Legend,
 	AnnotationsOverlay: LineChartAnnotationsOverlay,
 	Annotation: LineChartAnnotation,
 } ) as LineChartComponent;
 
-/**
- * Responsive LineChart component that automatically handles sizing.
- * This is the default export that most users should use.
- */
 const LineChartResponsive = attachSubComponents(
 	withResponsive< LineChartProps >( LineChartWithProvider ),
 	{
