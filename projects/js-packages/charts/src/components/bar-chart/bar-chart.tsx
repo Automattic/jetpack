@@ -8,7 +8,7 @@ import {
 	useChartId,
 	useChartRegistration,
 } from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/chart-context';
+import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';

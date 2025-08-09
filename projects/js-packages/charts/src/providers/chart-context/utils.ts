@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo } from 'react';
-import { useGlobalChartsContext } from './chart-context';
+import { useGlobalChartsContext } from './global-charts-provider';
 import type { BaseLegendItem } from '../../components/legend/types';
 import type { ChartTheme } from '../../types';
 
