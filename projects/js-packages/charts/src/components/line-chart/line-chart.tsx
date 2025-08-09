@@ -14,8 +14,8 @@ import {
 	useRef,
 } from 'react';
 import {
-	ChartProvider,
-	ChartContext,
+	GlobalChartsProvider,
+	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
 } from '../../providers/chart-context';
@@ -550,18 +550,18 @@ type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
 	LineChartAnnotationComponents;
 
 const LineChart = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
-	const existingContext = useContext( ChartContext );
+	const existingContext = useContext( GlobalChartsContext );
 
-	// If we're already in a ChartProvider context, don't create a new one
+	// If we're already in a GlobalChartsProvider context, don't create a new one
 	if ( existingContext ) {
 		return <LineChartInternal { ...props } ref={ ref } />;
 	}
 
-	// Otherwise, create our own ChartProvider
+	// Otherwise, create our own GlobalChartsProvider
 	return (
-		<ChartProvider>
+		<GlobalChartsProvider>
 			<LineChartInternal { ...props } ref={ ref } />
-		</ChartProvider>
+		</GlobalChartsProvider>
 	);
 } ) as LineChartComponent;
 

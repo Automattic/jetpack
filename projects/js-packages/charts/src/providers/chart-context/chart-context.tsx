@@ -2,14 +2,13 @@ import { createContext, useContext, useCallback, useState, useMemo } from 'react
 import type { ChartContextValue, ChartRegistration } from './types';
 import type { FC, ReactNode } from 'react';
 
-export const ChartContext = createContext< ChartContextValue | null >( null );
+export const GlobalChartsContext = createContext< ChartContextValue | null >( null );
 
-export interface ChartProviderProps {
+export interface GlobalChartsProviderProps {
 	children: ReactNode;
 }
 
-// TODO: We should probably rename this to GlobalChartsProvider?
-export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
@@ -41,13 +40,13 @@ export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
 		[ charts, registerChart, unregisterChart, getChartData ]
 	);
 
-	return <ChartContext.Provider value={ value }>{ children }</ChartContext.Provider>;
+	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
 };
 
-export const useChartContext = (): ChartContextValue => {
-	const context = useContext( ChartContext );
+export const useGlobalChartsContext = (): ChartContextValue => {
+	const context = useContext( GlobalChartsContext );
 	if ( ! context ) {
-		throw new Error( 'useChartContext must be used within a ChartProvider' );
+		throw new Error( 'useGlobalChartsContext must be used within a GlobalChartsProvider' );
 	}
 	return context;
 };

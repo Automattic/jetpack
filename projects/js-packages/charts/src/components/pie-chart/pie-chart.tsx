@@ -3,8 +3,12 @@ import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
-import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
-import { ChartContext } from '../../providers/chart-context/chart-context';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+} from '../../providers/chart-context';
+import { GlobalChartsContext } from '../../providers/chart-context/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -268,18 +272,18 @@ const PieChartInternal = ( {
 };
 
 const PieChart = ( props: PieChartProps ) => {
-	const existingContext = useContext( ChartContext );
+	const existingContext = useContext( GlobalChartsContext );
 
-	// If we're already in a ChartProvider context, don't create a new one
+	// If we're already in a GlobalChartsProvider context, don't create a new one
 	if ( existingContext ) {
 		return <PieChartInternal { ...props } />;
 	}
 
-	// Otherwise, create our own ChartProvider
+	// Otherwise, create our own GlobalChartsProvider
 	return (
-		<ChartProvider>
+		<GlobalChartsProvider>
 			<PieChartInternal { ...props } />
-		</ChartProvider>
+		</GlobalChartsProvider>
 	);
 };
 

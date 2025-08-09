@@ -1,5 +1,5 @@
 import { useContext, useMemo, forwardRef } from 'react';
-import { ChartContext } from '../../providers/chart-context/chart-context';
+import { GlobalChartsContext } from '../../providers/chart-context/chart-context';
 import { SingleChartContext } from '../shared/single-chart-context';
 import { BaseLegend } from './base-legend';
 import type { LegendProps } from './types';
@@ -7,7 +7,7 @@ import type { LegendProps } from './types';
 export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 	( { chartId, items, ...props }, ref ) => {
 		// Get context but don't throw if it doesn't exist
-		const context = useContext( ChartContext );
+		const context = useContext( GlobalChartsContext );
 		const singleChartContext = useContext( SingleChartContext );
 		const contextChartId = chartId ?? singleChartContext.chartId;
 

@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo } from 'react';
-import { useChartContext } from './chart-context';
+import { useGlobalChartsContext } from './chart-context';
 import type { BaseLegendItem } from '../../components/legend/types';
 import type { ChartTheme } from '../../types';
 
@@ -16,7 +16,7 @@ export const useChartRegistration = (
 	isDataValid: boolean,
 	metadata?: Record< string, unknown >
 ): void => {
-	const { registerChart, unregisterChart } = useChartContext();
+	const { registerChart, unregisterChart } = useGlobalChartsContext();
 
 	// Memoize metadata to prevent unnecessary re-renders
 	const memoizedMetadata = useMemo( () => metadata, [ metadata ] );
