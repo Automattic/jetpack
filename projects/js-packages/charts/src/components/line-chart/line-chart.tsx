@@ -48,30 +48,6 @@ export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datu
 	glyphStyle?: SVGProps< SVGCircleElement >;
 };
 
-type TooltipDatum = {
-	key: string;
-	value: number;
-};
-
-// Component type definitions for composition API
-type LineChartAnnotationComponents = {
-	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
-	Annotation: typeof LineChartAnnotation;
-	Legend: typeof Legend;
-};
-
-type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
-
-type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & React.RefAttributes< SingleChartRef >
-> &
-	LineChartAnnotationComponents;
-
-type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
-> &
-	LineChartAnnotationComponents;
-
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
 ) => {
@@ -161,6 +137,11 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	};
 	children?: ReactNode;
 }
+
+type TooltipDatum = {
+	key: string;
+	value: number;
+};
 
 const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
 	const { tooltipData } = params;
@@ -549,6 +530,25 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 	}
 );
+
+// Component type definitions for composition API
+type LineChartAnnotationComponents = {
+	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
+	Annotation: typeof LineChartAnnotation;
+	Legend: typeof Legend;
+};
+
+type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
+
+type LineChartComponent = React.ForwardRefExoticComponent<
+	LineChartBaseProps & React.RefAttributes< SingleChartRef >
+> &
+	LineChartAnnotationComponents;
+
+type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
+> &
+	LineChartAnnotationComponents;
 
 const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
