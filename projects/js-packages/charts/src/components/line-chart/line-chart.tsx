@@ -48,22 +48,6 @@ export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datu
 	glyphStyle?: SVGProps< SVGCircleElement >;
 };
 
-interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	withGradientFill: boolean;
-	smoothing?: boolean;
-	curveType?: CurveType;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
-	withStartGlyphs?: boolean;
-	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphStyle?: SVGProps< SVGCircleElement >;
-	withLegendGlyph?: boolean;
-	withTooltipCrosshairs?: {
-		showVertical?: boolean;
-		showHorizontal?: boolean;
-	};
-	children?: ReactNode;
-}
-
 type TooltipDatum = {
 	key: string;
 	value: number;
@@ -99,6 +83,43 @@ const toNumber = ( val?: number | string | null ): number | undefined => {
 	return isNaN( num ) ? undefined : num;
 };
 
+const StartGlyph: FC< {
+	data: SeriesData;
+	index: number;
+	color: string;
+	renderGlyph: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
+	accessors: {
+		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
+		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
+	};
+	glyphStyle?: SVGProps< SVGCircleElement >;
+} > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
+	const { xScale, yScale } = useContext( DataContext ) || {};
+	if ( ! xScale || ! yScale ) return null;
+
+	if ( data.data.length === 0 ) return null;
+
+	const firstPoint = data.data[ 0 ];
+
+	const x = xScale( accessors.xAccessor( firstPoint ) );
+	const y = yScale( accessors.yAccessor( firstPoint ) );
+
+	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
+
+	const size = Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 );
+
+	return renderGlyph( {
+		key: `start-glyph-${ data.label }`,
+		index,
+		datum: firstPoint,
+		color,
+		size,
+		x,
+		y,
+		glyphStyle,
+	} );
+};
+
 /**
  * Determines the curve type for the line chart based on the provided type and smoothing parameters
  *
@@ -124,6 +145,22 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 			return curveLinear;
 	}
 };
+
+interface LineChartProps extends BaseChartProps< SeriesData[] > {
+	withGradientFill: boolean;
+	smoothing?: boolean;
+	curveType?: CurveType;
+	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	withStartGlyphs?: boolean;
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	glyphStyle?: SVGProps< SVGCircleElement >;
+	withLegendGlyph?: boolean;
+	withTooltipCrosshairs?: {
+		showVertical?: boolean;
+		showHorizontal?: boolean;
+	};
+	children?: ReactNode;
+}
 
 const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
 	const { tooltipData } = params;
@@ -175,43 +212,6 @@ const validateData = ( data: SeriesData[] ) => {
 
 	if ( hasInvalidData ) return 'Invalid data';
 	return null;
-};
-
-const StartGlyph: FC< {
-	data: SeriesData;
-	index: number;
-	color: string;
-	renderGlyph: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
-	accessors: {
-		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
-		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
-	};
-	glyphStyle?: SVGProps< SVGCircleElement >;
-} > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
-	const { xScale, yScale } = useContext( DataContext ) || {};
-	if ( ! xScale || ! yScale ) return null;
-
-	if ( data.data.length === 0 ) return null;
-
-	const firstPoint = data.data[ 0 ];
-
-	const x = xScale( accessors.xAccessor( firstPoint ) );
-	const y = yScale( accessors.yAccessor( firstPoint ) );
-
-	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
-
-	const size = Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 );
-
-	return renderGlyph( {
-		key: `start-glyph-${ data.label }`,
-		index,
-		datum: firstPoint,
-		color,
-		size,
-		x,
-		y,
-		glyphStyle,
-	} );
 };
 
 // Inner component to access DataContext and provide scale data to ref
@@ -550,8 +550,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 	}
 );
 
-// ============================================================================
-// Component Layer Architecture
 const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
