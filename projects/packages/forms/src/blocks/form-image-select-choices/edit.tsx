@@ -5,17 +5,24 @@ import {
 	store as blockEditorStore,
 	useBlockProps,
 	useInnerBlocksProps,
+	BlockControls,
 } from '@wordpress/block-editor';
+import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import useAddImageChoice from '../shared/hooks/use-add-image-choice';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 
 export default function ImageChoiceFieldEdit( props ) {
 	const { attributes, clientId, isSelected } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
+
+	const { addChoice } = useAddImageChoice( clientId );
+
 	const { isInnerBlockSelected } = useSelect(
 		select => {
 			const { hasSelectedInnerBlock } = select( blockEditorStore ) as {
@@ -54,6 +61,12 @@ export default function ImageChoiceFieldEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
+
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarButton onClick={ addChoice }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
+				</ToolbarGroup>
+			</BlockControls>
 		</div>
 	);
 }
