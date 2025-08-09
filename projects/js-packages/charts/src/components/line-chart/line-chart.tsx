@@ -40,13 +40,65 @@ import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, Ref, SVGProps } from 'react';
 
-type CurveType = 'smooth' | 'linear' | 'monotone';
+// ============================================================================
+// Types and Interfaces
+// ============================================================================
 
-const X_TICK_WIDTH = 100;
+type CurveType = 'smooth' | 'linear' | 'monotone';
 
 export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
 	glyphStyle?: SVGProps< SVGCircleElement >;
 };
+
+interface LineChartProps extends BaseChartProps< SeriesData[] > {
+	withGradientFill: boolean;
+	smoothing?: boolean;
+	curveType?: CurveType;
+	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	withStartGlyphs?: boolean;
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	glyphStyle?: SVGProps< SVGCircleElement >;
+	withLegendGlyph?: boolean;
+	withTooltipCrosshairs?: {
+		showVertical?: boolean;
+		showHorizontal?: boolean;
+	};
+	children?: ReactNode;
+}
+
+type TooltipDatum = {
+	key: string;
+	value: number;
+};
+
+// Component type definitions for composition API
+type LineChartAnnotationComponents = {
+	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
+	Annotation: typeof LineChartAnnotation;
+	Legend: typeof Legend;
+};
+
+type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
+
+type LineChartComponent = React.ForwardRefExoticComponent<
+	LineChartBaseProps & React.RefAttributes< SingleChartRef >
+> &
+	LineChartAnnotationComponents;
+
+type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
+> &
+	LineChartAnnotationComponents;
+
+// ============================================================================
+// Constants and Utility Functions
+// ============================================================================
+
+const X_TICK_WIDTH = 100;
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
 
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
@@ -57,43 +109,6 @@ const defaultRenderGlyph = < Datum extends object >(
 const toNumber = ( val?: number | string | null ): number | undefined => {
 	const num = typeof val === 'number' ? val : parseFloat( val );
 	return isNaN( num ) ? undefined : num;
-};
-
-const StartGlyph: FC< {
-	data: SeriesData;
-	index: number;
-	color: string;
-	renderGlyph: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
-	accessors: {
-		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
-		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
-	};
-	glyphStyle?: SVGProps< SVGCircleElement >;
-} > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
-	const { xScale, yScale } = useContext( DataContext ) || {};
-	if ( ! xScale || ! yScale ) return null;
-
-	if ( data.data.length === 0 ) return null;
-
-	const firstPoint = data.data[ 0 ];
-
-	const x = xScale( accessors.xAccessor( firstPoint ) );
-	const y = yScale( accessors.yAccessor( firstPoint ) );
-
-	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
-
-	const size = Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 );
-
-	return renderGlyph( {
-		key: `start-glyph-${ data.label }`,
-		index,
-		datum: firstPoint,
-		color,
-		size,
-		x,
-		y,
-		glyphStyle,
-	} );
 };
 
 /**
@@ -120,27 +135,6 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 		default:
 			return curveLinear;
 	}
-};
-
-interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	withGradientFill: boolean;
-	smoothing?: boolean;
-	curveType?: CurveType;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
-	withStartGlyphs?: boolean;
-	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphStyle?: SVGProps< SVGCircleElement >;
-	withLegendGlyph?: boolean;
-	withTooltipCrosshairs?: {
-		showVertical?: boolean;
-		showHorizontal?: boolean;
-	};
-	children?: ReactNode;
-}
-
-type TooltipDatum = {
-	key: string;
-	value: number;
 };
 
 const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
@@ -195,6 +189,47 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
+// ============================================================================
+// Helper Components
+// ============================================================================
+
+const StartGlyph: FC< {
+	data: SeriesData;
+	index: number;
+	color: string;
+	renderGlyph: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
+	accessors: {
+		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
+		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
+	};
+	glyphStyle?: SVGProps< SVGCircleElement >;
+} > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
+	const { xScale, yScale } = useContext( DataContext ) || {};
+	if ( ! xScale || ! yScale ) return null;
+
+	if ( data.data.length === 0 ) return null;
+
+	const firstPoint = data.data[ 0 ];
+
+	const x = xScale( accessors.xAccessor( firstPoint ) );
+	const y = yScale( accessors.yAccessor( firstPoint ) );
+
+	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
+
+	const size = Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 );
+
+	return renderGlyph( {
+		key: `start-glyph-${ data.label }`,
+		index,
+		datum: firstPoint,
+		color,
+		size,
+		x,
+		y,
+		glyphStyle,
+	} );
+};
+
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
 	chartRef?: Ref< SingleChartRef >;
@@ -228,6 +263,14 @@ const LineChartScalesRef: FC< {
 	return null; // This component only provides the ref interface
 };
 
+// ============================================================================
+// Main Chart Components
+// ============================================================================
+
+/**
+ * Core LineChart component that contains the main chart logic.
+ * This is the base implementation that other decorators wrap around.
+ */
 const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 	(
 		{
@@ -531,57 +574,54 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 	}
 );
 
-type LineChartAnnotationComponents = {
-	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
-	Annotation: typeof LineChartAnnotation;
-	Legend: typeof Legend;
-};
+// ============================================================================
+// Component Layer Architecture
+// ============================================================================
 
-type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
-
-type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & React.RefAttributes< SingleChartRef >
-> &
-	LineChartAnnotationComponents;
-
-type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
-> &
-	LineChartAnnotationComponents;
-
-const LineChart = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
+/**
+ * LineChart component with GlobalChartsProvider integration.
+ * This layer manages the global chart context and ensures proper provider wrapping.
+ * Uses forwardRef to maintain ref forwarding through the component chain.
+ */
+const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
-	// If we're already in a GlobalChartsProvider context, don't create a new one
+	// If we're already in a GlobalChartsProvider context, render the core component directly
 	if ( existingContext ) {
 		return <LineChartInternal { ...props } ref={ ref } />;
 	}
 
-	// Otherwise, create our own GlobalChartsProvider
+	// Otherwise, wrap with our own GlobalChartsProvider
 	return (
 		<GlobalChartsProvider>
 			<LineChartInternal { ...props } ref={ ref } />
 		</GlobalChartsProvider>
 	);
-} ) as LineChartComponent;
+} );
 
-LineChart.displayName = 'LineChart';
+LineChartWithProvider.displayName = 'LineChart';
 
-// Attach subcomponents to create composition API
-const LineChartUnresponsive = attachSubComponents( LineChart, {
+/**
+ * Base LineChart component with composition API (subcomponents attached).
+ * This is the non-responsive version that requires explicit width/height.
+ */
+const LineChart = attachSubComponents( LineChartWithProvider, {
 	Legend: Legend,
 	AnnotationsOverlay: LineChartAnnotationsOverlay,
 	Annotation: LineChartAnnotation,
 } ) as LineChartComponent;
 
-// Create responsive version with composition API
-const ResponsiveLineChart = withResponsive< LineChartProps >( LineChart );
+/**
+ * Responsive LineChart component that automatically handles sizing.
+ * This is the default export that most users should use.
+ */
+const LineChartResponsive = attachSubComponents(
+	withResponsive< LineChartProps >( LineChartWithProvider ),
+	{
+		Legend: Legend,
+		AnnotationsOverlay: LineChartAnnotationsOverlay,
+		Annotation: LineChartAnnotation,
+	}
+) as LineChartResponsiveComponent;
 
-// Attach subcomponents to responsive version as well
-const LineChartWithComposition = attachSubComponents( ResponsiveLineChart, {
-	Legend: Legend,
-	AnnotationsOverlay: LineChartAnnotationsOverlay,
-	Annotation: LineChartAnnotation,
-} ) as LineChartResponsiveComponent;
-
-export { LineChartWithComposition as default, LineChartUnresponsive };
+export { LineChartResponsive as default, LineChart as LineChartUnresponsive };
