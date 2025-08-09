@@ -12,7 +12,6 @@ import { GlobalChartsContext } from '../../providers/chart-context/global-charts
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { SingleChartContext } from '../shared/single-chart-context';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
@@ -261,116 +260,108 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const highlightedBarStyle = createKeyboardHighlightStyle();
 
 	return (
-		<SingleChartContext.Provider
-			value={ {
-				chartId,
-				chartWidth: width,
-				chartHeight: height,
+		<div
+			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+			data-testid="bar-chart"
+			role="grid"
+			aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+			style={ {
+				width,
+				height,
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
 			} }
+			tabIndex={ 0 }
+			onKeyDown={ onChartKeyDown }
+			onFocus={ onChartFocus }
+			onBlur={ onChartBlur }
+			ref={ chartRef }
+			data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
 		>
-			<div
-				className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
-				data-testid="bar-chart"
-				role="grid"
-				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
-				style={ {
-					width,
-					height,
-					display: 'flex',
-					flexDirection:
-						showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+			<XYChart
+				theme={ theme }
+				width={ width }
+				height={ height - ( showLegend ? legendHeight : 0 ) }
+				margin={ {
+					...defaultMargin,
+					...margin,
+					...( showLegend && legendAlignmentVertical === 'top'
+						? { top: ( defaultMargin.top || 0 ) + legendHeight }
+						: {} ),
 				} }
-				tabIndex={ 0 }
-				onKeyDown={ onChartKeyDown }
-				onFocus={ onChartFocus }
-				onBlur={ onChartBlur }
-				ref={ chartRef }
-				data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
+				xScale={ chartOptions.xScale }
+				yScale={ chartOptions.yScale }
+				horizontal={ horizontal }
+				pointerEventsDataKey="nearest"
 			>
-				<XYChart
-					theme={ theme }
-					width={ width }
-					height={ height - ( showLegend ? legendHeight : 0 ) }
-					margin={ {
-						...defaultMargin,
-						...margin,
-						...( showLegend && legendAlignmentVertical === 'top'
-							? { top: ( defaultMargin.top || 0 ) + legendHeight }
-							: {} ),
-					} }
-					xScale={ chartOptions.xScale }
-					yScale={ chartOptions.yScale }
-					horizontal={ horizontal }
-					pointerEventsDataKey="nearest"
-				>
-					<Grid
-						columns={ gridVisibility.includes( 'y' ) }
-						rows={ gridVisibility.includes( 'x' ) }
-						numTicks={ 4 }
-					/>
+				<Grid
+					columns={ gridVisibility.includes( 'y' ) }
+					rows={ gridVisibility.includes( 'x' ) }
+					numTicks={ 4 }
+				/>
 
-					{ withPatterns && (
-						<>
-							<defs data-testid="bar-chart-patterns">
-								{ dataSorted.map( ( seriesData, index ) =>
-									renderPattern( index, getColor( seriesData, index ) )
-								) }
-							</defs>
-							<style>
-								{ dataSorted.map( ( seriesData, index ) =>
-									createPatternBorderStyle( index, getColor( seriesData, index ) )
-								) }
-							</style>
-						</>
-					) }
+				{ withPatterns && (
+					<>
+						<defs data-testid="bar-chart-patterns">
+							{ dataSorted.map( ( seriesData, index ) =>
+								renderPattern( index, getColor( seriesData, index ) )
+							) }
+						</defs>
+						<style>
+							{ dataSorted.map( ( seriesData, index ) =>
+								createPatternBorderStyle( index, getColor( seriesData, index ) )
+							) }
+						</style>
+					</>
+				) }
 
-					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+				{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
-					<BarGroup padding={ chartOptions.barGroup.padding }>
-						{ dataWithVisibleZeros.map( ( seriesData, index ) => (
-							<BarSeries
-								key={ seriesData?.label }
-								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] }
-								yAccessor={ chartOptions.accessors.yAccessor }
-								xAccessor={ chartOptions.accessors.xAccessor }
-								colorAccessor={ getBarBackground( index ) }
-							/>
-						) ) }
-					</BarGroup>
-
-					<Axis { ...chartOptions.axis.x } />
-					<Axis { ...chartOptions.axis.y } />
-
-					{ withTooltips && (
-						<AccessibleTooltip
-							detectBounds
-							snapTooltipToDatumX
-							snapTooltipToDatumY
-							renderTooltip={ renderTooltip || renderDefaultTooltip }
-							selectedIndex={ selectedIndex }
-							tooltipRef={ tooltipRef }
-							keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
-							series={ data }
-							mode="individual"
+				<BarGroup padding={ chartOptions.barGroup.padding }>
+					{ dataWithVisibleZeros.map( ( seriesData, index ) => (
+						<BarSeries
+							key={ seriesData?.label }
+							dataKey={ seriesData?.label }
+							data={ seriesData.data as DataPointDate[] }
+							yAccessor={ chartOptions.accessors.yAccessor }
+							xAccessor={ chartOptions.accessors.xAccessor }
+							colorAccessor={ getBarBackground( index ) }
 						/>
-					) }
-				</XYChart>
+					) ) }
+				</BarGroup>
 
-				{ showLegend && (
-					<Legend
-						items={ legendItems }
-						orientation={ legendOrientation }
-						alignmentHorizontal={ legendAlignmentHorizontal }
-						alignmentVertical={ legendAlignmentVertical }
-						className={ styles[ 'bar-chart__legend' ] }
-						shape={ legendShape }
-						ref={ legendRef }
-						chartId={ chartId }
+				<Axis { ...chartOptions.axis.x } />
+				<Axis { ...chartOptions.axis.y } />
+
+				{ withTooltips && (
+					<AccessibleTooltip
+						detectBounds
+						snapTooltipToDatumX
+						snapTooltipToDatumY
+						renderTooltip={ renderTooltip || renderDefaultTooltip }
+						selectedIndex={ selectedIndex }
+						tooltipRef={ tooltipRef }
+						keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
+						series={ data }
+						mode="individual"
 					/>
 				) }
-			</div>
-		</SingleChartContext.Provider>
+			</XYChart>
+
+			{ showLegend && (
+				<Legend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
+					className={ styles[ 'bar-chart__legend' ] }
+					shape={ legendShape }
+					ref={ legendRef }
+					chartId={ chartId }
+				/>
+			) }
+		</div>
 	);
 };
 
