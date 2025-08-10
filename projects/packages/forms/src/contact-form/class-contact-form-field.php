@@ -325,7 +325,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( ! empty( $options_data ) ) {
 						$options = array_map(
 							function ( $option ) {
-								return trim( $option['label'] );
+								return sanitize_text_field( trim( $option['label'] ) );
 							},
 							$options_data
 						);
