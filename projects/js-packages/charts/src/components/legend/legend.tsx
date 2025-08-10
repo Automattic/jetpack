@@ -9,7 +9,10 @@ export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 		// Get context but don't throw if it doesn't exist
 		const context = useContext( GlobalChartsContext );
 		const singleChartContext = useContext( SingleChartContext );
-		const contextChartId = chartId ?? singleChartContext.chartId;
+
+		// When chartId is used, it is standalone mode
+		// When chartId is not provided, we use the context's chartId, meaning it is in a single chart context
+		const contextChartId = chartId ?? singleChartContext?.chartId;
 
 		// Use useMemo to ensure re-rendering when context changes
 		const contextItems = useMemo( () => {
@@ -18,8 +21,8 @@ export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 				: undefined;
 		}, [ contextChartId, context ] );
 
-		// Use context items if available, otherwise fall back to provided items
-		const legendItems = ( contextItems || items ) as typeof items;
+		// Provided items take precedence over context items
+		const legendItems = ( items || contextItems ) as typeof items;
 
 		if ( ! legendItems ) {
 			return null;
