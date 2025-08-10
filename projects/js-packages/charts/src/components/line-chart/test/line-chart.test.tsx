@@ -9,7 +9,7 @@ import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
-import type { LineChartRef } from '../../shared/line-chart-context';
+import type { SingleChartRef } from '../../shared/single-chart-context';
 
 const customTheme = {
 	...jetpackTheme,
@@ -370,7 +370,7 @@ describe( 'LineChart', () => {
 
 	describe( 'Chart Ref Interface', () => {
 		test( 'exposes getScales method via ref', () => {
-			const ref = createRef< LineChartRef >();
+			const ref = createRef< SingleChartRef >();
 			renderUnwrappedWithTheme( {}, 'jetpack', ref );
 
 			expect( ref.current?.getScales() ).toBeDefined();
@@ -379,7 +379,7 @@ describe( 'LineChart', () => {
 		} );
 
 		test( 'exposes getChartDimensions method via ref', () => {
-			const ref = createRef< LineChartRef >();
+			const ref = createRef< SingleChartRef >();
 			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'jetpack', ref );
 
 			const dimensions = ref.current?.getChartDimensions();
