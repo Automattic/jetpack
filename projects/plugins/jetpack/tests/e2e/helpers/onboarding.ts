@@ -1,4 +1,4 @@
-import logger from '_jetpack-e2e-commons/logger.js';
+import logger from '_jetpack-e2e-commons/logger';
 import type { Page } from '@playwright/test';
 
 type RedirectToWpcomOptions = {

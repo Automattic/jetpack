@@ -54,7 +54,7 @@ const UploaderProgress = ( { file, onDone, onReset, isInteractionDisabled } ) =>
 			media:
 				! isFetchingGUID || typeof mediaServerID === 'undefined'
 					? undefined
-					: select( coreStore ).getMedia( mediaServerID ),
+					: select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaServerID ),
 		} ),
 		[ isFetchingGUID, mediaServerID ]
 	);

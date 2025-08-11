@@ -5,6 +5,12 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"type": "module",
+	"exports": {
+		"./*": "./*.ts",
+		"./config/*.cjs": "./config/*.cjs",
+		"./eslint.config.mjs": "./eslint.config.mjs",
+		"./tsconfig.json": "./tsconfig.json"
+	},
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
 		"tunnel": "./bin/tunnel.sh"

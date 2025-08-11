@@ -1,5 +1,5 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { connect } from '../flows/connection.ts';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
+import { connect } from '../flows/connection';
 import type { Page } from '@playwright/test';
 
 /**

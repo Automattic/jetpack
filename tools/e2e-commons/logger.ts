@@ -4,16 +4,10 @@ import { createLogger, format, transports, addColors } from 'winston';
 
 const myCustomLevels = {
 	levels: {
-		error: 30,
-		sync: 35,
-		warn: 40,
-		notice: 50,
-		info: 60,
-		step: 70,
-		action: 80,
-		prerequisites: 90,
-		cli: 100,
-		debug: 110,
+		error: 10,
+		warn: 20,
+		info: 30,
+		debug: 40,
 	},
 	colors: {
 		action: 'cyan',
@@ -61,12 +55,6 @@ export default createLogger( {
 			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-debug.log' ),
 			format: stringFormat,
 			level: 'debug',
-		} ),
-
-		new transports.File( {
-			filename: path.resolve( config.get( 'dirs.logs' ), 'sync-debug.log' ),
-			format: stringFormat,
-			level: 'sync',
 		} ),
 
 		new transports.Console( {

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import config from 'config';
-import logger from '../logger.js';
-import { executeCommand } from './cli.js';
+import logger from '../logger';
+import { executeCommand } from './cli';
 
 interface TestSite {
 	url: string;
