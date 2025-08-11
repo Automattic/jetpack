@@ -192,6 +192,4 @@ function jetpack_facebook_embed_reversal( $content ) {
 /**
  * Embed reversal: Convert an embed code from Facebook.com to an oEmbeddable URL.
  */
-if ( jetpack_shortcodes_should_hook_pre_kses() ) {
-	add_filter( 'pre_kses', 'jetpack_facebook_embed_reversal' );
-}
+add_filter( 'pre_kses', 'jetpack_facebook_embed_reversal' );
