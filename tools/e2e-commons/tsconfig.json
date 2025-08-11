@@ -1,11 +1,3 @@
 {
-	"compilerOptions": {
-		"allowImportingTsExtensions": true,
-		"module": "ES2022",
-		"moduleResolution": "bundler",
-		"rewriteRelativeImportExtensions": true,
-		"noEmit": true,
-		"target": "ES2022",
-		"baseUrl": "."
-	}
+	"extends": "jetpack-js-tools/tsconfig.base.json"
 }

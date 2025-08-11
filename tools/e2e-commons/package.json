@@ -5,6 +5,11 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"type": "module",
+	"exports": {
+		"./*": "./*.ts",
+		"./bin/*.js": "./bin/*.js",
+		"./config/*.cjs": "./config/*.cjs"
+	},
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
 		"tunnel": "./bin/tunnel.sh"
