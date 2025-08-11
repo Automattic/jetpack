@@ -216,7 +216,6 @@ function wpcom_add_jetpack_submenu() {
 	}
 
 	if ( ! $is_simple_site && $is_personal_or_premium ) {
-		// Jetpack > Stats.
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
