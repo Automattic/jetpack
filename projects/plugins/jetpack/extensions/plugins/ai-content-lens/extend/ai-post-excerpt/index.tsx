@@ -143,8 +143,8 @@ function AiPostExcerpt() {
 	const currentExcerpt = suggestion || excerpt;
 	const numberOfWords = count( currentExcerpt, 'words' );
 	const helpNumberOfWords = sprintf(
-		// Translators: %1$s is the number of words in the excerpt.
-		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
+		// Translators: %1$d is the number of words in the excerpt.
+		_n( '%1$d word', '%1$d words', numberOfWords, 'jetpack' ),
 		numberOfWords
 	);
 
