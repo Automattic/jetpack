@@ -22,6 +22,13 @@ class Help_Center {
 	private static $instance = null;
 
 	/**
+	 * Is next admin
+	 *
+	 * @var bool
+	 */
+	private $is_next_admin = false;
+
+	/**
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
@@ -182,6 +189,7 @@ class Help_Center {
 						'isProxied'   => boolval( self::is_proxied() ),
 						'isSU'        => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
 						'isSSP'       => isset( $_COOKIE['ssp'] ),
+						'isNextAdmin' => $this->is_next_admin,
 						'currentUser' => array(
 							'ID'           => $user_id,
 							'username'     => $username,
@@ -426,6 +434,7 @@ class Help_Center {
 		if ( $this->is_wc_admin_home_page() ) {
 			return;
 		}
+		$this->is_next_admin = (bool) did_action( 'next_admin_init' );
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
@@ -441,7 +450,7 @@ class Help_Center {
 			return;
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() || ( isset( $_SERVER['REQUEST_URI'] ) && str_contains( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'next-admin' ) ) ) {
+		} elseif ( $this->is_block_editor() || $this->is_next_admin ) {
 			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
