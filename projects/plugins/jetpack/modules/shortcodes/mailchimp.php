@@ -24,16 +24,13 @@ function jetpack_mailchimp_subscriber_popup() {
 			'shortcode',
 		)
 	);
-
-	if ( jetpack_shortcodes_should_hook_pre_kses() ) {
-		add_filter(
-			'pre_kses',
-			array(
-				'MailChimp_Subscriber_Popup',
-				'reversal',
-			)
-		);
-	}
+	add_filter(
+		'pre_kses',
+		array(
+			'MailChimp_Subscriber_Popup',
+			'reversal',
+		)
+	);
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

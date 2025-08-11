@@ -68,9 +68,7 @@ function jetpack_googlemaps_embed_to_short_code_callback( $match ) {
 	return "[googlemaps $url]";
 }
 
-if ( jetpack_shortcodes_should_hook_pre_kses() ) {
-	add_filter( 'pre_kses', 'jetpack_googlemaps_embed_to_short_code' );
-}
+add_filter( 'pre_kses', 'jetpack_googlemaps_embed_to_short_code' );
 
 /**
  * Display the [googlemaps] shortcode
