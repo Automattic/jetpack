@@ -196,8 +196,7 @@ add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
-	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
 	$blog_id = Connection_Manager::get_site_id();
 	if ( is_wp_error( $blog_id ) ) {
@@ -287,18 +286,16 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	if ( $uses_wp_admin_interface ) {
-		// Jetpack > Activity Log.
-		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
-		add_submenu_page(
-			'jetpack',
-			__( 'Activity Log', 'jetpack-mu-wpcom' ),
-			__( 'Activity Log', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/activity-log/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-	}
+	// Jetpack > Activity Log.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+	add_submenu_page(
+		'jetpack',
+		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/activity-log/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
 
 	// Re-order menu.
 	global $submenu;
