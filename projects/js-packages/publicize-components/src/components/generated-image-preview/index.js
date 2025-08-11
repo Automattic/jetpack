@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, BaseControl } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
@@ -99,7 +100,7 @@ export default function GeneratedImagePreview( {
 		return {
 			title: select( editorStore ).getEditedPostAttribute( 'title' ),
 			imageUrl: calculateImageUrl( imageType, imageId, featuredImage, defaultImageId, mediaID =>
-				select( 'core' ).getEntityRecord( 'postType', 'attachment', mediaID )
+				select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaID )
 			),
 		};
 	} );
