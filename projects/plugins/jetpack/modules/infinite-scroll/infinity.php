@@ -1549,7 +1549,7 @@ class The_Neverending_Home_Page {
 					);
 				}
 
-				$results['postflair'] = array_flip( $flippable_jetpack_sharing_counts );
+				$results['postflair'] = array_flip( $flippable_jetpack_sharing_counts ?? array() );
 			}
 		} else {
 			/** This action is already documented in modules/infinite-scroll/infinity.php */
