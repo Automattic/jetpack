@@ -133,6 +133,32 @@ const defaultDeltaFormatter = ( value: number ): string => {
 	} );
 };
 
+const ProgressBarWithLabel = ( {
+	entry,
+	withComparison,
+}: {
+	entry: LeaderboardEntry;
+	withComparison?: boolean;
+} ) => (
+	<>
+		{ typeof entry.label === 'string' ? <Text>{ entry.label }</Text> : entry.label }
+
+		<div className={ styles.progressContainer }>
+			<ProgressBar
+				value={ entry.currentShare }
+				className={ clsx( styles.progressBar, styles.primaryBar ) }
+			/>
+
+			{ withComparison && (
+				<ProgressBar
+					value={ entry.previousShare }
+					className={ clsx( styles.progressBar, styles.secondaryBar ) }
+				/>
+			) }
+		</div>
+	</>
+);
+
 /**
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
@@ -213,21 +239,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 				return (
 					<Fragment key={ entry.id }>
 						<VStack spacing={ labelSpacing }>
-							<Text>{ entry.label }</Text>
-
-							<div className={ styles.progressContainer }>
-								<ProgressBar
-									value={ entry.currentShare }
-									className={ clsx( styles.progressBar, styles.primaryBar ) }
-								/>
-
-								{ withComparison && (
-									<ProgressBar
-										value={ entry.previousShare }
-										className={ clsx( styles.progressBar, styles.secondaryBar ) }
-									/>
-								) }
-							</div>
+							<ProgressBarWithLabel entry={ entry } withComparison={ withComparison } />
 						</VStack>
 
 						<div className={ styles.valueContainer }>
