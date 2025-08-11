@@ -38,21 +38,20 @@
 		border-style: solid;
 		border-color: var(--jp-gray-10);
 		border-width: 1.5px 1.5px 0;
-		border-top-left-radius: 8px;
-		border-top-right-radius: 8px;
+		border-start-start-radius: 8px;
+		border-start-end-radius: 8px;
 	}
 
 	> :last-child {
 		border-style: solid;
 		border-color: var(--jp-gray-10);
 		border-width: 0 1.5px 1.5px;
-		border-bottom-left-radius: 8px;
-		border-bottom-right-radius: 8px;
+		border-end-start-radius: 8px;
+		border-end-end-radius: 8px;
 	}
 
 	> :not(:first-child):not(:last-child) {
-		border-left: 1.5px solid var(--jp-gray-10);
-		border-right: 1.5px solid var(--jp-gray-10);
+		border-inline: 1.5px solid var(--jp-gray-10);
 	}
 
 	&.is-primary {
@@ -78,8 +77,8 @@
 			border-style: solid;
 			border-color: #008710;
 			border-width: 1.5px 1.5px 0;
-			border-top-left-radius: 8px;
-			border-top-right-radius: 8px;
+			border-start-start-radius: 8px;
+			border-start-end-radius: 8px;
 
 			background-image: url(./gradient.svg);
 			background-repeat: no-repeat;
@@ -91,13 +90,12 @@
 			border-style: solid;
 			border-color: #008710;
 			border-width: 0 1.5px 1.5px;
-			border-bottom-left-radius: 8px;
-			border-bottom-right-radius: 8px;
+			border-end-start-radius: 8px;
+			border-end-end-radius: 8px;
 		}
 
 		> :not(:first-child):not(:last-child) {
-			border-left: 1.5px solid #008710;
-			border-right: 1.5px solid #008710;
+			border-inline: 1.5px solid #008710;
 		}
 	}
 }
@@ -122,8 +120,8 @@
 			content: "";
 			position: absolute;
 			top: 0;
-			left: var(--padding);
-			right: var(--padding);
+			inset-inline-start: var(--padding);
+			inset-inline-end: var(--padding);
 			height: 1px;
 
 			z-index: 5;
@@ -133,8 +131,8 @@
 		&.feature {
 
 			&::before {
-				left: 0;
-				right: calc(var(--padding) - var(--gap));
+				inset-inline-start: 0;
+				inset-inline-end: calc(var(--padding) - var(--gap));
 
 			}
 		}
