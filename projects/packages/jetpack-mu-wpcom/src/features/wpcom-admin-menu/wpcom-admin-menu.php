@@ -207,16 +207,32 @@ function wpcom_add_jetpack_submenu() {
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
-	$is_personal = false;
+	$is_personal_or_premium = false;
 	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
-		$current_plan = \Automattic\Jetpack\Current_Plan::get();
-		$plan_class   = $current_plan['class'] ?? '';
-		$is_personal  = $plan_class === 'personal';
+		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
+		$plan_class             = $current_plan['class'] ?? '';
+		$plan_class             = isset( $current_plan['class'] ) ? $current_plan['class'] : '';
+		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
 	}
 
-	if ( ! $is_simple_site && $is_personal ) {
+	if ( ! $is_simple_site && $is_personal_or_premium ) {
 		// Jetpack > Stats.
-		wpcom_hide_submenu_page( 'jetpack', 'stats' );
+		// Jetpack > My Jetpack.
+		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
+
+		// Jetpack > Settings.
+		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
+
+		// Jetpack > Traffic (Calypso).
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Traffic', 'jetpack-mu-wpcom' ),
+			__( 'Traffic', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/marketing/traffic/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+
 	}
 
 	// Jetpack > Scan.
