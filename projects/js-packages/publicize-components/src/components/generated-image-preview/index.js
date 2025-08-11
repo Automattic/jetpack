@@ -60,7 +60,7 @@ export const calculateImageUrl = (
 	customImageId,
 	featuredImageId,
 	defaultImageId,
-	getEntityRecord
+	getMedia
 ) => {
 	if ( hasNoValidImage( imageType, customImageId, featuredImageId, defaultImageId ) ) {
 		return null;
@@ -68,7 +68,7 @@ export const calculateImageUrl = (
 
 	const usedImageId = getImageId( imageType, customImageId, featuredImageId, defaultImageId );
 
-	const media = getEntityRecord( 'postType', 'attachment', usedImageId );
+	const media = getMedia( usedImageId );
 	if ( ! media ) {
 		return FEATURED_IMAGE_STILL_LOADING;
 	}
