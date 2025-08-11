@@ -134,6 +134,8 @@
 
 			&::before {
 				left: 0;
+				right: calc(var(--padding) - var(--gap));
+
 			}
 		}
 	}
