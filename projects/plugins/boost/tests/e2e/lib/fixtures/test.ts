@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
-import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-/**
- * Internal dependencies
- */
-import JetpackBoostPage from '../pages/jetpack-boost-page.ts';
-import { BoostUtils } from '../utils/index.ts';
+import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import JetpackBoostPage from '../pages/jetpack-boost-page';
+import { BoostUtils } from '../utils/index';
 
 const test = baseTest.extend< { jetpackBoostPage: JetpackBoostPage }, { boostUtils: BoostUtils } >(
 	{

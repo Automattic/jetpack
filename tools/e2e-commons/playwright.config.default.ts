@@ -1,27 +1,20 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 import config from 'config';
-import logger from '../logger.js';
-import { resolveSiteUrl } from '../utils/environment.ts';
+import logger from './logger';
+import { resolveSiteUrl } from './utils/environment';
 
-const rootPath = fileURLToPath( new URL( '..', import.meta.url ) );
+const rootPath = fileURLToPath( new URL( '.', import.meta.url ) );
 
-const reporter = [
+const reporter: ReporterDescription[] = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
 	[ 'allure-playwright' ],
 ];
 
 if ( process.env.CI ) {
-	reporter.push(
-		[ 'github' ],
-		[
-			`${ fileURLToPath(
-				new URL( '../' + config.get( 'dirs.reporters' ), import.meta.url )
-			) }/flaky-tests-reporter.ts`,
-		]
-	);
+	reporter.push( [ 'github' ], [ `${ rootPath }/reporters/flaky-tests-reporter.ts` ] );
 }
 
 process.env.STORAGE_STATE_DIR_PATH = `${ rootPath }/.state`.replaceAll( '//', '/' );
