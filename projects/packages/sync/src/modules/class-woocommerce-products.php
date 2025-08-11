@@ -41,7 +41,7 @@ class WooCommerce_Products extends Module {
 	 */
 	public function table() {
 		global $wpdb;
-		return $wpdb->prefix . 'wc_products';
+		return $wpdb->prefix . 'wc_product_meta_lookup';
 	}
 
 	/**
