@@ -1,5 +1,5 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import logger from '_jetpack-e2e-commons/logger.js';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
+import logger from '_jetpack-e2e-commons/logger';
 
 test.describe( 'Editor sidebar: Social', () => {
 	test( 'Activation of publicize from the editor', async ( { admin, editor } ) => {

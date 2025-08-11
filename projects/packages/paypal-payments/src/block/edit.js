@@ -549,7 +549,7 @@ export const SimplePaymentsEdit = ( {
 };
 
 const mapSelectToProps = withSelect( ( select, props ) => {
-	const { getEntityRecord, getMedia } = select( 'core' );
+	const { getEntityRecord } = select( 'core' );
 	const { getCurrentPost } = select( 'core/editor' );
 	const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( 'core' );
 	const getDirtyEntityRecords = __experimentalGetDirtyEntityRecords;
@@ -578,7 +578,9 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 			isSavingEntityRecord( record.kind, record.name, record.key )
 		),
 		simplePayment,
-		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
+		featuredMedia: featuredMediaId
+			? getEntityRecord( 'postType', 'attachment', featuredMediaId )
+			: null,
 		postLinkUrl: post?.guid?.raw,
 		isPostEditor: Object.keys( getCurrentPost() ).length > 0,
 	};

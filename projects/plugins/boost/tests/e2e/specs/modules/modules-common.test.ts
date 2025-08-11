@@ -1,5 +1,5 @@
-import { test, expect } from '../../lib/fixtures/test.ts';
-import playwrightConfig from '../../playwright.config.ts';
+import { test, expect } from '../../lib/fixtures/test';
+import playwrightConfig from '../../playwright.config';
 
 const modules = [
 	// ['MODULE_NAME', 'DEFAULT STATE'],

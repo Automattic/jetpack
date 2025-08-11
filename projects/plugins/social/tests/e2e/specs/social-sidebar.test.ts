@@ -1,5 +1,5 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { connect } from '../helpers/index.js';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
+import { connect } from '../helpers/index';
 
 test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.disconnect();

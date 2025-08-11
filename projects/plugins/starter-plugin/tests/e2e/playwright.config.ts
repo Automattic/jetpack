@@ -1,6 +1,4 @@
-import baseConfig, {
-	setupProjects,
-} from '_jetpack-e2e-commons/config/playwright.config.default.mjs';
+import baseConfig, { setupProjects } from '_jetpack-e2e-commons/playwright.config.default';
 
 export default {
 	...baseConfig,
