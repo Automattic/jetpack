@@ -244,8 +244,8 @@ export const CustomLegendPositioning: Story = {
 		thickness: 0.4,
 		showLegend: true,
 		legendOrientation: 'vertical',
-		legendAlignmentHorizontal: 'left',
-		legendAlignmentVertical: 'top',
+		legendAlignment: 'left',
+		legendPosition: 'top',
 		data: [
 			{
 				label: 'Desktop',

@@ -46,8 +46,8 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlignmentHorizontal: 'right',
-				legendAlignmentVertical: 'top',
+				legendAlignment: 'right',
+				legendPosition: 'top',
 			},
 		},
 
@@ -55,8 +55,8 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlignmentHorizontal: 'left',
-				legendAlignmentVertical: 'top',
+				legendAlignment: 'left',
+				legendPosition: 'top',
 			},
 		},
 
@@ -64,8 +64,8 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlignmentHorizontal: 'center',
-				legendAlignmentVertical: 'top',
+				legendAlignment: 'center',
+				legendPosition: 'top',
 			},
 		},
 
@@ -73,8 +73,8 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlignmentHorizontal: 'left',
-				legendAlignmentVertical: 'bottom',
+				legendAlignment: 'left',
+				legendPosition: 'bottom',
 			},
 		},
 
@@ -82,8 +82,8 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlignmentHorizontal: 'right',
-				legendAlignmentVertical: 'bottom',
+				legendAlignment: 'right',
+				legendPosition: 'bottom',
 			},
 		},
 
@@ -92,8 +92,8 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			args: {
 				...legendStoryArgs,
 				legendOrientation: 'vertical',
-				legendAlignmentHorizontal: 'right',
-				legendAlignmentVertical: 'top',
+				legendAlignment: 'right',
+				legendPosition: 'top',
 			},
 		},
 	};

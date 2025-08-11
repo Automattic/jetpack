@@ -47,8 +47,8 @@ CustomLegendPositioning.args = {
 	data: sampleData,
 	showLegend: true,
 	height: 400,
-	legendAlignmentHorizontal: 'left',
-	legendAlignmentVertical: 'top',
+	legendAlignment: 'left',
+	legendPosition: 'top',
 	legendOrientation: 'horizontal',
 	withLegendGlyph: true,
 };

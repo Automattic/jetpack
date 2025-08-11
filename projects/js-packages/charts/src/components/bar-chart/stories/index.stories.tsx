@@ -245,8 +245,8 @@ export const CustomLegendPositioning: Story = {
 		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
 		legendOrientation: 'vertical',
-		legendAlignmentHorizontal: 'left',
-		legendAlignmentVertical: 'top',
+		legendAlignment: 'left',
+		legendPosition: 'top',
 	},
 	parameters: {
 		docs: {
