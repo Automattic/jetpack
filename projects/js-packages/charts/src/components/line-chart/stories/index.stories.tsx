@@ -71,7 +71,6 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 				height={ 300 }
 				withGradientFill={ false }
 				withLegendGlyph={ false }
-				showLegend={ false }
 			>
 				<LineChart.Legend
 					orientation="horizontal"
