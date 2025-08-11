@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { useMemo } from 'react';
-import { ChartProvider, useChartContext } from './chart-context';
+import { GlobalChartsProvider, useGlobalChartsContext } from './global-charts-provider';
 import { useChartId, useChartRegistration } from './utils';
 import type { ChartContextValue } from './types';
 import type { BaseLegendItem } from '../../components/legend/types';
@@ -20,19 +20,19 @@ describe( 'ChartContext', () => {
 		gridColorDark: '#333333',
 	};
 
-	describe( 'ChartProvider', () => {
+	describe( 'GlobalChartsProvider', () => {
 		it( 'provides context to child components', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
 			render(
-				<ChartProvider>
+				<GlobalChartsProvider>
 					<TestComponent />
-				</ChartProvider>
+				</GlobalChartsProvider>
 			);
 
 			expect( contextValue ).toBeDefined();
@@ -42,9 +42,9 @@ describe( 'ChartContext', () => {
 			expect( contextValue.charts ).toBeInstanceOf( Map );
 		} );
 
-		it( 'throws error when useChartContext is used outside provider', () => {
+		it( 'throws error when useGlobalChartsContext is used outside provider', () => {
 			const TestComponent = () => {
-				useChartContext();
+				useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -53,7 +53,7 @@ describe( 'ChartContext', () => {
 
 			expect( () => {
 				render( <TestComponent /> );
-			} ).toThrow( 'useChartContext must be used within a ChartProvider' );
+			} ).toThrow( 'useGlobalChartsContext must be used within a GlobalChartsProvider' );
 
 			consoleSpy.mockRestore();
 		} );
@@ -102,7 +102,7 @@ describe( 'ChartContext', () => {
 
 			const TestComponent = () => {
 				const chartId = useChartId( 'test-chart' );
-				contextValue = useChartContext();
+				contextValue = useGlobalChartsContext();
 
 				// Memoize metadata to prevent infinite loop
 				const metadata = useMemo( () => ( { test: true } ), [] );
@@ -112,9 +112,9 @@ describe( 'ChartContext', () => {
 			};
 
 			render(
-				<ChartProvider>
+				<GlobalChartsProvider>
 					<TestComponent />
-				</ChartProvider>
+				</GlobalChartsProvider>
 			);
 
 			const chartData = contextValue.getChartData( 'test-chart' );
@@ -132,7 +132,7 @@ describe( 'ChartContext', () => {
 			const TestComponent = () => {
 				const chartId1 = useChartId( 'chart-1' );
 				const chartId2 = useChartId( 'chart-2' );
-				contextValue = useChartContext();
+				contextValue = useGlobalChartsContext();
 
 				useChartRegistration( chartId1, mockLegendItems, mockTheme, 'bar', true );
 				useChartRegistration( chartId2, mockLegendItems, mockTheme, 'line', true );
@@ -141,9 +141,9 @@ describe( 'ChartContext', () => {
 			};
 
 			render(
-				<ChartProvider>
+				<GlobalChartsProvider>
 					<TestComponent />
-				</ChartProvider>
+				</GlobalChartsProvider>
 			);
 
 			expect( contextValue.charts.size ).toBe( 2 );
@@ -155,14 +155,14 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
 			render(
-				<ChartProvider>
+				<GlobalChartsProvider>
 					<TestComponent />
-				</ChartProvider>
+				</GlobalChartsProvider>
 			);
 
 			expect( contextValue.getChartData( 'non-existent' ) ).toBeUndefined();
@@ -173,7 +173,7 @@ describe( 'ChartContext', () => {
 
 			const TestComponent = () => {
 				const chartId = useChartId( 'same-id' );
-				contextValue = useChartContext();
+				contextValue = useGlobalChartsContext();
 
 				// Register first chart
 				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar', true );
@@ -184,9 +184,9 @@ describe( 'ChartContext', () => {
 			};
 
 			render(
-				<ChartProvider>
+				<GlobalChartsProvider>
 					<TestComponent />
-				</ChartProvider>
+				</GlobalChartsProvider>
 			);
 
 			expect( contextValue.charts.size ).toBe( 1 );
@@ -203,7 +203,7 @@ describe( 'ChartContext', () => {
 			} > = [];
 
 			const TestComponent = () => {
-				const context = useChartContext();
+				const context = useGlobalChartsContext();
 				functionRefs.push( {
 					registerChart: context.registerChart,
 					unregisterChart: context.unregisterChart,
@@ -213,15 +213,15 @@ describe( 'ChartContext', () => {
 			};
 
 			const { rerender } = render(
-				<ChartProvider>
+				<GlobalChartsProvider>
 					<TestComponent />
-				</ChartProvider>
+				</GlobalChartsProvider>
 			);
 
 			rerender(
-				<ChartProvider>
+				<GlobalChartsProvider>
 					<TestComponent />
-				</ChartProvider>
+				</GlobalChartsProvider>
 			);
 
 			expect( functionRefs ).toHaveLength( 2 );
