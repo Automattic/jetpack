@@ -223,6 +223,18 @@ function wpcom_add_jetpack_submenu() {
 		// Jetpack > Settings.
 		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
 
+		// Redirect My Jetpack page to Stats for Atomic sites on Personal or Premium plans.
+		add_action(
+			'admin_init',
+			function () {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
+				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
+					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
+					exit;
+				}
+			}
+		);
+
 		// Jetpack > Traffic (Calypso).
 		add_submenu_page(
 			'jetpack',
