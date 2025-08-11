@@ -4,15 +4,7 @@ import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import {
-	useId,
-	useMemo,
-	useContext,
-	forwardRef,
-	useImperativeHandle,
-	useState,
-	useRef,
-} from 'react';
+import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
 import {
 	ChartProvider,
 	ChartContext,
@@ -262,7 +254,6 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 	) => {
 		const providerTheme = useChartTheme();
 		const theme = useXYChartTheme( data );
-		const internalChartId = useId(); // Ensure unique ids for gradient fill.
 		const chartId = useChartId( providedChartId );
 		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 		const chartRef = useRef< HTMLDivElement >( null );
@@ -455,7 +446,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 
 										{ withGradientFill && (
 											<LinearGradient
-												id={ `area-gradient-${ internalChartId }-${ index + 1 }` }
+												id={ `area-gradient-${ chartId }-${ index + 1 }` }
 												from={ stroke }
 												fromOpacity={ 0.4 }
 												toOpacity={ 0.1 }
@@ -471,7 +462,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 											{ ...accessors }
 											fill={
 												withGradientFill
-													? `url(#area-gradient-${ internalChartId }-${ index + 1 })`
+													? `url(#area-gradient-${ chartId }-${ index + 1 })`
 													: 'transparent'
 											}
 											renderLine={ true }
