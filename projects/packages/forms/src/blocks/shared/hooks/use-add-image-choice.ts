@@ -12,7 +12,7 @@ import { getImageChoiceLabel } from '../../form-image-select-choice/label';
 /**
  * Types
  */
-import type { Block } from '../../../types';
+import type { BlockEditorStoreDispatch, BlockEditorStoreSelect } from '../../../types';
 
 /**
  * Custom hook for adding new image choice blocks.
@@ -21,12 +21,8 @@ import type { Block } from '../../../types';
  * @return {Function} Function to add a new choice block.
  */
 export default function useAddImageChoice( choicesClientId: string ): { addChoice: () => void } {
-	const { insertBlock } = useDispatch( blockEditorStore ) as {
-		insertBlock: ( block: Block, index: number, parentClientId: string ) => void;
-	};
-	const { getBlock } = useSelect( blockEditorStore, [] ) as {
-		getBlock: ( clientId: string ) => Block;
-	};
+	const { insertBlock } = useDispatch( blockEditorStore ) as BlockEditorStoreDispatch;
+	const { getBlock } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
 
 	const addChoice = useCallback( () => {
 		// Get the current choices block

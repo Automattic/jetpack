@@ -16,6 +16,10 @@ import clsx from 'clsx';
  */
 import useAddImageChoice from '../shared/hooks/use-add-image-choice';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+/**
+ * Types
+ */
+import type { BlockEditorStoreSelect } from '../../types';
 
 export default function ImageChoiceFieldEdit( props ) {
 	const { attributes, clientId, isSelected } = props;
@@ -25,9 +29,8 @@ export default function ImageChoiceFieldEdit( props ) {
 
 	const { isInnerBlockSelected } = useSelect(
 		select => {
-			const { hasSelectedInnerBlock } = select( blockEditorStore ) as {
-				hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
-			};
+			const { hasSelectedInnerBlock } = select( blockEditorStore ) as BlockEditorStoreSelect;
+
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
 			};

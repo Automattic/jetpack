@@ -17,7 +17,7 @@ import { getImageChoiceLabel } from './label';
 /**
  * Types
  */
-import type { Block } from '../../types';
+import type { BlockEditorStoreSelect } from '../../types';
 
 export default function ImageChoiceFieldEdit( props ) {
 	const { attributes, clientId, isSelected } = props;
@@ -26,11 +26,8 @@ export default function ImageChoiceFieldEdit( props ) {
 		select => {
 			const { getBlock, hasSelectedInnerBlock, getBlockRootClientId } = select(
 				blockEditorStore
-			) as {
-				getBlock: ( clientId: string ) => Block;
-				hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
-				getBlockRootClientId: ( clientId: string ) => string;
-			};
+			) as BlockEditorStoreSelect;
+
 			const currentBlock = getBlock( clientId );
 			const parentClientId = getBlockRootClientId( clientId );
 			const parentBlock = getBlock( parentClientId );

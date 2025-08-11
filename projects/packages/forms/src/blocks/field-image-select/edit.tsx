@@ -22,7 +22,7 @@ import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 /**
  * Types
  */
-import type { Block } from '../../types';
+import type { Block, BlockEditorStoreSelect } from '../../types';
 
 export default function ImageSelectFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes, name } = props;
@@ -31,10 +31,9 @@ export default function ImageSelectFieldEdit( props ) {
 
 	const { isInnerBlockSelected, choicesBlock } = useSelect(
 		select => {
-			const { hasSelectedInnerBlock, getBlock } = select( blockEditorStore ) as {
-				hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
-				getBlock: ( clientId: string ) => Block;
-			};
+			const { hasSelectedInnerBlock, getBlock } = select(
+				blockEditorStore
+			) as BlockEditorStoreSelect;
 
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
