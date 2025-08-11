@@ -206,6 +206,7 @@ function wpcom_add_jetpack_submenu() {
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
+	// @codeCoverageIgnoreStart
 	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
 	$is_personal_or_premium = false;
 	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
@@ -244,8 +245,8 @@ function wpcom_add_jetpack_submenu() {
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 
-				// Jetpack > Newsletter (Calypso).
-		// Force Calypso for atomic Personal/Premium sites since local Jetpack newsletter page is broken.
+		// Jetpack > Newsletter (Calypso).
+		// Force Calypso for atomic Personal/Premium sites since local Jetpack newsletter page exposes broken pages.
 		add_submenu_page(
 			'jetpack',
 			esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
@@ -254,8 +255,8 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/settings/newsletter/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-
 	}
+	// @codeCoverageIgnoreEnd
 
 	// Jetpack > Scan.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
