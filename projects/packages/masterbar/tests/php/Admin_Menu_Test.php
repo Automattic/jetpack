@@ -133,7 +133,7 @@ class Admin_Menu_Test extends TestCase {
 		ksort( $menu );
 		$menu_items = array_values( $menu );
 
-		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[3][2] );
+		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[1][2] );
 	}
 
 	/**
