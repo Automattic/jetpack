@@ -1,5 +1,5 @@
-import { Locator } from '@playwright/test';
 import { Editor } from '@wordpress/e2e-test-utils-playwright';
+import type { Locator } from '@playwright/test';
 
 export default class EditorPage extends Editor {
 	/**
