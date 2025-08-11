@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-q6j7O1N3eInkUbUAPj0dvx91I0/iUDmhtKFGBDBl04o=
+pnpmfileChecksum: sha256-iZ65rjdxN+UmETAws+e3uR8sl5ESZUAID55asctqX/o=
 
 patchedDependencies:
   '@wordpress/dataviews':
