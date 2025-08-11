@@ -1,4 +1,3 @@
-import { __ } from '@wordpress/i18n';
 import Logo from '../../../../publicize-components/src/components/admin-page/page-header/logo.js';
 import Button from '../../button/index.tsx';
 import ProductPrice from '../../product-price/index.tsx';
@@ -64,42 +63,30 @@ const Template: StoryFn< typeof PricingTable > = args => {
 
 // Feature arrays for stories
 const socialFeatures = [
-	{ name: __( 'Priority support', 'jetpack-components' ) },
-	{ name: __( 'Schedule posting', 'jetpack-components' ) },
+	{ name: 'Priority support' },
+	{ name: 'Schedule posting' },
 	{
-		name: __(
-			'Share to Facebook, Instagram, LinkedIn, Mastodon, Tumblr, Threads, Bluesky, and Nextdoor',
-			'jetpack-components'
-		),
+		name: 'Share to Facebook, Instagram, LinkedIn',
 	},
-	{ name: __( 'Customize publications', 'jetpack-components' ) },
+	{ name: 'Customize publications' },
 	{
-		name: __( 'Recycle content', 'jetpack-components' ),
-		tooltipInfo: __(
-			'Repurpose, reuse or republish already published content.',
-			'jetpack-components'
-		),
+		name: 'Recycle content',
+		tooltipInfo: 'Repurpose, reuse or republish already published content.',
 	},
 	{
-		name: __( 'Upload custom images with your posts', 'jetpack-components' ),
+		name: 'Upload custom images with your posts',
 	},
 	{
-		name: __( 'Upload videos with your posts', 'jetpack-components' ),
+		name: 'Upload videos with your posts',
 	},
 	{
-		name: __( 'Automatically generate images for posts', 'jetpack-components' ),
-		tooltipInfo: __(
-			'Automatically create custom images, saving you hours of tedious work.',
-			'jetpack-components'
-		),
+		name: 'Automatically generate images for posts',
+		tooltipInfo: 'Automatically create custom images, saving you hours of tedious work.',
 	},
 	{
-		name: __( 'Multi-image sharing', 'jetpack-components' ),
-		tooltipTitle: __( 'Coming soon', 'jetpack-components' ),
-		tooltipInfo: __(
-			'Share multiple images at once on social media platforms.',
-			'jetpack-components'
-		),
+		name: 'Multi-image sharing',
+		tooltipTitle: 'Coming soon',
+		tooltipInfo: 'Share multiple images at once on social media platforms.',
 	},
 ];
 
@@ -130,14 +117,11 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 					<ProductPrice
 						price={ 24.95 }
 						offPrice={ 12.48 }
-						legend={ __(
-							'per month for the first year, then billed yearly',
-							'jetpack-components'
-						) }
+						legend="per month for the first year, then billed yearly"
 						currency="USD"
 						hidePriceFraction
 					/>
-					<Button fullWidth>{ __( 'Get Social', 'jetpack-components' ) }</Button>
+					<Button fullWidth>Get Social</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
@@ -153,7 +137,7 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 				<PricingTableHeader>
 					<ProductPrice price={ 0 } legend="Free forever" currency="USD" hidePriceFraction />
 					<Button fullWidth variant="secondary">
-						{ __( 'Start for free', 'jetpack-components' ) }
+						Start for free
 					</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ false } />
@@ -172,7 +156,7 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 
 export const WithLogo = WithLogoTemplate.bind( {} );
 WithLogo.args = {
-	title: __( 'Write once, post everywhere', 'jetpack-components' ),
+	title: 'Write once, post everywhere',
 	headerLogo: <Logo height={ 32 } />,
 	items: socialFeatures,
 	showIntroOfferDisclaimer: true,
@@ -185,27 +169,21 @@ const CustomLabelsTemplate: StoryFn< typeof PricingTable > = args => {
 				<PricingTableHeader>
 					<ProductPrice price={ 0 } currency="USD" hidePriceFraction />
 					<Button fullWidth variant="secondary">
-						{ __( 'Free', 'jetpack-components' ) }
+						Free
 					</Button>
 				</PricingTableHeader>
-				<PricingTableItem
-					isIncluded={ true }
-					label={ __( 'Basic version', 'jetpack-components' ) }
-				/>
+				<PricingTableItem isIncluded={ true } label="Basic version" />
 				<PricingTableItem isIncluded={ false } />
 				<PricingTableItem isIncluded={ true } label="5 per month" />
 			</PricingTableColumn>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice price={ 15.95 } currency="USD" hidePriceFraction legend="/month" />
-					<Button fullWidth>{ __( 'Pro', 'jetpack-components' ) }</Button>
+					<Button fullWidth>Pro</Button>
 				</PricingTableHeader>
-				<PricingTableItem
-					isIncluded={ true }
-					label={ __( 'Full version', 'jetpack-components' ) }
-				/>
+				<PricingTableItem isIncluded={ true } label="Full version" />
 				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } label={ __( 'Unlimited', 'jetpack-components' ) } />
+				<PricingTableItem isIncluded={ true } label="Unlimited" />
 			</PricingTableColumn>
 		</PricingTable>
 	);
@@ -213,11 +191,7 @@ const CustomLabelsTemplate: StoryFn< typeof PricingTable > = args => {
 
 export const WithCustomLabels = CustomLabelsTemplate.bind( {} );
 WithCustomLabels.args = {
-	title: __( 'Feature comparison', 'jetpack-components' ),
-	items: [
-		{ name: __( 'Custom feature', 'jetpack-components' ) },
-		{ name: __( 'Special feature', 'jetpack-components' ) },
-		{ name: __( 'Limited feature', 'jetpack-components' ) },
-	],
+	title: 'Feature comparison',
+	items: [ { name: 'Custom feature' }, { name: 'Special feature' }, { name: 'Limited feature' } ],
 	showIntroOfferDisclaimer: false,
 };
