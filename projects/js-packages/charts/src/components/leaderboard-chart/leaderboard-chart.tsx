@@ -30,9 +30,9 @@ export interface LeaderboardEntry {
 	id: string;
 
 	/**
-	 * Human-readable name (e.g., 'Direct')
+	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
 	 */
-	label: string;
+	label: string | JSX.Element;
 
 	/**
 	 * Value of the entry
