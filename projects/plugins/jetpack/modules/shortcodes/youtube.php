@@ -106,7 +106,10 @@ function jetpack_youtube_embed_to_short_code( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'jetpack_youtube_embed_to_short_code' );
+
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'jetpack_youtube_embed_to_short_code' );
+}
 
 /**
  * Replaces plain-text links to YouTube videos with YouTube embeds.
