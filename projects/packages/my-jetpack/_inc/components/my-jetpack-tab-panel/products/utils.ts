@@ -127,7 +127,7 @@ export function getProductStatus( product: ProductCamelCase ) {
 	// If the product is not supported on multisite, we set the available to false and provide a reason.
 	if ( getScriptData().site.is_multisite ) {
 		if (
-			! JETPACK_PRODUCTS_NOT_FOR_MULTISITE.includes(
+			JETPACK_PRODUCTS_NOT_FOR_MULTISITE.includes(
 				product.slug as ( typeof JETPACK_PRODUCTS_NOT_FOR_MULTISITE )[ number ]
 			)
 		) {
