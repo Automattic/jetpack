@@ -3,9 +3,9 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 import path from 'path';
 import { URL } from 'url';
 import { mergeWith } from 'lodash-es';
-import { executeWpCommand, executeCommand } from '@utils/cli';
-import { connect } from '@utils/connection';
 import pwConfig from '../playwright.config';
+import { executeWpCommand, executeCommand } from '../utils/cli';
+import { connect } from '../utils/connection';
 
 const __dirname = new URL( '.', import.meta.url ).pathname;
 

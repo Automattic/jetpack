@@ -1,6 +1,6 @@
 import fs from 'fs';
 import config from 'config';
-import logger from '@logger';
+import logger from '../logger';
 import { executeCommand } from './cli';
 
 interface TestSite {

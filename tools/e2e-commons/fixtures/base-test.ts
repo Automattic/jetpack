@@ -1,8 +1,8 @@
 import { Admin, test as baseTest, expect } from '@wordpress/e2e-test-utils-playwright';
 import { allure } from 'allure-playwright';
-import logger from '@logger';
-import { TestUtils } from '@utils/index';
+import logger from '../logger';
 import { EditorPage, Sidebar } from '../pages';
+import { TestUtils } from '../utils/index';
 
 const test = baseTest.extend<
 	{ admin: Admin; editor: EditorPage; sidebar: Sidebar },

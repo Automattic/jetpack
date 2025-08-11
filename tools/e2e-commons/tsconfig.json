@@ -3,13 +3,9 @@
 		"allowImportingTsExtensions": true,
 		"module": "ES2022",
 		"moduleResolution": "bundler",
+		"rewriteRelativeImportExtensions": true,
 		"noEmit": true,
 		"target": "ES2022",
-		"baseUrl": ".",
-		"paths": {
-			"@fixtures/*": [ "fixtures/*" ],
-			"@utils/*": [ "./utils/*" ],
-			"@logger": [ "./logger.ts" ]
-		}
+		"baseUrl": "."
 	}
 }

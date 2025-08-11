@@ -1,9 +1,9 @@
 import path from 'path';
 import * as url from 'url';
 import config from 'config';
-import logger from '@logger';
-import { executeCommand, executeJetpackCommand } from '@utils/cli';
+import logger from '../logger';
 import pwConfig from '../playwright.config';
+import { executeCommand, executeJetpackCommand } from './cli';
 
 /**
  * Connect Jetpack.

@@ -1,5 +1,5 @@
-import logger from '@logger';
-import { executeWpCommand } from '@utils/cli';
+import logger from '../logger';
+import { executeWpCommand } from './cli';
 import { getDotComCredentials, getSiteCredentials } from './environment';
 import { partnerProvisionConnection } from './partner-provision';
 import { TestUtils } from '.';
