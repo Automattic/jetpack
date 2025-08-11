@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+fixed the response of the rest controller to return the body of a request if the header is text/csv
