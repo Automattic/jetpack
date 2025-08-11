@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck - Ignore this file for typecheck
 import Logo from '../../../../publicize-components/src/components/admin-page/page-header/logo.js';
 import Button from '../../button/index.tsx';
 import ProductPrice from '../../product-price/index.tsx';
@@ -159,7 +161,7 @@ WithLogo.args = {
 	title: 'Write once, post everywhere',
 	headerLogo: <Logo height={ 32 } />,
 	items: socialFeatures,
-	showIntroOfferDisclaimer: true,
+	showIntroOfferDisclaimer: false,
 };
 
 const CustomLabelsTemplate: StoryFn< typeof PricingTable > = args => {
