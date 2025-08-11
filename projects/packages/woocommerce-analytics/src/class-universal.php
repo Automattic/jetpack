@@ -171,8 +171,12 @@ class Universal {
 		if ( $quantity > $old_quantity ) {
 			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
 			$this->lock_add_to_cart_events = true;
-		} else {
+			return;
+		}
+
+		if ( $quantity < $old_quantity ) {
 			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_remove_from_cart' );
+			return;
 		}
 	}
 
