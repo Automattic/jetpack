@@ -240,9 +240,10 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions          = null;
-		self::$availability        = array();
-		self::$cached_availability = null;
+		self::$extensions                  = null;
+		self::$availability                = array();
+		self::$cached_availability         = null;
+		self::$block_js_loading_strategies = array();
 	}
 
 	/**
