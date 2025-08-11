@@ -1,5 +1,6 @@
 
-// This file contains overrides to _admin.scss necessary to match Calypso color schemes
+// This file contains overrides to _admin.scss
+// necessary to match Calypso color schemes
 
 // Make wpadminbar colors differ from submenu colors
 @use "@automattic/color-studio/dist/color-variables" as studio;
@@ -26,7 +27,7 @@ $nav-unification-sidebar-border: $--a-value-must-be-set-via-with-- !default;
 .admin-color-sakura,
 .admin-color-sunset {
 
-	#wpadminbar{
+	#wpadminbar {
 		background: $masterbar-background !important;
 
 		// Nav Unification - Masterbar - border below the Masterbar
@@ -44,7 +45,7 @@ $nav-unification-sidebar-border: $--a-value-must-be-set-via-with-- !default;
 	#wpadminbar .menupop .ab-sub-wrapper {
 		background: $masterbar-submenu-background;
 	}
-	
+
 	#wpadminbar .quicklinks .menupop ul.ab-sub-secondary,
 	#wpadminbar .quicklinks .menupop ul.ab-sub-secondary .ab-submenu {
 		background: $masterbar-submenu-background-alt;
@@ -102,12 +103,13 @@ $nav-unification-sidebar-border: $--a-value-must-be-set-via-with-- !default;
 #adminmenu a.wp-has-current-submenu:focus + .wp-submenu li.current a,
 #adminmenu .wp-has-current-submenu.opensub .wp-submenu li.current a {
 
-	&:hover, &:focus {
+	&:hover,
+	&:focus {
 		color: $menu-submenu-current-text;
 	}
 }
 
-// Ensure sidebar is visually separate from the content in the Contrast color scheme
+// Ensure sidebar is visually separate from content in the Contrast color scheme
 .admin-color-contrast #adminmenuback {
 	outline: 1px solid $nav-unification-sidebar-border;
 }

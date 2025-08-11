@@ -21,21 +21,21 @@
 		font-style: normal;
 		font-weight: 400;
 
-			figure {
-				margin: 0;
-				height: 48px;
-				width: 48px;
-				align-self: flex-start;
+		figure {
+			margin: 0;
+			height: 48px;
+			width: 48px;
+			align-self: flex-start;
 
-				&.empty-site-icon {
-					background: url(../placeholder-site-icon.svg);
-					background-size: cover;
+			&.empty-site-icon {
+				background: url(../placeholder-site-icon.svg);
+				background-size: cover;
 
-					.blogroll-item-image {
-						display: none;
-					}
+				.blogroll-item-image {
+					display: none;
 				}
 			}
+		}
 
 		.blogroll-item-image {
 			border-radius: 50%;

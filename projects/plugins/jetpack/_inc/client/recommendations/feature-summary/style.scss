@@ -1,5 +1,5 @@
-@use '../../scss/variables/colors';
-@use '../../scss/typography';
+@use "../../scss/variables/colors";
+@use "../../scss/typography";
 
 .jp-recommendations-feature-summary {
 	display: flex;
@@ -30,7 +30,7 @@
 .jp-summary-text-link {
 	display: flex;
 	align-items: center;
-	color: var( --jp-gray-50 );
+	color: var(--jp-gray-50);
 
 	&.is-hidden {
 		visibility: hidden;
@@ -43,7 +43,7 @@
 		height: $size;
 		margin-left: 0.25rem;
 		font-size: $size;
-		transform: translateY( 1px );
+		transform: translateY(1px);
 	}
 }
 
@@ -62,7 +62,8 @@
 	background: none;
 	font-size: typography.$font-body;
 
-	// These names are managed as borderless buttons that link back to the respective steps
+	// These names are managed as borderless buttons that
+	// link back to the respective steps
 	&.is-borderless {
 		color: #000;
 
@@ -71,7 +72,7 @@
 			background: none;
 
 			.jp-recommendations-feature-summary__display-name-text {
-				box-shadow: 0 3px 0 0 currentColor
+				box-shadow: 0 3px 0 0 currentColor;
 			}
 		}
 	}
@@ -82,11 +83,11 @@
 }
 
 .jp-recommendations-summary .jp-recommendations-feature-summary__display-name {
-	color: var( --jp-gray-100 );
+	color: var(--jp-gray-100);
 }
 
 .jp-recommendations-feature-summary__display-name-text {
-	box-shadow: 0 1px 0 0 currentColor
+	box-shadow: 0 1px 0 0 currentColor;
 }
 
 .jp-recommendations-feature-summary__cta {

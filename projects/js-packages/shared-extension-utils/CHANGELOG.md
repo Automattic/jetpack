@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.9] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [1.3.8] - 2025-07-30
+### Changed
+- Update dependencies. [#43796]
+
+## [1.3.7] - 2025-07-28
+### Changed
+- Update dependencies. [#43796]
+
+## [1.3.6] - 2025-07-23
+### Changed
+- Internal updates.
+
+## [1.3.5] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.3.4] - 2025-07-14
+### Removed
+- Remove no-longer-needed dependency on `lodash`. [#44269]
+
 ## [1.3.3] - 2025-07-10
 ### Changed
 - Internal updates.
@@ -715,6 +739,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[1.3.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.8...1.3.9
+[1.3.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.7...1.3.8
+[1.3.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.6...1.3.7
+[1.3.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.5...1.3.6
+[1.3.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.4...1.3.5
+[1.3.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.3...1.3.4
 [1.3.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.1...1.3.2
 [1.3.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.0...1.3.1

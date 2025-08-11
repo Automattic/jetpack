@@ -1,9 +1,38 @@
 {
 	"private": true,
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
+	"homepage": "https://jetpack.com/boost/",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Boost"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/plugins/boost"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
 	"directories": {
 		"test": "tests"
 	},
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf app/assets/dist/",
+		"test": "jest --config=tests/jest.config.cjs app",
+		"test-coverage": "pnpm run test --coverage",
+		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt",
+		"test-e2e:run": "pnpm --prefix tests/e2e run test:run",
+		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel:up && pnpm --prefix tests/e2e run env:up",
+		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel:down && pnpm --prefix tests/e2e run env:down",
+		"validate": "pnpm exec validate-es app/assets/dist",
+		"watch": "pnpm run build && webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",
@@ -12,8 +41,8 @@
 		"@react-spring/core": "9.7.5",
 		"@react-spring/web": "9.7.5",
 		"@types/react": "18.3.23",
-		"@wordpress/components": "29.12.0",
-		"@wordpress/element": "6.26.0",
+		"@wordpress/components": "30.0.0",
+		"@wordpress/element": "6.27.0",
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "13.0.0",
 		"history": "5.3.0",
@@ -29,15 +58,15 @@
 		"@automattic/jetpack-critical-css-gen": "workspace:*",
 		"@automattic/jetpack-image-guide": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.27.7",
-		"@babel/preset-env": "7.27.2",
+		"@babel/core": "7.28.0",
+		"@babel/preset-env": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"@storybook/react": "9.0.15",
 		"@testing-library/dom": "10.4.0",
 		"@types/jest": "30.0.0",
 		"@types/jquery": "3.5.32",
-		"@wordpress/browserslist-config": "6.26.0",
-		"@wordpress/i18n": "5.26.0",
+		"@wordpress/browserslist-config": "6.27.0",
+		"@wordpress/i18n": "6.0.0",
 		"concurrently": "7.6.0",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
@@ -54,34 +83,5 @@
 		"typescript": "5.8.3",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
-	},
-	"browserslist": [
-		"extends @wordpress/browserslist-config"
-	],
-	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client",
-		"build-client": "webpack",
-		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
-		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
-		"clean": "rm -rf app/assets/dist/",
-		"test": "jest --config=tests/jest.config.cjs app",
-		"test-coverage": "pnpm run test --coverage",
-		"validate": "pnpm exec validate-es app/assets/dist",
-		"watch": "pnpm run build && webpack watch",
-		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel:up && pnpm --prefix tests/e2e run env:up",
-		"test-e2e:run": "pnpm --prefix tests/e2e run test:run",
-		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel:down && pnpm --prefix tests/e2e run env:down",
-		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack",
-		"directory": "projects/plugins/boost"
-	},
-	"author": "Automattic",
-	"license": "GPL-2.0-or-later",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Boost"
-	},
-	"homepage": "https://jetpack.com/boost/"
+	}
 }

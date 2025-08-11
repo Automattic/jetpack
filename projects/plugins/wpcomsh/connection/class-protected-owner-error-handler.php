@@ -124,16 +124,14 @@ class Protected_Owner_Error_Handler {
 		$user_id   = '0';
 		$timestamp = $raw_error['timestamp'] ?? time();
 
+		// Build error data using the connection package build_action_error_data method
+		$error_data = $this->build_error_data( $raw_error );
+
 		$error_details = array(
 			'error_code'    => $error_code,
 			'user_id'       => $user_id,
 			'error_message' => $this->get_error_message( $raw_error['email'] ),
-			'error_data'    => array(
-				'email'       => $raw_error['email'],
-				'error_type'  => $raw_error['error_type'],
-				'action'      => 'create_missing_account',
-				'support_url' => admin_url( 'user-new.php' ),
-			),
+			'error_data'    => $error_data,
 			'timestamp'     => $timestamp,
 			'nonce'         => wp_generate_password( 10, false ),
 			'error_type'    => 'protected_owner',
@@ -149,6 +147,40 @@ class Protected_Owner_Error_Handler {
 	}
 
 	/**
+	 * Build error data using the connection package methods
+	 *
+	 * This method leverages the build_action_error_data method from the
+	 * connection package to provide consistent error handling.
+	 *
+	 * @param array $raw_error The raw error data from the stored option.
+	 * @return array Error data array.
+	 */
+	private function build_error_data( $raw_error ) {
+		$error_handler = \Automattic\Jetpack\Connection\Error_Handler::get_instance();
+
+		// Build error data with action handling
+		$args = array(
+			'action'         => 'create_missing_account',
+			'action_label'   => __( 'Create Account', 'wpcomsh' ),
+			'action_variant' => 'primary',
+			'action_url'     => add_query_arg(
+				array(
+					'jetpack_protected_owner_email'  => rawurlencode( $raw_error['email'] ),
+					'jetpack_create_missing_account' => '1',
+				),
+				admin_url( 'user-new.php' )
+			),
+			'tracking_event' => 'jetpack_protected_owner_create_account_click',
+			'extra_data'     => array(
+				'email'      => $raw_error['email'],
+				'error_type' => $raw_error['error_type'],
+			),
+		);
+
+		return $error_handler->build_action_error_data( $args );
+	}
+
+	/**
 	 * Get a user-friendly error message for protected owner errors
 	 *
 	 * @param string $email The WordPress.com email address of the protected owner.
@@ -157,7 +189,7 @@ class Protected_Owner_Error_Handler {
 	private function get_error_message( $email ) {
 		return sprintf(
 			/* translators: %s is the WordPress.com email address */
-			__( 'This site needs to be connected to WordPress.com by the plan owner account with email %s. Please create a local user account with this email address to resolve this issue.', 'wpcomsh' ),
+			__( 'The user account that owns the plan is missing from your site. To fix this, you can create an account using the email address %s.', 'wpcomsh' ),
 			esc_html( $email )
 		);
 	}

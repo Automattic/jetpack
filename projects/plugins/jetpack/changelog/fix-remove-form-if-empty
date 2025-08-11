@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Forms: Show the form variation picker if you only have the submit button.

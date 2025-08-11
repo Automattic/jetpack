@@ -67,6 +67,8 @@ if(!isset($whwpCountryList)) require_once( ZEROBSCRM_INCLUDE_PATH . 'wh.countryc
 
 */
 
+$sbupdated = false;
+
 // } Act on any edits!
 if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
@@ -211,6 +213,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 }
 
+$sbreset = false;
+
 // } catch resets.
 if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_GET['resetsettings'] ) ) {
 	if ( $_GET['resetsettings'] == 1 ) {
@@ -227,7 +231,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_GET['resetsettings'] ) ) {
 			$confirmActStrShort = __( 'Are you sure you want to reset these settings to the defaults?', 'zero-bs-crm' );
 			$confirmActStrLong  = __( 'Once you reset these settings you cannot retrieve your previous settings.', 'zero-bs-crm' );
 
-		} elseif ( $nonceVerified ) {
+		} else {
 
 			// } Reset
 			$zbs->settings->resetToDefaults();
@@ -246,19 +250,17 @@ if ( ! $confirmAct ) {
 	<p id="sbDescOLD"><?php esc_html_e( 'From this page you can choose global settings for your CRM.', 'zero-bs-crm' ); ?></p>
 
 	<?php
-	if ( isset( $sbupdated ) ) {
-		if ( $sbupdated ) {
-			echo '<div>';
-			zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
-			echo '</div>'; }
+	if ( $sbupdated ) {
+		echo '<div>';
+		zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+		echo '</div>';
 	}
 	?>
 	<?php
-	if ( isset( $sbreset ) ) {
-		if ( $sbreset ) {
-			echo '<div>';
-			zeroBSCRM_html_msg( 0, __( 'Settings Reset', 'zero-bs-crm' ) );
-			echo '</div>'; }
+	if ( $sbreset ) {
+		echo '<div>';
+		zeroBSCRM_html_msg( 0, __( 'Settings Reset', 'zero-bs-crm' ) );
+		echo '</div>';
 	}
 	?>
 

@@ -10,11 +10,16 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Class Contact_Form_Endpoint
@@ -174,8 +179,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$this->rest_base . '/trash',
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => array( $this, 'empty_trash' ),
+				'callback'            => array( $this, 'delete_posts_by_status' ),
 				'permission_callback' => array( $this, 'delete_items_permissions_check' ),
+				'args'                => array(
+					'status' => array(
+						'type'     => 'string',
+						'enum'     => array( 'trash', 'spam' ),
+						'required' => false,
+						'default'  => 'trash',
+					),
+				),
 			)
 		);
 	}
@@ -460,54 +473,43 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$blog_url             = wp_parse_url( site_url() );
 
 		// resend the original email
-		$email          = get_post_meta( $post_id, '_feedback_email', true );
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+		$email = get_post_meta( $post_id, '_feedback_email', true );
 
-		if ( ! empty( $email ) && ! empty( $content_fields ) ) {
-			if ( isset( $content_fields['_feedback_author_email'] ) ) {
-				$comment_author_email = $content_fields['_feedback_author_email'];
-			}
-
-			if ( isset( $email['to'] ) ) {
-				$to = $email['to'];
-			}
-
-			if ( isset( $email['message'] ) ) {
-				$message = $email['message'];
-			}
-
-			if ( isset( $email['headers'] ) ) {
-				$headers = $email['headers'];
-			} else {
-				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
-
-				if ( ! empty( $comment_author_email ) ) {
-					$reply_to_addr = $comment_author_email;
-				} elseif ( is_array( $to ) ) {
-					$reply_to_addr = $to[0];
-				}
-
-				if ( $reply_to_addr ) {
-					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
-				}
-
-				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
-			}
-
-			/**
-			 * Filters the subject of the email sent after a contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
-			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
-			 */
-			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
-
-			Contact_Form::wp_mail( $to, $subject, $message, $headers );
+		$response = Feedback::get( $post_id );
+		if ( ! $response ) {
+			return;
 		}
+
+		if ( ! empty( $response->get_author_email() ) ) {
+			$comment_author_email = $response->get_author_email();
+		}
+
+		if ( isset( $email['to'] ) ) {
+			$to = $email['to'];
+		}
+
+		if ( isset( $email['message'] ) ) {
+			$message = $email['message'];
+		}
+
+		if ( isset( $email['headers'] ) ) {
+			$headers = $email['headers'];
+		} else {
+			$headers = 'From: "' . $response->get_author() . '" <wordpress@' . $blog_url['host'] . ">\r\n";
+
+			if ( ! empty( $comment_author_email ) ) {
+				$reply_to_addr = $comment_author_email;
+			} elseif ( is_array( $to ) ) {
+				$reply_to_addr = $to[0];
+			}
+
+			if ( $reply_to_addr ) {
+				$headers .= 'Reply-To: "' . $response->get_author() . '" <' . $reply_to_addr . ">\r\n";
+			}
+
+			$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
+		}
+		Contact_Form::wp_mail( $to, $response->get_subject(), $message, $headers );
 	}
 
 	/**
@@ -522,99 +524,50 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$data     = $response->get_data();
 		$fields   = $this->get_fields_for_response( $request );
 
-		$has_file    = false;
-		$base_fields = array(
-			'email_marketing_consent' => '',
-			'entry_title'             => '',
-			'entry_permalink'         => '',
-			'feedback_id'             => '',
-		);
-
-		$data_defaults = array(
-			'_feedback_author'       => '',
-			'_feedback_author_email' => '',
-			'_feedback_author_url'   => '',
-			'_feedback_all_fields'   => array(),
-			'_feedback_ip'           => '',
-			'_feedback_subject'      => '',
-		);
-
-		$feedback_data = array_merge(
-			$data_defaults,
-			\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $item->ID )
-		);
-
-		$all_fields = array_merge( $base_fields, $feedback_data['_feedback_all_fields'] );
+		$response = Feedback::get( $item->ID );
+		if ( ! $response ) {
+			return rest_ensure_response( $data );
+		}
 
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {
-			$data['uid'] = $all_fields['feedback_id'];
+			$data['uid'] = $response->get_feedback_id();
 		}
 		if ( rest_is_field_included( 'author_name', $fields ) ) {
-			$data['author_name'] = $feedback_data['_feedback_author'];
+			$data['author_name'] = $response->get_author();
 		}
 		if ( rest_is_field_included( 'author_email', $fields ) ) {
-			$data['author_email'] = $feedback_data['_feedback_author_email'];
+			$data['author_email'] = $response->get_author_email();
 		}
 		if ( rest_is_field_included( 'author_url', $fields ) ) {
-			$data['author_url'] = $feedback_data['_feedback_author_url'];
+			$data['author_url'] = $response->get_author_url();
 		}
 		if ( rest_is_field_included( 'author_avatar', $fields ) ) {
-			$data['author_avatar'] = empty( $feedback_data['_feedback_author_email'] ) ? '' : get_avatar_url( $feedback_data['_feedback_author_email'] );
+			$data['author_avatar'] = $response->get_author_avatar();
 		}
 		if ( rest_is_field_included( 'email_marketing_consent', $fields ) ) {
-			$data['email_marketing_consent'] = $all_fields['email_marketing_consent'];
+			$data['email_marketing_consent'] = $response->has_consent() ? '1' : '';
 		}
 		if ( rest_is_field_included( 'ip', $fields ) ) {
-			$data['ip'] = $feedback_data['_feedback_ip'];
+			$data['ip'] = $response->get_ip_address();
 		}
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
-			$data['entry_title'] = $all_fields['entry_title'];
+			$data['entry_title'] = $response->get_entry_title();
 		}
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
-			$data['entry_permalink'] = $all_fields['entry_permalink'];
+			$data['entry_permalink'] = $response->get_entry_permalink();
 		}
 		if ( rest_is_field_included( 'subject', $fields ) ) {
-			$data['subject'] = $feedback_data['_feedback_subject'];
+			$data['subject'] = $response->get_subject();
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$fields_data = array_diff_key( $all_fields, $base_fields );
+			$data['fields'] = $response->get_compiled_fields( 'api', 'label-value' );
+		}
 
-			foreach ( $fields_data as &$field ) {
-				if ( Contact_Form::is_file_upload_field( $field ) ) {
-
-					foreach ( $field['files'] as &$file ) {
-						if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
-							// this shouldn't happen, todo: log this
-							continue;
-						}
-						$file_id                = absint( $file['file_id'] );
-						$file['file_id']        = $file_id;
-						$file['size']           = size_format( $file['size'] );
-						$file['url']            = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
-						$file['is_previewable'] = self::is_previewable_file( $file );
-						$has_file               = true;
-					}
-				}
-			}
-
-			$data['fields']   = $fields_data;
-			$data['has_file'] = $has_file;
+		if ( rest_is_field_included( 'has_file', $fields ) ) {
+			$data['has_file'] = $response->has_file();
 		}
 		return rest_ensure_response( $data );
-	}
-	/**
-	 * Checks if the file is previewable based on its type or extension.
-	 *
-	 * @param array $file File data.
-	 * @return bool True if the file is previewable, false otherwise.
-	 */
-	private static function is_previewable_file( $file ) {
-		$file_type = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
-		// Check if the file is previewable based on its type or extension.
-		// Note: This is a simplified check and does not match if the file is allowed to be uploaded by the server.
-		$previewable_types = array( 'jpg', 'jpeg', 'png', 'gif', 'webp' );
-		return in_array( $file_type, $previewable_types, true );
 	}
 
 	/**
@@ -674,16 +627,27 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Handles emptying Jetpack Forms responses trash folder.
+	 * Handles emptying Jetpack Forms responses based on status.
+	 *
+	 * By default, it empties the trash, meaning it will delete all feedbacks in the trash (status = trash).
+	 * Passing a status will delete all feedbacks in the status.
+	 * The operation is non reversible and thus restricted to statuses spam and trash,
+	 * enforced by endpoint query args enum[spam, trash] but also double checked by the endpoint.
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return WP_REST_Response A response object..
 	 */
-	public function empty_trash( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function delete_posts_by_status( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$from_status = $request->get_param( 'status' );
+
+		if ( ! in_array( $from_status, array( 'spam', 'trash' ), true ) ) {
+			return new WP_REST_Response( array( 'error' => __( 'Bad request', 'jetpack-forms' ) ), 400 );
+		}
+
 		$query_args = array(
 			'post_type'      => 'feedback',
-			'post_status'    => 'trash',
+			'post_status'    => $from_status ?? 'trash',
 			'posts_per_page' => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 		);
 
@@ -694,7 +658,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		foreach ( (array) $trash_feedbacks as $feedback ) {
 			$feedback_deleted = wp_delete_post( $feedback->ID, true );
 			if ( ! $feedback_deleted ) {
-				return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+				if ( $from_status === 'trash' ) {
+					return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+				}
+
+				if ( $from_status === 'spam' ) {
+					return new WP_REST_Response( array( 'error' => __( 'Failed to empty spam.', 'jetpack-forms' ) ), 400 );
+				}
 			}
 			++$deleted;
 		}
@@ -968,6 +938,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the method exists first
 					}
 				}
+				// Add MailPoet lists to details
+				$response['details']['lists'] = MailPoet_Integration::get_all_lists();
 				break;
 		}
 

@@ -1,25 +1,25 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .jetpack-gutenberg-social-icon {
 	fill: gb.$gray-700;
 
 	&.is-facebook {
-		fill: var( --color-facebook );
+		fill: var(--color-facebook);
 	}
 
 	&.is-twitter {
-		fill: var( --color-twitter );
+		fill: var(--color-twitter);
 	}
 
 	&.is-linkedin {
-		fill: var( --color-linkedin );
+		fill: var(--color-linkedin);
 	}
 
 	&.is-tumblr {
-		fill: var( --color-tumblr );
+		fill: var(--color-tumblr);
 	}
 
 	&.is-google {
-		fill: var( --color-gplus );
+		fill: var(--color-gplus);
 	}
 }

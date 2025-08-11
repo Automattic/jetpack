@@ -50,7 +50,6 @@ class Script_Data {
 		$hook = is_admin() ? 'admin_print_scripts' : 'wp_print_scripts';
 		add_action( $hook, array( self::class, 'render_script_data' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( self::class, 'render_script_data' ), 1 );
-		add_action( 'wp_enqueue_scripts', array( self::class, 'render_script_data' ), 1 );
 	}
 
 	/**
@@ -86,19 +85,32 @@ class Script_Data {
 
 		self::$did_render_script_data = true;
 
-		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
-		$script_data = wp_json_encode(
-			$script_data,
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
-		);
+		$script_data = is_admin() || self::is_authenticated_rest_request()
+			? self::get_admin_script_data()
+			: self::get_public_script_data();
 
-		if ( is_admin() || did_action( 'enqueue_block_editor_assets' ) ) {
-			// For admin/editor contexts (including P2 frontend editing), use wp_add_inline_script with the existing script
-			wp_add_inline_script( self::SCRIPT_HANDLE, sprintf( 'window.JetpackScriptData = %s;', $script_data ), 'before' );
-		} else {
-			// For public pages, we directly print the script tag.
-			wp_print_inline_script_tag( sprintf( 'window.JetpackScriptData = %s;', $script_data ) );
+		if ( ! empty( $script_data ) ) {
+			$script_data = wp_json_encode(
+				$script_data,
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+			);
+
+			wp_add_inline_script(
+				self::SCRIPT_HANDLE,
+				sprintf( 'window.JetpackScriptData = %s;', $script_data ),
+				'before'
+			);
+			Assets::enqueue_script( self::SCRIPT_HANDLE );
 		}
+	}
+
+	/**
+	 * Whether the current request is an authenticated REST API request.
+	 *
+	 * @return bool
+	 */
+	protected static function is_authenticated_rest_request() {
+		return wp_is_serving_rest_request() && current_user_can( 'read' );
 	}
 
 	/**
@@ -154,20 +166,13 @@ class Script_Data {
 	}
 
 	/**
-	 * Get the admin script data.
+	 * Get the public script data.
 	 *
 	 * @return array
 	 */
 	protected static function get_public_script_data() {
 
-		$data = array(
-			'site' => array(
-				'icon'              => self::get_site_icon(),
-				'title'             => self::get_site_title(),
-				'host'              => ( new Host() )->get_known_host_guess(),
-				'is_wpcom_platform' => ( new Host() )->is_wpcom_platform(),
-			),
-		);
+		$data = array();
 
 		/**
 		 * Filter the public script data.

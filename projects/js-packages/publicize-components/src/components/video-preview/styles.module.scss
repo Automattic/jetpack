@@ -9,7 +9,7 @@
 	padding: 4px;
 	display: flex;
 	align-items: center;
-	background-color: rgba( 44, 51, 56, 0.9 ); // --jp-black-80
+	background-color: rgba(44, 51, 56, 0.9); // --jp-black-80
 	border-radius: 2px;
 	font-variant-numeric: tabular-nums;
 
@@ -22,5 +22,5 @@
 	font-weight: 600;
 	font-size: 9px;
 	line-height: 8px;
-	color: var( --jp-white );
+	color: var(--jp-white);
 }

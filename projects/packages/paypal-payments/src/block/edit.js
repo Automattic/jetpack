@@ -108,7 +108,7 @@ export const SimplePaymentsEdit = ( {
 		setIsSavingProduct( true );
 
 		saveEntityRecord( 'postType', SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, {
-			id: null, // This insures that a new product is created every time a change is made
+			id: null, // This ensures that a new product is created every time a change is made
 			content,
 			featured_media: featuredMediaId,
 			meta: {
@@ -141,7 +141,7 @@ export const SimplePaymentsEdit = ( {
 				setFieldEmailError(
 					apiErrorKey === 'spay_email'
 						? sprintf(
-								/* translators: Placeholder is an email address. */
+								/* translators: %s: an email address. */
 								__( '%s is not a valid email address.', 'jetpack-paypal-payments' ),
 								email
 						  )
@@ -222,7 +222,7 @@ export const SimplePaymentsEdit = ( {
 
 			setFieldPriceError(
 				sprintf(
-					/* translators: Placeholder is a number of decimals in a number. */
+					/* translators: %d: the number of decimals in a number. */
 					_n(
 						'The price cannot have more than %d decimal place.',
 						'The price cannot have more than %d decimal places.',
@@ -263,7 +263,7 @@ export const SimplePaymentsEdit = ( {
 		if ( ! emailValidatorValidate( email ) ) {
 			setFieldEmailError(
 				sprintf(
-					/* translators: Placeholder is an email address. */
+					/* translators: %s: an email address. */
 					__( '%s is not a valid email address.', 'jetpack-paypal-payments' ),
 					email
 				)

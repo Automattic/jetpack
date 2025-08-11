@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
@@ -56,8 +57,12 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function register_feature( $features ) {
-		// Register the contact form block feature flag.
-		$features['multistep-form'] = Blocks::get_variation() === 'beta';
+		// Features under development.
+		$features['image-select-field'] = apply_filters( 'forms_alpha', false );
+
+		// Features that are only available to users with a paid plan.
+		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
+
 		return $features;
 	}
 
@@ -375,6 +380,20 @@ class Contact_Form_Block {
 					),
 				)
 			);
+			Blocks::jetpack_register_block(
+				'jetpack/field-slider',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_slider' ),
+					'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				)
+			);
+			Blocks::jetpack_register_block(
+				'jetpack/field-time',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_time' ),
+					'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				)
+			);
 		}
 
 		// Paid file field block
@@ -431,6 +450,31 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/form-step-container'
 		);
+
+		// Block under development.
+		if ( apply_filters( 'forms_alpha', false ) ) {
+			Blocks::jetpack_register_block(
+				'jetpack/field-image-select',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
+					'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				)
+			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/form-image-select-choices',
+				array(
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choices' ),
+				)
+			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/form-image-select-choice',
+				array(
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choice' ),
+				)
+			);
+		}
 	}
 
 	/**
@@ -494,6 +538,7 @@ class Contact_Form_Block {
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
+		global $post;
 		// Bail early if the user cannot manage the block.
 		if ( ! self::can_manage_block() ) {
 			return;
@@ -516,8 +561,6 @@ class Contact_Form_Block {
 
 		// Create a Contact_Form instance to get the default values
 		$dashboard_view_switch   = new Dashboard_View_Switch();
-		$contact_form            = new Contact_Form( array() );
-		$defaults                = $contact_form->defaults;
 		$form_responses_url      = $dashboard_view_switch->get_forms_admin_url();
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
@@ -525,13 +568,14 @@ class Contact_Form_Block {
 
 		$data = array(
 			'defaults' => array(
-				'to'                   => $defaults['to'],
-				'subject'              => $defaults['subject'],
+				'to'                   => Contact_Form::get_default_to( $post ? Contact_Form::get_post_property( $post, 'post_author' ) : null ),
+				'subject'              => Contact_Form::get_default_subject( array() ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
 				'preferredView'        => $preferred_view,
+				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
 			),
 		);
 

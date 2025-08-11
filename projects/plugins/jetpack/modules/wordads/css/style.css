@@ -45,13 +45,13 @@
 }
 
 /* ad unit wrapper */
-.wpa .u>div {	/* @todo: deprecate wpdvert */
+.wpa .u > div {	/* @todo: deprecate wpdvert */
 	display: block;
 	margin-top: 5px;			/* this makes "about these ads" visible */
 	margin-bottom: 1em;			/* every ad should have a little space below it */
 }
 
-div.wpa>div {
+div.wpa > div {
 	margin-top: 20px;
 }
 

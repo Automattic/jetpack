@@ -16,7 +16,8 @@
 
 	svg {
 
-		/* Better center-align the spinner with button text, because 1m height doesn't take line-height into account */
+		/* Better center-align the spinner with button text, because
+		 * 1m height doesn't take line-height into account */
 		margin-bottom: -2px;
 		width: 100%;
 		height: 100%;
@@ -25,7 +26,7 @@
 
 .jetpack-memberships-spinner-rotating {
 	transform-origin: center;
-	animation: jetpack-memberships_button__spinner-animation .75s infinite linear
+	animation: jetpack-memberships_button__spinner-animation 0.75s infinite linear;
 }
 
 .is-loading .jetpack-memberships-spinner {
@@ -39,7 +40,8 @@ body.jetpack-memberships-modal-open {
 dialog.jetpack-memberships-modal {
 	opacity: 1;
 
-	&, iframe {
+	&,
+	iframe {
 		position: fixed;
 		margin: 0;
 		padding: 0;
@@ -57,12 +59,13 @@ dialog.jetpack-memberships-modal {
 	&::backdrop {
 		background-color: #000;
 		opacity: 0.7;
-		transition: opacity .2s ease-out;
+		transition: opacity 0.2s ease-out;
 	}
 
 	&.is-loading {
 
-		&, &::backdrop {
+		&,
+		&::backdrop {
 			opacity: 0;
 		}
 	}

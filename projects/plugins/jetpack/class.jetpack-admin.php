@@ -29,11 +29,6 @@ class Jetpack_Admin {
 	 * @return self
 	 */
 	public static function init() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
-			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
-		}
-
 		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Admin();
 		}
@@ -43,10 +38,12 @@ class Jetpack_Admin {
 	/**
 	 * Filter callback to add `no-store` to the `Cache-Control` header.
 	 *
+	 * @deprecated 14.9
 	 * @param array $headers Headers array.
 	 * @return array Modified headers array.
 	 */
 	public static function add_no_store_header( $headers ) {
+		_deprecated_function( __METHOD__, '14.9' );
 		$headers['Cache-Control'] .= ', no-store';
 		return $headers;
 	}
@@ -65,7 +62,6 @@ class Jetpack_Admin {
 		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );
-		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );

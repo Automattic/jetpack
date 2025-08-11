@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
 /**
@@ -56,6 +60,8 @@ new WPCOM_JSON_API_List_Media_v1_2_Endpoint(
 
 /**
  * List Media v1_2 endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Media_v1_2_Endpoint extends WPCOM_JSON_API_List_Media_v1_1_Endpoint { // phpcs:ignore
 	/**

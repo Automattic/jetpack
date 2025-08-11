@@ -17,6 +17,8 @@ WPCOM_API_Request_Tracker::init();
 
 /**
  * Class WPCOM_API_Request_Tracker_Module
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_API_Request_Tracker_Module {
 	/**

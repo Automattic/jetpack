@@ -153,6 +153,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionsclasses'           => null,
 				'optionsstyles'            => null,
 				'align'                    => null,
+				'variation'                => null,
+				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
 			),
 			$attributes,
 			'contact-field'
@@ -226,12 +228,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function add_error( $message ) {
 		$this->error = true;
-
-		if ( ! is_wp_error( $this->form->errors ) ) {
-			$this->form->errors = new \WP_Error();
-		}
-
-		$this->form->errors->add( $this->get_attribute( 'id' ), $message );
+		$this->form->add_error( $this->get_attribute( 'id' ), $message );
 	}
 
 	/**
@@ -246,12 +243,41 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Check if the field has a value.
+	 *
+	 * This is used to determine if the field has been filled out by the user.
+	 *
+	 * @return bool True if the field has a value, false otherwise.
+	 */
+	public function has_value() {
+		$field_id    = $this->get_attribute( 'id' );
+		$field_value = isset( $_POST[ $field_id ] ) ? wp_unslash( $_POST[ $field_id ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes.
+
+		if ( is_array( $field_value ) ) {
+			if ( empty( $field_value ) ) {
+				return false;
+			}
+			return ! empty( array_filter( $field_value ) );
+		}
+		return ! empty( trim( $field_value ) );
+	}
+
+	/**
 	 * Validates the form input
 	 */
 	public function validate() {
+		// If the field is already invalid, don't validate it again.
+		if ( $this->is_error() ) {
+			return;
+		}
+
 		$field_type = $this->maybe_override_type();
 		// If it's not required, there's nothing to validate
-		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
+		if ( ! $this->get_attribute( 'required' ) && ! $this->has_value() ) {
+			return;
+		}
+
+		if ( ! $this->is_field_renderable( $field_type ) ) {
 			return;
 		}
 
@@ -276,28 +302,51 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field_value
 				) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'email':
 				// Make sure the email address is valid
 				if ( ! is_string( $field_value ) || ! is_email( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a valid email address.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'checkbox-multiple':
 				// Check that there is at least one option selected
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+				} else {
+					// Check that the selected options are valid
+					$options           = (array) $this->get_attribute( 'options' );
+					$non_empty_options = array_filter(
+						$options,
+						function ( $option ) {
+							return $option !== '';
+						}
+					);
+					foreach ( $field_value  as $field_value_item ) {
+						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
+							/* translators: %s is the name of a form field */
+							$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+							break;
+						}
+					}
 				}
 				break;
 			case 'number':
 				// Make sure the number address is valid
 				if ( ! is_numeric( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a number.', 'jetpack-forms' ), $field_label ) );
+				}
+				break;
+			case 'time':
+				// Make sure the number address is valid
+				if ( ! preg_match( '/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/', $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires a time', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'file':
@@ -311,7 +360,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				// Just check for presence of any text
 				if ( ! is_string( $field_value ) || ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s is required', 'jetpack-forms' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s field is required.', 'jetpack-forms' ), $field_label ) );
 				}
 		}
 	}
@@ -476,7 +525,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$extra_attrs = array();
 
-		if ( $field_type === 'number' ) {
+		if ( $field_type === 'number' || $field_type === 'slider' ) {
 			if ( is_numeric( $this->get_attribute( 'min' ) ) ) {
 				$extra_attrs['min'] = $this->get_attribute( 'min' );
 			}
@@ -689,7 +738,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		// this is a hack for Firefox to prevent users from falsly entering a something other then a number into a number field.
+		// this is a hack for Firefox to prevent users from falsely entering a something other than a number into a number field.
 		if ( $type === 'number' ) {
 			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
 		}
@@ -1019,7 +1068,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label_class                  .= $this->option_classes ? ' ' . $this->option_classes : '';
 		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
-		$field  = "<div class='contact-form__checkbox-wrap'>";
+		$field  = "<div class='contact-form__checkbox-wrap' style='" . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "' >";
 		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
 		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
@@ -1184,6 +1233,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--dragleave="actions.dragLeave"
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
+			data-wp-on--jetpack-form-reset="actions.resetFiles"
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
@@ -1447,7 +1497,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for the email field.
+	 * Return the HTML for the date field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -1561,6 +1611,47 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 			$is_loaded = true;
 		}
+
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the time field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return string HTML
+	 */
+	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->set_invalid_message( 'time', __( 'Please enter a valid time.', 'jetpack-forms' ) );
+
+		$field  = $this->render_label( 'time', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'time', $id, $value, $class, $placeholder, $required );
+
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the image select field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$field = $this->render_label( 'image-select', $id, $label, $required, $required_field_text );
+		// TODO: Implement the image select field rendering.
 
 		return $field;
 	}
@@ -1888,7 +1979,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$interactivity_attrs = ''; // Reset interactivity attributes for the field wrapper.
 		}
 
-		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
+		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':
@@ -1924,6 +2015,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'number':
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
 				break;
+			case 'slider':
+				$field .= $this->render_slider_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				break;
 			case 'file':
 				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
@@ -1936,6 +2030,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$required,
 					$required_field_text
 				);
+				break;
+			case 'time':
+				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'image-select':
+				$field .= $this->render_image_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
@@ -2079,33 +2179,51 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
 		// Read block attributes needed for rendering.
-
-		$max_attr = $this->get_attribute( 'max' );
-
+		$max_attr   = $this->get_attribute( 'max' );
 		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
 
 		$initial_rating = (int) $value ? (int) $value : 0;
 
-		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
+		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text );
 
-		$spans = '';
+		/*
+		 * Determine which icon SVG to use based on the 'iconstyle' attribute.
+		 * Note: attribute name is lowercase due to WordPress shortcode processing
+		 */
+		$icon_style       = $this->get_attribute( 'iconstyle' );
+		$has_hearts_style = ( 'hearts' === $icon_style );
+
+		// SVG icon definitions - keep in sync with JavaScript icons.js
+		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg>';
+		$heart_svg = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg>';
+
+		$icon_svg = $has_hearts_style ? $heart_svg : $star_svg;
+
+		$options = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
-			$spans .= sprintf(
-				'<label class="jetpack-field-rating__label">
+			$radio_id = $id . '-' . $i;
+			$options .= sprintf(
+				'<div class="jetpack-field-rating__option">
 					<input
-						class="jetpack-field-rating__input"
+						id="%1$s"
 						type="radio"
+						name="%2$s"
+						value="%3$s/%4$s"
 						data-wp-on--change="actions.onFieldChange"
-						%1$s
-						%2$s
-						name="%3$s"
-						value="%4$s/%5$s" />
-				</label>',
-				checked( $i, $initial_rating, false ),
-				$required ? 'required aria-required="true"' : '',
-				esc_attr( $id ),
-				esc_attr( $i ),
-				esc_attr( $max_rating )
+						class="jetpack-field-rating__input"
+						%5$s
+						%6$s /> 
+					<label for="%1$s" class="jetpack-field-rating__label">
+						%7$s
+					</label>
+				</div>',
+				esc_attr( $radio_id ),         // %1$s: id and label for
+				esc_attr( $id ),               // %2$s: name
+				esc_attr( $i ),                // %3$s: value (current rating)
+				esc_attr( $max_rating ),       // %4$s: value (max rating)
+				checked( $i, $initial_rating, false ), // %5$s: checked attribute
+				$required ? 'required' : '',   // %6$s: required attribute
+				$icon_svg                      // %7$s: icon SVG
 			);
 		}
 
@@ -2161,11 +2279,121 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 
-		return $label_html . sprintf(
-			'<div class="jetpack-field-rating %3$s" %1$s>%2$s</div>',
+		return sprintf(
+			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s>
+				%5$s
+				<div class="jetpack-field-rating__options %3$s">%2$s</div>
+			</fieldset>',
 			$style_attr,
-			$spans,
-			$this->field_classes
+			$options,
+			$this->field_classes,
+			esc_attr( $id ),
+			$label_html
 		) . $this->get_error_div( $id, 'rating' );
+	}
+
+	/**
+	 * Return the HTML for the slider field.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @param int    $id The field ID.
+	 * @param string $label The field label.
+	 * @param string $value The field value.
+	 * @param string $class The field class.
+	 * @param bool   $required Whether the field is required.
+	 * @param string $required_field_text The required field text.
+	 * @param string $placeholder The field placeholder.
+	 * @param array  $extra_attrs Extra attributes (e.g., min, max).
+	 *
+	 * @return string HTML for the slider field.
+	 */
+	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$this->enqueue_slider_field_assets();
+		$this->set_invalid_message( 'slider', __( 'Please select a valid value', 'jetpack-forms' ) );
+		if ( isset( $extra_attrs['min'] ) ) {
+			// translators: %d is the minimum value.
+			$this->set_invalid_message( 'min_slider', __( 'Please select a value that is no less than %d.', 'jetpack-forms' ) );
+		}
+		if ( isset( $extra_attrs['max'] ) ) {
+			// translators: %d is the maximum value.
+			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
+		}
+		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
+		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
+		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
+		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
+
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
+
+		ob_start();
+		?>
+		<div class="jetpack-field-slider__input-row"
+			data-wp-context='
+			<?php
+			echo wp_json_encode(
+				array(
+					'min'     => $min,
+					'max'     => $max,
+					'default' => $starting_value,
+				)
+			);
+			?>
+			'>
+			<span class="jetpack-field-slider__min-label"><?php echo esc_html( $min ); ?></span>
+			<div class="jetpack-field-slider__input-container">
+				<input
+					type="range"
+					name="<?php echo esc_attr( $id ); ?>"
+					id="<?php echo esc_attr( $id ); ?>"
+					value="<?php echo esc_attr( $current_value ); ?>"
+					min="<?php echo esc_attr( $min ); ?>"
+					max="<?php echo esc_attr( $max ); ?>"
+					class="<?php echo esc_attr( $class ); ?>"
+					placeholder="<?php echo esc_attr( $placeholder ); ?>"
+					<?php
+					if ( $required ) :
+						?>
+						required<?php endif; ?>
+					data-wp-bind--value="state.getSliderValue"
+					data-wp-on--input="actions.onSliderChange"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+				/>
+				<div
+					class="jetpack-field-slider__value-indicator"
+					data-wp-text="state.getSliderValue"
+					data-wp-style--left="state.getSliderPosition"
+				><?php echo esc_html( $current_value ); ?></div>
+			</div>
+			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
+		</div>
+		<?php
+		$field .= ob_get_clean();
+		return $field . $this->get_error_div( $id, 'slider' );
+	}
+
+	/**
+	 * Enqueues scripts and styles needed for the slider field.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @return void
+	 */
+	private function enqueue_slider_field_assets() {
+		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		\wp_enqueue_style(
+			'jetpack-form-slider-field',
+			plugins_url( '../../dist/contact-form/css/slider-field.css', __FILE__ ),
+			array(),
+			$version
+		);
+
+		\wp_enqueue_script_module(
+			'jetpack-form-slider-field',
+			plugins_url( '../../dist/modules/slider-field/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
 	}
 }

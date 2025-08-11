@@ -45,7 +45,7 @@ export default function useExportResponses(): ExportHookReturn {
 	const isSpam = currentStatus.includes( 'spam' );
 	const isTrash = currentStatus.includes( 'trash' );
 
-	let statusLabel = __( 'Export', 'jetpack-forms' );
+	let statusLabel: string = __( 'Export', 'jetpack-forms' );
 
 	if ( isSpam ) {
 		statusLabel = __( 'Export spam', 'jetpack-forms' );

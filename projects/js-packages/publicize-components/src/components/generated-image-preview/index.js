@@ -15,7 +15,7 @@ const getMediaSourceUrl = media => {
 	return media?.media_details?.sizes?.large?.source_url || media?.source_url;
 };
 
-const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+export const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
 	if ( imageType === 'custom' && customImageId ) {
 		return customImageId;
 	}
@@ -31,6 +31,30 @@ const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId )
 	return featuredImageId || defaultImageId;
 };
 
+const hasNoValidImage = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+	// No image type selected
+	if ( imageType === 'none' ) {
+		return true;
+	}
+
+	// Custom image selected but no image provided
+	if ( imageType === 'custom' && ! customImageId ) {
+		return true;
+	}
+
+	// Default image selected but no valid default image
+	if ( imageType === 'default' && ! defaultImageId ) {
+		return true;
+	}
+
+	// Featured image type (or null/undefined) but no featured image and no valid default fallback
+	if ( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId && ! defaultImageId ) {
+		return true;
+	}
+
+	return false;
+};
+
 export const calculateImageUrl = (
 	imageType,
 	customImageId,
@@ -38,11 +62,7 @@ export const calculateImageUrl = (
 	defaultImageId,
 	getMedia
 ) => {
-	if (
-		imageType === 'none' ||
-		( imageType === 'custom' && ! customImageId ) ||
-		( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId && ! defaultImageId )
-	) {
+	if ( hasNoValidImage( imageType, customImageId, featuredImageId, defaultImageId ) ) {
 		return null;
 	}
 
@@ -58,8 +78,8 @@ export const calculateImageUrl = (
 /**
  * Fetches the preview of the generated image based on the post info
  *
- * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string}} props -
- *                                                                                                                   The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
+ * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string, font?: string}} props -
+ *                                                                                                                                  The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
  * @return {import('react').ReactNode} The generated image preview.
  */
 export default function GeneratedImagePreview( {
@@ -70,7 +90,7 @@ export default function GeneratedImagePreview( {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 
-	const { customText, imageType, imageId, defaultImageId, template, setToken } = {
+	const { customText, imageType, imageId, defaultImageId, template, setToken, font } = {
 		...useImageGeneratorConfig(),
 		...generatorConfigProps,
 	};
@@ -113,6 +133,7 @@ export default function GeneratedImagePreview( {
 						text: imageTitle,
 						image_url: imageUrl,
 						template,
+						font,
 					},
 				} );
 				setToken?.( sig_token );
@@ -136,7 +157,7 @@ export default function GeneratedImagePreview( {
 		};
 		// setToken is not a dependency here
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ imageTitle, template, imageUrl, onNewToken ] );
+	}, [ imageTitle, template, imageUrl, font, onNewToken ] );
 
 	const onImageLoad = useCallback( () => {
 		setIsLoading( false );

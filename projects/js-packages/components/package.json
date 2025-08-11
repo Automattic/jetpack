@@ -1,18 +1,46 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "1.1.13",
+	"version": "1.1.17",
 	"description": "Jetpack Components Package",
-	"author": "Automattic",
-	"license": "GPL-2.0-or-later",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Components"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
 		"directory": "projects/js-packages/components"
 	},
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Components"
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"jetpack:src": "./index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		},
+		"./tools/jp-redirect": {
+			"jetpack:src": "./tools/jp-redirect/index.ts",
+			"types": "./build/tools/jp-redirect/index.d.ts",
+			"default": "./build/tools/jp-redirect/index.js"
+		}
 	},
+	"scripts": {
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf build/",
+		"compile-ts": "tsc --pretty --project tsconfig.build.json",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-api": "workspace:*",
@@ -20,15 +48,15 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "^7",
-		"@wordpress/browserslist-config": "6.26.0",
-		"@wordpress/components": "29.12.0",
-		"@wordpress/compose": "7.26.0",
-		"@wordpress/data": "10.26.0",
-		"@wordpress/date": "5.26.0",
-		"@wordpress/element": "6.26.0",
-		"@wordpress/i18n": "5.26.0",
-		"@wordpress/icons": "10.26.0",
-		"@wordpress/notices": "5.26.0",
+		"@wordpress/browserslist-config": "6.27.0",
+		"@wordpress/components": "30.0.0",
+		"@wordpress/compose": "7.27.0",
+		"@wordpress/data": "10.27.0",
+		"@wordpress/date": "5.27.0",
+		"@wordpress/element": "6.27.0",
+		"@wordpress/i18n": "6.0.0",
+		"@wordpress/icons": "10.27.0",
+		"@wordpress/notices": "5.27.0",
 		"clsx": "2.1.1",
 		"prop-types": "^15.7.2",
 		"qrcode.react": "4.2.0",
@@ -39,7 +67,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.27.7",
+		"@babel/core": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"@jest/globals": "30.0.4",
 		"@storybook/addon-docs": "9.0.15",
@@ -65,33 +93,5 @@
 	"peerDependencies": {
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0"
-	},
-	"type": "module",
-	"browserslist": [
-		"extends @wordpress/browserslist-config"
-	],
-	"exports": {
-		".": {
-			"jetpack:src": "./index.ts",
-			"types": "./build/index.d.ts",
-			"default": "./build/index.js"
-		},
-		"./tools/jp-redirect": {
-			"jetpack:src": "./tools/jp-redirect/index.ts",
-			"types": "./build/tools/jp-redirect/index.d.ts",
-			"default": "./build/tools/jp-redirect/index.js"
-		}
-	},
-	"sideEffects": [
-		"*.css",
-		"*.scss"
-	],
-	"scripts": {
-		"build": "pnpm run clean && pnpm run compile-ts",
-		"clean": "rm -rf build/",
-		"compile-ts": "tsc --pretty --project tsconfig.build.json",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit"
 	}
 }

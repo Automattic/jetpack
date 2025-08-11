@@ -17,6 +17,8 @@ use WP_REST_Server;
 
 /**
  * Scheduled Actions Controller class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Scheduled_Actions_Controller extends Base_Controller {
 

@@ -8,6 +8,7 @@ import { useCallback, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -15,6 +16,8 @@ import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import type { FC, MouseEvent } from 'react';
+
+const PAD_ANGLE = 0.03; // Padding between segments
 
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -136,22 +139,30 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ providerTheme.colors ]
 	);
 
-	// Create legend items (hooks must be called in same order every render)
-	const legendItems = useMemo(
-		() =>
-			data.map( ( item, index ) => ( {
-				label: item.label,
-				value: item.valueDisplay || item.value.toString(),
-				color: accessors.fill( { ...item, index } ),
-			} ) ),
-		[ data, accessors ]
+	// Memoize legend options to prevent unnecessary re-calculations
+	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendData( data, providerTheme, legendOptions );
+
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			thickness,
+			clockwise,
+		} ),
+		[ thickness, clockwise ]
 	);
 
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'pie-semi-circle', isValid, {
-		thickness,
-		clockwise,
-	} );
+	useChartRegistration(
+		chartId,
+		legendItems,
+		providerTheme,
+		'pie-semi-circle',
+		isValid,
+		chartMetadata
+	);
 
 	if ( ! isValid ) {
 		return (
@@ -165,23 +176,22 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		);
 	}
 
+	// Calculate chart dimensions
+	// TODO: we might want to accept height as a prop in the future, because the height of container might not always be enough.
 	const height = width / 2;
-	const pad = 0.03;
+	// The chart only takes the height minus the legend height.
+	const chartHeight =
+		height - ( showLegend && legendAlignmentVertical === 'top' ? legendHeight : 0 );
+	const radius = Math.min( width / 2, chartHeight );
+	const innerRadius = radius * ( 1 - thickness );
 
-	// Use padding for the overall chart dimensions
-	const chartWidth = width - pad * 2;
-	const chartHeight = height - pad;
-	const radius = Math.min( chartWidth, chartHeight * 2 ) / 2;
-
-	const innerRadius = radius * ( 1 - thickness + pad );
-
-	// Map the data to include index for color assignment
+	// Map data with index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
 		...d,
 		index,
 	} ) );
 
-	// Set the clockwise direction based on the prop
+	// Configure pie angles based on clockwise direction
 	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
 	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
 
@@ -197,21 +207,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		>
 			<svg
 				width={ width }
-				height={
-					height + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
-				}
-				viewBox={ `0 0 ${ width } ${
-					height + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
-				}` }
+				height={ radius }
+				viewBox={ `0 0 ${ width } ${ chartHeight }` }
 				data-testid="pie-chart-svg"
 			>
-				{ /* Main chart group that contains both the pie and text elements */ }
-				<Group
-					top={
-						radius + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
-					}
-					left={ radius }
-				>
+				{ /* Main chart group centered horizontally and positioned at bottom */ }
+				<Group top={ chartHeight } left={ width / 2 }>
 					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
@@ -219,7 +220,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						outerRadius={ radius }
 						innerRadius={ innerRadius }
 						cornerRadius={ 3 }
-						padAngle={ pad }
+						padAngle={ PAD_ANGLE }
 						startAngle={ startAngle }
 						endAngle={ endAngle }
 						pieSort={ accessors.sort }
@@ -241,11 +242,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						} }
 					</Pie>
 
+					{ /* Label and note text */ }
 					<Group>
 						<Text
 							textAnchor="middle"
 							verticalAnchor="start"
-							y={ -40 } // double font size to make room for a note
+							y={ -40 } // Position above the chart with space for note
 							className={ styles.label }
 						>
 							{ label }
@@ -253,7 +255,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						<Text
 							textAnchor="middle"
 							verticalAnchor="start"
-							y={ -20 } // font size with padding
+							y={ -20 } // Position between label and chart
 							className={ styles.note }
 						>
 							{ note }
@@ -280,9 +282,9 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					orientation={ legendOrientation }
 					alignmentHorizontal={ legendAlignmentHorizontal }
 					alignmentVertical={ legendAlignmentVertical }
-					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }
+					chartId={ chartId }
 				/>
 			) }
 		</div>

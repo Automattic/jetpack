@@ -16,6 +16,8 @@ use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 /**
  * Class Jetpack_VideoPress_Plugin
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_VideoPress_Plugin {
 

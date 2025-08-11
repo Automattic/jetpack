@@ -570,7 +570,7 @@ class Boost_Cache {
 		 */
 		$get_parameters = apply_filters(
 			'jetpack_boost_ignore_get_parameters',
-			array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term' )
+			array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ysclid', 'srsltid', 'yclid' )
 		);
 
 		$get_parameters = array_unique(

@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Site_User_Endpoint(
 	array(
 		'description'          => 'Get details of a user of a site by ID.',
@@ -107,6 +111,8 @@ new WPCOM_JSON_API_Site_User_Endpoint(
  * Site user endpoint class.
  *
  * /sites/%s/users/%d -> $blog_id, $user_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 

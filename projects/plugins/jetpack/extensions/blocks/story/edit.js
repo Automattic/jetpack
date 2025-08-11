@@ -5,7 +5,6 @@ import { withNotices } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { pick } from 'lodash';
 import metadata from './block.json';
 import Controls from './controls';
 import StoryPlayer from './player';
@@ -13,20 +12,23 @@ import StoryPlayer from './player';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
+const ALLOWED_MEDIA_PROPS = [
+	'alt',
+	'title',
+	'id',
+	'link',
+	'type',
+	'mime',
+	'caption',
+	'width',
+	'height',
+];
 const icon = getBlockIconComponent( metadata );
 
 export const pickRelevantMediaFiles = media => {
-	const mediaProps = pick( media, [
-		'alt',
-		'title',
-		'id',
-		'link',
-		'type',
-		'mime',
-		'caption',
-		'width',
-		'height',
-	] );
+	const mediaProps = Object.fromEntries(
+		Object.entries( media ).filter( ( [ k ] ) => ALLOWED_MEDIA_PROPS.includes( k ) )
+	);
 	mediaProps.url =
 		media?.media_details?.original?.url ||
 		media?.media_details?.videopress?.original ||

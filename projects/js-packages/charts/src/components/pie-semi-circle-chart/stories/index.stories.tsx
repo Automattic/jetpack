@@ -1,5 +1,13 @@
+import { sharedDecorator } from '../../../stories/decorator-config';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
+
+type StoryArgs = React.ComponentProps< typeof PieSemiCircleChart > & {
+	containerWidth?: string;
+	containerHeight?: string;
+	resize?: string;
+};
 
 const data = [
 	{
@@ -22,31 +30,13 @@ const data = [
 	},
 ];
 
-const ResponsiveDecorator = Story => (
-	<div
-		style={ {
-			resize: 'both',
-			overflow: 'hidden',
-			padding: '2rem',
-			width: '800px',
-			aspectRatio: '2/1',
-			minWidth: '400px',
-			maxWidth: '1200px',
-			height: '450px',
-			border: '1px dashed #ccc',
-		} }
-	>
-		<Story />
-	</div>
-);
-
-const meta = {
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
 	component: PieSemiCircleChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [ ResponsiveDecorator ],
+	decorators: sharedDecorator,
 	argTypes: {
 		width: {
 			control: {
@@ -62,14 +52,6 @@ const meta = {
 				min: 0,
 				max: 1,
 				step: 0.01,
-			},
-		},
-		padding: {
-			control: {
-				type: 'range',
-				min: 0,
-				max: 100,
-				step: 5,
 			},
 		},
 		maxWidth: {
@@ -93,17 +75,19 @@ const meta = {
 				max: 10000,
 			},
 		},
+		...legendArgTypes,
 	},
-} satisfies Meta< typeof PieSemiCircleChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
-type Story = StoryObj< typeof PieSemiCircleChart >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
-		width: 600,
+		containerWidth: '600px',
+		containerHeight: '325px',
+		resize: 'none',
 		thickness: 0.4,
-		padding: 20,
 		data,
 		label: 'OS',
 		note: 'Windows +10%',
@@ -125,7 +109,59 @@ export const WithTooltips: Story = {
 	},
 };
 
-const responsiveArgs = { ...Default.args };
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
+export const CustomLegendPositioning: Story = {
+	args: {
+		containerWidth: '600px',
+		containerHeight: '350px',
+		resize: 'none',
+		thickness: 0.4,
+		data: [
+			{
+				label: 'MacOS',
+				value: 30000,
+				valueDisplay: '30K',
+				percentage: 30,
+			},
+			{
+				label: 'Linux',
+				value: 22000,
+				valueDisplay: '22K',
+				percentage: 22,
+			},
+			{
+				label: 'Windows',
+				value: 48000,
+				valueDisplay: '48K',
+				percentage: 48,
+			},
+		],
+		label: 'OS',
+		note: 'Windows +10%',
+		withTooltips: true,
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignmentHorizontal: 'right',
+		legendAlignmentVertical: 'top',
+		legendShape: 'circle',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Semi-circle pie chart with right-top positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with OS usage data.',
+			},
+		},
+	},
+};
+
+const responsiveArgs = { ...Default.args, resize: 'both' };
 delete responsiveArgs.width;
 export const Responsiveness: Story = {
 	args: responsiveArgs,

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Use the view_stats cap for the Jetpack Stats menu item instead of manage_options.

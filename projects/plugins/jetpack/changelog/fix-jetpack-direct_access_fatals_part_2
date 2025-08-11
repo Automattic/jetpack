@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Prevent PHP errors when directly accessing various files.

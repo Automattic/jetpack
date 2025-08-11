@@ -1,3 +1,4 @@
+import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
 import type { ReactNode } from 'react';
 
 /**
@@ -101,6 +102,8 @@ export interface JPFormsBlocksDefaults {
 	formsResponsesUrl?: string;
 	/** The URL for spam form responses. */
 	formsResponsesSpamUrl?: string;
+	/** Whether MailPoet integration is enabled. */
+	isMailPoetEnabled?: boolean;
 }
 
 /**
@@ -118,6 +121,14 @@ declare global {
 			};
 		};
 		MSStream?: unknown;
+		ajaxurl?: string;
+		jpDatePicker?: {
+			lang: ILanguage;
+			offset: string;
+		};
+		jetpackForms?: {
+			generateStyleVariables: ( formNode: HTMLElement ) => Record< string, string >;
+		};
 	}
 }
 

@@ -1,3 +1,4 @@
+import { Badge } from '@automattic/ui';
 import { Flex, Tooltip } from '@wordpress/components';
 import { DataViews, Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
@@ -6,6 +7,7 @@ import { ModuleStatus } from '../module-status';
 import { ModuleToggle } from '../module-toggle';
 import { MyJetpackModule } from '../types';
 import styles from './styles.module.scss';
+import { getModuleStatus } from './utils';
 
 import './style.scss';
 
@@ -45,7 +47,11 @@ export function ModulesList( { modules }: ModulesListProps ) {
 				id: 'toggle',
 				label: __( 'Toggle', 'jetpack-my-jetpack' ),
 				render: ( { item } ) => {
-					return (
+					const { isAvailable, reason } = getModuleStatus( item );
+
+					return ! isAvailable ? (
+						<Badge intent="warning">{ reason }</Badge>
+					) : (
 						<Flex gap={ 4 } className={ styles[ 'toggle-wrap' ] }>
 							<ModuleStatus module={ item } />
 							<ModuleToggle module={ item } />

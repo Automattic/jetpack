@@ -14,6 +14,8 @@ use WP_Error;
 
 /**
  * Registers the REST routes for AI.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class REST_AI {
 	/**

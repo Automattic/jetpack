@@ -4,7 +4,6 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const { glob } = require( 'glob' );
 
 const moduleSrcDir = path.join( __dirname, '../src/modules' );
@@ -15,8 +14,8 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 	// Return empty config if no modules directory
 	module.exports = {};
 } else {
-	// Find all JS files in the modules directory
-	const moduleFiles = glob.sync( path.join( moduleSrcDir, '**/*.js' ) );
+	// Find all JS and TS files in the modules directory
+	const moduleFiles = glob.sync( path.join( moduleSrcDir, '**/*.{js,ts}' ) );
 
 	// Create entry points
 	const entry = moduleFiles.reduce( ( acc, filepath ) => {
@@ -106,11 +105,10 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 			},
 			plugins: [
 				...jetpackWebpackConfig.StandardPlugins( {
-					DependencyExtractionPlugin: false,
+					DependencyExtractionPlugin: true,
 					I18nLoaderPlugin: false,
 					I18nCheckPlugin: false,
 				} ),
-				new DependencyExtractionWebpackPlugin(),
 			],
 		};
 

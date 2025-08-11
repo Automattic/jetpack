@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 $grid-size: 8px;
 
@@ -169,7 +169,7 @@ $grid-size: 8px;
 	text-align: center;
 
 	p {
-		 margin: 0 0 2em 0;
+		margin: 0 0 2em 0;
 	}
 }
 

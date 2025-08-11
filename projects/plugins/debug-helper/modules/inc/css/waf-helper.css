@@ -12,16 +12,16 @@
 
 .jpdebug-waf-filecontents,
 .jpdebug-waf-filecontents:disabled {
-    width: 90%;
-    height: 220px;
-    color: #000;
-    background-color: #fff;
-    font-family: monospace;
-    line-height: 1.75;
-    padding: 1em;
-    white-space: pre;
+	width: 90%;
+	height: 220px;
+	color: #000;
+	background-color: #fff;
+	font-family: monospace;
+	line-height: 1.75;
+	padding: 1em;
+	white-space: pre;
 }
 
 hr {
-    margin: 1.5em 0;
+	margin: 1.5em 0;
 }

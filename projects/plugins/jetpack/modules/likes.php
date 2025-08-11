@@ -23,6 +23,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 Assets::add_resource_hint(
 	array(
 		'//widgets.wp.com',

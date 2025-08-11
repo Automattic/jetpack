@@ -95,7 +95,7 @@ class GoogleVerificationServiceComponent extends Component {
 							this.props.createNotice(
 								'is-error',
 								sprintf(
-									/* translators: placeholder is an error message. */
+									/* translators: %s: an error message. */
 									__( 'Site failed to verify: %s', 'jetpack' ),
 									errorMessage
 								),

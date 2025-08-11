@@ -130,28 +130,21 @@
 			};
 
 			tinyMCE.ui.FormItem.prototype.renderHtml = function () {
-				_.each(
-					vpEditorView.modal_labels,
-					function ( value, key ) {
-						if ( value === this.settings.items.text ) {
-							this.classes.add( 'videopress-field-' + key );
-						}
-					},
-					this
-				);
+				for ( const [ key, value ] of Object.entries( vpEditorView.modal_labels ) ) {
+					if ( value === this.settings.items.text ) {
+						this.classes.add( 'videopress-field-' + key );
+					}
+				}
 
 				if (
-					_.contains(
-						[
-							vpEditorView.modal_labels.hd,
-							vpEditorView.modal_labels.permalink,
-							vpEditorView.modal_labels.autoplay,
-							vpEditorView.modal_labels.loop,
-							vpEditorView.modal_labels.freedom,
-							vpEditorView.modal_labels.flashonly,
-						],
-						this.settings.items.text
-					)
+					[
+						vpEditorView.modal_labels.hd,
+						vpEditorView.modal_labels.permalink,
+						vpEditorView.modal_labels.autoplay,
+						vpEditorView.modal_labels.loop,
+						vpEditorView.modal_labels.freedom,
+						vpEditorView.modal_labels.flashonly,
+					].includes( this.settings.items.text )
 				) {
 					this.classes.add( 'videopress-checkbox' );
 				}
@@ -161,13 +154,9 @@
 			/**
 			 * Populate the defaults.
 			 */
-			_.each(
-				this.defaults,
-				function ( value, key ) {
-					named[ key ] = this.coerce( named, key );
-				},
-				this
-			);
+			for ( const [ key ] of Object.entries( this.defaults ) ) {
+				named[ key ] = this.coerce( named, key );
+			}
 
 			/**
 			 * Declare the fields that will show in the popup when editing the shortcode.
@@ -243,7 +232,9 @@
 						tag: renderer.shortcode_string,
 						type: 'single',
 						attrs: {
-							named: _.pick( e.data, _.keys( renderer.defaults ) ),
+							named: Object.fromEntries(
+								Object.entries( e.data ).filter( ( [ k ] ) => k in renderer.defaults )
+							),
 							numeric: [ e.data.guid ],
 						},
 					};
@@ -252,23 +243,19 @@
 						args.attrs.named.at = '';
 					}
 
-					_.each(
-						renderer.defaults,
-						function ( value, key ) {
-							args.attrs.named[ key ] = this.coerce( args.attrs.named, key );
+					for ( const [ key, value ] of Object.entries( renderer.defaults ) ) {
+						args.attrs.named[ key ] = renderer.coerce( args.attrs.named, key );
 
-							if ( value === args.attrs.named[ key ] ) {
-								delete args.attrs.named[ key ];
-							}
-						},
-						renderer
-					);
+						if ( value === args.attrs.named[ key ] ) {
+							delete args.attrs.named[ key ];
+						}
+					}
 
 					editor.insertContent( wp.shortcode.string( args ) );
 				},
 				onopen: function ( e ) {
 					var prefix = 'mce-videopress-field-';
-					_.each( [ 'w', 'at' ], function ( value ) {
+					for ( const value of [ 'w', 'at' ] ) {
 						e.target.$el
 							.find( '.' + prefix + value + ' .mce-container-body' )
 							.append(
@@ -281,7 +268,7 @@
 									'">' +
 									vpEditorView.modal_labels[ value + '_unit' ]
 							);
-					} );
+					}
 					$( 'body' ).addClass( 'modal-open' );
 				},
 				onclose: function () {
@@ -293,11 +280,12 @@
 			tinyMCE.ui.FormItem.prototype.renderHtml = oldRenderFormItem;
 		},
 	};
-	wp.mce.views.register( 'videopress', wp.mce.videopress_wp_view_renderer );
 
 	// Extend the videopress one to also handle `wpvideo` instances.
-	wp.mce.wpvideo_wp_view_renderer = _.extend( {}, wp.mce.videopress_wp_view_renderer, {
+	wp.mce.wpvideo_wp_view_renderer = Object.assign( {}, wp.mce.videopress_wp_view_renderer, {
 		shortcode_string: 'wpvideo',
 	} );
+
+	wp.mce.views.register( 'videopress', wp.mce.videopress_wp_view_renderer );
 	wp.mce.views.register( 'wpvideo', wp.mce.wpvideo_wp_view_renderer );
 } )( jQuery, wp, vpEditorView );

@@ -2,9 +2,9 @@
 	"redefinable-internals": [
 		"defined",
 		"constant",
-		"dns_get_record",
 		"headers_sent",
 		"headers_list",
-		"header"
+		"header",
+		"function_exists"
 	]
 }

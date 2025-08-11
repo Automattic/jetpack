@@ -348,7 +348,7 @@ HTML;
 		$out = "<select name='attachments[{$info->post_id}][privacy_setting]'>";
 		foreach ( $privacy_settings as $r => $label ) {
 			$out .= "<option value=\"$r\"";
-			if ( intval( $r ) === $displayed_privacy_setting ) {
+			if ( $r === $displayed_privacy_setting ) {
 				$out .= ' selected';
 			}
 

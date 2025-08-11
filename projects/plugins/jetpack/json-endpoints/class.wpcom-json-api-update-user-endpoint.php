@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/users/%d/delete
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_User_Endpoint(
 	array(
 		'description'          => 'Deletes or removes a user of a site.',
@@ -42,6 +46,8 @@ new WPCOM_JSON_API_Update_User_Endpoint(
 
 /**
  * Update site users API class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

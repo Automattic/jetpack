@@ -463,7 +463,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 					'dependencies' => array(
 						'jquery',
 						'customize-controls',
-						'underscore',
 					),
 					'in-footer'    => true,
 					'css_path'     => '../../build/customizer-control/customizer-control.css',

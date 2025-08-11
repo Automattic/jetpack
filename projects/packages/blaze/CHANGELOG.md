@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.1] - 2025-08-04
+### Changed
+- Update dependencies. [#44551]
+
+## [0.26.0] - 2025-07-28
+### Added
+- Add whitelisting for payments endpoint. [#44421]
+
+### Changed
+- Update dependencies. [#44432]
+
+## [0.25.37] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [0.25.36] - 2025-07-14
+### Changed
+- Update dependencies. [#44229]
+
 ## [0.25.35] - 2025-07-07
 ### Changed
 - Update dependencies. [#44161]
@@ -638,6 +657,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.26.1]: https://github.com/automattic/jetpack-blaze/compare/v0.26.0...v0.26.1
+[0.26.0]: https://github.com/automattic/jetpack-blaze/compare/v0.25.37...v0.26.0
+[0.25.37]: https://github.com/automattic/jetpack-blaze/compare/v0.25.36...v0.25.37
+[0.25.36]: https://github.com/automattic/jetpack-blaze/compare/v0.25.35...v0.25.36
 [0.25.35]: https://github.com/automattic/jetpack-blaze/compare/v0.25.34...v0.25.35
 [0.25.34]: https://github.com/automattic/jetpack-blaze/compare/v0.25.33...v0.25.34
 [0.25.33]: https://github.com/automattic/jetpack-blaze/compare/v0.25.32...v0.25.33

@@ -1,44 +1,36 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
+import { sharedDecorator } from '../../../stories/decorator-config';
 import BarListChart from '../bar-list-chart';
 import { salesByChannel, salesByProduct } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof BarListChart > = {
+type StoryArgs = React.ComponentProps< typeof BarListChart > & {
+	containerWidth?: string;
+	containerHeight?: string;
+};
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar List Chart',
 	component: BarListChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: sharedDecorator,
 };
 
 export default meta;
 
-type Story = StoryObj< typeof BarListChart >;
+type Story = StoryObj< StoryArgs >;
 
 // Default story with multiple series
 export const Default: Story = {
 	args: {
 		withTooltips: true,
 		data: salesByProduct,
+		containerWidth: '600px',
+		containerHeight: '332px',
 	},
 };
 
@@ -61,6 +53,8 @@ export const CustomLabelComponent: Story = {
 			left: 0,
 		},
 		options: {
+			xScale: {},
+			yScale: {},
 			labelComponent: ( { textProps, x, y, label, formatter } ) => {
 				return (
 					<>
@@ -87,6 +81,8 @@ export const CustomValueComponent: Story = {
 			left: 0,
 		},
 		options: {
+			xScale: {},
+			yScale: {},
 			valueComponent: ( { textProps, x, y, value, formatter, data, index } ) => {
 				const currentValue = data[ 0 ].data[ index ].value;
 				const previousValue = data[ 1 ].data[ index ].value;

@@ -323,7 +323,7 @@ const FirewallPage = () => {
 										variant={ 'body-small' }
 									>
 										{ sprintf(
-											// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
+											// translators: %s the date latest rules were updated (e.g. "September 23, 2022").
 											__( 'Last updated on %s.', 'jetpack-protect' ),
 											moment.unix( automaticRulesLastUpdated ).format( 'MMMM D, YYYY' )
 										) }
@@ -508,7 +508,7 @@ const FirewallPage = () => {
 								<Text variant="body-small" className={ styles[ 'allow-list-current-ip' ] }>
 									{ createInterpolateElement(
 										sprintf(
-											// translators: placeholder is the user's current IP address.
+											// translators: %s: current IP address of the user
 											__( 'Your current IP: <strong>%s</strong>', 'jetpack-protect' ),
 											currentIp
 										),

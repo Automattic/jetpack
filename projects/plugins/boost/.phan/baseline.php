@@ -15,11 +15,10 @@ return [
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
+    // PhanUndeclaredClassConstant : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
-    // PhanPossiblyUndeclaredVariable : 3 occurrences
-    // PhanUndeclaredClassConstant : 3 occurrences
-    // PhanNoopNew : 2 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
+    // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
@@ -33,7 +32,6 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'app/admin/class-admin.php' => ['PhanNoopNew'],
         'app/admin/class-config.php' => ['PhanTypeMismatchArgument'],
         'app/data-sync/class-minify-excludes-state-entry.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/data-sync/class-performance-history-entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious'],
@@ -44,7 +42,6 @@ return [
         'app/lib/minify/class-dependency-path-mapping.php' => ['PhanUndeclaredConstant'],
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/modules/image-guide/class-image-guide-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'app/modules/image-size-analysis/data-sync/class-image-analysis-action-fix.php' => ['PhanPossiblyUndeclaredVariable'],
         'app/modules/optimizations/critical-css/class-css-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/page-cache/class-page-cache-setup.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-logger.php' => ['PhanCoalescingNeverNull', 'PhanPluginDuplicateConditionalNullCoalescing'],
@@ -54,7 +51,6 @@ return [
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
-        'jetpack-boost.php' => ['PhanNoopNew'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

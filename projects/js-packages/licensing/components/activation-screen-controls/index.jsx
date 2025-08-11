@@ -65,7 +65,7 @@ const SelectableLicenseKeyInput = props => {
 			...availableLicenses.map( ( { product, license_key } ) => {
 				return {
 					label: sprintf(
-						/* translators: placeholder is the product name and license key */
+						/* translators: %1$s: the product name, %2$s: the license key */
 						__( '%1$s - %2$s', 'jetpack-licensing' ),
 						product,
 						license_key
@@ -127,15 +127,15 @@ const SelectableLicenseKeyInput = props => {
 /**
  * The Activation Screen Controls component.
  *
- * @param {object}   props                           -- The properties.
- * @param {Function} props.activateLicense           -- function to handle submitting a license
- * @param {Array}    props.availableLicenses         -- list of available license keys for activation.
- * @param {boolean}  props.fetchingAvailableLicenses -- status to determine if the screen is fetching available license keys.
- * @param {boolean}  props.isActivating              -- should the controls be disabled
- * @param {string}   props.license                   -- the license code to edit or submit
- * @param {?string}  props.licenseError              -- any error that occurred while activating a license
- * @param {Function} props.onLicenseChange           -- function to handle changes to license
- * @param {string}   props.siteUrl                   -- the url of the site
+ * @param {object}                              props                           -- The properties.
+ * @param {Function}                            props.activateLicense           -- function to handle submitting a license
+ * @param {Array}                               props.availableLicenses         -- list of available license keys for activation.
+ * @param {boolean}                             props.fetchingAvailableLicenses -- status to determine if the screen is fetching available license keys.
+ * @param {boolean}                             props.isActivating              -- should the controls be disabled
+ * @param {string}                              props.license                   -- the license code to edit or submit
+ * @param {string|import('react').ReactElement} props.licenseError              -- any error that occurred while activating a license
+ * @param {Function}                            props.onLicenseChange           -- function to handle changes to license
+ * @param {string}                              props.siteUrl                   -- the url of the site
  * @return {import('react').Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
@@ -153,7 +153,8 @@ const ActivationScreenControls = props => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_key_activation_view' );
 	}, [] );
 
-	const errorTypeMatch = licenseError?.match( /\[[a-z_]+\]/ );
+	const errorTypeMatch =
+		typeof licenseError === 'string' ? licenseError?.match( /\[[a-z_]+\]/ ) : null;
 	const errorType = errorTypeMatch && errorTypeMatch[ 0 ];
 
 	const { ACTIVE_ON_SAME_SITE } = LICENSE_ERRORS;
@@ -226,7 +227,7 @@ ActivationScreenControls.propTypes = {
 	fetchingAvailableLicenses: PropTypes.bool,
 	isActivating: PropTypes.bool.isRequired,
 	license: PropTypes.string.isRequired,
-	licenseError: PropTypes.string,
+	licenseError: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	onLicenseChange: PropTypes.func.isRequired,
 	siteUrl: PropTypes.string.isRequired,
 };

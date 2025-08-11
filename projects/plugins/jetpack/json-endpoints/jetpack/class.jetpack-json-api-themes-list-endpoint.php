@@ -1,9 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Theme list endpoint class.
  *
  * GET /sites/%s/themes
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Themes_List_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 	/**

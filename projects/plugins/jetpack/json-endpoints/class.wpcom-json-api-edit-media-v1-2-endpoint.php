@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
 define( 'REVISION_HISTORY_MAXIMUM_AMOUNT', 5 );
@@ -81,6 +85,8 @@ new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint(
 
 /**
  * Edit media v1_2 endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Media_v1_1_Endpoint { //phpcs:ignore
 	/**

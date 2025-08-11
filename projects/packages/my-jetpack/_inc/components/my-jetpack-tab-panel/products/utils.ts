@@ -1,5 +1,8 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
+import { ProductCamelCase } from '../../../data/types';
 import { MyJetpackModule } from '../../types';
+import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from './constants';
 import { ProductFilter, ProductSection } from './types';
 
 /**
@@ -111,4 +114,29 @@ export function filterAndSortModules(
 	$modules.sort( ( a, b ) => a.name.localeCompare( b.name ) );
 
 	return $modules;
+}
+
+/**
+ * Get the status of a product based on its availability.
+ *
+ * @param {ProductCamelCase} product - The product to check.
+ *
+ * @return True if the product is supported, false otherwise.
+ */
+export function getProductStatus( product: ProductCamelCase ) {
+	// If the product is not supported on multisite, we set the available to false and provide a reason.
+	if ( getScriptData().site.is_multisite ) {
+		if (
+			! JETPACK_PRODUCTS_NOT_FOR_MULTISITE.includes(
+				product.slug as ( typeof JETPACK_PRODUCTS_NOT_FOR_MULTISITE )[ number ]
+			)
+		) {
+			return {
+				isAvailable: false,
+				reason: __( 'Not available on multisite', 'jetpack-my-jetpack' ),
+			};
+		}
+	}
+
+	return { isAvailable: true };
 }

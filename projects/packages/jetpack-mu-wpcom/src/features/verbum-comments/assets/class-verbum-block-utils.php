@@ -147,4 +147,18 @@ class Verbum_Block_Utils {
 
 		return $allowed_blocks;
 	}
+
+	/**
+	 * Check if we should show the Verbum comments.
+	 *
+	 * This is used to determine if the Verbum comments should be shown on the current page.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_verbum_comments() {
+		return (
+			( is_singular() && comments_open() )
+			|| ( is_front_page() && is_page() && comments_open() )
+		);
+	}
 }

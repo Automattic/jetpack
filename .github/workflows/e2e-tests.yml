@@ -11,6 +11,9 @@ concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: 1
+
 jobs:
   create-test-matrix:
     name: "Determine tests matrix"
@@ -306,7 +309,7 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ success() || failure() }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
     needs: [e2e-tests]
 
     steps:
@@ -357,7 +360,7 @@ jobs:
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
-    if: ${{ success() || failure() }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
     needs: [e2e-tests]
 
     steps:

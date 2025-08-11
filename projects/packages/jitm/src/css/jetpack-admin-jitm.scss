@@ -1,11 +1,11 @@
 // Just in Time Messaging - message prompts
-@use 'sass:color';
+@use "sass:color";
 
-// TODO: Switch to using the `@automattic/jetpack-base-styles` package when its ready.
-@use '../../../../plugins/jetpack/_inc/client/scss/functions/rem';
-@use '../../../../plugins/jetpack/_inc/client/scss/variables/colors';
-@use '../../../../plugins/jetpack/_inc/client/scss/mixins/breakpoints';
-@use '../../../../plugins/jetpack/_inc/client/scss/calypso-colors';
+// TODO: Switch to using the `@automattic/jetpack-base-styles`.
+@use "../../../../plugins/jetpack/_inc/client/scss/functions/rem";
+@use "../../../../plugins/jetpack/_inc/client/scss/variables/colors";
+@use "../../../../plugins/jetpack/_inc/client/scss/mixins/breakpoints";
+@use "../../../../plugins/jetpack/_inc/client/scss/calypso-colors";
 
 @mixin clear-fix {
 
@@ -78,10 +78,10 @@ $jp-gray-20:             #a7aaad;
 	&.is-secondary {
 
 		.gridicons-external-link {
-			fill: #000;
+			fill: currentColor;
 		}
 
-		&:hover{
+		&:hover {
 			color: #000;
 			background: $jp-gray-0;
 
@@ -130,7 +130,8 @@ $jp-gray-20:             #a7aaad;
 		.gridicons-plus-small:last-of-type {
 			margin-left: 0;
 		}
-		// Make plus icon nudged closer to adjacent icons for add-people and add-plugin type buttons
+		// Make plus icon nudged closer to adjacent icons for
+		// add-people and add-plugin type buttons
 		.gridicons-plus-small + .gridicon {
 			margin-left: -4px;
 		}
@@ -150,9 +151,9 @@ $jp-gray-20:             #a7aaad;
 	display: block;
 	clear: both;
 	position: relative;
-	margin: rem.convert( 48px ) rem.convert( 20px ) 0 auto;
-	padding: rem.convert( 16px );
-	padding-left: rem.convert( 20px );
+	margin: rem.convert(48px) rem.convert(20px) 0 auto;
+	padding: rem.convert(16px);
+	padding-left: rem.convert(20px);
 	box-sizing: border-box;
 	background-color: calypso-colors.$white;
 	border: 1px solid calypso-colors.$white;
@@ -163,16 +164,16 @@ $jp-gray-20:             #a7aaad;
 
 	// Compact Card
 	&.is-compact {
-		margin-bottom: rem.convert( 1px );
+		margin-bottom: rem.convert(1px);
 
 		@include breakpoints.breakpoint( ">480px" ) {
 			margin-bottom: 1px;
-			padding: rem.convert( 16px ) rem.convert( 24px );
+			padding: rem.convert(16px) rem.convert(24px);
 		}
 	}
 
 	&.is-card-link {
-		padding-right: rem.convert( 48px );
+		padding-right: rem.convert(48px);
 	}
 }
 
@@ -187,8 +188,8 @@ $jp-gray-20:             #a7aaad;
 }
 
 // if JITM appears directly below WordPress "help" menu adjust margins
-#screen-meta-links+.jitm-card {
-	margin: rem.convert( 40px ) 1.5385em 0 auto;
+#screen-meta-links + .jitm-card {
+	margin: rem.convert(40px) 1.5385em 0 auto;
 }
 
 // remove right margin for jitms in the editor
@@ -196,10 +197,10 @@ $jp-gray-20:             #a7aaad;
 	margin-right: 0;
 }
 
- // if JITM appears inside of the jetpack dashboard adjust margins
- .jp-lower .jitm-card {
-   margin: 0 0 rem.convert( 24px );
- }
+// if JITM appears inside of the jetpack dashboard adjust margins
+.jp-lower .jitm-card {
+	margin: 0 0 rem.convert(24px);
+}
 
 .jitm-banner.jitm-card {
 	display: flex;
@@ -207,7 +208,7 @@ $jp-gray-20:             #a7aaad;
 	z-index: 2;
 
 	&::before {
-		content: '';
+		content: "";
 		width: 4px;
 		position: absolute;
 		top: 0;
@@ -223,11 +224,11 @@ $jp-gray-20:             #a7aaad;
 	}
 
 	&.is-card-link {
-		padding: rem.convert( 12px ) rem.convert( 48px ) rem.convert( 12px ) rem.convert( 16px );
+		padding: rem.convert(12px) rem.convert(48px) rem.convert(12px) rem.convert(16px);
 	}
 
 	&.is-dismissible {
-		padding-right: rem.convert( 48px );
+		padding-right: rem.convert(48px);
 	}
 
 	@include jitm-banner-color( calypso-colors.$alert-green );
@@ -258,7 +259,7 @@ $jp-gray-20:             #a7aaad;
 		transition: all 100ms ease-in-out;
 
 		&.is-card-link {
-			box-shadow: 0 0 0 1px calypso-colors.$gray, 0 2px 4px color.adjust( calypso-colors.$gray, $lightness: 20% );
+			box-shadow: 0 0 0 1px calypso-colors.$gray, 0 2px 4px color.adjust(calypso-colors.$gray, $lightness: 20%);
 		}
 
 		.jitm-card__link-indicator {
@@ -267,11 +268,11 @@ $jp-gray-20:             #a7aaad;
 	}
 
 	@include breakpoints.breakpoint( ">480px" ) {
-		padding: rem.convert( 16px );
-		padding-left: rem.convert( 20px );
+		padding: rem.convert(16px);
+		padding-left: rem.convert(20px);
 
 		&.is-dismissible {
-			padding-right: rem.convert( 16px );
+			padding-right: rem.convert(16px);
 		}
 	}
 }
@@ -279,12 +280,12 @@ $jp-gray-20:             #a7aaad;
 .jitm-banner__buttons_container {
 	display: flex;
 	height: 50%;
-	margin: auto rem.convert( 16px ) auto 0;
-	gap: rem.convert( 16px );
+	margin: auto rem.convert(16px) auto 0;
+	gap: rem.convert(16px);
 	overflow: hidden;
 
 	@include breakpoints.breakpoint( ">480px" ) {
-		margin-left: rem.convert( 16px );
+		margin-left: rem.convert(16px);
 	}
 }
 
@@ -295,12 +296,12 @@ $jp-gray-20:             #a7aaad;
 	.jitm-banner__icon-circle {
 		border-radius: 50%;
 		flex-shrink: 0;
-		height: rem.convert( 24px );
-		width: rem.convert( 24px );
-		margin-right: rem.convert( 16px );
-		margin-top: rem.convert( -2px );
+		height: rem.convert(24px);
+		width: rem.convert(24px);
+		margin-right: rem.convert(16px);
+		margin-top: rem.convert(-2px);
 		text-align: center;
-		top: rem.convert( 4px );
+		top: rem.convert(4px);
 	}
 
 	.jitm-banner__icon {
@@ -312,7 +313,7 @@ $jp-gray-20:             #a7aaad;
 	.jitm-banner__icon-circle {
 		color: #fff;
 		display: none;
-		padding: rem.convert( 3px ) rem.convert( 4px ) rem.convert( 4px ) rem.convert( 3px );
+		padding: rem.convert(3px) rem.convert(4px) rem.convert(4px) rem.convert(3px);
 	}
 
 	@include breakpoints.breakpoint( ">480px" ) {
@@ -330,30 +331,30 @@ $jp-gray-20:             #a7aaad;
 
 .jitm-banner__icon-plan {
 	display: flex;
-	margin-right: rem.convert( 16px );
+	margin-right: rem.convert(16px);
 
 	.dops-plan-icon {
-		height: rem.convert(  32px );
-		width: rem.convert( 32px );
+		height: rem.convert(32px);
+		width: rem.convert(32px);
 	}
 
 	.jp-emblem {
 		position: relative;
-		top: rem.convert( 2px );
+		top: rem.convert(2px);
 
 		@include breakpoints.breakpoint( "<480px" ) {
-			margin-bottom: rem.convert( 16px );
+			margin-bottom: rem.convert(16px);
 		}
 
 		svg {
-			height: rem.convert(  32px );
-			width: rem.convert( 32px );
+			height: rem.convert(32px);
+			width: rem.convert(32px);
 			fill: colors.$green-primary;
 		}
 
 		.jitm-jp-logo {
 			height: inherit;
-			width: rem.convert( 40px );
+			width: rem.convert(40px);
 			fill: inherit;
 		}
 	}
@@ -369,7 +370,7 @@ $jp-gray-20:             #a7aaad;
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background-image: url( ../images/background.png );
+	background-image: url(../images/background.png);
 	background-repeat: no-repeat;
 	background-position: right center;
 	z-index: -1;
@@ -419,17 +420,17 @@ $jp-gray-20:             #a7aaad;
 	}
 
 	.jitm-banner__title {
-		font-size: rem.convert( 15px );
+		font-size: rem.convert(15px);
 		font-weight: 700;
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 136%;
 	}
 
 	.jitm-banner__description {
-		font-size: rem.convert( 13px );
+		font-size: rem.convert(13px);
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 150%;
-		margin-top: rem.convert( 2px );
+		margin-top: rem.convert(2px);
 	}
 
 	.banner__list {
@@ -452,7 +453,7 @@ $jp-gray-20:             #a7aaad;
 
 .jitm-banner__action {
 	align-self: center;
-	font-size: rem.convert( 12px );
+	font-size: rem.convert(12px);
 	text-align: left;
 	overflow: hidden;
 
@@ -470,7 +471,7 @@ $jp-gray-20:             #a7aaad;
 		}
 
 		.has-call-to-action & .dops-plan-price {
-			margin-bottom: rem.convert( 8px );
+			margin-bottom: rem.convert(8px);
 		}
 	}
 
@@ -483,7 +484,7 @@ $jp-gray-20:             #a7aaad;
 		width: auto;
 
 		.is-dismissible {
-			margin-top: rem.convert( 40px );
+			margin-top: rem.convert(40px);
 		}
 
 		.jitm-banner__prices {
@@ -496,18 +497,18 @@ $jp-gray-20:             #a7aaad;
 .jitm-banner__dismiss {
 	display: block;
 	text-decoration: none;
-	line-height: .5;
+	line-height: 0.5;
 	margin-top: auto;
 	margin-bottom: auto;
 
 	&::before {
-		color: color.adjust( calypso-colors.$gray, $lightness: -20%);
+		color: color.adjust(calypso-colors.$gray, $lightness: -20%);
 		font: 400 20px/1 dashicons;
-		content: '\f335';
+		content: "\f335";
 	}
 
 	@include breakpoints.breakpoint( ">660px" ) {
-		margin-right: rem.convert( -8px );
+		margin-right: rem.convert(-8px);
 	}
 
 	@include breakpoints.breakpoint( "<480px" ) {
@@ -527,10 +528,14 @@ $jp-gray-20:             #a7aaad;
 }
 
 .jitm-banner__action + .jitm-banner__dismiss {
-	margin-left: rem.convert( 10px );
+	margin-left: rem.convert(10px);
 }
 
 // if JITM appears directly below WordPress hello dolly adjust margins
 #dolly + .jitm-card {
-  margin: 3rem 1rem 0 auto;
+	margin: 3rem 1rem 0 auto;
+}
+
+.jetpack_page_jetpack-forms-admin .jitm-card {
+	margin-left: 1.25rem;
 }

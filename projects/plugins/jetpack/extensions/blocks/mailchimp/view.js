@@ -1,9 +1,6 @@
 import domReady from '@wordpress/dom-ready';
+import debounce from 'debounce';
 import { validate as emailValidatorValidate } from 'email-validator';
-// NOTE: We only import the debounce package here for to reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import debounce from 'lodash/debounce';
 import { BLOCK_CLASS } from './constants';
 
 import './view.scss';
@@ -73,7 +70,6 @@ function activateSubscription( block, blogId ) {
 			.call( form.querySelectorAll( 'input[type="hidden"].mc-submit-param' ) )
 			.reduce( ( accumulator, node ) => ( { ...accumulator, [ node.name ]: node.value } ), {} );
 		block.classList.add( 'is-processing' );
-		emailField.removeEventListener( 'input', handleEmailValidation( form, emailField ) );
 		processingEl.classList.add( 'is-visible' );
 		fetchSubscription( blogId, email, params ).then(
 			response => {

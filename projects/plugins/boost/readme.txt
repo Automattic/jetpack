@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 4.0.0
+Stable tag: 4.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,21 +183,26 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.1.2 - 2025-07-08
+### 4.3.0 - 2025-08-06
 #### Added
-- Concatenate JS/CSS: Add cleanup for expired options in the database.
+- Page Cache: Ignore Yandex parameters so those visitors are served from the cache.
 
 #### Changed
-- General: Update UI to show some features are unavailable if the website is offline.
-- LCP Optimization: Show errors not in the list of known errors, in the UI.
-- Concatenate JS/CSS: Cleanup static files when running garbage collection.
-- My Jetpack: Updating Stats card to include a chart for better analytics.
-- Update package dependencies.
+- Image CDN: Ignore images from openlibrary.org.
+- Misc: Speed up uninstall process.
+- My Jetpack: Unify the user connection flow with a unified screen.
+
+#### Removed
+- Image Size Analysis: feature has been removed. Filter will no longer enable the ISA.
 
 #### Fixed
-- LCP Optimization: Ensure new error types unsupported by the plugin version show as Unknown
-- Concatenate JS: Exclude scripts of type module from concatenation.
-- JITM: Fix ineffective caching due to expired plugin sync transient
+- Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive.
+- Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled.
+- LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images
+- My Jetpack: Fixing footer alignment for diconnected accounts.
+- My Jetpack: Prevent expiration alerts for products covered by active bundles
+- My Jetpack: Restoring plan purchase link.
+- Page Cache: Fix php warnings related to opcache calls when API is disabled.
 
 --------
 

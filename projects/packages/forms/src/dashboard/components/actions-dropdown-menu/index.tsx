@@ -17,8 +17,10 @@ type ActionsDropdownMenuProps = {
 	exportData: { show: boolean };
 };
 
-const CreateFormDropdownItem = () => {
+const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 	const { openNewForm } = useCreateForm();
+	const { showExportModal, openModal, closeModal, onExport, autoConnectGdrive, exportLabel } =
+		useExportResponses();
 
 	const analyticsEvent = useCallback( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
@@ -26,43 +28,32 @@ const CreateFormDropdownItem = () => {
 		} );
 	}, [] );
 
-	const onClick = useCallback( () => {
+	const onCreateFormClick = useCallback( () => {
 		openNewForm( {
 			analyticsEvent,
 		} );
 	}, [ openNewForm, analyticsEvent ] );
 
-	return {
-		icon: plus,
-		onClick,
-		title: __( 'Create form', 'jetpack-forms' ),
-	};
-};
-
-const ExportDropdownItem = ( { onClick }: { onClick: () => void } ) => {
-	const { exportLabel } = useExportResponses();
-
-	return {
-		icon: download,
-		onClick,
-		title: exportLabel,
-	};
-};
-
-const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
-	const { showExportModal, openModal, closeModal, onExport, autoConnectGdrive } =
-		useExportResponses();
+	const controls = [
+		...( exportData.show
+			? [
+					{
+						icon: download,
+						onClick: openModal,
+						title: exportLabel,
+					},
+			  ]
+			: [] ),
+		{
+			icon: plus,
+			onClick: onCreateFormClick,
+			title: __( 'Create form', 'jetpack-forms' ),
+		},
+	];
 
 	return (
 		<>
-			<DropdownMenu
-				controls={ [
-					...( exportData.show ? [ ExportDropdownItem( { onClick: openModal } ) ] : [] ),
-					CreateFormDropdownItem(),
-				] }
-				icon={ menu }
-			/>
-
+			<DropdownMenu controls={ controls } icon={ menu } />
 			{ showExportModal && (
 				<ExportResponsesModal
 					onRequestClose={ closeModal }

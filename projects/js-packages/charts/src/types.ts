@@ -1,4 +1,4 @@
-import { AnnotationStyles } from './components/line-chart/line-chart-annotation';
+import type { AnnotationStyles } from './components/line-chart/line-chart-annotation';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
@@ -107,6 +107,32 @@ export type ChartTheme = {
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
 	annotationStyles?: AnnotationStyles;
+	/** LeaderboardChart specific settings */
+	leaderboardChart?: {
+		/** Gap between rows in the leaderboard grid */
+		rowGap?: number;
+		/** Gap between columns in the leaderboard grid */
+		columnGap?: number;
+		/** Spacing between label and progress bars */
+		labelSpacing?: number;
+		/** Primary color for current period bars */
+		primaryColor?: string;
+		/** Secondary color for comparison period bars */
+		secondaryColor?: string;
+		/** Delta colors: [negative, neutral, positive] */
+		deltaColors?: [ string, string, string ];
+	};
+	/** ConversionFunnelChart specific settings */
+	conversionFunnelChart?: {
+		/** Primary color for funnel bars */
+		primaryColor?: string;
+		/** Background color for chart container */
+		backgroundColor?: string;
+		/** Color for positive change indicators */
+		positiveChangeColor?: string;
+		/** Color for negative change indicators */
+		negativeChangeColor?: string;
+	};
 };
 
 declare type AxisOptions = {
@@ -189,17 +215,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	/**
 	 * Callback function for pointer down event
 	 */
-	onPointerDown?: ( event: EventHandlerParams< object > ) => void;
-	/**
-	 * Callback function for pointer down event
-	 */
-	onPointerUp?: ( event: EventHandlerParams< object > ) => void;
-	/**
-	 * Callback function for pointer down event
-	 */
-	onPointerMove?: ( event: EventHandlerParams< object > ) => void;
+	onPointerDown?: ( event: EventHandlerParams< DataPoint | DataPointDate > ) => void;
 	/**
 	 * Callback function for pointer up event
+	 */
+	onPointerUp?: ( event: EventHandlerParams< DataPoint | DataPointDate > ) => void;
+	/**
+	 * Callback function for pointer move event
+	 */
+	onPointerMove?: ( event: EventHandlerParams< DataPoint | DataPointDate > ) => void;
+	/**
+	 * Callback function for pointer out event
 	 */
 	onPointerOut?: ( event: PointerEvent< Element > ) => void;
 	/**
@@ -277,3 +303,30 @@ export type GridProps = {
 	 */
 	top?: number;
 };
+
+/**
+ * Local type definitions for Popover API attributes and events
+ * These are used to avoid extending React module types while still getting type safety
+ * NOTE: These type definitions are only needed for React 18 and below.
+ * React 19+ includes Popover API types in the official React type definitions, so these can be removed when upgrading.
+ */
+export interface PopoverButtonAttributes {
+	popovertarget?: string;
+	popovertargetaction?: 'hide' | 'show' | 'toggle';
+}
+
+export interface PopoverElementAttributes {
+	popover?: 'auto' | 'manual' | '';
+}
+
+// Combined types for spreading into JSX elements
+export type ButtonWithPopover = PopoverButtonAttributes;
+export type PopoverElement = PopoverElementAttributes;
+
+// ToggleEvent for native Popover API
+export interface ToggleEvent extends Event {
+	newState: 'open' | 'closed';
+	oldState: 'open' | 'closed';
+}
+// ConversionFunnelChart types
+export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';

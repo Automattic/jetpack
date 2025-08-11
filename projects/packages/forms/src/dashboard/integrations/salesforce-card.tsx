@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
-import { Icon, Button } from '@wordpress/components';
+import { Badge } from '@automattic/ui';
+import '@automattic/ui/style.css';
+import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -38,10 +40,9 @@ const SalesforceDashboardCard = ( {
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		setupBadge: (
-			<span className="integration-card__setup-badge">
-				<Icon icon="info-outline" size={ 12 } />
+			<Badge intent="success" className="integration-card__setup-badge">
 				{ __( 'Configured per form', 'jetpack-forms' ) }
-			</span>
+			</Badge>
 		),
 	};
 

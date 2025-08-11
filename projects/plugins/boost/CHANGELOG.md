@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2025-08-06
+### Added
+- Page Cache: Ignore Yandex parameters so those visitors are served from the cache. [#44618]
+
+### Changed
+- Image CDN: Ignore images from openlibrary.org. [#44627]
+- Misc: Speed up uninstall process. [#44549]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+
+### Removed
+- Image Size Analysis: feature has been removed. Filter will no longer enable the ISA. [#44459]
+
+### Fixed
+- Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive. [#44633]
+- Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled. [#44445]
+- LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images [#44496]
+- My Jetpack: Fixing footer alignment for diconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles [#44586]
+- My Jetpack: Restoring plan purchase link. [#44535]
+- Page Cache: Fix php warnings related to opcache calls when API is disabled. [#44629]
+
+## [4.2.1] - 2025-07-24
+### Removed
+- Admin: remove references to deprecated feature. [#44434]
+
+## [4.2.0] - 2025-07-23
+### Added
+- Critical CSS: Exclude post types of popular builder plugins from generation. [#44280]
+- General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality. [#44246]
+- My Jetpack: Added analytics for empty product search results. [#44344]
+
+### Changed
+- Cornerstone Pages: Ensure Home URL is always a predefined Cornerstone Page [#44275]
+- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript [#44327]
+- Improves performance of wpcom comments liking by caching and minimizing API requests. [#44205]
+- My Jetpack: Enabled access to My Jetpack on WP Multisite. [#44260]
+- Update package dependencies. [#44219] [#44356]
+
+### Deprecated
+- Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via a temporary filter. [#44287]
+
+### Fixed
+- General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2 [#44418]
+- Update JITMs to remove jQuery dependency [#43783]
+
 ## [4.1.2] - 2025-07-08
 ### Added
 - Concatenate JS/CSS: Add cleanup for expired options in the database. [#44134]
@@ -748,6 +793,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.1...4.3.0
+[4.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.0...4.2.1
+[4.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.2...4.2.0
 [4.1.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.1...4.1.2
 [4.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.0.0...4.1.0

@@ -1,6 +1,5 @@
 {
 	"private": true,
-	"browserslist": "extends @wordpress/browserslist-config",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-js",
 		"build-js": "webpack",
@@ -11,13 +10,14 @@
 		"test-coverage": "pnpm run test --coverage",
 		"validate": "pnpm exec validate-es build/"
 	},
+	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
 		"react": "18.3.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/browserslist-config": "6.26.0",
+		"@wordpress/browserslist-config": "6.27.0",
 		"concurrently": "7.6.0",
 		"jest": "30.0.4",
 		"md5-es": "1.8.2",

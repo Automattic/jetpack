@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript

@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"files": [],
+	"references": [
+		{ "path": "./tsconfig.code-editor.json" },
+		{ "path": "./tsconfig.codemirror.json" },
+		{ "path": "./tsconfig.site-additional-css.json" }
+	]
+}

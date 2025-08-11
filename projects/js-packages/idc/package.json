@@ -1,25 +1,33 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "1.0.12",
+	"version": "1.0.17",
 	"description": "Jetpack Connection Component",
-	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
-		"@wordpress/base-styles": "6.2.0",
-		"@wordpress/components": "29.12.0",
-		"@wordpress/compose": "7.26.0",
-		"@wordpress/data": "10.26.0",
-		"@wordpress/element": "6.26.0",
-		"@wordpress/i18n": "5.26.0",
-		"@wordpress/url": "4.26.0",
+		"@wordpress/base-styles": "6.3.0",
+		"@wordpress/components": "30.0.0",
+		"@wordpress/compose": "7.27.0",
+		"@wordpress/data": "10.27.0",
+		"@wordpress/element": "6.27.0",
+		"@wordpress/i18n": "6.0.0",
+		"@wordpress/url": "4.27.0",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.27.7",
+		"@babel/core": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
@@ -27,14 +35,5 @@
 	"peerDependencies": {
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0"
-	},
-	"type": "module",
-	"exports": {
-		".": "./index.jsx"
-	},
-	"sideEffects": [
-		"*.css",
-		"*.scss"
-	],
-	"scripts": {}
+	}
 }

@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .video-tracks-control__track_list,
 .video-tracks-control__track-form {
@@ -73,7 +73,7 @@
 	align-items: center;
 	margin-top: 10px;
 
-	&:not( .track-exists ) {
+	&:not(.track-exists) {
 		justify-content: flex-end;
 	}
 

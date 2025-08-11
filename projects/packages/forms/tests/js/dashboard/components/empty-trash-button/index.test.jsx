@@ -8,6 +8,11 @@ import userEvent from '@testing-library/user-event';
  */
 import EmptyTrashButton from '../../../../../src/dashboard/components/empty-trash-button';
 
+// Mock React Router
+jest.mock( 'react-router', () => ( {
+	useSearchParams: () => [ new URLSearchParams(), jest.fn() ],
+} ) );
+
 // Mock WordPress dependencies
 jest.mock( '@wordpress/components', () => ( {
 	Button: props => {
@@ -60,11 +65,14 @@ jest.mock( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
-		invalidateResolutionForStore: jest.fn(),
+		invalidateResolution: jest.fn(),
 	};
 
 	const mockSelect = {
 		getSelectedResponsesCount: jest.fn().mockReturnValue( 0 ),
+		getCurrentStatus: jest.fn().mockReturnValue( 'trash' ),
+		getCurrentQuery: jest.fn().mockReturnValue( {} ),
+		getFilters: jest.fn().mockReturnValue( {} ),
 	};
 
 	return {
@@ -73,7 +81,7 @@ jest.mock( '@wordpress/data', () => {
 				return mockDispatch;
 			}
 			if ( store === 'core' ) {
-				return { invalidateResolutionForStore: mockDispatch.invalidateResolutionForStore };
+				return { invalidateResolution: mockDispatch.invalidateResolution };
 			}
 			return {};
 		} ),

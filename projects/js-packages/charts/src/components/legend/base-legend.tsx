@@ -6,7 +6,7 @@ import { forwardRef, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
-import type { LegendProps } from './types';
+import type { BaseLegendProps } from './types';
 
 const orientationToFlexDirection = {
 	horizontal: 'row' as const,
@@ -17,7 +17,7 @@ const orientationToFlexDirection = {
  * Base legend component that displays color-coded items with labels based on visx LegendOrdinal.
  * We avoid using LegendOrdinal directly to enable support for advanced features such as interactivity.
  */
-export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
+export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 	(
 		{
 			items,
@@ -34,7 +34,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
 			shapeHeight = 16,
 			shapeMargin = '2px 4px 2px 0',
 			labelAlign = 'left',
-			labelFlex = '1',
+			labelFlex = '0 0 auto', // Use natural width instead of expanding to fill space
 			labelMargin = '0 4px',
 			itemMargin = '0',
 			itemDirection = 'row',
@@ -49,6 +49,8 @@ export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
 			range: items.map( item => item.color ),
 		} );
 		const domain = legendScale.domain();
+
+		// For right-aligned vertical legends, use row-reverse to align text consistently
 
 		const getShapeStyle = useCallback(
 			( { index }: { index: number } ) => {
@@ -86,7 +88,11 @@ export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
 								data-testid="legend-item"
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }
-								flexDirection={ itemDirection }
+								flexDirection={
+									orientation === 'vertical' && alignmentHorizontal === 'right'
+										? 'row-reverse'
+										: itemDirection
+								}
 								{ ...legendItemProps }
 							>
 								{ items[ i ]?.renderGlyph ? (
@@ -133,6 +139,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
 									{ label.text }
 									{ items.find( item => item.label === label.text )?.value && (
 										<span className={ styles[ 'legend-item-value' ] }>
+											{ '\u00A0' }
 											{ items.find( item => item.label === label.text )?.value }
 										</span>
 									) }

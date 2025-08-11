@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -161,6 +165,8 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 
 /**
  * Settings v1_4 endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_3_Endpoint {
 

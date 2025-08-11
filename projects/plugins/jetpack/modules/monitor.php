@@ -17,8 +17,14 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Jetpack_Monitor
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Monitor {
 

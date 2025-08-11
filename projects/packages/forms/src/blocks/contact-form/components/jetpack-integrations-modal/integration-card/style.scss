@@ -12,9 +12,8 @@
 		gap: 16px;
 
 		@media (max-width: 782px) {
-			flex-direction: column;
 			gap: 10px;
-			align-items: flex-end;
+			align-items: flex-start;
 		}
 	}
 
@@ -25,24 +24,28 @@
 
 		@media (max-width: 782px) {
 			width: 100%;
+			align-items: flex-start;
+			gap: 10px;
+		}
+	}
+
+	&__header-actions button {
+
+		@media (max-width: 782px) {
+			padding: 10px 12px;
+			height: auto;
 		}
 	}
 
 	&__title-section {
 		display: flex;
-		flex-direction: column;
-		gap: 4px;
-	}
-
-	&__title-row {
-		display: flex;
+		flex-direction: row;
+		gap: 4px 12px;
+		flex-wrap: wrap;
 		align-items: center;
-		gap: 10px;
 
 		@media (max-width: 782px) {
-			gap: 6px;
-			flex-direction: column-reverse;
-			align-items: flex-start;
+			gap: 2px 12px;
 		}
 	}
 
@@ -53,6 +56,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+
+		@media (max-width: 782px) {
+			padding: 4px;
+		}
 	}
 
 	&__service-icon {
@@ -66,57 +73,34 @@
 		font-size: 15px;
 		font-weight: 400;
 		line-height: 1.4;
+		order: 1;
 	}
 
 	&__plugin-badge,
 	&__connected-badge,
 	&__setup-badge {
-		font-size: 12px;
-		padding: 4px 8px;
-		border-radius: 3px;
-		font-weight: 400;
-		line-height: 16px;
-	}
+		order: 2;
 
-	&__plugin-badge {
-		background: #F0F0F0;
-		color: #646970;
-	}
-
-	&__connected-badge {
-		background: #E5F5E8;
-		color: #008710;
-		display: flex;
-		align-items: center;
-		gap: 4px;
-
-		.components-icon {
-			color: #93c692;
+		@media (max-width: 782px) {
+			order: 3;
 		}
-	}
-
-	&__setup-badge {
-		// copy of how Badge (private api yet) is styled
-		background: color( sRGB 0.921961 0.93451 0.991373 );
-		color: color( sRGB 0.109804 0.172549 0.456863 );
-		display: flex;
-		align-items: center;
-		gap: 4px;
-
-		.components-icon {
-			color: #93c692;
-		}
-
 	}
 
 	&__description {
 		color: var(--jp-gray-50);
 		font-size: 13px;
 		line-height: 1.5;
-		margin-top: 0;
+		width: 100%;
+		order: 3;
+
+		&:first-of-type {
+			margin-top: 0;
+		}
 
 		@media (max-width: 782px) {
 			text-wrap: balance;
+			order: 2;
+			padding-bottom: 3px;
 		}
 	}
 
@@ -142,10 +126,11 @@
 		padding-top: 8px;
 		padding-bottom: 24px;
 		padding-left: 60px; // this is to align with the row above's icon + gap (44 + 16)
-		padding-right: 0;
+		padding-right: 40px;
 
-		:last-child {
-			margin-bottom: 0;
+		@media (max-width: 782px) {
+			padding-left: 46px;
+			padding-right: 20px;
 		}
 	}
 
@@ -163,7 +148,8 @@
 		text-wrap: pretty;
 	}
 
-	&__service-icon--google-sheets {
+	&__service-icon--google-sheets,
+	&__service-icon--mailpoet {
 		border-radius: 0 !important;
 	}
 }

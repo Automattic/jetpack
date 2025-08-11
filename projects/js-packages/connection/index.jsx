@@ -38,6 +38,7 @@ export { default as ManageConnectionDialog } from './components/manage-connectio
  */
 export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-party-cookies-fallback';
 export { default as getCalypsoOrigin } from './helpers/get-calypso-origin';
+export * from './helpers/get-user-connection-url.ts';
 
 /**
  * Store
@@ -49,7 +50,4 @@ export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
  */
 export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow';
 export { default as useRestoreConnection } from './hooks/use-restore-connection';
-export {
-	default as useConnectionErrorNotice,
-	getProtectedOwnerCreateAccountUrl,
-} from './hooks/use-connection-error-notice';
+export { default as useConnectionErrorNotice } from './hooks/use-connection-error-notice';

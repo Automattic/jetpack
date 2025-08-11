@@ -319,7 +319,7 @@ export function deleteConnectionById( {
 
 			return true;
 		} catch ( error ) {
-			let message = __( 'Error disconnecting account.', 'jetpack-publicize-components' );
+			let message: string = __( 'Error disconnecting account.', 'jetpack-publicize-components' );
 
 			if ( typeof error === 'object' && 'message' in error && error.message ) {
 				message = `${ message } ${ error.message }`;
@@ -398,7 +398,7 @@ export function createConnection(
 				}
 			}
 		} catch ( error ) {
-			let message = __( 'Error connecting account.', 'jetpack-publicize-components' );
+			let message: string = __( 'Error connecting account.', 'jetpack-publicize-components' );
 
 			if ( typeof error === 'object' && 'message' in error && error.message ) {
 				message = `${ message } ${ error.message }`;
@@ -495,7 +495,7 @@ export function updateConnectionById( connectionId: string, data: Partial< Conne
 				);
 			}
 		} catch ( error ) {
-			let message = __( 'Error updating account.', 'jetpack-publicize-components' );
+			let message: string = __( 'Error updating account.', 'jetpack-publicize-components' );
 
 			if ( typeof error === 'object' && 'message' in error && error.message ) {
 				message = `${ message } ${ error.message }`;

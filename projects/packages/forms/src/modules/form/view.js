@@ -10,7 +10,7 @@ import {
 /*
  * Internal dependencies
  */
-import { validateField } from '../../contact-form/js/validate-helper';
+import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper';
 import { focusNextInput, dispatchSubmitEvent, submitForm } from './shared';
 
 const withSyncEvent =
@@ -21,6 +21,7 @@ const withSyncEvent =
 
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
+let errorTimeout = null;
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
@@ -37,6 +38,18 @@ const updateField = ( fieldId, value, showFieldError = false ) => {
 		field.error = validateField( type, value, isRequired, extra );
 		field.showFieldError = showFieldError;
 	}
+};
+
+const setSubmissionData = ( data = [] ) => {
+	const context = getContext();
+
+	context.submissionData = data;
+
+	// This cannot be a derived state because it needs to be defined on the backend for first render to avoid hydration errors.
+	context.formattedSubmissionData = data.map( item => ( {
+		label: maybeAddColonToLabel( item.label ),
+		value: maybeTransformValue( item.value ),
+	} ) );
 };
 
 const registerField = (
@@ -77,6 +90,25 @@ const getError = field => {
 	return config.error_types && config.error_types[ field.error ];
 };
 
+const maybeAddColonToLabel = label => {
+	const formattedLabel = label ? label : null;
+
+	if ( ! formattedLabel ) {
+		return null;
+	}
+
+	return formattedLabel.endsWith( '?' ) ? formattedLabel : formattedLabel.replace( /:$/, '' ) + ':';
+};
+
+const maybeTransformValue = value => {
+	// For file upload fields, we want to show the file name and size
+	if ( value?.name && value?.size ) {
+		return value.name + ' (' + value.size + ')';
+	}
+
+	return value;
+};
+
 const { state } = store( NAMESPACE, {
 	state: {
 		get fieldHasErrors() {
@@ -100,17 +132,15 @@ const { state } = store( NAMESPACE, {
 			if ( context?.maxSteps && context.maxSteps > 0 ) {
 				return false;
 			}
-			return ! Object.values( context.fields ).some( field => field.value !== '' );
+
+			return ! Object.values( context.fields ).some( field => ! isEmptyValue( field.value ) );
 		},
 
 		get isFieldEmpty() {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
-			return !! (
-				field.value === '' ||
-				( Array.isArray( field.value ) && field.value.length === 0 )
-			);
+			return isEmptyValue( field?.value );
 		},
 
 		get hasFieldValue() {
@@ -152,10 +182,16 @@ const { state } = store( NAMESPACE, {
 			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
 		},
 
-		get showFromErrors() {
+		get showFormErrors() {
 			const context = getContext();
 
 			return ! state.isFormValid && context.showErrors;
+		},
+
+		get showSubmissionError() {
+			const context = getContext();
+
+			return !! context.submissionError && ! state.showFormErrors;
 		},
 
 		get getFormErrorMessage() {
@@ -196,12 +232,7 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
-			return field.value;
-		},
-
-		get submissionError() {
-			const context = getContext();
-			return context.submissionError || '';
+			return field?.value || '';
 		},
 	},
 
@@ -255,6 +286,27 @@ const { state } = store( NAMESPACE, {
 			updateField( context.fieldId, event.target.value, true );
 		},
 
+		onFormReset: () => {
+			const context = getContext();
+			context.fields = [];
+			context.showErrors = false;
+
+			// Dispatch custom events to reset all fields
+			const formElement = document.getElementById( context.elementId );
+
+			if ( formElement ) {
+				const fieldWrappers = formElement.querySelectorAll( '[data-wp-on--jetpack-form-reset]' );
+
+				fieldWrappers.forEach( wrapper => {
+					wrapper.dispatchEvent( new CustomEvent( 'jetpack-form-reset', { bubbles: false } ) );
+				} );
+			}
+
+			if ( context.isMultiStep ) {
+				context.currentStep = 1;
+			}
+		},
+
 		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
 
@@ -283,15 +335,40 @@ const { state } = store( NAMESPACE, {
 				return;
 			}
 
-			// Set submitting state
 			context.isSubmitting = true;
 
-			if ( context.isAjaxSubmissionEnabled ) {
+			if ( context.useAjax ) {
 				event.preventDefault();
 				event.stopPropagation();
+				context.submissionError = null;
 
-				// TODO: Get the data and update the page
-				yield submitForm( context.formHash );
+				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
+
+				if ( success ) {
+					setSubmissionData( data );
+					context.submissionSuccess = true;
+
+					if ( refreshArgs ) {
+						const url = new URL( window.location.href );
+						url.searchParams.set( 'contact-form-id', refreshArgs[ 'contact-form-id' ] );
+						url.searchParams.set( 'contact-form-sent', refreshArgs[ 'contact-form-sent' ] );
+						url.searchParams.set( 'contact-form-hash', refreshArgs[ 'contact-form-hash' ] );
+						url.searchParams.set( '_wpnonce', refreshArgs._wpnonce );
+						window.history.replaceState( null, '', url.toString() );
+					}
+				} else {
+					context.submissionError = error;
+
+					if ( errorTimeout ) {
+						clearTimeout( errorTimeout );
+					}
+
+					errorTimeout = setTimeout( () => {
+						context.submissionError = null;
+					}, 5000 );
+
+					setSubmissionData( [] );
+				}
 
 				context.isSubmitting = false;
 			}
@@ -339,6 +416,28 @@ const { state } = store( NAMESPACE, {
 				event.preventDefault();
 			}
 		} ),
+
+		goBack: event => {
+			event.preventDefault();
+			event.stopPropagation();
+			const context = getContext();
+
+			const form = document.getElementById( context.elementId );
+
+			form?.reset?.();
+			setSubmissionData( [] );
+			context.submissionError = null;
+			context.hasClickedBack = true;
+			context.submissionSuccess = false;
+
+			// Remove the refresh args from the URL.
+			const url = new URL( window.location.href );
+			url.searchParams.delete( 'contact-form-id' );
+			url.searchParams.delete( 'contact-form-sent' );
+			url.searchParams.delete( 'contact-form-hash' );
+			url.searchParams.delete( '_wpnonce' );
+			window.history.replaceState( null, '', url.toString() );
+		},
 	},
 
 	callbacks: {
@@ -346,6 +445,16 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
 			registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		},
+
+		scrollToWrapper() {
+			const context = getContext();
+
+			if ( context.submissionSuccess || context.hasClickedBack ) {
+				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
+				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
+				context.hasClickedBack = false;
+			}
 		},
 	},
 } );

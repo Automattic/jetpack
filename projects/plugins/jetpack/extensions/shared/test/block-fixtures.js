@@ -52,7 +52,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				if ( parsedJSONFixtureContent ) {
 					parserOutputExpectedString = parsedJSONFixtureContent;
 				} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
-					parserOutputExpectedString = JSON.stringify( parserOutputActual, null, 4 ) + '\n';
+					parserOutputExpectedString = JSON.stringify( parserOutputActual, null, '\t' ) + '\n';
 					writeBlockFixtureParsedJSON( basename, parserOutputExpectedString );
 				} else {
 					throw new Error( `Missing fixture file: ${ parsedJSONFixtureFileName }` );
@@ -108,7 +108,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 					blocksExpectedString = jsonFixtureContent;
 				} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
 					// Validation issues add too much noise so they get removed.
-					blocksExpectedString = JSON.stringify( blocksActualNormalized, null, 4 ) + '\n';
+					blocksExpectedString = JSON.stringify( blocksActualNormalized, null, '\t' ) + '\n';
 					writeBlockFixtureJSON( basename, blocksExpectedString );
 				} else {
 					throw new Error( `Missing fixture file: ${ jsonFixtureFileName }` );

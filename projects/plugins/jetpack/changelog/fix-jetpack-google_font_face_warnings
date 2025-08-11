@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Catch PHP warnings if theme font definitions are in non-standard format.

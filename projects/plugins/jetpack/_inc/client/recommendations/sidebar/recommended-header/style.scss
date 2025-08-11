@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 @use "../../../scss/typography";
 
 .jp-recommendations-recommended-header {
@@ -7,10 +7,10 @@
 
 	padding: 0.5rem;
 
-	background: #F3F3EA;
+	background: #f3f3ea;
 	border-top-left-radius: inherit;
 	border-top-right-radius: inherit;
-	color: var( --jp-black );
+	color: var(--jp-black);
 
 	font-weight: typography.$bold;
 

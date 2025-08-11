@@ -11,6 +11,10 @@
 
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Comment_Endpoint(
 	array(
 		'description'                          => 'Create a comment on a post.',
@@ -148,6 +152,8 @@ new WPCOM_JSON_API_Update_Comment_Endpoint(
 
 /**
  * Update comments endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
 	/**

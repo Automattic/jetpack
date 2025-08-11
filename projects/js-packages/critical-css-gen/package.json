@@ -1,7 +1,6 @@
 {
-	"type": "module",
 	"name": "@automattic/jetpack-critical-css-gen",
-	"version": "1.0.15",
+	"version": "1.0.17",
 	"description": "A flexible Critical CSS Generator that supports multiple URLs and viewports, with both server-side and client-side generation capabilities.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/critical-css-gen/#readme",
 	"bugs": {
@@ -14,6 +13,20 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
+	"exports": {
+		".": {
+			"jetpack:src": "./src/browser.ts",
+			"types": "./build/browser.d.ts",
+			"default": "./build/browser.js"
+		},
+		"./playwright": {
+			"jetpack:src": "./src/playwright.ts",
+			"types": "./build/playwright.d.ts",
+			"default": "./build/playwright.js"
+		}
+	},
+	"main": "./build/browser.js",
 	"scripts": {
 		"build": "pnpm run clean && tsc",
 		"build:test": "pnpm run clean:test && webpack --config tests/data/webpack.config.cjs",
@@ -23,11 +36,14 @@
 		"test-coverage": "pnpm run test --coverage",
 		"watch": "tsc --watch"
 	},
-	"main": "./build/browser.js",
+	"dependencies": {
+		"clean-css": "^5.3.1",
+		"css-tree": "^2.3.1"
+	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.27.7",
-		"@babel/preset-env": "7.27.2",
+		"@babel/core": "7.28.0",
+		"@babel/preset-env": "7.28.0",
 		"@babel/preset-typescript": "7.27.1",
 		"@types/clean-css": "4.2.11",
 		"@types/css-tree": "2.3.10",
@@ -45,22 +61,6 @@
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1",
 		"webpack-dev-middleware": "5.3.4"
-	},
-	"exports": {
-		".": {
-			"jetpack:src": "./src/browser.ts",
-			"types": "./build/browser.d.ts",
-			"default": "./build/browser.js"
-		},
-		"./playwright": {
-			"jetpack:src": "./src/playwright.ts",
-			"types": "./build/playwright.d.ts",
-			"default": "./build/playwright.js"
-		}
-	},
-	"dependencies": {
-		"clean-css": "^5.3.1",
-		"css-tree": "^2.3.1"
 	},
 	"peerDependencies": {
 		"playwright-core": "^1.45.1"

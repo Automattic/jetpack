@@ -9,10 +9,13 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
-import { useEntityRecords } from '@wordpress/core-data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router';
+/**
+ * Internal dependencies
+ */
+import useInboxData from '../../hooks/use-inbox-data';
 
 /**
  * Returns a formatted tab label with count.
@@ -26,35 +29,17 @@ function getTabLabel( label: string, count: number ): string {
 	return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), label, count || 0 );
 }
 
-type InboxStatusToggleProps = {
-	currentQuery: Record< string, unknown >;
-};
-
 /**
  * Renders the status toggle for the inbox view.
  *
- * @param {InboxStatusToggleProps} props - The component props.
  * @return {JSX.Element} The status toggle component.
  */
-export default function InboxStatusToggle( { currentQuery }: InboxStatusToggleProps ): JSX.Element {
+export default function InboxStatusToggle(): JSX.Element {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
-	const queryBase = { search: '', page: 1, ...currentQuery, per_page: 1, _fields: 'id' };
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { totalItems: totalItemsInbox } = useEntityRecords( 'postType', 'feedback', {
-		...queryBase,
-		status: 'publish,draft',
-	} );
 
-	const { totalItems: totalItemsSpam } = useEntityRecords( 'postType', 'feedback', {
-		...queryBase,
-		status: 'spam',
-	} );
-
-	const { totalItems: totalItemsTrash } = useEntityRecords( 'postType', 'feedback', {
-		...queryBase,
-		status: 'trash',
-	} );
+	const { totalItemsInbox, totalItemsSpam, totalItemsTrash } = useInboxData();
 
 	const statusTabs = [
 		{ label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), totalItemsInbox ), value: 'inbox' },

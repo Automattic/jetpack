@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.1] - 2025-08-05
+### Fixed
+- Prevent PHP fatal if URL is not a string. [#44619]
+
+## [0.31.0] - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Update dependencies. [#44551]
+
+## [0.30.6] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [0.30.5] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [0.30.4] - 2025-07-14
+### Changed
+- Update package dependencies. [#44217] [#44219]
+
 ## [0.30.3] - 2025-07-07
 ### Changed
 - Update package dependencies. [#44148] [#44151]
@@ -1686,6 +1707,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.31.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.31.0...v0.31.1
+[0.31.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.6...v0.31.0
+[0.30.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.5...v0.30.6
+[0.30.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.4...v0.30.5
+[0.30.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.3...v0.30.4
 [0.30.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.2...v0.30.3
 [0.30.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.1...v0.30.2
 [0.30.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.0...v0.30.1

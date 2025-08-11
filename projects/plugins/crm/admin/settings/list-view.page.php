@@ -9,7 +9,9 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit( 0 );
 }
 
-global $wpdb, $zbs;  // } Req
+global $zbs;  // } Req
+
+$sbupdated = false;
 
 // } Act on any edits!
 if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplflistview'] ) ) {
@@ -67,11 +69,10 @@ $show_totals_table = $zbs->settings->get( 'show_totals_table' );
 <p id="sbDesc"><?php echo wp_kses( sprintf( __( 'This page lets you set some global List View settings. These affect pages like the <a href="%s">Contact List view</a>.', 'zero-bs-crm' ), jpcrm_esc_link( $zbs->slugs['managecontacts'] ) ), $zbs->acceptable_restricted_html ); ?></p>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
-		echo '</div>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+	echo '</div>';
 }
 ?>
 

@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Debug_Helper;
 
 /**
  * Sync_Data_Settings_Tester to test the Sync data settings.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Sync_Data_Settings_Tester {
 

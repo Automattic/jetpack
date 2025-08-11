@@ -1,6 +1,6 @@
 .wrapper {
 	--videopress-video-item-width: 360px;
-	--videopress-video-item-gap: calc( var( --spacing-base ) * 3 ); // 24px;
+	--videopress-video-item-gap: calc(var(--spacing-base) * 3); // 24px;
 	--videopress-video-grid: 100%;
 
 	max-width: var(--videopress-video-grid);

@@ -11,6 +11,8 @@
 
 /**
  * Class Broken_Token
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class IDC_Simulator {
 	/**

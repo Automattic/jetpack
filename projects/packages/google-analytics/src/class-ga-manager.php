@@ -18,7 +18,7 @@ use WP_Error;
  */
 class GA_Manager {
 
-	const PACKAGE_VERSION = '0.3.2';
+	const PACKAGE_VERSION = '0.3.3';
 
 	/**
 	 * Jetpack_Google_Analytics singleton instance.
@@ -75,7 +75,6 @@ class GA_Manager {
 			// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
 			if ( class_exists( 'WooCommerce' ) && Options::enhanced_ecommerce_tracking_is_enabled() ) {
 				self::$analytics = new Universal();
-				// @phan-suppress-next-line PhanNoopNew
 				new AMP_Analytics();
 			} else {
 				self::$analytics = new Legacy();

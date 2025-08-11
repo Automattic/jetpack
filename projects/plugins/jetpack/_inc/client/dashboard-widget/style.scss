@@ -1,5 +1,5 @@
 @use "../scss/variables/colors";
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/root-variables";
 
 @mixin emerald-button-colors() {
 	background: var(--jp-black);
@@ -15,7 +15,7 @@
 @mixin widget-card() {
 	background: var(--jp-white);
 	border-radius: 5px;
-	box-shadow: 0 4px 40px 0 rgba(0,0,0,.04);
+	box-shadow: 0 4px 40px 0 rgba(0, 0, 0, 0.04);
 	padding: 1em 1.5em 1em 1.5em;
 }
 
@@ -29,7 +29,7 @@
 
 		span {
 			display: flex;
-			align-items:center;
+			align-items: center;
 
 			span {
 				padding: 0 0.4em;
@@ -38,7 +38,7 @@
 
 		svg {
 			height: 20px;
-			margin: .15em 0 0 .5em;
+			margin: 0.15em 0 0 0.5em;
 		}
 	}
 
@@ -101,17 +101,17 @@
 					border-top: 1px solid #dcdcde;
 					margin: 0 -10px;
 					padding: 10px 10px 0 10px;
-					box-shadow:inset 0 1px 0 #fff;
+					box-shadow: inset 0 1px 0 #fff;
 					overflow: hidden;
 				}
 
 				.stats-section-inner > h3.heading {
 					font-size: 1.25em;
-					margin: 0 0 .5em 0;
+					margin: 0 0 0.5em 0;
 				}
 
 				p {
-					margin: 0 0 .25em;
+					margin: 0 0 0.25em;
 					color: var(--jp-gray-40);
 
 					&.nothing {
@@ -132,7 +132,9 @@
 							display: inline;
 						}
 
-						&:active, &:focus, &:hover {
+						&:active,
+						&:focus,
+						&:hover {
 							text-decoration: underline;
 						}
 					}
@@ -149,21 +151,20 @@
 		display: grid;
 		row-gap: 1em;
 		grid-template-areas:
-			'header'
-			'content';
+			"header"
+			"content";
 		grid-template-rows: min-content min-content;
 	}
 
 	.stats-info-content {
 		grid-area: content;
 		display: grid;
-		grid-template-areas:
-			'posts searches';
+		grid-template-areas: "posts searches";
 		grid-template-columns: 1fr 1fr;
 		column-gap: 1em;
 
 		.stats-section {
-			// Make sure the stats section doesn't overflow the container, which makes ellipsis work.
+			// Make sure stats section doesn't overflow container so the ellipsis works.
 			min-width: 0;
 		}
 	}
@@ -215,7 +216,7 @@
 	.stats,
 	.widgets,
 	.wpcom-connect {
-		padding: .75em;
+		padding: 0.75em;
 	}
 
 	.wpcom-connect {
@@ -314,7 +315,7 @@
 			text-align: center;
 		}
 
-		.footer-links{
+		.footer-links {
 			margin: 0 0 1.5em 1.5em;
 
 			svg {
@@ -341,10 +342,10 @@
 
 		span {
 
- 			svg {
-				 height: 1.2rem;
-				 vertical-align: text-bottom;
-			 }
+			svg {
+				height: 1.2rem;
+				vertical-align: text-bottom;
+			}
 		}
 	}
 }

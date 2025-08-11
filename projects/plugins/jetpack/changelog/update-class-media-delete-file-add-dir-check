@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Media: Prevent warnings in logs by checking for a directory before attempting to create a newfile.

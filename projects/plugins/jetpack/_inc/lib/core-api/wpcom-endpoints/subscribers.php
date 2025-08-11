@@ -6,6 +6,10 @@
  */
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Subscribers: Get subscriber count
  *

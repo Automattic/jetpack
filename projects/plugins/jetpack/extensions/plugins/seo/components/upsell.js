@@ -27,7 +27,7 @@ const UpsellNotice = ( { requiredPlan } ) => {
 		<>
 			<div>
 				{ sprintf(
-					/* translators: placeholder is the product name of the plan. */
+					/* translators: %s: the product name of the plan. */
 					__( 'To use the SEO feature you need to upgrade to the %s plan', 'jetpack' ),
 					planName
 				) }

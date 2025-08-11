@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-instagram-gallery__grid {
 	align-content: stretch;
@@ -22,15 +22,15 @@
 
 @for $i from 1 through 6 {
 	.wp-block-jetpack-instagram-gallery__grid-columns-#{$i}
-		.wp-block-jetpack-instagram-gallery__grid-post {
-		width: calc( 100% / #{$i} );
+	.wp-block-jetpack-instagram-gallery__grid-post {
+		width: calc(100% / #{$i});
 	}
 }
 
 @media ( max-width: gb.$break-small ) {
 
 	.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile
-		.wp-block-jetpack-instagram-gallery__grid-post {
+	.wp-block-jetpack-instagram-gallery__grid-post {
 		width: 100%;
 	}
 }
@@ -48,7 +48,7 @@
 				display: block;
 
 				.wp-block-jetpack-instagram-gallery__grid-post {
-					padding: var( --latest-instagram-posts-spacing );
+					padding: var(--latest-instagram-posts-spacing);
 				}
 			}
 		}
@@ -65,7 +65,7 @@
 
 	@for $i from 1 through 6 {
 		.wp-block-jetpack-instagram-gallery__grid-columns-#{$i} {
-			grid-template-columns: repeat( $i, 1fr );
+			grid-template-columns: repeat($i, 1fr);
 		}
 	}
 }

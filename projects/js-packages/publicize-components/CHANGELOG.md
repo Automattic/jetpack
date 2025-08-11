@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-08-05
+### Added
+- Social: Add font option for Image Generator. [#44514]
+
+## [1.2.0] - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Update @wordpress/dataviews to 5.0.0. [#44376]
+
+### Fixed
+- Fix UX for Social modal when resharing without user connection. [#44513]
+
+## [1.1.6] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [1.1.5] - 2025-07-21
+### Changed
+- Change the new badge color to match WordPress colors in the connection management. [#44310]
+- Update package dependencies. [#44356]
+
+### Fixed
+- SIG: Ensure the modal loads the featured image. [#44227]
+- Social: Fix image validation when images sizes are customised. [#44368]
+
+## [1.1.4] - 2025-07-14
+### Changed
+- Update package dependencies. [#44217] [#44219]
+
 ## [1.1.3] - 2025-07-07
 ### Changed
 - Update package dependencies. [#44148] [#44151]
@@ -1300,6 +1329,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.2.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.6...v1.2.0
+[1.1.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.5...v1.1.6
+[1.1.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.4...v1.1.5
+[1.1.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.0...v1.1.1

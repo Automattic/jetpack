@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "@automattic/color-studio/dist/color-variables" as studio;
 
 // Upgrade Banner.
@@ -115,7 +115,7 @@
 
 	// Remove paid-block-media-placeholder from being a flexbox child
 	// when the cover block has a background set
-	.wp-block-cover:not( .is-placeholder ) & {
+	.wp-block-cover:not(.is-placeholder) & {
 		position: absolute;
 		top: 0;
 		right: 0;

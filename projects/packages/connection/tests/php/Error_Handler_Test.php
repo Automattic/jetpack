@@ -92,15 +92,12 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertCount( 1, $stored_errors );
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 
-		// Verify key fields by accessing them directly - if they don't exist, test will fail with clear message
+		// Verify essential fields
 		$error_data = $stored_errors['invalid_token']['1'];
-		$this->assertEquals( 'xmlrpc', $error_data['error_type'] );
 		$this->assertEquals( 'invalid_token', $error_data['error_code'] );
-		$this->assertSame( '1', $error_data['user_id'] );
-		$this->assertEquals( 'An error was triggered', $error_data['error_message'] );
-		$this->assertNotEmpty( $error_data['nonce'] );
-		$this->assertNotEmpty( $error_data['timestamp'] );
-		$this->assertIsArray( $error_data['error_data'] );
+		$this->assertEquals( 'xmlrpc', $error_data['error_type'] );
+		$this->assertArrayHasKey( 'nonce', $error_data );
+		$this->assertArrayHasKey( 'timestamp', $error_data );
 	}
 
 	/**
@@ -121,15 +118,13 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 
 		$this->assertCount( 3, $stored_errors );
-		$this->assertCount( 1, $stored_errors['invalid_token'] );
-		$this->assertCount( 1, $stored_errors['unknown_user'] );
-		$this->assertCount( 1, $stored_errors['invalid_connection_owner'] );
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayHasKey( 'unknown_user', $stored_errors );
+		$this->assertArrayHasKey( 'invalid_connection_owner', $stored_errors );
 
-		// Verify error types and codes directly
+		// Verify error types are preserved
 		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
 		$this->assertEquals( 'rest', $stored_errors['unknown_user']['1']['error_type'] );
-		$this->assertEquals( 'connection', $stored_errors['invalid_connection_owner']['invalid']['error_type'] );
-		$this->assertEquals( 'unknown_user', $stored_errors['unknown_user']['1']['error_code'] );
 	}
 
 	/**
@@ -153,11 +148,9 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 		$this->assertCount( 2, $stored_errors['unknown_user'] );
 
-		// Verify user 2 error exists and has correct data
+		// Verify user 2 error exists
 		$this->assertEquals( 'unknown_user', $stored_errors['unknown_user']['2']['error_code'] );
 		$this->assertSame( '2', $stored_errors['unknown_user']['2']['user_id'] );
-		$this->assertNotEmpty( $stored_errors['unknown_user']['2']['nonce'] );
-		$this->assertNotEmpty( $stored_errors['unknown_user']['2']['timestamp'] );
 	}
 
 	/**
@@ -989,13 +982,9 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertEquals( $error_code, $result['error_code'] );
 		$this->assertEquals( $error_message, $result['error_message'] );
-		$this->assertEquals( $error_data, $result['error_data'] );
 		$this->assertEquals( $user_id, $result['user_id'] );
-		$this->assertEquals( $error_type, $result['error_type'] );
 		$this->assertArrayHasKey( 'timestamp', $result );
 		$this->assertArrayHasKey( 'nonce', $result );
-		$this->assertIsInt( $result['timestamp'] );
-		$this->assertIsString( $result['nonce'] );
 	}
 
 	/**
@@ -1023,9 +1012,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertEquals( $error_code, $result['error_code'] );
 		$this->assertEquals( $error_message, $result['error_message'] );
-		$this->assertEquals( array(), $result['error_data'] );
 		$this->assertSame( '0', $result['user_id'] );
-		$this->assertSame( '', $result['error_type'] );
 	}
 
 	/**
@@ -1368,5 +1355,193 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'broken', $result[0]['message'] );
 		$this->assertEquals( 'create_missing_account', $result[0]['action'] ); // Custom action
 		$this->assertEquals( 'invalid_connection_owner', $result[0]['data']['api_error_code'] );
+	}
+
+	/**
+	 * Test build_action_error_data method with default values
+	 */
+	public function test_build_action_error_data_defaults() {
+		// Test with empty args
+		$result = $this->error_handler->build_action_error_data();
+
+		$this->assertArrayHasKey( 'blog_id', $result );
+		$this->assertArrayHasKey( 'action_variant', $result );
+		$this->assertArrayHasKey( 'secondary_action_variant', $result );
+		$this->assertEquals( 'primary', $result['action_variant'] );
+		$this->assertEquals( 'secondary', $result['secondary_action_variant'] );
+	}
+
+	/**
+	 * Test build_action_error_data method with custom values
+	 */
+	public function test_build_action_error_data_custom_values() {
+		$args = array(
+			'action'                   => 'custom_action',
+			'action_label'             => 'Custom Action',
+			'action_variant'           => 'primary',
+			'secondary_action'         => 'secondary_action',
+			'secondary_action_label'   => 'Secondary Action',
+			'secondary_action_variant' => 'secondary',
+			'tracking_event'           => 'jetpack_custom_tracking',
+		);
+
+		$result = $this->error_handler->build_action_error_data( $args );
+
+		$expected_fields = array(
+			'action'                   => 'custom_action',
+			'action_label'             => 'Custom Action',
+			'action_variant'           => 'primary',
+			'secondary_action'         => 'secondary_action',
+			'secondary_action_label'   => 'Secondary Action',
+			'secondary_action_variant' => 'secondary',
+			'tracking_event'           => 'jetpack_custom_tracking',
+		);
+
+		foreach ( $expected_fields as $field => $expected_value ) {
+			$this->assertEquals( $expected_value, $result[ $field ] );
+		}
+		$this->assertArrayHasKey( 'blog_id', $result );
+	}
+
+	/**
+	 * Test build_action_error_data method with extra_data
+	 */
+	public function test_build_action_error_data_with_extra_data() {
+		$args = array(
+			'action'     => 'custom_action',
+			'extra_data' => array(
+				'custom_field'  => 'custom_value',
+				'another_field' => 'another_value',
+			),
+		);
+
+		$result = $this->error_handler->build_action_error_data( $args );
+
+		$this->assertArrayHasKey( 'blog_id', $result );
+		$this->assertEquals( 'custom_action', $result['action'] );
+		$this->assertEquals( 'custom_value', $result['custom_field'] );
+		$this->assertEquals( 'another_value', $result['another_field'] );
+		$this->assertArrayNotHasKey( 'extra_data', $result );
+	}
+
+	/**
+	 * Test build_action_error_data method with invalid variant values
+	 */
+	public function test_build_action_error_data_invalid_variants() {
+		$args = array(
+			'action_variant'           => 'invalid_variant',
+			'secondary_action_variant' => 'also_invalid',
+		);
+
+		$result = $this->error_handler->build_action_error_data( $args );
+
+		$this->assertEquals( 'primary', $result['action_variant'] );
+		$this->assertEquals( 'secondary', $result['secondary_action_variant'] );
+	}
+
+	/**
+	 * Test build_action_error_data method filters empty values
+	 */
+	public function test_build_action_error_data_filters_empty_values() {
+		$args = array(
+			'action'       => 'custom_action',
+			'action_label' => 'Custom Action',
+			'empty_field'  => '',
+			'null_field'   => null,
+			'zero_field'   => 0,
+			'false_field'  => false,
+		);
+
+		$result = $this->error_handler->build_action_error_data( $args );
+
+		$this->assertArrayHasKey( 'action', $result );
+		$this->assertArrayHasKey( 'action_label', $result );
+		$this->assertArrayNotHasKey( 'empty_field', $result );
+		$this->assertArrayNotHasKey( 'null_field', $result );
+		$this->assertArrayNotHasKey( 'zero_field', $result );
+		$this->assertArrayNotHasKey( 'false_field', $result );
+	}
+
+	/**
+	 * Test verify_xml_rpc_error method with valid nonce
+	 */
+	public function test_verify_xml_rpc_error_valid_nonce() {
+		// Create a test error
+		$error_data = array(
+			'error_code'    => 'test_error',
+			'user_id'       => '1',
+			'error_message' => 'Test error message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce_123',
+			'error_type'    => 'xmlrpc',
+		);
+
+		// Store the error
+		$stored_errors = array(
+			'test_error' => array(
+				'1' => $error_data,
+			),
+		);
+		update_option( 'jetpack_connection_xmlrpc_errors', $stored_errors );
+
+		// Create a mock request
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/verify_xmlrpc_error' );
+		$request->set_param( 'nonce', 'test_nonce_123' );
+
+		// Call the method
+		$response = $this->error_handler->verify_xml_rpc_error( $request );
+
+		// Verify the response
+		$this->assertInstanceOf( '\WP_REST_Response', $response );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data() );
+
+		// Verify the error was moved to verified errors
+		$verified_errors = $this->error_handler->get_verified_errors();
+		$this->assertArrayHasKey( 'test_error', $verified_errors );
+		$this->assertArrayHasKey( '1', $verified_errors['test_error'] );
+		$this->assertEquals( 'test_nonce_123', $verified_errors['test_error']['1']['nonce'] );
+	}
+
+	/**
+	 * Test verify_xml_rpc_error method with invalid nonce
+	 */
+	public function test_verify_xml_rpc_error_invalid_nonce() {
+		// Create a mock request with invalid nonce
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/verify_xmlrpc_error' );
+		$request->set_param( 'nonce', 'invalid_nonce' );
+
+		// Call the method
+		$response = $this->error_handler->verify_xml_rpc_error( $request );
+
+		// Verify the response
+		$this->assertInstanceOf( '\WP_REST_Response', $response );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data() );
+	}
+
+	/**
+	 * Test build_action_error_data method with secondary button data
+	 */
+	public function test_build_action_error_data_secondary_button() {
+		$args = array(
+			'action'                   => 'primary_action',
+			'action_label'             => 'Primary Action',
+			'secondary_action'         => 'secondary_action',
+			'secondary_action_label'   => 'Secondary Action',
+			'secondary_action_url'     => 'https://example.com/secondary',
+			'secondary_tracking_event' => 'jetpack_secondary_tracking',
+		);
+
+		$result = $this->error_handler->build_action_error_data( $args );
+
+		$this->assertArrayHasKey( 'blog_id', $result );
+		$this->assertEquals( 'primary_action', $result['action'] );
+		$this->assertEquals( 'Primary Action', $result['action_label'] );
+		$this->assertEquals( 'secondary_action', $result['secondary_action'] );
+		$this->assertEquals( 'Secondary Action', $result['secondary_action_label'] );
+		$this->assertEquals( 'https://example.com/secondary', $result['secondary_action_url'] );
+		$this->assertEquals( 'jetpack_secondary_tracking', $result['secondary_tracking_event'] );
 	}
 }

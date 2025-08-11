@@ -21,12 +21,15 @@ const settings = {
 		'jetpack/field-multiple-choice',
 		'jetpack/field-name',
 		'jetpack/field-number',
+		'jetpack/field-rating',
 		'jetpack/field-select',
 		'jetpack/field-single-choice',
 		'jetpack/field-telephone',
 		'jetpack/field-text',
 		'jetpack/field-textarea',
-		'jetpack/field-rating',
+		'jetpack/field-time',
+		'jetpack/field-image-select',
+		'jetpack/form-image-select-choice',
 		// Do not include 'jetpack/field-file' since it prevents the label from being duplicated.
 	],
 	supports: {

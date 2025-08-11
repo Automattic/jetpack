@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Get_Media_Endpoint(
 	array(
 		'description'          => 'Get a single media item (by ID).',
@@ -36,6 +40,8 @@ new WPCOM_JSON_API_Get_Media_Endpoint(
 
 /**
  * GET Media endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

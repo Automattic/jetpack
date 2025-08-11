@@ -16,6 +16,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register the widget for use in Appearance -> Widgets
  */
@@ -253,7 +257,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			$instance['width'] = 220;
 		}
 
-		$tweet_display             = sanitize_text_field( $new_instance['tweet-display'] );
+		$tweet_display             = sanitize_text_field( $new_instance['tweet-display'] ?? 'dynamic' );
 		$instance['tweet-display'] = $tweet_display;
 		/**
 		 * A timeline with a specified limit is expanded to the height of those Tweets.

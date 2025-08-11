@@ -1,11 +1,7 @@
 {
 	"name": "@automattic/eslint-config-target-es",
-	"version": "3.0.0",
+	"version": "4.0.0",
 	"description": "ESLint sharable config to activate eslint-plugin-es-x checks based on browserslist targets.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-config-target-es/README.md#readme",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Eslint Config Target Es"
-	},
 	"keywords": [
 		"eslint",
 		"config",
@@ -13,6 +9,10 @@
 		"eslintconfig",
 		"browserslist"
 	],
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-config-target-es/README.md#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Eslint Config Target Es"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
@@ -20,6 +20,19 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		".": "./src/eslintrc/all.js",
+		"./all": "./src/eslintrc/all.js",
+		"./builtins": "./src/eslintrc/builtins.js",
+		"./flat/all": "./src/flatconfig/all.js",
+		"./flat/builtins": "./src/flatconfig/builtins.js",
+		"./flat/language": "./src/flatconfig/language.js",
+		"./functions": "./src/funcs.js",
+		"./language": "./src/eslintrc/language.js",
+		"./rc/all": "./src/eslintrc/all.js",
+		"./rc/builtins": "./src/eslintrc/builtins.js",
+		"./rc/language": "./src/eslintrc/language.js"
+	},
 	"scripts": {
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage"
@@ -31,8 +44,8 @@
 		"semver": "^7.3.5"
 	},
 	"devDependencies": {
-		"@wordpress/browserslist-config": "6.26.0",
-		"eslint": "9.30.1",
+		"@wordpress/browserslist-config": "6.27.0",
+		"eslint": "9.32.0",
 		"eslint-plugin-es-x": "9.0.0",
 		"globals": "16.0.0",
 		"jest": "30.0.4"
@@ -46,18 +59,5 @@
 		"globals": {
 			"optional": true
 		}
-	},
-	"exports": {
-		".": "./src/eslintrc/all.js",
-		"./language": "./src/eslintrc/language.js",
-		"./builtins": "./src/eslintrc/builtins.js",
-		"./all": "./src/eslintrc/all.js",
-		"./rc/language": "./src/eslintrc/language.js",
-		"./rc/builtins": "./src/eslintrc/builtins.js",
-		"./rc/all": "./src/eslintrc/all.js",
-		"./flat/language": "./src/flatconfig/language.js",
-		"./flat/builtins": "./src/flatconfig/builtins.js",
-		"./flat/all": "./src/flatconfig/all.js",
-		"./functions": "./src/funcs.js"
 	}
 }

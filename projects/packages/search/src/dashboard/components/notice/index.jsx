@@ -2,7 +2,6 @@ import { Gridicon } from '@automattic/jetpack-components';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
-/*eslint lodash/import-scope: [2, "method"]*/
 
 import './style.scss';
 

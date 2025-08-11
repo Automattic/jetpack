@@ -6,6 +6,8 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 
 	/**
 	 * The math captcha fallback if we can't talk to the Protect API
+	 *
+	 * @phan-constructor-used-for-side-effects
 	 */
 	class Brute_Force_Protection_Math_Authenticate {
 

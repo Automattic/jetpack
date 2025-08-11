@@ -1,11 +1,8 @@
-import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
-import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 
 const ImageGuide = () => {
-	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const { canResizeImages } = Jetpack_Boost;
 
 	/**
@@ -29,15 +26,6 @@ const ImageGuide = () => {
 							'jetpack-boost'
 						) }
 					</p>
-					{ ! isaState?.available && (
-						<InterstitialModalCTA
-							identifier="image-guide"
-							description={ __(
-								'Upgrade to scan your site for issues - automatically!',
-								'jetpack-boost'
-							) }
-						/>
-					) }
 				</>
 			}
 		>

@@ -1,6 +1,6 @@
-@use '../../scss/calypso-mixins';
-@use '../../scss/mixins/ui';
-@use '../../scss/typography';
+@use "../../scss/calypso-mixins";
+@use "../../scss/mixins/ui";
+@use "../../scss/typography";
 
 .dash-security-bundle {
 	display: flex;
@@ -13,7 +13,7 @@
 	@include ui.dashboard-card-shadow;
 
 	// match aag responsive styling
-	@include calypso-mixins.breakpoint( '>660px' ) {
+	@include calypso-mixins.breakpoint( ">660px" ) {
 		flex-direction: row;
 	}
 
@@ -24,7 +24,7 @@
 		margin-right: 0;
 		margin-top: 16px;
 
-		@include calypso-mixins.breakpoint( '>660px' ) {
+		@include calypso-mixins.breakpoint( ">660px" ) {
 			align-items: center;
 			margin-bottom: 0;
 			margin-right: 32px;
@@ -38,7 +38,7 @@
 		flex: 1;
 		justify-content: space-between;
 
-		@include calypso-mixins.breakpoint( '>660px' ) {
+		@include calypso-mixins.breakpoint( ">660px" ) {
 			flex-direction: row;
 		}
 
@@ -66,7 +66,7 @@
 			margin-top: 16px;
 			margin-left: 0;
 
-			@include calypso-mixins.breakpoint( '>660px' ) {
+			@include calypso-mixins.breakpoint( ">660px" ) {
 				margin-top: 0;
 				margin-left: 16px;
 			}
@@ -74,7 +74,7 @@
 			.dash-security-bundle--content-cta-button {
 				white-space: nowrap;
 
-				&:not( .is-primary ) {
+				&:not(.is-primary) {
 					padding: 8px 16px;
 					margin-left: 8px;
 				}

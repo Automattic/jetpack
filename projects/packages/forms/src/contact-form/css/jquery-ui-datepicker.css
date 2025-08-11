@@ -13,8 +13,8 @@
 .ui-datepicker-calendar,
 .ui-datepicker-header .ui-datepicker-title,
 .ui-datepicker-header a {
-  color: #444;
-  text-decoration: none;
+	color: #444;
+	text-decoration: none;
 }
 
 .ui-datepicker * {
@@ -98,11 +98,11 @@
 }
 
 .ui-datepicker .ui-datepicker-prev::before {
-	content: '\f341';
+	content: "\f341";
 }
 
 .ui-datepicker .ui-datepicker-next::before {
-	content: '\f345';
+	content: "\f345";
 }
 
 .ui-datepicker .ui-datepicker-prev-hover::before,

@@ -15,6 +15,10 @@
 
 use Automattic\Woocommerce_Analytics;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Load module functionality from the package only if
  * WC_ANALYTICS constant is not defined by WooCommerce

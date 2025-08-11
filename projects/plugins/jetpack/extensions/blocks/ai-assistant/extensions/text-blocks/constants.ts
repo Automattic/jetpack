@@ -5,6 +5,7 @@ export const JETPACK_FORM_CHILDREN_BLOCKS = [
 	'jetpack/field-email',
 	'jetpack/field-text',
 	'jetpack/field-textarea',
+	'jetpack/field-time',
 	'jetpack/field-checkbox',
 	'jetpack/field-date',
 	'jetpack/field-telephone',

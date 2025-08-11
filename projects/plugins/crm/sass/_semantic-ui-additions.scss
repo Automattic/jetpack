@@ -6,50 +6,51 @@
 
 // float right/left for steps
 .ui.steps.floated.right {
-    float: right;
-    margin-right: 0.5em;
+	float: right;
+	margin-right: 0.5em;
 }
 
 .ui.steps.floated.left {
-    float: left;
-    margin-left: 0.5em;
+	float: left;
+	margin-left: 0.5em;
 }
 
 .ui.dropdown .menu .left.menu {
-    left: auto !important;
-    right: 100%;
-    margin: 0 0 0 0 !important;
-    border-radius: 0.28571429rem !important;
+	left: auto !important;
+	right: 100%;
+	margin: 0 0 0 0 !important;
+	border-radius: 0.28571429rem !important;
 }
 
-.ui.simple.dropdown:hover>.menu>.item:hover>.left{
+.ui.simple.dropdown:hover > .menu > .item:hover > .left {
 	left: auto !important;
 }
 
-.ui.inverted.menu .active.item, .ui.inverted.menu .active.item:hover{
-    color: #000 !important;
+.ui.inverted.menu .active.item,
+.ui.inverted.menu .active.item:hover {
+	color: #000 !important;
 }
 
 
 // button extra colours:
 .ui.button.white {
 
-    background: #FFF !important;
-    border: 1px solid #000 !important;
-    color: #000 !important;
+	background: #fff !important;
+	border: 1px solid #000 !important;
+	color: #000 !important;
 
 }
 
 .ui.button.black {
 
-    background: #000 !important;
-    border: 1px solid #000 !important;
+	background: #000 !important;
+	border: 1px solid #000 !important;
 }
 
 .ui.button.woopink {
 
-    background: #674399 !important;
-    color: #FFF !important;
-    border: 0 !important;
-    
+	background: #674399 !important;
+	color: #fff !important;
+	border: 0 !important;
+
 }

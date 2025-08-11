@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.17.0] - 2025-08-04
+### Added
+- Extend get_option so it can work with external storage. [#44554]
+
+### Changed
+- Update connection webhooks to pass skip_pricing to authorization URL. [#44603]
+
+## [6.16.2] - 2025-07-30
+### Fixed
+- Fix doc types for methods in the connection Manager class. [#44493]
+
+## [6.16.1] - 2025-07-28
+### Fixed
+- Fix a fatal triggered by trying to disconnect Jetpack too early. [#44435]
+
+## [6.16.0] - 2025-07-23
+### Changed
+- Connection: Remove hard-coded custom errors and added support for dynamic errors. [#44281]
+
+## [6.15.0] - 2025-07-21
+### Added
+- Add memoization for connection owner ID to prevent excessive database calls. [#44282]
+
+### Changed
+- Update package dependencies. [#44356]
+
+## [6.14.2] - 2025-07-14
+### Changed
+- Update dependencies. [#44271]
+
 ## [6.14.1] - 2025-07-08
 ### Changed
 - Internal updates.
@@ -1516,6 +1546,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.17.0]: https://github.com/Automattic/jetpack-connection/compare/v6.16.2...v6.17.0
+[6.16.2]: https://github.com/Automattic/jetpack-connection/compare/v6.16.1...v6.16.2
+[6.16.1]: https://github.com/Automattic/jetpack-connection/compare/v6.16.0...v6.16.1
+[6.16.0]: https://github.com/Automattic/jetpack-connection/compare/v6.15.0...v6.16.0
+[6.15.0]: https://github.com/Automattic/jetpack-connection/compare/v6.14.2...v6.15.0
+[6.14.2]: https://github.com/Automattic/jetpack-connection/compare/v6.14.1...v6.14.2
 [6.14.1]: https://github.com/Automattic/jetpack-connection/compare/v6.14.0...v6.14.1
 [6.14.0]: https://github.com/Automattic/jetpack-connection/compare/v6.13.13...v6.14.0
 [6.13.13]: https://github.com/Automattic/jetpack-connection/compare/v6.13.12...v6.13.13

@@ -80,6 +80,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test table names are validated.
+	 * Note that `test_checksum_with_disabled_sync_modules()` has the checks, but is skipped.
 	 *
 	 * @dataProvider table_provider
 	 *
@@ -91,12 +92,10 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		if ( ! $is_valid ) {
 			// Exception expected if not a valid table name.
 			$this->expectException( Exception::class );
-		} else {
-			// Valid Tables do not need any assertion. so need to do an assert to appeas older versions.
-			$this->assertTrue( true );
 		}
 
-		new Table_Checksum( $table );
+		$checksum = new Table_Checksum( $table );
+		$this->assertInstanceOf( Table_Checksum::class, $checksum );
 	}
 
 	/**
@@ -116,9 +115,6 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		if ( ! $is_valid ) {
 			// Exception expected if corresponding Sync module is not enabled.
 			$this->expectException( Exception::class );
-		} else {
-			// Valid Tables do not need any assertion.
-			$this->assertTrue( true );
 		}
 
 		// Hack to force Sync modules to be re-initialized.
@@ -130,7 +126,10 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 
 		$this->sync_enabled_modules = $enabled_modules;
 		add_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ), 100 );
-		new Table_Checksum( $table );
+
+		$checksum = new Table_Checksum( $table );
+		$this->assertInstanceOf( Table_Checksum::class, $checksum );
+
 		remove_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ) );
 
 		// Clean-up.

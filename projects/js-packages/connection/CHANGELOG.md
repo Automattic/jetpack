@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.4.0] - 2025-08-04
+### Added
+- Add "from" argument to user connection url. [#44587]
+
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+
+## [1.3.2] - 2025-07-30
+### Changed
+- Update dependencies.
+
+## [1.3.1] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [1.3.0] - 2025-07-23
+### Changed
+- Connection: Remove hard-coded custom errors and added support for dynamic errors. [#44281]
+
+## [1.2.14] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
 ## [1.2.13] - 2025-07-10
 ### Changed
 - Update package dependencies. [#44219]
@@ -1104,6 +1127,11 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.4.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.3.2...v1.4.0
+[1.3.2]: https://github.com/Automattic/jetpack-connection-js/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/Automattic/jetpack-connection-js/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.14...v1.3.0
+[1.2.14]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.13...v1.2.14
 [1.2.13]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.12...v1.2.13
 [1.2.12]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.11...v1.2.12
 [1.2.11]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.10...v1.2.11

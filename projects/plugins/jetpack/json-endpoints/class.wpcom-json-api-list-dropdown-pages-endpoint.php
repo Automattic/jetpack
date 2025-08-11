@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List dropdown pages endpoint.
  */
@@ -29,6 +33,8 @@ new WPCOM_JSON_API_List_Dropdown_Pages_Endpoint(
  * Endpoint class responsible for listing pages to be displayed as options in a select-a-page-dropdown.
  *
  * /sites/%s/dropdown-pages/ -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Endpoint {
 

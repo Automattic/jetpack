@@ -1,37 +1,19 @@
 {
 	"name": "@automattic/number-formatters",
-	"version": "1.0.8",
+	"version": "1.0.10",
 	"description": "Number formatting utilities",
-	"author": "Automattic",
-	"license": "GPL-2.0-or-later",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/number-formatters/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Number Formatters"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
 		"directory": "projects/js-packages/number-formatters"
 	},
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Number Formatters"
-	},
-	"dependencies": {
-		"@wordpress/date": "^5.19.0",
-		"debug": "^4.4.0",
-		"tslib": "^2.5.0"
-	},
-	"devDependencies": {
-		"@babel/core": "7.27.7",
-		"@babel/preset-react": "7.27.1",
-		"@jest/globals": "30.0.4",
-		"@knighted/duel": "2.1.4",
-		"@types/jest": "30.0.0",
-		"jest": "30.0.4",
-		"jest-environment-jsdom": "30.0.4",
-		"typescript": "5.8.3"
-	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
 	"type": "module",
-	"main": "./dist/cjs/index.cjs",
-	"module": "./dist/esm/index.js",
-	"types": "./dist/types/index.d.ts",
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
@@ -40,6 +22,9 @@
 			"require": "./dist/cjs/index.cjs"
 		}
 	},
+	"main": "./dist/cjs/index.cjs",
+	"module": "./dist/esm/index.js",
+	"types": "./dist/types/index.d.ts",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build:ts",
 		"build:ts": "duel --dirs",
@@ -47,5 +32,20 @@
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@wordpress/date": "^5.19.0",
+		"debug": "^4.4.0",
+		"tslib": "^2.5.0"
+	},
+	"devDependencies": {
+		"@babel/core": "7.28.0",
+		"@babel/preset-react": "7.27.1",
+		"@jest/globals": "30.0.4",
+		"@knighted/duel": "2.1.4",
+		"@types/jest": "30.0.0",
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4",
+		"typescript": "5.8.3"
 	}
 }

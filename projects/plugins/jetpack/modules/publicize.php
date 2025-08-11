@@ -19,8 +19,14 @@
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Jetpack_Publicize
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Publicize {
 	/**

@@ -174,6 +174,7 @@ fclose( $pipes[0] );
 
 $ok_projects      = array();
 $touched_projects = array();
+$files_to_ignore  = array( 'projects/plugins/jetpack/to-test.md' );
 // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 while ( ( $line = fgets( $pipes[1] ) ) ) {
 	$line                  = trim( $line );
@@ -185,14 +186,14 @@ while ( ( $line = fgets( $pipes[1] ) ) ) {
 	}
 	$slug = "{$parts[1]}/{$parts[2]}";
 	if ( ! isset( $changelogger_projects[ $slug ] ) ) {
-		debug( 'Ignoring file %s, project %s does not use changelogger.', $file, $slug );
+		debug( 'Ignoring file %s, as project %s does not use changelogger.', $file, $slug );
 		continue;
 	}
 	if ( $parts[3] === $changelogger_projects[ $slug ]['changelog'] ) {
 		if ( $status === 'A' ) {
-			debug( 'PR adds changelog file %s, this does not count as having a change file.', $file );
+			debug( 'Changes add changelog file %s, but this does not count as having a change file.', $file );
 		} else {
-			debug( 'PR touches changelog file %s, marking %s as having a change file.', $file, $slug );
+			debug( 'Changes touch changelog file %s, so marking %s as having a change file.', $file, $slug );
 			$ok_projects[ $slug ] = true;
 			continue;
 		}
@@ -201,9 +202,13 @@ while ( ( $line = fgets( $pipes[1] ) ) ) {
 		if ( '.' === $parts[4][0] ) {
 			debug( 'Ignoring changes dir dotfile %s.', $file );
 		} else {
-			debug( 'PR touches file %s, marking %s as having a change file.', $file, $slug );
+			debug( 'Changes touch file %s, so marking %s as having a change file.', $file, $slug );
 			$ok_projects[ $slug ] = true;
 		}
+		continue;
+	}
+	if ( in_array( $file, $files_to_ignore, true ) ) {
+		debug( 'Ignoring file %s, as it is explicitly set to be ignored.', $file );
 		continue;
 	}
 

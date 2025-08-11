@@ -14,7 +14,11 @@ const AkismetCard = ( {
 }: SingleIntegrationCardProps ) => {
 	const formSubmissionsUrl = data?.details?.formSubmissionsSpamUrl || '';
 
-	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
+	const {
+		isConnected: akismetActiveWithKey = false,
+		settingsUrl = '',
+		marketingUrl = '',
+	} = data || {};
 
 	const cardData = {
 		...data,
@@ -30,7 +34,7 @@ const AkismetCard = ( {
 				'jetpack-forms'
 			),
 			{
-				a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
+				a: <ExternalLink href={ marketingUrl } />,
 			}
 		),
 		notActivatedMessage: __(

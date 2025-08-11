@@ -1,3 +1,4 @@
+import { legendArgTypes } from '../../../stories/legend-config';
 import largeValuesData from '../../line-chart/stories/large-values-sample';
 import trafficData from '../../line-chart/stories/site-traffic-sample';
 import BarChart from '../bar-chart';
@@ -49,6 +50,7 @@ const meta: Meta< typeof BarChart > = {
 				max: 10000,
 			},
 		},
+		...legendArgTypes,
 	},
 } satisfies Meta< typeof BarChart >;
 
@@ -224,11 +226,123 @@ SmartFormatting.parameters = {
 	},
 };
 
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
+// Story showcasing legend customization controls
+export const CustomLegendPositioning: Story = {
+	args: {
+		withTooltips: true,
+		data: data.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		// showLegend defaults to false, explicitly enabling for demonstration
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignmentHorizontal: 'left',
+		legendAlignmentVertical: 'top',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
+			},
+		},
+	},
+};
+
 export const HorizontalBarChart: Story = {
 	args: {
 		...Default.args,
 		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
 		orientation: 'horizontal',
 		gridVisibility: 'none',
+	},
+};
+
+const dataWithZeroValues = [
+	{
+		group: 'United States',
+		label: 'United States',
+		data: [
+			{ label: '1896', value: 0 },
+			{ label: '1900', value: 0 },
+			{ label: '1904', value: 2 },
+			{ label: '1908', value: 1 },
+			{ label: '1912', value: 3 },
+		],
+	},
+	{
+		group: 'Great Britain',
+		label: 'Great Britain',
+		data: [
+			{ label: '1896', value: 1 },
+			{ label: '1900', value: 0 },
+			{ label: '1904', value: 1 },
+			{ label: '1908', value: 10 },
+			{ label: '1912', value: 9 },
+		],
+	},
+	{
+		group: 'Japan',
+		label: 'Japan',
+		data: [
+			{ label: '1896', value: 2 },
+			{ label: '1900', value: 1 },
+			{ label: '1904', value: 2 },
+			{ label: '1908', value: 1 },
+			{ label: '1912', value: 2 },
+		],
+	},
+];
+export const ZeroValueComparison: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '40px' } }>
+			<div>
+				<h3>Zero Value Display: Disabled (Default)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero values are not visually displayed. Bars with zero values have no height.
+				</p>
+				<div style={ { width: '600px', height: '300px' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ false }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+
+			<div>
+				<h3>Zero Value Display: Enabled</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero values are visually displayed with minimum height bars. The tooltip still shows the
+					actual value of 0, while the bar has a small visual height for better UX.
+				</p>
+				<div style={ { width: '600px', height: '300px' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+			},
+		},
 	},
 };

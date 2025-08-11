@@ -152,6 +152,7 @@ const settings = {
 	save,
 
 	supports: {
+		align: false,
 		className: false,
 		customClassName: false,
 		html: false,

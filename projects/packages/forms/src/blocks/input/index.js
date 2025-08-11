@@ -24,6 +24,7 @@ const settings = {
 		'jetpack/field-telephone',
 		'jetpack/field-text',
 		'jetpack/field-textarea',
+		'jetpack/field-time',
 	],
 	usesContext: [ 'jetpack/field-share-attributes' ],
 	supports: {
