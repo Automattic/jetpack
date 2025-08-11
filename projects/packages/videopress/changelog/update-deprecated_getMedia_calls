@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Update deprecated getMedia() calls to getEntityRecord().
+
+
