@@ -351,8 +351,8 @@ class Feedback {
 		}
 		$extra_values       = array();
 		$extra_fields_count = $count;
-		$is_present         = array();
-		$non_extra_fields   = array( 'email', 'name', 'url', 'subject', 'textarea', 'ip' );
+		$is_present         = array(); // Used to store the value only once.
+
 		foreach ( $_extra_fields as $field ) {
 			if ( ! in_array( $field->get_type(), $non_extra_fields, true ) || isset( $is_present[ $field->get_type() ] ) ) {
 				$extra_values[ $extra_fields_count . '_' . $field->get_label() ] = $field->get_render_value( 'default' );
