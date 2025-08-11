@@ -1,5 +1,5 @@
 import logger from '@logger';
-import { expect, Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 /**
  * Connect Jetpack Social

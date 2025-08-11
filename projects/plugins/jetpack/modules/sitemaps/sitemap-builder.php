@@ -951,11 +951,15 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			$this->logger->report( "-- Building $index_debug_name" );
 		}
 
-		$buffer = new Jetpack_Sitemap_Buffer_Master(
+		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
+			'master',
 			JP_SITEMAP_MAX_ITEMS,
 			JP_SITEMAP_MAX_BYTES,
 			$datetime
 		);
+		if ( ! $buffer ) {
+			return false;
+		}
 
 		// Add pointer to the previous sitemap index (unless we're at the first one).
 		if ( 1 !== $number ) {

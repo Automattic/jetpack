@@ -1,6 +1,6 @@
 import logger from '@logger';
-import { Page } from '@playwright/test';
 import { executeWpCommand } from '@utils/cli';
+import type { Page } from '@playwright/test';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];

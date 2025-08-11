@@ -1,6 +1,6 @@
 import { expect, Admin } from '@fixtures/base-test';
 import logger from '@logger';
-import { Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 /**
  * Connect Jetpack Protect

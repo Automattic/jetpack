@@ -1,6 +1,6 @@
 import { expect, test } from '@fixtures/base-test';
-import { Page } from '@playwright/test';
 import { connect } from '@flows/connection';
+import type { Page } from '@playwright/test';
 
 /**
  * Checks for and then closes the "Changes saved" notice.

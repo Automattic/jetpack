@@ -9,7 +9,11 @@ type RedirectToWpcomOptions = {
 const DEFAULT_TIMEOUT = 60000;
 
 export class Onboarding {
-	constructor( protected page: Page ) {}
+	protected page: Page;
+
+	constructor( page: Page ) {
+		this.page = page;
+	}
 
 	get CTA() {
 		return this.page.getByRole( 'button', { name: 'Supercharge my site' } );
