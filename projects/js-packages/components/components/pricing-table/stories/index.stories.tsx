@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck - Ignore this file for typecheck
-import Logo from '../../../../publicize-components/src/components/admin-page/page-header/logo.js';
 import Button from '../../button/index.tsx';
 import ProductPrice from '../../product-price/index.tsx';
 import PricingTable, {
@@ -8,6 +5,7 @@ import PricingTable, {
 	PricingTableHeader,
 	PricingTableItem,
 } from '../index.tsx';
+import Logo from './logo.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof PricingTable > = {
