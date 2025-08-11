@@ -2,7 +2,7 @@ import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@vi
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react';
+import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import {
 	GlobalChartsProvider,
 	useChartId,
