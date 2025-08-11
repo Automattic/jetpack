@@ -85,7 +85,7 @@ function AiPostExcerpt() {
 						feature: 'jetpack-ai-content-lens',
 						model: modelUsed,
 						generation_time:
-							timelapse.current !== null ? window.performance?.now?.() - timelapse.current : null,
+							timelapse.current !== null ? window?.performance?.now?.() - timelapse.current : null,
 					} );
 				},
 				[ increaseAiAssistantRequestsCount, tracks ]
@@ -201,7 +201,7 @@ ${ postContent }
 			model: model,
 		} );
 
-		timelapse.current = window.performance?.now?.() || null;
+		timelapse.current = window?.performance?.now?.() || null;
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
