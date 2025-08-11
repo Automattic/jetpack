@@ -326,68 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9.1 - 2025-08-06
-#### Bug fixes
-- Open Graph Meta tags: Do not attempt to generate a fallback image when the site is not connected to WordPress.com. [#44661]
-
-### 14.9 - 2025-08-05
+### 15.0-a.1 - 2025-08-11
 #### Enhancements
-- Add new PayPal Payment block (beta).
-- Forms: Add "Empty trash" button.
-- Forms: Add Gravatars in form responses.
-- Forms: Add link to disconnect Google.
-- Forms: Add slider field block.
-- Forms: Add tip that spam will automatically be deleted after 15 days.
-- Forms: Improve email copy-to-clipboard visually and make it less hidden.
-- Forms: Make phone fields clickable
-- Forms: Refresh look of responses in dashboard.
-- Forms: Submit forms without page reload.
-- Forms: Update integration links.
-- Forms: Update the date picker to remove jQuery and add a more performant version with keyboard navigation.
-- Forms: Use sentence case in default consent text.
-- My Jetpack: Enable access to My Jetpack on WP Multisite.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- Open Graph Meta tags: Add a new fallback image to display on the home page.
-- Open Graph meta tags: Support site logos when generating fallback Image Meta tags.
-- Performance: Improve processing of blocks with the Blogging Prompt feature.
-- Podcast player block: Improve page load performance by removing use of `lodash`.
-- Sitemap: Reduce memory usage when generating sitemaps.
-- Social: Improve performance when sanitizing OpenGraph tags.
-- Social: Improve performance when selecting images for OpenGraph tags.
-- Story block: Improve page load performance by removing use of `lodash`.
-- Subscriptions: Improve performance of the legacy Subscriptions widget.
-- Update PayPal Payment Buttons block to support rendering previews.
-- Use the `view_stats` cap for the Jetpack Stats menu item instead of `manage_options`.
-- Widget Conditions Module: Improve performance of block processing during conditional checking.
-- WooCommerce Analytics Module: Improve performance of block processing during Analytics gathering.
-
-#### Improved compatibility
-- Blocks: Prevent PHP errors when `jetpack_set_available_extensions` filter returns an unexpected data type.
-- Sync: Ignore the ActivityPub Outbox CPT.
+- Carousel: Fix crashes on large galleries and reduce server requests by preloading only adjacent images instead of all at once.
+- Enable Settings > Sharing WP Admin page and ensure all relevant links point to this page.
+- Forms: Add new Time field.
+- Site Accelerator: Ignore images from openlibrary.org.
+- Social: Add font option for Social Image Generator.
 
 #### Bug fixes
-- Accessibility: Remove deprecated `clip` property from screen reader text with `clip-path`.
-- Blocks: Return an error when a filter returns a non-array.
-- Carousel: Fix disabling all photon args when opening an image in a lightbox.
-- Clear PayPal Payment button block parameters when changing block type.
-- Dashboard: Use UTC for Jetpack Stats chart.
-- Forms: Enqueue view script only when the form is rendered.
-- Forms: Fix padding on input and textarea fields.
-- Forms: Fix the way forms are submitted.
-- Forms: Fix the way forms are submitted.
-- JITM: Remove jQuery dependency.
-- Mailchimp block: Fix links to accommodate for a bug in Gutenberg.
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles.
-- My Jetpack: Restore plan purchase link.
-- Newsletter: Fix bug in category settings.
-- Related Posts: Ensure results are available via REST API directly.
-- Sharing: Display correct Open Graph meta tags when a page uses a Query Loop block.
-- Social: Fix image validation when images sizes are customised.
-- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page.
-- Subscriptions: Avoid enqueuing the legacy widget's stylesheet in block-based themes.
-- Subscriptions: Display floating subscription button on mobile devices as well when enabled.
-- VideoPress: Fix video row action button clickability by properly hiding stats on hover.
+- Forms: Fix default checkboxes styles, and allow for "browser" styles as a choice.
+- Forms: Show the form variation picker if you only have the submit button.
+- Sitemaps: Fix PHP warning during generation if there are no posts or pages on the website.
+- Social: Fix image generator token reset on save resulting in font not being saved.
 
 --------
 

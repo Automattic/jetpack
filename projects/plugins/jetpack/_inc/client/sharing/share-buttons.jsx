@@ -18,15 +18,12 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			analytics.tracks.recordJetpackClick( {
 				target: 'configure-sharing',
 				page: 'sharing',
+				platform: isWpcomPlatformSite() ? 'wpcom' : 'jetpack',
 			} );
 		}
 
 		render() {
-			const isLinked = this.props.isLinked,
-				siteRawUrl = this.props.siteRawUrl,
-				blogID = this.props.blogID,
-				siteAdminUrl = this.props.siteAdminUrl,
-				isOfflineMode = this.props.isOfflineMode,
+			const siteAdminUrl = this.props.siteAdminUrl,
 				hasSharingBlock = this.props.hasSharingBlock,
 				isBlockTheme = this.props.isBlockTheme,
 				isActive = this.props.getOptionValue( 'sharedaddy' );
@@ -52,17 +49,11 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					compact: true,
 					className: 'jp-settings-card__configure-link',
 					href: `${ siteAdminUrl }options-general.php?page=sharing`,
+					onClick: this.trackClickConfigure,
 				};
 
 				if ( shouldShowSharingBlock ) {
 					cardProps.href = `${ siteAdminUrl }site-editor.php?path=%2Fwp_template`;
-				} else if ( isLinked && ! isOfflineMode && ! isWpcomPlatformSite() ) {
-					cardProps.href = getRedirectUrl( 'calypso-marketing-sharing-buttons', {
-						site: blogID ?? siteRawUrl,
-					} );
-					cardProps.onClick = this.trackClickConfigure;
-					cardProps.target = '_blank';
-					cardProps.rel = 'noopener noreferrer';
 				}
 
 				return <Card { ...cardProps }>{ __( 'Configure your sharing buttons', 'jetpack' ) }</Card>;

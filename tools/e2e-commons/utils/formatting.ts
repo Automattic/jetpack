@@ -6,7 +6,7 @@ import path from 'path';
  * @param {boolean} includeTimestamp - if true, the current timestamp will be added as a prefix
  * @return {string} the formatted file path
  */
-export function fileNameFormatter( filePath, includeTimestamp = true ) {
+export function fileNameFormatter( filePath: string, includeTimestamp: boolean = true ): string {
 	const parts = path.parse( path.normalize( filePath ) );
 	let fileName = parts.name;
 	const ext = parts.ext;

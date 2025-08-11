@@ -1,4 +1,4 @@
-import { test, expect } from '../../lib/fixtures/test.ts';
+import { test, expect } from '../../lib/fixtures/test';
 
 test.describe( 'Image Guide', () => {
 	test.beforeAll( async ( { boostUtils } ) => {

@@ -1,4 +1,4 @@
-import { TestUtils } from '_jetpack-e2e-commons/utils/index.ts';
+import { TestUtils } from '_jetpack-e2e-commons/utils/index';
 import {
 	executeJetpackBoostCommand,
 	activateBoostModule,
@@ -14,7 +14,7 @@ import {
 	mockConnection,
 	unMockConnection,
 	resetEnvironment,
-} from './boost-utils.ts';
+} from './boost-utils';
 
 class BoostUtils extends TestUtils {
 	executeJetpackBoostCommand: typeof executeJetpackBoostCommand = executeJetpackBoostCommand;
