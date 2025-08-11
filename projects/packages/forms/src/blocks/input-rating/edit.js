@@ -53,7 +53,7 @@ export default function RatingInputEdit( { context, clientId } ) {
 					type="radio"
 					name={ `rating-${ clientId }` }
 					value={ `${ i }/${ max }` }
-					className="jetpack-field-rating__input"
+					className="jetpack-field-rating__input visually-hidden"
 					checked={ defaultValue === i }
 					onChange={ () => handleChange( i ) }
 				/>

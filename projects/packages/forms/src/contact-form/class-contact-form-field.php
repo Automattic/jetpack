@@ -2210,9 +2210,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						name="%2$s"
 						value="%3$s/%4$s"
 						data-wp-on--change="actions.onFieldChange"
-						class="jetpack-field-rating__input"
+						class="jetpack-field-rating__input visually-hidden"
 						%5$s
-						%6$s /> 
+						%6$s />
 					<label for="%1$s" class="jetpack-field-rating__label">
 						%7$s
 					</label>
