@@ -1,5 +1,5 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import { enableAutomaticRules, generateRules } from '../../helpers/waf-helper.ts';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import { enableAutomaticRules, generateRules } from '../../helpers/waf-helper';
 
 test.describe.parallel( 'WAF Blocking', () => {
 	test.beforeAll( async ( { testUtils } ) => {

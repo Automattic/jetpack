@@ -1,3 +1,5 @@
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 import playwrightConfig from 'jetpack-js-tools/eslintrc/playwright.mjs';
 
@@ -13,11 +15,20 @@ import playwrightConfig from 'jetpack-js-tools/eslintrc/playwright.mjs';
 export function makeE2eConfig( configurl, opts = {} ) {
 	opts.envs ??= [ 'node' ];
 
+	const configDir = dirname( fileURLToPath( configurl ) );
+
 	return defineConfig( makeBaseConfig( configurl, opts ), playwrightConfig, {
 		languageOptions: {
 			globals: {
 				wp: true,
 				jpConnect: true,
+			},
+		},
+		settings: {
+			'import/resolver': {
+				typescript: {
+					project: join( configDir, 'tsconfig.json' ),
+				},
 			},
 		},
 		rules: {

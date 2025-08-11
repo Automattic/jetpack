@@ -62,13 +62,17 @@ function register_block() {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
-				'render_callback' => __NAMESPACE__ . '\render_block',
-				'supports'        => array(
+				'render_callback'     => __NAMESPACE__ . '\render_block',
+				'supports'            => array(
 					'spacing' => array(
 						'margin'  => true,
 						'padding' => true,
 					),
 					'align'   => array( 'wide', 'full' ),
+				),
+				'js_loading_strategy' => array(
+					'in_footer' => true,
+					'strategy'  => 'defer',
 				),
 			)
 		);

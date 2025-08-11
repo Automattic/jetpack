@@ -1,4 +1,4 @@
-import { test, expect } from '../../lib/fixtures/test.ts';
+import { test, expect } from '../../lib/fixtures/test';
 
 const testPostTitle = 'Hello World with JavaScript';
 

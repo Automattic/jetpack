@@ -22,7 +22,7 @@ export default function useSiteLogo( { generateDataUrl = false } = {} ) {
 		const siteLogoId = canUserEdit ? siteLogo : readOnlyLogo;
 		const mediaItem =
 			siteLogoId &&
-			select( coreStore ).getMedia( siteLogoId, {
+			select( coreStore ).getEntityRecord( 'postType', 'attachment', siteLogoId, {
 				context: 'view',
 			} );
 

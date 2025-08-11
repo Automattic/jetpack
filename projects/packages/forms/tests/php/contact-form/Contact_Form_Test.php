@@ -3114,4 +3114,53 @@ EOT;
 		$this->assertEquals( array( 'Please fill out at least one field.' ), $form->get_error_messages() );
 		Contact_Form::reset_errors();
 	}
+
+	public function test_validate_checkboxes_form() {
+		$name    = '';
+		$email   = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'                 => $name,
+				'email'                => $email,
+				'choose'               => array( 'truth' ),
+				'chooseoptions'        => array( 'hello  there' ),
+				'chooseseveraloptions' => array( 'hello, there' ),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Name" type="name" /][contact-field label="Email" type="email" /][contact-field label="Choose" type="checkbox-multiple" options="truth,dare" /][contact-field type="checkbox-multiple" label="Choose options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello  there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+
+
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+
+
+
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field][contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+
+
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+
+
+
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
+	}
 }

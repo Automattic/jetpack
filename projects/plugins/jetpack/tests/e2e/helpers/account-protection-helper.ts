@@ -1,6 +1,6 @@
-import { Page } from '@playwright/test';
-import logger from '_jetpack-e2e-commons/logger.js';
-import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
+import logger from '_jetpack-e2e-commons/logger';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
+import type { Page } from '@playwright/test';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];

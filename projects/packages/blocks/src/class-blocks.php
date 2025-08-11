@@ -111,6 +111,11 @@ class Blocks {
 			}
 		}
 
+		// Keep track of the JS loading strategy for any block that specifies it.
+		if ( isset( $args['js_loading_strategy'] ) && class_exists( 'Jetpack_Gutenberg' ) ) {
+			Jetpack_Gutenberg::set_block_js_loading_strategy( $feature_name, $args['js_loading_strategy'] );
+		}
+
 		return register_block_type( $block_type, $args );
 	}
 
