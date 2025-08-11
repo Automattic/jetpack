@@ -1,5 +1,5 @@
-import { test, expect } from '@fixtures/test';
 import playwrightConfig from 'playwright.config';
+import { test, expect } from '../../lib/fixtures/test';
 
 test.describe( 'Image CDN', () => {
 	test.beforeAll( async ( { browser, boostUtils } ) => {

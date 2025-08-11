@@ -1,5 +1,5 @@
-import { test, expect } from '@fixtures/test';
 import playwrightConfig from 'playwright.config';
+import { test, expect } from '../../lib/fixtures/test';
 
 test.describe( 'Auto refresh of speed scores', () => {
 	test.beforeAll( async ( { browser, boostUtils } ) => {

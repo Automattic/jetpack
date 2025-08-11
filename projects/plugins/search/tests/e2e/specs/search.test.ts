@@ -4,7 +4,7 @@ import {
 	searchResultForTest1 as originalSearchResultForTest1,
 	searchResultForTest2 as originalSearchResultForTest2,
 	SEARCH_API_PATTERN,
-} from '@fixtures/test';
+} from '../fixtures/test';
 import type { Page } from '@playwright/test';
 
 // Create deep copies to prevent mutations during tests

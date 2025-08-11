@@ -1,4 +1,4 @@
-import { test, expect } from '@fixtures/test';
+import { test, expect } from '../fixtures/test';
 import type { Page } from '@playwright/test';
 
 test.describe( 'Search Configure', () => {

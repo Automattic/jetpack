@@ -1,7 +1,7 @@
-import { executeJetpackCommand, executeWpCommand } from '@e2e-commons-utils/cli';
-import logger from '@logger';
 import { expect, type Page } from '@playwright/test';
-import { JetpackBoostPage } from '@pages/index';
+import logger from '_jetpack-e2e-commons/logger';
+import { executeJetpackCommand, executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
+import { JetpackBoostPage } from '../pages/index';
 
 /**
  * Executes a Jetpack Boost CLI command.
