@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-fixed the response of the rest controller to return the body of a request if the header is text/csv
+Fixed an issue where the blaze REST controller did not return the request body when the Content-Type header was text/csv.
