@@ -6,6 +6,15 @@
 	}
 }
 
+.progressContainerWithOverlayLabel {
+	display: grid;
+	grid-template: "overlap" 1fr / 1fr; /* contains a single cell callded 'overlap' */
+
+	> * {
+		grid-area: overlap;
+	}
+}
+
 .progressContainer {
 	display: flex;
 	flex-direction: column;

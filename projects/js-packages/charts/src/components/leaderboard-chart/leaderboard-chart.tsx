@@ -72,6 +72,11 @@ export interface LeaderboardChartProps {
 	withComparison?: boolean;
 
 	/**
+	 * Whether to overlay the label on top of bar
+	 */
+	withOverlayLabel?: boolean;
+
+	/**
 	 * Primary color for current period bars
 	 */
 	primaryColor?: string;
@@ -133,6 +138,14 @@ const defaultDeltaFormatter = ( value: number ): string => {
 	} );
 };
 
+const ProgressBarWithOverlayLabel = ( { entry }: { entry: LeaderboardEntry } ) => (
+	<div className={ styles.progressContainerWithOverlayLabel }>
+		<span>{ entry.currentShare }</span>
+		{ /* `label` comes late as it should be on top */ }
+		{ typeof entry.label === 'string' ? <Text>{ entry.label }</Text> : entry.label }{ ' ' }
+	</div>
+);
+
 const ProgressBarWithLabel = ( {
 	entry,
 	withComparison,
@@ -163,21 +176,23 @@ const ProgressBarWithLabel = ( {
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
  *
- * @param props                - Component props
- * @param props.data           - Array of leaderboard entries to display
- * @param props.withComparison - Whether to show comparison data
- * @param props.primaryColor   - Primary color for current period bars
- * @param props.secondaryColor - Secondary color for comparison period bars
- * @param props.valueFormatter - Custom formatter for values
- * @param props.deltaFormatter - Custom formatter for delta values
- * @param props.loading        - Whether the chart is in loading state
- * @param props.className      - Additional CSS class name
- * @param props.style          - Custom styling for the chart container
+ * @param props                  - Component props
+ * @param props.data             - Array of leaderboard entries to display
+ * @param props.withComparison   - Whether to show comparison data
+ * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
+ * @param props.primaryColor     - Primary color for current period bars
+ * @param props.secondaryColor   - Secondary color for comparison period bars
+ * @param props.valueFormatter   - Custom formatter for values
+ * @param props.deltaFormatter   - Custom formatter for delta values
+ * @param props.loading          - Whether the chart is in loading state
+ * @param props.className        - Additional CSS class name
+ * @param props.style            - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
  */
 export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	data,
 	withComparison = false,
+	withOverlayLabel = false,
 	primaryColor,
 	secondaryColor,
 	valueFormatter = defaultValueFormatter,
@@ -239,7 +254,11 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 				return (
 					<Fragment key={ entry.id }>
 						<VStack spacing={ labelSpacing }>
-							<ProgressBarWithLabel entry={ entry } withComparison={ withComparison } />
+							{ withOverlayLabel ? (
+								<ProgressBarWithOverlayLabel entry={ entry } />
+							) : (
+								<ProgressBarWithLabel entry={ entry } withComparison={ withComparison } />
+							) }
 						</VStack>
 
 						<div className={ styles.valueContainer }>
