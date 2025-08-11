@@ -7,7 +7,7 @@
 	"type": "module",
 	"exports": {
 		"./*": "./*.ts",
-		"./config/*": "./config/*",
+		"./config/local.cjs": "./config/local.cjs",
 		"./eslint.config.mjs": "./eslint.config.mjs",
 		"./tsconfig.json": "./tsconfig.json"
 	},
