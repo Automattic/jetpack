@@ -3,7 +3,7 @@ import pwConfig from '../playwright.config';
 
 // Below call should be BEFORE requiring config, so library wil pick it up.
 process.env.NODE_CONFIG_DIR = fileURLToPath( new URL( '../config', import.meta.url ) );
-const { getSiteCredentials } = await import( '@utils/environment' );
+const { getSiteCredentials } = await import( '../utils' );
 
 /**
  * Get HTTP Authentication header value
@@ -116,7 +116,6 @@ function getVersionType() {
 	}
 	// TODO: cover the case for non-trunk branches, such as pushes to release branches.
 	console.error( 'Invalid version type: ' + refType + ' ' + refName );
-	process.exit( 0 );
 	throw new Error( 'Invalid version type: ' + refType + ' ' + refName ); // Shouldn't reach this, but eslint doesn't know that.
 }
 
