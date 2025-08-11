@@ -19,13 +19,13 @@ import {
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
+import { getSeriesStyles } from '../../utils/get-styles';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
-import { getSeriesStyles } from '../shared/utils';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import LineChartAnnotation from './line-chart-annotation';

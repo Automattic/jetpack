@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { getSeriesStyles } from '../shared/utils';
+import { getSeriesStyles } from '../../utils/get-styles';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
 
