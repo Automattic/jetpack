@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts: fix legend alignment issues for right-aligned vertical legends by using visx-native itemDirection prop

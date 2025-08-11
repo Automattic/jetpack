@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.2] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+### Fixed
+- Fix the stats endpoint for DSP. [#44700]
+
 ## [0.26.1] - 2025-08-04
 ### Changed
 - Update dependencies. [#44551]
@@ -657,6 +665,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.26.2]: https://github.com/automattic/jetpack-blaze/compare/v0.26.1...v0.26.2
 [0.26.1]: https://github.com/automattic/jetpack-blaze/compare/v0.26.0...v0.26.1
 [0.26.0]: https://github.com/automattic/jetpack-blaze/compare/v0.25.37...v0.26.0
 [0.25.37]: https://github.com/automattic/jetpack-blaze/compare/v0.25.36...v0.25.37
