@@ -886,7 +886,7 @@ class Dashboard_REST_Controller {
 
 		$response_code         = wp_remote_retrieve_response_code( $response );
 		$response_body_content = wp_remote_retrieve_body( $response );
-		$content_type          = $response['headers']['content-type'] ?? null;
+		$content_type          = $response['headers']['content-type'] ?? '';
 		$response_body         = json_decode( $response_body_content, true );
 
 		if ( 200 !== $response_code ) {
