@@ -347,6 +347,38 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 				}
 				break;
+			case 'radio':
+				// Check that there is at least one option selected
+				if ( empty( $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+				} else {
+					// Check that the selected options are valid
+					$options      = (array) $this->get_attribute( 'options' );
+					$options_data = (array) $this->get_attribute( 'optionsdata' );
+
+					if ( ! empty( $options_data ) ) {
+						$options = array_map(
+							function ( $option ) {
+								return sanitize_text_field( trim( $option['label'] ) );
+							},
+							$options_data
+						);
+					}
+					$non_empty_options = array_filter(
+						$options,
+						function ( $option ) {
+							return $option !== '';
+						}
+					);
+
+					if ( ! in_array( $field_value, $non_empty_options, true ) ) {
+						/* translators: %s is the name of a form field */
+						$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+						break;
+					}
+				}
+				break;
 			case 'number':
 				// Make sure the number address is valid
 				if ( ! is_numeric( $field_value ) ) {
