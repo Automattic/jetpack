@@ -1,4 +1,3 @@
-import { useGlobalChartTheme } from '../../../hooks';
 import { legendArgTypes } from '../../../stories/legend-config';
 import {
 	temperatureData as sampleData,
@@ -376,42 +375,24 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 	},
 };
 
-export const Comparison: StoryObj< typeof LineChart > = {
-	args: {
-		...lineChartStoryArgs,
-		showLegend: true,
-		smoothing: false,
-		data: [
-			{
-				...sampleData[ 0 ],
-				label: 'This Year',
-				options: {},
+export const Comparison: StoryObj< typeof LineChart > = Template.bind( {} );
+Comparison.args = {
+	showLegend: true,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'This Year',
+			group: 'sales',
+			options: {},
+		},
+		{
+			...sampleData[ 2 ],
+			label: 'Last Year',
+			group: 'sales',
+			options: {
+				type: 'comparison' as const,
 			},
-			{
-				...sampleData[ 2 ],
-				label: 'Last Year',
-				options: {
-					type: 'comparison' as const,
-				},
-			},
-		],
-	},
-	render: args => {
-		const ComparisonChart = () => {
-			const theme = useGlobalChartTheme();
-			const primaryColor = theme.colors[ 2 ];
-
-			const data = args.data.map( series => ( {
-				...series,
-				options: {
-					...series.options,
-					stroke: primaryColor,
-				},
-			} ) );
-
-			return <LineChart { ...args } data={ data } />;
-		};
-
-		return <ComparisonChart />;
-	},
+		},
+	],
 };

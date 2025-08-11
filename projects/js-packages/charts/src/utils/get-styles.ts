@@ -1,6 +1,7 @@
 import { LineStyles } from '@visx/xychart';
 import { CSSProperties } from 'react';
 import { ChartTheme, SeriesData } from '../types';
+import type { ChartContextValue } from '../providers/chart-context';
 import type { LegendShape } from '@visx/legend/lib/types';
 
 /**
@@ -43,25 +44,34 @@ export function getSeriesStroke(
 	index: number,
 	themeColors: string[]
 ): string {
+	// Legacy fallback (when not in a ChartProvider). This is kept for non-context usages (e.g., tests).
 	return seriesData.options?.stroke ?? themeColors[ index % themeColors.length ];
 }
 
 /**
  * Combined utility that returns both stroke and line styles
  *
- * @param {SeriesData} seriesData    - The series data containing styling options
- * @param {number}     index         - The index of the series in the data array
- * @param {ChartTheme} providerTheme - The chart theme configuration
+ * @param {SeriesData} seriesData        - The series data containing styling options
+ * @param {number}     index             - The index of the series in the data array
+ * @param {ChartTheme} providerTheme     - The chart theme configuration
+ * @param              resolveGroupColor - Optional resolver from ChartContext for stable group colors
  * @return {object} Object containing stroke color and line styles
  */
 export function getSeriesStyles(
 	seriesData: SeriesData,
 	index: number,
-	providerTheme: ChartTheme
+	providerTheme: ChartTheme,
+	resolveGroupColor?: ChartContextValue[ 'resolveGroupColor' ]
 ): { stroke: string; lineStyles: LineStyles } {
-	const stroke = getSeriesStroke( seriesData, index, providerTheme.colors );
-	const lineStyles = getSeriesLineStyles( seriesData, index, providerTheme );
+	const stroke = resolveGroupColor
+		? resolveGroupColor( {
+				group: seriesData.group,
+				index,
+				seriesStroke: seriesData.options?.stroke,
+		  } )
+		: getSeriesStroke( seriesData, index, providerTheme.colors );
 
+	const lineStyles = getSeriesLineStyles( seriesData, index, providerTheme );
 	return { stroke, lineStyles };
 }
 

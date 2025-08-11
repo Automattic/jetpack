@@ -11,6 +11,7 @@ import {
 	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
+	useGlobalChartsContext,
 } from '../../providers/chart-context';
 import { attachSubComponents } from '../../utils/create-composition';
 import { getSeriesStyles } from '../../utils/get-styles';
@@ -275,6 +276,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
+		const { resolveGroupColor } = useGlobalChartsContext();
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -430,7 +432,12 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.y } />
 
 							{ dataSorted.map( ( seriesData, index ) => {
-								const { stroke, lineStyles } = getSeriesStyles( seriesData, index, providerTheme );
+								const { stroke, lineStyles } = getSeriesStyles(
+									seriesData,
+									index,
+									providerTheme,
+									resolveGroupColor
+								);
 
 								const lineProps = {
 									stroke,

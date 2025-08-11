@@ -20,6 +20,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 
 	const providerTheme: ChartTheme = useMemo( () => ( { ...defaultTheme, ...theme } ), [ theme ] );
 
+	// Stable group -> color mapping for this provider lifecycle
+	const [ groupToColorMap ] = useState< Map< string, string > >( () => new Map() );
+
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
 		setCharts( prev => new Map( prev ).set( id, data ) );
 	}, [] );
@@ -39,6 +42,36 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ charts ]
 	);
 
+	const resolveGroupColor = useCallback< ChartContextValue[ 'resolveGroupColor' ] >(
+		params => {
+			const { group, index, seriesStroke } = params;
+
+			// Highest precedence: explicit series stroke
+			if ( seriesStroke ) {
+				return seriesStroke;
+			}
+
+			// If group provided, maintain a stable assignment
+			if ( group ) {
+				const existing = groupToColorMap.get( group );
+				if ( existing ) {
+					return existing;
+				}
+				// Assign next color from palette in a deterministic cycling manner
+				const palette = providerTheme.colors ?? [];
+				const assignedCount = groupToColorMap.size;
+				const color = palette.length > 0 ? palette[ assignedCount % palette.length ] : '#000000';
+				groupToColorMap.set( group, color );
+				return color;
+			}
+
+			// Fallback: index-based color cycling
+			const palette = providerTheme.colors ?? [];
+			return palette.length > 0 ? palette[ index % palette.length ] : '#000000';
+		},
+		[ groupToColorMap, providerTheme.colors ]
+	);
+
 	const value: ChartContextValue = useMemo(
 		() => ( {
 			charts,
@@ -46,8 +79,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			unregisterChart,
 			getChartData,
 			theme: providerTheme,
+			resolveGroupColor,
 		} ),
-		[ charts, registerChart, unregisterChart, getChartData, providerTheme ]
+		[ charts, registerChart, unregisterChart, getChartData, providerTheme, resolveGroupColor ]
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;

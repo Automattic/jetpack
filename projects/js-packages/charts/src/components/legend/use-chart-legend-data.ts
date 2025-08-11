@@ -1,6 +1,7 @@
 import { LineStyles } from '@visx/xychart';
-import { CSSProperties, useMemo } from 'react';
+import { CSSProperties, useContext, useMemo } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
+import { GlobalChartsContext, type ChartContextValue } from '../../providers/chart-context';
 import { getSeriesStyles, getItemShapeStyles } from '../../utils/get-styles';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
@@ -60,13 +61,14 @@ function createBaseLegendItem(
 
 /**
  * Processes SeriesData into legend items
- * @param seriesData  - The series data to process
- * @param theme       - The chart theme for colors
- * @param showValues  - Whether to show values in legend
- * @param withGlyph   - Whether to include glyph rendering
- * @param glyphSize   - Size of the glyph
- * @param renderGlyph - Component to render the glyph
- * @param legendShape - The shape to use for the legend
+ * @param seriesData        - The series data to process
+ * @param theme             - The chart theme for colors
+ * @param showValues        - Whether to show values in legend
+ * @param withGlyph         - Whether to include glyph rendering
+ * @param glyphSize         - Size of the glyph
+ * @param renderGlyph       - Component to render the glyph
+ * @param legendShape       - The shape to use for the legend
+ * @param resolveGroupColor - Optional resolver from ChartContext for stable group colors
  * @return Array of processed legend items
  */
 function processSeriesData(
@@ -76,10 +78,11 @@ function processSeriesData(
 	withGlyph: boolean,
 	glyphSize: number,
 	renderGlyph?: React.ComponentType< unknown >,
-	legendShape?: LegendShape< SeriesData[], number >
+	legendShape?: LegendShape< SeriesData[], number >,
+	resolveGroupColor?: ChartContextValue[ 'resolveGroupColor' ]
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( series: SeriesData, index: number ) => {
-		const { stroke } = getSeriesStyles( series, index, theme );
+		const { stroke } = getSeriesStyles( series, index, theme, resolveGroupColor );
 		const { shapeStyles } = getItemShapeStyles( series, index, theme, legendShape );
 		const baseItem = createBaseLegendItem(
 			series.label,
@@ -156,6 +159,8 @@ export function useChartLegendData<
 	legendShape?: LegendShape< SeriesData[], number >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const { showValues = false, withGlyph = false, glyphSize = 8, renderGlyph } = options;
+	const chartCtx = useContext( GlobalChartsContext );
+	const resolveGroupColor = chartCtx?.resolveGroupColor;
 	const theme = useGlobalChartTheme();
 
 	return useMemo( () => {
@@ -172,7 +177,8 @@ export function useChartLegendData<
 				withGlyph,
 				glyphSize,
 				renderGlyph,
-				legendShape
+				legendShape,
+				resolveGroupColor
 			);
 		}
 
@@ -185,5 +191,14 @@ export function useChartLegendData<
 			glyphSize,
 			renderGlyph
 		);
-	}, [ data, theme, showValues, withGlyph, glyphSize, renderGlyph, legendShape ] );
+	}, [
+		data,
+		theme,
+		showValues,
+		withGlyph,
+		glyphSize,
+		renderGlyph,
+		legendShape,
+		resolveGroupColor,
+	] );
 }
