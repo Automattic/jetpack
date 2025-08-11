@@ -31,7 +31,7 @@ export default function ImageChoiceFieldEdit( props ) {
 			const currentBlock = getBlock( clientId );
 			const parentClientId = getBlockRootClientId( clientId );
 			const parentBlock = getBlock( parentClientId );
-			const index = parentBlock?.innerBlocks.findIndex( block => block.clientId === clientId ) + 1;
+			const index = parentBlock.innerBlocks.findIndex( block => block.clientId === clientId ) + 1;
 
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
