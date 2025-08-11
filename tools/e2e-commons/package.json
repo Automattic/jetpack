@@ -7,8 +7,9 @@
 	"type": "module",
 	"exports": {
 		"./*": "./*.ts",
-		"./bin/*.js": "./bin/*.js",
-		"./config/*.cjs": "./config/*.cjs"
+		"./config/*": "./config/*",
+		"./eslint.config.mjs": "./eslint.config.mjs",
+		"./tsconfig.json": "./tsconfig.json"
 	},
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
