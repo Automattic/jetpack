@@ -740,7 +740,6 @@ class AssetsTest extends TestCase {
 		);
 
 		$obj = Filters\expectApplied( 'jetpack_i18n_state' )->once()->with( $expect_filter );
-		// @phan-suppress-next-line PhanImpossibleTypeComparison -- Phan gets confused.
 		if ( array_key_exists( 'filter', $options ) ) {
 			$obj->andReturn( $options['filter'] );
 		}
