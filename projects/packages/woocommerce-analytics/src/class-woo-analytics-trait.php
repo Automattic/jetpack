@@ -375,22 +375,18 @@ trait Woo_Analytics_Trait {
 			return;
 		}
 
-		$event_js                    = $this->process_event_properties( 'woocommerceanalytics_session_engagement', $properties );
-		$add_engagement_to_cookie_js = "
-		    const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
-	            const [name, value] = cookie.split('=');
-			    acc[name] = value;
-				return acc;
-    		}, {});
+		$event_js = $this->process_event_properties( 'woocommerceanalytics_session_engagement', $properties );
 
-    		if (cookies.woocommerceanalytics_session) {
-            	let sessionData = JSON.parse(decodeURIComponent(cookies.woocommerceanalytics_session));
-                sessionData.is_engaged = true;
-           	    document.cookie = `woocommerceanalytics_session=\${JSON.stringify(sessionData)}; expires=\${sessionData.expires}; path=/; secure; samesite=strict`;
-   		 	}
-        ";
+		$session_data = $this->get_session_cookie();
+		if ( empty( $session_data ) ) {
+			return;
+		}
+		$session_data['is_engaged']   = true;
+		$session_data['landing_page'] = rawurlencode( $session_data['landing_page'] );
+		$encoded_session_data         = wp_json_encode( $session_data );
+		$cookie_js                    = "document.cookie = 'woocommerceanalytics_session={$encoded_session_data}; expires={$session_data['expires']}; path=/; secure; samesite=strict';";
+		wc_enqueue_js( $cookie_js );
 
-		wc_enqueue_js( $add_engagement_to_cookie_js );
 		wc_enqueue_js( "_wca.push({$event_js});" );
 		$this->engaged_session = true;
 	}
@@ -408,16 +404,16 @@ trait Woo_Analytics_Trait {
 			$this->is_new_session = true;
 
 			$session_expiration = $this->get_session_expiration_time();
-			$event_js           = $this->process_event_properties( 'woocommerceanalytics_session_started' );
-			$cookie_js          = "
-            const sessionData = JSON.stringify({
-                    session_id: '$this->session_id',
-                    landing_page: encodeURIComponent('$this->landing_page'),
-                    expires: '$session_expiration',
-            });
-            document.cookie = `woocommerceanalytics_session=\${sessionData}; expires=$session_expiration; path=/; secure; samesite=strict`;
-            ";
+			$session_data       = array(
+				'session_id'   => $this->session_id,
+				'landing_page' => rawurlencode( $this->landing_page ),
+				'expires'      => $session_expiration,
+			);
+			$encoded_data       = wp_json_encode( $session_data );
+			$cookie_js          = "document.cookie = 'woocommerceanalytics_session={$encoded_data}; expires={$session_expiration}; path=/; secure; samesite=strict';";
 			wc_enqueue_js( $cookie_js ); // save the session cookie for further events in the session
+
+			$event_js = $this->process_event_properties( 'woocommerceanalytics_session_started' );
 			wc_enqueue_js( "_wca.push({$event_js});" ); // trigger session started event
 		}
 	}
@@ -819,7 +815,15 @@ trait Woo_Analytics_Trait {
 	 * @return array
 	 */
 	public function get_session_cookie() {
-		return json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON is decoded and validated below. We don't need to sanitize the cookie value because we're not outputting it but decoding it as JSON. Sanitization might break the JSON.
+		$raw_cookie = isset( $_COOKIE['woocommerceanalytics_session'] ) ? wp_unslash( $_COOKIE['woocommerceanalytics_session'] ) : '';
+
+		if ( ! $raw_cookie ) {
+			return array();
+		}
+
+		$decoded = json_decode( $raw_cookie, true );
+		return is_array( $decoded ) ? $decoded : array();
 	}
 
 	/**
@@ -828,7 +832,7 @@ trait Woo_Analytics_Trait {
 	 * @return string
 	 */
 	public function get_current_url() {
-		return sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
+		return home_url( add_query_arg( null, null ) );
 	}
 
 	/**
