@@ -44,7 +44,7 @@ const settings = {
 	usesContext: [
 		'jetpack/field-rating-max',
 		'jetpack/field-rating-default',
-		'jetpack/field-rating-className',
+		'jetpack/field-rating-iconStyle',
 		'jetpack/field-rating-onChangeDefault',
 	],
 	supports: {
