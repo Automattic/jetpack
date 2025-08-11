@@ -4473,8 +4473,8 @@ importers:
         specifier: 7.27.6
         version: 7.27.6
       '@fullcalendar/core':
-        specifier: 6.1.18
-        version: 6.1.18
+        specifier: 6.1.19
+        version: 6.1.19
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -4506,8 +4506,8 @@ importers:
         specifier: 4.7.0
         version: 4.7.0
       fullcalendar:
-        specifier: 6.1.18
-        version: 6.1.18
+        specifier: 6.1.19
+        version: 6.1.19
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -7056,8 +7056,8 @@ packages:
   '@formatjs/intl-localematcher@0.6.1':
     resolution: {integrity: sha512-ePEgLgVCqi2BBFnTMWPfIghu6FkbZnnBVhO2sSxvLfrdFw7wCHAHiDoM2h4NRgjbaY7+B7HgOLZGkK187pZTZg==}
 
-  '@fullcalendar/core@6.1.18':
-    resolution: {integrity: sha512-cD7XtZIZZ87Cg2+itnpsONCsZ89VIfLLDZ22pQX4IQVWlpYUB3bcCf878DhWkqyEen6dhi5ePtBoqYgm5K+0fQ==}
+  '@fullcalendar/core@6.1.19':
+    resolution: {integrity: sha512-z0aVlO5e4Wah6p6mouM0UEqtRf1MZZPt4mwzEyU6kusaNL+dlWQgAasF2cK23hwT4cmxkEmr4inULXgpyeExdQ==}
 
   '@fullcalendar/daygrid@6.1.19':
     resolution: {integrity: sha512-IAAfnMICnVWPjpT4zi87i3FEw0xxSza0avqY/HedKEz+l5MTBYvCDPOWDATpzXoLut3aACsjktIyw9thvIcRYQ==}
@@ -12105,8 +12105,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  fullcalendar@6.1.18:
-    resolution: {integrity: sha512-jwZrCleBhY78j+uBf97FW2rgzjH6nmCpfx0p0m+XSNPZrKWbsk759ri1QWXS3PoISrHjcU5wFM4dRPP9inp5Pg==}
+  fullcalendar@6.1.19:
+    resolution: {integrity: sha512-/DsMLYyU1kdOVojaV+ITNH2cHlHtyt6X3m4P6hhH0kwfHZpQbXajJnDbnFIufu/BdE9YcknMRPJj3R7FbPkg1A==}
 
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
@@ -18499,31 +18499,31 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@fullcalendar/core@6.1.18':
+  '@fullcalendar/core@6.1.19':
     dependencies:
       preact: 10.12.1
 
-  '@fullcalendar/daygrid@6.1.19(@fullcalendar/core@6.1.18)':
+  '@fullcalendar/daygrid@6.1.19(@fullcalendar/core@6.1.19)':
     dependencies:
-      '@fullcalendar/core': 6.1.18
+      '@fullcalendar/core': 6.1.19
 
-  '@fullcalendar/interaction@6.1.19(@fullcalendar/core@6.1.18)':
+  '@fullcalendar/interaction@6.1.19(@fullcalendar/core@6.1.19)':
     dependencies:
-      '@fullcalendar/core': 6.1.18
+      '@fullcalendar/core': 6.1.19
 
-  '@fullcalendar/list@6.1.19(@fullcalendar/core@6.1.18)':
+  '@fullcalendar/list@6.1.19(@fullcalendar/core@6.1.19)':
     dependencies:
-      '@fullcalendar/core': 6.1.18
+      '@fullcalendar/core': 6.1.19
 
-  '@fullcalendar/multimonth@6.1.19(@fullcalendar/core@6.1.18)':
+  '@fullcalendar/multimonth@6.1.19(@fullcalendar/core@6.1.19)':
     dependencies:
-      '@fullcalendar/core': 6.1.18
-      '@fullcalendar/daygrid': 6.1.19(@fullcalendar/core@6.1.18)
+      '@fullcalendar/core': 6.1.19
+      '@fullcalendar/daygrid': 6.1.19(@fullcalendar/core@6.1.19)
 
-  '@fullcalendar/timegrid@6.1.19(@fullcalendar/core@6.1.18)':
+  '@fullcalendar/timegrid@6.1.19(@fullcalendar/core@6.1.19)':
     dependencies:
-      '@fullcalendar/core': 6.1.18
-      '@fullcalendar/daygrid': 6.1.19(@fullcalendar/core@6.1.18)
+      '@fullcalendar/core': 6.1.19
+      '@fullcalendar/daygrid': 6.1.19(@fullcalendar/core@6.1.19)
 
   '@gravatar-com/hovercards@0.10.8': {}
 
@@ -26830,14 +26830,14 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  fullcalendar@6.1.18:
+  fullcalendar@6.1.19:
     dependencies:
-      '@fullcalendar/core': 6.1.18
-      '@fullcalendar/daygrid': 6.1.19(@fullcalendar/core@6.1.18)
-      '@fullcalendar/interaction': 6.1.19(@fullcalendar/core@6.1.18)
-      '@fullcalendar/list': 6.1.19(@fullcalendar/core@6.1.18)
-      '@fullcalendar/multimonth': 6.1.19(@fullcalendar/core@6.1.18)
-      '@fullcalendar/timegrid': 6.1.19(@fullcalendar/core@6.1.18)
+      '@fullcalendar/core': 6.1.19
+      '@fullcalendar/daygrid': 6.1.19(@fullcalendar/core@6.1.19)
+      '@fullcalendar/interaction': 6.1.19(@fullcalendar/core@6.1.19)
+      '@fullcalendar/list': 6.1.19(@fullcalendar/core@6.1.19)
+      '@fullcalendar/multimonth': 6.1.19(@fullcalendar/core@6.1.19)
+      '@fullcalendar/timegrid': 6.1.19(@fullcalendar/core@6.1.19)
 
   function-bind@1.1.2: {}
 
