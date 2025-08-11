@@ -19,7 +19,7 @@
 		"storybook:dev": "storybook dev -c ./storybook -p 50240"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "7.26.0"
+		"@wordpress/api-fetch": "7.27.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
@@ -37,13 +37,13 @@
 		"@storybook/test-runner": "0.23.0",
 		"@testing-library/dom": "10.4.0",
 		"@types/react": "18.3.23",
-		"@wordpress/base-styles": "6.2.0",
-		"@wordpress/block-editor": "14.21.0",
-		"@wordpress/block-library": "9.26.0",
-		"@wordpress/components": "29.12.0",
-		"@wordpress/element": "6.26.0",
-		"@wordpress/format-library": "5.26.0",
-		"@wordpress/postcss-plugins-preset": "5.26.0",
+		"@wordpress/base-styles": "6.3.0",
+		"@wordpress/block-editor": "15.0.0",
+		"@wordpress/block-library": "9.27.0",
+		"@wordpress/components": "30.0.0",
+		"@wordpress/element": "6.27.0",
+		"@wordpress/format-library": "5.27.0",
+		"@wordpress/postcss-plugins-preset": "5.27.0",
 		"allure-playwright": "2.9.2",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",

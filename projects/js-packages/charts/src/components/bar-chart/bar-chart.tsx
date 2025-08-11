@@ -1,9 +1,14 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react';
-import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
-import { ChartContext } from '../../providers/chart-context/chart-context';
+import { useCallback, useContext, useState, useRef, useMemo } from 'react';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+} from '../../providers/chart-context';
+import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -68,8 +73,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	showZeroValues = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
-	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
-	const internalChartId = useId();
 	const chartId = useChartId( providedChartId );
 	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
@@ -112,9 +115,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
 			withPatterns
-				? `url(#${ getPatternId( internalChartId, index ) })`
+				? `url(#${ getPatternId( chartId, index ) })`
 				: getColor( dataSorted[ index ], index ),
-		[ withPatterns, getColor, dataSorted, internalChartId ]
+		[ withPatterns, getColor, dataSorted, chartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -147,7 +150,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const renderPattern = useCallback(
 		( index: number, color: string ) => {
 			const patternType = index % 4;
-			const id = getPatternId( internalChartId, index );
+			const id = getPatternId( chartId, index );
 			const commonProps = {
 				id,
 				stroke: 'white',
@@ -177,12 +180,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
 			}
 		},
-		[ internalChartId ]
+		[ chartId ]
 	);
 
 	const createPatternBorderStyle = useCallback(
 		( index: number, color: string ) => {
-			const patternId = getPatternId( internalChartId, index );
+			const patternId = getPatternId( chartId, index );
 			return `
 			.visx-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };
@@ -190,7 +193,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				}
 			`;
 		},
-		[ internalChartId ]
+		[ chartId ]
 	);
 
 	const createKeyboardHighlightStyle = useCallback( () => {
@@ -259,7 +262,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
 			data-testid="bar-chart"
 			role="grid"
-			aria-label="bar chart"
+			aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 			style={ {
 				width,
 				height,
@@ -361,18 +364,18 @@ const BarChartInternal: FC< BarChartProps > = ( {
 };
 
 const BarChart: FC< BarChartProps > = props => {
-	const existingContext = useContext( ChartContext );
+	const existingContext = useContext( GlobalChartsContext );
 
-	// If we're already in a ChartProvider context, don't create a new one
+	// If we're already in a GlobalChartsProvider context, don't create a new one
 	if ( existingContext ) {
 		return <BarChartInternal { ...props } />;
 	}
 
-	// Otherwise, create our own ChartProvider
+	// Otherwise, create our own GlobalChartsProvider
 	return (
-		<ChartProvider>
+		<GlobalChartsProvider>
 			<BarChartInternal { ...props } />
-		</ChartProvider>
+		</GlobalChartsProvider>
 	);
 };
 

@@ -15,6 +15,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 Assets::add_resource_hint( '//widgets.wp.com', 'dns-prefetch' );
 
 require_once __DIR__ . '/likes/jetpack-likes-master-iframe.php';

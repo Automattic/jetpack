@@ -574,7 +574,7 @@ class Contact_Form_Plugin {
 					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']  = $input_attrs['style'] ?? null;
-
+					$atts['iconStyle']    = $atts['iconStyle'] ?? $inner_block['attrs']['iconStyle'] ?? 'stars';
 					continue;
 				}
 			}
@@ -1083,6 +1083,55 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_field_number( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'number', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the time field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the time field.
+	 */
+	public static function gutenblock_render_field_time( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'time', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the image select field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the image select form field.
+	 */
+	public static function gutenblock_render_field_image_select( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select', $block );
+
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the image choices field.
+	 *
+	 * @return string HTML for the image choices form field.
+	 */
+	public static function gutenblock_render_form_image_select_choices() {
+		// TODO: Implement the block rendering
+		return '';
+	}
+
+	/**
+	 * Render the image choice field.
+	 *
+	 * @return string HTML for the image choice form field.
+	 */
+	public static function gutenblock_render_form_image_select_choice() {
+		// TODO: Implement the block rendering
+		return '';
 	}
 
 	/**

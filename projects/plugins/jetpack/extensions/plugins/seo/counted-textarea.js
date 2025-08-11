@@ -5,14 +5,14 @@ export const CountedTextArea = ( { suggestedLimit, value, label, ...inputProps }
 	const help =
 		! suggestedLimit || value.length <= suggestedLimit
 			? sprintf(
-					/* translators: Placeholder is a number of characters in a sentence. */
+					/* translators: %d: the number of characters in a sentence. */
 					_n( '%d character', '%d characters', value.length, 'jetpack' ),
 					value.length
 			  )
 			: sprintf(
-					/* translators: Placeholder is a number of characters in a sentence. */
+					/* translators: %1$d: suggested character limit, %2$d: number of characters in a sentence. */
 					__(
-						'It’s recommended to use less than %1$d characters in this field. (%2$d/%1$d)',
+						'It is recommended to use less than %1$d characters in this field. (%2$d/%1$d)',
 						'jetpack'
 					),
 					suggestedLimit,

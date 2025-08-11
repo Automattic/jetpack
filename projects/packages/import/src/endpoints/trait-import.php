@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Import\Endpoints;
 
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Import trait. Base class for all import endpoints.
  *

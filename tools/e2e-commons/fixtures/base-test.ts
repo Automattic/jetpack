@@ -1,16 +1,13 @@
-/**
- * External dependencies
- */
 import { Admin, test as baseTest, expect } from '@wordpress/e2e-test-utils-playwright';
 import { allure } from 'allure-playwright';
-/**
- * Internal dependencies
- */
-import logger from '../logger.js';
-import EditorPage from '../pages/editor-page.ts';
-import { TestUtils } from '../utils/index.js';
+import logger from '../logger';
+import { EditorPage, Sidebar } from '../pages';
+import { TestUtils } from '../utils/index';
 
-const test = baseTest.extend< { admin: Admin; editor: EditorPage }, { testUtils: TestUtils } >( {
+const test = baseTest.extend<
+	{ admin: Admin; editor: EditorPage; sidebar: Sidebar },
+	{ testUtils: TestUtils }
+>( {
 	page: async ( { page }, use ) => {
 		page.on( 'pageerror', exception => {
 			logger.error( `Page error: "${ exception }"` );
@@ -37,6 +34,10 @@ const test = baseTest.extend< { admin: Admin; editor: EditorPage }, { testUtils:
 
 	editor: async ( { page }, use ) => {
 		await use( new EditorPage( { page } ) );
+	},
+
+	sidebar: async ( { page }, use ) => {
+		await use( new Sidebar( page ) );
 	},
 } );
 

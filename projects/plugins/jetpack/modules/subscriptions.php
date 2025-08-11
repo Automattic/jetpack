@@ -23,6 +23,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
 // Loads the User Content Link Redirection feature.

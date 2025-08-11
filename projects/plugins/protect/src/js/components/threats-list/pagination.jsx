@@ -18,7 +18,7 @@ const PaginationButton = ( { pageNumber, currentPage, onPageChange } ) => {
 			onClick={ handleClick }
 			aria-current={ isCurrentPage ? 'page' : undefined }
 			aria-label={ sprintf(
-				/* translators: placeholder is a page number, i.e. "Page 123" */
+				/* translators: %d: the page number (e.g. "Page 123") */
 				__( 'Page %d', 'jetpack-protect' ),
 				pageNumber
 			) }

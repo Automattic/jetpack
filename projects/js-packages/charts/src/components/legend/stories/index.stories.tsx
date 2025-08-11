@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { ChartProvider } from '../../../providers/chart-context';
+import { GlobalChartsProvider } from '../../../providers/chart-context';
 import { useChartTheme } from '../../../providers/theme';
 import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
@@ -30,7 +30,7 @@ The Legend component provides a flexible way to display chart legends either as 
 
 ### Basic Usage with Manual Data
 \`\`\`jsx
-<Legend 
+<Legend
   items={[
     { label: 'Series 1', value: '25%', color: '#3858E9' },
     { label: 'Series 2', value: '35%', color: '#80C8FF' }
@@ -42,14 +42,14 @@ The Legend component provides a flexible way to display chart legends either as 
 ### Automatic Data from Chart Context
 \`\`\`jsx
 // Chart registers its legend data with chartId
-<LineChart 
-  chartId="sales-chart" 
+<LineChart
+  chartId="sales-chart"
   data={salesData}
   showLegend={false} // Legend hidden on chart
 />
 
 // Standalone legend retrieves data automatically
-<Legend 
+<Legend
   chartId="sales-chart"
   orientation="vertical"
   alignmentHorizontal="right"
@@ -206,7 +206,7 @@ export const WithBarChart: Story = {
 // Story showing standalone legend using chartId to automatically get data from context
 const StandaloneLegendWithChartIdComponent = () => {
 	return (
-		<ChartProvider>
+		<GlobalChartsProvider>
 			<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
 				{ /* Chart with legend hidden but still registering data */ }
 				<LineChart
@@ -221,7 +221,7 @@ const StandaloneLegendWithChartIdComponent = () => {
 				{ /* Standalone legend that automatically gets data from chart context */ }
 				<Legend chartId="standalone-legend-chart" orientation="horizontal" />
 			</div>
-		</ChartProvider>
+		</GlobalChartsProvider>
 	);
 };
 
@@ -230,7 +230,7 @@ export const StandaloneLegendWithChartId: Story = {
 	parameters: {
 		docs: {
 			source: {
-				code: `<ChartProvider>
+				code: `<GlobalChartsProvider>
   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
     {/* Chart with legend hidden but still registering data */}
     <LineChart
@@ -243,7 +243,7 @@ export const StandaloneLegendWithChartId: Story = {
     {/* Standalone legend that automatically gets data from chart context */}
     <Legend chartId="standalone-legend-chart" orientation="horizontal" />
   </div>
-</ChartProvider>`,
+</GlobalChartsProvider>`,
 			},
 			description: {
 				story: `
@@ -277,15 +277,15 @@ This example demonstrates the power of the Legend component's context integratio
 />
 
 // Standalone legend that retrieves data automatically
-<Legend 
-  chartId="standalone-legend-chart" 
-  orientation="horizontal" 
+<Legend
+  chartId="standalone-legend-chart"
+  orientation="horizontal"
 />
 \`\`\`
 
 ### Important Notes
 
-- The chart and legend must be wrapped in the same ChartProvider context
+- The chart and legend must be wrapped in the same GlobalChartsProvider context
 - The \`chartId\` must match exactly between chart and legend
 - Charts with \`showLegend={false}\` still register their legend data
 - If no chart with the given \`chartId\` exists, the legend will render nothing
@@ -298,7 +298,7 @@ This example demonstrates the power of the Legend component's context integratio
 // Story showing a real-world dashboard layout with centralized legends
 const DashboardWithCentralizedLegend = () => {
 	return (
-		<ChartProvider>
+		<GlobalChartsProvider>
 			<div
 				style={ {
 					display: 'grid',
@@ -387,7 +387,7 @@ const DashboardWithCentralizedLegend = () => {
 					</div>
 				</aside>
 			</div>
-		</ChartProvider>
+		</GlobalChartsProvider>
 	);
 };
 

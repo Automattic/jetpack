@@ -5,14 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.0] - 2025-08-11
+### Added
+- Add initial image select field under feature flag. [#44675]
+- Add Time field. [#44272]
+
+### Changed
+- Add Typescript support to all webpack files. [#44617]
+- Introduce toolbar option to add image choice on image select field. [#44718]
+- Revert back to the variation picker if the form only has the submit button. [#42479]
+- Update rating field max field visually. [#44592]
+- Update package dependencies. [#44677] [#44703]
+
+### Fixed
+- Disallow connecting MailPoet without key. [#44687]
+- Do not show dropzone in the block picker. [#44695]
+- Do not append form HTML ID on post-submission link. [#44683]
+- Fix default checkboxes styles, and allow for "browser" styles as a choice. [#44408]
+- Fix heart/star icons showing as filled instead of outlined in Twenty Sixteen theme. [#44672]
+- Fix MailPoet icon border radius. [#44688]
+- Fix ordering of fields on submit when JavaScript is disabled. [#44644]
+- Fix rating field causing unsaved post state by replacing useEffect pattern with BlockContextProvider. [#44672]
+- I18n: Improve context hints in comments for translators. [#44686]
+- Prevent PHP errors when directly accessing various files. [#44646]
+- Upgrade checkbox only on first try on Simple sites. [#44711]
+- Validate form on submission. [#44562]
+
 ## [5.1.0] - 2025-08-04
 ### Added
-- Add mailpoet/lists endpoint. [#44516]
+- Add MailPoet/lists endpoint. [#44516]
 - Add slider field block. [#44150]
 
 ### Changed
 - Fix how form id is calculated. [#44501]
-- Ratings field: fix translation issues. [#44593]
+- Ratings field: Fix translation issues. [#44593]
 - Submit forms without page reload. [#44422]
 - Update @wordpress/dataviews to 5.0.0. [#44376]
 - Update how the success messages to use the new Feedback class. [#44489]
@@ -1378,6 +1404,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[5.2.0]: https://github.com/automattic/jetpack-forms/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/automattic/jetpack-forms/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/automattic/jetpack-forms/compare/v4.0.1...v5.0.0
 [4.0.1]: https://github.com/automattic/jetpack-forms/compare/v4.0.0...v4.0.1

@@ -1,5 +1,5 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import logger from '_jetpack-e2e-commons/logger.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import logger from '_jetpack-e2e-commons/logger';
 import {
 	enableSync,
 	disableSync,
@@ -7,7 +7,7 @@ import {
 	enableDedicatedSync,
 	disableDedicatedSync,
 	isSyncQueueEmpty,
-} from '../../helpers/sync-helper.ts';
+} from '../../helpers/sync-helper';
 
 test.describe( 'Sync', () => {
 	const wpcomRestAPIBase = 'https://public-api.wordpress.com/rest/';
@@ -23,7 +23,7 @@ test.describe( 'Sync', () => {
 		wpcomBlogId = JSON.parse( jetpackOptions ).id;
 		wpcomForcedPostsUrl =
 			wpcomRestAPIBase + `v1/sites/${ wpcomBlogId }/posts?force=wpcom&search=Sync`;
-		logger.sync( `START: ${ jetpackOptions }` );
+		logger.debug( `START: ${ jetpackOptions }` );
 	} );
 
 	test.beforeEach( async () => {

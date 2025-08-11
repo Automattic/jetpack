@@ -3,6 +3,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Tracking;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class.jetpack-admin-page.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php';
 

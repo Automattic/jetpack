@@ -103,35 +103,6 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	return;
 }
 
-// Redirect to plugin page when the plugin is activated.
-add_action( 'activated_plugin', 'paypal_payment_buttons_activation' );
-
-/**
- * Redirects to plugin page when the plugin is activated
- *
- * @param string $plugin Path to the plugin file relative to the plugins directory.
- */
-function paypal_payment_buttons_activation( $plugin ) {
-	if (
-		PAYPAL_PAYMENT_BUTTONS_ROOT_FILE_RELATIVE_PATH === $plugin &&
-		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( PAYPAL_PAYMENT_BUTTONS_ROOT_FILE_RELATIVE_PATH )
-	) {
-		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=paypal-payment-buttons' ) ) );
-		exit( 0 );
-	}
-}
-
-// Add "Settings" link to plugins page.
-add_filter(
-	'plugin_action_links_' . PAYPAL_PAYMENT_BUTTONS_FOLDER . '/paypal-payment-buttons.php',
-	function ( $actions ) {
-		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=paypal-payment-buttons' ) ) . '">' . __( 'Settings', 'paypal-payment-buttons' ) . '</a>';
-		array_unshift( $actions, $settings_link );
-
-		return $actions;
-	}
-);
-
 register_deactivation_hook( __FILE__, array( 'PayPal_Payment_Buttons', 'plugin_deactivation' ) );
 
 // Initialize plugin.
