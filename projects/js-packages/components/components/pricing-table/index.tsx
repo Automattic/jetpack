@@ -160,7 +160,7 @@ const PricingTable: FC< PricingTableProps > = ( {
 					{ isLg &&
 						items.map( ( item, i ) => (
 							<div
-								className={ clsx( styles.item, {
+								className={ clsx( styles.item, styles.feature, {
 									[ styles[ 'last-feature' ] ]: i === items.length - 1,
 								} ) }
 								key={ i }

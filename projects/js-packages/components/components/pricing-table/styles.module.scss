@@ -18,7 +18,11 @@
 }
 
 .header-logo {
-	margin-top: 32px;
+
+	.is-viewport-large & {
+		margin-top: 32px;
+	}
+
 	margin-bottom: 24px;
 }
 
@@ -122,13 +126,15 @@
 			right: var(--padding);
 			height: 1px;
 
-			.is-viewport-large & {
-				left: var(--padding);
-				right: var(--padding);
-			}
-
 			z-index: 5;
 			background-color: var(--jp-gray);
+		}
+
+		&.feature {
+
+			&::before {
+				left: 0;
+			}
 		}
 	}
 
