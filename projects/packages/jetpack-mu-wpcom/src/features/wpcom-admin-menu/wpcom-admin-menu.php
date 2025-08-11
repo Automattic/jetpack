@@ -245,6 +245,17 @@ function wpcom_add_jetpack_submenu() {
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 
+				// Jetpack > Newsletter (Calypso).
+		// Force Calypso for atomic Personal/Premium sites since local Jetpack newsletter page is broken.
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/settings/newsletter/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+
 	}
 
 	// Jetpack > Scan.
