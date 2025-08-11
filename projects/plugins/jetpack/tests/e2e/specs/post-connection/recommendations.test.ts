@@ -1,4 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
 
 test.beforeEach( async ( { testUtils, requestUtils } ) => {
 	const cleanupCMDs = [

@@ -1,4 +1,4 @@
-import { test, expect } from '../../lib/fixtures/test.ts';
+import { test, expect } from '../../lib/fixtures/test';
 
 test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser, boostUtils } ) => {

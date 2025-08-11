@@ -1,1 +1,1 @@
-export { default as JetpackBoostPage } from './jetpack-boost-page.ts';
+export { default as JetpackBoostPage } from './jetpack-boost-page';

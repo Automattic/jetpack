@@ -15,7 +15,7 @@ import { getMediaSourceUrl, getPostImageUrl } from './utils';
 export function usePostData() {
 	const { attachedMedia, imageGeneratorSettings } = usePostMeta();
 
-	const { getMedia } = useSelect( coreStore, [] );
+	const { getEntityRecord } = useSelect( coreStore, [] );
 	const { getEditedPostAttribute, getEditedPostContent } = useSelect( editorStore, [] );
 
 	return useMemo(
@@ -24,7 +24,9 @@ export function usePostData() {
 			const featuredImageId = getEditedPostAttribute( 'featured_media' );
 
 			// Use the featured image by default, if it's available.
-			let image = featuredImageId ? getMediaSourceUrl( getMedia( featuredImageId ) ) : '';
+			let image = featuredImageId
+				? getMediaSourceUrl( getEntityRecord( 'postType', 'attachment', featuredImageId ) )
+				: '';
 
 			const sigImageUrl = imageGeneratorSettings.enabled
 				? getSigImageUrl( imageGeneratorSettings.token )
@@ -46,7 +48,7 @@ export function usePostData() {
 			const media = [];
 
 			const getMediaDetails = id => {
-				const mediaItem = getMedia( id );
+				const mediaItem = getEntityRecord( 'postType', 'attachment', id );
 				if ( ! mediaItem ) {
 					return null;
 				}
@@ -92,7 +94,7 @@ export function usePostData() {
 			attachedMedia,
 			getEditedPostAttribute,
 			getEditedPostContent,
-			getMedia,
+			getEntityRecord,
 			imageGeneratorSettings.enabled,
 			imageGeneratorSettings.token,
 		]

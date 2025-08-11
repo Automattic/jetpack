@@ -1,4 +1,4 @@
-import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
 
 /**
  * Enable Instant Search.
