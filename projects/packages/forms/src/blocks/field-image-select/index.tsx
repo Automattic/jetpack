@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { image as icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { getImageChoiceLabel } from '../form-image-select-choice/label';
 import defaultSettings from '../shared/settings';
 import edit from './edit';
 import save from './save';
@@ -57,11 +58,7 @@ const settings = {
 							{
 								name: 'jetpack/label',
 								attributes: {
-									label: sprintf(
-										// translators: %d is the number of the image choice field.
-										__( 'Image choice %d', 'jetpack-forms' ),
-										1
-									),
+									label: getImageChoiceLabel( 1 ),
 								},
 							},
 							{
@@ -78,11 +75,7 @@ const settings = {
 							{
 								name: 'jetpack/label',
 								attributes: {
-									label: sprintf(
-										// translators: %d is the number of the image choice field.
-										__( 'Image choice %d', 'jetpack-forms' ),
-										2
-									),
+									label: getImageChoiceLabel( 2 ),
 								},
 							},
 							{
