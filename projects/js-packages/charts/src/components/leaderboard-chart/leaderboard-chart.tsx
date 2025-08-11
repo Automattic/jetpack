@@ -140,9 +140,13 @@ const defaultDeltaFormatter = ( value: number ): string => {
 
 const ProgressBarWithOverlayLabel = ( { entry }: { entry: LeaderboardEntry } ) => (
 	<div className={ styles.progressContainerWithOverlayLabel }>
-		<span>{ entry.currentShare }</span>
-		{ /* `label` comes late as it should be on top */ }
-		{ typeof entry.label === 'string' ? <Text>{ entry.label }</Text> : entry.label }{ ' ' }
+		{ typeof entry.label === 'string' ? (
+			<Text className={ styles.progressBarLabel }>{ entry.label }</Text>
+		) : (
+			entry.label
+		) }
+
+		<div className={ styles.progressBar } style={ { width: entry.currentShare + '%' } }></div>
 	</div>
 );
 
@@ -261,7 +265,11 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 							) }
 						</VStack>
 
-						<div className={ styles.valueContainer }>
+						<div
+							className={ clsx( styles.valueContainer, {
+								[ styles.overlayLabel ]: withOverlayLabel,
+							} ) }
+						>
 							<Text>{ valueFormatter( entry.currentValue ) }</Text>
 
 							{ withComparison && (
