@@ -133,6 +133,7 @@ The component uses CSS Modules for styling. You can customize colors using CSS c
 .myCustomChart {
   --primary-color: #ff6b6b;
   --secondary-color: #4ecdc4;
+	--bar-border-radius: 8px;
 }
 \`\`\`
 
@@ -369,6 +370,27 @@ export const NumberFormatting: Story = {
 			formatMetricValue( value / 100, 'average', {
 				decimals: 1,
 			} ),
+	},
+};
+
+export const CustomLabel: Story = {
+	args: {
+		data: smallDataset.map( entry => ( {
+			...entry,
+			label: (
+				<div style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
+					<img
+						src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23e25555' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E"
+						alt="icon"
+						style={ { width: '32px', height: '32px', marginLeft: '8px', verticalAlign: 'middle' } }
+					/>
+					<span style={ { fontSize: '24px' } }>{ entry.label }</span>
+				</div>
+			),
+		} ) ),
+		withComparison: false,
+		withOverlayLabel: true,
+		loading: false,
 	},
 };
 
