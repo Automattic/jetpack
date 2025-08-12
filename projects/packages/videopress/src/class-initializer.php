@@ -379,19 +379,6 @@ class Initializer {
 			return;
 		}
 
-		// Is this a REST API request?
-		$is_rest = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST;
-
-		if ( $is_rest ) {
-			register_block_type(
-				$videopress_video_metadata_file,
-				array(
-					'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
-				)
-			);
-			return;
-		}
-
 		$registration = register_block_type(
 			$videopress_video_metadata_file,
 			array(

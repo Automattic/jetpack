@@ -74,6 +74,15 @@ class Jetpack_Gutenberg {
 	private static $preset_cache = null;
 
 	/**
+	 * Keep track of JS loading strategies for each block that needs it.
+	 *
+	 * @var array<string, array|bool>
+	 *
+	 * @since $$next-version$$
+	 */
+	private static $block_js_loading_strategies = array();
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -231,9 +240,10 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions          = null;
-		self::$availability        = array();
-		self::$cached_availability = null;
+		self::$extensions                  = null;
+		self::$availability                = array();
+		self::$cached_availability         = null;
+		self::$block_js_loading_strategies = array();
 	}
 
 	/**
@@ -599,9 +609,10 @@ class Jetpack_Gutenberg {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			$view_script    = add_query_arg( 'minify', 'false', $view_script );
+			$strategy       = self::get_block_js_loading_strategy( $type );
 
 			// Enqueue dependencies.
-			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
+			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, $strategy );
 
 			// If this is a customizer preview, enqueue the dependencies and render the script directly to the preview after autosave.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1371,6 +1382,37 @@ class Jetpack_Gutenberg {
 
 			remove_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10 );
 		}
+	}
+
+	/**
+	 * Set the JS loading strategy for a block.
+	 *
+	 * @param string     $block_name The block name.
+	 * @param array|bool $strategy   The JS loading strategy.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function set_block_js_loading_strategy( $block_name, $strategy ) {
+		self::$block_js_loading_strategies[ $block_name ] = $strategy;
+	}
+
+	/**
+	 * Get the JS loading strategy for a block.
+	 *
+	 * @param string $block_name The block name.
+	 *
+	 * @return array|bool The JS loading strategy for the block.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function get_block_js_loading_strategy( $block_name ) {
+		$strategy = false;
+
+		if ( isset( self::$block_js_loading_strategies[ $block_name ] ) ) {
+			$strategy = self::$block_js_loading_strategies[ $block_name ];
+		}
+
+		return $strategy;
 	}
 }
 

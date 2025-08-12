@@ -5,7 +5,11 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
-import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+} from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -292,9 +296,9 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 };
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = props => (
-	<ChartProvider>
+	<GlobalChartsProvider>
 		<PieSemiCircleChartInternal { ...props } />
-	</ChartProvider>
+	</GlobalChartsProvider>
 );
 
 PieSemiCircleChart.displayName = 'PieSemiCircleChart';

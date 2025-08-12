@@ -44,7 +44,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * Flag which detects when the buffer is empty.
 	 * Set true on construction and flipped to false only after a successful append.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 * @var bool
 	 */
 	protected $is_empty_flag = true;
@@ -88,7 +88,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Tracks whether the root element has been started.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 * @var bool
 	 */
 	protected $root_started = false;
@@ -96,7 +96,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Mirror DOMDocument built on-demand for jetpack_print_sitemap compatibility.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 * @var DOMDocument|null
 	 */
 	protected $dom_document = null;
@@ -104,7 +104,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Tracks whether XMLWriter document has been finalized (closed and flushed).
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 * @var bool
 	 */
 	protected $is_finalized = false;
@@ -158,7 +158,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * Start the root element (e.g., urlset or sitemapindex) and write its attributes.
 	 * Implemented by subclasses.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 * @access protected
 	 * @return void
 	 */
@@ -167,7 +167,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Ensure the root element has been started and account its bytes once.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 * @access protected
 	 * @return void
 	 */
@@ -185,7 +185,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Finalize writer output once by closing the root and document and flushing.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 * @access protected
 	 * @return void
 	 */
@@ -270,7 +270,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * If a value in the array is itself an array, it calls itself recursively.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 15.0
 	 *
 	 * @param array $data The array to convert to XML.
 	 */

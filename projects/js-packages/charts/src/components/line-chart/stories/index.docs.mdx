@@ -186,6 +186,56 @@ Override individual series appearance with the `options` prop:
 	/>` }
 />
 
+## Semantic Line Types
+
+Use semantic line types to distinguish between different data categories with automatic styling.
+
+### Comparison type
+
+The `comparison` type can be used to differentiate comparison data from primary data series:
+
+<Canvas of={ LineChartStories.Comparison } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={[
+			{
+				label: 'This Year',
+				data: currentYearData,
+				options: {}
+			},
+			{
+				label: 'Last Year',
+				data: lastYearData,
+				options: {
+					type: 'comparison'
+				}
+			}
+		]}
+	/>` }
+/>
+
+### Theme Integration
+
+Comparison styling can be set in your theme configuration:
+
+<Source
+	language="jsx"
+	code={ `// Theme configuration example
+	const customTheme = {
+		lineChart: {
+			lineStyles: {
+				comparison: {
+					strokeDasharray: '4 4',
+					strokeLinecap: 'square',
+					strokeWidth: 1.5
+				}
+			}
+		}
+	};` }
+/>
+
 ## Visual Features
 
 ### Gradient Fill
@@ -540,6 +590,7 @@ type SeriesData = {
 		stroke?: string;
 		seriesLineStyle?: LineStyles;
 		legendShapeStyle?: CSSProperties;
+		type?: 'comparison'; // Semantic type for automatic theme styling
 	};
 };
 ```

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+VideoPress: include VideoPress editor state in REST API requests.

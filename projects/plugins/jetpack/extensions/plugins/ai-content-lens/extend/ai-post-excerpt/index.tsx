@@ -16,7 +16,7 @@ import {
 	PostTypeSupportCheck,
 	PluginDocumentSettingPanel,
 } from '@wordpress/editor';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
 /**
@@ -46,6 +46,7 @@ type ContentLensMessageContextProps = {
 };
 
 function AiPostExcerpt() {
+	const timelapse = useRef( null );
 	const { excerpt, postId } = useSelect( select => {
 		const { getEditedPostAttribute, getCurrentPostId } = select( editorStore );
 
@@ -83,6 +84,8 @@ function AiPostExcerpt() {
 					tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
 						feature: 'jetpack-ai-content-lens',
 						model: modelUsed,
+						generation_time:
+							timelapse.current !== null ? window?.performance?.now?.() - timelapse.current : null,
 					} );
 				},
 				[ increaseAiAssistantRequestsCount, tracks ]
@@ -197,6 +200,8 @@ ${ postContent }
 			feature: 'jetpack-ai-content-lens',
 			model: model,
 		} );
+
+		timelapse.current = window?.performance?.now?.() || null;
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
