@@ -50,7 +50,6 @@ return [
         'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
         'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
-        'tests/BlogTokenResilienceTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
