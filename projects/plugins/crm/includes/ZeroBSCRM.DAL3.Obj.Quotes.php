@@ -685,15 +685,17 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 			}
 
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 			// quick addition for mike
 			#} olderThan
-			if (!empty($olderThan) && $olderThan > 0 ) $wheres['olderThan'] = array('zbsq_created','<=','%d',$olderThan);
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsq_created', '<=', '%d', $olderThan );
 			#} newerThan
-			if (!empty($newerThan) && $newerThan > 0 ) $wheres['newerThan'] = array('zbsq_created','>=','%d',$newerThan);
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsq_created', '>=', '%d', $newerThan );
 
 			// status
-			if (!empty($hasAccepted) && $hasAccepted) $wheres['hasAccepted'] = array('zbsq_accepted','>','%d',0);
-			if (!empty($hasNotAccepted) && $hasNotAccepted) $wheres['hasnotAccepted'] = array('zbsq_accepted','<=','%d',0);
+			if ( ! empty( $hasAccepted ) && $hasAccepted ) $wheres['hasAccepted']          = array( 'zbsq_accepted', '>', '%d', 0 );
+			if ( ! empty( $hasNotAccepted ) && $hasNotAccepted ) $wheres['hasnotAccepted'] = array( 'zbsq_accepted', '<=', '%d', 0 );
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
             // assignedContact + assignedCompany
             if (!empty($assignedContact) && $assignedContact > 0) $wheres['assignedContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_QUOTE." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = %d)",$assignedContact);
