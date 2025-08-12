@@ -22,11 +22,19 @@ export PATH="$BASE_DIR/../node_modules/.bin:$PATH"
 
 function up() {
 	down
-	node "$BASE_DIR"/tunnel.js on "$@"
+	if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
+		node "$BASE_DIR"/cloudflaretunnel.js on "$@"
+	else
+		node "$BASE_DIR"/localtunnel.js on "$@"
+	fi
 }
 
 function down() {
-	node "$BASE_DIR"/tunnel.js off
+	if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
+		node "$BASE_DIR"/cloudflaretunnel.js off
+	else
+		node "$BASE_DIR"/localtunnel.js off
+	fi
 }
 
 function reset() {

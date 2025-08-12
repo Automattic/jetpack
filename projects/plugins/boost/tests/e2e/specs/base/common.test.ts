@@ -31,7 +31,7 @@ test.describe( 'Common tests', () => {
 		page,
 		sidebar,
 	} ) => {
-		await page.goto( '/wp-admin' );
+		await page.goto( 'wp-admin/index.php' );
 		await sidebar.selectJetpackBoost();
 		expect( page.url(), "URL should contain 'page=jetpack-boost" ).toContain(
 			'page=jetpack-boost'
