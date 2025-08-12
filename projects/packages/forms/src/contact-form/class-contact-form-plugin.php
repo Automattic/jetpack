@@ -2881,22 +2881,13 @@ class Contact_Form_Plugin {
 	 * @return array Fields.
 	 */
 	public static function parse_fields_from_content( $post_id ) {
-		static $post_fields;
+		$response = Feedback::get( $post_id );
 
-		if ( ! is_array( $post_fields ) ) {
-			$post_fields = array();
+		if ( $response instanceof Feedback ) {
+			return $response->get_all_legacy_values();
 		}
 
-		if ( isset( $post_fields[ $post_id ] ) ) {
-			return $post_fields[ $post_id ];
-		}
-
-		$post_content = get_post_field( 'post_content', $post_id );
-		$fields       = self::parse_feedback_content( $post_content );
-
-		$post_fields[ $post_id ] = $fields;
-
-		return $fields;
+		return array();
 	}
 
 	/**
