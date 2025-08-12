@@ -33,7 +33,7 @@
 		"testEnvironment": "jsdom"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "6.0.0",
+		"@wordpress/i18n": "6.1.0",
 		"zod": "3.22.3"
 	},
 	"devDependencies": {

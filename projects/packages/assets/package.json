@@ -17,7 +17,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/browserslist-config": "6.27.0",
+		"@wordpress/browserslist-config": "6.28.0",
 		"concurrently": "7.6.0",
 		"jest": "30.0.4",
 		"md5-es": "1.8.2",
