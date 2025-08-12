@@ -45,10 +45,9 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 	) => {
 		const theme = useChartTheme();
 
-		// Map new props to internal format using edge-relative alignment
-		// Currently only supports top/bottom positioning
-		const alignmentVertical: 'top' | 'bottom' = position; // 'top' or 'bottom'
-		// Map alignment to horizontal position
+		// Map new props to internal format
+		// For top/bottom positioning, alignment controls horizontal positioning within that edge
+		const alignmentVertical: 'top' | 'bottom' = position;
 		let alignmentHorizontal: 'left' | 'center' | 'right';
 		if ( alignment === 'start' ) {
 			alignmentHorizontal = 'left';
