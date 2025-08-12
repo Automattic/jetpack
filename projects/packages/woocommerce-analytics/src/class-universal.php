@@ -567,7 +567,7 @@ class Universal {
 	 * Track page views
 	 */
 	public function capture_page_view() {
-		$this->record_event( 'woocommerceanalytics_page_view', array( 'url' => $this->get_current_url() ) );
+		$this->record_event( 'woocommerceanalytics_page_view' );
 	}
 
 	/**
