@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Waf;
 
 use Composer\InstalledVersions;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Handles the bootstrap.
  *
@@ -24,20 +28,6 @@ class Waf_Standalone_Bootstrap {
 	public function __construct() {
 		$this->guard_against_missing_abspath();
 		$this->initialize_constants();
-	}
-
-	/**
-	 * Ensures that this class is not used unless we are in the right context.
-	 *
-	 * @throws Waf_Exception If we are outside of WordPress.
-	 *
-	 * @return void
-	 */
-	private function guard_against_missing_abspath() {
-
-		if ( ! defined( 'ABSPATH' ) ) {
-			throw new Waf_Exception( 'Cannot generate the WAF bootstrap if we are not running in WordPress context.' );
-		}
 	}
 
 	/**
