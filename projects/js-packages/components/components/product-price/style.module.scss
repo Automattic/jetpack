@@ -75,3 +75,43 @@
 .symbol {
 	font-weight: 400;
 }
+
+.simple {
+	display: grid;
+	grid-gap: 8px;
+	margin-bottom: 24px;
+
+	.currentPrice {
+		display: flex;
+
+		> p {
+			font-weight: 500;
+		}
+
+		> div {
+			line-height: 30px;
+			margin-top: auto;
+			color: var(--jp-gray-50);
+		}
+	}
+
+	.originalPrice {
+		display: flex;
+
+		> p {
+			font-weight: 400;
+			color: var(--jp-gray-40);
+			font-size: 32px;
+
+			&::after {
+				background: var(--jp-gray-40);
+			}
+		}
+
+		> div {
+			line-height: 35px;
+			margin-top: auto;
+			color: var(--jp-gray-50);
+		}
+	}
+}
