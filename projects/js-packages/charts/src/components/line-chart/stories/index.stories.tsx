@@ -382,14 +382,28 @@ Comparison.args = {
 	data: [
 		{
 			...sampleData[ 0 ],
-			label: 'This Year',
+			label: 'Current Year Sales',
 			group: 'sales',
 			options: {},
 		},
 		{
-			...sampleData[ 2 ],
-			label: 'Last Year',
+			...sampleData[ 1 ],
+			label: 'Previous Year Sales',
 			group: 'sales',
+			options: {
+				type: 'comparison' as const,
+			},
+		},
+		{
+			...sampleData[ 2 ],
+			label: 'Current Year Expenses',
+			group: 'expenses',
+			options: {},
+		},
+		{
+			...sampleData[ 3 ],
+			label: 'Previous Year Expenses',
+			group: 'expenses',
 			options: {
 				type: 'comparison' as const,
 			},

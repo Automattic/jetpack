@@ -17,7 +17,7 @@ import type { SeriesData, DataPointPercentage, FunnelStep } from '../../types';
  */
 export const medalCountsData: SeriesData[] = [
 	{
-		group: 'United States',
+		group: 'united-states',
 		label: 'United States',
 		data: [
 			{ label: '1896', value: 20 },
@@ -53,7 +53,7 @@ export const medalCountsData: SeriesData[] = [
 		],
 	},
 	{
-		group: 'Great Britain',
+		group: 'great-britain',
 		label: 'Great Britain',
 		data: [
 			{ label: '1896', value: 7 },
@@ -89,7 +89,7 @@ export const medalCountsData: SeriesData[] = [
 		],
 	},
 	{
-		group: 'Germany',
+		group: 'germany',
 		label: 'Germany',
 		data: [
 			{ label: '1896', value: 13 },

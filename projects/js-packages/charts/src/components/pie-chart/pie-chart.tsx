@@ -196,7 +196,11 @@ const PieChartInternal = ( {
 		value: ( d: DataPointPercentage ) => d.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
 		fill: ( d: DataPointPercentage & { index: number } ) =>
-			d?.color || resolveGroupColor( { group: d.label, index: d.index } ),
+			d?.color ||
+			resolveGroupColor( {
+				group: d.group || d.label,
+				index: d.index,
+			} ),
 	};
 
 	return (

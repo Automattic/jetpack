@@ -106,18 +106,21 @@ const lineData: SeriesData[] = [
 const pieData: DataPointPercentage[] = [
 	{
 		label: 'United States',
+		group: 'united-states',
 		value: 80000,
 		valueDisplay: '80K',
 		percentage: 65,
 	},
 	{
 		label: 'Great Britain',
+		group: 'great-britain',
 		value: 30000,
 		valueDisplay: '30K',
 		percentage: 25,
 	},
 	{
 		label: 'Japan',
+		group: 'japan',
 		value: 22000,
 		valueDisplay: '22K',
 		percentage: 10,
@@ -159,18 +162,21 @@ const barListData: SeriesData[] = [
 const donutData: DataPointPercentage[] = [
 	{
 		label: 'United States',
+		group: 'united-states',
 		value: 80000,
 		valueDisplay: '80K',
 		percentage: 65,
 	},
 	{
 		label: 'Great Britain',
+		group: 'great-britain',
 		value: 30000,
 		valueDisplay: '30K',
 		percentage: 25,
 	},
 	{
 		label: 'Japan',
+		group: 'japan',
 		value: 22000,
 		valueDisplay: '22K',
 		percentage: 10,

@@ -5,11 +5,11 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	useGlobalChartsContext,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils/create-composition';
@@ -115,7 +115,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	className,
 	children,
 } ) => {
-	const providerTheme = useGlobalChartTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -149,6 +148,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
 
+	const { resolveGroupColor } = useGlobalChartsContext();
+
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
@@ -159,9 +160,13 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			) => b.value - a.value,
 			// Use the color property from the data object as a last resort. The theme provides colours by default.
 			fill: ( d: DataPointPercentage & { index: number } ) =>
-				d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
+				d.color ||
+				resolveGroupColor( {
+					group: d.group || d.label,
+					index: d.index,
+				} ),
 		} ),
-		[ providerTheme.colors ]
+		[ resolveGroupColor ]
 	);
 
 	// Memoize legend options to prevent unnecessary re-calculations
