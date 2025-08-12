@@ -10,6 +10,24 @@
 	.jetpack-field-rating__options {
 		display: flex;
 
+		/* Note: We redefine `.visually-hidden` here
+		   because grunion.css isn't loaded in the editor.
+		   We should follow up with extracting it into a
+		   shared SCSS partial and importing it in both
+		   editor and frontend bundles. */
+		.jetpack-field-rating__input.visually-hidden {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0 0 0 0);
+			clip-path: inset(50%);
+			border: 0;
+			white-space: nowrap;
+		}
+
 		.jetpack-field-rating__label {
 			padding-right: 5px;
 
@@ -80,8 +98,6 @@
 				}
 			}
 		}
-
-		/* (duplicates removed) */
 	}
 }
 
