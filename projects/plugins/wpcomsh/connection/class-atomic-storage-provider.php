@@ -40,7 +40,6 @@ class Atomic_Storage_Provider implements Storage_Provider_Interface {
 	 *
 	 * @param string $option_name The option name to retrieve.
 	 * @return mixed The option value, or null if not found.
-	 * @throws Exception If Atomic Persistent Data access fails.
 	 */
 	public function get( $option_name ) {
 		$persistent_data = new Atomic_Persistent_Data();
