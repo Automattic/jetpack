@@ -25,8 +25,8 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 	unset( $_GET['activate'] ); // phpcs:ignore WordPress.Security.NonceVerification
 	$message = sprintf(
 		wp_kses(
-			/* Translators: first variable is the full URL to the new dashboard */
-			__( '<p style="margin-bottom: 0.25em;"><strong>Jetpack is now handling your backups.</strong></p><p>VaultPress is no longer needed and has been deactivated. You can access your backups at <a href="%3$s" target="_blank" rel="noopener noreferrer">this dashboard</a>.</p>', 'jetpack' ),
+			/* Translators: variable is the full URL to the new dashboard */
+			__( '<p style="margin-bottom: 0.25em;"><strong>Jetpack is now handling your backups.</strong></p><p>VaultPress is no longer needed and has been deactivated. You can access your backups at <a href="%s" target="_blank" rel="noopener noreferrer">this dashboard</a>.</p>', 'jetpack' ),
 			array(
 				'a'      => array(
 					'href'   => array(),
