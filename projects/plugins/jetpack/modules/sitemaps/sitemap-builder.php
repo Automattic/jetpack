@@ -7,6 +7,10 @@
  * @author Automattic
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /* Include sitemap subclasses, if not already, and include proper buffer based on phpxml's availability. */
 require_once __DIR__ . '/sitemap-constants.php';
 require_once __DIR__ . '/sitemap-buffer.php';
