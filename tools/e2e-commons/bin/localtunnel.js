@@ -44,12 +44,12 @@ export function getReusableUrlFromFile() {
 	let urlFromFile;
 	try {
 		urlFromFile = fs
-			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
+			.readFileSync( config.get( 'dirs.temp' ) + '/localtunnel', 'utf8' )
 			.replace( 'http:', 'https:' );
 	} catch ( error ) {
 		if ( error.code === 'ENOENT' ) {
 			// We expect this, reduce noise in logs
-			console.warn( "Tunnels file doesn't exist" );
+			console.warn( "Localtunnel file doesn't exist" );
 		} else {
 			console.error( error );
 		}
@@ -78,7 +78,7 @@ function getTunnelOverrideURL() {
  * @param {string} url - URL
  */
 function saveTunnelUrlToFile( url ) {
-	fs.writeFileSync( config.get( 'temp.tunnels' ), url );
+	fs.writeFileSync( config.get( 'dirs.temp' ) + '/localtunnel', url );
 }
 
 /**

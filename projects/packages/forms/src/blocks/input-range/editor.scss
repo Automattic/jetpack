@@ -6,12 +6,6 @@
 	margin-top: 30px;
 }
 
-.jetpack-field-slider__min-label,
-.jetpack-field-slider__max-label {
-	font-size: 0.9em;
-	text-align: center;
-}
-
 .jetpack-field-slider__input-container {
 	display: flex;
 	flex: 1 1 auto;
@@ -78,4 +72,35 @@
 	padding: 2px 8px;
 	font-size: 0.7em;
 	z-index: 2;
+}
+
+.jetpack-field-slider__min-input[type="number"],
+.jetpack-field-slider__max-input[type="number"] {
+	field-sizing: content;
+	min-width: 2ch;
+	max-width: 8ch;
+	text-align: center;
+	border: none;
+	background: transparent;
+	font: inherit;
+	font-size: 0.9em;
+	padding: 0 0.5em;
+	margin: 0;
+	appearance: textfield;
+
+	.is-selected &,
+	&:focus {
+		border: 1px solid var(--wp-admin-theme-color, #2271b1);
+	}
+
+	&.has-error {
+		border: 1px solid var(--color-error, #d63638);
+		box-shadow: none;
+	}
+
+	&::-webkit-outer-spin-button,
+	&::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
 }

@@ -67,7 +67,7 @@ const settings = {
 		...defaultSettings.supports,
 	},
 	variations,
-	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],
+	allowedBlocks: [ 'jetpack/label', 'jetpack/input-rating' ],
 	edit,
 	save,
 	example: {

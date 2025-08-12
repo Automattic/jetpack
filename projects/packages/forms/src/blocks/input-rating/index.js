@@ -5,7 +5,7 @@ import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 
-const name = 'rating-input';
+const name = 'input-rating';
 
 const settings = {
 	apiVersion: 3,

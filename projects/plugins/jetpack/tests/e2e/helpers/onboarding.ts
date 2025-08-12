@@ -64,7 +64,7 @@ export class Onboarding {
 	}
 
 	/**
-	 * Approves the user connection by clicking on the "Connect my site" button.
+	 * Approves the user connection by clicking on the "Connect account" button.
 	 * It assumes that
 	 * - the user is already logged in to wp.com.
 	 * - we are on the wp.com connect page.
@@ -85,9 +85,9 @@ export class Onboarding {
 			{ timeout: DEFAULT_TIMEOUT }
 		);
 
-		logger.info( 'Click on "Connect my site" button and wait for redirect to My Jetpack' );
+		logger.info( 'Click on "Connect account" button and wait for redirect to My Jetpack' );
 
-		const approveButton = this.page.getByRole( 'button', { name: 'Connect my site', exact: true } );
+		const approveButton = this.page.getByRole( 'button', { name: 'Connect account', exact: true } );
 
 		return Promise.all( [ waitForMyJetpackPage, approveButton.click() ] );
 	}

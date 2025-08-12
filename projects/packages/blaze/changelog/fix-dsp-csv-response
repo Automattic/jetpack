@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue where the blaze REST controller did not return the request body when the Content-Type header was text/csv.

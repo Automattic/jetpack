@@ -6,15 +6,18 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
 import {
-	ChartProvider,
-	ChartContext,
+	GlobalChartsProvider,
+	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
+import { attachSubComponents } from '../../utils/create-composition';
+import { getSeriesStyles } from '../../utils/get-styles';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
+import { SingleChartContext, type SingleChartRef } from '../shared/single-chart-context';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
@@ -22,7 +25,6 @@ import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import LineChartAnnotation from './line-chart-annotation';
 import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
-import { LineChartContext, type LineChartRef } from './line-chart-context';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../shared/with-responsive';
@@ -188,7 +190,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
-	chartRef?: Ref< LineChartRef >;
+	chartRef?: Ref< SingleChartRef >;
 	width: number;
 	height: number;
 	margin?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -219,7 +221,7 @@ const LineChartScalesRef: FC< {
 	return null; // This component only provides the ref interface
 };
 
-const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
+const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 	(
 		{
 			data,
@@ -259,7 +261,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
-		const internalChartRef = useRef< LineChartRef >( null );
+		const internalChartRef = useRef< SingleChartRef >( null );
 
 		// Forward the external ref to the internal ref
 		useImperativeHandle(
@@ -341,7 +343,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		);
 
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions );
+		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions, legendShape );
 
 		// Memoize metadata to prevent unnecessary re-registration
 		const chartMetadata = useMemo(
@@ -369,7 +371,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		}
 
 		return (
-			<LineChartContext.Provider
+			<SingleChartContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
@@ -423,14 +425,13 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.y } />
 
 							{ dataSorted.map( ( seriesData, index ) => {
-								const stroke =
-									seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
-								const lineProps =
-									seriesData.options?.seriesLineStyle ??
-									providerTheme?.seriesLineStyles?.[
-										index % providerTheme.seriesLineStyles.length
-									] ??
-									{};
+								const { stroke, lineStyles } = getSeriesStyles( seriesData, index, providerTheme );
+
+								const lineProps = {
+									stroke,
+									...lineStyles,
+								};
+
 								return (
 									<g key={ seriesData?.label || index }>
 										{ withStartGlyphs && (
@@ -516,57 +517,61 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 
 					{ children }
 				</div>
-			</LineChartContext.Provider>
+			</SingleChartContext.Provider>
 		);
 	}
 );
 
+// Component type definitions for composition API
 type LineChartAnnotationComponents = {
 	AnnotationsOverlay: typeof LineChartAnnotationsOverlay;
 	Annotation: typeof LineChartAnnotation;
+	Legend: typeof Legend;
 };
 
 type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
 
 type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & React.RefAttributes< LineChartRef >
+	LineChartBaseProps & React.RefAttributes< SingleChartRef >
 > &
 	LineChartAnnotationComponents;
 
 type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< LineChartRef >
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
 > &
 	LineChartAnnotationComponents;
 
-const LineChart = forwardRef< LineChartRef, LineChartProps >( ( props, ref ) => {
-	const existingContext = useContext( ChartContext );
+const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
+	const existingContext = useContext( GlobalChartsContext );
 
-	// If we're already in a ChartProvider context, don't create a new one
+	// If we're already in a GlobalChartsProvider context, render the core component directly
 	if ( existingContext ) {
 		return <LineChartInternal { ...props } ref={ ref } />;
 	}
 
-	// Otherwise, create our own ChartProvider
+	// Otherwise, wrap with our own GlobalChartsProvider
 	return (
-		<ChartProvider>
+		<GlobalChartsProvider>
 			<LineChartInternal { ...props } ref={ ref } />
-		</ChartProvider>
+		</GlobalChartsProvider>
 	);
+} );
+
+LineChartWithProvider.displayName = 'LineChart';
+
+const LineChart = attachSubComponents( LineChartWithProvider, {
+	Legend: Legend,
+	AnnotationsOverlay: LineChartAnnotationsOverlay,
+	Annotation: LineChartAnnotation,
 } ) as LineChartComponent;
 
-LineChart.displayName = 'LineChart';
-LineChart.AnnotationsOverlay = LineChartAnnotationsOverlay;
-LineChart.Annotation = LineChartAnnotation;
-
-// Export unwrapped component for testing
-export { LineChart as LineChartUnresponsive };
-
-const ResponsiveLineChart: LineChartResponsiveComponent = Object.assign(
-	withResponsive< LineChartProps >( LineChart ) as LineChartResponsiveComponent,
+const LineChartResponsive = attachSubComponents(
+	withResponsive< LineChartProps >( LineChartWithProvider ),
 	{
+		Legend: Legend,
 		AnnotationsOverlay: LineChartAnnotationsOverlay,
 		Annotation: LineChartAnnotation,
 	}
-);
+) as LineChartResponsiveComponent;
 
-export default ResponsiveLineChart;
+export { LineChartResponsive as default, LineChart as LineChartUnresponsive };

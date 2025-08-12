@@ -3,8 +3,12 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
-import { ChartContext } from '../../providers/chart-context/chart-context';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+} from '../../providers/chart-context';
+import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -360,18 +364,18 @@ const BarChartInternal: FC< BarChartProps > = ( {
 };
 
 const BarChart: FC< BarChartProps > = props => {
-	const existingContext = useContext( ChartContext );
+	const existingContext = useContext( GlobalChartsContext );
 
-	// If we're already in a ChartProvider context, don't create a new one
+	// If we're already in a GlobalChartsProvider context, don't create a new one
 	if ( existingContext ) {
 		return <BarChartInternal { ...props } />;
 	}
 
-	// Otherwise, create our own ChartProvider
+	// Otherwise, create our own GlobalChartsProvider
 	return (
-		<ChartProvider>
+		<GlobalChartsProvider>
 			<BarChartInternal { ...props } />
-		</ChartProvider>
+		</GlobalChartsProvider>
 	);
 };
 
