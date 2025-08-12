@@ -45,16 +45,14 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 	) => {
 		const theme = useChartTheme();
 
-		// Map new props to internal format
-		// For top/bottom positioning, alignment controls horizontal positioning within that edge
-		const alignmentVertical: 'top' | 'bottom' = position;
-		let alignmentHorizontal: 'left' | 'center' | 'right';
+		// Convert alignment values for CSS class generation
+		let alignmentForCSS: 'left' | 'center' | 'right';
 		if ( alignment === 'start' ) {
-			alignmentHorizontal = 'left';
+			alignmentForCSS = 'left';
 		} else if ( alignment === 'end' ) {
-			alignmentHorizontal = 'right';
+			alignmentForCSS = 'right';
 		} else {
-			alignmentHorizontal = 'center';
+			alignmentForCSS = 'center';
 		}
 
 		const legendScale = scaleOrdinal( {
@@ -84,8 +82,8 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 						className={ clsx(
 							styles.legend,
 							styles[ `legend--${ orientation }` ],
-							styles[ `legend--horizontal-align-${ alignmentHorizontal }` ],
-							styles[ `legend--vertical-align-${ alignmentVertical }` ],
+							styles[ `legend--horizontal-align-${ alignmentForCSS }` ],
+							styles[ `legend--vertical-align-${ position }` ],
 							className
 						) }
 						style={ {
@@ -100,9 +98,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }
 								flexDirection={
-									orientation === 'vertical' && alignmentHorizontal === 'right'
-										? 'row-reverse'
-										: itemDirection
+									orientation === 'vertical' && alignment === 'end' ? 'row-reverse' : itemDirection
 								}
 								{ ...legendItemProps }
 							>
