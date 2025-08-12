@@ -185,7 +185,7 @@ export const CustomLegendPositioning: Story = {
 		withTooltips: true,
 		showLegend: true,
 		legendOrientation: 'vertical',
-		legendAlignment: 'center',
+		legendAlignment: 'end',
 		legendPosition: 'top',
 		legendShape: 'circle',
 		size: 400,
@@ -197,7 +197,7 @@ export const CustomLegendPositioning: Story = {
 		docs: {
 			description: {
 				story:
-					'Pie chart with top-center positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with device usage data.',
+					'Pie chart with top-end positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with device usage data.',
 			},
 		},
 	},
