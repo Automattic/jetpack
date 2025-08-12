@@ -1773,4 +1773,4 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertTrue( $response->has_field_type( 'consent' ), 'Legacy feedback should report consent field exists' );
 		$this->assertFalse( $response->has_consent(), 'Legacy consent should default to false (no)' );
 	}
-} // end class
+}
