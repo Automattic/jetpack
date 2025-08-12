@@ -1695,4 +1695,59 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertNotEmpty( $response_legacy, 'Legacy values should not be empty for the legacy feedback' );
 		$this->assertEquals( $expected_legacy_values, $response_legacy, 'Legacy extra values should match the expected extra values' );
 	}
-}
+
+	public function test_has_field_type_with_consent_explicit_checked() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@example.com',
+				'consent' => 'Yes',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+			. "[contact-field label='Consent' type='consent' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertTrue( $saved_response->has_field_type( 'consent' ), 'Feedback should report consent field exists' );
+		$this->assertTrue( $saved_response->has_consent(), 'Consent should be granted when posted as Yes' );
+	}
+
+	public function test_has_field_type_without_consent_field() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'email' => 'email@example.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+			. "[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertFalse( $saved_response->has_field_type( 'consent' ), 'Feedback should report no consent field' );
+		$this->assertFalse( $saved_response->has_consent(), 'Consent should be false when no consent field was present' );
+	}
+} // end class
