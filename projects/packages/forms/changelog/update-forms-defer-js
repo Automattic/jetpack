@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: defer loading JS for more responsive page loading.
