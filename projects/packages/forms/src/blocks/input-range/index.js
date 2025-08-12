@@ -17,6 +17,8 @@ const settings = {
 		'jetpack/field-slider-max',
 		'jetpack/field-slider-default',
 		'jetpack/field-slider-onChangeDefault',
+		'jetpack/field-slider-onChangeMin',
+		'jetpack/field-slider-onChangeMax',
 	],
 };
 
