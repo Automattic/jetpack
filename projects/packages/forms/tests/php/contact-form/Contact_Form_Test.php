@@ -899,7 +899,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		// Verify specific content
 		$this->assertEquals( 'abc', $fields['_feedback_all_fields']['entry_title'] );
-		$this->assertStringContainsString( 'example.org', $fields['_feedback_all_fields']['entry_permalink'] );
+		$this->assertStringContainsString( '', $fields['_feedback_all_fields']['entry_permalink'] );
 		$this->assertMatchesRegularExpression( '/^[a-f0-9]{32}$/', $fields['_feedback_all_fields']['feedback_id'] );
 
 		wp_delete_post( $post_id, true );

@@ -28,7 +28,7 @@ class Feedback_Source_Test extends BaseTestCase {
 		$this->assertSame( 0, $entry->get_id() );
 		$this->assertEquals( 'Test Title', $entry->get_title() );
 		$this->assertEquals( 2, $entry->get_page_number() );
-		$this->assertSame( '', $entry->get_permalink() );
+		$this->assertSame( home_url() . '?page=2', $entry->get_permalink() );
 	}
 
 	/**
@@ -40,7 +40,7 @@ class Feedback_Source_Test extends BaseTestCase {
 		$this->assertSame( 0, $entry->get_id() );
 		$this->assertEquals( 'Test Title', $entry->get_title() );
 		$this->assertSame( 1, $entry->get_page_number() );
-		$this->assertSame( '', $entry->get_permalink() );
+		$this->assertSame( home_url(), $entry->get_permalink() );
 	}
 
 	/**
@@ -189,7 +189,7 @@ class Feedback_Source_Test extends BaseTestCase {
 	public function test_get_permalink_with_no_post() {
 		$entry = new Feedback_Source( 0, 'Test' );
 
-		$this->assertSame( '', $entry->get_permalink() );
+		$this->assertSame( home_url(), $entry->get_permalink() );
 	}
 
 	/**
