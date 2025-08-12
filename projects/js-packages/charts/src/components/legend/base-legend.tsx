@@ -23,8 +23,8 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 			items,
 			className,
 			orientation = 'horizontal',
-			alignmentHorizontal = 'center',
-			alignmentVertical = 'bottom',
+			position = 'bottom',
+			alignment = 'center',
 			shape = 'rect',
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
@@ -44,6 +44,13 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 		ref
 	) => {
 		const theme = useChartTheme();
+
+		// Map new props to internal format using edge-relative alignment
+		// Currently only supports top/bottom positioning
+		const alignmentVertical: 'top' | 'bottom' = position; // 'top' or 'bottom'
+		const alignmentHorizontal: 'left' | 'center' | 'right' =
+			alignment === 'start' ? 'left' : alignment === 'end' ? 'right' : 'center';
+
 		const legendScale = scaleOrdinal( {
 			domain: items.map( item => item.label ),
 			range: items.map( item => item.color ),
