@@ -106,10 +106,54 @@ export default function ImageSelectFieldEdit( props ) {
 						index: 1,
 						element: (
 							<ToggleControl
+								key="show-labels"
+								label={ __( 'Show labels', 'jetpack-forms' ) }
+								checked={ attributes?.showLabels }
+								onChange={ ( value: boolean ) => setAttributes( { showLabels: value } ) }
+							/>
+						),
+					},
+					{
+						index: 2,
+						element: (
+							<ToggleControl
 								key="is-supersized"
 								label={ __( 'Supersized', 'jetpack-forms' ) }
 								checked={ attributes?.isSupersized }
 								onChange={ ( value: boolean ) => setAttributes( { isSupersized: value } ) }
+							/>
+						),
+					},
+					{
+						index: 3,
+						element: (
+							<ToggleControl
+								key="is-multiple"
+								label={ __( 'Multiple selection', 'jetpack-forms' ) }
+								checked={ attributes?.isMultiple }
+								onChange={ ( value: boolean ) => setAttributes( { isMultiple: value } ) }
+							/>
+						),
+					},
+					{
+						index: 4,
+						element: (
+							<ToggleControl
+								key="randomize-options"
+								label={ __( 'Randomize', 'jetpack-forms' ) }
+								checked={ attributes?.randomizeOptions }
+								onChange={ ( value: boolean ) => setAttributes( { randomizeOptions: value } ) }
+							/>
+						),
+					},
+					{
+						index: 5,
+						element: (
+							<ToggleControl
+								key="show-other-option"
+								label={ __( '"Other" option', 'jetpack-forms' ) }
+								checked={ attributes?.showOtherOption }
+								onChange={ ( value: boolean ) => setAttributes( { showOtherOption: value } ) }
 							/>
 						),
 					},

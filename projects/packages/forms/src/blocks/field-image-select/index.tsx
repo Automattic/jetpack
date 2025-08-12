@@ -29,25 +29,37 @@ const settings = {
 	edit,
 	attributes: {
 		...defaultSettings.attributes,
-		multiple: {
+		showLabels: {
+			type: 'boolean',
+			default: true,
+		},
+		isSupersized: {
 			type: 'boolean',
 			default: false,
 		},
-		isSupersized: {
+		isMultiple: {
+			type: 'boolean',
+			default: false,
+		},
+		randomizeOptions: {
+			type: 'boolean',
+			default: false,
+		},
+		showOtherOption: {
 			type: 'boolean',
 			default: false,
 		},
 	},
 	providesContext: {
 		...defaultSettings.providesContext,
+		'jetpack/field-image-select-show-labels': 'showLabels',
 		'jetpack/field-image-select-is-supersized': 'isSupersized',
+		'jetpack/field-image-select-is-multiple': 'isMultiple',
+		'jetpack/field-image-select-randomize-options': 'randomizeOptions',
+		'jetpack/field-image-select-show-other-option': 'showOtherOption',
 	},
 	save,
 	example: {
-		attributes: {
-			multiple: false,
-			isSupersized: false,
-		},
 		innerBlocks: [
 			{
 				name: 'jetpack/label',
@@ -57,9 +69,6 @@ const settings = {
 			},
 			{
 				name: 'jetpack/form-image-select-choices',
-				attributes: {
-					multiple: false,
-				},
 				innerBlocks: [
 					{
 						name: 'jetpack/form-image-select-choice',

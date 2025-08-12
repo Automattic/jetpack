@@ -11,8 +11,8 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 export const getImageChoiceLabel = ( index: number ): string => {
 	return sprintf(
-		// translators: %d is the number of the image choice field.
-		__( 'Image choice %d', 'jetpack-forms' ),
+		// translators: %d is the number of the choice, e.g. "Choice 1".
+		__( 'Choice %d', 'jetpack-forms' ),
 		index
 	);
 };
