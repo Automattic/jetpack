@@ -821,6 +821,11 @@ class Contact_Form_Test extends BaseTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	public function test_parse_fields_from_content_no_data() {
+		$data = Contact_Form_Plugin::parse_fields_from_content( 999999 );
+		$this->assertEmpty( $data );
+	}
+
 	/**
 	 * We test that if the all fields keys do have HTML content, they are escaped correctly.
 	 */
