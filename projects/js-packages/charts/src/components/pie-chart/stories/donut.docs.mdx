@@ -60,8 +60,8 @@ All optional props from [PieChart](./?path=/docs/js-packages-charts-types-pie-ch
 - **`margin`**: Chart margins as an object with `top`, `right`, `bottom`, `left` properties
 - **`legendOrientation`** (default: `'horizontal'`): Legend orientation (`'horizontal'` | `'vertical'`)
 - **`legendShape`** (default: `'circle'`): Legend shape
-- **`legendAlignmentHorizontal`** (default: `'center'`): Legend horizontal alignment
-- **`legendAlignmentVertical`** (default: `'bottom'`): Legend vertical alignment
+- **`legendAlignment`** (default: `'center'`): Legend alignment within its position
+- **`legendPosition`** (default: `'bottom'`): Legend position (where the legend appears)
 
 ### Key Differences from Pie Charts
 
@@ -398,8 +398,8 @@ Donut charts are created using the PieChart component with `thickness` < 1. All 
 | `showLegend` | `boolean` | `false` | Shows a legend for the chart data |
 | `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend orientation |
 | `legendShape` | `LegendShape` | `'circle'` | Legend shape |
-| `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Legend horizontal alignment |
-| `legendAlignmentVertical` | `'top' \| 'bottom'` | `'bottom'` | Legend vertical alignment |
+| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
+| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Optional unique identifier for the chart |
 | `margin` | `ChartMargin` | - | Chart margins with top, right, bottom, left properties |
