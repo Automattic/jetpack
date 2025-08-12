@@ -53,6 +53,7 @@ class Feedback_Source_Test extends BaseTestCase {
 		$this->assertEquals( 'Fallback Title', $entry->get_title() );
 		$this->assertSame( 1, $entry->get_page_number() );
 		$this->assertSame( '', $entry->get_permalink() );
+		$this->assertSame( '', $entry->get_relative_permalink() );
 	}
 
 	/**
