@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix not picking up stylesheets when their rel attribute was more complex.
