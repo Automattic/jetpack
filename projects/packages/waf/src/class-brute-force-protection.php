@@ -19,6 +19,10 @@ use Jetpack_IXR_Client;
 use Jetpack_Options;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Brute Force Protection class.
  *

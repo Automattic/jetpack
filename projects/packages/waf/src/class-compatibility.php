@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\Waf;
 
 use Jetpack_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Defines methods for ensuring backwards compatibility.
  */

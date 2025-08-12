@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Defines our constants.
  */

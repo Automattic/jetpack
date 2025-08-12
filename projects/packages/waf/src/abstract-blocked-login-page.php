@@ -7,6 +7,10 @@ use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Blocked_Login_Page
  *

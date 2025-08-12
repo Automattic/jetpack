@@ -11,6 +11,10 @@ use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use WP_Error;
 use WP_Upgrader;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Initializes the module
  */

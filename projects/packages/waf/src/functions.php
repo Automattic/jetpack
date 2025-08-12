@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Waf;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * A wrapper for WordPress's `wp_unslash()`.
  *

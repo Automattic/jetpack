@@ -14,6 +14,10 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Jetpack_Options;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class for generating and working with firewall rule files.
  */

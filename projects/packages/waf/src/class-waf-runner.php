@@ -11,6 +11,10 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Executes the WAF.
  */
