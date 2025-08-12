@@ -28,6 +28,7 @@ function wpcomsh_init_external_storage() {
 	// Only initialize if both External_Storage class and our provider class are available
 	if ( class_exists( 'Automattic\Jetpack\Connection\External_Storage' ) && class_exists( 'Atomic_Storage_Provider' ) ) {
 		// Register the Atomic storage provider
+		// @phan-suppress PhanUndeclaredClassMethod Method is conditionally available from Jetpack Connection package
 		\Automattic\Jetpack\Connection\External_Storage::register_provider(
 			new Atomic_Storage_Provider()
 		);
