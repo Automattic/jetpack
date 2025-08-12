@@ -1750,4 +1750,4 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertFalse( $saved_response->has_field_type( 'consent' ), 'Feedback should report no consent field' );
 		$this->assertFalse( $saved_response->has_consent(), 'Consent should be false when no consent field was present' );
 	}
-} // end class
+}
