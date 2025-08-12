@@ -446,8 +446,7 @@ export const AlignmentOptions: Story = {
 			{ label: 'Series 3', value: '40%', color: '#44B556' },
 		],
 		orientation: 'horizontal',
-		alignmentHorizontal: 'left',
-		alignmentVertical: 'top',
+		alignment: 'start',
 	},
 	parameters: {
 		docs: {

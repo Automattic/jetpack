@@ -244,7 +244,7 @@ export const CustomLegendPositioning: Story = {
 		thickness: 0.4,
 		showLegend: true,
 		legendOrientation: 'vertical',
-		legendAlignment: 'left',
+		legendAlignment: 'start',
 		legendPosition: 'top',
 		data: [
 			{
