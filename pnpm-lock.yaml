@@ -1336,18 +1336,12 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      moment:
-        specifier: 2.30.1
-        version: 2.30.1
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
       react-page-visibility:
         specifier: 7.0.0
         version: 7.0.0(react@18.3.1)
-      rememo:
-        specifier: 4.0.1
-        version: 4.0.1
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.1.0
@@ -14837,9 +14831,6 @@ packages:
 
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
-
-  rememo@4.0.1:
-    resolution: {integrity: sha512-x/T5q/pCDh8k4OlvJGqkI3eO+O8hmJv9HhJHo4avwlluwUpDbteDvyqw1PTarEITkeH9bfW6GSKeRke+XKgykw==}
 
   rememo@4.0.2:
     resolution: {integrity: sha512-NVfSP9NstE3QPNs/TnegQY0vnJnstKQSpcrsI2kBTB3dB2PkdfKdTa+abbjMIDqpc63fE5LfjLgfMst0ULMFxQ==}
@@ -29703,8 +29694,6 @@ snapshots:
       '@types/mdast': 4.0.4
       mdast-util-to-markdown: 2.1.2
       unified: 11.0.5
-
-  rememo@4.0.1: {}
 
   rememo@4.0.2: {}
 
