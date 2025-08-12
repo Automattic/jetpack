@@ -236,6 +236,18 @@ class Feedback_Field {
 	}
 
 	/**
+	 * Get the original form field ID, if available.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null
+	 */
+	public function get_original_id() {
+		$original_id = $this->get_meta_key_value( 'original_id' );
+		return is_string( $original_id ) && $original_id !== '' ? $original_id : null;
+	}
+
+	/**
 	 * Get the serialized representation of the field.
 	 *
 	 * @return array

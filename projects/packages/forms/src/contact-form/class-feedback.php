@@ -1155,7 +1155,8 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type );
+			$meta           = array( 'original_id' => (string) $field_id );
+			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
@@ -1220,5 +1221,51 @@ class Feedback {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get a field by its original form ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id Original form field ID.
+	 * @return Feedback_Field|null
+	 */
+	public function get_field_by_id( $id ) {
+		if ( ! is_string( $id ) || $id === '' ) {
+			return null;
+		}
+		$needle = strtolower( str_replace( array( ' ', '_' ), '', $id ) );
+		foreach ( $this->fields as $field ) {
+			if ( ! $field instanceof Feedback_Field ) {
+				continue;
+			}
+			$original_id = $field->get_original_id();
+			if ( ! is_string( $original_id ) || $original_id === '' ) {
+				continue;
+			}
+			$haystack = strtolower( str_replace( array( ' ', '_' ), '', $original_id ) );
+			if ( $haystack === $needle ) {
+				return $field;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get a field render value by its original form ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id Original form field ID.
+	 * @param string $context Render context.
+	 * @return string
+	 */
+	public function get_field_value_by_id( $id, $context = 'default' ) {
+		$field = $this->get_field_by_id( $id );
+		if ( ! $field ) {
+			return '';
+		}
+		return (string) $field->get_render_value( $context );
 	}
 }
