@@ -54,7 +54,7 @@ export default function RatingFieldEdit( props ) {
 	} );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],
+		allowedBlocks: [ 'jetpack/label', 'jetpack/input-rating' ],
 		template: [
 			[
 				'jetpack/label',
@@ -63,7 +63,7 @@ export default function RatingFieldEdit( props ) {
 					placeholder: __( 'Add label…', 'jetpack-forms' ),
 				},
 			],
-			[ 'jetpack/rating-input', {} ],
+			[ 'jetpack/input-rating', {} ],
 		],
 		templateLock: 'all',
 		__experimentalCaptureToolbars: true,
