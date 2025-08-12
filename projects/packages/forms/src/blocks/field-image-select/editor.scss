@@ -1,0 +1,24 @@
+.wp-block-jetpack-contact-form .jetpack-contact-form {
+
+	.jetpack-field-image-choices__wrapper {
+		--jetpack-field-image-choices-gap: 16px;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--jetpack-field-image-choices-gap);
+
+		.jetpack-form-image-select-choice {
+			display: flex;
+			width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-choices-gap) * ( 3 / 4 ));
+			flex-basis: unset;
+			margin: 0;
+
+			&.is-supersized {
+				width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-choices-gap) * ( 1 / 2 ));
+			}
+
+			.jetpack-field-image-choice__wrapper {
+				width: 100%;
+			}
+		}
+	}
+}

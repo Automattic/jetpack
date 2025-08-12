@@ -18,6 +18,7 @@ const settings = {
 	description: __( 'An image option for a image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/form-image-select-choices' ],
+	usesContext: [ 'jetpack/field-image-select-is-supersized' ],
 	edit,
 	attributes: {},
 	save,

@@ -39,7 +39,7 @@ export default function ImageChoiceFieldEdit( props ) {
 	);
 
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field jetpack-form-image-select-choice', {
+		className: clsx( 'jetpack-field jetpack-form-image-select-choices', {
 			'is-selected': isSelected || isInnerBlockSelected,
 		} ),
 		style: blockStyle,
@@ -58,6 +58,7 @@ export default function ImageChoiceFieldEdit( props ) {
 			allowedBlocks: [ 'jetpack/form-image-select-choice' ],
 			template,
 			templateLock: false, // Allow adding, removing, and moving choices
+			orientation: 'horizontal',
 		}
 	);
 

@@ -7,7 +7,7 @@ import {
 	useInnerBlocksProps,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -19,6 +19,7 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useAddImageChoice from '../shared/hooks/use-add-image-choice';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import './editor.scss';
 /**
  * Types
  */
@@ -100,6 +101,19 @@ export default function ImageSelectFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				extraFieldSettings={ [
+					{
+						index: 1,
+						element: (
+							<ToggleControl
+								key="is-supersized"
+								label={ __( 'Supersized', 'jetpack-forms' ) }
+								checked={ attributes?.isSupersized }
+								onChange={ ( value: boolean ) => setAttributes( { isSupersized: value } ) }
+							/>
+						),
+					},
+				] }
 			/>
 		</div>
 	);

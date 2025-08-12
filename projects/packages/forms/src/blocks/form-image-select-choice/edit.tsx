@@ -20,7 +20,7 @@ import { getImageChoiceLabel } from './label';
 import type { BlockEditorStoreSelect } from '../../types';
 
 export default function ImageChoiceFieldEdit( props ) {
-	const { attributes, clientId, isSelected } = props;
+	const { attributes, clientId, isSelected, context } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const { isInnerBlockSelected, imageBlockAttributes, choiceIndex } = useSelect(
 		select => {
@@ -42,10 +42,13 @@ export default function ImageChoiceFieldEdit( props ) {
 		[ clientId ]
 	);
 
+	const { 'jetpack/field-image-select-is-supersized': isSupersized } = context || {};
+
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-form-image-select-choice', {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-image': !! imageBlockAttributes?.url,
+			'is-supersized': isSupersized,
 		} ),
 		style: blockStyle,
 	} );

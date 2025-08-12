@@ -33,11 +33,20 @@ const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		isSupersized: {
+			type: 'boolean',
+			default: false,
+		},
+	},
+	providesContext: {
+		...defaultSettings.providesContext,
+		'jetpack/field-image-select-is-supersized': 'isSupersized',
 	},
 	save,
 	example: {
 		attributes: {
 			multiple: false,
+			isSupersized: false,
 		},
 		innerBlocks: [
 			{

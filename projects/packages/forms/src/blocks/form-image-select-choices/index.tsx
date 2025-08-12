@@ -14,10 +14,11 @@ const name = 'form-image-select-choices';
 
 const settings = {
 	apiVersion: 3,
-	title: __( 'Image choices field', 'jetpack-forms' ),
-	description: __( 'A list of image choices for a image select field.', 'jetpack-forms' ),
+	title: __( 'Image choices', 'jetpack-forms' ),
+	description: __( 'A list of image choices for an image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/field-image-select' ],
+	usesContext: [ 'jetpack/field-is-supersized' ],
 	edit,
 	attributes: {},
 	save,
