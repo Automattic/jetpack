@@ -297,7 +297,7 @@ class Feedback {
 	 */
 	public function has_field_type( $type ) {
 		foreach ( $this->fields as $field ) {
-			if ( method_exists( $field, 'get_type' ) && $field->get_type() === $type ) {
+			if ( $field->get_type() === $type ) {
 				return true;
 			}
 		}
