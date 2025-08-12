@@ -319,13 +319,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 				} else {
 					// Check that the selected options are valid
-					$options           = (array) $this->get_attribute( 'options' );
+					$options      = (array) $this->get_attribute( 'options' );
+					$options_data = (array) $this->get_attribute( 'optionsdata' );
+
+					if ( ! empty( $options_data ) ) {
+						$options = array_map(
+							function ( $option ) {
+								return sanitize_text_field( trim( $option['label'] ) );
+							},
+							$options_data
+						);
+					}
+
 					$non_empty_options = array_filter(
 						$options,
 						function ( $option ) {
 							return $option !== '';
 						}
 					);
+
 					foreach ( $field_value  as $field_value_item ) {
 						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
 							/* translators: %s is the name of a form field */

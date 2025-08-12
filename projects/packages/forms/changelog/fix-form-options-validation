@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix validation of jetpack multi-checkboxes
