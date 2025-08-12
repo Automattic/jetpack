@@ -45,15 +45,17 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 	) => {
 		const theme = useChartTheme();
 
-		// Convert alignment values for CSS class generation
-		let alignmentForCSS: 'left' | 'center' | 'right';
-		if ( alignment === 'start' ) {
-			alignmentForCSS = 'left';
-		} else if ( alignment === 'end' ) {
-			alignmentForCSS = 'right';
-		} else {
-			alignmentForCSS = 'center';
-		}
+		// Helper function to convert semantic alignment to CSS class name
+		const getAlignmentClass = ( align: 'start' | 'center' | 'end' ) => {
+			switch ( align ) {
+				case 'start':
+					return 'left';
+				case 'end':
+					return 'right';
+				default:
+					return 'center';
+			}
+		};
 
 		const legendScale = scaleOrdinal( {
 			domain: items.map( item => item.label ),
@@ -82,7 +84,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 						className={ clsx(
 							styles.legend,
 							styles[ `legend--${ orientation }` ],
-							styles[ `legend--horizontal-align-${ alignmentForCSS }` ],
+							styles[ `legend--horizontal-align-${ getAlignmentClass( alignment ) }` ],
 							styles[ `legend--vertical-align-${ position }` ],
 							className
 						) }
