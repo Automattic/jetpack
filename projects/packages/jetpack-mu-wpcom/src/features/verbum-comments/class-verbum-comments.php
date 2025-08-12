@@ -111,7 +111,7 @@ class Verbum_Comments {
 		$color_scheme = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 		$comment_url  = $this->get_form_action();
 
-		if ( ! $color_scheme || '' === $color_scheme ) {
+		if ( ! $color_scheme ) {
 			// Default to transparent because it is more adaptable than white or dark.
 			$color_scheme = 'transparent';
 		}

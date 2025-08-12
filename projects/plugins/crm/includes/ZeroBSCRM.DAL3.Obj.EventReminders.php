@@ -303,14 +303,14 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
 
 
             // dueBefore
-            if (!empty($dueBefore) && $dueBefore > 0 && $dueBefore !== false){
+            if (!empty($dueBefore) && $dueBefore > 0 ){
 
                 // is (event reminder at (e.g. -86400) + event start time (uts)) before $dueBefore
                 $wheres['direct'][] = array('(eventreminder.zbser_remind_at + (SELECT zbse_start FROM '.$ZBSCRM_t['events'].' WHERE ID = eventreminder.zbser_event) < %d)',array($dueBefore));
 
             }
             // dueAfter
-            if (!empty($dueAfter) && $dueAfter > 0 && $dueAfter !== false){
+            if (!empty($dueAfter) && $dueAfter > 0 ){
 
                 // is (event reminder at (e.g. -86400) + event start time (uts)) after $dueAfter
                 $wheres['direct'][] = array('(eventreminder.zbser_remind_at + (SELECT zbse_start FROM '.$ZBSCRM_t['events'].' WHERE ID = eventreminder.zbser_event) > %d)',array($dueAfter));

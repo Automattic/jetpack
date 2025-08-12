@@ -2093,7 +2093,7 @@ function zeroBSCRM_getLog($lID=-1){
 function zeroBSCRM_getContactLogs($customerID=-1,$withFullDetails=false,$perPage=100,$page=0,$searchPhrase='',$argsOverride=false){
 			
 
-		if (!empty($customerID) && $customerID !== -1 && $customerID !== false){
+		if ( ! empty( $customerID ) && $customerID !== -1 ) {
 
 			global $zbs;
 			return $zbs->DAL->logs->getLogsForObj(array(
@@ -2167,7 +2167,7 @@ function zeroBSCRM_getCompanyLogs($companyID=false,$withFullDetails=false,$perPa
 function zeroBSCRM_getObjCreationLog($objID=-1,$objType=ZBS_TYPE_CONTACT){
 			
 
-		if (!empty($objID) && $objID !== -1 && $objID !== false){
+		if ( ! empty( $objID ) && $objID !== -1 ) {
 
 			global $zbs;
 			return $zbs->DAL->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase

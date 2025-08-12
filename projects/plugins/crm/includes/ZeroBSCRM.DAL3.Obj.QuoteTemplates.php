@@ -333,9 +333,9 @@ class zbsDAL_quotetemplates extends zbsDAL_ObjectLayer {
 
             // quick addition for mike
             #} olderThan
-            if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbsqt_created','<=','%d',$olderThan);
+            if (!empty($olderThan) && $olderThan > 0 ) $wheres['olderThan'] = array('zbsqt_created','<=','%d',$olderThan);
             #} newerThan
-            if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbsqt_created','>=','%d',$newerThan);
+            if (!empty($newerThan) && $newerThan > 0 ) $wheres['newerThan'] = array('zbsqt_created','>=','%d',$newerThan);
 
             // status
             //if (!empty($hasStatus) && $hasStatus !== false) $wheres['hasStatus'] = array('XXXX_status','=','%s',$hasStatus);
