@@ -52,7 +52,7 @@ The Legend component provides a flexible way to display chart legends either as 
 <Legend
   chartId="sales-chart"
   orientation="vertical"
-  alignmentHorizontal="right"
+  alignment="end"
 />
 \`\`\`
 
