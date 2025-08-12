@@ -887,14 +887,15 @@ class Dashboard_REST_Controller {
 		$response_code         = wp_remote_retrieve_response_code( $response );
 		$response_body_content = wp_remote_retrieve_body( $response );
 		$content_type          = $response['headers']['content-type'] ?? '';
-		$response_body         = json_decode( $response_body_content, true );
-
-		if ( 200 !== $response_code ) {
-			return $this->get_blaze_error( $response_body, $response_code );
-		}
 
 		if ( str_starts_with( $content_type, 'text/csv' ) ) {
 			return $response_body_content;
+		}
+
+		$response_body = json_decode( $response_body_content, true );
+
+		if ( 200 !== $response_code ) {
+			return $this->get_blaze_error( $response_body, $response_code );
 		}
 
 		// Cache the successful JSON response for 5 minutes.
