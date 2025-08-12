@@ -94,7 +94,8 @@
 	}
 
 	&.has-error {
-		border: 1px solid #d63638;
+		border: 1px solid var(--color-error, #d63638);
+		box-shadow: none;
 	}
 
 	&::-webkit-outer-spin-button,
