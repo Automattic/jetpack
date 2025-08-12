@@ -92,7 +92,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			args: {
 				...legendStoryArgs,
 				legendOrientation: 'vertical',
-				legendAlignment: 'right',
+				legendAlignment: 'end',
 				legendPosition: 'top',
 			},
 		},
