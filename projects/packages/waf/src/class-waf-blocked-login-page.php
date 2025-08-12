@@ -9,10 +9,6 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Redirect;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
-
 /**
  * WAF Blocked Login Page class.
  */

@@ -24,6 +24,18 @@ interface WafStandaloneBootstrapTest_filesystem_mock {
 final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 	/**
+	 * Test guarding against running outside of WP context.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testConstructingTheBootstrapWithoutAbspathConstantThrowsException() {
+		$this->assertFalse( defined( 'ABSPATH' ) );
+		$this->expectExceptionMessage( 'Cannot generate the WAF bootstrap if we are not running in WordPress context.' );
+		new Waf_Standalone_Bootstrap();
+	}
+
+	/**
 	 * Test constructing the generator defined WAF constants if they are still missing.
 	 *
 	 * @runInSeparateProcess

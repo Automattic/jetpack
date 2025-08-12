@@ -12,10 +12,6 @@ namespace Automattic\Jetpack\Waf;
 use Exception;
 use WP_Error;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
-
 /**
  * WAF exception.
  */

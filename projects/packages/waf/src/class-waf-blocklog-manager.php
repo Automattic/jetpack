@@ -7,10 +7,6 @@
 
 namespace Automattic\Jetpack\Waf;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
-
 /**
  * Class used to manage blocklog operations
  */

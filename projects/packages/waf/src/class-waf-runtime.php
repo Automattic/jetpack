@@ -9,10 +9,6 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
-
 require_once __DIR__ . '/functions.php';
 
 // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about sanitizing input.
