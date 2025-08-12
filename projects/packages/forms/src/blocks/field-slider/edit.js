@@ -1,6 +1,11 @@
-import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
+import {
+	useBlockProps,
+	useInnerBlocksProps,
+	InspectorControls,
+	BlockContextProvider,
+} from '@wordpress/block-editor';
 import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useEffect, useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 
@@ -44,12 +49,7 @@ export default function SliderFieldEdit( props ) {
 		[ max, min, setAttributes ]
 	);
 
-	// Make callback available in block attributes for context.
-	useEffect( () => {
-		setAttributes( { onChangeDefault, onChangeMin, onChangeMax } );
-	}, [ onChangeDefault, onChangeMin, onChangeMax, setAttributes ] );
-
-	// Ensure min, max, and default are always set when the block is first added.
+	// Initialize scalar attributes so they serialize into post markup
 	useEffect( () => {
 		if (
 			attributes.min === undefined ||
@@ -115,7 +115,15 @@ export default function SliderFieldEdit( props ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div { ...innerBlocksProps } />
+			<BlockContextProvider
+				value={ {
+					'jetpack/field-slider-onChangeDefault': onChangeDefault,
+					'jetpack/field-slider-onChangeMin': onChangeMin,
+					'jetpack/field-slider-onChangeMax': onChangeMax,
+				} }
+			>
+				<div { ...innerBlocksProps } />
+			</BlockContextProvider>
 			<JetpackFieldControls
 				attributes={ attributes }
 				id={ id }
