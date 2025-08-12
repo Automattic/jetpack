@@ -311,8 +311,8 @@ class Admin_Menu_Test extends TestCase {
 
 		static::$admin_menu->add_tools_menu();
 
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][3][2] );
 	}
 
 	/**
