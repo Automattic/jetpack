@@ -63,7 +63,7 @@ describe( 'PieChart', () => {
 		test( 'renders legend when showLegend is true', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendAlignmentVertical: 'top',
+				legendPosition: 'top',
 			} );
 
 			// Check that legend container is rendered using accessible queries
@@ -75,7 +75,7 @@ describe( 'PieChart', () => {
 		test( 'renders correct number of legend items', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendAlignmentVertical: 'top',
+				legendPosition: 'top',
 			} );
 
 			// Use getAllByTestId to find legend items
@@ -86,7 +86,7 @@ describe( 'PieChart', () => {
 		test( 'chart renders with legend at top position', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendAlignmentVertical: 'top',
+				legendPosition: 'top',
 			} );
 
 			// Verify the chart renders without errors when legend is at top
@@ -101,7 +101,7 @@ describe( 'PieChart', () => {
 		test( 'chart renders with legend at bottom position', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendAlignmentVertical: 'bottom',
+				legendPosition: 'bottom',
 			} );
 
 			// Verify the chart renders without errors when legend is at bottom

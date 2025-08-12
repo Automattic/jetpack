@@ -48,8 +48,15 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 		// Map new props to internal format using edge-relative alignment
 		// Currently only supports top/bottom positioning
 		const alignmentVertical: 'top' | 'bottom' = position; // 'top' or 'bottom'
-		const alignmentHorizontal: 'left' | 'center' | 'right' =
-			alignment === 'start' ? 'left' : alignment === 'end' ? 'right' : 'center';
+		// Map alignment to horizontal position
+		let alignmentHorizontal: 'left' | 'center' | 'right';
+		if ( alignment === 'start' ) {
+			alignmentHorizontal = 'left';
+		} else if ( alignment === 'end' ) {
+			alignmentHorizontal = 'right';
+		} else {
+			alignmentHorizontal = 'center';
+		}
 
 		const legendScale = scaleOrdinal( {
 			domain: items.map( item => item.label ),
