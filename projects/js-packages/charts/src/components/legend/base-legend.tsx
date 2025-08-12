@@ -45,9 +45,6 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 	) => {
 		const theme = useChartTheme();
 
-		// Use semantic alignment directly as CSS class name
-		const alignmentClass = alignment;
-
 		const legendScale = scaleOrdinal( {
 			domain: items.map( item => item.label ),
 			range: items.map( item => item.color ),
@@ -75,7 +72,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 						className={ clsx(
 							styles.legend,
 							styles[ `legend--${ orientation }` ],
-							styles[ `legend--alignment-${ alignmentClass }` ],
+							styles[ `legend--alignment-${ alignment }` ],
 							styles[ `legend--position-${ position }` ],
 							className
 						) }
