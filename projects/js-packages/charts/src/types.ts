@@ -102,7 +102,7 @@ export type ChartTheme = {
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
 	/** Styles for legend shapes */
-	legendShapeStyles?: CSSProperties[];
+	legendShapeStyles?: ( CSSProperties & LineStyles )[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
 	/** Styles for legend labels */

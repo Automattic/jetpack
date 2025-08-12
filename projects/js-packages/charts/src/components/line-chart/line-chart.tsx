@@ -12,8 +12,8 @@ import {
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
-import { getSeriesStyles } from '../../utils/get-styles';
 import { attachSubComponents } from '../../utils/create-composition';
+import { getSeriesStyles } from '../../utils/get-styles';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
@@ -343,7 +343,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions );
+		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions, legendShape );
 
 		// Memoize metadata to prevent unnecessary re-registration
 		const chartMetadata = useMemo(

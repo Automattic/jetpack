@@ -1,7 +1,9 @@
-import { useMemo } from 'react';
-import { getSeriesStyles } from '../../utils/get-styles';
+import { LineStyles } from '@visx/xychart';
+import { CSSProperties, useMemo } from 'react';
+import { getSeriesStyles, getItemShapeStyles } from '../../utils/get-styles';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
+import type { LegendShape } from '@visx/legend/lib/types';
 
 export interface ChartLegendOptions {
 	withGlyph?: boolean;
@@ -35,20 +37,23 @@ function formatPointValue(
 
 /**
  * Creates a base legend item with common properties
- * @param label - The label for the legend item
- * @param value - The value for the legend item
- * @param color - The color for the legend item
+ * @param label      - The label for the legend item
+ * @param value      - The value for the legend item
+ * @param color      - The color for the legend item
+ * @param shapeStyle - The shape style for the legend item
  * @return Base legend item object
  */
 function createBaseLegendItem(
 	label: string,
 	value: string,
-	color: string
+	color: string,
+	shapeStyle?: CSSProperties & LineStyles
 ): Omit< LegendItemWithGlyph, 'glyphSize' | 'renderGlyph' > {
 	return {
 		label,
 		value,
 		color,
+		shapeStyle,
 	};
 }
 
@@ -60,6 +65,7 @@ function createBaseLegendItem(
  * @param withGlyph   - Whether to include glyph rendering
  * @param glyphSize   - Size of the glyph
  * @param renderGlyph - Component to render the glyph
+ * @param legendShape - The shape to use for the legend
  * @return Array of processed legend items
  */
 function processSeriesData(
@@ -68,37 +74,28 @@ function processSeriesData(
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
-	renderGlyph?: React.ComponentType< unknown >
+	renderGlyph?: React.ComponentType< unknown >,
+	legendShape?: LegendShape< SeriesData[], number >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( series: SeriesData, index: number ) => {
-		const { stroke, lineStyles } = getSeriesStyles( series, index, theme );
+		const { stroke } = getSeriesStyles( series, index, theme );
+		const { shapeStyles } = getItemShapeStyles( series, index, theme, legendShape );
 		const baseItem = createBaseLegendItem(
 			series.label,
 			showValues ? series.data?.length?.toString() || '0' : '',
-			stroke
+			stroke,
+			shapeStyles
 		);
-
-		// Create shape style that includes comparison styling
-		const shapeStyle = {
-			...( series.options?.legendShapeStyle ?? {} ),
-			...lineStyles,
-		};
-
-		const hasShapeStyle = Object.keys( shapeStyle ).length > 0;
 
 		if ( withGlyph && renderGlyph ) {
 			return {
 				...baseItem,
 				glyphSize,
 				renderGlyph,
-				shapeStyle: hasShapeStyle ? shapeStyle : undefined,
 			} as LegendItemWithGlyph;
 		}
 
-		return {
-			...baseItem,
-			shapeStyle: hasShapeStyle ? shapeStyle : undefined,
-		} as LegendItemWithoutGlyph;
+		return baseItem;
 	};
 
 	return seriesData.map( mapper ) as LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
@@ -145,9 +142,10 @@ function processPointData(
 
 /**
  * Hook to transform chart data into legend items
- * @param data    - The chart data to transform
- * @param theme   - The chart theme for colors
- * @param options - Configuration options for legend generation
+ * @param data        - The chart data to transform
+ * @param theme       - The chart theme for colors
+ * @param options     - Configuration options for legend generation
+ * @param legendShape - The shape type for legend items (string literal or React component)
  * @return Array of legend items ready for display
  */
 export function useChartLegendData<
@@ -155,7 +153,8 @@ export function useChartLegendData<
 >(
 	data: T,
 	theme: ChartTheme,
-	options: ChartLegendOptions = {}
+	options: ChartLegendOptions = {},
+	legendShape?: LegendShape< SeriesData[], number >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const { showValues = false, withGlyph = false, glyphSize = 8, renderGlyph } = options;
 
@@ -172,7 +171,8 @@ export function useChartLegendData<
 				showValues,
 				withGlyph,
 				glyphSize,
-				renderGlyph
+				renderGlyph,
+				legendShape
 			);
 		}
 
@@ -185,5 +185,5 @@ export function useChartLegendData<
 			glyphSize,
 			renderGlyph
 		);
-	}, [ data, theme, showValues, withGlyph, glyphSize, renderGlyph ] );
+	}, [ data, theme, showValues, withGlyph, glyphSize, renderGlyph, legendShape ] );
 }
