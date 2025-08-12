@@ -25,23 +25,25 @@ function wpcomsh_init_connection_handlers() {
  * Initialize external storage provider for Jetpack connection data.
  */
 function wpcomsh_init_external_storage() {
-	// Only initialize if External_Storage class is available
-	if ( ! class_exists( 'Automattic\Jetpack\Connection\External_Storage' ) ) {
-		return;
+	// Only initialize if both External_Storage class and our provider class are available
+	if ( class_exists( 'Automattic\Jetpack\Connection\External_Storage' ) && class_exists( 'Atomic_Storage_Provider' ) ) {
+		// Register the Atomic storage provider
+		\Automattic\Jetpack\Connection\External_Storage::register_provider(
+			new Atomic_Storage_Provider()
+		);
 	}
-
-	// Register the Atomic storage provider
-	\Automattic\Jetpack\Connection\External_Storage::register_provider(
-		new Atomic_Storage_Provider()
-	);
 }
 
 /**
  * Initialize Protected Owner Error Handler.
  */
 function wpcomsh_init_protected_owner_handler() {
-	// Initialize the Protected Owner Error Handler singleton
-	\Automattic\WPComSH\Connection\Protected_Owner_Error_Handler::get_instance();
+	// Only initialize if both the handler class and Jetpack Error_Handler are available
+	if ( class_exists( 'Automattic\WPComSH\Connection\Protected_Owner_Error_Handler' ) &&
+		class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
+		// Initialize the Protected Owner Error Handler singleton
+		\Automattic\WPComSH\Connection\Protected_Owner_Error_Handler::get_instance();
+	}
 }
 
 // Initialize connection handlers early to catch Jetpack connection checks
