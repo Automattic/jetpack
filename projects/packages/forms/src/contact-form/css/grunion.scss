@@ -58,7 +58,10 @@
 .contact-form input[type="url"],
 .contact-form input[type="number"],
 .contact-form input[type="time"],
-.contact-form textarea
+.contact-form textarea,
+/** for compound fields, input-wrap is the input element wrapper
+that needs to mimic the input element styles */
+.contact-form .wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper
 ) {
 	box-sizing: border-box;
 	width: 100%;

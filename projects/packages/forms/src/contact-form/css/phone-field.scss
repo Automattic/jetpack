@@ -1,0 +1,31 @@
+/** New Phone Field Styles */
+
+.wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper {
+	display: flex;
+	gap: 8px;
+
+	.jetpack-field__input-element {
+		border: 0;
+		font: inherit;
+		flex: 1;
+		outline: none;
+		color: inherit;
+		background: inherit;
+		width: inherit;
+		box-sizing: border-box;
+		resize: none;
+		padding: 0;
+		min-width: unset;
+	}
+
+	.jetpack-field__input-element::before,
+	.jetpack-field__input-element::after {
+		box-sizing: inherit;
+	}
+
+	.jetpack-field__input-element:focus {
+		box-shadow: none;
+	}
+}
+
+/** END New Phone Field Styles */

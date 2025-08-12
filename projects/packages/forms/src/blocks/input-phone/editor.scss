@@ -1,0 +1,57 @@
+.jetpack-contact-form .jetpack-field.jetpack-field-phone {
+
+	.jetpack-field__input,
+	.jetpack-field__textarea {
+		box-sizing: border-box;
+
+		// these class is used to style input and textarea elements
+		.jetpack-field__input-element {
+			font: inherit;
+			border: 0;
+			color: inherit;
+			outline: none;
+			background: inherit;
+			padding: 0;
+
+			flex: 1;
+			width: inherit;
+			box-sizing: border-box;
+			resize: none;
+
+			&::before,
+			&::after {
+				box-sizing: inherit;
+			}
+
+			&:focus {
+				box-shadow: none;
+			}
+		}
+	}
+
+	.jetpack-field__input {
+		// this here while we work on wrapping the inputs
+		display: flex;
+		gap: 8px;
+
+		.jetpack-field__input-prefix {
+			font: inherit;
+			border: 0;
+			color: inherit;
+
+			// these class is used to style select elements
+			.jetpack-field__input-element {
+				font: inherit;
+				border: 0;
+				color: inherit;
+				outline: none;
+				background: inherit;
+				padding: 0;
+
+				&:focus {
+					box-shadow: none;
+				}
+			}
+		}
+	}
+}

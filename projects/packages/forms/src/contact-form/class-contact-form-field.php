@@ -156,6 +156,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'align'                    => null,
 				'variation'                => null,
 				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
+				// full phone field attributes, might become a standalone country list input block
+				'countrylist'              => array(),
+				'countrydata'              => array(),
+				'showcountryselector'      => false,
 			),
 			$attributes,
 			'contact-field'
@@ -188,6 +192,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		if ( ! empty( $attributes['optionsdata'] ) ) {
 			$attributes['optionsdata'] = json_decode( html_entity_decode( $attributes['optionsdata'], ENT_COMPAT ), true );
+		}
+
+		// parse countryList and countrydata, HEADS UP: all attrs are forced into lowercase
+		if ( ! empty( $attributes['countrylist'] ) ) {
+			// countrylist is a comma-separated list of country codes, the simplified output from the standard parsing mechanics at Contact_Form::parse_contact_field
+			$attributes['countrylist'] = array_map( 'trim', explode( ',', $attributes['countrylist'] ) );
+		}
+		if ( ! empty( $attributes['countrydata'] ) ) {
+			// countrydata is a JSON object of country codes and their names and flags, making it available for more complex frontend UI
+			$attributes['countrydata'] = json_decode( html_entity_decode( $attributes['countrydata'], ENT_COMPAT ), true );
+		}
+		// allow boolean values for showcountryselector, only if it's set so we don't pollute other fields attrs
+		if ( isset( $attributes['showcountryselector'] ) ) {
+			if ( '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
+				$attributes['showcountryselector'] = true;
+			} else {
+				$attributes['showcountryselector'] = false;
+			}
 		}
 
 		if ( $form ) {
@@ -894,6 +916,78 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
 		$field  = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the telephone field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return string HTML
+	 */
+	public function render_phone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->enqueue_phone_field_assets();
+		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
+		$label = $this->render_label( 'phone', $id, $label, $required, $required_field_text );
+
+		// since now the telephone field can include a country selector, we need to handle the rendering of the field differently
+		$styles = '';
+
+		if ( ! empty( $this->field_styles ) ) {
+			$styles .= sprintf( 'style="%s" ', esc_attr( $this->field_styles ) );
+		}
+
+		if ( ! is_string( $value ) ) {
+			$value = '';
+		}
+
+		$country_selector = '';
+
+		// Country selector: select element wrapped in div.jetpack-field__input-prefix
+		if ( $this->get_attribute( 'showcountryselector' ) ) {
+			$country_data    = $this->get_attribute( 'countrydata' );
+			$default_country = $value ? $value : $this->get_attribute( 'default' );
+
+			if ( ! empty( $country_data ) ) {
+				$country_options = array_map(
+					function ( $country ) use ( $default_country ) {
+						return sprintf( '<option value="%s" %s>%s</option>', $country['value'], selected( $country['value'], $default_country, false ), $country['label'] );
+					},
+					$country_data
+				);
+
+				$country_selector = sprintf( '<div class="jetpack-field__input-prefix"><select %s>%s</select></div>', $class, implode( '\n', $country_options ) );
+			}
+		}
+
+		$input  = $country_selector;
+		$input .= "<input
+			type='tel'
+			name='" . esc_attr( $id ) . "'
+			id='" . esc_attr( $id ) . "'
+			value=''
+
+			data-wp-bind--aria-invalid='state.fieldHasErrors'
+			data-wp-bind--value='state.getFieldValue'
+			aria-errormessage='" . esc_attr( $id ) . '-' . "phone-error-message'
+			data-wp-on--input='actions.onFieldChange'
+			data-wp-on--blur='actions.onFieldBlur'
+			data-wp-class--has-value='state.hasFieldValue'
+
+			" . $class . $placeholder . '
+			' . ( $required ? "required='true' aria-required='true' " : '' ) .
+			" />\n ";
+
+		$wrapped_input = sprintf( '<div class="jetpack-field__input-phone-wrapper %s" %s>%s</div>', $this->get_attribute( 'stylevariationclasses' ), $styles, $input );
+
+		$field = $label . $wrapped_input . $this->get_error_div( $id, 'phone' );
 		return $field;
 	}
 
@@ -2036,6 +2130,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'telephone':
 				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
+			case 'phone':
+				$field .= $this->render_phone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
 			case 'url':
 				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
@@ -2451,6 +2548,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'jetpack-form-slider-field',
 			plugins_url( '../../dist/modules/slider-field/view.js', __FILE__ ),
 			array( '@wordpress/interactivity' ),
+			$version
+		);
+	}
+
+	/**
+	 * Enqueues scripts and styles needed for the slider field.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @return void
+	 */
+	private function enqueue_phone_field_assets() {
+		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		\wp_enqueue_style(
+			'jetpack-form-phone-field',
+			plugins_url( '../../dist/contact-form/css/phone-field.css', __FILE__ ),
+			array(),
 			$version
 		);
 	}
