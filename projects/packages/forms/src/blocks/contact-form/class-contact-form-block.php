@@ -41,11 +41,7 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback'     => array( __CLASS__, 'gutenblock_render_form' ),
-				'js_loading_strategy' => array(
-					'in_footer' => true,
-					'strategy'  => 'defer',
-				),
+				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 			)
 		);
 
@@ -278,14 +274,10 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-date',
 			array(
-				'render_callback'     => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
-				'provides_context'    => array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
+				'provides_context' => array(
 					'jetpack/field-required'    => 'required',
 					'jetpack/field-date-format' => 'dateFormat',
-				),
-				'js_loading_strategy' => array(
-					'in_footer' => true,
-					'strategy'  => 'defer',
 				),
 			)
 		);
@@ -365,13 +357,9 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-file',
 			array(
-				'render_callback'     => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
-				'provides_context'    => array( 'jetpack/field-required' => 'required' ),
-				'plan_check'          => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
-				'js_loading_strategy' => array(
-					'in_footer' => true,
-					'strategy'  => 'defer',
-				),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				'plan_check'       => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
 			)
 		);
 
@@ -386,25 +374,17 @@ class Contact_Form_Block {
 			Blocks::jetpack_register_block(
 				'jetpack/field-rating',
 				array(
-					'render_callback'     => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
-					'provides_context'    => array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
+					'provides_context' => array(
 						'jetpack/field-required' => 'required',
-					),
-					'js_loading_strategy' => array(
-						'in_footer' => true,
-						'strategy'  => 'defer',
 					),
 				)
 			);
 			Blocks::jetpack_register_block(
 				'jetpack/field-slider',
 				array(
-					'render_callback'     => array( Contact_Form_Plugin::class, 'gutenblock_render_field_slider' ),
-					'provides_context'    => array( 'jetpack/field-required' => 'required' ),
-					'js_loading_strategy' => array(
-						'in_footer' => true,
-						'strategy'  => 'defer',
-					),
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_slider' ),
+					'provides_context' => array( 'jetpack/field-required' => 'required' ),
 				)
 			);
 			Blocks::jetpack_register_block(
