@@ -293,7 +293,7 @@ trait Woo_Analytics_Trait {
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
-			'url'                                => $this->get_current_url(),
+			'url'                                => home_url(),
 			'landing_page'                       => $landing_page,
 			'woo_version'                        => WC()->version,
 			'wp_version'                         => get_bloginfo( 'version' ),
