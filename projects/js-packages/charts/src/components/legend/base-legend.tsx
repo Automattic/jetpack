@@ -53,10 +53,8 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 		// For right-aligned vertical legends, use row-reverse to align text consistently
 
 		const getShapeStyle = useCallback(
-			( { index }: { index: number } ) => {
-				return items[ index ]?.shapeStyle ?? theme.legendShapeStyles?.[ index ] ?? {};
-			},
-			[ items, theme ]
+			( { index }: { index: number } ) => items[ index ]?.shapeStyle,
+			[ items ]
 		);
 
 		return (

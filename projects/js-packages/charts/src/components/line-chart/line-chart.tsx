@@ -13,6 +13,7 @@ import {
 } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { attachSubComponents } from '../../utils/create-composition';
+import { getSeriesStyles } from '../../utils/get-styles';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
@@ -342,7 +343,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions );
+		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions, legendShape );
 
 		// Memoize metadata to prevent unnecessary re-registration
 		const chartMetadata = useMemo(
@@ -424,14 +425,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.y } />
 
 							{ dataSorted.map( ( seriesData, index ) => {
-								const stroke =
-									seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
-								const lineProps =
-									seriesData.options?.seriesLineStyle ??
-									providerTheme?.seriesLineStyles?.[
-										index % providerTheme.seriesLineStyles.length
-									] ??
-									{};
+								const { stroke, lineStyles } = getSeriesStyles( seriesData, index, providerTheme );
+
+								const lineProps = {
+									stroke,
+									...lineStyles,
+								};
+
 								return (
 									<g key={ seriesData?.label || index }>
 										{ withStartGlyphs && (

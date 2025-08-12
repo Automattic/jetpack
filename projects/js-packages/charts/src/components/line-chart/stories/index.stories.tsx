@@ -1,3 +1,4 @@
+import { useChartTheme } from '../../../providers/theme';
 import { legendArgTypes } from '../../../stories/legend-config';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
@@ -325,13 +326,11 @@ BrokenLine.args = {
 			options: {
 				...webTrafficData[ 0 ].options,
 				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
-				legendShapeStyle: {
-					strokeDasharray: '5 5 1',
-				},
 			},
 		},
 		webTrafficData[ 1 ],
 	],
+	showLegend: true,
 };
 
 BrokenLine.parameters = {
@@ -377,5 +376,45 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 					'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
 			},
 		},
+	},
+};
+
+export const Comparison: StoryObj< typeof LineChart > = {
+	args: {
+		...lineChartStoryArgs,
+		showLegend: true,
+		smoothing: false,
+		data: [
+			{
+				...sampleData[ 0 ],
+				label: 'This Year',
+				options: {},
+			},
+			{
+				...sampleData[ 2 ],
+				label: 'Last Year',
+				options: {
+					type: 'comparison' as const,
+				},
+			},
+		],
+	},
+	render: args => {
+		const ComparisonChart = () => {
+			const theme = useChartTheme();
+			const primaryColor = theme.colors[ 2 ];
+
+			const data = args.data.map( series => ( {
+				...series,
+				options: {
+					...series.options,
+					stroke: primaryColor,
+				},
+			} ) );
+
+			return <LineChart { ...args } data={ data } />;
+		};
+
+		return <ComparisonChart />;
 	},
 };

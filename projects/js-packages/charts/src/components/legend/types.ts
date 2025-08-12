@@ -1,5 +1,5 @@
 import { LegendOrdinal } from '@visx/legend';
-import type { GlyphProps } from '@visx/xychart';
+import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
 // See https://airbnb.io/visx/docs/legend#Ordinal for more details.
@@ -11,7 +11,7 @@ export type BaseLegendItem = {
 	color: string;
 	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	shapeStyle?: CSSProperties;
+	shapeStyle?: CSSProperties & LineStyles;
 };
 
 export type LegendItemWithGlyph = BaseLegendItem & {
