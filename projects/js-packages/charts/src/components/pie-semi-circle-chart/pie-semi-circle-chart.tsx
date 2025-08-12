@@ -10,8 +10,8 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
+	GlobalChartsContext,
 } from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
