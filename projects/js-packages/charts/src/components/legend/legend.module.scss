@@ -12,48 +12,48 @@
 		flex-direction: column;
 		gap: 8px;
 
-		&.legend--horizontal-align-left {
+		&.legend--alignment-left {
 			align-items: flex-start;
 		}
 
-		&.legend--horizontal-align-center {
+		&.legend--alignment-center {
 			align-items: center;
 		}
 
-		&.legend--horizontal-align-right {
+		&.legend--alignment-right {
 			align-items: flex-end;
 		}
 	}
 
-	// Vertical alignment positioning
-	&--vertical-align-top {
+	// Position-based styles
+	&--position-top {
 		position: relative;
 
-		&.legend--horizontal-align-left {
+		&.legend--alignment-left {
 			justify-content: flex-start;
 		}
 
-		&.legend--horizontal-align-center {
+		&.legend--alignment-center {
 			justify-content: center;
 		}
 
-		&.legend--horizontal-align-right {
+		&.legend--alignment-right {
 			justify-content: flex-end;
 		}
 	}
 
-	&--vertical-align-bottom {
+	&--position-bottom {
 		position: relative;
 
-		&.legend--horizontal-align-left {
+		&.legend--alignment-left {
 			justify-content: flex-start;
 		}
 
-		&.legend--horizontal-align-center {
+		&.legend--alignment-center {
 			justify-content: center;
 		}
 
-		&.legend--horizontal-align-right {
+		&.legend--alignment-right {
 			justify-content: flex-end;
 		}
 	}

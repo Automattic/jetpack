@@ -82,8 +82,8 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 						className={ clsx(
 							styles.legend,
 							styles[ `legend--${ orientation }` ],
-							styles[ `legend--horizontal-align-${ alignmentClass }` ],
-							styles[ `legend--vertical-align-${ position }` ],
+							styles[ `legend--alignment-${ alignmentClass }` ],
+							styles[ `legend--position-${ position }` ],
 							className
 						) }
 						style={ {
