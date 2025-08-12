@@ -290,6 +290,21 @@ class Feedback {
 	}
 
 	/**
+	 * Check whether this feedback contains at least one field of a given type.
+	 *
+	 * @param string $type Field type to check for (e.g. 'consent', 'email', 'textarea').
+	 * @return bool True if a field of the given type exists; false otherwise.
+	 */
+	public function has_field_type( $type ) {
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_type() === $type ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the values related to where the form was submitted from.
 	 *
 	 * @return array An array of entry values.

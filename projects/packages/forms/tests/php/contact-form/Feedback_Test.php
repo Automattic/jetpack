@@ -1695,4 +1695,82 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertNotEmpty( $response_legacy, 'Legacy values should not be empty for the legacy feedback' );
 		$this->assertEquals( $expected_legacy_values, $response_legacy, 'Legacy extra values should match the expected extra values' );
 	}
+
+	public function test_has_field_type_with_consent_explicit_checked() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@example.com',
+				'consent' => 'Yes',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+			. "[contact-field label='Consent' type='consent' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Check both the in-memory response and the saved one return the same values.
+		$this->assertTrue( $response->has_field_type( 'consent' ), 'Feedback (response) should report consent field exists' );
+		$this->assertTrue( $response->has_consent(), 'Consent (response) should be granted when posted as Yes' );
+
+		$this->assertTrue( $saved_response->has_field_type( 'consent' ), 'Feedback (saved) should report consent field exists' );
+		$this->assertTrue( $saved_response->has_consent(), 'Consent (saved) should be granted when posted as Yes' );
+	}
+
+	public function test_has_field_type_without_consent_field() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'email' => 'email@example.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+			. "[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Check both the in-memory response and the saved one return the same values.
+		$this->assertFalse( $response->has_field_type( 'consent' ), 'Feedback (response) should report no consent field' );
+		$this->assertFalse( $response->has_consent(), 'Consent (response) should be false when no consent field was present' );
+
+		$this->assertFalse( $saved_response->has_field_type( 'consent' ), 'Feedback (saved) should report no consent field' );
+		$this->assertFalse( $saved_response->has_consent(), 'Consent (saved) should be false when no consent field was present' );
+	}
+
+	public function test_has_field_type_legacy_feedback() {
+		// Create a legacy feedback entry and verify has_field_type/has_consent behavior.
+		$post_id  = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'value2',
+			)
+		);
+		$response = Feedback::get( $post_id );
+
+		// Legacy entries include an 'email_marketing_consent' field (default 'no'), typed as 'consent'.
+		$this->assertTrue( $response->has_field_type( 'consent' ), 'Legacy feedback should report consent field exists' );
+		$this->assertFalse( $response->has_consent(), 'Legacy consent should default to false (no)' );
+	}
 }
