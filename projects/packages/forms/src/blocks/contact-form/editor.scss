@@ -339,7 +339,7 @@
 	.jetpack-field__textarea {
 		box-sizing: border-box;
 		box-shadow: unset;
-		padding: 16px;
+		padding: var(--jetpack--contact-form--input-padding, 16px);
 		margin: 0;
 		// font: inherit;
 	}
