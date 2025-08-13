@@ -117,9 +117,10 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 					<ProductPrice
 						price={ 24.95 }
 						offPrice={ 12.48 }
-						legend="per month for the first year, then billed yearly"
+						legend="/month, billed yearly"
 						currency="USD"
 						hidePriceFraction
+						variant="simple"
 					/>
 					<Button fullWidth>Get Social</Button>
 				</PricingTableHeader>
@@ -135,7 +136,13 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader title="Free">
-					<ProductPrice price={ 0 } legend="Free forever" currency="USD" hidePriceFraction />
+					<ProductPrice
+						price={ 0 }
+						legend="Free forever"
+						currency="USD"
+						hidePriceFraction
+						variant="simple"
+					/>
 					<Button fullWidth variant="secondary">
 						Start for free
 					</Button>
