@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.6] - 2025-08-13
+### Changed
+- Update package dependencies. [#44725]
+
 ## [6.0.5] - 2025-04-28
 ### Changed
 - Internal updates.
@@ -287,6 +291,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[6.0.6]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.5...6.0.6
 [6.0.5]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.4...6.0.5
 [6.0.4]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.3...6.0.4
 [6.0.3]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.2...6.0.3
