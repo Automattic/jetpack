@@ -16,9 +16,13 @@ export interface ChartContextValue {
 	theme: ChartTheme;
 	/**
 	 * Resolve a stable color for a series.
-	 * - If a series-level stroke override is passed, it wins.
+	 * - If an override color is passed, it wins.
 	 * - If a group is provided, returns a stable color per group across charts.
 	 * - If no group, falls back to index-based color from the theme palette.
 	 */
-	resolveGroupColor: ( params: { group?: string; index: number; seriesStroke?: string } ) => string;
+	resolveGroupColor: ( params: {
+		group?: string;
+		index: number;
+		overrideColor?: string;
+	} ) => string;
 }

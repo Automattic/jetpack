@@ -67,7 +67,7 @@ export function getSeriesStyles(
 		? resolveGroupColor( {
 				group: seriesData.group,
 				index,
-				seriesStroke: seriesData.options?.stroke,
+				overrideColor: seriesData.options?.stroke,
 		  } )
 		: getSeriesStroke( seriesData, index, providerTheme.colors );
 

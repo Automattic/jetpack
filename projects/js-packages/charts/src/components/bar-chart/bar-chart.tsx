@@ -130,7 +130,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			resolveGroupColor( {
 				group: seriesData.group,
 				index,
-				seriesStroke: seriesData.options?.stroke,
+				overrideColor: seriesData.options?.stroke,
 			} ),
 		[ resolveGroupColor ]
 	);
