@@ -1235,17 +1235,9 @@ class Feedback {
 		if ( ! is_string( $id ) || $id === '' ) {
 			return null;
 		}
-		$needle = strtolower( str_replace( array( ' ', '_' ), '', $id ) );
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Feedback_Field ) {
-				continue;
-			}
 			$form_field_id = $field->get_form_field_id();
-			if ( ! is_string( $form_field_id ) || $form_field_id === '' ) {
-				continue;
-			}
-			$haystack = strtolower( str_replace( array( ' ', '_' ), '', $form_field_id ) );
-			if ( $haystack === $needle ) {
+			if ( is_string( $form_field_id ) && $form_field_id !== '' && $form_field_id === $id ) {
 				return $field;
 			}
 		}
