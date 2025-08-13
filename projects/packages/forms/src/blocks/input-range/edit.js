@@ -2,10 +2,12 @@ import './editor.scss';
 import { useBlockProps } from '@wordpress/block-editor';
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function SliderInputEdit( props ) {
 	const { context = {}, isSelected, clientId } = props;
+	const minInputRef = useRef( null );
+	const maxInputRef = useRef( null );
 
 	// Get values from context.
 	const minFromContext = context[ 'jetpack/field-slider-min' ];
@@ -44,6 +46,14 @@ export default function SliderInputEdit( props ) {
 		return `calc(${ percent }% + (${ 8 - percent * 0.15 }px))`;
 	};
 
+	const handleMinClick = e => {
+		minInputRef.current?.ownerDocument.activeElement === e.target || e.target.focus();
+	};
+
+	const handleMaxClick = e => {
+		maxInputRef.current?.ownerDocument.activeElement === e.target || e.target.focus();
+	};
+
 	// Sync min/max if context updates or min/max input loses focus.
 	useEffect( () => {
 		if ( ! minFocused ) {
@@ -57,7 +67,7 @@ export default function SliderInputEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div className="jetpack-field-slider__row">
-				<VisuallyHidden as="label" for={ `${ clientId }-slider-min` }>
+				<VisuallyHidden as="label" htmlFor={ `${ clientId }-slider-min` }>
 					{ __( 'Slider minimum value', 'jetpack-forms' ) }
 				</VisuallyHidden>
 				<input
@@ -70,6 +80,8 @@ export default function SliderInputEdit( props ) {
 					value={ removeLeadingZero( localMin ) }
 					placeholder="0"
 					onChange={ e => setLocalMin( e.target.value ) }
+					ref={ minInputRef }
+					onClick={ handleMinClick }
 					onFocus={ () => setMinFocused( true ) }
 					onBlur={ () => {
 						setMinFocused( false );
@@ -77,7 +89,7 @@ export default function SliderInputEdit( props ) {
 					} }
 				/>
 				<div className="jetpack-field-slider__input-container">
-					<VisuallyHidden as="label" for={ `${ clientId }-slider-default` }>
+					<VisuallyHidden as="label" htmlFor={ `${ clientId }-slider-default` }>
 						{ __( 'Slider default value', 'jetpack-forms' ) }
 					</VisuallyHidden>
 					<input
@@ -109,6 +121,8 @@ export default function SliderInputEdit( props ) {
 					value={ removeLeadingZero( localMax ) }
 					placeholder="0"
 					onChange={ e => setLocalMax( e.target.value ) }
+					ref={ maxInputRef }
+					onClick={ handleMaxClick }
 					onFocus={ () => setMaxFocused( true ) }
 					onBlur={ () => {
 						setMaxFocused( false );
