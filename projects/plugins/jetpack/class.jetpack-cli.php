@@ -1346,7 +1346,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			// Clear sitemap-related transients
 			delete_transient( 'jetpack_news_sitemap_xml' );
 			delete_transient( 'jetpack-sitemap-state-lock' );
-			WP_CLI::success( 'Purged all sitemap data and cleared sitemap transients.' );
+			WP_CLI::success( __( 'Purged all sitemap data and cleared sitemap transients.', 'jetpack' ) );
 		}
 
 		$sitemap_builder = new Jetpack_Sitemap_Builder();
