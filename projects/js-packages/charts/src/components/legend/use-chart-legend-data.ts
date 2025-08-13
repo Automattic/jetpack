@@ -2,7 +2,7 @@ import { LineStyles } from '@visx/xychart';
 import { CSSProperties, useMemo } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
 import { type ChartContextValue, useGlobalChartsContext } from '../../providers/chart-context';
-import { getSeriesStyles, getItemShapeStyles } from '../../utils/get-styles';
+import { getItemShapeStyles, getSeriesStroke } from '../../utils/get-styles';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
 import type { LegendShape } from '@visx/legend/lib/types';
@@ -82,7 +82,13 @@ function processSeriesData(
 	resolveGroupColor?: ChartContextValue[ 'resolveGroupColor' ]
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( series: SeriesData, index: number ) => {
-		const { stroke } = getSeriesStyles( series, index, theme, resolveGroupColor );
+		const stroke = resolveGroupColor
+			? resolveGroupColor( {
+					group: series.group,
+					index,
+					overrideColor: series.options?.stroke,
+			  } )
+			: getSeriesStroke( series, index, theme.colors );
 		const { shapeStyles } = getItemShapeStyles( series, index, theme, legendShape );
 		const baseItem = createBaseLegendItem(
 			series.label,

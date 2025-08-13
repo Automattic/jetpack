@@ -44,11 +44,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 
 	const resolveGroupColor = useCallback< ChartContextValue[ 'resolveGroupColor' ] >(
 		params => {
-			const { group, index, seriesStroke } = params;
+			const { group, index, overrideColor } = params;
 
 			// Highest precedence: explicit series stroke
-			if ( seriesStroke ) {
-				return seriesStroke;
+			if ( overrideColor ) {
+				return overrideColor;
 			}
 
 			// If group provided, maintain a stable assignment

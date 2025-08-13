@@ -2,12 +2,7 @@
  * @jest-environment jsdom
  */
 import { ChartTheme } from '../../types';
-import {
-	getSeriesLineStyles,
-	getSeriesStroke,
-	getSeriesStyles,
-	getItemShapeStyles,
-} from '../get-styles';
+import { getSeriesLineStyles, getSeriesStroke, getItemShapeStyles } from '../get-styles';
 
 describe( 'Series styling utility functions', () => {
 	const mockSeriesData = {
@@ -123,56 +118,6 @@ describe( 'Series styling utility functions', () => {
 				strokeDasharray: '4 4',
 				strokeLinecap: 'square',
 				strokeWidth: 1.5,
-			} );
-		} );
-	} );
-
-	describe( 'getSeriesStyles', () => {
-		it( 'returns both stroke and line styles', () => {
-			const comparisonSeries = {
-				...mockSeriesData,
-				options: {
-					type: 'comparison' as const,
-					stroke: '#PURPLE',
-				},
-			};
-
-			const result = getSeriesStyles( comparisonSeries, 0, mockTheme as ChartTheme );
-
-			expect( result ).toEqual( {
-				stroke: '#PURPLE',
-				lineStyles: {
-					strokeDasharray: '4 4',
-					strokeLinecap: 'square',
-					strokeWidth: 1.5,
-				},
-			} );
-		} );
-
-		it( 'handles series with no special options', () => {
-			const result = getSeriesStyles( mockSeriesData, 0, mockTheme as ChartTheme );
-
-			expect( result ).toEqual( {
-				stroke: '#FF0000', // First theme color
-				lineStyles: { strokeWidth: 2 }, // First default series style
-			} );
-		} );
-
-		it( 'combines all styling logic correctly for complex case', () => {
-			const complexSeries = {
-				...mockSeriesData,
-				options: {
-					type: 'comparison' as const,
-					stroke: '#COMPLEX',
-					seriesLineStyle: { strokeWidth: 99 }, // Should override comparison styles
-				},
-			};
-
-			const result = getSeriesStyles( complexSeries, 1, mockTheme as ChartTheme );
-
-			expect( result ).toEqual( {
-				stroke: '#COMPLEX',
-				lineStyles: { strokeWidth: 99 }, // Custom style wins
 			} );
 		} );
 	} );

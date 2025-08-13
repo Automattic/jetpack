@@ -14,7 +14,7 @@ import {
 	useGlobalChartsContext,
 } from '../../providers/chart-context';
 import { attachSubComponents } from '../../utils/create-composition';
-import { getSeriesStyles } from '../../utils/get-styles';
+import { getSeriesLineStyles } from '../../utils/get-styles';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
@@ -432,12 +432,12 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.y } />
 
 							{ dataSorted.map( ( seriesData, index ) => {
-								const { stroke, lineStyles } = getSeriesStyles(
-									seriesData,
+								const stroke = resolveGroupColor( {
+									group: seriesData.group,
 									index,
-									providerTheme,
-									resolveGroupColor
-								);
+									overrideColor: seriesData.options?.stroke,
+								} );
+								const lineStyles = getSeriesLineStyles( seriesData, index, providerTheme );
 
 								const lineProps = {
 									stroke,
