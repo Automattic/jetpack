@@ -1,14 +1,17 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Extensions\Slideshow;
-
 /**
  * Slideshow shortcode.
  * Adds a new "slideshow" gallery type when adding a gallery using the classic editor.
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Extensions\Slideshow;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Slideshow shortcode usage: [gallery type="slideshow"] or the older [slideshow]

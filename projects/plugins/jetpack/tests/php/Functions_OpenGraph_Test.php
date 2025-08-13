@@ -400,6 +400,18 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 				'',
 				'',
 			),
+			'null_input'                => array(
+				null,
+				'',
+			),
+			'bool_input'                => array(
+				true,
+				'',
+			),
+			'array_input'               => array(
+				array(),
+				'',
+			),
 			'plain_text_no_blocks'      => array(
 				'This is just plain text with no blocks at all.',
 				'This is just plain text with no blocks at all.',

@@ -14,6 +14,10 @@ use WP_Error;
 use WP_Query;
 use WP_REST_Templates_Controller;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for enabling the Instant Search experience on the site.
  */

@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Product;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the Extras product.
  * Extras, so far, could be considered as Jetpack plugin bridge.

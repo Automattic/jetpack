@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Extract visually-hidden styles to shared SCSS partial for better code reuse

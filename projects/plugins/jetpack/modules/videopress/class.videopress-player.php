@@ -1,6 +1,10 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * VideoPress playback module markup generator.
  *

@@ -11,6 +11,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Faux-oembed support for Medium permalinks.
 wp_embed_register_handler( 'medium', '#^https?://medium.com/([a-zA-z0-9-_@]+)#', 'jetpack_embed_medium_oembed' );
 

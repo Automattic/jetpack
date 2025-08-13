@@ -14,6 +14,10 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Instagram_Gallery_Helper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -68,7 +72,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 
-	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
+	if ( ! is_object( $gallery ) || is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
 		if ( ! current_user_can( 'edit_post', get_the_ID() ) ) {
 			return '';
 		}

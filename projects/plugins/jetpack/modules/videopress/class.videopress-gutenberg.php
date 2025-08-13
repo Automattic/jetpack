@@ -10,6 +10,10 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\VideoPress\Block_Replacement;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register a VideoPress extension to replace the default Core Video block.
  */

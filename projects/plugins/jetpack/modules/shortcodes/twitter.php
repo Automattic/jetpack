@@ -16,6 +16,10 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Update Twitter providers to use Automattic's Twitter/X oEmbed proxy.
  *

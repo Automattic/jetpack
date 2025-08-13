@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Search\Compatibility\Jetpack;
 
 use Jetpack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Override the condition to show Search submenu when Jetpack plugin exists.
  */

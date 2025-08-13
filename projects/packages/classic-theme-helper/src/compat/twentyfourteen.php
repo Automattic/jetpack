@@ -6,6 +6,10 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'twentyfourteen_featured_content_post_ids' ) ) {
 	/**
 	 * A last try to show posts, in case the Featured Content plugin returns no IDs.
