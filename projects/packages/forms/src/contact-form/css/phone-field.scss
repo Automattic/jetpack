@@ -1,31 +1,63 @@
-/** New Phone Field Styles */
+// grunion-field-wrap is a backwards compat class,
+//need to remove this generic classes
+// *-wrap classes are helpers added by backend
+.wp-block-jetpack-field-phone.wp-block-jetpack-input-wrap.grunion-field-wrap {
 
-.wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper {
-	display: flex;
-	gap: 8px;
+	.jetpack-field__input-phone-wrapper {
+		display: flex;
+		gap: 8px;
 
-	.jetpack-field__input-element {
-		border: 0;
-		font: inherit;
-		flex: 1;
-		outline: none;
-		color: inherit;
-		background: inherit;
-		width: inherit;
-		box-sizing: border-box;
-		resize: none;
-		padding: 0;
-		min-width: unset;
+		.jetpack-field__input-element {
+			border: 0;
+			font: inherit;
+			flex: 1;
+			outline: none;
+			color: inherit;
+			background: inherit;
+			width: inherit;
+			box-sizing: border-box;
+			resize: none;
+			padding: 0;
+			min-width: unset;
+		}
+
+		.jetpack-field__input-element::before,
+		.jetpack-field__input-element::after {
+			box-sizing: inherit;
+		}
+
+		.jetpack-field__input-element:focus {
+			box-shadow: none;
+		}
 	}
 
-	.jetpack-field__input-element::before,
-	.jetpack-field__input-element::after {
-		box-sizing: inherit;
-	}
+	.is-style-animated & {
 
-	.jetpack-field__input-element:focus {
-		box-shadow: none;
+		.jetpack-field__input-phone-wrapper {
+			padding-top: 1.4em;
+			padding-left: var(--field-padding);
+			padding-right: var(--field-padding);
+
+			&:not(:has(*:focus, *:active)) {
+
+				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
+
+					.jetpack-field__input-element {
+						visibility: hidden;
+					}
+				}
+			}
+		}
+
+		.animated-label__label:has(~* .jetpack-field__input-element:focus),
+		.animated-label__label:has(~* .jetpack-field__input-element.has-value),
+		.animated-label__label:has(~* .jetpack-field__input-element.has-placeholder) {
+			transform: translateY(0);
+			top: calc(2px + var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size, 1px)));
+
+			.grunion-label-text {
+				font-size: 0.75em;
+			}
+		}
 	}
 }
-
-/** END New Phone Field Styles */

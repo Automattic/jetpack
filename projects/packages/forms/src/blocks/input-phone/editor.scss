@@ -75,11 +75,6 @@
 		}
 	}
 
-	.animated-label__label {
-		left: calc(var(--jetpack--contact-form--border-left-size, 1px) + var(--jetpack--contact-form--animated-left-offset) + calc(var(--jetpack--contact-form--input-padding) / 2));
-
-	}
-
 	&.is-selected .animated-label__label:not(.is-selected) {
 		top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px) + calc(var(--jetpack--contact-form--input-padding) / 2));
 	}
