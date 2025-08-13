@@ -1,4 +1,3 @@
-import './editor.scss';
 import {
 	useBlockProps,
 	useInnerBlocksProps,
@@ -9,6 +8,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	PanelBody,
+	RangeControl,
 } from '@wordpress/components';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -119,7 +119,7 @@ export default function SliderFieldEdit( props ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<HStack alignment="top" className="jp-field-slider-inspector-row">
+					<HStack alignment="top">
 						<NumberControl
 							__next40pxDefaultSize
 							label={ __( 'Min value', 'jetpack-forms' ) }
@@ -137,25 +137,24 @@ export default function SliderFieldEdit( props ) {
 							value={ max }
 						/>
 					</HStack>
-					<HStack alignment="top" className="jp-field-slider-inspector-row">
-						<NumberControl
-							__next40pxDefaultSize
-							help={ __( 'Pre-selected value.', 'jetpack-forms' ) }
-							label={ __( 'Default value', 'jetpack-forms' ) }
-							min={ min }
-							max={ max }
-							value={ defaultValue }
-							onChange={ onChangeDefault }
-						/>
-						<NumberControl
-							__next40pxDefaultSize
-							label={ __( 'Increment', 'jetpack-forms' ) }
-							min={ 0 }
-							step={ step || 1 }
-							value={ step }
-							onChange={ onChangeStep }
-						/>
-					</HStack>
+					<RangeControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						help={ __( 'Pre-selected value.', 'jetpack-forms' ) }
+						label={ __( 'Default value', 'jetpack-forms' ) }
+						max={ max }
+						min={ min }
+						onChange={ onChangeDefault }
+						value={ defaultValue }
+					/>
+					<NumberControl
+						__next40pxDefaultSize
+						label={ __( 'Increment', 'jetpack-forms' ) }
+						min={ 0 }
+						step={ step || 1 }
+						value={ step }
+						onChange={ onChangeStep }
+					/>
 				</PanelBody>
 			</InspectorControls>
 			<BlockContextProvider
