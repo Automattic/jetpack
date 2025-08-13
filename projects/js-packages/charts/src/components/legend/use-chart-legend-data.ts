@@ -1,7 +1,7 @@
 import { LineStyles } from '@visx/xychart';
-import { CSSProperties, useContext, useMemo } from 'react';
+import { CSSProperties, useMemo } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
-import { GlobalChartsContext, type ChartContextValue } from '../../providers/chart-context';
+import { type ChartContextValue, useGlobalChartsContext } from '../../providers/chart-context';
 import { getSeriesStyles, getItemShapeStyles } from '../../utils/get-styles';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
@@ -126,13 +126,11 @@ function processPointData(
 	resolveGroupColor?: ChartContextValue[ 'resolveGroupColor' ]
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( point: DataPointDate | DataPointPercentage, index: number ) => {
-		// Respect color precedence: 1. explicit color, 2. group-based, 3. theme index
-		const explicitColor = ( point as DataPointPercentage & { color?: string } ).color;
 		const color = resolveGroupColor
 			? resolveGroupColor( {
-					group: ( point as DataPointPercentage & { group?: string } ).group || point.label,
+					group: ( point as DataPointPercentage ).group,
 					index,
-					overrideColor: explicitColor,
+					overrideColor: ( point as DataPointPercentage ).color,
 			  } )
 			: theme.colors[ index % theme.colors.length ];
 
@@ -171,9 +169,8 @@ export function useChartLegendData<
 	legendShape?: LegendShape< SeriesData[], number >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const { showValues = false, withGlyph = false, glyphSize = 8, renderGlyph } = options;
-	const chartCtx = useContext( GlobalChartsContext );
-	const resolveGroupColor = chartCtx?.resolveGroupColor;
 	const theme = useGlobalChartTheme();
+	const { resolveGroupColor } = useGlobalChartsContext();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
