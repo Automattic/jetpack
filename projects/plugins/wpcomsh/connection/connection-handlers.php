@@ -47,5 +47,5 @@ function wpcomsh_init_protected_owner_handler() {
 	}
 }
 
-// Initialize connection handlers early to catch Jetpack connection checks
-add_action( 'plugins_loaded', 'wpcomsh_init_connection_handlers', 1 );
+// Initialize connection handlers immediately to ensure external storage is available for REST requests
+wpcomsh_init_connection_handlers();
