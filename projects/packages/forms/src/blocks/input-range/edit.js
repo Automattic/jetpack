@@ -13,6 +13,7 @@ export default function SliderInputEdit( props ) {
 	const minFromContext = context[ 'jetpack/field-slider-min' ];
 	const maxFromContext = context[ 'jetpack/field-slider-max' ];
 	const defaultFromContext = context[ 'jetpack/field-slider-default' ];
+	const stepFromContext = context[ 'jetpack/field-slider-step' ];
 	const onChangeDefault = context[ 'jetpack/field-slider-onChangeDefault' ];
 	const onChangeMin = context[ 'jetpack/field-slider-onChangeMin' ];
 	const onChangeMax = context[ 'jetpack/field-slider-onChangeMax' ];
@@ -96,6 +97,7 @@ export default function SliderInputEdit( props ) {
 						type="range"
 						min={ minFromContext }
 						max={ maxFromContext }
+						step={ stepFromContext || 1 }
 						value={ defaultFromContext }
 						onChange={ e => onChangeDefault( e.target.value ) }
 						className="jetpack-field-slider__range"
