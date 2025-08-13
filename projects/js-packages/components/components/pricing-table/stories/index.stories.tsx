@@ -202,3 +202,85 @@ WithCustomLabels.args = {
 	items: [ { name: 'Custom feature' }, { name: 'Special feature' }, { name: 'Limited feature' } ],
 	showIntroOfferDisclaimer: false,
 };
+
+const ThreeColumnsTemplate: StoryFn< typeof PricingTable > = args => {
+	return (
+		<PricingTable { ...args }>
+			<PricingTableColumn>
+				<PricingTableHeader title="Starter">
+					<ProductPrice
+						price={ 0 }
+						legend="Free forever"
+						currency="USD"
+						hidePriceFraction
+						variant="simple"
+					/>
+					<Button fullWidth variant="secondary">
+						Start Free
+					</Button>
+				</PricingTableHeader>
+				<PricingTableItem isIncluded={ true } label="Up to 5 sites" />
+				<PricingTableItem isIncluded={ true } label="Basic features" />
+				<PricingTableItem isIncluded={ false } />
+				<PricingTableItem isIncluded={ false } />
+				<PricingTableItem isIncluded={ false } />
+				<PricingTableItem isIncluded={ false } />
+			</PricingTableColumn>
+			<PricingTableColumn primary>
+				<PricingTableHeader title="Professional">
+					<ProductPrice
+						price={ 24.95 }
+						offPrice={ 12.48 }
+						legend="/month, billed yearly"
+						currency="USD"
+						hidePriceFraction
+						variant="simple"
+					/>
+					<Button fullWidth>Get Professional</Button>
+				</PricingTableHeader>
+				<PricingTableItem isIncluded={ true } label="Up to 50 sites" />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } label="Advanced analytics" />
+				<PricingTableItem isIncluded={ true } label="Priority support" />
+				<PricingTableItem isIncluded={ true } label="Custom integrations" />
+				<PricingTableItem isIncluded={ false } />
+			</PricingTableColumn>
+			<PricingTableColumn>
+				<PricingTableHeader title="Enterprise">
+					<ProductPrice
+						price={ 99.95 }
+						offPrice={ 79.96 }
+						legend="/month, billed yearly"
+						currency="USD"
+						hidePriceFraction
+						variant="simple"
+					/>
+					<Button fullWidth variant="secondary">
+						Contact Sales
+					</Button>
+				</PricingTableHeader>
+				<PricingTableItem isIncluded={ true } label="Unlimited sites" />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } label="White-label solution" />
+			</PricingTableColumn>
+		</PricingTable>
+	);
+};
+
+export const ThreeColumns = ThreeColumnsTemplate.bind( {} );
+ThreeColumns.args = {
+	title: 'Choose your plan',
+	items: [
+		{ name: 'Sites included' },
+		{ name: 'Essential features' },
+		{ name: 'Analytics & reporting' },
+		{ name: 'Customer support' },
+		{ name: 'API access' },
+		{ name: 'Enterprise features' },
+	],
+	headerLogo: <Logo height={ 32 } />,
+	showIntroOfferDisclaimer: false,
+};
