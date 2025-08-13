@@ -33,13 +33,7 @@ const INNER_BLOCK_NAME  = 'jetpack/sharing-button';
 function register_block() {
 	Blocks::jetpack_register_block(
 		__DIR__,
-		array(
-			'render_callback'     => __NAMESPACE__ . '\render_block',
-			'js_loading_strategy' => array(
-				'strategy'  => 'defer',
-				'in_footer' => true,
-			),
-		)
+		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
 
 	/*
