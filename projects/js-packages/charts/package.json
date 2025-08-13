@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.24.0",
+	"version": "0.25.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -110,8 +110,8 @@
 		"@types/react": "18.3.23",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
-		"@wordpress/components": "30.0.0",
-		"@wordpress/element": "6.27.0",
+		"@wordpress/components": "30.1.0",
+		"@wordpress/element": "6.28.0",
 		"babel-jest": "30.0.0",
 		"babel-loader": "9.1.2",
 		"css-loader": "^6.7.0",

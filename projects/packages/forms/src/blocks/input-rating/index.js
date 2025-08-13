@@ -5,7 +5,7 @@ import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 
-const name = 'rating-input';
+const name = 'input-rating';
 
 const settings = {
 	apiVersion: 3,
@@ -44,7 +44,7 @@ const settings = {
 	usesContext: [
 		'jetpack/field-rating-max',
 		'jetpack/field-rating-default',
-		'jetpack/field-rating-className',
+		'jetpack/field-rating-iconStyle',
 		'jetpack/field-rating-onChangeDefault',
 	],
 	supports: {

@@ -94,7 +94,8 @@ export default function useMediaDetails( mediaId = null ) {
 	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );
 
 	const mediaObject = useSelect(
-		select => select( 'core' ).getMedia( mediaId, { context: 'view' } ),
+		select =>
+			select( 'core' ).getEntityRecord( 'postType', 'attachment', mediaId, { context: 'view' } ),
 		[ mediaId ]
 	);
 

@@ -1,5 +1,5 @@
-import { executeWpDbQuery } from '_jetpack-e2e-commons/utils/cli.ts';
-import { test, expect } from '../../lib/fixtures/test.ts';
+import { executeWpDbQuery } from '_jetpack-e2e-commons/utils/cli';
+import { test, expect } from '../../lib/fixtures/test';
 
 test.describe( 'Common tests', () => {
 	test.beforeAll( async ( { boostUtils } ) => {
@@ -31,7 +31,7 @@ test.describe( 'Common tests', () => {
 		page,
 		sidebar,
 	} ) => {
-		await page.goto( '/wp-admin' );
+		await page.goto( 'wp-admin/index.php' );
 		await sidebar.selectJetpackBoost();
 		expect( page.url(), "URL should contain 'page=jetpack-boost" ).toContain(
 			'page=jetpack-boost'

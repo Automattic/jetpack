@@ -8,24 +8,35 @@ import {
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import { getImageChoiceLabel } from './label';
+/**
+ * Types
+ */
+import type { BlockEditorStoreSelect } from '../../types';
 
 export default function ImageChoiceFieldEdit( props ) {
-	const { attributes, clientId, isSelected, setAttributes } = props;
-	const { id, required, width } = attributes;
+	const { attributes, clientId, isSelected } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
-	const { isInnerBlockSelected, imageBlockAttributes } = useSelect(
+	const { isInnerBlockSelected, imageBlockAttributes, choiceIndex } = useSelect(
 		select => {
-			const { getBlock, hasSelectedInnerBlock } = select( blockEditorStore );
+			const { getBlock, hasSelectedInnerBlock, getBlockRootClientId } = select(
+				blockEditorStore
+			) as BlockEditorStoreSelect;
+
+			const currentBlock = getBlock( clientId );
+			const parentClientId = getBlockRootClientId( clientId );
+			const parentBlock = getBlock( parentClientId );
+			const index = parentBlock.innerBlocks.findIndex( block => block.clientId === clientId ) + 1;
+
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
-				imageBlockAttributes: getBlock( clientId ).innerBlocks[ 1 ]?.attributes,
+				imageBlockAttributes: currentBlock?.innerBlocks[ 1 ]?.attributes,
+				choiceIndex: index || 1,
 			};
 		},
 		[ clientId ]
@@ -44,37 +55,25 @@ export default function ImageChoiceFieldEdit( props ) {
 			[
 				'jetpack/label',
 				{
-					label: sprintf(
-						// translators: %d is the number of the image choice field.
-						__( 'Image choice %d', 'jetpack-forms' ),
-						1
-					),
-					required,
+					label: getImageChoiceLabel( choiceIndex ),
 				},
 			],
 			[ 'core/image' ],
 		];
-	}, [ required ] );
+	}, [ choiceIndex ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-image-choice__wrapper' },
 		{
 			allowedBlocks: [ 'jetpack/label', 'core/image' ],
 			template,
-			templateLock: 'all',
+			templateLock: 'all', // The choice must have exactly one label and one image.
 		}
 	);
 
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
-			<JetpackFieldControls
-				id={ id }
-				required={ required }
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				width={ width }
-			/>
 		</div>
 	);
 }

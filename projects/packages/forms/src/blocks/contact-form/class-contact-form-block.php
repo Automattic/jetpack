@@ -228,7 +228,7 @@ class Contact_Form_Block {
 
 		if ( Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
-				'jetpack/rating-input',
+				'jetpack/input-rating',
 				array(
 					'supports' => array(
 						'color'      => array(
@@ -597,6 +597,7 @@ class Contact_Form_Block {
 			__FILE__,
 			array(
 				'in_footer'  => true,
+				'strategy'   => 'defer',
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
 			)

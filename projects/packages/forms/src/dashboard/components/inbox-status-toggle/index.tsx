@@ -25,8 +25,8 @@ import useInboxData from '../../hooks/use-inbox-data';
  * @return {string} The formatted label.
  */
 function getTabLabel( label: string, count: number ): string {
-	/* translators: 1: Tab label, 2: Count */
-	return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), label, count || 0 );
+	/* translators: %1$s1: Tab label, %2$d: Count */
+	return sprintf( __( '%1$s (%2$d)', 'jetpack-forms' ), label, count || 0 );
 }
 
 /**

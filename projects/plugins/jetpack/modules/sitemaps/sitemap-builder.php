@@ -168,11 +168,29 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			}
 		}
 
+		/**
+		 * Filters whether to suspend cache addition for the entire sitemap generation.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool|null $suspend_addition Whether to suspend cache addition. Defaults to null.
+		 * @return bool|null Whether to suspend cache addition.
+		 */
+		$suspend_addition = apply_filters( 'jetpack_sitemap_suspend_cache_addition', null );
+
+		// Cache the previous state in case something else changed it.
+		$prev_suspend_addition = wp_suspend_cache_addition();
+
+		wp_suspend_cache_addition( $suspend_addition );
+
 		for ( $i = 1; $i <= JP_SITEMAP_UPDATE_SIZE; $i++ ) {
 			if ( true === $this->build_next_sitemap_file() ) {
 				break; // All finished!
 			}
 		}
+
+		// Restore previous state.
+		wp_suspend_cache_addition( $prev_suspend_addition );
 
 		if ( $this->logger ) {
 			$this->logger->report( '-- ...done for now.' );

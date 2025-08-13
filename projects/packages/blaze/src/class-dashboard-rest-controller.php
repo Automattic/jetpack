@@ -598,7 +598,7 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_dsp_stats( $req ) {
 		$version = $req->get_param( 'api_version' ) ?? 'v1';
-		return $this->get_dsp_generic( "{$version}/stats", $req );
+		return $this->edit_dsp_generic( "{$version}/stats", $req );
 	}
 
 	/**
@@ -859,7 +859,7 @@ class Dashboard_REST_Controller {
 	 * @param String $body Request body.
 	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
 	 * @param bool   $use_cache (optional) default to true.
-	 * @return array|WP_Error|\WP_REST_Response $response Data.
+	 * @return array|string|WP_Error|\WP_REST_Response $response Data.
 	 */
 	protected function request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom', $use_cache = false ) {
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
@@ -886,7 +886,13 @@ class Dashboard_REST_Controller {
 
 		$response_code         = wp_remote_retrieve_response_code( $response );
 		$response_body_content = wp_remote_retrieve_body( $response );
-		$response_body         = json_decode( $response_body_content, true );
+		$content_type          = $response['headers']['content-type'] ?? '';
+
+		if ( str_starts_with( $content_type, 'text/csv' ) ) {
+			return $response_body_content;
+		}
+
+		$response_body = json_decode( $response_body_content, true );
 
 		if ( 200 !== $response_code ) {
 			return $this->get_blaze_error( $response_body, $response_code );

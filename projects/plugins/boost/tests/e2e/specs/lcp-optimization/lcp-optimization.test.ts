@@ -1,4 +1,4 @@
-import { expect, test } from '../../lib/fixtures/test.ts';
+import { expect, test } from '../../lib/fixtures/test';
 
 test.describe( 'LCP Image Optimization module', () => {
 	test.beforeAll( async ( { boostUtils } ) => {

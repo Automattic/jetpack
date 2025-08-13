@@ -293,8 +293,8 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 					<div className="jetpack-ai-logo-generator__prompt-requests">
 						<div>
 							{ sprintf(
-								// translators: %u is the number of requests
-								__( '%u requests remaining.', 'jetpack-ai-client' ),
+								// translators: %d is the number of requests
+								__( '%d requests remaining.', 'jetpack-ai-client' ),
 								requestsRemaining
 							) }
 						</div>

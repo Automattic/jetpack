@@ -570,11 +570,11 @@ class Contact_Form_Plugin {
 					continue;
 				}
 
-				if ( 'jetpack/rating-input' === $block_name ) {
+				if ( 'jetpack/input-rating' === $block_name ) {
 					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']  = $input_attrs['style'] ?? null;
-
+					$atts['iconStyle']    = $atts['iconStyle'] ?? $inner_block['attrs']['iconStyle'] ?? 'stars';
 					continue;
 				}
 			}

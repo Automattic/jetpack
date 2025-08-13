@@ -13,8 +13,6 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Settings;
 
 require_once __DIR__ . '/sharing-sources.php';
@@ -939,12 +937,12 @@ if ( isset( $_GET['share'] ) ) {
 }
 
 /**
- * Gets the url to customise the sharing buttons in Calypso.
+ * Gets the url to customise the sharing buttons in WP-Admin.
  *
- * @return string the customisation URL or null if it couldn't be determinde.
+ * @return string the customisation URL.
  */
 function get_sharing_buttons_customisation_url() {
-	return Redirect::get_url( 'calypso-marketing-sharing-buttons', array( 'site' => ( new Status() )->get_site_suffix() ) );
+	return admin_url( 'options-general.php?page=sharing' );
 }
 
 /**

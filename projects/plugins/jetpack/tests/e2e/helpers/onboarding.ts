@@ -1,4 +1,4 @@
-import logger from '_jetpack-e2e-commons/logger.js';
+import logger from '_jetpack-e2e-commons/logger';
 import type { Page } from '@playwright/test';
 
 type RedirectToWpcomOptions = {
@@ -9,7 +9,11 @@ type RedirectToWpcomOptions = {
 const DEFAULT_TIMEOUT = 60000;
 
 export class Onboarding {
-	constructor( protected page: Page ) {}
+	protected page: Page;
+
+	constructor( page: Page ) {
+		this.page = page;
+	}
 
 	get CTA() {
 		return this.page.getByRole( 'button', { name: 'Supercharge my site' } );
@@ -60,7 +64,7 @@ export class Onboarding {
 	}
 
 	/**
-	 * Approves the user connection by clicking on the "Connect my site" button.
+	 * Approves the user connection by clicking on the "Connect account" button.
 	 * It assumes that
 	 * - the user is already logged in to wp.com.
 	 * - we are on the wp.com connect page.
@@ -81,9 +85,9 @@ export class Onboarding {
 			{ timeout: DEFAULT_TIMEOUT }
 		);
 
-		logger.info( 'Click on "Connect my site" button and wait for redirect to My Jetpack' );
+		logger.info( 'Click on "Connect account" button and wait for redirect to My Jetpack' );
 
-		const approveButton = this.page.getByRole( 'button', { name: 'Connect my site', exact: true } );
+		const approveButton = this.page.getByRole( 'button', { name: 'Connect account', exact: true } );
 
 		return Promise.all( [ waitForMyJetpackPage, approveButton.click() ] );
 	}
