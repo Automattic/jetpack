@@ -71,7 +71,6 @@ export default function SliderInputEdit( props ) {
 					{ __( 'Slider minimum value', 'jetpack-forms' ) }
 				</VisuallyHidden>
 				<input
-					tabIndex="0"
 					id={ `${ clientId }-slider-min` }
 					type="number"
 					className={ `jetpack-field-slider__min-input${
@@ -112,7 +111,6 @@ export default function SliderInputEdit( props ) {
 					{ __( 'Slider maximum value', 'jetpack-forms' ) }
 				</VisuallyHidden>
 				<input
-					tabIndex="0"
 					id={ `${ clientId }-slider-max` }
 					type="number"
 					className={ `jetpack-field-slider__max-input${
