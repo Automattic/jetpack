@@ -13,7 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 add_shortcode( 'kickstarter', 'jetpack_kickstarter_shortcode' );
-add_filter( 'pre_kses', 'jetpack_kickstarter_embed_to_shortcode' );
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'jetpack_kickstarter_embed_to_shortcode' );
+}
 
 /**
  * Parse shortcode arguments and render its output.

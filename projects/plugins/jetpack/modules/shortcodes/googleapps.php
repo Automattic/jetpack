@@ -40,7 +40,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-add_filter( 'pre_kses', 'googleapps_embed_to_shortcode' );
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'googleapps_embed_to_shortcode' );
+}
+
 add_shortcode( 'googleapps', 'googleapps_shortcode' );
 
 /**
