@@ -1023,7 +1023,8 @@ class Feedback {
 					$map_to_field['label'],
 					$value,
 					$map_to_field['type'],
-					array( 'render' => false )
+					array( 'render' => false ),
+					null
 				);
 			}
 		}
@@ -1071,7 +1072,8 @@ class Feedback {
 						$label,
 						$value,
 						'consent',
-						array( 'render' => false )
+						array( 'render' => false ),
+						null
 					);
 					continue;
 				}
@@ -1086,11 +1088,13 @@ class Feedback {
 					$key,
 					$label,
 					$value,
-					'file'
+					'file',
+					array(),
+					null
 				);
 				$this->has_file                   = ! empty( $value['files'] ); // Set has_file to true if any file upload is found.
 			} else {
-				$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $label, $value );
+				$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $label, $value, 'basic', array(), null );
 			}
 		}
 	}
@@ -1107,7 +1111,8 @@ class Feedback {
 			'Comment Content',
 			trim( Contact_Form_Plugin::strip_tags( $comment_content ) ),
 			'textarea',
-			array( 'render' => false )
+			array( 'render' => false ),
+			null
 		);
 	}
 
@@ -1155,8 +1160,8 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$meta           = array( 'original_id' => (string) $field_id );
-			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta );
+			$meta           = array();
+			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, (string) $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
@@ -1240,11 +1245,11 @@ class Feedback {
 			if ( ! $field instanceof Feedback_Field ) {
 				continue;
 			}
-			$original_id = $field->get_original_id();
-			if ( ! is_string( $original_id ) || $original_id === '' ) {
+			$form_field_id = $field->get_form_field_id();
+			if ( ! is_string( $form_field_id ) || $form_field_id === '' ) {
 				continue;
 			}
-			$haystack = strtolower( str_replace( array( ' ', '_' ), '', $original_id ) );
+			$haystack = strtolower( str_replace( array( ' ', '_' ), '', $form_field_id ) );
 			if ( $haystack === $needle ) {
 				return $field;
 			}
