@@ -61,12 +61,14 @@ export default function SliderInputEdit( props ) {
 					{ __( 'Slider minimum value', 'jetpack-forms' ) }
 				</VisuallyHidden>
 				<input
+					tabIndex="0"
 					id={ `${ clientId }-slider-min` }
 					type="number"
 					className={ `jetpack-field-slider__min-input${
 						! isMinValid && minFocused ? ' has-error' : ''
 					}` }
 					value={ removeLeadingZero( localMin ) }
+					placeholder="0"
 					onChange={ e => setLocalMin( e.target.value ) }
 					onFocus={ () => setMinFocused( true ) }
 					onBlur={ () => {
@@ -98,12 +100,14 @@ export default function SliderInputEdit( props ) {
 					{ __( 'Slider maximum value', 'jetpack-forms' ) }
 				</VisuallyHidden>
 				<input
+					tabIndex="0"
 					id={ `${ clientId }-slider-max` }
 					type="number"
 					className={ `jetpack-field-slider__max-input${
 						! isMaxValid && maxFocused ? ' has-error' : ''
 					}` }
 					value={ removeLeadingZero( localMax ) }
+					placeholder="0"
 					onChange={ e => setLocalMax( e.target.value ) }
 					onFocus={ () => setMaxFocused( true ) }
 					onBlur={ () => {
