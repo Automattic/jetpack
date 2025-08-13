@@ -91,5 +91,15 @@
 			visibility: hidden;
 		}
 	}
+}
 
+.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone {
+
+	&:not(.is-selected),
+	&:not(.has-child-selected) {
+
+		.jetpack-field__input-prefix {
+			visibility: hidden;
+		}
+	}
 }

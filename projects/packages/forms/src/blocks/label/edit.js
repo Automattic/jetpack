@@ -36,9 +36,14 @@ function useSiblingBlock( clientId ) {
 				return {};
 			}
 
-			const siblingBlockType = OPTIONS_FIELDS.includes( parentBlock.name )
+			let siblingBlockType = OPTIONS_FIELDS.includes( parentBlock.name )
 				? 'jetpack/options'
 				: 'jetpack/input';
+
+			// Special case for phone field, which uses a different input block.
+			if ( parentBlock.name === 'jetpack/field-phone' ) {
+				siblingBlockType = 'jetpack/phone-input';
+			}
 
 			return parentBlock.innerBlocks.find( block => block.name === siblingBlockType );
 		},
