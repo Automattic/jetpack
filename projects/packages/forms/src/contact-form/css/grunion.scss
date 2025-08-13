@@ -1,3 +1,6 @@
+/* Import shared visually-hidden utility so editor and frontend match */
+@use "../../blocks/shared/styles/visually-hidden" as *;
+
 :root {
 	--jetpack--contact-form--border: 1px solid #8c8f94;
 	--jetpack--contact-form--border-color: #8c8f94;
@@ -1186,9 +1189,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	/* Ensure container is of the exact same dimension */
 	display: block;
 }
-
-/* Import shared visually-hidden utility so editor and frontend match */
-@use "../../blocks/shared/styles/visually-hidden" as *;
 
 .contact-form.is-ajax-form.submission-success {
 	display: none;
