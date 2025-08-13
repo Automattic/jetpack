@@ -58,7 +58,7 @@ class Contact_Form_Block {
 	 */
 	public static function register_feature( $features ) {
 		// Features under development.
-		$features['image-select-field'] = apply_filters( 'forms_alpha', false );
+		$features['image-select-field'] = Blocks::get_variation() === 'beta';
 
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
@@ -226,22 +226,6 @@ class Contact_Form_Block {
 			)
 		);
 
-		if ( Blocks::get_variation() === 'beta' ) {
-			Blocks::jetpack_register_block(
-				'jetpack/input-rating',
-				array(
-					'supports' => array(
-						'color'      => array(
-							'text'       => true,
-							'background' => false,
-						),
-						'typography' => array(
-							'fontSize' => true,
-						),
-					),
-				)
-			);
-		}
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
@@ -370,7 +354,30 @@ class Contact_Form_Block {
 			)
 		);
 
+		// Blocks under development
 		if ( Blocks::get_variation() === 'beta' ) {
+			Blocks::jetpack_register_block(
+				'jetpack/field-image-select',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
+					'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				)
+			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/form-image-select-choices',
+				array(
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choices' ),
+				)
+			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/form-image-select-choice',
+				array(
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choice' ),
+				)
+			);
+
 			Blocks::jetpack_register_block(
 				'jetpack/field-rating',
 				array(
@@ -380,6 +387,22 @@ class Contact_Form_Block {
 					),
 				)
 			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/input-rating',
+				array(
+					'supports' => array(
+						'color'      => array(
+							'text'       => true,
+							'background' => false,
+						),
+						'typography' => array(
+							'fontSize' => true,
+						),
+					),
+				)
+			);
+
 			Blocks::jetpack_register_block(
 				'jetpack/field-slider',
 				array(
@@ -387,6 +410,7 @@ class Contact_Form_Block {
 					'provides_context' => array( 'jetpack/field-required' => 'required' ),
 				)
 			);
+
 			Blocks::jetpack_register_block(
 				'jetpack/field-time',
 				array(
@@ -450,31 +474,6 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/form-step-container'
 		);
-
-		// Block under development.
-		if ( apply_filters( 'forms_alpha', false ) ) {
-			Blocks::jetpack_register_block(
-				'jetpack/field-image-select',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
-					'provides_context' => array( 'jetpack/field-required' => 'required' ),
-				)
-			);
-
-			Blocks::jetpack_register_block(
-				'jetpack/form-image-select-choices',
-				array(
-					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choices' ),
-				)
-			);
-
-			Blocks::jetpack_register_block(
-				'jetpack/form-image-select-choice',
-				array(
-					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choice' ),
-				)
-			);
-		}
 	}
 
 	/**
