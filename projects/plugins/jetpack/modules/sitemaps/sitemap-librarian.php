@@ -10,6 +10,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /* Ensure sitemap constants are available. */
 require_once __DIR__ . '/sitemap-constants.php';
 

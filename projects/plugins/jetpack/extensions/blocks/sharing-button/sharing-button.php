@@ -15,6 +15,10 @@ use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 use WP_Block_Template;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class-sharing-source-block.php';
 require_once __DIR__ . '/components/social-icons.php';
 

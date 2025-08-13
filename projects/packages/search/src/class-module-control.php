@@ -12,6 +12,10 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * To get and set Search module settings
  */

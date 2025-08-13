@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Helpers for parsing the various Search options
  */

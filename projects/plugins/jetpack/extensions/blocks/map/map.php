@@ -16,6 +16,10 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Mapbox_Helper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 }

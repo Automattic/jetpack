@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Connection\Client;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Videopress_Attachment_Metadata
  */

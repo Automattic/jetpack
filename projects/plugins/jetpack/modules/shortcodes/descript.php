@@ -8,6 +8,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_action( 'init', 'jetpack_descript_enable_embeds' );
 } else {

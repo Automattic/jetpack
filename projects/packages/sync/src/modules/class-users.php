@@ -11,6 +11,10 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Password_Checker;
 use Automattic\Jetpack\Sync\Defaults;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for users.
  */

@@ -36,6 +36,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_filter( 'pre_kses', 'googleapps_embed_to_shortcode' );
 add_shortcode( 'googleapps', 'googleapps_shortcode' );
 

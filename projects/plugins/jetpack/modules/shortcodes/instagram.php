@@ -17,6 +17,10 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_action( 'init', 'jetpack_instagram_enable_embeds' );
 } else {

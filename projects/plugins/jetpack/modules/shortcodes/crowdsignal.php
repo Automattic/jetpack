@@ -23,6 +23,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Keep compatibility with the PollDaddy plugin.
 if (
 	! class_exists( 'CrowdsignalShortcode' )
