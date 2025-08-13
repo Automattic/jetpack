@@ -3159,6 +3159,7 @@ class Contact_Form_Plugin {
 		$atts['min']     = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
 		$atts['max']     = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
 		$atts['default'] = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
+		$atts['step']    = isset( $parent_attrs['step'] ) ? $parent_attrs['step'] : 1;
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
