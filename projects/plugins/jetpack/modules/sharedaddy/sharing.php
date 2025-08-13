@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
@@ -739,7 +740,7 @@ class Sharing_Admin {
 			$wpcom_link = localized_wpcom_url( $wpcom_link );
 		}
 
-		$link = $host->is_wpcom_platform() ? $wpcom_link : 'https://jetpack.com/support/sharing/';
+		$link = $host->is_wpcom_platform() ? $wpcom_link : Redirect::get_url( 'jetpack-support-sharing-block' );
 		?>
 
 		<div class="share_manage_options">
