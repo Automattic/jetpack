@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.2
+ * Stubs automatically generated from PHPUnit 12.3.4
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -10019,6 +10019,17 @@ final class EmptyStringException extends \PHPUnit\Framework\InvalidArgumentExcep
 {
 }
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ErrorLogNotWritableException extends \PHPUnit\Framework\Exception
+{
+    public function __construct()
+    {
+    }
+}
+/**
  * Base class for all PHPUnit Framework exceptions.
  *
  * Ensures that exceptions thrown during a test run do not leave stray
@@ -19439,7 +19450,7 @@ final class ErrorHandler
     public function restoreDeprecationHandler(): void
     {
     }
-    public function enable(): void
+    public function enable(\PHPUnit\Framework\TestCase $test): void
     {
     }
     public function disable(): void
@@ -19452,6 +19463,12 @@ final class ErrorHandler
      * @param array{functions: list<non-empty-string>, methods: list<array{className: class-string, methodName: non-empty-string}>} $deprecationTriggers
      */
     public function useDeprecationTriggers(array $deprecationTriggers): void
+    {
+    }
+    public function enterTestCaseContext(string $className, string $methodName): void
+    {
+    }
+    public function leaveTestCaseContext(): void
     {
     }
 }
@@ -31817,6 +31834,9 @@ final class Runtime
      * @return array<string, string>
      */
     public function getCurrentSettings(array $values): array
+    {
+    }
+    public function isOpcacheActive(): bool
     {
     }
 }
