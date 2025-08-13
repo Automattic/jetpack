@@ -793,6 +793,11 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  * @return string The description with wp:query blocks removed.
  */
 function jetpack_og_remove_query_blocks( $description ) {
+	// Handle non-string input
+	if ( ! is_string( $description ) ) {
+		return '';
+	}
+
 	$output         = '';
 	$offset         = 0;
 	$depth          = 0;

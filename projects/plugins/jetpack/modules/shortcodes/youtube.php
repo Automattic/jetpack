@@ -471,10 +471,10 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 
 	// If we have $content_width, use it.
 	if ( ! empty( $content_width ) ) {
-		$default_width = $content_width;
+		$default_width = (int) $content_width;
 	} else {
 		// Otherwise get default width from the old, now deprecated embed_size_w option.
-		$default_width = get_option( 'embed_size_w' );
+		$default_width = (int) get_option( 'embed_size_w' );
 	}
 
 	// If we don't know those 2 values use a hardcoded width.
