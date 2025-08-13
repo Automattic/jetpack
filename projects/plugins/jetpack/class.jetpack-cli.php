@@ -1354,7 +1354,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		WP_CLI::success( __( 'Sitemap rebuilt successfully.', 'jetpack' ) );
 
-		if ( $monitor && isset( $start_time ) && isset( $rusage_start ) ) {
+		if ( $monitor && isset( $start_time ) ) {
 			$end_time     = microtime( true );
 			$peak_memory  = memory_get_peak_usage();
 			$elapsed_time = $end_time - $start_time;
@@ -1367,7 +1367,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			/* translators: %s is a human-readable memory size (e.g., 128MB) */
 			WP_CLI::log( sprintf( __( 'Peak Memory Usage: %s', 'jetpack' ), size_format( $peak_memory ) ) );
 
-			if ( $rusage_start && $rusage_end ) {
+			if ( ! empty( $rusage_start ) && ! empty( $rusage_end ) ) {
 				$user_cpu_time   = ( $rusage_end['ru_utime.tv_sec'] * 1e6 + $rusage_end['ru_utime.tv_usec'] ) - ( $rusage_start['ru_utime.tv_sec'] * 1e6 + $rusage_start['ru_utime.tv_usec'] );
 				$system_cpu_time = ( $rusage_end['ru_stime.tv_sec'] * 1e6 + $rusage_end['ru_stime.tv_usec'] ) - ( $rusage_start['ru_stime.tv_sec'] * 1e6 + $rusage_start['ru_stime.tv_usec'] );
 
