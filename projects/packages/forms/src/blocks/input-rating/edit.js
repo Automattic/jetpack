@@ -1,10 +1,13 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { SVG, Path } from '@wordpress/components';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
+
 export default function RatingInputEdit( { context, clientId } ) {
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
 	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
 	const iconStyle = context?.[ 'jetpack/field-rating-iconStyle' ] || 'stars';
 	const onChangeDefault = context?.[ 'jetpack/field-rating-onChangeDefault' ] || ( () => {} );
+	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
 
 	// Color and other support classes are injected by useBlockProps
 
@@ -56,6 +59,7 @@ export default function RatingInputEdit( { context, clientId } ) {
 					className="jetpack-field-rating__input visually-hidden"
 					checked={ defaultValue === i }
 					onChange={ () => handleChange( i ) }
+					onKeyDown={ onKeyDown }
 				/>
 				<label htmlFor={ radioId } className="jetpack-field-rating__label">
 					{ iconSvg }

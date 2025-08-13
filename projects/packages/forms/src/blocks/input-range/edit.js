@@ -3,6 +3,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef } from 'react';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
 
 export default function SliderInputEdit( props ) {
 	const { context = {}, isSelected, clientId } = props;
@@ -16,6 +17,7 @@ export default function SliderInputEdit( props ) {
 	const onChangeDefault = context[ 'jetpack/field-slider-onChangeDefault' ];
 	const onChangeMin = context[ 'jetpack/field-slider-onChangeMin' ];
 	const onChangeMax = context[ 'jetpack/field-slider-onChangeMax' ];
+	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
 
 	// Setup local state.
 	const [ localMin, setLocalMin ] = useState( String( minFromContext ) );
@@ -86,6 +88,7 @@ export default function SliderInputEdit( props ) {
 						setMinFocused( false );
 						onChangeMin( localMin );
 					} }
+					onKeyDown={ onKeyDown }
 				/>
 				<div className="jetpack-field-slider__input-container">
 					<VisuallyHidden as="label" htmlFor={ `${ clientId }-slider-default` }>
@@ -98,6 +101,7 @@ export default function SliderInputEdit( props ) {
 						max={ maxFromContext }
 						value={ defaultFromContext }
 						onChange={ e => onChangeDefault( e.target.value ) }
+						onKeyDown={ onKeyDown }
 						className="jetpack-field-slider__range"
 					/>
 					<div
@@ -126,6 +130,7 @@ export default function SliderInputEdit( props ) {
 						setMaxFocused( false );
 						onChangeMax( localMax );
 					} }
+					onKeyDown={ onKeyDown }
 				/>
 			</div>
 		</div>
