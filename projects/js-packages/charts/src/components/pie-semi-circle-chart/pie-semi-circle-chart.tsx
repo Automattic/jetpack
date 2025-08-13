@@ -158,13 +158,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				a: DataPointPercentage & { index: number },
 				b: DataPointPercentage & { index: number }
 			) => b.value - a.value,
-			// Use the color property from the data object as a last resort. The theme provides colours by default.
-			fill: ( d: DataPointPercentage & { index: number } ) =>
-				resolveGroupColor( {
-					group: d.group || d.label,
-					index: d.index,
-					overrideColor: d.color,
-				} ),
+			fill: ( { group, index, color: overrideColor }: DataPointPercentage & { index: number } ) =>
+				resolveGroupColor( { group, index, overrideColor } ),
 		} ),
 		[ resolveGroupColor ]
 	);
