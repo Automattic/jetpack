@@ -816,19 +816,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	pointer-events: none;
 	margin: 0;
 	transform: translateY(-50%);
-	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-	will-change: transform, top;
+	transition: translatey 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	z-index: 2;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-label-text {
 	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
-	will-change: font-size;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-label-required {
 	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
-	will-change: font-size;
 }
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
