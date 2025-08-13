@@ -4,7 +4,12 @@ import {
 	InspectorControls,
 	BlockContextProvider,
 } from '@wordpress/block-editor';
-import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	PanelBody,
+	RangeControl,
+} from '@wordpress/components';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
@@ -89,29 +94,33 @@ export default function SliderFieldEdit( props ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<NumberControl
-						label={ __( 'Minimum value', 'jetpack-forms' ) }
-						help={ __( 'Lowest value users can select.', 'jetpack-forms' ) }
-						min={ Number.MIN_SAFE_INTEGER }
-						max={ max }
-						value={ min }
-						onChange={ onChangeMin }
-					/>
-					<NumberControl
-						label={ __( 'Maximum value', 'jetpack-forms' ) }
-						help={ __( 'Highest value users can select.', 'jetpack-forms' ) }
-						min={ min }
-						max={ Number.MAX_SAFE_INTEGER }
-						value={ max }
-						onChange={ onChangeMax }
-					/>
-					<NumberControl
+					<HStack alignment="top">
+						<NumberControl
+							__next40pxDefaultSize
+							label={ __( 'Min value', 'jetpack-forms' ) }
+							max={ max }
+							min={ Number.MIN_SAFE_INTEGER }
+							onChange={ onChangeMin }
+							value={ min }
+						/>
+						<NumberControl
+							__next40pxDefaultSize
+							label={ __( 'Max value', 'jetpack-forms' ) }
+							max={ Number.MAX_SAFE_INTEGER }
+							min={ min }
+							onChange={ onChangeMax }
+							value={ max }
+						/>
+					</HStack>
+					<RangeControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						help={ __( 'Pre-selected value.', 'jetpack-forms' ) }
 						label={ __( 'Default value', 'jetpack-forms' ) }
-						help={ __( 'Pre-selected value (must be between min and max).', 'jetpack-forms' ) }
-						min={ min }
 						max={ max }
-						value={ defaultValue }
+						min={ min }
 						onChange={ onChangeDefault }
+						value={ defaultValue }
 					/>
 				</PanelBody>
 			</InspectorControls>
