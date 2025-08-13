@@ -433,7 +433,7 @@ class REST_Products {
 	 * Update interstitials state for the products
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function update_interstitials_state( WP_REST_Request $request ) {
 
