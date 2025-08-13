@@ -3,6 +3,7 @@
  * Atomic Persistent Data storage provider for Jetpack Connection data.
  *
  * @package wpcomsh
+ * @phan-file-suppress PhanUndeclaredInterface Interface is conditionally available from Jetpack Connection package
  */
 
 // Only define the class if the interface is available
@@ -13,7 +14,6 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 	 * Stage 1: Read-only support for blog_token and id (blog_id).
 	 *
 	 * @since $$next-version$$
-	 * @phan-suppress PhanUndeclaredInterface Interface is conditionally available from Jetpack Connection package
 	 */
 	class Atomic_Storage_Provider implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
 
