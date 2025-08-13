@@ -33,13 +33,14 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( 'test_value', $field->get_value() );
 		$this->assertEquals( 'basic', $field->get_type() );
 		$this->assertEquals( array(), $field->get_meta() );
+		$this->assertNull( $field->get_form_field_id() );
 	}
 
 	/**
 	 * Test that the Feedback_Field class can be instantiated with additional parameters.
 	 */
 	public function test_Feedback_Field_with_additional_parameters() {
-		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ), 'firstname' );
 		$this->assertEquals( 'test_key', $field->get_key() );
 		$this->assertEquals( 'test_label', $field->get_label() );
 		$this->assertEquals( 'test_value', $field->get_value() );
@@ -47,6 +48,7 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( array( 'meta_key' => 'meta_value' ), $field->get_meta() );
 		$this->assertEquals( 'meta_value', $field->get_meta_key_value( 'meta_key' ) );
 		$this->assertNull( $field->get_meta_key_value( 'non_existant' ) );
+		$this->assertEquals( 'firstname', $field->get_form_field_id() );
 	}
 
 	/**
@@ -59,6 +61,7 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertSame( '', $field->get_value() );
 		$this->assertEquals( 'basic', $field->get_type() );
 		$this->assertEquals( array(), $field->get_meta() );
+		$this->assertNull( $field->get_form_field_id() );
 	}
 
 	/**
