@@ -126,13 +126,16 @@ function processPointData(
 	resolveGroupColor?: ChartContextValue[ 'resolveGroupColor' ]
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( point: DataPointDate | DataPointPercentage, index: number ) => {
-		// Use resolveGroupColor for stable group colors if available
-		const color = resolveGroupColor
-			? resolveGroupColor( {
-					group: ( point as DataPointPercentage & { group?: string } ).group || point.label,
-					index,
-			  } )
-			: theme.colors[ index % theme.colors.length ];
+		// Respect color precedence: 1. explicit color, 2. group-based, 3. theme index
+		const explicitColor = ( point as DataPointPercentage & { color?: string } ).color;
+		const color =
+			explicitColor ||
+			( resolveGroupColor
+				? resolveGroupColor( {
+						group: ( point as DataPointPercentage & { group?: string } ).group || point.label,
+						index,
+				  } )
+				: theme.colors[ index % theme.colors.length ] );
 
 		const baseItem = createBaseLegendItem(
 			point.label,
