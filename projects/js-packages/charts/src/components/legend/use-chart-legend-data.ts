@@ -107,12 +107,13 @@ function processSeriesData(
 
 /**
  * Processes point data into legend items
- * @param pointData   - The point data to process
- * @param theme       - The chart theme for colors
- * @param showValues  - Whether to show values in legend
- * @param withGlyph   - Whether to include glyph rendering
- * @param glyphSize   - Size of the glyph
- * @param renderGlyph - Component to render the glyph
+ * @param pointData         - The point data to process
+ * @param theme             - The chart theme for colors
+ * @param showValues        - Whether to show values in legend
+ * @param withGlyph         - Whether to include glyph rendering
+ * @param glyphSize         - Size of the glyph
+ * @param renderGlyph       - Component to render the glyph
+ * @param resolveGroupColor - Optional resolver from ChartContext for stable group colors
  * @return Array of processed legend items
  */
 function processPointData(
@@ -121,13 +122,22 @@ function processPointData(
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
-	renderGlyph?: React.ComponentType< unknown >
+	renderGlyph?: React.ComponentType< unknown >,
+	resolveGroupColor?: ChartContextValue[ 'resolveGroupColor' ]
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const mapper = ( point: DataPointDate | DataPointPercentage, index: number ) => {
+		// Use resolveGroupColor for stable group colors if available
+		const color = resolveGroupColor
+			? resolveGroupColor( {
+					group: ( point as DataPointPercentage & { group?: string } ).group || point.label,
+					index,
+			  } )
+			: theme.colors[ index % theme.colors.length ];
+
 		const baseItem = createBaseLegendItem(
 			point.label,
 			formatPointValue( point, showValues ),
-			theme.colors[ index % theme.colors.length ]
+			color
 		);
 
 		if ( withGlyph && renderGlyph ) {
@@ -189,7 +199,8 @@ export function useChartLegendData<
 			showValues,
 			withGlyph,
 			glyphSize,
-			renderGlyph
+			renderGlyph,
+			resolveGroupColor
 		);
 	}, [
 		data,
