@@ -138,7 +138,7 @@ function processPointData(
 					index,
 					overrideColor: ( point as DataPointPercentage ).color,
 			  } )
-			: theme.colors[ index % theme.colors.length ];
+			: ( point as DataPointPercentage ).color ?? theme.colors[ index % theme.colors.length ];
 
 		const baseItem = createBaseLegendItem(
 			point.label,
