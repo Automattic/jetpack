@@ -2140,8 +2140,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		// File field requires Jetpack to be active
-		if ( $type === 'file' && ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
-			return false;
+		if ( $type === 'file' ) {
+			/**
+			 * Check if Jetpack is active for file uploads.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @return bool
+			 */
+			return apply_filters( 'jetpack_forms_is_file_field_renderable', defined( 'JETPACK__PLUGIN_DIR' ) );
 		}
 
 		return true;
