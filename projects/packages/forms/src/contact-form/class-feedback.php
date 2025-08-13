@@ -1023,8 +1023,7 @@ class Feedback {
 					$map_to_field['label'],
 					$value,
 					$map_to_field['type'],
-					array( 'render' => false ),
-					null
+					array( 'render' => false )
 				);
 			}
 		}
@@ -1072,8 +1071,7 @@ class Feedback {
 						$label,
 						$value,
 						'consent',
-						array( 'render' => false ),
-						null
+						array( 'render' => false )
 					);
 					continue;
 				}
@@ -1088,13 +1086,11 @@ class Feedback {
 					$key,
 					$label,
 					$value,
-					'file',
-					array(),
-					null
+					'file'
 				);
 				$this->has_file                   = ! empty( $value['files'] ); // Set has_file to true if any file upload is found.
 			} else {
-				$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $label, $value, 'basic', array(), null );
+				$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $label, $value );
 			}
 		}
 	}
@@ -1111,8 +1107,7 @@ class Feedback {
 			'Comment Content',
 			trim( Contact_Form_Plugin::strip_tags( $comment_content ) ),
 			'textarea',
-			array( 'render' => false ),
-			null
+			array( 'render' => false )
 		);
 	}
 
@@ -1161,7 +1156,7 @@ class Feedback {
 			$key   = $i . '_' . $label;
 
 			$meta           = array();
-			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, (string) $field_id );
+			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
