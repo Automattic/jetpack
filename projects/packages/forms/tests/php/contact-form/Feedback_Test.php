@@ -1910,7 +1910,9 @@ class Feedback_Test extends BaseTestCase {
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
 			array(
-				'uploadafile' => null,
+				'uploadafile'       => null,
+				'uploadanotherfile' => array(),
+				'uploademptyfile'   => array( '{}' ),
 			),
 			'g' . $form_id
 		);
@@ -1920,7 +1922,7 @@ class Feedback_Test extends BaseTestCase {
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			'[contact-field type="file" label="Upload a file" /]'
+			'[contact-field type="file" label="Upload a file" /][contact-field type="file" label="Upload another file" /][contact-field type="file" label="Upload empty file" /]'
 		);
 
 		$response         = Feedback::from_submission( $_post_data, $form );
