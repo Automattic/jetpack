@@ -2,7 +2,8 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
+import { GlobalChartsContext, GlobalChartsProvider } from '../../providers/chart-context';
 import { BarChart } from '../bar-chart';
 import { withResponsive } from '../shared/with-responsive';
 import type { SeriesData } from '../..';
@@ -210,7 +211,7 @@ const getDefaultYOffset = (
 	return -( barThickness + GAP_BETWEEN_BARS );
 };
 
-const BarListChart: FC< BarListChartProps > = ( {
+const BarListChartInternal: FC< BarListChartProps > = ( {
 	data,
 	width,
 	height,
@@ -292,4 +293,24 @@ const BarListChart: FC< BarListChartProps > = ( {
 	);
 };
 
-export default withResponsive< BarListChartProps >( BarListChart );
+const BarListChart: FC< BarListChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, render the core component directly
+	if ( existingContext ) {
+		return <BarListChartInternal { ...props } />;
+	}
+
+	// Otherwise, wrap with our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<BarListChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
+
+BarListChart.displayName = 'BarListChart';
+
+const BarListChartResponsive = withResponsive< BarListChartProps >( BarListChart );
+
+export { BarListChartResponsive as default, BarListChart as BarListChartUnresponsive };
