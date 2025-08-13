@@ -131,7 +131,7 @@ module.exports = [
 	},
 	{
 		...sharedWebpackConfig,
-		entry: glob.sync( path.join( styleSrcDir, '*.css' ) ).reduce( ( acc, filepath ) => {
+		entry: glob.sync( path.join( styleSrcDir, '*.{css,scss}' ) ).reduce( ( acc, filepath ) => {
 			acc[ 'css/' + path.parse( filepath ).name ] = filepath;
 			return acc;
 		}, {} ),
