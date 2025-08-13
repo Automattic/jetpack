@@ -1354,7 +1354,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		WP_CLI::success( __( 'Sitemap rebuilt successfully.', 'jetpack' ) );
 
-		if ( $monitor ) {
+		if ( $monitor && isset( $start_time ) && isset( $rusage_start ) ) {
 			$end_time     = microtime( true );
 			$peak_memory  = memory_get_peak_usage();
 			$elapsed_time = $end_time - $start_time;
