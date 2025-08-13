@@ -1311,7 +1311,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * rebuild : Rebuild all sitemaps
 	 * --purge : if set, will remove all existing sitemap data before rebuilding
-	 * --monitor : if set, will output peak memory and total execution time
+	 * --monitor : if set, will output elapsed time, peak memory usage, and CPU time (user/system)
 	 *
 	 * ## EXAMPLES
 	 *
@@ -1361,7 +1361,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$rusage_end   = function_exists( 'getrusage' ) ? getrusage() : null;
 
 			WP_CLI::log( '----------------------------------' );
-			WP_CLI::log( 'Performance Metrics:' );
+			WP_CLI::log( __( 'Performance Metrics:', 'jetpack' ) );
 			/* translators: %s is a float representing seconds */
 			WP_CLI::log( sprintf( __( 'Elapsed Time: %.4f seconds', 'jetpack' ), $elapsed_time ) );
 			/* translators: %s is a human-readable memory size (e.g., 128MB) */
