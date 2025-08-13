@@ -2806,6 +2806,9 @@ class Contact_Form_Plugin {
 	 *
 	 * @param string $post_content The post content to parse.
 	 * @return array Parsed fields.
+	 *
+	 * @codeCoverageIgnore - No need to be covered.
+	 * @deprecated since $$next-version$$
 	 */
 	public static function parse_feedback_content( $post_content ) {
 		$all_values = array();
