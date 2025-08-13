@@ -47,6 +47,14 @@ const defaultTheme: ChartTheme = {
 		positiveChangeColor: '#008A20',
 		negativeChangeColor: '#D63638',
 	},
+	lineChart: {
+		lineStyles: {
+			comparison: {
+				strokeDasharray: '4 4',
+				strokeLinecap: 'square',
+			},
+		},
+	},
 };
 
 /**
@@ -95,6 +103,14 @@ const jetpackTheme: ChartTheme = {
 		backgroundColor: '#F3F4F6',
 		positiveChangeColor: '#1F9828',
 		negativeChangeColor: '#FF8C8F',
+	},
+	lineChart: {
+		lineStyles: {
+			comparison: {
+				strokeDasharray: '4 4',
+				strokeLinecap: 'square',
+			},
+		},
 	},
 };
 
@@ -149,6 +165,15 @@ const wooTheme: ChartTheme = {
 		backgroundColor: '#F3F4F6',
 		positiveChangeColor: '#008A20',
 		negativeChangeColor: '#D63638',
+	},
+	lineChart: {
+		lineStyles: {
+			comparison: {
+				strokeDasharray: '4 4',
+				strokeWidth: 1.5,
+				strokeLinecap: 'square',
+			},
+		},
 	},
 };
 

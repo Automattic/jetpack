@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.0-a.1 - 2025-08-11
+### Enhancements
+- Carousel: Fix crashes on large galleries and reduce server requests by preloading only adjacent images instead of all at once. [#44612]
+- Enable Settings > Sharing WP Admin page and ensure all relevant links point to this page. [#44706]
+- Forms: Add new Time field. [#44272]
+- Site Accelerator: Ignore images from openlibrary.org. [#44627]
+- Social: Add font option for Social Image Generator. [#44514]
+
+### Bug fixes
+- Forms: Fix default checkboxes styles, and allow for "browser" styles as a choice. [#44408]
+- Forms: Show the form variation picker if you only have the submit button. [#42479]
+- Sitemaps: Fix PHP warning during generation if there are no posts or pages on the website. [#44656]
+- Social: Fix image generator token reset on save resulting in font not being saved. [#44634]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Excerpt: Add tracking event on generation request. [#44668]
+- E2E: Fix broken tests. [#44727]
+- Fix JavaScript in one-image Slideshow shortcodes. [#44643]
+- I18n: Improve context hints in comments for translators. [#44686]
+- Prevent PHP errors when directly accessing various files. [#44646]
+- Shortcodes: Move Slideshow dependencies into pnpm. [#44685]
+- Tiled Gallery: Add initial state tests. [#44591]
+- Update package dependencies. [#44677]
+
 ## 14.9.1 - 2025-08-06
 ### Bug fixes
 - Open Graph Meta tags: Do not attempt to generate a fallback image when the site is not connected to WordPress.com. [#44661]

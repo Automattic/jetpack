@@ -45,7 +45,7 @@ const createSpeedScoreSRText = (
 	fragments.push(
 		sprintf(
 			// translators: %1$s: speed grade (e.g. 'A'), %2$s: numerical speed score (e.g. '95').
-			__( 'Your website’s overall speed score is %1$s, or %2$s out of 100.', 'jetpack-my-jetpack' ),
+			__( 'Your website’s overall speed score is %1$s, or %2$d out of 100.', 'jetpack-my-jetpack' ),
 			speedLetterGrade,
 			currentSpeedScore
 		)
@@ -55,13 +55,13 @@ const createSpeedScoreSRText = (
 		fragments.push(
 			boostScoreIncrease > 0
 				? sprintf(
-						// translators: %s: score increase (e.g. '10')
-						__( 'Your website’s overall speed score increased by %s.', 'jetpack-my-jetpack' ),
+						// translators: %d: score increase (e.g. '10')
+						__( 'Your website’s overall speed score increased by %d.', 'jetpack-my-jetpack' ),
 						boostScoreIncrease
 				  )
 				: sprintf(
-						// translators: %s: score increase (e.g. '10')
-						__( 'Your website’s overall speed score decreased by %s.', 'jetpack-my-jetpack' ),
+						// translators: %d: score increase (e.g. '10')
+						__( 'Your website’s overall speed score decreased by %d.', 'jetpack-my-jetpack' ),
 						boostScoreIncrease
 				  )
 		);

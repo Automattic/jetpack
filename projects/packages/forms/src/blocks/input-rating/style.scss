@@ -2,11 +2,34 @@
 
 .jetpack-field-rating {
 
+	.jetpack-field-rating__option:last-child .jetpack-field-rating__label {
+		padding-right: 0;
+	}
+
 	/* Layout */
 	.jetpack-field-rating__options {
 		display: flex;
 
+		/* Note: We redefine `.visually-hidden` here
+		   because grunion.css isn't loaded in the editor.
+		   We should follow up with extracting it into a
+		   shared SCSS partial and importing it in both
+		   editor and frontend bundles. */
+		.jetpack-field-rating__input.visually-hidden {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0 0 0 0);
+			clip-path: inset(50%);
+			border: 0;
+			white-space: nowrap;
+		}
+
 		.jetpack-field-rating__label {
+			padding-right: 5px;
 
 			/* Guard against theme label font-size overrides (e.g., Twenty Sixteen) */
 			font-size: inherit;
@@ -24,19 +47,6 @@
 			}
 		}
 
-		/* Accessibly hide the actual radios */
-		input[type="radio"].jetpack-field-rating__input {
-			position: absolute;
-			opacity: 0;
-			width: 1px;
-			height: 1px;
-			margin: 0;
-			padding: 0;
-			border: 0;
-			clip: rect(1px, 1px, 1px, 1px);
-			overflow: hidden;
-		}
-
 		// Filled states: current (checked/hover)
 		:is(
 		input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
@@ -47,6 +57,16 @@
 				fill: var(--jetpack--contact-form--rating-star-color, currentColor);
 			}
 		}
+
+		// Filled states: current (checked/hover)
+		:is(
+		input[type="radio"].jetpack-field-rating__input:focus-visible + .jetpack-field-rating__label) {
+
+			.jetpack-field-rating__icon {
+				scale: 1.3;
+			}
+		}
+
 
 		/* Filled states: previous siblings */
 		.jetpack-field-rating__option {
@@ -78,8 +98,6 @@
 				}
 			}
 		}
-
-		/* (duplicates removed) */
 	}
 }
 

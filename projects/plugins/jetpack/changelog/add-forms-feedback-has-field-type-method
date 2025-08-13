@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: Add has_field_type method to Feedback.

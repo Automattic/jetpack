@@ -120,6 +120,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		'premium-content/login-button',
 		'premium-content/subscriber-view',
 		'syntaxhighlighter/code',
+		'videopress/video',
 	);
 
 	/**
@@ -179,8 +180,34 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$current_wp_styles  = $wp_styles;
 		$current_wp_scripts = $wp_scripts;
 
+		// Preserve allowed plugin scripts registered during the `init` action
+		$preserved_scripts = array();
+		$preserved_styles  = array();
+
+		foreach ( $current_wp_scripts->registered as $handle => $script ) {
+			if ( $this->is_allowed_plugin_handle( $handle ) && ! $this->is_core_or_gutenberg_asset( $script->src ) ) {
+				$preserved_scripts[ $handle ] = clone $script;
+			}
+		}
+
+		foreach ( $current_wp_styles->registered as $handle => $style ) {
+			if ( $this->is_allowed_plugin_handle( $handle ) && ! $this->is_core_or_gutenberg_asset( $style->src ) ) {
+				$preserved_styles[ $handle ] = clone $style;
+			}
+		}
+
+		// Initialize new instances to control which assets are loaded
 		$wp_styles  = new WP_Styles();
 		$wp_scripts = new WP_Scripts();
+
+		// Restore preserved plugin scripts
+		foreach ( $preserved_scripts as $handle => $script ) {
+			$wp_scripts->registered[ $handle ] = $script;
+		}
+
+		foreach ( $preserved_styles as $handle => $style ) {
+			$wp_styles->registered[ $handle ] = $style;
+		}
 
 		// Trigger an action frequently used by plugins to enqueue assets.
 		do_action( 'wp_loaded' );
