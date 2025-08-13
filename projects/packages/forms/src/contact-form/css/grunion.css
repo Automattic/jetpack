@@ -1187,15 +1187,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: block;
 }
 
-.visually-hidden {
-	clip: rect(0 0 0 0);
-	clip-path: inset(50%);
-	height: 1px;
-	overflow: hidden;
-	position: absolute;
-	white-space: nowrap;
-	width: 1px;
-}
+/* Import shared visually-hidden utility so editor and frontend match */
+@use "../../blocks/shared/styles/visually-hidden" as *;
 
 .contact-form.is-ajax-form.submission-success {
 	display: none;
