@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 use WC_Order;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for WooCommerce.
  */

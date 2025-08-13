@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Adds WooCommerce HPOS specific data to sync when HPOS is enabled on the site.
  */
