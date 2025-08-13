@@ -1901,4 +1901,35 @@ class Feedback_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
 	}
+
+	public function test_get_files_invalid() {
+		// This is needed for the test to run correctly.
+		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'uploadafile' => null,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field type="file" label="Upload a file" /]'
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEmpty( $response->get_files(), 'Files should not be empty for the form submission with file uploads' );
+		$this->assertEmpty( $saved_response->get_files(), 'Files should not be empty for the saved response with file uploads' );
+
+		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+	}
 }
