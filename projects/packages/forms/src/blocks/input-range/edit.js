@@ -1,9 +1,11 @@
 import './editor.scss';
 import { useBlockProps } from '@wordpress/block-editor';
+import { VisuallyHidden } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from 'react';
 
 export default function SliderInputEdit( props ) {
-	const { context = {}, isSelected } = props;
+	const { context = {}, isSelected, clientId } = props;
 
 	// Get values from context.
 	const minFromContext = context[ 'jetpack/field-slider-min' ];
@@ -55,7 +57,11 @@ export default function SliderInputEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div className="jetpack-field-slider__row">
+				<VisuallyHidden as="label" for={ `${ clientId }-slider-min` }>
+					{ __( 'Slider minimum value', 'jetpack-forms' ) }
+				</VisuallyHidden>
 				<input
+					id={ `${ clientId }-slider-min` }
 					type="number"
 					className={ `jetpack-field-slider__min-input${
 						! isMinValid && minFocused ? ' has-error' : ''
@@ -69,7 +75,11 @@ export default function SliderInputEdit( props ) {
 					} }
 				/>
 				<div className="jetpack-field-slider__input-container">
+					<VisuallyHidden as="label" for={ `${ clientId }-slider-default` }>
+						{ __( 'Slider default value', 'jetpack-forms' ) }
+					</VisuallyHidden>
 					<input
+						id={ `${ clientId }-slider-default` }
 						type="range"
 						min={ minFromContext }
 						max={ maxFromContext }
@@ -84,7 +94,11 @@ export default function SliderInputEdit( props ) {
 						{ defaultFromContext }
 					</div>
 				</div>
+				<VisuallyHidden as="label" for={ `${ clientId }-slider-max` }>
+					{ __( 'Slider maximum value', 'jetpack-forms' ) }
+				</VisuallyHidden>
 				<input
+					id={ `${ clientId }-slider-max` }
 					type="number"
 					className={ `jetpack-field-slider__max-input${
 						! isMaxValid && maxFocused ? ' has-error' : ''
