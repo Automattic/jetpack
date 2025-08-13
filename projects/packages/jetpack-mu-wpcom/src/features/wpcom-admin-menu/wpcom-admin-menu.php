@@ -649,7 +649,7 @@ function wpcom_add_tools_menu() {
 		)
 	);
 }
-add_action( 'admin_menu', 'wpcom_add_tools_menu', 999 );
+add_action( 'admin_menu', 'wpcom_add_tools_menu', 999999 );
 
 /**
  * Displays an Export/Erase Personal Date page for Simple sites.
