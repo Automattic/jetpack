@@ -1611,7 +1611,7 @@ class Feedback_Test extends BaseTestCase {
 				'5_Message'               => 'Hello, this is a test message from our contact form.',
 				'email_marketing_consent' => 'no',
 				'entry_title'             => '',
-				'entry_permalink'         => '',
+				'entry_permalink'         => home_url(),
 				'feedback_id'             => 'skip',
 			),
 		);
