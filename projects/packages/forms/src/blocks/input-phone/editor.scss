@@ -27,6 +27,13 @@
 				box-shadow: none;
 			}
 		}
+
+		// When field is 50% or less, or when using XXL font size,
+		// the input grows beyond the container.
+		// Adding this width: 1px fixes it. Weirdest hack I've seen.
+		input[type="text"].jetpack-field__input-element {
+			width: 1px;
+		}
 	}
 
 	.jetpack-field__input {
