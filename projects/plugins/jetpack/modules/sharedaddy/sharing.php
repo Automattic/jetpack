@@ -731,9 +731,15 @@ class Sharing_Admin {
 			false
 		);
 
-		$is_wpcom = ( new Status\Host() )->is_wpcom_platform();
+		$host = new Status\Host();
 
-		$link = $is_wpcom ? localized_wpcom_url( 'https://wordpress.com/support/wordpress-editor/blocks/sharing-buttons-block/' ) : 'https://jetpack.com/support/sharing/';
+		$wpcom_link = 'https://wordpress.com/support/wordpress-editor/blocks/sharing-buttons-block/';
+
+		if ( function_exists( 'localized_wpcom_url' ) ) {
+			$wpcom_link = localized_wpcom_url( $wpcom_link );
+		}
+
+		$link = $host->is_wpcom_platform() ? $wpcom_link : 'https://jetpack.com/support/sharing/';
 		?>
 
 		<div class="share_manage_options">
