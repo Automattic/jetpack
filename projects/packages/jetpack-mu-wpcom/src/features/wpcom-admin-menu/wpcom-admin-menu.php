@@ -638,7 +638,7 @@ function wpcom_add_tools_menu() {
 			'advertising',
 			'marketing',
 			'monetize',
-			'import.php',
+			'import',
 			'export.php',
 			'export-media-files',
 			'site-health',
