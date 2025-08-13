@@ -103,8 +103,15 @@ export const PricingTableItem: FC< PricingTableItemProps > = ( {
 	);
 };
 
-export const PricingTableHeader: FC< PricingTableHeaderProps > = ( { children } ) => (
-	<div className={ styles.header }>{ children }</div>
+export const PricingTableHeader: FC< PricingTableHeaderProps > = ( { title, children } ) => (
+	<div className={ styles.headerContainer }>
+		{ title && (
+			<Text variant="headline-small" className={ styles.title }>
+				{ title }
+			</Text>
+		) }
+		<div className={ styles.header }>{ children }</div>
+	</div>
 );
 
 export const PricingTableColumn: FC< PricingTableColumnProps > = ( {

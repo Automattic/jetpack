@@ -113,7 +113,7 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 	return (
 		<PricingTable { ...args }>
 			<PricingTableColumn primary>
-				<PricingTableHeader>
+				<PricingTableHeader title="Social">
 					<ProductPrice
 						price={ 24.95 }
 						offPrice={ 12.48 }
@@ -134,7 +134,7 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 				<PricingTableItem isIncluded={ false } isComingSoon={ true } />
 			</PricingTableColumn>
 			<PricingTableColumn>
-				<PricingTableHeader>
+				<PricingTableHeader title="Free">
 					<ProductPrice price={ 0 } legend="Free forever" currency="USD" hidePriceFraction />
 					<Button fullWidth variant="secondary">
 						Start for free

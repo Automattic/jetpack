@@ -100,11 +100,21 @@
 	}
 }
 
-.header {
+.headerContainer {
 	padding: var(--padding);
 	display: flex;
 	flex-direction: column;
+}
+
+.header {
+	display: flex;
+	flex-direction: column;
 	justify-content: space-between;
+	flex-basis: 100%;
+}
+
+.title {
+	margin-bottom: 24px;
 }
 
 .item {

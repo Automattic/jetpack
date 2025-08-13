@@ -52,6 +52,11 @@ export type PricingTableColumnProps = {
 
 export type PricingTableHeaderProps = {
 	/**
+	 * Title of the header.
+	 */
+	title?: string;
+
+	/**
 	 * Items to show in a header.
 	 */
 	children: ReactNode;
