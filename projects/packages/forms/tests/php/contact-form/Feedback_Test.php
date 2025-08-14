@@ -1521,5 +1521,256 @@ class Feedback_Test extends BaseTestCase {
 				$this->assertEquals( 'file', $field->get_type() );
 			}
 		}
+
+		$this->assertSame( '', $saved_response->get_field_value_by_label( 'non existing field' ) );
+	}
+
+	public function test_legacy_get_all_legacy_values() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'value2',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+
+		$expected_legacy_values = array(
+			'_feedback_author'       => 'Test User',
+			'_feedback_author_email' => 'test@email.com',
+			'_feedback_author_url'   => 'http://example.com',
+			'_feedback_subject'      => 'Test Subject',
+			'_feedback_ip'           => 'https://127.0.0.1',
+			'_feedback_all_fields'   => array(
+				'1_field'                 => 'value1',
+				'2_field'                 => 'value2',
+				'email_marketing_consent' => 'no',
+				'entry_title'             => 'Cool Post Title',
+				'entry_permalink'         => '',
+				'feedback_id'             => 'skip',
+			),
+		);
+
+		$response_legacy = $response->get_all_legacy_values();
+
+		$this->assertNotEmpty( $response_legacy, 'Legacy values should not be empty for the legacy feedback' );
+
+		foreach ( $expected_legacy_values as $key => $value ) {
+			$this->assertArrayHasKey( $key, $response_legacy, 'Extra values should contain the expected key: ' . $key );
+
+			if ( is_array( $value ) ) {
+				foreach ( $value as $sub_key => $sub_value ) {
+					$this->assertArrayHasKey( $sub_key, $response_legacy[ $key ], 'Extra values should contain the expected sub-key: ' . $sub_key );
+					if ( $sub_value !== 'skip' ) {
+						$this->assertEquals( $sub_value, $response_legacy[ $key ][ $sub_key ], 'Extra values should match the expected sub-value for key: ' . $sub_key );
+					}
+				}
+			} else {
+				$this->assertEquals( $value, $response_legacy[ $key ], 'Extra values should match the expected value for key: ' . $key );
+			}
+		}
+	}
+
+	public function test_get_all_legacy_values() {
+		$form_id = Utility::get_form_id( array( 'widget' => 'widget' ) );
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'text'    => 'Test text',
+				'email'   => 'john.smith@example.com',
+				'email_2' => 'john.smith@example2.com',
+				'website' => 'https://johnsmith.dev',
+				'message' => 'Hello, this is a test message from our contact form.',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+				'widget'      => 'widget',
+			),
+			"[contact-field label='Text' type='text' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Email_2' type='email' required='1'/][contact-field label='Website' type='url' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response               = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id       = $response->save();
+		$saved_response         = Feedback::get( $feedback_post_id );
+		$expected_legacy_values = array(
+			'_feedback_author'       => 'john.smith@example.com',
+			'_feedback_author_email' => 'john.smith@example.com',
+			'_feedback_author_url'   => 'https://johnsmith.dev',
+			'_feedback_subject'      => 'skip',
+			'_feedback_ip'           => '127.0.0.1',
+			'_feedback_all_fields'   => array(
+				'1_Text'                  => 'Test text',
+				'2_Email'                 => 'john.smith@example.com',
+				'3_Email_2'               => 'john.smith@example2.com',
+				'4_Website'               => 'https://johnsmith.dev',
+				'5_Message'               => 'Hello, this is a test message from our contact form.',
+				'email_marketing_consent' => 'no',
+				'entry_title'             => '',
+				'entry_permalink'         => home_url(),
+				'feedback_id'             => 'skip',
+			),
+		);
+
+		$this->assertNotEmpty( $response->get_all_legacy_values(), 'Extra values should not be empty for the form submission' );
+		$this->assertEquals( $response->get_all_legacy_values(), $saved_response->get_all_legacy_values(), 'Extra values should match the saved form submission' );
+		$response_legacy = $response->get_all_legacy_values();
+		$saved_legacy    = $saved_response->get_all_legacy_values();
+		foreach ( $expected_legacy_values as $key => $value ) {
+			$this->assertArrayHasKey( $key, $response_legacy, 'Extra values should contain the expected key: ' . $key );
+			$this->assertArrayHasKey( $key, $saved_legacy, 'Saved extra values should contain the expected key: ' . $key );
+
+			if ( is_array( $value ) ) {
+				foreach ( $value as $sub_key => $sub_value ) {
+					$this->assertArrayHasKey( $sub_key, $response_legacy[ $key ], 'Extra values should contain the expected sub-key: ' . $sub_key );
+					$this->assertArrayHasKey( $sub_key, $saved_legacy[ $key ], 'Saved extra values should contain the expected sub-key: ' . $sub_key );
+					if ( $sub_value !== 'skip' ) {
+						$this->assertEquals( $sub_value, $response_legacy[ $key ][ $sub_key ], 'Extra values should match the expected sub-value for key: ' . $sub_key );
+						$this->assertEquals( $sub_value, $saved_legacy[ $key ][ $sub_key ], 'Saved extra values should match the expected sub-value for key: ' . $sub_key );
+					}
+				}
+			} elseif ( $value !== 'skip' ) {
+				$this->assertEquals( $value, $response_legacy[ $key ], 'Extra values should match the expected value for key: ' . $key );
+				$this->assertEquals( $value, $saved_legacy[ $key ], 'Saved extra values should match the expected value for key: ' . $key );
+			}
+		}
+	}
+
+	public function test_get_legacy_extra_values() {
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'text'    => 'Test text',
+				'email'   => 'john.smith@example.com',
+				'email_2' => 'john.smith@example2.com',
+				'website' => 'https://johnsmith.dev',
+				'message' => 'Hello, this is a test message from our contact form.',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Text' type='text' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Email_2' type='email' required='1'/][contact-field label='Website' type='url' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response              = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id      = $response->save();
+		$saved_response        = Feedback::get( $feedback_post_id );
+		$expected_extra_values = array(
+			'6_Text'    => 'Test text',
+			'7_Email_2' => 'john.smith@example2.com',
+		);
+
+		$this->assertNotEmpty( $response->get_legacy_extra_values(), 'Extra values should not be empty for the form submission' );
+		$this->assertEquals( $response->get_legacy_extra_values(), $saved_response->get_legacy_extra_values(), 'Extra values should match the saved form submission' );
+		$response_extra = $response->get_legacy_extra_values();
+		$saved_extra    = $saved_response->get_legacy_extra_values();
+		$this->assertEquals( $expected_extra_values, $response_extra, 'Extra values should match the expected extra values' );
+		$this->assertEquals( $expected_extra_values, $saved_extra, 'Saved extra values should match the expected extra values' );
+	}
+
+	public function test_legacy_get_legacy_extra_values() {
+		$post_id                = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'test@email.com',
+				'3_field' => 'value2',
+			)
+		);
+		$expected_legacy_values = array(
+			'4_field' => 'value1',
+			'5_field' => 'value2',
+		);
+		$response               = Feedback::get( $post_id );
+		$response_legacy        = $response->get_legacy_extra_values();
+		$this->assertNotEmpty( $response_legacy, 'Legacy values should not be empty for the legacy feedback' );
+		$this->assertEquals( $expected_legacy_values, $response_legacy, 'Legacy extra values should match the expected extra values' );
+	}
+
+	public function test_has_field_type_with_consent_explicit_checked() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@example.com',
+				'consent' => 'Yes',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+			. "[contact-field label='Consent' type='consent' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Check both the in-memory response and the saved one return the same values.
+		$this->assertTrue( $response->has_field_type( 'consent' ), 'Feedback (response) should report consent field exists' );
+		$this->assertTrue( $response->has_consent(), 'Consent (response) should be granted when posted as Yes' );
+
+		$this->assertTrue( $saved_response->has_field_type( 'consent' ), 'Feedback (saved) should report consent field exists' );
+		$this->assertTrue( $saved_response->has_consent(), 'Consent (saved) should be granted when posted as Yes' );
+	}
+
+	public function test_has_field_type_without_consent_field() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'email' => 'email@example.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+			. "[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Check both the in-memory response and the saved one return the same values.
+		$this->assertFalse( $response->has_field_type( 'consent' ), 'Feedback (response) should report no consent field' );
+		$this->assertFalse( $response->has_consent(), 'Consent (response) should be false when no consent field was present' );
+
+		$this->assertFalse( $saved_response->has_field_type( 'consent' ), 'Feedback (saved) should report no consent field' );
+		$this->assertFalse( $saved_response->has_consent(), 'Consent (saved) should be false when no consent field was present' );
+	}
+
+	public function test_has_field_type_legacy_feedback() {
+		// Create a legacy feedback entry and verify has_field_type/has_consent behavior.
+		$post_id  = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'value2',
+			)
+		);
+		$response = Feedback::get( $post_id );
+
+		// Legacy entries include an 'email_marketing_consent' field (default 'no'), typed as 'consent'.
+		$this->assertTrue( $response->has_field_type( 'consent' ), 'Legacy feedback should report consent field exists' );
+		$this->assertFalse( $response->has_consent(), 'Legacy consent should default to false (no)' );
 	}
 }

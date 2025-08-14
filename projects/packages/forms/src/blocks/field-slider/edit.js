@@ -1,6 +1,16 @@
-import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useEffect, useCallback } from '@wordpress/element';
+import {
+	useBlockProps,
+	useInnerBlocksProps,
+	InspectorControls,
+	BlockContextProvider,
+} from '@wordpress/block-editor';
+import {
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	PanelBody,
+	RangeControl,
+} from '@wordpress/components';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 
@@ -8,25 +18,31 @@ export default function SliderFieldEdit( props ) {
 	const { attributes, setAttributes } = props;
 	const { min = 0, max = 100, default: defaultValue = 0, width, id, required } = attributes;
 
-	const updateMin = newMin => {
-		const parsedMin = parseInt( newMin ) || 0;
-		const validatedMin = Math.min( parsedMin, max );
-		const validatedDefault = Math.max( defaultValue, validatedMin );
-		setAttributes( {
-			min: validatedMin,
-			default: validatedDefault,
-		} );
-	};
+	const onChangeMin = useCallback(
+		newMin => {
+			const parsedMin = parseInt( newMin ) || 0;
+			const validatedMin = Math.min( parsedMin, max );
+			const validatedDefault = Math.max( defaultValue, validatedMin );
+			setAttributes( {
+				min: validatedMin,
+				default: validatedDefault,
+			} );
+		},
+		[ max, defaultValue, setAttributes ]
+	);
 
-	const updateMax = newMax => {
-		const parsedMax = parseInt( newMax ) || 0;
-		const validatedMax = Math.max( parsedMax, min );
-		const validatedDefault = Math.min( defaultValue, validatedMax );
-		setAttributes( {
-			max: validatedMax,
-			default: validatedDefault,
-		} );
-	};
+	const onChangeMax = useCallback(
+		newMax => {
+			const parsedMax = parseInt( newMax ) || 0;
+			const validatedMax = Math.max( parsedMax, min );
+			const validatedDefault = Math.min( defaultValue, validatedMax );
+			setAttributes( {
+				max: validatedMax,
+				default: validatedDefault,
+			} );
+		},
+		[ min, defaultValue, setAttributes ]
+	);
 
 	// This is passed to child input-range block via context.
 	const onChangeDefault = useCallback(
@@ -38,12 +54,7 @@ export default function SliderFieldEdit( props ) {
 		[ max, min, setAttributes ]
 	);
 
-	// Make callback available in block attributes for context.
-	useEffect( () => {
-		setAttributes( { onChangeDefault } );
-	}, [ onChangeDefault, setAttributes ] );
-
-	// Ensure min, max, and default are always set when the block is first added.
+	// Initialize scalar attributes so they serialize into post markup
 	useEffect( () => {
 		if (
 			attributes.min === undefined ||
@@ -83,33 +94,45 @@ export default function SliderFieldEdit( props ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<NumberControl
-						label={ __( 'Minimum value', 'jetpack-forms' ) }
-						help={ __( 'Lowest value users can select.', 'jetpack-forms' ) }
-						min={ Number.MIN_SAFE_INTEGER }
-						max={ max }
-						value={ min }
-						onChange={ updateMin }
-					/>
-					<NumberControl
-						label={ __( 'Maximum value', 'jetpack-forms' ) }
-						help={ __( 'Highest value users can select.', 'jetpack-forms' ) }
-						min={ min }
-						max={ Number.MAX_SAFE_INTEGER }
-						value={ max }
-						onChange={ updateMax }
-					/>
-					<NumberControl
+					<HStack alignment="top">
+						<NumberControl
+							__next40pxDefaultSize
+							label={ __( 'Min value', 'jetpack-forms' ) }
+							max={ max }
+							min={ Number.MIN_SAFE_INTEGER }
+							onChange={ onChangeMin }
+							value={ min }
+						/>
+						<NumberControl
+							__next40pxDefaultSize
+							label={ __( 'Max value', 'jetpack-forms' ) }
+							max={ Number.MAX_SAFE_INTEGER }
+							min={ min }
+							onChange={ onChangeMax }
+							value={ max }
+						/>
+					</HStack>
+					<RangeControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						help={ __( 'Pre-selected value.', 'jetpack-forms' ) }
 						label={ __( 'Default value', 'jetpack-forms' ) }
-						help={ __( 'Pre-selected value (must be between min and max).', 'jetpack-forms' ) }
-						min={ min }
 						max={ max }
-						value={ defaultValue }
+						min={ min }
 						onChange={ onChangeDefault }
+						value={ defaultValue }
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div { ...innerBlocksProps } />
+			<BlockContextProvider
+				value={ {
+					'jetpack/field-slider-onChangeDefault': onChangeDefault,
+					'jetpack/field-slider-onChangeMin': onChangeMin,
+					'jetpack/field-slider-onChangeMax': onChangeMax,
+				} }
+			>
+				<div { ...innerBlocksProps } />
+			</BlockContextProvider>
 			<JetpackFieldControls
 				attributes={ attributes }
 				id={ id }

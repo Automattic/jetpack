@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
-	 * Initialize the buffer with required headers and root element.
+	 * Initialize the buffer with required headers (no root element here).
 	 */
 	protected function initialize_buffer() {
 		// Add generator comment
@@ -29,8 +29,12 @@ class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 			'xml-stylesheet',
 			'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'image-sitemap.xsl' ) . '"'
 		);
+	}
 
-		// Start root element with namespaces
+	/**
+	 * Start the root element and write its namespaces.
+	 */
+	protected function start_root() {
 		$this->writer->startElement( 'urlset' );
 
 		/**
@@ -67,39 +71,15 @@ class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 			return;
 		}
 
-		$url = $array['url'];
-
-		$this->writer->startElement( 'url' );
-
-		if ( isset( $url['loc'] ) ) {
-			$this->writer->writeElement( 'loc', esc_url( $url['loc'] ) );
+		if ( isset( $array['url']['image:image'] ) ) {
+			if ( empty( $array['url']['image:image']['image:title'] ) ) {
+				unset( $array['url']['image:image']['image:title'] );
+			}
+			if ( empty( $array['url']['image:image']['image:caption'] ) ) {
+				unset( $array['url']['image:image']['image:caption'] );
+			}
 		}
 
-		if ( isset( $url['lastmod'] ) ) {
-			$this->writer->writeElement( 'lastmod', esc_html( $url['lastmod'] ) );
-		}
-
-		if ( isset( $url['image:image'] ) && is_array( $url['image:image'] ) ) {
-			$this->writer->startElement( 'image:image' );
-
-			// Required image loc
-			if ( isset( $url['image:image']['image:loc'] ) ) {
-				$this->writer->writeElement( 'image:loc', esc_url( $url['image:image']['image:loc'] ) );
-			}
-
-			// Optional image title
-			if ( ! empty( $url['image:image']['image:title'] ) ) {
-				$this->writer->writeElement( 'image:title', esc_html( $url['image:image']['image:title'] ) );
-			}
-
-			// Optional image caption
-			if ( ! empty( $url['image:image']['image:caption'] ) ) {
-				$this->writer->writeElement( 'image:caption', esc_html( $url['image:image']['image:caption'] ) );
-			}
-
-			$this->writer->endElement(); // image:image
-		}
-
-		$this->writer->endElement(); // url
+		$this->array_to_xml( $array );
 	}
 }

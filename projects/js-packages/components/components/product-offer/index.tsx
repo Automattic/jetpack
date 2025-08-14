@@ -42,7 +42,7 @@ const ProductOffer: FC< ProductOfferProps > = ( {
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
 	const defautlButtonText = sprintf(
-		/* translators: placeholder is product name. */
+		/* translators: %s: the product name. */
 		__( 'Add %s', 'jetpack-components' ),
 		title
 	);

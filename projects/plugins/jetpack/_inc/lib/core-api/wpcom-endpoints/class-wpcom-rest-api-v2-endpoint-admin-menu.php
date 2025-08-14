@@ -8,6 +8,10 @@
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Admin_Menu
  */
@@ -438,6 +442,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array
 	 */
 	private function parse_menu_item( $title ) {
+		// Handle non-string input
+		if ( ! is_string( $title ) ) {
+			return array();
+		}
+
 		$item = array();
 
 		if (

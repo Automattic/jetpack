@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Blocks: Update subscription block JS to be deferred.

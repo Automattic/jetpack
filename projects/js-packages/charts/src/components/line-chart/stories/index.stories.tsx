@@ -1,3 +1,4 @@
+import { useChartTheme } from '../../../providers/theme';
 import { legendArgTypes } from '../../../stories/legend-config';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
@@ -46,8 +47,8 @@ CustomLegendPositioning.args = {
 	data: sampleData,
 	showLegend: true,
 	height: 400,
-	legendAlignmentHorizontal: 'left',
-	legendAlignmentVertical: 'top',
+	legendAlignment: 'start',
+	legendPosition: 'top',
 	legendOrientation: 'horizontal',
 	withLegendGlyph: true,
 };
@@ -57,6 +58,30 @@ CustomLegendPositioning.parameters = {
 		description: {
 			story:
 				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
+		},
+	},
+};
+
+// Story showing use with LineChart using composition API
+export const WithCompositionLegend: StoryObj< typeof LineChart > = {
+	render: () => (
+		<div style={ { width: '600px', height: '400px' } }>
+			<LineChart
+				data={ webTrafficData }
+				width={ 600 }
+				height={ 300 }
+				withGradientFill={ false }
+				withLegendGlyph={ false }
+			>
+				<LineChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+			</LineChart>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
+			},
 		},
 	},
 };
@@ -297,13 +322,11 @@ BrokenLine.args = {
 			options: {
 				...webTrafficData[ 0 ].options,
 				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
-				legendShapeStyle: {
-					strokeDasharray: '5 5 1',
-				},
 			},
 		},
 		webTrafficData[ 1 ],
 	],
+	showLegend: true,
 };
 
 BrokenLine.parameters = {
@@ -349,5 +372,45 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 					'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
 			},
 		},
+	},
+};
+
+export const Comparison: StoryObj< typeof LineChart > = {
+	args: {
+		...lineChartStoryArgs,
+		showLegend: true,
+		smoothing: false,
+		data: [
+			{
+				...sampleData[ 0 ],
+				label: 'This Year',
+				options: {},
+			},
+			{
+				...sampleData[ 2 ],
+				label: 'Last Year',
+				options: {
+					type: 'comparison' as const,
+				},
+			},
+		],
+	},
+	render: args => {
+		const ComparisonChart = () => {
+			const theme = useChartTheme();
+			const primaryColor = theme.colors[ 2 ];
+
+			const data = args.data.map( series => ( {
+				...series,
+				options: {
+					...series.options,
+					stroke: primaryColor,
+				},
+			} ) );
+
+			return <LineChart { ...args } data={ data } />;
+		};
+
+		return <ComparisonChart />;
 	},
 };

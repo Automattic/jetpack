@@ -40,7 +40,6 @@ const settings = {
 		'jetpack/field-slider-min': 'min',
 		'jetpack/field-slider-max': 'max',
 		'jetpack/field-slider-default': 'default',
-		'jetpack/field-slider-onChangeDefault': 'onChangeDefault',
 	},
 	example: {
 		attributes: {

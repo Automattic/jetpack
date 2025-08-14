@@ -23,8 +23,8 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 			items,
 			className,
 			orientation = 'horizontal',
-			alignmentHorizontal = 'center',
-			alignmentVertical = 'bottom',
+			position = 'bottom',
+			alignment = 'center',
 			shape = 'rect',
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
@@ -44,17 +44,18 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 		ref
 	) => {
 		const theme = useChartTheme();
+
 		const legendScale = scaleOrdinal( {
 			domain: items.map( item => item.label ),
 			range: items.map( item => item.color ),
 		} );
 		const domain = legendScale.domain();
 
+		// For right-aligned vertical legends, use row-reverse to align text consistently
+
 		const getShapeStyle = useCallback(
-			( { index }: { index: number } ) => {
-				return items[ index ]?.shapeStyle ?? theme.legendShapeStyles?.[ index ] ?? {};
-			},
-			[ items, theme ]
+			( { index }: { index: number } ) => items[ index ]?.shapeStyle,
+			[ items ]
 		);
 
 		return (
@@ -71,8 +72,8 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 						className={ clsx(
 							styles.legend,
 							styles[ `legend--${ orientation }` ],
-							styles[ `legend--horizontal-align-${ alignmentHorizontal }` ],
-							styles[ `legend--vertical-align-${ alignmentVertical }` ],
+							styles[ `legend--alignment-${ alignment }` ],
+							styles[ `legend--position-${ position }` ],
 							className
 						) }
 						style={ {
@@ -86,7 +87,9 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 								data-testid="legend-item"
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }
-								flexDirection={ itemDirection }
+								flexDirection={
+									orientation === 'vertical' && alignment === 'end' ? 'row-reverse' : itemDirection
+								}
 								{ ...legendItemProps }
 							>
 								{ items[ i ]?.renderGlyph ? (

@@ -34,16 +34,19 @@ export type DataPointDate = {
 	label?: string;
 };
 
+export type SeriesDataOptions = {
+	gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
+	stroke?: string;
+	seriesLineStyle?: LineStyles;
+	legendShapeStyle?: CSSProperties;
+	type?: 'comparison';
+};
+
 export type SeriesData = {
 	group?: string;
 	label: string;
 	data: DataPointDate[] | DataPoint[];
-	options?: {
-		gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
-		stroke?: string;
-		seriesLineStyle?: LineStyles;
-		legendShapeStyle?: CSSProperties;
-	};
+	options?: SeriesDataOptions;
 };
 
 export type MultipleDataPointsDate = {
@@ -99,7 +102,7 @@ export type ChartTheme = {
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
 	/** Styles for legend shapes */
-	legendShapeStyles?: CSSProperties[];
+	legendShapeStyles?: ( CSSProperties & LineStyles )[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
 	/** Styles for legend labels */
@@ -132,6 +135,9 @@ export type ChartTheme = {
 		positiveChangeColor?: string;
 		/** Color for negative change indicators */
 		negativeChangeColor?: string;
+	};
+	lineChart?: {
+		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
 };
 
@@ -245,13 +251,14 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	legendShape?: LegendShape< T, number >;
 	/**
-	 * Legend horizontal alignment
+	 * Legend position (where the legend appears)
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
 	 */
-	legendAlignmentHorizontal?: 'left' | 'center' | 'right';
+	legendPosition?: 'top' | 'bottom';
 	/**
-	 * Legend vertical alignment
+	 * Legend alignment within its position
 	 */
-	legendAlignmentVertical?: 'top' | 'bottom';
+	legendAlignment?: 'start' | 'center' | 'end';
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */

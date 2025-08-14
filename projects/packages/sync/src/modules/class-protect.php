@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for Protect.
  * Logs BruteProtect failed logins via sync.

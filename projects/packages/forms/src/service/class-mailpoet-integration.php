@@ -182,6 +182,30 @@ class MailPoet_Integration {
 			return;
 		}
 
+		// Get consent field if it exists.
+		$consent_field = null;
+		if ( is_array( $form->fields ) ) {
+			foreach ( $form->fields as $form_field ) {
+				if ( 'consent' === $form_field->get_attribute( 'type' ) ) {
+					$consent_field = $form_field;
+					break;
+				}
+			}
+		}
+
+		// If consent field exists and is explicit, require it to be checked.
+		if ( $consent_field ) {
+			$consent_type = strtolower( (string) $consent_field->get_attribute( 'consenttype' ) );
+			if ( 'explicit' === $consent_type ) {
+				$consent_value           = $consent_field->value;
+				$consent_value_lowercase = is_string( $consent_value ) ? strtolower( trim( $consent_value ) ) : '';
+				$has_explicit_consent    = is_bool( $consent_value ) ? $consent_value : in_array( $consent_value_lowercase, array( 'yes', 'true', '1' ), true );
+				if ( ! $has_explicit_consent ) {
+					return;
+				}
+			}
+		}
+
 		$mailpoet_api = self::get_api();
 		if ( ! $mailpoet_api ) {
 			// MailPoet is not active or not loaded.

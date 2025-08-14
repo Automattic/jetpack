@@ -1,4 +1,4 @@
-import { TestUtils } from '_jetpack-e2e-commons/utils/index.ts';
+import { TestUtils } from '_jetpack-e2e-commons/utils/index';
 import {
 	clearSearchPlanInfo,
 	disableInstantSearch,
@@ -8,7 +8,7 @@ import {
 	setHighlightColor,
 	setResultFormat,
 	setTheme,
-} from './search-utils.ts';
+} from './search-utils';
 
 class SearchUtils extends TestUtils {
 	enableInstantSearch: typeof enableInstantSearch = enableInstantSearch;

@@ -87,8 +87,8 @@ The simplest line chart requires only a `data` prop with time-series data:
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
 - **`legendOrientation`**: Legend layout orientation (`'horizontal'` by default)
-- **`legendAlignmentHorizontal`**: Horizontal legend alignment (`'center'` by default)
-- **`legendAlignmentVertical`**: Vertical legend alignment (`'bottom'` by default)
+- **`legendAlignment`**: Legend alignment within its position (`'center'` by default)
+- **`legendPosition`**: Legend position where the legend appears (`'bottom'` by default)
 - **`legendShape`**: Shape used in legend markers (`'line'` by default)
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
 
@@ -184,6 +184,56 @@ Override individual series appearance with the `options` prop:
 			}
 		]}
 	/>` }
+/>
+
+## Semantic Line Types
+
+Use semantic line types to distinguish between different data categories with automatic styling.
+
+### Comparison type
+
+The `comparison` type can be used to differentiate comparison data from primary data series:
+
+<Canvas of={ LineChartStories.Comparison } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={[
+			{
+				label: 'This Year',
+				data: currentYearData,
+				options: {}
+			},
+			{
+				label: 'Last Year',
+				data: lastYearData,
+				options: {
+					type: 'comparison'
+				}
+			}
+		]}
+	/>` }
+/>
+
+### Theme Integration
+
+Comparison styling can be set in your theme configuration:
+
+<Source
+	language="jsx"
+	code={ `// Theme configuration example
+	const customTheme = {
+		lineChart: {
+			lineStyles: {
+				comparison: {
+					strokeDasharray: '4 4',
+					strokeLinecap: 'square',
+					strokeWidth: 1.5
+				}
+			}
+		}
+	};` }
 />
 
 ## Visual Features
@@ -282,8 +332,8 @@ Display series information with automatic color matching:
 		data={data}
 		showLegend={true}
 		legendOrientation="horizontal"
-		legendAlignmentHorizontal="center"
-		legendAlignmentVertical="bottom"
+		legendAlignment="center"
+		legendPosition="bottom"
 	/>` }
 />
 
@@ -296,8 +346,8 @@ Use different shapes and custom glyphs in legends:
 	code={ `<LineChart
 		data={data}
 		showLegend={true}
-		legendAlignmentHorizontal="right"
-		legendAlignmentVertical="top"
+		legendAlignment="end"
+		legendPosition="top"
 		legendShape="circle"
 		withLegendGlyph={true}
 	/>` }
@@ -496,8 +546,8 @@ Main chart component with responsive behavior by default.
 | `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }?` | - | Show crosshair guides with tooltips |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
-| `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Horizontal legend alignment |
-| `legendAlignmentVertical` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
+| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
+| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
 | `legendShape` | `LegendShape` | `'line'` | Shape used in legend markers |
 | `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
 | `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |
@@ -540,6 +590,7 @@ type SeriesData = {
 		stroke?: string;
 		seriesLineStyle?: LineStyles;
 		legendShapeStyle?: CSSProperties;
+		type?: 'comparison'; // Semantic type for automatic theme styling
 	};
 };
 ```

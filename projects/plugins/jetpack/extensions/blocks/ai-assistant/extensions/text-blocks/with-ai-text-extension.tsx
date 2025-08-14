@@ -98,7 +98,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const lastRequest = useRef< RequestOptions | null >( null );
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
 		const requestingStateRef = useRef< RequestingStateProp | null >( null );
-
+		const timelapse = useRef( null );
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -234,6 +234,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				tracks.recordEvent( 'jetpack_ai_assistant_toolbar_extension_generate', {
 					prompt_type: lastPromptType.current,
 					model: modelUsed,
+					generation_time:
+						timelapse.current !== null ? window?.performance?.now?.() - timelapse.current : null,
 				} );
 
 				if ( lastRequest.current?.message ) {
@@ -361,7 +363,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				dequeueAsyncRequest();
 
 				enableAutoScroll();
-
+				timelapse.current = window?.performance?.now?.() || null;
 				request( messages );
 			},
 			[ dequeueAsyncRequest, enableAutoScroll, getRequestMessages, request, requireUpgrade ]

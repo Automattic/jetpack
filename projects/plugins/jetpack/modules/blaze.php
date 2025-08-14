@@ -15,6 +15,10 @@
 
 use Automattic\Jetpack\Blaze;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 Blaze::init();
 
 /**

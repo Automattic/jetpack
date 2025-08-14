@@ -57,7 +57,12 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function register_feature( $features ) {
+		// Features under development.
+		$features['image-select-field'] = apply_filters( 'forms_alpha', false );
+
+		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
+
 		return $features;
 	}
 
@@ -223,7 +228,7 @@ class Contact_Form_Block {
 
 		if ( Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
-				'jetpack/rating-input',
+				'jetpack/input-rating',
 				array(
 					'supports' => array(
 						'color'      => array(
@@ -445,6 +450,31 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/form-step-container'
 		);
+
+		// Block under development.
+		if ( apply_filters( 'forms_alpha', false ) ) {
+			Blocks::jetpack_register_block(
+				'jetpack/field-image-select',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
+					'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				)
+			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/form-image-select-choices',
+				array(
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choices' ),
+				)
+			);
+
+			Blocks::jetpack_register_block(
+				'jetpack/form-image-select-choice',
+				array(
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choice' ),
+				)
+			);
+		}
 	}
 
 	/**
@@ -567,6 +597,7 @@ class Contact_Form_Block {
 			__FILE__,
 			array(
 				'in_footer'  => true,
+				'strategy'   => 'defer',
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
 			)

@@ -1,6 +1,6 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import logger from '../logger.js';
+import logger from '../logger';
 
 const execFileAsync = promisify( execFile );
 
@@ -159,19 +159,6 @@ export async function executeJetpackCommand( command: string | string[] ): Promi
 		return executeWpCommand( [ 'jetpack', ...command ] );
 	}
 	return executeWpCommand( `jetpack ${ command }` );
-}
-
-/**
- * Executes a Jetpack Boost CLI command.
- *
- * @param {string | string[]} command - Jetpack Boost CLI command (without 'jetpack-boost' prefix)
- * @return {Promise<string>} Command output
- */
-export async function executeJetpackBoostCommand( command: string | string[] ): Promise< string > {
-	if ( Array.isArray( command ) ) {
-		return executeWpCommand( [ 'jetpack-boost', ...command ] );
-	}
-	return executeWpCommand( `jetpack-boost ${ command }` );
 }
 
 /**

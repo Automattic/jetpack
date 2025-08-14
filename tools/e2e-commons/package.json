@@ -5,6 +5,12 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"type": "module",
+	"exports": {
+		"./*": "./*.ts",
+		"./config/*.cjs": "./config/*.cjs",
+		"./eslint.config.mjs": "./eslint.config.mjs",
+		"./tsconfig.json": "./tsconfig.json"
+	},
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
 		"tunnel": "./bin/tunnel.sh"
@@ -20,14 +26,16 @@
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js",
 		"tunnel:off": "./bin/tunnel.sh down",
 		"tunnel:on": "./bin/tunnel.sh up",
-		"tunnel:reset": "./bin/tunnel.sh reset"
+		"tunnel:reset": "./bin/tunnel.sh reset",
+		"typecheck": "tsc --noEmit"
 	},
 	"browserslist": [],
 	"devDependencies": {
 		"@playwright/test": "1.51.1",
 		"@slack/web-api": "7.9.1",
 		"@types/lodash-es": "4.17.12",
-		"@wordpress/e2e-test-utils-playwright": "1.26.0",
+		"@types/node": "^20.4.2",
+		"@wordpress/e2e-test-utils-playwright": "1.28.0",
 		"allure-playwright": "2.9.2",
 		"axios": "1.11.0",
 		"chalk": "5.4.1",
@@ -35,6 +43,7 @@
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.17.21",
 		"shell-escape": "0.2.0",
+		"typescript": "5.8.3",
 		"winston": "3.8.1",
 		"yargs": "17.6.2"
 	}

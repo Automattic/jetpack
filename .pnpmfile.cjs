@@ -49,13 +49,10 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Broken version, and a fix hasn't been released for a while yet.
-	// p1743531431572359-slack-C02DQP0FP
-	if (
-		pkg.name.startsWith( '@automattic/launchpad' ) &&
-		pkg.dependencies?.[ '@automattic/data-stores' ] === '^3.1.0'
-	) {
-		pkg.dependencies[ '@automattic/data-stores' ] = '3.1.0 || >3.1.1';
+	// Currently v3 of @automattic/components has some issues:
+	// https://github.com/Automattic/wp-calypso/pull/103385
+	if ( pkg.name.startsWith( '@automattic/calypso-products' ) ) {
+		pkg.dependencies[ '@automattic/components' ] = '^2.2.0';
 	}
 
 	// Outdated dependency version causing dependabot warnings.
@@ -318,6 +315,15 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
 		pkg.peerDependenciesMeta ??= {};
 		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
+	}
+
+	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
+	if (
+		pkg.name === '@automattic/launchpad' &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
+	) {
+		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
 	}
 
 	return pkg;

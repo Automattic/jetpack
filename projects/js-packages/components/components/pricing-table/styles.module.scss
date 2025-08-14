@@ -17,11 +17,41 @@
 	}
 }
 
+.header-logo {
+
+	.is-viewport-large & {
+		margin-top: 32px;
+	}
+
+	margin-bottom: 24px;
+}
+
 .card {
 	margin-top: var(--padding);
 
 	.is-viewport-large & {
 		display: contents;
+	}
+
+	// Border styles for all columns (default gray borders)
+	> :first-child {
+		border-style: solid;
+		border-color: var(--jp-gray-10);
+		border-width: 1.5px 1.5px 0;
+		border-start-start-radius: 8px;
+		border-start-end-radius: 8px;
+	}
+
+	> :last-child {
+		border-style: solid;
+		border-color: var(--jp-gray-10);
+		border-width: 0 1.5px 1.5px;
+		border-end-start-radius: 8px;
+		border-end-end-radius: 8px;
+	}
+
+	> :not(:first-child):not(:last-child) {
+		border-inline: 1.5px solid var(--jp-gray-10);
 	}
 
 	&.is-primary {
@@ -41,26 +71,50 @@
 				box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
 			}
 		}
-	}
 
-	> :first-child {
-		border-top-left-radius: var(--jp-border-radius);
-		border-top-right-radius: var(--jp-border-radius);
-		border-width: 1px 1px 0;
-	}
+		// Primary column with green border and gradient background
+		> :first-child {
+			border-style: solid;
+			border-color: #008710;
+			border-width: 1.5px 1.5px 0;
+			border-start-start-radius: 8px;
+			border-start-end-radius: 8px;
 
-	> :last-child {
-		border-width: 0 1px 1px;
-		border-bottom-left-radius: var(--jp-border-radius);
-		border-bottom-right-radius: var(--jp-border-radius);
+			background-image: url(./gradient.svg);
+			background-repeat: no-repeat;
+			background-size: 450px;
+			background-position-x: 170px;
+		}
+
+		> :last-child {
+			border-style: solid;
+			border-color: #008710;
+			border-width: 0 1.5px 1.5px;
+			border-end-start-radius: 8px;
+			border-end-end-radius: 8px;
+		}
+
+		> :not(:first-child):not(:last-child) {
+			border-inline: 1.5px solid #008710;
+		}
 	}
 }
 
-.header {
+.headerContainer {
 	padding: var(--padding);
 	display: flex;
 	flex-direction: column;
+}
+
+.header {
+	display: flex;
+	flex-direction: column;
 	justify-content: space-between;
+	flex-basis: 100%;
+}
+
+.title {
+	margin-bottom: 24px;
 }
 
 .item {
@@ -76,22 +130,20 @@
 			content: "";
 			position: absolute;
 			top: 0;
-			left: var(--padding);
-			right: var(--padding);
+			inset-inline-start: var(--padding);
+			inset-inline-end: var(--padding);
 			height: 1px;
 
-			.is-viewport-large & {
-				width: calc(100% + var(--gap));
-				left: 0;
-				right: unset;
-			}
 			z-index: 5;
 			background-color: var(--jp-gray);
+		}
 
-			// Last pricing column doesn't have any grid gap on the right, so
-			// override the default width specified above.
-			.is-viewport-large .table > :last-child & {
-				width: 100%;
+		&.feature {
+
+			&::before {
+				inset-inline-start: 0;
+				inset-inline-end: calc(var(--padding) - var(--gap));
+
 			}
 		}
 	}

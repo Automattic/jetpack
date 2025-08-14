@@ -1,4 +1,4 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
 
 test.afterEach( async ( { requestUtils } ) => {
 	// List all feedback submissions.
@@ -29,7 +29,7 @@ test.afterEach( async ( { requestUtils } ) => {
 } );
 
 test.describe( 'Forms: Submission', () => {
-	test( 'Submits a simple contact form', async ( { admin, editor, page } ) => {
+	test( 'Submits a simple contact form', async ( { admin, editor } ) => {
 		const formTitle = 'E2E Test Form';
 		await test.step( 'Visit the block editor and insert a form', async () => {
 			await admin.createNewPost();
@@ -44,8 +44,7 @@ test.describe( 'Forms: Submission', () => {
 		} );
 
 		await test.step( 'Visit the post on the frontend and submit the form', async () => {
-			const editorPage = page;
-			const previewPage = await editor.openPreviewPage( editorPage );
+			const previewPage = await editor.openPreviewPage();
 
 			const form = previewPage.getByRole( 'form', { name: formTitle } );
 			await form.getByRole( 'textbox', { name: 'Name' } ).fill( 'John Doe' );
@@ -74,7 +73,6 @@ test.describe( 'Forms: Submission', () => {
 	test( 'Submits the correct from when multiple forms are on the same page', async ( {
 		admin,
 		editor,
-		page,
 	} ) => {
 		const contactFormInnerBlocks = [
 			{
@@ -117,8 +115,7 @@ test.describe( 'Forms: Submission', () => {
 		} );
 
 		await test.step( 'Visit the post on the frontend and submit one of the forms', async () => {
-			const editorPage = page;
-			const previewPage = await editor.openPreviewPage( editorPage );
+			const previewPage = await editor.openPreviewPage();
 
 			const formToSubmit = previewPage.getByRole( 'form', { name: 'Submit this form' } );
 			// Get the form ID from the wrapping element, this will allow us to check the contents

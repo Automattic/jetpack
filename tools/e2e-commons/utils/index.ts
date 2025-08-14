@@ -4,9 +4,8 @@ import {
 	executeContainerCommand,
 	executeWpCommand,
 	executeJetpackCommand,
-	executeJetpackBoostCommand,
 	executeWpDbQuery,
-} from './cli.ts';
+} from './cli';
 import {
 	connect,
 	disconnect,
@@ -14,7 +13,7 @@ import {
 	disconnectUser,
 	isSiteConnected,
 	isUserConnected,
-} from './connection.ts';
+} from './connection';
 import {
 	getConfigTestSite,
 	getDotComCredentials,
@@ -22,11 +21,10 @@ import {
 	isLocalSite,
 	resetEnvironment,
 	resolveSiteUrl,
-} from './environment.ts';
-import { activateBoostModule, deactivateBoostModule } from './jetpack-boost.ts';
-import { activateModule, deactivateModule, isModuleActive } from './jetpack.ts';
-import { authenticateUser } from './login.ts';
-import { setMockPlanData } from './plan.ts';
+} from './environment';
+import { activateModule, deactivateModule, isModuleActive } from './jetpack';
+import { authenticateUser } from './login';
+import { setMockPlanData } from './plan';
 
 class TestUtils {
 	requestUtils: RequestUtils;
@@ -51,17 +49,12 @@ class TestUtils {
 	executeWpCommand: typeof executeWpCommand = executeWpCommand;
 	executeJetpackCommand: typeof executeJetpackCommand = executeJetpackCommand;
 	executeContainerCommand: typeof executeContainerCommand = executeContainerCommand;
-	executeJetpackBoostCommand: typeof executeJetpackBoostCommand = executeJetpackBoostCommand;
 	executeWpDbQuery: typeof executeWpDbQuery = executeWpDbQuery;
 
 	// Jetpack specific utilities
 	activateModule: typeof activateModule = activateModule;
 	deactivateModule: typeof deactivateModule = deactivateModule;
 	isModuleActive: typeof isModuleActive = isModuleActive;
-
-	// Jetpack Boost specific utilities
-	activateBoostModule: typeof activateBoostModule = activateBoostModule;
-	deactivateBoostModule: typeof deactivateBoostModule = deactivateBoostModule;
 
 	// Plan utilities
 	setMockPlanData: typeof setMockPlanData = setMockPlanData.bind( this );

@@ -17,6 +17,7 @@ use WP_REST_Server;
  */
 class Contact_Form_Endpoint_Test extends TestCase {
 
+	private $send_email_called = false;
 	/**
 	 * REST Server object.
 	 *
@@ -407,13 +408,19 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	 */
 	public function test_resend_email() {
 		// Create a test feedback post
-		$post_id = wp_insert_post(
+		$post_id = Utility::create_legacy_feedback(
 			array(
-				'post_type'   => 'feedback',
-				'post_status' => 'publish',
-			)
+				'name'  => 'author name',
+				'email' => 'email@example.com',
+			),
+			'This is a test comment content.',
+			'author name',
+			'test@example.com',
+			null,
+			null,
+			'Test Subject',
+			'spam'
 		);
-
 		// Add test metadata
 		add_post_meta(
 			$post_id,
@@ -427,27 +434,26 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		add_post_meta( $post_id, '_feedback_subject', 'Test Subject' );
 
-		// Create test content fields
-		$content_fields = array(
-			'_feedback_author'       => 'Test Author',
-			'_feedback_author_email' => 'author@example.com',
-			'_feedback_subject'      => 'Test Subject',
-			'_feedback_all_fields'   => array(
-				'name'  => 'Test Author',
-				'email' => 'author@example.com',
-			),
-		);
-		add_post_meta( $post_id, '_feedback_all_fields', $content_fields );
-
 		// Test the update_item method which triggers resend_email
 		$request = new WP_REST_Request( 'PUT', '/wp/v2/feedback/' . $post_id );
 		$request->set_param( 'status', 'publish' );
 
 		// Mock the previous status
-		add_post_meta( $post_id, '_wp_trash_meta_status', 'spam' );
-
+		add_filter( 'wp_mail', array( $this, 'mock_wp_mail_succeeded' ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $this->send_email_called, 'Email should have been sent' );
+
+		$this->send_email_called = false; // Reset the flag
+		remove_filter( 'wp_mail', array( $this, 'mock_wp_mail_succeeded' ) );
+	}
+
+	/**
+	 * Mock wp_mail_succeeded filter
+	 */
+	public function mock_wp_mail_succeeded( $data ) {
+		$this->send_email_called = true;
+		return $data;
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Open Graph Meta tags: add new filter allowing one to define a custom site representative image.

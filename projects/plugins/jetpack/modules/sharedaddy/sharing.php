@@ -8,10 +8,8 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -126,26 +124,17 @@ class Sharing_Admin {
 	}
 
 	/**
-	 * Register Sharing settings menu page in offline mode or when wp-admin interface is enabled.
+	 * Register Sharing settings menu page in Settings > Sharing.
 	 */
 	public function subscription_menu() {
-		$is_user_connected = ( new Connection_Manager() )->is_user_connected();
-
-		if (
-			( new Status() )->is_offline_mode()
-			// Always enable Settings > Sharing on Atomic and Simple.
-			|| ( new Host() )->is_wpcom_platform()
-			|| ! $is_user_connected
-		) {
-			add_submenu_page(
-				'options-general.php',
-				__( 'Sharing Settings', 'jetpack' ),
-				__( 'Sharing', 'jetpack' ),
-				'manage_options',
-				'sharing',
-				array( $this, 'wrapper_admin_page' )
-			);
-		}
+		add_submenu_page(
+			'options-general.php',
+			__( 'Sharing Settings', 'jetpack' ),
+			__( 'Sharing', 'jetpack' ),
+			'manage_options',
+			'sharing',
+			array( $this, 'wrapper_admin_page' )
+		);
 	}
 
 	/**

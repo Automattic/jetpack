@@ -9,14 +9,14 @@ export const legendArgTypes = {
 		control: { type: 'boolean' as const },
 		table: { category: 'Legend' },
 	},
-	legendAlignmentHorizontal: {
-		control: { type: 'select' as const },
-		options: [ 'left', 'center', 'right' ],
-		table: { category: 'Legend' },
-	},
-	legendAlignmentVertical: {
+	legendPosition: {
 		control: { type: 'select' as const },
 		options: [ 'top', 'bottom' ],
+		table: { category: 'Legend' },
+	},
+	legendAlignment: {
+		control: { type: 'select' as const },
+		options: [ 'start', 'center', 'end' ],
 		table: { category: 'Legend' },
 	},
 	legendOrientation: {

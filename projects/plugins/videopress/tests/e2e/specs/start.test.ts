@@ -1,4 +1,4 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
 
 test.describe( 'VideoPress plugin!', () => {
 	test( 'Visit Jetpack page', async ( { page, admin } ) => {

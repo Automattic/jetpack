@@ -85,7 +85,7 @@ export class Footer extends Component {
 		if ( isJetpackSelfHostedSite() ) {
 			menu.push( {
 				label: sprintf(
-					/* Translators: placeholder is a version number. */
+					/* Translators: %s: a version number. */
 					__( 'Version %s', 'jetpack' ),
 					version
 				),

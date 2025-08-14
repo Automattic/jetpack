@@ -570,11 +570,11 @@ class Contact_Form_Plugin {
 					continue;
 				}
 
-				if ( 'jetpack/rating-input' === $block_name ) {
+				if ( 'jetpack/input-rating' === $block_name ) {
 					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']  = $input_attrs['style'] ?? null;
-
+					$atts['iconStyle']    = $atts['iconStyle'] ?? $inner_block['attrs']['iconStyle'] ?? 'stars';
 					continue;
 				}
 			}
@@ -1097,6 +1097,41 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_field_time( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'time', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the image select field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the image select form field.
+	 */
+	public static function gutenblock_render_field_image_select( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select', $block );
+
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the image choices field.
+	 *
+	 * @return string HTML for the image choices form field.
+	 */
+	public static function gutenblock_render_form_image_select_choices() {
+		// TODO: Implement the block rendering
+		return '';
+	}
+
+	/**
+	 * Render the image choice field.
+	 *
+	 * @return string HTML for the image choice form field.
+	 */
+	public static function gutenblock_render_form_image_select_choice() {
+		// TODO: Implement the block rendering
+		return '';
 	}
 
 	/**
@@ -2771,6 +2806,9 @@ class Contact_Form_Plugin {
 	 *
 	 * @param string $post_content The post content to parse.
 	 * @return array Parsed fields.
+	 *
+	 * @codeCoverageIgnore - No need to be covered.
+	 * @deprecated since $$next-version$$
 	 */
 	public static function parse_feedback_content( $post_content ) {
 		$all_values = array();
@@ -2846,22 +2884,13 @@ class Contact_Form_Plugin {
 	 * @return array Fields.
 	 */
 	public static function parse_fields_from_content( $post_id ) {
-		static $post_fields;
+		$response = Feedback::get( $post_id );
 
-		if ( ! is_array( $post_fields ) ) {
-			$post_fields = array();
+		if ( $response instanceof Feedback ) {
+			return $response->get_all_legacy_values();
 		}
 
-		if ( isset( $post_fields[ $post_id ] ) ) {
-			return $post_fields[ $post_id ];
-		}
-
-		$post_content = get_post_field( 'post_content', $post_id );
-		$fields       = self::parse_feedback_content( $post_content );
-
-		$post_fields[ $post_id ] = $fields;
-
-		return $fields;
+		return array();
 	}
 
 	/**

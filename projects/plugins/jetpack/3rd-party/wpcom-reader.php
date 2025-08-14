@@ -16,6 +16,10 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 foreach ( array( 'rss_head', 'rss1_head', 'rss2_head' ) as $rss_head_action ) {
 	add_action( $rss_head_action, 'jetpack_wpcomreader_feed_id' );
 }

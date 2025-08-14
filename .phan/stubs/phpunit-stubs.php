@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.0
+ * Stubs automatically generated from PHPUnit 12.3.4
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -10019,6 +10019,17 @@ final class EmptyStringException extends \PHPUnit\Framework\InvalidArgumentExcep
 {
 }
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ErrorLogNotWritableException extends \PHPUnit\Framework\Exception
+{
+    public function __construct()
+    {
+    }
+}
+/**
  * Base class for all PHPUnit Framework exceptions.
  *
  * Ensures that exceptions thrown during a test run do not leave stray
@@ -17891,10 +17902,9 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @param array<array<mixed>> $data
-     * @param ?non-empty-string   $name
+     * @param ?non-empty-string $name
      */
-    public static function testWith(array $data, ?string $name = null): \PHPUnit\Metadata\TestWith
+    public static function testWith(mixed $data, ?string $name = null): \PHPUnit\Metadata\TestWith
     {
     }
     /**
@@ -18416,6 +18426,9 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     public function isIgnorePhpunitDeprecations(): self
     {
     }
+    public function isIgnorePhpunitWarnings(): self
+    {
+    }
     public function isRunClassInSeparateProcess(): self
     {
     }
@@ -18501,9 +18514,6 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     {
     }
     public function isWithoutErrorHandler(): self
-    {
-    }
-    public function isIgnorePhpunitWarnings(): self
     {
     }
 }
@@ -18873,10 +18883,7 @@ final readonly class TestWith extends \PHPUnit\Metadata\Metadata
     public function isTestWith(): true
     {
     }
-    /**
-     * @return array<array<mixed>>
-     */
-    public function data(): array
+    public function data(): mixed
     {
     }
     /**
@@ -19164,15 +19171,26 @@ final class HookMethods
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class ProvidedData
 {
-    public function __construct(private string $providerLabel, private mixed $data)
+    /**
+     * @param non-empty-string $label
+     */
+    public function __construct(string $label, mixed $value)
     {
     }
-    public function getData(): mixed
+    /**
+     * @return non-empty-string
+     */
+    public function label(): string
     {
     }
-    public function getProviderLabel(): string
+    public function value(): mixed
     {
     }
 }
@@ -19432,7 +19450,7 @@ final class ErrorHandler
     public function restoreDeprecationHandler(): void
     {
     }
-    public function enable(): void
+    public function enable(\PHPUnit\Framework\TestCase $test): void
     {
     }
     public function disable(): void
@@ -19445,6 +19463,12 @@ final class ErrorHandler
      * @param array{functions: list<non-empty-string>, methods: list<array{className: class-string, methodName: non-empty-string}>} $deprecationTriggers
      */
     public function useDeprecationTriggers(array $deprecationTriggers): void
+    {
+    }
+    public function enterTestCaseContext(string $className, string $methodName): void
+    {
+    }
+    public function leaveTestCaseContext(): void
     {
     }
 }
@@ -19601,6 +19625,20 @@ final class HookMethodCollection
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class ShutdownHandler
+{
+    public static function setMessage(string $message): void
+    {
+    }
+    public static function resetMessage(): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final class TestSuiteLoader
 {
     /**
@@ -19706,6 +19744,14 @@ final class Baseline
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class CannotLoadBaselineException extends \RuntimeException implements \PHPUnit\Runner\Exception
+{
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CannotWriteBaselineException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
 }
 /**
@@ -19948,6 +19994,8 @@ final readonly class Writer
 {
     /**
      * @param non-empty-string $baselineFile
+     *
+     * @throws CannotWriteBaselineException
      */
     public function write(string $baselineFile, \PHPUnit\Runner\Baseline\Baseline $baseline): void
     {
@@ -21904,7 +21952,7 @@ final readonly class Configuration
      * @param ?non-empty-list<non-empty-string>                    $coverageFilter
      * @param ?non-empty-list<non-empty-string>                    $extensions
      */
-    public function __construct(array $arguments, ?string $atLeastVersion, ?bool $backupGlobals, ?bool $backupStaticProperties, ?bool $beStrictAboutChangesToGlobalState, ?string $bootstrap, ?string $cacheDirectory, ?bool $cacheResult, bool $checkVersion, ?string $colors, null|int|string $columns, ?string $configurationFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4J, ?string $coverageHtml, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, ?bool $coverageTextShowUncoveredFiles, ?bool $coverageTextShowOnlySummary, ?string $coverageXml, ?bool $pathCoverage, bool $warmCoverageCache, ?int $defaultTimeLimit, ?bool $disableCodeCoverageIgnore, ?bool $disallowTestOutput, ?bool $enforceTimeLimit, ?array $excludeGroups, ?int $executionOrder, ?int $executionOrderDefects, ?bool $failOnAllIssues, ?bool $failOnDeprecation, ?bool $failOnPhpunitDeprecation, ?bool $failOnPhpunitNotice, ?bool $failOnPhpunitWarning, ?bool $failOnEmptyTestSuite, ?bool $failOnIncomplete, ?bool $failOnNotice, ?bool $failOnRisky, ?bool $failOnSkipped, ?bool $failOnWarning, ?bool $doNotFailOnDeprecation, ?bool $doNotFailOnPhpunitDeprecation, ?bool $doNotFailOnPhpunitNotice, ?bool $doNotFailOnPhpunitWarning, ?bool $doNotFailOnEmptyTestSuite, ?bool $doNotFailOnIncomplete, ?bool $doNotFailOnNotice, ?bool $doNotFailOnRisky, ?bool $doNotFailOnSkipped, ?bool $doNotFailOnWarning, ?bool $stopOnDefect, ?bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, ?bool $stopOnError, ?bool $stopOnFailure, ?bool $stopOnIncomplete, ?bool $stopOnNotice, ?bool $stopOnRisky, ?bool $stopOnSkipped, ?bool $stopOnWarning, ?string $filter, ?string $excludeFilter, ?string $generateBaseline, ?string $useBaseline, bool $ignoreBaseline, bool $generateConfiguration, bool $migrateConfiguration, ?array $groups, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, bool $help, ?string $includePath, ?array $iniSettings, ?string $junitLogfile, ?string $otrLogfile, ?bool $includeGitInformation, bool $listGroups, bool $listSuites, bool $listTestFiles, bool $listTests, ?string $listTestsXml, ?bool $noCoverage, ?bool $noExtensions, ?bool $noOutput, ?bool $noProgress, ?bool $noResults, ?bool $noLogging, ?bool $processIsolation, ?int $randomOrderSeed, ?bool $reportUselessTests, ?bool $resolveDependencies, ?bool $reverseList, ?bool $stderr, ?bool $strictCoverage, ?string $teamcityLogfile, ?string $testdoxHtmlFile, ?string $testdoxTextFile, ?array $testSuffixes, ?string $testSuite, ?string $excludeTestSuite, bool $useDefaultConfiguration, ?bool $displayDetailsOnAllIssues, ?bool $displayDetailsOnIncompleteTests, ?bool $displayDetailsOnSkippedTests, ?bool $displayDetailsOnTestsThatTriggerDeprecations, ?bool $displayDetailsOnPhpunitDeprecations, ?bool $displayDetailsOnPhpunitNotices, ?bool $displayDetailsOnTestsThatTriggerErrors, ?bool $displayDetailsOnTestsThatTriggerNotices, ?bool $displayDetailsOnTestsThatTriggerWarnings, bool $version, ?array $coverageFilter, ?string $logEventsText, ?string $logEventsVerboseText, ?bool $printerTeamCity, ?bool $testdoxPrinter, ?bool $testdoxPrinterSummary, bool $debug, bool $withTelemetry, ?array $extensions)
+    public function __construct(array $arguments, ?string $atLeastVersion, ?bool $backupGlobals, ?bool $backupStaticProperties, ?bool $beStrictAboutChangesToGlobalState, ?string $bootstrap, ?string $cacheDirectory, ?bool $cacheResult, bool $checkPhpConfiguration, bool $checkVersion, ?string $colors, null|int|string $columns, ?string $configurationFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4J, ?string $coverageHtml, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, ?bool $coverageTextShowUncoveredFiles, ?bool $coverageTextShowOnlySummary, ?string $coverageXml, ?bool $pathCoverage, bool $warmCoverageCache, ?int $defaultTimeLimit, ?bool $disableCodeCoverageIgnore, ?bool $disallowTestOutput, ?bool $enforceTimeLimit, ?array $excludeGroups, ?int $executionOrder, ?int $executionOrderDefects, ?bool $failOnAllIssues, ?bool $failOnDeprecation, ?bool $failOnPhpunitDeprecation, ?bool $failOnPhpunitNotice, ?bool $failOnPhpunitWarning, ?bool $failOnEmptyTestSuite, ?bool $failOnIncomplete, ?bool $failOnNotice, ?bool $failOnRisky, ?bool $failOnSkipped, ?bool $failOnWarning, ?bool $doNotFailOnDeprecation, ?bool $doNotFailOnPhpunitDeprecation, ?bool $doNotFailOnPhpunitNotice, ?bool $doNotFailOnPhpunitWarning, ?bool $doNotFailOnEmptyTestSuite, ?bool $doNotFailOnIncomplete, ?bool $doNotFailOnNotice, ?bool $doNotFailOnRisky, ?bool $doNotFailOnSkipped, ?bool $doNotFailOnWarning, ?bool $stopOnDefect, ?bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, ?bool $stopOnError, ?bool $stopOnFailure, ?bool $stopOnIncomplete, ?bool $stopOnNotice, ?bool $stopOnRisky, ?bool $stopOnSkipped, ?bool $stopOnWarning, ?string $filter, ?string $excludeFilter, ?string $generateBaseline, ?string $useBaseline, bool $ignoreBaseline, bool $generateConfiguration, bool $migrateConfiguration, ?array $groups, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, bool $help, ?string $includePath, ?array $iniSettings, ?string $junitLogfile, ?string $otrLogfile, ?bool $includeGitInformation, bool $listGroups, bool $listSuites, bool $listTestFiles, bool $listTests, ?string $listTestsXml, ?bool $noCoverage, ?bool $noExtensions, ?bool $noOutput, ?bool $noProgress, ?bool $noResults, ?bool $noLogging, ?bool $processIsolation, ?int $randomOrderSeed, ?bool $reportUselessTests, ?bool $resolveDependencies, ?bool $reverseList, ?bool $stderr, ?bool $strictCoverage, ?string $teamcityLogfile, ?string $testdoxHtmlFile, ?string $testdoxTextFile, ?array $testSuffixes, ?string $testSuite, ?string $excludeTestSuite, bool $useDefaultConfiguration, ?bool $displayDetailsOnAllIssues, ?bool $displayDetailsOnIncompleteTests, ?bool $displayDetailsOnSkippedTests, ?bool $displayDetailsOnTestsThatTriggerDeprecations, ?bool $displayDetailsOnPhpunitDeprecations, ?bool $displayDetailsOnPhpunitNotices, ?bool $displayDetailsOnTestsThatTriggerErrors, ?bool $displayDetailsOnTestsThatTriggerNotices, ?bool $displayDetailsOnTestsThatTriggerWarnings, bool $version, ?array $coverageFilter, ?string $logEventsText, ?string $logEventsVerboseText, ?bool $printerTeamCity, ?bool $testdoxPrinter, ?bool $testdoxPrinterSummary, bool $debug, bool $withTelemetry, ?array $extensions)
     {
     }
     /**
@@ -21995,6 +22043,9 @@ final readonly class Configuration
      * @throws Exception
      */
     public function cacheResult(): bool
+    {
+    }
+    public function checkPhpConfiguration(): bool
     {
     }
     public function checkVersion(): bool
@@ -23308,6 +23359,20 @@ interface Command
 final readonly class AtLeastVersionCommand implements \PHPUnit\TextUI\Command\Command
 {
     public function __construct(string $version)
+    {
+    }
+    public function execute(): \PHPUnit\TextUI\Command\Result
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class CheckPhpConfigurationCommand implements \PHPUnit\TextUI\Command\Command
+{
+    public function __construct()
     {
     }
     public function execute(): \PHPUnit\TextUI\Command\Result
@@ -30889,9 +30954,9 @@ final readonly class Percentage
 namespace SebastianBergmann\Comparator;
 
 /**
- * Arrays are equal if they contain the same key-value pairs.
- * The order of the keys does not matter.
- * The types of key-value pairs do not matter.
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
  */
 class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -30899,6 +30964,10 @@ class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
     {
     }
     /**
+     * Arrays are equal if they contain the same key-value pairs.
+     * The order of the keys does not matter.
+     * The types of key-value pairs do not matter.
+     *
      * @param array<mixed> $processed
      *
      * @throws ComparisonFailure
@@ -30907,6 +30976,11 @@ class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class ClosureComparator extends \SebastianBergmann\Comparator\Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -30916,6 +30990,9 @@ final class ClosureComparator extends \SebastianBergmann\Comparator\Comparator
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 abstract class Comparator
 {
     public function setFactory(\SebastianBergmann\Comparator\Factory $factory): void
@@ -30930,6 +31007,9 @@ abstract class Comparator
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class ComparisonFailure extends \RuntimeException
 {
     public function __construct(mixed $expected, mixed $actual, string $expectedAsString, string $actualAsString, string $message = '')
@@ -30954,6 +31034,11 @@ final class ComparisonFailure extends \RuntimeException
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class DOMNodeComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -30968,6 +31053,11 @@ final class DOMNodeComparator extends \SebastianBergmann\Comparator\ObjectCompar
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class DateTimeComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -30982,6 +31072,11 @@ final class DateTimeComparator extends \SebastianBergmann\Comparator\ObjectCompa
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class EnumerationComparator extends \SebastianBergmann\Comparator\Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -30995,7 +31090,9 @@ final class EnumerationComparator extends \SebastianBergmann\Comparator\Comparat
     }
 }
 /**
- * Compares Exception instances for equality.
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
  */
 final class ExceptionComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
@@ -31003,6 +31100,9 @@ final class ExceptionComparator extends \SebastianBergmann\Comparator\ObjectComp
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class Factory
 {
     public static function getInstance(): self
@@ -31038,7 +31138,9 @@ final class Factory
     }
 }
 /**
- * Compares PHPUnit\Framework\MockObject\MockObject instances for equality.
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
  */
 final class MockObjectComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
@@ -31046,6 +31148,11 @@ final class MockObjectComparator extends \SebastianBergmann\Comparator\ObjectCom
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class NumberComparator extends \SebastianBergmann\Comparator\ObjectComparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -31060,6 +31167,11 @@ final class NumberComparator extends \SebastianBergmann\Comparator\ObjectCompara
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class NumericComparator extends \SebastianBergmann\Comparator\ScalarComparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -31072,6 +31184,11 @@ final class NumericComparator extends \SebastianBergmann\Comparator\ScalarCompar
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 class ObjectComparator extends \SebastianBergmann\Comparator\ArrayComparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -31092,6 +31209,11 @@ class ObjectComparator extends \SebastianBergmann\Comparator\ArrayComparator
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class ResourceComparator extends \SebastianBergmann\Comparator\Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -31105,7 +31227,9 @@ final class ResourceComparator extends \SebastianBergmann\Comparator\Comparator
     }
 }
 /**
- * Compares scalar or NULL values for equality.
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
  */
 class ScalarComparator extends \SebastianBergmann\Comparator\Comparator
 {
@@ -31119,6 +31243,11 @@ class ScalarComparator extends \SebastianBergmann\Comparator\Comparator
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class SplObjectStorageComparator extends \SebastianBergmann\Comparator\Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -31131,6 +31260,11 @@ final class SplObjectStorageComparator extends \SebastianBergmann\Comparator\Com
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class TypeComparator extends \SebastianBergmann\Comparator\Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -31143,9 +31277,15 @@ final class TypeComparator extends \SebastianBergmann\Comparator\Comparator
     {
     }
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 interface Exception extends \Throwable
 {
 }
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Comparator\Exception
 {
 }
@@ -31694,6 +31834,9 @@ final class Runtime
      * @return array<string, string>
      */
     public function getCurrentSettings(array $values): array
+    {
+    }
+    public function isOpcacheActive(): bool
     {
     }
 }
