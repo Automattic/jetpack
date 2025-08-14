@@ -62,6 +62,12 @@ export const PRODUCT_CONFIGS = {
 				paid: { included: true, label: 'Included' },
 				bundle: { included: true, label: 'Video hosting (1TB, ad-free)' },
 			},
+			{
+				name: '',
+				free: { included: false, label: '' },
+				paid: { included: false, label: '' },
+				bundle: { included: true, label: 'Priority support' },
+			},
 		],
 		tiers: {
 			free: { name: 'Free', cta: 'Start for Free' },
