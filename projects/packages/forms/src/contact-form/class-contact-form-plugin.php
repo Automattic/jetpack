@@ -507,9 +507,6 @@ class Contact_Form_Plugin {
 					$atts['inputclasses']  = 'wp-block-jetpack-input jetpack-field__input-element';
 					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']   = $input_attrs['style'] ?? null;
-					// TODO: inputs shouldn't bring styles anymore, only its wrapper.
-					// $atts['inputstyles']   = $input_attrs['style'] ?? null;
-					// $atts['fieldwrapperclasses'] = 'jetpack-field__input-phone';
 
 					/*
 						Borders for the outlined notched HTML.
