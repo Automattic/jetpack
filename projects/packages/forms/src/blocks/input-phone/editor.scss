@@ -4,6 +4,15 @@
 	.jetpack-field__textarea {
 		box-sizing: border-box;
 
+		border-radius: 4px;
+		border: 1px solid #8c8f94;
+		background-color: #fff;
+
+		&.is-selected {
+			border-color: #2271b1;
+			box-shadow: 0 0 0 1px #2271b1;
+		}
+
 		// these class is used to style input and textarea elements
 		.jetpack-field__input-element {
 			font: inherit;
