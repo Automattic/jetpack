@@ -16,6 +16,7 @@
 		// these class is used to style input and textarea elements
 		.jetpack-field__input-element {
 			font: inherit;
+			line-height: 2; // mimics default input line-height
 			border: 0;
 			color: inherit;
 			outline: none;
