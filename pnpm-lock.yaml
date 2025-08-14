@@ -2904,7 +2904,7 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
       typescript:
-        specifier: ^5.0.4
+        specifier: 5.8.3
         version: 5.8.3
       wait-for-expect:
         specifier: 3.0.2
