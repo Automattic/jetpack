@@ -1564,6 +1564,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       '@wordpress/api-fetch':
         specifier: 7.28.0
         version: 7.28.0
