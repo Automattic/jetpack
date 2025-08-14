@@ -14,14 +14,17 @@
 		"test:run": "playwright install chromium && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results NODE_PATH=\"$PWD/node_modules\" playwright test",
 		"tunnel:down": "tunnel down",
 		"tunnel:reset": "tunnel reset",
-		"tunnel:up": "tunnel up"
+		"tunnel:up": "tunnel up",
+		"typecheck": "tsc --noEmit"
 	},
 	"browserslist": [],
 	"devDependencies": {
 		"@playwright/test": "1.51.1",
+		"@types/node": "^20.4.2",
 		"_jetpack-e2e-commons": "workspace:*",
 		"allure-playwright": "2.9.2",
-		"config": "3.3.12"
+		"config": "3.3.12",
+		"typescript": "5.8.3"
 	},
 	"ci": {
 		"targets": [

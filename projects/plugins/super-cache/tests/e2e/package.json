@@ -8,7 +8,8 @@
 		"env:down": "docker-compose down",
 		"env:up": "docker-compose up -d",
 		"pretest:run": "pnpm run clean",
-		"test:run": "jest --runInBand"
+		"test:run": "jest --runInBand",
+		"typecheck": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"@jest/globals": "^30.0.0",

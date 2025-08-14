@@ -4293,6 +4293,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4302,6 +4305,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/classic-theme-helper-plugin:
     dependencies:
@@ -4387,6 +4393,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4396,6 +4405,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/crm:
     dependencies:
@@ -5006,6 +5018,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5015,6 +5030,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/mu-wpcom-plugin: {}
 
@@ -5202,6 +5220,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5211,6 +5232,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/search: {}
 
@@ -5219,6 +5243,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5228,6 +5255,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/social:
     devDependencies:
@@ -5240,6 +5270,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5249,6 +5282,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/starter-plugin:
     dependencies:
@@ -5331,6 +5367,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5340,6 +5379,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/super-cache: {}
 
@@ -5442,6 +5484,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5451,6 +5496,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/wpcomsh:
     devDependencies:
@@ -5560,6 +5608,9 @@ importers:
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       '@wordpress/e2e-test-utils-playwright':
         specifier: 1.28.0
         version: 1.28.0(@playwright/test@1.51.1)
@@ -5584,6 +5635,9 @@ importers:
       shell-escape:
         specifier: 0.2.0
         version: 0.2.0
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
       winston:
         specifier: 3.8.1
         version: 3.8.1
