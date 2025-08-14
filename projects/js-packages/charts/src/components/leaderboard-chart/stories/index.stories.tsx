@@ -1,7 +1,13 @@
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { formatMetricValue } from '../../shared/format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';
-import { sampleData, smallDataset, largeValues, negativeGrowth } from './sample-data';
+import {
+	sampleData,
+	smallDataset,
+	largeValues,
+	negativeGrowth,
+	salesByProduct,
+} from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LeaderboardChart > = {
@@ -378,14 +384,9 @@ export const CustomLabel: Story = {
 		data: smallDataset.map( entry => ( {
 			...entry,
 			label: (
-				<div style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
-					<img
-						src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23e25555' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E"
-						alt="icon"
-						style={ { width: '32px', height: '32px', marginLeft: '8px', verticalAlign: 'middle' } }
-					/>
-					<span style={ { fontSize: '24px' } }>{ entry.label }</span>
-				</div>
+				<span style={ { fontSize: '24px', padding: '8px 16px', color: '#EEEEEE' } }>
+					{ entry.label }
+				</span>
 			),
 		} ) ),
 		withComparison: false,
@@ -451,6 +452,51 @@ export const WooCommerceTheme: Story = {
 				<div style={ { width: '400px', padding: '20px' } }>
 					<Story />
 				</div>
+			</ThemeProvider>
+		),
+	],
+};
+
+export const WooAnalyticsSalesByProduct: Story = {
+	args: {
+		data: salesByProduct.map( entry => ( {
+			...entry,
+			label: (
+				<div
+					style={ {
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						padding: '6px',
+					} }
+				>
+					<img
+						src={ `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='${ entry.imageColor }'/></svg>` }
+						alt="icon"
+						style={ {
+							width: '28px',
+							height: '28px',
+							verticalAlign: 'middle',
+							borderRadius: '4px',
+						} }
+					/>
+					<span style={ { fontSize: '13px' } }>{ entry.label }</span>
+				</div>
+			),
+		} ) ),
+		primaryColor: '#C8CFF6',
+		withComparison: true,
+		withOverlayLabel: true,
+		loading: false,
+		style: {
+			'--bar-border-radius': '4px',
+			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
+		},
+	},
+	decorators: [
+		Story => (
+			<ThemeProvider theme={ wooTheme }>
+				<Story />
 			</ThemeProvider>
 		),
 	],
