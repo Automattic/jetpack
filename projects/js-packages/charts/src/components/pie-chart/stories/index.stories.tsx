@@ -156,6 +156,44 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithCompositionLegend: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'center',
+			} }
+		>
+			<div>
+				<h3>Traditional Props-based Legend</h3>
+				<PieChart
+					size={ 300 }
+					data={ data }
+					showLegend={ true }
+					legendPosition="bottom"
+					legendOrientation="horizontal"
+				/>
+			</div>
+			<div>
+				<h3>Composition API with Legend Component</h3>
+				<PieChart size={ 300 } data={ data }>
+					<PieChart.Legend position="bottom" orientation="horizontal" alignment="center" />
+				</PieChart>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the new composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control.',
+			},
+		},
+	},
+};
+
 export const CustomLegendPositioning: Story = {
 	args: {
 		data: [
