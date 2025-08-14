@@ -1312,6 +1312,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * rebuild : Rebuild all sitemaps
 	 * --purge : if set, will remove all existing sitemap data before rebuilding
 	 * --monitor : if set, will output elapsed time, peak memory usage, CPU time (user/system), and average CPU utilization
+	 * --suspend-cache-addition : if set, will suspend cache additions during sitemap generation
 	 *
 	 * ## EXAMPLES
 	 *
@@ -1319,7 +1320,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack sitemap rebuild --monitor
 	 *
 	 * @subcommand sitemap
-	 * @synopsis <rebuild> [--purge] [--monitor]
+	 * @synopsis <rebuild> [--purge] [--monitor] [--suspend-cache-addition]
 	 *
 	 * @param array $args Positional args.
 	 * @param array $assoc_args Named args.
@@ -1330,6 +1331,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 		if ( ! class_exists( 'Jetpack_Sitemap_Builder' ) ) {
 			WP_CLI::error( __( 'Jetpack Sitemaps module is active, but unavailable. This can happen if your site is set to discourage search engine indexing. Please enable search engine indexing to allow sitemap generation.', 'jetpack' ) );
+		}
+
+		if ( isset( $assoc_args['suspend-cache-addition'] ) && $assoc_args['suspend-cache-addition'] ) {
+			add_filter( 'jetpack_sitemap_suspend_cache_addition', '__return_true' );
+			WP_CLI::success( 'Suspending cache addition.' );
 		}
 
 		$monitor = isset( $assoc_args['monitor'] ) && $assoc_args['monitor'];
