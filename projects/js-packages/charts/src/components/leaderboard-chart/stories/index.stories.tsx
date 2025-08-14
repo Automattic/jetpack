@@ -281,6 +281,14 @@ export const WithoutComparison: Story = {
 	},
 };
 
+export const WithOverlayLabel: Story = {
+	args: {
+		data: sampleData,
+		withOverlayLabel: true,
+		primaryColor: '#66BDFF',
+	},
+};
+
 export const Loading: Story = {
 	args: {
 		data: sampleData,
