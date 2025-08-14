@@ -389,7 +389,7 @@ class The_Neverending_Home_Page {
 		if ( 0 === $entries ) {
 			return (bool) ( ! is_countable( self::wp_query()->posts ) || ( count( self::wp_query()->posts ) < $posts_per_page ) );
 		}
-		$paged = max( 1, self::wp_query()->get( 'paged' ) );
+		$paged = max( 1, (int) self::wp_query()->get( 'paged' ) );
 
 		// Are there enough posts for more than the first page?
 		if ( $entries <= $posts_per_page ) {
@@ -574,6 +574,9 @@ class The_Neverending_Home_Page {
 		$excluded_posts = array();
 		// loop through posts returned by wp_query call
 		foreach ( self::wp_query()->get_posts() as $post ) {
+			if ( ! $post instanceof \WP_Post ) {
+				continue;
+			}
 
 			$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
 			$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
@@ -633,7 +636,7 @@ class The_Neverending_Home_Page {
 
 		// code inspired by WP_Query class
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
-			$search_terms = self::wp_query()->query_vars['search_terms'];
+			$search_terms = self::wp_query()->query_vars['search_terms'] ?? null;
 			// if the search string has only short terms or stopwords, or is 10+ terms long, match it as sentence
 			if ( empty( $search_terms ) || ! is_countable( $search_terms ) || count( $search_terms ) > 9 ) {
 				$search_terms = array( self::wp_query()->get( 's' ) );
@@ -890,6 +893,7 @@ class The_Neverending_Home_Page {
 			if (
 				is_a( $taxonomy, 'WP_Taxonomy' )
 				&& is_countable( $taxonomy->object_type )
+				&& ! empty( $taxonomy->object_type )
 				&& count( $taxonomy->object_type ) < 2
 			) {
 				$post_type = $taxonomy->object_type[0];
@@ -1535,9 +1539,17 @@ class The_Neverending_Home_Page {
 				// If sharing counts are not initialized for any reason, we initialize them here.
 				if ( ! is_array( $jetpack_sharing_counts ) ) {
 					$jetpack_sharing_counts = array();
+				} else {
+					// Filter out non-string and non-integer values to avoid warnings with array_flip.
+					$flippable_jetpack_sharing_counts = array_filter(
+						$jetpack_sharing_counts,
+						function ( $value ) {
+							return is_string( $value ) || is_int( $value );
+						}
+					);
 				}
 
-				$results['postflair'] = array_flip( $jetpack_sharing_counts );
+				$results['postflair'] = array_flip( $flippable_jetpack_sharing_counts ?? array() );
 			}
 		} else {
 			/** This action is already documented in modules/infinite-scroll/infinity.php */

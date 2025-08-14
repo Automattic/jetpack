@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Infinite Scroll: Prevent PHP warnings in various edge cases.
