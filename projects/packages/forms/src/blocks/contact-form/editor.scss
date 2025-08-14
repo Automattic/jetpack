@@ -343,25 +343,6 @@
 		margin: 0;
 	}
 
-	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where(.jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle) {
-		font: inherit;
-		border: 1px solid #8c8f94;
-		border-radius: 0;
-	}
-
-	:where(.jetpack-field-dropdown__toggle) {
-		background-color: var(--jetpack--contact-form--input-background);
-	}
-
-	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where(.jetpack-field__textarea) {
-		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
-		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
-		border-style: var(--jetpack--contact-form--border-style, solid);
-		border-width: var(--jetpack--contact-form--border-left-size, 1px);
-	}
-
 	.components-base-control__field {
 		margin-bottom: 0;
 	}
@@ -384,6 +365,30 @@
 		justify-content: flex-start;
 	}
 
+}
+
+// Selectors with specificity to 0,0,0 so that global styles can override it.
+
+:where(.jetpack-field .jetpack-field__input, .jetpack-field .jetpack-field__textarea) {
+	padding: 16px;
+	margin: 0;
+}
+
+:where(.jetpack-field .jetpack-field__textarea) {
+	border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
+	border-color: var(--jetpack--contact-form--border-color, #8c8f94);
+	border-style: var(--jetpack--contact-form--border-style, solid);
+	border-width: var(--jetpack--contact-form--border-left-size, 1px);
+}
+
+:where(.jetpack-field .jetpack-field__input, .jetpack-field .jetpack-field__textarea, .jetpack-field .jetpack-field-dropdown__toggle) {
+	font: inherit;
+	border: 1px solid #8c8f94;
+	border-radius: 0;
+}
+
+:where(.jetpack-field .jetpack-field-dropdown__toggle) {
+	background-color: var(--jetpack--contact-form--input-background);
 }
 
 // Default field styles other the plain.
