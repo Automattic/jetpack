@@ -2429,13 +2429,19 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                     #} Long desc if present:
                                     $zbsNoteLongDesc = ''; if (isset($fallBackLog['longdesc']) && !empty($fallBackLog['longdesc'])) $zbsNoteLongDesc = $fallBackLog['longdesc'];
 
-                                        #} Only raw checked... but proceed.
-                                        $newOrUpdatedLogID = zeroBS_addUpdateCompanyLog($id,-1,-1,array(
-                                            #} Anything here will get wrapped into an array and added as the meta vals
-                                            'type' => $fallBackLog['type'],
-                                            'shortdesc' => $fallBackLog['shortdesc'],
-                                            'longdesc' => $zbsNoteLongDesc
-                                        ));
+										#} Only raw checked... but proceed.
+										zeroBS_addUpdateObjLog(
+											ZBS_TYPE_COMPANY,
+											$id,
+											-1,
+											-1,
+											array(
+												// Anything here will get wrapped into an array and added as the meta vals
+												'type'     => $fallBackLog['type'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+												'shortdesc' => $fallBackLog['shortdesc'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+												'longdesc' => $zbsNoteLongDesc, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+											)
+										);
 
 
                                 }
