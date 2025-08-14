@@ -14,6 +14,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { getImageChoiceLabel } from '../form-image-select-choice/label';
 import useAddImageChoice from '../shared/hooks/use-add-image-choice';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 /**
@@ -47,9 +48,9 @@ export default function ImageChoiceFieldEdit( props ) {
 
 	// Starts with 3 empty choices.
 	const template = [
-		[ 'jetpack/form-image-select-choice' ],
-		[ 'jetpack/form-image-select-choice' ],
-		[ 'jetpack/form-image-select-choice' ],
+		[ 'jetpack/form-image-select-choice', { label: getImageChoiceLabel( 1 ) } ],
+		[ 'jetpack/form-image-select-choice', { label: getImageChoiceLabel( 2 ) } ],
+		[ 'jetpack/form-image-select-choice', { label: getImageChoiceLabel( 3 ) } ],
 	];
 
 	const innerBlocksProps = useInnerBlocksProps(

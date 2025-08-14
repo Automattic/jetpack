@@ -5,50 +5,68 @@ import {
 	store as blockEditorStore,
 	useBlockProps,
 	useInnerBlocksProps,
+	RichText,
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import { getImageChoiceLabel } from './label';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 /**
  * Types
  */
 import type { BlockEditorStoreSelect } from '../../types';
 
+// Attributes synced with other image choice blocks.
+const SYNCED_ATTRIBUTE_KEYS = [
+	'backgroundColor',
+	'borderColor',
+	'textColor',
+	'fontSize',
+	'style',
+];
+
 export default function ImageChoiceFieldEdit( props ) {
-	const { attributes, clientId, isSelected, context } = props;
-	const { blockStyle } = useJetpackFieldStyles( attributes );
-	const { isInnerBlockSelected, imageBlockAttributes, choiceIndex } = useSelect(
+	const { clientId, isSelected, context, name, attributes, setAttributes } = props;
+	const { 'jetpack/field-share-attributes': isSynced } = context;
+	const { label } = attributes;
+
+	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
+
+	const { isInnerBlockSelected, imageBlockAttributes } = useSelect(
 		select => {
-			const { getBlock, hasSelectedInnerBlock, getBlockRootClientId } = select(
+			const { getBlock, hasSelectedInnerBlock } = select(
 				blockEditorStore
 			) as BlockEditorStoreSelect;
 
 			const currentBlock = getBlock( clientId );
-			const parentClientId = getBlockRootClientId( clientId );
-			const parentBlock = getBlock( parentClientId );
-			const index = parentBlock.innerBlocks.findIndex( block => block.clientId === clientId ) + 1;
 
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
 				imageBlockAttributes: currentBlock?.innerBlocks[ 1 ]?.attributes,
-				choiceIndex: index || 1,
 			};
 		},
 		[ clientId ]
 	);
 
-	const { 'jetpack/field-image-select-is-supersized': isSupersized } = context || {};
+	const {
+		'jetpack/field-image-select-is-supersized': isSupersized,
+		'jetpack/field-image-select-show-labels': showLabels,
+	} = context || {};
+
+	// Use the block's own synced attributes for styling
+	const { blockStyle } = useJetpackFieldStyles( attributes );
 
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-form-image-select-choice', {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-image': !! imageBlockAttributes?.url,
 			'is-supersized': isSupersized,
+			'hide-labels': ! showLabels,
 		} ),
 		style: blockStyle,
 	} );
@@ -56,27 +74,35 @@ export default function ImageChoiceFieldEdit( props ) {
 	const template = useMemo( () => {
 		return [
 			[
-				'jetpack/label',
+				'core/image',
 				{
-					label: getImageChoiceLabel( choiceIndex ),
+					scale: 'cover',
+					aspectRatio: '1', // Square aspect ratio for uniform grid
 				},
 			],
-			[ 'core/image' ],
 		];
-	}, [ choiceIndex ] );
+	}, [] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-image-choice__wrapper' },
 		{
-			allowedBlocks: [ 'jetpack/label', 'core/image' ],
+			allowedBlocks: [ 'core/image' ],
 			template,
-			templateLock: 'all', // The choice must have exactly one label and one image.
+			templateLock: 'all', // The choice must have exactly one image.
 		}
 	);
 
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
+			<RichText
+				tagName="span"
+				className="jetpack-form-image-select-choice__label"
+				value={ label }
+				placeholder={ __( 'Add choice…', 'jetpack-forms' ) }
+				__unstableDisableFormats
+				onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
+			/>
 		</div>
 	);
 }

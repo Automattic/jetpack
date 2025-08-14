@@ -34,12 +34,18 @@ export default function useAddImageChoice( choicesClientId: string ): { addChoic
 		}
 
 		const newIndex = choicesBlock.innerBlocks.length + 1;
-		const newChoiceBlock = createBlock( 'jetpack/form-image-select-choice', {}, [
-			createBlock( 'jetpack/label', {
+		const newChoiceBlock = createBlock(
+			'jetpack/form-image-select-choice',
+			{
 				label: getImageChoiceLabel( newIndex ),
-			} ),
-			createBlock( 'core/image' ),
-		] );
+			},
+			[
+				createBlock( 'core/image', {
+					scale: 'cover',
+					aspectRatio: '1',
+				} ),
+			]
+		);
 
 		insertBlock( newChoiceBlock, choicesBlock.innerBlocks.length, choicesClientId );
 	}, [ choicesClientId, insertBlock, getBlock ] );

@@ -7,37 +7,113 @@ import { group as icon } from '@wordpress/icons';
  * Internal dependencies
  */
 import edit from './edit';
-import { getImageChoiceLabel } from './label';
 import save from './save';
 
 const name = 'form-image-select-choice';
 
 const settings = {
 	apiVersion: 3,
-	title: __( 'Image choice field', 'jetpack-forms' ),
-	description: __( 'An image option for a image select field.', 'jetpack-forms' ),
+	title: __( 'Image choice', 'jetpack-forms' ),
+	description: __( 'A single image choice for an image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/form-image-select-choices' ],
-	usesContext: [ 'jetpack/field-image-select-is-supersized' ],
-	edit,
-	attributes: {},
-	save,
-	example: {
-		innerBlocks: [
-			{
-				name: 'jetpack/label',
-				attributes: {
-					label: getImageChoiceLabel( 1 ),
-				},
-			},
-			{
-				name: 'core/image',
-				attributes: {
-					url: 'https://s.w.org/images/core/5.3/Glacial_lakes%2C_Bhutan.jpg',
-				},
-			},
-		],
+	usesContext: [
+		'jetpack/field-image-select-is-supersized',
+		'jetpack/field-image-select-show-labels',
+		'jetpack/field-share-attributes',
+	],
+	providesContext: {
+		allowResize: 'allowResize',
+		imageCrop: 'imageCrop',
+		fixedHeight: 'fixedHeight',
 	},
+	supports: {
+		color: {
+			background: true,
+			text: true,
+			gradients: false,
+			__experimentalDefaultControls: {
+				background: true,
+				text: true,
+			},
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+			__experimentalFontFamily: true,
+			__experimentalFontWeight: true,
+			__experimentalFontStyle: true,
+			__experimentalTextTransform: true,
+			__experimentalTextDecoration: true,
+			__experimentalLetterSpacing: true,
+			__experimentalDefaultControls: {
+				fontSize: true,
+			},
+		},
+		__experimentalBorder: {
+			color: true,
+			radius: true,
+			style: true,
+			width: true,
+			__experimentalDefaultControls: {
+				color: true,
+				radius: true,
+				style: true,
+				width: true,
+			},
+		},
+		spacing: {
+			margin: true,
+			padding: true,
+			__experimentalDefaultControls: {
+				margin: true,
+				padding: true,
+			},
+		},
+	},
+	edit,
+	attributes: {
+		style: {
+			type: 'object',
+			default: {
+				border: {
+					width: '1px',
+					color: '#dee2e6',
+					radius: '4px',
+					style: 'solid',
+				},
+				spacing: {
+					margin: '0',
+					padding: '8px',
+				},
+				color: {
+					background: '#f8f9fa',
+					text: '#212529',
+				},
+			},
+		},
+		fontSize: {
+			type: 'string',
+			default: 'medium',
+		},
+		allowResize: {
+			type: 'boolean',
+			default: false,
+		},
+		imageCrop: {
+			type: 'boolean',
+			default: true,
+		},
+		fixedHeight: {
+			type: 'boolean',
+			default: true,
+		},
+		label: {
+			type: 'string',
+			default: '',
+		},
+	},
+	save,
 };
 
 export default {
