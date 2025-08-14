@@ -160,27 +160,33 @@ As with any other testing types, E2E tests roughly follows the AAA pattern ([Arr
     **Test-specific Arrangement** - Anything more specific (module activation, plan mocking, environment variables) should be done within test's
   `before*` hooks using the provided `testUtils` utilities.
 
+    **Base test fixture** - The `fixtures/base-test.ts` extends the [test fixture](https://github.com/WordPress/gutenberg/blob/trunk/packages/e2e-test-utils-playwright/src/test.ts) from `@wordpress/e2e-test-utils-playwright` package, inheriting all its utilities (`admin`, `pageUtils`, `requestUtils`, etc.) while adding Jetpack-specific enhancements:
+    - `page` - Enhanced page object that logs errors and sets WordPress.com cookie consent
+    - `testUtils` - Worker-scoped utilities for WordPress CLI commands and API operations
+    - `editor` - EditorPage instance for block editor interactions
+    - `sidebar` - Sidebar instance for WordPress admin sidebar navigation
+    - Automatic WPCOM API request tracking via `beforeEach`/`afterEach` hooks
+    
+    Usage: Import `test` from this fixture instead of Playwright's default test to access both WordPress and Jetpack-specific utilities in your tests. 
+
 - Act: The part when the test is following the user flow. In most cases it takes the form of navigating between pages, filling in forms, clicking buttons, etc.
 - Assert: The part where we verify that the test did what it was supposed to do. It could be done at the end of the user flow, or along the way when you need to verify specific state. Do note that if one of the interactions with the page in `Act` part will fail, it will fail the whole test. Meaning you don't really need to assert every step in `Act` section.
 
-Starter Plugin's e2e folder already includes [a basic test](/projects/plugins/starter-plugin/tests/e2e/specs/start.test.js) what will help you to get started. Also refer to `tests/e2e` folders in other plugins for more examples.
+Starter Plugin's e2e folder already includes [a basic test](/projects/plugins/starter-plugin/tests/e2e/specs/start.test.ts) what will help you to get started. Also refer to `tests/e2e` folders in other plugins for more examples.
 
 ## Reporting
 
-A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `config/playwright.config.default.mjs` for details.
+A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `playwright.config.default.ts` for details.
 
 ### Allure reporter
 
-To use allure reporter, you'll need to install a dependency.
+To use allure reporter, you'll need to install a the Allure CLI dependency.
 
 ```shell
 npm i -D allure-playwright
 ```
 
-Allure results are generated in the allure-results folder. You can use these results to generate a full report, but the Allure cli tool is needed for that.
-
-1. [Install Allure cli](https://docs.qameta.io/allure/#_installing_a_commandline)
-2. Generate and open the report using Allure's builtin webserver
+Allure results are generated in the configured allure-results folder. You can use these results to generate a full report.
 
 ```shell
 # Run this in the path where `allure-results` folder is
