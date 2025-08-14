@@ -53,7 +53,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			( point: DataPointDate ) =>
+			point =>
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
@@ -340,7 +340,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
 					<BarGroup padding={ chartOptions.barGroup.padding }>
-						{ dataWithVisibleZeros.map( ( seriesData: SeriesData, index: number ) => (
+						{ dataWithVisibleZeros.map( ( seriesData, index ) => (
 							<BarSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
