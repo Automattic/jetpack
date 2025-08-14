@@ -6,7 +6,7 @@ import {
 	smallDataset,
 	largeValues,
 	negativeGrowth,
-	salesByProduct,
+	dataWithImageColor,
 } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -379,18 +379,38 @@ export const NumberFormatting: Story = {
 	},
 };
 
+const CustomLabelComponent = ( { label, imageColor, style = {} } ) => (
+	<div
+		style={ {
+			display: 'flex',
+			alignItems: 'center',
+			gap: '8px',
+			...style,
+		} }
+	>
+		<img
+			src={ `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='${ encodeURIComponent(
+				imageColor
+			) }'/></svg>` }
+			alt="icon"
+			style={ {
+				width: '28px',
+				height: '28px',
+				verticalAlign: 'middle',
+				borderRadius: '4px',
+			} }
+		/>
+		<span style={ { fontSize: '13px' } }>{ label }</span>
+	</div>
+);
+
 export const CustomLabel: Story = {
 	args: {
-		data: smallDataset.map( entry => ( {
+		data: dataWithImageColor.map( entry => ( {
 			...entry,
-			label: (
-				<span style={ { fontSize: '24px', padding: '8px 16px', color: '#EEEEEE' } }>
-					{ entry.label }
-				</span>
-			),
+			label: <CustomLabelComponent label={ entry.label } imageColor={ entry.imageColor } />,
 		} ) ),
 		withComparison: false,
-		withOverlayLabel: true,
 		loading: false,
 	},
 };
@@ -457,31 +477,16 @@ export const WooCommerceTheme: Story = {
 	],
 };
 
-export const WooAnalyticsSalesByProduct: Story = {
+export const OverlayLabelWithImage: Story = {
 	args: {
-		data: salesByProduct.map( entry => ( {
+		data: dataWithImageColor.map( entry => ( {
 			...entry,
 			label: (
-				<div
-					style={ {
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						padding: '6px',
-					} }
-				>
-					<img
-						src={ `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='${ entry.imageColor }'/></svg>` }
-						alt="icon"
-						style={ {
-							width: '28px',
-							height: '28px',
-							verticalAlign: 'middle',
-							borderRadius: '4px',
-						} }
-					/>
-					<span style={ { fontSize: '13px' } }>{ entry.label }</span>
-				</div>
+				<CustomLabelComponent
+					label={ entry.label }
+					imageColor={ entry.imageColor }
+					style={ { padding: '6px' } }
+				/>
 			),
 		} ) ),
 		primaryColor: '#C8CFF6',

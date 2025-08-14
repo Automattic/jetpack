@@ -120,7 +120,7 @@ export const negativeGrowth: LeaderboardEntry[] = [
 	},
 ];
 
-export const salesByProduct: ( LeaderboardEntry & { imageColor: string } )[] = [
+export const dataWithImageColor: ( LeaderboardEntry & { imageColor: string } )[] = [
 	{
 		id: 'direct',
 		label: 'Direct',
@@ -129,7 +129,7 @@ export const salesByProduct: ( LeaderboardEntry & { imageColor: string } )[] = [
 		currentShare: 100,
 		previousShare: 80,
 		delta: 25,
-		imageColor: '%23007aff',
+		imageColor: '#007aff',
 	},
 	{
 		id: 'social',
@@ -139,7 +139,7 @@ export const salesByProduct: ( LeaderboardEntry & { imageColor: string } )[] = [
 		currentShare: 30,
 		previousShare: 76,
 		delta: -7.9,
-		imageColor: '%23ffc0cb',
+		imageColor: '#ffc0cb',
 	},
 	{
 		id: 'referral',
@@ -149,6 +149,6 @@ export const salesByProduct: ( LeaderboardEntry & { imageColor: string } )[] = [
 		currentShare: 10,
 		previousShare: 16,
 		delta: -7.9,
-		imageColor: '%2300ff00',
+		imageColor: '#00ff00',
 	},
 ];
