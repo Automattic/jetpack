@@ -1112,10 +1112,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @param int          $feedback_id - the feedback ID.
 	 * @param Contact_Form $form - the form.
+	 * @param bool         $urlencoded - should the response be in urlencoded plain text, or HTML.
 	 *
 	 * @return array $lines
 	 */
-	public static function get_compiled_form_for_email( $feedback_id, $form ) {
+	public static function get_compiled_form_for_email( $feedback_id, $form, $urlencoded = false ) {
 		$compiled_form = array();
 		$response      = Feedback::get( $feedback_id );
 
@@ -1136,25 +1137,32 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param Contact_Form $form a copy of this object
 		 */
 		$updated_compiled_form = apply_filters( 'jetpack_forms_response_email', $compiled_form, $feedback_id, $form );
+
 		if ( $updated_compiled_form !== $compiled_form ) {
 			$compiled_form = $updated_compiled_form;
 		} else {
-			// add styling to the array
+			// Add styling to the array
 			foreach ( $compiled_form as $key => $value ) {
 				$safe_display_label = self::escape_and_sanitize_field_label( $value['label'] );
+				$safe_display_label = self::maybe_add_colon_to_label( $safe_display_label );
 				$safe_display_value = self::escape_and_sanitize_field_value( $value['value'] );
+				$nl                 = '%0A'; // URLEncoded newlines
 
 				if ( ! empty( $safe_display_label ) ) {
-					$compiled_form[ $key ] = sprintf(
-						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
-						self::maybe_add_colon_to_label( $safe_display_label ),
-						$safe_display_value
-					);
+					$compiled_form[ $key ] = $urlencoded
+						? rawurlencode( $safe_display_label ) . $nl . rawurlencode( $safe_display_value ) . $nl . $nl
+						: sprintf(
+							'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
+							$safe_display_label,
+							$safe_display_value
+						);
 				} else {
-					$compiled_form[ $key ] = sprintf(
-						'<p><span>%s</span></p>',
-						$safe_display_value
-					);
+					$compiled_form[ $key ] = $urlencoded
+						? rawurlencode( $safe_display_value ) . $nl . $nl
+						: sprintf(
+							'<p><span>%s</span></p>',
+							$safe_display_value
+						);
 				}
 			}
 		}
@@ -2104,6 +2112,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			__( 'Mark as spam', 'jetpack-forms' )
 		);
 
+		$message_urlencoded = self::get_compiled_form_for_email( $post_id, $this, true );
+		$reply_mailto_url   =
+			'mailto:' .
+			rawurlencode( $reply_to_addr ) .
+			'?subject=' .
+			rawurlencode( 'Re: ' . $subject ) .
+			'&body=' .
+			implode( '', $message_urlencoded );
+
 		$footer = implode(
 			'',
 			/**
@@ -2130,7 +2147,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 
 		$actions = sprintf(
-			'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
+			'<table class="button_block" border="0" cellpadding="0" cellspacing="8" role="presentation">
 				<tr>
 					<td class="pad" align="center">
 						<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
@@ -2143,10 +2160,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 							<![endif]-->
 						</a>
 					</td>
+					<td class="pad" align="center">
+						<a rel="noopener" target="_blank" href="%3$s" data-tracks-link-desc="">
+							<!--[if mso]>
+							<i style="mso-text-raise: 30pt;">&nbsp;</i>
+							<![endif]-->
+							<span>%4$s</span>
+							<!--[if mso]>
+							<i>&nbsp;</i>
+							<![endif]-->
+						</a>
+					</td>
 				</tr>
 			</table>',
 			esc_url( $dashboard_url ),
-			__( 'View in dashboard', 'jetpack-forms' )
+			__( 'View in dashboard', 'jetpack-forms' ),
+			esc_url( $reply_mailto_url ),
+			__( 'Reply via email', 'jetpack-forms' )
 		);
 
 		/**
