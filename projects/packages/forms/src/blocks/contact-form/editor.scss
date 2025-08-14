@@ -726,7 +726,8 @@
 
 		.jetpack-field__input,
 		.jetpack-field__textarea {
-			color: #787c82; //Simulates a placeholder color
+			&:placeholder {
+				opacity: 0.5;
 		}
 	}
 
