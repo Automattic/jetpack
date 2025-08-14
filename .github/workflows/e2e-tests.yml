@@ -4,6 +4,7 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+      - '**/changelog/**'
   repository_dispatch:
     types: [ 'e2e tests**' ]
 
