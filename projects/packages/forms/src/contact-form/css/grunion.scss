@@ -89,6 +89,7 @@
 
 .contact-form input[type="radio"],
 .contact-form input[type="checkbox"] {
+	min-width: 1em;
 	width: 1em;
 	height: 1em;
 	margin: 0 0.75rem 0 0;
@@ -980,6 +981,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	border: solid var(--jetpack--contact-form--inverted-text-color, var(--jetpack--contact-form--input-background));
 	border-width: 0 2px 2px 0;
 	transform: translate(-50%, -60%) rotate(40deg);
+	top: 0;
+	left: 0;
 }
 
 .contact-form .is-style-list input.consent:checked::before,
@@ -1004,6 +1007,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin-top: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
+	top: 0;
+	left: 0;
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
