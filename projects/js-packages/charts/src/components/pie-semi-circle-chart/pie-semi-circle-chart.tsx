@@ -87,8 +87,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendAlignmentHorizontal = 'center',
-	legendAlignmentVertical = 'bottom',
+	legendPosition = 'bottom',
+	legendAlignment = 'center',
 	legendShape = 'circle',
 	label,
 	note,
@@ -184,8 +184,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// TODO: we might want to accept height as a prop in the future, because the height of container might not always be enough.
 	const height = width / 2;
 	// The chart only takes the height minus the legend height.
-	const chartHeight =
-		height - ( showLegend && legendAlignmentVertical === 'top' ? legendHeight : 0 );
+	const chartHeight = height - ( showLegend && legendPosition === 'top' ? legendHeight : 0 );
 	const radius = Math.min( width / 2, chartHeight );
 	const innerRadius = radius * ( 1 - thickness );
 
@@ -205,8 +204,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			data-testid="pie-chart-container"
 			style={ {
 				display: 'flex',
-				flexDirection:
-					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+				flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 			} }
 		>
 			<svg
@@ -284,8 +282,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					alignmentHorizontal={ legendAlignmentHorizontal }
-					alignmentVertical={ legendAlignmentVertical }
+					position={ legendPosition }
+					alignment={ legendAlignment }
 					shape={ legendShape }
 					ref={ legendRef }
 					chartId={ chartId }

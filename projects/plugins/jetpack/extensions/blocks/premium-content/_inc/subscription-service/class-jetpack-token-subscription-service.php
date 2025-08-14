@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Jetpack_Token_Subscription_Service
  *

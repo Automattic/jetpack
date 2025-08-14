@@ -15,6 +15,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Transform embed to shortcode on save.
  *
@@ -101,7 +105,9 @@ function jetpack_flickr_video_to_shortcode( $content ) {
 	return '[flickr video="' . $video_src . '" ' . $width . ' ' . $height . ' controls="' . $controls . '" autoplay="' . $autoplay . '"]';
 }
 
-add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
+}
 
 /**
  * Flickr Shortcode handler.
@@ -291,9 +297,9 @@ wp_embed_register_handler( 'flickr', '#https?://(www\.)?flickr\.com/.*#i', 'jetp
  *
  * @since 3.9
  *
- * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr    Attributes received in embed response.
- * @param array $url     Requested URL to be embedded.
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
  *
  * @return string Return output of Vimeo shortcode with the proper markup.
  */

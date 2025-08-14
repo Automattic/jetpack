@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * WordPress Shortcode Editor View JS Code
  */

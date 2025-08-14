@@ -234,8 +234,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			withTooltipCrosshairs,
 			showLegend = false,
 			legendOrientation = 'horizontal',
-			legendAlignmentHorizontal = 'center',
-			legendAlignmentVertical = 'bottom',
+			legendAlignment = 'center',
+			legendPosition = 'bottom',
 			renderGlyph = defaultRenderGlyph,
 			glyphStyle = {},
 			legendShape = 'line',
@@ -386,8 +386,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						width,
 						height,
 						display: 'flex',
-						flexDirection:
-							showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+						flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 						position: 'relative',
 					} }
 				>
@@ -407,7 +406,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							margin={ {
 								...defaultMargin,
 								...margin,
-								...( showLegend && legendAlignmentVertical === 'top'
+								...( showLegend && legendPosition === 'top'
 									? { top: ( defaultMargin.top || 0 ) + legendHeight }
 									: {} ),
 							} }
@@ -506,8 +505,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						<Legend
 							items={ legendItems }
 							orientation={ legendOrientation }
-							alignmentHorizontal={ legendAlignmentHorizontal }
-							alignmentVertical={ legendAlignmentVertical }
+							alignment={ legendAlignment }
+							position={ legendPosition }
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }

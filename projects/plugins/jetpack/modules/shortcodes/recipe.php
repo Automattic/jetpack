@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Embed recipe 'cards' in post, with basic styling and print functionality
  *

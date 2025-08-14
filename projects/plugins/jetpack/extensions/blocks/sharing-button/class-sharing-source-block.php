@@ -431,7 +431,7 @@ class Share_Email_Block extends Sharing_Source_Block {
 	 * @return string The nonce action name.
 	 */
 	protected function get_email_share_nonce_action( $post_id ) {
-		if ( ! empty( $post_id ) && 0 !== $post_id ) {
+		if ( ! empty( $post_id ) ) {
 			return 'jetpack-email-share-' . $post_id;
 		}
 

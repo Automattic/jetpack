@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * For back-compat, the final widget class must be named
  * Jetpack_Display_Posts_Widget.

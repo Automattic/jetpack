@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 define( 'WORDADS_ROOT', __DIR__ );
 define( 'WORDADS_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WORDADS_FILE_PATH', WORDADS_ROOT . '/' . basename( __FILE__ ) );

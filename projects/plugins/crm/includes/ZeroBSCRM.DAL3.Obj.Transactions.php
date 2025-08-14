@@ -877,30 +877,30 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
             }
 
             // Timestamp checks:
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+			#} olderThan
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbst_date', '<=', '%d', $olderThan );
+			#} newerThan
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbst_date', '>=', '%d', $newerThan );
 
-                #} olderThan
-                if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbst_date','<=','%d',$olderThan);
-                #} newerThan
-                if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbst_date','>=','%d',$newerThan);
+			#} createdBefore
+			if ( ! empty( $createdBefore ) && $createdBefore > 0 ) $wheres['createdBefore'] = array( 'zbst_created', '<=', '%d', $createdBefore );
+			#} createdAfter
+			if ( ! empty( $createdAfter ) && $createdAfter > 0 ) $wheres['createdAfter'] = array( 'zbst_created', '>=', '%d', $createdAfter );
 
-                #} createdBefore
-                if (!empty($createdBefore) && $createdBefore > 0 && $createdBefore !== false) $wheres['createdBefore'] = array('zbst_created','<=','%d',$createdBefore);
-                #} createdAfter
-                if (!empty($createdAfter) && $createdAfter > 0 && $createdAfter !== false) $wheres['createdAfter'] = array('zbst_created','>=','%d',$createdAfter);
+			#} paidBefore
+			if ( ! empty( $paidBefore ) && $paidBefore > 0 ) $wheres['paidBefore'] = array( 'zbst_date_paid', '<=', '%d', $paidBefore );
+			#} paidAfter
+			if ( ! empty( $paidAfter ) && $paidAfter > 0 ) $wheres['paidAfter'] = array( 'zbst_date_paid', '>=', '%d', $paidAfter );
 
-                #} paidBefore
-                if (!empty($paidBefore) && $paidBefore > 0 && $paidBefore !== false) $wheres['paidBefore'] = array('zbst_date_paid','<=','%d',$paidBefore);
-                #} paidAfter
-                if (!empty($paidAfter) && $paidAfter > 0 && $paidAfter !== false) $wheres['paidAfter'] = array('zbst_date_paid','>=','%d',$paidAfter);
+			// status
+			if ( ! empty( $hasStatus ) ) $wheres['hasStatus']     = array( 'zbst_status', '=', '%s', $hasStatus );
+			if ( ! empty( $otherStatus ) ) $wheres['otherStatus'] = array( 'zbst_status', '<>', '%s', $otherStatus );
 
-            // status
-            if (!empty($hasStatus) && $hasStatus !== false) $wheres['hasStatus'] = array('zbst_status','=','%s',$hasStatus);
-            if (!empty($otherStatus) && $otherStatus !== false) $wheres['otherStatus'] = array('zbst_status','<>','%s',$otherStatus);
-
-            // assignedContact + assignedCompany + assignedInvoice
-            if (!empty($assignedContact) && $assignedContact !== false && $assignedContact > 0) $wheres['assignedContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TRANSACTION." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = %d)",$assignedContact);
-            if (!empty($assignedCompany) && $assignedCompany !== false && $assignedCompany > 0) $wheres['assignedCompany'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TRANSACTION." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$assignedCompany);
-            if (!empty($assignedInvoice) && $assignedInvoice !== false && $assignedInvoice > 0) $wheres['assignedInvoice'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TRANSACTION." AND zbsol_objtype_to = ".ZBS_TYPE_INVOICE." AND zbsol_objid_to = %d)",$assignedInvoice);
+			// assignedContact + assignedCompany + assignedInvoice
+			if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
+			if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
+			if ( ! empty( $assignedInvoice ) && $assignedInvoice > 0 ) $wheres['assignedInvoice'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objid_to = %d)', $assignedInvoice );
 
             #} Quick filters - adapted from DAL1 (probs can be slicker)
             if (is_array($quickFilters) && count($quickFilters) > 0){

@@ -1,6 +1,14 @@
 import { test, expect } from '../../lib/fixtures/test';
 
-/* global Jetpack_Boost */
+declare global {
+	interface Window {
+		Jetpack_Boost: {
+			site: {
+				url: string;
+			};
+		};
+	}
+}
 
 test.describe( 'Cornerstone Pages', () => {
 	test.beforeAll( async ( { boostUtils } ) => {
@@ -56,7 +64,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Check that homepage is listed in predefined pages
-		const homeUrl = await page.evaluate( () => Jetpack_Boost.site.url );
+		const homeUrl = await page.evaluate( () => window.Jetpack_Boost.site.url );
 		await expect(
 			page.locator( `text=${ homeUrl }` ).first(),
 			'Homepage should be listed in predefined pages'
@@ -96,7 +104,7 @@ test.describe( 'Cornerstone Pages', () => {
 		).toBeVisible();
 
 		// Test homepage URL (should be rejected)
-		const homeUrl = await page.evaluate( () => Jetpack_Boost.site.url );
+		const homeUrl = await page.evaluate( () => window.Jetpack_Boost.site.url );
 		await jetpackBoostPage.enterCornerstonePageUrl( homeUrl );
 		await expect(
 			page.getByText( 'The homepage does not need to be added' ),

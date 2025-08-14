@@ -233,6 +233,31 @@ export const WithLegend: Story = {
 	},
 };
 
+// Story demonstrating composition API
+export const WithCompositionLegend: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { width: '800px' } }>
+			<BarChart
+				data={ [ data[ 0 ], data[ 1 ], data[ 2 ] ] }
+				withTooltips={ true }
+				gridVisibility="x"
+				maxWidth={ 1200 }
+				aspectRatio={ 0.5 }
+			>
+				<BarChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+			</BarChart>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates using the composition API with `<BarChart.Legend />` as a child component. This provides the same functionality as the `showLegend` prop but allows for more flexible composition patterns.',
+			},
+		},
+	},
+};
+
 // Story showcasing legend customization controls
 export const CustomLegendPositioning: Story = {
 	args: {
@@ -245,8 +270,8 @@ export const CustomLegendPositioning: Story = {
 		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
 		legendOrientation: 'vertical',
-		legendAlignmentHorizontal: 'left',
-		legendAlignmentVertical: 'top',
+		legendAlignment: 'start',
+		legendPosition: 'top',
 	},
 	parameters: {
 		docs: {

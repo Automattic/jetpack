@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\VideoPress;
  * The Package_Version class.
  */
 class Package_Version {
-	const PACKAGE_VERSION = '0.31.2';
+	const PACKAGE_VERSION = '0.32.0';
 
 	const PACKAGE_SLUG = 'videopress';
 

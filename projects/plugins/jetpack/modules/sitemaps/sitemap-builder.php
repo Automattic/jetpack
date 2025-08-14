@@ -7,6 +7,10 @@
  * @author Automattic
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /* Include sitemap subclasses, if not already, and include proper buffer based on phpxml's availability. */
 require_once __DIR__ . '/sitemap-constants.php';
 require_once __DIR__ . '/sitemap-buffer.php';
@@ -171,7 +175,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		/**
 		 * Filters whether to suspend cache addition for the entire sitemap generation.
 		 *
-		 * @since $$next-version$$
+		 * @since 15.0
 		 *
 		 * @param bool|null $suspend_addition Whether to suspend cache addition. Defaults to null.
 		 * @return bool|null Whether to suspend cache addition.
@@ -742,11 +746,13 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		 * @param DOMDocument      $doc Data tree for sitemap.
 		 * @param string           $last_modified Date of last modification.
 		 */
-		$tree = apply_filters( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			'jetpack_print_sitemap',
-			$buffer->get_document(),
-			$buffer->last_modified()
-		);
+		if ( has_filter( 'jetpack_print_sitemap' ) ) {
+			apply_filters(
+				'jetpack_print_sitemap',
+				$buffer->get_document(),
+				$buffer->last_modified()
+			);
+		}
 
 		// Store the buffer as the content of a sitemap row.
 		$this->librarian->store_sitemap_data(

@@ -11,6 +11,10 @@ use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.
  */

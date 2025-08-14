@@ -55,7 +55,7 @@ class Feedback_Source {
 		$this->id          = $id > 0 ? (int) $id : 0;
 		$this->title       = $title;
 		$this->page_number = $page_number;
-		$this->permalink   = '';
+		$this->permalink   = $this->id === 0 ? home_url() : '';
 
 		if ( $id <= 0 ) {
 			return;

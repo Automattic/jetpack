@@ -52,7 +52,7 @@ The Legend component provides a flexible way to display chart legends either as 
 <Legend
   chartId="sales-chart"
   orientation="vertical"
-  alignmentHorizontal="right"
+  alignment="end"
 />
 \`\`\`
 
@@ -446,8 +446,7 @@ export const AlignmentOptions: Story = {
 			{ label: 'Series 3', value: '40%', color: '#44B556' },
 		],
 		orientation: 'horizontal',
-		alignmentHorizontal: 'left',
-		alignmentVertical: 'top',
+		alignment: 'start',
 	},
 	parameters: {
 		docs: {

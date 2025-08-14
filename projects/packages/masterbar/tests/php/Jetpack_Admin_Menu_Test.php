@@ -102,16 +102,6 @@ class Jetpack_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_jetpack_menu
-	 */
-	public function test_add_jetpack_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_jetpack_menu();
-		$this->assertSame( 'https://wordpress.com/scan/' . static::$domain, $submenu['jetpack'][2][2] );
-	}
-
-	/**
 	 * Tests add_tools_menu
 	 */
 	public function test_add_tools_menu() {

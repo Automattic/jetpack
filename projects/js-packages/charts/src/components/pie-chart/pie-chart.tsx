@@ -94,8 +94,8 @@ const PieChartInternal = ( {
 	className,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendAlignmentHorizontal = 'center',
-	legendAlignmentVertical = 'bottom',
+	legendPosition = 'bottom',
+	legendAlignment = 'center',
 	legendShape = 'circle',
 	size,
 	thickness = 1,
@@ -143,8 +143,7 @@ const PieChartInternal = ( {
 
 	const width = size;
 	const height = size;
-	const adjustedHeight =
-		showLegend && legendAlignmentVertical === 'top' ? height - legendHeight : height;
+	const adjustedHeight = showLegend && legendPosition === 'top' ? height - legendHeight : height;
 
 	// Calculate radius based on width/height
 	const radius = Math.min( width, adjustedHeight ) / 2;
@@ -180,8 +179,7 @@ const PieChartInternal = ( {
 			className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
 			style={ {
 				display: 'flex',
-				flexDirection:
-					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+				flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 			} }
 		>
 			<svg
@@ -248,8 +246,8 @@ const PieChartInternal = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					alignmentHorizontal={ legendAlignmentHorizontal }
-					alignmentVertical={ legendAlignmentVertical }
+					position={ legendPosition }
+					alignment={ legendAlignment }
 					className={ styles[ 'pie-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }

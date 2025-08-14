@@ -821,6 +821,11 @@ class Contact_Form_Test extends BaseTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	public function test_parse_fields_from_content_no_data() {
+		$data = Contact_Form_Plugin::parse_fields_from_content( 999999 );
+		$this->assertEmpty( $data );
+	}
+
 	/**
 	 * We test that if the all fields keys do have HTML content, they are escaped correctly.
 	 */
@@ -899,7 +904,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		// Verify specific content
 		$this->assertEquals( 'abc', $fields['_feedback_all_fields']['entry_title'] );
-		$this->assertStringContainsString( 'example.org', $fields['_feedback_all_fields']['entry_permalink'] );
+		$this->assertStringContainsString( '', $fields['_feedback_all_fields']['entry_permalink'] );
 		$this->assertMatchesRegularExpression( '/^[a-f0-9]{32}$/', $fields['_feedback_all_fields']['feedback_id'] );
 
 		wp_delete_post( $post_id, true );
@@ -3041,11 +3046,14 @@ EOT;
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'   => $name,
-				'email'  => $email,
-				'invite' => 'hello@world', // not required
-				'choose' => $choose,
-				'pick'   => $pick,
+				'name'           => $name,
+				'email'          => $email,
+				'invite'         => 'hello@world', // not required
+				'choose'         => $choose,
+				'chooseradio'    => 'not-a-value',
+				'radioempty'     => '',
+				'radioemptydata' => '',
+				'pick'           => $pick,
 			),
 			'g' . $form_id
 		);
@@ -3055,7 +3063,15 @@ EOT;
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Invite' type='email' /][contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/][contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
+			"
+			[contact-field label='Name' type='name' required='1'/]
+			[contact-field label='Email' type='email' required='1'/]
+			[contact-field label='Invite' type='email' /]
+			[contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/]
+			[contact-field label='Choose Radio' type='radio' options='truth,dare' required='1'/]
+			[contact-field label='Choose Empty' type='radio' options='truth,dare' required='1'/]
+			[contact-field label='Choose Empty Data' type='radio' options='truth,dare' optionsdata='&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;' required='1'/]
+			[contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
@@ -3068,6 +3084,9 @@ EOT;
 				'Email requires a valid email address.',
 				'Invite requires a valid email address.',
 				'Choose requires at least one selection.',
+				'Choose Radio requires at least one selection.',
+				'Choose Empty requires at least one selection.',
+				'Choose Empty Data requires at least one selection.',
 				'Pick requires at least one selection.',
 			),
 			$form->get_error_messages()

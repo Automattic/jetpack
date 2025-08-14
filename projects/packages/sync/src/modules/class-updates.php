@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for updates.
  */
