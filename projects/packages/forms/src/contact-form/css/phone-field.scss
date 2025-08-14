@@ -7,6 +7,10 @@
 		display: flex;
 		gap: 8px;
 
+		.jetpack-field__input-prefix {
+			display: flex;
+		}
+
 		.jetpack-field__input-element {
 			border: 0;
 			font: inherit;
@@ -58,6 +62,44 @@
 			.grunion-label-text {
 				font-size: 0.75em;
 			}
+		}
+	}
+
+	.is-style-outlined & {
+
+		.jetpack-field__input-phone-wrapper {
+
+			&:not(:has(*:focus, *:active)) {
+
+				// notched label is game of superpositions with z-index,
+				// while no input element is selected, force transparent so label is visible
+				.jetpack-field__input-element {
+					background-color: transparent !important;
+				}
+
+				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
+
+					.jetpack-field__input-element {
+						visibility: hidden;
+					}
+				}
+			}
+		}
+
+		.notched-label:has(~* .jetpack-field__input-element:focus) .notched-label__label,
+		.notched-label:has(~* .jetpack-field__input-element.has-value) .notched-label__label,
+		.notched-label:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__label {
+			top: calc(var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1);
+
+			.grunion-label-text {
+				font-size: 0.8em;
+			}
+		}
+
+		.notched-label:has(~* .jetpack-field__input-element:focus) .notched-label__notch,
+		.notched-label:has(~* .jetpack-field__input-element.has-value) .notched-label__notch,
+		.notched-label:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__notch {
+			border-top-color: transparent !important;
 		}
 	}
 }
