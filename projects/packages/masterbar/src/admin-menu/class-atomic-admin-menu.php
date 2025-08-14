@@ -251,18 +251,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Jetpack menu.
-	 */
-	public function add_jetpack_menu() {
-		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
-		if ( $this->use_wp_admin_interface() ) {
-			parent::create_jetpack_menu( 2, false );
-		} else {
-			parent::add_jetpack_menu();
-		}
-	}
-
-	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
@@ -281,7 +269,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 2.98 );
 	}
 
 	/**
