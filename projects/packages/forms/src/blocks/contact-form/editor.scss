@@ -726,8 +726,10 @@
 
 		.jetpack-field__input,
 		.jetpack-field__textarea {
-			&:placeholder {
+
+			&::placeholder {
 				opacity: 0.5;
+			}
 		}
 	}
 
