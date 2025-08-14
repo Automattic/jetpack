@@ -116,6 +116,55 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithCompositionLegend: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'center',
+			} }
+		>
+			<div>
+				<h3>Traditional Props-based Legend</h3>
+				<PieSemiCircleChart
+					width={ 400 }
+					data={ data }
+					label="Performance Metrics"
+					note="Q4 2023 Results"
+					showLegend={ true }
+					legendPosition="bottom"
+					legendOrientation="horizontal"
+				/>
+			</div>
+			<div>
+				<h3>Composition API with Legend Component</h3>
+				<PieSemiCircleChart
+					width={ 400 }
+					data={ data }
+					label="Performance Metrics"
+					note="Q4 2023 Results"
+				>
+					<PieSemiCircleChart.Legend
+						position="bottom"
+						orientation="horizontal"
+						alignment="center"
+					/>
+				</PieSemiCircleChart>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the semi-circle chart composition API, allowing flexible component composition with explicit legend placement.',
+			},
+		},
+	},
+};
+
 export const CustomLegendPositioning: Story = {
 	args: {
 		containerWidth: '600px',
