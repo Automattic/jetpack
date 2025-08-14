@@ -1335,6 +1335,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( isset( $assoc_args['suspend-cache-addition'] ) && $assoc_args['suspend-cache-addition'] ) {
 			add_filter( 'jetpack_sitemap_suspend_cache_addition', '__return_true' );
+			WP_CLI::success( 'Suspending cache addition.' );
 		}
 
 		$monitor = isset( $assoc_args['monitor'] ) && $assoc_args['monitor'];
