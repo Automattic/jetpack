@@ -63,9 +63,9 @@ trait Woo_Analytics_Trait {
 	/**
 	 *  Landing page where session started.
 	 *
-	 *  @var string
+	 *  @var array
 	 */
-	protected $landing_page = '';
+	protected $landing_page = array();
 
 	/**
 	 *  Indicates when a session is engaged in the current request.
@@ -294,7 +294,7 @@ trait Woo_Analytics_Trait {
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => home_url(),
-			'landing_page'                       => wp_json_encode( $landing_page ),
+			'landing_page'                       => empty( $landing_page ) ? '' : wp_json_encode( $landing_page ),
 			'woo_version'                        => WC()->version,
 			'wp_version'                         => get_bloginfo( 'version' ),
 			'store_admin'                        => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
