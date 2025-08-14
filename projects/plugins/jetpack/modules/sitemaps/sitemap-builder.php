@@ -175,7 +175,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		/**
 		 * Filters whether to suspend cache addition for the entire sitemap generation.
 		 *
-		 * @since $$next-version$$
+		 * @since 15.0
 		 *
 		 * @param bool|null $suspend_addition Whether to suspend cache addition. Defaults to null.
 		 * @return bool|null Whether to suspend cache addition.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Sitemaps: Add filter to allow suspending object cache addition during generation.

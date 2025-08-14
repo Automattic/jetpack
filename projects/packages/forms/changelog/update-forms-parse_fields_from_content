@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: use the new Feedback get_all_legacy_values method in parse_fields_from_content

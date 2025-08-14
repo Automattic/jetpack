@@ -36,14 +36,14 @@ require_once __DIR__ . '/interface-storage-provider.php';
 /**
  * External Storage utilities class.
  *
- * @since $$next-version$$
+ * @since 6.18.0
  */
 class External_Storage {
 
 	/**
 	 * Registered storage provider.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @var Storage_Provider_Interface|null
 	 */
@@ -52,7 +52,7 @@ class External_Storage {
 	/**
 	 * Register a storage provider for external storage.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @param Storage_Provider_Interface $provider Storage provider implementing the interface.
 	 * @return bool True if provider was registered successfully, false otherwise.
@@ -67,7 +67,7 @@ class External_Storage {
 	 *
 	 * Returns null if no provider is registered or if the provider can't provide the value (triggers database fallback).
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @param string $key The key to retrieve.
 	 * @return mixed The value from external storage, or null for database fallback.
@@ -120,7 +120,7 @@ class External_Storage {
 	 * Report external storage events through Jetpack Connection Error_Handler.
 	 * Includes rate limiting to prevent log spam from noisy events.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @param string $event_type  The event type (error, empty, unavailable).
 	 * @param string $key         The key that triggered the event.
@@ -190,7 +190,7 @@ class External_Storage {
 	 * Determine if the current environment should report external storage errors to WordPress.com.
 	 * Allows wpcomsh and other environments to control remote error reporting independently.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @return bool True if this environment should report external storage errors to WordPress.com.
 	 */
@@ -208,7 +208,7 @@ class External_Storage {
 	 * On first encounter of empty state, sets a transient. On subsequent encounters
 	 * after 10 minutes, allows reporting (indicating likely disconnection, not sync delay).
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @param string $key The key that was empty.
 	 * @return bool True if we should report this empty state, false otherwise.
@@ -240,7 +240,7 @@ class External_Storage {
 	 * This prevents log spam from noisy events by applying a simple one-hour
 	 * rate limit per key, regardless of event type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @param string $key        The key that triggered the event.
 	 * @return bool True if the event should be logged, false if rate limited.

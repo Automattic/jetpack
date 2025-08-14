@@ -78,7 +78,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @var array<string, array|bool>
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 */
 	private static $block_js_loading_strategies = array();
 
@@ -1390,7 +1390,7 @@ class Jetpack_Gutenberg {
 	 * @param string     $block_name The block name.
 	 * @param array|bool $strategy   The JS loading strategy.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 */
 	public static function set_block_js_loading_strategy( $block_name, $strategy ) {
 		self::$block_js_loading_strategies[ $block_name ] = $strategy;
@@ -1403,7 +1403,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return array|bool The JS loading strategy for the block.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 */
 	public static function get_block_js_loading_strategy( $block_name ) {
 		$strategy = false;
