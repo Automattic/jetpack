@@ -33,7 +33,9 @@ export const PRODUCT_CONFIGS = {
 				bundle: { included: true, label: 'Instant site search' },
 			},
 			{
-				name: 'Share to Facebook, Instagram, Threads, Bluesky, LinkedIn, Mastodon, Tumblr, and Nextdoor',
+				name: 'Share to 8 social networks',
+				tooltipInfo:
+					'Share to Facebook, Instagram, Threads, Bluesky, LinkedIn, Mastodon, Tumblr, and Nextdoor.',
 				free: { included: true, label: 'Included' },
 				paid: { included: true, label: 'Included' },
 				bundle: { included: true, label: 'Real-time backups and one-click restores' },
