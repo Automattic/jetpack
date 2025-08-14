@@ -937,13 +937,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
 		$label = $this->render_label( 'phone', $id, $label, $required, $required_field_text );
 
-		// since now the telephone field can include a country selector, we need to handle the rendering of the field differently
-		$styles = '';
-
-		if ( ! empty( $this->field_styles ) ) {
-			$styles .= sprintf( 'style="%s" ', esc_attr( $this->field_styles ) );
-		}
-
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
@@ -956,38 +949,62 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$default_country = $value ? $value : $this->get_attribute( 'default' );
 
 			if ( ! empty( $country_data ) ) {
-				$country_options = array_map(
-					function ( $country ) use ( $default_country ) {
-						return sprintf( '<option value="%s" %s>%s</option>', $country['value'], selected( $country['value'], $default_country, false ), $country['label'] );
-					},
-					$country_data
-				);
-
-				$country_selector = sprintf( '<div class="jetpack-field__input-prefix"><select %s>%s</select></div>', $class, implode( '\n', $country_options ) );
+				ob_start();
+				?>
+				<div class="jetpack-field__input-prefix">
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
+					<select <?php echo $class; ?>>
+					<?php
+					foreach ( $country_data as $country ) {
+						?>
+						<option
+							value="<?php echo esc_attr( $country['value'] ); ?>"
+							<?php selected( $country['value'], $default_country, false ); ?>
+						>
+							<?php echo esc_html( $country['label'] ); ?>
+						</option>
+						<?php
+					}
+					?>
+					</select>
+				</div>
+				<?php
+				$country_selector = ob_get_clean();
 			}
 		}
 
-		$input  = $country_selector;
-		$input .= "<input
-			type='tel'
-			name='" . esc_attr( $id ) . "'
-			id='" . esc_attr( $id ) . "'
-			value=''
+		ob_start();
+		?>
+		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
+			styles="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>">
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped above ?>
+				<?php echo $country_selector; ?>
+				<input
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
+					<?php echo $class; ?>
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
+					<?php echo $placeholder; ?>
+					type="tel"
+					name="<?php echo esc_attr( $id ); ?>"
+					id="<?php echo esc_attr( $id ); ?>"
+					value=''
+					<?php if ( $required ) { ?>
+						required="true"
+						aria-required="true"
+					<?php } ?>
 
-			data-wp-bind--aria-invalid='state.fieldHasErrors'
-			data-wp-bind--value='state.getFieldValue'
-			aria-errormessage='" . esc_attr( $id ) . '-' . "phone-error-message'
-			data-wp-on--input='actions.onFieldChange'
-			data-wp-on--blur='actions.onFieldBlur'
-			data-wp-class--has-value='state.hasFieldValue'
+					data-wp-bind--aria-invalid='state.fieldHasErrors'
+					data-wp-bind--value='state.getFieldValue'
+					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
+					data-wp-on--input='actions.onFieldChange'
+					data-wp-on--blur='actions.onFieldBlur'
+					data-wp-class--has-value='state.hasFieldValue'
+					/>
+		</div>
+		<?php
+		$input = ob_get_clean();
 
-			" . $class . $placeholder . '
-			' . ( $required ? "required='true' aria-required='true' " : '' ) .
-			" />\n ";
-
-		$wrapped_input = sprintf( '<div class="jetpack-field__input-phone-wrapper %s" %s>%s</div>', $this->get_attribute( 'stylevariationclasses' ), $styles, $input );
-
-		$field = $label . $wrapped_input . $this->get_error_div( $id, 'phone' );
+		$field = $label . $input . $this->get_error_div( $id, 'phone' );
 		return $field;
 	}
 
