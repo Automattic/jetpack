@@ -411,7 +411,7 @@ function PricingInterstitial( { slug } ) {
 							<PricingTableHeader title={ config.tiers.free.name }>
 								<ProductPrice
 									price={ 0 }
-									legend="Free forever"
+									legend=""
 									currency={ currencyCode }
 									hidePriceFraction
 									variant="simple"

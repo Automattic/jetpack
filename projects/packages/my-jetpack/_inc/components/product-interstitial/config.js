@@ -4,7 +4,7 @@ import SocialLogo from './logos/social-logo';
 // Product configuration for pricing tables
 export const PRODUCT_CONFIGS = {
 	social: {
-		title: 'Auto-share to social media',
+		title: 'Publish once. Share everywhere.',
 		logo: SocialLogo,
 		bundle: 'complete',
 		features: [
