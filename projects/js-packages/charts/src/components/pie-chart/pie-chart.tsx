@@ -1,7 +1,7 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
-import { useContext, useMemo } from 'react';
+import { useContext, useMemo, Children, isValidElement } from 'react';
 import { useChartMouseHandler, useGlobalChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -9,14 +9,17 @@ import {
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
+import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { SingleChartContext } from '../shared/single-chart-context';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
-import type { BaseChartProps, DataPointPercentage } from '../../types';
-import type { SVGProps, MouseEvent, ReactNode } from 'react';
+import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { SVGProps, MouseEvent, ReactNode, FC, ComponentType } from 'react';
 
 interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -53,6 +56,18 @@ interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 */
 	children?: ReactNode;
 }
+
+// Base props type with optional responsive properties
+type PieChartBaseProps = Optional< PieChartProps, 'size' >;
+
+// Composition API types
+interface PieChartSubComponents {
+	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
+}
+
+type PieChartComponent = FC< PieChartBaseProps > & PieChartSubComponents;
+type PieChartResponsiveComponent = FC< PieChartBaseProps & ResponsiveConfig > &
+	PieChartSubComponents;
 
 /**
  * Validates the pie chart data
@@ -180,99 +195,129 @@ const PieChartInternal = ( {
 	};
 
 	return (
-		<div
-			className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
-			style={ {
-				display: 'flex',
-				flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
+		<SingleChartContext.Provider
+			value={ {
+				chartId,
+				chartWidth: size,
+				chartHeight: adjustedHeight,
 			} }
 		>
-			<svg
-				viewBox={ `0 0 ${ size } ${ adjustedHeight }` }
-				preserveAspectRatio="xMidYMid meet"
-				width={ size }
-				height={ adjustedHeight }
+			<div
+				className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
+				style={ {
+					display: 'flex',
+					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
+				} }
 			>
-				<Group top={ centerY } left={ centerX }>
-					<Pie< DataPointPercentage & { index: number } >
-						data={ dataWithIndex }
-						pieValue={ accessors.value }
-						outerRadius={ outerRadius }
-						innerRadius={ innerRadius }
-						padAngle={ padAngle }
-						cornerRadius={ cornerRadius }
-					>
-						{ pie => {
-							return pie.arcs.map( ( arc, index ) => {
-								const [ centroidX, centroidY ] = pie.path.centroid( arc );
-								const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
-								const handleMouseMove = ( event: MouseEvent< SVGElement > ) =>
-									onMouseMove( event, arc.data );
+				<svg
+					viewBox={ `0 0 ${ size } ${ adjustedHeight }` }
+					preserveAspectRatio="xMidYMid meet"
+					width={ size }
+					height={ adjustedHeight }
+				>
+					<Group top={ centerY } left={ centerX }>
+						<Pie< DataPointPercentage & { index: number } >
+							data={ dataWithIndex }
+							pieValue={ accessors.value }
+							outerRadius={ outerRadius }
+							innerRadius={ innerRadius }
+							padAngle={ padAngle }
+							cornerRadius={ cornerRadius }
+						>
+							{ pie => {
+								return pie.arcs.map( ( arc, index ) => {
+									const [ centroidX, centroidY ] = pie.path.centroid( arc );
+									const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
+									const handleMouseMove = ( event: MouseEvent< SVGElement > ) =>
+										onMouseMove( event, arc.data );
 
-								const pathProps: SVGProps< SVGPathElement > = {
-									d: pie.path( arc ) || '',
-									fill: accessors.fill( arc.data ),
-								};
+									const pathProps: SVGProps< SVGPathElement > = {
+										d: pie.path( arc ) || '',
+										fill: accessors.fill( arc.data ),
+									};
 
-								if ( withTooltips ) {
-									pathProps.onMouseMove = handleMouseMove;
-									pathProps.onMouseLeave = onMouseLeave;
+									if ( withTooltips ) {
+										pathProps.onMouseMove = handleMouseMove;
+										pathProps.onMouseLeave = onMouseLeave;
+									}
+
+									return (
+										<g key={ `arc-${ index }` }>
+											<path { ...pathProps } />
+											{ hasSpaceForLabel && (
+												<text
+													x={ centroidX }
+													y={ centroidY }
+													dy=".33em"
+													fill={
+														providerTheme.labelBackgroundColor || defaultTheme.labelBackgroundColor
+													}
+													fontSize={ 12 }
+													textAnchor="middle"
+													pointerEvents="none"
+												>
+													{ arc.data.label }
+												</text>
+											) }
+										</g>
+									);
+								} );
+							} }
+						</Pie>
+
+						{ /* Render SVG children (like Group, Text) inside the SVG */ }
+						{ Children.map( children, child => {
+							if ( isValidElement( child ) ) {
+								// Check if it's a Group component (SVG element)
+								if ( child.type === Group ) {
+									return child;
 								}
+							}
+							return null;
+						} ) }
+					</Group>
+				</svg>
 
-								return (
-									<g key={ `arc-${ index }` }>
-										<path { ...pathProps } />
-										{ hasSpaceForLabel && (
-											<text
-												x={ centroidX }
-												y={ centroidY }
-												dy=".33em"
-												fill={ providerTheme.labelBackgroundColor }
-												fontSize={ 12 }
-												textAnchor="middle"
-												pointerEvents="none"
-											>
-												{ arc.data.label }
-											</text>
-										) }
-									</g>
-								);
-							} );
+				{ showLegend && (
+					<Legend
+						items={ legendItems }
+						orientation={ legendOrientation }
+						position={ legendPosition }
+						alignment={ legendAlignment }
+						className={ styles[ 'pie-chart-legend' ] }
+						shape={ legendShape }
+						ref={ legendRef }
+						chartId={ chartId }
+					/>
+				) }
+
+				{ withTooltips && tooltipOpen && tooltipData && (
+					<BaseTooltip
+						data={ tooltipData }
+						top={ tooltipTop || 0 }
+						left={ tooltipLeft || 0 }
+						style={ {
+							transform: 'translate(-50%, -100%)',
 						} }
-					</Pie>
+					/>
+				) }
 
-					{ children }
-				</Group>
-			</svg>
-
-			{ showLegend && (
-				<Legend
-					items={ legendItems }
-					orientation={ legendOrientation }
-					position={ legendPosition }
-					alignment={ legendAlignment }
-					className={ styles[ 'pie-chart-legend' ] }
-					shape={ legendShape }
-					ref={ legendRef }
-					chartId={ chartId }
-				/>
-			) }
-
-			{ withTooltips && tooltipOpen && tooltipData && (
-				<BaseTooltip
-					data={ tooltipData }
-					top={ tooltipTop || 0 }
-					left={ tooltipLeft || 0 }
-					style={ {
-						transform: 'translate(-50%, -100%)',
-					} }
-				/>
-			) }
-		</div>
+				{ /* Render React component children (like PieChart.Legend) outside the SVG */ }
+				{ Children.map( children, child => {
+					if ( isValidElement( child ) ) {
+						// Check if it's NOT a Group component (React component)
+						if ( child.type !== Group ) {
+							return child;
+						}
+					}
+					return null;
+				} ) }
+			</div>
+		</SingleChartContext.Provider>
 	);
 };
 
-const PieChart = ( props: PieChartProps ) => {
+const PieChartWithProvider: FC< PieChartProps > = props => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	// If we're already in a GlobalChartsProvider context, don't create a new one
@@ -288,5 +333,19 @@ const PieChart = ( props: PieChartProps ) => {
 	);
 };
 
-PieChart.displayName = 'PieChart';
-export default withResponsive< PieChartProps >( PieChart );
+PieChartWithProvider.displayName = 'PieChart';
+
+// Create PieChart with composition API
+const PieChart = attachSubComponents( PieChartWithProvider, {
+	Legend: Legend,
+} ) as PieChartComponent;
+
+// Create responsive PieChart with composition API
+const PieChartResponsive = attachSubComponents(
+	withResponsive< PieChartProps >( PieChartWithProvider ),
+	{
+		Legend: Legend,
+	}
+) as PieChartResponsiveComponent;
+
+export { PieChartResponsive as default, PieChart as PieChartUnresponsive };
