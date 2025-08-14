@@ -7,6 +7,13 @@
 		display: flex;
 		gap: 8px;
 
+		&:has(.jetpack-field__input-element:focus) {
+			outline-width: 2px;
+			outline-style: solid;
+			// mimics default focus outline color, need to fix this
+			outline-color: rgb(0, 95, 204);
+		}
+
 		.jetpack-field__input-prefix {
 			display: flex;
 		}
