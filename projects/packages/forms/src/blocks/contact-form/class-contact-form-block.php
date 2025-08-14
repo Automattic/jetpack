@@ -60,8 +60,9 @@ class Contact_Form_Block {
 		// Features under development.
 		$features['image-select-field'] = apply_filters( 'forms_alpha', false );
 
-		// Features that are only available to users with a paid plan.
-		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
+		// Features that are only available to users with a paid plan or on Big Sky trial sites.
+		$is_big_sky_free_trial      = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'big-sky-free-trial' );
+		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' ) || $is_big_sky_free_trial;
 
 		return $features;
 	}
