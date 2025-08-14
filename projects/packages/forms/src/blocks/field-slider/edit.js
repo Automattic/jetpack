@@ -1,4 +1,3 @@
-import './editor.scss';
 import {
 	useBlockProps,
 	useInnerBlocksProps,
@@ -13,6 +12,7 @@ import {
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import './editor.scss';
 
 export default function SliderFieldEdit( props ) {
 	const { attributes, setAttributes } = props;
