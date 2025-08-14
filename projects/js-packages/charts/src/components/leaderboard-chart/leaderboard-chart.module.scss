@@ -19,7 +19,7 @@
 		height: 100%;
 		background-color: var(--primary-color, #3858e9);
 
-		border-radius: var(--bar-border-radius, 9999px);
+		border-radius: var(--bar-border, 9999px);
 		z-index: -1; /* places it behind the label */
 
 		transition: width 0.3s ease-in-out;
@@ -45,7 +45,7 @@
 
 		> div {
 			background-color: var(--progress-color, #3858e9);
-			border-radius: var(--bar-border-radius, 9999px);
+			border-radius: var(--bar-border, 9999px);
 		}
 	}
 

@@ -139,7 +139,7 @@ The component uses CSS Modules for styling. You can customize colors using CSS c
 .myCustomChart {
   --primary-color: #ff6b6b;
   --secondary-color: #4ecdc4;
-	--bar-border-radius: 8px;
+	--bar-border: 1px solid 8px;
 }
 \`\`\`
 
@@ -489,7 +489,7 @@ export const WooAnalyticsSalesByProduct: Story = {
 		withOverlayLabel: true,
 		loading: false,
 		style: {
-			'--bar-border-radius': '4px',
+			'--bar-border': '4px',
 			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
 	},
