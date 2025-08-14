@@ -109,7 +109,11 @@ export interface LeaderboardChartProps {
 	/**
 	 * Custom styling for the chart container
 	 */
-	style?: React.CSSProperties;
+	style?: React.CSSProperties & {
+		'--bar-border'?: string;
+		'--primary-color'?: string;
+		'--secondary-color'?: string;
+	};
 }
 
 /**
@@ -229,7 +233,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 		'--primary-color': finalPrimaryColor,
 		'--secondary-color': finalSecondaryColor,
 		...style,
-	} as React.CSSProperties;
+	};
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
