@@ -39,8 +39,8 @@
 
 		.jetpack-field__input-phone-wrapper {
 			padding-top: 1.4em;
-			padding-left: var(--field-padding);
-			padding-right: var(--field-padding);
+			padding-left: var(--jetpack--contact-form--animated-left-offset);
+			padding-right: var(--jetpack--contact-form--animated-right-offset);
 
 			&:not(:has(*:focus, *:active)) {
 
