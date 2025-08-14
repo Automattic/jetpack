@@ -147,8 +147,8 @@ export const CustomLegendPositioning: Story = {
 		withTooltips: true,
 		showLegend: true,
 		legendOrientation: 'vertical',
-		legendAlignmentHorizontal: 'right',
-		legendAlignmentVertical: 'top',
+		legendAlignment: 'end',
+		legendPosition: 'top',
 		legendShape: 'circle',
 	},
 	parameters: {

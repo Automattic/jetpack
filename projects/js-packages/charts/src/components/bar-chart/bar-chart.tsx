@@ -62,8 +62,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendAlignmentHorizontal = 'center',
-	legendAlignmentVertical = 'bottom',
+	legendPosition = 'bottom',
+	legendAlignment = 'center',
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -267,8 +267,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				width,
 				height,
 				display: 'flex',
-				flexDirection:
-					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+				flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 			} }
 			tabIndex={ 0 }
 			onKeyDown={ onChartKeyDown }
@@ -284,7 +283,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				margin={ {
 					...defaultMargin,
 					...margin,
-					...( showLegend && legendAlignmentVertical === 'top'
+					...( showLegend && legendPosition === 'top'
 						? { top: ( defaultMargin.top || 0 ) + legendHeight }
 						: {} ),
 				} }
@@ -351,8 +350,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					alignmentHorizontal={ legendAlignmentHorizontal }
-					alignmentVertical={ legendAlignmentVertical }
+					position={ legendPosition }
+					alignment={ legendAlignment }
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }

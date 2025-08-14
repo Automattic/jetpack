@@ -251,13 +251,14 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	legendShape?: LegendShape< T, number >;
 	/**
-	 * Legend horizontal alignment
+	 * Legend position (where the legend appears)
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
 	 */
-	legendAlignmentHorizontal?: 'left' | 'center' | 'right';
+	legendPosition?: 'top' | 'bottom';
 	/**
-	 * Legend vertical alignment
+	 * Legend alignment within its position
 	 */
-	legendAlignmentVertical?: 'top' | 'bottom';
+	legendAlignment?: 'start' | 'center' | 'end';
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */

@@ -126,8 +126,8 @@ Control legend alignment and positioning:
 		size={ 400 }
 		data={ data }
 		showLegend={ true }
-		legendAlignmentHorizontal="right"
-		legendAlignmentVertical="top"
+		legendAlignment="end"
+		legendPosition="top"
 	/>` }
 />
 
@@ -142,8 +142,8 @@ Use vertical orientation for space-efficient legend placement:
 		data={ data }
 		showLegend={ true }
 		legendOrientation="vertical"
-		legendAlignmentHorizontal="right"
-		legendAlignmentVertical="top"
+		legendAlignment="end"
+		legendPosition="top"
 	/>` }
 />
 
@@ -232,8 +232,8 @@ Main component for rendering pie and donut charts.
 | `withTooltips`              | `boolean`                       | `false`        | Enable interactive tooltips on hover                                              |
 | `showLegend`                | `boolean`                       | `false`        | Display chart legend                                                              |
 | `legendOrientation`         | `'horizontal' \| 'vertical'`    | `'horizontal'` | Legend layout direction                                                           |
-| `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'`     | Horizontal legend alignment                                                       |
-| `legendAlignmentVertical`   | `'top' \| 'bottom'`             | `'bottom'`     | Vertical legend position                                                          |
+| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'`     | Legend alignment within its position                                                       |
+| `legendPosition`   | `'top' \| 'bottom'`             | `'bottom'`     | Legend position (where the legend appears)                                                          |
 | `legendShape`               | `LegendShape`                   | `'circle'`     | Shape of legend markers                                                           |
 | `children`                  | `ReactNode`                     | -              | Optional content to render inside chart center (useful for donut charts)          |
 | `className`                 | `string`                        | -              | Additional CSS class names                                                        |

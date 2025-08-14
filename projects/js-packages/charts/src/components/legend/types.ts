@@ -27,8 +27,11 @@ export type LegendItemWithoutGlyph = BaseLegendItem & {
 export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
 	orientation?: 'horizontal' | 'vertical';
-	alignmentHorizontal?: 'left' | 'center' | 'right';
-	alignmentVertical?: 'top' | 'bottom';
+	/**
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
+	 */
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {
