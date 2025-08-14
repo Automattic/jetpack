@@ -460,6 +460,35 @@
 		line-height: normal;
 	}
 
+	.jetpack-field-option__checkbox:checked {
+		margin-bottom: 10px;
+	}
+
+	.jetpack-field-option__checkbox:checked::after {
+		content: "";
+		position: absolute;
+		transform: translate(0, 0) rotate(40deg);
+		border: solid #fff;
+		width: 0.25em;
+		height: 0.5em;
+		border-width: 0 2px 2px 0;
+		border-radius: 0;
+		margin: 0;
+	}
+
+	.jetpack-field-option__checkbox:checked::before {
+		content: "";
+		margin: 0;
+		transform: translateY(0.15em);
+		background-color: currentColor;
+		width: 1em;
+		height: 1em;
+		float: none;
+		display: flex;
+		vertical-align: middle;
+		margin-bottom: 2px;
+	}
+
 	.jetpack-field-option__checkbox,
 	.jetpack-field-option {
 		display: flex;
