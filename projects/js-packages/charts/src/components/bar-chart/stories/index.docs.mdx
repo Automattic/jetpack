@@ -306,6 +306,51 @@ Display legends vertically for charts with many series:
 	/>` }
 />
 
+### Composition API
+
+For more flexible legend positioning and future extensibility, use the composition API with `<BarChart.Legend />` as a child component:
+
+<Canvas of={ BarChartStories.WithCompositionLegend } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		withTooltips={true}
+		gridVisibility="x"
+	>
+		<BarChart.Legend
+			orientation="horizontal"
+			alignment="center"
+			position="bottom"
+		/>
+	</BarChart>` }
+/>
+
+**Benefits of the composition API:**
+- **Flexible positioning**: Place legends anywhere within the chart container
+- **Future extensibility**: Enables additional chart components like annotations
+- **Consistent API**: Same pattern as LineChart for a unified developer experience
+- **Backward compatibility**: Existing `showLegend` prop continues to work
+
+**Usage patterns:**
+
+<Source
+	language="jsx"
+	code={ `// Composition API (recommended for new code)
+	<BarChart data={data}>
+		<BarChart.Legend legendOrientation="vertical" alignment="end" />
+	</BarChart>
+
+	// Traditional prop-based approach (still supported)
+	<BarChart
+		data={data}
+		showLegend={true}
+		legendOrientation="vertical"
+		legendAlignment="end"
+	/>` }
+/>
+
 ## Advanced Customization
 
 ### Grid Configuration
@@ -474,6 +519,22 @@ Main chart component with responsive behavior by default.
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
 | `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
 | `className` | `string` | - | Additional CSS class name |
+| `children` | `ReactNode` | - | Child components (e.g., `<BarChart.Legend />`) |
+
+### BarChart.Legend
+
+Composition API component for displaying chart legends. Must be used as a child of `<BarChart>`.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
+| `alignment` | `'start' \| 'center' \| 'end'` | `'center'` | Horizontal legend alignment |
+| `position` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
+| `shape` | `LegendShape` | `'rect'` | Shape used in legend markers |
+| `className` | `string` | - | Additional CSS class name |
+| `chartId` | `string` | auto-detected | Chart ID (automatically detected from parent context) |
 
 ### SeriesData Type
 

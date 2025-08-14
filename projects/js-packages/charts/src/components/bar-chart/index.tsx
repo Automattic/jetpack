@@ -1,1 +1,1 @@
-export { default as BarChart } from './bar-chart';
+export { default as BarChart, BarChart as BarChartNonResponsive } from './bar-chart';
