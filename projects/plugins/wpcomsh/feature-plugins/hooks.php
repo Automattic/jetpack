@@ -282,6 +282,50 @@ function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
 add_filter( 'upload_mimes', 'wpcomsh_maybe_restrict_mimetypes', PHP_INT_MAX );
 
 /**
+ * Add clean JavaScript to restrict file picker at selection level.
+ * This is the only way to prevent file selection (vs blocking after selection).
+ *
+ * @since $$next-version$$
+ */
+function wpcomsh_add_file_picker_restrictions() {
+	// Only load on media pages
+	$screen = get_current_screen();
+	if ( ! $screen || ! in_array( $screen->id, array( 'upload', 'media' ), true ) ) {
+		return;
+	}
+
+	// Get allowed extensions
+	$allowed_mimes = get_allowed_mime_types();
+	$extensions    = array();
+	foreach ( $allowed_mimes as $ext_pattern => $mime_type ) {
+		$extensions = array_merge( $extensions, explode( '|', $ext_pattern ) );
+	}
+	$accept_value = '.' . implode( ',.', $extensions );
+	?>
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		var acceptValue = <?php echo wp_json_encode( $accept_value ); ?>;
+
+		function setFileInputAccept() {
+			document.querySelectorAll('input[type="file"]').forEach(function(input) {
+				if (!input.hasAttribute('data-wpcomsh-restricted')) {
+					input.setAttribute('accept', acceptValue);
+					input.setAttribute('data-wpcomsh-restricted', '1');
+				}
+			});
+		}
+
+		// Apply immediately and when DOM changes
+		setFileInputAccept();
+		var observer = new MutationObserver(setFileInputAccept);
+		observer.observe(document.body, { childList: true, subtree: true });
+	});
+	</script>
+	<?php
+}
+add_action( 'admin_footer', 'wpcomsh_add_file_picker_restrictions' );
+
+/**
  * Redirect plugins.php and plugin-install.php to their Calypso counterparts if this site doesn't have the
  * MANAGE_PLUGINS feature.
  */
