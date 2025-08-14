@@ -302,20 +302,20 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
             }
 
 
-            // dueBefore
-            if (!empty($dueBefore) && $dueBefore > 0 && $dueBefore !== false){
+		// dueBefore
+		if ( ! empty( $dueBefore ) && $dueBefore > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                 // is (event reminder at (e.g. -86400) + event start time (uts)) before $dueBefore
                 $wheres['direct'][] = array('(eventreminder.zbser_remind_at + (SELECT zbse_start FROM '.$ZBSCRM_t['events'].' WHERE ID = eventreminder.zbser_event) < %d)',array($dueBefore));
 
-            }
-            // dueAfter
-            if (!empty($dueAfter) && $dueAfter > 0 && $dueAfter !== false){
+		}
+		// dueAfter
+		if ( ! empty( $dueAfter ) && $dueAfter > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                 // is (event reminder at (e.g. -86400) + event start time (uts)) after $dueAfter
                 $wheres['direct'][] = array('(eventreminder.zbser_remind_at + (SELECT zbse_start FROM '.$ZBSCRM_t['events'].' WHERE ID = eventreminder.zbser_event) > %d)',array($dueAfter));
 
-            }
+		}
 
             // sent (if set as bool)
             if ($sent === true){

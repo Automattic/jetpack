@@ -23,7 +23,6 @@ return [
     // PhanTypeMismatchDefault : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanUndeclaredFunction : 2 occurrences
-    // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanNoopArrayAccess : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
@@ -46,7 +45,7 @@ return [
         'src/features/launchpad/launchpad.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/features/marketplace-products-updater/class-marketplace-products-updater.php' => ['PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
         'src/features/media/heif-support.php' => ['PhanPluginSimplifyExpressionBool'],
-        'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
+        'src/features/verbum-comments/class-verbum-comments.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-wpcom-migration-key.php' => ['PhanUndeclaredClassMethod'],
