@@ -66,6 +66,12 @@
 				background-color: transparent;
 				padding: 0;
 
+				&:where(select) {
+					// compensate spacing for downarrow
+					// misbehaves with :focus
+					padding-right: 24px;
+				}
+
 				&:focus {
 					box-shadow: none;
 				}
