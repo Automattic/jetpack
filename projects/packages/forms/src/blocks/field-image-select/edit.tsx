@@ -106,6 +106,7 @@ export default function ImageSelectFieldEdit( props ) {
 						index: 1,
 						element: (
 							<ToggleControl
+								__nextHasNoMarginBottom
 								key="show-labels"
 								label={ __( 'Show labels', 'jetpack-forms' ) }
 								checked={ attributes?.showLabels }
@@ -117,6 +118,7 @@ export default function ImageSelectFieldEdit( props ) {
 						index: 2,
 						element: (
 							<ToggleControl
+								__nextHasNoMarginBottom
 								key="is-supersized"
 								label={ __( 'Supersized', 'jetpack-forms' ) }
 								checked={ attributes?.isSupersized }
@@ -128,6 +130,7 @@ export default function ImageSelectFieldEdit( props ) {
 						index: 3,
 						element: (
 							<ToggleControl
+								__nextHasNoMarginBottom
 								key="is-multiple"
 								label={ __( 'Multiple selection', 'jetpack-forms' ) }
 								checked={ attributes?.isMultiple }
@@ -139,6 +142,7 @@ export default function ImageSelectFieldEdit( props ) {
 						index: 4,
 						element: (
 							<ToggleControl
+								__nextHasNoMarginBottom
 								key="randomize-options"
 								label={ __( 'Randomize', 'jetpack-forms' ) }
 								checked={ attributes?.randomizeOptions }
@@ -150,6 +154,7 @@ export default function ImageSelectFieldEdit( props ) {
 						index: 5,
 						element: (
 							<ToggleControl
+								__nextHasNoMarginBottom
 								key="show-other-option"
 								label={ __( '"Other" option', 'jetpack-forms' ) }
 								checked={ attributes?.showOtherOption }
