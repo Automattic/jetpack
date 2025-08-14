@@ -103,18 +103,26 @@ export const PricingTableItem: FC< PricingTableItemProps > = ( {
 	);
 };
 
-export const PricingTableHeader: FC< PricingTableHeaderProps > = ( { children } ) => (
-	<div className={ styles.header }>{ children }</div>
+export const PricingTableHeader: FC< PricingTableHeaderProps > = ( { title, children } ) => (
+	<div className={ styles.headerContainer }>
+		{ title && (
+			<Text variant="headline-small" className={ styles.title }>
+				{ title }
+			</Text>
+		) }
+		<div className={ styles.header }>{ children }</div>
+	</div>
 );
 
 export const PricingTableColumn: FC< PricingTableColumnProps > = ( {
 	primary = false,
 	children,
+	className,
 } ) => {
 	let index = 0;
 
 	return (
-		<div className={ clsx( styles.card, { [ styles[ 'is-primary' ] ]: primary } ) }>
+		<div className={ clsx( styles.card, { [ styles[ 'is-primary' ] ]: primary }, className ) }>
 			{ Children.map( children, child => {
 				const item = child as ReactElement<
 					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >
@@ -133,6 +141,7 @@ export const PricingTableColumn: FC< PricingTableColumnProps > = ( {
 
 const PricingTable: FC< PricingTableProps > = ( {
 	title,
+	headerLogo,
 	items,
 	children,
 	showIntroOfferDisclaimer = false,
@@ -151,11 +160,14 @@ const PricingTable: FC< PricingTableProps > = ( {
 				}
 			>
 				<div className={ styles.table }>
-					<Text variant="headline-small">{ title }</Text>
+					<div>
+						{ headerLogo && <div className={ styles[ 'header-logo' ] }>{ headerLogo }</div> }
+						<Text variant="headline-small">{ title }</Text>
+					</div>
 					{ isLg &&
 						items.map( ( item, i ) => (
 							<div
-								className={ clsx( styles.item, {
+								className={ clsx( styles.item, styles.feature, {
 									[ styles[ 'last-feature' ] ]: i === items.length - 1,
 								} ) }
 								key={ i }
