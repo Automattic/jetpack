@@ -933,10 +933,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			case 'mailpoet':
 				$response['needsConnection'] = true;
 				// Determine if MailPoet setup is complete using the public API.
-				if ( class_exists( \MailPoet\API\API::class ) ) {
+				if ( class_exists( \MailPoet\API\API::class ) ) { // @phan-suppress-current-line PhanUndeclaredClassReference
 					$mailpoet_api = \MailPoet\API\API::MP( 'v1' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
 					if ( $mailpoet_api && method_exists( $mailpoet_api, 'isSetupComplete' ) ) {
-						$response['isConnected'] = (bool) $mailpoet_api->isSetupComplete(); // @phan-suppress-current-line PhanUndeclaredMethod
+						$response['isConnected'] = (bool) $mailpoet_api->isSetupComplete();
 					}
 				}
 				// Add MailPoet lists to details
