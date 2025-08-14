@@ -72,34 +72,32 @@ const settings = {
 				innerBlocks: [
 					{
 						name: 'jetpack/form-image-select-choice',
+						attributes: {
+							label: getImageChoiceLabel( 1 ),
+						},
 						innerBlocks: [
-							{
-								name: 'jetpack/label',
-								attributes: {
-									label: getImageChoiceLabel( 1 ),
-								},
-							},
 							{
 								name: 'core/image',
 								attributes: {
 									url: 'https://s.w.org/images/core/5.3/Glacial_lakes%2C_Bhutan.jpg',
+									scale: 'cover',
+									aspectRatio: '1',
 								},
 							},
 						],
 					},
 					{
 						name: 'jetpack/form-image-select-choice',
+						attributes: {
+							label: getImageChoiceLabel( 2 ),
+						},
 						innerBlocks: [
-							{
-								name: 'jetpack/label',
-								attributes: {
-									label: getImageChoiceLabel( 2 ),
-								},
-							},
 							{
 								name: 'core/image',
 								attributes: {
 									url: 'https://s.w.org/images/core/5.3/Sediment_off_the_Yucatan_Peninsula.jpg',
+									scale: 'cover',
+									aspectRatio: '1',
 								},
 							},
 						],
