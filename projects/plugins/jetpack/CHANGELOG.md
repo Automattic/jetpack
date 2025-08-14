@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.0-a.3 - 2025-08-14
+### Enhancements
+- Forms: Add `has_field_type` method to Feedback. [#44759]
+- Forms: Defer JavaScript loading for more responsive page loading. [#44752]
+- Shortcodes: Update embed reversal code to only run when content is inserted in the admin. [#44741]
+- Sitemaps: Add filter to allow suspending object cache addition during generation. [#44732]
+- Subscription block: Defer JavaScript loading. [#44734]
+
+### Improved compatibility
+- Open Graph Meta tags: Add new filter allowing one to define a custom site representative image. [#44708]
+
+### Bug fixes
+- Infinite Scroll: Prevent PHP warnings in various edge cases. [#44642]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Prevent PHP fatals when handling unexpected data types. [#44765]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Track generation time on suggestion request. [#44716]
+- E2E: Add typecheck support. [#44788]
+- E2E: Fix onboarding tests. [#44745]
+- Editor assets endpoint: Expand allowed block types. [#44616]
+- Open Help Center modal for WordPress.com sites and update the support link. [#44774]
+- Update package dependencies. [#44701] [#44725]
+
 ## 15.0-a.1 - 2025-08-11
 ### Enhancements
 - Carousel: Fix crashes on large galleries and reduce server requests by preloading only adjacent images instead of all at once. [#44612]

@@ -27,7 +27,7 @@ if ( ! function_exists( 'jetpack_shortcodes_should_hook_pre_kses' ) ) {
 		/**
 		 * Filters whether shortcodes should hook on pre_kses.
 		 *
-		 * @since $$next-version$$
+		 * @since 15.0
 		 *
 		 * @param bool $should_hook Whether shortcodes should hook on pre_kses.
 		 */

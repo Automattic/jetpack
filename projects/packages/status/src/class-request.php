@@ -17,7 +17,7 @@ class Request {
 	 * Determine whether the current request is for accessing the frontend.
 	 * Also update Vary headers to indicate that the response may vary by Accept header.
 	 *
-	 * @since $$next-version$$ Added $send_vary_headers argument.
+	 * @since 6.0.3 Added $send_vary_headers argument.
 	 *
 	 * @param bool $send_vary_headers Whether to send Vary headers.
 	 *
@@ -61,7 +61,7 @@ class Request {
 		 * Filter whether the current request is for accessing the frontend.
 		 *
 		 * @since jetpack-9.0.0
-		 * @since $$next-version$$ Added $send_vary_headers argument.
+		 * @since 6.0.3 Added $send_vary_headers argument.
 		 *
 		 * @param bool $is_frontend Whether the current request is for accessing the frontend.
 		 * @param bool $send_vary_headers Whether to send Vary headers.
