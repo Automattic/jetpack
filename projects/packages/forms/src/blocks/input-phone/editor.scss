@@ -20,7 +20,7 @@
 			border: 0;
 			color: inherit;
 			outline: none;
-			background: inherit;
+			background-color: transparent;
 			padding: 0;
 
 			flex: 1;
@@ -55,6 +55,7 @@
 			font: inherit;
 			border: 0;
 			color: inherit;
+			display: flex;
 
 			// these class is used to style select elements
 			.jetpack-field__input-element {
@@ -62,7 +63,7 @@
 				border: 0;
 				color: inherit;
 				outline: none;
-				background: inherit;
+				background-color: transparent;
 				padding: 0;
 
 				&:focus {
