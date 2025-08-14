@@ -1,9 +1,46 @@
-// Logo imports - using correct file extensions
-import SearchLogo from './logos/search-logo.tsx';
+import { ComponentType } from 'react';
+import SearchLogo from './logos/search-logo';
 import SocialLogo from './logos/social-logo';
 
+/**
+ * Configuration types for product pricing tables
+ */
+export interface FeatureTier {
+	included: boolean;
+	label: string;
+}
+
+export interface ProductFeature {
+	name: string;
+	tooltipInfo?: string;
+	free: FeatureTier;
+	paid: FeatureTier;
+	bundle: FeatureTier;
+}
+
+export interface ProductTier {
+	name: string;
+	cta: string;
+}
+
+export interface ProductConfig {
+	title: string;
+	logo: ComponentType< { height?: number } >;
+	bundle: string;
+	features: ProductFeature[];
+	tiers: {
+		free: ProductTier;
+		paid: ProductTier;
+		bundle: ProductTier;
+	};
+}
+
+export interface ProductConfigs {
+	[ productSlug: string ]: ProductConfig;
+}
+
 // Product configuration for pricing tables
-export const PRODUCT_CONFIGS = {
+export const PRODUCT_CONFIGS: ProductConfigs = {
 	social: {
 		title: 'Publish once. Share everywhere.',
 		logo: SocialLogo,
@@ -29,6 +66,7 @@ export const PRODUCT_CONFIGS = {
 			},
 			{
 				name: 'Scheduled posts',
+				tooltipInfo: 'Schedule your social media posts to publish at optimal times.',
 				free: { included: true, label: 'Included' },
 				paid: { included: true, label: 'Included' },
 				bundle: { included: true, label: 'Instant site search' },
@@ -43,12 +81,14 @@ export const PRODUCT_CONFIGS = {
 			},
 			{
 				name: 'Recycle content',
+				tooltipInfo: 'Repurpose, reuse or republish already published content.',
 				free: { included: true, label: 'Included' },
 				paid: { included: true, label: 'Included' },
 				bundle: { included: true, label: 'Malware scanning and security protection' },
 			},
 			{
 				name: 'Automatically generate images for posts',
+				tooltipInfo: 'Automatically create custom images, saving you hours of tedious work.',
 				free: { included: false, label: 'Not included' },
 				paid: { included: true, label: 'Included' },
 				bundle: { included: true, label: 'Spam filtering for comments and forms' },
@@ -79,7 +119,7 @@ export const PRODUCT_CONFIGS = {
 		},
 	},
 	search: {
-		title: 'The best WordPress search experience',
+		title: 'Help visitors find exactly what they need',
 		logo: SearchLogo,
 		bundle: 'complete',
 		features: [
