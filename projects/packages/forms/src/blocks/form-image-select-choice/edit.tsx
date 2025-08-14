@@ -66,10 +66,15 @@ export default function ImageChoiceFieldEdit( props ) {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-image': !! imageBlockAttributes?.url,
 			'is-supersized': isSupersized,
-			'hide-labels': ! showLabels,
 		} ),
 		style: blockStyle,
 	} );
+
+	const labelClassName = useMemo( () => {
+		return clsx( 'jetpack-form-image-select-choice__label', {
+			'visually-hidden': ! showLabels,
+		} );
+	}, [ showLabels ] );
 
 	const template = useMemo( () => {
 		return [
@@ -97,7 +102,7 @@ export default function ImageChoiceFieldEdit( props ) {
 			<div { ...innerBlocksProps } />
 			<RichText
 				tagName="span"
-				className="jetpack-form-image-select-choice__label"
+				className={ labelClassName }
 				value={ label }
 				placeholder={ __( 'Add choice…', 'jetpack-forms' ) }
 				__unstableDisableFormats
