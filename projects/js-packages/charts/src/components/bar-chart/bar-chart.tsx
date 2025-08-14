@@ -420,5 +420,4 @@ const BarChartResponsive = attachSubComponents(
 	}
 ) as BarChartResponsiveComponent;
 
-export { BarChart };
-export default BarChartResponsive;
+export { BarChartResponsive as default, BarChart as BarChartUnresponsive };
