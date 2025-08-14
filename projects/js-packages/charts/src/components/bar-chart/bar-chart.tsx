@@ -340,7 +340,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
 					<BarGroup padding={ chartOptions.barGroup.padding }>
-						{ dataWithVisibleZeros.map( ( seriesData: SeriesData, index: number ) => (
+						{ dataWithVisibleZeros.map( ( seriesData, index ) => (
 							<BarSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
