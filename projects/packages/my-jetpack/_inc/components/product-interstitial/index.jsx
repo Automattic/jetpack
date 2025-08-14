@@ -6,6 +6,11 @@ import {
 	Button,
 	Col,
 	Container,
+	PricingTable,
+	PricingTableColumn,
+	PricingTableHeader,
+	PricingTableItem,
+	ProductPrice,
 	Text,
 	TermsOfService,
 } from '@automattic/jetpack-components';
@@ -17,7 +22,6 @@ import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { useParams } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
@@ -29,15 +33,12 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
-import boostImage from './boost.png';
 import completeImage from './complete.png';
-import crmImage from './crm.png';
+import { PRODUCT_CONFIGS } from './config';
 import extrasImage from './extras.png';
-import searchImage from './search.png';
 import securityImage from './security.png';
 import statsImage from './stats.png';
 import styles from './style.module.scss';
-import videoPressImage from './videopress.png';
 
 /**
  * Product Interstitial component.
@@ -334,12 +335,157 @@ export function AntiSpamInterstitial() {
 }
 
 /**
+ * Universal PricingInterstitial component
+ *
+ * @param {object} props      - Component props.
+ * @param {string} props.slug - Product slug.
+ * @return {object} PricingInterstitial react component.
+ */
+function PricingInterstitial( { slug } ) {
+	const config = PRODUCT_CONFIGS[ slug ];
+	const { detail } = useProduct( slug );
+	const { detail: bundleDetail } = useProduct( config?.bundle );
+	const { recordEvent } = useAnalytics();
+	const { onClickGoBack } = useGoBack( { slug } );
+	const { activate, isPending: isActivating } = useActivatePlugins( slug );
+
+	const handleGetProduct = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+			product: slug,
+		} );
+		activate( { productId: slug } );
+	}, [ recordEvent, activate, slug ] );
+
+	const handleGetBundle = useCallback( () => {
+		if ( config?.bundle ) {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: config.bundle,
+			} );
+			activate( { productId: config.bundle } );
+		}
+	}, [ recordEvent, activate, config ] );
+
+	const handleFreeActivation = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+			product: slug,
+			product_slug: '',
+			cta_text: 'Start for free',
+		} );
+		activate( { productId: slug } );
+	}, [ recordEvent, activate, slug ] );
+
+	// If no config exists, fallback to old ProductInterstitial
+	if ( ! config ) {
+		return <ProductInterstitial slug={ slug } installsPlugin={ true } />;
+	}
+
+	const productPricing = detail?.pricingForUi;
+	const bundlePricing = bundleDetail?.pricingForUi;
+
+	return (
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
+			<Container
+				className={ styles.interstitialContainer }
+				horizontalSpacing={ 3 }
+				horizontalGap={ 3 }
+			>
+				<Col className={ styles[ 'product-interstitial__header' ] }>
+					<GoBackLink onClick={ onClickGoBack } />
+				</Col>
+				<Col>
+					<PricingTable
+						title={ config.title }
+						items={ config.features }
+						showIntroOfferDisclaimer={ false }
+						headerLogo={ config.logo ? <config.logo height={ 32 } /> : null }
+					>
+						<PricingTableColumn>
+							<PricingTableHeader title={ config.tiers.free.name }>
+								<ProductPrice
+									price={ 0 }
+									legend="Free forever"
+									currency="USD"
+									hidePriceFraction
+									variant="simple"
+								/>
+								<Button
+									fullWidth
+									variant="secondary"
+									onClick={ handleFreeActivation }
+									isLoading={ isActivating }
+								>
+									Start for Free
+								</Button>
+							</PricingTableHeader>
+							{ config.features.map( ( _, index ) => (
+								<PricingTableItem
+									key={ index }
+									isIncluded={ index === 0 }
+									label={ index === 0 ? config.tiers.free.features[ 0 ] : undefined }
+								/>
+							) ) }
+						</PricingTableColumn>
+						<PricingTableColumn primary>
+							<PricingTableHeader title={ config.tiers.main.name }>
+								<ProductPrice
+									price={ productPricing?.fullPricePerMonth || 9.95 }
+									offPrice={ productPricing?.discountPricePerMonth || 9.95 }
+									legend="/month, billed yearly"
+									currency="USD"
+									hidePriceFraction
+									variant="simple"
+								/>
+								<Button fullWidth onClick={ handleGetProduct } isLoading={ isActivating }>
+									{ config.tiers.main.cta }
+								</Button>
+							</PricingTableHeader>
+							{ config.features.map( ( _, index ) => (
+								<PricingTableItem key={ index } isIncluded={ index < 5 } />
+							) ) }
+						</PricingTableColumn>
+						{ config.bundle && (
+							<PricingTableColumn>
+								<PricingTableHeader title={ config.tiers.bundle.name }>
+									<ProductPrice
+										price={ bundlePricing?.fullPricePerMonth || 19.95 }
+										offPrice={ bundlePricing?.discountPricePerMonth || 14.95 }
+										legend="/month, billed yearly"
+										currency="USD"
+										hidePriceFraction
+										variant="simple"
+									/>
+									<Button
+										fullWidth
+										variant="secondary"
+										onClick={ handleGetBundle }
+										isLoading={ isActivating }
+									>
+										{ config.tiers.bundle.cta }
+									</Button>
+								</PricingTableHeader>
+								{ config.features.map( ( _, index ) => (
+									<PricingTableItem key={ index } isIncluded={ true } />
+								) ) }
+							</PricingTableColumn>
+						) }
+					</PricingTable>
+				</Col>
+			</Container>
+		</AdminPage>
+	);
+}
+
+/**
  * BackupInterstitial component
  *
  * @return {object} BackupInterstitial react component.
  */
 export function BackupInterstitial() {
-	return <ProductInterstitial slug="backup" installsPlugin={ true } bundle="security" />;
+	return <PricingInterstitial slug="backup" />;
 }
 
 /**
@@ -348,11 +494,7 @@ export function BackupInterstitial() {
  * @return {object} BoostInterstitial react component.
  */
 export function BoostInterstitial() {
-	return (
-		<ProductInterstitial slug="boost" installsPlugin={ true }>
-			<img src={ boostImage } alt="Boost" />
-		</ProductInterstitial>
-	);
+	return <PricingInterstitial slug="boost" />;
 }
 
 /**
@@ -361,11 +503,7 @@ export function BoostInterstitial() {
  * @return {object} CRMInterstitial react component.
  */
 export function CRMInterstitial() {
-	return (
-		<ProductInterstitial slug="crm" installsPlugin={ true }>
-			<img src={ crmImage } alt="CRM" />
-		</ProductInterstitial>
-	);
+	return <PricingInterstitial slug="crm" />;
 }
 
 /**
@@ -394,10 +532,7 @@ export { default as JetpackAiInterstitial } from './jetpack-ai';
  * @return {object} ProtectInterstitial react component.
  */
 export function ProtectInterstitial() {
-	// Get the feature query parameter from the URL.
-	const { feature } = useParams();
-
-	return <ProductInterstitial slug="protect" feature={ feature } installsPlugin={ true } />;
+	return <PricingInterstitial slug="protect" />;
 }
 
 /**
@@ -415,7 +550,7 @@ export function ScanInterstitial() {
  * @return {object} SocialInterstitial react component.
  */
 export function SocialInterstitial() {
-	return <ProductInterstitial slug="social" installsPlugin={ true } bundle="growth" />;
+	return <PricingInterstitial slug="social" />;
 }
 
 /**
@@ -424,27 +559,7 @@ export function SocialInterstitial() {
  * @return {object} SearchInterstitial react component.
  */
 export function SearchInterstitial() {
-	const { detail } = useProduct( 'search' );
-	return (
-		<ProductInterstitial
-			slug="search"
-			installsPlugin={ true }
-			supportingInfo={
-				( detail?.pricingForUi?.trialAvailable
-					? __(
-							'Jetpack Search Free supports up to 5,000 records and 500 search requests per month for free. You will be asked to upgrade to a paid plan if you exceed these limits for three continuous months.',
-							'jetpack-my-jetpack'
-					  )
-					: '' ) +
-				__(
-					"For the paid plan, pricing will automatically adjust based on the number of records in your search index. If you grow into a new pricing tier, we'll let you know before your next billing cycle.",
-					'jetpack-my-jetpack'
-				)
-			}
-		>
-			<img src={ searchImage } alt="Search" />
-		</ProductInterstitial>
-	);
+	return <PricingInterstitial slug="search" />;
 }
 
 /**
@@ -453,15 +568,7 @@ export function SearchInterstitial() {
  * @return {object} StatsInterstitial react component.
  */
 export function StatsInterstitial() {
-	return (
-		<ProductInterstitial
-			slug="stats"
-			directCheckout={ true }
-			installsPlugin={ true }
-			ctaButtonLabel={ __( 'Get Stats', 'jetpack-my-jetpack' ) }
-			bundle="growth"
-		/>
-	);
+	return <PricingInterstitial slug="stats" />;
 }
 
 /**
@@ -470,11 +577,7 @@ export function StatsInterstitial() {
  * @return {object} VideoPressInterstitial react component.
  */
 export function VideoPressInterstitial() {
-	return (
-		<ProductInterstitial slug="videopress" installsPlugin={ true }>
-			<img src={ videoPressImage } alt="VideoPress" />
-		</ProductInterstitial>
-	);
+	return <PricingInterstitial slug="videopress" />;
 }
 
 /**

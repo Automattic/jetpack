@@ -39,3 +39,8 @@
 .not-strong {
 	font-weight: 400 !important;
 }
+
+.interstitialContainer {
+	--max-container-width: 100%;
+	padding: 48px;
+}
