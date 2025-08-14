@@ -79,7 +79,6 @@ export default function useNotices() {
 							),
 							{
 								supportLink: (
-									// @ts-expect-error TS says, `children` is missing but it's passed dynamically by createInterpolateElement
 									<ExternalLink
 										href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
 									/>
