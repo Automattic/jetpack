@@ -17,7 +17,6 @@ const SYNCED_ATTRIBUTE_KEYS = [
 const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes, context } ) => {
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 
-	// TODO: this is not working as expected.
 	useSyncedAttributes(
 		'jetpack/input',
 		isSynced,
