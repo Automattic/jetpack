@@ -438,7 +438,11 @@ function PricingInterstitial( { slug } ) {
 								{ productPricing ? (
 									<ProductPrice
 										price={ productPricing.fullPricePerMonth }
-										offPrice={ productPricing.discountPricePerMonth }
+										offPrice={
+											productPricing.discountPricePerMonth === productPricing.fullPricePerMonth
+												? null
+												: productPricing.discountPricePerMonth
+										}
 										legend="/month, billed yearly"
 										currency={ currencyCode }
 										hidePriceFraction

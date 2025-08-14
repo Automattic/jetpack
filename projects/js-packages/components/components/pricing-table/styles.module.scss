@@ -15,6 +15,13 @@
 		grid-template-rows: repeat(var(--rows), minmax(min-content, max-content));
 		column-gap: var(--gap);
 	}
+
+	.tableTitle {
+		font-size: 32px;
+		font-weight: 500;
+		line-height: 40px;
+		word-wrap: break-word;
+	}
 }
 
 .header-logo {
