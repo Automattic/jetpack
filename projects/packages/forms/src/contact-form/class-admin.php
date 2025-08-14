@@ -91,7 +91,7 @@ class Admin {
 	 */
 	public function admin_enqueue_scripts() {
 		$current_screen = get_current_screen();
-		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+		if ( empty( $current_screen ) || ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
 			return;
 		}
 		add_thickbox();
@@ -1285,7 +1285,7 @@ class Admin {
 		$screen = get_current_screen();
 
 		// Only add to feedback, only to non-spam view
-		if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
+		if ( empty( $screen ) || 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
 			return;
 		}
 
@@ -1299,7 +1299,7 @@ class Admin {
 	public function grunion_add_admin_scripts() {
 		$screen = get_current_screen();
 
-		if ( 'edit-feedback' !== $screen->id ) {
+		if ( empty( $screen ) || 'edit-feedback' !== $screen->id ) {
 			return;
 		}
 

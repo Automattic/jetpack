@@ -1620,7 +1620,7 @@ class Contact_Form_Plugin {
 	 * @param array $widget The widget data.
 	 */
 	public function track_current_widget( $widget ) {
-		$this->current_widget_id = $widget['id'];
+		$this->current_widget_id = isset( $widget['id'] ) ? $widget['id'] : '';
 	}
 
 	/**

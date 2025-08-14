@@ -167,6 +167,10 @@ class Util {
 	 */
 	public static function grunion_contact_form_set_block_template_attribute( $template ) {
 		global $_wp_current_template_content;
+		if ( ! is_string( $template ) ) {
+			return $template;
+		}
+
 		if ( 'template-canvas.php' === basename( $template ) ) {
 			Contact_Form::style_on();
 			$_wp_current_template_content = self::grunion_contact_form_apply_block_attribute(

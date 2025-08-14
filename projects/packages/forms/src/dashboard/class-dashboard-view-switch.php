@@ -302,6 +302,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_classic_view() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
 		$screen = get_current_screen();
 
 		return $screen && $screen->id === 'edit-feedback';
