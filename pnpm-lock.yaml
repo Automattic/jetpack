@@ -775,6 +775,9 @@ importers:
       storybook:
         specifier: 9.0.15
         version: 9.0.15(@testing-library/dom@10.4.0)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/critical-css-gen:
     dependencies:
@@ -1142,6 +1145,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/number-formatters:
     dependencies:
@@ -1532,7 +1538,11 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
 
-  projects/js-packages/script-data: {}
+  projects/js-packages/script-data:
+    devDependencies:
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/shared-extension-utils:
     dependencies:
@@ -1639,6 +1649,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/social-logos:
     dependencies:
@@ -2443,7 +2456,7 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
       typescript:
-        specifier: ^5.0.4
+        specifier: 5.8.3
         version: 5.8.3
       webpack:
         specifier: 5.94.0

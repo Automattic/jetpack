@@ -27,6 +27,7 @@
 		"compile": "webpack",
 		"test": "jest --config=tests/jest.config.cjs --passWithNoTests",
 		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit",
 		"watch": "pnpm run build --watch"
 	},
 	"dependencies": {
