@@ -1759,18 +1759,179 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertFalse( $saved_response->has_consent(), 'Consent (saved) should be false when no consent field was present' );
 	}
 
-	public function test_has_field_type_legacy_feedback() {
-		// Create a legacy feedback entry and verify has_field_type/has_consent behavior.
-		$post_id  = Utility::create_legacy_feedback(
+	public function test_get_files_legacy() {
+		$file1 = array(
+			'file_id' => 1234,
+			'name'    => 'test-file.txt',
+			'size'    => 1234,
+			'type'    => 'text/plain',
+		);
+
+		$file2 = array(
+			'file_id' => 5678,
+			'name'    => 'test-file.png',
+			'size'    => 4567,
+			'type'    => 'image/png',
+		);
+
+		$empty_file = array(
+			'file_id' => null,
+			'name'    => '',
+			'size'    => null,
+			'type'    => '',
+		);
+
+		$empty_file_2 = array(
+			'file_id' => 123,
+			'name'    => '',
+			'size'    => null,
+			'type'    => '',
+		);
+		$empty_file_3 = array(
+			'file_id' => 123,
+			'name'    => 'name',
+			'size'    => null,
+			'type'    => '',
+		);
+
+		$empty_file_4 = array(
+			'file_id' => 123,
+			'name'    => 'name',
+			'size'    => 12345,
+			'type'    => '',
+		);
+
+		$post_id = Utility::create_legacy_feedback(
 			array(
-				'1_field' => 'value1',
-				'2_field' => 'value2',
+				'1_file upload' => array(
+					'field_id' => 'file_upload',
+					'files'    => array( $file1, $empty_file, $empty_file_2, $empty_file_3, $empty_file_4, $file2 ),
+				),
+				'2_images'      => array(
+					'field_id' => 'file_upload2',
+					'files'    => array( $file2, $file1 ),
+				),
+				'3_docs'        => array(
+					'field_id' => 'file_upload3',
+					'files'    => array(),
+				),
 			)
 		);
-		$response = Feedback::get( $post_id );
 
-		// Legacy entries include an 'email_marketing_consent' field (default 'no'), typed as 'consent'.
-		$this->assertTrue( $response->has_field_type( 'consent' ), 'Legacy feedback should report consent field exists' );
-		$this->assertFalse( $response->has_consent(), 'Legacy consent should default to false (no)' );
+		$expected_legacy_values = array(
+			$file1,
+			$file2,
+			$file2,
+			$file1,
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertNotEmpty( $response->get_files(), 'Legacy file values should not be empty for the legacy feedback' );
+		$this->assertEquals( $expected_legacy_values, $response->get_files(), 'Legacy extra values should match the expected extra values' );
+	}
+
+	public function test_get_files_empty() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'text'    => 'Test text',
+				'email'   => 'john.smith@example.com',
+				'email_2' => 'john.smith@example2.com',
+				'website' => 'https://johnsmith.dev',
+				'message' => 'Hello, this is a test message from our contact form.',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Text' type='text' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Email_2' type='email' required='1'/][contact-field label='Website' type='url' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEmpty( $response->get_files(), 'Files should be empty for the form submission without file uploads' );
+		$this->assertEmpty( $saved_response->get_files(), 'Files should be empty for the saved response without file uploads' );
+	}
+
+	public function test_get_files_valid() {
+		// This is needed for the test to run correctly.
+		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'uploadafile' => array( '{"file_id":54321,"name":"Screenshot.png","size":19914,"type":"image/png"}', '{}' ),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field type="file" label="Upload a file" /]'
+		);
+
+		$expected         = array(
+			array(
+				'file_id' => 54321,
+				'name'    => 'Screenshot.png',
+				'size'    => 19914,
+				'type'    => 'image/png',
+			),
+		);
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertNotEmpty( $response->get_files(), 'Files should not be empty for the form submission with file uploads' );
+		$this->assertNotEmpty( $saved_response->get_files(), 'Files should not be empty for the saved response with file uploads' );
+		$this->assertEquals( $response->get_files(), $saved_response->get_files(), 'Files should match between the response and the saved response' );
+		$this->assertEquals( $expected, $response->get_files(), 'Response files should match the expected files' );
+
+		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+	}
+
+	public function test_get_files_invalid() {
+		// This is needed for the test to run correctly.
+		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'uploadafile'       => null,
+				'uploadanotherfile' => array(),
+				'uploademptyfile'   => array( '{}' ),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field type="file" label="Upload a file" /][contact-field type="file" label="Upload another file" /][contact-field type="file" label="Upload empty file" /]'
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEmpty( $response->get_files(), 'Files should not be empty for the form submission with file uploads' );
+		$this->assertEmpty( $saved_response->get_files(), 'Files should not be empty for the saved response with file uploads' );
+
+		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
 	}
 }
