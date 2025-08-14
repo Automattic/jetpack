@@ -15,6 +15,7 @@ import {
 	TermsOfService,
 } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -382,6 +383,9 @@ function PricingInterstitial( { slug } ) {
 	const productPricing = detail?.pricingForUi;
 	const bundlePricing = bundleDetail?.pricingForUi;
 
+	// Get currency code with USD fallback
+	const currencyCode = productPricing?.currencyCode || bundlePricing?.currencyCode || 'USD';
+
 	return (
 		<AdminPage
 			showHeader={ false }
@@ -408,7 +412,7 @@ function PricingInterstitial( { slug } ) {
 								<ProductPrice
 									price={ 0 }
 									legend="Free forever"
-									currency="USD"
+									currency={ currencyCode }
 									hidePriceFraction
 									variant="simple"
 								/>
@@ -418,60 +422,74 @@ function PricingInterstitial( { slug } ) {
 									onClick={ handleFreeActivation }
 									isLoading={ isActivating }
 								>
-									Start for Free
+									{ config.tiers.free.cta }
 								</Button>
 							</PricingTableHeader>
-							{ config.features.map( ( _, index ) => (
+							{ config.features.map( ( feature, index ) => (
 								<PricingTableItem
 									key={ index }
-									isIncluded={ index === 0 }
-									label={ index === 0 ? config.tiers.free.features[ 0 ] : undefined }
+									isIncluded={ feature.free.included }
+									label={ feature.free.label }
 								/>
 							) ) }
 						</PricingTableColumn>
 						<PricingTableColumn primary>
-							<PricingTableHeader title={ config.tiers.main.name }>
-								<ProductPrice
-									price={ productPricing?.fullPricePerMonth || 9.95 }
-									offPrice={ productPricing?.discountPricePerMonth || 9.95 }
-									legend="/month, billed yearly"
-									currency="USD"
-									hidePriceFraction
-									variant="simple"
-								/>
-								<Button fullWidth onClick={ handleGetProduct } isLoading={ isActivating }>
-									{ config.tiers.main.cta }
-								</Button>
-							</PricingTableHeader>
-							{ config.features.map( ( _, index ) => (
-								<PricingTableItem key={ index } isIncluded={ index < 5 } />
-							) ) }
-						</PricingTableColumn>
-						{ config.bundle && (
-							<PricingTableColumn>
-								<PricingTableHeader title={ config.tiers.bundle.name }>
+							<PricingTableHeader title={ config.tiers.paid.name }>
+								{ productPricing ? (
 									<ProductPrice
-										price={ bundlePricing?.fullPricePerMonth || 19.95 }
-										offPrice={ bundlePricing?.discountPricePerMonth || 14.95 }
+										price={ productPricing.fullPricePerMonth }
+										offPrice={ productPricing.discountPricePerMonth }
 										legend="/month, billed yearly"
-										currency="USD"
+										currency={ currencyCode }
 										hidePriceFraction
 										variant="simple"
 									/>
-									<Button
-										fullWidth
-										variant="secondary"
-										onClick={ handleGetBundle }
-										isLoading={ isActivating }
-									>
-										{ config.tiers.bundle.cta }
-									</Button>
-								</PricingTableHeader>
-								{ config.features.map( ( _, index ) => (
-									<PricingTableItem key={ index } isIncluded={ true } />
-								) ) }
-							</PricingTableColumn>
-						) }
+								) : (
+									<Spinner className={ styles.spinner } />
+								) }
+								<Button fullWidth onClick={ handleGetProduct } isLoading={ isActivating }>
+									{ config.tiers.paid.cta }
+								</Button>
+							</PricingTableHeader>
+							{ config.features.map( ( feature, index ) => (
+								<PricingTableItem
+									key={ index }
+									isIncluded={ feature.paid.included }
+									label={ feature.paid.label }
+								/>
+							) ) }
+						</PricingTableColumn>
+						<PricingTableColumn>
+							<PricingTableHeader title={ config.tiers.bundle.name }>
+								{ bundlePricing ? (
+									<ProductPrice
+										price={ bundlePricing.fullPricePerMonth }
+										offPrice={ bundlePricing.discountPricePerMonth }
+										legend="/month, billed yearly"
+										currency={ currencyCode }
+										hidePriceFraction
+										variant="simple"
+									/>
+								) : (
+									<Spinner className={ styles.spinner } />
+								) }
+								<Button
+									fullWidth
+									variant="secondary"
+									onClick={ handleGetBundle }
+									isLoading={ isActivating }
+								>
+									{ config.tiers.bundle.cta }
+								</Button>
+							</PricingTableHeader>
+							{ config.features.map( ( feature, index ) => (
+								<PricingTableItem
+									key={ index }
+									isIncluded={ feature.bundle.included }
+									label={ feature.bundle.label }
+								/>
+							) ) }
+						</PricingTableColumn>
 					</PricingTable>
 				</Col>
 			</Container>
