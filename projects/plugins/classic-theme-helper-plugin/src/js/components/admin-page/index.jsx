@@ -7,8 +7,8 @@ import {
 } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
-import shouldUseInternalLinks from '../../../../../../js-packages/shared-extension-utils/src/should-use-internal-links';
 import styles from './styles.module.scss';
 
 const Admin = () => {
