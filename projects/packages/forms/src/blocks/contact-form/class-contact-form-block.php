@@ -436,13 +436,16 @@ class Contact_Form_Block {
 					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_phone' ),
 					'attributes'       => array(
 						'showCountrySelector' => array(
-							'type' => 'boolean',
+							'type'    => 'boolean',
+							'default' => true,
 						),
 						'countryList'         => array(
 							'type' => 'array',
 						),
 						'default'             => array(
-							'type' => 'string',
+							'type'    => 'string',
+							'default' => '',
+							'role'    => 'content',
 						),
 					),
 					'provides_context' => array(

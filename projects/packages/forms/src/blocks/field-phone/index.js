@@ -26,6 +26,7 @@ const settings = {
 		...defaultSettings.attributes,
 		showCountrySelector: {
 			type: 'boolean',
+			default: true,
 		},
 		countryList: {
 			type: 'array',
