@@ -2013,6 +2013,14 @@ class Feedback_Test extends BaseTestCase {
 		$field = $response->get_field_by_form_field_id( $email_id );
 		$this->assertInstanceOf( Feedback_Field::class, $field );
 		$this->assertEquals( $email_id, $field->get_form_field_id() );
+
+		// Save and reload; ensure the field id and value persist correctly
+		$saved_post_id  = $response->save();
+		$saved_response = Feedback::get( $saved_post_id );
+		$this->assertEquals( 'john@example.com', $saved_response->get_field_value_by_form_field_id( $email_id ) );
+		$saved_field = $saved_response->get_field_by_form_field_id( $email_id );
+		$this->assertInstanceOf( Feedback_Field::class, $saved_field );
+		$this->assertEquals( $email_id, $saved_field->get_form_field_id() );
 	}
 
 	public function test_get_field_by_id_and_value_by_id_legacy() {
