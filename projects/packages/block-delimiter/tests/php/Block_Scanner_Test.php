@@ -928,7 +928,7 @@ class Block_Scanner_Test extends TestCase {
 	private function assert_performance_advantage( array $scanner_metrics, array $parse_blocks_metrics ): void {
 		// Assert time advantage using median across multiple iterations to reduce noise.
 		$time_ratio = $parse_blocks_metrics['time'] / $scanner_metrics['time'];
-		$this->assertGreaterThan( 1.05, $time_ratio, 'Scanner should be measurably faster than parse_blocks' );
+		$this->assertGreaterThan( 1.15, $time_ratio, 'Scanner should be measurably faster than parse_blocks' );
 
 		// Assert memory is not worse than parse_blocks beyond a small tolerance for measurement noise.
 		$memory_tolerance = 4096; // 4KB tolerance
