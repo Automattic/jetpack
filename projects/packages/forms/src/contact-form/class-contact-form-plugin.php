@@ -1119,7 +1119,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @return string HTML for the image choices form field.
 	 */
-	public static function gutenblock_render_form_image_select_choices() {
+	public static function gutenblock_render_fieldset_image_options() {
 		// TODO: Implement the block rendering
 		return '';
 	}
@@ -1129,7 +1129,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @return string HTML for the image choice form field.
 	 */
-	public static function gutenblock_render_form_image_select_choice() {
+	public static function gutenblock_render_input_image_option() {
 		// TODO: Implement the block rendering
 		return '';
 	}

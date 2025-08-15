@@ -14,18 +14,19 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useAddImageChoice from '../shared/hooks/use-add-image-choice';
+import { getImageOptionLabel } from '../input-image-option/label';
+import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 /**
  * Types
  */
 import type { BlockEditorStoreSelect } from '../../types';
 
-export default function ImageChoiceFieldEdit( props ) {
+export default function ImageOptionsFieldsetEdit( props ) {
 	const { attributes, clientId, isSelected } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	const { addChoice } = useAddImageChoice( clientId );
+	const { addOption } = useAddImageOption( clientId );
 
 	const { isInnerBlockSelected } = useSelect(
 		select => {
@@ -39,25 +40,26 @@ export default function ImageChoiceFieldEdit( props ) {
 	);
 
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field jetpack-form-image-select-choice', {
+		className: clsx( 'jetpack-field jetpack-fieldset-image-options', {
 			'is-selected': isSelected || isInnerBlockSelected,
 		} ),
 		style: blockStyle,
 	} );
 
-	// Starts with 3 empty choices.
+	// Starts with 3 empty options.
 	const template = [
-		[ 'jetpack/form-image-select-choice' ],
-		[ 'jetpack/form-image-select-choice' ],
-		[ 'jetpack/form-image-select-choice' ],
+		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 1 ) } ],
+		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 2 ) } ],
+		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 3 ) } ],
 	];
 
 	const innerBlocksProps = useInnerBlocksProps(
-		{ className: 'jetpack-field-image-choices__wrapper' },
+		{ className: 'jetpack-fieldset-image-options__wrapper' },
 		{
-			allowedBlocks: [ 'jetpack/form-image-select-choice' ],
+			allowedBlocks: [ 'jetpack/input-image-option' ],
 			template,
-			templateLock: false, // Allow adding, removing, and moving choices
+			templateLock: false, // Allow adding, removing, and moving options
+			orientation: 'horizontal',
 		}
 	);
 
@@ -67,7 +69,7 @@ export default function ImageChoiceFieldEdit( props ) {
 
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton onClick={ addChoice }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
+					<ToolbarButton onClick={ addOption }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
 		</div>

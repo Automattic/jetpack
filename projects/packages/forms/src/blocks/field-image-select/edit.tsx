@@ -7,7 +7,7 @@ import {
 	useInnerBlocksProps,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,9 +16,10 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useAddImageChoice from '../shared/hooks/use-add-image-choice';
+import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import './editor.scss';
 /**
  * Types
  */
@@ -29,7 +30,7 @@ export default function ImageSelectFieldEdit( props ) {
 	const { id, required, width } = attributes;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	const { isInnerBlockSelected, choicesBlock } = useSelect(
+	const { isInnerBlockSelected, optionsBlock } = useSelect(
 		select => {
 			const { hasSelectedInnerBlock, getBlock } = select(
 				blockEditorStore
@@ -37,8 +38,8 @@ export default function ImageSelectFieldEdit( props ) {
 
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
-				choicesBlock: getBlock( clientId )?.innerBlocks.find(
-					( block: Block ) => block.name === 'jetpack/form-image-select-choices'
+				optionsBlock: getBlock( clientId )?.innerBlocks.find(
+					( block: Block ) => block.name === 'jetpack/fieldset-image-options'
 				),
 			};
 		},
@@ -48,7 +49,7 @@ export default function ImageSelectFieldEdit( props ) {
 	// This wraps the field in a form block if it is added directly to the editor.
 	useFormWrapper( { attributes, clientId, name } );
 
-	const { addChoice } = useAddImageChoice( choicesBlock?.clientId );
+	const { addOption } = useAddImageOption( optionsBlock?.clientId );
 
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-field-image-select', {
@@ -67,7 +68,7 @@ export default function ImageSelectFieldEdit( props ) {
 				},
 			],
 			[
-				'jetpack/form-image-select-choices',
+				'jetpack/fieldset-image-options',
 				{
 					multiple: false,
 				},
@@ -78,9 +79,9 @@ export default function ImageSelectFieldEdit( props ) {
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-image-select__wrapper' },
 		{
-			allowedBlocks: [ 'jetpack/label', 'jetpack/form-image-select-choices' ],
+			allowedBlocks: [ 'jetpack/label', 'jetpack/fieldset-image-options' ],
 			template,
-			templateLock: 'all', // The field must have exactly one label and one choices block.
+			templateLock: 'all', // The field must have exactly one label and one options fieldset block.
 		}
 	);
 
@@ -90,7 +91,7 @@ export default function ImageSelectFieldEdit( props ) {
 
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton onClick={ addChoice }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
+					<ToolbarButton onClick={ addOption }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
 
@@ -100,6 +101,68 @@ export default function ImageSelectFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				extraFieldSettings={ [
+					{
+						index: 1,
+						element: (
+							<ToggleControl
+								__nextHasNoMarginBottom
+								key="show-labels"
+								label={ __( 'Show labels', 'jetpack-forms' ) }
+								checked={ attributes?.showLabels }
+								onChange={ ( value: boolean ) => setAttributes( { showLabels: value } ) }
+							/>
+						),
+					},
+					{
+						index: 2,
+						element: (
+							<ToggleControl
+								__nextHasNoMarginBottom
+								key="is-supersized"
+								label={ __( 'Supersized', 'jetpack-forms' ) }
+								checked={ attributes?.isSupersized }
+								onChange={ ( value: boolean ) => setAttributes( { isSupersized: value } ) }
+							/>
+						),
+					},
+					{
+						index: 3,
+						element: (
+							<ToggleControl
+								__nextHasNoMarginBottom
+								key="is-multiple"
+								label={ __( 'Multiple selection', 'jetpack-forms' ) }
+								checked={ attributes?.isMultiple }
+								onChange={ ( value: boolean ) => setAttributes( { isMultiple: value } ) }
+							/>
+						),
+					},
+					{
+						index: 4,
+						element: (
+							<ToggleControl
+								__nextHasNoMarginBottom
+								key="randomize-options"
+								label={ __( 'Randomize', 'jetpack-forms' ) }
+								checked={ attributes?.randomizeOptions }
+								onChange={ ( value: boolean ) => setAttributes( { randomizeOptions: value } ) }
+							/>
+						),
+					},
+					{
+						index: 5,
+						element: (
+							<ToggleControl
+								__nextHasNoMarginBottom
+								key="show-other-option"
+								label={ __( '"Other" option', 'jetpack-forms' ) }
+								checked={ attributes?.showOtherOption }
+								onChange={ ( value: boolean ) => setAttributes( { showOtherOption: value } ) }
+							/>
+						),
+					},
+				] }
 			/>
 		</div>
 	);
