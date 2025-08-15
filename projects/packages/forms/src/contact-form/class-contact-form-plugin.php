@@ -812,41 +812,39 @@ class Contact_Form_Plugin {
 
 		$wrapper_attributes = get_block_wrapper_attributes( $extra_attributes );
 
-		// Build the complete HTML structure - apply wrapper attributes to the main wrapper
-		$html  = sprintf( '<div %s>', $wrapper_attributes );
-		$html .= '<div class="jetpack-form-progress-indicator-steps">';
-
-		// Add steps HTML only for dots style
-		if ( $is_dots_style ) {
-			for ( $i = 0; $i < $max_steps; $i++ ) {
-				$step_context = array( 'stepIndex' => $i );
-
-				$html .= sprintf(
-					'<div class="jetpack-form-progress-indicator-step" data-wp-class--is-active="state.isStepActive" data-wp-class--is-completed="state.isStepCompleted" data-wp-context=\'%s\'>',
-					wp_json_encode( $step_context )
-				);
-
-				$html .= '<div class="jetpack-form-progress-indicator-line"></div>';
-				$html .= '<div class="jetpack-form-progress-indicator-dot">';
-				$html .= '<span class="jetpack-form-progress-indicator-step-number">';
-				$html .= sprintf(
-					'<span class="step-number">%d</span>',
-					$i + 1
-				);
-				$html .= '<span class="step-checkmark" role="img" aria-label="' . esc_attr__( 'Completed', 'jetpack-forms' ) . '"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/></svg></span>';
-				$html .= '</span>';
-				$html .= '</div>';
-				$html .= '</div>';
-			}
-		}
-
+		// Build the complete HTML structure using output buffering for better readability
+		ob_start();
 		$progress_state = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
-		$html          .= '<div class="jetpack-form-progress-indicator-progress" data-wp-style--width="' . $progress_state . '"></div>';
-
-		$html .= '</div>'; // close steps
-		$html .= '</div>'; // close block wrapper
-
-		return $html;
+		?>
+		<div <?php echo wp_kses_post( $wrapper_attributes ); ?>>
+			<div class="jetpack-form-progress-indicator-steps">
+				<?php if ( $is_dots_style ) : ?>
+					<?php for ( $i = 0; $i < $max_steps; $i++ ) : ?>
+						<?php $step_context = array( 'stepIndex' => $i ); ?>
+						<div class="jetpack-form-progress-indicator-step" 
+							data-wp-class--is-active="state.isStepActive" 
+							data-wp-class--is-completed="state.isStepCompleted" 
+							data-wp-context='<?php echo wp_json_encode( $step_context ); ?>'>
+							<div class="jetpack-form-progress-indicator-line"></div>
+							<div class="jetpack-form-progress-indicator-dot">
+								<span class="jetpack-form-progress-indicator-step-number">
+									<span class="step-number"><?php echo esc_html( $i + 1 ); ?></span>
+									<span class="step-checkmark" role="img" aria-label="<?php echo esc_attr__( 'Completed', 'jetpack-forms' ); ?>">
+										<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+											<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/>
+										</svg>
+									</span>
+								</span>
+							</div>
+						</div>
+					<?php endfor; ?>
+				<?php endif; ?>
+				<div class="jetpack-form-progress-indicator-progress" 
+					data-wp-style--width="<?php echo esc_attr( $progress_state ); ?>"></div>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
