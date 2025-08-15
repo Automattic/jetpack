@@ -1,12 +1,11 @@
 import { createContext, useContext } from 'react';
-import { defaultTheme } from './themes';
 import type { ChartTheme } from '../../types';
 import type { FC, ReactNode } from 'react';
 
 /**
  * Context for sharing theme configuration across components
  */
-const ThemeContext = createContext< ChartTheme >( defaultTheme );
+const ThemeContext = createContext< Partial< ChartTheme > >( {} );
 
 /**
  * Hook to access chart theme
@@ -30,8 +29,7 @@ type ThemeProviderProps = {
 // Provider component for chart theming
 // Allows theme customization through props while maintaining default values
 const ThemeProvider: FC< ThemeProviderProps > = ( { theme = {}, children } ) => {
-	const mergedTheme = { ...defaultTheme, ...theme };
-	return <ThemeContext.Provider value={ mergedTheme }>{ children }</ThemeContext.Provider>;
+	return <ThemeContext.Provider value={ theme }>{ children }</ThemeContext.Provider>;
 };
 
 export { ThemeProvider, useChartTheme };

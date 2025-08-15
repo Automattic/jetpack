@@ -1,6 +1,8 @@
 import { useContext, useMemo } from 'react';
 import { GlobalChartsContext } from '../providers/chart-context/global-charts-provider';
 import { useChartTheme as useLocalChartTheme } from '../providers/theme';
+import { defaultTheme } from '../providers/theme/themes';
+import { mergeThemes } from '../utils/merge-themes';
 import type { ChartTheme } from '../types';
 
 /**
@@ -18,7 +20,10 @@ export const useChartTheme = (): ChartTheme => {
 	const localTheme = useLocalChartTheme();
 
 	// Memoize the theme to prevent unnecessary re-renders
-	const effectiveTheme = useMemo( () => globalTheme ?? localTheme, [ globalTheme, localTheme ] );
+	const effectiveTheme = useMemo(
+		() => mergeThemes( globalTheme ?? defaultTheme, localTheme ),
+		[ globalTheme, localTheme ]
+	);
 
 	return effectiveTheme;
 };

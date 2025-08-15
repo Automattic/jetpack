@@ -19,6 +19,9 @@ export { LineShape, CircleShape, RectShape } from './visx/legend';
 export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
+// Utilities
+export { mergeThemes } from './utils/merge-themes';
+
 // Hooks
 export { useDeepMemo, useChartTheme, useChartMouseHandler, useXYChartTheme } from './hooks';
 
