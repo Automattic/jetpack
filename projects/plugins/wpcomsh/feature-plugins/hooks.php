@@ -255,23 +255,19 @@ add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page'
  * @return array Allowed mime types.
  */
 function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
-	$disallowed_mimes = array();
-	if ( ! wpcom_site_has_feature( WPCOM_Features::UPGRADED_UPLOAD_FILETYPES ) ) {
-		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_UPGRADES` in `.config/wpcom-options.php`).
-		$upgraded_upload_filetypes = 'mp3 m4a wav ogg zip txt tiff bmp';
-		$disallowed_mimes          = array_merge( $disallowed_mimes, explode( ' ', $upgraded_upload_filetypes ) );
-	}
-
-	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
-		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_VIDEOS` in `.config/wpcom-options.php`).
-		// The `ttml` extension is set by `wp-content/mu-plugins/videopress/subtitles.php`.
-		$video_upload_filetypes = 'ogv mp4 m4v mov wmv avi mpg 3gp 3g2 ttml';
-		$disallowed_mimes       = array_merge( $disallowed_mimes, explode( ' ', $video_upload_filetypes ) );
-	}
-
-	foreach ( $disallowed_mimes as $disallowed_mime ) {
+	// Remove audio/* unless the site has explicit audio upload capability.
+	if ( ! wpcom_site_has_feature( WPCOM_Features::UPLOAD_AUDIO_FILES ) ) {
 		foreach ( $mimes as $ext_pattern => $mime ) {
-			if ( strpos( $ext_pattern, $disallowed_mime ) !== false ) {
+			if ( 0 === strpos( $mime, 'audio/' ) ) {
+				unset( $mimes[ $ext_pattern ] );
+			}
+		}
+	}
+
+	// Remove video/* unless the site has VideoPress.
+	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
+		foreach ( $mimes as $ext_pattern => $mime ) {
+			if ( 0 === strpos( $mime, 'video/' ) ) {
 				unset( $mimes[ $ext_pattern ] );
 			}
 		}
@@ -282,48 +278,40 @@ function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
 add_filter( 'upload_mimes', 'wpcomsh_maybe_restrict_mimetypes', PHP_INT_MAX );
 
 /**
- * Add clean JavaScript to restrict file picker at selection level.
- * This is the only way to prevent file selection (vs blocking after selection).
+ * Filter plupload settings to match Simple sites behavior.
+ * This ensures the same file upload restrictions apply to both Simple and Atomic sites.
+ * Mirrors the implementation from wp-content/mu-plugins/misc.php wpcom_upload_file_exts()
  *
  * @since $$next-version$$
+ *
+ * @param array $options Plupload options.
+ * @return array Modified plupload options.
  */
-function wpcomsh_add_file_picker_restrictions() {
-	// Only load on media pages
-	$screen = get_current_screen();
-	if ( ! $screen || ! in_array( $screen->id, array( 'upload', 'media' ), true ) ) {
-		return;
-	}
+function wpcomsh_plupload_file_restrictions( $options ) {
+	// Derive allowed extensions directly from get_allowed_mime_types() so it reflects all filters.
+	$allowed_extensions = wpcomsh_get_allowed_extensions_from_mimes();
 
-	// Get allowed extensions
-	$allowed_mimes = get_allowed_mime_types();
-	$extensions    = array();
-	foreach ( $allowed_mimes as $ext_pattern => $mime_type ) {
-		$extensions = array_merge( $extensions, explode( '|', $ext_pattern ) );
-	}
-	$accept_value = '.' . implode( ',.', $extensions );
-	?>
-	<script>
-	document.addEventListener('DOMContentLoaded', function() {
-		var acceptValue = <?php echo wp_json_encode( $accept_value ); ?>;
-
-		function setFileInputAccept() {
-			document.querySelectorAll('input[type="file"]').forEach(function(input) {
-				if (!input.hasAttribute('data-wpcomsh-restricted')) {
-					input.setAttribute('accept', acceptValue);
-					input.setAttribute('data-wpcomsh-restricted', '1');
-				}
-			});
+	if ( ! empty( $allowed_extensions ) ) {
+		if ( ! isset( $options['filters'] ) || ! is_array( $options['filters'] ) ) {
+			$options['filters'] = array();
 		}
 
-		// Apply immediately and when DOM changes
-		setFileInputAccept();
-		var observer = new MutationObserver(setFileInputAccept);
-		observer.observe(document.body, { childList: true, subtree: true });
-	});
-	</script>
-	<?php
+		$options['filters']['mime_types'] = array(
+			array(
+				'title'      => __( 'Allowed Files', 'wpcomsh' ),
+				'extensions' => implode( ',', $allowed_extensions ),
+			),
+		);
+
+		if ( ! isset( $options['filters']['max_file_size'] ) ) {
+			$options['filters']['max_file_size'] = wp_max_upload_size() . 'b';
+		}
+	}
+
+	return $options;
 }
-add_action( 'admin_footer', 'wpcomsh_add_file_picker_restrictions' );
+add_filter( 'plupload_init', 'wpcomsh_plupload_file_restrictions', PHP_INT_MAX );
+add_filter( 'plupload_default_settings', 'wpcomsh_plupload_file_restrictions', PHP_INT_MAX );
 
 /**
  * Redirect plugins.php and plugin-install.php to their Calypso counterparts if this site doesn't have the
@@ -391,3 +379,20 @@ function wpcomsh_remove_jetpack_manage_menu_item() {
 }
 
 add_action( 'admin_menu', 'wpcomsh_remove_jetpack_manage_menu_item', 1001 ); // Automattic\Jetpack\Admin_UI\Admin_Menu uses 1000.
+
+/**
+ * Compute allowed file extensions from get_allowed_mime_types(),
+ * flattening patterns like 'jpg|jpeg|jpe' into individual extensions.
+ *
+ * @since $$next-version$$
+ *
+ * @return string[] List of allowed extensions (no leading dots).
+ */
+function wpcomsh_get_allowed_extensions_from_mimes() {
+	$allowed_mimes      = get_allowed_mime_types();
+	$allowed_extensions = array();
+	foreach ( $allowed_mimes as $ext_pattern => $mime_type ) {
+		$allowed_extensions = array_merge( $allowed_extensions, explode( '|', $ext_pattern ) );
+	}
+	return array_values( array_unique( $allowed_extensions ) );
+}
