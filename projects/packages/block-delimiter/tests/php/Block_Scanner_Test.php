@@ -740,8 +740,12 @@ class Block_Scanner_Test extends TestCase {
 		$test_content = $this->generate_test_content_with_target_image();
 
 		// Benchmark both approaches
-		$scanner_metrics      = $this->benchmark_scanner_search( $test_content );
-		$parse_blocks_metrics = $this->benchmark_parse_blocks_search( $test_content );
+		// Warm-up to avoid autoloader/JIT noise in timed runs
+		$this->find_first_image_with_scanner( $test_content );
+		$this->find_first_image_with_parse_blocks( $test_content );
+
+		$scanner_metrics      = $this->benchmark_scanner_search_multiple( $test_content, 5 );
+		$parse_blocks_metrics = $this->benchmark_parse_blocks_search_multiple( $test_content, 5 );
 
 		// Verify correctness
 		$this->assert_same_results( $scanner_metrics['result'], $parse_blocks_metrics['result'] );
@@ -828,6 +832,81 @@ class Block_Scanner_Test extends TestCase {
 	}
 
 	/**
+	 * Benchmark Block_Scanner search approach over multiple iterations and aggregate results.
+	 *
+	 * @param string $content    Content to search.
+	 * @param int    $iterations Number of iterations to run.
+	 * @return array Metrics with aggregated timing (median), peak memory delta, and result data.
+	 */
+	private function benchmark_scanner_search_multiple( string $content, int $iterations = 5 ): array {
+		return $this->run_benchmark_multiple(
+			function () use ( $content ) {
+				return $this->find_first_image_with_scanner( $content );
+			},
+			$iterations
+		);
+	}
+
+	/**
+	 * Benchmark parse_blocks search approach over multiple iterations and aggregate results.
+	 *
+	 * @param string $content    Content to search.
+	 * @param int    $iterations Number of iterations to run.
+	 * @return array Metrics with aggregated timing (median), peak memory delta, and result data.
+	 */
+	private function benchmark_parse_blocks_search_multiple( string $content, int $iterations = 5 ): array {
+		return $this->run_benchmark_multiple(
+			function () use ( $content ) {
+				return $this->find_first_image_with_parse_blocks( $content );
+			},
+			$iterations
+		);
+	}
+
+	/**
+	 * Run a callable multiple times, returning aggregated benchmark metrics.
+	 * Uses median time to reduce noise and the maximum observed memory delta as a conservative proxy for peak.
+	 *
+	 * @param callable $callable   Callable to benchmark.
+	 * @param int      $iterations Number of iterations to run.
+	 * @return array{time: float, memory: int, result: mixed}
+	 */
+	private function run_benchmark_multiple( callable $callable, int $iterations ): array {
+		$times  = array();
+		$mems   = array();
+		$result = null;
+
+		for ( $i = 0; $i < $iterations; $i++ ) {
+			// Encourage collection between runs to reduce cross-iteration interference.
+			if ( function_exists( 'gc_collect_cycles' ) ) {
+				gc_collect_cycles();
+			}
+
+			$start_memory = memory_get_usage();
+			$start_time   = microtime( true );
+
+			$run_result = $callable();
+
+			$times[] = microtime( true ) - $start_time;
+			$mems[]  = max( 0, memory_get_usage() - $start_memory );
+
+			if ( null === $result && null !== $run_result ) {
+				$result = $run_result;
+			}
+		}
+
+		sort( $times );
+		$median_time = $times[ (int) floor( count( $times ) / 2 ) ];
+		$peak_memory = max( $mems );
+
+		return array(
+			'time'   => $median_time,
+			'memory' => $peak_memory,
+			'result' => $result,
+		);
+	}
+
+	/**
 	 * Assert both methods found the same target block.
 	 *
 	 * @param array|null $scanner_result Scanner result.
@@ -847,25 +926,17 @@ class Block_Scanner_Test extends TestCase {
 	 * @param array $parse_blocks_metrics parse_blocks performance data.
 	 */
 	private function assert_performance_advantage( array $scanner_metrics, array $parse_blocks_metrics ): void {
-		// Assert time advantage
+		// Assert time advantage using median across multiple iterations to reduce noise.
 		$time_ratio = $parse_blocks_metrics['time'] / $scanner_metrics['time'];
-		$this->assertGreaterThan( 1.0, $time_ratio, 'Scanner should be faster than parse_blocks' );
+		$this->assertGreaterThan( 1.05, $time_ratio, 'Scanner should be measurably faster than parse_blocks' );
 
-		// Assert reasonable memory usage (allow some tolerance for test environment)
-		$memory_limit = max( $parse_blocks_metrics['memory'] * 1.5, $parse_blocks_metrics['memory'] + 2048 );
-		$this->assertLessThanOrEqual( $memory_limit, $scanner_metrics['memory'], 'Scanner should use reasonable memory' );
-
-		// Debug output
-		if ( getenv( 'BLOCK_SCANNER_DEBUG' ) ) {
-			printf(
-				"\nScanner: %.4fs, %d bytes | parse_blocks: %.4fs, %d bytes | %.2fx faster\n",
-				$scanner_metrics['time'],
-				$scanner_metrics['memory'],
-				$parse_blocks_metrics['time'],
-				$parse_blocks_metrics['memory'],
-				$time_ratio
-			);
-		}
+		// Assert memory is not worse than parse_blocks beyond a small tolerance for measurement noise.
+		$memory_tolerance = 4096; // 4KB tolerance
+		$this->assertLessThanOrEqual(
+			$parse_blocks_metrics['memory'] + $memory_tolerance,
+			$scanner_metrics['memory'],
+			'Scanner should use comparable or less memory than parse_blocks'
+		);
 	}
 
 	/**
