@@ -979,6 +979,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		?>
 		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
 			styles="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
+			data-wp-on--jetpack-form-reset='actions.onReset'
 			data-wp-context='
 			<?php
 			echo wp_json_encode(
@@ -986,6 +987,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'phoneNumber'      => '',
 					'phoneCountryCode' => $default_country,
 					'countryCodes'     => $this->get_attribute( 'countrylist' ),
+					'defaultCountry'   => $default_country,
 				)
 			);
 			?>

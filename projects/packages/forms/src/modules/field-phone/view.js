@@ -18,6 +18,11 @@ store( NAMESPACE, {
 		},
 	},
 	actions: {
+		onReset() {
+			const context = getContext();
+			context.phoneCountryCode = context.defaultCountry;
+			context.phoneNumber = '';
+		},
 		onPhoneNumberChange( event ) {
 			const context = getContext();
 			const value = event.target.value;
