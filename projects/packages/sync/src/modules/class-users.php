@@ -736,7 +736,7 @@ class Users extends Module {
 	 * @todo Refactor to prepare the SQL query before executing it.
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;

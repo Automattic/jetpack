@@ -16,7 +16,7 @@
  */
 function twentyfourteen_mute_content_filters( $show, $post ) {
 	$formats = get_theme_support( 'post-formats' );
-	if ( ! in_the_loop() && has_post_format( $formats[0], $post ) ) {
+	if ( ! in_the_loop() && is_array( $formats ) && has_post_format( $formats[0], $post ) ) {
 		$show = false;
 	}
 	return $show;

@@ -1123,7 +1123,7 @@ function zeroBSCRM_isJson( $str ) {
 	 */
 	function jpcrm_dompdf_assist_validate_remote_uri( string $uri ){
 
-	    if ($uri === null || strlen($uri) === 0) {
+	if ( strlen( $uri ) === 0 ) {
 
 	        return [false, "The URI must not be empty."];
 

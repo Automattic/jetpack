@@ -145,6 +145,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionstyles'             => null,
 				'min'                      => null,
 				'max'                      => null,
+				'step'                     => null,
 				'maxfiles'                 => null,
 				'fieldwrapperclasses'      => null,
 				'stylevariationattributes' => array(),
@@ -575,6 +576,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 			if ( is_numeric( $this->get_attribute( 'max' ) ) ) {
 				$extra_attrs['max'] = $this->get_attribute( 'max' );
+			}
+			if ( is_numeric( $this->get_attribute( 'step' ) ) ) {
+				$extra_attrs['step'] = $this->get_attribute( 'step' );
 			}
 		}
 
@@ -2373,6 +2377,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
 		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
 		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
+		$step           = isset( $extra_attrs['step'] ) ? $extra_attrs['step'] : 1;
 		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
 
 		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
@@ -2387,6 +2392,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'min'     => $min,
 					'max'     => $max,
 					'default' => $starting_value,
+					'step'    => $step,
 				)
 			);
 			?>
@@ -2400,6 +2406,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					value="<?php echo esc_attr( $current_value ); ?>"
 					min="<?php echo esc_attr( $min ); ?>"
 					max="<?php echo esc_attr( $max ); ?>"
+					step="<?php echo esc_attr( $step ); ?>"
 					class="<?php echo esc_attr( $class ); ?>"
 					placeholder="<?php echo esc_attr( $placeholder ); ?>"
 					<?php
