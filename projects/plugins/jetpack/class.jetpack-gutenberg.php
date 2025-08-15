@@ -1406,7 +1406,10 @@ class Jetpack_Gutenberg {
 	 * @since 15.0
 	 */
 	public static function get_block_js_loading_strategy( $block_name ) {
-		$strategy = false;
+		$strategy = array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		);
 
 		if ( isset( self::$block_js_loading_strategies[ $block_name ] ) ) {
 			$strategy = self::$block_js_loading_strategies[ $block_name ];
