@@ -789,6 +789,12 @@ class Contact_Form_Plugin {
 			$custom_styles[] = '--jp-progress-track-color: ' . esc_attr( $attributes['progressBackgroundColor'] );
 		}
 
+		if ( isset( $attributes['textColor'] ) ) {
+			$custom_styles[] = '--jp-progress-text-color: var(--wp--preset--color--' . esc_attr( $attributes['textColor'] ) . ')';
+		} elseif ( isset( $attributes['style']['color']['text'] ) ) {
+			$custom_styles[] = '--jp-progress-text-color: ' . esc_attr( $attributes['style']['color']['text'] );
+		}
+
 		// Use WordPress Style Engine for block supports (dimensions, spacing, background, etc.)
 		$generated_styles = wp_style_engine_get_styles( $attributes['style'] ?? null );
 
