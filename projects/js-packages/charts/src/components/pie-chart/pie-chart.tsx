@@ -2,8 +2,7 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
-import { useChartTheme } from '../../hooks/use-chart-theme';
+import { useChartMouseHandler, useChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,

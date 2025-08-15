@@ -1,6 +1,6 @@
 import { LineStyles } from '@visx/xychart';
 import { CSSProperties, useMemo } from 'react';
-import { useChartTheme } from '../../hooks/use-chart-theme';
+import { useChartTheme } from '../../hooks';
 import { getSeriesStyles, getItemShapeStyles } from '../../utils/get-styles';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';

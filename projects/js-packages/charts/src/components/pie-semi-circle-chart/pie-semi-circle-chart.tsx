@@ -5,7 +5,7 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useChartTheme } from '../../hooks/use-chart-theme';
+import { useChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,

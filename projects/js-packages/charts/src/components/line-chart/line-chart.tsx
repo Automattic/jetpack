@@ -5,8 +5,7 @@ import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
-import { useChartTheme } from '../../hooks/use-chart-theme';
-import useXYChartTheme from '../../hooks/use-xychart-theme';
+import { useChartTheme, useXYChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
