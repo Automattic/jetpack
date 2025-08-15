@@ -157,7 +157,7 @@ const IntegrationCardHeader = ( {
 									checked={ headerToggleValue && ( isActive || isConnected ) }
 									onChange={ handleToggleChange }
 									disabled={ ! isHeaderToggleEnabled || ! ( isActive || isConnected ) }
-									__nextHasNoMarginBottom={ true }
+									__nextHasNoMarginBottom
 								/>
 							</span>
 						</Tooltip>

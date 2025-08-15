@@ -199,6 +199,7 @@ const MailPoetCard = ( {
 							label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
 							checked={ !! consentBlock }
 							onChange={ toggleConsent }
+							__nextHasNoMarginBottom
 						/>
 					) }
 					<p className="integration-card__description">
