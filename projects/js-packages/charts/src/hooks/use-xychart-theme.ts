@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { SeriesData } from '../types';
 import { useChartTheme } from './use-chart-theme';
 
-const useXYChartTheme = ( data: SeriesData[] ) => {
+export const useXYChartTheme = ( data: SeriesData[] ) => {
 	const theme = useChartTheme();
 
 	return useMemo( () => {
@@ -17,5 +17,3 @@ const useXYChartTheme = ( data: SeriesData[] ) => {
 		} );
 	}, [ theme, data ] );
 };
-
-export default useXYChartTheme;

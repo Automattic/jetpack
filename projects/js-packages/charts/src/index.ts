@@ -20,7 +20,7 @@ export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
 // Hooks
-export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
+export { useDeepMemo, useChartTheme, useChartMouseHandler, useXYChartTheme } from './hooks';
 
 // LeaderboardChart utilities
 export { formatMetricValue } from './components/leaderboard-chart';
