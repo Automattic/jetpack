@@ -61,11 +61,11 @@ trait Woo_Analytics_Trait {
 	protected $session_id = '';
 
 	/**
-	 *  Landing page where session started.
+	 *  Landing page breadcrumb trail where session started (stored as JSON string).
 	 *
-	 *  @var array
+	 *  @var string
 	 */
-	protected $landing_page = array();
+	protected $landing_page = '';
 
 	/**
 	 *  Indicates when a session is engaged in the current request.
@@ -294,7 +294,7 @@ trait Woo_Analytics_Trait {
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => home_url(),
-			'landing_page'                       => empty( $landing_page ) ? '' : wp_json_encode( $landing_page ),
+			'landing_page'                       => $landing_page,
 			'woo_version'                        => WC()->version,
 			'wp_version'                         => get_bloginfo( 'version' ),
 			'store_admin'                        => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
@@ -382,7 +382,7 @@ trait Woo_Analytics_Trait {
 			return;
 		}
 		$session_data['is_engaged'] = true;
-		$encoded_session_data       = wp_json_encode( $session_data );
+		$encoded_session_data       = rawurlencode( wp_json_encode( $session_data ) );
 		$cookie_js                  = "document.cookie = 'woocommerceanalytics_session={$encoded_session_data}; expires={$session_data['expires']}; path=/; secure; samesite=strict';";
 		wc_enqueue_js( $cookie_js );
 
@@ -399,7 +399,7 @@ trait Woo_Analytics_Trait {
 		if ( ! $this->get_session_id() ) {
 			$session_id           = wp_generate_uuid4();
 			$this->session_id     = $session_id;
-			$this->landing_page   = $this->get_breadcrumb_titles();
+			$this->landing_page   = wp_json_encode( $this->get_breadcrumb_titles() );
 			$this->is_new_session = true;
 
 			$session_expiration = $this->get_session_expiration_time();
@@ -408,7 +408,7 @@ trait Woo_Analytics_Trait {
 				'landing_page' => $this->landing_page,
 				'expires'      => $session_expiration,
 			);
-			$encoded_data       = wp_json_encode( $session_data );
+			$encoded_data       = rawurlencode( wp_json_encode( $session_data ) );
 			$cookie_js          = "document.cookie = 'woocommerceanalytics_session={$encoded_data}; expires={$session_expiration}; path=/; secure; samesite=strict';";
 			wc_enqueue_js( $cookie_js ); // save the session cookie for further events in the session
 
@@ -821,7 +821,7 @@ trait Woo_Analytics_Trait {
 			return array();
 		}
 
-		$decoded = json_decode( $raw_cookie, true );
+		$decoded = json_decode( rawurldecode( $raw_cookie ), true );
 		return is_array( $decoded ) ? $decoded : array();
 	}
 
