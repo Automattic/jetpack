@@ -249,64 +249,42 @@ function wpcomsh_maybe_disable_permalink_page() {
 add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page' );
 
 /**
- * Restricts the allowed mime types if the site have does NOT have access to the required feature.
- *
- * @param array $mimes Mime types keyed by the file extension regex corresponding to those types.
- * @return array Allowed mime types.
- */
-function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
-	// Remove audio/* unless the site has explicit audio upload capability.
-	if ( ! wpcom_site_has_feature( WPCOM_Features::UPLOAD_AUDIO_FILES ) ) {
-		foreach ( $mimes as $ext_pattern => $mime ) {
-			if ( 0 === strpos( $mime, 'audio/' ) ) {
-				unset( $mimes[ $ext_pattern ] );
-			}
-		}
-	}
-
-	// Remove video/* unless the site has VideoPress.
-	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
-		foreach ( $mimes as $ext_pattern => $mime ) {
-			if ( 0 === strpos( $mime, 'video/' ) ) {
-				unset( $mimes[ $ext_pattern ] );
-			}
-		}
-	}
-
-	return $mimes;
-}
-add_filter( 'upload_mimes', 'wpcomsh_maybe_restrict_mimetypes', PHP_INT_MAX );
-
-/**
- * Filter plupload settings to match Simple sites behavior.
- * This ensures the same file upload restrictions apply to both Simple and Atomic sites.
- * Mirrors the implementation from wp-content/mu-plugins/misc.php wpcom_upload_file_exts()
+ * Restrict selectable files in the Media uploader by setting Plupload filters only.
+ * Minimal change: selection-only; no server-side mime policy changes.
  *
  * @since $$next-version$$
  *
  * @param array $options Plupload options.
- * @return array Modified plupload options.
+ * @return array
  */
 function wpcomsh_plupload_file_restrictions( $options ) {
-	// Derive allowed extensions directly from get_allowed_mime_types() so it reflects all filters.
-	$allowed_extensions = wpcomsh_get_allowed_extensions_from_mimes();
+	// Build allowed extensions from the full mime map, excluding categories based on features.
+	$mimes_map   = wp_get_mime_types();
+	$allow_audio = wpcom_site_has_feature( WPCOM_Features::UPLOAD_AUDIO_FILES );
+	$allow_video = wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS );
 
-	if ( ! empty( $allowed_extensions ) ) {
-		if ( ! isset( $options['filters'] ) || ! is_array( $options['filters'] ) ) {
-			$options['filters'] = array();
+	$allowed_extensions = array();
+	foreach ( $mimes_map as $ext_pattern => $mime ) {
+		if ( 0 === strpos( $mime, 'audio/' ) && ! $allow_audio ) {
+			continue;
 		}
-
-		$options['filters']['mime_types'] = array(
-			array(
-				'title'      => __( 'Allowed Files', 'wpcomsh' ),
-				'extensions' => implode( ',', $allowed_extensions ),
-			),
-		);
-
-		if ( ! isset( $options['filters']['max_file_size'] ) ) {
-			$options['filters']['max_file_size'] = wp_max_upload_size() . 'b';
+		if ( 0 === strpos( $mime, 'video/' ) && ! $allow_video ) {
+			continue;
 		}
+		$allowed_extensions = array_merge( $allowed_extensions, explode( '|', $ext_pattern ) );
 	}
+
+	$allowed_extensions = array_values( array_unique( $allowed_extensions ) );
+	if ( empty( $allowed_extensions ) ) {
+		return $options;
+	}
+
+	if ( ! isset( $options['filters'] ) || ! is_array( $options['filters'] ) ) {
+		$options['filters'] = array();
+	}
+	$options['filters']['mime_types'] = array(
+		array( 'extensions' => implode( ',', $allowed_extensions ) ),
+	);
 
 	return $options;
 }
@@ -379,20 +357,3 @@ function wpcomsh_remove_jetpack_manage_menu_item() {
 }
 
 add_action( 'admin_menu', 'wpcomsh_remove_jetpack_manage_menu_item', 1001 ); // Automattic\Jetpack\Admin_UI\Admin_Menu uses 1000.
-
-/**
- * Compute allowed file extensions from get_allowed_mime_types(),
- * flattening patterns like 'jpg|jpeg|jpe' into individual extensions.
- *
- * @since $$next-version$$
- *
- * @return string[] List of allowed extensions (no leading dots).
- */
-function wpcomsh_get_allowed_extensions_from_mimes() {
-	$allowed_mimes      = get_allowed_mime_types();
-	$allowed_extensions = array();
-	foreach ( $allowed_mimes as $ext_pattern => $mime_type ) {
-		$allowed_extensions = array_merge( $allowed_extensions, explode( '|', $ext_pattern ) );
-	}
-	return array_values( array_unique( $allowed_extensions ) );
-}
