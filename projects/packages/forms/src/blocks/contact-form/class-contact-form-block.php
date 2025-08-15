@@ -448,6 +448,9 @@ class Contact_Form_Block {
 							'role'    => 'content',
 						),
 					),
+					'supports'         => array(
+						'interactivity' => true,
+					),
 					'provides_context' => array(
 						'jetpack/field-required'       => 'required',
 						'jetpack/field-prefix-options' => 'countryList',

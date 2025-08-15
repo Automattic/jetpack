@@ -22,6 +22,10 @@ const settings = {
 		src: <Icon icon={ mobile } />,
 	},
 	edit,
+	supports: {
+		...defaultSettings.supports,
+		interactivity: true,
+	},
 	attributes: {
 		...defaultSettings.attributes,
 		showCountrySelector: {
