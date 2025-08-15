@@ -30,7 +30,7 @@ export default function ImageSelectFieldEdit( props ) {
 	const { id, required, width } = attributes;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	const { isInnerBlockSelected, choicesBlock } = useSelect(
+	const { isInnerBlockSelected, optionsBlock } = useSelect(
 		select => {
 			const { hasSelectedInnerBlock, getBlock } = select(
 				blockEditorStore
@@ -38,8 +38,8 @@ export default function ImageSelectFieldEdit( props ) {
 
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
-				choicesBlock: getBlock( clientId )?.innerBlocks.find(
-					( block: Block ) => block.name === 'jetpack/form-image-select-choices'
+				optionsBlock: getBlock( clientId )?.innerBlocks.find(
+					( block: Block ) => block.name === 'jetpack/fieldset-image-options'
 				),
 			};
 		},
@@ -49,7 +49,7 @@ export default function ImageSelectFieldEdit( props ) {
 	// This wraps the field in a form block if it is added directly to the editor.
 	useFormWrapper( { attributes, clientId, name } );
 
-	const { addOption } = useAddImageOption( choicesBlock?.clientId );
+	const { addOption } = useAddImageOption( optionsBlock?.clientId );
 
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-field-image-select', {
@@ -68,7 +68,7 @@ export default function ImageSelectFieldEdit( props ) {
 				},
 			],
 			[
-				'jetpack/form-image-select-choices',
+				'jetpack/fieldset-image-options',
 				{
 					multiple: false,
 				},
@@ -79,9 +79,9 @@ export default function ImageSelectFieldEdit( props ) {
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-image-select__wrapper' },
 		{
-			allowedBlocks: [ 'jetpack/label', 'jetpack/form-image-select-choices' ],
+			allowedBlocks: [ 'jetpack/label', 'jetpack/fieldset-image-options' ],
 			template,
-			templateLock: 'all', // The field must have exactly one label and one choices block.
+			templateLock: 'all', // The field must have exactly one label and one options fieldset block.
 		}
 	);
 

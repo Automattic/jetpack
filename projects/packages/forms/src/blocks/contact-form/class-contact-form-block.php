@@ -462,9 +462,9 @@ class Contact_Form_Block {
 			);
 
 			Blocks::jetpack_register_block(
-				'jetpack/form-image-select-choices',
+				'jetpack/fieldset-image-options',
 				array(
-					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_image_select_choices' ),
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_fieldset_image_options' ),
 				)
 			);
 

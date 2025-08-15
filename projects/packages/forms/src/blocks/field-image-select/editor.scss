@@ -3,25 +3,25 @@
 // There is a high specificity flex rule that we need to override.
 .wp-block-jetpack-contact-form
 .jetpack-contact-form
-.jetpack-field-image-choices__wrapper
+.jetpack-fieldset-image-options__wrapper
 .jetpack-input-image-option {
 	flex-basis: unset;
 }
 
-.jetpack-field-image-choices__wrapper {
-	--jetpack-field-image-choices-gap: 16px;
+.jetpack-fieldset-image-options__wrapper {
+	--jetpack-field-image-options-gap: 16px;
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--jetpack-field-image-choices-gap);
+	gap: var(--jetpack-field-image-options-gap);
 
 	.jetpack-input-image-option {
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
-		width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-choices-gap) * ( 3 / 4 ));
+		width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-options-gap) * ( 3 / 4 ));
 
 		&.is-supersized {
-			width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-choices-gap) * ( 1 / 2 ));
+			width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
 		}
 
 		.jetpack-input-image-option__wrapper {

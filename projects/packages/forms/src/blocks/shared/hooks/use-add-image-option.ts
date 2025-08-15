@@ -15,26 +15,26 @@ import { getImageOptionLabel } from '../../input-image-option/label';
 import type { BlockEditorStoreDispatch, BlockEditorStoreSelect } from '../../../types';
 
 /**
- * Custom hook for adding new image choice blocks.
+ * Custom hook for adding new image option blocks.
  *
- * @param {string} choicesClientId - The client ID of the choices container block.
- * @return {Function} Function to add a new choice block.
+ * @param {string} optionsClientId - The client ID of the options container block.
+ * @return {Function} Function to add a new option block.
  */
-export default function useAddImageOption( choicesClientId: string ): { addOption: () => void } {
+export default function useAddImageOption( optionsClientId: string ): { addOption: () => void } {
 	const { insertBlock } = useDispatch( blockEditorStore ) as BlockEditorStoreDispatch;
 	const { getBlock } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
 
 	const addOption = useCallback( () => {
-		// Get the current choices block
-		const choicesBlock = getBlock( choicesClientId );
+		// Get the current options block
+		const optionsBlock = getBlock( optionsClientId );
 
-		// If there is no choices block, return
-		if ( ! choicesBlock ) {
+		// If there is no options block, return
+		if ( ! optionsBlock ) {
 			return;
 		}
 
-		const newIndex = choicesBlock.innerBlocks.length + 1;
-		const newChoiceBlock = createBlock(
+		const newIndex = optionsBlock.innerBlocks.length + 1;
+		const newOptionBlock = createBlock(
 			'jetpack/input-image-option',
 			{
 				label: getImageOptionLabel( newIndex ),
@@ -47,8 +47,8 @@ export default function useAddImageOption( choicesClientId: string ): { addOptio
 			]
 		);
 
-		insertBlock( newChoiceBlock, choicesBlock.innerBlocks.length, choicesClientId );
-	}, [ choicesClientId, insertBlock, getBlock ] );
+		insertBlock( newOptionBlock, optionsBlock.innerBlocks.length, optionsClientId );
+	}, [ optionsClientId, insertBlock, getBlock ] );
 
 	return { addOption };
 }

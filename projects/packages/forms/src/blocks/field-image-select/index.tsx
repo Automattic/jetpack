@@ -68,7 +68,7 @@ const settings = {
 				},
 			},
 			{
-				name: 'jetpack/form-image-select-choices',
+				name: 'jetpack/fieldset-image-options',
 				innerBlocks: [
 					{
 						name: 'jetpack/input-image-option',

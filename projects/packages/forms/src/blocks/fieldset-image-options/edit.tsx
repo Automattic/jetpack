@@ -22,7 +22,7 @@ import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
  */
 import type { BlockEditorStoreSelect } from '../../types';
 
-export default function ImageChoiceFieldEdit( props ) {
+export default function ImageOptionsFieldsetEdit( props ) {
 	const { attributes, clientId, isSelected } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
@@ -40,13 +40,13 @@ export default function ImageChoiceFieldEdit( props ) {
 	);
 
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field jetpack-form-image-select-choices', {
+		className: clsx( 'jetpack-field jetpack-fieldset-image-options', {
 			'is-selected': isSelected || isInnerBlockSelected,
 		} ),
 		style: blockStyle,
 	} );
 
-	// Starts with 3 empty choices.
+	// Starts with 3 empty options.
 	const template = [
 		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 1 ) } ],
 		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 2 ) } ],
@@ -54,11 +54,11 @@ export default function ImageChoiceFieldEdit( props ) {
 	];
 
 	const innerBlocksProps = useInnerBlocksProps(
-		{ className: 'jetpack-field-image-choices__wrapper' },
+		{ className: 'jetpack-fieldset-image-options__wrapper' },
 		{
 			allowedBlocks: [ 'jetpack/input-image-option' ],
 			template,
-			templateLock: false, // Allow adding, removing, and moving choices
+			templateLock: false, // Allow adding, removing, and moving options
 			orientation: 'horizontal',
 		}
 	);
