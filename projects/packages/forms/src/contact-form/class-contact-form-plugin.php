@@ -808,9 +808,7 @@ class Contact_Form_Plugin {
 		// Add variant class
 		$classes[] = 'is-variant-' . $variant;
 
-		if ( ! empty( $classes ) ) {
-			$extra_attributes['class'] = implode( ' ', $classes );
-		}
+		$extra_attributes['class'] = implode( ' ', $classes );
 
 		$wrapper_attributes = get_block_wrapper_attributes( $extra_attributes );
 
