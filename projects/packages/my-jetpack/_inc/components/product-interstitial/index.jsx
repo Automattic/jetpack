@@ -14,6 +14,7 @@ import {
 	Text,
 	TermsOfService,
 } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -349,31 +350,152 @@ function PricingInterstitial( { slug } ) {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
+	const {
+		siteSuffix = '',
+		adminUrl = '',
+		myJetpackCheckoutUri = '',
+	} = getMyJetpackWindowInitialState();
+	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
+		skipUserConnection: true,
+		redirectUri: detail?.postActivationUrl || null,
+	} );
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
+
+	// Setup checkout workflows for paid and bundle products
+	const paidCheckoutRedirectUrl = detail?.postActivationUrl || myJetpackCheckoutUri;
+	const bundleCheckoutRedirectUrl = bundleDetail?.postActivationUrl || myJetpackCheckoutUri;
+
+	const { run: paidCheckoutWorkflow } = useProductCheckoutWorkflow( {
+		productSlug: detail?.pricingForUi?.wpcomProductSlug,
+		redirectUrl: paidCheckoutRedirectUrl,
+		siteSuffix,
+		adminUrl,
+		connectAfterCheckout: true,
+		from: 'my-jetpack',
+		useBlogIdSuffix: true,
+	} );
+
+	const { run: bundleCheckoutWorkflow } = useProductCheckoutWorkflow( {
+		productSlug: bundleDetail?.pricingForUi?.wpcomProductSlug,
+		redirectUrl: bundleCheckoutRedirectUrl,
+		siteSuffix,
+		adminUrl,
+		connectAfterCheckout: true,
+		from: 'my-jetpack',
+		useBlogIdSuffix: true,
+	} );
+
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
+	}, [ recordEvent, slug ] );
+
+	const getProductSlugForTrackEvent = useCallback(
+		( isFree = false ) => {
+			if ( isFree ) {
+				return '';
+			}
+			if ( slug === 'crm' ) {
+				return 'jetpack-crm';
+			}
+			if ( detail?.pricingForUi?.tiers?.upgraded?.wpcomProductSlug ) {
+				return detail.pricingForUi.tiers.upgraded.wpcomProductSlug;
+			}
+			return detail?.pricingForUi?.wpcomProductSlug;
+		},
+		[ slug, detail?.pricingForUi ]
+	);
+
+	const trackProductOrBundleClick = useCallback(
+		options => {
+			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
+			const productSlug = customSlug ? customSlug : config?.bundle ?? slug;
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: productSlug,
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
+				cta_text: ctaText,
+			} );
+		},
+		[ recordEvent, slug, getProductSlugForTrackEvent, config?.bundle ]
+	);
+
+	const clickHandler = useCallback(
+		( checkout, product, tier ) => {
+			if ( product?.isBundle ) {
+				// Get straight to the checkout page for bundles.
+				checkout?.();
+				return;
+			}
+
+			activate(
+				{ productId: slug },
+				{
+					onSettled: activatedProduct => {
+						const postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
+
+						// there is a separate hasRequiredTier, but it is not implemented
+						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
+						const isFree = tier
+							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
+							: product?.pricingForUi?.isFree;
+						const isUpgradeToHigherTier =
+							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
+						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
+
+						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
+						// This is done because CRM is not part of the WP billing system
+						// and we can't send them to checkout like we can with the rest of the products
+						if ( product.pluginSlug === 'zero-bs-crm' && ! hasPaidPlanForProduct ) {
+							window.location.href = 'https://jetpackcrm.com/pricing/';
+							return;
+						}
+
+						// If no purchase is needed, redirect the user to the product screen.
+						if ( ! needsPurchase ) {
+							// for free products, we still initiate the site connection
+							handleRegisterSite().then( postRegisterRedirectUri => {
+								if ( ! postRegisterRedirectUri ) {
+									// Fall back to the My Jetpack overview page.
+									return navigateToMyJetpackOverviewPage();
+								}
+							} );
+
+							return;
+						}
+
+						// Redirect to the checkout page.
+						checkout?.( null, postCheckoutUrl );
+					},
+				}
+			);
+		},
+		[ myJetpackCheckoutUri, slug, activate, handleRegisterSite, navigateToMyJetpackOverviewPage ]
+	);
 
 	const handleGetProduct = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-			product: slug,
-		} );
-		activate( { productId: slug } );
-	}, [ recordEvent, activate, slug ] );
+		trackProductOrBundleClick( { ctaText: config?.tiers?.paid?.cta } );
+		clickHandler( paidCheckoutWorkflow, detail );
+	}, [
+		trackProductOrBundleClick,
+		clickHandler,
+		paidCheckoutWorkflow,
+		detail,
+		config?.tiers?.paid?.cta,
+	] );
 
 	const handleGetBundle = useCallback( () => {
 		if ( config?.bundle ) {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: config.bundle,
+			trackProductOrBundleClick( {
+				customSlug: config.bundle,
+				ctaText: config?.tiers?.bundle?.cta,
 			} );
-			activate( { productId: config.bundle } );
+			clickHandler( bundleCheckoutWorkflow, bundleDetail );
 		}
-	}, [ recordEvent, activate, config ] );
+	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutWorkflow, bundleDetail, config ] );
 
 	const handleFreeActivation = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-			product: slug,
-			product_slug: '',
-			cta_text: 'Start for free',
-		} );
-		activate( { productId: slug } );
-	}, [ recordEvent, activate, slug ] );
+		trackProductOrBundleClick( { isFreePlan: true, ctaText: config?.tiers?.free?.cta } );
+		clickHandler( null, detail );
+	}, [ trackProductOrBundleClick, clickHandler, detail, config?.tiers?.free?.cta ] );
 
 	// If no config exists, fallback to old ProductInterstitial
 	if ( ! config ) {
@@ -420,7 +542,7 @@ function PricingInterstitial( { slug } ) {
 									fullWidth
 									variant="secondary"
 									onClick={ handleFreeActivation }
-									isLoading={ isActivating }
+									isLoading={ isActivating || siteIsRegistering }
 								>
 									{ config.tiers.free.cta }
 								</Button>
@@ -451,7 +573,11 @@ function PricingInterstitial( { slug } ) {
 								) : (
 									<Spinner className={ styles.spinner } />
 								) }
-								<Button fullWidth onClick={ handleGetProduct } isLoading={ isActivating }>
+								<Button
+									fullWidth
+									onClick={ handleGetProduct }
+									isLoading={ isActivating || siteIsRegistering }
+								>
 									{ config.tiers.paid.cta }
 								</Button>
 							</PricingTableHeader>
@@ -481,7 +607,7 @@ function PricingInterstitial( { slug } ) {
 									fullWidth
 									variant="secondary"
 									onClick={ handleGetBundle }
-									isLoading={ isActivating }
+									isLoading={ isActivating || siteIsRegistering }
 								>
 									{ config.tiers.bundle.cta }
 								</Button>

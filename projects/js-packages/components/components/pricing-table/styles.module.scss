@@ -61,10 +61,13 @@
 		border-inline: 1.5px solid var(--jp-gray-10);
 	}
 
+	> * {
+		background: var(--jp-white);
+	}
+
 	&.is-primary {
 
 		> * {
-			background: var(--jp-white);
 			position: relative;
 
 			&::after {
