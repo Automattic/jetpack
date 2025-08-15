@@ -8,7 +8,7 @@ import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { getImageChoiceLabel } from '../../form-image-select-choice/label';
+import { getImageOptionLabel } from '../../input-image-option/label';
 /**
  * Types
  */
@@ -20,11 +20,11 @@ import type { BlockEditorStoreDispatch, BlockEditorStoreSelect } from '../../../
  * @param {string} choicesClientId - The client ID of the choices container block.
  * @return {Function} Function to add a new choice block.
  */
-export default function useAddImageChoice( choicesClientId: string ): { addChoice: () => void } {
+export default function useAddImageOption( choicesClientId: string ): { addOption: () => void } {
 	const { insertBlock } = useDispatch( blockEditorStore ) as BlockEditorStoreDispatch;
 	const { getBlock } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
 
-	const addChoice = useCallback( () => {
+	const addOption = useCallback( () => {
 		// Get the current choices block
 		const choicesBlock = getBlock( choicesClientId );
 
@@ -35,9 +35,9 @@ export default function useAddImageChoice( choicesClientId: string ): { addChoic
 
 		const newIndex = choicesBlock.innerBlocks.length + 1;
 		const newChoiceBlock = createBlock(
-			'jetpack/form-image-select-choice',
+			'jetpack/input-image-option',
 			{
-				label: getImageChoiceLabel( newIndex ),
+				label: getImageOptionLabel( newIndex ),
 			},
 			[
 				createBlock( 'core/image', {
@@ -50,5 +50,5 @@ export default function useAddImageChoice( choicesClientId: string ): { addChoic
 		insertBlock( newChoiceBlock, choicesBlock.innerBlocks.length, choicesClientId );
 	}, [ choicesClientId, insertBlock, getBlock ] );
 
-	return { addChoice };
+	return { addOption };
 }

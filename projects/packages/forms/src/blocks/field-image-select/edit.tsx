@@ -16,7 +16,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useAddImageChoice from '../shared/hooks/use-add-image-choice';
+import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import './editor.scss';
@@ -49,7 +49,7 @@ export default function ImageSelectFieldEdit( props ) {
 	// This wraps the field in a form block if it is added directly to the editor.
 	useFormWrapper( { attributes, clientId, name } );
 
-	const { addChoice } = useAddImageChoice( choicesBlock?.clientId );
+	const { addOption } = useAddImageOption( choicesBlock?.clientId );
 
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-field-image-select', {
@@ -91,7 +91,7 @@ export default function ImageSelectFieldEdit( props ) {
 
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton onClick={ addChoice }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
+					<ToolbarButton onClick={ addOption }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
 

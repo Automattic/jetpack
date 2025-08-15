@@ -6,7 +6,7 @@ import { image as icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { getImageChoiceLabel } from '../form-image-select-choice/label';
+import { getImageOptionLabel } from '../input-image-option/label';
 import defaultSettings from '../shared/settings';
 import edit from './edit';
 import save from './save';
@@ -71,9 +71,9 @@ const settings = {
 				name: 'jetpack/form-image-select-choices',
 				innerBlocks: [
 					{
-						name: 'jetpack/form-image-select-choice',
+						name: 'jetpack/input-image-option',
 						attributes: {
-							label: getImageChoiceLabel( 1 ),
+							label: getImageOptionLabel( 1 ),
 						},
 						innerBlocks: [
 							{
@@ -87,9 +87,9 @@ const settings = {
 						],
 					},
 					{
-						name: 'jetpack/form-image-select-choice',
+						name: 'jetpack/input-image-option',
 						attributes: {
-							label: getImageChoiceLabel( 2 ),
+							label: getImageOptionLabel( 2 ),
 						},
 						innerBlocks: [
 							{

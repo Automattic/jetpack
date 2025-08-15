@@ -23,7 +23,6 @@ import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
 import JetpackTimeField from '../field-time';
 import JetpackUrlField from '../field-url';
-import JetpackImageChoiceField from '../form-image-select-choice';
 import JetpackImageChoicesField from '../form-image-select-choices';
 import JetpackProgressIndicator from '../form-progress-indicator';
 import JetpackStep from '../form-step';
@@ -31,6 +30,7 @@ import JetpackStepContainer from '../form-step-container';
 import JetpackStepDivider from '../form-step-divider';
 import JetpackStepNavigation from '../form-step-navigation';
 import JetpackInput from '../input';
+import JetpackImageOptionInput from '../input-image-option';
 import JetpackSliderInput from '../input-range';
 import JetpackRatingInput from '../input-rating';
 import JetpackLabel from '../label';
@@ -82,6 +82,6 @@ export const childBlocks = [
 		  ]
 		: [] ),
 	...( hasFeatureFlag( 'image-select-field' )
-		? [ JetpackImageSelectField, JetpackImageChoiceField, JetpackImageChoicesField ]
+		? [ JetpackImageSelectField, JetpackImageOptionInput, JetpackImageChoicesField ]
 		: [] ),
 ];

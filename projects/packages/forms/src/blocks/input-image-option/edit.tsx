@@ -21,7 +21,7 @@ import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
  */
 import type { BlockEditorStoreSelect } from '../../types';
 
-// Attributes synced with other image choice blocks.
+// Attributes synced with other image option blocks.
 const SYNCED_ATTRIBUTE_KEYS = [
 	'backgroundColor',
 	'borderColor',
@@ -30,7 +30,7 @@ const SYNCED_ATTRIBUTE_KEYS = [
 	'style',
 ];
 
-export default function ImageChoiceFieldEdit( props ) {
+export default function ImageOptionInputEdit( props ) {
 	const { clientId, isSelected, context, name, attributes, setAttributes } = props;
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 	const { label } = attributes;
@@ -62,7 +62,7 @@ export default function ImageChoiceFieldEdit( props ) {
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field jetpack-form-image-select-choice', {
+		className: clsx( 'jetpack-field jetpack-input-image-option', {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-image': !! imageBlockAttributes?.url,
 			'is-supersized': isSupersized,
@@ -71,7 +71,7 @@ export default function ImageChoiceFieldEdit( props ) {
 	} );
 
 	const labelClassName = useMemo( () => {
-		return clsx( 'jetpack-form-image-select-choice__label', {
+		return clsx( 'jetpack-input-image-option__label', {
 			'visually-hidden': ! showLabels,
 		} );
 	}, [ showLabels ] );
@@ -89,11 +89,11 @@ export default function ImageChoiceFieldEdit( props ) {
 	}, [] );
 
 	const innerBlocksProps = useInnerBlocksProps(
-		{ className: 'jetpack-field-image-choice__wrapper' },
+		{ className: 'jetpack-input-image-option__wrapper' },
 		{
 			allowedBlocks: [ 'core/image' ],
 			template,
-			templateLock: 'all', // The choice must have exactly one image.
+			templateLock: 'all', // The option must have exactly one image.
 		}
 	);
 
@@ -104,7 +104,7 @@ export default function ImageChoiceFieldEdit( props ) {
 				tagName="span"
 				className={ labelClassName }
 				value={ label }
-				placeholder={ __( 'Add choice…', 'jetpack-forms' ) }
+				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
 				__unstableDisableFormats
 				onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
 			/>

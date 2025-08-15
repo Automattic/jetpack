@@ -9,12 +9,12 @@ import { group as icon } from '@wordpress/icons';
 import edit from './edit';
 import save from './save';
 
-const name = 'form-image-select-choice';
+const name = 'input-image-option';
 
 const settings = {
 	apiVersion: 3,
-	title: __( 'Image choice', 'jetpack-forms' ),
-	description: __( 'A single image choice for an image select field.', 'jetpack-forms' ),
+	title: __( 'Image option', 'jetpack-forms' ),
+	description: __( 'A single image option for an image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/form-image-select-choices' ],
 	usesContext: [
