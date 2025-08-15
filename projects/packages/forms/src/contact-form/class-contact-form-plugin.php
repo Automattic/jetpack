@@ -775,7 +775,8 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		$is_dots_style = isset( $attributes['className'] ) && strpos( $attributes['className'], 'is-style-dots' ) !== false;
+		$variant       = isset( $attributes['variant'] ) ? $attributes['variant'] : 'line';
+		$is_dots_style = $variant === 'dots';
 
 		// Build custom CSS variables for progress indicator colors
 		$custom_styles = array();
@@ -800,8 +801,15 @@ class Contact_Form_Plugin {
 		}
 
 		// Add generated classnames if any
+		$classes = array();
 		if ( ! empty( $generated_styles['classnames'] ) ) {
-			$extra_attributes['class'] = $generated_styles['classnames'];
+			$classes[] = $generated_styles['classnames'];
+		}
+		// Add variant class
+		$classes[] = 'is-variant-' . $variant;
+
+		if ( ! empty( $classes ) ) {
+			$extra_attributes['class'] = implode( ' ', $classes );
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes( $extra_attributes );

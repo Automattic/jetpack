@@ -9,11 +9,9 @@ import {
 import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { getActiveStyleName } from '../../../../../plugins/jetpack/extensions/shared/block-styles';
 import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import { calculateProgressPercentage } from '../shared/util/progress-calculation';
-import { settings } from './';
 
 import './editor.scss';
 
@@ -24,8 +22,8 @@ const FormProgressIndicatorEdit = ( { clientId, context, attributes, setAttribut
 	const steps = context?.[ 'jetpack/form-steps' ] || [ 1, 2, 3 ];
 	const currentStepInfo = context?.[ 'jetpack/form-current-step' ] || { index: 0 };
 
-	// Extract color attributes - use semantic names
-	const { progressColor, progressBackgroundColor, textColor, style } = attributes;
+	// Extract attributes
+	const { variant = 'line', progressColor, progressBackgroundColor, textColor, style } = attributes;
 
 	// Get WordPress color/gradient settings for the color panel
 	const colorGradientSettings = useMultipleOriginColorsAndGradients();
@@ -40,9 +38,9 @@ const FormProgressIndicatorEdit = ( { clientId, context, attributes, setAttribut
 
 	const blockProps = useBlockProps( {
 		style: colorStyles,
+		className: `is-variant-${ variant }`,
 	} );
-	const activeStyleName = getActiveStyleName( settings.styles, blockProps.className );
-	const isDotStyle = activeStyleName === 'dots';
+	const isDotStyle = variant === 'dots';
 
 	// Use shared progress calculation logic
 	const currentStep = currentStepInfo.index + 1;

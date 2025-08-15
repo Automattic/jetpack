@@ -63,7 +63,7 @@
 		display: none;
 	}
 
-	&.is-style-line {
+	&.is-variant-line {
 
 		.jetpack-form-progress-indicator-steps {
 			gap: 0;
@@ -82,7 +82,7 @@
 		}
 	}
 
-	&.is-style-dots {
+	&.is-variant-dots {
 
 		// Override default line style with thin lines for dots
 		.jetpack-form-progress-indicator-steps::before {

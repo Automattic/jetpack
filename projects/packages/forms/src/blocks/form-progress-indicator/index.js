@@ -1,4 +1,4 @@
-import { Rect } from '@wordpress/components';
+import { Circle, Rect } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
@@ -52,6 +52,10 @@ export const settings = {
 	edit: edit,
 	save: save,
 	attributes: {
+		variant: {
+			type: 'string',
+			default: 'line',
+		},
 		progressColor: {
 			type: 'string',
 		},
@@ -60,21 +64,55 @@ export const settings = {
 		},
 	},
 	usesContext: [ 'jetpack/form-steps', 'jetpack/form-current-step' ],
-	styles: [
+	variations: [
 		{
 			name: 'line',
-			label: __( 'Line', 'jetpack-forms' ),
+			title: __( 'Line', 'jetpack-forms' ),
+			description: __( 'Display progress as a continuous line', 'jetpack-forms' ),
+			scope: [ 'transform' ],
 			isDefault: true,
+			attributes: {
+				variant: 'line',
+			},
+			isActive: [ 'variant' ],
+			icon: renderMaterialIcon(
+				<>
+					<Rect
+						x="3.75"
+						y="9.75"
+						width="16.5"
+						height="4.5"
+						rx="2.25"
+						stroke="currentColor"
+						fill="none"
+						strokeWidth="1.5"
+					/>
+					<Rect x="2" y="9" width="8" height="6" rx="3" />
+				</>
+			),
 		},
 		{
 			name: 'dots',
-			label: __( 'Dots', 'jetpack-forms' ),
+			title: __( 'Dots', 'jetpack-forms' ),
+			description: __( 'Display progress as dots for each step', 'jetpack-forms' ),
+			scope: [ 'transform' ],
+			attributes: {
+				variant: 'dots',
+			},
+			isActive: [ 'variant' ],
+			icon: renderMaterialIcon(
+				<>
+					<Circle cx="6" cy="12" r="2" fill="currentColor" />
+					<Circle cx="12" cy="12" r="2" fill="currentColor" />
+					<Circle cx="18" cy="12" r="2" fill="currentColor" />
+				</>
+			),
 		},
 	],
 	transforms: {},
 	example: {
 		attributes: {
-			className: 'is-style-dots',
+			variant: 'dots',
 		},
 		innerBlocks: [],
 	},
@@ -83,6 +121,10 @@ export const settings = {
 		{
 			apiVersion: 2,
 			attributes: {
+				variant: {
+					type: 'string',
+					default: 'line',
+				},
 				progressColor: {
 					type: 'string',
 				},
@@ -121,6 +163,11 @@ export const settings = {
 			},
 			migrate( attributes ) {
 				const newAttributes = { ...attributes };
+
+				// Add default variant if not present
+				if ( ! newAttributes.variant ) {
+					newAttributes.variant = 'line';
+				}
 
 				if ( attributes.style ) {
 					const newStyle = { ...attributes.style };

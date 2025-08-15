@@ -45,9 +45,12 @@ describe( 'Form Progress Indicator Block Migration', () => {
 		expect( oldClassName ).toBe( 'jetpack-form-progress-indicator-bar' );
 		expect( newClassName ).toBe( 'jetpack-form-progress-indicator-steps' );
 
-		// Verify migration preserves attributes
+		// Verify migration adds default variant
 		const testAttributes = { className: 'custom-class' };
 		const migratedAttributes = deprecatedBlock.migrate( testAttributes );
-		expect( migratedAttributes ).toEqual( testAttributes );
+		expect( migratedAttributes ).toEqual( {
+			...testAttributes,
+			variant: 'line',
+		} );
 	} );
 } );
