@@ -34,9 +34,23 @@
 			}
 		}
 
-		.jetpack-input-image-option__label {
+		.jetpack-input-image-option__label-wrapper {
+			--jetpack-input-image-option-label-top-padding: 3px;
+			display: flex;
+			gap: 8px;
+			align-items: center;
 			padding-top: 8px;
-			padding-left: 8px;
+
+			.jetpack-input-image-option__label-code {
+				display: flex;
+				justify-content: center;
+				align-self: baseline;
+				padding: var(--jetpack-input-image-option-label-top-padding) calc(2 * var(--jetpack-input-image-option-label-top-padding));
+				background-color: #fff;
+				border-radius: 2px;
+				border: 1px solid #ccc;
+				line-height: 1;
+			}
 		}
 	}
 }

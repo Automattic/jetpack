@@ -100,14 +100,17 @@ export default function ImageOptionInputEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
-			<RichText
-				tagName="span"
-				className={ labelClassName }
-				value={ label }
-				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
-				__unstableDisableFormats
-				onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
-			/>
+			<div className="jetpack-input-image-option__label-wrapper">
+				<div className="jetpack-input-image-option__label-code">A</div>
+				<RichText
+					tagName="span"
+					className={ labelClassName }
+					value={ label }
+					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+					__unstableDisableFormats
+					onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
+				/>
+			</div>
 		</div>
 	);
 }
