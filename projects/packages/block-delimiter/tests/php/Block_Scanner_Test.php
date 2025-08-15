@@ -722,4 +722,291 @@ class Block_Scanner_Test extends TestCase {
 			}
 		}
 	}
+
+	/**
+	 * Test performance comparison between parse_blocks and Block_Scanner.
+	 *
+	 * Verifies Block_Scanner is faster when finding specific blocks early.
+	 */
+	public function test_performance_comparison(): void {
+		if ( ! function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+		}
+
+		if ( ! function_exists( 'serialize_blocks' ) ) {
+			$this->markTestSkipped( 'serialize_blocks not available. Block editor not available' );
+		}
+
+		$test_content = $this->generate_test_content_with_target_image();
+
+		// Benchmark both approaches
+		// Warm-up to avoid autoloader/JIT noise in timed runs
+		$this->find_first_image_with_scanner( $test_content );
+		$this->find_first_image_with_parse_blocks( $test_content );
+
+		$scanner_metrics      = $this->benchmark_scanner_search_multiple( $test_content, 5 );
+		$parse_blocks_metrics = $this->benchmark_parse_blocks_search_multiple( $test_content, 5 );
+
+		// Verify correctness
+		$this->assert_same_results( $scanner_metrics['result'], $parse_blocks_metrics['result'] );
+
+		// Verify performance advantage
+		$this->assert_performance_advantage( $scanner_metrics, $parse_blocks_metrics );
+	}
+
+	/**
+	 * Generate test content with target image positioned for early termination test.
+	 *
+	 * @return string Block content with image at ~1/3 position.
+	 */
+	private function generate_test_content_with_target_image(): string {
+		$blocks = array();
+
+		// Add ~130 paragraph blocks before target
+		for ( $i = 0; $i < 130; $i++ ) {
+			$blocks[] = array(
+				'blockName'    => 'core/paragraph',
+				'attrs'        => array(),
+				'innerContent' => array( sprintf( '<p>Content %d</p>', $i + 1 ) ),
+			);
+		}
+
+		// Add target image block
+		$blocks[] = array(
+			'blockName'    => 'core/image',
+			'attrs'        => array(
+				'id'  => 12345,
+				'alt' => 'Test image',
+			),
+			'innerContent' => array( '<figure class="wp-block-image"><img src="test.jpg" alt="Test image"/></figure>' ),
+		);
+
+		// Add more blocks after target (parse_blocks will process these, scanner won't)
+		for ( $i = 0; $i < 270; $i++ ) {
+			$blocks[] = array(
+				'blockName'    => 'core/paragraph',
+				'attrs'        => array(),
+				'innerContent' => array( sprintf( '<p>After %d</p>', $i + 1 ) ),
+			);
+		}
+
+		return serialize_blocks( $blocks );
+	}
+
+	/**
+	 * Benchmark Block_Scanner search approach.
+	 *
+	 * @param string $content Content to search.
+	 * @return array Metrics with timing, memory, and result data.
+	 */
+	private function benchmark_scanner_search( string $content ): array {
+		$start_time   = microtime( true );
+		$start_memory = memory_get_usage();
+
+		$result = $this->find_first_image_with_scanner( $content );
+
+		return array(
+			'time'   => microtime( true ) - $start_time,
+			'memory' => memory_get_usage() - $start_memory,
+			'result' => $result,
+		);
+	}
+
+	/**
+	 * Benchmark parse_blocks search approach.
+	 *
+	 * @param string $content Content to search.
+	 * @return array Metrics with timing, memory, and result data.
+	 */
+	private function benchmark_parse_blocks_search( string $content ): array {
+		$start_time   = microtime( true );
+		$start_memory = memory_get_usage();
+
+		$result = $this->find_first_image_with_parse_blocks( $content );
+
+		return array(
+			'time'   => microtime( true ) - $start_time,
+			'memory' => memory_get_usage() - $start_memory,
+			'result' => $result,
+		);
+	}
+
+	/**
+	 * Benchmark Block_Scanner search approach over multiple iterations and aggregate results.
+	 *
+	 * @param string $content    Content to search.
+	 * @param int    $iterations Number of iterations to run.
+	 * @return array Metrics with aggregated timing (median), peak memory delta, and result data.
+	 */
+	private function benchmark_scanner_search_multiple( string $content, int $iterations = 5 ): array {
+		return $this->run_benchmark_multiple(
+			function () use ( $content ) {
+				return $this->find_first_image_with_scanner( $content );
+			},
+			$iterations
+		);
+	}
+
+	/**
+	 * Benchmark parse_blocks search approach over multiple iterations and aggregate results.
+	 *
+	 * @param string $content    Content to search.
+	 * @param int    $iterations Number of iterations to run.
+	 * @return array Metrics with aggregated timing (median), peak memory delta, and result data.
+	 */
+	private function benchmark_parse_blocks_search_multiple( string $content, int $iterations = 5 ): array {
+		return $this->run_benchmark_multiple(
+			function () use ( $content ) {
+				return $this->find_first_image_with_parse_blocks( $content );
+			},
+			$iterations
+		);
+	}
+
+	/**
+	 * Run a callable multiple times, returning aggregated benchmark metrics.
+	 * Uses median time to reduce noise and the maximum observed memory delta as a conservative proxy for peak.
+	 *
+	 * @param callable $callable   Callable to benchmark.
+	 * @param int      $iterations Number of iterations to run.
+	 * @return array{time: float, memory: int, result: mixed}
+	 */
+	private function run_benchmark_multiple( callable $callable, int $iterations ): array {
+		$times  = array();
+		$mems   = array();
+		$result = null;
+
+		for ( $i = 0; $i < $iterations; $i++ ) {
+			// Encourage collection between runs to reduce cross-iteration interference.
+			if ( function_exists( 'gc_collect_cycles' ) ) {
+				gc_collect_cycles();
+			}
+
+			$start_memory = memory_get_usage();
+			$start_time   = microtime( true );
+
+			$run_result = $callable();
+
+			$times[] = microtime( true ) - $start_time;
+			$mems[]  = max( 0, memory_get_usage() - $start_memory );
+
+			if ( null === $result && null !== $run_result ) {
+				$result = $run_result;
+			}
+		}
+
+		sort( $times );
+		$median_time = $times[ (int) floor( count( $times ) / 2 ) ];
+		$peak_memory = max( $mems );
+
+		return array(
+			'time'   => $median_time,
+			'memory' => $peak_memory,
+			'result' => $result,
+		);
+	}
+
+	/**
+	 * Assert both methods found the same target block.
+	 *
+	 * @param array|null $scanner_result Scanner result.
+	 * @param array|null $parse_blocks_result parse_blocks result.
+	 */
+	private function assert_same_results( ?array $scanner_result, ?array $parse_blocks_result ): void {
+		$this->assertNotNull( $scanner_result, 'Scanner should find image block' );
+		$this->assertNotNull( $parse_blocks_result, 'parse_blocks should find image block' );
+		$this->assertSame( $parse_blocks_result['blockName'], $scanner_result['blockName'] );
+		$this->assertSame( $parse_blocks_result['attrs'], $scanner_result['attrs'] );
+	}
+
+	/**
+	 * Assert Block_Scanner has performance advantage.
+	 *
+	 * @param array $scanner_metrics Scanner performance data.
+	 * @param array $parse_blocks_metrics parse_blocks performance data.
+	 */
+	private function assert_performance_advantage( array $scanner_metrics, array $parse_blocks_metrics ): void {
+		// Assert time advantage using median across multiple iterations to reduce noise.
+		$time_ratio = $parse_blocks_metrics['time'] / $scanner_metrics['time'];
+		$this->assertGreaterThan( 1.15, $time_ratio, 'Scanner should be measurably faster than parse_blocks' );
+
+		// Assert memory is not worse than parse_blocks beyond a small tolerance for measurement noise.
+		$memory_tolerance = 4096; // 4KB tolerance
+		$this->assertLessThanOrEqual(
+			$parse_blocks_metrics['memory'] + $memory_tolerance,
+			$scanner_metrics['memory'],
+			'Scanner should use comparable or less memory than parse_blocks'
+		);
+	}
+
+	/**
+	 * Find the first image block using Block_Scanner.
+	 *
+	 * @param string $content Block content to search.
+	 * @return array|null Image block data or null if not found.
+	 */
+	private function find_first_image_with_scanner( string $content ): ?array {
+		$scanner = Block_Scanner::create( $content );
+
+		while ( $scanner->next_delimiter() ) {
+			if ( $scanner->opens_block( 'image' ) ) {
+				$attributes = $scanner->allocate_and_return_parsed_attributes();
+				return array(
+					'blockName' => $scanner->get_block_type(),
+					'attrs'     => $attributes ? $attributes : array(),
+					'method'    => 'scanner',
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Find the first image block using parse_blocks.
+	 *
+	 * @param string $content Block content to search.
+	 * @return array|null Image block data or null if not found.
+	 */
+	private function find_first_image_with_parse_blocks( string $content ): ?array {
+		$blocks = parse_blocks( $content );
+
+		foreach ( $blocks as $block ) {
+			$result = $this->search_blocks_recursive( array( $block ), 'core/image' );
+			if ( $result !== null ) {
+				return array(
+					'blockName' => $result['blockName'],
+					'attrs'     => $result['attrs'] ? $result['attrs'] : array(),
+					'method'    => 'parse_blocks',
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Recursively search through blocks to find a specific block type.
+	 *
+	 * @param array  $blocks Array of block objects to search.
+	 * @param string $target_type Block type to find.
+	 * @return array|null Block data or null if not found.
+	 */
+	private function search_blocks_recursive( array $blocks, string $target_type ): ?array {
+		foreach ( $blocks as $block ) {
+			if ( $block['blockName'] === $target_type ) {
+				return $block;
+			}
+
+			// Search in inner blocks if they exist
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$result = $this->search_blocks_recursive( $block['innerBlocks'], $target_type );
+				if ( $result !== null ) {
+					return $result;
+				}
+			}
+		}
+
+		return null;
+	}
 }

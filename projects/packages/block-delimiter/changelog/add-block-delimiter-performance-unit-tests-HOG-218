@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: use Jetpack Test Environment; add Block_Scanner vs parse_blocks performance test (via serialize_blocks())
+
+
