@@ -2008,9 +2008,9 @@ class Feedback_Test extends BaseTestCase {
 		$email_id  = $field_ids['email'];
 
 		$this->assertNotEmpty( $email_id );
-		$this->assertEquals( 'john@example.com', $response->get_field_value_by_id( $email_id ) );
+		$this->assertEquals( 'john@example.com', $response->get_field_value_by_form_field_id( $email_id ) );
 
-		$field = $response->get_field_by_id( $email_id );
+		$field = $response->get_field_by_form_field_id( $email_id );
 		$this->assertInstanceOf( Feedback_Field::class, $field );
 		$this->assertEquals( $email_id, $field->get_form_field_id() );
 	}
@@ -2019,7 +2019,7 @@ class Feedback_Test extends BaseTestCase {
 		$post_id  = Utility::create_legacy_feedback( array() );
 		$response = Feedback::get( $post_id );
 
-		$this->assertSame( '', $response->get_field_value_by_id( 'email' ) );
-		$this->assertNull( $response->get_field_by_id( 'email' ) );
+		$this->assertSame( '', $response->get_field_value_by_form_field_id( 'email' ) );
+		$this->assertNull( $response->get_field_by_form_field_id( 'email' ) );
 	}
 }

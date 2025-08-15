@@ -1231,7 +1231,7 @@ class Feedback {
 	 * @param string $id Original form field ID.
 	 * @return Feedback_Field|null
 	 */
-	public function get_field_by_id( $id ) {
+	public function get_field_by_form_field_id( $id ) {
 		if ( ! is_string( $id ) || $id === '' ) {
 			return null;
 		}
@@ -1253,8 +1253,8 @@ class Feedback {
 	 * @param string $context Render context.
 	 * @return string
 	 */
-	public function get_field_value_by_id( $id, $context = 'default' ) {
-		$field = $this->get_field_by_id( $id );
+	public function get_field_value_by_form_field_id( $id, $context = 'default' ) {
+		$field = $this->get_field_by_form_field_id( $id );
 		if ( ! $field ) {
 			return '';
 		}
