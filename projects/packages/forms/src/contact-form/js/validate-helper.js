@@ -144,6 +144,7 @@ export const validateField = ( type, value, isRequired, extra = null ) => {
 		case 'email':
 			regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 			break;
+		case 'phone':
 		case 'telephone':
 			regex = /^\+?[0-9\s\-()]+$/;
 			break;

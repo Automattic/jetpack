@@ -946,22 +946,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// Country selector: select element wrapped in div.jetpack-field__input-prefix
 		if ( $this->get_attribute( 'showcountryselector' ) ) {
 			$country_data    = $this->get_attribute( 'countrydata' );
-			$default_country = $value ? $value : $this->get_attribute( 'default' );
+			$default_country = trim( $value ? $value : $this->get_attribute( 'default' ) );
 
 			if ( ! empty( $country_data ) ) {
 				ob_start();
 				?>
 				<div class="jetpack-field__input-prefix">
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
-					<select <?php echo $class; ?>>
+					<select <?php echo $class; ?>
+						data-wp-on--change='actions.onPhoneCountryChange'
+						data-wp-bind--value='state.getCountryCode'>
 					<?php
 					foreach ( $country_data as $country ) {
 						?>
 						<option
-							value="<?php echo esc_attr( $country['value'] ); ?>"
-							<?php selected( $country['value'], $default_country, false ); ?>
+							value="<?php echo esc_attr( trim( $country['value'] ) ); ?>"
+							<?php selected( trim( $country['value'] ), trim( $default_country ), true ); ?>
 						>
-							<?php echo esc_html( $country['label'] ); ?>
+							<?php echo esc_html( trim( $country['label'] ) ); ?>
 						</option>
 						<?php
 					}
@@ -976,7 +978,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		ob_start();
 		?>
 		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
-			styles="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>">
+			styles="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
+			data-wp-context='
+			<?php
+			echo wp_json_encode(
+				array(
+					'phoneNumber'      => '',
+					'phoneCountryCode' => $default_country,
+					'countryCodes'     => $this->get_attribute( 'countrylist' ),
+				)
+			);
+			?>
+			'>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped above ?>
 				<?php echo $country_selector; ?>
 				<input
@@ -985,21 +998,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
 					<?php echo $placeholder; ?>
 					type="tel"
-					name="<?php echo esc_attr( $id ); ?>"
-					id="<?php echo esc_attr( $id ); ?>"
-					value=''
 					<?php if ( $required ) { ?>
 						required="true"
 						aria-required="true"
 					<?php } ?>
 
 					data-wp-bind--aria-invalid='state.fieldHasErrors'
-					data-wp-bind--value='state.getFieldValue'
+					data-wp-bind--value='state.getPhoneNumber'
 					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
-					data-wp-on--input='actions.onFieldChange'
+					data-wp-on--input='actions.onPhoneNumberChange'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-class--has-value='state.hasFieldValue'
 					/>
+				<input type="hidden"
+					id="<?php echo esc_attr( $id ); ?>"
+					name="<?php echo esc_attr( $id ); ?>"
+					data-wp-bind--value='state.getFullPhoneNumber' />
 		</div>
 		<?php
 		$input = ob_get_clean();
@@ -2583,6 +2597,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'jetpack-form-phone-field',
 			plugins_url( '../../dist/contact-form/css/phone-field.css', __FILE__ ),
 			array(),
+			$version
+		);
+
+		\wp_enqueue_script_module(
+			'jetpack-form-phone-field',
+			plugins_url( '../../dist/modules/field-phone/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
 			$version
 		);
 	}
