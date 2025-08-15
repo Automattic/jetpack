@@ -3,13 +3,13 @@ import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
+import { useChartTheme } from '../../hooks/use-chart-theme';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
@@ -116,7 +116,7 @@ const PieChartInternal = ( {
 	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, providerTheme, legendOptions );
+	const legendItems = useChartLegendData( data, legendOptions );
 
 	const { isValid, message } = validateData( data );
 
@@ -131,7 +131,13 @@ const PieChartInternal = ( {
 	);
 
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, chartMetadata );
+	useChartRegistration( {
+		chartId,
+		legendItems,
+		chartType: 'pie',
+		isDataValid: isValid,
+		metadata: chartMetadata,
+	} );
 
 	if ( ! isValid ) {
 		return (
@@ -222,9 +228,7 @@ const PieChartInternal = ( {
 												x={ centroidX }
 												y={ centroidY }
 												dy=".33em"
-												fill={
-													providerTheme.labelBackgroundColor || defaultTheme.labelBackgroundColor
-												}
+												fill={ providerTheme.labelBackgroundColor }
 												fontSize={ 12 }
 												textAnchor="middle"
 												pointerEvents="none"

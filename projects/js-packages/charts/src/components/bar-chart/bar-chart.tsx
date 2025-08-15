@@ -3,13 +3,14 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
+import { useChartTheme } from '../../hooks/use-chart-theme';
+import useXYChartTheme from '../../hooks/use-xychart-theme';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -102,7 +103,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( dataSorted, providerTheme );
+	const legendItems = useChartLegendData( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -125,8 +126,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>
-			seriesData?.options?.stroke || theme.colors[ index % theme.colors.length ],
-		[ theme ]
+			seriesData?.options?.stroke || providerTheme.colors[ index % providerTheme.colors.length ],
+		[ providerTheme ]
 	);
 
 	const getBarBackground = useCallback(
@@ -265,7 +266,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'bar', isDataValid, chartMetadata );
+	useChartRegistration( {
+		chartId,
+		legendItems,
+		chartType: 'bar',
+		isDataValid,
+		metadata: chartMetadata,
+	} );
 
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;

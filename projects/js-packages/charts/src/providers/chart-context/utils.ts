@@ -1,32 +1,40 @@
 import { useEffect, useId, useMemo } from 'react';
 import { useGlobalChartsContext } from './global-charts-provider';
 import type { BaseLegendItem } from '../../components/legend/types';
-import type { ChartTheme } from '../../types';
 
 export const useChartId = ( providedId?: string ): string => {
 	const generatedId = useId();
 	return providedId || generatedId;
 };
 
-export const useChartRegistration = (
-	chartId: string,
-	legendItems: BaseLegendItem[],
-	theme: ChartTheme,
-	chartType: string,
-	isDataValid: boolean,
-	metadata?: Record< string, unknown >
-): void => {
+export const useChartRegistration = ( {
+	chartId,
+	legendItems,
+	chartType,
+	isDataValid,
+	metadata,
+}: {
+	chartId: string;
+	legendItems: BaseLegendItem[];
+	chartType: string;
+	isDataValid: boolean;
+	metadata?: Record< string, unknown >;
+} ): void => {
 	const { registerChart, unregisterChart } = useGlobalChartsContext();
 
 	// Memoize metadata to prevent unnecessary re-renders
 	const memoizedMetadata = useMemo( () => metadata, [ metadata ] );
 
+	// Memoize legendItems to prevent unnecessary re-renders - use deep comparison
+	const legendItemsJson = JSON.stringify( legendItems );
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const memoizedLegendItems = useMemo( () => legendItems, [ legendItemsJson ] );
+
 	useEffect( () => {
 		// Only register if data is valid
 		if ( isDataValid ) {
 			registerChart( chartId, {
-				legendItems,
-				theme,
+				legendItems: memoizedLegendItems,
 				chartType,
 				metadata: memoizedMetadata,
 			} );
@@ -38,8 +46,7 @@ export const useChartRegistration = (
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		chartId,
-		legendItems,
-		theme,
+		memoizedLegendItems,
 		chartType,
 		memoizedMetadata,
 		isDataValid,

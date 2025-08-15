@@ -1,7 +1,6 @@
-import { buildChartTheme } from '@visx/xychart';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext } from 'react';
 import { defaultTheme } from './themes';
-import type { ChartTheme, SeriesData } from '../../types';
+import type { ChartTheme } from '../../types';
 import type { FC, ReactNode } from 'react';
 
 /**
@@ -16,21 +15,6 @@ const ThemeContext = createContext< ChartTheme >( defaultTheme );
 const useChartTheme = () => {
 	const theme = useContext( ThemeContext );
 	return theme;
-};
-
-const useXYChartTheme = ( data: SeriesData[] ) => {
-	const providerTheme = useChartTheme();
-
-	return useMemo( () => {
-		const seriesColors = ( data ?? [] )
-			.map( series => series.options?.stroke )
-			.filter( ( color ): color is string => Boolean( color ) );
-
-		return buildChartTheme( {
-			...providerTheme,
-			colors: [ ...seriesColors, ...( providerTheme.colors ?? [] ) ],
-		} );
-	}, [ providerTheme, data ] );
 };
 
 /**
@@ -50,4 +34,4 @@ const ThemeProvider: FC< ThemeProviderProps > = ( { theme = {}, children } ) => 
 	return <ThemeContext.Provider value={ mergedTheme }>{ children }</ThemeContext.Provider>;
 };
 
-export { ThemeProvider, useChartTheme, useXYChartTheme };
+export { ThemeProvider, useChartTheme };

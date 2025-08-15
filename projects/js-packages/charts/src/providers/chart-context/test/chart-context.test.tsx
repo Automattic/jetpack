@@ -1,24 +1,15 @@
 import { render } from '@testing-library/react';
 import { useMemo } from 'react';
-import { GlobalChartsProvider, useGlobalChartsContext } from './global-charts-provider';
-import { useChartId, useChartRegistration } from './utils';
-import type { ChartContextValue } from './types';
-import type { BaseLegendItem } from '../../components/legend/types';
-import type { ChartTheme } from '../../types';
+import { GlobalChartsProvider, useGlobalChartsContext } from '../global-charts-provider';
+import { useChartId, useChartRegistration } from '../utils';
+import type { BaseLegendItem } from '../../../components/legend/types';
+import type { ChartContextValue } from '../types';
 
 describe( 'ChartContext', () => {
 	const mockLegendItems: BaseLegendItem[] = [
 		{ label: 'Series 1', value: '100', color: '#ff0000' },
 		{ label: 'Series 2', value: '200', color: '#00ff00' },
 	];
-
-	const mockTheme: ChartTheme = {
-		backgroundColor: '#ffffff',
-		colors: [ '#ff0000', '#00ff00', '#0000ff' ],
-		tickLength: 8,
-		gridColor: '#e0e0e0',
-		gridColorDark: '#333333',
-	};
 
 	describe( 'GlobalChartsProvider', () => {
 		it( 'provides context to child components', () => {
@@ -106,7 +97,13 @@ describe( 'ChartContext', () => {
 
 				// Memoize metadata to prevent infinite loop
 				const metadata = useMemo( () => ( { test: true } ), [] );
-				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar', true, metadata );
+				useChartRegistration( {
+					chartId,
+					legendItems: mockLegendItems,
+					chartType: 'bar',
+					isDataValid: true,
+					metadata,
+				} );
 
 				return <div>Test</div>;
 			};
@@ -120,7 +117,6 @@ describe( 'ChartContext', () => {
 			const chartData = contextValue.getChartData( 'test-chart' );
 			expect( chartData ).toEqual( {
 				legendItems: mockLegendItems,
-				theme: mockTheme,
 				chartType: 'bar',
 				metadata: { test: true },
 			} );
@@ -134,8 +130,18 @@ describe( 'ChartContext', () => {
 				const chartId2 = useChartId( 'chart-2' );
 				contextValue = useGlobalChartsContext();
 
-				useChartRegistration( chartId1, mockLegendItems, mockTheme, 'bar', true );
-				useChartRegistration( chartId2, mockLegendItems, mockTheme, 'line', true );
+				useChartRegistration( {
+					chartId: chartId1,
+					legendItems: mockLegendItems,
+					chartType: 'bar',
+					isDataValid: true,
+				} );
+				useChartRegistration( {
+					chartId: chartId2,
+					legendItems: mockLegendItems,
+					chartType: 'line',
+					isDataValid: true,
+				} );
 
 				return <div>Test</div>;
 			};
@@ -176,9 +182,19 @@ describe( 'ChartContext', () => {
 				contextValue = useGlobalChartsContext();
 
 				// Register first chart
-				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar', true );
+				useChartRegistration( {
+					chartId,
+					legendItems: mockLegendItems,
+					chartType: 'bar',
+					isDataValid: true,
+				} );
 				// Register second chart with same ID
-				useChartRegistration( chartId, mockLegendItems, mockTheme, 'line', true );
+				useChartRegistration( {
+					chartId,
+					legendItems: mockLegendItems,
+					chartType: 'line',
+					isDataValid: true,
+				} );
 
 				return <div>Test</div>;
 			};

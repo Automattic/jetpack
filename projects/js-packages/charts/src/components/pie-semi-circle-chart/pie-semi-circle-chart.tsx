@@ -4,13 +4,14 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
+import { useChartTheme } from '../../hooks/use-chart-theme';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	GlobalChartsContext,
 } from '../../providers/chart-context';
-import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { useElementHeight } from '../shared/use-element-height';
@@ -147,7 +148,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, providerTheme, legendOptions );
+	const legendItems = useChartLegendData( data, legendOptions );
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -159,14 +160,13 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 
 	// Register chart with context only if data is valid
-	useChartRegistration(
+	useChartRegistration( {
 		chartId,
 		legendItems,
-		providerTheme,
-		'pie-semi-circle',
-		isValid,
-		chartMetadata
-	);
+		chartType: 'pie-semi-circle',
+		isDataValid: isValid,
+		metadata: chartMetadata,
+	} );
 
 	if ( ! isValid ) {
 		return (
@@ -293,11 +293,28 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 };
 
-const PieSemiCircleChart: FC< PieSemiCircleChartProps > = props => (
-	<GlobalChartsProvider>
-		<PieSemiCircleChartInternal { ...props } />
-	</GlobalChartsProvider>
-);
+const PieSemiCircleChart: FC< PieSemiCircleChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, render the core component directly
+	if ( existingContext ) {
+		return <PieSemiCircleChartInternal { ...props } />;
+	}
+
+	// Otherwise, wrap with our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<PieSemiCircleChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
 
 PieSemiCircleChart.displayName = 'PieSemiCircleChart';
-export default withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );
+
+const PieSemiCircleChartResponsive =
+	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );
+
+export {
+	PieSemiCircleChartResponsive as default,
+	PieSemiCircleChart as PieSemiCircleChartUnresponsive,
+};
