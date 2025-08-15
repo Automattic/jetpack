@@ -42,6 +42,7 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
+		shadow: true,
 		// Mimic the layout settings of the core Group block.
 		layout: {
 			type: 'flex',

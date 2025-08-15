@@ -28,6 +28,7 @@ const settings = {
 	},
 	usesContext: [ 'jetpack/field-share-attributes' ],
 	supports: {
+		shadow: true,
 		spacing: {
 			blockGap: false,
 		},

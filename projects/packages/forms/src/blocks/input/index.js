@@ -30,6 +30,7 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
+		shadow: true,
 		color: {
 			text: true,
 			background: true,

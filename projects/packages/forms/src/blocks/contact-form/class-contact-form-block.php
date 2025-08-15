@@ -116,6 +116,7 @@ class Contact_Form_Block {
 			'jetpack/input',
 			array(
 				'supports'     => array(
+					'shadow'               => true,
 					'__experimentalBorder' => array(
 						'color'  => true,
 						'radius' => true,
@@ -175,6 +176,7 @@ class Contact_Form_Block {
 			'jetpack/options',
 			array(
 				'supports'         => array(
+					'shadow'               => true,
 					'__experimentalBorder' => array(
 						'color'  => true,
 						'radius' => true,
