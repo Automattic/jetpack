@@ -10,7 +10,5 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-/**
- * Include WordPress HTML API stubs.
- */
-require_once __DIR__ . '/../stubs/class-wp-html-span.php';
+// Initialize WordPress test environment first
+\Automattic\Jetpack\Test_Environment::init();
