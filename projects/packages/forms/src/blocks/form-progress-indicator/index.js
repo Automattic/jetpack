@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
-import save from './save';
 
 export const name = 'form-progress-indicator';
 
@@ -50,7 +49,7 @@ export const settings = {
 		),
 	},
 	edit: edit,
-	save: save,
+	save: () => null,
 	attributes: {
 		variant: {
 			type: 'string',
@@ -162,62 +161,11 @@ export const settings = {
 				);
 			},
 			migrate( attributes ) {
-				const newAttributes = { ...attributes };
-
-				// Add default variant if not present
-				if ( ! newAttributes.variant ) {
-					newAttributes.variant = 'line';
-				}
-
-				if ( attributes.style ) {
-					const newStyle = { ...attributes.style };
-
-					// Convert horizontal margins to padding if they exist
-					if ( newStyle.spacing?.margin ) {
-						const { margin } = newStyle.spacing;
-
-						// Initialize padding if it doesn't exist
-						if ( ! newStyle.spacing.padding ) {
-							newStyle.spacing.padding = {};
-						}
-
-						// Convert left/right margins to left/right padding
-						if ( margin.left && ! newStyle.spacing.padding.left ) {
-							newStyle.spacing.padding.left = margin.left;
-						}
-						if ( margin.right && ! newStyle.spacing.padding.right ) {
-							newStyle.spacing.padding.right = margin.right;
-						}
-
-						// Keep only top/bottom margins
-						newStyle.spacing.margin = {
-							...( margin.top && { top: margin.top } ),
-							...( margin.bottom && { bottom: margin.bottom } ),
-						};
-					}
-
-					// Remove minHeight from dimensions since it's no longer supported
-					if ( newStyle.dimensions?.minHeight ) {
-						const { minHeight, ...remainingDimensions } = newStyle.dimensions;
-						if ( Object.keys( remainingDimensions ).length === 0 ) {
-							delete newStyle.dimensions;
-						} else {
-							newStyle.dimensions = remainingDimensions;
-						}
-					}
-
-					// Migrate standard colors to custom semantic colors
-					if ( newStyle.color?.background && ! newAttributes.progressBackgroundColor ) {
-						newAttributes.progressBackgroundColor = newStyle.color.background;
-					}
-					if ( newStyle.color?.text && ! newAttributes.progressColor ) {
-						newAttributes.progressColor = newStyle.color.text;
-					}
-
-					newAttributes.style = newStyle;
-				}
-
-				return newAttributes;
+				// Simply add the default variant
+				return {
+					...attributes,
+					variant: attributes.variant || 'line',
+				};
 			},
 		},
 	],

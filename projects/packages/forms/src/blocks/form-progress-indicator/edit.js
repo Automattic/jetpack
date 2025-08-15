@@ -13,7 +13,7 @@ import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import { calculateProgressPercentage } from '../shared/util/progress-calculation';
 
-import './editor.scss';
+import './style.scss';
 
 const FormProgressIndicatorEdit = ( { clientId, context, attributes, setAttributes } ) => {
 	const parentFormId = useParentFormClientId( clientId );

@@ -7,23 +7,8 @@ describe( 'Form Progress Indicator Block Migration', () => {
 		const deprecatedBlock = settings.deprecated[ 0 ];
 		expect( deprecatedBlock.apiVersion ).toBe( 2 );
 
-		const oldStructure = deprecatedBlock.save();
-
-		const expectedNewStructure = createElement(
-			'div',
-			{ className: 'jetpack-form-progress-indicator--wrapper' },
-			createElement(
-				'div',
-				{ className: 'wp-block-jetpack-form-progress-indicator' },
-				createElement(
-					'div',
-					{ className: 'jetpack-form-progress-indicator-steps' },
-					createElement( 'div', { className: 'jetpack-form-progress-indicator-progress' } )
-				)
-			)
-		);
-
 		// Verify deprecated version generates old structure
+		const oldStructure = deprecatedBlock.save();
 		expect( oldStructure ).toEqual(
 			createElement(
 				'div',
@@ -36,21 +21,23 @@ describe( 'Form Progress Indicator Block Migration', () => {
 			)
 		);
 
-		// Verify structures are different
-		expect( oldStructure ).not.toEqual( expectedNewStructure );
-
-		// Verify class name migration: bar → steps
-		const oldClassName = oldStructure.props.children.props.children.props.className;
-		const newClassName = expectedNewStructure.props.children.props.children.props.className;
-		expect( oldClassName ).toBe( 'jetpack-form-progress-indicator-bar' );
-		expect( newClassName ).toBe( 'jetpack-form-progress-indicator-steps' );
-
-		// Verify migration adds default variant
-		const testAttributes = { className: 'custom-class' };
-		const migratedAttributes = deprecatedBlock.migrate( testAttributes );
+		// Test migration with typical old block attributes
+		const oldAttributes = {
+			progressColor: '#ff0000',
+			progressBackgroundColor: '#cccccc',
+		};
+		const migratedAttributes = deprecatedBlock.migrate( oldAttributes );
 		expect( migratedAttributes ).toEqual( {
-			...testAttributes,
+			...oldAttributes,
 			variant: 'line',
 		} );
+
+		// Test migration when variant already exists (should not override)
+		const attributesWithVariant = {
+			progressColor: '#0000ff',
+			variant: 'dots',
+		};
+		const migratedAttributesWithVariant = deprecatedBlock.migrate( attributesWithVariant );
+		expect( migratedAttributesWithVariant ).toEqual( attributesWithVariant );
 	} );
 } );
