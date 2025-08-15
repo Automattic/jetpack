@@ -10,9 +10,10 @@
 The scope of this library is to:
 
 - provide a consistent way to launch and configure a Jetpack environment for e2e testing
-- provide the most common pages modeled as page objects (see [Page objects model](https://playwright.dev/docs/test-pom))
-- provide implementation of the most common flows (login, connect Jetpack)
-- create test results
+- provide utilities for CLI command execution and environment management
+- provide base test fixtures with utils
+- provide helper plugins for mocking plans, intercepting requests, and test data setup
+- create comprehensive test results and reporting
 
 This project is intended to be used as a dependency by other e2e test projects for Jetpack plugins. There are no tests defined here.
 
@@ -130,7 +131,7 @@ TEST_SITE=mySite pnpm test:run
 
 Some tests rely on functionality plugins that provide some additional functionality, provide shortcuts such as plan mocking etc. They are useful when you would like to prepare the test environment in a specific way, or to avoid not important complexities. Do note that with any shortcuts, tests deviates from actual user experience, so they should be used with caution.
 
-#### e2e-plan-data-interceptor.php
+#### e2e-plan-helper.php
 
 The purpose of this plugin is to provide a way to `mock` a Jetpack plan, for cases when we test functionality that does not directly use paid services. A great example of this purpose is testing paid Gutenberg blocks.
 
@@ -146,49 +147,46 @@ The purpose of this plugin is to track the number of total requests to the WPCOM
 
 As with any other testing types, E2E tests roughly follows the AAA pattern ([Arrange, Act, Assert](https://automationpanda.com/2020/07/07/arrange-act-assert-a-pattern-for-writing-good-tests/)).
 
-- Arrange: Involve preparing a site as needed: setting up a connection, logging in to WPCOM, etc. Most of these tasks is done by [`prerequisitesBuilder`](/tools/e2e-commons/env/prerequisites.js) abstraction. Anything more specific should be done within test's `before*` hooks.
+- Arrange: Involves preparing a site as needed through a multi-stage process:
+
+    **Global Playwright Projects** (automatic setup via dependency chain):
+    1. `global authentication` - Authenticates both local WordPress user and WordPress.com user, stores authentication state in
+  `storage-state.json`
+    2. `connection setup` - Establishes Jetpack connection between local site and WordPress.com (depends on authentication)
+
+    These setup projects run once before all tests and create a shared state that subsequent tests inherit. Each plugin's test configuration
+  extends the base setup by including these projects as dependencies.
+
+    **Test-specific Arrangement** - Anything more specific (module activation, plan mocking, environment variables) should be done within test's
+  `before*` hooks using the provided `testUtils` utilities.
+
+    **Base test fixture** - The `fixtures/base-test.ts` extends the [test fixture](https://github.com/WordPress/gutenberg/blob/trunk/packages/e2e-test-utils-playwright/src/test.ts) from `@wordpress/e2e-test-utils-playwright` package, inheriting all its utilities (`admin`, `pageUtils`, `requestUtils`, etc.) while adding Jetpack-specific enhancements:
+    - `page` - Enhanced page object that logs errors and sets WordPress.com cookie consent
+    - `testUtils` - Worker-scoped utilities for WordPress CLI commands and API operations
+    - `editor` - EditorPage instance for block editor interactions
+    - `sidebar` - Sidebar instance for WordPress admin sidebar navigation
+    - Automatic WPCOM API request tracking via `beforeEach`/`afterEach` hooks
+    
+    Usage: Import `test` from this fixture instead of Playwright's default test to access both WordPress and Jetpack-specific utilities in your tests. 
+
 - Act: The part when the test is following the user flow. In most cases it takes the form of navigating between pages, filling in forms, clicking buttons, etc.
 - Assert: The part where we verify that the test did what it was supposed to do. It could be done at the end of the user flow, or along the way when you need to verify specific state. Do note that if one of the interactions with the page in `Act` part will fail, it will fail the whole test. Meaning you don't really need to assert every step in `Act` section.
 
-Starter Plugin's e2e folder already includes [a basic test](/projects/plugins/starter-plugin/tests/e2e/specs/start.test.js) what will help you to get started. Also refer to `tests/e2e` folders in other plugins for more examples.
-
-## Architecture
-
-### Pages
-
-The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components.
-There are two base classes that should be extended by page objects: [`WpPage`](./pages/wp-page.js) and [`PageActions`](./pages/page-actions.js) class.
-
-`WpPage` implements common page methods, like `init` - static method that initializes a page object and checks the displayed page is the expected one, and `visit` - method that navigates to a page URL and then performs all the `init` checks.
-
-`WpPage` extends `PageActions`.
-`WpPage` should be extended by all page objects that represent full pages. Rule of thumb: if it has a URL it should extend WpPage. Otherwise, it's probably representing a page component (like a block) and should directly extend `PageActions`.
-
-Since most of the Playwright functionality is `async` - and JavaScript constructors are not - we should initialize pages with the `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSelectors` checks.
-Make sure you pass these selectors in a page constructor to the `super` constructor by using the `expectedSelectors` argument. This expects an array of strings, so you can pass multiple selectors in case you want to check more elements on the page.
-
-```js
-constructor( page ) {
-    super( page, { expectedSelectors: [ '.selector_1', '#selector_2' ] } );
-}
-```
+Starter Plugin's e2e folder already includes [a basic test](/projects/plugins/starter-plugin/tests/e2e/specs/start.test.ts) what will help you to get started. Also refer to `tests/e2e` folders in other plugins for more examples.
 
 ## Reporting
 
-A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `config/playwright.config.default.mjs` for details.
+A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `playwright.config.default.ts` for details.
 
 ### Allure reporter
 
-To use allure reporter, you'll need to install a dependency.
+To use allure reporter, you'll need to install a the Allure CLI dependency.
 
 ```shell
 npm i -D allure-playwright
 ```
 
-Allure results are generated in the allure-results folder. You can use these results to generate a full report, but the Allure cli tool is needed for that.
-
-1. [Install Allure cli](https://docs.qameta.io/allure/#_installing_a_commandline)
-2. Generate and open the report using Allure's builtin webserver
+Allure results are generated in the configured allure-results folder. You can use these results to generate a full report.
 
 ```shell
 # Run this in the path where `allure-results` folder is

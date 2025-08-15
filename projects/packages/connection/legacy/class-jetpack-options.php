@@ -246,7 +246,7 @@ class Jetpack_Options {
 	/**
 	 * Options that can be stored in external storage.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @var array
 	 */

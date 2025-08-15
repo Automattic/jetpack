@@ -1119,7 +1119,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @return string HTML for the image choices form field.
 	 */
-	public static function gutenblock_render_form_image_select_choices() {
+	public static function gutenblock_render_fieldset_image_options() {
 		// TODO: Implement the block rendering
 		return '';
 	}
@@ -1129,7 +1129,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @return string HTML for the image choice form field.
 	 */
-	public static function gutenblock_render_form_image_select_choice() {
+	public static function gutenblock_render_input_image_option() {
 		// TODO: Implement the block rendering
 		return '';
 	}
@@ -2808,7 +2808,7 @@ class Contact_Form_Plugin {
 	 * @return array Parsed fields.
 	 *
 	 * @codeCoverageIgnore - No need to be covered.
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.3.0
 	 */
 	public static function parse_feedback_content( $post_content ) {
 		$all_values = array();
@@ -3159,6 +3159,7 @@ class Contact_Form_Plugin {
 		$atts['min']     = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
 		$atts['max']     = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
 		$atts['default'] = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
+		$atts['step']    = isset( $parent_attrs['step'] ) ? $parent_attrs['step'] : 1;
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );

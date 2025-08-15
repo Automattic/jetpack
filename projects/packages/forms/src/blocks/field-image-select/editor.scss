@@ -1,0 +1,42 @@
+@use "../shared/styles/visually-hidden" as *;
+
+// There is a high specificity flex rule that we need to override.
+.wp-block-jetpack-contact-form
+.jetpack-contact-form
+.jetpack-fieldset-image-options__wrapper
+.jetpack-input-image-option {
+	flex-basis: unset;
+}
+
+.jetpack-fieldset-image-options__wrapper {
+	--jetpack-field-image-options-gap: 16px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--jetpack-field-image-options-gap);
+
+	.jetpack-input-image-option {
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-options-gap) * ( 3 / 4 ));
+
+		&.is-supersized {
+			width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
+		}
+
+		.jetpack-input-image-option__wrapper {
+			width: 100%;
+			overflow: hidden;
+
+			figcaption {
+
+				@extend %visually-hidden;
+			}
+		}
+
+		.jetpack-input-image-option__label {
+			padding-top: 8px;
+			padding-left: 8px;
+		}
+	}
+}

@@ -558,11 +558,13 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
 
             }
 
-            // quick addition for mike
-            #} olderThan
-            if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbsf_created','<=','%d',$olderThan);
-            #} newerThan
-            if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbsf_created','>=','%d',$newerThan);
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+			// quick addition for mike
+			#} olderThan
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsf_created', '<=', '%d', $olderThan );
+			#} newerThan
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsf_created', '>=', '%d', $newerThan );
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
             #} Any additionalWhereArr?
             if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
@@ -641,18 +643,6 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
             // Obj Model based sort conversion
             // converts 'addr1' => 'zbsco_addr1' generically
             if (isset($this->objectModel[$sortByField]) && isset($this->objectModel[$sortByField]['fieldname'])) $sortByField = $this->objectModel[$sortByField]['fieldname'];
-
-            // Mapped sorts
-            // This catches listview and other exception sort cases
-            $sort_map = array(
-
-            );
-            
-            if ( array_key_exists( $sortByField, $sort_map ) ) {
-
-                $sortByField = $sort_map[ $sortByField ];
-
-            }
 
         #} ============ / SORT   ==============
 

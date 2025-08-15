@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.1] - 2025-08-14
+### Added
+- Allow blocks to have their own JavaScript loading strategy. [#44734]
+
 ## [3.1.0] - 2025-04-28
 ### Added
 - Add `get_variation` method to blocks. [#43251]
@@ -247,6 +251,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Blocks: introduce new package for block management
 
+[3.1.1]: https://github.com/Automattic/jetpack-blocks/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/jetpack-blocks/compare/v3.0.10...v3.1.0
 [3.0.10]: https://github.com/Automattic/jetpack-blocks/compare/v3.0.9...v3.0.10
 [3.0.9]: https://github.com/Automattic/jetpack-blocks/compare/v3.0.8...v3.0.9

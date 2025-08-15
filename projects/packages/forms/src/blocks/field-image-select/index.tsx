@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { image as icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { getImageChoiceLabel } from '../form-image-select-choice/label';
+import { getImageOptionLabel } from '../input-image-option/label';
 import defaultSettings from '../shared/settings';
 import edit from './edit';
+import icon from './icon';
 import save from './save';
 
 const name = 'field-image-select';
@@ -29,16 +29,37 @@ const settings = {
 	edit,
 	attributes: {
 		...defaultSettings.attributes,
-		multiple: {
+		showLabels: {
+			type: 'boolean',
+			default: true,
+		},
+		isSupersized: {
+			type: 'boolean',
+			default: false,
+		},
+		isMultiple: {
+			type: 'boolean',
+			default: false,
+		},
+		randomizeOptions: {
+			type: 'boolean',
+			default: false,
+		},
+		showOtherOption: {
 			type: 'boolean',
 			default: false,
 		},
 	},
+	providesContext: {
+		...defaultSettings.providesContext,
+		'jetpack/field-image-select-show-labels': 'showLabels',
+		'jetpack/field-image-select-is-supersized': 'isSupersized',
+		'jetpack/field-image-select-is-multiple': 'isMultiple',
+		'jetpack/field-image-select-randomize-options': 'randomizeOptions',
+		'jetpack/field-image-select-show-other-option': 'showOtherOption',
+	},
 	save,
 	example: {
-		attributes: {
-			multiple: false,
-		},
 		innerBlocks: [
 			{
 				name: 'jetpack/label',
@@ -47,41 +68,36 @@ const settings = {
 				},
 			},
 			{
-				name: 'jetpack/form-image-select-choices',
-				attributes: {
-					multiple: false,
-				},
+				name: 'jetpack/fieldset-image-options',
 				innerBlocks: [
 					{
-						name: 'jetpack/form-image-select-choice',
+						name: 'jetpack/input-image-option',
+						attributes: {
+							label: getImageOptionLabel( 1 ),
+						},
 						innerBlocks: [
-							{
-								name: 'jetpack/label',
-								attributes: {
-									label: getImageChoiceLabel( 1 ),
-								},
-							},
 							{
 								name: 'core/image',
 								attributes: {
 									url: 'https://s.w.org/images/core/5.3/Glacial_lakes%2C_Bhutan.jpg',
+									scale: 'cover',
+									aspectRatio: '1',
 								},
 							},
 						],
 					},
 					{
-						name: 'jetpack/form-image-select-choice',
+						name: 'jetpack/input-image-option',
+						attributes: {
+							label: getImageOptionLabel( 2 ),
+						},
 						innerBlocks: [
-							{
-								name: 'jetpack/label',
-								attributes: {
-									label: getImageChoiceLabel( 2 ),
-								},
-							},
 							{
 								name: 'core/image',
 								attributes: {
 									url: 'https://s.w.org/images/core/5.3/Sediment_off_the_Yucatan_Peninsula.jpg',
+									scale: 'cover',
+									aspectRatio: '1',
 								},
 							},
 						],

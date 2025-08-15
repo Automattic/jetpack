@@ -608,19 +608,22 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
             }
 
-            // quick addition for mike
-            #} olderThan
-            if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbse_created','<=','%d',$olderThan);
-            #} newerThan
-            if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbse_created','>=','%d',$newerThan);
-            #} datedBefore
-            if (!empty($datedBefore) && $datedBefore > 0 && $datedBefore !== false) $wheres['datedBefore'] = array('zbse_start','<=','%d',$datedBefore);
-            #} datedAfter
-            if (!empty($datedAfter) && $datedAfter > 0 && $datedAfter !== false) $wheres['datedAfter'] = array('zbse_start','>=','%d',$datedAfter);
-            
-            // assignedContact + assignedCompany
-            if (!empty($assignedContact) && $assignedContact !== false && $assignedContact > 0) $wheres['assignedContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TASK." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = %d)",$assignedContact);
-            if (!empty($assignedCompany) && $assignedCompany !== false && $assignedCompany > 0) $wheres['assignedCompany'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TASK." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$assignedCompany);
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+
+			// quick addition for mike
+			#} olderThan
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbse_created', '<=', '%d', $olderThan );
+			#} newerThan
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbse_created', '>=', '%d', $newerThan );
+			#} datedBefore
+			if ( ! empty( $datedBefore ) && $datedBefore > 0 ) $wheres['datedBefore'] = array( 'zbse_start', '<=', '%d', $datedBefore );
+			#} datedAfter
+			if ( ! empty( $datedAfter ) && $datedAfter > 0 ) $wheres['datedAfter'] = array( 'zbse_start', '>=', '%d', $datedAfter );
+
+			// assignedContact + assignedCompany
+			if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TASK . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
+			if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TASK . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
             // completed status
             if ( $isComplete ) $wheres['status'] = array('zbse_complete','=','1');

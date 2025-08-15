@@ -932,10 +932,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				break;
 			case 'mailpoet':
 				$response['needsConnection'] = true;
-				if ( class_exists( '\MailPoet\Config\ServicesChecker' ) ) {
-					$checker = new \MailPoet\Config\ServicesChecker(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the class exists first
-					if ( method_exists( $checker, 'isMailPoetAPIKeyValid' ) ) {
-						$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the method exists first
+				// Determine if MailPoet setup is complete using the public API.
+				if ( class_exists( \MailPoet\API\API::class ) ) { // @phan-suppress-current-line PhanUndeclaredClassReference
+					$mailpoet_api = \MailPoet\API\API::MP( 'v1' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
+					if ( $mailpoet_api && method_exists( $mailpoet_api, 'isSetupComplete' ) ) {
+						$response['isConnected'] = (bool) $mailpoet_api->isSetupComplete();
 					}
 				}
 				// Add MailPoet lists to details

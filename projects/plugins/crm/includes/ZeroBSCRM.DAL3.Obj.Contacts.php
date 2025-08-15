@@ -1502,73 +1502,76 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             }
 
-            // quick addition for mike
-            #} olderThan
-            if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbsc_created','<=','%d',$olderThan);
-            #} newerThan
-            if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbsc_created','>=','%d',$newerThan);
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
-            // status
-            if (!empty($hasStatus) && $hasStatus !== false) $wheres['hasStatus'] = array('zbsc_status','=','%s',$hasStatus);
-            if (!empty($otherStatus) && $otherStatus !== false) $wheres['otherStatus'] = array('zbsc_status','<>','%s',$otherStatus);
+			// quick addition for mike
+			#} olderThan
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsc_created', '<=', '%d', $olderThan );
+			#} newerThan
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsc_created', '>=', '%d', $newerThan );
 
-            #} contactedBefore
-            if (!empty($contactedBefore) && $contactedBefore > 0 && $contactedBefore !== false) $wheres['contactedBefore'] = array('zbsc_lastcontacted','<=','%d',$contactedBefore);
-            #} contactedAfter
-            if (!empty($contactedAfter) && $contactedAfter > 0 && $contactedAfter !== false) $wheres['contactedAfter'] = array('zbsc_lastcontacted','>=','%d',$contactedAfter);
+			// status
+			if ( ! empty( $hasStatus ) ) $wheres['hasStatus']     = array( 'zbsc_status', '=', '%s', $hasStatus );
+			if ( ! empty( $otherStatus ) ) $wheres['otherStatus'] = array( 'zbsc_status', '<>', '%s', $otherStatus );
 
-            #} hasEmail
-            if (!empty($hasEmail) && !empty($hasEmail) && $hasEmail !== false) {
-                $wheres['hasEmail'] = array('zbsc_email','=','%s',$hasEmail);
-                $wheres['hasEmailAlias'] = array('ID','IN',"(SELECT aka_id FROM ".$ZBSCRM_t['aka']." WHERE aka_type = ".ZBS_TYPE_CONTACT." AND aka_alias = %s)",$hasEmail);
-            }
+			#} contactedBefore
+			if ( ! empty( $contactedBefore ) && $contactedBefore > 0 ) $wheres['contactedBefore'] = array( 'zbsc_lastcontacted', '<=', '%d', $contactedBefore );
+			#} contactedAfter
+			if ( ! empty( $contactedAfter ) && $contactedAfter > 0 ) $wheres['contactedAfter'] = array( 'zbsc_lastcontacted', '>=', '%d', $contactedAfter );
 
-            #} inCounty
-            if (!empty($inCounty) && !empty($inCounty) && $inCounty !== false) {
-                $wheres['inCounty'] = array('zbsc_county','=','%s',$inCounty);
-                $wheres['inCountyAddr2'] = array('zbsc_secaddrcounty','=','%s',$inCounty);
-            }
-            #} inPostCode
-            if (!empty($inPostCode) && !empty($inPostCode) && $inPostCode !== false) {
-                $wheres['inPostCode'] = array('zbsc_postcode','=','%s',$inPostCode);
-                $wheres['inPostCodeAddr2'] = array('zbsc_secaddrpostcode','=','%s',$inPostCode);
-            }
-            #} inCountry
-            if (!empty($inCountry) && !empty($inCountry) && $inCountry !== false) {
-                $wheres['inCountry'] = array('zbsc_country','=','%s',$inCountry);
-                $wheres['inCountryAddr2'] = array('zbsc_secaddrcountry','=','%s',$inCountry);
-            }
-            #} notInCounty
-            if (!empty($notInCounty) && !empty($notInCounty) && $notInCounty !== false) {
-                $wheres['notInCounty'] = array('zbsc_county','<>','%s',$notInCounty);
-                $wheres['notInCountyAddr2'] = array('zbsc_secaddrcounty','<>','%s',$notInCounty);
-            }
-            #} notInPostCode
-            if (!empty($notInPostCode) && !empty($notInPostCode) && $notInPostCode !== false) {
-                $wheres['notInPostCode'] = array('zbsc_postcode','<>','%s',$notInPostCode);
-                $wheres['notInPostCodeAddr2'] = array('zbsc_secaddrpostcode','<>','%s',$notInPostCode);
-            }
-            #} notInCountry
-            if (!empty($notInCountry) && !empty($notInCountry) && $notInCountry !== false) {
-                $wheres['notInCountry'] = array('zbsc_country','<>','%s',$notInCountry);
-                $wheres['notInCountryAddr2'] = array('zbsc_secaddrcountry','<>','%s',$notInCountry);
-            }
+			#} hasEmail
+			if ( ! empty( $hasEmail ) ) {
+				$wheres['hasEmail']      = array( 'zbsc_email', '=', '%s', $hasEmail );
+				$wheres['hasEmailAlias'] = array( 'ID', 'IN', '(SELECT aka_id FROM ' . $ZBSCRM_t['aka'] . ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_alias = %s)', $hasEmail );
+			}
 
-            // generic obj links, e.g. quotes, invs, trans 
-            // e.g. contact(s) assigned to inv 123
-            // Where the link relationship is OBJECT -> CONTACT
-            if (!empty($hasObjIDLinkedTo) && $hasObjIDLinkedTo !== false && $hasObjIDLinkedTo > 0 && 
-                !empty($hasObjTypeLinkedTo) && $hasObjTypeLinkedTo !== false && $hasObjTypeLinkedTo > 0) {
-                $wheres['hasObjIDLinkedTo'] = array('ID','IN','(SELECT zbsol_objid_to FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = %d AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_from = %d AND zbsol_objid_to = contact.ID)",array($hasObjTypeLinkedTo,$hasObjIDLinkedTo));
+			#} inCounty
+			if ( ! empty( $inCounty ) ) {
+				$wheres['inCounty']      = array( 'zbsc_county', '=', '%s', $inCounty );
+				$wheres['inCountyAddr2'] = array( 'zbsc_secaddrcounty', '=', '%s', $inCounty );
+			}
+			#} inPostCode
+			if ( ! empty( $inPostCode ) ) {
+				$wheres['inPostCode']      = array( 'zbsc_postcode', '=', '%s', $inPostCode );
+				$wheres['inPostCodeAddr2'] = array( 'zbsc_secaddrpostcode', '=', '%s', $inPostCode );
+			}
+			#} inCountry
+			if ( ! empty( $inCountry ) ) {
+				$wheres['inCountry']      = array( 'zbsc_country', '=', '%s', $inCountry );
+				$wheres['inCountryAddr2'] = array( 'zbsc_secaddrcountry', '=', '%s', $inCountry );
+			}
+			#} notInCounty
+			if ( ! empty( $notInCounty ) ) {
+				$wheres['notInCounty']      = array( 'zbsc_county', '<>', '%s', $notInCounty );
+				$wheres['notInCountyAddr2'] = array( 'zbsc_secaddrcounty', '<>', '%s', $notInCounty );
+			}
+			#} notInPostCode
+			if ( ! empty( $notInPostCode ) ) {
+				$wheres['notInPostCode']      = array( 'zbsc_postcode', '<>', '%s', $notInPostCode );
+				$wheres['notInPostCodeAddr2'] = array( 'zbsc_secaddrpostcode', '<>', '%s', $notInPostCode );
+			}
+			#} notInCountry
+			if ( ! empty( $notInCountry ) ) {
+				$wheres['notInCountry']      = array( 'zbsc_country', '<>', '%s', $notInCountry );
+				$wheres['notInCountryAddr2'] = array( 'zbsc_secaddrcountry', '<>', '%s', $notInCountry );
+			}
 
-            }
+			// generic obj links, e.g. quotes, invs, trans
+			// e.g. contact(s) assigned to inv 123
+			// Where the link relationship is OBJECT -> CONTACT
+			if ( ! empty( $hasObjIDLinkedTo ) && $hasObjIDLinkedTo > 0 &&
+					! empty( $hasObjTypeLinkedTo ) && $hasObjTypeLinkedTo > 0 ) {
+				$wheres['hasObjIDLinkedTo'] = array( 'ID', 'IN', '(SELECT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = %d AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_from = %d AND zbsol_objid_to = contact.ID)', array( $hasObjTypeLinkedTo, $hasObjIDLinkedTo ) );
 
-            // generic obj links, e.g. companies
-            // Where the link relationship is CONTACT -> OBJECT
-            if (!empty($isLinkedToObjID) && $isLinkedToObjID !== false && $isLinkedToObjID > 0 && 
-                !empty($isLinkedToObjType) && $isLinkedToObjType !== false && $isLinkedToObjType > 0) {
-                $wheres['isLinkedToObjID'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_CONTACT." AND zbsol_objtype_to = %d AND zbsol_objid_from = contact.ID AND zbsol_objid_to = %d)",array($isLinkedToObjType,$isLinkedToObjID));                
-            }
+			}
+
+			// generic obj links, e.g. companies
+			// Where the link relationship is CONTACT -> OBJECT
+			if ( ! empty( $isLinkedToObjID ) && $isLinkedToObjID > 0 &&
+					! empty( $isLinkedToObjType ) && $isLinkedToObjType > 0 ) {
+				$wheres['isLinkedToObjID'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = %d AND zbsol_objid_from = contact.ID AND zbsol_objid_to = %d)', array( $isLinkedToObjType, $isLinkedToObjID ) );
+			}
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
             #} Any additionalWhereArr?
             if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
