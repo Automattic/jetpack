@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { image as icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { getImageOptionLabel } from '../input-image-option/label';
 import defaultSettings from '../shared/settings';
 import edit from './edit';
+import icon from './icon';
 import save from './save';
 
 const name = 'field-image-select';
