@@ -134,6 +134,24 @@ const PieChartInternal = ( {
 
 	const { isValid, message } = validateData( data );
 
+	// Separate SVG and React children in a single pass
+	const { svgChildren, reactChildren } = useMemo( () => {
+		const svg: ReactNode[] = [];
+		const react: ReactNode[] = [];
+
+		Children.forEach( children, child => {
+			if ( isValidElement( child ) ) {
+				if ( child.type === Group ) {
+					svg.push( child );
+				} else {
+					react.push( child );
+				}
+			}
+		} );
+
+		return { svgChildren: svg, reactChildren: react };
+	}, [ children ] );
+
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
 		() => ( {
@@ -266,15 +284,7 @@ const PieChartInternal = ( {
 						</Pie>
 
 						{ /* Render SVG children (like Group, Text) inside the SVG */ }
-						{ Children.map( children, child => {
-							if ( isValidElement( child ) ) {
-								// Check if it's a Group component (SVG element)
-								if ( child.type === Group ) {
-									return child;
-								}
-							}
-							return null;
-						} ) }
+						{ svgChildren }
 					</Group>
 				</svg>
 
@@ -303,15 +313,7 @@ const PieChartInternal = ( {
 				) }
 
 				{ /* Render React component children (like PieChart.Legend) outside the SVG */ }
-				{ Children.map( children, child => {
-					if ( isValidElement( child ) ) {
-						// Check if it's NOT a Group component (React component)
-						if ( child.type !== Group ) {
-							return child;
-						}
-					}
-					return null;
-				} ) }
+				{ reactChildren }
 			</div>
 		</SingleChartContext.Provider>
 	);
