@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use DateTimeZone;
+use WC_DateTime;
 use WP_Error;
 
 /**
@@ -268,26 +270,32 @@ class WooCommerce_Products extends Module {
 	}
 
 	/**
-	 * Transform product data to include cogs_amount and other computed fields.
+	 * Transform product data to include post-related fields, cogs_amount and other computed fields.
 	 *
 	 * @param array $product_data Raw products table data.
-	 * @return array Transformed data with cogs_amount.
+	 * @return array Transformed data with additional post and computed fields.
 	 */
 	public function transform_product_data( $product_data ) {
 		if ( empty( $product_data['product_id'] ) ) {
 			return $product_data;
 		}
 
-		$product_id = $product_data['product_id'];
+		$product = null;
+		if ( function_exists( 'wc_get_product' ) ) {
+			$product = wc_get_product( $product_data['product_id'] );
+		}
 
-		// Attempt to retrieve the WooCommerce product object and its COGS value.
-		$product_data['cogs_amount'] = null;
+		if ( $product instanceof \WC_Product ) {
+			$product_data['title']         = $product->get_name();
+			$product_data['post_status']   = $product->get_status();
+			$product_data['type']          = $product->get_type();
+			$product_data['slug']          = $product->get_slug();
+			$product_data['date_created']  = $this->datetime_to_object( $product->get_date_created() );
+			$product_data['date_modified'] = $this->datetime_to_object( $product->get_date_modified() );
 
-		$cogs_enabled = class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) && \Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled( 'cost_of_goods_sold' );
-
-		if ( $cogs_enabled && function_exists( 'wc_get_product' ) ) {
-			$product = wc_get_product( $product_id );
-			if ( $product instanceof \WC_Product && is_callable( array( $product, 'get_cogs_value' ) ) ) {
+			// Handle COGS value if feature is enabled
+			$cogs_enabled = class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) && \Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled( 'cost_of_goods_sold' );
+			if ( $cogs_enabled && is_callable( array( $product, 'get_cogs_value' ) ) ) {
 				$product_data['cogs_amount'] = $product->get_cogs_value();
 			}
 		}
@@ -352,5 +360,27 @@ class WooCommerce_Products extends Module {
 			'object_ids' => $filtered_product_ids,
 			'objects'    => $filtered_product_data,
 		);
+	}
+
+	/**
+	 * Convert the WC_DateTime objects to stdClass objects to ensure they are properly encoded.
+	 *
+	 * @param WC_DateTime|mixed $wc_datetime The datetime object.
+	 * @param bool              $utc         Whether to convert to UTC.
+	 * @return object|null
+	 */
+	private function datetime_to_object( $wc_datetime, $utc = false ) {
+		if ( is_string( $wc_datetime ) ) {
+			$wc_datetime = new WC_DateTime( $wc_datetime, new DateTimeZone( wc_timezone_string() ) );
+		}
+
+		if ( is_a( $wc_datetime, 'WC_DateTime' ) ) {
+			if ( $utc ) {
+				$wc_datetime->setTimezone( new DateTimeZone( 'UTC' ) );
+			} else {
+				$wc_datetime->setTimezone( new DateTimeZone( wc_timezone_string() ) );
+			}
+			return (object) (array) $wc_datetime;
+		}
 	}
 }
