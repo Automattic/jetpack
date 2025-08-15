@@ -119,7 +119,7 @@ export default function SliderFieldEdit( props ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<HStack alignment="top">
+					<HStack alignment="top" className="jp-field-slider-inspector-row">
 						<NumberControl
 							__next40pxDefaultSize
 							label={ __( 'Min value', 'jetpack-forms' ) }
