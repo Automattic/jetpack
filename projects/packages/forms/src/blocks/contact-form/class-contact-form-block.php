@@ -571,7 +571,7 @@ class Contact_Form_Block {
 	 */
 	public static function pre_render_contact_form( $pre_render, $parsed_block ) {
 		// Only process contact form blocks
-		if ( $parsed_block['blockName'] !== 'jetpack/contact-form' ) {
+		if ( ! isset( $parsed_block['blockName'] ) || $parsed_block['blockName'] !== 'jetpack/contact-form' ) {
 			return $pre_render;
 		}
 
