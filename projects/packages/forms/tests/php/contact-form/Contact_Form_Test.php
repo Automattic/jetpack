@@ -411,7 +411,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 * @author tonykova
 	 */
 	public function test_process_submission_will_store_subject_when_specified() {
-		$form   = new Contact_Form( array( 'subject' => "I'm sorry, but the party's over" ) ); // Default form.
+		$form   = new Contact_Form( array( 'subject' => 'I\'m sorry, but the party\'s over' ) ); // Default form.
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
