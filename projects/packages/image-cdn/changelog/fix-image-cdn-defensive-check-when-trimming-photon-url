@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Image CDN: Added defensive check for is_string before trimming photon url

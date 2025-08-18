@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Blocks: Update JavaScript to be non-render blocking.

@@ -453,7 +453,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	/**
 	 * Tests that the cdn_url method returns an empty string when the image URL is empty or invalid.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.17
 	 */
 	public function test_cdn_url_empty_invalid_url() {
 		$this->assertSame( '', Image_CDN_Core::cdn_url( '' ) );

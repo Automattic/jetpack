@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.0] - 2025-08-18
+### Added
+- Add slider field increment option. [#44782]
+- Add "dots" style variant to form progress indicator block. [#44582]
+
+### Changed
+- Add styling and settings to "Image Select" field under feature flag. [#44786]
+- Check MailPoet setup not key. [#44784]
+- Improve the selected checkbox style. [#44743]
+
+### Fixed
+- Fix phone validation in responses. [#44806]
+- Silence PHP warnings with more careful calls on expected values. [#44805]
+
 ## [5.3.0] - 2025-08-14
 ### Added
 - Add several methods to the Feedback method. [#44713] [#44759] [#44768]
@@ -1429,6 +1443,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[5.4.0]: https://github.com/automattic/jetpack-forms/compare/v5.3.0...v5.4.0
 [5.3.0]: https://github.com/automattic/jetpack-forms/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/automattic/jetpack-forms/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/automattic/jetpack-forms/compare/v5.0.0...v5.1.0
