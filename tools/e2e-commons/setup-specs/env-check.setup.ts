@@ -1,3 +1,4 @@
+/* eslint-disable playwright/no-standalone-expect */
 import dns from 'dns/promises';
 import { test as setup, expect } from '../fixtures/base-test';
 import logger from '../logger';
@@ -52,10 +53,9 @@ setup( 'verify environment readiness', async ( { baseURL, request, testUtils } )
 		logger.debug( `Checking HTTP connectivity for ${ baseURL }` );
 
 		await retry( 'HTTP connectivity', async () => {
-			const response = await request.get( baseURL, { timeout: 5000 } );
+			const response = await request.get( baseURL );
 			logger.debug( `HTTP response status: ${ response.status() }` );
-			// Accept any HTTP response as success (including redirects, 404s, etc)
-			// We just need to know the site is reachable
+			expect( response.status() ).toBe( 200 );
 		} );
 	} );
 

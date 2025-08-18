@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix null handling in wp_style_engine_get_styles to prevent PHP warnings
