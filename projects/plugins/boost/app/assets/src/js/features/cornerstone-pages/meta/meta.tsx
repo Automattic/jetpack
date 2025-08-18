@@ -244,8 +244,9 @@ const List: FC< ListProps > = ( {
 			.map( line => line.trim() )
 			.filter( Boolean );
 
+		// Allow empty input - user can clear all cornerstone pages
 		if ( lines.length === 0 ) {
-			throw new Error( __( 'You must add at least one URL.', 'jetpack-boost' ) );
+			return true;
 		}
 
 		// Check if the number of items exceeds maxItems
