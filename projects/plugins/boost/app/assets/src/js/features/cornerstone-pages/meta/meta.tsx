@@ -267,10 +267,16 @@ const List: FC< ListProps > = ( {
 			const url = new URL( trimmed );
 			if ( url.origin === siteUrl.origin ) {
 				path = url.pathname;
+			} else {
+				// External URL - don't normalize, let validation reject it properly
+				return path;
 			}
 		} catch {
 			// Not a valid absolute URL, treat as relative path
 		}
+
+		// Check if it looks like a protocol URL before processing
+		const looksLikeProtocolUrl = /^https?:\/\//.test( trimmed );
 
 		// Normalize base path for comparison (remove trailing slash)
 		const basePath = siteUrl.pathname.replace( /\/$/, '' );
@@ -284,8 +290,10 @@ const List: FC< ListProps > = ( {
 			path = path.startsWith( '/' ) ? path : '/' + path;
 		}
 
-		// Clean up multiple consecutive slashes
-		path = path.replace( /\/+/g, '/' );
+		// Clean up multiple consecutive slashes (but only for non-protocol URLs)
+		if ( ! looksLikeProtocolUrl ) {
+			path = path.replace( /\/+/g, '/' );
+		}
 
 		// Normalize trailing slashes for consistent deduplication (except root)
 		return path.replace( /\/$/, '' ) || '/';
