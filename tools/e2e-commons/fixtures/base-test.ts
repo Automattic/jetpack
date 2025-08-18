@@ -50,6 +50,7 @@ test.beforeEach( async ( { testUtils } ) => {
 	// Adding a parameter for the parent project makes Allure report them as separate tests.
 	if ( process.env.PROJECT_NAME ) {
 		allure.addParameter( 'Parent project', process.env.PROJECT_NAME );
+		allure.parentSuite( process.env.PROJECT_NAME );
 	}
 } );
 
