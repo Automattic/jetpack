@@ -66,7 +66,7 @@ function load_assets( $attr, $content ) {
  * @return string
  */
 function render_email( $block_content, $parsed_block, $rendering_context ) {
-	$attr = isset( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
+	$attr = $parsed_block['attrs'] ?? array();
 
 	// For email, we'll render the first image and a link to the post if there are multiple images
 	$first_image  = null;
@@ -125,7 +125,7 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 		$layout_width_px = $rendering_context->get_layout_width_without_padding();
 		if ( is_string( $layout_width_px ) ) {
 			// Use Styles_Helper if available, otherwise fallback to simple parsing
-			if ( class_exists( 'Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ) {
+			if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ) {
 				$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px );
 				if ( $parsed_width > 0 ) {
 					$target_width = (int) $parsed_width;
@@ -183,7 +183,7 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 	}
 
 	// Use Table_Wrapper_Helper for consistent email rendering if available
-	if ( class_exists( 'Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+	if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
 		$image_table_attrs = array(
 			'style' => 'margin: 8px 0;',
 			'width' => $target_width,
