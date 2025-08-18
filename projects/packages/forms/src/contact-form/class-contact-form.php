@@ -1584,6 +1584,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public function process_submission() {
 		$page_number = 1;
+
+		// We skip the nonce verification for since nonce earlier in process_form_submission.
 		if ( isset( $_POST['page'] ) ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 			$page_number = absint( wp_unslash( $_POST['page'] ) ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 		}
