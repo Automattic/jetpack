@@ -87,7 +87,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * and improve performance on large sitemaps.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 15.0
 	 * @var array $chunks
 	 */
 	protected $chunks = array();
