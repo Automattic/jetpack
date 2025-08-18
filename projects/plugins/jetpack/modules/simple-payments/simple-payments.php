@@ -9,6 +9,10 @@
 
 use Automattic\Jetpack\Paypal_Payments\Simple_Payments as PayPal_Simple_Payments;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Simple_Payments
  */

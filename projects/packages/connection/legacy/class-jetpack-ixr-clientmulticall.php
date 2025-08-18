@@ -9,6 +9,10 @@
  * @since-jetpack 7.7 Moved to the jetpack-connection package.
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * A Jetpack implementation of the WordPress core IXR client, capable of multiple calls in a single request.
  */

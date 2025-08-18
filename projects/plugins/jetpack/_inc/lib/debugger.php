@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /* Jetpack Connection Testing Framework */
 require_once __DIR__ . '/debugger/class-jetpack-cxn-test-base.php';
 /* Jetpack Connection Tests */
