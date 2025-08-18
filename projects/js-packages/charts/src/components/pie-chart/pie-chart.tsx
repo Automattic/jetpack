@@ -391,6 +391,8 @@ PieChartWithProvider.displayName = 'PieChart';
 // Create PieChart with composition API
 const PieChart = attachSubComponents( PieChartWithProvider, {
 	Legend: Legend,
+	SVG: PieChartSVG,
+	HTML: PieChartHTML,
 } ) as PieChartComponent;
 
 // Create responsive PieChart with composition API
@@ -398,6 +400,8 @@ const PieChartResponsive = attachSubComponents(
 	withResponsive< PieChartProps >( PieChartWithProvider ),
 	{
 		Legend: Legend,
+		SVG: PieChartSVG,
+		HTML: PieChartHTML,
 	}
 ) as PieChartResponsiveComponent;
 
