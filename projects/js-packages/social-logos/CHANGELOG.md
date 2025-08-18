@@ -1,6 +1,6 @@
 ## [3.2.9] - 2025-08-18
 ### Added
-- Added type-check script to ensure that the TS files are type-checked. [#44795]
+- Add type-check script to ensure that the TypeScript files are type-checked. [#44795]
 
 ## [3.2.8] - 2025-08-04
 ### Changed

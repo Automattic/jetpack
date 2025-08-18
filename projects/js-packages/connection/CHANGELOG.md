@@ -4,7 +4,7 @@
 
 ## [1.4.4] - 2025-08-18
 ### Added
-- Added type-check script to ensure that the TS files are type-checked. [#44795]
+- Add type-check script to ensure that the TypeScript files are type-checked. [#44795]
 
 ## [1.4.3] - 2025-08-14
 ### Changed

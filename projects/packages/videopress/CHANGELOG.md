@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.32.1] - 2025-08-18
 ### Added
-- Added type-check placeholder to implement it later. [#44795]
+- Add type-check placeholder script (to be implemented). [#44795]
 
 ## [0.32.0] - 2025-08-14
 ### Changed

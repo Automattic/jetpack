@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Add styling and settings to "Image Select" field under feature flag. [#44786]
-- Check MailPoet setup not key. [#44784]
+- Update method used to check for a valid MailPoet connection. [#44784]
 - Improve the selected checkbox style. [#44743]
 
 ### Fixed
