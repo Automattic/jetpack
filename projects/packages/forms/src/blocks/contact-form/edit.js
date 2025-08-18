@@ -10,6 +10,7 @@ import {
 	useInnerBlocksProps,
 	store as blockEditorStore,
 	BlockControls,
+	BlockContextProvider,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
@@ -117,6 +118,12 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	const steps = useFormSteps( clientId );
+
+	// Get current step info for context
+	const currentStepInfo = useSelect(
+		select => select( singleStepStore ).getCurrentStepInfo( clientId, steps ),
+		[ clientId, steps ]
+	);
 
 	const submitButton = useFindBlockRecursively(
 		clientId,
@@ -785,7 +792,14 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ __( 'Read more.', 'jetpack-forms' ) }
 					</ExternalLink>
 				</InspectorAdvancedControls>
-				<div { ...innerBlocksProps } />
+				<BlockContextProvider
+					value={ {
+						'jetpack/form-steps': steps,
+						'jetpack/form-current-step': currentStepInfo,
+					} }
+				>
+					<div { ...innerBlocksProps } />
+				</BlockContextProvider>
 			</>
 		);
 	}

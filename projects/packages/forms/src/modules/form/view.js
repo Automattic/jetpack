@@ -136,6 +136,16 @@ const { state } = store( NAMESPACE, {
 			return ! Object.values( context.fields ).some( field => ! isEmptyValue( field.value ) );
 		},
 
+		get isStepActive() {
+			const context = getContext();
+			return context.currentStep === context.stepIndex + 1;
+		},
+
+		get isStepCompleted() {
+			const context = getContext();
+			return context.currentStep > context.stepIndex + 1;
+		},
+
 		get isFieldEmpty() {
 			const context = getContext();
 			const fieldId = context.fieldId;

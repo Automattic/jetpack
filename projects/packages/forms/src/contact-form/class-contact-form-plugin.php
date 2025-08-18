@@ -749,46 +749,108 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the progress indicator.
 	 *
-	 * @param array  $attributes - the block attributes.
-	 * @param string $content - html content.
+	 * @param array $attributes - the block attributes.
 	 *
 	 * @return string HTML for the progress indicator.
 	 */
-	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
+	public static function gutenblock_render_form_progress_indicator( $attributes ) {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 		if ( empty( $version ) ) {
 			$version = '0.1';
 		}
 
-		// Enqueue the frontend style for the progress indicator.
+		// Get step count from Contact_Form_Block
+		$max_steps = Contact_Form_Block::get_form_step_count();
+
 		$style_handle = 'jetpack-form-progress-indicator-style';
-		$style_path   = '../../dist/blocks/form-progress-indicator/style.css'; // Path from the 404 error
 		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
-			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+			wp_enqueue_style( $style_handle, plugins_url( 'dist/blocks/form-progress-indicator/style.css', dirname( __DIR__ ) ), array(), $version );
 		}
 
-		// Enqueue the interactivity script module (matching form-step pattern).
 		$script_handle = 'jetpack-form-progress-indicator';
-		$script_path   = '../../dist/modules/form-progress-indicator/view.js'; // Path from previous 404 error
 		\wp_enqueue_script_module(
 			$script_handle,
-			plugins_url( $script_path, __FILE__ ),
+			plugins_url( 'dist/modules/form-progress-indicator/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
 			$version
 		);
 
-		$processor = new \WP_HTML_Tag_Processor( $content );
-		$processor->next_tag();
-		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+		$variant       = isset( $attributes['variant'] ) ? $attributes['variant'] : 'line';
+		$is_dots_style = $variant === 'dots';
 
-		while ( $processor->next_tag() ) {
-			$class = $processor->get_attribute( 'class' );
-			if ( 'jetpack-form-progress-indicator-bar' === $class ) {
-				$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
-			}
+		// Build custom CSS variables for progress indicator colors
+		$custom_styles = array();
+
+		if ( isset( $attributes['progressColor'] ) ) {
+			$custom_styles[] = '--jp-progress-active-color: ' . esc_attr( $attributes['progressColor'] );
 		}
 
-		return $processor->get_updated_html();
+		if ( isset( $attributes['progressBackgroundColor'] ) ) {
+			$custom_styles[] = '--jp-progress-track-color: ' . esc_attr( $attributes['progressBackgroundColor'] );
+		}
+
+		if ( isset( $attributes['textColor'] ) ) {
+			$custom_styles[] = '--jp-progress-text-color: var(--wp--preset--color--' . esc_attr( $attributes['textColor'] ) . ')';
+		} elseif ( isset( $attributes['style']['color']['text'] ) ) {
+			$custom_styles[] = '--jp-progress-text-color: ' . esc_attr( $attributes['style']['color']['text'] );
+		}
+
+		// Use WordPress Style Engine for block supports (dimensions, spacing, background, etc.)
+		$generated_styles = wp_style_engine_get_styles( $attributes['style'] ?? null );
+
+		// Combine all styles
+		$all_styles = array_filter( array_merge( $custom_styles, explode( ';', $generated_styles['css'] ) ) );
+
+		$extra_attributes = array();
+		if ( ! empty( $all_styles ) ) {
+			$extra_attributes['style'] = implode( '; ', $all_styles );
+		}
+
+		// Add generated classnames if any
+		$classes = array();
+		if ( ! empty( $generated_styles['classnames'] ) ) {
+			$classes[] = $generated_styles['classnames'];
+		}
+		// Add variant class
+		$classes[] = 'is-variant-' . $variant;
+
+		$extra_attributes['class'] = implode( ' ', $classes );
+
+		$wrapper_attributes = get_block_wrapper_attributes( $extra_attributes );
+
+		// Build the complete HTML structure using output buffering for better readability
+		ob_start();
+		$progress_state = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
+		?>
+		<div <?php echo wp_kses_post( $wrapper_attributes ); ?>>
+			<div class="jetpack-form-progress-indicator-steps">
+				<?php if ( $is_dots_style ) : ?>
+					<?php for ( $i = 0; $i < $max_steps; $i++ ) : ?>
+						<?php $step_context = array( 'stepIndex' => $i ); ?>
+						<div class="jetpack-form-progress-indicator-step" 
+							data-wp-class--is-active="state.isStepActive" 
+							data-wp-class--is-completed="state.isStepCompleted" 
+							data-wp-context='<?php echo wp_json_encode( $step_context ); ?>'>
+							<div class="jetpack-form-progress-indicator-line"></div>
+							<div class="jetpack-form-progress-indicator-dot">
+								<span class="jetpack-form-progress-indicator-step-number">
+									<span class="step-number"><?php echo esc_html( $i + 1 ); ?></span>
+									<span class="step-checkmark" role="img" aria-label="<?php echo esc_attr__( 'Completed', 'jetpack-forms' ); ?>">
+										<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+											<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/>
+										</svg>
+									</span>
+								</span>
+							</div>
+						</div>
+					<?php endfor; ?>
+				<?php endif; ?>
+				<div class="jetpack-form-progress-indicator-progress" 
+					data-wp-style--width="<?php echo esc_attr( $progress_state ); ?>"></div>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
