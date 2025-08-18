@@ -1780,6 +1780,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
+		// Build feedback reference
+		$feedback_time  = $response->get_time();
+		$feedback_title = $response->get_title();
+		$feedback_id    = $response->get_feedback_id();
+
 		$entry_values = $response->get_entry_values();
 
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
@@ -1850,10 +1855,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$comment_author_ip = null;
 		}
 
-		$feedback_time  = $response->get_time();
-		$feedback_title = $response->get_title();
-		$feedback_id    = $response->get_feedback_id();
-
 		$comment_ip_text = $comment_author_ip ? "IP: {$comment_author_ip}\n" : null;
 
 		$post_id = wp_insert_post(
@@ -1868,6 +1869,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'post_name'    => $feedback_id,
 			)
 		);
+
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
