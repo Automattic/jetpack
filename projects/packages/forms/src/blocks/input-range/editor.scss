@@ -99,3 +99,18 @@
 		margin: 0;
 	}
 }
+
+.jetpack-field-slider__text-labels {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 6px;
+	font-size: 0.9em;
+}
+
+.jetpack-field-slider__min-text-label {
+	text-align: left;
+}
+
+.jetpack-field-slider__max-text-label {
+	text-align: right;
+}

@@ -20,6 +20,8 @@ const settings = {
 		'jetpack/field-slider-onChangeMin',
 		'jetpack/field-slider-onChangeMax',
 		'jetpack/field-slider-step',
+		'jetpack/field-slider-minLabel',
+		'jetpack/field-slider-maxLabel',
 	],
 };
 

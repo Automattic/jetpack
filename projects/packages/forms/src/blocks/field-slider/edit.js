@@ -8,6 +8,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	PanelBody,
+	TextControl,
 } from '@wordpress/components';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -27,6 +28,8 @@ export default function SliderFieldEdit( props ) {
 		width,
 		id,
 		required,
+		minLabel = '',
+		maxLabel = '',
 	} = attributes;
 
 	const onChangeMin = useCallback(
@@ -156,6 +159,18 @@ export default function SliderFieldEdit( props ) {
 							step={ 1 }
 							value={ step }
 							onChange={ onChangeStep }
+						/>
+					</HStack>
+					<HStack alignment="top" className="jp-field-slider-inspector-row">
+						<TextControl
+							label={ __( 'Min label', 'jetpack-forms' ) }
+							value={ minLabel }
+							onChange={ value => setAttributes( { minLabel: value } ) }
+						/>
+						<TextControl
+							label={ __( 'Max label', 'jetpack-forms' ) }
+							value={ maxLabel }
+							onChange={ value => setAttributes( { maxLabel: value } ) }
 						/>
 					</HStack>
 				</PanelBody>

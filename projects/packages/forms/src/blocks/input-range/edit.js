@@ -19,6 +19,8 @@ export default function SliderInputEdit( props ) {
 	const onChangeMin = context[ 'jetpack/field-slider-onChangeMin' ];
 	const onChangeMax = context[ 'jetpack/field-slider-onChangeMax' ];
 	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
+	const minTextLabel = context[ 'jetpack/field-slider-minLabel' ];
+	const maxTextLabel = context[ 'jetpack/field-slider-maxLabel' ];
 
 	// Setup local state.
 	const [ localMin, setLocalMin ] = useState( String( minFromContext ) );
@@ -135,6 +137,12 @@ export default function SliderInputEdit( props ) {
 					onKeyDown={ onKeyDown }
 				/>
 			</div>
+			{ ( minTextLabel || maxTextLabel ) && (
+				<div className="jetpack-field-slider__text-labels" aria-hidden="true">
+					<span className="jetpack-field-slider__min-text-label">{ minTextLabel }</span>
+					<span className="jetpack-field-slider__max-text-label">{ maxTextLabel }</span>
+				</div>
+			) }
 		</div>
 	);
 }
