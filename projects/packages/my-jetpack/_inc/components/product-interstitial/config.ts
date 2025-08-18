@@ -1,9 +1,10 @@
 import { ComponentType } from 'react';
+import BoostLogo from './logos/boost-logo';
 import SearchLogo from './logos/search-logo';
 import SocialLogo from './logos/social-logo';
 
 /**
- * Configuration types for product pricing tables
+  Configuration types for product pricing tables
  */
 export interface FeatureTier {
 	included: boolean;
@@ -41,6 +42,84 @@ export interface ProductConfigs {
 
 // Product configuration for pricing tables
 export const PRODUCT_CONFIGS: ProductConfigs = {
+	boost: {
+		title: 'Optimize site performance and SEO',
+		logo: BoostLogo,
+		bundle: 'complete',
+		features: [
+			{
+				name: 'Auto CSS Optimization',
+				free: { included: false, label: 'Manual' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'All Jetpack Boost features' },
+			},
+			{
+				name: 'Historical performance scores',
+				free: { included: false, label: 'Not included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Real-time backups and one-click restores' },
+			},
+			{
+				name: 'Dedicated email support',
+				free: { included: false, label: 'Not included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Malware scanning and security protection' },
+			},
+			{
+				name: 'Page Cache',
+				free: { included: true, label: 'Included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Spam filtering for comments and forms' },
+			},
+			{
+				name: 'Image CDN Quality Settings',
+				free: { included: false, label: 'Not included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'AI-powered writing and image generation' },
+			},
+			{
+				name: 'Image CDN Auto-Resize Lazy Images',
+				free: { included: false, label: 'Not included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Instant site search' },
+			},
+			{
+				name: 'Image CDN',
+				free: { included: true, label: 'Included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Detailed stats and insights' },
+			},
+			{
+				name: 'Image guide',
+				free: { included: true, label: 'Included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Social tools' },
+			},
+			{
+				name: 'Defer non-essential JavaScript',
+				free: { included: true, label: 'Included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Video hosting (1TB, ad-free)' },
+			},
+			{
+				name: 'Concatenate JS and CSS',
+				free: { included: true, label: 'Included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Priority support' },
+			},
+			{
+				name: 'Priority support',
+				free: { included: false, label: 'Not included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: '' },
+			},
+		],
+		tiers: {
+			free: { name: 'Free', cta: 'Start for Free' },
+			paid: { name: 'Boost', cta: 'Get Boost' },
+			bundle: { name: 'Complete', cta: 'Get Complete' },
+		},
+	},
 	social: {
 		title: 'Publish once. Share everywhere.',
 		logo: SocialLogo,

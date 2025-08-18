@@ -363,7 +363,9 @@ function PricingInterstitial( { slug } ) {
 	const bundleCheckoutRedirectUrl = bundleDetail?.postActivationUrl || myJetpackCheckoutUri;
 
 	const { run: paidCheckoutRun } = useProductCheckoutWorkflow( {
-		productSlug: detail?.pricingForUi?.wpcomProductSlug,
+		productSlug:
+			detail?.pricingForUi?.tiers?.upgraded?.wpcomProductSlug ||
+			detail?.pricingForUi?.wpcomProductSlug,
 		redirectUrl: paidCheckoutRedirectUrl,
 		siteSuffix,
 		adminUrl,
@@ -499,7 +501,15 @@ function PricingInterstitial( { slug } ) {
 		return <ProductInterstitial slug={ slug } installsPlugin={ true } />;
 	}
 
-	const productPricing = detail?.pricingForUi;
+	// Handle tiered pricing like trunk does - check for tiers.upgraded first
+	const productPricing = detail?.pricingForUi?.tiers?.upgraded
+		? {
+				...detail.pricingForUi.tiers.upgraded,
+				// Calculate monthly prices from annual if needed
+				fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
+				discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
+		  }
+		: detail?.pricingForUi;
 	const bundlePricing = bundleDetail?.pricingForUi;
 
 	// Get currency code with USD fallback
