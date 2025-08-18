@@ -61,6 +61,46 @@ The simplest pie chart requires only a `data` prop with percentage-based data:
 - **`cornerScale`** (default: `0`): Scale of corner rounding for segments (0-1)
 - **`children`**: Optional React node to render inside the chart center (useful for donut charts)
 
+## Composition API
+
+The Pie Chart now supports a compound component pattern for advanced customization:
+
+<Canvas of={ PieChartStories.CompositionAPI } />
+
+### Using Compound Components
+
+The composition API allows you to add custom SVG and HTML elements to your charts:
+
+<Source
+	language="jsx"
+	code={ `<PieChart data={ data } size={ 400 }>
+	{/* HTML elements rendered outside the SVG */}
+	<PieChart.HTML>
+		<h3>Chart Title</h3>
+	</PieChart.HTML>
+
+	{/* SVG elements rendered inside the chart */}
+	<PieChart.SVG>
+		<text x={ 0 } y={ 0 } textAnchor="middle">
+			Center Text
+		</text>
+	</PieChart.SVG>
+
+	{/* More HTML elements */}
+	<PieChart.HTML>
+		<PieChart.Legend position="bottom" />
+		<p>Additional information</p>
+	</PieChart.HTML>
+</PieChart>` }
+/>
+
+### Benefits of Composition API
+
+- **Clear Intent**: Use `PieChart.SVG` for SVG elements and `PieChart.HTML` for HTML elements
+- **Type Safety**: TypeScript knows where each element type belongs
+- **Flexibility**: Add custom visualizations, annotations, or UI elements
+- **Backward Compatible**: Existing implementations continue to work unchanged
+
 ## Interactive Features
 
 ### Tooltips
@@ -241,6 +281,43 @@ Main component for rendering pie and donut charts.
 | `maxWidth`                  | `number`                        | -              | Maximum width for responsive charts                                               |
 | `aspectRatio`               | `number`                        | `1`            | Aspect ratio for responsive charts                                                |
 | `resizeDebounceTime`        | `number`                        | `100`          | Debounce time for resize events (ms)                                              |
+
+### Compound Components
+
+#### PieChart.SVG
+
+Container for SVG elements to be rendered inside the chart area.
+
+```jsx
+<PieChart.SVG>
+  <text x={0} y={0}>Center Text</text>
+</PieChart.SVG>
+```
+
+#### PieChart.HTML
+
+Container for HTML elements to be rendered outside the SVG area.
+
+```jsx
+<PieChart.HTML>
+  <h3>Chart Title</h3>
+  <PieChart.Legend />
+</PieChart.HTML>
+```
+
+#### PieChart.Legend
+
+The Legend component for displaying chart data labels. Can be used either as a prop or within composition:
+
+```jsx
+// As a prop
+<PieChart showLegend={true} legendPosition="bottom" />
+
+// With composition
+<PieChart>
+  <PieChart.Legend position="bottom" orientation="horizontal" />
+</PieChart>
+```
 
 ### DataPointPercentage Type
 
