@@ -41,8 +41,12 @@ const test = baseTest.extend<
 	},
 } );
 
-test.beforeEach( async ( { testUtils } ) => {
+test.beforeEach( async ( { testUtils }, testInfo ) => {
 	await testUtils.executeWpCommand( 'transient delete wpcom_request_counter' );
+
+	if ( testInfo.project.metadata?.parent ) {
+		allure.addParameter( 'Parent project', testInfo.project.metadata.parent );
+	}
 } );
 
 test.afterEach( async ( { testUtils } ) => {
