@@ -166,22 +166,38 @@ const PieChartInternal = ( {
 
 	const { isValid, message } = validateData( data );
 
-	// Separate SVG and React children in a single pass
-	const { svgChildren, reactChildren } = useMemo( () => {
+	// Process children to extract compound components
+	const { svgChildren, htmlChildren, otherChildren } = useMemo( () => {
 		const svg: ReactNode[] = [];
-		const react: ReactNode[] = [];
+		const html: ReactNode[] = [];
+		const other: ReactNode[] = [];
 
 		Children.forEach( children, child => {
 			if ( isValidElement( child ) ) {
-				if ( child.type === Group ) {
+				// Check displayName for compound components
+				const childType = child.type as { displayName?: string };
+				const displayName = childType?.displayName;
+
+				if ( displayName === 'PieChart.SVG' ) {
+					// Extract children from PieChart.SVG
+					Children.forEach( child.props.children, svgChild => {
+						svg.push( svgChild );
+					} );
+				} else if ( displayName === 'PieChart.HTML' ) {
+					// Extract children from PieChart.HTML
+					Children.forEach( child.props.children, htmlChild => {
+						html.push( htmlChild );
+					} );
+				} else if ( child.type === Group ) {
+					// Legacy support: still check for Group type for backward compatibility
 					svg.push( child );
 				} else {
-					react.push( child );
+					other.push( child );
 				}
 			}
 		} );
 
-		return { svgChildren: svg, reactChildren: react };
+		return { svgChildren: svg, htmlChildren: html, otherChildren: other };
 	}, [ children ] );
 
 	// Memoize metadata to prevent unnecessary re-registration
@@ -344,8 +360,11 @@ const PieChartInternal = ( {
 					/>
 				) }
 
-				{ /* Render React component children (like PieChart.Legend) outside the SVG */ }
-				{ reactChildren }
+				{ /* Render HTML component children from PieChart.HTML */ }
+				{ htmlChildren }
+
+				{ /* Render other React children for backward compatibility */ }
+				{ otherChildren }
 			</div>
 		</SingleChartContext.Provider>
 	);
