@@ -84,4 +84,19 @@
 		font-size: 0.7em;
 		z-index: 2;
 	}
+
+	&__text-labels {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 6px;
+		font-size: 0.9em;
+	}
+
+	&__min-text-label {
+		text-align: left;
+	}
+
+	&__max-text-label {
+		text-align: right;
+	}
 }

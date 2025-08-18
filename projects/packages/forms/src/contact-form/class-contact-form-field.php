@@ -145,6 +145,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionstyles'             => null,
 				'min'                      => null,
 				'max'                      => null,
+				'minlabel'                 => null,
+				'maxlabel'                 => null,
 				'step'                     => null,
 				'maxfiles'                 => null,
 				'fieldwrapperclasses'      => null,
@@ -614,6 +616,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 			if ( is_numeric( $this->get_attribute( 'step' ) ) ) {
 				$extra_attrs['step'] = $this->get_attribute( 'step' );
+			}
+		}
+
+		if ( $field_type === 'slider' ) {
+			$minlabel = $this->get_attribute( 'minlabel' );
+			$maxlabel = $this->get_attribute( 'maxlabel' );
+			if ( null !== $minlabel && '' !== $minlabel ) {
+				$extra_attrs['minLabel'] = $minlabel;
+			}
+			if ( null !== $maxlabel && '' !== $maxlabel ) {
+				$extra_attrs['maxLabel'] = $maxlabel;
 			}
 		}
 
@@ -2507,6 +2520,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
 		$step           = isset( $extra_attrs['step'] ) ? $extra_attrs['step'] : 1;
 		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
+		$min_text_label = isset( $extra_attrs['minLabel'] ) ? $extra_attrs['minLabel'] : '';
+		$max_text_label = isset( $extra_attrs['maxLabel'] ) ? $extra_attrs['maxLabel'] : '';
 
 		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
 
@@ -2540,7 +2555,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<?php
 					if ( $required ) :
 						?>
-						required<?php endif; ?>
+					required<?php endif; ?>
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
 					data-wp-bind--aria-invalid="state.fieldHasErrors"
@@ -2553,6 +2568,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			</div>
 			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
+		<?php if ( '' !== $min_text_label || '' !== $max_text_label ) : ?>
+			<div class="jetpack-field-slider__text-labels" aria-hidden="true">
+				<span class="jetpack-field-slider__min-text-label"><?php echo esc_html( $min_text_label ); ?></span>
+				<span class="jetpack-field-slider__max-text-label"><?php echo esc_html( $max_text_label ); ?></span>
+			</div>
+		<?php endif; ?>
 		<?php
 		$field .= ob_get_clean();
 		return $field . $this->get_error_div( $id, 'slider' );
