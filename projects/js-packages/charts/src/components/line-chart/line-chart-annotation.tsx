@@ -9,7 +9,7 @@ import {
 import { DataContext } from '@visx/xychart';
 import merge from 'deepmerge';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
-import { useChartTheme } from '../../providers/theme/theme-provider';
+import { useChartTheme } from '../../hooks';
 import { isSafari } from '../shared/utils';
 import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,

@@ -1,5 +1,5 @@
 import { GlyphStar } from '@visx/glyph';
-import { useChartTheme } from '../../../providers/theme';
+import { useChartTheme } from '../../../hooks';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { DataPointDate } from '../../../types';

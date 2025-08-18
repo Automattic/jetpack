@@ -1,4 +1,4 @@
-import { useChartTheme } from '../../../providers/theme';
+import { useChartTheme } from '../../../hooks';
 import { legendArgTypes } from '../../../stories/legend-config';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
