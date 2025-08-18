@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash';
+import isEqual from 'fast-deep-equal';
 import { useRef } from 'react';
 
 /**
