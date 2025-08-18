@@ -458,7 +458,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	public function test_cdn_url_empty_invalid_url() {
 		$this->assertSame( '', Image_CDN_Core::cdn_url( '' ) );
 		$this->assertSame( '', Image_CDN_Core::cdn_url( null ) );
-		$this->assertSame( '', Image_CDN_Core::cdn_url( 123 ) );
+		$this->assertSame( '', Image_CDN_Core::cdn_url( 123 ) ); // @phan-suppress-current-line PhanTypeMismatchArgument
 		$this->assertSame( '', Image_CDN_Core::cdn_url( array() ) );
 	}
 
