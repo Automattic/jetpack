@@ -15,6 +15,7 @@
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
 		"clean": "rm -rf build css/*.map.css css/*.min.css* css/*.min.rtl.css css/*.rtl.css css/welcome-to-zbs/*.min.css* css/welcome-to-zbs/*.min.rtl.css js/*.min.js* js/welcome-to-zbs/wizard2.min.js*",
 		"test": "jest",
+		"typecheck": "echo \"pending implementation\"",
 		"watch": "pnpm run build && webpack watch"
 	},
 	"dependencies": {

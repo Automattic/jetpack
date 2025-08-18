@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add typecheck script to ensure that the TypeScript files are type-checked.

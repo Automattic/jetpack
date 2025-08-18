@@ -27,7 +27,8 @@
 	"main": "build/react/index.js",
 	"types": "build/react/index.d.ts",
 	"scripts": {
-		"build": "./tools/build"
+		"build": "./tools/build",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"prop-types": "^15.8.1",
