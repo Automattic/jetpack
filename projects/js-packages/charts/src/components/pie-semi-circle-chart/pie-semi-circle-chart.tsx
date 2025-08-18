@@ -104,6 +104,21 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	return { isValid: true, message: '' };
 };
 
+/**
+ * Compound component for SVG children in the PieSemiCircleChart
+ * @param {PropsWithChildren} props          - Component props
+ * @param {ReactNode}         props.children - Child elements to render
+ * @return {JSX.Element} The children wrapped in a fragment
+ */
+const PieSemiCircleChartSVG: FC< PropsWithChildren > = ( { children } ) => {
+	// This component doesn't render directly - its children are extracted by PieSemiCircleChart
+	// We just return the children as-is
+	return <>{ children }</>;
+};
+
+// Set displayName for better debugging and type checking
+PieSemiCircleChartSVG.displayName = 'PieSemiCircleChart.SVG';
+
 const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
 	chartId: providedChartId,
