@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
 import childProcess from 'child_process';
-import dns from 'dns/promises';
 import fs from 'fs';
-import https from 'https';
 import config from 'config';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -115,77 +113,13 @@ async function tunnelChild() {
 				tunnelUrl = urlMatch[ 0 ];
 				console.log( `[tunnel manager] Cloudflare tunnel started: ${ tunnelUrl }` );
 
-				// Wait for DNS to resolve the new subdomain
-				const hostname = new URL( tunnelUrl ).hostname;
-				console.log( `[tunnel manager] Waiting for DNS to resolve ${ hostname }...` );
-
-				const waitForDns = async () => {
-					const maxAttempts = 30; // 30 seconds total
-					for ( let i = 0; i < maxAttempts; i++ ) {
-						try {
-							await dns.resolve4( hostname );
-							console.log( `[tunnel manager] DNS resolved for ${ hostname }` );
-							return true;
-						} catch ( e ) {
-							if ( i === maxAttempts - 1 ) {
-								console.error(
-									`[tunnel manager] DNS resolution failed after ${ maxAttempts } attempts. ${ e.message }`
-								);
-								return false;
-							}
-							await new Promise( r => setTimeout( r, 1000 ) );
-						}
-					}
-				};
-
-				waitForDns().then( async success => {
-					if ( ! success ) {
-						cloudflaredProcess.kill();
-						reject( new Error( '[tunnel manager] DNS resolution failed' ) );
-						return;
-					}
-
-					// Also verify HTTP connectivity
-					console.log( `[tunnel manager] Verifying HTTP connectivity to ${ tunnelUrl }...` );
-					const verifyConnectivity = () =>
-						new Promise( resolveCheck => {
-							https
-								.get( tunnelUrl, { timeout: 5000 }, res => {
-									console.log(
-										`[tunnel manager] Tunnel is accessible (status: ${ res.statusCode })`
-									);
-									resolveCheck( true );
-								} )
-								.on( 'error', err => {
-									console.error(
-										`[tunnel manager] HTTP connectivity check failed: ${ err.message }`
-									);
-									resolveCheck( false );
-								} );
-						} );
-
-					let connected = false;
-					for ( let i = 0; i < 10; i++ ) {
-						if ( await verifyConnectivity() ) {
-							connected = true;
-							break;
-						}
-						console.log( `[tunnel manager] Retry ${ i + 1 }/10 - waiting 1 second...` );
-						await new Promise( r => setTimeout( r, 1000 ) );
-					}
-
-					if ( connected ) {
-						setTunnelUrl( tunnelUrl );
-						fs.writeFileSync( config.get( 'temp.pid' ), `${ cloudflaredProcess.pid }` );
-						resolved = true;
-						process.send?.( 'ok' );
-						resolve();
-					} else {
-						console.error( '[tunnel manager] Tunnel is not accessible via HTTP' );
-						cloudflaredProcess.kill();
-						reject( new Error( '[tunnel manager] Tunnel connectivity check failed' ) );
-					}
-				} );
+				// Save the tunnel URL and PID immediately
+				// The connectivity checks will be done by the Playwright test
+				setTunnelUrl( tunnelUrl );
+				fs.writeFileSync( config.get( 'temp.pid' ), `${ cloudflaredProcess.pid }` );
+				resolved = true;
+				process.send?.( 'ok' );
+				resolve();
 			}
 		};
 

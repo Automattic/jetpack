@@ -43,9 +43,16 @@ process.env.WP_PASSWORD = site.password;
 
 export const setupProjects = [
 	{
+		name: 'environment check',
+		testDir: `${ rootPath }/setup-specs`,
+		testMatch: 'env-check.setup.ts',
+		storageState: undefined,
+	},
+	{
 		name: 'global authentication',
 		testDir: `${ rootPath }/setup-specs`,
 		testMatch: 'auth.setup.ts',
+		dependencies: [ 'environment check' ],
 		storageState: undefined,
 	},
 	{
