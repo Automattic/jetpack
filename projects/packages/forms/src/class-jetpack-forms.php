@@ -105,6 +105,6 @@ class Jetpack_Forms {
 		 *
 		 * @param bool false Whether MailPoet integration be enabled. Default is false.
 		 */
-		return apply_filters( 'jetpack_forms_mailpoet_enable', false );
+		return apply_filters( 'jetpack_forms_mailpoet_enable', true );
 	}
 }
