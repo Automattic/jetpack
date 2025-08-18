@@ -24,7 +24,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 function register_block() {
 	Blocks::jetpack_register_block(
 		__DIR__,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		array(
+			'render_callback'       => __NAMESPACE__ . '\load_assets',
+			'render_email_callback' => __NAMESPACE__ . '\render_email',
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
@@ -49,6 +52,87 @@ function load_assets( $attr, $content ) {
 	}
 
 	return $content;
+}
+
+/**
+ * Render slideshow block for email.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $block_content     The original block HTML content.
+ * @param array  $parsed_block      The parsed block data including attributes.
+ * @param object $rendering_context Email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $rendering_context is part of the WooCommerce email callback signature.
+	$attr = isset( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
+
+	if ( empty( $attr['ids'] ) && empty( $attr['images'] ) ) {
+		return '';
+	}
+
+	// For email, we'll render a simple grid of images instead of an interactive slideshow
+	$images = array();
+
+	// Use image IDs if available
+	if ( ! empty( $attr['ids'] ) ) {
+		foreach ( $attr['ids'] as $id ) {
+			$image_url = wp_get_attachment_image_url( $id, 'medium' );
+			$alt_text  = get_post_meta( $id, '_wp_attachment_image_alt', true );
+			$caption   = wp_get_attachment_caption( $id );
+
+			if ( $image_url ) {
+				$images[] = array(
+					'url'     => $image_url,
+					'alt'     => $alt_text,
+					'caption' => $caption,
+				);
+			}
+		}
+	} elseif ( ! empty( $attr['images'] ) ) {
+		// Fall back to images array if IDs aren't available
+		foreach ( $attr['images'] as $image ) {
+			if ( ! empty( $image['url'] ) ) {
+				$images[] = array(
+					'url'     => $image['url'],
+					'alt'     => ! empty( $image['alt'] ) ? $image['alt'] : '',
+					'caption' => ! empty( $image['caption'] ) ? $image['caption'] : '',
+				);
+			}
+		}
+	}
+
+	if ( empty( $images ) ) {
+		return '';
+	}
+
+	// Generate email-friendly HTML using table wrapper for better email client compatibility
+	$html  = '<table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; border-collapse: collapse;">';
+	$html .= '<tr><td style="padding: 0; font-family: Arial, sans-serif;">';
+
+	foreach ( $images as $image ) {
+		$html .= '<table role="presentation" style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">';
+		$html .= '<tr><td style="text-align: center; padding: 0;">';
+		$html .= sprintf(
+			'<img src="%s" alt="%s" style="max-width: 100%%; height: auto; display: block; margin: 0 auto; border: 0;" />',
+			esc_url( $image['url'] ),
+			esc_attr( $image['alt'] )
+		);
+
+		if ( ! empty( $image['caption'] ) ) {
+			$html .= sprintf(
+				'<p style="margin: 10px 0 0 0; font-size: 14px; color: #666; text-align: center; line-height: 1.4;">%s</p>',
+				wp_kses_post( $image['caption'] )
+			);
+		}
+
+		$html .= '</td></tr></table>';
+	}
+
+	$html .= '</td></tr></table>';
+
+	return $html;
 }
 
 /**
