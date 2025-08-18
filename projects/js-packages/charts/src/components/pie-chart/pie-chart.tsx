@@ -19,7 +19,7 @@ import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { ResponsiveConfig } from '../shared/with-responsive';
-import type { SVGProps, MouseEvent, ReactNode, FC, ComponentType } from 'react';
+import type { SVGProps, MouseEvent, ReactNode, FC, ComponentType, PropsWithChildren } from 'react';
 
 interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -63,6 +63,8 @@ type PieChartBaseProps = Optional< PieChartProps, 'size' >;
 // Composition API types
 interface PieChartSubComponents {
 	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
+	SVG: FC< PropsWithChildren >;
+	HTML: FC< PropsWithChildren >;
 }
 
 type PieChartComponent = FC< PieChartBaseProps > & PieChartSubComponents;
