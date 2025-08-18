@@ -98,6 +98,36 @@ const validateData = ( data: DataPointPercentage[] ) => {
 };
 
 /**
+ * Compound component for SVG children in the PieChart
+ * @param {PropsWithChildren} props          - Component props
+ * @param {ReactNode}         props.children - Child elements to render
+ * @return {JSX.Element} The children wrapped in a fragment
+ */
+const PieChartSVG: FC< PropsWithChildren > = ( { children } ) => {
+	// This component doesn't render directly - its children are extracted by PieChart
+	// We just return the children as-is
+	return <>{ children }</>;
+};
+
+// Set displayName for better debugging and type checking
+PieChartSVG.displayName = 'PieChart.SVG';
+
+/**
+ * Compound component for HTML children in the PieChart
+ * @param {PropsWithChildren} props          - Component props
+ * @param {ReactNode}         props.children - Child elements to render
+ * @return {JSX.Element} The children wrapped in a fragment
+ */
+const PieChartHTML: FC< PropsWithChildren > = ( { children } ) => {
+	// This component doesn't render directly - its children are extracted by PieChart
+	// We just return the children as-is
+	return <>{ children }</>;
+};
+
+// Set displayName for better debugging and type checking
+PieChartHTML.displayName = 'PieChart.HTML';
+
+/**
  * Renders a pie or donut chart using the provided data.
  *
  * @param {PieChartProps} props - Component props
