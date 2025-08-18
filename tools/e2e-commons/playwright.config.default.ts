@@ -10,7 +10,12 @@ const rootPath = fileURLToPath( new URL( '.', import.meta.url ) );
 const reporter: ReporterDescription[] = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
-	[ 'allure-playwright' ],
+	[
+		'allure-playwright',
+		{
+			suiteTitle: false,
+		},
+	],
 ];
 
 if ( process.env.CI ) {
