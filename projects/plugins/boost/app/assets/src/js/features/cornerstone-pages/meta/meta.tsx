@@ -62,7 +62,12 @@ const CornerstonePagesContent = () => {
 
 	const updateCornerstonePages = ( newValue: string ) => {
 		// If the user deletes all the URLs, we should set the list to an empty array.
-		const newItems = newValue ? newValue.split( '\n' ).map( line => line.trim() ) : [];
+		const newItems = newValue
+			? newValue
+					.split( '\n' )
+					.map( line => line.trim() )
+					.filter( Boolean )
+			: [];
 
 		setCornerstonePages( newItems, () => {
 			setNotice( {
@@ -224,10 +229,56 @@ const List: FC< ListProps > = ( {
 		}
 	};
 
-	const validateItems = ( value: string ) => {
-		const lines = value.split( '\n' ).map( line => line.trim() );
+	// URL Resolution - handles all the complex path logic in one place
+	const resolveUrlForSite = ( input: string, siteUrl: URL ): URL => {
+		if ( input.startsWith( '/' ) ) {
+			// Absolute path
+			const hasBasePath =
+				siteUrl.pathname !== '/' &&
+				input.startsWith( siteUrl.pathname ) &&
+				( input.length === siteUrl.pathname.length ||
+					input.charAt( siteUrl.pathname.length ) === '/' );
 
-		if ( lines.length === 0 ) {
+			if ( hasBasePath ) {
+				return new URL( input, siteUrl.origin );
+			}
+			return new URL( siteUrl.pathname + input, siteUrl.href );
+		}
+		// Relative path - ensure base URL has trailing slash
+		const baseUrl = siteUrl.href.endsWith( '/' ) ? siteUrl.href : siteUrl.href + '/';
+		return new URL( input, baseUrl );
+	};
+
+	// Backend Normalization - converts URLs back to relative paths for storage
+	const normalizeForBackend = ( input: string, siteUrl: URL ): string => {
+		if ( siteUrl.pathname !== '/' && input.startsWith( siteUrl.pathname ) ) {
+			const remainingPath = input.substring( siteUrl.pathname.length );
+			if ( remainingPath === '' || remainingPath.startsWith( '/' ) ) {
+				return remainingPath || '/';
+			}
+		}
+		return input;
+	};
+
+	// Input Processing - now much simpler
+	const processInputLines = ( value: string ): string[] => {
+		const siteUrl = new URL( Jetpack_Boost.site.url );
+
+		const lines = value
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( Boolean )
+			.map( line => normalizeForBackend( line, siteUrl ) );
+
+		// Deduplicate to avoid false "over max" errors
+		return Array.from( new Set( lines ) );
+	};
+
+	// Validation - now focused only on validation logic
+	const validateItems = ( value: string ) => {
+		const lines = processInputLines( value );
+
+		if ( value.trim().length > 0 && lines.length === 0 ) {
 			throw new Error( __( 'You must add at least one URL.', 'jetpack-boost' ) );
 		}
 
@@ -247,33 +298,36 @@ const List: FC< ListProps > = ( {
 		}
 
 		const siteUrl = new URL( Jetpack_Boost.site.url );
+		const normalizePath = ( p: string ) => p.replace( /\/$/, '' ) || '/';
+		const sitePath = normalizePath( siteUrl.pathname );
 
 		for ( const line of lines ) {
-			let url: URL | undefined;
-			let pathname: string | undefined;
-
 			try {
-				url = new URL( line );
-				pathname = url.pathname;
-			} catch {
-				// If the URL is invalid, they have provided a relative URL, which we will allow.
-				pathname = line;
-			}
+				const url = resolveUrlForSite( line, siteUrl );
 
-			if ( url && ! isSameSiteUrl( url, siteUrl ) ) {
-				throw new Error(
-					/* translators: %s is the URL that didn't match the site URL */
-					sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )
-				);
-			}
+				if ( ! isSameSiteUrl( url, siteUrl ) ) {
+					throw new Error(
+						/* translators: %s is the URL that didn't match the site URL */
+						sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )
+					);
+				}
 
-			if ( pathname === siteUrl.pathname ) {
-				throw new Error(
-					__(
-						'The homepage does not need to be added to the list, as it is automatically included.',
-						'jetpack-boost'
-					)
-				);
+				if ( normalizePath( url.pathname ) === sitePath ) {
+					throw new Error(
+						__(
+							'The homepage does not need to be added to the list, as it is automatically included.',
+							'jetpack-boost'
+						)
+					);
+				}
+			} catch ( e ) {
+				if ( e instanceof Error && e.message.includes( 'Invalid URL' ) ) {
+					throw new Error(
+						/* translators: %s is the URL that is invalid. */
+						sprintf( __( 'Invalid URL: %s', 'jetpack-boost' ), line )
+					);
+				}
+				throw e;
 			}
 		}
 
@@ -281,9 +335,11 @@ const List: FC< ListProps > = ( {
 	};
 
 	function save() {
-		setItems( inputValue );
+		const processedLines = processInputLines( inputValue );
+
+		setItems( processedLines.join( '\n' ) );
 		recordBoostEvent( 'cornerstone_pages_save', {
-			list_length: inputValue.split( '\n' ).length,
+			list_length: processedLines.length,
 		} );
 	}
 
