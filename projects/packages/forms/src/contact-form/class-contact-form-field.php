@@ -982,10 +982,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					</select>
 				</div>
 				<input
-					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
-					<?php echo $class; ?>
-					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function again ?>
-					<?php echo $placeholder; ?>
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- both are escaped in calling function ?>
+					<?php echo $class; ?> <?php echo $placeholder; ?>
 					type="tel"
 					<?php if ( $required ) { ?>
 						required="true"
