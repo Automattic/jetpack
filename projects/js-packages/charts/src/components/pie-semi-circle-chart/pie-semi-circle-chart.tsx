@@ -119,6 +119,21 @@ const PieSemiCircleChartSVG: FC< PropsWithChildren > = ( { children } ) => {
 // Set displayName for better debugging and type checking
 PieSemiCircleChartSVG.displayName = 'PieSemiCircleChart.SVG';
 
+/**
+ * Compound component for HTML children in the PieSemiCircleChart
+ * @param {PropsWithChildren} props          - Component props
+ * @param {ReactNode}         props.children - Child elements to render
+ * @return {JSX.Element} The children wrapped in a fragment
+ */
+const PieSemiCircleChartHTML: FC< PropsWithChildren > = ( { children } ) => {
+	// This component doesn't render directly - its children are extracted by PieSemiCircleChart
+	// We just return the children as-is
+	return <>{ children }</>;
+};
+
+// Set displayName for better debugging and type checking
+PieSemiCircleChartHTML.displayName = 'PieSemiCircleChart.HTML';
+
 const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
 	chartId: providedChartId,
