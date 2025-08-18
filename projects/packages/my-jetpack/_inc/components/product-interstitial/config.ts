@@ -1,4 +1,5 @@
 import { ComponentType } from 'react';
+import BackupLogo from './logos/backup-logo';
 import BoostLogo from './logos/boost-logo';
 import SearchLogo from './logos/search-logo';
 import SocialLogo from './logos/social-logo';
@@ -42,8 +43,68 @@ export interface ProductConfigs {
 
 // Product configuration for pricing tables
 export const PRODUCT_CONFIGS: ProductConfigs = {
+	backup: {
+		title: 'The best real-time WordPress backup plugin',
+		logo: BackupLogo,
+		bundle: 'security',
+		features: [
+			{
+				name: 'Real-time backups',
+				free: { included: false, label: 'Manual backups only' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Real-time cloud backups' },
+			},
+			{
+				name: 'Cloud backup storage',
+				free: { included: true, label: '250 MB' },
+				paid: { included: true, label: '10 GB' },
+				bundle: { included: true, label: '10GB of backup storage' },
+			},
+			{
+				name: 'One-click restores',
+				free: { included: true, label: 'Included' },
+				paid: { included: true, label: '30-day history' },
+				bundle: { included: true, label: 'Automated malware scan' },
+			},
+			{
+				name: 'Backup history',
+				free: { included: true, label: 'Latest snapshot only' },
+				paid: { included: true, label: '30-day log' },
+				bundle: { included: true, label: 'One-click fixes for threats' },
+			},
+			{
+				name: 'Activity log',
+				free: { included: true, label: 'Last 20 events' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: 'Spam protection' },
+			},
+			{
+				name: 'File Browser (granular restore)',
+				free: { included: false, label: 'Not included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: '' },
+			},
+			{
+				name: 'Copy to Staging',
+				free: { included: false, label: 'Not included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: '' },
+			},
+			{
+				name: 'Scheduled Backups',
+				free: { included: false, label: 'Not included' },
+				paid: { included: true, label: 'Included' },
+				bundle: { included: true, label: '' },
+			},
+		],
+		tiers: {
+			free: { name: 'Free', cta: 'Start for Free' },
+			paid: { name: 'Paid', cta: 'Get Backup' },
+			bundle: { name: 'Security', cta: 'Get Security' },
+		},
+	},
 	boost: {
-		title: 'Optimize site performance and SEO',
+		title: 'Improves your site performance.',
 		logo: BoostLogo,
 		bundle: 'complete',
 		features: [
