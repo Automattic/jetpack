@@ -206,22 +206,38 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Create legend items using the reusable hook
 	const legendItems = useChartLegendData( data, legendOptions );
 
-	// Separate SVG and React children in a single pass
-	const { svgChildren, reactChildren } = useMemo( () => {
+	// Process children to extract compound components
+	const { svgChildren, htmlChildren, otherChildren } = useMemo( () => {
 		const svg: ReactNode[] = [];
-		const react: ReactNode[] = [];
+		const html: ReactNode[] = [];
+		const other: ReactNode[] = [];
 
 		Children.forEach( children, child => {
 			if ( isValidElement( child ) ) {
-				if ( child.type === Group ) {
+				// Check displayName for compound components
+				const childType = child.type as { displayName?: string };
+				const displayName = childType?.displayName;
+
+				if ( displayName === 'PieSemiCircleChart.SVG' ) {
+					// Extract children from PieSemiCircleChart.SVG
+					Children.forEach( child.props.children, svgChild => {
+						svg.push( svgChild );
+					} );
+				} else if ( displayName === 'PieSemiCircleChart.HTML' ) {
+					// Extract children from PieSemiCircleChart.HTML
+					Children.forEach( child.props.children, htmlChild => {
+						html.push( htmlChild );
+					} );
+				} else if ( child.type === Group ) {
+					// Legacy support: still check for Group type for backward compatibility
 					svg.push( child );
 				} else {
-					react.push( child );
+					other.push( child );
 				}
 			}
 		} );
 
-		return { svgChildren: svg, reactChildren: react };
+		return { svgChildren: svg, htmlChildren: html, otherChildren: other };
 	}, [ children ] );
 
 	// Memoize metadata to prevent unnecessary re-registration
@@ -345,7 +361,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 							</Text>
 						</Group>
 
-						{ /* Render SVG children (like Group, Text) inside the SVG */ }
+						{ /* Render SVG children from composition API */ }
 						{ svgChildren }
 					</Group>
 				</svg>
@@ -374,8 +390,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					/>
 				) }
 
-				{ /* Render React component children (like PieSemiCircleChart.Legend) outside the SVG */ }
-				{ reactChildren }
+				{ /* Render HTML children from composition API */ }
+				{ htmlChildren }
+
+				{ /* Render any other children that aren't compound components */ }
+				{ otherChildren }
 			</div>
 		</SingleChartContext.Provider>
 	);
