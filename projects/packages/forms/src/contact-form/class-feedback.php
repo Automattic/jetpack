@@ -255,7 +255,7 @@ class Feedback {
 		$file_data_array = is_array( $raw_data )
 			? array_map(
 				function ( $json_str ) {
-					$decoded = json_decode( $json_str, true );
+					$decoded = json_decode( stripslashes( $json_str ), true );
 					return array(
 						'file_id' => isset( $decoded['file_id'] ) ? sanitize_text_field( $decoded['file_id'] ) : '',
 						'name'    => isset( $decoded['name'] ) ? sanitize_text_field( $decoded['name'] ) : '',
@@ -349,7 +349,7 @@ class Feedback {
 	 *
 	 * @return array An array of entry values.
 	 */
-	private function get_entry_values() {
+	public function get_entry_values() {
 		// This is a convenience method to get the entry values in a simple array format.
 		$entry_values = array(
 			'email_marketing_consent' => (string) $this->has_consent ? 'yes' : 'no',
