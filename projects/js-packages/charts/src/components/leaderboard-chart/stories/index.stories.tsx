@@ -1,7 +1,13 @@
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { formatMetricValue } from '../../shared/format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';
-import { sampleData, smallDataset, largeValues, negativeGrowth } from './sample-data';
+import {
+	sampleData,
+	smallDataset,
+	largeValues,
+	negativeGrowth,
+	dataWithImageColor,
+} from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LeaderboardChart > = {
@@ -133,6 +139,7 @@ The component uses CSS Modules for styling. You can customize colors using CSS c
 .myCustomChart {
   --primary-color: #ff6b6b;
   --secondary-color: #4ecdc4;
+	--bar-border: 1px solid 8px;
 }
 \`\`\`
 
@@ -274,6 +281,14 @@ export const WithoutComparison: Story = {
 	},
 };
 
+export const WithOverlayLabel: Story = {
+	args: {
+		data: sampleData,
+		withOverlayLabel: true,
+		primaryColor: '#66BDFF',
+	},
+};
+
 export const Loading: Story = {
 	args: {
 		data: sampleData,
@@ -372,6 +387,42 @@ export const NumberFormatting: Story = {
 	},
 };
 
+const CustomLabelComponent = ( { label, imageColor, style = {} } ) => (
+	<div
+		style={ {
+			display: 'flex',
+			alignItems: 'center',
+			gap: '8px',
+			...style,
+		} }
+	>
+		<img
+			src={ `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='${ encodeURIComponent(
+				imageColor
+			) }'/></svg>` }
+			alt="icon"
+			style={ {
+				width: '28px',
+				height: '28px',
+				verticalAlign: 'middle',
+				borderRadius: '4px',
+			} }
+		/>
+		<span style={ { fontSize: '13px' } }>{ label }</span>
+	</div>
+);
+
+export const CustomLabel: Story = {
+	args: {
+		data: dataWithImageColor.map( entry => ( {
+			...entry,
+			label: <CustomLabelComponent label={ entry.label } imageColor={ entry.imageColor } />,
+		} ) ),
+		withComparison: false,
+		loading: false,
+	},
+};
+
 export const AdvancedFormatting: Story = {
 	args: {
 		data: largeValues,
@@ -429,6 +480,36 @@ export const WooCommerceTheme: Story = {
 				<div style={ { width: '400px', padding: '20px' } }>
 					<Story />
 				</div>
+			</ThemeProvider>
+		),
+	],
+};
+
+export const OverlayLabelWithImage: Story = {
+	args: {
+		data: dataWithImageColor.map( entry => ( {
+			...entry,
+			label: (
+				<CustomLabelComponent
+					label={ entry.label }
+					imageColor={ entry.imageColor }
+					style={ { padding: '6px' } }
+				/>
+			),
+		} ) ),
+		primaryColor: '#C8CFF6',
+		withComparison: true,
+		withOverlayLabel: true,
+		loading: false,
+		style: {
+			'--bar-border': '4px',
+			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
+		},
+	},
+	decorators: [
+		Story => (
+			<ThemeProvider theme={ wooTheme }>
+				<Story />
 			</ThemeProvider>
 		),
 	],
