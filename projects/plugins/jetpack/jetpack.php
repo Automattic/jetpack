@@ -4,7 +4,7 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 15.0-a.3
+ * Version: 15.0-a.5
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -38,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '6.7' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '7.2' );
-define( 'JETPACK__VERSION', '15.0-a.3' );
+define( 'JETPACK__VERSION', '15.0-a.5' );
 
 /**
  * Constant used to fetch the connection owner token

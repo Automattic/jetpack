@@ -326,21 +326,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.0-a.3 - 2025-08-14
+### 15.0-a.5 - 2025-08-18
 #### Enhancements
-- Forms: Add `has_field_type` method to Feedback.
-- Forms: Defer JavaScript loading for more responsive page loading.
-- Shortcodes: Update embed reversal code to only run when content is inserted in the admin.
-- Sitemaps: Add filter to allow suspending object cache addition during generation.
-- Subscription block: Defer JavaScript loading.
-
-#### Improved compatibility
-- Open Graph Meta tags: Add new filter allowing one to define a custom site representative image.
+- Blocks: Update JavaScript to be non-render blocking.
+- Forms: Improve the checkbox style.
 
 #### Bug fixes
-- Infinite Scroll: Prevent PHP warnings in various edge cases.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- Prevent PHP fatals when handling unexpected data types.
+- Forms: Fix phone validation for responses.
 
 --------
 

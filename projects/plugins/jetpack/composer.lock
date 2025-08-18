@@ -1413,7 +1413,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "985d4a1847f1e78a2ff4d1fd3d9bbb9eaeff172f"
+                "reference": "9b494cec905766e4fa678c239792b3940e952f3e"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1445,7 +1445,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.3.x-dev"
+                    "dev-trunk": "5.4.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -1926,7 +1926,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "11c54a0dbdf5d94e18a8dd4f270efcfed7e0cd71"
+                "reference": "9129370916bcaa7c97cc6b52f349f18ccbcb41ea"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1956,7 +1956,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.21.x-dev"
+                    "dev-trunk": "0.22.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -3115,7 +3115,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "4872e08576d766a25d41f5791c15e084dd9e65e5"
+                "reference": "24911d4a9d4f089a8db0af293c7cf8328508613c"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -3149,7 +3149,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.18.x-dev"
+                    "dev-trunk": "4.19.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -3343,7 +3343,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-analytics",
-                "reference": "a6eb5a786115e6e194c2e5bb4b7dde3950c6f12b"
+                "reference": "c65d9c17f947eb39b755259588ff18aa2ce0e65c"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -3367,7 +3367,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "woocommerce-analytics",
                 "version-constants": {

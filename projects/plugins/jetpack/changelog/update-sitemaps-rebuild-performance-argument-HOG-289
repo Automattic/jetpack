@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: CLI: add a --monitor flag to `wp jetpack sitemap rebuild` that outputs elapsed time, peak memory usage, and CPU time (user/system) after rebuilding sitemaps.
-
-

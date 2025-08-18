@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: CLI: Add a --suspend-cache-addition flag to the wp jetpack sitemap rebuild command to prevent object cache churn during generation.
-
-
