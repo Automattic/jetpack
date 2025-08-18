@@ -3,10 +3,7 @@ import baseConfig, { setupProjects } from '_jetpack-e2e-commons/playwright.confi
 export default {
 	...baseConfig,
 	projects: [
-		...setupProjects.map( project => ( {
-			...project,
-			metadata: { parent: 'jetpack core' },
-		} ) ),
+		...setupProjects,
 		{
 			// This project is used to run the Jetpack Core tests that require an already connected site.
 			name: 'jetpack e2e',

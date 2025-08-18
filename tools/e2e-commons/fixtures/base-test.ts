@@ -41,7 +41,7 @@ const test = baseTest.extend<
 	},
 } );
 
-test.beforeEach( async ( { testUtils }, testInfo ) => {
+test.beforeEach( async ( { testUtils } ) => {
 	await testUtils.executeWpCommand( 'transient delete wpcom_request_counter' );
 
 	// This helps with reporting the global projects tests as separate tests in Allure.
@@ -50,9 +50,6 @@ test.beforeEach( async ( { testUtils }, testInfo ) => {
 	// Adding a parameter for the parent project makes Allure report them as separate tests.
 	if ( process.env.PROJECT_NAME ) {
 		allure.addParameter( 'Parent project', process.env.PROJECT_NAME );
-	}
-	if ( testInfo.project.metadata?.parent ) {
-		allure.addParameter( 'Parent project', testInfo.project.metadata.parent );
 	}
 } );
 
