@@ -163,11 +163,13 @@ export default function SliderFieldEdit( props ) {
 					</HStack>
 					<HStack alignment="top" className="jp-field-slider-inspector-row">
 						<TextControl
+							__next40pxDefaultSize
 							label={ __( 'Min label', 'jetpack-forms' ) }
 							value={ minLabel }
 							onChange={ value => setAttributes( { minLabel: value } ) }
 						/>
 						<TextControl
+							__next40pxDefaultSize
 							label={ __( 'Max label', 'jetpack-forms' ) }
 							value={ maxLabel }
 							onChange={ value => setAttributes( { maxLabel: value } ) }
