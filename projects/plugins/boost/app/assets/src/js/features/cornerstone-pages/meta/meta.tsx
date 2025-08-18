@@ -66,7 +66,7 @@ const CornerstonePagesContent = () => {
 			? newValue
 					.split( '\n' )
 					.map( line => line.trim() )
-					.filter( Boolean )
+					.filter( Boolean ) // Filter empty lines for better UX
 			: [];
 
 		setCornerstonePages( newItems, () => {
@@ -229,94 +229,22 @@ const List: FC< ListProps > = ( {
 		}
 	};
 
-	// URL Resolution - handles all the complex path logic in one place
-	const resolveUrlForSite = ( input: string, siteUrl: URL ): URL => {
-		if ( input.startsWith( '/' ) ) {
-			// Absolute path - normalize base path for comparison
-			const basePath = siteUrl.pathname.replace( /\/$/, '' );
-
-			// Check if input already contains the base path
-			const hasBasePath =
-				basePath !== '' && ( input === basePath || input.startsWith( basePath + '/' ) );
-
-			if ( hasBasePath ) {
-				return new URL( input, siteUrl.origin );
-			}
-
-			// Join base path with input, avoiding double slashes
-			const joinedPath = basePath + input;
-			return new URL( joinedPath, siteUrl.origin );
+	// Helper function to resolve paths for multisite homepage detection
+	const getResolvedPath = ( pathname: string, siteUrl: URL ): string => {
+		// For multisite subdirectory installations, "/" should resolve to the site's base path
+		if ( pathname === '/' ) {
+			return siteUrl.pathname;
 		}
-
-		// Relative path - ensure base URL has trailing slash for proper joining
-		const baseUrl = siteUrl.href.endsWith( '/' ) ? siteUrl.href : siteUrl.href + '/';
-		return new URL( input, baseUrl );
+		return pathname;
 	};
 
-	// Backend Normalization - converts URLs back to relative paths for storage
-	const normalizeForBackend = ( input: string, siteUrl: URL ): string => {
-		// Trim and filter empty strings early
-		const trimmed = input.trim();
-		if ( ! trimmed ) {
-			return '';
-		}
-
-		// Handle absolute URLs by extracting the pathname
-		let path = trimmed;
-		try {
-			const url = new URL( trimmed );
-			if ( url.origin === siteUrl.origin ) {
-				path = url.pathname;
-			} else {
-				// External URL - don't normalize, let validation reject it properly
-				return path;
-			}
-		} catch {
-			// Not a valid absolute URL, treat as relative path
-		}
-
-		// Check if it looks like a protocol URL before processing
-		const looksLikeProtocolUrl = /^https?:\/\//.test( trimmed );
-
-		// Normalize base path for comparison (remove trailing slash)
-		const basePath = siteUrl.pathname.replace( /\/$/, '' );
-
-		// Strip base path if present
-		if ( basePath !== '' && ( path === basePath || path.startsWith( basePath + '/' ) ) ) {
-			const remainingPath = path.substring( basePath.length );
-			path = remainingPath || '/';
-		} else {
-			// Ensure path starts with '/' for consistency
-			path = path.startsWith( '/' ) ? path : '/' + path;
-		}
-
-		// Clean up multiple consecutive slashes (but only for non-protocol URLs)
-		if ( ! looksLikeProtocolUrl ) {
-			path = path.replace( /\/+/g, '/' );
-		}
-
-		// Normalize trailing slashes for consistent deduplication (except root)
-		return path.replace( /\/$/, '' ) || '/';
-	};
-
-	// Input Processing - now much simpler
-	const processInputLines = ( value: string ): string[] => {
-		const siteUrl = new URL( Jetpack_Boost.site.url );
-
+	const validateItems = ( value: string ) => {
 		const lines = value
 			.split( '\n' )
-			.map( line => normalizeForBackend( line, siteUrl ) )
-			.filter( Boolean ); // Remove empty strings after normalization
+			.map( line => line.trim() )
+			.filter( Boolean );
 
-		// Deduplicate to avoid false "over max" errors
-		return Array.from( new Set( lines ) );
-	};
-
-	// Validation - now focused only on validation logic
-	const validateItems = ( value: string ) => {
-		const lines = processInputLines( value );
-
-		if ( value.trim().length > 0 && lines.length === 0 ) {
+		if ( lines.length === 0 ) {
 			throw new Error( __( 'You must add at least one URL.', 'jetpack-boost' ) );
 		}
 
@@ -336,44 +264,35 @@ const List: FC< ListProps > = ( {
 		}
 
 		const siteUrl = new URL( Jetpack_Boost.site.url );
-		const normalizePath = ( p: string ) => p.replace( /\/$/, '' ) || '/';
-		const sitePath = normalizePath( siteUrl.pathname );
 
 		for ( const line of lines ) {
+			let url: URL | undefined;
+			let pathname: string | undefined;
+
 			try {
-				const url = resolveUrlForSite( line, siteUrl );
+				url = new URL( line );
+				pathname = url.pathname;
+			} catch {
+				// If the URL is invalid, they have provided a relative URL, which we will allow.
+				pathname = line;
+			}
 
-				// Check for malformed URLs with double slashes
-				if ( url.pathname.includes( '//' ) ) {
-					throw new Error(
-						/* translators: %s is the URL that is malformed. */
-						sprintf( __( 'Invalid URL format: %s', 'jetpack-boost' ), line )
-					);
-				}
+			if ( url && ! isSameSiteUrl( url, siteUrl ) ) {
+				throw new Error(
+					/* translators: %s is the URL that didn't match the site URL */
+					sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )
+				);
+			}
 
-				if ( ! isSameSiteUrl( url, siteUrl ) ) {
-					throw new Error(
-						/* translators: %s is the URL that didn't match the site URL */
-						sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )
-					);
-				}
-
-				if ( normalizePath( url.pathname ) === sitePath ) {
-					throw new Error(
-						__(
-							'The homepage does not need to be added to the list, as it is automatically included.',
-							'jetpack-boost'
-						)
-					);
-				}
-			} catch ( e ) {
-				if ( e instanceof Error && e.message.includes( 'Invalid URL' ) ) {
-					throw new Error(
-						/* translators: %s is the URL that is invalid. */
-						sprintf( __( 'Invalid URL: %s', 'jetpack-boost' ), line )
-					);
-				}
-				throw e;
+			// Fixed multisite homepage detection
+			const resolvedPath = getResolvedPath( pathname, siteUrl );
+			if ( resolvedPath === siteUrl.pathname ) {
+				throw new Error(
+					__(
+						'The homepage does not need to be added to the list, as it is automatically included.',
+						'jetpack-boost'
+					)
+				);
 			}
 		}
 
@@ -381,11 +300,12 @@ const List: FC< ListProps > = ( {
 	};
 
 	function save() {
-		const processedLines = processInputLines( inputValue );
-
-		setItems( processedLines.join( '\n' ) );
+		setItems( inputValue );
 		recordBoostEvent( 'cornerstone_pages_save', {
-			list_length: processedLines.length,
+			list_length: inputValue
+				.split( '\n' )
+				.map( line => line.trim() )
+				.filter( Boolean ).length,
 		} );
 	}
 
