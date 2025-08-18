@@ -88,6 +88,14 @@
 	margin: 0;
 	appearance: textfield;
 
+	&.jetpack-field-slider__min-input {
+		padding-left: 0;
+	}
+
+	&.jetpack-field-slider__max-input {
+		padding-right: 0;
+	}
+
 	&.has-error {
 		outline-color: var(--color-error, #d63638);
 		box-shadow: none;
