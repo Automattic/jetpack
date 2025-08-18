@@ -12,6 +12,6 @@ export interface ChartContextValue {
 	registerChart: ( id: string, data: ChartRegistration ) => void;
 	unregisterChart: ( id: string ) => void;
 	getChartData: ( id: string ) => ChartRegistration | undefined;
-	/** Theme provided by the ChartProvider (merged with defaults) */
+	/** Theme provided by the GlobalChartsProvider (merged with defaults) */
 	theme: ChartTheme;
 }
