@@ -68,6 +68,7 @@ export const PRODUCT_CONFIGS: ProductConfigs = {
 			},
 			{
 				name: 'Backup history',
+				tooltipInfo: 'Backup retention is still subject to the overall storage limit and usage.',
 				free: { included: true, label: 'Latest snapshot only' },
 				paid: { included: true, label: '30-day log' },
 				bundle: { included: true, label: 'One-click fixes for threats' },
