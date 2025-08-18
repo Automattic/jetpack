@@ -1,0 +1,117 @@
+.jetpack-contact-form .jetpack-field.jetpack-field-phone {
+
+	.jetpack-field__input,
+	.jetpack-field__textarea {
+		box-sizing: border-box;
+
+		border-radius: 4px;
+		border: 1px solid #8c8f94;
+		background-color: #fff;
+
+		&.is-selected {
+			border-color: #2271b1;
+			box-shadow: 0 0 0 1px #2271b1;
+		}
+
+		// these class is used to style input and textarea elements
+		.jetpack-field__input-element {
+			font: inherit;
+			line-height: 2; // mimics default input line-height
+			border: 0;
+			color: inherit;
+			outline: none;
+			background-color: transparent;
+			padding: 0;
+
+			flex: 1;
+			width: inherit;
+			box-sizing: border-box;
+			resize: none;
+
+			&::before,
+			&::after {
+				box-sizing: inherit;
+			}
+
+			&:focus {
+				box-shadow: none;
+			}
+		}
+
+		// When field is 50% or less, or when using XXL font size,
+		// the input grows beyond the container.
+		// Adding this width: 1px fixes it. Weirdest hack I've seen.
+		input[type="text"].jetpack-field__input-element {
+			width: 1px;
+		}
+	}
+
+	.jetpack-field__input {
+		// this here while we work on wrapping the inputs
+		display: flex;
+		gap: 8px;
+
+		.jetpack-field__input-prefix {
+			font: inherit;
+			border: 0;
+			color: inherit;
+			display: flex;
+
+			// these class is used to style select elements
+			.jetpack-field__input-element {
+				font: inherit;
+				border: 0;
+				color: inherit;
+				outline: none;
+				background-color: transparent;
+				padding: 0;
+
+				&:where(select) {
+					// compensate spacing for downarrow
+					// misbehaves with :focus
+					padding-right: 24px;
+				}
+
+				&:focus {
+					box-shadow: none;
+				}
+			}
+		}
+	}
+
+
+}
+
+.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone {
+
+	&:not(.is-selected),
+	&:not(.has-child-selected) {
+
+		.jetpack-field__input-prefix {
+			visibility: hidden;
+		}
+	}
+
+	&.is-selected .animated-label__label:not(.is-selected) {
+		top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px) + calc(var(--jetpack--contact-form--input-padding) / 2));
+	}
+
+	// Target input prefix when field is selected but label is not
+	&.is-selected:has(.animated-label__label.is-selected) {
+
+		.jetpack-field__input-prefix {
+			visibility: hidden;
+		}
+	}
+}
+
+.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone {
+
+	&:not(.is-selected),
+	&:not(.has-child-selected) {
+
+		.jetpack-field__input-prefix {
+			visibility: hidden;
+		}
+	}
+}

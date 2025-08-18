@@ -40,6 +40,48 @@ class Contact_Form_Test extends BaseTestCase {
 	private $plugin;
 
 	/**
+	 * Test the esc_shortcode_val method with various input types
+	 */
+	public function test_esc_shortcode_val() {
+		// Test simple string escaping
+		$this->assertEquals(
+			'Hello&#044; World&#091;&#093;',
+			Contact_Form::esc_shortcode_val( 'Hello, World[]' ),
+			'Failed to properly escape string with brackets and comma'
+		);
+
+		// Test array with value key
+		$this->assertEquals(
+			'test&#092;value',
+			Contact_Form::esc_shortcode_val( array( 'value' => 'test\\value' ) ),
+			'Failed to handle array with value key'
+		);
+
+		// Test array without value key (recursive case)
+		$this->assertEquals(
+			'first',
+			Contact_Form::esc_shortcode_val( array( 'first', 'second' ) ),
+			'Failed to handle array without value key'
+		);
+
+		// Test nested array case
+		$this->assertEquals(
+			'nested',
+			Contact_Form::esc_shortcode_val( array( array( 'value' => 'nested' ) ) ),
+			'Failed to handle nested array'
+		);
+
+		// Test special character escaping
+		$special_chars = '[bracket], \\backslash\\, ,comma,';
+		$expected      = '&#091;bracket&#093;&#044; &#092;backslash&#092;&#044; &#044;comma&#044;';
+		$this->assertEquals(
+			$expected,
+			Contact_Form::esc_shortcode_val( $special_chars ),
+			'Failed to escape all special characters correctly'
+		);
+	}
+
+	/**
 	 * Sets up the test environment before the class tests begin.
 	 *
 	 * @beforeClass

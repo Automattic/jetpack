@@ -23,7 +23,7 @@ const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
 let errorTimeout = null;
 
-const updateField = ( fieldId, value, showFieldError = false ) => {
+const updateField = ( fieldId, value, showFieldError = false, validatorCallback = null ) => {
 	const context = getContext();
 	let field = context.fields[ fieldId ];
 
@@ -35,7 +35,9 @@ const updateField = ( fieldId, value, showFieldError = false ) => {
 	if ( field ) {
 		const { type, isRequired, extra } = field;
 		field.value = value;
-		field.error = validateField( type, value, isRequired, extra );
+		field.error = validatorCallback
+			? validatorCallback( value, isRequired, extra )
+			: validateField( type, value, isRequired, extra );
 		field.showFieldError = showFieldError;
 	}
 };
@@ -109,8 +111,9 @@ const maybeTransformValue = value => {
 	return value;
 };
 
-const { state } = store( NAMESPACE, {
+const { state, actions } = store( NAMESPACE, {
 	state: {
+		validators: {},
 		get fieldHasErrors() {
 			const context = getContext();
 			const fieldId = context.fieldId;
@@ -247,8 +250,18 @@ const { state } = store( NAMESPACE, {
 	},
 
 	actions: {
+		updateField: ( fieldId, value, showFieldError ) => {
+			const context = getContext();
+			const { fieldType } = context;
+			updateField(
+				fieldId,
+				value,
+				showFieldError,
+				showFieldError ? state.validators?.[ fieldType ] : null
+			);
+		},
 		updateFieldValue: ( fieldId, value ) => {
-			updateField( fieldId, value );
+			actions.updateField( fieldId, value );
 		},
 
 		// prevents the number field value from being changed by non-numeric values
@@ -272,7 +285,7 @@ const { state } = store( NAMESPACE, {
 				value = event.target.checked ? '1' : '';
 			}
 
-			updateField( fieldId, value );
+			actions.updateField( fieldId, value );
 		},
 
 		onMultipleFieldChange: event => {
@@ -288,12 +301,12 @@ const { state } = store( NAMESPACE, {
 				newValues = newValues.filter( v => v !== value );
 			}
 
-			updateField( fieldId, newValues );
+			actions.updateField( fieldId, newValues );
 		},
 
 		onFieldBlur: event => {
 			const context = getContext();
-			updateField( context.fieldId, event.target.value, true );
+			actions.updateField( context.fieldId, event.target.value, true );
 		},
 
 		onFormReset: () => {
