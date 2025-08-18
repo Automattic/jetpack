@@ -14,7 +14,7 @@
 			outline-color: rgb(0, 95, 204);
 		}
 
-		.jetpack-field__input-prefix {
+		.jetpack-field__input-prefix:not([hidden]) {
 			display: flex;
 		}
 
