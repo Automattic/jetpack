@@ -47,6 +47,10 @@ test.beforeEach( async ( { testUtils }, testInfo ) => {
 	if ( testInfo.project.metadata?.parent ) {
 		allure.addParameter( 'Parent project', testInfo.project.metadata.parent );
 	}
+
+	if ( process.env.PROJECT_NAME ) {
+		allure.addParameter( 'Parent project', process.env.PROJECT_NAME );
+	}
 } );
 
 test.afterEach( async ( { testUtils } ) => {
