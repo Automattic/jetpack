@@ -65,7 +65,7 @@ export default function useScanStatusQuery( {
 		skipUserConnection: true,
 	} );
 
-	return useQuery( {
+	return useQuery< ScanStatus >( {
 		queryKey: [ QUERY_SCAN_STATUS_KEY ],
 		queryFn: async () => {
 			// Fetch scan status data from the API
