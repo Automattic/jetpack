@@ -6,10 +6,11 @@ import { mergeThemes } from '../utils/merge-themes';
 import type { ChartTheme } from '../types';
 
 /**
- * Hook to get the effective chart theme, prioritizing global theme over local theme.
+ * Hook to get the effective chart theme, merging global and local themes.
  *
  * This hook combines the global theme from GlobalChartsProvider with the local theme
- * from ThemeProvider, giving priority to the global theme when available.
+ * from ThemeProvider. The global theme provides the base, while the local theme
+ * can override specific properties for fine-grained customization.
  *
  * @return The effective chart theme to use
  */
