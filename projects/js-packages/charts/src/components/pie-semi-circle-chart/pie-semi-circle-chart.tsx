@@ -25,7 +25,7 @@ import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { ResponsiveConfig } from '../shared/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
-import type { FC, MouseEvent, ComponentType, ReactNode } from 'react';
+import type { FC, MouseEvent, ComponentType, ReactNode, PropsWithChildren } from 'react';
 
 const PAD_ANGLE = 0.03; // Padding between segments
 
@@ -68,6 +68,8 @@ type PieSemiCircleChartBaseProps = Optional< PieSemiCircleChartProps, 'width' >;
 // Composition API types
 interface PieSemiCircleChartSubComponents {
 	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
+	SVG: FC< PropsWithChildren >;
+	HTML: FC< PropsWithChildren >;
 }
 
 type PieSemiCircleChartComponent = FC< PieSemiCircleChartBaseProps > &
