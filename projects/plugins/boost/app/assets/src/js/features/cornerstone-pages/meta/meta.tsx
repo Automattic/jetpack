@@ -284,6 +284,9 @@ const List: FC< ListProps > = ( {
 			path = path.startsWith( '/' ) ? path : '/' + path;
 		}
 
+		// Clean up multiple consecutive slashes
+		path = path.replace( /\/+/g, '/' );
+
 		// Normalize trailing slashes for consistent deduplication (except root)
 		return path.replace( /\/$/, '' ) || '/';
 	};
