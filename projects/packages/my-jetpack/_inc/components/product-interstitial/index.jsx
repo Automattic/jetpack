@@ -36,7 +36,7 @@ import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import completeImage from './complete.png';
-import { PRODUCT_CONFIGS } from './config';
+import { getProductConfigs } from './config';
 import extrasImage from './extras.png';
 import securityImage from './security.png';
 import statsImage from './stats.png';
@@ -344,7 +344,7 @@ export function AntiSpamInterstitial() {
  * @return {object} PricingInterstitial react component.
  */
 function PricingInterstitial( { slug } ) {
-	const config = PRODUCT_CONFIGS[ slug ];
+	const config = getProductConfigs()[ slug ];
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( config?.bundle );
 	const { recordEvent } = useAnalytics();
