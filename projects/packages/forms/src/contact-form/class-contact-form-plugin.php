@@ -796,10 +796,10 @@ class Contact_Form_Plugin {
 		}
 
 		// Use WordPress Style Engine for block supports (dimensions, spacing, background, etc.)
-		$generated_styles = wp_style_engine_get_styles( $attributes['style'] ?? null );
+		$generated_styles = wp_style_engine_get_styles( $attributes['style'] ?? array() );
 
-		// Combine all styles
-		$all_styles = array_filter( array_merge( $custom_styles, explode( ';', $generated_styles['css'] ) ) );
+		$generated_css_parts = ! empty( $generated_styles['css'] ) ? explode( ';', $generated_styles['css'] ) : array();
+		$all_styles          = array_filter( array_merge( $custom_styles, $generated_css_parts ) );
 
 		$extra_attributes = array();
 		if ( ! empty( $all_styles ) ) {
