@@ -941,59 +941,46 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$value = '';
 		}
 
-		$country_selector = '';
-
-		// Country selector: select element wrapped in div.jetpack-field__input-prefix
-		if ( $this->get_attribute( 'showcountryselector' ) ) {
-			$country_data    = $this->get_attribute( 'countrydata' );
-			$default_country = trim( $value ? $value : $this->get_attribute( 'default' ) );
-
-			if ( ! empty( $country_data ) ) {
-				ob_start();
-				?>
-				<div class="jetpack-field__input-prefix">
-					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
-					<select <?php echo $class; ?>
-						data-wp-on--change='actions.onPhoneCountryChange'
-						data-wp-bind--value='state.getCountryCode'>
-					<?php
-					foreach ( $country_data as $country ) {
-						?>
-						<option
-							value="<?php echo esc_attr( trim( $country['value'] ) ); ?>"
-							<?php selected( trim( $country['value'] ), trim( $default_country ), true ); ?>
-						>
-							<?php echo esc_html( trim( $country['label'] ) ); ?>
-						</option>
-						<?php
-					}
-					?>
-					</select>
-				</div>
-				<?php
-				$country_selector = ob_get_clean();
-			}
-		}
-
+		wp_interactivity_state(
+			'jetpack/form',
+			array(
+				'phoneNumber'      => '',
+				'phoneCountryCode' => $this->get_attribute( 'default' ),
+				'countryList'      => array(),
+			)
+		);
 		ob_start();
 		?>
 		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
 			styles="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
 			data-wp-on--jetpack-form-reset='actions.onReset'
-			data-wp-context='
 			<?php
-			echo wp_json_encode(
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- function is supposed to work this way
+			echo wp_interactivity_data_wp_context(
 				array(
-					'phoneNumber'      => '',
-					'phoneCountryCode' => $default_country,
-					'countryCodes'     => $this->get_attribute( 'countrylist' ),
-					'defaultCountry'   => $default_country,
+					'defaultCountry'      => $this->get_attribute( 'default' ),
+					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
 				)
 			);
 			?>
-			'>
-			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped above ?>
-				<?php echo $country_selector; ?>
+			>
+				<div class="jetpack-field__input-prefix" data-wp-bind--hidden="!context.showCountrySelector">
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
+					<select <?php echo $class; ?>
+						data-wp-bind--disabled='state.isSubmitting'
+						data-wp-init="callbacks.initializeCountrySelector"
+						data-wp-on--change="actions.onPhoneCountryChange"
+						data-wp-bind--value="state.phoneCountryCode">
+						<template
+							data-wp-each--country="state.countryList"
+							data-wp-each-key="context.country.code">
+							<option
+								data-wp-bind--value="context.country.value"
+								data-wp-bind--selected="context.country.selected"
+								data-wp-text="context.country.label"></option>
+						</template>
+					</select>
+				</div>
 				<input
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
 					<?php echo $class; ?>
@@ -1004,9 +991,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						required="true"
 						aria-required="true"
 					<?php } ?>
-
+					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldHasErrors'
-					data-wp-bind--value='state.getPhoneNumber'
+					data-wp-bind--value='state.phoneNumber'
 					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
 					data-wp-on--input='actions.onPhoneNumberChange'
 					data-wp-on--blur='actions.onFieldBlur'
@@ -1015,7 +1002,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				<input type="hidden"
 					id="<?php echo esc_attr( $id ); ?>"
 					name="<?php echo esc_attr( $id ); ?>"
-					data-wp-bind--value='state.getFullPhoneNumber' />
+					data-wp-bind--value='state.fullPhoneNumber' />
 		</div>
 		<?php
 		$input = ob_get_clean();
