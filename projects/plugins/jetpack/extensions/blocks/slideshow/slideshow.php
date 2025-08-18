@@ -65,72 +65,144 @@ function load_assets( $attr, $content ) {
  *
  * @return string
  */
-function render_email( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $rendering_context is part of the WooCommerce email callback signature.
+function render_email( $block_content, $parsed_block, $rendering_context ) {
 	$attr = isset( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
 
-	if ( empty( $attr['ids'] ) && empty( $attr['images'] ) ) {
-		return '';
-	}
+	// For email, we'll render the first image and a link to the post if there are multiple images
+	$first_image  = null;
+	$total_images = 0;
 
-	// For email, we'll render a simple grid of images instead of an interactive slideshow
-	$images = array();
-
-	// Use image IDs if available
+	// Get first image and count from IDs if available
 	if ( ! empty( $attr['ids'] ) ) {
-		foreach ( $attr['ids'] as $id ) {
-			$image_url = wp_get_attachment_image_url( $id, 'medium' );
-			$alt_text  = get_post_meta( $id, '_wp_attachment_image_alt', true );
-			$caption   = wp_get_attachment_caption( $id );
+		$total_images = count( $attr['ids'] );
+		$first_id     = $attr['ids'][0];
 
-			if ( $image_url ) {
-				$images[] = array(
-					'url'     => $image_url,
-					'alt'     => $alt_text,
-					'caption' => $caption,
-				);
-			}
+		$image_url = wp_get_attachment_image_url( $first_id, 'medium' );
+		$alt_text  = get_post_meta( $first_id, '_wp_attachment_image_alt', true );
+
+		// Get caption from images array if available
+		$caption = '';
+		if ( ! empty( $attr['images'] ) && ! empty( $attr['images'][0]['caption'] ) ) {
+			$caption = $attr['images'][0]['caption'];
+		}
+
+		if ( $image_url ) {
+			$first_image = array(
+				'url'     => $image_url,
+				'alt'     => $alt_text,
+				'caption' => $caption,
+				'id'      => $first_id,
+			);
 		}
 	} elseif ( ! empty( $attr['images'] ) ) {
 		// Fall back to images array if IDs aren't available
-		foreach ( $attr['images'] as $image ) {
-			if ( ! empty( $image['url'] ) ) {
-				$images[] = array(
-					'url'     => $image['url'],
-					'alt'     => ! empty( $image['alt'] ) ? $image['alt'] : '',
-					'caption' => ! empty( $image['caption'] ) ? $image['caption'] : '',
-				);
+		$total_images     = count( $attr['images'] );
+		$first_image_data = $attr['images'][0];
+
+		if ( ! empty( $first_image_data['url'] ) ) {
+			$first_image = array(
+				'url'     => $first_image_data['url'],
+				'alt'     => ! empty( $first_image_data['alt'] ) ? $first_image_data['alt'] : '',
+				'caption' => ! empty( $first_image_data['caption'] ) ? $first_image_data['caption'] : '',
+				'id'      => ! empty( $first_image_data['id'] ) ? $first_image_data['id'] : 0,
+			);
+		}
+	}
+
+	if ( empty( $first_image ) ) {
+		return '';
+	}
+
+	// Get post link if available
+	$post_link = '';
+	if ( get_the_ID() ) {
+		$post_link = get_permalink( get_the_ID() );
+	}
+
+	// Determine target width from the email layout if available
+	$target_width = 600; // Default
+	if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
+		$layout_width_px = $rendering_context->get_layout_width_without_padding();
+		if ( is_string( $layout_width_px ) ) {
+			// Use Styles_Helper if available, otherwise fallback to simple parsing
+			if ( class_exists( 'Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ) {
+				$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px );
+				if ( $parsed_width > 0 ) {
+					$target_width = (int) $parsed_width;
+				}
+			} else {
+				// Fallback to simple regex parsing
+				$matches = array();
+				if ( preg_match( '/^(\d+)px$/', $layout_width_px, $matches ) ) {
+					$target_width = (int) $matches[1];
+				}
 			}
 		}
 	}
 
-	if ( empty( $images ) ) {
-		return '';
-	}
-
-	// Generate email-friendly HTML using table wrapper for better email client compatibility
-	$html  = '<table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; border-collapse: collapse;">';
-	$html .= '<tr><td style="padding: 0; font-family: Arial, sans-serif;">';
-
-	foreach ( $images as $image ) {
-		$html .= '<table role="presentation" style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">';
-		$html .= '<tr><td style="text-align: center; padding: 0;">';
-		$html .= sprintf(
-			'<img src="%s" alt="%s" style="max-width: 100%%; height: auto; display: block; margin: 0 auto; border: 0;" />',
-			esc_url( $image['url'] ),
-			esc_attr( $image['alt'] )
-		);
-
-		if ( ! empty( $image['caption'] ) ) {
-			$html .= sprintf(
-				'<p style="margin: 10px 0 0 0; font-size: 14px; color: #666; text-align: center; line-height: 1.4;">%s</p>',
-				wp_kses_post( $image['caption'] )
+	// Build image content
+	$image_content = '';
+	if ( ! empty( $first_image['id'] ) ) {
+		// Get image URL
+		$image_url = wp_get_attachment_image_url( $first_image['id'], 'medium' );
+		if ( $image_url ) {
+			$image_content = sprintf(
+				'<img src="%s" alt="%s" style="width: 100%%; height: auto; display: block; border: 0;" />',
+				esc_url( $image_url ),
+				esc_attr( $first_image['alt'] )
 			);
 		}
+	} else {
+		// Fallback to simple img tag if we don't have an ID
+		$image_content = sprintf(
+			'<img src="%s" alt="%s" style="width: 100%; height: auto; display: block; border: 0;" />',
+			esc_url( $first_image['url'] ),
+			esc_attr( $first_image['alt'] )
+		);
+	}
 
+	// Add caption if available
+	if ( ! empty( $first_image['caption'] ) ) {
+		$image_content .= sprintf(
+			'<p style="margin: 10px 0 0 0; font-size: 14px; color: #666; line-height: 1.4; text-align: center;">%s</p>',
+			wp_kses_post( $first_image['caption'] )
+		);
+	}
+
+	// Add link content if there are multiple images
+	if ( $post_link && $total_images > 1 ) {
+		// translators: %s: number of slides.
+		$view_text = _n( 'View slideshow (%s slide)', 'View slideshow (%s slides)', $total_images, 'jetpack' );
+		$view_text = sprintf( $view_text, number_format_i18n( $total_images ) );
+
+		$image_content .= sprintf(
+			'<p style="margin: 5px 0 0 0; font-size: 12px; text-align: center;"><a href="%s" target="_blank" rel="noopener noreferrer">%s</a></p>',
+			esc_url( $post_link ),
+			esc_html( $view_text )
+		);
+	}
+
+	// Use Table_Wrapper_Helper for consistent email rendering if available
+	if ( class_exists( 'Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+		$image_table_attrs = array(
+			'style' => 'margin: 8px 0;',
+			'width' => $target_width,
+		);
+
+		$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $image_content, $image_table_attrs );
+	} else {
+		// Fallback to simple table HTML
+		$html  = sprintf(
+			'<table role="presentation" style="width: 100%%; max-width: %dpx; margin: 8px auto; border-collapse: collapse;">',
+			$target_width
+		);
+		$html .= '<tr><td style="padding: 0; font-family: Arial, sans-serif;">';
+		$html .= $image_content;
 		$html .= '</td></tr></table>';
 	}
 
-	$html .= '</td></tr></table>';
+	// Add margin below the block
+	$html .= '<div style="margin-bottom: 2em;"></div>';
 
 	return $html;
 }
