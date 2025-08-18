@@ -350,22 +350,19 @@ function PricingInterstitial( { slug } ) {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
-	const {
-		siteSuffix = '',
-		adminUrl = '',
-		myJetpackCheckoutUri = '',
-	} = getMyJetpackWindowInitialState();
+	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: detail?.postActivationUrl || null,
 	} );
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
-	// Setup checkout workflows for paid and bundle products
+	// Setup checkout workflows like ProductDetailCard does
+	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
 	const paidCheckoutRedirectUrl = detail?.postActivationUrl || myJetpackCheckoutUri;
 	const bundleCheckoutRedirectUrl = bundleDetail?.postActivationUrl || myJetpackCheckoutUri;
 
-	const { run: paidCheckoutWorkflow } = useProductCheckoutWorkflow( {
+	const { run: paidCheckoutRun } = useProductCheckoutWorkflow( {
 		productSlug: detail?.pricingForUi?.wpcomProductSlug,
 		redirectUrl: paidCheckoutRedirectUrl,
 		siteSuffix,
@@ -375,7 +372,7 @@ function PricingInterstitial( { slug } ) {
 		useBlogIdSuffix: true,
 	} );
 
-	const { run: bundleCheckoutWorkflow } = useProductCheckoutWorkflow( {
+	const { run: bundleCheckoutRun } = useProductCheckoutWorkflow( {
 		productSlug: bundleDetail?.pricingForUi?.wpcomProductSlug,
 		redirectUrl: bundleCheckoutRedirectUrl,
 		siteSuffix,
@@ -473,11 +470,11 @@ function PricingInterstitial( { slug } ) {
 
 	const handleGetProduct = useCallback( () => {
 		trackProductOrBundleClick( { ctaText: config?.tiers?.paid?.cta } );
-		clickHandler( paidCheckoutWorkflow, detail );
+		clickHandler( paidCheckoutRun, detail, 'paid' );
 	}, [
 		trackProductOrBundleClick,
 		clickHandler,
-		paidCheckoutWorkflow,
+		paidCheckoutRun,
 		detail,
 		config?.tiers?.paid?.cta,
 	] );
@@ -488,13 +485,13 @@ function PricingInterstitial( { slug } ) {
 				customSlug: config.bundle,
 				ctaText: config?.tiers?.bundle?.cta,
 			} );
-			clickHandler( bundleCheckoutWorkflow, bundleDetail );
+			clickHandler( bundleCheckoutRun, bundleDetail, 'bundle' );
 		}
-	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutWorkflow, bundleDetail, config ] );
+	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutRun, bundleDetail, config ] );
 
 	const handleFreeActivation = useCallback( () => {
 		trackProductOrBundleClick( { isFreePlan: true, ctaText: config?.tiers?.free?.cta } );
-		clickHandler( null, detail );
+		clickHandler( null, detail, 'free' );
 	}, [ trackProductOrBundleClick, clickHandler, detail, config?.tiers?.free?.cta ] );
 
 	// If no config exists, fallback to old ProductInterstitial
