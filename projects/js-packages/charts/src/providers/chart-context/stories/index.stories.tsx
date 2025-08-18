@@ -7,6 +7,7 @@ import {
 	BarListChart,
 	DataPointPercentage,
 	SeriesData,
+	ThemeProvider,
 } from '../../../.';
 import barSampleData from '../../../components/bar-chart/stories/sample-data';
 import { jetpackTheme, wooTheme } from '../../theme/themes';
@@ -314,4 +315,71 @@ export const CustomTheme: Story = {
 			/>
 		</GlobalChartsProvider>
 	),
+};
+
+export const NestedThemes: Story = {
+	render: () => {
+		return (
+			<GlobalChartsProvider theme={ wooTheme }>
+				<div
+					style={ {
+						display: 'grid',
+						gridTemplateColumns: 'repeat(2, 1fr)',
+						gap: '4rem',
+						width: '100%',
+					} }
+				>
+					<ThemeProvider theme={ { colors: [ '#FF6B6B', ...wooTheme.colors.slice( 1 ) ] } }>
+						<LineChart
+							data={ lineData }
+							width={ 350 }
+							height={ 250 }
+							withGradientFill={ false }
+							withLegendGlyph={ false }
+							withTooltips={ true }
+							margin={ { bottom: 40 } }
+						/>
+					</ThemeProvider>
+
+					<ThemeProvider theme={ { colors: [ '#2ECC71', ...wooTheme.colors.slice( 1 ) ] } }>
+						<BarChart
+							data={ barData }
+							width={ 350 }
+							height={ 250 }
+							withTooltips={ true }
+							showLegend={ true }
+						/>
+					</ThemeProvider>
+
+					<ThemeProvider theme={ { colors: [ '#E91E63', ...wooTheme.colors.slice( 1 ) ] } }>
+						<PieSemiCircleChart
+							data={ pieData }
+							width={ 350 }
+							label="Semi-Circle Chart"
+							withTooltips={ true }
+							showLegend={ true }
+						/>
+					</ThemeProvider>
+
+					<ThemeProvider theme={ { colors: [ '#F9CA24', ...wooTheme.colors.slice( 1 ) ] } }>
+						<BarListChart data={ barListData } width={ 350 } height={ 250 } withTooltips={ true } />
+					</ThemeProvider>
+
+					<ThemeProvider theme={ { colors: [ '#F0932B', ...wooTheme.colors.slice( 1 ) ] } }>
+						<PieChart size={ 300 } data={ pieData } withTooltips={ true } showLegend={ true } />
+					</ThemeProvider>
+
+					<ThemeProvider theme={ { colors: [ '#EB4D4B', ...wooTheme.colors.slice( 1 ) ] } }>
+						<PieChart
+							size={ 300 }
+							thickness={ 0.5 }
+							data={ donutData }
+							withTooltips={ true }
+							showLegend={ true }
+						/>
+					</ThemeProvider>
+				</div>
+			</GlobalChartsProvider>
+		);
+	},
 };
