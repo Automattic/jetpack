@@ -421,6 +421,8 @@ PieSemiCircleChartWithProvider.displayName = 'PieSemiCircleChart';
 // Create PieSemiCircleChart with composition API
 const PieSemiCircleChart = attachSubComponents( PieSemiCircleChartWithProvider, {
 	Legend: Legend,
+	SVG: PieSemiCircleChartSVG,
+	HTML: PieSemiCircleChartHTML,
 } ) as PieSemiCircleChartComponent;
 
 // Create responsive PieSemiCircleChart with composition API
@@ -428,6 +430,8 @@ const PieSemiCircleChartResponsive = attachSubComponents(
 	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChartWithProvider ),
 	{
 		Legend: Legend,
+		SVG: PieSemiCircleChartSVG,
+		HTML: PieSemiCircleChartHTML,
 	}
 ) as PieSemiCircleChartResponsiveComponent;
 
