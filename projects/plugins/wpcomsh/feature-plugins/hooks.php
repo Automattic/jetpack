@@ -288,8 +288,50 @@ function wpcomsh_plupload_file_restrictions( $options ) {
 
 	return $options;
 }
-add_filter( 'plupload_init', 'wpcomsh_plupload_file_restrictions', PHP_INT_MAX );
-add_filter( 'plupload_default_settings', 'wpcomsh_plupload_file_restrictions', PHP_INT_MAX );
+
+/**
+ * Register Plupload restrictions only in the Media Library UI.
+ *
+ * @since $$next-version$$
+ */
+function wpcomsh_register_plupload_file_restrictions_filters() {
+	add_filter( 'plupload_init', 'wpcomsh_plupload_file_restrictions', PHP_INT_MAX );
+	add_filter( 'plupload_default_settings', 'wpcomsh_plupload_file_restrictions', PHP_INT_MAX );
+}
+add_action( 'wp_enqueue_media', 'wpcomsh_register_plupload_file_restrictions_filters' );
+
+/**
+ * Restricts the allowed mime types if the site have does NOT have access to the required feature.
+ *
+ * @param array $mimes Mime types keyed by the file extension regex corresponding to those types.
+ * @return array Allowed mime types.
+ */
+function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
+	$disallowed_mimes = array();
+	if ( ! wpcom_site_has_feature( WPCOM_Features::UPGRADED_UPLOAD_FILETYPES ) ) {
+		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_UPGRADES` in `.config/wpcom-options.php`).
+		$upgraded_upload_filetypes = 'mp3 m4a wav ogg zip txt tiff bmp';
+		$disallowed_mimes          = array_merge( $disallowed_mimes, explode( ' ', $upgraded_upload_filetypes ) );
+	}
+
+	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
+		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_VIDEOS` in `.config/wpcom-options.php`).
+		// The `ttml` extension is set by `wp-content/mu-plugins/videopress/subtitles.php`.
+		$video_upload_filetypes = 'ogv mp4 m4v mov wmv avi mpg 3gp 3g2 ttml';
+		$disallowed_mimes       = array_merge( $disallowed_mimes, explode( ' ', $video_upload_filetypes ) );
+	}
+
+	foreach ( $disallowed_mimes as $disallowed_mime ) {
+		foreach ( $mimes as $ext_pattern => $mime ) {
+			if ( strpos( $ext_pattern, $disallowed_mime ) !== false ) {
+				unset( $mimes[ $ext_pattern ] );
+			}
+		}
+	}
+
+	return $mimes;
+}
+add_filter( 'upload_mimes', 'wpcomsh_maybe_restrict_mimetypes', PHP_INT_MAX );
 
 /**
  * Redirect plugins.php and plugin-install.php to their Calypso counterparts if this site doesn't have the
