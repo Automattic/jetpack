@@ -111,11 +111,12 @@ async function tunnelChild() {
 			const urlMatch = output.match( /https:\/\/.*\.trycloudflare\.com/ );
 			if ( urlMatch && ! resolved ) {
 				tunnelUrl = urlMatch[ 0 ];
-				console.log( `Cloudflare tunnel started: ${ tunnelUrl }` );
+				console.log( `[tunnel manager] Cloudflare tunnel started: ${ tunnelUrl }` );
 
+				// Save the tunnel URL and PID immediately
+				// The connectivity checks will be done by the Playwright test
 				setTunnelUrl( tunnelUrl );
 				fs.writeFileSync( config.get( 'temp.pid' ), `${ cloudflaredProcess.pid }` );
-
 				resolved = true;
 				process.send?.( 'ok' );
 				resolve();
@@ -127,24 +128,24 @@ async function tunnelChild() {
 
 		cloudflaredProcess.on( 'error', error => {
 			if ( ! resolved ) {
-				console.error( 'Failed to start cloudflared tunnel:', error );
+				console.error( '[tunnel manager] Failed to start cloudflared tunnel:', error );
 				reject( error );
 			}
 		} );
 
 		cloudflaredProcess.on( 'exit', code => {
-			console.log( `Cloudflared process exited with code ${ code }` );
+			console.log( `[tunnel manager] Cloudflared process exited with code ${ code }` );
 			if ( ! resolved && code !== 0 ) {
-				reject( new Error( `Cloudflared exited with code ${ code }` ) );
+				reject( new Error( `[tunnel manager] Cloudflared exited with code ${ code }` ) );
 			}
 		} );
 
 		// Timeout after 30 seconds
 		setTimeout( () => {
 			if ( ! resolved ) {
-				console.error( 'Cloudflared tunnel startup timeout' );
+				console.error( '[tunnel manager] Cloudflared tunnel startup timeout' );
 				cloudflaredProcess.kill();
-				reject( new Error( 'Tunnel startup timeout' ) );
+				reject( new Error( '[tunnel manager] Tunnel startup timeout' ) );
 			}
 		}, 30000 );
 	} );
@@ -156,7 +157,7 @@ async function tunnelChild() {
  * @return {Promise<void>}
  */
 async function tunnelOff() {
-	console.log( 'Stopping cloudflared tunnel...' );
+	console.log( '[tunnel manager] Stopping cloudflared tunnel...' );
 
 	const pidfile = config.get( 'temp.pid' );
 	if ( fs.existsSync( pidfile ) ) {
@@ -170,7 +171,7 @@ async function tunnelOff() {
 			}
 		};
 		if ( pid.match( /^\d+$/ ) && processExists( pid ) ) {
-			console.log( `Terminating cloudflared process ${ pid }` );
+			console.log( `[tunnel manager] Terminating cloudflared process ${ pid }` );
 			process.kill( pid );
 			await new Promise( resolve => {
 				const check = () => {
@@ -192,5 +193,5 @@ async function tunnelOff() {
 		fs.unlinkSync( cloudflaredPath );
 	}
 
-	console.log( 'Cloudflare tunnel stopped' );
+	console.log( '[tunnel manager] Cloudflare tunnel stopped' );
 }
