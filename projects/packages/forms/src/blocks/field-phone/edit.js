@@ -5,7 +5,7 @@ import {
 	BlockContextProvider,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
@@ -19,6 +19,7 @@ const EMPTY_ARRAY = [];
 export default function PhoneFieldEdit( props ) {
 	const { setAttributes, attributes, clientId, isSelected } = props;
 	const { showCountrySelector, width, id, required, requiredText, placeholder } = attributes;
+	const [ countryList, setCountryList ] = useState( EMPTY_ARRAY );
 
 	const { isInnerBlockSelected, hasPlaceholder } = useFieldSelected( clientId );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -40,13 +41,14 @@ export default function PhoneFieldEdit( props ) {
 	const onChangeShowCountrySelector = value => {
 		setAttributes( {
 			showCountrySelector: value,
-			countryList: value ? countries : EMPTY_ARRAY,
 		} );
+		setCountryList( value ? countries : EMPTY_ARRAY );
 	};
 
 	useEffect( () => {
-		if ( showCountrySelector === undefined ) {
-			setAttributes( { showCountrySelector: true, countryList: countries } );
+		if ( showCountrySelector === undefined || showCountrySelector === true ) {
+			setAttributes( { showCountrySelector: true } );
+			setCountryList( countries );
 		}
 	}, [ showCountrySelector, setAttributes ] );
 
@@ -79,7 +81,12 @@ export default function PhoneFieldEdit( props ) {
 
 	return (
 		<>
-			<BlockContextProvider value={ { 'jetpack/field-prefix-onChange': onChangeDefaultCountry } }>
+			<BlockContextProvider
+				value={ {
+					'jetpack/field-prefix-onChange': onChangeDefaultCountry,
+					'jetpack/field-prefix-options': countryList,
+				} }
+			>
 				<div { ...innerBlocksProps } />
 			</BlockContextProvider>
 

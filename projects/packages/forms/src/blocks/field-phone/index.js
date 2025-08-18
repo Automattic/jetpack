@@ -32,9 +32,6 @@ const settings = {
 			type: 'boolean',
 			default: true,
 		},
-		countryList: {
-			type: 'array',
-		},
 		default: {
 			type: 'string',
 			default: '',
@@ -46,7 +43,6 @@ const settings = {
 	},
 	providesContext: {
 		...defaultSettings.providesContext,
-		'jetpack/field-prefix-options': 'countryList',
 		'jetpack/field-prefix-default': 'default',
 		'jetpack/field-phone-country-toggle': 'showCountrySelector',
 	},
