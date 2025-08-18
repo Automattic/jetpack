@@ -1,4 +1,5 @@
 import dns from 'dns/promises';
+import { allure } from 'allure-playwright';
 import { test as setup, expect } from '../fixtures/base-test';
 import logger from '../logger';
 
@@ -22,7 +23,9 @@ async function retry(
 	} ).toPass( options );
 
 	const duration = Date.now() - startTime;
-	logger.debug( `${ name } succeeded after ${ pollCount } attempts in ${ duration }ms` );
+	const successMsg = `${ name } succeeded after ${ pollCount } attempts in ${ duration }ms`;
+	logger.debug( successMsg );
+	allure.description( successMsg );
 }
 
 setup( 'verify environment readiness', async ( { baseURL, request, testUtils } ) => {
