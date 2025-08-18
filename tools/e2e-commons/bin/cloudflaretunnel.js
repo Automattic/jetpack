@@ -113,23 +113,23 @@ async function tunnelChild() {
 			const urlMatch = output.match( /https:\/\/.*\.trycloudflare\.com/ );
 			if ( urlMatch && ! resolved ) {
 				tunnelUrl = urlMatch[ 0 ];
-				console.log( `Cloudflare tunnel started: ${ tunnelUrl }` );
+				console.log( `[tunnel manager] Cloudflare tunnel started: ${ tunnelUrl }` );
 
 				// Wait for DNS to resolve the new subdomain
 				const hostname = new URL( tunnelUrl ).hostname;
-				console.log( `Waiting for DNS to resolve ${ hostname }...` );
+				console.log( `[tunnel manager] Waiting for DNS to resolve ${ hostname }...` );
 
 				const waitForDns = async () => {
 					const maxAttempts = 30; // 30 seconds total
 					for ( let i = 0; i < maxAttempts; i++ ) {
 						try {
 							await dns.resolve4( hostname );
-							console.log( `DNS resolved for ${ hostname }` );
+							console.log( `[tunnel manager] DNS resolved for ${ hostname }` );
 							return true;
 						} catch ( e ) {
 							if ( i === maxAttempts - 1 ) {
 								console.error(
-									`DNS resolution failed after ${ maxAttempts } attempts. ${ e.message }`
+									`[tunnel manager] DNS resolution failed after ${ maxAttempts } attempts. ${ e.message }`
 								);
 								return false;
 							}
@@ -141,21 +141,25 @@ async function tunnelChild() {
 				waitForDns().then( async success => {
 					if ( ! success ) {
 						cloudflaredProcess.kill();
-						reject( new Error( 'DNS resolution failed' ) );
+						reject( new Error( '[tunnel manager] DNS resolution failed' ) );
 						return;
 					}
 
 					// Also verify HTTP connectivity
-					console.log( `Verifying HTTP connectivity to ${ tunnelUrl }...` );
+					console.log( `[tunnel manager] Verifying HTTP connectivity to ${ tunnelUrl }...` );
 					const verifyConnectivity = () =>
 						new Promise( resolveCheck => {
 							https
 								.get( tunnelUrl, { timeout: 5000 }, res => {
-									console.log( `Tunnel is accessible (status: ${ res.statusCode })` );
+									console.log(
+										`[tunnel manager] Tunnel is accessible (status: ${ res.statusCode })`
+									);
 									resolveCheck( true );
 								} )
 								.on( 'error', err => {
-									console.error( `HTTP connectivity check failed: ${ err.message }` );
+									console.error(
+										`[tunnel manager] HTTP connectivity check failed: ${ err.message }`
+									);
 									resolveCheck( false );
 								} );
 						} );
@@ -166,7 +170,7 @@ async function tunnelChild() {
 							connected = true;
 							break;
 						}
-						console.log( `Retry ${ i + 1 }/10 - waiting 1 second...` );
+						console.log( `[tunnel manager] Retry ${ i + 1 }/10 - waiting 1 second...` );
 						await new Promise( r => setTimeout( r, 1000 ) );
 					}
 
@@ -177,9 +181,9 @@ async function tunnelChild() {
 						process.send?.( 'ok' );
 						resolve();
 					} else {
-						console.error( 'Tunnel is not accessible via HTTP' );
+						console.error( '[tunnel manager] Tunnel is not accessible via HTTP' );
 						cloudflaredProcess.kill();
-						reject( new Error( 'Tunnel connectivity check failed' ) );
+						reject( new Error( '[tunnel manager] Tunnel connectivity check failed' ) );
 					}
 				} );
 			}
@@ -190,24 +194,24 @@ async function tunnelChild() {
 
 		cloudflaredProcess.on( 'error', error => {
 			if ( ! resolved ) {
-				console.error( 'Failed to start cloudflared tunnel:', error );
+				console.error( '[tunnel manager] Failed to start cloudflared tunnel:', error );
 				reject( error );
 			}
 		} );
 
 		cloudflaredProcess.on( 'exit', code => {
-			console.log( `Cloudflared process exited with code ${ code }` );
+			console.log( `[tunnel manager] Cloudflared process exited with code ${ code }` );
 			if ( ! resolved && code !== 0 ) {
-				reject( new Error( `Cloudflared exited with code ${ code }` ) );
+				reject( new Error( `[tunnel manager] Cloudflared exited with code ${ code }` ) );
 			}
 		} );
 
 		// Timeout after 30 seconds
 		setTimeout( () => {
 			if ( ! resolved ) {
-				console.error( 'Cloudflared tunnel startup timeout' );
+				console.error( '[tunnel manager] Cloudflared tunnel startup timeout' );
 				cloudflaredProcess.kill();
-				reject( new Error( 'Tunnel startup timeout' ) );
+				reject( new Error( '[tunnel manager] Tunnel startup timeout' ) );
 			}
 		}, 30000 );
 	} );
@@ -219,7 +223,7 @@ async function tunnelChild() {
  * @return {Promise<void>}
  */
 async function tunnelOff() {
-	console.log( 'Stopping cloudflared tunnel...' );
+	console.log( '[tunnel manager] Stopping cloudflared tunnel...' );
 
 	const pidfile = config.get( 'temp.pid' );
 	if ( fs.existsSync( pidfile ) ) {
@@ -233,7 +237,7 @@ async function tunnelOff() {
 			}
 		};
 		if ( pid.match( /^\d+$/ ) && processExists( pid ) ) {
-			console.log( `Terminating cloudflared process ${ pid }` );
+			console.log( `[tunnel manager] Terminating cloudflared process ${ pid }` );
 			process.kill( pid );
 			await new Promise( resolve => {
 				const check = () => {
@@ -255,5 +259,5 @@ async function tunnelOff() {
 		fs.unlinkSync( cloudflaredPath );
 	}
 
-	console.log( 'Cloudflare tunnel stopped' );
+	console.log( '[tunnel manager] Cloudflare tunnel stopped' );
 }
