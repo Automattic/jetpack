@@ -232,32 +232,60 @@ const List: FC< ListProps > = ( {
 	// URL Resolution - handles all the complex path logic in one place
 	const resolveUrlForSite = ( input: string, siteUrl: URL ): URL => {
 		if ( input.startsWith( '/' ) ) {
-			// Absolute path
+			// Absolute path - normalize base path for comparison
+			const basePath = siteUrl.pathname.replace( /\/$/, '' );
+
+			// Check if input already contains the base path
 			const hasBasePath =
-				siteUrl.pathname !== '/' &&
-				input.startsWith( siteUrl.pathname ) &&
-				( input.length === siteUrl.pathname.length ||
-					input.charAt( siteUrl.pathname.length ) === '/' );
+				basePath !== '' && ( input === basePath || input.startsWith( basePath + '/' ) );
 
 			if ( hasBasePath ) {
 				return new URL( input, siteUrl.origin );
 			}
-			return new URL( siteUrl.pathname + input, siteUrl.href );
+
+			// Join base path with input, avoiding double slashes
+			const joinedPath = basePath + input;
+			return new URL( joinedPath, siteUrl.origin );
 		}
-		// Relative path - ensure base URL has trailing slash
+
+		// Relative path - ensure base URL has trailing slash for proper joining
 		const baseUrl = siteUrl.href.endsWith( '/' ) ? siteUrl.href : siteUrl.href + '/';
 		return new URL( input, baseUrl );
 	};
 
 	// Backend Normalization - converts URLs back to relative paths for storage
 	const normalizeForBackend = ( input: string, siteUrl: URL ): string => {
-		if ( siteUrl.pathname !== '/' && input.startsWith( siteUrl.pathname ) ) {
-			const remainingPath = input.substring( siteUrl.pathname.length );
-			if ( remainingPath === '' || remainingPath.startsWith( '/' ) ) {
-				return remainingPath || '/';
-			}
+		// Trim and filter empty strings early
+		const trimmed = input.trim();
+		if ( ! trimmed ) {
+			return '';
 		}
-		return input;
+
+		// Handle absolute URLs by extracting the pathname
+		let path = trimmed;
+		try {
+			const url = new URL( trimmed );
+			if ( url.origin === siteUrl.origin ) {
+				path = url.pathname;
+			}
+		} catch {
+			// Not a valid absolute URL, treat as relative path
+		}
+
+		// Normalize base path for comparison (remove trailing slash)
+		const basePath = siteUrl.pathname.replace( /\/$/, '' );
+
+		// Strip base path if present
+		if ( basePath !== '' && ( path === basePath || path.startsWith( basePath + '/' ) ) ) {
+			const remainingPath = path.substring( basePath.length );
+			path = remainingPath || '/';
+		} else {
+			// Ensure path starts with '/' for consistency
+			path = path.startsWith( '/' ) ? path : '/' + path;
+		}
+
+		// Normalize trailing slashes for consistent deduplication (except root)
+		return path.replace( /\/$/, '' ) || '/';
 	};
 
 	// Input Processing - now much simpler
@@ -266,9 +294,8 @@ const List: FC< ListProps > = ( {
 
 		const lines = value
 			.split( '\n' )
-			.map( line => line.trim() )
-			.filter( Boolean )
-			.map( line => normalizeForBackend( line, siteUrl ) );
+			.map( line => normalizeForBackend( line, siteUrl ) )
+			.filter( Boolean ); // Remove empty strings after normalization
 
 		// Deduplicate to avoid false "over max" errors
 		return Array.from( new Set( lines ) );
@@ -304,6 +331,14 @@ const List: FC< ListProps > = ( {
 		for ( const line of lines ) {
 			try {
 				const url = resolveUrlForSite( line, siteUrl );
+
+				// Check for malformed URLs with double slashes
+				if ( url.pathname.includes( '//' ) ) {
+					throw new Error(
+						/* translators: %s is the URL that is malformed. */
+						sprintf( __( 'Invalid URL format: %s', 'jetpack-boost' ), line )
+					);
+				}
 
 				if ( ! isSameSiteUrl( url, siteUrl ) ) {
 					throw new Error(
