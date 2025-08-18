@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { GlobalChartsContext } from '../providers/chart-context/global-charts-provider';
-import { useChartTheme as useLocalChartTheme } from '../providers/theme';
+import { useChartTheme } from '../providers/theme';
 import { defaultTheme } from '../providers/theme/themes';
 import { mergeThemes } from '../utils/merge-themes';
 import type { ChartTheme } from '../types';
@@ -13,11 +13,11 @@ import type { ChartTheme } from '../types';
  *
  * @return The effective chart theme to use
  */
-export const useChartTheme = (): ChartTheme => {
+export const useGlobalChartTheme = (): ChartTheme => {
 	// Get context but don't throw if it doesn't exist (for testing or standalone usage)
 	const context = useContext( GlobalChartsContext );
 	const globalTheme = context?.theme;
-	const localTheme = useLocalChartTheme();
+	const localTheme = useChartTheme();
 
 	// Memoize the theme to prevent unnecessary re-renders
 	const effectiveTheme = useMemo(

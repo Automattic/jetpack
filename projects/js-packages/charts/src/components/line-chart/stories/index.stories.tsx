@@ -1,4 +1,4 @@
-import { useChartTheme } from '../../../hooks';
+import { useGlobalChartTheme } from '../../../hooks';
 import { legendArgTypes } from '../../../stories/legend-config';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
@@ -397,7 +397,7 @@ export const Comparison: StoryObj< typeof LineChart > = {
 	},
 	render: args => {
 		const ComparisonChart = () => {
-			const theme = useChartTheme();
+			const theme = useGlobalChartTheme();
 			const primaryColor = theme.colors[ 2 ];
 
 			const data = args.data.map( series => ( {

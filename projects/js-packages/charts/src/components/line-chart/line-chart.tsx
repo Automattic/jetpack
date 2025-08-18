@@ -5,7 +5,7 @@ import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
-import { useChartTheme, useXYChartTheme } from '../../hooks';
+import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
@@ -254,7 +254,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		},
 		ref
 	) => {
-		const providerTheme = useChartTheme();
+		const providerTheme = useGlobalChartTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();

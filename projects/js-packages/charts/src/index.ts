@@ -23,7 +23,7 @@ export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 export { mergeThemes } from './utils/merge-themes';
 
 // Hooks
-export { useDeepMemo, useChartTheme, useChartMouseHandler, useXYChartTheme } from './hooks';
+export { useDeepMemo, useGlobalChartTheme, useChartMouseHandler, useXYChartTheme } from './hooks';
 
 // LeaderboardChart utilities
 export { formatMetricValue } from './components/leaderboard-chart';

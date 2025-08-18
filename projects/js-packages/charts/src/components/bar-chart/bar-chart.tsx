@@ -3,7 +3,7 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { useChartTheme, useXYChartTheme } from '../../hooks';
+import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -91,7 +91,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
-	const providerTheme = useChartTheme();
+	const providerTheme = useGlobalChartTheme();
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );

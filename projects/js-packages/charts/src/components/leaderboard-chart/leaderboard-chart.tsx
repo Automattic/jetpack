@@ -8,7 +8,7 @@ import {
 import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
 import { type FC } from 'react';
-import { useChartTheme } from '../../hooks';
+import { useGlobalChartTheme } from '../../hooks';
 import { formatMetricValue } from '../shared/format-metric-value';
 import styles from './leaderboard-chart.module.scss';
 
@@ -160,7 +160,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	className,
 	style,
 } ) => {
-	const theme = useChartTheme();
+	const theme = useGlobalChartTheme();
 
 	// Get component settings from theme with fallbacks
 	const leaderboardSettings = theme.leaderboardChart;

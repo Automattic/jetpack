@@ -5,7 +5,7 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useChartTheme } from '../../hooks';
+import { useGlobalChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -95,7 +95,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	note,
 	className,
 } ) => {
-	const providerTheme = useChartTheme();
+	const providerTheme = useGlobalChartTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =

@@ -1,6 +1,6 @@
 import { LineStyles } from '@visx/xychart';
 import { CSSProperties, useMemo } from 'react';
-import { useChartTheme } from '../../hooks';
+import { useGlobalChartTheme } from '../../hooks';
 import { getSeriesStyles, getItemShapeStyles } from '../../utils/get-styles';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
@@ -156,7 +156,7 @@ export function useChartLegendData<
 	legendShape?: LegendShape< SeriesData[], number >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const { showValues = false, withGlyph = false, glyphSize = 8, renderGlyph } = options;
-	const theme = useChartTheme();
+	const theme = useGlobalChartTheme();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {

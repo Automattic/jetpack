@@ -1,5 +1,5 @@
 import { GlyphStar } from '@visx/glyph';
-import { useChartTheme } from '../../../hooks';
+import { useGlobalChartTheme } from '../../../hooks';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { DataPointDate } from '../../../types';
@@ -80,7 +80,7 @@ CustomSvg.args = {
 };
 
 const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-	const providerTheme = useChartTheme();
+	const providerTheme = useGlobalChartTheme();
 
 	return (
 		<div>

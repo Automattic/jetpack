@@ -2,7 +2,7 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import { useChartMouseHandler, useChartTheme } from '../../hooks';
+import { useChartMouseHandler, useGlobalChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -103,7 +103,7 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	children = null,
 }: PieChartProps ) => {
-	const providerTheme = useChartTheme();
+	const providerTheme = useGlobalChartTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
