@@ -439,9 +439,6 @@ class Contact_Form_Block {
 							'type'    => 'boolean',
 							'default' => true,
 						),
-						'countryList'         => array(
-							'type' => 'array',
-						),
 						'default'             => array(
 							'type'    => 'string',
 							'default' => '',
@@ -453,7 +450,6 @@ class Contact_Form_Block {
 					),
 					'provides_context' => array(
 						'jetpack/field-required'       => 'required',
-						'jetpack/field-prefix-options' => 'countryList',
 						'jetpack/field-prefix-default' => 'default',
 					),
 				)
