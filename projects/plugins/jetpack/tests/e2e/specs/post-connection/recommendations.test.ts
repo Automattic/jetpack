@@ -1,6 +1,6 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
 
-test.beforeEach( async ( { testUtils, requestUtils } ) => {
+test.beforeEach( async ( { testUtils } ) => {
 	const cleanupCMDs = [
 		'jetpack module deactivate monitor',
 		'jetpack module deactivate related-posts',
@@ -10,14 +10,9 @@ test.beforeEach( async ( { testUtils, requestUtils } ) => {
 	for ( const cmd of cleanupCMDs ) {
 		await testUtils.executeWpCommand( cmd );
 	}
+} );
 
-	const initialData = await requestUtils.rest( {
-		method: 'GET',
-		path: '/jetpack/v4/recommendations/data',
-	} );
-
-	console.log( initialData );
-
+test.afterEach( async ( { requestUtils } ) => {
 	// Reset the recommendations data
 	await requestUtils.rest( {
 		method: 'POST',
