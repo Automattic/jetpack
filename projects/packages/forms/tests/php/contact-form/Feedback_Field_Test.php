@@ -33,7 +33,7 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( 'test_value', $field->get_value() );
 		$this->assertEquals( 'basic', $field->get_type() );
 		$this->assertEquals( array(), $field->get_meta() );
-		$this->assertNull( $field->get_form_field_id() );
+		$this->assertSame( '', $field->get_form_field_id() );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertSame( '', $field->get_value() );
 		$this->assertEquals( 'basic', $field->get_type() );
 		$this->assertEquals( array(), $field->get_meta() );
-		$this->assertNull( $field->get_form_field_id() );
+		$this->assertSame( '', $field->get_form_field_id() );
 	}
 
 	/**

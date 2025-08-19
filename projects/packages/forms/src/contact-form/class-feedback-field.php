@@ -54,9 +54,9 @@ class Feedback_Field {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @var string|null
+	 * @var string
 	 */
-	protected $form_field_id = null;
+	protected $form_field_id = '';
 
 	/**
 	 * Constructor.
@@ -123,7 +123,7 @@ class Feedback_Field {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string|null
+	 * @return string
 	 */
 	public function get_form_field_id() {
 		return $this->form_field_id;

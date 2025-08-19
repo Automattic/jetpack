@@ -1371,7 +1371,7 @@ class Contact_Form_Plugin {
 			return false;
 		}
 
-		if ( is_user_logged_in() ) {
+		if ( is_user_logged_in() && ! isset( $_POST['jetpack_contact_form_jwt'] ) ) {
 			check_admin_referer( "contact-form_{$id}" );
 		}
 
