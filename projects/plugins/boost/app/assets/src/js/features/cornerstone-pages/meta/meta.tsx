@@ -263,12 +263,6 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 					defaultPages.length
 				),
 			} );
-		} else if ( pagesToLoad.length === 0 ) {
-			setNotice( {
-				id: 'cornerstone-load-defaults',
-				type: 'success',
-				message: __( 'Custom pages cleared.', 'jetpack-boost' ),
-			} );
 		} else {
 			setNotice( {
 				id: 'cornerstone-load-defaults',
