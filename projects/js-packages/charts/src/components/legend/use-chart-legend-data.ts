@@ -1,5 +1,6 @@
 import { LineStyles } from '@visx/xychart';
 import { CSSProperties, useMemo } from 'react';
+import { useGlobalChartTheme } from '../../hooks';
 import { getSeriesStyles, getItemShapeStyles } from '../../utils/get-styles';
 import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
@@ -143,7 +144,6 @@ function processPointData(
 /**
  * Hook to transform chart data into legend items
  * @param data        - The chart data to transform
- * @param theme       - The chart theme for colors
  * @param options     - Configuration options for legend generation
  * @param legendShape - The shape type for legend items (string literal or React component)
  * @return Array of legend items ready for display
@@ -152,11 +152,11 @@ export function useChartLegendData<
 	T extends SeriesData[] | DataPointDate[] | DataPointPercentage[],
 >(
 	data: T,
-	theme: ChartTheme,
 	options: ChartLegendOptions = {},
 	legendShape?: LegendShape< SeriesData[], number >
 ): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
 	const { showValues = false, withGlyph = false, glyphSize = 8, renderGlyph } = options;
+	const theme = useGlobalChartTheme();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {

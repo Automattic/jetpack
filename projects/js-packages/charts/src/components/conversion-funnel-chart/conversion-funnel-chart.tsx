@@ -1,7 +1,7 @@
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
-import { useChartTheme } from '../../providers/theme';
+import { useGlobalChartTheme } from '../../hooks';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './hooks/use-funnel-selection';
 import { hexToRgba } from './utils/color-utils';
@@ -68,7 +68,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	className,
 	style,
 } ) => {
-	const theme = useChartTheme();
+	const theme = useGlobalChartTheme();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 

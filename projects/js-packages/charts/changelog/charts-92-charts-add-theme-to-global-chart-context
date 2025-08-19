@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: Add theme to global context and use instead of that from theme provider
