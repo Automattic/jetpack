@@ -286,10 +286,8 @@ trait Woo_Analytics_Trait {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		$session_id         = $this->get_session_id();
 		$landing_page       = $this->get_landing_page();
 		$site_info          = array(
-			'session_id'                         => $session_id,
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
@@ -348,14 +346,66 @@ trait Woo_Analytics_Trait {
 			$this->maybe_start_session();
 		}
 
-		$js = $this->process_event_properties( $event_name, $properties, $product_id );
-		wc_enqueue_js( "_wca.push({$js});" );
+		$js           = $this->process_event_properties( $event_name, $properties, $product_id );
+		$landing_page = wp_json_encode( $this->get_breadcrumb_titles() );
 
-		// If the event is an initial page view, we don't need to record engagement.
-		if ( $this->is_initial_page_view( $event_name ) ) {
-			return;
+		$script = <<< JS
+		
+		if (typeof uuidV4 === 'undefined') {
+			let uuidV4 = () => {
+				// Generate a random UUID v4
+				return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+					const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+					return v.toString(16);
+				});
+			}
+		
+
+			let sessionData = JSON.parse(localStorage.getItem('wca_session'));
+			let sessionId = sessionData?.session_id;
+			const expirationTime = new Date(sessionData?.expires);
+			const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+			let firstEvent = true;
+
+			// If the session is expired or does not exist, create a new session.
+			if (!sessionId || expirationTime <= thirtyMinutesAgo) {
+				firstEvent = false;
+				sessionId = uuidV4();
+				sessionData = {
+					'session_id': sessionId,
+					'landing_page': '{$landing_page}',
+					'expires': '{$this->get_session_expiration_time()}',
+				}
+
+				localStorage.setItem('wca_session', JSON.stringify(sessionData));
+			}
+
+			// Mark possible session engagement.
+			if (!sessionData?.is_engaged && !firstEvent) {
+				sessionData.is_engaged = true;
+
+				localStorage.setItem('wca_session', JSON.stringify(sessionData));
+
+				const engagementEvent = {$this->process_event_properties('woocommerceanalytics_session_engagement', $this->get_common_properties())};
+				_wca.push(engagementEvent);
+
+				console.log('engagementEvent', engagementEvent);
+			}
+
+			// Add sessionId to the event.
+			let eventData = {
+				...{$js},
+				sessionId: sessionId,
+			}
+
+			_wca.push(eventData);
+
+			console.log('eventData', eventData);
 		}
-		$this->maybe_record_engagement( $properties );
+
+		JS;
+
+		wc_enqueue_js( $script );
 	}
 
 	/**
