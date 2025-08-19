@@ -105,6 +105,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'verify_email',
+				'migrate_content',
+				'subscribers_added',
 				'site_title',
 				'start_building_your_audience',
 				'customize_welcome_message',
