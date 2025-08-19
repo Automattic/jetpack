@@ -13,6 +13,7 @@ import {
 	ProductPrice,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from 'react';
@@ -22,7 +23,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -41,12 +41,12 @@ import styles from './style.module.scss';
  */
 export default function PricingInterstitial( { slug } ) {
 	const config = getProductConfigs()[ slug ];
-	const { detail } = useProduct( slug );
-	const { detail: bundleDetail } = useProduct( config?.bundle );
+	const { detail, isLoading: isProductLoading } = useProduct( slug );
+	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
-	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const myJetpackCheckoutUri = getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: detail?.postActivationUrl || null,
@@ -56,8 +56,11 @@ export default function PricingInterstitial( { slug } ) {
 	// Track which button is currently loading ('free', 'paid', 'bundle', or null)
 	const [ loadingButton, setLoadingButton ] = useState( null );
 
+	// Disable all buttons when any action is in progress or data is loading
+	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading;
+
 	// Setup checkout workflows like ProductDetailCard does
-	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
+	const { admin_url: adminUrl, suffix: siteSuffix } = getScriptData().site;
 	const paidCheckoutRedirectUrl = detail?.postActivationUrl || myJetpackCheckoutUri;
 	const bundleCheckoutRedirectUrl = bundleDetail?.postActivationUrl || myJetpackCheckoutUri;
 
@@ -290,7 +293,7 @@ export default function PricingInterstitial( { slug } ) {
 									variant="secondary"
 									onClick={ handleFreeActivation }
 									isLoading={ loadingButton === 'free' }
-									disabled={ loadingButton && loadingButton !== 'free' }
+									disabled={ buttonsDisabled }
 								>
 									{ config.tiers.free.cta }
 								</Button>
@@ -325,7 +328,7 @@ export default function PricingInterstitial( { slug } ) {
 									fullWidth
 									onClick={ handleGetProduct }
 									isLoading={ loadingButton === 'paid' }
-									disabled={ loadingButton && loadingButton !== 'paid' }
+									disabled={ buttonsDisabled }
 								>
 									{ config.tiers.paid.cta }
 								</Button>
@@ -357,7 +360,7 @@ export default function PricingInterstitial( { slug } ) {
 									variant="secondary"
 									onClick={ handleGetBundle }
 									isLoading={ loadingButton === 'bundle' }
-									disabled={ loadingButton && loadingButton !== 'bundle' }
+									disabled={ buttonsDisabled || isBundleLoading }
 								>
 									{ config.tiers.bundle.cta }
 								</Button>
