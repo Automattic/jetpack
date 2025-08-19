@@ -365,11 +365,11 @@ trait Woo_Analytics_Trait {
 			let sessionId = sessionData?.session_id;
 			const expirationTime = new Date(sessionData?.expires);
 			const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-			let firstEvent = true;
+			let firstEvent = false;
 
 			// If the session is expired or does not exist, create a new session.
 			if (!sessionId || expirationTime <= thirtyMinutesAgo) {
-				firstEvent = false;
+				firstEvent = true;
 				sessionId = uuidV4();
 				sessionData = {
 					'session_id': sessionId,
@@ -383,7 +383,7 @@ trait Woo_Analytics_Trait {
 			console.log('sessionId', sessionId);
 
 			// Mark possible session engagement.
-			if (!sessionData?.is_engaged && !firstEvent) {
+			if (!firstEvent) {
 				sessionData.is_engaged = true;
 
 				localStorage.setItem('wca_session', JSON.stringify(sessionData));
