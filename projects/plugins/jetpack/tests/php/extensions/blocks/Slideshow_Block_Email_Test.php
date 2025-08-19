@@ -12,12 +12,17 @@ if ( ! function_exists( 'Automattic\Jetpack\Extensions\Slideshow\render_email' )
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
 }
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 /**
  * Slideshow Block Email Rendering tests.
  *
  * These tests verify the render_email function works correctly for various scenarios
  * including valid inputs, security validation, caption handling, and grid layout generation.
+ *
+ * @covers ::Automattic\Jetpack\Extensions\Slideshow\render_email
  */
+#[CoversFunction( 'Automattic\Jetpack\Extensions\Slideshow\render_email' )]
 class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -186,7 +191,8 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 	 */
 	public function test_render_email_with_valid_ids() {
 		$parsed_block = $this->create_parsed_block_with_images();
-		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
 
 		// Should return HTML content
 		$this->assertNotEmpty( $result );
@@ -206,20 +212,23 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 	 * Test render_email with invalid input.
 	 */
 	public function test_render_email_with_invalid_input() {
+		$mock_context = $this->create_rendering_context_mock();
+
 		// Test with non-array parsed_block
-		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', 'not-an-array', null );
+		// phpcs:ignore Generic.PHP.TypeErrors -- Intentionally testing invalid input
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', 'not-an-array', $mock_context );
 		$this->assertSame( '', $result );
 
 		// Test with missing attrs
-		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'not-attrs' => array() ), null );
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'not-attrs' => array() ), $mock_context );
 		$this->assertSame( '', $result );
 
 		// Test with empty attrs
-		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'attrs' => array() ), null );
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'attrs' => array() ), $mock_context );
 		$this->assertSame( '', $result );
 
 		// Test with non-array ids
-		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'attrs' => array( 'ids' => 'not-an-array' ) ), null );
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'attrs' => array( 'ids' => 'not-an-array' ) ), $mock_context );
 		$this->assertSame( '', $result );
 	}
 
@@ -233,7 +242,8 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 			),
 		);
 
-		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
 
 		// Should return empty string when no valid images
 		$this->assertSame( '', $result );
@@ -259,7 +269,8 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 		);
 
 		$parsed_block = $this->create_parsed_block_with_images( $images_data );
-		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
 
 		// Should return HTML with only the valid image
 		$this->assertNotEmpty( $result );
@@ -287,7 +298,8 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 		);
 
 		$parsed_block = $this->create_parsed_block_with_images( $images_data );
-		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
 
 		// Should contain sanitized captions (HTML stripped)
 		$this->assertStringContainsString( 'Photo by Test User on Example.com', $result );
@@ -318,7 +330,8 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 		);
 
 		$parsed_block = $this->create_parsed_block_with_images( $images_data );
-		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
 
 		// Should use captions from images array
 		$this->assertStringContainsString( 'Custom caption from images array', $result );
@@ -330,7 +343,8 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 	 */
 	public function test_render_email_grid_layout() {
 		$parsed_block = $this->create_parsed_block_with_images();
-		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
 
 		// Should have table-based grid structure
 		$this->assertStringContainsString( 'role="presentation"', $result );
@@ -384,7 +398,8 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 		);
 
 		$parsed_block = $this->create_parsed_block_with_images( $images_data );
-		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
 
 		// Should have 3 images (2 in first row, 1 in second row)
 		$this->assertStringContainsString( 'test-image-1.jpg', $result );
@@ -409,7 +424,8 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 		);
 
 		$parsed_block = $this->create_parsed_block_with_images( $images_data );
-		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
 
 		// Should contain the caption text but not the script
 		$this->assertStringContainsString( 'Malicious caption', $result );
