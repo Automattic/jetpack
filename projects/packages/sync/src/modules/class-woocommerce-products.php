@@ -14,6 +14,8 @@ use WP_Error;
 
 /**
  * Class to handle sync for WooCommerce Products table.
+ *
+ * Note: This module is currently used for analytics purposes only.
  */
 class WooCommerce_Products extends Module {
 	/**

@@ -858,6 +858,8 @@ class Actions {
 	/**
 	 * Adds Woo's Products sync module to existing modules for sending.
 	 *
+	 * Note: This module is currently used for analytics purposes only.
+	 *
 	 * @param array $sync_modules The list of sync modules declared prior to this filter.
 	 *
 	 * @access public
@@ -866,6 +868,7 @@ class Actions {
 	 * @return array A list of sync modules that now includes Woo's Products module.
 	 */
 	public static function add_woocommerce_products_sync_module( $sync_modules ) {
+		// Analytics-only module - used for product data analytics
 		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce_Products';
 		return $sync_modules;
 	}
