@@ -971,6 +971,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- function is supposed to work this way
 			echo wp_interactivity_data_wp_context(
 				array(
+					'fieldId'             => $id,
 					'defaultCountry'      => $this->get_attribute( 'default' ),
 					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
 				)
@@ -983,7 +984,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-bind--disabled='state.isSubmitting'
 						data-wp-init="callbacks.initializeCountrySelector"
 						data-wp-on--change="actions.onPhoneCountryChange"
-						data-wp-bind--value="state.phoneCountryCode">
+						data-wp-bind--value="state.phoneCountryCode"
+						data-wp-on--blur='actions.onFieldBlur'>
 						<template
 							data-wp-each--country="state.countryList"
 							data-wp-each-key="context.country.code">
