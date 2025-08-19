@@ -6,12 +6,13 @@ const test = baseTest.extend< {
 } >( {
 	storageState: { cookies: [], origins: [] },
 	testUser: async ( { testUtils }, use ) => {
-		const user = {
-			username: `test_user_${ Date.now().toString( 36 ) }`,
-			password: 'SecurePass123!',
-			role: 'subscriber',
-		};
-		await testUtils.createUser( user );
+		// const user = {
+		// 	username: `test_user_${ Date.now().toString( 36 ) }`,
+		// 	password: 'SecurePass123!',
+		// 	email: `test_user_${ Date.now().toString( 36 ) }@example.com`,
+		// 	role: 'subscriber',
+		// };
+		const user = await testUtils.createUser();
 
 		await use( user );
 
