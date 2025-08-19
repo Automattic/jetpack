@@ -3187,11 +3187,13 @@ EOT;
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'                 => $name,
-				'email'                => $email,
-				'choose'               => array( 'truth' ),
-				'chooseoptions'        => array( 'hello  there' ),
-				'chooseseveraloptions' => array( 'hello, there' ),
+				'name'                        => $name,
+				'email'                       => $email,
+				'choose'                      => array( 'truth' ),
+				'chooseoptions'               => array( 'hello  there' ),
+				'chooseseveraloptions'        => array( 'hello, there' ),
+				'chooseseveraloptionsspecial' => array( 'hello, world' ),
+
 			),
 			'g' . $form_id
 		);
@@ -3217,11 +3219,43 @@ EOT;
 
 
 &lt;/ul&gt;
-&lt;/div&gt;[/contact-field]'
+&lt;/div&gt;[/contact-field][contact-field label="Choose several options special" type="checkbox-multiple" options="hello&#044; world,dare" /]'
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
 
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
+	}
+
+	public function test_validate_radio_form() {
+		$name    = '';
+		$email   = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => 'hello, world',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Choose" type="radio" options="hello&#044; world,dare" /]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		$this->assertEquals( array(), $form->get_error_messages() );
 		// message should be not empty.
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 

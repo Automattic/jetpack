@@ -348,10 +348,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( ! empty( $options_data ) ) {
 						$options = array_map(
 							function ( $option ) {
-								return sanitize_text_field( trim( $option['label'] ) );
+								return $this->sanitize_text_field( trim( $option['label'] ) );
 							},
 							$options_data
 						);
+					} else {
+						$options = array_map( array( $this, 'sanitize_text_field' ), $options );
 					}
 
 					$non_empty_options = array_filter(
@@ -383,10 +385,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( ! empty( $options_data ) ) {
 						$options = array_map(
 							function ( $option ) {
-								return sanitize_text_field( trim( $option['label'] ) );
+								return $this->sanitize_text_field( trim( $option['label'] ) );
 							},
 							$options_data
 						);
+					} else {
+						$options = array_map( array( $this, 'sanitize_text_field' ), $options );
 					}
 					$non_empty_options = array_filter(
 						$options,
@@ -430,6 +434,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$this->add_error( sprintf( __( '%s field is required.', 'jetpack-forms' ), $field_label ) );
 				}
 		}
+	}
+	/**
+	 * Sanitize a text field value and html_entity_decode the field.
+	 *
+	 * @param string $field_value The field value to sanitize.
+	 * @return string The sanitized field value.
+	 */
+	public function sanitize_text_field( $field_value ) {
+		return sanitize_text_field( html_entity_decode( $field_value, ENT_COMPAT ) );
 	}
 
 	/**
