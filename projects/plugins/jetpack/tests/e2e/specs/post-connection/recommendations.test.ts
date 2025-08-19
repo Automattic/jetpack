@@ -10,11 +10,9 @@ test.beforeEach( async ( { testUtils } ) => {
 	for ( const cmd of cleanupCMDs ) {
 		await testUtils.executeWpCommand( cmd );
 	}
-} );
 
-test.afterEach( async ( { requestUtils } ) => {
 	// Reset the recommendations data
-	await requestUtils.rest( {
+	await testUtils.requestUtils.rest( {
 		method: 'POST',
 		path: '/jetpack/v4/recommendations/data',
 		data: {
