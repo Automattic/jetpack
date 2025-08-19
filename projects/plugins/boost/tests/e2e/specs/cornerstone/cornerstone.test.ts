@@ -204,22 +204,36 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Check that load default button exists
+		const loadDefaultButton = page.getByRole( 'button', { name: 'Load default pages' } );
+		await expect( loadDefaultButton, 'Load default pages button should be visible' ).toBeVisible();
+
+		// Check that tooltip is visible on hover
+		await loadDefaultButton.hover();
 		await expect(
-			page.getByText( 'Load default pages' ),
-			'Load default pages button should be visible'
+			page.locator( '[role="tooltip"]' ),
+			'Tooltip should be visible on button hover'
 		).toBeVisible();
+
+		// Verify button is disabled when no defaults are available (clean test environment)
+		await expect(
+			loadDefaultButton,
+			'Load default pages button should be disabled when no defaults available'
+		).toBeDisabled();
 
 		const testUrls = '/sample-page';
 		await jetpackBoostPage.enterCornerstonePageUrl( testUrls );
 
-		// Test load default pages functionality (if there are default pages configured)
-		await page.getByRole( 'button', { name: 'Load default pages' } ).click();
+		// Button should remain disabled even with custom content
+		await expect(
+			loadDefaultButton,
+			'Load default pages button should remain disabled with no defaults'
+		).toBeDisabled();
 
-		// Should show some default pages loaded
+		// Should retain existing content when button cannot be clicked
 		await expect(
 			await jetpackBoostPage.getCornerstonePagesTextarea(),
-			'Should have no content after loading defaults'
-		).toHaveValue( '' );
+			'Should retain existing content when no defaults available'
+		).toHaveValue( testUrls );
 	} );
 
 	test( 'Prerender toggle should be visible when speculation_rules module is available', async ( {
