@@ -492,11 +492,7 @@ const List: FC< ListProps > = ( {
 			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
 			{ description && <div className={ styles.description }>{ description }</div> }
 			<div className={ styles.buttonGroup }>
-				<Button
-					disabled={ items === inputValue || inputInvalid }
-					onClick={ save }
-					className={ styles.button }
-				>
+				<Button disabled={ items === inputValue || inputInvalid } onClick={ save }>
 					{ __( 'Save', 'jetpack-boost' ) }
 				</Button>
 				<LoadDefaultsButton
@@ -504,7 +500,6 @@ const List: FC< ListProps > = ( {
 					inputValue={ inputValue }
 					maxPages={ maxPages }
 					onValueChange={ handleValueChange }
-					className={ styles.button }
 				/>
 			</div>
 		</div>
