@@ -109,7 +109,7 @@ const CornerstonePagesContent = () => {
 							sprintf(
 								/* translators: %s is the site URL. */
 								__(
-									'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded',
+									'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded.',
 									'jetpack-boost'
 								),
 								Jetpack_Boost.site.url
@@ -181,7 +181,7 @@ export const CornerstonePagesUpgradeCTA = () => {
 				identifier="cornerstone-10-pages"
 				description={ sprintf(
 					/* translators: %d is the number of cornerstone pages. */
-					__( 'Premium users can add up to %d cornerstone pages', 'jetpack-boost' ),
+					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
 					cornerstonePagesProperties.max_pages_premium
 				) }
 			/>
@@ -251,15 +251,15 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 		return willTruncate
 			? sprintf(
 					/* translators: %1$d is pages that will be loaded, %2$d is total available pages */
-					__( 'Load %1$d of %2$d default pages (plan limit)', 'jetpack-boost' ),
+					__( 'Load %1$d of %2$d default pages (plan limit).', 'jetpack-boost' ),
 					pagesToLoad,
 					missingDefaults.length
 			  )
 			: sprintf(
 					/* translators: %d is the number of pages that will be loaded */
 					_n(
-						'Load %d default page from compatible plugins',
-						'Load %d default pages from compatible plugins',
+						'Load %d default page from compatible plugins.',
+						'Load %d default pages from compatible plugins.',
 						pagesToLoad,
 						'jetpack-boost'
 					),
@@ -283,7 +283,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				type: 'error',
 				message: sprintf(
 					/* translators: %1$d is pages loaded, %2$d is total available pages */
-					__( 'Loaded %1$d of %2$d default pages (plan limit reached)', 'jetpack-boost' ),
+					__( 'Loaded %1$d of %2$d default pages (plan limit reached).', 'jetpack-boost' ),
 					toAppend.length,
 					missingDefaults.length
 				),
@@ -295,8 +295,8 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				message: sprintf(
 					/* translators: %d is the number of pages loaded */
 					_n(
-						'Loaded %d default page',
-						'Loaded %d default pages',
+						'Loaded %d default page.',
+						'Loaded %d default pages.',
 						toAppend.length,
 						'jetpack-boost'
 					),
@@ -319,19 +319,19 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 		if ( ! hasDefaults ) {
 			return {
 				disabled: true,
-				title: __( 'No default pages available. Add pages manually', 'jetpack-boost' ),
+				title: __( 'No default pages available. Add pages manually.', 'jetpack-boost' ),
 			};
 		}
 
 		if ( hasAllDefaults ) {
-			return { disabled: true, title: __( 'Default pages are already loaded', 'jetpack-boost' ) };
+			return { disabled: true, title: __( 'Default pages are already loaded.', 'jetpack-boost' ) };
 		}
 
 		// Handle case where user has reached plan limit
 		if ( availableSlots === 0 ) {
 			return {
 				disabled: true,
-				title: __( 'Cannot load defaults. Plan limit reached', 'jetpack-boost' ),
+				title: __( 'Cannot load defaults. Plan limit reached.', 'jetpack-boost' ),
 			};
 		}
 
@@ -410,8 +410,8 @@ const List: FC< ListProps > = ( {
 			const message = sprintf(
 				/* translators: %d is the maximum number of cornerstone page URLs. */
 				_n(
-					'You can add only %d cornerstone page URL',
-					'You can add up to %d cornerstone page URLs',
+					'You can add only %d cornerstone page URL.',
+					'You can add up to %d cornerstone page URLs.',
 					maxItems,
 					'jetpack-boost'
 				),
