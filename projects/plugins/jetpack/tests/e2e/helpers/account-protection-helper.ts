@@ -1,4 +1,5 @@
 import logger from '_jetpack-e2e-commons/logger';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
 import { createUser, deleteUser } from '_jetpack-e2e-commons/utils/user';
 import type { Page } from '@playwright/test';
 
