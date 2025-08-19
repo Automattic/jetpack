@@ -256,11 +256,11 @@ class WooCommerce_Products extends Module {
 		$posts         = $this->get_product_posts( $ids, $order );
 		$product_types = $this->get_product_types( $ids, $order );
 
-		$products_data = array();
+		$products = array();
 
 		// Build base product data from posts.
 		foreach ( $posts as $post ) {
-			$products_data[ $post->ID ] = array(
+			$products[ $post->ID ] = array(
 				'title'         => $post->post_title,
 				'post_status'   => $post->post_status,
 				'slug'          => $post->post_name,
@@ -276,30 +276,30 @@ class WooCommerce_Products extends Module {
 			} else {
 				$product_type = null;
 			}
-			$products_data[ $post->ID ]['type'] = $product_type;
+			$products[ $post->ID ]['type'] = $product_type;
 		}
 
 		// Merge in product meta data.
 		$product_meta_data = $this->get_product_meta_data( $ids, $order );
 		foreach ( $product_meta_data as $meta ) {
 			$product_id = $meta['product_id'];
-			if ( isset( $products_data[ $product_id ] ) ) {
-				$products_data[ $product_id ] = array_merge( $products_data[ $product_id ], $meta );
+			if ( isset( $products[ $product_id ] ) ) {
+				$products[ $product_id ] = array_merge( $products[ $product_id ], $meta );
 			} else {
-				$products_data[ $product_id ] = $meta;
+				$products[ $product_id ] = $meta;
 			}
 		}
 
 		// Add COGS data.
 		$cogs_data = $this->get_product_cogs_data( $ids, $order );
 		foreach ( $cogs_data as $product_id => $cogs_value ) {
-			if ( ! isset( $products_data[ $product_id ] ) ) {
-				$products_data[ $product_id ] = array();
+			if ( ! isset( $products[ $product_id ] ) ) {
+				$products[ $product_id ] = array();
 			}
-			$products_data[ $product_id ]['cogs_amount'] = $cogs_value;
+			$products[ $product_id ]['cogs_amount'] = $cogs_value;
 		}
 
-		return $products_data;
+		return $products;
 	}
 
 	/**
