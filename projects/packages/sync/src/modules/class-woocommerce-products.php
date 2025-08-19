@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\WooCommerce\Enums\ProductType;
 use DateTimeZone;
 use WC_DateTime;
 use WP_Error;
@@ -241,8 +242,6 @@ class WooCommerce_Products extends Module {
 	 * @return array|object|null
 	 */
 	public function get_product_by_ids( $ids, $order = '' ) {
-		global $wpdb;
-
 		if ( ! is_array( $ids ) ) {
 			return array();
 		}
@@ -254,53 +253,53 @@ class WooCommerce_Products extends Module {
 			return array();
 		}
 
-		// Prepare the placeholders for the prepared query below.
-		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		$posts         = $this->get_product_posts( $ids, $order );
+		$product_types = $this->get_product_types( $ids, $order );
 
-		$query = "SELECT * FROM {$this->table()} WHERE product_id IN ( $placeholders )";
-		if ( ! empty( $order ) && in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
-			$query .= " ORDER BY product_id $order";
+		$products_data = array();
+
+		// Build base product data from posts.
+		foreach ( $posts as $post ) {
+			$products_data[ $post->ID ] = array(
+				'title'         => $post->post_title,
+				'post_status'   => $post->post_status,
+				'slug'          => $post->post_name,
+				'date_created'  => $this->datetime_to_object( $post->post_date ),
+				'date_modified' => $this->datetime_to_object( $post->post_modified ),
+			);
+
+			$post_type = $post->post_type;
+			if ( 'product_variation' === $post_type ) {
+				$product_type = ProductType::VARIATION;
+			} elseif ( 'product' === $post_type ) {
+				$product_type = $product_types[ $post->ID ] ?? ProductType::SIMPLE;
+			} else {
+				$product_type = null;
+			}
+			$products_data[ $post->ID ]['type'] = $product_type;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hardcoded query, no user variable
-		$results = $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
-
-		// Transform the data to include cogs_amount
-		return array_map( array( $this, 'transform_product_data' ), $results );
-	}
-
-	/**
-	 * Transform product data to include post-related fields, cogs_amount and other computed fields.
-	 *
-	 * @param array $product_data Raw products table data.
-	 * @return array Transformed data with additional post and computed fields.
-	 */
-	public function transform_product_data( $product_data ) {
-		if ( empty( $product_data['product_id'] ) ) {
-			return $product_data;
-		}
-
-		$product = null;
-		if ( function_exists( 'wc_get_product' ) ) {
-			$product = wc_get_product( $product_data['product_id'] );
-		}
-
-		if ( $product instanceof \WC_Product ) {
-			$product_data['title']         = $product->get_name();
-			$product_data['post_status']   = $product->get_status();
-			$product_data['type']          = $product->get_type();
-			$product_data['slug']          = $product->get_slug();
-			$product_data['date_created']  = $this->datetime_to_object( $product->get_date_created() );
-			$product_data['date_modified'] = $this->datetime_to_object( $product->get_date_modified() );
-
-			// Handle COGS value if feature is enabled
-			$cogs_enabled = class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) && \Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled( 'cost_of_goods_sold' );
-			if ( $cogs_enabled && is_callable( array( $product, 'get_cogs_value' ) ) ) {
-				$product_data['cogs_amount'] = $product->get_cogs_value();
+		// Merge in product meta data.
+		$product_meta_data = $this->get_product_meta_data( $ids, $order );
+		foreach ( $product_meta_data as $meta ) {
+			$product_id = $meta['product_id'];
+			if ( isset( $products_data[ $product_id ] ) ) {
+				$products_data[ $product_id ] = array_merge( $products_data[ $product_id ], $meta );
+			} else {
+				$products_data[ $product_id ] = $meta;
 			}
 		}
 
-		return $product_data;
+		// Add COGS data.
+		$cogs_data = $this->get_product_cogs_data( $ids, $order );
+		foreach ( $cogs_data as $product_id => $cogs_value ) {
+			if ( ! isset( $products_data[ $product_id ] ) ) {
+				$products_data[ $product_id ] = array();
+			}
+			$products_data[ $product_id ]['cogs_amount'] = $cogs_value;
+		}
+
+		return $products_data;
 	}
 
 	/**
@@ -363,6 +362,149 @@ class WooCommerce_Products extends Module {
 	}
 
 	/**
+	 * Get the product meta data from the product meta lookup table.
+	 *
+	 * @param array  $ids List of product IDs to fetch.
+	 * @param string $order Either 'ASC' or 'DESC'.
+	 *
+	 * @return array
+	 */
+	private function get_product_meta_data( $ids, $order = '' ) {
+		global $wpdb;
+
+		// Prepare the placeholders for the prepared query below.
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		$query = "SELECT * FROM {$this->table()} WHERE product_id IN ( $placeholders )";
+		if ( ! empty( $order ) && in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+			$query .= " ORDER BY product_id $order";
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hardcoded query, no user variable
+		$product_meta_data = $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
+
+		if ( ! is_array( $product_meta_data ) ) {
+			return array();
+		}
+
+		return $product_meta_data;
+	}
+
+	/**
+	 * Get the product data from the posts table.
+	 *
+	 * @param array  $ids List of product IDs to fetch.
+	 * @param string $order Either 'ASC' or 'DESC'.
+	 *
+	 * @return array
+	 */
+	private function get_product_posts( $ids, $order = '' ) {
+		$posts = get_posts(
+			array(
+				'include'     => $ids,
+				'order'       => $order,
+				'post_type'   => array( 'product', 'product_variation' ),
+				'post_status' => 'any',
+				'numberposts' => -1, // Get all posts.
+			)
+		);
+
+		return $posts;
+	}
+
+	/**
+	 * Get the product cogs data from the product meta lookup table.
+	 *
+	 * @param array  $ids List of product IDs to fetch.
+	 * @param string $order Either 'ASC' or 'DESC'.
+	 *
+	 * @return array
+	 */
+	private function get_product_cogs_data( $ids, $order = '' ) {
+		$is_cogs_enabled = class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) && \Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled( 'cost_of_goods_sold' );
+
+		if ( ! $is_cogs_enabled ) {
+			return array();
+		}
+
+		global $wpdb;
+
+		// Prepare the placeholders for the prepared query below.
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		$query = "
+          SELECT post_id, meta_value
+          FROM {$wpdb->postmeta}
+          WHERE post_id IN ( $placeholders )
+          AND meta_key = '_cogs_total_value'
+      ";
+
+		if ( ! empty( $order ) && in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+			$query .= " ORDER BY post_id $order";
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hardcoded query, no user variable
+		$results = $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
+
+		if ( ! is_array( $results ) ) {
+			return array();
+		}
+
+		$product_cogs_data = array();
+		foreach ( $results as $result ) {
+			$cogs_value                              = '' === $result['meta_value'] ? null : (float) $result['meta_value'];
+			$product_cogs_data[ $result['post_id'] ] = $cogs_value;
+		}
+
+		return $product_cogs_data;
+	}
+
+	/**
+	 * Get product types for multiple product IDs in bulk.
+	 *
+	 * @param array  $ids List of product IDs to fetch types for.
+	 * @param string $order Either 'ASC' or 'DESC'.
+	 *
+	 * @return array Array of product_id => product_type mapping.
+	 */
+	private function get_product_types( $ids, $order = '' ) {
+		if ( empty( $ids ) ) {
+			return array();
+		}
+
+		global $wpdb;
+
+		// Bulk load term relationships and term data
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		$query        = "
+			SELECT tr.object_id, t.name
+			FROM {$wpdb->term_relationships} tr
+			INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+			INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
+			WHERE tr.object_id IN ( $placeholders )
+			AND tt.taxonomy = 'product_type'
+		";
+
+		if ( ! empty( $order ) && in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+			$query .= " ORDER BY tr.object_id $order";
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hardcoded query, no user variable
+		$results = $wpdb->get_results( $wpdb->prepare( $query, $ids ) );
+
+		if ( ! is_array( $results ) ) {
+			return array();
+		}
+
+		$product_types = array();
+		foreach ( $results as $result ) {
+			$product_types[ $result->object_id ] = sanitize_title( $result->name );
+		}
+
+		return $product_types;
+	}
+
+	/**
 	 * Convert the WC_DateTime objects to stdClass objects to ensure they are properly encoded.
 	 *
 	 * @param WC_DateTime|mixed $wc_datetime The datetime object.
@@ -382,7 +524,7 @@ class WooCommerce_Products extends Module {
 			}
 			return (object) (array) $wc_datetime;
 		}
-		
+
 		return null;
 	}
 }
