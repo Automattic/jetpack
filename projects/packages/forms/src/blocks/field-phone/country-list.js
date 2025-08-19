@@ -22,7 +22,7 @@ export const countries = [
 	},
 	{
 		code: 'AS',
-		label: '🇦🇸 +1684',
+		label: '🇦🇸 +1(684)',
 		value: '+1684',
 		country: 'American Samoa',
 		flag: '🇦🇸',
@@ -43,14 +43,14 @@ export const countries = [
 	},
 	{
 		code: 'AI',
-		label: '🇦🇮 +1264',
+		label: '🇦🇮 +1(264)',
 		value: '+1264',
 		country: 'Anguilla',
 		flag: '🇦🇮',
 	},
 	{
 		code: 'AG',
-		label: '🇦🇬 +1268',
+		label: '🇦🇬 +1(268)',
 		value: '+1268',
 		country: 'Antigua and Barbuda',
 		flag: '🇦🇬',
@@ -99,7 +99,7 @@ export const countries = [
 	},
 	{
 		code: 'BS',
-		label: '🇧🇸 +1242',
+		label: '🇧🇸 +1(242)',
 		value: '+1242',
 		country: 'Bahamas',
 		flag: '🇧🇸',
@@ -120,7 +120,7 @@ export const countries = [
 	},
 	{
 		code: 'BB',
-		label: '🇧🇧 +1246',
+		label: '🇧🇧 +1(246)',
 		value: '+1246',
 		country: 'Barbados',
 		flag: '🇧🇧',
@@ -155,7 +155,7 @@ export const countries = [
 	},
 	{
 		code: 'BM',
-		label: '🇧🇲 +1441',
+		label: '🇧🇲 +1(441)',
 		value: '+1441',
 		country: 'Bermuda',
 		flag: '🇧🇲',
@@ -204,7 +204,7 @@ export const countries = [
 	},
 	{
 		code: 'VG',
-		label: '🇻🇬 +1284',
+		label: '🇻🇬 +1(284)',
 		value: '+1284',
 		country: 'British Virgin Islands',
 		flag: '🇻🇬',
@@ -407,14 +407,14 @@ export const countries = [
 	},
 	{
 		code: 'DM',
-		label: '🇩🇲 +1767',
+		label: '🇩🇲 +1(767)',
 		value: '+1767',
 		country: 'Dominica',
 		flag: '🇩🇲',
 	},
 	{
 		code: 'DO',
-		label: '🇩🇴 +1849',
+		label: '🇩🇴 +1(849)',
 		value: '+1849',
 		country: 'Dominican Republic',
 		flag: '🇩🇴',
@@ -582,7 +582,7 @@ export const countries = [
 	},
 	{
 		code: 'GD',
-		label: '🇬🇩 +1473',
+		label: '🇬🇩 +1(473)',
 		value: '+1473',
 		country: 'Grenada',
 		flag: '🇬🇩',
@@ -596,7 +596,7 @@ export const countries = [
 	},
 	{
 		code: 'GU',
-		label: '🇬🇺 +1671',
+		label: '🇬🇺 +1(671)',
 		value: '+1671',
 		country: 'Guam',
 		flag: '🇬🇺',
@@ -729,7 +729,7 @@ export const countries = [
 	},
 	{
 		code: 'JM',
-		label: '🇯🇲 +1876',
+		label: '🇯🇲 +1(876)',
 		value: '+1876',
 		country: 'Jamaica',
 		flag: '🇯🇲',
@@ -988,7 +988,7 @@ export const countries = [
 	},
 	{
 		code: 'MS',
-		label: '🇲🇸 +1664',
+		label: '🇲🇸 +1(664)',
 		value: '+1664',
 		country: 'Montserrat',
 		flag: '🇲🇸',
@@ -1107,7 +1107,7 @@ export const countries = [
 	},
 	{
 		code: 'MP',
-		label: '🇲🇵 +1670',
+		label: '🇲🇵 +1(670)',
 		value: '+1670',
 		country: 'Northern Mariana Islands',
 		flag: '🇲🇵',
@@ -1205,7 +1205,7 @@ export const countries = [
 	},
 	{
 		code: 'PR',
-		label: '🇵🇷 +1939',
+		label: '🇵🇷 +1(939)',
 		value: '+1939',
 		country: 'Puerto Rico',
 		flag: '🇵🇷',
@@ -1261,14 +1261,14 @@ export const countries = [
 	},
 	{
 		code: 'KN',
-		label: '🇰🇳 +1869',
+		label: '🇰🇳 +1(869)',
 		value: '+1869',
 		country: 'Saint Kitts and Nevis',
 		flag: '🇰🇳',
 	},
 	{
 		code: 'LC',
-		label: '🇱🇨 +1758',
+		label: '🇱🇨 +1(758)',
 		value: '+1758',
 		country: 'Saint Lucia',
 		flag: '🇱🇨',
@@ -1289,7 +1289,7 @@ export const countries = [
 	},
 	{
 		code: 'VC',
-		label: '🇻🇨 +1784',
+		label: '🇻🇨 +1(784)',
 		value: '+1784',
 		country: 'Saint Vincent and the Grenadines',
 		flag: '🇻🇨',
@@ -1520,7 +1520,7 @@ export const countries = [
 	},
 	{
 		code: 'TT',
-		label: '🇹🇹 +1868',
+		label: '🇹🇹 +1(868)',
 		value: '+1868',
 		country: 'Trinidad and Tobago',
 		flag: '🇹🇹',
@@ -1548,7 +1548,7 @@ export const countries = [
 	},
 	{
 		code: 'TC',
-		label: '🇹🇨 +1649',
+		label: '🇹🇨 +1(649)',
 		value: '+1649',
 		country: 'Turks and Caicos Islands',
 		flag: '🇹🇨',
@@ -1562,7 +1562,7 @@ export const countries = [
 	},
 	{
 		code: 'VI',
-		label: '🇻🇮 +1340',
+		label: '🇻🇮 +1(340)',
 		value: '+1340',
 		country: 'U.S. Virgin Islands',
 		flag: '🇻🇮',
