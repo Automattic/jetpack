@@ -380,8 +380,6 @@ trait Woo_Analytics_Trait {
 				localStorage.setItem('wca_session', JSON.stringify(sessionData));
 			}
 
-			console.log('sessionId', sessionId);
-
 			// Mark possible session engagement.
 			if (!firstEvent) {
 				sessionData.is_engaged = true;
