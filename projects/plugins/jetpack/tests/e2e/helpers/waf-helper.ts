@@ -7,8 +7,8 @@ import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
  */
 export async function enableAutomaticRules(): Promise< void > {
 	logger.debug( 'Enabling automatic firewall rules' );
-	executeWpCommand( 'option update jetpack_waf_automatic_rules 1' );
-	executeWpCommand( 'jetpack-waf generate_rules' );
+	await executeWpCommand( 'option update jetpack_waf_automatic_rules 1' );
+	await executeWpCommand( 'jetpack-waf generate_rules' );
 }
 
 /**
@@ -17,5 +17,5 @@ export async function enableAutomaticRules(): Promise< void > {
  */
 export async function generateRules(): Promise< string > {
 	logger.debug( 'Generating firewall rules' );
-	return executeWpCommand( 'jetpack-waf generate_rules' );
+	return await executeWpCommand( 'jetpack-waf generate_rules' );
 }
