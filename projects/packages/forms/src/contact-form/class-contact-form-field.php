@@ -442,7 +442,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string The sanitized field value.
 	 */
 	public function sanitize_text_field( $field_value ) {
-		return sanitize_text_field( html_entity_decode( $field_value ) );
+		return sanitize_text_field( html_entity_decode( $field_value, ENT_COMPAT ) );
 	}
 
 	/**

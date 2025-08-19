@@ -174,9 +174,9 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		);
 
 		$unsanitized_value = '<script>alert("XSS")</script>';
-		$this->assertEquals( sanitize_text_field( html_entity_decode( $unsanitized_value ) ), $field->sanitize_text_field( $unsanitized_value ) );
+		$this->assertEquals( sanitize_text_field( html_entity_decode( $unsanitized_value, ENT_QUOTES ) ), $field->sanitize_text_field( $unsanitized_value ) );
 
-		$unsanitized_value = '';
-		$this->assertEquals( sanitize_text_field( html_entity_decode( $unsanitized_value ) ), $field->sanitize_text_field( $unsanitized_value ) );
+		$unsanitized_value = 'hello&#044; world';
+		$this->assertEquals( sanitize_text_field( html_entity_decode( $unsanitized_value, ENT_QUOTES ) ), $field->sanitize_text_field( $unsanitized_value ) );
 	}
 } // end class
