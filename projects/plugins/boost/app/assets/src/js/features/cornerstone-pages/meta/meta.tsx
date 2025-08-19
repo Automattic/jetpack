@@ -293,13 +293,22 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 		}
 
 		const availableSlots = Math.max( 0, maxPages - currentPages.length );
+
+		// Handle case where user has reached plan limit
+		if ( availableSlots === 0 ) {
+			return {
+				disabled: true,
+				title: __( 'Cannot load defaults. Plan limit reached', 'jetpack-boost' ),
+			};
+		}
+
 		const pagesToLoad = Math.min( missingDefaults.length, availableSlots );
 		const willTruncate = pagesToLoad < missingDefaults.length;
 
 		const tooltip = willTruncate
 			? sprintf(
 					/* translators: %1$d is pages that will be loaded, %2$d is total available pages */
-					__( 'Will load %1$d of %2$d default pages (plan limit)', 'jetpack-boost' ),
+					__( 'Load %1$d of %2$d default pages (plan limit)', 'jetpack-boost' ),
 					pagesToLoad,
 					missingDefaults.length
 			  )
@@ -308,10 +317,10 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 					_n(
 						'Load %d default page from compatible plugins',
 						'Load %d default pages from compatible plugins',
-						missingDefaults.length,
+						pagesToLoad,
 						'jetpack-boost'
 					),
-					missingDefaults.length
+					pagesToLoad
 			  );
 
 		return { disabled: false, title: tooltip };
