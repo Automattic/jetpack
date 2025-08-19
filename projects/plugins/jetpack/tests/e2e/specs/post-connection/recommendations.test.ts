@@ -11,6 +11,13 @@ test.beforeEach( async ( { testUtils, requestUtils } ) => {
 		await testUtils.executeWpCommand( cmd );
 	}
 
+	const initialData = await requestUtils.rest( {
+		method: 'GET',
+		path: '/jetpack/v4/recommendations/data',
+	} );
+
+	console.log( initialData );
+
 	// Reset the recommendations data
 	await requestUtils.rest( {
 		method: 'POST',
