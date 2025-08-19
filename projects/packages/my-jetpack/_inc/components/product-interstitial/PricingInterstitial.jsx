@@ -83,6 +83,16 @@ export default function PricingInterstitial( { slug } ) {
 		useBlogIdSuffix: true,
 	} );
 
+	const { run: freeCheckoutRun } = useProductCheckoutWorkflow( {
+		productSlug: detail?.pricingForUi?.wpcomFreeProductSlug,
+		redirectUrl: paidCheckoutRedirectUrl,
+		siteSuffix,
+		adminUrl,
+		connectAfterCheckout: true,
+		from: 'my-jetpack',
+		useBlogIdSuffix: true,
+	} );
+
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
@@ -139,9 +149,16 @@ export default function PricingInterstitial( { slug } ) {
 
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
-						const isFree = tier
-							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
-							: product?.pricingForUi?.isFree;
+						// Products like Search have wpcomFreeProductSlug, meaning even their "free" tier needs purchase
+						const hasPurchasableFree = !! product?.pricingForUi?.wpcomFreeProductSlug;
+						let isFree;
+						if ( tier === 'free' && ! hasPurchasableFree ) {
+							isFree = true;
+						} else if ( tier ) {
+							isFree = product?.pricingForUi?.tiers?.[ tier ]?.isFree;
+						} else {
+							isFree = product?.pricingForUi?.isFree;
+						}
 						const isUpgradeToHigherTier =
 							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
 						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
@@ -158,7 +175,10 @@ export default function PricingInterstitial( { slug } ) {
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
 							handleRegisterSite().then( postRegisterRedirectUri => {
-								if ( ! postRegisterRedirectUri ) {
+								if ( postRegisterRedirectUri ) {
+									// Redirect to the product's admin page
+									window.location.href = postRegisterRedirectUri;
+								} else {
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -202,8 +222,19 @@ export default function PricingInterstitial( { slug } ) {
 	const handleFreeActivation = useCallback( () => {
 		setLoadingButton( 'free' );
 		trackProductOrBundleClick( { isFreePlan: true, ctaText: config?.tiers?.free?.cta } );
-		clickHandler( { checkout: null, product: detail, tier: 'free' } );
-	}, [ trackProductOrBundleClick, clickHandler, detail, config?.tiers?.free?.cta ] );
+
+		// Products like Search have wpcomFreeProductSlug, so they need checkout even for free
+		const hasPurchasableFree = !! detail?.pricingForUi?.wpcomFreeProductSlug;
+		const checkout = hasPurchasableFree ? freeCheckoutRun : null;
+
+		clickHandler( { checkout, product: detail, tier: 'free' } );
+	}, [
+		trackProductOrBundleClick,
+		clickHandler,
+		detail,
+		config?.tiers?.free?.cta,
+		freeCheckoutRun,
+	] );
 
 	// If no config exists, fallback to old ProductInterstitial
 	if ( ! config ) {
