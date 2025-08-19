@@ -1,9 +1,10 @@
 import { store, getContext } from '@wordpress/interactivity';
+import parsePhoneNumber from 'libphonenumber-js';
 import { countries } from '../../blocks/field-phone/country-list';
 import { isEmptyValue } from '../../contact-form/js/validate-helper';
 const NAMESPACE = 'jetpack/form';
 
-const { state } = store( NAMESPACE, {
+const { state, actions } = store( NAMESPACE, {
 	state: {
 		validators: {
 			phone: ( value, isRequired ) => {
@@ -11,14 +12,36 @@ const { state } = store( NAMESPACE, {
 					return 'is_required';
 				}
 
-				if ( ! isRequired && isEmptyValue( value ) ) {
+				const context = getContext();
+				const triggeringFromSelector =
+					context.showCountrySelector && value === state.phoneCountryCode;
+				// when blur triggers this from the selector, the value
+				// is just the country code, treat as empty
+				if ( triggeringFromSelector ) {
+					value = '';
+				}
+
+				if ( ! isRequired && isEmptyValue( value + state.phoneNumber ) ) {
 					// No need to validate anything.
 					return 'yes';
 				}
 
+				// from this point on, we discard the value as we
+				// use our internal full phone number state getter:
+				value = state.fullPhoneNumber;
+
+				if ( context.showCountrySelector ) {
+					const internationalNumber = parsePhoneNumber( value );
+					if ( ! internationalNumber || ! internationalNumber.isValid() ) {
+						return 'invalid_phone';
+					}
+				}
+
+				// if no country selector, use legacy regex check
 				if ( ! /^\+?[0-9\s\-()]+$/.test( value ) ) {
 					return 'invalid_phone';
 				}
+
 				return 'yes';
 			},
 		},
@@ -44,31 +67,23 @@ const { state } = store( NAMESPACE, {
 		onPhoneNumberChange( event ) {
 			const context = getContext();
 			const value = event.target.value;
-
 			if ( ! context.showCountrySelector ) {
 				state.phoneNumber = value;
 				return;
 			}
-
-			// Check for country code pattern: + followed by 1-3 digits
-			const countryCodeMatch = value.match( /^\+(\d{1,4})/ );
-
-			if ( countryCodeMatch ) {
-				const potentialCode = countryCodeMatch[ 0 ];
-
-				const countryItem = countries?.find( country => country.value === potentialCode );
-
-				state.phoneCountryCode = countryItem?.value || context.phoneCountryCode;
-				// If there's a space after the country code, split the input
-				if ( value.charAt( potentialCode.length ) === ' ' ) {
-					state.phoneNumber = value.substring( potentialCode.length + 1 );
-				} else {
-					// If no space yet, keep the whole input in phoneNumber
-					state.phoneNumber = value;
+			const fieldId = context.fieldId;
+			if ( value.indexOf( '+' ) === 0 && value.length > 1 ) {
+				// user is trying to type an international phone number
+				const internationalNumber = parsePhoneNumber( value );
+				if ( internationalNumber ) {
+					const country = countries.find( item => item.code === internationalNumber.country );
+					state.phoneCountryCode = country?.value || context.defaultCountry;
+					state.phoneNumber = internationalNumber.nationalNumber;
 				}
 			} else {
 				state.phoneNumber = value;
 			}
+			actions.updateField( fieldId, value );
 		},
 		onPhoneCountryChange( event ) {
 			const context = getContext();
