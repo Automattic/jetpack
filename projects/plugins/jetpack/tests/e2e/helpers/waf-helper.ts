@@ -17,5 +17,5 @@ export async function enableAutomaticRules(): Promise< void > {
  */
 export async function generateRules(): Promise< string > {
 	logger.debug( 'Generating firewall rules' );
-	return await executeWpCommand( 'jetpack-waf generate_rules' );
+	return executeWpCommand( 'jetpack-waf generate_rules' );
 }
