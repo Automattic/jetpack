@@ -78,22 +78,16 @@
 			}
 		}
 	}
-
-
 }
 
 .is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone {
 
-	&:not(.is-selected),
-	&:not(.has-child-selected) {
+	&:not(.has-placeholder):not(.is-selected),
+	&:not(.has-placeholder):not(.has-child-selected) {
 
 		.jetpack-field__input-prefix {
 			visibility: hidden;
 		}
-	}
-
-	&.is-selected .animated-label__label:not(.is-selected) {
-		top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px) + calc(var(--jetpack--contact-form--input-padding) / 2));
 	}
 
 	// Target input prefix when field is selected but label is not
@@ -107,8 +101,8 @@
 
 .is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone {
 
-	&:not(.is-selected),
-	&:not(.has-child-selected) {
+	&:not(.has-placeholder):not(.is-selected),
+	&:not(.has-placeholder):not(.has-child-selected) {
 
 		.jetpack-field__input-prefix {
 			visibility: hidden;

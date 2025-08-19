@@ -52,10 +52,8 @@
 			&:not(:has(*:focus, *:active)) {
 
 				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
-
-					.jetpack-field__input-element {
-						visibility: hidden;
-					}
+					pointer-events: none;
+					visibility: hidden;
 				}
 			}
 		}
@@ -85,10 +83,8 @@
 				}
 
 				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
-
-					.jetpack-field__input-element {
-						visibility: hidden;
-					}
+					pointer-events: none;
+					visibility: hidden;
 				}
 			}
 		}
