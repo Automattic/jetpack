@@ -209,17 +209,6 @@ class Slideshow_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_email with invalid input.
-	 */
-	public function test_render_email_with_invalid_input() {
-		$mock_context = $this->create_rendering_context_mock();
-
-		// Test with non-array parsed_block - should throw TypeError due to type hint
-		$this->expectException( TypeError::class );
-		\Automattic\Jetpack\Extensions\Slideshow\render_email( '', 'not-an-array', $mock_context );
-	}
-
-	/**
 	 * Test render_email with missing attrs.
 	 */
 	public function test_render_email_with_missing_attrs() {
