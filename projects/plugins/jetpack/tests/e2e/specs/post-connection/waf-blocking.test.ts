@@ -1,5 +1,5 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
-import { enableAutomaticRules, generateRules } from '../../helpers/waf-helper';
+import { enableAutomaticRules } from '../../helpers/waf-helper';
 
 test.describe.parallel( 'WAF Blocking', () => {
 	test.beforeAll( async ( { testUtils } ) => {
@@ -8,7 +8,6 @@ test.describe.parallel( 'WAF Blocking', () => {
 		 */
 		await testUtils.activateModule( 'waf' );
 		await enableAutomaticRules();
-		await generateRules();
 	} );
 
 	test( 'Block a simple request', async ( { page } ) => {
