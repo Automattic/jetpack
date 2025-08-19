@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes the target upsell plan for the Additional CSS feature, needed for Atomic Personal sites.
