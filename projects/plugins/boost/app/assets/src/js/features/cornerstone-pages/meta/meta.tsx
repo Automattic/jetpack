@@ -375,8 +375,6 @@ const List: FC< ListProps > = ( {
 		setInputValue( items );
 	}, [ items ] );
 
-	const maxPages = maxItems || 0;
-
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		try {
@@ -490,7 +488,7 @@ const List: FC< ListProps > = ( {
 				<LoadDefaultsButton
 					defaultValue={ defaultValue }
 					inputValue={ inputValue }
-					maxPages={ maxPages }
+					maxPages={ maxItems }
 					onValueChange={ handleValueChange }
 				/>
 			</div>
