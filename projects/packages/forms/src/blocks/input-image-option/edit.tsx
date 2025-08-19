@@ -67,6 +67,7 @@ export default function ImageOptionInputEdit( props ) {
 	const {
 		'jetpack/field-image-select-is-supersized': isSupersized,
 		'jetpack/field-image-select-show-labels': showLabels,
+		'jetpack/field-image-options-type': selectionType = 'radio',
 	} = context || {};
 
 	// Use the block's own synced attributes for styling
@@ -77,6 +78,7 @@ export default function ImageOptionInputEdit( props ) {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-image': !! imageBlockAttributes?.url,
 			'is-supersized': isSupersized,
+			[ `is-${ selectionType }` ]: !! selectionType,
 		} ),
 		style: blockStyle,
 	} );
