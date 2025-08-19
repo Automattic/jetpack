@@ -202,11 +202,8 @@ class Admin_Post_List_Column {
 		// If comments position is 0, then prepend the element at the beginning of the array.
 		if ( 0 === $pos ) {
 			return array_merge(
-				array(
-					'stats' => esc_html__( 'Stats', 'jetpack-stats-admin' ),
-					$columns,
-					true,
-				)
+				array( 'stats' => esc_html__( 'Stats', 'jetpack-stats-admin' ) ),
+				$columns
 			);
 		}
 
