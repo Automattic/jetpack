@@ -30,7 +30,7 @@ export const MetaError = () => (
 		<p>
 			{ createInterpolateElement(
 				__(
-					'Refresh the page and try again. If the issue persists, please <link>contact support</link>',
+					'Refresh the page and try again. If the issue persists, please <link>contact support</link>.',
 					'jetpack-boost'
 				),
 				{
@@ -446,7 +446,7 @@ const List: FC< ListProps > = ( {
 			if ( resolvedPath === siteUrl.pathname ) {
 				throw new Error(
 					__(
-						'The homepage does not need to be added to the list, as it is automatically included',
+						'The homepage does not need to be added to the list, as it is automatically included.',
 						'jetpack-boost'
 					)
 				);
