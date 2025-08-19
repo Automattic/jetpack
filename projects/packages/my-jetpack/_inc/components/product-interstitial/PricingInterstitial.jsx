@@ -15,7 +15,7 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -53,6 +53,9 @@ export default function PricingInterstitial( { slug } ) {
 	} );
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
+	// Track which button is currently loading ('free', 'paid', 'bundle', or null)
+	const [ loadingButton, setLoadingButton ] = useState( null );
+
 	// Setup checkout workflows like ProductDetailCard does
 	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
 	const paidCheckoutRedirectUrl = detail?.postActivationUrl || myJetpackCheckoutUri;
@@ -83,6 +86,13 @@ export default function PricingInterstitial( { slug } ) {
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
+
+	// Reset loading button when activation completes or site registration completes
+	useEffect( () => {
+		if ( ! isActivating && ! siteIsRegistering ) {
+			setLoadingButton( null );
+		}
+	}, [ isActivating, siteIsRegistering ] );
 
 	const getProductSlugForTrackEvent = useCallback(
 		( isFree = false ) => {
@@ -167,6 +177,7 @@ export default function PricingInterstitial( { slug } ) {
 	);
 
 	const handleGetProduct = useCallback( () => {
+		setLoadingButton( 'paid' );
 		trackProductOrBundleClick( { ctaText: config?.tiers?.paid?.cta } );
 		clickHandler( { checkout: paidCheckoutRun, product: detail, tier: 'paid' } );
 	}, [
@@ -179,6 +190,7 @@ export default function PricingInterstitial( { slug } ) {
 
 	const handleGetBundle = useCallback( () => {
 		if ( config?.bundle ) {
+			setLoadingButton( 'bundle' );
 			trackProductOrBundleClick( {
 				customSlug: config.bundle,
 				ctaText: config?.tiers?.bundle?.cta,
@@ -188,6 +200,7 @@ export default function PricingInterstitial( { slug } ) {
 	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutRun, bundleDetail, config ] );
 
 	const handleFreeActivation = useCallback( () => {
+		setLoadingButton( 'free' );
 		trackProductOrBundleClick( { isFreePlan: true, ctaText: config?.tiers?.free?.cta } );
 		clickHandler( { checkout: null, product: detail, tier: 'free' } );
 	}, [ trackProductOrBundleClick, clickHandler, detail, config?.tiers?.free?.cta ] );
@@ -245,7 +258,8 @@ export default function PricingInterstitial( { slug } ) {
 									fullWidth
 									variant="secondary"
 									onClick={ handleFreeActivation }
-									isLoading={ isActivating || siteIsRegistering }
+									isLoading={ loadingButton === 'free' }
+									disabled={ loadingButton && loadingButton !== 'free' }
 								>
 									{ config.tiers.free.cta }
 								</Button>
@@ -279,7 +293,8 @@ export default function PricingInterstitial( { slug } ) {
 								<Button
 									fullWidth
 									onClick={ handleGetProduct }
-									isLoading={ isActivating || siteIsRegistering }
+									isLoading={ loadingButton === 'paid' }
+									disabled={ loadingButton && loadingButton !== 'paid' }
 								>
 									{ config.tiers.paid.cta }
 								</Button>
@@ -310,7 +325,8 @@ export default function PricingInterstitial( { slug } ) {
 									fullWidth
 									variant="secondary"
 									onClick={ handleGetBundle }
-									isLoading={ isActivating || siteIsRegistering }
+									isLoading={ loadingButton === 'bundle' }
+									disabled={ loadingButton && loadingButton !== 'bundle' }
 								>
 									{ config.tiers.bundle.cta }
 								</Button>
