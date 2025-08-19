@@ -377,6 +377,14 @@ trait Woo_Analytics_Trait {
 					'expires': '{$this->get_session_expiration_time()}',
 				}
 
+				const sessionStartEvent = {$this->process_event_properties('woocommerceanalytics_session_started')};
+				const sessionStartEventWithSessionId = {
+					...sessionStartEvent,
+					session_id: sessionId,
+				}
+				_wca.push(sessionStartEventWithSessionId);
+				console.log('sessionStartEvent', sessionStartEventWithSessionId);
+
 				localStorage.setItem('wca_session', JSON.stringify(sessionData));
 			}
 
