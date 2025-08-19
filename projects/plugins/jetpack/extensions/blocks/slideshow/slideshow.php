@@ -71,7 +71,7 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 	// For email, we'll render a grid of all images with captions
 	$images = array();
 
-	// Get images from IDs if available
+	// Get images from IDs (primary data source)
 	if ( ! empty( $attr['ids'] ) ) {
 		foreach ( $attr['ids'] as $index => $id ) {
 			$image_url = wp_get_attachment_image_url( $id, 'medium' );
@@ -100,18 +100,6 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 				);
 			}
 		}
-	} elseif ( ! empty( $attr['images'] ) ) {
-		// Fall back to images array if IDs aren't available
-		foreach ( $attr['images'] as $index => $image_data ) {
-			if ( ! empty( $image_data['url'] ) ) {
-				$images[] = array(
-					'url'     => $image_data['url'],
-					'alt'     => ! empty( $image_data['alt'] ) ? $image_data['alt'] : '',
-					'caption' => ! empty( $image_data['caption'] ) ? $image_data['caption'] : '',
-					'id'      => ! empty( $image_data['id'] ) ? $image_data['id'] : 0,
-				);
-			}
-		}
 	}
 
 	if ( empty( $images ) ) {
@@ -123,18 +111,19 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 	if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
 		$layout_width_px = $rendering_context->get_layout_width_without_padding();
 		if ( is_string( $layout_width_px ) ) {
-			// Use Styles_Helper if available, otherwise fallback to simple parsing
+			// Try to parse the width value
+			$parsed_width = 0;
 			if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ) {
 				$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
-				if ( $parsed_width > 0 ) {
-					$target_width = (int) $parsed_width;
-				}
 			} else {
 				// Fallback to simple regex parsing
 				$matches = array();
 				if ( preg_match( '/^(\d+)px$/', $layout_width_px, $matches ) ) {
-					$target_width = (int) $matches[1];
+					$parsed_width = (int) $matches[1];
 				}
+			}
+			if ( $parsed_width > 0 ) {
+				$target_width = $parsed_width;
 			}
 		}
 	}
@@ -157,22 +146,11 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 			);
 
 			// Build individual image content
-			if ( ! empty( $image['id'] ) ) {
-				// Get image URL for ID-based images
-				$image_url = wp_get_attachment_image_url( $image['id'], 'medium' );
-				if ( $image_url ) {
-					$grid_content .= sprintf(
-						'<img src="%s" alt="%s" style="width: 100%%; max-width: %dpx; height: auto; display: block; border: 0; margin: 0 auto; border-radius: 4px;" />',
-						esc_url( $image_url ),
-						esc_attr( $image['alt'] ),
-						$image_width - 16 // Account for padding
-					);
-				}
-			} else {
-				// Fallback to simple img tag if we don't have an ID
+			$image_url = ! empty( $image['id'] ) ? wp_get_attachment_image_url( $image['id'], 'medium' ) : $image['url'];
+			if ( $image_url ) {
 				$grid_content .= sprintf(
 					'<img src="%s" alt="%s" style="width: 100%%; max-width: %dpx; height: auto; display: block; border: 0; margin: 0 auto; border-radius: 4px;" />',
-					esc_url( $image['url'] ),
+					esc_url( $image_url ),
 					esc_attr( $image['alt'] ),
 					$image_width - 16 // Account for padding
 				);
@@ -180,14 +158,10 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 
 			// Add caption if available
 			if ( ! empty( $image['caption'] ) ) {
-				$sanitized_caption = esc_html( wp_strip_all_tags( $image['caption'] ) );
-
-				$caption_html = sprintf(
+				$grid_content .= sprintf(
 					'<p style="margin: 12px 0 0 0; padding: 0; font-size: 14px; color: #666666; line-height: 1.4; text-align: center; font-family: Arial, sans-serif;">%s</p>',
-					$sanitized_caption
+					esc_html( wp_strip_all_tags( $image['caption'] ) )
 				);
-
-				$grid_content .= $caption_html;
 			}
 
 			$grid_content .= '</td>';
