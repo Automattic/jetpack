@@ -229,10 +229,47 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 	const defaultPages = useMemo( () => parsePages( defaultValue ), [ defaultValue ] );
 	const currentPages = useMemo( () => parsePages( inputValue ), [ inputValue ] );
 
-	const loadDefaultValue = () => {
-		// Calculate available slots and append only missing defaults
+	// Calculate derived state once
+	const buttonLogic = useMemo( () => {
+		const hasDefaults = defaultPages.length > 0;
 		const missingDefaults = defaultPages.filter( p => ! currentPages.includes( p ) );
 		const availableSlots = Math.max( 0, maxPages - currentPages.length );
+		const hasAllDefaults = missingDefaults.length === 0;
+
+		return {
+			hasDefaults,
+			missingDefaults,
+			availableSlots,
+			hasAllDefaults,
+		};
+	}, [ defaultPages, currentPages, maxPages ] );
+
+	const getTooltipMessage = ( missingDefaults: string[], availableSlots: number ) => {
+		const pagesToLoad = Math.min( missingDefaults.length, availableSlots );
+		const willTruncate = pagesToLoad < missingDefaults.length;
+
+		return willTruncate
+			? sprintf(
+					/* translators: %1$d is pages that will be loaded, %2$d is total available pages */
+					__( 'Load %1$d of %2$d default pages (plan limit)', 'jetpack-boost' ),
+					pagesToLoad,
+					missingDefaults.length
+			  )
+			: sprintf(
+					/* translators: %d is the number of pages that will be loaded */
+					_n(
+						'Load %d default page from compatible plugins',
+						'Load %d default pages from compatible plugins',
+						pagesToLoad,
+						'jetpack-boost'
+					),
+					pagesToLoad
+			  );
+	};
+
+	const loadDefaultValue = () => {
+		// Use pre-calculated values
+		const { missingDefaults, availableSlots } = buttonLogic;
 		const toAppend = missingDefaults.slice( 0, availableSlots );
 		const newPages = [ ...currentPages, ...toAppend ];
 
@@ -275,9 +312,9 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 		} );
 	};
 
-	// Button state logic - just calculate it directly, it's cheap
+	// Simplified button state logic using pre-calculated values
 	const getButtonState = () => {
-		const hasDefaults = defaultPages.length > 0;
+		const { hasDefaults, missingDefaults, availableSlots, hasAllDefaults } = buttonLogic;
 
 		if ( ! hasDefaults ) {
 			return {
@@ -286,13 +323,9 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 			};
 		}
 
-		const missingDefaults = defaultPages.filter( p => ! currentPages.includes( p ) );
-		const hasAllDefaults = missingDefaults.length === 0;
 		if ( hasAllDefaults ) {
 			return { disabled: true, title: __( 'Default pages are already loaded', 'jetpack-boost' ) };
 		}
-
-		const availableSlots = Math.max( 0, maxPages - currentPages.length );
 
 		// Handle case where user has reached plan limit
 		if ( availableSlots === 0 ) {
@@ -302,28 +335,10 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 			};
 		}
 
-		const pagesToLoad = Math.min( missingDefaults.length, availableSlots );
-		const willTruncate = pagesToLoad < missingDefaults.length;
-
-		const tooltip = willTruncate
-			? sprintf(
-					/* translators: %1$d is pages that will be loaded, %2$d is total available pages */
-					__( 'Load %1$d of %2$d default pages (plan limit)', 'jetpack-boost' ),
-					pagesToLoad,
-					missingDefaults.length
-			  )
-			: sprintf(
-					/* translators: %d is the number of pages that will be loaded */
-					_n(
-						'Load %d default page from compatible plugins',
-						'Load %d default pages from compatible plugins',
-						pagesToLoad,
-						'jetpack-boost'
-					),
-					pagesToLoad
-			  );
-
-		return { disabled: false, title: tooltip };
+		return {
+			disabled: false,
+			title: getTooltipMessage( missingDefaults, availableSlots ),
+		};
 	};
 
 	const buttonState = getButtonState();
