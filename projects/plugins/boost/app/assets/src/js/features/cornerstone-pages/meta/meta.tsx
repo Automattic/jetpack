@@ -307,7 +307,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				: {
 						disabled: true,
 						title: __(
-							'No default pages found. Install Yoast SEO or WooCommerce to get default pages.',
+							'No default pages found. No compatible plugins with viable pages detected.',
 							'jetpack-boost'
 						),
 				  };
@@ -344,8 +344,8 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 			: sprintf(
 					/* translators: %d is the number of pages that will be loaded */
 					_n(
-						'Load %d default page from Yoast SEO and WooCommerce.',
-						'Load %d default pages from Yoast SEO and WooCommerce.',
+						'Load %d default page from compatible plugins.',
+						'Load %d default pages from compatible plugins.',
 						defaultPages.length,
 						'jetpack-boost'
 					),
