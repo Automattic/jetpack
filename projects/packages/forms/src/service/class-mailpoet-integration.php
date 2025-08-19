@@ -118,11 +118,11 @@ class MailPoet_Integration {
 	/**
 	 * Extract subscriber data (email, first_name, last_name) from form fields.
 	 *
-	 * @param Feedback $feedback   Feedback object for the submission.
-	 * @param array    $fields     Collection of Contact_Form_Field instances.
+	 * @param Feedback                                           $feedback Feedback object for the submission.
+	 * @param \Automattic\Jetpack\Forms\ContactForm\Contact_Form $form Contact form instance.
 	 * @return array Associative array with at least 'email', optionally 'first_name', 'last_name'. Empty array if no email found.
 	 */
-	protected static function get_subscriber_data( $feedback, $fields ) {
+	protected static function get_subscriber_data( $feedback, $form ) {
 		if ( ! $feedback->get_author_email() ) {
 			return array();
 		}
@@ -142,24 +142,13 @@ class MailPoet_Integration {
 		// If no first/last name, try getting via id from form fields.
 		// Can replace when we add $feedback->get_field_value_by_id() to Feedback API.
 		if ( empty( $subscriber_data['first_name'] ) || empty( $subscriber_data['last_name'] ) ) {
-			$form = null;
-			foreach ( $fields as $field ) {
-				if ( ! empty( $field->form ) ) {
-					$form = $field->form;
-					break;
-				}
-			}
-			if ( ! $form || ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
-				return $subscriber_data;
-			}
-
 			foreach ( $form->fields as $field ) {
 				$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
 				$value = trim( $field->value );
 
-				if ( ( $id === 'firstname' ) && ! empty( $value ) ) {
+				if ( 'firstname' === $id && ! empty( $value ) ) {
 					$subscriber_data['first_name'] = $value;
-				} elseif ( ( $id === 'lastname' ) && ! empty( $value ) ) {
+				} elseif ( 'lastname' === $id && ! empty( $value ) ) {
 					$subscriber_data['last_name'] = $value;
 				}
 			}
@@ -223,7 +212,7 @@ class MailPoet_Integration {
 			return;
 		}
 
-		$subscriber_data = self::get_subscriber_data( $feedback, $fields );
+		$subscriber_data = self::get_subscriber_data( $feedback, $form );
 		if ( empty( $subscriber_data ) ) {
 			// Email is required for MailPoet subscribers.
 			return;
