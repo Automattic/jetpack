@@ -244,23 +244,25 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 			return;
 		}
 
-		// Calculate available slots and pages to load
-		const availableSlots = maxPages - currentPages.length;
-		const pagesToLoad = defaultPages.slice( 0, availableSlots );
+		// Calculate available slots and append only missing defaults
+		const missingDefaults = defaultPages.filter( p => ! currentPages.includes( p ) );
+		const availableSlots = Math.max( 0, maxPages - currentPages.length );
+		const toAppend = missingDefaults.slice( 0, availableSlots );
+		const newPages = [ ...currentPages, ...toAppend ];
 
-		// Load the pages
-		onValueChange( pagesToLoad.join( '\n' ) );
+		// Update the input value with the combined list
+		onValueChange( newPages.join( '\n' ) );
 
 		// Show appropriate feedback
-		if ( pagesToLoad.length < defaultPages.length ) {
+		if ( toAppend.length < missingDefaults.length ) {
 			setNotice( {
 				id: 'cornerstone-load-defaults',
 				type: 'error',
 				message: sprintf(
 					/* translators: %1$d is pages loaded, %2$d is total available pages */
 					__( 'Loaded %1$d of %2$d default pages (plan limit reached)', 'jetpack-boost' ),
-					pagesToLoad.length,
-					defaultPages.length
+					toAppend.length,
+					missingDefaults.length
 				),
 			} );
 		} else {
@@ -272,78 +274,58 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 					_n(
 						'Loaded %d default page',
 						'Loaded %d default pages',
-						pagesToLoad.length,
+						toAppend.length,
 						'jetpack-boost'
 					),
-					pagesToLoad.length
+					toAppend.length
 				),
 			} );
 		}
 
 		recordBoostEvent( 'cornerstone_pages_load_default', {
-			loaded_count: pagesToLoad.length,
-			available_count: defaultPages.length,
-			was_truncated: pagesToLoad.length < defaultPages.length ? 'true' : 'false',
+			loaded_count: toAppend.length,
+			available_count: missingDefaults.length,
+			was_truncated: toAppend.length < missingDefaults.length ? 'true' : 'false',
 		} );
 	};
 
 	// Button state logic - just calculate it directly, it's cheap
 	const getButtonState = () => {
 		const hasDefaults = defaultPages.length > 0;
-		const hasCurrentPages = currentPages.length > 0;
 
 		if ( ! hasDefaults ) {
-			return hasCurrentPages
-				? {
-						disabled: false,
-						title: __( 'Clear custom pages (no default pages available)', 'jetpack-boost' ),
-				  }
-				: {
-						disabled: true,
-						title: __(
-							'No default pages found. No compatible plugins with viable pages detected',
-							'jetpack-boost'
-						),
-				  };
-		}
-
-		if ( inputValue === defaultValue ) {
-			return { disabled: true, title: __( 'Default pages are already loaded', 'jetpack-boost' ) };
-		}
-
-		if ( currentPages.length >= maxPages ) {
 			return {
 				disabled: true,
-				title: sprintf(
-					/* translators: %d is the maximum number of pages allowed */
-					__(
-						'Cannot load defaults. You have reached your plan limit of %d pages',
-						'jetpack-boost'
-					),
-					maxPages
-				),
+				title: __( 'No default pages available. Add pages manually', 'jetpack-boost' ),
 			};
 		}
 
-		const pagesToLoad = Math.min( defaultPages.length, maxPages - currentPages.length );
-		const willTruncate = pagesToLoad < defaultPages.length;
+		const missingDefaults = defaultPages.filter( p => ! currentPages.includes( p ) );
+		const hasAllDefaults = missingDefaults.length === 0;
+		if ( hasAllDefaults ) {
+			return { disabled: true, title: __( 'Default pages are already loaded', 'jetpack-boost' ) };
+		}
+
+		const availableSlots = Math.max( 0, maxPages - currentPages.length );
+		const pagesToLoad = Math.min( missingDefaults.length, availableSlots );
+		const willTruncate = pagesToLoad < missingDefaults.length;
 
 		const tooltip = willTruncate
 			? sprintf(
 					/* translators: %1$d is pages that will be loaded, %2$d is total available pages */
 					__( 'Will load %1$d of %2$d default pages (plan limit)', 'jetpack-boost' ),
 					pagesToLoad,
-					defaultPages.length
+					missingDefaults.length
 			  )
 			: sprintf(
 					/* translators: %d is the number of pages that will be loaded */
 					_n(
 						'Load %d default page from compatible plugins',
 						'Load %d default pages from compatible plugins',
-						defaultPages.length,
+						missingDefaults.length,
 						'jetpack-boost'
 					),
-					defaultPages.length
+					missingDefaults.length
 			  );
 
 		return { disabled: false, title: tooltip };
