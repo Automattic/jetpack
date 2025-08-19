@@ -88,9 +88,5 @@ test.describe.parallel( 'Strong password requirements', () => {
 
 		// Validate that the password was updated.
 		await expect( page.getByText( 'Profile updated.' ) ).toBeVisible();
-
-		// Need to save the storage state after the password update, otherwise the next test will fail.
-		// TODO: we should use a different user for this test instead of updating the password of the main user.
-		await page.context().storageState( { path: process.env.STORAGE_STATE_PATH } );
 	} );
 } );
