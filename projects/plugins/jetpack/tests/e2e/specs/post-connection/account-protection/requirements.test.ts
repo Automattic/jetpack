@@ -1,4 +1,23 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import { submitCredentials } from '../../../helpers/account-protection-helper';
+
+const test = baseTest.extend< {
+	testUser: { username: string; password: string; role: string };
+} >( {
+	storageState: { cookies: [], origins: [] },
+	testUser: async ( { testUtils }, use ) => {
+		const user = {
+			username: `test_user_${ Date.now().toString( 36 ) }`,
+			password: 'SecurePass123!',
+			role: 'subscriber',
+		};
+		await testUtils.createUser( user );
+
+		await use( user );
+
+		await testUtils.deleteUser( user.username );
+	},
+} );
 
 test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.activateModule( 'account-protection' );
@@ -10,10 +29,12 @@ test.beforeAll( async ( { testUtils } ) => {
 } );
 
 test.describe.parallel( 'Strong password requirements', () => {
-	test( 'Enforces strong password requirements', async ( { page } ) => {
+	test( 'Enforces strong password requirements', async ( { page, testUser } ) => {
 		await page.goto( '/wp-admin/profile.php' );
+		await submitCredentials( page, testUser.username, testUser.password );
+		await page.waitForLoadState();
 
-		await page.getByRole( 'button' ).filter( { hasText: 'set new password' } ).click();
+		await page.getByRole( 'button', { name: 'Set New Password' } ).click();
 
 		// Validate that the Jetpack password strength meter replaces the default one.
 		await expect( page.locator( '.strength-meter' ) ).toBeVisible();
