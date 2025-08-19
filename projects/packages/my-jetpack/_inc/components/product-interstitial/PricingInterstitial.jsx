@@ -114,7 +114,7 @@ export default function PricingInterstitial( { slug } ) {
 	);
 
 	const clickHandler = useCallback(
-		( checkout, product, tier ) => {
+		( { checkout, product, tier } ) => {
 			if ( product?.isBundle ) {
 				// Get straight to the checkout page for bundles.
 				checkout?.();
@@ -168,7 +168,7 @@ export default function PricingInterstitial( { slug } ) {
 
 	const handleGetProduct = useCallback( () => {
 		trackProductOrBundleClick( { ctaText: config?.tiers?.paid?.cta } );
-		clickHandler( paidCheckoutRun, detail, 'paid' );
+		clickHandler( { checkout: paidCheckoutRun, product: detail, tier: 'paid' } );
 	}, [
 		trackProductOrBundleClick,
 		clickHandler,
@@ -183,13 +183,13 @@ export default function PricingInterstitial( { slug } ) {
 				customSlug: config.bundle,
 				ctaText: config?.tiers?.bundle?.cta,
 			} );
-			clickHandler( bundleCheckoutRun, bundleDetail, 'bundle' );
+			clickHandler( { checkout: bundleCheckoutRun, product: bundleDetail, tier: 'bundle' } );
 		}
 	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutRun, bundleDetail, config ] );
 
 	const handleFreeActivation = useCallback( () => {
 		trackProductOrBundleClick( { isFreePlan: true, ctaText: config?.tiers?.free?.cta } );
-		clickHandler( null, detail, 'free' );
+		clickHandler( { checkout: null, product: detail, tier: 'free' } );
 	}, [ trackProductOrBundleClick, clickHandler, detail, config?.tiers?.free?.cta ] );
 
 	// If no config exists, fallback to old ProductInterstitial
