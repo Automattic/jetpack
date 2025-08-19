@@ -22,6 +22,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		modules: [
 			// No prettier please
 			'account-protection',
+			'activity-log',
 			'monitor',
 			'notes',
 			'sso',
