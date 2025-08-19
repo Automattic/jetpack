@@ -65,9 +65,9 @@ function load_assets( $attr, $content ) {
  *
  * @return string
  */
-function render_email( $block_content, $parsed_block, $rendering_context ) {
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
 	// Validate input parameters
-	if ( ! is_array( $parsed_block ) || ! isset( $parsed_block['attrs'] ) ) {
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ) {
 		return '';
 	}
 
