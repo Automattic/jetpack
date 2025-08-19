@@ -13,7 +13,7 @@ Recommendation Order: 11
 First Introduced: $$next-version$$
 Requires Connection: Yes
 Requires User Connection: Yes
-Auto Activate: No
+Auto Activate: Yes
 Module Tags: Recommended
 Feature: Security
 Additional Search Queries: activity, log, audit, events, changes, history
