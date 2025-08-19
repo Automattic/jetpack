@@ -21,12 +21,18 @@ export default function SliderInputEdit( props ) {
 	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
 	const minTextLabel = context[ 'jetpack/field-slider-minLabel' ];
 	const maxTextLabel = context[ 'jetpack/field-slider-maxLabel' ];
+	const onChangeMinLabel = context[ 'jetpack/field-slider-onChangeMinLabel' ];
+	const onChangeMaxLabel = context[ 'jetpack/field-slider-onChangeMaxLabel' ];
 
 	// Setup local state.
 	const [ localMin, setLocalMin ] = useState( String( minFromContext ) );
 	const [ localMax, setLocalMax ] = useState( String( maxFromContext ) );
 	const [ minFocused, setMinFocused ] = useState( false );
 	const [ maxFocused, setMaxFocused ] = useState( false );
+	const [ localMinLabel, setLocalMinLabel ] = useState( String( minTextLabel ) );
+	const [ localMaxLabel, setLocalMaxLabel ] = useState( String( maxTextLabel ) );
+	const [ minLabelFocused, setMinLabelFocused ] = useState( false );
+	const [ maxLabelFocused, setMaxLabelFocused ] = useState( false );
 
 	// Derived variables
 	const isMinValid = Number( localMin ) <= Number( localMax );
@@ -59,7 +65,7 @@ export default function SliderInputEdit( props ) {
 		maxInputRef.current?.ownerDocument.activeElement === e.target || e.target.focus();
 	};
 
-	// Sync min/max if context updates or min/max input loses focus.
+	// Sync min/max numbers if context updates or min/max input loses focus.
 	useEffect( () => {
 		if ( ! minFocused ) {
 			setLocalMin( String( minFromContext ) );
@@ -68,6 +74,16 @@ export default function SliderInputEdit( props ) {
 			setLocalMax( String( maxFromContext ) );
 		}
 	}, [ minFromContext, maxFromContext, minFocused, maxFocused ] );
+
+	// Sync labels if context updates or label inputs lose focus.
+	useEffect( () => {
+		if ( ! minLabelFocused ) {
+			setLocalMinLabel( String( minTextLabel ) );
+		}
+		if ( ! maxLabelFocused ) {
+			setLocalMaxLabel( String( maxTextLabel ) );
+		}
+	}, [ minTextLabel, maxTextLabel, minLabelFocused, maxLabelFocused ] );
 
 	return (
 		<div { ...blockProps }>
@@ -137,12 +153,34 @@ export default function SliderInputEdit( props ) {
 					onKeyDown={ onKeyDown }
 				/>
 			</div>
-			{ ( minTextLabel || maxTextLabel ) && (
-				<div className="jetpack-field-slider__text-labels" aria-hidden="true">
-					<span className="jetpack-field-slider__min-text-label">{ minTextLabel }</span>
-					<span className="jetpack-field-slider__max-text-label">{ maxTextLabel }</span>
-				</div>
-			) }
+			<div className="jetpack-field-slider__text-labels" aria-hidden="true">
+				<input
+					className="jetpack-field-slider__min-text-label"
+					type="text"
+					size={ Math.max( 3, localMinLabel.length ) }
+					value={ localMinLabel }
+					placeholder={ __( 'Add label…', 'jetpack-forms' ) }
+					onChange={ e => setLocalMinLabel( e.target.value ) }
+					onFocus={ () => setMinLabelFocused( true ) }
+					onBlur={ () => {
+						setMinLabelFocused( false );
+						onChangeMinLabel?.( localMinLabel );
+					} }
+				/>
+				<input
+					className="jetpack-field-slider__max-text-label"
+					type="text"
+					size={ Math.max( 3, localMaxLabel.length ) }
+					value={ localMaxLabel }
+					placeholder={ __( 'Add label…', 'jetpack-forms' ) }
+					onChange={ e => setLocalMaxLabel( e.target.value ) }
+					onFocus={ () => setMaxLabelFocused( true ) }
+					onBlur={ () => {
+						setMaxLabelFocused( false );
+						onChangeMaxLabel?.( localMaxLabel );
+					} }
+				/>
+			</div>
 		</div>
 	);
 }

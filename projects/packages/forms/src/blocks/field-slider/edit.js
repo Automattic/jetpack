@@ -83,6 +83,20 @@ export default function SliderFieldEdit( props ) {
 		[ defaultValue, min, max, setAttributes ]
 	);
 
+	const onChangeMinLabel = useCallback(
+		newMinLabel => {
+			setAttributes( { minLabel: newMinLabel } );
+		},
+		[ setAttributes ]
+	);
+
+	const onChangeMaxLabel = useCallback(
+		newMaxLabel => {
+			setAttributes( { maxLabel: newMaxLabel } );
+		},
+		[ setAttributes ]
+	);
+
 	// Initialize scalar attributes so they serialize into post markup
 	useEffect( () => {
 		if (
@@ -144,20 +158,6 @@ export default function SliderFieldEdit( props ) {
 						/>
 					</HStack>
 					<HStack alignment="top" className="jp-field-slider-inspector-row">
-						<TextControl
-							__next40pxDefaultSize
-							label={ __( 'Min label', 'jetpack-forms' ) }
-							value={ minLabel }
-							onChange={ value => setAttributes( { minLabel: value } ) }
-						/>
-						<TextControl
-							__next40pxDefaultSize
-							label={ __( 'Max label', 'jetpack-forms' ) }
-							value={ maxLabel }
-							onChange={ value => setAttributes( { maxLabel: value } ) }
-						/>
-					</HStack>
-					<HStack alignment="top" className="jp-field-slider-inspector-row">
 						<NumberControl
 							__next40pxDefaultSize
 							label={ __( 'Default value', 'jetpack-forms' ) }
@@ -175,6 +175,20 @@ export default function SliderFieldEdit( props ) {
 							onChange={ onChangeStep }
 						/>
 					</HStack>
+					<HStack alignment="top" className="jp-field-slider-inspector-row">
+						<TextControl
+							__next40pxDefaultSize
+							label={ __( 'Min label', 'jetpack-forms' ) }
+							value={ minLabel }
+							onChange={ onChangeMinLabel }
+						/>
+						<TextControl
+							__next40pxDefaultSize
+							label={ __( 'Max label', 'jetpack-forms' ) }
+							value={ maxLabel }
+							onChange={ onChangeMaxLabel }
+						/>
+					</HStack>
 				</PanelBody>
 			</InspectorControls>
 			<BlockContextProvider
@@ -182,6 +196,8 @@ export default function SliderFieldEdit( props ) {
 					'jetpack/field-slider-onChangeDefault': onChangeDefault,
 					'jetpack/field-slider-onChangeMin': onChangeMin,
 					'jetpack/field-slider-onChangeMax': onChangeMax,
+					'jetpack/field-slider-onChangeMinLabel': onChangeMinLabel,
+					'jetpack/field-slider-onChangeMaxLabel': onChangeMaxLabel,
 				} }
 			>
 				<div { ...innerBlocksProps } />

@@ -22,6 +22,8 @@ const settings = {
 		'jetpack/field-slider-step',
 		'jetpack/field-slider-minLabel',
 		'jetpack/field-slider-maxLabel',
+		'jetpack/field-slider-onChangeMinLabel',
+		'jetpack/field-slider-onChangeMaxLabel',
 	],
 };
 

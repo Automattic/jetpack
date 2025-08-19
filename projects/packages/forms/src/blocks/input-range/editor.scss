@@ -115,6 +115,19 @@
 	font-size: 0.9em;
 }
 
+.jetpack-field-slider__min-text-label,
+.jetpack-field-slider__max-text-label {
+	border: none;
+	background: transparent;
+	font: inherit;
+	padding: 0;
+	margin: 0;
+	width: auto;
+	field-sizing: content;
+	min-width: 3ch;
+	max-width: 24ch;
+}
+
 .jetpack-field-slider__min-text-label {
 	text-align: left;
 }
