@@ -62,7 +62,12 @@ const CornerstonePagesContent = () => {
 
 	const updateCornerstonePages = ( newValue: string ) => {
 		// If the user deletes all the URLs, we should set the list to an empty array.
-		const newItems = newValue ? newValue.split( '\n' ).map( line => line.trim() ) : [];
+		const newItems = newValue
+			? newValue
+					.split( '\n' )
+					.map( line => line.trim() )
+					.filter( Boolean ) // Filter empty lines for better UX
+			: [];
 
 		setCornerstonePages( newItems, () => {
 			setNotice( {
@@ -224,11 +229,24 @@ const List: FC< ListProps > = ( {
 		}
 	};
 
-	const validateItems = ( value: string ) => {
-		const lines = value.split( '\n' ).map( line => line.trim() );
+	// Helper function to resolve paths for multisite homepage detection
+	const getResolvedPath = ( pathname: string, siteUrl: URL ): string => {
+		// For multisite subdirectory installations, "/" should resolve to the site's base path
+		if ( pathname === '/' ) {
+			return siteUrl.pathname;
+		}
+		return pathname;
+	};
 
+	const validateItems = ( value: string ) => {
+		const lines = value
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( Boolean );
+
+		// Allow empty input - user can clear all cornerstone pages
 		if ( lines.length === 0 ) {
-			throw new Error( __( 'You must add at least one URL.', 'jetpack-boost' ) );
+			return true;
 		}
 
 		// Check if the number of items exceeds maxItems
@@ -267,7 +285,9 @@ const List: FC< ListProps > = ( {
 				);
 			}
 
-			if ( pathname === siteUrl.pathname ) {
+			// Fixed multisite homepage detection
+			const resolvedPath = getResolvedPath( pathname, siteUrl );
+			if ( resolvedPath === siteUrl.pathname ) {
 				throw new Error(
 					__(
 						'The homepage does not need to be added to the list, as it is automatically included.',
@@ -283,7 +303,10 @@ const List: FC< ListProps > = ( {
 	function save() {
 		setItems( inputValue );
 		recordBoostEvent( 'cornerstone_pages_save', {
-			list_length: inputValue.split( '\n' ).length,
+			list_length: inputValue
+				.split( '\n' )
+				.map( line => line.trim() )
+				.filter( Boolean ).length,
 		} );
 	}
 
