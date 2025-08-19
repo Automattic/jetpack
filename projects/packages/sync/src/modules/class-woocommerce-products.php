@@ -382,5 +382,7 @@ class WooCommerce_Products extends Module {
 			}
 			return (object) (array) $wc_datetime;
 		}
+		
+		return null;
 	}
 }
