@@ -5,7 +5,6 @@ import { BoostUtils } from '../utils/index';
 const test = baseTest.extend< { jetpackBoostPage: JetpackBoostPage }, { boostUtils: BoostUtils } >(
 	{
 		jetpackBoostPage: async ( { page }, use ) => {
-			// eslint-disable-next-line react-hooks/rules-of-hooks
 			await use( new JetpackBoostPage( page ) );
 		},
 		boostUtils: [

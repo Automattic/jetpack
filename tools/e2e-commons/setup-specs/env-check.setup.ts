@@ -63,7 +63,7 @@ setup( 'verify environment readiness', async ( { baseURL, request, testUtils } )
 		logger.debug( `Checking REST API for ${ baseURL }` );
 
 		await retry( 'REST API', async () => {
-			const r = await testUtils.requestUtils.rest( { path: 'jetpack/v4/connection/test' } );
+			const r = await testUtils.requestUtils.rest( { path: '/jetpack/v4/connection/test' } );
 			logger.debug( `Response: ${ JSON.stringify( r ) }` );
 		} );
 	} );
