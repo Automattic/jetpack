@@ -12,7 +12,7 @@ import { useCallback } from 'react';
 import ProductInterstitial from '../';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import jetpackAiImage from '../jetpack-ai.png';
+import jetpackAiImage from '../assets/jetpack-ai.png';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai' );
