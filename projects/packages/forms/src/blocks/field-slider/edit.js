@@ -12,9 +12,12 @@ import {
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import './editor.scss';
 
 export default function SliderFieldEdit( props ) {
+	useFormWrapper( props );
+
 	const { attributes, setAttributes } = props;
 	const {
 		min = 0,
