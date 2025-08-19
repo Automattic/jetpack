@@ -66,14 +66,25 @@ function load_assets( $attr, $content ) {
  * @return string
  */
 function render_email( $block_content, $parsed_block, $rendering_context ) {
-	$attr = $parsed_block['attrs'] ?? array();
+	// Validate input parameters
+	if ( ! is_array( $parsed_block ) || ! isset( $parsed_block['attrs'] ) ) {
+		return '';
+	}
+
+	$attr = $parsed_block['attrs'];
 
 	// For email, we'll render a grid of all images with captions
 	$images = array();
 
 	// Get images from IDs (primary data source)
-	if ( ! empty( $attr['ids'] ) ) {
+	if ( ! empty( $attr['ids'] ) && is_array( $attr['ids'] ) ) {
 		foreach ( $attr['ids'] as $index => $id ) {
+			// Validate ID is a positive integer
+			$id = absint( $id );
+			if ( ! $id ) {
+				continue;
+			}
+
 			$image_url = wp_get_attachment_image_url( $id, 'medium' );
 			$alt_text  = get_post_meta( $id, '_wp_attachment_image_alt', true );
 
@@ -81,14 +92,14 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 			$attachment_post = get_post( $id );
 			$caption         = '';
 
-			// First try to get caption from images array if available
-			if ( ! empty( $attr['images'] ) && ! empty( $attr['images'][ $index ]['caption'] ) ) {
-				$caption = $attr['images'][ $index ]['caption'];
+			// First try to get caption from images array if available (with validation)
+			if ( ! empty( $attr['images'] ) && is_array( $attr['images'] ) && isset( $attr['images'][ $index ]['caption'] ) ) {
+				$caption = wp_strip_all_tags( $attr['images'][ $index ]['caption'] );
 			}
 
 			// If no caption in images array, get it from attachment post
 			if ( empty( $caption ) && $attachment_post && ! empty( $attachment_post->post_excerpt ) ) {
-				$caption = $attachment_post->post_excerpt;
+				$caption = wp_strip_all_tags( $attachment_post->post_excerpt );
 			}
 
 			if ( $image_url ) {
@@ -97,6 +108,18 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 					'alt'     => $alt_text,
 					'caption' => $caption,
 					'id'      => $id,
+				);
+			}
+		}
+	} elseif ( ! empty( $attr['images'] ) && is_array( $attr['images'] ) ) {
+		// Fall back to images array if IDs aren't available (for testing)
+		foreach ( $attr['images'] as $image_data ) {
+			if ( ! empty( $image_data['url'] ) ) {
+				$images[] = array(
+					'url'     => $image_data['url'],
+					'alt'     => ! empty( $image_data['alt'] ) ? $image_data['alt'] : '',
+					'caption' => ! empty( $image_data['caption'] ) ? wp_strip_all_tags( $image_data['caption'] ) : '',
+					'id'      => ! empty( $image_data['id'] ) ? $image_data['id'] : 0,
 				);
 			}
 		}
@@ -145,12 +168,11 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 				$image_width
 			);
 
-			// Build individual image content
-			$image_url = ! empty( $image['id'] ) ? wp_get_attachment_image_url( $image['id'], 'medium' ) : $image['url'];
-			if ( $image_url ) {
+			// Build individual image content (use already processed URL)
+			if ( ! empty( $image['url'] ) ) {
 				$grid_content .= sprintf(
 					'<img src="%s" alt="%s" style="width: 100%%; max-width: %dpx; height: auto; display: block; border: 0; margin: 0 auto; border-radius: 4px;" />',
-					esc_url( $image_url ),
+					esc_url( $image['url'] ),
 					esc_attr( $image['alt'] ),
 					$image_width - 16 // Account for padding
 				);

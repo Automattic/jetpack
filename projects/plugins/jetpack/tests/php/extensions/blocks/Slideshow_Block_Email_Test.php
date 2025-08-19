@@ -1,0 +1,419 @@
+<?php
+/**
+ * Slideshow Block Email Rendering tests
+ *
+ * @package automattic/jetpack
+ */
+
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
+
+// Ensure the function is available
+if ( ! function_exists( 'Automattic\Jetpack\Extensions\Slideshow\render_email' ) ) {
+	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
+}
+
+/**
+ * Slideshow Block Email Rendering tests.
+ *
+ * These tests verify the render_email function works correctly for various scenarios
+ * including valid inputs, security validation, caption handling, and grid layout generation.
+ */
+class Slideshow_Block_Email_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Test attachment IDs for testing.
+	 *
+	 * @var array
+	 */
+	private $test_attachment_ids = array();
+
+	/**
+	 * Set up test environment.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// Create test attachments
+		$this->create_test_attachments();
+	}
+
+	/**
+	 * Clean up test environment.
+	 */
+	public function tear_down() {
+		// Clean up test attachments
+		foreach ( $this->test_attachment_ids as $attachment_id ) {
+			wp_delete_attachment( $attachment_id, true );
+		}
+
+		parent::tear_down();
+	}
+
+	/**
+	 * Helper to create a parsed block with test images.
+	 *
+	 * @param array $images_data Optional custom images data.
+	 * @return array Parsed block structure.
+	 */
+	private function create_parsed_block_with_images( $images_data = null ) {
+		if ( null === $images_data ) {
+			$images_data = $this->get_default_test_images();
+		}
+
+		return array(
+			'attrs' => array(
+				'images' => $images_data,
+			),
+		);
+	}
+
+	/**
+	 * Helper to get default test images data.
+	 *
+	 * @return array Default test images.
+	 */
+	private function get_default_test_images() {
+		return array(
+			array(
+				'url'     => 'http://example.com/test-image-1.jpg',
+				'alt'     => 'Test Alt Text 1',
+				'caption' => 'Test Caption 1',
+				'id'      => 1,
+			),
+			array(
+				'url'     => 'http://example.com/test-image-2.jpg',
+				'alt'     => 'Test Alt Text 2',
+				'caption' => 'Test Caption 2',
+				'id'      => 2,
+			),
+		);
+	}
+
+	/**
+	 * Helper to create a rendering context mock.
+	 *
+	 * @param string $width The width to return from get_layout_width_without_padding.
+	 * @return object Mock rendering context.
+	 */
+	private function create_rendering_context_mock( $width = '800px' ) {
+		return new class( $width ) {
+			private $width;
+
+			public function __construct( $width ) {
+				$this->width = $width;
+			}
+
+			public function get_layout_width_without_padding() {
+				return $this->width;
+			}
+		};
+	}
+
+	/**
+	 * Create test attachments for testing.
+	 */
+	private function create_test_attachments() {
+		// Create test posts to attach images to
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post for Slideshow',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+
+		// Create test attachment 1
+		$attachment_id_1 = wp_insert_post(
+			array(
+				'post_title'   => 'Test Image 1',
+				'post_type'    => 'attachment',
+				'post_parent'  => $post_id,
+				'post_excerpt' => 'Photo by Test User on <a href="https://example.com">Example.com</a>',
+				'post_status'  => 'inherit',
+			)
+		);
+
+		// Create test attachment 2
+		$attachment_id_2 = wp_insert_post(
+			array(
+				'post_title'   => 'Test Image 2',
+				'post_type'    => 'attachment',
+				'post_parent'  => $post_id,
+				'post_excerpt' => 'Another test caption',
+				'post_status'  => 'inherit',
+			)
+		);
+
+		// Set attachment metadata
+		wp_update_attachment_metadata(
+			$attachment_id_1,
+			array(
+				'file'  => 'test-image-1.jpg',
+				'sizes' => array(
+					'medium' => array(
+						'file'   => 'test-image-1-300x200.jpg',
+						'width'  => 300,
+						'height' => 200,
+					),
+				),
+			)
+		);
+
+		wp_update_attachment_metadata(
+			$attachment_id_2,
+			array(
+				'file'  => 'test-image-2.jpg',
+				'sizes' => array(
+					'medium' => array(
+						'file'   => 'test-image-2-300x200.jpg',
+						'width'  => 300,
+						'height' => 200,
+					),
+				),
+			)
+		);
+
+		// Set alt text
+		update_post_meta( $attachment_id_1, '_wp_attachment_image_alt', 'Test Alt Text 1' );
+		update_post_meta( $attachment_id_2, '_wp_attachment_image_alt', 'Test Alt Text 2' );
+
+		$this->test_attachment_ids = array( $attachment_id_1, $attachment_id_2 );
+	}
+
+	/**
+	 * Test render_email with valid IDs.
+	 */
+	public function test_render_email_with_valid_ids() {
+		$parsed_block = $this->create_parsed_block_with_images();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+
+		// Should return HTML content
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( '<table', $result );
+		$this->assertStringContainsString( '<img', $result );
+
+		// Should contain both images
+		$this->assertStringContainsString( 'test-image-1.jpg', $result );
+		$this->assertStringContainsString( 'test-image-2.jpg', $result );
+
+		// Should contain alt text
+		$this->assertStringContainsString( 'Test Alt Text 1', $result );
+		$this->assertStringContainsString( 'Test Alt Text 2', $result );
+	}
+
+	/**
+	 * Test render_email with invalid input.
+	 */
+	public function test_render_email_with_invalid_input() {
+		// Test with non-array parsed_block
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', 'not-an-array', null );
+		$this->assertSame( '', $result );
+
+		// Test with missing attrs
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'not-attrs' => array() ), null );
+		$this->assertSame( '', $result );
+
+		// Test with empty attrs
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'attrs' => array() ), null );
+		$this->assertSame( '', $result );
+
+		// Test with non-array ids
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', array( 'attrs' => array( 'ids' => 'not-an-array' ) ), null );
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * Test render_email with invalid attachment IDs.
+	 */
+	public function test_render_email_with_invalid_attachment_ids() {
+		$parsed_block = array(
+			'attrs' => array(
+				'ids' => array( 99999, 99998 ), // Non-existent IDs
+			),
+		);
+
+		$result = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+
+		// Should return empty string when no valid images
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * Test render_email with mixed valid and invalid IDs.
+	 */
+	public function test_render_email_with_mixed_ids() {
+		$images_data = array(
+			array(
+				'url'     => 'http://example.com/test-image-1.jpg',
+				'alt'     => 'Test Alt Text 1',
+				'caption' => 'Test Caption 1',
+				'id'      => 1,
+			),
+			array(
+				'url'     => '', // Invalid/empty URL
+				'alt'     => 'Test Alt Text 2',
+				'caption' => 'Test Caption 2',
+				'id'      => 2,
+			),
+		);
+
+		$parsed_block = $this->create_parsed_block_with_images( $images_data );
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+
+		// Should return HTML with only the valid image
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( 'test-image-1.jpg', $result );
+		$this->assertStringNotContainsString( 'test-image-2.jpg', $result );
+	}
+
+	/**
+	 * Test render_email with captions from post_excerpt.
+	 */
+	public function test_render_email_with_captions() {
+		$images_data = array(
+			array(
+				'url'     => 'http://example.com/test-image-1.jpg',
+				'alt'     => 'Test Alt Text 1',
+				'caption' => 'Photo by Test User on <a href="https://example.com">Example.com</a>',
+				'id'      => 1,
+			),
+			array(
+				'url'     => 'http://example.com/test-image-2.jpg',
+				'alt'     => 'Test Alt Text 2',
+				'caption' => 'Another test caption',
+				'id'      => 2,
+			),
+		);
+
+		$parsed_block = $this->create_parsed_block_with_images( $images_data );
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+
+		// Should contain sanitized captions (HTML stripped)
+		$this->assertStringContainsString( 'Photo by Test User on Example.com', $result );
+		$this->assertStringContainsString( 'Another test caption', $result );
+
+		// Should not contain raw HTML
+		$this->assertStringNotContainsString( '<a href="https://example.com">', $result );
+		$this->assertStringNotContainsString( '</a>', $result );
+	}
+
+	/**
+	 * Test render_email with captions from images array.
+	 */
+	public function test_render_email_with_images_array_captions() {
+		$images_data = array(
+			array(
+				'url'     => 'http://example.com/test-image-1.jpg',
+				'alt'     => 'Test Alt Text 1',
+				'caption' => 'Custom caption from images array',
+				'id'      => 1,
+			),
+			array(
+				'url'     => 'http://example.com/test-image-2.jpg',
+				'alt'     => 'Test Alt Text 2',
+				'caption' => 'Another custom caption',
+				'id'      => 2,
+			),
+		);
+
+		$parsed_block = $this->create_parsed_block_with_images( $images_data );
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+
+		// Should use captions from images array
+		$this->assertStringContainsString( 'Custom caption from images array', $result );
+		$this->assertStringContainsString( 'Another custom caption', $result );
+	}
+
+	/**
+	 * Test render_email grid layout structure.
+	 */
+	public function test_render_email_grid_layout() {
+		$parsed_block = $this->create_parsed_block_with_images();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+
+		// Should have table-based grid structure
+		$this->assertStringContainsString( 'role="presentation"', $result );
+		$this->assertStringContainsString( 'table-layout: fixed', $result );
+		$this->assertStringContainsString( 'border-collapse: collapse', $result );
+
+		// Should have proper cell structure
+		$this->assertStringContainsString( '<td', $result );
+		$this->assertStringContainsString( '</td>', $result );
+
+		// Should have inline styles for email compatibility
+		$this->assertStringContainsString( 'style="', $result );
+		$this->assertStringContainsString( 'font-family: Arial, sans-serif', $result );
+	}
+
+	/**
+	 * Test render_email with rendering context width.
+	 */
+	public function test_render_email_with_rendering_context() {
+		$mock_context = $this->create_rendering_context_mock( '800px' );
+		$parsed_block = $this->create_parsed_block_with_images();
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, $mock_context );
+
+		// Should use the provided width
+		$this->assertStringContainsString( 'max-width: 800px', $result );
+	}
+
+	/**
+	 * Test render_email with odd number of images.
+	 */
+	public function test_render_email_with_odd_number_of_images() {
+		$images_data = array(
+			array(
+				'url'     => 'http://example.com/test-image-1.jpg',
+				'alt'     => 'Test Alt Text 1',
+				'caption' => 'Test Caption 1',
+				'id'      => 1,
+			),
+			array(
+				'url'     => 'http://example.com/test-image-2.jpg',
+				'alt'     => 'Test Alt Text 2',
+				'caption' => 'Test Caption 2',
+				'id'      => 2,
+			),
+			array(
+				'url'     => 'http://example.com/test-image-3.jpg',
+				'alt'     => 'Test Alt Text 3',
+				'caption' => 'Third test caption',
+				'id'      => 3,
+			),
+		);
+
+		$parsed_block = $this->create_parsed_block_with_images( $images_data );
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+
+		// Should have 3 images (2 in first row, 1 in second row)
+		$this->assertStringContainsString( 'test-image-1.jpg', $result );
+		$this->assertStringContainsString( 'test-image-2.jpg', $result );
+		$this->assertStringContainsString( 'test-image-3.jpg', $result );
+
+		// Should have empty cell for the last row
+		$this->assertStringContainsString( '<td style="width:', $result );
+	}
+
+	/**
+	 * Test render_email security - XSS prevention.
+	 */
+	public function test_render_email_security_xss_prevention() {
+		$images_data = array(
+			array(
+				'url'     => 'http://example.com/malicious-image.jpg',
+				'alt'     => 'Malicious Alt Text',
+				'caption' => '<script>alert("XSS")</script>Malicious caption',
+				'id'      => 1,
+			),
+		);
+
+		$parsed_block = $this->create_parsed_block_with_images( $images_data );
+		$result       = \Automattic\Jetpack\Extensions\Slideshow\render_email( '', $parsed_block, null );
+
+		// Should contain the caption text but not the script
+		$this->assertStringContainsString( 'Malicious caption', $result );
+		$this->assertStringNotContainsString( '<script>', $result );
+		$this->assertStringNotContainsString( 'alert("XSS")', $result );
+	}
+}
