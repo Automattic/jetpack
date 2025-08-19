@@ -126,7 +126,7 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 		if ( is_string( $layout_width_px ) ) {
 			// Use Styles_Helper if available, otherwise fallback to simple parsing
 			if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ) {
-				$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px );
+				$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
 				if ( $parsed_width > 0 ) {
 					$target_width = (int) $parsed_width;
 				}
@@ -189,7 +189,7 @@ function render_email( $block_content, $parsed_block, $rendering_context ) {
 			'width' => $target_width,
 		);
 
-		$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $image_content, $image_table_attrs );
+		$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $image_content, $image_table_attrs ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
 	} else {
 		// Fallback to simple table HTML
 		$html  = sprintf(
