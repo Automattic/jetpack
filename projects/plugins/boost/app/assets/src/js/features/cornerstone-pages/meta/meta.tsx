@@ -30,7 +30,7 @@ export const MetaError = () => (
 		<p>
 			{ createInterpolateElement(
 				__(
-					'Refresh the page and try again. If the issue persists, please <link>contact support</link>.',
+					'Refresh the page and try again. If the issue persists, please <link>contact support</link>',
 					'jetpack-boost'
 				),
 				{
@@ -109,7 +109,7 @@ const CornerstonePagesContent = () => {
 							sprintf(
 								/* translators: %s is the site URL. */
 								__(
-									'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded.',
+									'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded',
 									'jetpack-boost'
 								),
 								Jetpack_Boost.site.url
@@ -181,7 +181,7 @@ export const CornerstonePagesUpgradeCTA = () => {
 				identifier="cornerstone-10-pages"
 				description={ sprintf(
 					/* translators: %d is the number of cornerstone pages. */
-					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+					__( 'Premium users can add up to %d cornerstone pages', 'jetpack-boost' ),
 					cornerstonePagesProperties.max_pages_premium
 				) }
 			/>
@@ -236,7 +236,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 			setNotice( {
 				id: 'cornerstone-load-defaults',
 				type: 'success',
-				message: __( 'Custom pages cleared.', 'jetpack-boost' ),
+				message: __( 'Custom pages cleared from defaults', 'jetpack-boost' ),
 			} );
 			recordBoostEvent( 'cornerstone_pages_clear_custom', {
 				cleared_count: currentPages.length,
@@ -258,7 +258,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				type: 'error',
 				message: sprintf(
 					/* translators: %1$d is pages loaded, %2$d is total available pages */
-					__( 'Loaded %1$d of %2$d default pages (plan limit reached).', 'jetpack-boost' ),
+					__( 'Loaded %1$d of %2$d default pages (plan limit reached)', 'jetpack-boost' ),
 					pagesToLoad.length,
 					defaultPages.length
 				),
@@ -270,8 +270,8 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				message: sprintf(
 					/* translators: %d is the number of pages loaded */
 					_n(
-						'Loaded %d default page.',
-						'Loaded %d default pages.',
+						'Loaded %d default page',
+						'Loaded %d default pages',
 						pagesToLoad.length,
 						'jetpack-boost'
 					),
@@ -296,19 +296,19 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 			return hasCurrentPages
 				? {
 						disabled: false,
-						title: __( 'Clear custom pages (no default pages available).', 'jetpack-boost' ),
+						title: __( 'Clear custom pages (no default pages available)', 'jetpack-boost' ),
 				  }
 				: {
 						disabled: true,
 						title: __(
-							'No default pages found. No compatible plugins with viable pages detected.',
+							'No default pages found. No compatible plugins with viable pages detected',
 							'jetpack-boost'
 						),
 				  };
 		}
 
 		if ( inputValue === defaultValue ) {
-			return { disabled: true, title: __( 'Default pages are already loaded.', 'jetpack-boost' ) };
+			return { disabled: true, title: __( 'Default pages are already loaded', 'jetpack-boost' ) };
 		}
 
 		if ( currentPages.length >= maxPages ) {
@@ -317,7 +317,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				title: sprintf(
 					/* translators: %d is the maximum number of pages allowed */
 					__(
-						'Cannot load defaults. You have reached your plan limit of %d pages.',
+						'Cannot load defaults. You have reached your plan limit of %d pages',
 						'jetpack-boost'
 					),
 					maxPages
@@ -331,15 +331,15 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 		const tooltip = willTruncate
 			? sprintf(
 					/* translators: %1$d is pages that will be loaded, %2$d is total available pages */
-					__( 'Will load %1$d of %2$d default pages (plan limit).', 'jetpack-boost' ),
+					__( 'Will load %1$d of %2$d default pages (plan limit)', 'jetpack-boost' ),
 					pagesToLoad,
 					defaultPages.length
 			  )
 			: sprintf(
 					/* translators: %d is the number of pages that will be loaded */
 					_n(
-						'Load %d default page from compatible plugins.',
-						'Load %d default pages from compatible plugins.',
+						'Load %d default page from compatible plugins',
+						'Load %d default pages from compatible plugins',
 						defaultPages.length,
 						'jetpack-boost'
 					),
@@ -420,8 +420,8 @@ const List: FC< ListProps > = ( {
 			const message = sprintf(
 				/* translators: %d is the maximum number of cornerstone page URLs. */
 				_n(
-					'You can add only %d cornerstone page URL.',
-					'You can add up to %d cornerstone page URLs.',
+					'You can add only %d cornerstone page URL',
+					'You can add up to %d cornerstone page URLs',
 					maxItems,
 					'jetpack-boost'
 				),
@@ -456,7 +456,7 @@ const List: FC< ListProps > = ( {
 			if ( resolvedPath === siteUrl.pathname ) {
 				throw new Error(
 					__(
-						'The homepage does not need to be added to the list, as it is automatically included.',
+						'The homepage does not need to be added to the list, as it is automatically included',
 						'jetpack-boost'
 					)
 				);
