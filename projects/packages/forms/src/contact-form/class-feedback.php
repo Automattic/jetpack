@@ -1236,8 +1236,7 @@ class Feedback {
 			return null;
 		}
 		foreach ( $this->fields as $field ) {
-			$form_field_id = $field->get_form_field_id();
-			if ( is_string( $form_field_id ) && $form_field_id !== '' && $form_field_id === $id ) {
+			if ( $field->get_form_field_id() === $id ) {
 				return $field;
 			}
 		}

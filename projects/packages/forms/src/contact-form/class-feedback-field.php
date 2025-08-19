@@ -74,7 +74,7 @@ class Feedback_Field {
 		$this->value         = $value;
 		$this->type          = $type;
 		$this->meta          = $meta;
-		$this->form_field_id = is_string( $form_field_id ) && $form_field_id !== '' ? $form_field_id : null;
+		$this->form_field_id = is_string( $form_field_id ) ? $form_field_id : '';
 	}
 
 	/**
@@ -290,7 +290,7 @@ class Feedback_Field {
 			$data['value'],
 			$data['type'] ?? 'basic',
 			$data['meta'] ?? array(),
-			$data['form_field_id'] ?? null
+			$data['form_field_id'] ?? ''
 		);
 	}
 
