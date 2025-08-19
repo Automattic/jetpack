@@ -1,5 +1,6 @@
 import logger from '../logger';
 import { executeWpCommand } from './cli';
+import { randomBytes } from 'crypto';
 
 /**
  * Creates a new WordPress user using WP-CLI.
@@ -33,7 +34,7 @@ export async function createUser( user?: {
 	role?: string;
 } ): Promise< { username: string; password: string; email: string; role: string } > {
 	const timestamp = Date.now().toString( 36 );
-	const randomSuffix = Math.random().toString( 36 ).substring( 2, 7 );
+	const randomSuffix = randomBytes(4).toString('base36').substring(0, 5);
 	const finalUser = {
 		username: user?.username || `user_${ timestamp }_${ randomSuffix }`,
 		password: user?.password || `Pass_${ timestamp }_${ randomSuffix }!`,
