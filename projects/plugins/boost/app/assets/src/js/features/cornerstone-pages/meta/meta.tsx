@@ -230,20 +230,6 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 	const currentPages = useMemo( () => parsePages( inputValue ), [ inputValue ] );
 
 	const loadDefaultValue = () => {
-		// Handle clearing case first - when no defaults available but has existing pages
-		if ( defaultPages.length === 0 && currentPages.length > 0 ) {
-			onValueChange( '' );
-			setNotice( {
-				id: 'cornerstone-load-defaults',
-				type: 'success',
-				message: __( 'Custom pages cleared from defaults', 'jetpack-boost' ),
-			} );
-			recordBoostEvent( 'cornerstone_pages_clear_custom', {
-				cleared_count: currentPages.length,
-			} );
-			return;
-		}
-
 		// Calculate available slots and append only missing defaults
 		const missingDefaults = defaultPages.filter( p => ! currentPages.includes( p ) );
 		const availableSlots = Math.max( 0, maxPages - currentPages.length );
