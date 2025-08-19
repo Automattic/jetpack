@@ -342,10 +342,6 @@ trait Woo_Analytics_Trait {
 	 * @return void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null ) {
-		if ( ! isset( $properties['session_id'] ) && $this->should_send_to_clickhouse( $event_name ) ) {
-			$this->maybe_start_session();
-		}
-
 		$js           = $this->process_event_properties( $event_name, $properties, $product_id );
 		$landing_page = wp_json_encode( $this->get_breadcrumb_titles() );
 
