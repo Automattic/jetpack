@@ -8,20 +8,11 @@ const { state, actions } = store( NAMESPACE, {
 	state: {
 		validators: {
 			phone: ( value, isRequired ) => {
-				if ( isEmptyValue( value ) && isRequired ) {
+				if ( isEmptyValue( state.phoneNumber ) && isRequired ) {
+					// this is not triggering any error, but then no other input does either
 					return 'is_required';
 				}
-
-				const context = getContext();
-				const triggeringFromSelector =
-					context.showCountrySelector && value === state.phoneCountryCode;
-				// when blur triggers this from the selector, the value
-				// is just the country code, treat as empty
-				if ( triggeringFromSelector ) {
-					value = '';
-				}
-
-				if ( ! isRequired && isEmptyValue( value + state.phoneNumber ) ) {
+				if ( ! isRequired && isEmptyValue( state.phoneNumber ) ) {
 					// No need to validate anything.
 					return 'yes';
 				}
@@ -29,7 +20,7 @@ const { state, actions } = store( NAMESPACE, {
 				// from this point on, we discard the value as we
 				// use our internal full phone number state getter:
 				value = state.fullPhoneNumber;
-
+				const context = getContext();
 				if ( context.showCountrySelector ) {
 					const internationalNumber = parsePhoneNumber( value );
 					if ( ! internationalNumber || ! internationalNumber.isValid() ) {
