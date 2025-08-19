@@ -61,6 +61,26 @@ describe( 'usePhoton', () => {
 	} );
 
 	describe( 'URL preparation and query string handling', () => {
+		test( 'handles null URLs gracefully', () => {
+			renderHook( () => usePhoton( null, 300, 200, true ) );
+
+			const photon = require( 'photon' );
+			// Should handle null gracefully and not call photon
+			expect( photon ).not.toHaveBeenCalled();
+		} );
+
+		test( 'handles malformed URLs gracefully', () => {
+			// This URL is malformed in a way that would cause URL parsing to fail
+			// and hit the catch block in ensureCorrectProtocol
+			// It needs to not have a protocol so it goes through the parsing logic
+			renderHook( () => usePhoton( '[invalid-url', 300, 200, true ) );
+
+			const photon = require( 'photon' );
+			// Should handle malformed URL gracefully and not call photon
+			// because it doesn't have a supported file extension
+			expect( photon ).not.toHaveBeenCalled();
+		} );
+
 		test( 'strips query strings from URLs without protocols', () => {
 			renderHook( () =>
 				usePhoton( 'example.com/image.jpg?size=large&format=jpg', 300, 200, true )
@@ -122,6 +142,14 @@ describe( 'usePhoton', () => {
 			const photon = require( 'photon' );
 			expect( photon ).not.toHaveBeenCalled();
 			expect( result.current ).toBe( 'https://example.com/image.jpg' );
+		} );
+
+		test( 'does not call photon when disabled with protocol-less URL', () => {
+			const { result } = renderHook( () => usePhoton( 'example.com/image.jpg', 300, 200, false ) );
+
+			const photon = require( 'photon' );
+			expect( photon ).not.toHaveBeenCalled();
+			expect( result.current ).toBe( 'example.com/image.jpg' );
 		} );
 
 		test( 'handles unsupported image types', () => {
