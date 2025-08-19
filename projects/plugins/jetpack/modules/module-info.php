@@ -879,3 +879,19 @@ function jetpack_more_info_blaze() {
 	esc_html_e( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_blaze', 'jetpack_more_info_blaze' );
+
+/**
+ * Activity Log support link.
+ */
+function jetpack_activity_log_more_link() {
+	echo esc_url( Redirect::get_url( 'calypso-activity-log' ) );
+}
+add_filter( 'jetpack_learn_more_button_activity-log', 'jetpack_activity_log_more_link' );
+
+/**
+ * Activity Log description.
+ */
+function jetpack_more_info_activity_log() {
+	esc_html_e( 'See every site change and who made it for easier coordination, debugging, maintenance, and troubleshooting.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_activity-log', 'jetpack_more_info_activity_log' );

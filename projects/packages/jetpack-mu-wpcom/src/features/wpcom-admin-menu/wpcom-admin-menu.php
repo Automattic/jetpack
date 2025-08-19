@@ -373,15 +373,17 @@ function wpcom_add_jetpack_submenu() {
 	}
 
 	// Jetpack > Activity Log.
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
-	add_submenu_page(
-		'jetpack',
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/activity-log/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	if ( class_exists( '\\Jetpack' ) && \Jetpack::is_module_active( 'activity-log' ) ) {
+		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+		add_submenu_page(
+			'jetpack',
+			__( 'Activity Log', 'jetpack-mu-wpcom' ),
+			__( 'Activity Log', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/activity-log/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	wpcom_reorder_submenu(
 		'jetpack',

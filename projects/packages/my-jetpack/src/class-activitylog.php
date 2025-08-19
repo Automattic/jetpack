@@ -38,6 +38,11 @@ class Activitylog {
 			return;
 		}
 
+		// Only display if the Activity Log module is active.
+		if ( ! ( class_exists( '\\Jetpack' ) && \Jetpack::is_module_active( 'activity-log' ) ) ) {
+			return;
+		}
+
 		$args = array();
 
 		$blog_id = Connection_Manager::get_site_id( true );
