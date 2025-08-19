@@ -380,6 +380,8 @@ trait Woo_Analytics_Trait {
 				localStorage.setItem('wca_session', JSON.stringify(sessionData));
 			}
 
+			console.log('sessionId', sessionId);
+
 			// Mark possible session engagement.
 			if (!sessionData?.is_engaged && !firstEvent) {
 				sessionData.is_engaged = true;
@@ -387,15 +389,19 @@ trait Woo_Analytics_Trait {
 				localStorage.setItem('wca_session', JSON.stringify(sessionData));
 
 				const engagementEvent = {$this->process_event_properties('woocommerceanalytics_session_engagement', $this->get_common_properties())};
-				_wca.push(engagementEvent);
+				const engagementEventWithSessionId = {
+					...engagementEvent,
+					session_id: sessionId,
+				}
+				_wca.push(engagementEventWithSessionId);
 
-				console.log('engagementEvent', engagementEvent);
+				console.log('engagementEvent', engagementEventWithSessionId);
 			}
 
 			// Add sessionId to the event.
 			let eventData = {
 				...{$js},
-				sessionId: sessionId,
+				session_id: sessionId,
 			}
 
 			_wca.push(eventData);
@@ -403,7 +409,7 @@ trait Woo_Analytics_Trait {
 			console.log('eventData', eventData);
 		}
 
-		JS;
+JS;
 
 		wc_enqueue_js( $script );
 	}
