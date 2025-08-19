@@ -113,7 +113,7 @@ export default function SliderInputEdit( props ) {
 						{ defaultFromContext }
 					</div>
 				</div>
-				<VisuallyHidden as="label" for={ `${ clientId }-slider-max` }>
+				<VisuallyHidden as="label" htmlFor={ `${ clientId }-slider-max` }>
 					{ __( 'Slider maximum value', 'jetpack-forms' ) }
 				</VisuallyHidden>
 				<input
