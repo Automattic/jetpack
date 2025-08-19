@@ -461,9 +461,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
-	 * Tests that the intent-newsletter-goal task list includes import tasks.
+	 * Tests that the intent-free-newsletter task list includes import tasks.
 	 */
-	public function test_intent_newsletter_goal_includes_import_tasks() {
+	public function test_intent_free_newsletter_includes_import_tasks() {
 		\Brain\Monkey\Functions\when( 'get_blog_count_for_user' )->justReturn( 1 );
 		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( true );
 
@@ -471,7 +471,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		update_option( 'site_goals', array( 'import-subscribers' ) );
 
 		$data = array(
-			'checklist_slug'    => 'intent-newsletter-goal',
+			'checklist_slug'    => 'intent-free-newsletter',
 			'launchpad_context' => 'customer-home',
 		);
 
@@ -483,8 +483,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$task_ids = array_column( $result->get_data()['checklist'], 'id' );
 
 		// Verify that import tasks are included
-		$this->assertContains( 'migrate_content', $task_ids, 'migrate_content task should be in intent-newsletter-goal task list' );
-		$this->assertContains( 'subscribers_added', $task_ids, 'subscribers_added task should be in intent-newsletter-goal task list' );
+		$this->assertContains( 'migrate_content', $task_ids, 'migrate_content task should be in intent-free-newsletter task list' );
+		$this->assertContains( 'subscribers_added', $task_ids, 'subscribers_added task should be in intent-free-newsletter task list' );
 
 		// Verify the order: migrate_content should come before subscribers_added
 		$migrate_index     = array_search( 'migrate_content', $task_ids, true );
