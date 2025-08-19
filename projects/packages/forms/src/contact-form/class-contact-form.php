@@ -1261,10 +1261,22 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * The output HTML will have a few extra escapes, but that makes no functional difference.
 	 *
 	 * @since 9.1.0
-	 * @param string $val Value to escape.
+	 * @param string|array $val Value to escape.
 	 * @return string
 	 */
 	public static function esc_shortcode_val( $val ) {
+		// Sometimes we provide attributes in the form of a collection, hence making the value an array.
+		// The above case triggers a warning about array to string conversion on formatting.php:1096.
+		// This chunk will try to get the value from the usual label|value structure. Otherwise, it will try
+		// recursively to get the first value from the array.
+		if ( is_array( $val ) ) {
+			if ( isset( $val['value'] ) ) {
+				$val = $val['value'];
+			} else {
+				return self::esc_shortcode_val( array_shift( $val ) );
+			}
+		}
+
 		return strtr(
 			esc_html( $val ),
 			array(
@@ -1294,7 +1306,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$type = null;
 		}
 
-		// Don't try to parse contact form fields if not inside a contact form
+		// Don't try to parse contact form fields if not inside a contact form (????)
 		if ( ! Contact_Form_Plugin::$using_contact_form_field ) {
 			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
 
@@ -1356,6 +1368,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $html;
 		}
 
+		// What does this actually means? What is the case where this is used?
 		$form = self::$current_form;
 
 		$field = new Contact_Form_Field( $attributes, $content, $form );
@@ -2682,6 +2695,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'textTransform'  => true,
 			),
 		);
+
+		// maybe need to add support for jetpack/phone-input
 
 		$data['settings']['blocks']['jetpack/options'] = array(
 			'color'  => array(

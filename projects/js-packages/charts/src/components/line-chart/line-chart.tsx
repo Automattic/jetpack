@@ -5,13 +5,13 @@ import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
+import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
 } from '../../providers/chart-context';
-import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { attachSubComponents } from '../../utils/create-composition';
 import { getSeriesStyles } from '../../utils/get-styles';
 import { Legend } from '../legend';
@@ -254,7 +254,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		},
 		ref
 	) => {
-		const providerTheme = useChartTheme();
+		const providerTheme = useGlobalChartTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -343,7 +343,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, providerTheme, legendOptions, legendShape );
+		const legendItems = useChartLegendData( dataSorted, legendOptions, legendShape );
 
 		// Memoize metadata to prevent unnecessary re-registration
 		const chartMetadata = useMemo(
@@ -358,7 +358,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		// Register chart with context only if data is valid
-		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, chartMetadata );
+		useChartRegistration( {
+			chartId,
+			legendItems,
+			chartType: 'line',
+			isDataValid,
+			metadata: chartMetadata,
+		} );
 
 		const accessors = {
 			xAccessor: ( d: DataPointDate ) => d?.date,
@@ -450,7 +456,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 												from={ stroke }
 												fromOpacity={ 0.4 }
 												toOpacity={ 0.1 }
-												to={ theme.backgroundColor }
+												to={ providerTheme.backgroundColor }
 												{ ...seriesData.options?.gradient }
 												data-testid="line-gradient"
 											/>

@@ -1,5 +1,4 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
-@import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
@@ -59,6 +58,7 @@
 			flex: 0 0 100%;
 			margin-top: 0;
 			margin-bottom: 0;
+			max-width: 100%;
 
 			&.wp-block-jetpack-button {
 				flex-basis: auto;
@@ -326,20 +326,19 @@
 	padding: 0;
 }
 
-.jetpack-field__textarea {
-	display: block;
-	min-height: 200px;
-}
-
 // Default field styles. (browser default styles)
 .jetpack-field {
 
+	.jetpack-field__textarea {
+		display: block;
+		min-height: 200px;
+	}
+
 	.jetpack-field__input,
 	.jetpack-field__textarea {
-		width: 100%;
 		box-sizing: border-box;
 		box-shadow: unset;
-		padding: 16px;
+		padding: var(--jetpack--contact-form--input-padding, 16px);
 		margin: 0;
 	}
 

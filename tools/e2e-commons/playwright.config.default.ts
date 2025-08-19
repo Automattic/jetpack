@@ -10,7 +10,12 @@ const rootPath = fileURLToPath( new URL( '.', import.meta.url ) );
 const reporter: ReporterDescription[] = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
-	[ 'allure-playwright' ],
+	[
+		'allure-playwright',
+		{
+			suiteTitle: false,
+		},
+	],
 ];
 
 if ( process.env.CI ) {
@@ -43,9 +48,16 @@ process.env.WP_PASSWORD = site.password;
 
 export const setupProjects = [
 	{
+		name: 'environment check',
+		testDir: `${ rootPath }/setup-specs`,
+		testMatch: 'env-check.setup.ts',
+		storageState: undefined,
+	},
+	{
 		name: 'global authentication',
 		testDir: `${ rootPath }/setup-specs`,
 		testMatch: 'auth.setup.ts',
+		dependencies: [ 'environment check' ],
 		storageState: undefined,
 	},
 	{

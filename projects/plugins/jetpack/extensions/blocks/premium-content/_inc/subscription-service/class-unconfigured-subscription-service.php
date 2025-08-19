@@ -9,6 +9,11 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use function site_url;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable
 
 /**

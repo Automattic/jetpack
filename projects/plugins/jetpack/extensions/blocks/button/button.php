@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Extensions\Button;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const FEATURE_NAME = 'button';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 

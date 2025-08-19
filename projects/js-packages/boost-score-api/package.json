@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-boost-score-api",
-	"version": "1.0.10",
+	"version": "1.0.11",
 	"description": "A package to get the Jetpack Boost score of a site",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/boost-score-api/#readme",
 	"bugs": {
@@ -27,6 +27,7 @@
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"jest": {

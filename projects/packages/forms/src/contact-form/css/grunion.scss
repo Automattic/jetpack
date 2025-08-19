@@ -58,7 +58,10 @@
 .contact-form input[type="url"],
 .contact-form input[type="number"],
 .contact-form input[type="time"],
-.contact-form textarea
+.contact-form textarea,
+/** for compound fields, input-wrap is the input element wrapper
+that needs to mimic the input element styles */
+.contact-form .wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper
 ) {
 	box-sizing: border-box;
 	width: 100%;
@@ -762,7 +765,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
-.contact-form .is-style-outlined .grunion-field-wrap select {
+.contact-form .is-style-outlined .grunion-field-wrap select:not(.jetpack-field__input-element) {
 	background: none !important; /* Need to override styles coming from the style attribute*/
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
 	border-radius: unset !important; /* Need to override styles coming from the style attribute*/
@@ -789,15 +792,15 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > input,
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > textarea,
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select {
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select:not(.jetpack-field__input-element) {
 	padding-top: 1.4em;
 	padding-left: var(--field-padding);
 	padding-right: var(--field-padding);
 }
 
 /* Fix padding for new forms in animated style */
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input:not(.contact-form__select-wrapper),
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.contact-form__select-wrapper),
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input:not(.contact-form__select-wrapper):not(.jetpack-field__input-element),
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.contact-form__select-wrapper):not(.jetpack-field__input-element),
 .contact-form .is-style-animated .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
 	padding-left: var(--jetpack--contact-form--animated-left-offset);
 	padding-right: var(--jetpack--contact-form--animated-left-offset);

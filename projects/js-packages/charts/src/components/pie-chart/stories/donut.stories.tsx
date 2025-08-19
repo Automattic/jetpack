@@ -238,6 +238,62 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithCompositionLegend: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'center',
+			} }
+		>
+			<div>
+				<h3>Traditional Props-based</h3>
+				<PieChart
+					size={ 300 }
+					data={ data }
+					thickness={ 0.5 }
+					showLegend={ true }
+					legendPosition="bottom"
+					legendOrientation="horizontal"
+				>
+					<Group>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+							User Stats
+						</Text>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+							100K Total
+						</Text>
+					</Group>
+				</PieChart>
+			</div>
+			<div>
+				<h3>Composition API</h3>
+				<PieChart size={ 300 } data={ data } thickness={ 0.5 }>
+					<Group>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+							User Stats
+						</Text>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+							100K Total
+						</Text>
+					</Group>
+					<PieChart.Legend position="bottom" orientation="horizontal" alignment="center" />
+				</PieChart>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the donut chart composition API, allowing flexible combination of chart elements and legends.',
+			},
+		},
+	},
+};
+
 export const CustomLegendPositioning: Story = {
 	args: {
 		...Default.args,

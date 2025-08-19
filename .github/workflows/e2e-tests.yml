@@ -148,6 +148,7 @@ jobs:
     timeout-minutes: 60
     env:
       WP_DEBUG_PATH: '${{ github.workspace }}/tools/docker/wordpress/wp-content/debug.log'
+      PROJECT_NAME: '${{ matrix.project }}' # used in tests for enhanced reporting of global projects
     strategy:
       fail-fast: false
       matrix:
