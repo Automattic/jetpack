@@ -9,10 +9,8 @@ setup( 'authenticate users', async ( { testUtils } ) => {
 	} );
 
 	await setup.step( 'authenticate wordpress.com user', async () => {
-		await testUtils.authenticateUser(
-			testUtils,
-			testUtils.getDotComCredentials(),
-			'https://wordpress.com'
-		);
+		await testUtils.authenticateUser( testUtils, testUtils.getDotComCredentials(), {
+			siteUrl: 'https://wordpress.com',
+		} );
 	} );
 } );

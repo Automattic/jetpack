@@ -358,6 +358,17 @@ export function getSiteIcon( state ) {
 }
 
 /**
+ * Returns the site representative image as an image URL.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {string}        the URL of the representative image
+ */
+export function getSiteRepresentativeImage( state ) {
+	return state.jetpack.initialState.siteData?.representativeImage;
+}
+
+/**
  * Check whether the site is accessible by search engines or not. It's true by default in an initial WP installation.
  *
  * @param {object} state - Global state tree

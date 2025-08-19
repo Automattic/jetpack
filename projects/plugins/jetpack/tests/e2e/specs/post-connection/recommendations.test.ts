@@ -1,6 +1,6 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
 
-test.beforeEach( async ( { testUtils, requestUtils } ) => {
+test.beforeEach( async ( { testUtils } ) => {
 	const cleanupCMDs = [
 		'jetpack module deactivate monitor',
 		'jetpack module deactivate related-posts',
@@ -12,7 +12,7 @@ test.beforeEach( async ( { testUtils, requestUtils } ) => {
 	}
 
 	// Reset the recommendations data
-	await requestUtils.rest( {
+	await testUtils.requestUtils.rest( {
 		method: 'POST',
 		path: '/jetpack/v4/recommendations/data',
 		data: {
