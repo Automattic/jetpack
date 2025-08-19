@@ -315,9 +315,7 @@ const PieChartInternal = ( {
 													x={ centroidX }
 													y={ centroidY }
 													dy=".33em"
-													fill={
-														providerTheme.labelBackgroundColor || defaultTheme.labelBackgroundColor
-													}
+													fill={ providerTheme.labelBackgroundColor || '#333' }
 													fontSize={ 12 }
 													textAnchor="middle"
 													pointerEvents="none"

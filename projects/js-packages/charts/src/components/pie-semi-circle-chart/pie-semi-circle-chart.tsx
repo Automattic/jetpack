@@ -4,16 +4,14 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, useContext, Children, isValidElement } from 'react';
+import { useCallback, useContext, useMemo, Children, isValidElement } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
-	GlobalChartsContext,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { useChartTheme } from '../../providers/theme/theme-provider';
 import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
