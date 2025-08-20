@@ -11,7 +11,7 @@ module.exports = [
 		output: {
 			...jetpackWebpackConfig.output,
 			filename: '[name]/[name].js',
-			path: path.resolve( __dirname, 'build' ),
+			path: path.resolve( __dirname, 'src/build' ),
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
