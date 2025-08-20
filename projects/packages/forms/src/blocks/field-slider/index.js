@@ -32,6 +32,14 @@ const settings = {
 			type: 'number',
 			default: 1,
 		},
+		minLabel: {
+			type: 'string',
+			default: '',
+		},
+		maxLabel: {
+			type: 'string',
+			default: '',
+		},
 	},
 	edit,
 	save,
@@ -45,6 +53,8 @@ const settings = {
 		'jetpack/field-slider-max': 'max',
 		'jetpack/field-slider-default': 'default',
 		'jetpack/field-slider-step': 'step',
+		'jetpack/field-slider-minLabel': 'minLabel',
+		'jetpack/field-slider-maxLabel': 'maxLabel',
 	},
 	example: {
 		attributes: {
