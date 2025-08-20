@@ -326,19 +326,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.0-a.1 - 2025-08-11
+### 15.0-a.5 - 2025-08-18
 #### Enhancements
-- Carousel: Fix crashes on large galleries and reduce server requests by preloading only adjacent images instead of all at once.
-- Enable Settings > Sharing WP Admin page and ensure all relevant links point to this page.
-- Forms: Add new Time field.
-- Site Accelerator: Ignore images from openlibrary.org.
-- Social: Add font option for Social Image Generator.
+- Blocks: Update JavaScript to be non-render blocking.
+- Forms: Improve the checkbox style.
 
 #### Bug fixes
-- Forms: Fix default checkboxes styles, and allow for "browser" styles as a choice.
-- Forms: Show the form variation picker if you only have the submit button.
-- Sitemaps: Fix PHP warning during generation if there are no posts or pages on the website.
-- Social: Fix image generator token reset on save resulting in font not being saved.
+- Forms: Fix phone validation for responses.
 
 --------
 

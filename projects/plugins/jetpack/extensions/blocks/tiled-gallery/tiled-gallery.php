@@ -39,9 +39,7 @@ class Tiled_Gallery {
 		) {
 			Blocks::jetpack_register_block(
 				__DIR__,
-				array(
-					'render_callback' => array( __CLASS__, 'render' ),
-				)
+				array( 'render_callback' => array( __CLASS__, 'render' ) )
 			);
 		}
 	}

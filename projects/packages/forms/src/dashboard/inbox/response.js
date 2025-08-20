@@ -36,6 +36,38 @@ const isFileUploadField = value => {
 	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
+const isLikelyPhoneNumber = value => {
+	// Only operate on strings to avoid coercing numbers (e.g., 2024) into strings that could match
+	if ( typeof value !== 'string' ) {
+		return false;
+	}
+
+	const normalizedValue = value.trim();
+
+	// Allow only digits, spaces, parentheses, hyphens, dots, plus
+	if ( ! /^[\d+\-\s().]+$/.test( normalizedValue ) ) {
+		return false;
+	}
+
+	// Exclude common date formats to avoid false positives
+	// - ISO-like: 2025-11-01 or 2025/11/01
+	if ( /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test( normalizedValue ) ) {
+		return false;
+	}
+	// - Locale-like: 01/11/2025, 1/11/25, 11-01-2025
+	if ( /^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}$/.test( normalizedValue ) ) {
+		return false;
+	}
+
+	// Strip non-digits and validate digit count within a typical global range
+	const digits = normalizedValue.replace( /\D/g, '' );
+	if ( digits.length < 7 || digits.length > 15 ) {
+		return false;
+	}
+
+	return true;
+};
+
 const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
 	const imageClass = clsx( 'jp-forms__inbox-file-preview-container', {
 		'is-loading': isLoading,
@@ -205,10 +237,8 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			);
 		}
 
-		// Phone numberes
-		// No alphabetical characters but allow dots, dashes, and brackets.
-		const phoneNumberRegEx = /^[+]?[\s./0-9]*[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/;
-		if ( phoneNumberRegEx.test( value ) ) {
+		// Phone numbers
+		if ( isLikelyPhoneNumber( value ) ) {
 			return (
 				<div className="phone-field">
 					<a href={ `tel:${ value }` }>{ value }</a>

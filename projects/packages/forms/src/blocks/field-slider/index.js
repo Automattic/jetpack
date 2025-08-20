@@ -28,6 +28,10 @@ const settings = {
 			type: 'number',
 			default: 0,
 		},
+		step: {
+			type: 'number',
+			default: 1,
+		},
 	},
 	edit,
 	save,
@@ -40,12 +44,14 @@ const settings = {
 		'jetpack/field-slider-min': 'min',
 		'jetpack/field-slider-max': 'max',
 		'jetpack/field-slider-default': 'default',
+		'jetpack/field-slider-step': 'step',
 	},
 	example: {
 		attributes: {
 			min: 0,
 			max: 100,
 			default: 0,
+			step: 1,
 		},
 		innerBlocks: [
 			{

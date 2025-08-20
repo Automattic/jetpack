@@ -11,6 +11,10 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 	define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -731,6 +735,16 @@ class Sharing_Admin {
 			},
 			false
 		);
+
+		$host = new Status\Host();
+
+		$wpcom_link = 'https://wordpress.com/support/wordpress-editor/blocks/sharing-buttons-block/';
+
+		if ( function_exists( 'localized_wpcom_url' ) ) {
+			$wpcom_link = localized_wpcom_url( $wpcom_link );
+		}
+
+		$link = $host->is_wpcom_platform() ? $wpcom_link : Redirect::get_url( 'jetpack-support-sharing-block' );
 		?>
 
 		<div class="share_manage_options">
@@ -743,7 +757,7 @@ class Sharing_Admin {
 						<a href="<?php echo esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ); ?>" class="button button-primary">
 							<?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?>
 						</a>
-						<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-sharing-block' ) ); ?>" class="button" target="_blank" rel="noopener noreferrer">
+						<a data-target="wpcom-help-center" href="<?php echo esc_url( $link ); ?>" class="button" target="_blank" rel="noopener noreferrer">
 							<?php esc_html_e( 'Learn how to add Sharing Buttons', 'jetpack' ); ?>
 						</a>
 					</div>

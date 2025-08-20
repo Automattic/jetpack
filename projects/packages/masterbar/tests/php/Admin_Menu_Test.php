@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -134,7 +133,7 @@ class Admin_Menu_Test extends TestCase {
 		ksort( $menu );
 		$menu_items = array_values( $menu );
 
-		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[2][2] );
+		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[1][2] );
 	}
 
 	/**
@@ -311,8 +310,8 @@ class Admin_Menu_Test extends TestCase {
 
 		static::$admin_menu->add_tools_menu();
 
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][3][2] );
 	}
 
 	/**
@@ -324,20 +323,6 @@ class Admin_Menu_Test extends TestCase {
 		static::$admin_menu->add_options_menu();
 
 		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, $submenu['options-general.php'][0][2] );
-	}
-
-	/**
-	 * Tests add_jetpack_menu
-	 * §
-	 */
-	public function test_add_jetpack_menu() {
-		global $submenu;
-
-		static::$admin_menu->register_nav_unification_jetpack_menus();
-		Jetpack_Admin_UI_Admin::admin_menu_hook_callback();
-		static::$admin_menu->add_jetpack_menu();
-
-		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][2][2] );
 	}
 
 	/**

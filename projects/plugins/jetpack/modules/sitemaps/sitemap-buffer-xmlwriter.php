@@ -81,13 +81,16 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	protected $finder;
 
 	/**
-	 * The XML content as a string.
+	 * The XML content chunks collected from XMLWriter.
+	 *
+	 * Collect chunks and join once at the end to reduce string reallocations
+	 * and improve performance on large sitemaps.
 	 *
 	 * @access protected
-	 * @since 14.6
-	 * @var string $content
+	 * @since 15.0
+	 * @var array $chunks
 	 */
-	protected $content = '';
+	protected $chunks = array();
 
 	/**
 	 * Tracks whether the root element has been started.
@@ -138,7 +141,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 
 		// Capture and account the XML declaration bytes to mirror DOM behavior.
 		$declaration          = $this->writer->outputMemory( true );
-		$this->content       .= $declaration;
+		$this->chunks[]       = $declaration;
 		$this->byte_capacity -= strlen( $declaration );
 
 		// Allow subclasses to write comments and processing instructions only.
@@ -146,7 +149,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 
 		// Capture pre-root bytes (comments/PI). Do not subtract from capacity.
 		$pre_root_output = $this->writer->outputMemory( true );
-		$this->content  .= $pre_root_output;
+		$this->chunks[]  = $pre_root_output;
 	}
 
 	/**
@@ -181,7 +184,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		}
 		$this->start_root();
 		$root_chunk           = $this->writer->outputMemory( true );
-		$this->content       .= $root_chunk;
+		$this->chunks[]       = $root_chunk;
 		$this->byte_capacity -= strlen( $root_chunk );
 		$this->root_started   = true;
 	}
@@ -201,7 +204,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		$this->writer->endElement(); // End root element (urlset/sitemapindex)
 		$this->writer->endDocument();
 		$final_content      = $this->writer->outputMemory( true );
-		$this->content     .= $final_content;
+		$this->chunks[]     = $final_content;
 		$this->is_finalized = true;
 	}
 
@@ -244,7 +247,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		}
 
 		// Persist newly written bytes and update capacities.
-		$this->content       .= $new_content;
+		$this->chunks[]       = $new_content;
 		$this->item_capacity -= 1;
 		$this->byte_capacity -= strlen( $new_content );
 		$this->is_empty_flag  = false;
@@ -302,11 +305,11 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		if ( $this->dom_document instanceof DOMDocument ) {
 			return $this->dom_document->saveXML();
 		}
-		if ( empty( $this->content ) ) {
+		if ( empty( $this->chunks ) ) {
 			// If buffer is empty, return a minimal valid XML structure
 			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>";
 		}
-		return $this->content;
+		return implode( '', $this->chunks );
 	}
 
 	/**
@@ -367,7 +370,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		$dom->formatOutput       = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$dom->preserveWhiteSpace = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		// Load current XML content into DOM for compatibility with filters.
-		@$dom->loadXML( $this->content ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Avoid fatal on unexpected content
+		@$dom->loadXML( implode( '', $this->chunks ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Avoid fatal on unexpected content
 
 		$this->dom_document = $dom;
 		return $this->dom_document;

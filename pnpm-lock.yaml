@@ -375,7 +375,7 @@ importers:
         version: 3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/i18n':
         specifier: ^6.0.0
-        version: 6.0.0
+        version: 6.1.0
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -385,6 +385,9 @@ importers:
       deepmerge:
         specifier: 4.3.1
         version: 4.3.1
+      fast-deep-equal:
+        specifier: 3.1.3
+        version: 3.1.3
       gridicons:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
@@ -775,6 +778,9 @@ importers:
       storybook:
         specifier: 9.0.15
         version: 9.0.15(@testing-library/dom@10.4.0)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/critical-css-gen:
     dependencies:
@@ -1142,12 +1148,15 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/number-formatters:
     dependencies:
       '@wordpress/date':
         specifier: ^5.19.0
-        version: 5.27.0
+        version: 5.28.0
       debug:
         specifier: ^4.4.0
         version: 4.4.1
@@ -1532,7 +1541,11 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
 
-  projects/js-packages/script-data: {}
+  projects/js-packages/script-data:
+    devDependencies:
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/shared-extension-utils:
     dependencies:
@@ -1554,6 +1567,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       '@wordpress/api-fetch':
         specifier: 7.28.0
         version: 7.28.0
@@ -1639,6 +1655,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/social-logos:
     dependencies:
@@ -2443,7 +2462,7 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
       typescript:
-        specifier: ^5.0.4
+        specifier: 5.8.3
         version: 5.8.3
       webpack:
         specifier: 5.94.0
@@ -2777,7 +2796,7 @@ importers:
         version: 4.28.0
       '@wordpress/dom-ready':
         specifier: ^4.8.1
-        version: 4.27.0
+        version: 4.28.0
       '@wordpress/edit-post':
         specifier: 8.28.0
         version: 8.28.0(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2891,7 +2910,7 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
       typescript:
-        specifier: ^5.0.4
+        specifier: 5.8.3
         version: 5.8.3
       wait-for-expect:
         specifier: 3.0.2
@@ -4293,6 +4312,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4302,6 +4324,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/classic-theme-helper-plugin:
     dependencies:
@@ -4387,6 +4412,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4396,6 +4424,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/crm:
     dependencies:
@@ -5006,6 +5037,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5015,6 +5049,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/mu-wpcom-plugin: {}
 
@@ -5202,6 +5239,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5211,6 +5251,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/search: {}
 
@@ -5219,6 +5262,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5228,6 +5274,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/social:
     devDependencies:
@@ -5240,6 +5289,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5249,6 +5301,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/starter-plugin:
     dependencies:
@@ -5331,6 +5386,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5340,6 +5398,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/super-cache: {}
 
@@ -5351,6 +5412,9 @@ importers:
       '@types/node':
         specifier: ^20.4.2
         version: 20.19.10
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       axios:
         specifier: 1.11.0
         version: 1.11.0
@@ -5442,6 +5506,9 @@ importers:
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5451,6 +5518,9 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/plugins/wpcomsh:
     devDependencies:
@@ -5560,6 +5630,9 @@ importers:
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.10
       '@wordpress/e2e-test-utils-playwright':
         specifier: 1.28.0
         version: 1.28.0(@playwright/test@1.51.1)
@@ -5584,6 +5657,9 @@ importers:
       shell-escape:
         specifier: 0.2.0
         version: 0.2.0
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
       winston:
         specifier: 3.8.1
         version: 3.8.1
@@ -9469,10 +9545,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/date@5.27.0':
-    resolution: {integrity: sha512-DZ5OJlU8OliLpDaGi0KHhlphCujbppzAfb3y34CpWydSnSRSfVgzjzc2R4p17RIa9Vj9C6Q8FsnNBAiywaz39g==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/date@5.28.0':
     resolution: {integrity: sha512-1cKE7KEIOsylM4vOFGk8pvXUKlSf33GpxyOWDCuhba8NOfXenx8+gGezFB8ym+JBokPnRIYa4Ub0JYvUdya1Pg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9485,10 +9557,6 @@ packages:
 
   '@wordpress/deprecated@4.28.0':
     resolution: {integrity: sha512-ylWrIsBH1dkETs59XWIvQKqdKtXK9sxyrFHJMEnrVPw4Sxbdx0R5YSBY/kXdp3xwhhsoi9BrVUmtIgA2MnxL1A==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/dom-ready@4.27.0':
-    resolution: {integrity: sha512-L1hZ1g1mMyt06tuMWt72uAJjlkjGOpR2Vxbo72ZZgO28PqQc1WLrvWN/W3LVViar9OQrR0yn/REYRd258iaNQw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/dom-ready@4.28.0':
@@ -9569,10 +9637,6 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
-  '@wordpress/hooks@4.27.0':
-    resolution: {integrity: sha512-sGaNVZKMxwnhGSge0tZZsGfImLPimiulUkM7hivQ2CSCgibTpgxFRBJ1r7gbNLDF+qHQK9a26K8fGfKnAal6Cg==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/hooks@4.28.0':
     resolution: {integrity: sha512-NE7ObdwcVDNHz19UVOjcbO6BlRLXQtRnZWWyFLNttFTmXEJo5wNbG1hTPaDQCGdV71mmHvGYJat9JqY04tIO9g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9583,11 +9647,6 @@ packages:
 
   '@wordpress/i18n@5.26.0':
     resolution: {integrity: sha512-YHzaUWlCuN2ynl47qbsdMkTGtP52+E1giDOdWBgUaSexUYjbeFxKFUzRMB0Wuh1psL80+VzvJOH/mU440KAJnA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    hasBin: true
-
-  '@wordpress/i18n@6.0.0':
-    resolution: {integrity: sha512-ItvO/E3v39VX+5nZacyzwulhzRukiB2+1zqndWgOSNnERYnK/0hLHIWWthRFxYEPF13H54orXg68n17MZQ8whA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     hasBin: true
 
@@ -9632,10 +9691,6 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
-
-  '@wordpress/keycodes@4.27.0':
-    resolution: {integrity: sha512-fWyEcLI2rAZn6FwVBITGFxo8aS7EQrt8icOdxS5Es3Ii8DneQUl2gtXs3tq9viX4cWCno7cEt+dpuuv2gPxwoQ==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/keycodes@4.28.0':
     resolution: {integrity: sha512-clQ5bYq4QRW4809cjwwolY77cvAGMAZnEskINg1qYo8VaIyezuF/qkDTPyGGAHR7JawXs/TxLAgOi2kwXpbU7g==}
@@ -20700,7 +20755,7 @@ snapshots:
       '@wordpress/components': 30.1.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.28.0(react@18.3.1)
       '@wordpress/element': 6.28.0
-      '@wordpress/keycodes': 4.27.0
+      '@wordpress/keycodes': 4.28.0
       react-autosize-textarea: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
@@ -20763,8 +20818,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.39.0(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.39.0(typescript@5.8.3)
-      '@typescript-eslint/types': 8.39.0
+      '@typescript-eslint/tsconfig-utils': 8.39.1(typescript@5.8.3)
+      '@typescript-eslint/types': 8.39.1
       debug: 4.4.1
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -22270,13 +22325,6 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@wordpress/date@5.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@wordpress/deprecated': 4.28.0
-      moment: 2.30.1
-      moment-timezone: 0.5.48
-
   '@wordpress/date@5.28.0':
     dependencies:
       '@babel/runtime': 7.27.6
@@ -22293,10 +22341,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
       '@wordpress/hooks': 4.28.0
-
-  '@wordpress/dom-ready@4.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
 
   '@wordpress/dom-ready@4.28.0':
     dependencies:
@@ -22814,10 +22858,6 @@ snapshots:
       - '@types/react-dom'
       - supports-color
 
-  '@wordpress/hooks@4.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-
   '@wordpress/hooks@4.28.0':
     dependencies:
       '@babel/runtime': 7.27.6
@@ -22833,15 +22873,6 @@ snapshots:
       gettext-parser: 1.4.0
       memize: 2.1.1
       sprintf-js: 1.1.3
-      tannin: 1.2.0
-
-  '@wordpress/i18n@6.0.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@tannin/sprintf': 1.3.1
-      '@wordpress/hooks': 4.27.0
-      gettext-parser: 1.4.0
-      memize: 2.1.1
       tannin: 1.2.0
 
   '@wordpress/i18n@6.1.0':
@@ -22932,11 +22963,6 @@ snapshots:
       '@wordpress/element': 6.28.0
       '@wordpress/keycodes': 4.28.0
       react: 18.3.1
-
-  '@wordpress/keycodes@4.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@wordpress/i18n': 6.1.0
 
   '@wordpress/keycodes@4.28.0':
     dependencies:

@@ -14,6 +14,7 @@ import JetpackImageSelectField from '../field-image-select';
 import JetpackMultipleChoiceField from '../field-multiple-choice';
 import JetpackNameField from '../field-name';
 import JetpackNumberField from '../field-number';
+import JetpackPhoneField from '../field-phone';
 import JetpackRatingField from '../field-rating';
 import JetpackDropdownField from '../field-select';
 import JetpackSingleChoiceField from '../field-single-choice';
@@ -23,14 +24,15 @@ import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
 import JetpackTimeField from '../field-time';
 import JetpackUrlField from '../field-url';
-import JetpackImageChoiceField from '../form-image-select-choice';
-import JetpackImageChoicesField from '../form-image-select-choices';
+import JetpackImageOptionsFieldset from '../fieldset-image-options';
 import JetpackProgressIndicator from '../form-progress-indicator';
 import JetpackStep from '../form-step';
 import JetpackStepContainer from '../form-step-container';
 import JetpackStepDivider from '../form-step-divider';
 import JetpackStepNavigation from '../form-step-navigation';
 import JetpackInput from '../input';
+import JetpackImageOptionInput from '../input-image-option';
+import JetpackPhoneInput from '../input-phone';
 import JetpackSliderInput from '../input-range';
 import JetpackRatingInput from '../input-rating';
 import JetpackLabel from '../label';
@@ -64,6 +66,8 @@ export const childBlocks = [
 				JetpackFieldSlider,
 				JetpackSliderInput,
 				JetpackTimeField,
+				JetpackPhoneField,
+				JetpackPhoneInput,
 		  ]
 		: [] ),
 
@@ -82,6 +86,6 @@ export const childBlocks = [
 		  ]
 		: [] ),
 	...( hasFeatureFlag( 'image-select-field' )
-		? [ JetpackImageSelectField, JetpackImageChoiceField, JetpackImageChoicesField ]
+		? [ JetpackImageSelectField, JetpackImageOptionsFieldset, JetpackImageOptionInput ]
 		: [] ),
 ];

@@ -193,11 +193,45 @@ function wpcom_add_hosting_menu() {
 add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
 
 /**
+ * Re-order the submenu items of the given menu slug according to a sorted array of submenu slugs.
+ *
+ * @param string $menu_slug The menu slug.
+ * @param array  $desired_order A list of the submenu slugs in the desired order.
+ */
+function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
+	// Re-order menu.
+	global $submenu;
+	if ( ! isset( $submenu[ $menu_slug ] ) ) {
+		return;
+	}
+
+	$ordered_submenu = array();
+
+	// Re-add submenu items in the desired order.
+	foreach ( $desired_order as $submenu_slug ) {
+		foreach ( $submenu[ $menu_slug ] as $item ) {
+			if ( str_contains( $item[2], $submenu_slug ) ) {
+				$ordered_submenu[] = $item;
+			}
+		}
+	}
+
+	// Add any remaining submenu items.
+	foreach ( $submenu[ $menu_slug ] as $item ) {
+		if ( ! in_array( $item, $ordered_submenu, true ) ) {
+			$ordered_submenu[] = $item;
+		}
+	}
+
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride
+	$submenu[ $menu_slug ] = $ordered_submenu;
+}
+
+/**
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
-	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
 	$blog_id = Connection_Manager::get_site_id();
 	if ( is_wp_error( $blog_id ) ) {
@@ -338,63 +372,38 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	if ( $uses_wp_admin_interface ) {
-		// Jetpack > Activity Log.
-		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
-		add_submenu_page(
-			'jetpack',
-			__( 'Activity Log', 'jetpack-mu-wpcom' ),
-			__( 'Activity Log', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/activity-log/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-	}
-
-	// Re-order menu.
-	global $submenu;
-	if ( ! isset( $submenu['jetpack'] ) ) {
-		return;
-	}
-
-	$desired_order   = array(
-		'my-jetpack',
-		'stats',
-		'boost',
-		'social',
-		'akismet-key-config',
-		'activity-log',
-		'scan',
-		'backup',
-		'forms',
-		'earn',
-		'search',
-		'subscribers',
-		'newsletter',
-		'podcasting',
-		'traffic',
-		'jetpack#/settings',
+	// Jetpack > Activity Log.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+	add_submenu_page(
+		'jetpack',
+		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/activity-log/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
-	$ordered_submenu = array();
 
-	// Re-add submenu items in the desired order.
-	foreach ( $desired_order as $slug ) {
-		foreach ( $submenu['jetpack'] as $item ) {
-			if ( str_contains( $item[2], $slug ) ) {
-				$ordered_submenu[] = $item;
-			}
-		}
-	}
-
-	// Add any remaining submenu items.
-	foreach ( $submenu['jetpack'] as $item ) {
-		if ( ! in_array( $item, $ordered_submenu, true ) ) {
-			$ordered_submenu[] = $item;
-		}
-	}
-
-	// phpcs:ignore WordPress.WP.GlobalVariablesOverride
-	$submenu['jetpack'] = $ordered_submenu;
+	wpcom_reorder_submenu(
+		'jetpack',
+		array(
+			'my-jetpack',
+			'stats',
+			'boost',
+			'social',
+			'akismet-key-config',
+			'activity-log',
+			'scan',
+			'backup',
+			'forms',
+			'earn',
+			'search',
+			'subscribers',
+			'newsletter',
+			'podcasting',
+			'traffic',
+			'jetpack#/settings',
+		)
+	);
 }
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 
@@ -621,8 +630,26 @@ function wpcom_add_tools_menu() {
 			'wpcom_display_site_health_page'
 		);
 	}
+
+	wpcom_reorder_submenu(
+		'tools.php',
+		array(
+			'tools.php',
+			'advertising',
+			'marketing',
+			'monetize',
+			'import',
+			'export.php',
+			'export-media-files',
+			'site-health',
+			'export-personal-data',
+			'erase-personal-data',
+			'theme-editor',
+			'plugin-editor',
+		)
+	);
 }
-add_action( 'admin_menu', 'wpcom_add_tools_menu' );
+add_action( 'admin_menu', 'wpcom_add_tools_menu', 999999 );
 
 /**
  * Displays an Export/Erase Personal Date page for Simple sites.
@@ -665,3 +692,28 @@ function wpcom_display_site_health_page() {
 		plugins_url( 'images/cloud.svg', __FILE__ )
 	);
 }
+
+/**
+ * Adjust the Settings submenus so they are sorted consistently.
+ */
+function wpcom_add_settings_menu() {
+	wpcom_reorder_submenu(
+		'options-general.php',
+		array(
+			'general',
+			'writing',
+			'reading',
+			'discussion',
+			'media',
+			'permalink',
+			'privacy',
+			'sharing',
+			'optimize',
+			'crowdsignal',
+			'rating',
+			'newsletter',
+			'podcasting',
+		)
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_settings_menu', 999999 );

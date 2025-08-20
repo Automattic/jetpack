@@ -371,7 +371,13 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$block_name = 'nonexistent-block';
 
 		$strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
-		$this->assertFalse( $strategy );
+		$this->assertEquals(
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			),
+			$strategy
+		);
 	}
 
 	/**
@@ -449,6 +455,12 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 
 		// Verify the strategy is cleared
 		$retrieved_strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
-		$this->assertFalse( $retrieved_strategy );
+		$this->assertEquals(
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			),
+			$retrieved_strategy
+		);
 	}
 }

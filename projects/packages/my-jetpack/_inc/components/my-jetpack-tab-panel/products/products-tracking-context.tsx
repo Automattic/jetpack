@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext } from 'react';
 import { ProductCamelCase } from '../../../data/types';
 import useAnalytics from '../../../hooks/use-analytics';
-import { MyJetpackModule } from '../../types';
+import { MyJetpackModule } from '../../../types';
 import { ProductFilter } from './types';
 
 export type ProductActionType = 'activate' | 'deactivate' | 'learn_more';

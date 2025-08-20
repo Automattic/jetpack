@@ -1814,6 +1814,7 @@ class Woo_Sync {
 
 		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		// basic validation
+		$mode = (int) $mode;
 		if ( ! in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ), true ) ) {
 			return false;
 		}
@@ -1920,6 +1921,8 @@ class Woo_Sync {
         if ( empty( $site_key ) ){
         	return false;
         }
+
+		$mode = (int) $mode;
         if ( !in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API )) ){
         	return false;
         }

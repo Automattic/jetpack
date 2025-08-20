@@ -8,7 +8,7 @@ import {
 import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
 import { type FC } from 'react';
-import { useChartTheme } from '../../providers/theme';
+import { useGlobalChartTheme } from '../../hooks';
 import { formatMetricValue } from '../shared/format-metric-value';
 import styles from './leaderboard-chart.module.scss';
 
@@ -30,9 +30,9 @@ export interface LeaderboardEntry {
 	id: string;
 
 	/**
-	 * Human-readable name (e.g., 'Direct')
+	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
 	 */
-	label: string;
+	label: string | JSX.Element;
 
 	/**
 	 * Value of the entry
@@ -72,6 +72,11 @@ export interface LeaderboardChartProps {
 	withComparison?: boolean;
 
 	/**
+	 * Whether to overlay the label on top of bar
+	 */
+	withOverlayLabel?: boolean;
+
+	/**
 	 * Primary color for current period bars
 	 */
 	primaryColor?: string;
@@ -104,7 +109,11 @@ export interface LeaderboardChartProps {
 	/**
 	 * Custom styling for the chart container
 	 */
-	style?: React.CSSProperties;
+	style?: React.CSSProperties & {
+		'--bar-border'?: string;
+		'--primary-color'?: string;
+		'--secondary-color'?: string;
+	};
 }
 
 /**
@@ -133,25 +142,65 @@ const defaultDeltaFormatter = ( value: number ): string => {
 	} );
 };
 
+const ProgressBarWithOverlayLabel = ( { entry }: { entry: LeaderboardEntry } ) => (
+	<div className={ styles.progressContainerWithOverlayLabel }>
+		{ typeof entry.label === 'string' ? (
+			<Text className={ styles.progressBarLabel }>{ entry.label }</Text>
+		) : (
+			entry.label
+		) }
+
+		<div className={ styles.progressBar } style={ { width: entry.currentShare + '%' } }></div>
+	</div>
+);
+
+const ProgressBarWithLabel = ( {
+	entry,
+	withComparison,
+}: {
+	entry: LeaderboardEntry;
+	withComparison?: boolean;
+} ) => (
+	<>
+		{ typeof entry.label === 'string' ? <Text>{ entry.label }</Text> : entry.label }
+
+		<div className={ styles.progressContainer }>
+			<ProgressBar
+				value={ entry.currentShare }
+				className={ clsx( styles.progressBar, styles.primaryBar ) }
+			/>
+
+			{ withComparison && (
+				<ProgressBar
+					value={ entry.previousShare }
+					className={ clsx( styles.progressBar, styles.secondaryBar ) }
+				/>
+			) }
+		</div>
+	</>
+);
+
 /**
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
  *
- * @param props                - Component props
- * @param props.data           - Array of leaderboard entries to display
- * @param props.withComparison - Whether to show comparison data
- * @param props.primaryColor   - Primary color for current period bars
- * @param props.secondaryColor - Secondary color for comparison period bars
- * @param props.valueFormatter - Custom formatter for values
- * @param props.deltaFormatter - Custom formatter for delta values
- * @param props.loading        - Whether the chart is in loading state
- * @param props.className      - Additional CSS class name
- * @param props.style          - Custom styling for the chart container
+ * @param props                  - Component props
+ * @param props.data             - Array of leaderboard entries to display
+ * @param props.withComparison   - Whether to show comparison data
+ * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
+ * @param props.primaryColor     - Primary color for current period bars
+ * @param props.secondaryColor   - Secondary color for comparison period bars
+ * @param props.valueFormatter   - Custom formatter for values
+ * @param props.deltaFormatter   - Custom formatter for delta values
+ * @param props.loading          - Whether the chart is in loading state
+ * @param props.className        - Additional CSS class name
+ * @param props.style            - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
  */
 export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	data,
 	withComparison = false,
+	withOverlayLabel = false,
 	primaryColor,
 	secondaryColor,
 	valueFormatter = defaultValueFormatter,
@@ -160,7 +209,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	className,
 	style,
 } ) => {
-	const theme = useChartTheme();
+	const theme = useGlobalChartTheme();
 
 	// Get component settings from theme with fallbacks
 	const leaderboardSettings = theme.leaderboardChart;
@@ -184,7 +233,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 		'--primary-color': finalPrimaryColor,
 		'--secondary-color': finalSecondaryColor,
 		...style,
-	} as React.CSSProperties;
+	};
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
@@ -213,24 +262,18 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 				return (
 					<Fragment key={ entry.id }>
 						<VStack spacing={ labelSpacing }>
-							<Text>{ entry.label }</Text>
-
-							<div className={ styles.progressContainer }>
-								<ProgressBar
-									value={ entry.currentShare }
-									className={ clsx( styles.progressBar, styles.primaryBar ) }
-								/>
-
-								{ withComparison && (
-									<ProgressBar
-										value={ entry.previousShare }
-										className={ clsx( styles.progressBar, styles.secondaryBar ) }
-									/>
-								) }
-							</div>
+							{ withOverlayLabel ? (
+								<ProgressBarWithOverlayLabel entry={ entry } />
+							) : (
+								<ProgressBarWithLabel entry={ entry } withComparison={ withComparison } />
+							) }
 						</VStack>
 
-						<div className={ styles.valueContainer }>
+						<div
+							className={ clsx( styles.valueContainer, {
+								[ styles.overlayLabel ]: withOverlayLabel,
+							} ) }
+						>
 							<Text>{ valueFormatter( entry.currentValue ) }</Text>
 
 							{ withComparison && (

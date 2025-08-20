@@ -618,10 +618,6 @@ class Tokens {
 			return false;
 		}
 
-		if ( false === $expires ) {
-			return false;
-		}
-
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		return Jetpack_Options::update_option( 'token_lock', $expires->format( static::DATE_FORMAT_ATOM ) . '|||' . base64_encode( Urls::site_url() ) );
 	}

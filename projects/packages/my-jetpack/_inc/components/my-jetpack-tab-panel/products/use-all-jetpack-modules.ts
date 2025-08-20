@@ -1,7 +1,6 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
-import { MyJetpackModule } from '../../types';
-import { JetpackModuleSlug } from './types';
+import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
 
 /**
  * Custom hook to retrieve all Jetpack modules.

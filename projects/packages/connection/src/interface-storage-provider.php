@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\Connection;
  * All storage providers must implement this interface to ensure
  * compatibility with the External_Storage system.
  *
- * @since $$next-version$$
+ * @since 6.18.0
  */
 interface Storage_Provider_Interface {
 
@@ -26,7 +26,7 @@ interface Storage_Provider_Interface {
 	 * This method should return true if the storage backend is accessible
 	 * and ready to handle requests, false otherwise.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @return bool True if storage is available, false otherwise.
 	 */
@@ -38,7 +38,7 @@ interface Storage_Provider_Interface {
 	 * This method allows providers to selectively handle certain options
 	 * based on their configuration, environment, or other criteria.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @param string $option_name The name of the option to check.
 	 * @return bool True if this provider should handle the option, false otherwise.
@@ -51,7 +51,7 @@ interface Storage_Provider_Interface {
 	 * This method should return the value from external storage, or null
 	 * if the value is not found or cannot be retrieved.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @param string $option_name The name of the option to retrieve.
 	 * @return mixed The option value, or null if not found/available.
@@ -66,7 +66,7 @@ interface Storage_Provider_Interface {
 	 * or storage type (e.g., 'atomic', 'vip', 'kubernetes', etc.).
 	 * Used for logging and debugging purposes.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @return string The environment identifier.
 	 */

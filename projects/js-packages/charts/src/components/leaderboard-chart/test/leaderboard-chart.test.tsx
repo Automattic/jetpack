@@ -61,6 +61,21 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows custom label when provided', () => {
+		render(
+			<LeaderboardChart
+				data={ mockData.map( entry => ( {
+					...entry,
+					label: <span className="large-text">{ entry.label }</span>,
+				} ) ) }
+				withComparison={ false }
+			/>
+		);
+
+		expect( screen.getByText( 'Direct' ) ).toHaveClass( 'large-text' );
+		expect( screen.getByText( 'Social Media' ) ).toHaveClass( 'large-text' );
+	} );
+
 	it( 'hides comparison data when withComparison is false', () => {
 		render( <LeaderboardChart data={ mockData } withComparison={ false } /> );
 

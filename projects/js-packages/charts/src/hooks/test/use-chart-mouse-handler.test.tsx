@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import useChartMouseHandler from '../use-chart-mouse-handler';
+import { useChartMouseHandler } from '../use-chart-mouse-handler';
 import type { MouseEvent } from 'react';
 
 jest.mock( '@visx/event', () => ( {

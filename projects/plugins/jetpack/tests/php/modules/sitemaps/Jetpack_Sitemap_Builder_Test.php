@@ -308,7 +308,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	 * Test that cache suspension state is restored after sitemap update
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 15.0
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_cache_suspension_state_restored() {

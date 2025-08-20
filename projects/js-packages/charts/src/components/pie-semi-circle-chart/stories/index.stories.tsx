@@ -1,3 +1,5 @@
+import { Group } from '@visx/group';
+import { Text } from '@visx/text';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { PieSemiCircleChart } from '../index';
@@ -116,6 +118,55 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithCompositionLegend: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'center',
+			} }
+		>
+			<div>
+				<h3>Traditional Props-based Legend</h3>
+				<PieSemiCircleChart
+					width={ 400 }
+					data={ data }
+					label="Performance Metrics"
+					note="Q4 2023 Results"
+					showLegend={ true }
+					legendPosition="bottom"
+					legendOrientation="horizontal"
+				/>
+			</div>
+			<div>
+				<h3>Composition API with Legend Component</h3>
+				<PieSemiCircleChart
+					width={ 400 }
+					data={ data }
+					label="Performance Metrics"
+					note="Q4 2023 Results"
+				>
+					<PieSemiCircleChart.Legend
+						position="bottom"
+						orientation="horizontal"
+						alignment="center"
+					/>
+				</PieSemiCircleChart>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the semi-circle chart composition API, allowing flexible component composition with explicit legend placement.',
+			},
+		},
+	},
+};
+
 export const CustomLegendPositioning: Story = {
 	args: {
 		containerWidth: '600px',
@@ -219,6 +270,167 @@ export const ErrorStates: Story = {
 			description: {
 				story:
 					'Examples of how the semi-circle pie chart handles various error states and edge cases.',
+			},
+		},
+	},
+};
+
+export const CompositionAPI: Story = {
+	render: () => (
+		<div style={ { padding: '2rem' } }>
+			<h2>PieSemiCircleChart Composition API</h2>
+			<p>Demonstrates the flexible composition API with SVG and HTML compound components.</p>
+
+			<div
+				style={ {
+					display: 'grid',
+					gap: '2rem',
+					gridTemplateColumns: 'repeat(2, 1fr)',
+					marginTop: '2rem',
+				} }
+			>
+				<div>
+					<h3>With Custom SVG Elements</h3>
+					<PieSemiCircleChart
+						width={ 400 }
+						data={ data }
+						label="OS Usage"
+						note="Q4 2023"
+						withTooltips={ true }
+					>
+						<PieSemiCircleChart.SVG>
+							<Group>
+								<Text
+									x={ 0 }
+									y={ -80 }
+									textAnchor="middle"
+									fontSize={ 14 }
+									fill="#666"
+									fontStyle="italic"
+								>
+									Custom SVG Annotation
+								</Text>
+								<circle cx={ 0 } cy={ -90 } r={ 3 } fill="#ff6b6b" />
+							</Group>
+						</PieSemiCircleChart.SVG>
+						<PieSemiCircleChart.HTML>
+							<div
+								style={ {
+									marginTop: '1rem',
+									textAlign: 'center',
+									fontSize: '12px',
+									color: '#888',
+								} }
+							>
+								✨ Enhanced with custom annotations
+							</div>
+						</PieSemiCircleChart.HTML>
+					</PieSemiCircleChart>
+				</div>
+
+				<div>
+					<h3>With Custom Legend and HTML Content</h3>
+					<PieSemiCircleChart width={ 400 } data={ data } label="Performance" note="Latest Results">
+						<PieSemiCircleChart.HTML>
+							<div
+								style={ {
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									gap: '1rem',
+									marginTop: '1rem',
+								} }
+							>
+								<PieSemiCircleChart.Legend
+									orientation="horizontal"
+									alignment="center"
+									shape="circle"
+								/>
+								<div
+									style={ {
+										padding: '0.5rem 1rem',
+										backgroundColor: '#f0f0f0',
+										borderRadius: '4px',
+										fontSize: '12px',
+									} }
+								>
+									🔍 Hover segments for details
+								</div>
+								<div
+									style={ {
+										fontSize: '10px',
+										color: '#666',
+										textAlign: 'center',
+										lineHeight: 1.4,
+									} }
+								>
+									Data updated: { new Date().toLocaleString() }
+									<br />
+									Source: Internal Analytics
+								</div>
+							</div>
+						</PieSemiCircleChart.HTML>
+					</PieSemiCircleChart>
+				</div>
+			</div>
+
+			<div style={ { marginTop: '3rem' } }>
+				<h3>Legacy Support - Direct Group Components</h3>
+				<p style={ { fontSize: '14px', color: '#666', marginBottom: '1rem' } }>
+					For backward compatibility, Group components are still supported directly:
+				</p>
+				<PieSemiCircleChart width={ 400 } data={ data } label="Legacy Mode" note="Still works!">
+					<Group>
+						<Text x={ 0 } y={ -70 } textAnchor="middle" fontSize={ 12 } fill="#999">
+							Direct Group usage
+						</Text>
+						<rect x={ -30 } y={ -85 } width={ 60 } height={ 2 } fill="#ddd" />
+					</Group>
+				</PieSemiCircleChart>
+			</div>
+		</div>
+	),
+	parameters: {
+		layout: 'fullscreen',
+		docs: {
+			description: {
+				story: `
+**New Composition API Features:**
+
+The \`PieSemiCircleChart\` now supports a comprehensive composition API that allows you to add custom content both inside the SVG and as HTML elements around the chart.
+
+**Available Compound Components:**
+
+- \`PieSemiCircleChart.SVG\` - For custom SVG elements rendered inside the chart
+- \`PieSemiCircleChart.HTML\` - For HTML content rendered outside the SVG
+- \`PieSemiCircleChart.Legend\` - For flexible legend placement
+
+**Key Benefits:**
+
+1. **Flexible Layout Control** - Place content exactly where you need it
+2. **Type Safety** - Full TypeScript support for all compound components
+3. **Backward Compatibility** - Existing Group-based usage continues to work
+4. **Robust Type Checking** - Uses displayName-based component identification instead of fragile type comparisons
+
+**Usage Examples:**
+
+\`\`\`tsx
+<PieSemiCircleChart data={data} width={400}>
+  <PieSemiCircleChart.SVG>
+    <Group>
+      <Text x={0} y={-50} textAnchor="middle">Custom SVG Text</Text>
+    </Group>
+  </PieSemiCircleChart.SVG>
+  
+  <PieSemiCircleChart.HTML>
+    <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+      <PieSemiCircleChart.Legend orientation="horizontal" />
+      <p>Custom HTML content</p>
+    </div>
+  </PieSemiCircleChart.HTML>
+</PieSemiCircleChart>
+\`\`\`
+				`,
 			},
 		},
 	},

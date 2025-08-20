@@ -58,7 +58,10 @@
 .contact-form input[type="url"],
 .contact-form input[type="number"],
 .contact-form input[type="time"],
-.contact-form textarea
+.contact-form textarea,
+/** for compound fields, input-wrap is the input element wrapper
+that needs to mimic the input element styles */
+.contact-form .wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper
 ) {
 	box-sizing: border-box;
 	width: 100%;
@@ -89,9 +92,11 @@
 
 .contact-form input[type="radio"],
 .contact-form input[type="checkbox"] {
+	min-width: 1em;
 	width: 1em;
 	height: 1em;
 	margin: 0 0.75rem 0 0;
+	opacity: 1;
 }
 
 .contact-form input[type="checkbox"] {
@@ -760,7 +765,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
-.contact-form .is-style-outlined .grunion-field-wrap select {
+.contact-form .is-style-outlined .grunion-field-wrap select:not(.jetpack-field__input-element) {
 	background: none !important; /* Need to override styles coming from the style attribute*/
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
 	border-radius: unset !important; /* Need to override styles coming from the style attribute*/
@@ -787,15 +792,15 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > input,
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > textarea,
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select {
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select:not(.jetpack-field__input-element) {
 	padding-top: 1.4em;
 	padding-left: var(--field-padding);
 	padding-right: var(--field-padding);
 }
 
 /* Fix padding for new forms in animated style */
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input:not(.contact-form__select-wrapper),
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.contact-form__select-wrapper),
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input:not(.contact-form__select-wrapper):not(.jetpack-field__input-element),
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.contact-form__select-wrapper):not(.jetpack-field__input-element),
 .contact-form .is-style-animated .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
 	padding-left: var(--jetpack--contact-form--animated-left-offset);
 	padding-right: var(--jetpack--contact-form--animated-left-offset);
@@ -946,7 +951,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	appearance: none;
 	border: solid 1px currentColor;
 	color: currentColor;
-	outline-offset: 4px;
+	outline-offset: 1px;
 	transform: translateY(0.15em);
 }
 
@@ -954,24 +959,40 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-radius: 50%;
 }
 
+.contact-form .is-style-list input.consent:checked,
+.contact-form .is-style-list input.checkbox:checked,
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked {
+	background-color: currentColor;
+
+}
+
+.contact-form .is-style-list input.consent::before,
+.contact-form .is-style-list input.checkbox::before,
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple::before {
+	position: absolute;
+	width: 0.25em;
+	height: 0.5em;
+	content: "";
+	display: block;
+	opacity: 0; /* Hidden by default */
+	scale: 0.7;
+	margin-left: 50%;
+	margin-top: 50%;
+	transition: opacity 0.1s ease-in-out, scale 0.15s ease-in-out;
+
+	font-size: inherit;
+	border: solid var(--jetpack--contact-form--inverted-text-color, var(--jetpack--contact-form--input-background));
+	border-width: 0 2px 2px 0;
+	transform: translate(-50%, -60%) rotate(40deg);
+	top: 0;
+	left: 0;
+}
+
 .contact-form .is-style-list input.consent:checked::before,
 .contact-form .is-style-list input.checkbox:checked::before,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked::before {
-	content: "\2713";
-	position: absolute;
-
-	/* Inherit the font size from the parent element.
-	 * This allows the input to scale with the font size
-	 * set from global styles or from block styles */
-	font-size: inherit;
-	top: calc(1em / 2);
-	left: calc(1em / 2);
-
-	display: block;
-
-	line-height: 1;
-
-	transform: translate(-50%, -50%);
+	scale: 1;
+	opacity: 1;
 }
 
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.radio:checked::before {
@@ -989,6 +1010,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin-top: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
+	top: 0;
+	left: 0;
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,

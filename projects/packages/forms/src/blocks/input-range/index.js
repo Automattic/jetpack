@@ -19,6 +19,7 @@ const settings = {
 		'jetpack/field-slider-onChangeDefault',
 		'jetpack/field-slider-onChangeMin',
 		'jetpack/field-slider-onChangeMax',
+		'jetpack/field-slider-step',
 	],
 };
 

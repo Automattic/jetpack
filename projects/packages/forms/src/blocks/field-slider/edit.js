@@ -8,15 +8,26 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	PanelBody,
-	RangeControl,
 } from '@wordpress/components';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import './editor.scss';
 
 export default function SliderFieldEdit( props ) {
+	useFormWrapper( props );
+
 	const { attributes, setAttributes } = props;
-	const { min = 0, max = 100, default: defaultValue = 0, width, id, required } = attributes;
+	const {
+		min = 0,
+		max = 100,
+		default: defaultValue = 0,
+		step = 1,
+		width,
+		id,
+		required,
+	} = attributes;
 
 	const onChangeMin = useCallback(
 		newMin => {
@@ -47,11 +58,26 @@ export default function SliderFieldEdit( props ) {
 	// This is passed to child input-range block via context.
 	const onChangeDefault = useCallback(
 		newDefault => {
-			const parsedDefault = parseInt( newDefault ) || 0;
+			const parsedDefault = parseFloat( newDefault ) || 0;
 			const validatedDefault = Math.max( Math.min( parsedDefault, max ), min );
 			setAttributes( { default: validatedDefault } );
 		},
 		[ max, min, setAttributes ]
+	);
+
+	const onChangeStep = useCallback(
+		newStep => {
+			const parsedStep = parseFloat( newStep );
+			const safeStep = ! isNaN( parsedStep ) && parsedStep > 0 ? parsedStep : 1;
+			// Snap default to the new step within [min, max]
+			const snappedDefault = ( () => {
+				const ratio = ( defaultValue - min ) / safeStep;
+				const snapped = min + Math.round( ratio ) * safeStep;
+				return Math.max( Math.min( snapped, max ), min );
+			} )();
+			setAttributes( { step: safeStep, default: snappedDefault } );
+		},
+		[ defaultValue, min, max, setAttributes ]
 	);
 
 	// Initialize scalar attributes so they serialize into post markup
@@ -59,15 +85,17 @@ export default function SliderFieldEdit( props ) {
 		if (
 			attributes.min === undefined ||
 			attributes.max === undefined ||
-			attributes.default === undefined
+			attributes.default === undefined ||
+			attributes.step === undefined
 		) {
 			setAttributes( {
 				min: attributes.min ?? 0,
 				max: attributes.max ?? 100,
 				default: attributes.default ?? 0,
+				step: attributes.step ?? 1,
 			} );
 		}
-	}, [ attributes.min, attributes.max, attributes.default, setAttributes ] );
+	}, [ attributes.min, attributes.max, attributes.default, attributes.step, setAttributes ] );
 
 	const blockProps = useBlockProps( {
 		className: `jetpack-field jetpack-field-slider${
@@ -94,7 +122,7 @@ export default function SliderFieldEdit( props ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<HStack alignment="top">
+					<HStack alignment="top" className="jp-field-slider-inspector-row">
 						<NumberControl
 							__next40pxDefaultSize
 							label={ __( 'Min value', 'jetpack-forms' ) }
@@ -112,16 +140,24 @@ export default function SliderFieldEdit( props ) {
 							value={ max }
 						/>
 					</HStack>
-					<RangeControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						help={ __( 'Pre-selected value.', 'jetpack-forms' ) }
-						label={ __( 'Default value', 'jetpack-forms' ) }
-						max={ max }
-						min={ min }
-						onChange={ onChangeDefault }
-						value={ defaultValue }
-					/>
+					<HStack alignment="top" className="jp-field-slider-inspector-row">
+						<NumberControl
+							__next40pxDefaultSize
+							label={ __( 'Default value', 'jetpack-forms' ) }
+							min={ min }
+							max={ max }
+							value={ defaultValue }
+							onChange={ onChangeDefault }
+						/>
+						<NumberControl
+							__next40pxDefaultSize
+							label={ __( 'Increment', 'jetpack-forms' ) }
+							min={ 0 }
+							step={ 1 }
+							value={ step }
+							onChange={ onChangeStep }
+						/>
+					</HStack>
 				</PanelBody>
 			</InspectorControls>
 			<BlockContextProvider

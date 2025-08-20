@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tests: Ensure ABSPATH is set during test setup.

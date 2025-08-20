@@ -416,7 +416,7 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 	 * to override any fallback image found by looking through site's logo, site icon, and blavatar.
 	 * This will allow you to overwrite the default fallback image generated dynamically.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 *
 	 * @param array $site_image Your own site's representative image.
 	 * @param array $site_image The site's representative image picked by Jetpack. {

@@ -20,7 +20,8 @@
 		"build-js": "rollup -c rollup.config.js",
 		"build-production": "pnpm build-production-js",
 		"build-production-js": "rollup -c rollup.config.js",
-		"clean": "rm -rf app-ui/build/"
+		"clean": "rm -rf app-ui/build/",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"tslib": "2.5.0"

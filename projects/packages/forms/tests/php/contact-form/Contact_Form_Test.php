@@ -40,6 +40,48 @@ class Contact_Form_Test extends BaseTestCase {
 	private $plugin;
 
 	/**
+	 * Test the esc_shortcode_val method with various input types
+	 */
+	public function test_esc_shortcode_val() {
+		// Test simple string escaping
+		$this->assertEquals(
+			'Hello&#044; World&#091;&#093;',
+			Contact_Form::esc_shortcode_val( 'Hello, World[]' ),
+			'Failed to properly escape string with brackets and comma'
+		);
+
+		// Test array with value key
+		$this->assertEquals(
+			'test&#092;value',
+			Contact_Form::esc_shortcode_val( array( 'value' => 'test\\value' ) ),
+			'Failed to handle array with value key'
+		);
+
+		// Test array without value key (recursive case)
+		$this->assertEquals(
+			'first',
+			Contact_Form::esc_shortcode_val( array( 'first', 'second' ) ),
+			'Failed to handle array without value key'
+		);
+
+		// Test nested array case
+		$this->assertEquals(
+			'nested',
+			Contact_Form::esc_shortcode_val( array( array( 'value' => 'nested' ) ) ),
+			'Failed to handle nested array'
+		);
+
+		// Test special character escaping
+		$special_chars = '[bracket], \\backslash\\, ,comma,';
+		$expected      = '&#091;bracket&#093;&#044; &#092;backslash&#092;&#044; &#044;comma&#044;';
+		$this->assertEquals(
+			$expected,
+			Contact_Form::esc_shortcode_val( $special_chars ),
+			'Failed to escape all special characters correctly'
+		);
+	}
+
+	/**
 	 * Sets up the test environment before the class tests begin.
 	 *
 	 * @beforeClass
@@ -3046,11 +3088,14 @@ EOT;
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'   => $name,
-				'email'  => $email,
-				'invite' => 'hello@world', // not required
-				'choose' => $choose,
-				'pick'   => $pick,
+				'name'           => $name,
+				'email'          => $email,
+				'invite'         => 'hello@world', // not required
+				'choose'         => $choose,
+				'chooseradio'    => 'not-a-value',
+				'radioempty'     => '',
+				'radioemptydata' => '',
+				'pick'           => $pick,
 			),
 			'g' . $form_id
 		);
@@ -3060,7 +3105,15 @@ EOT;
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Invite' type='email' /][contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/][contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
+			"
+			[contact-field label='Name' type='name' required='1'/]
+			[contact-field label='Email' type='email' required='1'/]
+			[contact-field label='Invite' type='email' /]
+			[contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/]
+			[contact-field label='Choose Radio' type='radio' options='truth,dare' required='1'/]
+			[contact-field label='Choose Empty' type='radio' options='truth,dare' required='1'/]
+			[contact-field label='Choose Empty Data' type='radio' options='truth,dare' optionsdata='&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;' required='1'/]
+			[contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
@@ -3073,6 +3126,9 @@ EOT;
 				'Email requires a valid email address.',
 				'Invite requires a valid email address.',
 				'Choose requires at least one selection.',
+				'Choose Radio requires at least one selection.',
+				'Choose Empty requires at least one selection.',
+				'Choose Empty Data requires at least one selection.',
 				'Pick requires at least one selection.',
 			),
 			$form->get_error_messages()
@@ -3131,11 +3187,13 @@ EOT;
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'                 => $name,
-				'email'                => $email,
-				'choose'               => array( 'truth' ),
-				'chooseoptions'        => array( 'hello  there' ),
-				'chooseseveraloptions' => array( 'hello, there' ),
+				'name'                        => $name,
+				'email'                       => $email,
+				'choose'                      => array( 'truth' ),
+				'chooseoptions'               => array( 'hello  there' ),
+				'chooseseveraloptions'        => array( 'hello, there' ),
+				'chooseseveraloptionsspecial' => array( 'hello, world' ),
+
 			),
 			'g' . $form_id
 		);
@@ -3161,11 +3219,43 @@ EOT;
 
 
 &lt;/ul&gt;
-&lt;/div&gt;[/contact-field]'
+&lt;/div&gt;[/contact-field][contact-field label="Choose several options special" type="checkbox-multiple" options="hello&#044; world,dare" /]'
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
 
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
+	}
+
+	public function test_validate_radio_form() {
+		$name    = '';
+		$email   = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => 'hello, world',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Choose" type="radio" options="hello&#044; world,dare" /]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		$this->assertEquals( array(), $form->get_error_messages() );
 		// message should be not empty.
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 

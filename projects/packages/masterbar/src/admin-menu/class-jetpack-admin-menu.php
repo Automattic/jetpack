@@ -184,28 +184,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Jetpack menu.
-	 */
-	public function add_jetpack_menu() {
-		parent::add_jetpack_menu();
-
-		/* translators: Jetpack sidebar menu item. */
-		add_submenu_page( 'jetpack', esc_attr_x( 'Search', 'Jetpack product name', 'jetpack-masterbar' ), _x( 'Search', 'Jetpack product name', 'jetpack-masterbar' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
-
-		// Place "Scan" submenu after Backup.
-		$position = 0;
-		global $submenu;
-		foreach ( $submenu['jetpack'] as $submenu_item ) {
-			++$position;
-			if ( __( 'Backup', 'jetpack-masterbar' ) === $submenu_item[3] ) {
-				break;
-			}
-		}
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack-masterbar' ), __( 'Scan', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
-	}
-
-	/**
 	 * Adds Appearance menu.
 	 *
 	 * @return string The Customizer URL.
