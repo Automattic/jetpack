@@ -1,4 +1,5 @@
 import { JetpackProductWithCard } from '../../types';
+import { getAntiSpamConfig } from './products/anti-spam.tsx';
 import { getBackupConfig } from './products/backup';
 import { getBoostConfig } from './products/boost';
 import { getJetpackAiConfig } from './products/jetpack-ai';
@@ -13,6 +14,7 @@ export type ProductConfigs = {
 
 // Product configuration for pricing tables
 export const getProductConfigs = (): ProductConfigs => ( {
+	'anti-spam': getAntiSpamConfig(),
 	backup: getBackupConfig(),
 	boost: getBoostConfig(),
 	protect: getProtectConfig(),

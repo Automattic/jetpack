@@ -17,14 +17,7 @@ export default ProductInterstitial;
  * @return {object} AntiSpamInterstitial react component.
  */
 export function AntiSpamInterstitial() {
-	return (
-		<ProductInterstitial
-			slug="anti-spam"
-			installsPlugin={ true }
-			bundle="security"
-			preferProductName={ true }
-		/>
-	);
+	return <PricingInterstitial slug="anti-spam" />;
 }
 
 /**
