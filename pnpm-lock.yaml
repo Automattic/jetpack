@@ -5422,8 +5422,8 @@ importers:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
       dotenv:
-        specifier: 16.0.2
-        version: 16.0.2
+        specifier: 16.6.1
+        version: 16.6.1
       jest:
         specifier: ^30.0.0
         version: 30.0.4(@types/node@20.19.10)
@@ -11190,8 +11190,8 @@ packages:
     resolution: {integrity: sha512-1gxPBJpI/pcjQhKgIU91II6Wkay+dLcN3M6rf2uwP8hRur3HtQXjVrdAK3sjC0piaEuxzMwjXChcETiJl47lAQ==}
     engines: {node: '>=18'}
 
-  dotenv@16.0.2:
-    resolution: {integrity: sha512-JvpYKUmzQhYoIFgK2MOnF3bciIZoItIIoryihy0rIA+H4Jy0FmgyKYAHCTN98P5ybGSJcIFbh6QKeJdtZd1qhA==}
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
@@ -24993,7 +24993,7 @@ snapshots:
     dependencies:
       type-fest: 4.41.0
 
-  dotenv@16.0.2: {}
+  dotenv@16.6.1: {}
 
   dunder-proto@1.0.1:
     dependencies:
