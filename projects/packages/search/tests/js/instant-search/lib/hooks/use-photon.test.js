@@ -58,6 +58,28 @@ describe( 'usePhoton', () => {
 				resize: '300,200',
 			} );
 		} );
+
+		test( 'handles protocol-relative URLs (//) by using current page protocol', () => {
+			// Jest's testURL is set to https://example.com
+			// Protocol-relative URLs should inherit the current page's protocol
+			renderHook( () => usePhoton( '//example.com/image.jpg', 300, 200, true ) );
+
+			const photon = require( 'photon' );
+			expect( photon ).toHaveBeenCalledWith( 'https://example.com/image.jpg', {
+				resize: '300,200',
+			} );
+		} );
+
+		test( 'handles protocol-relative URLs from different domains', () => {
+			// Protocol-relative URLs from different domains should use the current page's protocol
+			// Jest's testURL is set to https://example.com, so //othersite.com becomes https://othersite.com
+			renderHook( () => usePhoton( '//othersite.com/image.jpg', 300, 200, true ) );
+
+			const photon = require( 'photon' );
+			expect( photon ).toHaveBeenCalledWith( 'https://othersite.com/image.jpg', {
+				resize: '300,200',
+			} );
+		} );
 	} );
 
 	describe( 'URL preparation and query string handling', () => {

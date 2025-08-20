@@ -18,6 +18,13 @@ function ensureCorrectProtocol( url ) {
 		return url;
 	}
 
+	// Handle protocol-relative URLs (starting with //)
+	if ( url.startsWith( '//' ) ) {
+		// Protocol-relative URLs should always use the current page's protocol
+		// This matches browser behavior where //example.com becomes https://example.com on HTTPS pages
+		return `${ window.location.protocol }${ url }`;
+	}
+
 	try {
 		// Create a URL object to properly parse the URL
 		// If the URL doesn't have a protocol, we'll need to add one temporarily for parsing
