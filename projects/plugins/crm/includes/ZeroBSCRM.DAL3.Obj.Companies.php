@@ -585,7 +585,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 // ==== / TOTAL VALUES
 
                 $selector = 'company.*';
-                if (isset($fields) && is_array($fields)) {
+			if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
                     // always needs id, so add if not present
@@ -1022,6 +1022,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             }
 
             #} Custom Fields
+						// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
             if ($withCustomFields){
                 
                 #} Retrieve any cf
@@ -1337,15 +1338,6 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 		}
 		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
-
-                // add em onto wheres (note these will OVERRIDE if using a key used above)
-                // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
-                $wheres = array_merge_recursive($wheres,$additionalWhereArr);
-
-            }
-
             #} Quick filters - adapted from DAL1 (probs can be slicker)
             if (is_array($quickFilters) && count($quickFilters) > 0){
 
@@ -1407,7 +1399,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 // catch 1 item arr
                 if (is_array($isTagged) && count($isTagged) == 1) $isTagged = $isTagged[0];
 
-            if (!is_array($isTagged) && !empty($isTagged) && $isTagged > 0){
+		if ( ! empty( $isTagged ) && ! is_array( $isTagged ) && $isTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -1437,7 +1429,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 // catch 1 item arr
                 if (is_array($isNotTagged) && count($isNotTagged) == 1) $isNotTagged = $isNotTagged[0];
                 
-            if (!is_array($isNotTagged) && !empty($isNotTagged) && $isNotTagged > 0){
+		if ( ! empty( $isNotTagged ) && ! is_array( $isNotTagged ) && $isNotTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -2387,7 +2379,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                             #} Any extra meta keyval pairs?
                             // BRUTALLY updates (no checking)
                             $confirmedExtraMeta = false;
-                            if (isset($extraMeta) && is_array($extraMeta)) {
+					if ( is_array( $extraMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                                 $confirmedExtraMeta = array();
 
@@ -2419,9 +2411,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                 #} e.g. x@g.com exists, so add log "x@g.com filled out form"
                                 #} Requires a type and a shortdesc
                                 if (
-                                    isset($fallBackLog) && is_array($fallBackLog) 
-                                    && isset($fallBackLog['type']) && !empty($fallBackLog['type'])
-                                    && isset($fallBackLog['shortdesc']) && !empty($fallBackLog['shortdesc'])
+																	is_array( $fallBackLog ) && ! empty( $fallBackLog['type'] ) && ! empty( $fallBackLog['shortdesc'] ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                                 ){
 
                                     #} Brutal add, maybe validate more?!
@@ -2612,7 +2602,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                     #} Any extra meta keyval pairs?
                     // BRUTALLY updates (no checking)
                     $confirmedExtraMeta = false;
-                    if (isset($extraMeta) && is_array($extraMeta)) {
+						if ( is_array( $extraMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                         $confirmedExtraMeta = array();
 
