@@ -120,7 +120,7 @@ test.describe( 'Instant Search', () => {
 				expect(
 					firstResultTitle,
 					'First result title should match the most relevant value'
-				).toContain( '<mark>Test2</mark>' );
+				).toContain( '<mark>Test2</mark> Record 1' );
 			} ).toPass( {
 				intervals: [ 1000 ],
 				timeout: 30000,
