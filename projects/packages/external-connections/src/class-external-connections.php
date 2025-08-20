@@ -138,7 +138,7 @@ class External_Connections {
 	 * @param array  $services A list of services to be configured, where each service contains 'service', 'title',
 	 *                          'description', and 'support_link' keys.
 	 */
-	public static function add_connection_settings( $page, $services ) {
+	public static function add_connections_settings_section_and_fields( $page, $services ) {
 		global $pagenow;
 
 		if ( $pagenow !== "options-$page.php" ) {
@@ -231,8 +231,6 @@ class External_Connections {
 			'const jetpackExternalConnectionsData = ' . wp_json_encode( $script_data ) . ';',
 			'before'
 		);
-
-		add_action( 'wp_ajax_jetpack_delete_external_connection', array( __CLASS__, 'ajax_delete_connection' ) );
 	}
 
 	/**
@@ -248,5 +246,24 @@ class External_Connections {
 
 		self::delete_connection( $service );
 		wp_die();
+	}
+
+	/**
+	 * Adds connections settings and related actions.
+	 *
+	 * @param string $page The slug of the settings page where the connection settings should be added.
+	 * @param array  $services A list of services to be configured, where each service contains 'service', 'title',
+	 *                           'description', and 'support_link' keys.
+	 *
+	 * @return void
+	 */
+	public static function add_connections_settings( $page, $services ) {
+		add_action(
+			'admin_init',
+			function () use ( $page, $services ) {
+				self::add_connections_settings_section_and_fields( $page, $services );
+			}
+		);
+		add_action( 'wp_ajax_jetpack_delete_external_connection', array( __CLASS__, 'ajax_delete_connection' ) );
 	}
 }
