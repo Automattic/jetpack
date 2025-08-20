@@ -200,15 +200,18 @@ test.describe( 'Cornerstone Pages', () => {
 		).toBeVisible();
 	} );
 
-	test( 'Should show load default pages functionality', async ( { jetpackBoostPage, page } ) => {
+	test( 'Should show include default pages functionality', async ( { jetpackBoostPage, page } ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Check that load default button exists
-		const loadDefaultButton = page.getByRole( 'button', { name: 'Load default pages' } );
-		await expect( loadDefaultButton, 'Load default pages button should be visible' ).toBeVisible();
+		const includeDefaultButton = page.getByRole( 'button', { name: 'Include default pages' } );
+		await expect(
+			includeDefaultButton,
+			'Include default pages button should be visible'
+		).toBeVisible();
 
 		// Check that tooltip is visible on hover
-		await loadDefaultButton.hover();
+		await includeDefaultButton.hover();
 		await expect(
 			page.locator( '[role="tooltip"]' ),
 			'Tooltip should be visible on button hover'
@@ -216,8 +219,8 @@ test.describe( 'Cornerstone Pages', () => {
 
 		// Verify button is disabled when no defaults are available (clean test environment)
 		await expect(
-			loadDefaultButton,
-			'Load default pages button should be disabled when no defaults available'
+			includeDefaultButton,
+			'Include default pages button should be disabled when no defaults available'
 		).toBeDisabled();
 
 		const testUrls = '/sample-page';
@@ -225,8 +228,8 @@ test.describe( 'Cornerstone Pages', () => {
 
 		// Button should remain disabled even with custom content
 		await expect(
-			loadDefaultButton,
-			'Load default pages button should remain disabled with no defaults'
+			includeDefaultButton,
+			'Include default pages button should remain disabled with no defaults'
 		).toBeDisabled();
 
 		// Should retain existing content when button cannot be clicked
