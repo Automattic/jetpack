@@ -125,7 +125,7 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
             #} ============= PRE-QUERY ============
 
                 $selector = 'eventreminder.*';
-                if (isset($fields) && is_array($fields)) {
+			if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
                     // always needs id, so add if not present
@@ -265,6 +265,7 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
             }
 
             // include 'due' column
+						// @phan-suppress-next-line PhanImpossibleCondition -- This is false by default but can be overridden by $args.
             if ($withDueUTS){
 
                 $extraSelect .= ',(eventreminder.zbser_remind_at + (SELECT zbse_start FROM '.$ZBSCRM_t['events'].' WHERE ID = eventreminder.zbser_event)) due';
@@ -291,16 +292,6 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
 
 
             }
-
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
-
-                // add em onto wheres (note these will OVERRIDE if using a key used above)
-                // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
-                $wheres = array_merge_recursive($wheres,$additionalWhereArr);
-
-            }
-
 
 		// dueBefore
 		if ( ! empty( $dueBefore ) && $dueBefore > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
@@ -482,8 +473,11 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
 
             }
 
-            // if no eventID, return false
-            $event = -1; if (isset($data['event'])) $event = (int)$data['event'];
+		// if no eventID, return false
+		$event = -1;
+		if ( ! empty( $data['event'] ) ) {
+			$event = (int) $data['event']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- the block containing this line guarantees the var exists.
+		}
             if ($event <= 0 && !$limitedFields) return false;
 
             #} If no status, and default is specified in settings, add that in :)
@@ -676,30 +670,6 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
 
                             } // / if $data
 
-                            #} Any extra meta keyval pairs?
-                            // BRUTALLY updates (no checking)
-                            $confirmedExtraMeta = false;
-                            if (isset($extraMeta) && is_array($extraMeta)) {
-
-                                $confirmedExtraMeta = array();
-
-                                    foreach ($extraMeta as $k => $v){
-
-                                    #} This won't fix stupid keys, just catch basic fails... 
-                                    $cleanKey = strtolower(str_replace(' ','_',$k));
-
-                                    #} Brutal update
-                                    //update_post_meta($postID, 'zbs_customer_extra_'.$cleanKey, $v);
-                                    $this->DAL()->updateMeta( ZBS_TYPE_TASK_REMINDER, $id,'extra_' . $cleanKey, $v );
-
-                                    #} Add it to this, which passes to IA
-                                    $confirmedExtraMeta[$cleanKey] = $v;
-
-                                }
-
-                            }
-
-                                
                             // Successfully updated - Return id
                             return $id;
 
