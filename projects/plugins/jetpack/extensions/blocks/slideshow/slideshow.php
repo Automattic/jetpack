@@ -129,22 +129,18 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		return '';
 	}
 
+	// Check for required WooCommerce Email Editor helper classes upfront
+	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+		return '';
+	}
+
 	// Determine target width from the email layout if available
 	$target_width = 600; // Default
 	if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
 		$layout_width_px = $rendering_context->get_layout_width_without_padding();
 		if ( is_string( $layout_width_px ) ) {
-			// Try to parse the width value
-			$parsed_width = 0;
-			if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ) {
-				$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
-			} else {
-				// Fallback to simple regex parsing
-				$matches = array();
-				if ( preg_match( '/^(\d+)px$/', $layout_width_px, $matches ) ) {
-					$parsed_width = (int) $matches[1];
-				}
-			}
+			$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
 			if ( $parsed_width > 0 ) {
 				$target_width = $parsed_width;
 			}
@@ -198,24 +194,13 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		$grid_content .= '</tr></table>';
 	}
 
-	// Use Table_Wrapper_Helper for consistent email rendering if available
-	if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
-		$image_table_attrs = array(
-			'style' => 'margin: 16px 0; padding: 0; border-collapse: collapse;',
-			'width' => $target_width,
-		);
+	// Use Table_Wrapper_Helper for consistent email rendering
+	$image_table_attrs = array(
+		'style' => 'margin: 16px 0; padding: 0; border-collapse: collapse;',
+		'width' => $target_width,
+	);
 
-		$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $grid_content, $image_table_attrs ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
-	} else {
-		// Fallback to simple table HTML
-		$html  = sprintf(
-			'<table role="presentation" style="width: 100%%; max-width: %dpx; margin: 16px auto; border-collapse: collapse; padding: 0;">',
-			$target_width
-		);
-		$html .= '<tr><td style="padding: 0; font-family: Arial, sans-serif;">';
-		$html .= $grid_content;
-		$html .= '</td></tr></table>';
-	}
+	$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $grid_content, $image_table_attrs ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
 
 	// Add margin below the block
 	$html .= '<div style="margin-bottom: 2em;"></div>';
