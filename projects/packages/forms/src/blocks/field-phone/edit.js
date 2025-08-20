@@ -5,7 +5,7 @@ import {
 	BlockContextProvider,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
@@ -38,19 +38,26 @@ export default function PhoneFieldEdit( props ) {
 
 	useFormWrapper( props );
 
+	const countryPairs = useMemo( () => {
+		return countries.map( country => ( {
+			label: country.label,
+			value: country.code,
+		} ) );
+	}, [] );
+
 	const onChangeShowCountrySelector = value => {
 		setAttributes( {
 			showCountrySelector: value,
 		} );
-		setCountryList( value ? countries : EMPTY_ARRAY );
+		setCountryList( value ? countryPairs : EMPTY_ARRAY );
 	};
 
 	useEffect( () => {
 		if ( showCountrySelector === undefined || showCountrySelector === true ) {
 			setAttributes( { showCountrySelector: true } );
-			setCountryList( countries );
+			setCountryList( countryPairs );
 		}
-	}, [ showCountrySelector, setAttributes ] );
+	}, [ showCountrySelector, setAttributes, countryPairs ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
