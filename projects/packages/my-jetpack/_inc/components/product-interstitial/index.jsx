@@ -72,7 +72,9 @@ export function ExtrasInterstitial() {
  *
  * @return {object} JetpackAiInterstitial react component.
  */
-export { default as JetpackAiInterstitial } from './jetpack-ai';
+export function JetpackAiInterstitial() {
+	return <PricingInterstitial slug="jetpack-ai" />;
+}
 
 /**
  * ProtectInterstitial component

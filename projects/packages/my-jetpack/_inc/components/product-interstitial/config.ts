@@ -1,6 +1,7 @@
 import { JetpackProductWithCard } from '../../types';
 import { getBackupConfig } from './products/backup';
 import { getBoostConfig } from './products/boost';
+import { getJetpackAiConfig } from './products/jetpack-ai';
 import { getSearchConfig } from './products/search';
 import { getSocialConfig } from './products/social';
 import { getVideoPressConfig } from './products/videopress';
@@ -17,4 +18,5 @@ export const getProductConfigs = (): ProductConfigs => ( {
 	social: getSocialConfig(),
 	search: getSearchConfig(),
 	videopress: getVideoPressConfig(),
+	'jetpack-ai': getJetpackAiConfig(),
 } );
