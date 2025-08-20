@@ -333,6 +333,11 @@ final class Image_CDN {
 	 * @return string
 	 */
 	public static function filter_the_content( $content ) {
+		// Early return if content is null, empty, or not a string.
+		if ( null === $content || ! is_string( $content ) || '' === $content ) {
+			return $content;
+		}
+
 		static $image_tags      = array( 'IMG', 'AMP-IMG', 'AMP-ANIM' );
 		$content_width          = null;
 		$image_sizes            = null;
