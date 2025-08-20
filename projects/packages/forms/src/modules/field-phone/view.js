@@ -88,6 +88,8 @@ const { actions } = store( NAMESPACE, {
 	callbacks: {
 		initializeCountrySelector() {
 			const context = getContext();
+			window.parsePhoneNumber = parsePhoneNumber;
+			window.AsYouType = AsYouType;
 			if ( context.showCountrySelector ) {
 				context.countryList = countries.map( country => ( {
 					...country,
