@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Lifted the TS types up from product tabs for reusability.

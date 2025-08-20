@@ -1,6 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useCallback, useEffect, useState } from 'react';
-import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from '../../components/my-jetpack-tab-panel/products/constants';
+import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from '../../constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 

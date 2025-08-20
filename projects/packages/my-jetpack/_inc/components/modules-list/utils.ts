@@ -1,6 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { MyJetpackModule } from '../types';
+import { MyJetpackModule } from '../../types';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'waf', 'wordads' ];
 
