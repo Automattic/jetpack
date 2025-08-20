@@ -1,12 +1,12 @@
 /**
  * Internal dependencies
  */
-import PricingInterstitial from './PricingInterstitial';
-import ProductInterstitial from './ProductInterstitial';
 import completeImage from './assets/complete.png';
 import extrasImage from './assets/extras.png';
 import securityImage from './assets/security.png';
 import statsImage from './assets/stats.png';
+import PricingInterstitial from './pricing-interstitial';
+import ProductInterstitial from './product-interstitial';
 
 // Export the main components
 export default ProductInterstitial;

@@ -31,8 +31,8 @@ import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
-import ProductInterstitial from './ProductInterstitial';
 import { getProductConfigs } from './config';
+import ProductInterstitial from './product-interstitial';
 import styles from './style.module.scss';
 
 /**
