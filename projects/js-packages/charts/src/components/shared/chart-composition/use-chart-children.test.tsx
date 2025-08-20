@@ -3,11 +3,15 @@ import { Group } from '@visx/group';
 import { useChartChildren } from './use-chart-children';
 import { ChartSVG, ChartHTML } from './index';
 
+// Shared test utilities to reduce duplication
+const TestSVG = ( { children }: { children: React.ReactNode } ) => <>{ children }</>;
+TestSVG.displayName = 'TestChart.SVG';
+
+const TestHTML = ( { children }: { children: React.ReactNode } ) => <>{ children }</>;
+TestHTML.displayName = 'TestChart.HTML';
+
 describe( 'useChartChildren', () => {
 	it( 'should extract SVG children from chart-specific compound components', () => {
-		const TestSVG = ( { children }: { children: React.ReactNode } ) => <>{ children }</>;
-		TestSVG.displayName = 'TestChart.SVG';
-
 		const children = (
 			<TestSVG>
 				<text>SVG Content</text>
@@ -22,9 +26,6 @@ describe( 'useChartChildren', () => {
 	} );
 
 	it( 'should extract HTML children from chart-specific compound components', () => {
-		const TestHTML = ( { children }: { children: React.ReactNode } ) => <>{ children }</>;
-		TestHTML.displayName = 'TestChart.HTML';
-
 		const children = (
 			<TestHTML>
 				<div>HTML Content</div>
@@ -85,12 +86,6 @@ describe( 'useChartChildren', () => {
 	} );
 
 	it( 'should handle mixed children types', () => {
-		const TestSVG = ( { children }: { children: React.ReactNode } ) => <>{ children }</>;
-		TestSVG.displayName = 'TestChart.SVG';
-
-		const TestHTML = ( { children }: { children: React.ReactNode } ) => <>{ children }</>;
-		TestHTML.displayName = 'TestChart.HTML';
-
 		// Create elements as array to avoid Fragment issues
 		const children = [
 			<TestSVG key="svg">
@@ -121,9 +116,6 @@ describe( 'useChartChildren', () => {
 	} );
 
 	it( 'should handle multiple children within compound components', () => {
-		const TestSVG = ( { children }: { children: React.ReactNode } ) => <>{ children }</>;
-		TestSVG.displayName = 'TestChart.SVG';
-
 		const children = (
 			<TestSVG>
 				<text>First SVG</text>

@@ -31,15 +31,17 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 
 				// Handle chart-specific compound components (e.g., PieChart.SVG)
 				if ( displayName === `${ chartType }.SVG` || displayName === 'Chart.SVG' ) {
-					// Extract children from Chart.SVG
-					Children.forEach( child.props.children, svgChild => {
-						svg.push( svgChild );
-					} );
+					// Extract children from Chart.SVG with safety checks
+					if ( child.props.children != null ) {
+						const childrenArray = Children.toArray( child.props.children );
+						svg.push( ...childrenArray );
+					}
 				} else if ( displayName === `${ chartType }.HTML` || displayName === 'Chart.HTML' ) {
-					// Extract children from Chart.HTML
-					Children.forEach( child.props.children, htmlChild => {
-						html.push( htmlChild );
-					} );
+					// Extract children from Chart.HTML with safety checks
+					if ( child.props.children != null ) {
+						const childrenArray = Children.toArray( child.props.children );
+						html.push( ...childrenArray );
+					}
 				} else if ( child.type === Group ) {
 					// Legacy support: still check for Group type for backward compatibility
 					svg.push( child );
