@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit b838f7438fc23838704673cee335adb9295bff0f.
+ * Stubs automatically generated from WordPress.com commit dc23bdfb841164f22a81f5a9be5a74496bcf097b.
  */
 
 namespace {
@@ -271,12 +271,24 @@ namespace {
         static function init()
         {
         }
+        public function get_keyring_connection_item($keyring_token_id, $force_external_users_refetch = \false, $force_connection_test = \false)
+        {
+        }
         /**
          * @param string $type
          * @param int|false $blog_id
          * @return array
          */
         public function get_external_services_list($type = \false, $blog_id = \false)
+        {
+        }
+        public function delete_keyring_connection($keyring_connection_id)
+        {
+        }
+    }
+    abstract class ExternalMediaService
+    {
+        public static function get_service_token($service_name, $user_id)
         {
         }
     }
