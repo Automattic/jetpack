@@ -33,14 +33,16 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 				if ( displayName === `${ chartType }.SVG` || displayName === 'Chart.SVG' ) {
 					// Extract children from Chart.SVG with safety checks
 					if ( child.props.children != null ) {
-						const childrenArray = Children.toArray( child.props.children );
-						svg.push( ...childrenArray );
+						Children.forEach( child.props.children, svgChild => {
+							svg.push( svgChild );
+						} );
 					}
 				} else if ( displayName === `${ chartType }.HTML` || displayName === 'Chart.HTML' ) {
 					// Extract children from Chart.HTML with safety checks
 					if ( child.props.children != null ) {
-						const childrenArray = Children.toArray( child.props.children );
-						html.push( ...childrenArray );
+						Children.forEach( child.props.children, htmlChild => {
+							html.push( htmlChild );
+						} );
 					}
 				} else if ( child.type === Group ) {
 					// Legacy support: still check for Group type for backward compatibility
