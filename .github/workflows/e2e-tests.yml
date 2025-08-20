@@ -177,6 +177,32 @@ jobs:
           echo "a65ceb838f1deb941f7ea9101ff54eaba04179135fd562456a59ea293479e113  cloudflared.deb" | sha256sum -c
           sudo dpkg -i cloudflared.deb
 
+      - name: Configure DNS for Cloudflare tunnel
+        if: env.USE_CLOUDFLARE_TUNNEL
+        run: |
+          echo "Configuring Cloudflare DNS resolvers..."
+          echo "=== DNS Configuration BEFORE changes ==="
+          echo "Current /etc/resolv.conf status:"
+          ls -la /etc/resolv.conf || true
+          echo "Current /etc/resolv.conf content:"
+          cat /etc/resolv.conf || true
+          echo "Current DNS test (nslookup google.com):"
+          nslookup google.com || true
+          echo "========================================="
+          
+          echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
+          echo "nameserver 1.0.0.1" | sudo tee -a /etc/resolv.conf
+          
+          echo "=== DNS Configuration AFTER changes ==="
+          echo "New /etc/resolv.conf status:"
+          ls -la /etc/resolv.conf || true
+          echo "New /etc/resolv.conf content:"
+          cat /etc/resolv.conf
+          echo "New DNS test (nslookup google.com):"
+          nslookup google.com || true
+          echo "========================================"
+          echo "DNS configuration updated"
+
       - name: Install monorepo
         run: |
           pnpm install
