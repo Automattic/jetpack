@@ -326,7 +326,7 @@ function zeroBSCRM_pages_admin_team() {
 			<div><?php echo esc_html( zeroBSCRM_wpb_lastlogin( $id ) . ' ' . __( 'ago', 'zero-bs-crm' ) ); ?></div>
 			<div>
 				<a href="<?php echo esc_url( $edit_url ); ?>" data-uid="<?php echo esc_attr( $id ); ?>" class="zbs-perm-edit ui button mini black">
-					<?php echo esc_html_e( 'Manage permissions', 'zero-bs-crm' ); ?>
+					<?php esc_html_e( 'Manage permissions', 'zero-bs-crm' ); ?>
 				</a>
 			</div>
 			<?php
