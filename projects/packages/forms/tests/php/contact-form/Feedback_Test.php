@@ -1983,4 +1983,51 @@ class Feedback_Test extends BaseTestCase {
 
 		Contact_Form::reset_errors();
 	}
+
+	public function test_get_field_by_id_and_value_by_id_new_submission() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Hello!',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response  = Feedback::from_submission( $_post_data, $form );
+		$field_ids = $form->get_field_ids();
+		$email_id  = $field_ids['email'];
+
+		$this->assertNotEmpty( $email_id );
+		$this->assertEquals( 'john@example.com', $response->get_field_value_by_form_field_id( $email_id ) );
+
+		$field = $response->get_field_by_form_field_id( $email_id );
+		$this->assertInstanceOf( Feedback_Field::class, $field );
+		$this->assertEquals( $email_id, $field->get_form_field_id() );
+
+		// Save and reload; ensure the field id and value persist correctly
+		$saved_post_id  = $response->save();
+		$saved_response = Feedback::get( $saved_post_id );
+		$this->assertEquals( 'john@example.com', $saved_response->get_field_value_by_form_field_id( $email_id ) );
+		$saved_field = $saved_response->get_field_by_form_field_id( $email_id );
+		$this->assertInstanceOf( Feedback_Field::class, $saved_field );
+		$this->assertEquals( $email_id, $saved_field->get_form_field_id() );
+	}
+
+	public function test_get_field_by_id_and_value_by_id_legacy() {
+		$post_id  = Utility::create_legacy_feedback( array() );
+		$response = Feedback::get( $post_id );
+
+		$this->assertSame( '', $response->get_field_value_by_form_field_id( 'email' ) );
+		$this->assertNull( $response->get_field_by_form_field_id( 'email' ) );
+	}
 }
