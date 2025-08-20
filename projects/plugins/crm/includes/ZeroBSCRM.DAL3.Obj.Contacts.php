@@ -706,7 +706,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 // ==== / TOTAL VALUES
 
                 $selector = 'contact.*';
-                if (isset($fields) && is_array($fields)) {
+				if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
                     // always needs id, so add if not present
@@ -1190,6 +1190,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             }
 
             #} Custom Fields
+						// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
             if ($withCustomFields){
                 
                 #} Retrieve any cf
@@ -1225,6 +1226,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             }
 
             #} Aliases
+						// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
             if ($withAliases){
 
 				#} Retrieve these as a CSV :)
@@ -1344,7 +1346,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             // ==== / TOTAL VALUES
 
-
+					// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
             if ($withDND){
 
                 // add as subquery
@@ -1573,8 +1575,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 			}
 			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
+					// Any additionalWhereArr?
+			if ( is_array( $additionalWhereArr ) && count( $additionalWhereArr ) > 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add em onto wheres (note these will OVERRIDE if using a key used above)
                 // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
@@ -1710,7 +1712,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 // catch 1 item arr
                 if (is_array($isTagged) && count($isTagged) == 1) $isTagged = $isTagged[0];
 
-            if (!is_array($isTagged) && !empty($isTagged) && $isTagged > 0){
+			if ( ! empty( $isTagged ) && ! is_array( $isTagged ) && $isTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -1739,8 +1741,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                 // catch 1 item arr
                 if (is_array($isNotTagged) && count($isNotTagged) == 1) $isNotTagged = $isNotTagged[0];
-                
-            if (!is_array($isNotTagged) && !empty($isNotTagged) && $isNotTagged > 0){
+
+				if ( ! empty( $isNotTagged ) && ! is_array( $isNotTagged ) && $isNotTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -1779,6 +1781,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				if ( $sortOrder !== 'DESC' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					$sort_function = 'MIN';
 				}
+				// @phan-suppress-next-line PhanImpossibleCondition -- This var is initialized by arbitrary data in $args.
 				if ( $withLastLog ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					// retrieve log types to include
@@ -2465,8 +2468,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             
             // here we check that the potential owner CAN even own
             if (
-                // no owner specified
-                !isset($owner) ||
                 // specified owner is not an admin
                 !user_can($owner,'admin_zerobs_usr')
             ) {
@@ -3018,7 +3019,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                             #} Any extra meta keyval pairs?
                             // BRUTALLY updates (no checking)
                             $confirmedExtraMeta = false;
-                            if (isset($extraMeta) && is_array($extraMeta)) {
+							if ( is_array( $extraMeta ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 $confirmedExtraMeta = array();
 
@@ -3050,9 +3051,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                 #} e.g. x@g.com exists, so add log "x@g.com filled out form"
                                 #} Requires a type and a shortdesc
                                 if (
-                                    isset($fallBackLog) && is_array($fallBackLog) 
-                                    && isset($fallBackLog['type']) && !empty($fallBackLog['type'])
-                                    && isset($fallBackLog['shortdesc']) && !empty($fallBackLog['shortdesc'])
+								is_array( $fallBackLog ) && ! empty( $fallBackLog['type'] ) && ! empty( $fallBackLog['shortdesc'] ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                                 ){
 
                                     #} Brutal add, maybe validate more?!
@@ -3287,7 +3286,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                     #} Any extra meta keyval pairs?
                     // BRUTALLY updates (no checking)
                     $confirmedExtraMeta = false;
-                    if (isset($extraMeta) && is_array($extraMeta)) {
+										if ( is_array( $extraMeta ) ) { // phpcs:ignore -- PHPCS is choking on this line, so ignoring it altogether...the var is defined at the beginning of the function.
 
                         $confirmedExtraMeta = array();
 
@@ -3431,9 +3430,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             // check id
             $id = (int)$id; if (empty($id) || $id <= 0) return false;
 
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
-
             // check co id's
             if (!is_array($companyIDs)) $companyIDs = array();
 
@@ -3471,9 +3467,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         #} =========== / LOAD ARGS ============
 
         #} ========== CHECK FIELDS ============
-
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
 
             // check id
             $id = (int)$id; if (empty($id) || $id <= 0) return false;
