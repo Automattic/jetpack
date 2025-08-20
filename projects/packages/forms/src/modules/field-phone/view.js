@@ -1,8 +1,10 @@
 import { store, getContext } from '@wordpress/interactivity';
-import parsePhoneNumber from 'libphonenumber-js';
+import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
 import { countries } from '../../blocks/field-phone/country-list';
 import { isEmptyValue } from '../../contact-form/js/validate-helper';
 const NAMESPACE = 'jetpack/form';
+
+let asYouType;
 
 const { state, actions } = store( NAMESPACE, {
 	state: {
@@ -36,15 +38,22 @@ const { state, actions } = store( NAMESPACE, {
 				return 'yes';
 			},
 		},
+		get countryPrefix() {
+			const context = getContext();
+			if ( context.showCountrySelector ) {
+				return countries.find( item => item.code === state.phoneCountryCode )?.value;
+			}
+			return '';
+		},
 		get fullPhoneNumber() {
 			const context = getContext();
 			if ( context.showCountrySelector ) {
 				// if the user has typed the country code and didn't add a space,
 				// assume they already typed a full international phone number
-				if ( state.phoneNumber.indexOf( state.phoneCountryCode ) === 0 ) {
+				if ( state.phoneNumber.indexOf( state.countryPrefix ) === 0 ) {
 					return state.phoneNumber;
 				}
-				return `${ state.phoneCountryCode } ${ state.phoneNumber }`;
+				return `${ state.countryPrefix } ${ state.phoneNumber }`;
 			}
 			return state.phoneNumber;
 		},
@@ -62,15 +71,12 @@ const { state, actions } = store( NAMESPACE, {
 				state.phoneNumber = value;
 				return;
 			}
+			asYouType.reset();
 			const fieldId = context.fieldId;
-			if ( value.indexOf( '+' ) === 0 && value.length > 1 ) {
-				// user is trying to type an international phone number
-				const internationalNumber = parsePhoneNumber( value );
-				if ( internationalNumber ) {
-					const country = countries.find( item => item.code === internationalNumber.country );
-					state.phoneCountryCode = country?.value || context.defaultCountry;
-					state.phoneNumber = internationalNumber.nationalNumber;
-				}
+			asYouType.input( value );
+			if ( asYouType.getCountry() ) {
+				state.phoneCountryCode = asYouType.getCountry();
+				state.phoneNumber = asYouType.getNationalNumber();
 			} else {
 				state.phoneNumber = value;
 			}
@@ -84,12 +90,17 @@ const { state, actions } = store( NAMESPACE, {
 	callbacks: {
 		initializeCountrySelector() {
 			const context = getContext();
+			window.parsePhoneNumber = parsePhoneNumber;
+			window.AsYouType = AsYouType;
 			if ( context.showCountrySelector ) {
 				state.countryList = countries.map( country => ( {
 					...country,
-					selected: country.value === context.defaultCountry,
+					label: country.code + ' ' + country.label,
+					value: country.code,
+					selected: country.code === context.defaultCountry,
 				} ) );
 			}
+			asYouType = new AsYouType( context.defaultCountry );
 		},
 	},
 } );
