@@ -250,16 +250,16 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 
 		return willTruncate
 			? sprintf(
-					/* translators: %1$d is pages that will be loaded, %2$d is total available pages */
-					__( 'Load %1$d of %2$d default pages (plan limit).', 'jetpack-boost' ),
+					/* translators: %1$d is pages that will be included, %2$d is total available pages */
+					__( 'Include %1$d of %2$d default pages (plan limit).', 'jetpack-boost' ),
 					pagesToLoad,
 					missingDefaults.length
 			  )
 			: sprintf(
-					/* translators: %d is the number of pages that will be loaded */
+					/* translators: %d is the number of pages that will be included */
 					_n(
-						'Load %d default page from compatible plugins.',
-						'Load %d default pages from compatible plugins.',
+						'Include %d default page from compatible plugins.',
+						'Include %d default pages from compatible plugins.',
 						pagesToLoad,
 						'jetpack-boost'
 					),
@@ -282,8 +282,8 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				id: 'cornerstone-load-defaults',
 				type: 'error',
 				message: sprintf(
-					/* translators: %1$d is pages loaded, %2$d is total available pages */
-					__( 'Loaded %1$d of %2$d default pages (plan limit reached).', 'jetpack-boost' ),
+					/* translators: %1$d is pages included, %2$d is total available pages */
+					__( 'Included %1$d of %2$d default pages (plan limit reached).', 'jetpack-boost' ),
 					toAppend.length,
 					missingDefaults.length
 				),
@@ -293,10 +293,10 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				id: 'cornerstone-load-defaults',
 				type: 'success',
 				message: sprintf(
-					/* translators: %d is the number of pages loaded */
+					/* translators: %d is the number of pages included */
 					_n(
-						'Loaded %d default page.',
-						'Loaded %d default pages.',
+						'Included %d default page.',
+						'Included %d default pages.',
 						toAppend.length,
 						'jetpack-boost'
 					),
@@ -324,14 +324,17 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 		}
 
 		if ( hasAllDefaults ) {
-			return { disabled: true, title: __( 'Default pages are already loaded.', 'jetpack-boost' ) };
+			return {
+				disabled: true,
+				title: __( 'Default pages are already included.', 'jetpack-boost' ),
+			};
 		}
 
 		// Handle case where user has reached plan limit
 		if ( availableSlots === 0 ) {
 			return {
 				disabled: true,
-				title: __( 'Cannot load defaults. Plan limit reached.', 'jetpack-boost' ),
+				title: __( 'Cannot include defaults. Plan limit reached.', 'jetpack-boost' ),
 			};
 		}
 
@@ -352,7 +355,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 					className={ className }
 					variant="link"
 				>
-					{ __( 'Load default pages', 'jetpack-boost' ) }
+					{ __( 'Include default pages', 'jetpack-boost' ) }
 				</Button>
 			</div>
 		</Tooltip>
