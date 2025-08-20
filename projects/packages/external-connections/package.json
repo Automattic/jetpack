@@ -16,9 +16,20 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
+		"build-js": "pnpm clean && webpack",
 		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js",
+		"clean": "rm -rf src/build/",
+		"watch": "pnpm run build-production-js && pnpm webpack watch"
+	},
+	"dependencies": {
+		"@automattic/request-external-access": "1.0.1",
+		"@wordpress/i18n": "6.1.0"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.28.0",
+		"webpack": "5.94.0",
+		"webpack-cli": "6.0.1"
 	}
 }
