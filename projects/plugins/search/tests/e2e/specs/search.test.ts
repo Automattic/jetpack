@@ -5,7 +5,7 @@ import {
 	searchResultForTest2 as originalSearchResultForTest2,
 	SEARCH_API_PATTERN,
 } from '../fixtures/test';
-import type { Page } from '@playwright/test';
+import type { Page, Response } from '@playwright/test';
 
 // Create deep copies to prevent mutations during tests
 const searchResultForTest1 = JSON.parse( JSON.stringify( originalSearchResultForTest1 ) );
@@ -52,7 +52,7 @@ test.describe( 'Instant Search', () => {
 	} );
 
 	test( 'Can perform search with default settings', async ( { page } ) => {
-		let searchResponsePromise;
+		let searchResponsePromise: Promise< Response >;
 
 		await page.goto( '/?result_format=expanded' );
 
@@ -91,10 +91,15 @@ test.describe( 'Instant Search', () => {
 		} );
 
 		await test.step( 'Can sort results by relevance by default', async () => {
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the expected value'
-			).toEqual( searchResultForTest1.results[ 0 ].highlight.title[ 0 ] );
+			await expect( async () => {
+				const firstResultTitle = await getFirstResultTitle( page );
+				expect( firstResultTitle, 'First result title should match the expected value' ).toEqual(
+					searchResultForTest1.results[ 0 ].highlight.title[ 0 ]
+				);
+			} ).toPass( {
+				intervals: [ 1000 ],
+				timeout: 30000,
+			} );
 		} );
 
 		const overlaySearchInput = page.getByRole( 'searchbox', {
@@ -110,10 +115,16 @@ test.describe( 'Instant Search', () => {
 		} );
 
 		await test.step( 'The first result is updated by relevance', async () => {
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the most relevant value'
-			).toContain( '<mark>Test2</mark>' );
+			await expect( async () => {
+				const firstResultTitle = await getFirstResultTitle( page );
+				expect(
+					firstResultTitle,
+					'First result title should match the most relevant value'
+				).toContain( '<mark>Test2</mark>' );
+			} ).toPass( {
+				intervals: [ 1000 ],
+				timeout: 30000,
+			} );
 		} );
 
 		await test.step( 'Can change sort order', async () => {
@@ -128,13 +139,19 @@ test.describe( 'Instant Search', () => {
 				"'newest' sorting link should be selected"
 			).toBeVisible();
 
-			expect(
-				await getFirstResultTitle( page ),
-				`First result title should match the newest value: ${
-					searchResultForTest2.results[ searchResultForTest2.results.length - 1 ].highlight
-						.title[ 0 ]
-				}`
-			).toBe( '<mark>Test2</mark> Record 3' );
+			await expect( async () => {
+				const firstResultTitle = await getFirstResultTitle( page );
+				expect(
+					firstResultTitle,
+					`First result title should match the newest value: ${
+						searchResultForTest2.results[ searchResultForTest2.results.length - 1 ].highlight
+							.title[ 0 ]
+					}`
+				).toBe( '<mark>Test2</mark> Record 3' );
+			} ).toPass( {
+				intervals: [ 1000 ],
+				timeout: 30000,
+			} );
 
 			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
 			await page.getByRole( 'button', { name: 'Oldest' } ).click();
@@ -147,10 +164,15 @@ test.describe( 'Instant Search', () => {
 				"'oldest' sorting link should be selected"
 			).toBeVisible();
 
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the oldest value'
-			).toBe( '<mark>Test2</mark> Record 2' );
+			await expect( async () => {
+				const firstResultTitle = await getFirstResultTitle( page );
+				expect( firstResultTitle, 'First result title should match the oldest value' ).toBe(
+					'<mark>Test2</mark> Record 2'
+				);
+			} ).toPass( {
+				intervals: [ 1000 ],
+				timeout: 30000,
+			} );
 		} );
 
 		await test.step( 'Can apply filters', async () => {
@@ -158,20 +180,30 @@ test.describe( 'Instant Search', () => {
 			await page.getByRole( 'checkbox', { name: 'Category 2' } ).check();
 			await searchResponsePromise;
 
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 2' );
+			await expect( async () => {
+				const firstResultTitle = await getFirstResultTitle( page );
+				expect( firstResultTitle, 'First result title should match the expected value' ).toBe(
+					'<mark>Test2</mark> Record 2'
+				);
+			} ).toPass( {
+				intervals: [ 1000 ],
+				timeout: 30000,
+			} );
 
 			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
 			await page.getByRole( 'checkbox', { name: 'Category 2' } ).uncheck();
 			await page.getByRole( 'checkbox', { name: 'Tag 3' } ).check();
 			await searchResponsePromise;
 
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 3' );
+			await expect( async () => {
+				const firstResultTitle = await getFirstResultTitle( page );
+				expect( firstResultTitle, 'First result title should match the expected value' ).toBe(
+					'<mark>Test2</mark> Record 3'
+				);
+			} ).toPass( {
+				intervals: [ 1000 ],
+				timeout: 30000,
+			} );
 		} );
 
 		await test.step( 'Can close overlay by clicking the cross', async () => {
