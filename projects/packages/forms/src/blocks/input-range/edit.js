@@ -141,7 +141,7 @@ export default function SliderInputEdit( props ) {
 					onKeyDown={ onKeyDown }
 				/>
 			</div>
-			<div className="jetpack-field-slider__text-labels" aria-hidden="true">
+			<div className="jetpack-field-slider__text-labels">
 				<input
 					className="jetpack-field-slider__min-text-label"
 					type="text"
