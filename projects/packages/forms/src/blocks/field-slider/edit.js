@@ -142,6 +142,7 @@ export default function SliderFieldEdit( props ) {
 					<HStack alignment="top" className="jp-field-slider-inspector-row">
 						<NumberControl
 							__next40pxDefaultSize
+							__nextHasNoMarginBottom
 							label={ __( 'Min value', 'jetpack-forms' ) }
 							max={ max }
 							min={ Number.MIN_SAFE_INTEGER }
@@ -150,6 +151,7 @@ export default function SliderFieldEdit( props ) {
 						/>
 						<NumberControl
 							__next40pxDefaultSize
+							__nextHasNoMarginBottom
 							label={ __( 'Max value', 'jetpack-forms' ) }
 							max={ Number.MAX_SAFE_INTEGER }
 							min={ min }
@@ -160,6 +162,7 @@ export default function SliderFieldEdit( props ) {
 					<HStack alignment="top" className="jp-field-slider-inspector-row">
 						<NumberControl
 							__next40pxDefaultSize
+							__nextHasNoMarginBottom
 							label={ __( 'Default value', 'jetpack-forms' ) }
 							min={ min }
 							max={ max }
@@ -168,6 +171,7 @@ export default function SliderFieldEdit( props ) {
 						/>
 						<NumberControl
 							__next40pxDefaultSize
+							__nextHasNoMarginBottom
 							label={ __( 'Increment', 'jetpack-forms' ) }
 							min={ 0 }
 							step={ 1 }
@@ -178,12 +182,14 @@ export default function SliderFieldEdit( props ) {
 					<HStack alignment="top" className="jp-field-slider-inspector-row">
 						<TextControl
 							__next40pxDefaultSize
+							__nextHasNoMarginBottom
 							label={ __( 'Min label', 'jetpack-forms' ) }
 							value={ minLabel }
 							onChange={ onChangeMinLabel }
 						/>
 						<TextControl
 							__next40pxDefaultSize
+							__nextHasNoMarginBottom
 							label={ __( 'Max label', 'jetpack-forms' ) }
 							value={ maxLabel }
 							onChange={ onChangeMaxLabel }
