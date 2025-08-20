@@ -23,14 +23,14 @@ const { state, actions } = store( NAMESPACE, {
 				// use our internal full phone number state getter:
 				value = state.fullPhoneNumber;
 				const context = getContext();
-				if ( context.showCountrySelector ) {
+				if ( context.showCountrySelector || value.indexOf( '+' ) === 0 ) {
 					const internationalNumber = parsePhoneNumber( value );
 					if ( ! internationalNumber || ! internationalNumber.isValid() ) {
 						return 'invalid_phone';
 					}
 				}
 
-				// if no country selector, use legacy regex check
+				// if no country selector or value starting with +, use legacy regex check
 				if ( ! /^\+?[0-9\s\-()]+$/.test( value ) ) {
 					return 'invalid_phone';
 				}
