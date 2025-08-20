@@ -258,6 +258,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
@@ -283,6 +284,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
+		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
