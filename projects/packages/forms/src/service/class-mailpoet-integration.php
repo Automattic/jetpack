@@ -118,11 +118,10 @@ class MailPoet_Integration {
 	/**
 	 * Extract subscriber data (email, first_name, last_name) from form fields.
 	 *
-	 * @param Feedback                                           $feedback Feedback object for the submission.
-	 * @param \Automattic\Jetpack\Forms\ContactForm\Contact_Form $form Contact form instance.
+	 * @param Feedback $feedback Feedback object for the submission.
 	 * @return array Associative array with at least 'email', optionally 'first_name', 'last_name'. Empty array if no email found.
 	 */
-	protected static function get_subscriber_data( $feedback, $form ) {
+	protected static function get_subscriber_data( $feedback ) {
 		if ( ! $feedback->get_author_email() ) {
 			return array();
 		}
@@ -131,27 +130,20 @@ class MailPoet_Integration {
 		$subscriber_data          = array();
 		$subscriber_data['email'] = $feedback->get_author_email();
 
-		// Try getting first and last name from Feedback API.
+		// Try getting first and name from Feedback API.
 		if ( $feedback->get_field_value_by_label( 'First Name' ) ) {
 			$subscriber_data['first_name'] = $feedback->get_field_value_by_label( 'First Name' );
+		} elseif ( $feedback->get_field_value_by_form_field_id( 'firstname' ) ) {
+			$subscriber_data['first_name'] = $feedback->get_field_value_by_form_field_id( 'firstname' );
+		} elseif ( $feedback->get_field_value_by_form_field_id( 'first-name' ) ) {
+			$subscriber_data['first_name'] = $feedback->get_field_value_by_form_field_id( 'first-name' );
 		}
 		if ( $feedback->get_field_value_by_label( 'Last Name' ) ) {
 			$subscriber_data['last_name'] = $feedback->get_field_value_by_label( 'Last Name' );
-		}
-
-		// If no first/last name, try getting via id from form fields.
-		// Can replace when we add $feedback->get_field_value_by_id() to Feedback API.
-		if ( empty( $subscriber_data['first_name'] ) || empty( $subscriber_data['last_name'] ) ) {
-			foreach ( $form->fields as $field ) {
-				$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
-				$value = trim( $field->value );
-
-				if ( 'firstname' === $id && ! empty( $value ) ) {
-					$subscriber_data['first_name'] = $value;
-				} elseif ( 'lastname' === $id && ! empty( $value ) ) {
-					$subscriber_data['last_name'] = $value;
-				}
-			}
+		} elseif ( $feedback->get_field_value_by_form_field_id( 'lastname' ) ) {
+			$subscriber_data['last_name'] = $feedback->get_field_value_by_form_field_id( 'lastname' );
+		} elseif ( $feedback->get_field_value_by_form_field_id( 'last-name' ) ) {
+			$subscriber_data['last_name'] = $feedback->get_field_value_by_form_field_id( 'last-name' );
 		}
 
 		return $subscriber_data;
@@ -212,7 +204,7 @@ class MailPoet_Integration {
 			return;
 		}
 
-		$subscriber_data = self::get_subscriber_data( $feedback, $form );
+		$subscriber_data = self::get_subscriber_data( $feedback );
 		if ( empty( $subscriber_data ) ) {
 			// Email is required for MailPoet subscribers.
 			return;
