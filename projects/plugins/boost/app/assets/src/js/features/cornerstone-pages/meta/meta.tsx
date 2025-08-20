@@ -344,7 +344,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 	const buttonState = getButtonState();
 
 	return (
-		<Tooltip text={ buttonState.title }>
+		<Tooltip text={ buttonState.title } delay={ 0 }>
 			<div>
 				<Button
 					disabled={ buttonState.disabled }
