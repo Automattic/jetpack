@@ -11,11 +11,14 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
+	Text,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Spinner } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
@@ -271,6 +274,23 @@ export default function PricingInterstitial( { slug } ) {
 			>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />
+					<Text variant="body-small">
+						{ createInterpolateElement(
+							__(
+								'Already have an existing plan or license key? <a>Click here to get started</a>.',
+								'jetpack-my-jetpack'
+							),
+							{
+								a: (
+									<Button
+										className={ styles[ 'product-interstitial__license-activation-link' ] }
+										href={ getMyJetpackUrl( '#/add-license' ) }
+										variant="link"
+									/>
+								),
+							}
+						) }
+					</Text>
 				</Col>
 				<Col>
 					<PricingTable
