@@ -200,26 +200,43 @@ test.describe( 'Cornerstone Pages', () => {
 		).toBeVisible();
 	} );
 
-	test( 'Should show load default pages functionality', async ( { jetpackBoostPage, page } ) => {
+	test( 'Should show include default pages functionality', async ( { jetpackBoostPage, page } ) => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		// Check that load default button exists
+		const includeDefaultButton = page.getByRole( 'button', { name: 'Include default pages' } );
 		await expect(
-			page.getByText( 'Load default pages' ),
-			'Load default pages button should be visible'
+			includeDefaultButton,
+			'Include default pages button should be visible'
 		).toBeVisible();
+
+		// Check that tooltip is visible on hover
+		await includeDefaultButton.hover();
+		await expect(
+			page.locator( '[role="tooltip"]' ),
+			'Tooltip should be visible on button hover'
+		).toBeVisible();
+
+		// Verify button is disabled when no defaults are available (clean test environment)
+		await expect(
+			includeDefaultButton,
+			'Include default pages button should be disabled when no defaults available'
+		).toBeDisabled();
 
 		const testUrls = '/sample-page';
 		await jetpackBoostPage.enterCornerstonePageUrl( testUrls );
 
-		// Test load default pages functionality (if there are default pages configured)
-		await page.getByRole( 'button', { name: 'Load default pages' } ).click();
+		// Button should remain disabled even with custom content
+		await expect(
+			includeDefaultButton,
+			'Include default pages button should remain disabled with no defaults'
+		).toBeDisabled();
 
-		// Should show some default pages loaded
+		// Should retain existing content when button cannot be clicked
 		await expect(
 			await jetpackBoostPage.getCornerstonePagesTextarea(),
-			'Should have no content after loading defaults'
-		).toHaveValue( '' );
+			'Should retain existing content when no defaults available'
+		).toHaveValue( testUrls );
 	} );
 
 	test( 'Prerender toggle should be visible when speculation_rules module is available', async ( {

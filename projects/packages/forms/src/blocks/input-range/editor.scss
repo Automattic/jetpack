@@ -84,7 +84,7 @@
 	background: transparent;
 	font: inherit;
 	font-size: 0.9em;
-	padding: 0 0.5em;
+	padding: 0 0.2em;
 	margin: 0;
 	appearance: textfield;
 
@@ -98,4 +98,32 @@
 		-webkit-appearance: none;
 		margin: 0;
 	}
+}
+
+.jetpack-field-slider__text-labels {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 6px;
+	font-size: 0.9em;
+}
+
+input[type="text"].jetpack-field-slider__min-text-label,
+input[type="text"].jetpack-field-slider__max-text-label {
+	border: none;
+	background: transparent;
+	font: inherit;
+	padding: 0 0.2em;
+	margin: 0;
+	width: auto;
+	field-sizing: content;
+	min-width: 3ch;
+	max-width: 24ch;
+}
+
+.jetpack-field-slider__min-text-label {
+	text-align: left;
+}
+
+.jetpack-field-slider__max-text-label {
+	text-align: right;
 }
