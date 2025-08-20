@@ -1666,8 +1666,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$email_marketing_consent = false;
 		}
 
-		$all_values   = $response->get_all_values();
-		$extra_values = $response->get_legacy_extra_values();
+		$all_values   = $response->get_all_values( 'submit' );
+		$extra_values = $response->get_legacy_extra_values( 'submit' );
 
 		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
 			$extra_values['is_block'] = true;

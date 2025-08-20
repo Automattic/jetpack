@@ -367,20 +367,24 @@ class Feedback {
 	/**
 	 * Get all values of the response.
 	 *
+	 * @param string $context The context in which the values are being retrieved.
+	 *
 	 * @return array An array of all values, including fields and entry values.
 	 */
-	public function get_all_values() {
+	public function get_all_values( $context = 'default' ) {
 		// This is a legacy method to maintain compatibility with older code.
-		return array_merge( $this->get_compiled_fields( 'default', 'key-value' ), $this->get_entry_values() );
+		return array_merge( $this->get_compiled_fields( $context, 'key-value' ), $this->get_entry_values() );
 	}
 
 	/**
 	 * Get extra values.
 	 * This is a legacy method to maintain compatibility with older code.
 	 *
+	 * @param string $context  The context in which the values are being retrieved.
+	 *
 	 * @return array An array of extra values, including entry values
 	 */
-	public function get_legacy_extra_values() {
+	public function get_legacy_extra_values( $context = 'default' ) {
 		$count            = 1;
 		$_extra_fields    = array();
 		$special_fields   = array();
@@ -388,8 +392,8 @@ class Feedback {
 
 		// Create a map of special fields to check agains their values.
 		foreach ( $this->fields as $field ) {
-			if ( in_array( $field->get_type(), $non_extra_fields, true ) && $field->get_render_value() ) {
-				$special_fields[ $field->get_render_value() ] = true;
+			if ( in_array( $field->get_type(), $non_extra_fields, true ) && $field->get_render_value( $context ) ) {
+				$special_fields[ $field->get_render_value( $context ) ] = true;
 			}
 		}
 
@@ -410,7 +414,7 @@ class Feedback {
 
 		foreach ( $_extra_fields as $field ) {
 			if ( ! in_array( $field->get_type(), $non_extra_fields, true ) || isset( $is_present[ $field->get_type() ] ) ) {
-				$extra_values[ $extra_fields_count . '_' . $field->get_label() ] = $field->get_render_value( 'default' );
+				$extra_values[ $extra_fields_count . '_' . $field->get_label() ] = $field->get_render_value( $context );
 				++$extra_fields_count; // Increment count to ensure unique keys for extra values.
 			} else {
 				$is_present[ $field->get_type() ] = true;
