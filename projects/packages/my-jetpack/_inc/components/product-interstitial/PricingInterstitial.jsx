@@ -270,7 +270,7 @@ export default function PricingInterstitial( { slug } ) {
 			<Container
 				className={ styles.interstitialContainer }
 				horizontalSpacing={ 3 }
-				horizontalGap={ 3 }
+				horizontalGap={ 2 }
 			>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />
