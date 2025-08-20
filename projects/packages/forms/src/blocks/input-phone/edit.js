@@ -46,7 +46,7 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 
 	// Prefix/Country selector
 	const prefixOptions = context?.[ 'jetpack/field-prefix-options' ] || [];
-	const defaultPrefix = context?.[ 'jetpack/field-prefix-default' ] || '';
+	const defaultPrefix = context?.[ 'jetpack/field-prefix-default' ] || 'US';
 	const onChangeDefaultPrefix = context?.[ 'jetpack/field-prefix-onChange' ] || ( () => {} );
 	const showCountrySelector = context?.[ 'jetpack/field-phone-country-toggle' ] || false;
 

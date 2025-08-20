@@ -157,8 +157,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'variation'                => null,
 				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
 				// full phone field attributes, might become a standalone country list input block
-				'countrylist'              => array(),
-				'countrydata'              => array(),
 				'showcountryselector'      => false,
 			),
 			$attributes,
@@ -194,15 +192,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$attributes['optionsdata'] = json_decode( html_entity_decode( $attributes['optionsdata'], ENT_COMPAT ), true );
 		}
 
-		// parse countryList and countrydata, HEADS UP: all attrs are forced into lowercase
-		if ( ! empty( $attributes['countrylist'] ) ) {
-			// countrylist is a comma-separated list of country codes, the simplified output from the standard parsing mechanics at Contact_Form::parse_contact_field
-			$attributes['countrylist'] = array_map( 'trim', explode( ',', $attributes['countrylist'] ) );
-		}
-		if ( ! empty( $attributes['countrydata'] ) ) {
-			// countrydata is a JSON object of country codes and their names and flags, making it available for more complex frontend UI
-			$attributes['countrydata'] = json_decode( html_entity_decode( $attributes['countrydata'], ENT_COMPAT ), true );
-		}
 		// allow boolean values for showcountryselector, only if it's set so we don't pollute other fields attrs
 		if ( isset( $attributes['showcountryselector'] ) ) {
 			if ( '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
