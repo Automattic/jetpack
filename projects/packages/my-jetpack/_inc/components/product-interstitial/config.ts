@@ -3,6 +3,7 @@ import { getBackupConfig } from './products/backup';
 import { getBoostConfig } from './products/boost';
 import { getSearchConfig } from './products/search';
 import { getSocialConfig } from './products/social';
+import { getVideoPressConfig } from './products/videopress';
 import { ProductConfig } from './types';
 
 export type ProductConfigs = {
@@ -15,4 +16,5 @@ export const getProductConfigs = (): ProductConfigs => ( {
 	boost: getBoostConfig(),
 	social: getSocialConfig(),
 	search: getSearchConfig(),
+	videopress: getVideoPressConfig(),
 } );
