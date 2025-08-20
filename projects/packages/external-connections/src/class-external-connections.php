@@ -28,7 +28,7 @@ class External_Connections {
 	public static function get_connect_url( $service ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			require_lib( 'external-connections' );
-			$connections = WPCOM_External_Connections::init();
+			$connections = \WPCOM_External_Connections::init();
 			$service     = $connections->get_external_service_item( $service );
 			if ( ! empty( $service ) ) {
 				return $service['connect_URL'];
@@ -66,8 +66,8 @@ class External_Connections {
 			require_lib( 'external-media-service/external-media-list' );
 			require_lib( 'external-connections' );
 
-			$connections = WPCOM_External_Connections::init();
-			$token       = ExternalMediaService::get_service_token( $service, get_current_user_id() );
+			$connections = \WPCOM_External_Connections::init();
+			$token       = \ExternalMediaService::get_service_token( $service, get_current_user_id() );
 
 			if ( ! empty( $token->unique_id ) ) {
 				return $connections->get_keyring_connection_item( $token->unique_id );
@@ -119,7 +119,7 @@ class External_Connections {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			if ( get_current_user_id() === $keyring_connection['user_ID'] ) {
 				require_lib( 'external-connections' );
-				$connections = WPCOM_External_Connections::init();
+				$connections = \WPCOM_External_Connections::init();
 				$connections->delete_keyring_connection( $keyring_connection['ID'] );
 			}
 		} else {
