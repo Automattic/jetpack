@@ -214,7 +214,7 @@ export default function ProductInterstitial( {
 						<Text variant="body-small">
 							{ createInterpolateElement(
 								__(
-									'Already have an existing plan or license key? <a>Get started</a>.',
+									'Already have an existing plan or license key? <a>Click here to get started</a>.',
 									'jetpack-my-jetpack'
 								),
 								{
