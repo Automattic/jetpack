@@ -160,6 +160,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
 				// full phone field attributes, might become a standalone country list input block
 				'showcountryselector'      => false,
+				// Image select field attributes
+				'ismultiple'               => null,
+				'showlabels'               => null,
+				'issupersized'             => null,
+				'randomizeoptions'         => null,
+				'showotheroption'          => null,
 			),
 			$attributes,
 			'contact-field'
@@ -394,6 +400,51 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						/* translators: %s is the name of a form field */
 						$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 						break;
+					}
+				}
+				break;
+			case 'image-select':
+				// Check that there is at least one option selected
+				if ( empty( $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+				} else {
+					// Check that the selected options are valid
+					$options      = (array) $this->get_attribute( 'options' );
+					$options_data = (array) $this->get_attribute( 'optionsdata' );
+
+					if ( ! empty( $options_data ) ) {
+						// Extract letters from options_data for validation
+						$options = array_map(
+							function ( $option ) {
+								return sanitize_text_field( trim( $option['letter'] ?? '' ) );
+							},
+							$options_data
+						);
+					}
+
+					$non_empty_options = array_filter(
+						$options,
+						function ( $option ) {
+							return $option !== '';
+						}
+					);
+
+					// For single selection (radio), check if the value is in the options
+					if ( ! $this->get_attribute( 'ismultiple' ) ) {
+						if ( ! in_array( $field_value, $non_empty_options, true ) ) {
+							/* translators: %s is the name of a form field */
+							$this->add_error( sprintf( __( '%s requires a valid selection.', 'jetpack-forms' ), $field_label ) );
+						}
+					} else {
+						// For multiple selection (checkbox), check each selected value
+						foreach ( $field_value as $field_value_item ) {
+							if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
+								/* translators: %s is the name of a form field */
+								$this->add_error( sprintf( __( '%s requires valid selections.', 'jetpack-forms' ), $field_label ) );
+								break;
+							}
+						}
 					}
 				}
 				break;
@@ -1825,8 +1876,76 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = $this->render_label( 'image-select', $id, $label, $required, $required_field_text );
-		// TODO: Implement the image select field rendering.
+		$is_multiple       = $this->get_attribute( 'ismultiple' );
+		$show_labels       = $this->get_attribute( 'showlabels' );
+		$randomize_options = $this->get_attribute( 'randomizeoptions' );
+
+		$input_type = $is_multiple ? 'checkbox' : 'radio';
+		$input_name = $is_multiple ? $id . '[]' : $id;
+
+		$options_classes   = $this->get_attribute( 'optionsclasses' );
+		$options_styles    = $this->get_attribute( 'optionsstyles' );
+		$form_style        = $this->get_form_style();
+		$is_outlined_style = 'outlined' === $form_style; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- TODO: Implement style variations
+		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
+
+		$field = "<fieldset {$fieldset_id} class='jetpack-field-image-select__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+
+		$field .= "<div class='grunion-image-select-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
+
+		$options_data  = $this->get_attribute( 'optionsdata' );
+		$used_html_ids = array();
+
+		if ( ! empty( $options_data ) ) {
+			// Create a separate array of original letters in sequence (A, B, C...)
+			$original_letters = array();
+
+			foreach ( $options_data as $option ) {
+				$original_letters[] = Contact_Form_Plugin::strip_tags( $option['letter'] );
+			}
+
+			// Create a working copy of options for potential randomization
+			$working_options = $options_data;
+
+			// Randomize options if requested, but preserve original letter values
+			if ( $randomize_options ) {
+				shuffle( $working_options );
+			}
+
+			foreach ( $working_options as $option_index => $option ) {
+				$option_label                = Contact_Form_Plugin::strip_tags( $option['label'] );
+				$option_letter               = Contact_Form_Plugin::strip_tags( $option['letter'] );
+				$option_value                = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option_letter );
+				$option_id                   = $id . '-' . sanitize_html_class( $option_value );
+				$used_html_ids[ $option_id ] = true;
+
+				$default_classes = 'contact-form-field';
+				$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
+				$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
+
+				$field .= "<p {$option_styles} class='{$option_classes}'>";
+				$field .= "<input
+								id='" . esc_attr( $option_id ) . "'
+								type='" . esc_attr( $input_type ) . "'
+								name='" . esc_attr( $input_name ) . "'
+								value='" . esc_attr( $option_value ) . "'
+								data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
+								. $class
+								. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '
+								. ( $required ? "required aria-required='true'" : '' )
+								. '/> ';
+				$field .= "<label for='" . esc_attr( $option_id ) . "' class='grunion-image-select-label " . esc_attr( $input_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+				$field .= "<span class='grunion-field-text'>" . esc_html( $original_letters[ $option_index ] ) . ( $show_labels ? ' - ' . esc_html( $option_label ) : '' ) . '</span>';
+				$field .= '</label>';
+				$field .= '</p>';
+			}
+		}
+
+		$field .= '</div>';
+
+		$field .= '</fieldset>';
 
 		return $field;
 	}
@@ -2292,9 +2411,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return bool
 	 */
 	public function is_field_renderable( $type ) {
-		// Check that radio, select, and multiple choice
-		// fields have at leaast one valid option.
-		if ( $type === 'radio' || $type === 'checkbox-multiple' || $type === 'select' ) {
+		// Check that radio, select, multiple choice, and image select
+		// fields have at least one valid option.
+		if ( $type === 'radio' || $type === 'checkbox-multiple' || $type === 'select' || $type === 'image-select' ) {
 			$options           = (array) $this->get_attribute( 'options' );
 			$non_empty_options = array_filter(
 				$options,
