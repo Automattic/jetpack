@@ -120,7 +120,6 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		'premium-content/login-button',
 		'premium-content/subscriber-view',
 		'syntaxhighlighter/code',
-		'videopress/video',
 	);
 
 	/**
