@@ -216,6 +216,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'enable_subscribers_modal',
 				'verify_email',
+				'migrate_content',
+				'subscribers_added',
 				'share_site',
 				'manage_subscribers',
 				'update_about_page',
@@ -230,6 +232,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'enable_subscribers_modal',
 				'verify_email',
+				'migrate_content',
+				'subscribers_added',
 				'share_site',
 				'set_up_payments',
 				'manage_subscribers',
