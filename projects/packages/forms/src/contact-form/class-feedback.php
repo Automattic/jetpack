@@ -380,7 +380,7 @@ class Feedback {
 	 * Get extra values.
 	 * This is a legacy method to maintain compatibility with older code.
 	 *
-	 * @param string $context  The context in which the values are being retrieved.
+	 * @param string $context The context in which the values are being retrieved.
 	 *
 	 * @return array An array of extra values, including entry values
 	 */
