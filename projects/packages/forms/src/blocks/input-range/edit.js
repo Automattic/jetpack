@@ -155,7 +155,7 @@ export default function SliderInputEdit( props ) {
 				/>
 				<input
 					className="jetpack-field-slider__max-text-label"
-					autocomplete="off"
+					autoComplete="off"
 					type="text"
 					size={ Math.max( 3, localMaxLabel.length ) }
 					value={ localMaxLabel }
