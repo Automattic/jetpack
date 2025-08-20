@@ -172,7 +172,9 @@ const PricingTable: FC< PricingTableProps > = ( {
 				<div className={ styles.table }>
 					<div>
 						{ headerLogo && <div className={ styles[ 'header-logo' ] }>{ headerLogo }</div> }
-						<Text className={ styles.tableTitle }>{ title }</Text>
+						<Text variant="headline-small" className={ styles.tableTitle }>
+							{ title }
+						</Text>
 					</div>
 					{ isLg &&
 						items.map( ( item, i ) => {
