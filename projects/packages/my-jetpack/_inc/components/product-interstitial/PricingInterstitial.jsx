@@ -299,7 +299,7 @@ export default function PricingInterstitial( { slug } ) {
 						showIntroOfferDisclaimer={ false }
 						headerLogo={ config.logo ? <config.logo height={ 32 } /> : null }
 					>
-						<PricingTableColumn>
+						<PricingTableColumn className={ styles[ 'pricing-column' ] }>
 							<PricingTableHeader title={ config.tiers.free.name }>
 								<ProductPrice
 									price={ 0 }
@@ -326,7 +326,7 @@ export default function PricingInterstitial( { slug } ) {
 								/>
 							) ) }
 						</PricingTableColumn>
-						<PricingTableColumn primary>
+						<PricingTableColumn primary className={ styles[ 'pricing-column' ] }>
 							<PricingTableHeader title={ config.tiers.paid.name }>
 								{ productPricing ? (
 									<ProductPrice
@@ -361,7 +361,7 @@ export default function PricingInterstitial( { slug } ) {
 								/>
 							) ) }
 						</PricingTableColumn>
-						<PricingTableColumn>
+						<PricingTableColumn className={ styles[ 'pricing-column' ] }>
 							<PricingTableHeader title={ config.tiers.bundle.name }>
 								{ bundlePricing ? (
 									<ProductPrice
