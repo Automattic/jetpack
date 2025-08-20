@@ -140,7 +140,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
 		$layout_width_px = $rendering_context->get_layout_width_without_padding();
 		if ( is_string( $layout_width_px ) ) {
-			$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
+			$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px );
 			if ( $parsed_width > 0 ) {
 				$target_width = $parsed_width;
 			}
@@ -200,7 +200,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		'width' => $target_width,
 	);
 
-	$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $grid_content, $image_table_attrs ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- WooCommerce Email Editor class available during email rendering.
+	$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $grid_content, $image_table_attrs );
 
 	// Add margin below the block
 	$html .= '<div style="margin-bottom: 2em;"></div>';

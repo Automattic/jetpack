@@ -20,8 +20,8 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Tab
 		 */
 		public static function render_table_wrapper( $content, $attributes ) {
 			// Simple mock that wraps content in a table
-			$style = isset( $attributes['style'] ) ? $attributes['style'] : '';
-			$width = isset( $attributes['width'] ) ? $attributes['width'] : 600;
+			$style = $attributes['style'] ?? '';
+			$width = $attributes['width'] ?? 600;
 
 			return sprintf(
 				'<table role="presentation" style="width: 100%%; max-width: %dpx; margin: 16px auto; border-collapse: collapse; padding: 0; %s">',
