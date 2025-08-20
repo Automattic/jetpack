@@ -9,6 +9,7 @@ import {
 	Text,
 	TermsOfService,
 } from '@automattic/jetpack-components';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -20,7 +21,6 @@ import { useCallback, useEffect } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -82,7 +82,7 @@ export default function ProductInterstitial( {
 	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
-	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const myJetpackCheckoutUri = getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri,
