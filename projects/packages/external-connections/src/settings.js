@@ -16,7 +16,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 			connectionButton.innerText = isConnected
 				? __( 'Disconnecting…', 'jetpack-external-connections' )
-				: __( 'Connecting…', 'jetpack-external-connections' );
+				: __(
+						'Connecting…',
+						'jetpack-external-connections',
+						/* dummy arg to avoid bad minification */ 0
+				  );
 			connectionButton.disabled = true;
 
 			if ( ! isConnected ) {
