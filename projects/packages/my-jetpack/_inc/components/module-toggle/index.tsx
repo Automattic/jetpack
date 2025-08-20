@@ -4,8 +4,8 @@ import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import { MyJetpackModule } from '../../types';
 import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
-import { MyJetpackModule } from '../types';
 import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {

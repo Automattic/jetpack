@@ -3,9 +3,9 @@ import { Flex, Tooltip } from '@wordpress/components';
 import { DataViews, Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import { MyJetpackModule } from '../../types';
 import { ModuleStatus } from '../module-status';
 import { ModuleToggle } from '../module-toggle';
-import { MyJetpackModule } from '../types';
 import styles from './styles.module.scss';
 import { getModuleStatus } from './utils';
 
