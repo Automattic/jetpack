@@ -249,7 +249,10 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 			$sms_class = apply_filters('zbs_twilio_sms', $sms_class);
 			do_action('zbs_twilio_nonce');
 
-			$customerMob = ''; if (is_array($zbsCustomer) && isset($zbsCustomer[$fieldK]) && isset($contact['id'])) $customerMob = zeroBS_customerMobile($contact['id'],$zbsCustomer);
+			$customerMob = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			if ( is_array( $zbsCustomer ) && isset( $zbsCustomer[ $fieldK ] ) && ! empty( $zbsCustomer['id'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$customerMob = zeroBS_customerMobile( $zbsCustomer['id'], $zbsCustomer ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
 
 			if (!empty($customerMob)) echo '<a class="' . esc_attr( $sms_class ) . ' button" data-smsnum="' . esc_attr( $customerMob ) .'"><i class="mobile alternate icon"></i> '. esc_html__('SMS','zero-bs-crm') . ': ' . esc_html( $customerMob ) . '</a>';
 		}

@@ -2578,7 +2578,7 @@ final class ZeroBSCRM {
 
 		$currentUserID = get_current_user_id();
 
-		if ( ! $pageKey || empty( $pageKey ) ) {
+		if ( ! $pageKey ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// actually just use a global for now :) - so just set global $zbs->pageKey on page :)
 			$pageKeyCheck = apply_filters( 'zbs_pagekey', $this->pageKey );

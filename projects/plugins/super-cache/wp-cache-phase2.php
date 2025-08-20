@@ -591,8 +591,7 @@ function wp_cache_get_cookies_values() {
 
 	if (
 		isset( $wpsc_cookies ) &&
-		is_array( $wpsc_cookies ) &&
-		! empty( $wpsc_cookies )
+		is_array( $wpsc_cookies )
 	) {
 		foreach ( $wpsc_cookies as $name ) {
 			if ( isset( $_COOKIE[ $name ] ) ) {

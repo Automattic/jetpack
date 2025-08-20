@@ -427,27 +427,6 @@ class Classic_Search {
 		 */
 		do_action( 'did_jetpack_search_query', $query );
 
-		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
-			/**
-			 * Fires after a search query request has failed
-			 *
-			 * @module search
-			 *
-			 * @since  5.6.0
-			 *
-			 * @param array Array containing the response code and response from the failed search query
-			 */
-			do_action(
-				'failed_jetpack_search_query',
-				array(
-					'response_code' => $response_code,
-					'json'          => $response,
-				)
-			);
-
-			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
-		}
-
 		return $response;
 	}
 

@@ -918,13 +918,11 @@ function jpcrm_process_date_variables( $value, $key, $working_html, $placeholder
 
 	function zeroBSCRM_html_transactionStatusLabel($trans=array()){
 
-		$status = ''; 
+	$status = '';
 
-		// <3.0
-		if (isset($inv['meta']) && isset($inv['meta']['status'])) $status = $inv['meta']['status'];
-		// 3.0
-		if (isset($inv['status'])) $status = $inv['status'];
-
+	if ( isset( $trans['status'] ) ) {
+		$status = $trans['status'];
+	}
 
 		switch($status){
 		  case __("failed",'zero-bs-crm'):

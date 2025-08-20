@@ -437,9 +437,11 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 
 		$ip = false;
 
-		// this method is spoofable/not safe on all hosts
-		// non iis
-		if (!$ip && isset($_SERVER['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR'])) $ip = $_SERVER['SERVER_ADDR'];
+	// this method is spoofable/not safe on all hosts
+	// non iis
+	if ( ! empty( $_SERVER['SERVER_ADDR'] ) ) {
+		$ip = $_SERVER['SERVER_ADDR']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	}
 		// iis
 		if (!$ip && isset($_SERVER['LOCAL_ADDR']) && !empty($_SERVER['LOCAL_ADDR'])) $ip = $_SERVER['LOCAL_ADDR'];
 

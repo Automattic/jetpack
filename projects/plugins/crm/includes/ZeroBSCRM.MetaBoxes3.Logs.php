@@ -311,8 +311,6 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
                     </td></tr>
 
-                    <?php if (isset($wDebug)) { ?><tr><td colspan="2"><pre><?php print_r($zbsLogs) ?></pre></td></tr><?php } ?>
-
                     <tr><td colspan="2">
 
                         <?php # Output logs (let JS do this!)

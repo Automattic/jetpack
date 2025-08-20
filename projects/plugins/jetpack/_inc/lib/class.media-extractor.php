@@ -510,9 +510,7 @@ class Jetpack_Media_Meta_Extractor {
 				}
 			}
 			$image_booleans['image'] = count( $retval['image'] );
-			if ( ! empty( $image_booleans ) ) {
-				$retval['has'] = $image_booleans;
-			}
+			$retval['has']           = $image_booleans;
 			return $retval;
 		} else {
 			return array();

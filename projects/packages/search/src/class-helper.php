@@ -463,7 +463,7 @@ class Helper {
 			}
 		}
 
-		if ( empty( $action ) || empty( $widget ) ) {
+		if ( empty( $widget ) ) {
 			return false;
 		}
 

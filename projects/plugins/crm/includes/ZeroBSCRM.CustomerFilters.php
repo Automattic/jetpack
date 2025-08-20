@@ -82,40 +82,6 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 		$extraClasses .= 'zbsbtypeaheadfullwidth';
 	}
 
-	// typeahead or select?
-	// turned off until JS bind's work
-	// #TODOCOLIST in /wdev/ZeroBSCRM/zerobs-core/js/ZeroBSCRM.admin.global.js
-	if ( isset( $neverGoingToBeSet ) && zeroBS_companyCount() < 50 ) {
-
-		// } Wrap
-		$ret .= '<div class="zbs-company-select ' . $extraClasses . '">';
-
-		// } Build input
-		$companies = zeroBS_getCompanies( true, 10000, 0 );
-		$ret      .= '<select class="zbs-company-select-input" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-		if ( is_array( $companies ) ) {
-			foreach ( $companies as $co ) {
-
-				if ( isset( $co['name'] ) && $co['name'] !== 'Auto Draft' ) {
-
-					$ret .= '<option value="' . $co['id'] . '"';
-					if ( $co['name'] == $inputDefaultValue ) {
-						$ret .= ' selected="selected"';
-					}
-					$ret .= '>' . esc_html( $co['name'] ) . '</option>';
-
-				}
-			}
-		}
-
-			$ret .= '</select>';
-
-			// } close wrap
-			$ret .= '</div>';
-
-	} else {
-
 		// typeahead
 
 		// } Wrap
@@ -130,26 +96,24 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 		global $haszbscrmBHURLCompaniesOut;
 		if ( ! isset( $haszbscrmBHURLCompaniesOut ) ) {
 
-			$nonce         = wp_create_nonce( 'wp_rest' );
-			$rest_base_url = get_rest_url();
+		$nonce         = wp_create_nonce( 'wp_rest' );
+		$rest_base_url = get_rest_url();
 
 			// handle bare permalink structure
-			if ( empty( get_option( 'permalink_structure' ) ) ) {
-				$param_separator = '&';
-			} else {
-				$param_separator = '?';
-			}
-			$rest_url = $rest_base_url . 'zbscrm/v1/companies' . $param_separator . '_wpnonce=' . $nonce;
+		if ( empty( get_option( 'permalink_structure' ) ) ) {
+			$param_separator = '&';
+		} else {
+			$param_separator = '?';
+		}
+		$rest_url = $rest_base_url . 'zbscrm/v1/companies' . $param_separator . '_wpnonce=' . $nonce;
 
-			$ret .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
+		$ret .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
 
 			$haszbscrmBHURLCompaniesOut = true;
-		}
+	}
 
 		// } Global JS does the rest ;)
 		// } see zbscrm_JS_Bind_Typeaheads_Customers
-
-	}
 
 	return $ret;
 }
@@ -556,7 +520,7 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 					if ( isset( $appliedFilters['addedfrom'] ) && ! empty( $appliedFilters['addedfrom'] ) ) {
 
 						// } add holder if req
-						if ( ! isset( $args['date_query'] ) ) {
+						if ( ! $args['date_query'] ) {
 							$args['date_query'] = array();
 						}
 
@@ -572,7 +536,7 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 					}
 					if ( isset( $appliedFilters['addedto'] ) && ! empty( $appliedFilters['addedto'] ) ) {
 
-						// } add holder if req
+						// } ensure date_query array exists
 						if ( ! isset( $args['date_query'] ) ) {
 							$args['date_query'] = array();
 						}

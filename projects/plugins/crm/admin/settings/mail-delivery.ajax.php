@@ -318,34 +318,25 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 
 			} else {
 
-					// send error
-				if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-					$res['errors'] = array();
-				}
-					$res['errors']['senderror'] = 1;
+				// send error
+				$res['errors'] = array( 'senderror' => 1 );
 
 			}
 		} else {
 
 			// no good email
-			if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-				$res['errors'] = array();
-			}
-			$res['errors']['bademail'] = 1;
+			$res['errors'] = array( 'bademail' => 1 );
 
 		}
 	} else {
 
 		// no name?
-		if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-			$res['errors'] = array();
-		}
-		$res['errors']['nameempty'] = 1;
+		$res['errors'] = array( 'nameempty' => 1 );
 
 	}
 
 	header( 'Content-Type: application/json' );
-	echo json_encode( $res );
+	echo wp_json_encode( $res );
 	exit( 0 );
 }
 
@@ -460,10 +451,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 				} else {
 
 						// send seemed to succeed, but func didn't give settings back?!?!
-					if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-						$res['errors'] = array();
-					}
-						$res['errors']['settingspasserror'] = 1;
+					$res['errors'] = array( 'settingspasserror' => 1 );
 
 						// add debugs to response (2.94.2 - help debugging)
 					if ( isset( $attemptedSend['debugs'] ) && is_array( $attemptedSend['debugs'] ) ) {
@@ -473,10 +461,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 			} else {
 
 					// send error
-				if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-					$res['errors'] = array();
-				}
-					$res['errors']['senderror'] = 1;
+				$res['errors'] = array( 'senderror' => 1 );
 
 					// add debugs to response (2.94.2 - help debugging)
 				if ( isset( $attemptedSend['debugs'] ) && is_array( $attemptedSend['debugs'] ) ) {
@@ -486,19 +471,13 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 		} else {
 
 			// no good email
-			if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-				$res['errors'] = array();
-			}
-			$res['errors']['bademail'] = 1;
+			$res['errors'] = array( 'bademail' => 1 );
 
 		}
 	} else {
 
 		// no name?
-		if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-			$res['errors'] = array();
-		}
-		$res['errors']['nameempty'] = 1;
+		$res['errors'] = array( 'nameempty' => 1 );
 
 	}
 
@@ -727,7 +706,7 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 
 	// return
 	header( 'Content-Type: application/json' );
-	echo json_encode( $return );
+	echo wp_json_encode( $return );
 	exit( 0 );
 }
 
@@ -805,10 +784,7 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	} else {
 
 		// error
-		if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-			$res['errors'] = array();
-		}
-		$res['errors']['sendfail'] = 1;
+		$res['errors'] = array( 'sendfail' => 1 );
 		zeroBSCRM_sendJSONError( $res );
 
 	}
@@ -888,15 +864,12 @@ function zeroBSCRM_AJAX_mailDelivery_removeMailDelivery() {
 	if ( ! isset( $res['success'] ) ) {
 
 		// error
-		if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-			$res['errors'] = array();
-		}
-		$res['errors']['sendfail'] = 1;
+		$res['errors'] = array( 'sendfail' => 1 );
 
 	}
 
 	header( 'Content-Type: application/json' );
-	echo json_encode( $res );
+	echo wp_json_encode( $res );
 	exit( 0 );
 }
 
@@ -934,6 +907,6 @@ function zeroBSCRM_AJAX_mailDelivery_setMailDeliveryAsDefault() {
 	$res['success'] = 1;
 
 	header( 'Content-Type: application/json' );
-	echo json_encode( $res );
+	echo wp_json_encode( $res );
 	exit( 0 );
 }
