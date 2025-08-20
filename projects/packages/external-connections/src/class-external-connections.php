@@ -114,17 +114,20 @@ class External_Connections {
 	 * @param string $service The service identifier.
 	 */
 	public static function delete_connection( $service ) {
-		$keyring_connection = self::get_connection( $service );
+		$connection = self::get_connection( $service );
+		if ( empty( $connection ) ) {
+			return;
+		}
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			if ( get_current_user_id() === $keyring_connection['user_ID'] ) {
+			if ( get_current_user_id() === $connection['user_ID'] ) {
 				require_lib( 'external-connections' );
 				$connections = \WPCOM_External_Connections::init();
-				$connections->delete_keyring_connection( $keyring_connection['ID'] );
+				$connections->delete_keyring_connection( $connection['ID'] );
 			}
 		} else {
 			Client::wpcom_json_api_request_as_user(
-				'/me/connections/' . $keyring_connection['ID'],
+				'/me/connections/' . $connection['ID'],
 				'2',
 				array( 'method' => 'DELETE' )
 			);
