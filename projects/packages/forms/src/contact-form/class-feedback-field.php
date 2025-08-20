@@ -318,8 +318,6 @@ class Feedback_Field {
 			return null;
 		}
 
-		l( 'from_serialized', $data );
-
 		return new self(
 			$data['key'],
 			$data['label'],
