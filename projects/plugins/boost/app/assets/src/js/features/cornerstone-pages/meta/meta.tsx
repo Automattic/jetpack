@@ -230,7 +230,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 	const currentPages = useMemo( () => parsePages( inputValue ), [ inputValue ] );
 
 	// Calculate derived state once
-	const buttonLogic = useMemo( () => {
+	const defaultsAvailability = useMemo( () => {
 		const hasDefaults = defaultPages.length > 0;
 		const missingDefaults = defaultPages.filter( p => ! currentPages.includes( p ) );
 		const availableSlots = Math.max( 0, maxPages - currentPages.length );
@@ -269,7 +269,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 
 	const loadDefaultValue = () => {
 		// Use pre-calculated values
-		const { missingDefaults, availableSlots } = buttonLogic;
+		const { missingDefaults, availableSlots } = defaultsAvailability;
 		const toAppend = missingDefaults.slice( 0, availableSlots );
 		const newPages = [ ...currentPages, ...toAppend ];
 
@@ -314,7 +314,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 
 	// Simplified button state logic using pre-calculated values
 	const getButtonState = () => {
-		const { hasDefaults, missingDefaults, availableSlots, hasAllDefaults } = buttonLogic;
+		const { hasDefaults, missingDefaults, availableSlots, hasAllDefaults } = defaultsAvailability;
 
 		if ( ! hasDefaults ) {
 			return {
