@@ -2330,12 +2330,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					// } Catch sorting
 
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
 					// DAL2 - allow all fields for now :) (little interpretation needed)
-					if ( ! empty( $possSortField ) && $possSortField != false && $possSortField != 'false' ) {
+					if ( $possSortField !== 'false' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						$sortField = $possSortField;
 
 						// ... though if id...
@@ -2367,12 +2367,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'desc';
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
-						}
+					if ( ! empty( $listViewParams['sortorder'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$sortOrder = $listViewParams['sortorder']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					}
 				}
 
@@ -2393,9 +2389,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					// catch empties
 				if ( empty( $sortField ) ) {
 					$sortField = 'ID';
-				}
-				if ( empty( $sortOrder ) ) {
-					$sortOrder = 'desc';
 				}
 
 					// legacy from dal1
@@ -2633,12 +2626,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					// } Catch sorting
 
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
 					// DAL3: allow all fields for now :) (little interpretation needed)
-					if ( ! empty( $possSortField ) && $possSortField != false && $possSortField != 'false' ) {
+					if ( $possSortField !== 'false' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						$sortField = $possSortField;
 
 						// ... and this
@@ -2656,12 +2649,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'desc';
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
-						}
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$sortOrder = $listViewParams['sortorder']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					}
 				}
 				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -2792,12 +2781,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					// } Catch sorting
 
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
 					// DAL3: allow all fields for now :) (little interpretation needed)
-					if ( ! empty( $possSortField ) && $possSortField != false && $possSortField != 'false' ) {
+					if ( $possSortField !== 'false' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						$sortField = $possSortField;
 
@@ -2816,12 +2805,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'desc';
 						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
 							$sortOrder = $listViewParams['sortorder'];
-						}
 					}
 				}
 
@@ -2925,12 +2910,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					// } Catch sorting
 
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
 					// DAL3: allow all fields for now :) (little interpretation needed)
-					if ( ! empty( $possSortField ) && $possSortField != false && $possSortField != 'false' ) {
+					if ( $possSortField !== 'false' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						$sortField = $possSortField;
 
@@ -2949,12 +2934,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'desc';
 						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
 							$sortOrder = $listViewParams['sortorder'];
-						}
 					}
 				}
 
@@ -3070,12 +3051,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					// } Catch sorting
 
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
 					// DAL3: allow all fields for now :) (little interpretation needed)
-					if ( ! empty( $possSortField ) && $possSortField != false && $possSortField != 'false' ) {
+					if ( $possSortField !== 'false' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						$sortField = $possSortField;
 
@@ -3094,12 +3075,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'desc';
 						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
 							$sortOrder = $listViewParams['sortorder'];
-						}
 					}
 				}
 
@@ -3189,12 +3166,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 				// } Catch sorting
 
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
 					// DAL3: allow all fields for now :) (little interpretation needed)
-					if ( ! empty( $possSortField ) && $possSortField != false && $possSortField != 'false' ) {
+					if ( $possSortField !== 'false' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						$sortField = $possSortField;
 
@@ -3213,12 +3190,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'desc';
 						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
 							$sortOrder = $listViewParams['sortorder'];
-						}
 					}
 				}
 
@@ -3302,7 +3275,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					// } Catch sorting
 
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
@@ -3340,12 +3313,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'DESC';
 						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
 							$sortOrder = strtoupper( $listViewParams['sortorder'] );
-						}
 					}
 				}
 
@@ -3427,12 +3396,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 				// } Catch sorting
 
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
 					// DAL3: allow all fields for now :) (little interpretation needed)
-					if ( ! empty( $possSortField ) && $possSortField != false && $possSortField != 'false' ) {
+					if ( $possSortField !== 'false' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						$sortField = $possSortField;
 
@@ -3445,12 +3414,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'desc';
 						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
 							$sortOrder = $listViewParams['sortorder'];
-						}
 					}
 				}
 
@@ -3540,12 +3505,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// Catch sorting
-				if ( isset( $listViewParams['sort'] ) && ! empty( $listViewParams['sort'] ) ) {
+				if ( ! empty( $listViewParams['sort'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$possSortField = $listViewParams['sort'];
 
 					// DAL3: allow all fields for now :) (little interpretation needed)
-					if ( ! empty( $possSortField ) && $possSortField != false && $possSortField != 'false' ) {
+					if ( $possSortField !== 'false' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						$sortField = $possSortField;
 
@@ -3570,12 +3535,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-					if ( ! empty( $sortField ) ) {
-
-						$sortOrder = 'desc';
 						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
 							$sortOrder = $listViewParams['sortorder'];
-						}
 					}
 				}
 
