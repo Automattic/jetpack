@@ -8,7 +8,7 @@ export interface FeatureTier {
 
 export interface ProductFeature {
 	name: string;
-	tooltipInfo?: string;
+	tooltipInfo?: React.ReactNode;
 	free: FeatureTier;
 	paid: FeatureTier;
 	bundle: FeatureTier;
