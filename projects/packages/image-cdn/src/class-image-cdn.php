@@ -334,7 +334,7 @@ final class Image_CDN {
 	 */
 	public static function filter_the_content( $content ) {
 		// Early return if content is null, empty, or not a string.
-		if ( null === $content || ! is_string( $content ) || '' === $content ) {
+		if ( ! is_string( $content ) || '' === $content ) {
 			return $content;
 		}
 
