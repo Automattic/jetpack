@@ -15,12 +15,15 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Block_Scanner::class )]
 class Block_Scanner_Test extends TestCase {
 
-	private const PERF_WARMUPS              = 5;
-	private const PERF_ITERATIONS           = 21;
-	private const PERF_RETRY_ITERATIONS     = 51;
-	private const PERF_TIME_RATIO_THRESHOLD = 1.10;
-	private const PERF_FAVORABLE_PCT        = 80; // percent
-	private const PERF_MEM_TOLERANCE_BYTES  = 65536; // 64KB
+	// Benchmark configuration
+	private const PERF_WARMUP_RUNS                = 5;     // Initial runs to stabilize JIT/opcache before measuring
+	private const PERF_BENCHMARK_ITERATIONS       = 21;    // Main benchmark iterations for statistical significance
+	private const PERF_RETRY_BENCHMARK_ITERATIONS = 51;    // Extra iterations when retrying borderline results
+
+	// Performance assertion thresholds
+	private const PERF_MIN_TIME_RATIO_THRESHOLD   = 1.10;  // Scanner must be 1.10x faster than parse_blocks
+	private const PERF_MIN_FAVORABLE_RUNS_PERCENT = 80;    // % of individual runs that must show scanner advantage
+	private const PERF_MEMORY_TOLERANCE_BYTES     = 65536; // 64KB tolerance for memory usage comparison
 
 	/**
 	 * Test the create method with valid input.
@@ -758,7 +761,7 @@ class Block_Scanner_Test extends TestCase {
 			function () use ( $test_content ) {
 				return $this->find_first_image_with_parse_blocks( $test_content );
 			},
-			self::PERF_ITERATIONS
+			self::PERF_BENCHMARK_ITERATIONS
 		);
 
 		// Verify correctness - both methods should find the same result
@@ -830,7 +833,7 @@ class Block_Scanner_Test extends TestCase {
 		$result        = null;
 
 		// Warmup runs to stabilize opcache/JIT/autoloader effects
-		for ( $warmup = 0; $warmup < self::PERF_WARMUPS; $warmup++ ) {
+		for ( $warmup = 0; $warmup < self::PERF_WARMUP_RUNS; $warmup++ ) {
 			$scanner_callable();
 			$parse_callable();
 		}
@@ -890,8 +893,10 @@ class Block_Scanner_Test extends TestCase {
 			}
 
 			// Keep one result for correctness verification
+			// @phan-suppress-next-line PhanImpossibleTypeComparisonInLoop
 			if ( null === $result && isset( $scanner_result ) && null !== $scanner_result ) {
 				$result = $scanner_result;
+				// @phan-suppress-next-line PhanImpossibleTypeComparisonInLoop
 			} elseif ( null === $result && isset( $parse_result ) && null !== $parse_result ) {
 				$result = $parse_result;
 			}
@@ -928,6 +933,7 @@ class Block_Scanner_Test extends TestCase {
 		$trim_count = (int) floor( $count * 0.2 );
 		$trimmed    = array_slice( $sorted, $trim_count, $count - ( 2 * $trim_count ) );
 
+		// @phan-suppress-next-line PhanImpossibleCondition - Can be empty with very small arrays
 		if ( empty( $trimmed ) ) {
 			return $sorted[ (int) floor( $count / 2 ) ];
 		}
@@ -968,11 +974,10 @@ class Block_Scanner_Test extends TestCase {
 		$parse_mem_stat       = $this->compute_trimmed_median( $parse_mems );
 
 		// Time ratio assertion with retry mechanism
-		$time_ratio      = $parse_time_trimmed / $scanner_time_trimmed;
-		$retry_attempted = false;
+		$time_ratio = $parse_time_trimmed / $scanner_time_trimmed;
 
-		if ( $time_ratio < self::PERF_TIME_RATIO_THRESHOLD ) {
-			if ( $time_ratio >= 1.05 && ! $retry_attempted ) {
+		if ( $time_ratio < self::PERF_MIN_TIME_RATIO_THRESHOLD ) {
+			if ( $time_ratio >= 1.05 ) {
 				// Borderline case - retry once with more iterations using the same test content
 				$retry_results = $this->run_competitive_benchmark(
 					function () use ( $test_content ) {
@@ -981,29 +986,27 @@ class Block_Scanner_Test extends TestCase {
 					function () use ( $test_content ) {
 						return $this->find_first_image_with_parse_blocks( $test_content );
 					},
-					self::PERF_RETRY_ITERATIONS
+					self::PERF_RETRY_BENCHMARK_ITERATIONS
 				);
 
 				$retry_scanner_time = $this->compute_trimmed_median( $retry_results['scanner_times'] );
 				$retry_parse_time   = $this->compute_trimmed_median( $retry_results['parse_times'] );
 				$time_ratio         = $retry_parse_time / $retry_scanner_time;
-				$retry_attempted    = true;
 			}
 
-			if ( $time_ratio < self::PERF_TIME_RATIO_THRESHOLD ) {
+			if ( $time_ratio < self::PERF_MIN_TIME_RATIO_THRESHOLD ) {
 				$this->markTestSkipped(
 					sprintf(
 						'Performance inconclusive under current environment (ratio: %.3f)',
 						$time_ratio
 					)
 				);
-				return;
 			}
 		}
 
 		// Main time ratio assertion
 		$this->assertGreaterThan(
-			self::PERF_TIME_RATIO_THRESHOLD,
+			self::PERF_MIN_TIME_RATIO_THRESHOLD,
 			$time_ratio,
 			sprintf(
 				'Scanner should be measurably faster than parse_blocks (ratio: %.3f, scanner: %.6fs, parse_blocks: %.6fs)',
@@ -1017,13 +1020,13 @@ class Block_Scanner_Test extends TestCase {
 		$favorable_runs = 0;
 		$total_runs     = count( $scanner_times );
 		for ( $i = 0; $i < $total_runs; $i++ ) {
-			if ( $parse_times[ $i ] >= self::PERF_TIME_RATIO_THRESHOLD * $scanner_times[ $i ] ) {
+			if ( $parse_times[ $i ] >= self::PERF_MIN_TIME_RATIO_THRESHOLD * $scanner_times[ $i ] ) {
 				$favorable_runs++;
 			}
 		}
 		$favorable_percentage = ( $favorable_runs / $total_runs ) * 100;
 		$this->assertGreaterThanOrEqual(
-			self::PERF_FAVORABLE_PCT,
+			self::PERF_MIN_FAVORABLE_RUNS_PERCENT,
 			$favorable_percentage,
 			sprintf(
 				'At least 80%% of individual runs should show scanner advantage (actual: %.1f%%)',
@@ -1033,13 +1036,13 @@ class Block_Scanner_Test extends TestCase {
 
 		// Memory assertion with larger tolerance (64KB)
 		$this->assertLessThanOrEqual(
-			$parse_mem_stat * 1.10 + self::PERF_MEM_TOLERANCE_BYTES,
+			$parse_mem_stat * 1.10 + self::PERF_MEMORY_TOLERANCE_BYTES,
 			$scanner_mem_stat,
 			sprintf(
 				'Scanner memory should be comparable to parse_blocks (scanner: %d bytes, parse_blocks: %d bytes, tolerance: %d bytes)',
 				$scanner_mem_stat,
 				$parse_mem_stat,
-				self::PERF_MEM_TOLERANCE_BYTES
+				self::PERF_MEMORY_TOLERANCE_BYTES
 			)
 		);
 	}
