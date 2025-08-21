@@ -31,7 +31,7 @@
 		"@automattic/jetpack-publicize-components": "workspace:*",
 		"@wordpress/api-fetch": "7.28.0",
 		"@wordpress/i18n": "6.1.0",
-		"jquery": "3.6.0"
+		"jquery": "3.7.1"
 	},
 	"devDependencies": {
 		"@automattic/calypso-color-schemes": "4.0.0",
