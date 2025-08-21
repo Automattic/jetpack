@@ -20,6 +20,7 @@ const CriticalCssErrorType = z.union( [
 		'XFrameDenyError',
 		'InvalidURLError',
 		'ProviderError',
+		'PayloadTooLargeError',
 	] ),
 	HttpErrorPattern,
 ] );
