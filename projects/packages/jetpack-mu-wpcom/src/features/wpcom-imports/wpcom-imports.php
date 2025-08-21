@@ -32,6 +32,11 @@ add_action( 'admin_init', 'wpcom_imports_register_imports' );
  */
 add_action(
 	'load-importer-wpcom-squarespace',
+	/**
+	 * Redirect to the Squarespace importer in the Calypso Stepper.
+	 *
+	 * @return never-return
+	 */
 	function () {
 		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 		wp_redirect( 'https://wordpress.com/setup/site-setup/importerSquarespace?ref=wp-admin-importers-list-direct-importer&siteSlug=' . $domain );
@@ -44,6 +49,11 @@ add_action(
  */
 add_action(
 	'load-importer-wpcom-medium',
+	/**
+	 * Redirect to the Medium importer in the Calypso Stepper.
+	 *
+	 * @return never-return
+	 */
 	function () {
 		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 		wp_redirect( 'https://wordpress.com/setup/site-setup/importerMedium?ref=wp-admin-importers-list-direct-importer&siteSlug=' . $domain );
