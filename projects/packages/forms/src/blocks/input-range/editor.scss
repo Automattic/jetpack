@@ -59,6 +59,29 @@
 	&:focus::-ms-fill-upper {
 		background: var(--jetpack--contact-form--button-primary--background-color);
 	}
+
+	/* Override conflicting theme track styles */
+	&::-webkit-slider-runnable-track,
+	&::-moz-range-track {
+		background: var(--jetpack--contact-form--button-primary--background-color);
+		box-shadow: none;
+		border: 0;
+		height: 4px;
+		border-radius: 2px;
+	}
+
+	&::-ms-track {
+		background: transparent;
+		border: 0;
+		color: transparent;
+	}
+
+	&::-ms-fill-lower,
+	&::-ms-fill-upper {
+		background: var(--jetpack--contact-form--button-primary--background-color);
+		box-shadow: none;
+		border: 0;
+	}
 }
 
 .jetpack-field-slider__value-indicator {
