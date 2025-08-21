@@ -18,7 +18,15 @@ const EMPTY_ARRAY = [];
 
 export default function PhoneFieldEdit( props ) {
 	const { setAttributes, attributes, clientId, isSelected } = props;
-	const { showCountrySelector, width, id, required, requiredText, placeholder } = attributes;
+	const {
+		showCountrySelector,
+		width,
+		id,
+		required,
+		requiredText,
+		placeholder,
+		default: defaultCountry,
+	} = attributes;
 	const [ countryList, setCountryList ] = useState( EMPTY_ARRAY );
 
 	const { isInnerBlockSelected, hasPlaceholder } = useFieldSelected( clientId );
@@ -54,10 +62,10 @@ export default function PhoneFieldEdit( props ) {
 
 	useEffect( () => {
 		if ( showCountrySelector === undefined || showCountrySelector === true ) {
-			setAttributes( { showCountrySelector: true } );
+			setAttributes( { showCountrySelector: true, default: defaultCountry || 'US' } );
 			setCountryList( countryPairs );
 		}
-	}, [ showCountrySelector, setAttributes, countryPairs ] );
+	}, [ showCountrySelector, setAttributes, countryPairs, defaultCountry ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
