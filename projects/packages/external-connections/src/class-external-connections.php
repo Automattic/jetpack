@@ -225,6 +225,9 @@ class External_Connections {
 
 				$is_connected = self::has_connection( $service['service'] );
 				$connect_url  = self::get_connect_url( $service['service'] );
+				if ( empty( $connect_url ) && ! $is_connected ) {
+					continue;
+				}
 
 				add_settings_field(
 					'external_connections_field_' . $service['service'],
