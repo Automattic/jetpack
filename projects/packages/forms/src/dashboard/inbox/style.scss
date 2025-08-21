@@ -352,6 +352,19 @@
 	}
 }
 
+.is-nav-unification.auto-fold .jp-forms__inbox__dataviews .dataviews-footer {
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		left: 272px;
+		width: calc(100% - 272px);
+	}
+
+	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
+		left: variables.$admin-sidebar-width;
+		width: calc(100% - variables.$admin-sidebar-width);
+	}
+}
+
 /*
  * Compensation for the width of the sidebar when the Sidebar
  * is manually collapsed.
