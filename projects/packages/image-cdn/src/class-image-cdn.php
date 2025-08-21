@@ -330,7 +330,7 @@ final class Image_CDN {
 	 * @uses self::validate_image_url, apply_filters, Image_CDN_Core::cdn_url, esc_url
 	 * @filter the_content
 	 *
-	 * @return string
+	 * @return string|mixed The content, which typically is a string, but the original value if malformed content was passed.
 	 */
 	public static function filter_the_content( $content ) {
 		// Early return if content is null, empty, or not a string.
