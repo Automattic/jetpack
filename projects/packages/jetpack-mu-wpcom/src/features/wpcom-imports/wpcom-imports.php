@@ -39,6 +39,7 @@ add_action(
 	 */
 	function () {
 		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 		wp_redirect( 'https://wordpress.com/setup/site-setup/importerSquarespace?ref=wp-admin-importers-list-direct-importer&siteSlug=' . $domain );
 		exit();
 	}
@@ -56,6 +57,7 @@ add_action(
 	 */
 	function () {
 		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 		wp_redirect( 'https://wordpress.com/setup/site-setup/importerMedium?ref=wp-admin-importers-list-direct-importer&siteSlug=' . $domain );
 		exit();
 	}
