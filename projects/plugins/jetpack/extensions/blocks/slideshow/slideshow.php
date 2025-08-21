@@ -66,92 +66,29 @@ function load_assets( $attr, $content ) {
  * @return string
  */
 function render_email( $block_content, array $parsed_block, $rendering_context ) {
-	// Email rendering configuration
+	// Email rendering configuration - only extract values used multiple times
 	$email_grid_padding_margin = 20; // Total padding/margin space for grid layout
-	$email_image_padding       = 16; // Padding space around individual images
-	$email_row_margin          = 16; // Margin between image rows
-	$email_table_margin        = 16; // Margin for the main table wrapper
+	$email_common_margin       = 16; // Common margin/padding value used multiple times
+	$email_cell_padding        = 8; // Cell padding used in multiple places
 
-	// Validate input parameters
-	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ) {
-		return '';
-	}
-
-	// Check for required WooCommerce Email Editor helper classes upfront
-	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
+	// Validate input parameters and required dependencies
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
 		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
 		return '';
 	}
 
 	$attr = $parsed_block['attrs'];
 
-	// For email, we'll render a grid of all images with captions
-	$images = array();
-
-	// Get images from IDs (primary data source)
-	if ( ! empty( $attr['ids'] ) && is_array( $attr['ids'] ) ) {
-		foreach ( $attr['ids'] as $index => $id ) {
-			// Validate ID is a positive integer
-			$id = absint( $id );
-			if ( ! $id ) {
-				continue;
-			}
-
-			$image_url = wp_get_attachment_image_url( $id, 'medium' );
-			$alt_text  = get_post_meta( $id, '_wp_attachment_image_alt', true );
-
-			// Get caption from attachment post (stored in post_excerpt)
-			$attachment_post = get_post( $id );
-			$caption         = '';
-
-			// First try to get caption from images array if available (with validation)
-			if ( ! empty( $attr['images'] ) && is_array( $attr['images'] ) && isset( $attr['images'][ $index ]['caption'] ) ) {
-				$caption = wp_strip_all_tags( $attr['images'][ $index ]['caption'] );
-			}
-
-			// If no caption in images array, get it from attachment post
-			if ( empty( $caption ) && $attachment_post && ! empty( $attachment_post->post_excerpt ) ) {
-				$caption = wp_strip_all_tags( $attachment_post->post_excerpt );
-			}
-
-			if ( $image_url ) {
-				$images[] = array(
-					'url'     => $image_url,
-					'alt'     => $alt_text,
-					'caption' => $caption,
-					'id'      => $id,
-				);
-			}
-		}
-	} elseif ( ! empty( $attr['images'] ) && is_array( $attr['images'] ) ) {
-		// Fall back to images array if IDs aren't available (for testing)
-		foreach ( $attr['images'] as $image_data ) {
-			if ( ! empty( $image_data['url'] ) ) {
-				$images[] = array(
-					'url'     => $image_data['url'],
-					'alt'     => ! empty( $image_data['alt'] ) ? $image_data['alt'] : '',
-					'caption' => ! empty( $image_data['caption'] ) ? wp_strip_all_tags( $image_data['caption'] ) : '',
-					'id'      => ! empty( $image_data['id'] ) ? $image_data['id'] : 0,
-				);
-			}
-		}
-	}
+	// Process images for email rendering
+	$images = process_slideshow_images_for_email( $attr );
 
 	if ( empty( $images ) ) {
 		return '';
 	}
 
 	// Determine target width from the email layout if available
-	$target_width = 600; // Default
-	if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
-		$layout_width_px = $rendering_context->get_layout_width_without_padding();
-		if ( is_string( $layout_width_px ) ) {
-			$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px );
-			if ( $parsed_width > 0 ) {
-				$target_width = $parsed_width;
-			}
-		}
-	}
+	$target_width = get_email_target_width( $rendering_context );
 
 	// Build grid content
 	$grid_content   = '';
@@ -162,23 +99,22 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	$image_chunks = array_chunk( $images, $images_per_row );
 
 	foreach ( $image_chunks as $row_images ) {
-		$grid_content .= '<table role="presentation" style="width: 100%; border-collapse: collapse; margin: 0 0 ' . $email_row_margin . 'px 0; table-layout: fixed;"><tr>';
+		$grid_content .= '<table role="presentation" style="width: 100%; border-collapse: collapse; margin: 0 0 ' . $email_common_margin . 'px 0; table-layout: fixed;"><tr>';
 
 		foreach ( $row_images as $image ) {
-			$grid_content .= sprintf(
-				'<td style="width: %dpx; padding: 8px; vertical-align: top; text-align: center; font-family: Arial, sans-serif;">',
-				$image_width
-			);
+					$grid_content .= sprintf(
+						'<td style="width: %dpx; padding: %dpx; vertical-align: top; text-align: center; font-family: Arial, sans-serif;">',
+						$image_width,
+						$email_cell_padding
+					);
 
-			// Build individual image content (use already processed URL)
-			if ( ! empty( $image['url'] ) ) {
-				$grid_content .= sprintf(
-					'<img src="%s" alt="%s" style="width: 100%%; max-width: %dpx; height: auto; display: block; border: 0; margin: 0 auto; border-radius: 4px;" />',
-					esc_url( $image['url'] ),
-					esc_attr( $image['alt'] ),
-					$image_width - $email_image_padding // Account for padding
-				);
-			}
+			// Build individual image content
+			$grid_content .= sprintf(
+				'<img src="%s" alt="%s" style="width: 100%%; max-width: %dpx; height: auto; display: block; border: 0; margin: 0 auto; border-radius: 4px;" />',
+				esc_url( $image['url'] ),
+				esc_attr( $image['alt'] ),
+				$image_width - $email_common_margin // Account for padding
+			);
 
 			// Add caption if available
 			if ( ! empty( $image['caption'] ) ) {
@@ -194,7 +130,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		// Fill remaining cells if odd number of images in last row
 		$remaining_cells = $images_per_row - count( $row_images );
 		for ( $i = 0; $i < $remaining_cells; $i++ ) {
-			$grid_content .= sprintf( '<td style="width: %dpx; padding: 8px;"></td>', $image_width );
+			$grid_content .= sprintf( '<td style="width: %dpx; padding: %dpx;"></td>', $image_width, $email_cell_padding );
 		}
 
 		$grid_content .= '</tr></table>';
@@ -202,7 +138,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 
 	// Use Table_Wrapper_Helper for consistent email rendering
 	$image_table_attrs = array(
-		'style' => 'margin: ' . $email_table_margin . 'px 0; padding: 0; border-collapse: collapse;',
+		'style' => 'margin: ' . $email_common_margin . 'px 0; padding: 0; border-collapse: collapse;',
 		'width' => $target_width,
 	);
 
@@ -424,4 +360,87 @@ function enqueue_swiper_library() {
 			JETPACK__VERSION
 		);
 	}
+}
+
+/**
+ * Get target width for email rendering.
+ *
+ * @param object $rendering_context Email rendering context.
+ * @return int Target width in pixels.
+ */
+function get_email_target_width( $rendering_context ) {
+	$target_width = 600; // Default
+
+	if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
+		$layout_width_px = $rendering_context->get_layout_width_without_padding();
+		if ( is_string( $layout_width_px ) ) {
+			$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px );
+			if ( $parsed_width > 0 ) {
+				$target_width = $parsed_width;
+			}
+		}
+	}
+
+	return $target_width;
+}
+
+/**
+ * Process slideshow images for email rendering.
+ *
+ * @param array $attr Block attributes containing image data.
+ * @return array Processed image data for email rendering.
+ */
+function process_slideshow_images_for_email( $attr ) {
+	$images = array();
+
+	// Get images from IDs (primary data source)
+	if ( ! empty( $attr['ids'] ) && is_array( $attr['ids'] ) ) {
+		foreach ( $attr['ids'] as $index => $id ) {
+			// Validate ID is a positive integer
+			$id = absint( $id );
+			if ( ! $id ) {
+				continue;
+			}
+
+			$image_url = wp_get_attachment_image_url( $id, 'medium' );
+			$alt_text  = get_post_meta( $id, '_wp_attachment_image_alt', true );
+
+			// Get caption from attachment post (stored in post_excerpt)
+			$attachment_post = get_post( $id );
+			$caption         = '';
+
+			// First try to get caption from images array if available (with validation)
+			if ( ! empty( $attr['images'] ) && is_array( $attr['images'] ) && isset( $attr['images'][ $index ]['caption'] ) ) {
+				$caption = wp_strip_all_tags( $attr['images'][ $index ]['caption'] );
+			}
+
+			// If no caption in images array, get it from attachment post
+			if ( empty( $caption ) && $attachment_post && ! empty( $attachment_post->post_excerpt ) ) {
+				$caption = wp_strip_all_tags( $attachment_post->post_excerpt );
+			}
+
+			if ( $image_url ) {
+				$images[] = array(
+					'url'     => $image_url,
+					'alt'     => $alt_text,
+					'caption' => $caption,
+					'id'      => $id,
+				);
+			}
+		}
+	} elseif ( ! empty( $attr['images'] ) && is_array( $attr['images'] ) ) {
+		// Fall back to images array if IDs aren't available (for testing)
+		foreach ( $attr['images'] as $image_data ) {
+			if ( ! empty( $image_data['url'] ) ) {
+				$images[] = array(
+					'url'     => $image_data['url'],
+					'alt'     => ! empty( $image_data['alt'] ) ? $image_data['alt'] : '',
+					'caption' => ! empty( $image_data['caption'] ) ? wp_strip_all_tags( $image_data['caption'] ) : '',
+					'id'      => ! empty( $image_data['id'] ) ? $image_data['id'] : 0,
+				);
+			}
+		}
+	}
+
+	return $images;
 }
