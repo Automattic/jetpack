@@ -252,29 +252,29 @@ add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page'
  * Restrict selectable files in the Media uploader by setting Plupload filters only.
  * Minimal change: selection-only; no server-side mime policy changes.
  *
- * @since $$next-version$$
- *
  * @param array $options Plupload options.
- * @return array
+ * @return array Plupload options with restricted mime types.
  */
 function wpcomsh_plupload_file_restrictions( $options ) {
-	// Build allowed extensions from the full mime map, excluding categories based on features.
-	$mimes_map   = wp_get_mime_types();
-	$allow_audio = wpcom_site_has_feature( WPCOM_Features::UPLOAD_AUDIO_FILES );
-	$allow_video = wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS );
+	$mimes_map = get_allowed_mime_types();
 
 	$allowed_extensions = array();
+	$allowed_mime_types = array();
+
 	foreach ( $mimes_map as $ext_pattern => $mime ) {
-		if ( 0 === strpos( $mime, 'audio/' ) && ! $allow_audio ) {
-			continue;
+		// Extract real file extensions (filter out 'x-' prefixed ones)
+		// This prevents issues with non-standard extensions like 'x-wav' that aren't real file extensions
+		$extensions = explode( '|', $ext_pattern );
+		foreach ( $extensions as $ext ) {
+			// Only include extensions that don't start with 'x-'
+			if ( ! str_starts_with( $ext, 'x-' ) ) {
+				$allowed_extensions[] = $ext;
+			}
 		}
-		if ( 0 === strpos( $mime, 'video/' ) && ! $allow_video ) {
-			continue;
-		}
-		$allowed_extensions = array_merge( $allowed_extensions, explode( '|', $ext_pattern ) );
+
+		$allowed_mime_types[] = $mime;
 	}
 
-	$allowed_extensions = array_values( array_unique( $allowed_extensions ) );
 	if ( empty( $allowed_extensions ) ) {
 		return $options;
 	}
@@ -286,19 +286,13 @@ function wpcomsh_plupload_file_restrictions( $options ) {
 		array( 'extensions' => implode( ',', $allowed_extensions ) ),
 	);
 
+	// Store MIME types for potential use in HTML file inputs
+	$options['allowed_mime_types'] = $allowed_mime_types;
+
 	return $options;
 }
 
-/**
- * Register Plupload restrictions only in the Media Library UI.
- *
- * @since $$next-version$$
- */
-function wpcomsh_register_plupload_file_restrictions_filters() {
-	add_filter( 'plupload_init', 'wpcomsh_plupload_file_restrictions', PHP_INT_MAX );
-	add_filter( 'plupload_default_settings', 'wpcomsh_plupload_file_restrictions', PHP_INT_MAX );
-}
-add_action( 'wp_enqueue_media', 'wpcomsh_register_plupload_file_restrictions_filters' );
+add_action( 'plupload_init', 'wpcomsh_plupload_file_restrictions' );
 
 /**
  * Restricts the allowed mime types if the site have does NOT have access to the required feature.
