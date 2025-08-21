@@ -1,0 +1,30 @@
+
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ */
+.jetpack-latex-formula {
+  background-color: #fffbe7;
+  color: #222;
+  border: 1px solid #ece4c9;
+  border-radius: 6px;
+  padding: 1.2em 1em;
+  margin: 1em 0;
+  font-size: 1.2em;
+  position: relative;
+}
+
+.jetpack-latex-formula .jetpack-latex-formula-rendered,
+.jetpack-latex-formula .jetpack-latex-formula-render {
+  display: block;
+}
+
+.jetpack-latex-formula .jetpack-latex-formula-rendered,
+.jetpack-latex-formula .jetpack-latex-formula-render {
+  min-height: 1.6em;
+}
+
+.jetpack-latex-formula .jetpack-latex-formula-rendered {
+  font-size: 1.2em;
+}
+    

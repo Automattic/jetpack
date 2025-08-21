@@ -28,6 +28,7 @@
 		"pinterest",
 		"podcast-player",
 		"premium-content",
+		"latex-formula",
 		"rating-star",
 		"recurring-payments",
 		"related-posts",
@@ -80,6 +81,8 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
+		"latex-formula",
+		"latex-formulas",
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
 		"paypal-payment-buttons"
