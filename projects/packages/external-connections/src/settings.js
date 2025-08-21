@@ -24,13 +24,22 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			connectionButton.disabled = true;
 
 			if ( isConnected ) {
-				wp.ajax.post( 'jetpack_delete_external_connection', {
-					service,
-					_ajax_nonce: deleteNonce,
-				} );
-				connectionButton.disabled = false;
-				connectionButton.innerText = __( 'Connect', 'jetpack-external-connections' );
-				jetpackExternalConnectionsData[ service ].isConnected = false;
+				wp.ajax.post(
+					'jetpack_delete_external_connection',
+					{
+						service,
+						_ajax_nonce: deleteNonce,
+					},
+					( { deleted } ) => {
+						connectionButton.disabled = false;
+						if ( deleted ) {
+							connectionButton.innerText = __( 'Connect', 'jetpack-external-connections' );
+							jetpackExternalConnectionsData[ service ].isConnected = false;
+						} else {
+							connectionButton.innerText = __( 'Disconnect', 'jetpack-external-connections' );
+						}
+					}
+				);
 				return;
 			}
 

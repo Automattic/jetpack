@@ -140,26 +140,33 @@ class External_Connections {
 	 * Deletes a connection for the provided service.
 	 *
 	 * @param string $service The service identifier.
+	 * @return boolean Whether the connection was deleted.
 	 */
 	public static function delete_connection( $service ) {
 		$connection = self::get_connection( $service );
 		if ( empty( $connection ) ) {
-			return;
+			return false;
 		}
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			if ( get_current_user_id() === $connection['user_ID'] ) {
 				require_lib( 'external-connections' );
 				$connections = \WPCOM_External_Connections::init();
-				$connections->delete_keyring_connection( $connection['ID'] );
+				return $connections->delete_keyring_connection( $connection['ID'] );
 			}
-		} else {
-			Client::wpcom_json_api_request_as_user(
-				'/me/connections/' . $connection['ID'],
-				'2',
-				array( 'method' => 'DELETE' )
-			);
+			return false;
 		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/me/connections/' . $connection['ID'],
+			'2',
+			array( 'method' => 'DELETE' )
+		);
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		return $body->deleted ?? false;
 	}
 
 	/**
@@ -259,14 +266,14 @@ class External_Connections {
 	 */
 	public static function ajax_delete_connection() {
 		if ( ! isset( $_REQUEST['service'] ) ) {
-			wp_die();
+			wp_send_json( array( 'deleted' => 'false' ) );
 		}
 
 		$service = sanitize_text_field( wp_unslash( $_REQUEST['service'] ) );
 		check_ajax_referer( 'jetpack_delete_external_connection_' . $service );
 
-		self::delete_connection( $service );
-		wp_die();
+		$is_deleted = self::delete_connection( $service );
+		wp_send_json( array( 'deleted' => $is_deleted ) );
 	}
 
 	/**
