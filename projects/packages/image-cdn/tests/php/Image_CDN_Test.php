@@ -1102,9 +1102,8 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @since $$next-version$$
 	 */
 	public function test_image_cdn_filter_the_content_returns_original_content_when_passed_null() {
-		/** @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal */
 		$filtered_content = Image_CDN::filter_the_content( null );
-		$this->assertSame( null, $filtered_content );
+		$this->assertSame( '', $filtered_content );
 	}
 
 	/**
@@ -1123,9 +1122,8 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @since $$next-version$$
 	 */
 	public function test_image_cdn_filter_the_content_returns_original_content_when_passed_non_string() {
-		/** @phan-suppress-next-line PhanTypeMismatchArgument */
 		$filtered_content = Image_CDN::filter_the_content( 123 );
-		$this->assertSame( 123, $filtered_content );
+		$this->assertSame( '', $filtered_content );
 	}
 
 	/**

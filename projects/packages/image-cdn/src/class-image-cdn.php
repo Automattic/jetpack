@@ -325,17 +325,17 @@ final class Image_CDN {
 	/**
 	 * Identify images in post content, and if images are local (uploaded to the current site), pass through Photon.
 	 *
-	 * @param string $content The content.
+	 * @param string|mixed $content The content; should be a string but will convert to an empty string if not.
 	 *
 	 * @uses self::validate_image_url, apply_filters, Image_CDN_Core::cdn_url, esc_url
 	 * @filter the_content
 	 *
-	 * @return string|mixed The content, which typically is a string, but the original value if malformed content was passed.
+	 * @return string The content.
 	 */
 	public static function filter_the_content( $content ) {
 		// Early return if content is empty or not a string.
 		if ( ! is_string( $content ) || '' === $content ) {
-			return $content;
+			return '';
 		}
 
 		static $image_tags      = array( 'IMG', 'AMP-IMG', 'AMP-ANIM' );
