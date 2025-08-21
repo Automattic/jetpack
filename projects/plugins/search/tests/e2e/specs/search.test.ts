@@ -1,15 +1,11 @@
 import {
 	test,
 	expect,
-	searchResultForTest1 as originalSearchResultForTest1,
-	searchResultForTest2 as originalSearchResultForTest2,
+	searchResultForTest1,
+	searchResultForTest2,
 	SEARCH_API_PATTERN,
 } from '../fixtures/test';
 import type { Page, Response } from '@playwright/test';
-
-// Create deep copies to prevent mutations during tests
-const searchResultForTest1 = JSON.parse( JSON.stringify( originalSearchResultForTest1 ) );
-const searchResultForTest2 = JSON.parse( JSON.stringify( originalSearchResultForTest2 ) );
 
 /**
  * Returns the inner HTML of the first search result title.

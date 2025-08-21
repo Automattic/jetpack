@@ -353,7 +353,7 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 	 */
 	page: async ( { page }, use ) => {
 		await page.route( SEARCH_API_PATTERN, ( route, request ) => {
-			logger.info( `intercepted search API call: ${ request.url() }` );
+			logger.debug( `intercepted search API call: ${ request.url() }` );
 			const url = new URL( request.url() );
 			const params = url.searchParams;
 
@@ -396,12 +396,18 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 			const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
 
 			if ( category ) {
-				body.results = body.results.filter( v => v?.categories?.includes( category ) );
+				body.results = body.results.filter(
+					( v: { categories: string | string[] } ) => v?.categories?.includes( category )
+				);
 			}
 
 			if ( tag ) {
-				body.results = body.results.filter( v => v?.tags?.includes( tag ) );
+				body.results = body.results.filter(
+					( v: { tags: string | string[] } ) => v?.tags?.includes( tag )
+				);
 			}
+
+			logger.debug( `returning ${ JSON.stringify( body ) }` );
 
 			route.fulfill( {
 				contentType: 'application/json',
