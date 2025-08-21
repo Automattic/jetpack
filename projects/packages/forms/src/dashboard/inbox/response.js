@@ -33,7 +33,7 @@ const getDisplayName = response => {
 };
 
 const isFileUploadField = value => {
-	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
+	return value && typeof value === 'object' && 'files' in value;
 };
 
 const isLikelyPhoneNumber = value => {
@@ -211,7 +211,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 					{ value.files?.length
 						? value.files.map( file => {
 								if ( ! file || ! file.name ) {
-									return null;
+									return '-';
 								}
 								return (
 									<FileField

@@ -745,6 +745,7 @@ class Themes extends Module {
 
 		$moved_to_inactive_ids = array();
 		$moved_to_sidebar      = array();
+		$new_inactive_widgets  = $new_value['wp_inactive_widgets'] ?? array();
 
 		foreach ( $new_value as $sidebar => $new_widgets ) {
 			if ( in_array( $sidebar, array( 'array_version', 'wp_inactive_widgets' ), true ) ) {
@@ -757,8 +758,7 @@ class Themes extends Module {
 			if ( ! is_array( $new_widgets ) ) {
 				$new_widgets = array();
 			}
-
-			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
+			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_inactive_widgets );
 			$moved_to_inactive_ids      = array_merge( $moved_to_inactive_ids, $moved_to_inactive_recently );
 
 			$moved_to_sidebar_recently = $this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar );

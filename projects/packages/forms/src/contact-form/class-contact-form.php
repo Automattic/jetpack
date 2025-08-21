@@ -1583,6 +1583,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Stores feedback.  Sends email.
 	 */
 	public function process_submission() {
+		$page_number = 1;
+
+		// We skip the nonce verification for since nonce earlier in process_form_submission.
+		if ( isset( $_POST['page'] ) ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+			$page_number = absint( wp_unslash( $_POST['page'] ) ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+		}
+
+		$response = Feedback::from_submission( $_POST, $this, $this->current_post, $page_number ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+
 		$plugin = Contact_Form_Plugin::init();
 
 		$id                  = $this->get_attribute( 'id' );
@@ -1642,130 +1651,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		}
 
-		$field_ids = $this->get_field_ids();
-
 		// Initialize all these "standard" fields to null
-		$comment_author_email = null;
-		$comment_author       = null;
-		$comment_author_url   = null;
-		$comment_content      = null;
+		$comment_author_email = $response->get_author_email();
+		$comment_author       = $response->get_author();
+		$comment_author_url   = $response->get_author_url();
+		$comment_content      = $response->get_comment_content();
 
-		// For each of the "standard" fields, grab their field label and value.
-		if ( isset( $field_ids['name'] ) ) {
-			$field = $this->fields[ $field_ids['name'] ];
-
-			if ( is_string( $field->value ) ) {
-				$comment_author = Contact_Form_Plugin::strip_tags(
-					stripslashes(
-						/** This filter is already documented in core/wp-includes/comment-functions.php */
-						apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
-					)
-				);
-			} elseif ( is_array( $field->value ) ) {
-				$field->value = '';
-			}
-		}
-
-		if ( isset( $field_ids['email'] ) ) {
-			$field = $this->fields[ $field_ids['email'] ];
-
-			if ( is_string( $field->value ) ) {
-				$comment_author_email = Contact_Form_Plugin::strip_tags(
-					stripslashes(
-						/** This filter is already documented in core/wp-includes/comment-functions.php */
-						apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
-					)
-				);
-			} elseif ( is_array( $field->value ) ) {
-				$field->value = '';
-			}
-		}
-
-		if ( isset( $field_ids['url'] ) ) {
-			$field = $this->fields[ $field_ids['url'] ];
-
-			if ( is_string( $field->value ) ) {
-				$comment_author_url = Contact_Form_Plugin::strip_tags(
-					stripslashes(
-						/** This filter is already documented in core/wp-includes/comment-functions.php */
-						apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
-					)
-				);
-				if ( 'http://' === $comment_author_url ) {
-					$comment_author_url = '';
-				}
-			} elseif ( is_array( $field->value ) ) {
-				$field->value = '';
-			}
-		}
-
-		if ( isset( $field_ids['textarea'] ) ) {
-			$field = $this->fields[ $field_ids['textarea'] ];
-
-			if ( is_string( $field->value ) ) {
-				$comment_content = trim( Contact_Form_Plugin::strip_tags( $field->value ) );
-			} else {
-				$field->value = '';
-			}
-		}
-
-		if ( isset( $field_ids['subject'] ) ) {
-			$field = $this->fields[ $field_ids['subject'] ];
-			if ( $field->value ) {
-				$contact_form_subject = Contact_Form_Plugin::strip_tags( $field->value );
-			}
-		}
+		$contact_form_subject = $response->get_subject();
 
 		// Set marketing consent
-		$email_marketing_consent = $field_ids['email_marketing_consent'];
+		$email_marketing_consent = $response->has_consent();
 
 		if ( null === $email_marketing_consent ) {
 			$email_marketing_consent = false;
 		}
 
-		$all_values   = array();
-		$extra_values = array();
-		$i            = 1; // Prefix counter for stored metadata
-
-		// For all fields, grab label and value
-		foreach ( $field_ids['all'] as $field_id ) {
-			$field = $this->fields[ $field_id ];
-
-			if ( ! $field->is_field_renderable( $field->get_attribute( 'type' ) ) ) {
-				continue;
-			}
-
-			$label = $i . '_' . wp_strip_all_tags( $field->get_attribute( 'label' ) );
-			if ( $field->get_attribute( 'type' ) === 'file' ) {
-				$field->value = $this->process_file_upload_field( $field_id, $field );
-			}
-			$value = $field->value;
-			if ( is_array( $value ) && ! ( $field->get_attribute( 'type' ) === 'file' ) ) {
-				$value = implode( ', ', $value );
-			}
-			$all_values[ $label ] = $value;
-			++$i; // Increment prefix counter for the next field
-		}
-
-		// For the "non-standard" fields, grab label and value
-		// Extra fields have their prefix starting from count( $all_values ) + 1
-		foreach ( $field_ids['extra'] as $field_id ) {
-			$field = $this->fields[ $field_id ];
-
-			if ( ! $field->is_field_renderable( $field->get_attribute( 'type' ) ) ) {
-				continue;
-			}
-
-			$label = $i . '_' . wp_strip_all_tags( $field->get_attribute( 'label' ) );
-			$value = $field->value;
-			if ( ! ( $field->get_attribute( 'type' ) === 'file' ) ) {
-				if ( is_array( $value ) ) {
-					$value = implode( ', ', $value );
-				}
-			}
-			$extra_values[ $label ] = $value;
-			++$i; // Increment prefix counter for the next extra field
-		}
+		$all_values   = $response->get_all_values( 'submit' );
+		$extra_values = $response->get_legacy_extra_values( 'submit' );
 
 		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
 			$extra_values['is_block'] = true;
@@ -1775,44 +1677,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$comment_author_ip = Contact_Form_Plugin::get_ip_address();
 
-		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_ip' );
-		foreach ( $vars as $var ) {
-			$$var = str_replace( array( "\n", "\r" ), '', (string) $$var );
-		}
-
 		// Ensure that Akismet gets all of the relevant information from the contact form,
 		// not just the textarea field and predetermined subject.
-		$akismet_vars                    = compact( $vars );
-		$akismet_vars['comment_content'] = $comment_content;
-
-		foreach ( array_merge( $field_ids['all'], $field_ids['extra'] ) as $field_id ) {
-			$field = $this->fields[ $field_id ];
-
-			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
-			// from a spam-filtering point of view.
-			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
-				continue;
-			}
-
-			// Normalize the label into a slug.
-			$field_slug = trim( // Strip all leading/trailing dashes.
-				preg_replace(   // Normalize everything to a-z0-9_-
-					'/[^a-z0-9_]+/',
-					'-',
-					strtolower( $field->get_attribute( 'label' ) ) // Lowercase
-				),
-				'-'
-			);
-
-			$field_value = ( is_array( $field->value ) ) ? trim( implode( ', ', $field->value ) ) : trim( $field->value );
-
-			// Skip any values that are already in the array we're sending.
-			if ( $field_value && in_array( $field_value, $akismet_vars, true ) ) {
-				continue;
-			}
-
-			$akismet_vars[ 'contact_form_field_' . $field_slug ] = $field_value;
-		}
+		$akismet_vars = $response->get_akismet_vars();
 
 		$spam           = '';
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
@@ -1914,41 +1781,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
 		// Build feedback reference
-		$feedback_time  = current_time( 'mysql' );
-		$feedback_title = "{$comment_author} - {$feedback_time}";
-		$feedback_id    = md5( $feedback_title );
+		$feedback_time  = $response->get_time();
+		$feedback_title = $response->get_title();
+		$feedback_id    = $response->get_feedback_id();
 
-		$entry_title     = '';
-		$entry_permalink = '';
-
-		if ( $this->current_post ) {
-			$entry_title     = self::get_post_property( $this->current_post, 'post_title' );
-			$entry_permalink = esc_url( self::get_permalink( self::get_post_property( $this->current_post, 'ID' ) ) );
-		} elseif ( $widget ) {
-			$entry_title     = __( 'Sidebar Widget', 'jetpack-forms' );
-			$entry_permalink = esc_url( home_url( '/' ) );
-		} elseif ( $block_template ) {
-			$entry_title     = __( 'Block Template', 'jetpack-forms' );
-			$entry_permalink = esc_url( home_url( '/' ) );
-		} elseif ( $block_template_part ) {
-			$entry_title     = __( 'Block Template Part', 'jetpack-forms' );
-			$entry_permalink = esc_url( home_url( '/' ) );
-		} else {
-			$entry_title     = the_title_attribute( 'echo=0' );
-			$entry_permalink = esc_url( self::get_permalink( get_the_ID() ) );
-		}
-
-		$entry_values = array(
-			'entry_title'     => $entry_title,
-			'entry_permalink' => $entry_permalink,
-			'feedback_id'     => $feedback_id,
-		);
-
-		if ( isset( $_POST['page'] ) ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-			$entry_values['entry_page'] = absint( wp_unslash( $_POST['page'] ) ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-		}
-
-		$all_values = array_merge( $all_values, $entry_values );
+		$entry_values = $response->get_entry_values();
 
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
@@ -1975,6 +1812,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			$feedback_status = 'publish';
 		}
+		$response->set_status( $feedback_status );
 
 		foreach ( (array) $akismet_values as $av_key => $av_value ) {
 			$akismet_values[ $av_key ] = Contact_Form_Plugin::strip_tags( $av_value );

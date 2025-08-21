@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.4
+ * Stubs automatically generated from PHPUnit 12.3.5
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -23,7 +23,7 @@ namespace PHPUnit\Event;
  */
 final class CollectingDispatcher implements \PHPUnit\Event\Dispatcher
 {
-    public function __construct()
+    public function __construct(\PHPUnit\Event\DirectDispatcher $directDispatcher)
     {
     }
     public function dispatch(\PHPUnit\Event\Event $event): void
@@ -20042,6 +20042,9 @@ final class Facade
     public static function init(): void
     {
     }
+    public static function initForIsolation(): void
+    {
+    }
     /**
      * @return list<non-empty-string>
      */
@@ -20054,6 +20057,39 @@ final class Facade
     public static function filteredDeprecations(): array
     {
     }
+    /**
+     * @throws \PHPUnit\Event\EventFacadeIsSealedException
+     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
+     */
+    public static function collector(): \PHPUnit\Runner\DeprecationCollector\Collector|\PHPUnit\Runner\DeprecationCollector\InIsolationCollector
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InIsolationCollector
+{
+    public function __construct(\PHPUnit\TestRunner\IssueFilter $issueFilter)
+    {
+    }
+    /**
+     * @return list<non-empty-string>
+     */
+    public function deprecations(): array
+    {
+    }
+    /**
+     * @return list<non-empty-string>
+     */
+    public function filteredDeprecations(): array
+    {
+    }
+    public function testTriggeredDeprecation(\PHPUnit\Event\Test\DeprecationTriggered $event): void
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -20062,10 +20098,10 @@ final class Facade
  */
 abstract class Subscriber
 {
-    public function __construct(\PHPUnit\Runner\DeprecationCollector\Collector $collector)
+    public function __construct(\PHPUnit\Runner\DeprecationCollector\Collector|\PHPUnit\Runner\DeprecationCollector\InIsolationCollector $collector)
     {
     }
-    protected function collector(): \PHPUnit\Runner\DeprecationCollector\Collector
+    protected function collector(): \PHPUnit\Runner\DeprecationCollector\Collector|\PHPUnit\Runner\DeprecationCollector\InIsolationCollector
     {
     }
 }

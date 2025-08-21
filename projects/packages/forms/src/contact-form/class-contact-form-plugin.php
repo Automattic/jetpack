@@ -3254,11 +3254,13 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
 		// Get min, max, and default from the parent block's attributes.
-		$parent_attrs    = $block->parsed_block['attrs'] ?? array();
-		$atts['min']     = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
-		$atts['max']     = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
-		$atts['default'] = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
-		$atts['step']    = isset( $parent_attrs['step'] ) ? $parent_attrs['step'] : 1;
+		$parent_attrs     = $block->parsed_block['attrs'] ?? array();
+		$atts['min']      = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
+		$atts['max']      = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
+		$atts['default']  = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
+		$atts['step']     = isset( $parent_attrs['step'] ) ? $parent_attrs['step'] : 1;
+		$atts['minLabel'] = isset( $parent_attrs['minLabel'] ) ? $parent_attrs['minLabel'] : '';
+		$atts['maxLabel'] = isset( $parent_attrs['maxLabel'] ) ? $parent_attrs['maxLabel'] : '';
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );

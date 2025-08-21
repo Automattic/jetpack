@@ -461,6 +461,38 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * Tests that the intent-free-newsletter task list includes import tasks.
+	 */
+	public function test_intent_free_newsletter_includes_import_tasks() {
+		\Brain\Monkey\Functions\when( 'get_blog_count_for_user' )->justReturn( 1 );
+		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( true );
+
+		wp_set_current_user( $this->admin_id );
+		update_option( 'site_goals', array( 'import-subscribers' ) );
+
+		$data = array(
+			'checklist_slug'    => 'intent-free-newsletter',
+			'launchpad_context' => 'customer-home',
+		);
+
+		$result = $this->call_launchpad_api( Requests::GET, $data );
+
+		$this->assertEquals( 200, $result->get_status() );
+		$this->assertIsArray( $result->get_data()['checklist'] );
+
+		$task_ids = array_column( $result->get_data()['checklist'], 'id' );
+
+		// Verify that import tasks are included
+		$this->assertContains( 'migrate_content', $task_ids, 'migrate_content task should be in intent-free-newsletter task list' );
+		$this->assertContains( 'subscribers_added', $task_ids, 'subscribers_added task should be in intent-free-newsletter task list' );
+
+		// Verify the order: migrate_content should come before subscribers_added
+		$migrate_index     = array_search( 'migrate_content', $task_ids, true );
+		$subscribers_index = array_search( 'subscribers_added', $task_ids, true );
+		$this->assertLessThan( $subscribers_index, $migrate_index, 'migrate_content should come before subscribers_added' );
+	}
+
+	/**
 	 * Helper function to create a new WP_REST_Request and call the Launchpad REST API.
 	 *
 	 * @param string     $method The HTTP method to use.

@@ -9,9 +9,9 @@ import {
 	FlexItem,
 } from '@wordpress/components';
 import { ProductCamelCase } from '../../../data/types';
+import { MyJetpackModule } from '../../../types';
 import { ModuleStatus } from '../../module-status';
 import { ModuleToggle } from '../../module-toggle';
-import { MyJetpackModule } from '../../types';
 import { PRODUCT_ICONS } from './mappings';
 import { ProductCardAction } from './product-card-action';
 import styles from './styles.module.scss';

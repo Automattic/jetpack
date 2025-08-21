@@ -1,3 +1,4 @@
+import { JetpackModuleSlug, JetpackProductWithCard } from '../../../types';
 import AntiSpamIcon from '../../products-table-view/icons/anti-spam';
 import BackupIcon from '../../products-table-view/icons/backup';
 import BoostIcon from '../../products-table-view/icons/boost';
@@ -8,7 +9,7 @@ import SearchIcon from '../../products-table-view/icons/search';
 import SocialIcon from '../../products-table-view/icons/social';
 import StatsIcon from '../../products-table-view/icons/stats';
 import VideopressIcon from '../../products-table-view/icons/videopress';
-import { JetpackModuleSlug, JetpackProductWithCard, ProductCategory } from './types';
+import { ProductCategory } from './types';
 import type { ComponentType } from 'react';
 
 export const CATEGORY_CARDS_AND_MODULES: {

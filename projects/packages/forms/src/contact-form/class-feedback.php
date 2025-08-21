@@ -255,7 +255,7 @@ class Feedback {
 		$file_data_array = is_array( $raw_data )
 			? array_map(
 				function ( $json_str ) {
-					$decoded = json_decode( $json_str, true );
+					$decoded = json_decode( stripslashes( $json_str ), true );
 					return array(
 						'file_id' => isset( $decoded['file_id'] ) ? sanitize_text_field( $decoded['file_id'] ) : '',
 						'name'    => isset( $decoded['name'] ) ? sanitize_text_field( $decoded['name'] ) : '',
@@ -349,7 +349,7 @@ class Feedback {
 	 *
 	 * @return array An array of entry values.
 	 */
-	private function get_entry_values() {
+	public function get_entry_values() {
 		// This is a convenience method to get the entry values in a simple array format.
 		$entry_values = array(
 			'email_marketing_consent' => (string) $this->has_consent ? 'yes' : 'no',
@@ -367,20 +367,24 @@ class Feedback {
 	/**
 	 * Get all values of the response.
 	 *
+	 * @param string $context The context in which the values are being retrieved.
+	 *
 	 * @return array An array of all values, including fields and entry values.
 	 */
-	public function get_all_values() {
+	public function get_all_values( $context = 'default' ) {
 		// This is a legacy method to maintain compatibility with older code.
-		return array_merge( $this->get_compiled_fields( 'default', 'key-value' ), $this->get_entry_values() );
+		return array_merge( $this->get_compiled_fields( $context, 'key-value' ), $this->get_entry_values() );
 	}
 
 	/**
 	 * Get extra values.
 	 * This is a legacy method to maintain compatibility with older code.
 	 *
+	 * @param string $context The context in which the values are being retrieved.
+	 *
 	 * @return array An array of extra values, including entry values
 	 */
-	public function get_legacy_extra_values() {
+	public function get_legacy_extra_values( $context = 'default' ) {
 		$count            = 1;
 		$_extra_fields    = array();
 		$special_fields   = array();
@@ -388,8 +392,8 @@ class Feedback {
 
 		// Create a map of special fields to check agains their values.
 		foreach ( $this->fields as $field ) {
-			if ( in_array( $field->get_type(), $non_extra_fields, true ) && $field->get_render_value() ) {
-				$special_fields[ $field->get_render_value() ] = true;
+			if ( in_array( $field->get_type(), $non_extra_fields, true ) && $field->get_render_value( $context ) ) {
+				$special_fields[ $field->get_render_value( $context ) ] = true;
 			}
 		}
 
@@ -410,7 +414,7 @@ class Feedback {
 
 		foreach ( $_extra_fields as $field ) {
 			if ( ! in_array( $field->get_type(), $non_extra_fields, true ) || isset( $is_present[ $field->get_type() ] ) ) {
-				$extra_values[ $extra_fields_count . '_' . $field->get_label() ] = $field->get_render_value( 'default' );
+				$extra_values[ $extra_fields_count . '_' . $field->get_label() ] = $field->get_render_value( $context );
 				++$extra_fields_count; // Increment count to ensure unique keys for extra values.
 			} else {
 				$is_present[ $field->get_type() ] = true;
@@ -1155,7 +1159,8 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type );
+			$meta           = array();
+			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
@@ -1220,5 +1225,42 @@ class Feedback {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get a field by its original form ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id Original form field ID.
+	 * @return Feedback_Field|null
+	 */
+	public function get_field_by_form_field_id( $id ) {
+		if ( ! is_string( $id ) || $id === '' ) {
+			return null;
+		}
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_form_field_id() === $id ) {
+				return $field;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get a field render value by its original form ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id Original form field ID.
+	 * @param string $context Render context.
+	 * @return string
+	 */
+	public function get_field_value_by_form_field_id( $id, $context = 'default' ) {
+		$field = $this->get_field_by_form_field_id( $id );
+		if ( ! $field ) {
+			return '';
+		}
+		return (string) $field->get_render_value( $context );
 	}
 }

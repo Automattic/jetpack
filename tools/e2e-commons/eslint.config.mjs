@@ -35,6 +35,7 @@ export function makeE2eConfig( configurl, opts = {} ) {
 			'no-console': 'off',
 			'n/no-process-exit': 'off',
 			'playwright/no-skipped-test': 'off',
+			'react-hooks/rules-of-hooks': 'off',
 		},
 	} );
 }

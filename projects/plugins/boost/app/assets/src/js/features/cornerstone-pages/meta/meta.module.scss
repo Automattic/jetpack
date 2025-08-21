@@ -2,10 +2,6 @@
 	font-size: 14px;
 	line-height: 22px;
 
-	:global(button ~ button) {
-		margin-left: 20px !important;
-	}
-
 	> p:first-child {
 		margin-top: 0;
 	}
@@ -93,10 +89,14 @@
 					margin-bottom: 8px;
 				}
 			}
-		}
 
-		.button {
-			margin-top: 16px;
+			.buttonGroup {
+				margin-top: 16px;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 20px;
+			}
 		}
 	}
 

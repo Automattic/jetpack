@@ -6,8 +6,8 @@ import { getIconColor } from '../shared/util/block-icons';
 const variations = [
 	{
 		name: 'stars',
-		title: __( 'Stars Rating', 'jetpack-forms' ),
-		description: __( 'Rating field with star icons', 'jetpack-forms' ),
+		title: __( 'Stars rating field', 'jetpack-forms' ),
+		description: __( 'Rating field with star icons.', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
 			src: renderMaterialIcon(
@@ -28,7 +28,7 @@ const variations = [
 	{
 		name: 'hearts',
 		title: __( 'Hearts rating field', 'jetpack-forms' ),
-		description: __( 'Rating field with heart icons', 'jetpack-forms' ),
+		description: __( 'Rating field with heart icons.', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
 			src: renderMaterialIcon(
