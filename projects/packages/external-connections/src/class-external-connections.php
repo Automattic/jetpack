@@ -179,15 +179,7 @@ class External_Connections {
 				$connection = new Connection_Manager( 'jetpack' );
 				$status     = new Status();
 
-				if ( $status->is_offline_mode() ) {
-					return;
-				}
-
-				if ( ! $connection->has_connected_owner() ) {
-					return;
-				}
-
-				if ( ! $connection->is_user_connected() ) {
+				if ( $status->is_offline_mode() || ! $connection->has_connected_owner() || ! $connection->is_user_connected() ) {
 					return;
 				}
 			}
