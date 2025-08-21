@@ -4886,8 +4886,8 @@ importers:
         specifier: 11.2.10
         version: 11.2.10
       tinycolor2:
-        specifier: 1.4.2
-        version: 1.4.2
+        specifier: 1.6.0
+        version: 1.6.0
       tus-js-client:
         specifier: 4.2.3
         version: 4.2.3
@@ -15926,8 +15926,8 @@ packages:
     resolution: {integrity: sha512-zNYO0Kvgn5rXzWpL0y3RS09sMK67eGaQj9805jlK9G6pSadfriTczzLHFXa/xcW4mIRfmlB9HyQ/+SgL0V1uow==}
     engines: {node: '>=6'}
 
-  tinycolor2@1.4.2:
-    resolution: {integrity: sha512-vJhccZPs965sV/L2sU4oRQVAos0pQXwsvTLkWYdqJ+a8Q5kPFzJTuOFwy7UniPli44NKQGAglksjvOcpo95aZA==}
+  tinycolor2@1.6.0:
+    resolution: {integrity: sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==}
 
   tinyglobby@0.2.14:
     resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
@@ -30886,7 +30886,7 @@ snapshots:
 
   tiny-lru@7.0.6: {}
 
-  tinycolor2@1.4.2: {}
+  tinycolor2@1.6.0: {}
 
   tinyglobby@0.2.14:
     dependencies:
