@@ -333,7 +333,7 @@ final class Image_CDN {
 	 * @return string|mixed The content, which typically is a string, but the original value if malformed content was passed.
 	 */
 	public static function filter_the_content( $content ) {
-		// Early return if content is null, empty, or not a string.
+		// Early return if content is empty or not a string.
 		if ( ! is_string( $content ) || '' === $content ) {
 			return $content;
 		}
