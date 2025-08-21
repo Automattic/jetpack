@@ -4,25 +4,25 @@ import { countries } from '../../blocks/field-phone/country-list';
 import { isEmptyValue } from '../../contact-form/js/validate-helper';
 const NAMESPACE = 'jetpack/form';
 
-let asYouType;
+const asYouTypes = {};
 
-const { state, actions } = store( NAMESPACE, {
+const { actions } = store( NAMESPACE, {
 	state: {
 		validators: {
 			phone: ( value, isRequired ) => {
-				if ( isEmptyValue( state.phoneNumber ) && isRequired ) {
+				const context = getContext();
+				if ( isEmptyValue( context.phoneNumber ) && isRequired ) {
 					// this is not triggering any error, but then no other input does either
 					return 'is_required';
 				}
-				if ( ! isRequired && isEmptyValue( state.phoneNumber ) ) {
+				if ( ! isRequired && isEmptyValue( context.phoneNumber ) ) {
 					// No need to validate anything.
 					return 'yes';
 				}
 
 				// from this point on, we discard the value as we
 				// use our internal full phone number state getter:
-				value = state.fullPhoneNumber;
-				const context = getContext();
+				value = context.fullPhoneNumber;
 				if ( context.showCountrySelector || value.indexOf( '+' ) === 0 ) {
 					const internationalNumber = parsePhoneNumber( value );
 					if ( ! internationalNumber || ! internationalNumber.isValid() ) {
@@ -38,67 +38,55 @@ const { state, actions } = store( NAMESPACE, {
 				return 'yes';
 			},
 		},
-		get countryPrefix() {
-			const context = getContext();
-			if ( context.showCountrySelector ) {
-				return countries.find( item => item.code === state.phoneCountryCode )?.value;
-			}
-			return '';
-		},
-		get fullPhoneNumber() {
-			const context = getContext();
-			if ( context.showCountrySelector ) {
-				// if the user has typed the country code and didn't add a space,
-				// assume they already typed a full international phone number
-				if ( state.phoneNumber.indexOf( state.countryPrefix ) === 0 ) {
-					return state.phoneNumber;
-				}
-				return `${ state.countryPrefix } ${ state.phoneNumber }`;
-			}
-			return state.phoneNumber;
-		},
 	},
 	actions: {
-		onReset() {
+		phoneResetHandler() {
 			const context = getContext();
-			state.phoneCountryCode = context.defaultCountry;
-			state.phoneNumber = '';
+			context.phoneCountryCode = context.defaultCountry;
+			context.phoneNumber = '';
 		},
 		onPhoneNumberChange( event ) {
 			const context = getContext();
+			const fieldId = context.fieldId;
 			const value = event.target.value;
 			if ( ! context.showCountrySelector ) {
-				state.phoneNumber = value;
+				context.phoneNumber = context.fullPhoneNumber = value;
 				return;
 			}
-			asYouType.reset();
-			const fieldId = context.fieldId;
-			asYouType.input( value );
-			if ( asYouType.getCountry() ) {
-				state.phoneCountryCode = asYouType.getCountry();
-				state.phoneNumber = asYouType.getNationalNumber();
+			asYouTypes[ fieldId ].reset();
+			asYouTypes[ fieldId ].input( value );
+			if ( asYouTypes[ fieldId ].getCountry() ) {
+				context.phoneCountryCode = asYouTypes[ fieldId ].getCountry();
+				context.phoneNumber = asYouTypes[ fieldId ].getNationalNumber();
+				asYouTypes[ fieldId ] = new AsYouType( context.phoneCountryCode );
 			} else {
-				state.phoneNumber = value;
+				context.phoneNumber = value;
 			}
+			context.countryPrefix = countries.find(
+				item => item.code === context.phoneCountryCode
+			)?.value;
+			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
 			actions.updateField( fieldId, value );
 		},
 		onPhoneCountryChange( event ) {
 			const context = getContext();
-			state.phoneCountryCode = event?.target?.value || context.defaultCountry;
+			context.countryPrefix = countries.find( item => item.code === event?.target?.value )?.value;
+			context.phoneCountryCode = event?.target?.value || context.defaultCountry;
+			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
 		},
 	},
 	callbacks: {
 		initializeCountrySelector() {
 			const context = getContext();
 			if ( context.showCountrySelector ) {
-				state.countryList = countries.map( country => ( {
+				context.countryList = countries.map( country => ( {
 					...country,
 					label: country.code + ' ' + country.label,
 					value: country.code,
 					selected: country.code === context.defaultCountry,
 				} ) );
 			}
-			asYouType = new AsYouType( context.defaultCountry );
+			asYouTypes[ context.fieldId ] = new AsYouType( context.defaultCountry );
 		},
 	},
 } );

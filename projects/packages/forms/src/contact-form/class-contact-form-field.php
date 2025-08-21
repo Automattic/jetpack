@@ -943,19 +943,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$value = '';
 		}
 
-		wp_interactivity_state(
-			'jetpack/form',
-			array(
-				'phoneNumber'      => '',
-				'phoneCountryCode' => $this->get_attribute( 'default' ),
-				'countryList'      => array(),
-			)
-		);
 		ob_start();
 		?>
 		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
 			style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
-			data-wp-on--jetpack-form-reset='actions.onReset'
+			data-wp-on--jetpack-form-reset='actions.phoneResetHandler'
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- function is supposed to work this way
 			echo wp_interactivity_data_wp_context(
@@ -963,6 +955,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'fieldId'             => $id,
 					'defaultCountry'      => $this->get_attribute( 'default' ),
 					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
+					// dynamic
+					'phoneNumber'         => '',
+					'phoneCountryCode'    => $this->get_attribute( 'default' ),
+					'countryList'         => array(),
+					'fullPhoneNumber'     => '',
+					'countryPrefix'       => '',
 				)
 			);
 			?>
@@ -973,10 +971,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-bind--disabled='state.isSubmitting'
 						data-wp-init="callbacks.initializeCountrySelector"
 						data-wp-on--change="actions.onPhoneCountryChange"
-						data-wp-bind--value="state.phoneCountryCode"
+						data-wp-bind--value="context.phoneCountryCode"
 						data-wp-on--blur='actions.onFieldBlur'>
 						<template
-							data-wp-each--country="state.countryList"
+							data-wp-each--country="context.countryList"
 							data-wp-each-key="context.country.code">
 							<option
 								data-wp-bind--value="context.country.value"
@@ -995,7 +993,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<?php } ?>
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldHasErrors'
-					data-wp-bind--value='state.phoneNumber'
+					data-wp-bind--value='context.phoneNumber'
 					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
 					data-wp-on--input='actions.onPhoneNumberChange'
 					data-wp-on--blur='actions.onFieldBlur'
@@ -1004,7 +1002,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				<input type="hidden"
 					id="<?php echo esc_attr( $id ); ?>"
 					name="<?php echo esc_attr( $id ); ?>"
-					data-wp-bind--value='state.fullPhoneNumber' />
+					data-wp-bind--value='context.fullPhoneNumber' />
 		</div>
 		<?php
 		$input = ob_get_clean();
