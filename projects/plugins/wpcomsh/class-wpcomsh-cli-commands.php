@@ -1291,16 +1291,15 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			WP_CLI::log( '' );
 
 			// 6. PHP Errors (filtered to critical errors)
-			WP_CLI::log( WP_CLI::colorize( '%Y--- Recent PHP Errors ---%n' ) );
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Critical PHP Errors ---%n' ) );
 			$error_log_file = '/tmp/php-errors';
 
 			if ( file_exists( $error_log_file ) ) {
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
-				$output = system_exec( "grep -E 'Fatal error|PHP Fatal error|Parse error|Uncaught Error|Uncaught Exception|TypeError|ArgumentCountError|Compile error' " . escapeshellarg( $error_log_file ) . ' | tail -n 100' );
+				$output = shell_exec( "grep -E 'Fatal error|PHP Fatal error|Parse error|Uncaught Error|Uncaught Exception|TypeError|ArgumentCountError|Compile error' " . escapeshellarg( $error_log_file ) . ' | tail -n 100' );
 
-				if ( ! empty( trim( $output ) ) ) {
-					WP_CLI::log( WP_CLI::colorize( '%RCritical PHP Errors:%n' ) );
-					WP_CLI::log( trim( $output ) );
+				if ( ! empty( trim( (string) $output ) ) ) {
+					WP_CLI::log( trim( (string) $output ) );
 				} else {
 					WP_CLI::log( WP_CLI::colorize( '%GNo critical PHP errors found.%n' ) );
 				}
