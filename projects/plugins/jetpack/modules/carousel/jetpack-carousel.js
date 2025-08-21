@@ -956,12 +956,12 @@
 					return args.largeFile;
 				}
 
+				// Sanitize the URL to remove non-cosmetic changes like resize, fit, etc.
+				var sanitizedUrl = sanitizePhotonUrl( args.largeFile );
+
 				// If we have a really large image load a smaller version
 				// that is closer to the viewable size
 				if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-					// Sanitize the URL to remove non-cosmetic changes like resize, fit, etc.
-					var sanitizedUrl = sanitizePhotonUrl( args.largeFile );
-
 					// @2x the max sizes so we get a high enough resolution for zooming.
 					args.origMaxWidth = args.maxWidth * 2;
 					args.origMaxHeight = args.maxHeight * 2;
@@ -970,7 +970,8 @@
 					return sanitizedUrl.toString();
 				}
 
-				return args.largeFile;
+				// Return a clean Photon URL without sizing parameters, but with other params like quality, ssl, etc.
+				return sanitizedUrl.toString();
 			}
 
 			return args.origFile;
