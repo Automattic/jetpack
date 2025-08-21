@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix fatal for invalid structure of stored errors.
