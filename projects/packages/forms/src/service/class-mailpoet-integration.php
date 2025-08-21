@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\Service;
 
+use Automattic\Jetpack\Forms\ContactForm\Feedback;
+
 /**
  * Class MailPoet_Integration
  *
@@ -116,39 +118,32 @@ class MailPoet_Integration {
 	/**
 	 * Extract subscriber data (email, first_name, last_name) from form fields.
 	 *
-	 * @param array $fields Collection of Contact_Form_Field instances.
+	 * @param Feedback $feedback Feedback object for the submission.
 	 * @return array Associative array with at least 'email', optionally 'first_name', 'last_name'. Empty array if no email found.
 	 */
-	protected static function get_subscriber_data_from_fields( $fields ) {
-		// Try and get the form from any of the fields
-		$form = null;
-		foreach ( $fields as $field ) {
-			if ( ! empty( $field->form ) ) {
-				$form = $field->form;
-				break;
-			}
-		}
-		if ( ! $form || ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
+	protected static function get_subscriber_data( $feedback ) {
+		if ( ! $feedback->get_author_email() ) {
 			return array();
 		}
 
-		$subscriber_data = array();
-		foreach ( $form->fields as $field ) {
-			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
-			$label = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'label' ) ) );
-			$value = trim( $field->value );
+		// Get email using new Feedback API.
+		$subscriber_data          = array();
+		$subscriber_data['email'] = $feedback->get_author_email();
 
-			if ( ( $id === 'email' || $label === 'email' ) && ! empty( $value ) ) {
-				$subscriber_data['email'] = $value;
-			} elseif ( ( $id === 'firstname' || $label === 'firstname' ) && ! empty( $value ) ) {
-				$subscriber_data['first_name'] = $value;
-			} elseif ( ( $id === 'lastname' || $label === 'lastname' ) && ! empty( $value ) ) {
-				$subscriber_data['last_name'] = $value;
-			}
+		// Try getting first and name from Feedback API.
+		if ( $feedback->get_field_value_by_label( 'First Name' ) ) {
+			$subscriber_data['first_name'] = $feedback->get_field_value_by_label( 'First Name' );
+		} elseif ( $feedback->get_field_value_by_form_field_id( 'firstname' ) ) {
+			$subscriber_data['first_name'] = $feedback->get_field_value_by_form_field_id( 'firstname' );
+		} elseif ( $feedback->get_field_value_by_form_field_id( 'first-name' ) ) {
+			$subscriber_data['first_name'] = $feedback->get_field_value_by_form_field_id( 'first-name' );
 		}
-
-		if ( empty( $subscriber_data['email'] ) ) {
-			return array();
+		if ( $feedback->get_field_value_by_label( 'Last Name' ) ) {
+			$subscriber_data['last_name'] = $feedback->get_field_value_by_label( 'Last Name' );
+		} elseif ( $feedback->get_field_value_by_form_field_id( 'lastname' ) ) {
+			$subscriber_data['last_name'] = $feedback->get_field_value_by_form_field_id( 'lastname' );
+		} elseif ( $feedback->get_field_value_by_form_field_id( 'last-name' ) ) {
+			$subscriber_data['last_name'] = $feedback->get_field_value_by_form_field_id( 'last-name' );
 		}
 
 		return $subscriber_data;
@@ -182,28 +177,13 @@ class MailPoet_Integration {
 			return;
 		}
 
-		// Get consent field if it exists.
-		$consent_field = null;
-		if ( is_array( $form->fields ) ) {
-			foreach ( $form->fields as $form_field ) {
-				if ( 'consent' === $form_field->get_attribute( 'type' ) ) {
-					$consent_field = $form_field;
-					break;
-				}
-			}
+		$feedback = Feedback::get( $post_id );
+		if ( ! $feedback ) {
+			return;
 		}
 
-		// If consent field exists and is explicit, require it to be checked.
-		if ( $consent_field ) {
-			$consent_type = strtolower( (string) $consent_field->get_attribute( 'consenttype' ) );
-			if ( 'explicit' === $consent_type ) {
-				$consent_value           = $consent_field->value;
-				$consent_value_lowercase = is_string( $consent_value ) ? strtolower( trim( $consent_value ) ) : '';
-				$has_explicit_consent    = is_bool( $consent_value ) ? $consent_value : in_array( $consent_value_lowercase, array( 'yes', 'true', '1' ), true );
-				if ( ! $has_explicit_consent ) {
-					return;
-				}
-			}
+		if ( $feedback->has_field_type( 'consent' ) && ! $feedback->has_consent() ) {
+			return;
 		}
 
 		$mailpoet_api = self::get_api();
@@ -223,7 +203,7 @@ class MailPoet_Integration {
 			return;
 		}
 
-		$subscriber_data = self::get_subscriber_data_from_fields( $fields );
+		$subscriber_data = self::get_subscriber_data( $feedback );
 		if ( empty( $subscriber_data ) ) {
 			// Email is required for MailPoet subscribers.
 			return;
