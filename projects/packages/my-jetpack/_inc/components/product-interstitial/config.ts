@@ -2,6 +2,7 @@ import { JetpackProductWithCard } from '../../types';
 import { getBackupConfig } from './products/backup';
 import { getBoostConfig } from './products/boost';
 import { getJetpackAiConfig } from './products/jetpack-ai';
+import { getProtectConfig } from './products/protect';
 import { getSearchConfig } from './products/search';
 import { getSocialConfig } from './products/social';
 import { ProductConfig } from './types';
@@ -14,6 +15,7 @@ export type ProductConfigs = {
 export const getProductConfigs = (): ProductConfigs => ( {
 	backup: getBackupConfig(),
 	boost: getBoostConfig(),
+	protect: getProtectConfig(),
 	social: getSocialConfig(),
 	search: getSearchConfig(),
 	'jetpack-ai': getJetpackAiConfig(),
