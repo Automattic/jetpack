@@ -73,7 +73,8 @@
 		"ai-title-optimization-keywords-support",
 		"ai-response-feedback",
 		"ai-assistant-image-extension",
-		"ai-seo-enhancer"
+		"ai-seo-enhancer",
+		"paypal-payment-buttons"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -81,8 +82,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-list-to-table-transform",
-		"paypal-payment-buttons"
+		"ai-list-to-table-transform"
 	],
 	"experimental": [],
 	"no-post-editor": [
