@@ -1,5 +1,6 @@
 import { authenticatedRequest } from './plugin-tools';
-import type { AnyNode, Cheerio } from 'cheerio';
+import type { Cheerio } from 'cheerio';
+import type { AnyNode } from 'domhandler';
 
 /**
  * Helper class for reading, updating and submitting HTML forms from a Cheerio DOMs

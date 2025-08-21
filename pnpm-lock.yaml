@@ -5418,6 +5418,9 @@ importers:
       cheerio:
         specifier: 1.1.2
         version: 1.1.2
+      domhandler:
+        specifier: 5.0.3
+        version: 5.0.3
       dotenv:
         specifier: 16.6.1
         version: 16.6.1
