@@ -29,13 +29,13 @@ async function toggle( page: Page, toggleLocator: Locator ): Promise< void > {
 
 test.describe( 'Search Dashboard', () => {
 	test.beforeAll( async ( { testUtils } ) => {
-		clearSearchPlanInfo();
+		await clearSearchPlanInfo();
 		await testUtils.activateModule( 'search' );
-		enableInstantSearch();
+		await enableInstantSearch();
 	} );
 
 	test.afterAll( async () => {
-		disableInstantSearch();
+		await disableInstantSearch();
 	} );
 
 	test( 'Can manage search module and instant search.', async ( { page } ) => {
