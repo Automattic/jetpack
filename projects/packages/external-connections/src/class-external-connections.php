@@ -20,6 +20,39 @@ class External_Connections {
 	const BASE_FILE       = __FILE__;
 
 	/**
+	 * List of services whose connections are managed in settings pages.
+	 *
+	 * Each item has a key with the slug of the settings page, and a value with an array of services.
+	 *
+	 * Each service has the following keys:
+	 * - service: The service identifier.
+	 * - title: The title of the service.
+	 * - description: The description of the service.
+	 * - support_link: An array with the following keys:
+	 *     - jetpack: The URL handler registered in jetpack.com/redirect/.
+	 *     - wpcom: The URL of the support page for the service on WordPress.com.
+	 *
+	 * @example
+	 * ```php
+	 * $this->services = array(
+	 *     'media' => array(
+	 *         array(
+	 *             'service'      => 'facebook',
+	 *             'title'        => 'Facebook',
+	 *             'description'  => 'Connect your site to your Facebook account',
+	 *             'support_link' => array(
+	 *                 'jetpack' => 'facebook-connection',
+	 *                 'wpcom'   => 'https://wordpress.com/support/facebook/',
+	 *             ),
+	 *         ),
+	 *     ),
+	 * );
+	 * ```
+	 * @var array
+	 */
+	private static $services = array();
+
+	/**
 	 * Gets the connect URL for a given service.
 	 *
 	 * @param string $service The service identifier.
@@ -135,105 +168,103 @@ class External_Connections {
 	}
 
 	/**
-	 * Registers connection settings for the provided services on a specified settings page.
-	 *
-	 * @param string $page The slug of the settings page where the connection settings should be added.
-	 * @param array  $services A list of services to be configured, where each service contains 'service', 'title',
-	 *                          'description', and 'support_link' keys.
+	 * Registers connection settings.
 	 */
-	public static function add_connections_settings_section_and_fields( $page, $services ) {
-		global $pagenow;
+	public static function register_settings() {
+		foreach ( self::$services as $page => $services ) {
+			global $pagenow;
 
-		if ( $pagenow !== "options-$page.php" ) {
-			return;
-		}
-
-		$host = new Host();
-
-		if ( ! $host->is_wpcom_simple() ) {
-			$connection = new Connection_Manager( 'jetpack' );
-			$status     = new Status();
-
-			if ( $status->is_offline_mode() ) {
-				return;
+			if ( $pagenow !== "options-$page.php" ) {
+				continue;
 			}
 
-			if ( ! $connection->has_connected_owner() ) {
-				return;
-			}
+			$host = new Host();
 
-			if ( ! $connection->is_user_connected() ) {
-				return;
-			}
-		}
+			if ( ! $host->is_wpcom_simple() ) {
+				$connection = new Connection_Manager( 'jetpack' );
+				$status     = new Status();
 
-		add_settings_section(
-			'external_connections_section',
-			__( 'Integrations', 'jetpack-external-connections' ),
-			'__return_false',
-			$page
-		);
-
-		$asset_name = 'jetpack-external-connections-settings';
-		Assets::register_script(
-			$asset_name,
-			"build/$asset_name/$asset_name.js",
-			self::BASE_FILE,
-			array(
-				'in_footer'    => true,
-				'textdomain'   => 'jetpack-external-connections',
-				'dependencies' => array( 'wp-util' ),
-			)
-		);
-		Assets::enqueue_script( $asset_name );
-
-		$script_data = array();
-
-		foreach ( $services as $service ) {
-			if ( $host->is_wpcom_platform() ) {
-				$support_link = $service['support_link']['wpcom'];
-				if ( function_exists( 'localized_wpcom_url' ) ) {
-					$support_link = localized_wpcom_url( $support_link );
+				if ( $status->is_offline_mode() ) {
+					return;
 				}
-			} else {
-				$support_link = Redirect::get_url( $service['support_link']['jetpack'] );
+
+				if ( ! $connection->has_connected_owner() ) {
+					return;
+				}
+
+				if ( ! $connection->is_user_connected() ) {
+					return;
+				}
 			}
 
-			$is_connected = self::has_connection( $service['service'] );
-			$connect_url  = self::get_connect_url( $service['service'] );
-
-			add_settings_field(
-				'external_connections_field_' . $service['service'],
-				$service['title'],
-				function () use ( $service, $is_connected, $support_link ) {
-					?>
-					<div>
-						<button class="button-secondary jetpack-external-connection" type="button" data-service="<?php echo esc_attr( $service['service'] ); ?>">
-							<?php $is_connected ? esc_html_e( 'Disconnect', 'jetpack-external-connections' ) : esc_html_e( 'Connect', 'jetpack-external-connections' ); ?>
-						</button>
-						<p class="description">
-							<?php echo esc_html( $service['description'] ); ?>
-							<a href="<?php echo esc_url( $support_link ); ?>" target="_blank" data-target="wpcom-help-center"><?php esc_html_e( 'Learn more', 'jetpack-external-connections' ); ?></a>
-						</p>
-					</div>
-					<?php
-				},
-				$page,
-				'external_connections_section'
+			add_settings_section(
+				'external_connections_section',
+				__( 'Integrations', 'jetpack-external-connections' ),
+				'__return_false',
+				$page
 			);
 
-			$script_data[ $service['service'] ] = array(
-				'isConnected' => $is_connected,
-				'connectUrl'  => $connect_url,
-				'deleteNonce' => wp_create_nonce( 'jetpack_delete_external_connection_' . $service['service'] ),
+			$asset_name = 'jetpack-external-connections-settings';
+			Assets::register_script(
+				$asset_name,
+				"build/$asset_name/$asset_name.js",
+				self::BASE_FILE,
+				array(
+					'in_footer'    => true,
+					'textdomain'   => 'jetpack-external-connections',
+					'dependencies' => array( 'wp-util' ),
+				)
+			);
+			Assets::enqueue_script( $asset_name );
+
+			$script_data = array();
+
+			foreach ( $services as $service ) {
+				if ( $host->is_wpcom_platform() ) {
+					$support_link = $service['support_link']['wpcom'];
+					if ( function_exists( 'localized_wpcom_url' ) ) {
+						$support_link = localized_wpcom_url( $support_link );
+					}
+				} else {
+					$support_link = Redirect::get_url( $service['support_link']['jetpack'] );
+				}
+
+				$is_connected = self::has_connection( $service['service'] );
+				$connect_url  = self::get_connect_url( $service['service'] );
+
+				add_settings_field(
+					'external_connections_field_' . $service['service'],
+					$service['title'],
+					function () use ( $service, $is_connected, $support_link ) {
+						?>
+						<div>
+							<button class="button-secondary jetpack-external-connection" type="button" data-service="<?php echo esc_attr( $service['service'] ); ?>">
+								<?php $is_connected ? esc_html_e( 'Disconnect', 'jetpack-external-connections' ) : esc_html_e( 'Connect', 'jetpack-external-connections' ); ?>
+							</button>
+							<p class="description">
+								<?php echo esc_html( $service['description'] ); ?>
+								<a href="<?php echo esc_url( $support_link ); ?>" target="_blank" data-target="wpcom-help-center"><?php esc_html_e( 'Learn more', 'jetpack-external-connections' ); ?></a>
+							</p>
+						</div>
+						<?php
+					},
+					$page,
+					'external_connections_section'
+				);
+
+				$script_data[ $service['service'] ] = array(
+					'isConnected' => $is_connected,
+					'connectUrl'  => $connect_url,
+					'deleteNonce' => wp_create_nonce( 'jetpack_delete_external_connection_' . $service['service'] ),
+				);
+			}
+
+			wp_add_inline_script(
+				$asset_name,
+				'const jetpackExternalConnectionsData = ' . wp_json_encode( $script_data ) . ';',
+				'before'
 			);
 		}
-
-		wp_add_inline_script(
-			$asset_name,
-			'const jetpackExternalConnectionsData = ' . wp_json_encode( $script_data ) . ';',
-			'before'
-		);
 	}
 
 	/**
@@ -252,21 +283,23 @@ class External_Connections {
 	}
 
 	/**
-	 * Adds connections settings and related actions.
+	 * Registers settings and hooks for a specified service on a given admin page.
 	 *
-	 * @param string $page The slug of the settings page where the connection settings should be added.
-	 * @param array  $services A list of services to be configured, where each service contains 'service', 'title',
-	 *                           'description', and 'support_link' keys.
-	 *
-	 * @return void
+	 * @param string $page The identifier of the admin page where the service settings are added.
+	 * @param array  $service The service to be associated with the specified admin page.
 	 */
-	public static function add_connections_settings( $page, $services ) {
-		add_action(
-			'admin_init',
-			function () use ( $page, $services ) {
-				self::add_connections_settings_section_and_fields( $page, $services );
-			}
-		);
-		add_action( 'wp_ajax_jetpack_delete_external_connection', array( __CLASS__, 'ajax_delete_connection' ) );
+	public static function add_settings_for_service( $page, $service ) {
+		if ( ! isset( self::$services[ $page ] ) ) {
+			self::$services[ $page ] = array();
+		}
+		self::$services[ $page ][] = $service;
+
+		if ( ! has_action( 'admin_init', array( __CLASS__, 'register_settings' ) ) ) {
+			add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+		}
+
+		if ( ! has_action( 'wp_ajax_jetpack_delete_external_connection', array( __CLASS__, 'ajax_delete_connection' ) ) ) {
+			add_action( 'wp_ajax_jetpack_delete_external_connection', array( __CLASS__, 'ajax_delete_connection' ) );
+		}
 	}
 }
