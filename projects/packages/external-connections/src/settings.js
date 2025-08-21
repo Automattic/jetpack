@@ -23,17 +23,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				  );
 			connectionButton.disabled = true;
 
-			if ( ! isConnected ) {
-				requestExternalAccess( connectUrl, ( { keyring_id: keyringId } ) => {
-					connectionButton.disabled = false;
-					if ( keyringId ) {
-						connectionButton.innerText = __( 'Disconnect', 'jetpack-external-connections' );
-						jetpackExternalConnectionsData[ service ].isConnected = true;
-					} else {
-						connectionButton.innerText = __( 'Connect', 'jetpack-external-connections' );
-					}
-				} );
-			} else {
+			if ( isConnected ) {
 				wp.ajax.post( 'jetpack_delete_external_connection', {
 					service,
 					_ajax_nonce: deleteNonce,
@@ -41,7 +31,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				connectionButton.disabled = false;
 				connectionButton.innerText = __( 'Connect', 'jetpack-external-connections' );
 				jetpackExternalConnectionsData[ service ].isConnected = false;
+				return;
 			}
+
+			requestExternalAccess( connectUrl, ( { keyring_id: keyringId } ) => {
+				connectionButton.disabled = false;
+				if ( keyringId ) {
+					connectionButton.innerText = __( 'Disconnect', 'jetpack-external-connections' );
+					jetpackExternalConnectionsData[ service ].isConnected = true;
+				} else {
+					connectionButton.innerText = __( 'Connect', 'jetpack-external-connections' );
+				}
+			} );
 		} );
 	} );
 } );
