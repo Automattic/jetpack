@@ -358,14 +358,17 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 			const params = url.searchParams;
 
 			// loads response for queries
+			// IMPORTANT: We must create a deep copy of the results array to avoid mutating
+			// the original mock data. Without this, sorting operations would permanently
+			// modify the mock data, causing inconsistent test results on subsequent runs.
 			let body;
 			switch ( params.get( 'query' ) ) {
 				case 'test1':
-					body = { ...searchResultForTest1 };
+					body = { ...searchResultForTest1, results: [ ...searchResultForTest1.results ] };
 					break;
 				case 'test2':
 				default:
-					body = { ...searchResultForTest2 };
+					body = { ...searchResultForTest2, results: [ ...searchResultForTest2.results ] };
 					break;
 			}
 
