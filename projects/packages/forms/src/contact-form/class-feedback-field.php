@@ -138,6 +138,8 @@ class Feedback_Field {
 	 */
 	public function get_render_value( $context = 'default' ) {
 		switch ( $context ) {
+			case 'submit':
+				return $this->get_render_submit_value();
 			case 'api':
 				return $this->get_render_api_value();
 			case 'default':
@@ -205,6 +207,38 @@ class Feedback_Field {
 		// This method is deprecated, use render_value instead.
 		return $this->value;
 	}
+	/**
+	 * Get the value of the field for rendering when submitting.
+	 *
+	 * This method is used to prepare the value for submission, especially for file fields.
+	 *
+	 * @return array|string The prepared value for submission.
+	 */
+	private function get_render_submit_value() {
+		if ( $this->is_of_type( 'file' ) ) {
+			$files = array();
+			foreach ( $this->value['files'] as $file ) {
+				if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
+					// this shouldn't happen, todo: log this
+					continue;
+				}
+				$files[] = array(
+					'file_id' => absint( $file['file_id'] ),
+					'name'    => $file['name'] ?? '',
+					'size'    => absint( $file['size'] ),
+					'type'    => $file['type'] ?? '',
+				);
+			}
+
+			return array(
+				'field_id' => $this->get_form_field_id(),
+				'files'    => $files,
+			);
+		}
+
+		return $this->value;
+	}
+
 	/**
 	 * Check if the field is of a specific type.
 	 *

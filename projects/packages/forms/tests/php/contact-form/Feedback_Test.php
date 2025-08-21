@@ -1117,6 +1117,58 @@ class Feedback_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_get_all_values_with_file_upload() {
+
+		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'uploadafile' => array( '{"file_id":54321,"name":"Screenshot.png","size":19914,"type":"image/png"}', '{}' ),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field type="file" label="Upload a file" /]'
+		);
+
+		$expected_file = array(
+			'field_id' => 'g2376-1-uploadafile',
+			'files'    => array(
+				array(
+					'file_id' => 54321,
+					'name'    => 'Screenshot.png',
+					'size'    => 19914,
+					'type'    => 'image/png',
+				),
+				array(
+					'file_id' => 0,
+					'name'    => '',
+					'size'    => 0,
+					'type'    => '',
+				),
+			),
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( $expected_file, $response->get_all_values( 'submit' )['1_Upload a file'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_file, $saved_response->get_all_values( 'submit' )['1_Upload a file'], 'Saved response all values should match the expected values' );
+
+		$this->assertEquals( $expected_file, $response->get_legacy_extra_values( 'submit' )['2_Upload a file'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_file, $saved_response->get_legacy_extra_values( 'submit' )['2_Upload a file'], 'Saved response all values should match the expected values' );
+
+		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+	}
+
 	public function test_get_akismet_vars() {
 		// Test that the get_akismet_vars method returns the correct variables for Akismet.
 
