@@ -24,6 +24,7 @@
 	},
 	"dependencies": {
 		"@automattic/request-external-access": "1.0.1",
+		"@wordpress/dom-ready": "4.28.0",
 		"@wordpress/i18n": "6.1.0"
 	},
 	"devDependencies": {

@@ -1,9 +1,10 @@
 /* global wp, jetpackExternalConnectionsData */
 
 import requestExternalAccess from '@automattic/request-external-access';
+import domReady from '@wordpress/dom-ready';
 import { __ } from '@wordpress/i18n';
 
-document.addEventListener( 'DOMContentLoaded', () => {
+domReady( () => {
 	const connectionButtons = document.querySelectorAll( '.jetpack-external-connection' );
 	if ( ! connectionButtons.length ) {
 		return;
