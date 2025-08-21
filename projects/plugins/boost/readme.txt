@@ -183,26 +183,20 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.3.0 - 2025-08-06
+### 4.3.1-beta - 2025-08-21
 #### Added
-- Page Cache: Ignore Yandex parameters so those visitors are served from the cache.
+- Added typecheck placeholder to implement it later.
+- Added typecheck support for E2E tests.
 
 #### Changed
-- Image CDN: Ignore images from openlibrary.org.
-- Misc: Speed up uninstall process.
-- My Jetpack: Unify the user connection flow with a unified screen.
-
-#### Removed
-- Image Size Analysis: feature has been removed. Filter will no longer enable the ISA.
+- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name.
+- Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior.
+- Cornerstone Pages: Improve behavior when running on WordPress MU installations.
+- My Jetpack: Fixed multisite availability check for restricted products and modules.
+- Update package dependencies.
 
 #### Fixed
-- Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive.
-- Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled.
-- LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images
-- My Jetpack: Fixing footer alignment for diconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles
-- My Jetpack: Restoring plan purchase link.
-- Page Cache: Fix php warnings related to opcache calls when API is disabled.
+- Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute.
 
 --------
 
