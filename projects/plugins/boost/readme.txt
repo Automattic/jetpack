@@ -184,10 +184,6 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 
 == Changelog ==
 ### 4.3.1-beta - 2025-08-21
-#### Added
-- Added typecheck placeholder to implement it later.
-- Added typecheck support for E2E tests.
-
 #### Changed
 - Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name.
 - Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior.

@@ -6,10 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [4.3.1-beta] - 2025-08-21
-### Added
-- Added typecheck placeholder to implement it later. [#44795]
-- Added typecheck support for E2E tests. [#44788]
-
 ### Changed
 - Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name. [#44845]
 - Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior. [#44845]
