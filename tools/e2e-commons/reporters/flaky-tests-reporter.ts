@@ -58,7 +58,7 @@ export default class FlakyTestsReporter implements Reporter {
 			}
 			case 'flaky': {
 				fs.writeFileSync(
-					`flaky-tests/${ fileNameFormatter( testTitle ) }.json`,
+					`output/flaky-tests/${ fileNameFormatter( testTitle ) }.json`,
 					JSON.stringify( {
 						version: 1,
 						runner: '@playwright/test',
