@@ -66,8 +66,20 @@ function load_assets( $attr, $content ) {
  * @return string
  */
 function render_email( $block_content, array $parsed_block, $rendering_context ) {
+	// Email rendering configuration
+	$email_grid_padding_margin = 20; // Total padding/margin space for grid layout
+	$email_image_padding       = 16; // Padding space around individual images
+	$email_row_margin          = 16; // Margin between image rows
+	$email_table_margin        = 16; // Margin for the main table wrapper
+
 	// Validate input parameters
 	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ) {
+		return '';
+	}
+
+	// Check for required WooCommerce Email Editor helper classes upfront
+	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
 		return '';
 	}
 
@@ -129,12 +141,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		return '';
 	}
 
-	// Check for required WooCommerce Email Editor helper classes upfront
-	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
-		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
-		return '';
-	}
-
 	// Determine target width from the email layout if available
 	$target_width = 600; // Default
 	if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
@@ -150,13 +156,13 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	// Build grid content
 	$grid_content   = '';
 	$images_per_row = 2; // Two images per row for better email compatibility
-	$image_width    = floor( ( $target_width - 20 ) / $images_per_row ); // Account for padding/margins
+	$image_width    = floor( ( $target_width - $email_grid_padding_margin ) / $images_per_row ); // Account for padding/margins
 
 	// Create rows
 	$image_chunks = array_chunk( $images, $images_per_row );
 
 	foreach ( $image_chunks as $row_images ) {
-		$grid_content .= '<table role="presentation" style="width: 100%; border-collapse: collapse; margin: 0 0 16px 0; table-layout: fixed;"><tr>';
+		$grid_content .= '<table role="presentation" style="width: 100%; border-collapse: collapse; margin: 0 0 ' . $email_row_margin . 'px 0; table-layout: fixed;"><tr>';
 
 		foreach ( $row_images as $image ) {
 			$grid_content .= sprintf(
@@ -170,7 +176,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 					'<img src="%s" alt="%s" style="width: 100%%; max-width: %dpx; height: auto; display: block; border: 0; margin: 0 auto; border-radius: 4px;" />',
 					esc_url( $image['url'] ),
 					esc_attr( $image['alt'] ),
-					$image_width - 16 // Account for padding
+					$image_width - $email_image_padding // Account for padding
 				);
 			}
 
@@ -196,7 +202,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 
 	// Use Table_Wrapper_Helper for consistent email rendering
 	$image_table_attrs = array(
-		'style' => 'margin: 16px 0; padding: 0; border-collapse: collapse;',
+		'style' => 'margin: ' . $email_table_margin . 'px 0; padding: 0; border-collapse: collapse;',
 		'width' => $target_width,
 	);
 
