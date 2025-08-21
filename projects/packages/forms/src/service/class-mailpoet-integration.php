@@ -182,10 +182,7 @@ class MailPoet_Integration {
 			return;
 		}
 
-		// If the form has a consent field, require consent to be granted.
-		$field_ids         = $form->get_field_ids();
-		$has_consent_field = ! empty( $field_ids['email_marketing_consent_field'] );
-		if ( $has_consent_field && ! $feedback->has_consent() ) {
+		if ( $feedback->has_field_type( 'consent' ) && ! $feedback->has_consent() ) {
 			return;
 		}
 
