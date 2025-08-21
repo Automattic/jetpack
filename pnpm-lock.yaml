@@ -4268,8 +4268,8 @@ importers:
         specifier: 30.0.4
         version: 30.0.4
       livereload:
-        specifier: 0.9.3
-        version: 0.9.3
+        specifier: 0.10.3
+        version: 0.10.3
       path-browserify:
         specifier: 1.0.1
         version: 1.0.1
@@ -13222,6 +13222,14 @@ packages:
 
   livereload-js@3.4.1:
     resolution: {integrity: sha512-5MP0uUeVCec89ZbNOT/i97Mc+q3SxXmiUGhRFOTmhrGPn//uWVQdCvcLJDy64MSBR5MidFdOR7B9viumoavy6g==}
+
+  livereload-js@4.0.2:
+    resolution: {integrity: sha512-Fy7VwgQNiOkynYyNBTo3v9hQUhcW5pFAheJN148+DTgpShjsy/22pLHKKwDK5v0kOsZsJBK+6q1PMgLvRmrwFQ==}
+
+  livereload@0.10.3:
+    resolution: {integrity: sha512-llSb8HrtSH7ByPFMc8WTTeW3oy++smwgSA8JVGzEn8KiDPESq6jt1M4ZKKkhKTrhn2wvUOadQq4ip10E5daZ3w==}
+    engines: {node: '>=8.0.0'}
+    hasBin: true
 
   livereload@0.9.3:
     resolution: {integrity: sha512-q7Z71n3i4X0R9xthAryBdNGVGAO2R5X+/xXpmKeuPMrteg+W2U8VusTKV3YiJbXZwKsOlFlHe+go6uSNjfxrZw==}
@@ -27768,6 +27776,18 @@ snapshots:
       - zenObservable
 
   livereload-js@3.4.1: {}
+
+  livereload-js@4.0.2: {}
+
+  livereload@0.10.3:
+    dependencies:
+      chokidar: 4.0.3
+      livereload-js: 4.0.2
+      opts: 2.0.2
+      ws: 8.18.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   livereload@0.9.3:
     dependencies:
