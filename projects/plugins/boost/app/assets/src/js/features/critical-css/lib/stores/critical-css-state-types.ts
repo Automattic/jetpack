@@ -29,7 +29,7 @@ export const CriticalCssErrorDetailsSchema = z.object( {
 	url: z.coerce.string(),
 	message: z.coerce.string(),
 	meta: z.record( JSONSchema ).catch( {} ),
-	type: CriticalCssErrorType,
+	type: CriticalCssErrorType.catch( 'UnknownError' ),
 } );
 
 export const ProviderSchema = z.object( {
