@@ -63,29 +63,24 @@ class External_Connections {
 			require_lib( 'external-connections' );
 			$connections = \WPCOM_External_Connections::init();
 			$service     = $connections->get_external_service_item( $service );
-			if ( ! empty( $service ) ) {
-				return $service['connect_URL'];
-			}
-		} else {
-			$site_id = Connection_Manager::get_site_id();
-			if ( is_wp_error( $site_id ) ) {
-				return null;
-			}
-
-			$path     = sprintf( '/sites/%d/external-services', $site_id );
-			$response = Client::wpcom_json_api_request_as_user( $path );
-			if ( is_wp_error( $response ) ) {
-				return null;
-			}
-
-			$body = json_decode( wp_remote_retrieve_body( $response ) );
-			if ( ! property_exists( $body, 'services' ) || ! property_exists( $body->services, $service ) ) {
-				return null;
-			}
-
-			return $body->services->{ $service }->connect_URL;
+			return empty( $service ) ? null : $service['connect_URL'];
 		}
-		return null;
+
+		$site_id = Connection_Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return null;
+		}
+
+		$path     = sprintf( '/sites/%d/external-services', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path );
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		return $body->services->$service->connect_URL ?? null;
 	}
 
 	/**
