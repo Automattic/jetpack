@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a PHP fatal error in the stats icon column when the first column is "comments"
