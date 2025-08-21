@@ -16,7 +16,7 @@
 		"@types/node": "^20.4.2",
 		"_jetpack-e2e-commons": "workspace:*",
 		"axios": "1.11.0",
-		"cheerio": "1.0.0-rc.12",
+		"cheerio": "1.1.2",
 		"dotenv": "16.6.1",
 		"jest": "^30.0.0",
 		"jest-util": "^30.0.0",
