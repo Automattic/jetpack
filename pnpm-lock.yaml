@@ -295,8 +295,8 @@ importers:
         specifier: 6.1.0
         version: 6.1.0
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.25.76
+        version: 3.25.76
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -1446,8 +1446,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.25.76
+        version: 3.25.76
 
   projects/js-packages/remove-asset-webpack-plugin:
     dependencies:
@@ -4210,8 +4210,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.25.76
+        version: 3.25.76
     devDependencies:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
@@ -4637,8 +4637,8 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.25.76
+        version: 3.25.76
 
   projects/plugins/jetpack:
     dependencies:
@@ -16671,9 +16671,6 @@ packages:
   yocto-queue@1.2.1:
     resolution: {integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==}
     engines: {node: '>=12.20'}
-
-  zod@3.22.3:
-    resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
@@ -31734,8 +31731,6 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yocto-queue@1.2.1: {}
-
-  zod@3.22.3: {}
 
   zod@3.25.76: {}
 
