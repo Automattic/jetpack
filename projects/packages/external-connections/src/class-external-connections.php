@@ -192,7 +192,7 @@ class External_Connections {
 			}
 
 			add_settings_section(
-				'external_connections_section',
+				'jetpack_external_connections_section',
 				__( 'Integrations', 'jetpack-external-connections' ),
 				'__return_false',
 				$page
@@ -230,7 +230,7 @@ class External_Connections {
 				}
 
 				add_settings_field(
-					'external_connections_field_' . $service['service'],
+					'jetpack_external_connections_field_' . $service['service'],
 					$service['title'],
 					function () use ( $service, $is_connected, $support_link ) {
 						?>
@@ -246,7 +246,7 @@ class External_Connections {
 						<?php
 					},
 					$page,
-					'external_connections_section'
+					'jetpack_external_connections_section'
 				);
 
 				$script_data[ $service['service'] ] = array(
