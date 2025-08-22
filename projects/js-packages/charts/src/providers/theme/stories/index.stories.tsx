@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../.';
 import { LineChart, BarChart, PieSemiCircleChart } from '../../../.';
-import barSampleData from '../../../components/bar-chart/stories/sample-data';
+import { olympicMedals, temperatureData } from '../../../stories/sample-data';
 
 const meta: Meta< typeof ThemeProvider > = {
 	title: 'JS Packages/Charts/Themes',
@@ -14,32 +14,9 @@ const meta: Meta< typeof ThemeProvider > = {
 export default meta;
 type Story = StoryObj< typeof ThemeProvider >;
 
-const sampleData = [ barSampleData[ 0 ], barSampleData[ 1 ], barSampleData[ 2 ] ];
+const sampleData = [ olympicMedals[ 0 ], olympicMedals[ 1 ], olympicMedals[ 2 ] ];
 
-const lineSampleData = [
-	{
-		group: 'Line 1',
-		label: 'Line 1',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 15, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 25, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 30, label: 'Jan 5' },
-		],
-	},
-	{
-		group: 'Line 2',
-		label: 'Line 2',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 1, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 2, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 1.5, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 2.5, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 3, label: 'Jan 5' },
-		],
-	},
-];
+const lineSampleData = [ temperatureData[ 0 ], temperatureData[ 1 ] ];
 
 const pieData = [
 	{
