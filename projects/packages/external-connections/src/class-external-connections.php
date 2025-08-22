@@ -59,41 +59,28 @@ class External_Connections {
 	 * @return string|null The connect URL, or `null` if the service is not supported.
 	 */
 	public static function get_connect_url( $service ) {
-		$transient_name = "jetpack_external_connections_connect_url_$service";
-
-		$connect_url = get_transient( $transient_name );
-		if ( $connect_url !== false ) {
-			return $connect_url;
-		}
-
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			require_lib( 'external-connections' );
 			$connections = \WPCOM_External_Connections::init();
 			$service     = $connections->get_external_service_item( $service );
-			$connect_url = $service ? $service['connect_URL'] : null;
-			set_transient( $transient_name, $connect_url, DAY_IN_SECONDS );
-			return $connect_url;
+			return $service ? $service['connect_URL'] : null;
 		}
 
 		$site_id = Connection_Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
-			set_transient( $transient_name, null, DAY_IN_SECONDS );
 			return null;
 		}
 
 		$path     = sprintf( '/sites/%d/external-services', $site_id );
 		$response = Client::wpcom_json_api_request_as_user( $path );
 		if ( is_wp_error( $response ) ) {
-			set_transient( $transient_name, null, DAY_IN_SECONDS );
 			return null;
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$connect_url = $body->services->$service->connect_URL ?? null;
-		set_transient( $transient_name, $connect_url, DAY_IN_SECONDS );
-		return $connect_url;
+		return $body->services->$service->connect_URL ?? null;
 	}
 
 	/**
