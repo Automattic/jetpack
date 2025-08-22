@@ -1159,6 +1159,8 @@ class Feedback_Test extends BaseTestCase {
 		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
 		$saved_response   = Feedback::get( $feedback_post_id );
+		$this->assertTrue( $response->has_file(), 'Response should have file uploaded' );
+		$this->assertTrue( $saved_response->has_file(), 'Saved response should have file uploaded' );
 
 		$this->assertEquals( $expected_file, $response->get_all_values( 'submit' )['1_Upload a file'], 'Response all values should match the expected values' );
 		$this->assertEquals( $expected_file, $saved_response->get_all_values( 'submit' )['1_Upload a file'], 'Saved response all values should match the expected values' );

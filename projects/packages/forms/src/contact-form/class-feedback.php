@@ -843,7 +843,7 @@ class Feedback {
 			if ( $feedback_field instanceof Feedback_Field ) {
 				$fields[ $feedback_field->get_key() ] = $feedback_field;
 				if ( ! $this->has_file && $feedback_field->has_file() ) {
-					$this->has_file = false;
+					$this->has_file = true;
 				}
 			}
 		}
