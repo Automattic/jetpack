@@ -70,11 +70,19 @@ function ExternalConnection( { service } ) {
 	if ( isTogglingConnection ) {
 		buttonText = isConnected
 			? __( 'Disconnecting…', 'jetpack-external-connections' )
-			: __( 'Connecting…', 'jetpack-external-connections' );
+			: __(
+					'Connecting…',
+					'jetpack-external-connections',
+					/* dummy arg to avoid bad minification */ 0
+			  );
 	} else {
 		buttonText = isConnected
 			? __( 'Disconnect', 'jetpack-external-connections' )
-			: __( 'Connect', 'jetpack-external-connections' );
+			: __(
+					'Connect',
+					'jetpack-external-connections',
+					/* dummy arg to avoid bad minification */ 0
+			  );
 	}
 
 	return (
