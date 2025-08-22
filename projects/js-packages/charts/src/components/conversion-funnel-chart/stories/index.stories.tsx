@@ -1,6 +1,7 @@
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { sampleFunnelData } from '../../../stories/sample-data';
 import { ConversionFunnelChart } from '../conversion-funnel-chart';
-import { sampleFunnelData, lowConversionData, highConversionData } from './sample-data';
+import { lowConversionData, highConversionData } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof ConversionFunnelChart > = {
