@@ -210,6 +210,7 @@ export const moveToTrashAction = {
 	id: 'move-to-trash',
 	label: __( 'Move to trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
+	isPrimary: true,
 	supportsBulk: true,
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {

@@ -3,7 +3,7 @@ import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legen
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
 import { forwardRef, useCallback } from 'react';
-import { useChartTheme } from '../../providers/theme';
+import { useGlobalChartTheme } from '../../hooks';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
 import type { BaseLegendProps } from './types';
@@ -43,7 +43,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 		},
 		ref
 	) => {
-		const theme = useChartTheme();
+		const theme = useGlobalChartTheme();
 
 		const legendScale = scaleOrdinal( {
 			domain: items.map( item => item.label ),

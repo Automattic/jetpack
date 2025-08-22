@@ -332,12 +332,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->update_submenus( 'tools.php', $submenus_to_update );
 
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
-
-		// Temporary "Tools > Monetize" menu for existing users that shows a callout informing that the screen has moved to "Jetpack > Monetize".
-		if ( ! $this->use_wp_admin_interface() && get_current_user_id() < 268854000 ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack-masterbar' ), __( 'Monetize', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/earn/jetpack-monetize/' . $this->domain, null, 2 );
-		}
 	}
 
 	/**
@@ -373,12 +367,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		if ( get_current_user_id() < 269750000 ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-newsletter/' . $this->domain, null, 7 );
-		}
-
-		// Temporary "Settings > Podcasting" menu for existing users that shows a callout informing that the screen has moved to "Jetpack > Podcasting".
-		if ( get_current_user_id() < 268901000 ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-podcasting/' . $this->domain, null, 8 );
 		}
 	}
 

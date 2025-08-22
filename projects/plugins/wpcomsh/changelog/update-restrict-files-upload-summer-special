@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Description: Restrict unsupported file types from being selectable in media uploader based on site features.

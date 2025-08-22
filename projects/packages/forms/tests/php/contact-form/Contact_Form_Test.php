@@ -40,6 +40,48 @@ class Contact_Form_Test extends BaseTestCase {
 	private $plugin;
 
 	/**
+	 * Test the esc_shortcode_val method with various input types
+	 */
+	public function test_esc_shortcode_val() {
+		// Test simple string escaping
+		$this->assertEquals(
+			'Hello&#044; World&#091;&#093;',
+			Contact_Form::esc_shortcode_val( 'Hello, World[]' ),
+			'Failed to properly escape string with brackets and comma'
+		);
+
+		// Test array with value key
+		$this->assertEquals(
+			'test&#092;value',
+			Contact_Form::esc_shortcode_val( array( 'value' => 'test\\value' ) ),
+			'Failed to handle array with value key'
+		);
+
+		// Test array without value key (recursive case)
+		$this->assertEquals(
+			'first',
+			Contact_Form::esc_shortcode_val( array( 'first', 'second' ) ),
+			'Failed to handle array without value key'
+		);
+
+		// Test nested array case
+		$this->assertEquals(
+			'nested',
+			Contact_Form::esc_shortcode_val( array( array( 'value' => 'nested' ) ) ),
+			'Failed to handle nested array'
+		);
+
+		// Test special character escaping
+		$special_chars = '[bracket], \\backslash\\, ,comma,';
+		$expected      = '&#091;bracket&#093;&#044; &#092;backslash&#092;&#044; &#044;comma&#044;';
+		$this->assertEquals(
+			$expected,
+			Contact_Form::esc_shortcode_val( $special_chars ),
+			'Failed to escape all special characters correctly'
+		);
+	}
+
+	/**
 	 * Sets up the test environment before the class tests begin.
 	 *
 	 * @beforeClass
@@ -376,11 +418,10 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
 		// Default metadata should be saved.
-		$this->assertStringContainsString( 'SUBJECT: I\\\'m sorry, but the party\\\'s over', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertEquals( "I'm sorry, but the party's over", $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -405,10 +446,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -432,10 +472,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -459,10 +498,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -490,13 +528,13 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( '\"1_Name\":\"John Doe\"', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContainsString( '\"2_Dropdown\":\"First option\"', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContainsString( '\"3_Radio\":\"Second option\"', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContainsString( '\"4_Text\":\"Texty text\"', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$response = Feedback::get( $feedback_id );
+
+		$this->assertStringContainsString( 'John Doe', $response->get_field_value_by_label( 'Name' ), 'Post content did not contain the name label and/or value' );
+		$this->assertStringContainsString( 'First option', $response->get_field_value_by_label( 'Dropdown' ), 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContainsString( 'Second option', $response->get_field_value_by_label( 'Radio' ), 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContainsString( 'Texty text', $response->get_field_value_by_label( 'Text' ), 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
@@ -3145,11 +3183,13 @@ EOT;
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'                 => $name,
-				'email'                => $email,
-				'choose'               => array( 'truth' ),
-				'chooseoptions'        => array( 'hello  there' ),
-				'chooseseveraloptions' => array( 'hello, there' ),
+				'name'                        => $name,
+				'email'                       => $email,
+				'choose'                      => array( 'truth' ),
+				'chooseoptions'               => array( 'hello  there' ),
+				'chooseseveraloptions'        => array( 'hello, there' ),
+				'chooseseveraloptionsspecial' => array( 'hello, world' ),
+
 			),
 			'g' . $form_id
 		);
@@ -3175,11 +3215,43 @@ EOT;
 
 
 &lt;/ul&gt;
-&lt;/div&gt;[/contact-field]'
+&lt;/div&gt;[/contact-field][contact-field label="Choose several options special" type="checkbox-multiple" options="hello&#044; world,dare" /]'
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
 
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
+	}
+
+	public function test_validate_radio_form() {
+		$name    = '';
+		$email   = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => 'hello, world',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Choose" type="radio" options="hello&#044; world,dare" /]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		$this->assertEquals( array(), $form->get_error_messages() );
 		// message should be not empty.
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 

@@ -2,6 +2,7 @@ import { jetpackTheme, wooTheme } from '../../../providers/theme';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { PieChart } from '../index';
+import { PieChartUnresponsive } from '../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = React.ComponentProps< typeof PieChart > & {
@@ -156,6 +157,44 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithCompositionLegend: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'center',
+			} }
+		>
+			<div>
+				<h3>Traditional Props-based Legend</h3>
+				<PieChart
+					size={ 300 }
+					data={ data }
+					showLegend={ true }
+					legendPosition="bottom"
+					legendOrientation="horizontal"
+				/>
+			</div>
+			<div>
+				<h3>Composition API with Legend Component</h3>
+				<PieChart size={ 300 } data={ data }>
+					<PieChart.Legend position="bottom" orientation="horizontal" alignment="center" />
+				</PieChart>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the new composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control.',
+			},
+		},
+	},
+};
+
 export const CustomLegendPositioning: Story = {
 	args: {
 		data: [
@@ -211,6 +250,89 @@ export const Responsiveness: Story = {
 		docs: {
 			description: {
 				story: 'Pie chart with responsive behavior. Uses size prop instead of width/height.',
+			},
+		},
+	},
+};
+
+export const CompositionAPI: Story = {
+	render: () => {
+		const chartData = [
+			{ label: 'Desktop', value: 45, percentage: 45 },
+			{ label: 'Mobile', value: 30, percentage: 30 },
+			{ label: 'Tablet', value: 25, percentage: 25 },
+		];
+
+		return (
+			<div style={ { width: '600px', padding: '20px' } }>
+				<PieChartUnresponsive
+					data={ chartData }
+					size={ 400 }
+					withTooltips={ true }
+					thickness={ 0.7 }
+				>
+					<PieChartUnresponsive.HTML>
+						<h3 style={ { textAlign: 'center', marginBottom: '20px' } }>
+							Device Usage Distribution
+						</h3>
+					</PieChartUnresponsive.HTML>
+
+					<PieChartUnresponsive.SVG>
+						<text
+							x={ 0 }
+							y={ 0 }
+							textAnchor="middle"
+							style={ { fontSize: '24px', fontWeight: 'bold' } }
+						>
+							100%
+						</text>
+						<text x={ 0 } y={ 20 } textAnchor="middle" style={ { fontSize: '14px', fill: '#666' } }>
+							Total Users
+						</text>
+					</PieChartUnresponsive.SVG>
+
+					<PieChartUnresponsive.HTML>
+						<PieChartUnresponsive.Legend
+							position="bottom"
+							orientation="horizontal"
+							alignment="center"
+						/>
+						<div
+							style={ {
+								marginTop: '20px',
+								padding: '10px',
+								backgroundColor: '#f5f5f5',
+								borderRadius: '4px',
+								fontSize: '14px',
+								color: '#666',
+							} }
+						>
+							<p style={ { margin: 0 } }>
+								This example demonstrates the composition API where you can add:
+							</p>
+							<ul style={ { margin: '5px 0 0 20px', padding: 0 } }>
+								<li>SVG elements inside the chart using PieChart.SVG</li>
+								<li>HTML elements outside the chart using PieChart.HTML</li>
+								<li>Mix regular children with compound components</li>
+							</ul>
+						</div>
+					</PieChartUnresponsive.HTML>
+				</PieChartUnresponsive>
+			</div>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Demonstrates the compound component pattern for PieChart composition.
+				
+Use \`<PieChart.SVG>\` to add custom SVG elements inside the chart area, and \`<PieChart.HTML>\` to add HTML elements outside the SVG.
+
+This pattern provides:
+- Clear intent about where children should render
+- Type safety for different content types
+- Flexibility to extend the chart with custom elements
+- Backward compatibility with existing implementations`,
 			},
 		},
 	},

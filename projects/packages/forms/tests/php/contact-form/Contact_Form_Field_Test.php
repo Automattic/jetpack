@@ -161,4 +161,22 @@ class Contact_Form_Field_Test extends BaseTestCase {
 
 		$this->assertEquals( 'default', $result );
 	}
+
+	/**
+	 * Test sanitization of field values.
+	 */
+	public function test_sanitizes_field_values() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type' => 'text',
+				'id'   => 'test_field',
+			)
+		);
+
+		$unsanitized_value = '<script>alert("XSS")</script>';
+		$this->assertEquals( sanitize_text_field( html_entity_decode( $unsanitized_value, ENT_QUOTES ) ), $field->sanitize_text_field( $unsanitized_value ) );
+
+		$unsanitized_value = 'hello&#044; world';
+		$this->assertEquals( sanitize_text_field( html_entity_decode( $unsanitized_value, ENT_QUOTES ) ), $field->sanitize_text_field( $unsanitized_value ) );
+	}
 } // end class

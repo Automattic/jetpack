@@ -50,20 +50,31 @@ class Feedback_Field {
 	private $meta;
 
 	/**
+	 * The original form field ID from the form schema.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	protected $form_field_id = '';
+
+	/**
 	 * Constructor.
 	 *
-	 * @param string $key   The key of the field.
-	 * @param mixed  $label The label of the field. Non-string values will be converted to empty string.
-	 * @param mixed  $value The value of the field.
-	 * @param string $type  The type of the field (default is 'basic').
-	 * @param array  $meta  Additional metadata for the field (default is an empty array).
+	 * @param string      $key           The key of the field.
+	 * @param mixed       $label         The label of the field. Non-string values will be converted to empty string.
+	 * @param mixed       $value         The value of the field.
+	 * @param string      $type          The type of the field (default is 'basic').
+	 * @param array       $meta          Additional metadata for the field (default is an empty array).
+	 * @param string|null $form_field_id The original form field ID (default is null).
 	 */
-	public function __construct( $key, $label, $value, $type = 'basic', $meta = array() ) {
-		$this->key   = $key;
-		$this->label = is_string( $label ) ? html_entity_decode( $label, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : '';
-		$this->value = $value;
-		$this->type  = $type;
-		$this->meta  = $meta;
+	public function __construct( $key, $label, $value, $type = 'basic', $meta = array(), $form_field_id = null ) {
+		$this->key           = $key;
+		$this->label         = is_string( $label ) ? html_entity_decode( $label, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : '';
+		$this->value         = $value;
+		$this->type          = $type;
+		$this->meta          = $meta;
+		$this->form_field_id = is_string( $form_field_id ) ? $form_field_id : '';
 	}
 
 	/**
@@ -108,6 +119,17 @@ class Feedback_Field {
 	}
 
 	/**
+	 * Get the original form field ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public function get_form_field_id() {
+		return $this->form_field_id;
+	}
+
+	/**
 	 * Get the value of the field for rendering.
 	 *
 	 * @param string $context The context in which the value is being rendered (default is 'default').
@@ -116,6 +138,8 @@ class Feedback_Field {
 	 */
 	public function get_render_value( $context = 'default' ) {
 		switch ( $context ) {
+			case 'submit':
+				return $this->get_render_submit_value();
 			case 'api':
 				return $this->get_render_api_value();
 			case 'default':
@@ -184,6 +208,38 @@ class Feedback_Field {
 		return $this->value;
 	}
 	/**
+	 * Get the value of the field for rendering when submitting.
+	 *
+	 * This method is used to prepare the value for submission, especially for file fields.
+	 *
+	 * @return array|string The prepared value for submission.
+	 */
+	private function get_render_submit_value() {
+		if ( $this->is_of_type( 'file' ) ) {
+			$files = array();
+			foreach ( $this->value['files'] as $file ) {
+				if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
+					// this shouldn't happen, todo: log this
+					continue;
+				}
+				$files[] = array(
+					'file_id' => absint( $file['file_id'] ),
+					'name'    => $file['name'] ?? '',
+					'size'    => absint( $file['size'] ),
+					'type'    => $file['type'] ?? '',
+				);
+			}
+
+			return array(
+				'field_id' => $this->get_form_field_id(),
+				'files'    => $files,
+			);
+		}
+
+		return $this->value;
+	}
+
+	/**
 	 * Check if the field is of a specific type.
 	 *
 	 * @param string $type The type to check against.
@@ -242,11 +298,12 @@ class Feedback_Field {
 	 */
 	public function serialize() {
 		return array(
-			'key'   => $this->get_key(),
-			'label' => $this->get_label(),
-			'value' => $this->get_value(),
-			'type'  => $this->get_type(),
-			'meta'  => $this->get_meta(),
+			'key'           => $this->get_key(),
+			'label'         => $this->get_label(),
+			'value'         => $this->get_value(),
+			'type'          => $this->get_type(),
+			'meta'          => $this->get_meta(),
+			'form_field_id' => $this->get_form_field_id(),
 		);
 	}
 	/**
@@ -266,7 +323,8 @@ class Feedback_Field {
 			$data['label'],
 			$data['value'],
 			$data['type'] ?? 'basic',
-			$data['meta'] ?? array()
+			$data['meta'] ?? array(),
+			$data['form_field_id'] ?? ''
 		);
 	}
 

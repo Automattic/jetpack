@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-image-guide",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"description": "Go through the dom to analyze image size on screen vs actual file size.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/image-guide/#readme",
 	"bugs": {
@@ -35,6 +35,7 @@
 		"dev-validate-ts": "tsc --watch --pretty --strict false # Note: Disable Strict mode to avoid noisy development, while keeping strict errors visible in IDEs.",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit",
 		"validate-ts": "tsc --pretty --strict false",
 		"watch": "pnpm run dev"
 	},

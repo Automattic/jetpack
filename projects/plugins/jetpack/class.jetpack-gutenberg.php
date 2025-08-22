@@ -17,6 +17,10 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move the functions and such to some other file.
 
 /**
@@ -1406,7 +1410,10 @@ class Jetpack_Gutenberg {
 	 * @since 15.0
 	 */
 	public static function get_block_js_loading_strategy( $block_name ) {
-		$strategy = false;
+		$strategy = array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		);
 
 		if ( isset( self::$block_js_loading_strategies[ $block_name ] ) ) {
 			$strategy = self::$block_js_loading_strategies[ $block_name ];

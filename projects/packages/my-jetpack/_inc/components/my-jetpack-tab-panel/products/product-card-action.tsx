@@ -3,12 +3,12 @@ import { Button, Flex, FormToggle } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN } from '../../../constants';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import { useDeactivatePlugins } from '../../../data/products/use-deactivate-plugins';
 import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
 import { PRODUCT_STATUSES } from '../../product-card';
-import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN } from './constants';
 import { useProductFiltersContext } from './products-tracking-context';
 
 export type ProductCardActionProps = {

@@ -21,7 +21,7 @@ class Deactivation_Handler {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.15';
+	const PACKAGE_VERSION = '0.3.16';
 
 	/**
 	 * Slug of the plugin to intercept deactivation for.

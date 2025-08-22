@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { GlobalChartsProvider } from '../../../providers/chart-context';
-import { useChartTheme } from '../../../providers/theme';
 import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
 import { PieChart } from '../../pie-chart';
@@ -148,8 +147,7 @@ export const Vertical: Story = {
 
 // Story showing use with LineChart data
 const WithLineChartData = () => {
-	const theme = useChartTheme();
-	const legendItems = useChartLegendData( lineChartData, theme, {
+	const legendItems = useChartLegendData( lineChartData, {
 		showValues: false,
 	} );
 
@@ -169,7 +167,11 @@ const WithLineChartData = () => {
 };
 
 export const WithLineChart: Story = {
-	render: () => <WithLineChartData />,
+	render: () => (
+		<GlobalChartsProvider>
+			<WithLineChartData />
+		</GlobalChartsProvider>
+	),
 	parameters: {
 		docs: {
 			description: {
@@ -181,8 +183,7 @@ export const WithLineChart: Story = {
 
 // Story showing use with BarChart data
 const WithBarChartData = () => {
-	const theme = useChartTheme();
-	const legendItems = useChartLegendData( barChartData, theme );
+	const legendItems = useChartLegendData( barChartData );
 
 	return (
 		<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
@@ -193,7 +194,11 @@ const WithBarChartData = () => {
 };
 
 export const WithBarChart: Story = {
-	render: () => <WithBarChartData />,
+	render: () => (
+		<GlobalChartsProvider>
+			<WithBarChartData />
+		</GlobalChartsProvider>
+	),
 	parameters: {
 		docs: {
 			description: {

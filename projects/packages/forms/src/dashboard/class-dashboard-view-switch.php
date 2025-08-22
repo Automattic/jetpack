@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use JETPACK__VERSION;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Understands switching between classic and redesigned versions of the feedback admin area.
  */
@@ -302,6 +306,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_classic_view() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
 		$screen = get_current_screen();
 
 		return $screen && $screen->id === 'edit-feedback';

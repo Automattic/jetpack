@@ -249,6 +249,52 @@ function wpcomsh_maybe_disable_permalink_page() {
 add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page' );
 
 /**
+ * Restrict selectable files in the Media uploader by setting Plupload filters only.
+ * Minimal change: selection-only; no server-side mime policy changes.
+ *
+ * @param array $options Plupload options.
+ * @return array Plupload options with restricted mime types.
+ */
+function wpcomsh_plupload_file_restrictions( $options ) {
+	$mimes_map = get_allowed_mime_types();
+
+	$allowed_extensions = array();
+	$allowed_mime_types = array();
+
+	foreach ( $mimes_map as $ext_pattern => $mime ) {
+		// Extract real file extensions (filter out 'x-' prefixed ones)
+		// This prevents issues with non-standard extensions like 'x-wav' that aren't real file extensions
+		$extensions = explode( '|', $ext_pattern );
+		foreach ( $extensions as $ext ) {
+			// Only include extensions that don't start with 'x-'
+			if ( ! str_starts_with( $ext, 'x-' ) ) {
+				$allowed_extensions[] = $ext;
+			}
+		}
+
+		$allowed_mime_types[] = $mime;
+	}
+
+	if ( empty( $allowed_extensions ) ) {
+		return $options;
+	}
+
+	if ( ! isset( $options['filters'] ) || ! is_array( $options['filters'] ) ) {
+		$options['filters'] = array();
+	}
+	$options['filters']['mime_types'] = array(
+		array( 'extensions' => implode( ',', $allowed_extensions ) ),
+	);
+
+	// Store MIME types for potential use in HTML file inputs
+	$options['allowed_mime_types'] = $allowed_mime_types;
+
+	return $options;
+}
+
+add_action( 'plupload_init', 'wpcomsh_plupload_file_restrictions' );
+
+/**
  * Restricts the allowed mime types if the site have does NOT have access to the required feature.
  *
  * @param array $mimes Mime types keyed by the file extension regex corresponding to those types.

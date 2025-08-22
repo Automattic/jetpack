@@ -295,8 +295,8 @@ importers:
         specifier: 6.1.0
         version: 6.1.0
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.25.76
+        version: 3.25.76
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -375,7 +375,7 @@ importers:
         version: 3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/i18n':
         specifier: ^6.0.0
-        version: 6.0.0
+        version: 6.1.0
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -385,6 +385,9 @@ importers:
       deepmerge:
         specifier: 4.3.1
         version: 4.3.1
+      fast-deep-equal:
+        specifier: 3.1.3
+        version: 3.1.3
       gridicons:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
@@ -775,6 +778,9 @@ importers:
       storybook:
         specifier: 9.0.15
         version: 9.0.15(@testing-library/dom@10.4.0)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/critical-css-gen:
     dependencies:
@@ -865,8 +871,8 @@ importers:
   projects/js-packages/eslint-config-target-es:
     dependencies:
       '@mdn/browser-compat-data':
-        specifier: 6.0.31
-        version: 6.0.31
+        specifier: 6.1.4
+        version: 6.1.4
       browserslist:
         specifier: ^4.17.6
         version: 4.24.5
@@ -1142,12 +1148,15 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/number-formatters:
     dependencies:
       '@wordpress/date':
         specifier: ^5.19.0
-        version: 5.27.0
+        version: 5.28.0
       debug:
         specifier: ^4.4.0
         version: 4.4.1
@@ -1437,8 +1446,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.25.76
+        version: 3.25.76
 
   projects/js-packages/remove-asset-webpack-plugin:
     dependencies:
@@ -1532,7 +1541,11 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
 
-  projects/js-packages/script-data: {}
+  projects/js-packages/script-data:
+    devDependencies:
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/shared-extension-utils:
     dependencies:
@@ -1554,6 +1567,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       '@wordpress/api-fetch':
         specifier: 7.28.0
         version: 7.28.0
@@ -1639,6 +1655,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   projects/js-packages/social-logos:
     dependencies:
@@ -2443,7 +2462,7 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
       typescript:
-        specifier: ^5.0.4
+        specifier: 5.8.3
         version: 5.8.3
       webpack:
         specifier: 5.94.0
@@ -2642,8 +2661,8 @@ importers:
         specifier: 30.0.4
         version: 30.0.4
       jquery:
-        specifier: 3.6.0
-        version: 3.6.0
+        specifier: 3.7.1
+        version: 3.7.1
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -2777,7 +2796,7 @@ importers:
         version: 4.28.0
       '@wordpress/dom-ready':
         specifier: ^4.8.1
-        version: 4.27.0
+        version: 4.28.0
       '@wordpress/edit-post':
         specifier: 8.28.0
         version: 8.28.0(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2891,7 +2910,7 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
       typescript:
-        specifier: ^5.0.4
+        specifier: 5.8.3
         version: 5.8.3
       wait-for-expect:
         specifier: 3.0.2
@@ -3348,8 +3367,8 @@ importers:
         specifier: 6.1.0
         version: 6.1.0
       jquery:
-        specifier: 3.6.0
-        version: 3.6.0
+        specifier: 3.7.1
+        version: 3.7.1
     devDependencies:
       '@automattic/calypso-color-schemes':
         specifier: 4.0.0
@@ -3859,8 +3878,8 @@ importers:
         specifier: 10.1.6
         version: 10.1.6
       jquery:
-        specifier: 3.6.0
-        version: 3.6.0
+        specifier: 3.7.1
+        version: 3.7.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -4191,8 +4210,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.25.76
+        version: 3.25.76
     devDependencies:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
@@ -4249,8 +4268,8 @@ importers:
         specifier: 30.0.4
         version: 30.0.4
       livereload:
-        specifier: 0.9.3
-        version: 0.9.3
+        specifier: 0.10.3
+        version: 0.10.3
       path-browserify:
         specifier: 1.0.1
         version: 1.0.1
@@ -4618,8 +4637,8 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.25.76
+        version: 3.25.76
 
   projects/plugins/jetpack:
     dependencies:
@@ -4819,8 +4838,8 @@ importers:
         specifier: ^26.0.0
         version: 26.1.0
       mapbox-gl:
-        specifier: 1.13.0
-        version: 1.13.0
+        specifier: 1.13.3
+        version: 1.13.3
       markdown-it:
         specifier: 14.1.0
         version: 14.1.0
@@ -4866,9 +4885,6 @@ importers:
       swiper:
         specifier: 11.2.10
         version: 11.2.10
-      tinycolor2:
-        specifier: 1.4.2
-        version: 1.4.2
       tus-js-client:
         specifier: 4.2.3
         version: 4.2.3
@@ -4985,8 +5001,8 @@ importers:
         specifier: 30.0.4
         version: 30.0.4
       jquery:
-        specifier: 3.6.0
-        version: 3.6.0
+        specifier: 3.7.1
+        version: 3.7.1
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -5400,11 +5416,14 @@ importers:
         specifier: 1.11.0
         version: 1.11.0
       cheerio:
-        specifier: 1.0.0-rc.12
-        version: 1.0.0-rc.12
+        specifier: 1.1.2
+        version: 1.1.2
+      domhandler:
+        specifier: 5.0.3
+        version: 5.0.3
       dotenv:
-        specifier: 16.0.2
-        version: 16.0.2
+        specifier: 16.6.1
+        version: 16.6.1
       jest:
         specifier: ^30.0.0
         version: 30.0.4(@types/node@20.19.10)
@@ -5587,8 +5606,8 @@ importers:
         specifier: 1.1.3
         version: 1.1.3
       tmp:
-        specifier: 0.2.4
-        version: 0.2.4
+        specifier: 0.2.5
+        version: 0.2.5
       yargs:
         specifier: 17.6.2
         version: 17.6.2
@@ -7446,8 +7465,8 @@ packages:
   '@marijn/find-cluster-break@1.0.2':
     resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
-  '@mdn/browser-compat-data@6.0.31':
-    resolution: {integrity: sha512-27LnrPwLUNaVROOe5GF2tZ8kiNuK3/TdVvKpZ1j040gwieAEnYZ9gnOHITdu4UDeq/C/GP0sbvdKDYqzlvEgQQ==}
+  '@mdn/browser-compat-data@6.1.4':
+    resolution: {integrity: sha512-g4WOGwx+cR4dQ5QsRzuJCUuMu/Vn+/vtRiOQ4TLtKQkQV37J3/HiVrU4PQYm/aJy1DbE83ONwcz5SjrwvRP9Ag==}
 
   '@mdx-js/react@3.1.0':
     resolution: {integrity: sha512-QjHtSaoameoalGnKDT3FoIl4+9RwyTmo9ZJGBdLOks/YOiWHoRDI3PUwEzOE7kEmGcV3AFcp9K6dYu9rEuKLAQ==}
@@ -9526,10 +9545,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/date@5.27.0':
-    resolution: {integrity: sha512-DZ5OJlU8OliLpDaGi0KHhlphCujbppzAfb3y34CpWydSnSRSfVgzjzc2R4p17RIa9Vj9C6Q8FsnNBAiywaz39g==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/date@5.28.0':
     resolution: {integrity: sha512-1cKE7KEIOsylM4vOFGk8pvXUKlSf33GpxyOWDCuhba8NOfXenx8+gGezFB8ym+JBokPnRIYa4Ub0JYvUdya1Pg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9542,10 +9557,6 @@ packages:
 
   '@wordpress/deprecated@4.28.0':
     resolution: {integrity: sha512-ylWrIsBH1dkETs59XWIvQKqdKtXK9sxyrFHJMEnrVPw4Sxbdx0R5YSBY/kXdp3xwhhsoi9BrVUmtIgA2MnxL1A==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/dom-ready@4.27.0':
-    resolution: {integrity: sha512-L1hZ1g1mMyt06tuMWt72uAJjlkjGOpR2Vxbo72ZZgO28PqQc1WLrvWN/W3LVViar9OQrR0yn/REYRd258iaNQw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/dom-ready@4.28.0':
@@ -9626,10 +9637,6 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
-  '@wordpress/hooks@4.27.0':
-    resolution: {integrity: sha512-sGaNVZKMxwnhGSge0tZZsGfImLPimiulUkM7hivQ2CSCgibTpgxFRBJ1r7gbNLDF+qHQK9a26K8fGfKnAal6Cg==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/hooks@4.28.0':
     resolution: {integrity: sha512-NE7ObdwcVDNHz19UVOjcbO6BlRLXQtRnZWWyFLNttFTmXEJo5wNbG1hTPaDQCGdV71mmHvGYJat9JqY04tIO9g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9640,11 +9647,6 @@ packages:
 
   '@wordpress/i18n@5.26.0':
     resolution: {integrity: sha512-YHzaUWlCuN2ynl47qbsdMkTGtP52+E1giDOdWBgUaSexUYjbeFxKFUzRMB0Wuh1psL80+VzvJOH/mU440KAJnA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    hasBin: true
-
-  '@wordpress/i18n@6.0.0':
-    resolution: {integrity: sha512-ItvO/E3v39VX+5nZacyzwulhzRukiB2+1zqndWgOSNnERYnK/0hLHIWWthRFxYEPF13H54orXg68n17MZQ8whA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     hasBin: true
 
@@ -9689,10 +9691,6 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
-
-  '@wordpress/keycodes@4.27.0':
-    resolution: {integrity: sha512-fWyEcLI2rAZn6FwVBITGFxo8aS7EQrt8icOdxS5Es3Ii8DneQUl2gtXs3tq9viX4cWCno7cEt+dpuuv2gPxwoQ==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/keycodes@4.28.0':
     resolution: {integrity: sha512-clQ5bYq4QRW4809cjwwolY77cvAGMAZnEskINg1qYo8VaIyezuF/qkDTPyGGAHR7JawXs/TxLAgOi2kwXpbU7g==}
@@ -10305,8 +10303,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
-  browserslist@4.25.2:
-    resolution: {integrity: sha512-0si2SJK3ooGzIawRu61ZdPCO1IncZwS8IzuX73sPZsXW6EQ/w/DAfPyKI8l1ETTCr2MnvqWitmlCUxgdul45jA==}
+  browserslist@4.25.3:
+    resolution: {integrity: sha512-cDGv1kkDI4/0e5yON9yM5G/0A5u8sf5TnmdX5C9qHzI9PPu++sQ9zjm1k9NiOrf3riY4OkK0zSGqfvJyJsgCBQ==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -10387,8 +10385,8 @@ packages:
   caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
 
-  caniuse-lite@1.0.30001734:
-    resolution: {integrity: sha512-uhE1Ye5vgqju6OI71HTQqcBCZrvHugk0MjLak7Q+HfoBgoq5Bi+5YnwjP4fjDgrtYr/l8MVRBvzz9dPD4KyK0A==}
+  caniuse-lite@1.0.30001735:
+    resolution: {integrity: sha512-EV/laoX7Wq2J9TQlyIXRxTJqIw4sxfXS4OYgudGxBYRuTv0q7AM6yMEpU/Vo1I94thg9U6EZ2NfZx9GJq83u7w==}
 
   canvas-confetti@1.9.3:
     resolution: {integrity: sha512-rFfTURMvmVEX1gyXFgn5QMn81bYk70qa0HLzcIOSVEyl57n6o9ItHeBtUSWdvKAPY0xlvBHno4/v3QPrT83q9g==}
@@ -10458,9 +10456,9 @@ packages:
     resolution: {integrity: sha512-g0J0q/O6mW8z5zxQ3A8E8J1hUgp4SMOvEoW/x84OwyHKe/Zccz83PVT4y5Crcr530FV6NgmKI1qvGTKVl9XXVw==}
     engines: {node: '>= 6'}
 
-  cheerio@1.0.0-rc.12:
-    resolution: {integrity: sha512-VqR8m68vM46BNnuZ5NtnGBKIE/DfN0cRIzg9n40EIq9NOv90ayxLBXA8fXC5gquFRGJSTRqBq25Jt2ECLR431Q==}
-    engines: {node: '>= 6'}
+  cheerio@1.1.2:
+    resolution: {integrity: sha512-IkxPpb5rS/d1IiLbHMgfPuS0FgiWTtFIm/Nj+2woXDLTZ7fOT2eqzgYbdMlLweqlHbsZjxEChoVK+7iph7jyQg==}
+    engines: {node: '>=20.18.1'}
 
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -11192,8 +11190,8 @@ packages:
     resolution: {integrity: sha512-1gxPBJpI/pcjQhKgIU91II6Wkay+dLcN3M6rf2uwP8hRur3HtQXjVrdAK3sjC0piaEuxzMwjXChcETiJl47lAQ==}
     engines: {node: '>=18'}
 
-  dotenv@16.0.2:
-    resolution: {integrity: sha512-JvpYKUmzQhYoIFgK2MOnF3bciIZoItIIoryihy0rIA+H4Jy0FmgyKYAHCTN98P5ybGSJcIFbh6QKeJdtZd1qhA==}
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
@@ -11214,8 +11212,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.200:
-    resolution: {integrity: sha512-rFCxROw7aOe4uPTfIAx+rXv9cEcGx+buAF4npnhtTqCJk5KDFRnh3+KYj7rdVh6lsFt5/aPs+Irj9rZ33WMA7w==}
+  electron-to-chromium@1.5.207:
+    resolution: {integrity: sha512-mryFrrL/GXDTmAtIVMVf+eIXM09BBPlO5IQ7lUyKmK8d+A4VpRGG+M3ofoVef6qyF8s60rJei8ymlJxjUA8Faw==}
 
   elegant-spinner@1.0.1:
     resolution: {integrity: sha512-B+ZM+RXvRqQaAmkMlO/oSe5nMUOaUnyfGYCEHoR8wrXsZR2mA0XVibsxV1bvTwxdRWah1PkQqso2EzhILGHtEQ==}
@@ -11255,6 +11253,9 @@ packages:
   encodeurl@2.0.0:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
+
+  encoding-sniffer@0.2.1:
+    resolution: {integrity: sha512-5gvq20T6vfpekVtqrYQsSCFZ1wEg5+wW0/QaZMWkFr6BqD3NfKs0rLCx4rrVlSWJeZb5NBJgVLswK/w2MWU+Gw==}
 
   encoding@0.1.13:
     resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
@@ -12296,14 +12297,14 @@ packages:
       webpack:
         optional: true
 
+  htmlparser2@10.0.0:
+    resolution: {integrity: sha512-TwAZM+zE5Tq3lrEHvOlvwgj1XLWQCtaaibSN11Q+gGBAS7Y1uZSWwXXRe4iF6OXnaq1riyQAPFOBtYc77Mxq0g==}
+
   htmlparser2@3.10.1:
     resolution: {integrity: sha512-IgieNijUMbkDovyoKObU1DUhm1iwNYE/fuifEoEHfd1oZKZDaONBSkal7Y01shxsM49R4XaMdGez3WnF9UfiCQ==}
 
   htmlparser2@6.1.0:
     resolution: {integrity: sha512-gyyPk6rgonLFEDGoeRgQNaEUvdJ4ktTmmUh/h2t7s+M8oPpIPxgNACWa+6ESR57kXstwqPiCut0V8NRpcwgU7A==}
-
-  htmlparser2@8.0.2:
-    resolution: {integrity: sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==}
 
   http-errors@2.0.0:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
@@ -13018,8 +13019,8 @@ packages:
   jquery-modal@0.9.2:
     resolution: {integrity: sha512-Bx6jTBuiUbdywriWd0UAZK9v7FKEDCOD5uRh47qd4coGvx+dG4w8cOGe4TG2OoR1dNrXn6Aqaeu8MAA+Oz7vOw==}
 
-  jquery@3.6.0:
-    resolution: {integrity: sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==}
+  jquery@3.7.1:
+    resolution: {integrity: sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==}
 
   js-base64@3.7.8:
     resolution: {integrity: sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==}
@@ -13228,6 +13229,14 @@ packages:
   livereload-js@3.4.1:
     resolution: {integrity: sha512-5MP0uUeVCec89ZbNOT/i97Mc+q3SxXmiUGhRFOTmhrGPn//uWVQdCvcLJDy64MSBR5MidFdOR7B9viumoavy6g==}
 
+  livereload-js@4.0.2:
+    resolution: {integrity: sha512-Fy7VwgQNiOkynYyNBTo3v9hQUhcW5pFAheJN148+DTgpShjsy/22pLHKKwDK5v0kOsZsJBK+6q1PMgLvRmrwFQ==}
+
+  livereload@0.10.3:
+    resolution: {integrity: sha512-llSb8HrtSH7ByPFMc8WTTeW3oy++smwgSA8JVGzEn8KiDPESq6jt1M4ZKKkhKTrhn2wvUOadQq4ip10E5daZ3w==}
+    engines: {node: '>=8.0.0'}
+    hasBin: true
+
   livereload@0.9.3:
     resolution: {integrity: sha512-q7Z71n3i4X0R9xthAryBdNGVGAO2R5X+/xXpmKeuPMrteg+W2U8VusTKV3YiJbXZwKsOlFlHe+go6uSNjfxrZw==}
     engines: {node: '>=8.0.0'}
@@ -13401,8 +13410,8 @@ packages:
   makeerror@1.0.12:
     resolution: {integrity: sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==}
 
-  mapbox-gl@1.13.0:
-    resolution: {integrity: sha512-g8zlzuJxYJqbOPXT19/UBYpVrcefBQ06F/Cbj0fyEfFnFesDcU3cFTxd75/FZ6Upx2ZEjCsD61CHxrcxZidVpA==}
+  mapbox-gl@1.13.3:
+    resolution: {integrity: sha512-p8lJFEiqmEQlyv+DQxFAOG/XPWN0Wp7j/Psq93Zywz7qt9CcUKFYDBOoOEKzqe6gudHVJY8/Bhqw6VDpX2lSBg==}
     engines: {node: '>=6.4.0'}
 
   markdown-it-footnote@3.0.3:
@@ -14020,6 +14029,9 @@ packages:
 
   parse5-htmlparser2-tree-adapter@7.1.0:
     resolution: {integrity: sha512-ruw5xyKs6lrpo9x9rCZqZZnIUntICjQAd0Wsmp396Ul9lN/h+ifgVV1x1gZHi8euej6wTfpqX8j+BFQxF0NS/g==}
+
+  parse5-parser-stream@7.1.2:
+    resolution: {integrity: sha512-JyeQc9iwFLn5TbvvqACIF/VXG6abODeB3Fwmv/TGdLk2LfbWkaySGY72at4+Ty7EkPZj854u4CrICqNk2qIbow==}
 
   parse5@6.0.1:
     resolution: {integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==}
@@ -15928,9 +15940,6 @@ packages:
     resolution: {integrity: sha512-zNYO0Kvgn5rXzWpL0y3RS09sMK67eGaQj9805jlK9G6pSadfriTczzLHFXa/xcW4mIRfmlB9HyQ/+SgL0V1uow==}
     engines: {node: '>=6'}
 
-  tinycolor2@1.4.2:
-    resolution: {integrity: sha512-vJhccZPs965sV/L2sU4oRQVAos0pQXwsvTLkWYdqJ+a8Q5kPFzJTuOFwy7UniPli44NKQGAglksjvOcpo95aZA==}
-
   tinyglobby@0.2.14:
     resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
     engines: {node: '>=12.0.0'}
@@ -15956,8 +15965,8 @@ packages:
     resolution: {integrity: sha512-WMi/OQ2axVTf/ykqCQgXiIct+mSQDFdH2fkwhPwgEwvJ1kSzZRiinb0zF2Xb8u4+OqPChmyI6MEu4EezNJz+FQ==}
     hasBin: true
 
-  tmp@0.2.4:
-    resolution: {integrity: sha512-UdiSoX6ypifLmrfQ/XfiawN6hkjSBpCjhKxxZcWlUUmoXLaCKQU0bx4HF/tdDK2uzRuchf1txGvrWBzYREssoQ==}
+  tmp@0.2.5:
+    resolution: {integrity: sha512-voyz6MApa1rQGUxT3E+BK7/ROe8itEx7vD8/HEvt4xwXucvQ5G5oeEiHkmHZJuBO21RpOf+YYm9MOivj709jow==}
     engines: {node: '>=14.14'}
 
   tmpl@1.0.5:
@@ -16153,6 +16162,10 @@ packages:
   undici@5.29.0:
     resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
     engines: {node: '>=14.0'}
+
+  undici@7.14.0:
+    resolution: {integrity: sha512-Vqs8HTzjpQXZeXdpsfChQTlafcMQaaIwnGwLam1wudSSjlJeQ3bw1j+TLPePgrCnCpUXx7Ba5Pdpf5OBih62NQ==}
+    engines: {node: '>=20.18.1'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
@@ -16679,9 +16692,6 @@ packages:
   yocto-queue@1.2.1:
     resolution: {integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==}
     engines: {node: '>=12.20'}
-
-  zod@3.22.3:
-    resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
@@ -18863,9 +18873,9 @@ snapshots:
 
   '@mapbox/jsonlint-lines-primitives@2.0.2': {}
 
-  '@mapbox/mapbox-gl-supported@1.5.0(mapbox-gl@1.13.0)':
+  '@mapbox/mapbox-gl-supported@1.5.0(mapbox-gl@1.13.3)':
     dependencies:
-      mapbox-gl: 1.13.0
+      mapbox-gl: 1.13.3
 
   '@mapbox/point-geometry@0.1.0': {}
 
@@ -18881,7 +18891,7 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
-  '@mdn/browser-compat-data@6.0.31': {}
+  '@mdn/browser-compat-data@6.1.4': {}
 
   '@mdx-js/react@3.1.0(@types/react@18.3.23)(react@18.3.1)':
     dependencies:
@@ -20757,7 +20767,7 @@ snapshots:
       '@wordpress/components': 30.1.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.28.0(react@18.3.1)
       '@wordpress/element': 6.28.0
-      '@wordpress/keycodes': 4.27.0
+      '@wordpress/keycodes': 4.28.0
       react-autosize-textarea: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
@@ -20820,8 +20830,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.39.0(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.39.0(typescript@5.8.3)
-      '@typescript-eslint/types': 8.39.0
+      '@typescript-eslint/tsconfig-utils': 8.39.1(typescript@5.8.3)
+      '@typescript-eslint/types': 8.39.1
       debug: 4.4.1
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -22327,13 +22337,6 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@wordpress/date@5.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@wordpress/deprecated': 4.28.0
-      moment: 2.30.1
-      moment-timezone: 0.5.48
-
   '@wordpress/date@5.28.0':
     dependencies:
       '@babel/runtime': 7.27.6
@@ -22350,10 +22353,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
       '@wordpress/hooks': 4.28.0
-
-  '@wordpress/dom-ready@4.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
 
   '@wordpress/dom-ready@4.28.0':
     dependencies:
@@ -22871,10 +22870,6 @@ snapshots:
       - '@types/react-dom'
       - supports-color
 
-  '@wordpress/hooks@4.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-
   '@wordpress/hooks@4.28.0':
     dependencies:
       '@babel/runtime': 7.27.6
@@ -22890,15 +22885,6 @@ snapshots:
       gettext-parser: 1.4.0
       memize: 2.1.1
       sprintf-js: 1.1.3
-      tannin: 1.2.0
-
-  '@wordpress/i18n@6.0.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@tannin/sprintf': 1.3.1
-      '@wordpress/hooks': 4.27.0
-      gettext-parser: 1.4.0
-      memize: 2.1.1
       tannin: 1.2.0
 
   '@wordpress/i18n@6.1.0':
@@ -22989,11 +22975,6 @@ snapshots:
       '@wordpress/element': 6.28.0
       '@wordpress/keycodes': 4.28.0
       react: 18.3.1
-
-  '@wordpress/keycodes@4.27.0':
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@wordpress/i18n': 6.1.0
 
   '@wordpress/keycodes@4.28.0':
     dependencies:
@@ -23767,7 +23748,7 @@ snapshots:
   autoprefixer@10.4.20(postcss@8.4.47):
     dependencies:
       browserslist: 4.24.5
-      caniuse-lite: 1.0.30001734
+      caniuse-lite: 1.0.30001735
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -24040,17 +24021,17 @@ snapshots:
 
   browserslist@4.24.5:
     dependencies:
-      caniuse-lite: 1.0.30001734
-      electron-to-chromium: 1.5.200
+      caniuse-lite: 1.0.30001735
+      electron-to-chromium: 1.5.207
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.24.5)
 
-  browserslist@4.25.2:
+  browserslist@4.25.3:
     dependencies:
-      caniuse-lite: 1.0.30001734
-      electron-to-chromium: 1.5.200
+      caniuse-lite: 1.0.30001735
+      electron-to-chromium: 1.5.207
       node-releases: 2.0.19
-      update-browserslist-db: 1.1.3(browserslist@4.25.2)
+      update-browserslist-db: 1.1.3(browserslist@4.25.3)
 
   bs-logger@0.2.6:
     dependencies:
@@ -24126,11 +24107,11 @@ snapshots:
   caniuse-api@3.0.0:
     dependencies:
       browserslist: 4.24.5
-      caniuse-lite: 1.0.30001734
+      caniuse-lite: 1.0.30001735
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
-  caniuse-lite@1.0.30001734: {}
+  caniuse-lite@1.0.30001735: {}
 
   canvas-confetti@1.9.3: {}
 
@@ -24232,15 +24213,19 @@ snapshots:
       parse5-htmlparser2-tree-adapter: 6.0.1
       tslib: 2.5.0
 
-  cheerio@1.0.0-rc.12:
+  cheerio@1.1.2:
     dependencies:
       cheerio-select: 2.1.0
       dom-serializer: 2.0.0
       domhandler: 5.0.3
       domutils: 3.2.2
-      htmlparser2: 8.0.2
+      encoding-sniffer: 0.2.1
+      htmlparser2: 10.0.0
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
+      parse5-parser-stream: 7.1.2
+      undici: 7.14.0
+      whatwg-mimetype: 4.0.0
 
   chokidar@3.6.0:
     dependencies:
@@ -24528,7 +24513,7 @@ snapshots:
 
   core-js-compat@3.45.0:
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
 
   core-js@3.38.1: {}
 
@@ -24651,7 +24636,7 @@ snapshots:
 
   cssnano-preset-default@7.0.8(postcss@8.4.47):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       css-declaration-sorter: 7.2.0(postcss@8.4.47)
       cssnano-utils: 5.0.1(postcss@8.4.47)
       postcss: 8.4.47
@@ -24806,7 +24791,7 @@ snapshots:
 
   daterangepicker@3.1.0:
     dependencies:
-      jquery: 3.6.0
+      jquery: 3.7.1
       moment: 2.30.1
 
   debounce@1.2.1: {}
@@ -25024,7 +25009,7 @@ snapshots:
     dependencies:
       type-fest: 4.41.0
 
-  dotenv@16.0.2: {}
+  dotenv@16.6.1: {}
 
   dunder-proto@1.0.1:
     dependencies:
@@ -25042,7 +25027,7 @@ snapshots:
     dependencies:
       jake: 10.9.4
 
-  electron-to-chromium@1.5.200: {}
+  electron-to-chromium@1.5.207: {}
 
   elegant-spinner@1.0.1: {}
 
@@ -25065,6 +25050,11 @@ snapshots:
   encodeurl@1.0.2: {}
 
   encodeurl@2.0.0: {}
+
+  encoding-sniffer@0.2.1:
+    dependencies:
+      iconv-lite: 0.6.3
+      whatwg-encoding: 3.1.1
 
   encoding@0.1.13:
     dependencies:
@@ -26350,6 +26340,13 @@ snapshots:
     optionalDependencies:
       webpack: 5.94.0(webpack-cli@6.0.1)
 
+  htmlparser2@10.0.0:
+    dependencies:
+      domelementtype: 2.3.0
+      domhandler: 5.0.3
+      domutils: 3.2.2
+      entities: 6.0.1
+
   htmlparser2@3.10.1:
     dependencies:
       domelementtype: 1.3.1
@@ -26365,13 +26362,6 @@ snapshots:
       domhandler: 4.3.1
       domutils: 2.8.0
       entities: 2.2.0
-
-  htmlparser2@8.0.2:
-    dependencies:
-      domelementtype: 2.3.0
-      domhandler: 5.0.3
-      domutils: 3.2.2
-      entities: 4.5.0
 
   http-errors@2.0.0:
     dependencies:
@@ -27553,11 +27543,11 @@ snapshots:
 
   jquery-cycle@3.0.3:
     dependencies:
-      jquery: 3.6.0
+      jquery: 3.7.1
 
   jquery-modal@0.9.2: {}
 
-  jquery@3.6.0: {}
+  jquery@3.7.1: {}
 
   js-base64@3.7.8: {}
 
@@ -27806,6 +27796,18 @@ snapshots:
 
   livereload-js@3.4.1: {}
 
+  livereload-js@4.0.2: {}
+
+  livereload@0.10.3:
+    dependencies:
+      chokidar: 4.0.3
+      livereload-js: 4.0.2
+      opts: 2.0.2
+      ws: 8.18.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   livereload@0.9.3:
     dependencies:
       chokidar: 3.6.0
@@ -27975,12 +27977,12 @@ snapshots:
     dependencies:
       tmpl: 1.0.5
 
-  mapbox-gl@1.13.0:
+  mapbox-gl@1.13.3:
     dependencies:
       '@mapbox/geojson-rewind': 0.5.2
       '@mapbox/geojson-types': 1.0.2
       '@mapbox/jsonlint-lines-primitives': 2.0.2
-      '@mapbox/mapbox-gl-supported': 1.5.0(mapbox-gl@1.13.0)
+      '@mapbox/mapbox-gl-supported': 1.5.0(mapbox-gl@1.13.3)
       '@mapbox/point-geometry': 0.1.0
       '@mapbox/tiny-sdf': 1.2.5
       '@mapbox/unitbezier': 0.0.0
@@ -27991,7 +27993,6 @@ snapshots:
       geojson-vt: 3.2.1
       gl-matrix: 3.4.4
       grid-index: 1.1.0
-      minimist: 1.2.8
       murmurhash-js: 1.0.0
       pbf: 3.3.0
       potpack: 1.0.2
@@ -28824,6 +28825,10 @@ snapshots:
       domhandler: 5.0.3
       parse5: 7.3.0
 
+  parse5-parser-stream@7.1.2:
+    dependencies:
+      parse5: 7.3.0
+
   parse5@6.0.1: {}
 
   parse5@7.3.0:
@@ -28955,7 +28960,7 @@ snapshots:
 
   postcss-colormin@7.0.4(postcss@8.4.47):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       caniuse-api: 3.0.0
       colord: 2.9.3
       postcss: 8.4.47
@@ -28963,7 +28968,7 @@ snapshots:
 
   postcss-convert-values@7.0.6(postcss@8.4.47):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
@@ -29035,7 +29040,7 @@ snapshots:
 
   postcss-merge-rules@7.0.6(postcss@8.4.47):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       caniuse-api: 3.0.0
       cssnano-utils: 5.0.1(postcss@8.4.47)
       postcss: 8.4.47
@@ -29055,7 +29060,7 @@ snapshots:
 
   postcss-minify-params@7.0.4(postcss@8.4.47):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       cssnano-utils: 5.0.1(postcss@8.4.47)
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
@@ -29142,7 +29147,7 @@ snapshots:
 
   postcss-normalize-unicode@7.0.4(postcss@8.4.47):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
@@ -29168,7 +29173,7 @@ snapshots:
 
   postcss-reduce-initial@7.0.4(postcss@8.4.47):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       caniuse-api: 3.0.0
       postcss: 8.4.47
 
@@ -30083,7 +30088,7 @@ snapshots:
 
   semantic-ui-css@2.5.0:
     dependencies:
-      jquery: 3.6.0
+      jquery: 3.7.1
 
   semver@5.7.2: {}
 
@@ -30562,7 +30567,7 @@ snapshots:
 
   stylehacks@7.0.6(postcss@8.4.47):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       postcss: 8.4.47
       postcss-selector-parser: 7.1.0
 
@@ -30918,8 +30923,6 @@ snapshots:
 
   tiny-lru@7.0.6: {}
 
-  tinycolor2@1.4.2: {}
-
   tinyglobby@0.2.14:
     dependencies:
       fdir: 6.4.6(picomatch@4.0.2)
@@ -30941,7 +30944,7 @@ snapshots:
     dependencies:
       tldts-core: 6.1.86
 
-  tmp@0.2.4: {}
+  tmp@0.2.5: {}
 
   tmpl@1.0.5: {}
 
@@ -31057,7 +31060,7 @@ snapshots:
 
   typeahead.js@0.11.1:
     dependencies:
-      jquery: 3.6.0
+      jquery: 3.7.1
 
   typed-array-buffer@1.0.3:
     dependencies:
@@ -31135,6 +31138,8 @@ snapshots:
   undici@5.29.0:
     dependencies:
       '@fastify/busboy': 2.1.1
+
+  undici@7.14.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
@@ -31221,9 +31226,9 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  update-browserslist-db@1.1.3(browserslist@4.25.2):
+  update-browserslist-db@1.1.3(browserslist@4.25.3):
     dependencies:
-      browserslist: 4.25.2
+      browserslist: 4.25.3
       escalade: 3.2.0
       picocolors: 1.1.1
 
@@ -31774,8 +31779,6 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yocto-queue@1.2.1: {}
-
-  zod@3.22.3: {}
 
   zod@3.25.76: {}
 

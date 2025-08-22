@@ -5,6 +5,11 @@
  * @package automattic/jetpack-boost
  */
 
+// Set this to ensure we can load any files with a direct access check.
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', true );
+}
+
 /**
  * Include the composer autoloader.
  */

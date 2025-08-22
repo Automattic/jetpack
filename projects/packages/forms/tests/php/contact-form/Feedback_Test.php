@@ -1117,6 +1117,58 @@ class Feedback_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_get_all_values_with_file_upload() {
+
+		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'uploadafile' => array( '{"file_id":54321,"name":"Screenshot.png","size":19914,"type":"image/png"}', '{}' ),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field type="file" label="Upload a file" /]'
+		);
+
+		$expected_file = array(
+			'field_id' => 'g2376-1-uploadafile',
+			'files'    => array(
+				array(
+					'file_id' => 54321,
+					'name'    => 'Screenshot.png',
+					'size'    => 19914,
+					'type'    => 'image/png',
+				),
+				array(
+					'file_id' => 0,
+					'name'    => '',
+					'size'    => 0,
+					'type'    => '',
+				),
+			),
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( $expected_file, $response->get_all_values( 'submit' )['1_Upload a file'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_file, $saved_response->get_all_values( 'submit' )['1_Upload a file'], 'Saved response all values should match the expected values' );
+
+		$this->assertEquals( $expected_file, $response->get_legacy_extra_values( 'submit' )['2_Upload a file'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_file, $saved_response->get_legacy_extra_values( 'submit' )['2_Upload a file'], 'Saved response all values should match the expected values' );
+
+		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+	}
+
 	public function test_get_akismet_vars() {
 		// Test that the get_akismet_vars method returns the correct variables for Akismet.
 
@@ -1982,5 +2034,52 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 
 		Contact_Form::reset_errors();
+	}
+
+	public function test_get_field_by_id_and_value_by_id_new_submission() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Hello!',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response  = Feedback::from_submission( $_post_data, $form );
+		$field_ids = $form->get_field_ids();
+		$email_id  = $field_ids['email'];
+
+		$this->assertNotEmpty( $email_id );
+		$this->assertEquals( 'john@example.com', $response->get_field_value_by_form_field_id( $email_id ) );
+
+		$field = $response->get_field_by_form_field_id( $email_id );
+		$this->assertInstanceOf( Feedback_Field::class, $field );
+		$this->assertEquals( $email_id, $field->get_form_field_id() );
+
+		// Save and reload; ensure the field id and value persist correctly
+		$saved_post_id  = $response->save();
+		$saved_response = Feedback::get( $saved_post_id );
+		$this->assertEquals( 'john@example.com', $saved_response->get_field_value_by_form_field_id( $email_id ) );
+		$saved_field = $saved_response->get_field_by_form_field_id( $email_id );
+		$this->assertInstanceOf( Feedback_Field::class, $saved_field );
+		$this->assertEquals( $email_id, $saved_field->get_form_field_id() );
+	}
+
+	public function test_get_field_by_id_and_value_by_id_legacy() {
+		$post_id  = Utility::create_legacy_feedback( array() );
+		$response = Feedback::get( $post_id );
+
+		$this->assertSame( '', $response->get_field_value_by_form_field_id( 'email' ) );
+		$this->assertNull( $response->get_field_by_form_field_id( 'email' ) );
 	}
 }

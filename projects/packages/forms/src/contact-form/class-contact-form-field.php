@@ -145,6 +145,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionstyles'             => null,
 				'min'                      => null,
 				'max'                      => null,
+				'minlabel'                 => null,
+				'maxlabel'                 => null,
 				'step'                     => null,
 				'maxfiles'                 => null,
 				'fieldwrapperclasses'      => null,
@@ -156,6 +158,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'align'                    => null,
 				'variation'                => null,
 				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
+				// full phone field attributes, might become a standalone country list input block
+				'countrylist'              => array(),
+				'countrydata'              => array(),
+				'showcountryselector'      => false,
 			),
 			$attributes,
 			'contact-field'
@@ -188,6 +194,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		if ( ! empty( $attributes['optionsdata'] ) ) {
 			$attributes['optionsdata'] = json_decode( html_entity_decode( $attributes['optionsdata'], ENT_COMPAT ), true );
+		}
+
+		// parse countryList and countrydata, HEADS UP: all attrs are forced into lowercase
+		if ( ! empty( $attributes['countrylist'] ) ) {
+			// countrylist is a comma-separated list of country codes, the simplified output from the standard parsing mechanics at Contact_Form::parse_contact_field
+			$attributes['countrylist'] = array_map( 'trim', explode( ',', $attributes['countrylist'] ) );
+		}
+		if ( ! empty( $attributes['countrydata'] ) ) {
+			// countrydata is a JSON object of country codes and their names and flags, making it available for more complex frontend UI
+			$attributes['countrydata'] = json_decode( html_entity_decode( $attributes['countrydata'], ENT_COMPAT ), true );
+		}
+		// allow boolean values for showcountryselector, only if it's set so we don't pollute other fields attrs
+		if ( isset( $attributes['showcountryselector'] ) ) {
+			if ( '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
+				$attributes['showcountryselector'] = true;
+			} else {
+				$attributes['showcountryselector'] = false;
+			}
 		}
 
 		if ( $form ) {
@@ -326,10 +350,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( ! empty( $options_data ) ) {
 						$options = array_map(
 							function ( $option ) {
-								return sanitize_text_field( trim( $option['label'] ) );
+								return $this->sanitize_text_field( trim( $option['label'] ) );
 							},
 							$options_data
 						);
+					} else {
+						$options = array_map( array( $this, 'sanitize_text_field' ), $options );
 					}
 
 					$non_empty_options = array_filter(
@@ -361,10 +387,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( ! empty( $options_data ) ) {
 						$options = array_map(
 							function ( $option ) {
-								return sanitize_text_field( trim( $option['label'] ) );
+								return $this->sanitize_text_field( trim( $option['label'] ) );
 							},
 							$options_data
 						);
+					} else {
+						$options = array_map( array( $this, 'sanitize_text_field' ), $options );
 					}
 					$non_empty_options = array_filter(
 						$options,
@@ -408,6 +436,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$this->add_error( sprintf( __( '%s field is required.', 'jetpack-forms' ), $field_label ) );
 				}
 		}
+	}
+	/**
+	 * Sanitize a text field value and html_entity_decode the field.
+	 *
+	 * @param string $field_value The field value to sanitize.
+	 * @return string The sanitized field value.
+	 */
+	public function sanitize_text_field( $field_value ) {
+		return sanitize_text_field( html_entity_decode( $field_value, ENT_COMPAT ) );
 	}
 
 	/**
@@ -579,6 +616,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 			if ( is_numeric( $this->get_attribute( 'step' ) ) ) {
 				$extra_attrs['step'] = $this->get_attribute( 'step' );
+			}
+		}
+
+		if ( $field_type === 'slider' ) {
+			$minlabel = $this->get_attribute( 'minlabel' );
+			$maxlabel = $this->get_attribute( 'maxlabel' );
+			if ( null !== $minlabel && '' !== $minlabel ) {
+				$extra_attrs['minLabel'] = $minlabel;
+			}
+			if ( null !== $maxlabel && '' !== $maxlabel ) {
+				$extra_attrs['maxLabel'] = $maxlabel;
 			}
 		}
 
@@ -894,6 +942,96 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
 		$field  = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the telephone field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return string HTML
+	 */
+	public function render_phone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->enqueue_phone_field_assets();
+		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
+		$label = $this->render_label( 'phone', $id, $label, $required, $required_field_text );
+
+		if ( ! is_string( $value ) ) {
+			$value = '';
+		}
+
+		wp_interactivity_state(
+			'jetpack/form',
+			array(
+				'phoneNumber'      => '',
+				'phoneCountryCode' => $this->get_attribute( 'default' ),
+				'countryList'      => array(),
+			)
+		);
+		ob_start();
+		?>
+		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
+			style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
+			data-wp-on--jetpack-form-reset='actions.onReset'
+			<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- function is supposed to work this way
+			echo wp_interactivity_data_wp_context(
+				array(
+					'defaultCountry'      => $this->get_attribute( 'default' ),
+					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
+				)
+			);
+			?>
+			>
+				<div class="jetpack-field__input-prefix" data-wp-bind--hidden="!context.showCountrySelector">
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
+					<select <?php echo $class; ?>
+						data-wp-bind--disabled='state.isSubmitting'
+						data-wp-init="callbacks.initializeCountrySelector"
+						data-wp-on--change="actions.onPhoneCountryChange"
+						data-wp-bind--value="state.phoneCountryCode">
+						<template
+							data-wp-each--country="state.countryList"
+							data-wp-each-key="context.country.code">
+							<option
+								data-wp-bind--value="context.country.value"
+								data-wp-bind--selected="context.country.selected"
+								data-wp-text="context.country.label"></option>
+						</template>
+					</select>
+				</div>
+				<input
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- both are escaped in calling function ?>
+					<?php echo $class; ?> <?php echo $placeholder; ?>
+					type="tel"
+					<?php if ( $required ) { ?>
+						required="true"
+						aria-required="true"
+					<?php } ?>
+					data-wp-bind--disabled='state.isSubmitting'
+					data-wp-bind--aria-invalid='state.fieldHasErrors'
+					data-wp-bind--value='state.phoneNumber'
+					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
+					data-wp-on--input='actions.onPhoneNumberChange'
+					data-wp-on--blur='actions.onFieldBlur'
+					data-wp-class--has-value='state.hasFieldValue'
+					/>
+				<input type="hidden"
+					id="<?php echo esc_attr( $id ); ?>"
+					name="<?php echo esc_attr( $id ); ?>"
+					data-wp-bind--value='state.fullPhoneNumber' />
+		</div>
+		<?php
+		$input = ob_get_clean();
+
+		$field = $label . $input . $this->get_error_div( $id, 'phone' );
 		return $field;
 	}
 
@@ -2036,6 +2174,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'telephone':
 				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
+			case 'phone':
+				$field .= $this->render_phone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
 			case 'url':
 				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
@@ -2379,6 +2520,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
 		$step           = isset( $extra_attrs['step'] ) ? $extra_attrs['step'] : 1;
 		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
+		$min_text_label = isset( $extra_attrs['minLabel'] ) ? $extra_attrs['minLabel'] : '';
+		$max_text_label = isset( $extra_attrs['maxLabel'] ) ? $extra_attrs['maxLabel'] : '';
 
 		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
 
@@ -2412,7 +2555,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<?php
 					if ( $required ) :
 						?>
-						required<?php endif; ?>
+					required<?php endif; ?>
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
 					data-wp-bind--aria-invalid="state.fieldHasErrors"
@@ -2425,6 +2568,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			</div>
 			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
+		<?php if ( '' !== $min_text_label || '' !== $max_text_label ) : ?>
+			<div class="jetpack-field-slider__text-labels" aria-hidden="true">
+				<span class="jetpack-field-slider__min-text-label"><?php echo esc_html( $min_text_label ); ?></span>
+				<span class="jetpack-field-slider__max-text-label"><?php echo esc_html( $max_text_label ); ?></span>
+			</div>
+		<?php endif; ?>
 		<?php
 		$field .= ob_get_clean();
 		return $field . $this->get_error_div( $id, 'slider' );
@@ -2450,6 +2599,31 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		\wp_enqueue_script_module(
 			'jetpack-form-slider-field',
 			plugins_url( '../../dist/modules/slider-field/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
+	}
+
+	/**
+	 * Enqueues scripts and styles needed for the slider field.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @return void
+	 */
+	private function enqueue_phone_field_assets() {
+		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		\wp_enqueue_style(
+			'jetpack-form-phone-field',
+			plugins_url( '../../dist/contact-form/css/phone-field.css', __FILE__ ),
+			array(),
+			$version
+		);
+
+		\wp_enqueue_script_module(
+			'jetpack-form-phone-field',
+			plugins_url( '../../dist/modules/field-phone/view.js', __FILE__ ),
 			array( '@wordpress/interactivity' ),
 			$version
 		);

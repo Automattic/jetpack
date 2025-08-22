@@ -25,6 +25,7 @@ import {
 import { activateModule, deactivateModule, isModuleActive } from './jetpack';
 import { authenticateUser } from './login';
 import { setMockPlanData } from './plan';
+import { createUser, deleteUser } from './user';
 
 class TestUtils {
 	requestUtils: RequestUtils;
@@ -66,6 +67,10 @@ class TestUtils {
 	getSiteCredentials: typeof getSiteCredentials = getSiteCredentials;
 	getDotComCredentials: typeof getDotComCredentials = getDotComCredentials;
 	resetEnvironment: typeof resetEnvironment = resetEnvironment;
+
+	// user utilities
+	createUser: typeof createUser = createUser;
+	deleteUser: typeof deleteUser = deleteUser;
 }
 
 export { TestUtils };

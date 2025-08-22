@@ -1,6 +1,6 @@
 import { Text, Status, useBreakpointMatch } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
@@ -57,7 +57,7 @@ const ScanAdminSectionHero: FC = () => {
 							? sprintf(
 									/* translators: %1$s: the total number of threats/vulnerabilities, %2$s: the singular or plural form of "threat" or "vulnerability". */
 									__( '%1$s %2$s found', 'jetpack-protect' ),
-									numThreats,
+									numThreats.toString(),
 									hasPlan
 										? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
 										: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
@@ -67,11 +67,7 @@ const ScanAdminSectionHero: FC = () => {
 									__( 'No %s found', 'jetpack-protect' ),
 									hasPlan
 										? __( 'threats', 'jetpack-protect' )
-										: __(
-												'vulnerabilities',
-												'jetpack-protect',
-												/* dummy arg to avoid bad minification */ 0
-										  )
+										: _x( 'vulnerabilities', 'Plural of vulnerability', 'jetpack-protect' )
 							  ) }
 					</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>

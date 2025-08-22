@@ -11,4 +11,29 @@
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
+### Blocks
+
+The way JavaScript loaded for some blocks has changed. Make sure the following blocks work as expected:
+
+- Jetpack AI Search
+- Blogroll
+- Cookie Consent
+- Donations Form
+- Google Docs (Beta)
+- Image Compare
+- Like
+- Mailchimp
+- Map
+- Nextdoor
+- OpenTable
+- Podcast Player
+- Paid Content
+- Recipe (Beta)
+- Payment Button
+- Repeat Visitor
+- Sharing Buttons
+- Slideshow
+- Subscribe
+- Tiled Gallery
+
 **Thank you for all your help!**

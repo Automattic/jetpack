@@ -1,8 +1,8 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
+import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from '../../../constants';
 import { ProductCamelCase } from '../../../data/types';
-import { MyJetpackModule } from '../../types';
-import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from './constants';
+import { MyJetpackModule } from '../../../types';
 import { ProductFilter, ProductSection } from './types';
 
 /**
