@@ -2082,4 +2082,20 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertSame( '', $response->get_field_value_by_form_field_id( 'email' ) );
 		$this->assertNull( $response->get_field_by_form_field_id( 'email' ) );
 	}
+
+	public function test_edgecase_feedback_v2() {
+		// Post data with missing field value.
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => Feedback::POST_TYPE,
+				'post_title'     => 'Edgecase Feedback',
+				'post_content'   => '{"subject":"[WR8DAR] Contact us!","entry_title":"Contact us!","entry_page":1,"fields":[{"key":"1_key label","label":"key label","value":"abcd","type":"name","meta":[],"form_field_id":"g124-keylabel"},{"key":"2_Awesome","label":"Awesome","type":"email","meta":[],"form_field_id":"g124-awesome"}]}',
+				'post_status'    => 'publish',
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+	}
 }
