@@ -48,7 +48,12 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					instructions={ __( 'Enter LaTeX code below', 'jetpack' ) }
 					icon={ icon }
 				>
-					<VStack gap={ 4 } justify="flex-start" align="stretch">
+					<VStack
+						className="jetpack-latex-textarea-container"
+						gap={ 4 }
+						justify="flex-start"
+						align="stretch"
+					>
 						<TextareaControl
 							label={ __( 'LaTeX code', 'jetpack' ) }
 							className="jetpack-latex-textarea"
