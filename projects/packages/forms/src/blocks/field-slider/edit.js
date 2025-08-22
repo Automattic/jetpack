@@ -10,7 +10,7 @@ import {
 	PanelBody,
 	TextControl,
 } from '@wordpress/components';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
@@ -31,6 +31,24 @@ export default function SliderFieldEdit( props ) {
 		minLabel = '',
 		maxLabel = '',
 	} = attributes;
+
+	const [ localDefault, setLocalDefault ] = useState( String( defaultValue ) );
+	const [ defaultFocused, setDefaultFocused ] = useState( false );
+
+	useEffect( () => {
+		if ( ! defaultFocused ) {
+			setLocalDefault( String( defaultValue ) );
+		}
+	}, [ defaultValue, defaultFocused ] );
+
+	const snapToStep = useCallback(
+		val => {
+			const v = Number( val );
+			const clamped = Math.min( Math.max( v, min ), max );
+			return min + Math.round( ( clamped - min ) / step ) * step;
+		},
+		[ min, max, step ]
+	);
 
 	const onChangeMin = useCallback(
 		newMin => {
@@ -61,11 +79,11 @@ export default function SliderFieldEdit( props ) {
 	// This is passed to child input-range block via context.
 	const onChangeDefault = useCallback(
 		newDefault => {
-			const parsedDefault = parseFloat( newDefault ) || 0;
-			const validatedDefault = Math.max( Math.min( parsedDefault, max ), min );
-			setAttributes( { default: validatedDefault } );
+			const snapped = snapToStep( newDefault );
+			setAttributes( { default: snapped } );
+			setLocalDefault( String( snapped ) );
 		},
-		[ max, min, setAttributes ]
+		[ snapToStep, setAttributes ]
 	);
 
 	const onChangeStep = useCallback(
@@ -184,9 +202,16 @@ export default function SliderFieldEdit( props ) {
 							label={ __( 'Default value', 'jetpack-forms' ) }
 							min={ min }
 							max={ max }
-							value={ defaultValue }
-							onChange={ onChangeDefault }
+							value={ localDefault }
+							onChange={ val => {
+								setLocalDefault( val );
+								const snapped = snapToStep( val );
+								setAttributes( { default: snapped } );
+							} }
+							onFocus={ () => setDefaultFocused( true ) }
+							onBlur={ () => setDefaultFocused( false ) }
 							spinControls="custom"
+							step={ step || 1 }
 						/>
 						<NumberControl
 							__next40pxDefaultSize
