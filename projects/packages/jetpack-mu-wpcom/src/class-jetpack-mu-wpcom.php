@@ -290,6 +290,23 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
+		/**
+		 * Load features for the editor and the frontend pages.
+		 *
+		 * This also avoid redeclaring the `Newspack_Blocks` class as follows
+		 * - The `Newspack_Blocks` class is declared by jetpack-mu-wpcom plugin by the `plugin_loaded` hook.
+		 * - When people try to activate the newspack blocks plugin, it will try to declare it again.
+		 */
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			// To avoid potential collisions with newspack-blocks plugin.
+			if ( ! class_exists( '\Newspack_Blocks', false ) ) {
+				define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
+				require_once __DIR__ . '/features/newspack-blocks/index.php';
+			}
+		}
+
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Code_Editor::setup();
@@ -369,7 +386,6 @@ class Jetpack_Mu_Wpcom {
 		define( 'MU_WPCOM_HOMEPAGE_TITLE_HIDDEN', true );
 		define( 'MU_WPCOM_JETPACK_GLOBAL_STYLES', true );
 		define( 'A8C_USE_FONT_SMOOTHING_ANTIALIASED', false );
-		define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
 		define( 'MU_WPCOM_MAILERLITE_WIDGET', true );
 		define( 'MU_WPCOM_OVERRIDE_PREVIEW_BUTTON_URL', true );
 		define( 'MU_WPCOM_PARAGRAPH_BLOCK', true );
@@ -409,10 +425,6 @@ class Jetpack_Mu_Wpcom {
 
 		/**
 		 * Load features for the editor and the frontend pages.
-		 *
-		 * This also avoid redeclaring the `Newspack_Blocks` class as follows
-		 * - The `Newspack_Blocks` class is declared by jetpack-mu-wpcom plugin by the `plugin_loaded` hook.
-		 * - When people try to activate the newspack blocks plugin, it will try to declare it again.
 		 */
 		global $pagenow;
 		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
