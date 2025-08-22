@@ -459,31 +459,6 @@ class Contact_Form_Block {
 					'provides_context' => array( 'jetpack/field-required' => 'required' ),
 				)
 			);
-
-			Blocks::jetpack_register_block(
-				'jetpack/field-phone',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_phone' ),
-					'attributes'       => array(
-						'showCountrySelector' => array(
-							'type'    => 'boolean',
-							'default' => true,
-						),
-						'default'             => array(
-							'type'    => 'string',
-							'default' => '',
-							'role'    => 'content',
-						),
-					),
-					'supports'         => array(
-						'interactivity' => true,
-					),
-					'provides_context' => array(
-						'jetpack/field-required'       => 'required',
-						'jetpack/field-prefix-default' => 'default',
-					),
-				)
-			);
 		}
 
 		// Paid file field block
