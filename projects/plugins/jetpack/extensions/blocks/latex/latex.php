@@ -27,9 +27,10 @@ add_action( 'init', __NAMESPACE__ . '\latex_formula_block_init' );
 /**
  * Load the assets for the block.
  *
- * @param {object} $attr - The attributes of the block.
- * @param {string} $content - The content of the block.
- * @return {string} The content of the block.
+ * @param array  $attr    The attributes of the block.
+ * @param string $content The content of the block.
+ *
+ * @return string The content of the block.
  */
 function load_assets( $attr, $content ) {
 	/*
