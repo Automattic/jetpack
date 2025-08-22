@@ -9,99 +9,48 @@ import {
 	SeriesData,
 	ThemeProvider,
 } from '../../../.';
-import barSampleData from '../../../components/bar-chart/stories/sample-data';
+import { sharedDecorator } from '../../../stories/decorator-config';
+import { olympicMedals, temperatureData, barListSample } from '../../../stories/sample-data';
+import {
+	themeArgTypes,
+	defaultThemeArgs,
+	getThemeByName,
+	COLOR_PRESETS,
+	buildCustomTheme,
+} from '../../../stories/theme-config';
 import { jetpackTheme, wooTheme } from '../../theme/themes';
 import { GlobalChartsProvider } from '../global-charts-provider';
 
-const meta: Meta = {
+type StoryArgs = {
+	theme?: string;
+	customColors?: string[];
+	containerWidth?: string;
+	containerHeight?: string;
+	resize?: 'both' | 'horizontal' | 'vertical' | 'none';
+};
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Chart Context',
 	parameters: {
 		layout: 'centered',
 	},
+	decorators: sharedDecorator,
+	argTypes: {
+		...themeArgTypes,
+		customColors: {
+			control: 'object',
+			table: { category: 'Custom Theme' },
+			description: 'Array of custom colors for theme creation',
+		},
+	},
 };
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj< StoryArgs >;
 
-const barData: SeriesData[] = [ barSampleData[ 0 ], barSampleData[ 1 ], barSampleData[ 2 ] ];
+const barData: SeriesData[] = [ olympicMedals[ 0 ], olympicMedals[ 1 ], olympicMedals[ 2 ] ];
 
-const lineData: SeriesData[] = [
-	{
-		group: 'united-states',
-		label: 'United States',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 15, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 25, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 30, label: 'Jan 5' },
-		],
-	},
-	{
-		group: 'united-states',
-		label: 'United States comparison',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 1, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 2, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 1.5, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 2.5, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 3, label: 'Jan 5' },
-		],
-		options: {
-			type: 'comparison' as const,
-		},
-	},
-	{
-		group: 'great-britain',
-		label: 'Great Britain',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 8, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 12, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 18, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 22, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 28, label: 'Jan 5' },
-		],
-	},
-	{
-		group: 'great-britain',
-		label: 'Great Britain comparison',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 0.8, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 1.2, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 1.8, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 2.2, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 2.8, label: 'Jan 5' },
-		],
-		options: {
-			type: 'comparison' as const,
-		},
-	},
-	{
-		group: 'japan',
-		label: 'Japan',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 5, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 8, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 6, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 12, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 16, label: 'Jan 5' },
-		],
-	},
-	{
-		group: 'japan',
-		label: 'Japan comparison',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 0.5, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 0.8, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 0.6, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 1.2, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 1.6, label: 'Jan 5' },
-		],
-		options: {
-			type: 'comparison' as const,
-		},
-	},
-];
+const lineData: SeriesData[] = [ temperatureData[ 0 ], temperatureData[ 1 ] ];
 
 const pieData: DataPointPercentage[] = [
 	{
@@ -125,35 +74,7 @@ const pieData: DataPointPercentage[] = [
 ];
 
 // Data for Bar List Chart
-const barListData: SeriesData[] = [
-	{
-		group: 'united-states',
-		label: 'Jan 21-Aug 8, 2024',
-		data: [
-			{ label: 'Organic search', value: 30000 },
-			{ label: 'Affiliates', value: 19000 },
-			{ label: 'Display', value: 18000 },
-		],
-	},
-	{
-		group: 'great-britain',
-		label: 'Jan 21-Aug 8, 2023',
-		data: [
-			{ label: 'Organic search', value: 20000 },
-			{ label: 'Affiliates', value: 15000 },
-			{ label: 'Display', value: 19900 },
-		],
-	},
-	{
-		group: 'japan',
-		label: 'Jan 21-Aug 8, 2022',
-		data: [
-			{ label: 'Organic search', value: 15000 },
-			{ label: 'Affiliates', value: 12000 },
-			{ label: 'Display', value: 14000 },
-		],
-	},
-];
+const barListData: SeriesData[] = barListSample;
 
 // Data for Donut Chart (uses PieChart with thickness)
 const donutData: DataPointPercentage[] = [
@@ -283,38 +204,92 @@ export const WooTheme: Story = {
 	),
 };
 
-export const CustomTheme: Story = {
-	render: () => (
-		<GlobalChartsProvider
-			theme={ {
-				colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
-				seriesLineStyles: [
-					{
-						strokeWidth: 1,
-						strokeDasharray: '8 8',
-						strokeLinecap: 'square',
-					},
-					{
-						strokeDasharray: '5 8',
-						strokeWidth: 2,
-						strokeLinecap: 'square',
-					},
-				],
-				gridStyles: {
-					stroke: '#ffe3e3',
-					strokeWidth: 2,
-				},
-			} }
-		>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
-	),
+export const CustomColors: Story = {
+	args: {
+		...defaultThemeArgs,
+		customColors: COLOR_PRESETS.earthy,
+	},
+	render: args => {
+		const theme = args.customColors
+			? buildCustomTheme( args.customColors )
+			: getThemeByName( args.theme! );
+
+		return (
+			<GlobalChartsProvider theme={ theme }>
+				<ChartGrid
+					lineChartData={ lineData }
+					barChartData={ barData }
+					pieChartData={ pieData }
+					barListChartData={ barListData }
+					donutChartData={ donutData }
+				/>
+			</GlobalChartsProvider>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive custom color theme. Edit the customColors array in the controls to see real-time color changes across all chart types.',
+			},
+		},
+	},
+};
+
+export const ColorPresets: Story = {
+	render: () => {
+		const presetEntries = Object.entries( COLOR_PRESETS );
+
+		return (
+			<div style={ { display: 'grid', gap: '3rem' } }>
+				{ presetEntries.map( ( [ presetName, colors ] ) => (
+					<div key={ presetName }>
+						<h3 style={ { marginBottom: '1rem', textTransform: 'capitalize' } }>
+							{ presetName } Preset
+						</h3>
+						<div style={ { display: 'flex', gap: '0.5rem', marginBottom: '1rem' } }>
+							{ colors.map( ( color, index ) => (
+								<div
+									key={ index }
+									style={ {
+										width: '30px',
+										height: '30px',
+										backgroundColor: color,
+										border: '1px solid #ccc',
+										borderRadius: '4px',
+									} }
+									title={ color }
+								/>
+							) ) }
+						</div>
+						<GlobalChartsProvider theme={ buildCustomTheme( colors ) }>
+							<div
+								style={ { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' } }
+							>
+								<BarChart data={ barData } width={ 300 } height={ 200 } withTooltips={ true } />
+								<LineChart
+									data={ lineData }
+									width={ 300 }
+									height={ 200 }
+									withTooltips={ true }
+									withGradientFill={ false }
+								/>
+								<PieChart size={ 200 } data={ pieData } withTooltips={ true } />
+							</div>
+						</GlobalChartsProvider>
+					</div>
+				) ) }
+			</div>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Showcase of all available color presets with live chart examples. Each preset demonstrates different color palettes suitable for various use cases.',
+			},
+		},
+	},
 };
 
 export const NestedThemes: Story = {

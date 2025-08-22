@@ -1,5 +1,8 @@
+import { sharedDecorator } from '../../../stories/decorator-config';
 import { legendArgTypes } from '../../../stories/legend-config';
+import { responsiveArgTypes, defaultResponsiveArgs } from '../../../stories/responsive-config';
 import { olympicMedals, largeValuesData, trafficData } from '../../../stories/sample-data';
+import { themeArgTypes, defaultThemeArgs } from '../../../stories/theme-config';
 import BarChart from '../bar-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -9,45 +12,10 @@ const meta: Meta< typeof BarChart > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: sharedDecorator,
 	argTypes: {
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
+		...responsiveArgTypes,
+		...themeArgTypes,
 		...legendArgTypes,
 	},
 } satisfies Meta< typeof BarChart >;
@@ -62,9 +30,8 @@ export const Default: Story = {
 		withTooltips: true,
 		data: [ olympicMedals[ 0 ], olympicMedals[ 1 ], olympicMedals[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
-		maxWidth: 1200,
-		aspectRatio: 0.5,
-		resizeDebounceTime: 300,
+		...defaultResponsiveArgs,
+		...defaultThemeArgs,
 	},
 };
 
@@ -157,7 +124,7 @@ export const WithPatterns: Story = {
 	args: {
 		...Default.args,
 		withPatterns: true,
-		data: data.map( country => {
+		data: olympicMedals.map( country => {
 			return {
 				...country,
 				data: country.data.filter( d => parseInt( d.label ) >= 2016 ),
@@ -260,7 +227,7 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 export const CustomLegendPositioning: Story = {
 	args: {
 		withTooltips: true,
-		data: data.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		data: olympicMedals.slice( 0, 3 ), // Use first 3 series for cleaner legend
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
