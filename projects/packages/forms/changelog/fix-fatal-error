@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a case where fatal error might occur after form submission

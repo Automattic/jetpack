@@ -839,9 +839,12 @@ class Feedback {
 		}
 		$fields = array();
 		foreach ( $decoded_content['fields'] as $field ) {
-			$fields[ $field['key'] ] = Feedback_Field::from_serialized( $field );
-			if ( ! $this->has_file && $fields[ $field['key'] ]->has_file() ) {
-				$this->has_file = true;
+			$feedback_field = Feedback_Field::from_serialized( $field );
+			if ( $feedback_field instanceof Feedback_Field ) {
+				$fields[ $feedback_field->get_key() ] = $feedback_field;
+				if ( ! $this->has_file && $feedback_field->has_file() ) {
+					$this->has_file = true;
+				}
 			}
 		}
 		$decoded_content['fields'] = $fields;
