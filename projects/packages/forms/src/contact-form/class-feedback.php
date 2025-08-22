@@ -840,14 +840,13 @@ class Feedback {
 		$fields = array();
 		foreach ( $decoded_content['fields'] as $field ) {
 			$fields[ $field['key'] ] = Feedback_Field::from_serialized( $field );
-			if ( ! $this->has_file && $fields[ $field['key'] ]->has_file() ) {
+			if ( ! $this->has_file && $fields[ $field['key'] ] && $fields[ $field['key'] ]->has_file() ) {
 				$this->has_file = true;
 			}
 		}
 		$decoded_content['fields'] = $fields;
 		return $decoded_content;
 	}
-
 	/**
 	 * Parse the legacy content format.
 	 *
