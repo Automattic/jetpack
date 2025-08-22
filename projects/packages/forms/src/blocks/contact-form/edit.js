@@ -39,6 +39,7 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
+import { CORE_BLOCKS } from '../shared/util/constants';
 import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
@@ -65,23 +66,6 @@ const validFields = childBlocks.filter( ( { settings } ) => {
 
 const ALLOWED_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
-const ALLOWED_CORE_BLOCKS = [
-	'core/audio',
-	'core/columns',
-	'core/group',
-	'core/heading',
-	'core/html',
-	'core/image',
-	'core/list',
-	'core/paragraph',
-	'core/row',
-	'core/separator',
-	'core/spacer',
-	'core/stack',
-	'core/subhead',
-	'core/video',
-];
-
 // At the top level of a multistep form we allow navigation, progress indicator
 // and the step-container itself (users may add it manually before steps are
 // auto-structured). The core block list remains unchanged.
@@ -90,7 +74,7 @@ const ALLOWED_MULTI_STEP_BLOCKS = [
 	'jetpack/form-progress-indicator',
 	'jetpack/form-step-container',
 	'jetpack/form-step-divider',
-].concat( ALLOWED_CORE_BLOCKS );
+].concat( CORE_BLOCKS );
 
 const REMOVE_FIELDS_FROM_FORM = [
 	'jetpack/form-step-navigation',
@@ -98,7 +82,7 @@ const REMOVE_FIELDS_FROM_FORM = [
 	'jetpack/form-step-container',
 ];
 
-const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( ALLOWED_CORE_BLOCKS ).filter(
+const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 	block => ! REMOVE_FIELDS_FROM_FORM.includes( block )
 );
 
