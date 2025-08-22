@@ -72,6 +72,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					</VStack>
 					<HStack justify="flex-end">
 						<Button
+							__next40pxDefaultSize
 							variant="primary"
 							onClick={ () => {
 								setAttributes( { latex } );
