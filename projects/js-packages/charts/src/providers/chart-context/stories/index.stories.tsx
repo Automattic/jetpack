@@ -15,7 +15,6 @@ import {
 	themeArgTypes,
 	defaultThemeArgs,
 	getThemeByName,
-	COLOR_PRESETS,
 	buildCustomTheme,
 } from '../../../stories/theme-config';
 import { jetpackTheme, wooTheme } from '../../theme/themes';
@@ -207,7 +206,7 @@ export const WooTheme: Story = {
 export const CustomColors: Story = {
 	args: {
 		...defaultThemeArgs,
-		customColors: COLOR_PRESETS.earthy,
+		customColors: [ '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57' ],
 	},
 	render: args => {
 		const theme = args.customColors
@@ -231,66 +230,6 @@ export const CustomColors: Story = {
 			description: {
 				story:
 					'Interactive custom color theme. Edit the customColors array in the controls to see real-time color changes across all chart types.',
-			},
-		},
-	},
-};
-
-export const ColorPresets: Story = {
-	render: () => {
-		const presetEntries = Object.entries( COLOR_PRESETS );
-
-		return (
-			<div style={ { display: 'grid', gap: '3rem' } }>
-				{ presetEntries.map( ( [ presetName, colors ] ) => (
-					<div key={ presetName }>
-						<h3 style={ { marginBottom: '1rem', textTransform: 'capitalize' } }>
-							{ presetName } Preset
-						</h3>
-						<div style={ { display: 'flex', gap: '0.5rem', marginBottom: '1rem' } }>
-							{ colors && Array.isArray( colors ) ? (
-								colors.map( ( color, index ) => (
-									<div
-										key={ index }
-										style={ {
-											width: '30px',
-											height: '30px',
-											backgroundColor: color,
-											border: '1px solid #ccc',
-											borderRadius: '4px',
-										} }
-										title={ color }
-									/>
-								) )
-							) : (
-								<div>No colors available</div>
-							) }
-						</div>
-						<GlobalChartsProvider theme={ buildCustomTheme( colors || [] ) }>
-							<div
-								style={ { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' } }
-							>
-								<BarChart data={ barData } width={ 300 } height={ 200 } withTooltips={ true } />
-								<LineChart
-									data={ lineData }
-									width={ 300 }
-									height={ 200 }
-									withTooltips={ true }
-									withGradientFill={ false }
-								/>
-								<PieChart size={ 200 } data={ pieData } withTooltips={ true } />
-							</div>
-						</GlobalChartsProvider>
-					</div>
-				) ) }
-			</div>
-		);
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Showcase of all available color presets with live chart examples. Each preset demonstrates different color palettes suitable for various use cases.',
 			},
 		},
 	},

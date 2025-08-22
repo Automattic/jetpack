@@ -157,20 +157,6 @@ export function generateThemeStories< T >( baseStory: T ): Record< string, T > {
 }
 
 /**
- * Preset color palettes for custom themes
- */
-export const COLOR_PRESETS = {
-	vibrant: [ '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3' ],
-	earthy: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
-	monochrome: [ '#2C3E50', '#34495E', '#7F8C8D', '#95A5A6', '#BDC3C7', '#ECF0F1' ],
-	warm: [ '#E74C3C', '#E67E22', '#F39C12', '#F1C40F', '#D35400' ],
-	cool: [ '#3498DB', '#2980B9', '#1ABC9C', '#16A085', '#8E44AD', '#9B59B6' ],
-	pastel: [ '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#E1BAFF' ],
-	corporate: [ '#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD', '#8C564B' ],
-	neon: [ '#FF073A', '#00FF87', '#00BFFF', '#FF69B4', '#FFD700', '#7FFF00' ],
-};
-
-/**
  * Theme information for documentation and debugging
  */
 export const themeDocumentation = {
@@ -181,22 +167,9 @@ export const themeDocumentation = {
 		colors: theme.colors,
 		description: `${ name } theme with ${ theme.colors.length } color palette`,
 	} ) ),
-	colorPresets: COLOR_PRESETS,
 	autoDetected: true,
 	lastUpdated: new Date().toISOString(),
 };
-
-/**
- * Helper to get a random color preset for experimentation
- * @return {string[]} Random color preset array
- */
-export function getRandomColorPreset(): string[] {
-	const presetKeys = Object.keys( COLOR_PRESETS );
-	const randomKey = presetKeys[
-		Math.floor( Math.random() * presetKeys.length )
-	] as keyof typeof COLOR_PRESETS;
-	return COLOR_PRESETS[ randomKey ];
-}
 
 /**
  * Custom theme builder with enhanced options
@@ -240,7 +213,6 @@ export function verifyThemeSystem() {
 	const results = {
 		discoveredThemes: Object.keys( AVAILABLE_THEMES ),
 		themeCount: Object.keys( AVAILABLE_THEMES ).length,
-		colorPresets: Object.keys( COLOR_PRESETS ),
 		sampleThemeTest: {} as Record< string, boolean >,
 	};
 
