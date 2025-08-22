@@ -28,6 +28,7 @@ import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
+import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
@@ -225,6 +226,8 @@ export default function PricingInterstitial( { slug } ) {
 		}
 	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutRun, bundleDetail, config ] );
 
+	const { update: updateInterstitialsState } = useInterstitialsState();
+
 	const handleFreeActivation = useCallback( () => {
 		setLoadingButton( 'free' );
 		trackProductOrBundleClick( { isFreePlan: true, ctaText: config?.tiers?.free?.cta } );
@@ -233,13 +236,22 @@ export default function PricingInterstitial( { slug } ) {
 		const hasPurchasableFree = !! detail?.pricingForUi?.wpcomFreeProductSlug;
 		const checkout = hasPurchasableFree ? freeCheckoutRun : null;
 
-		clickHandler( { checkout, product: detail, tier: 'free' } );
+		updateInterstitialsState(
+			{ [ slug ]: true },
+			{
+				onSettled() {
+					clickHandler( { checkout, product: detail, tier: 'free' } );
+				},
+			}
+		);
 	}, [
 		trackProductOrBundleClick,
 		clickHandler,
 		detail,
 		config?.tiers?.free?.cta,
 		freeCheckoutRun,
+		updateInterstitialsState,
+		slug,
 	] );
 
 	// If no config exists, fallback to old ProductInterstitial
