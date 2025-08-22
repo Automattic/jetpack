@@ -34,7 +34,7 @@ class External_Connections {
 	 *
 	 * @example
 	 * ```php
-	 * $this->services = array(
+	 * self::$services = array(
 	 *     'media' => array(
 	 *         array(
 	 *             'service'      => 'facebook',
@@ -70,7 +70,7 @@ class External_Connections {
 			require_lib( 'external-connections' );
 			$connections = \WPCOM_External_Connections::init();
 			$service     = $connections->get_external_service_item( $service );
-			$connect_url = empty( $service ) ? null : $service['connect_URL'];
+			$connect_url = $service ? $service['connect_URL'] : null;
 			set_transient( $transient_name, $connect_url, DAY_IN_SECONDS );
 			return $connect_url;
 		}
@@ -180,7 +180,7 @@ class External_Connections {
 			);
 		}
 
-		$is_connected  = ! empty( $connection ) && isset( $connection['status'] ) && $connection['status'] === 'ok';
+		$is_connected  = isset( $connection['status'] ) && $connection['status'] === 'ok';
 		$account_name  = $is_connected ? ( $connection['external_display'] ?? $connection['external_name'] ) : '';
 		$profile_image = $is_connected ? $connection['external_profile_picture'] : '';
 
@@ -195,22 +195,21 @@ class External_Connections {
 	 * Registers connection settings.
 	 */
 	public static function register_settings() {
-		foreach ( self::$services as $page => $services ) {
-			global $pagenow;
+		global $pagenow;
+		$host = new Host();
 
+		if ( ! $host->is_wpcom_simple() ) {
+			$connection = new Connection_Manager( 'jetpack' );
+			$status     = new Status();
+
+			if ( $status->is_offline_mode() || ! $connection->has_connected_owner() || ! $connection->is_user_connected() ) {
+				return;
+			}
+		}
+
+		foreach ( self::$services as $page => $services ) {
 			if ( $pagenow !== "options-$page.php" ) {
 				continue;
-			}
-
-			$host = new Host();
-
-			if ( ! $host->is_wpcom_simple() ) {
-				$connection = new Connection_Manager( 'jetpack' );
-				$status     = new Status();
-
-				if ( $status->is_offline_mode() || ! $connection->has_connected_owner() || ! $connection->is_user_connected() ) {
-					return;
-				}
 			}
 
 			add_settings_section(
@@ -329,9 +328,6 @@ class External_Connections {
 	 * @param array  $service The service to be associated with the specified admin page.
 	 */
 	public static function add_settings_for_service( $page, $service ) {
-		if ( ! isset( self::$services[ $page ] ) ) {
-			self::$services[ $page ] = array();
-		}
 		self::$services[ $page ][] = $service;
 
 		if ( ! has_action( 'admin_init', array( __CLASS__, 'register_settings' ) ) ) {
