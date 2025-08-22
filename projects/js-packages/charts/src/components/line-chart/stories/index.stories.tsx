@@ -1,10 +1,12 @@
 import { useGlobalChartTheme } from '../../../hooks';
 import { legendArgTypes } from '../../../stories/legend-config';
+import {
+	temperatureData as sampleData,
+	largeValuesData,
+	trafficData as webTrafficData,
+} from '../../../stories/sample-data';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
-import largeValuesData from './large-values-sample';
-import sampleData from './sample-data';
-import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 type StoryArgs = React.ComponentProps< typeof LineChart > & {
