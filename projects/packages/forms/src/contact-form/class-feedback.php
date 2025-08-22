@@ -455,6 +455,13 @@ class Feedback {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 
+			// Don't show the hidden fields in the user context.
+			if ( in_array( $context, array( 'web', 'ajax' ), true ) ) {
+				if ( $field->is_of_type( 'hidden' ) ) {
+					continue;
+				}
+			}
+
 			$label = $field->get_label( $context );
 
 			if ( ! isset( $count_field_labels[ $label ] ) ) {
