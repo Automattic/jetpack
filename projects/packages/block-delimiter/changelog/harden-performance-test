@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhanced
-
-Harden Block_Scanner performance test to reduce flakiness with competitive benchmarking and robust statistics
