@@ -1,4 +1,5 @@
-.jetpack-contact-form .jetpack-field.jetpack-field-phone {
+.jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
 	.jetpack-field__input,
 	.jetpack-field__textarea {
@@ -88,7 +89,8 @@
 	}
 }
 
-.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone {
+.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
 	&:not(.has-placeholder):not(.is-selected),
 	&:not(.has-placeholder):not(.has-child-selected) {
@@ -107,7 +109,8 @@
 	}
 }
 
-.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone {
+.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
 	&:not(.has-placeholder):not(.is-selected),
 	&:not(.has-placeholder):not(.has-child-selected) {

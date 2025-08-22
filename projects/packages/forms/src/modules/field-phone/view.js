@@ -1,6 +1,6 @@
 import { store, getContext } from '@wordpress/interactivity';
 import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
-import { countries } from '../../blocks/field-phone/country-list';
+import { countries } from '../../blocks/field-telephone/country-list';
 import { isEmptyValue } from '../../contact-form/js/validate-helper';
 const NAMESPACE = 'jetpack/form';
 
@@ -11,6 +11,7 @@ const { actions } = store( NAMESPACE, {
 		validators: {
 			phone: ( value, isRequired ) => {
 				const context = getContext();
+
 				if ( isEmptyValue( context.phoneNumber ) && isRequired ) {
 					// this is not triggering any error, but then no other input does either
 					return 'is_required';
