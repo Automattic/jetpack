@@ -48,7 +48,7 @@ export default function PhoneFieldEdit( props ) {
 
 	const countryPairs = useMemo( () => {
 		return countries.map( country => ( {
-			label: country.code + ' ' + country.label,
+			label: country.country + ' ' + country.flag + ' ' + country.value,
 			value: country.code,
 		} ) );
 	}, [] );

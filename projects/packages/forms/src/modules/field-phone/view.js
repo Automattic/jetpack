@@ -81,7 +81,7 @@ const { actions } = store( NAMESPACE, {
 			if ( context.showCountrySelector ) {
 				context.countryList = countries.map( country => ( {
 					...country,
-					label: country.code + ' ' + country.label,
+					label: country.country + ' ' + country.flag + ' ' + country.value,
 					value: country.code,
 					selected: country.code === context.defaultCountry,
 				} ) );
