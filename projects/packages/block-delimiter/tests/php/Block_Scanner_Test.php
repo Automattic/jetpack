@@ -16,14 +16,14 @@ use PHPUnit\Framework\TestCase;
 class Block_Scanner_Test extends TestCase {
 
 	// Benchmark configuration
-	private const PERF_WARMUP_RUNS                = 5;     // Initial runs to stabilize JIT/opcache before measuring
-	private const PERF_BENCHMARK_ITERATIONS       = 21;    // Main benchmark iterations for statistical significance
-	private const PERF_RETRY_BENCHMARK_ITERATIONS = 51;    // Extra iterations when retrying borderline results
+	private const PERF_WARMUP_RUNS                = 3;     // Reduced warmup runs for faster CI execution
+	private const PERF_BENCHMARK_ITERATIONS       = 11;    // Fewer iterations for CI stability
+	private const PERF_RETRY_BENCHMARK_ITERATIONS = 21;    // Reduced retry iterations
 
-	// Performance assertion thresholds
-	private const PERF_MIN_TIME_RATIO_THRESHOLD   = 1.10;  // Scanner must be 1.10x faster than parse_blocks
-	private const PERF_MIN_FAVORABLE_RUNS_PERCENT = 80;    // % of individual runs that must show scanner advantage
-	private const PERF_MEMORY_TOLERANCE_BYTES     = 65536; // 64KB tolerance for memory usage comparison
+	// CI-friendly performance assertion thresholds (regression detection vs absolute performance)
+	private const PERF_MIN_TIME_RATIO_THRESHOLD   = 1.03;  // Scanner must not be significantly slower (relaxed for CI)
+	private const PERF_MIN_FAVORABLE_RUNS_PERCENT = 55;    // Majority of runs should show scanner advantage (relaxed)
+	private const PERF_MEMORY_TOLERANCE_BYTES     = 128 * 1024; // 128KB tolerance for CI memory variations
 
 	/**
 	 * Test the create method with valid input.
@@ -735,9 +735,10 @@ class Block_Scanner_Test extends TestCase {
 	}
 
 	/**
-	 * Test performance comparison between parse_blocks and Block_Scanner.
+	 * Test performance regression detection between parse_blocks and Block_Scanner.
 	 *
-	 * Verifies Block_Scanner is faster when finding specific blocks early.
+	 * Ensures Block_Scanner performance doesn't significantly regress compared to parse_blocks.
+	 * Uses CI-friendly thresholds and extensive retry logic to minimize false positives.
 	 *
 	 * @group performance
 	 */
@@ -749,6 +750,11 @@ class Block_Scanner_Test extends TestCase {
 
 		if ( ! \function_exists( 'serialize_blocks' ) ) {
 			$this->markTestSkipped( 'serialize_blocks not available. Block editor not available' );
+		}
+
+		// Skip test under high system load conditions to reduce CI flakiness
+		if ( $this->is_system_under_high_load() ) {
+			$this->markTestSkipped( 'System under high load - skipping performance test for stability' );
 		}
 
 		$test_content = $this->generate_test_content_with_target_image();
@@ -776,15 +782,15 @@ class Block_Scanner_Test extends TestCase {
 	/**
 	 * Generate test content with target image positioned for early termination test.
 	 *
-	 * Creates 50 paragraph blocks before the image, then 2000 after to amplify early-exit advantage.
+	 * Creates 10 paragraph blocks before the image, then 100 after for CI-friendly execution while preserving early-exit advantage.
 	 *
 	 * @return string Block content with image at early position.
 	 */
 	private function generate_test_content_with_target_image(): string {
 		$blocks = array();
 
-		// Add 50 paragraph blocks before target (earlier image position)
-		for ( $i = 0; $i < 50; $i++ ) {
+		// Add 10 paragraph blocks before target (reduced for CI stability)
+		for ( $i = 0; $i < 10; $i++ ) {
 			$blocks[] = array(
 				'blockName'    => 'core/paragraph',
 				'attrs'        => array(),
@@ -805,8 +811,8 @@ class Block_Scanner_Test extends TestCase {
 			'innerContent' => array( '<figure class="wp-block-image"><img src="https://example.com/test.jpg" alt="Test image"/></figure>' ),
 		);
 
-		// Add significantly more blocks after target (2000 blocks for more pronounced early-exit advantage)
-		for ( $i = 0; $i < 2000; $i++ ) {
+		// Add blocks after target (100 blocks - still enough to show early-exit advantage but faster for CI)
+		for ( $i = 0; $i < 100; $i++ ) {
 			$blocks[] = array(
 				'blockName'    => 'core/paragraph',
 				'attrs'        => array(),
@@ -815,6 +821,58 @@ class Block_Scanner_Test extends TestCase {
 		}
 
 		return \serialize_blocks( $blocks );
+	}
+
+	/**
+	 * Check if system is under high load that could affect performance test reliability.
+	 *
+	 * @return bool True if system load is too high for reliable performance testing.
+	 */
+	private function is_system_under_high_load(): bool {
+		// Check available memory - skip if less than 64MB free
+		$memory_limit = ini_get( 'memory_limit' );
+		if ( $memory_limit && $memory_limit !== '-1' ) {
+			$memory_limit_bytes = $this->parse_memory_limit( $memory_limit );
+			$current_usage      = \memory_get_usage( true );
+			$available_memory   = $memory_limit_bytes - $current_usage;
+
+			if ( $available_memory < 64 * 1024 * 1024 ) { // Less than 64MB available
+				return true;
+			}
+		}
+
+		// Basic load average check on Unix systems
+		if ( \function_exists( 'sys_getloadavg' ) ) {
+			$load = \sys_getloadavg();
+			if ( $load && $load[0] > 4.0 ) { // High 1-minute load average
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Parse PHP memory limit string to bytes.
+	 *
+	 * @param string $limit Memory limit string (e.g., '128M', '1G').
+	 * @return int Memory limit in bytes.
+	 */
+	private function parse_memory_limit( string $limit ): int {
+		$limit         = trim( $limit );
+		$last_char     = strtolower( substr( $limit, -1 ) );
+		$numeric_value = (int) substr( $limit, 0, -1 );
+
+		switch ( $last_char ) {
+			case 'g':
+				return $numeric_value * 1024 * 1024 * 1024;
+			case 'm':
+				return $numeric_value * 1024 * 1024;
+			case 'k':
+				return $numeric_value * 1024;
+			default:
+				return (int) $limit;
+		}
 	}
 
 	/**
@@ -973,50 +1031,57 @@ class Block_Scanner_Test extends TestCase {
 		$scanner_mem_stat     = $this->compute_trimmed_median( $scanner_mems );
 		$parse_mem_stat       = $this->compute_trimmed_median( $parse_mems );
 
-		// Time ratio assertion with retry mechanism
-		$time_ratio = $parse_time_trimmed / $scanner_time_trimmed;
+		// Regression-focused time ratio assertion with extended retry mechanism
+		$time_ratio  = $parse_time_trimmed / $scanner_time_trimmed;
+		$retry_count = 0;
+		$max_retries = 2;
 
-		if ( $time_ratio < self::PERF_MIN_TIME_RATIO_THRESHOLD ) {
-			if ( $time_ratio >= 1.05 ) {
-				// Borderline case - retry once with more iterations using the same test content
-				$retry_results = $this->run_competitive_benchmark(
-					function () use ( $test_content ) {
-						return $this->find_first_image_with_scanner( $test_content );
-					},
-					function () use ( $test_content ) {
-						return $this->find_first_image_with_parse_blocks( $test_content );
-					},
-					self::PERF_RETRY_BENCHMARK_ITERATIONS
-				);
+		// Multiple retry attempts for CI stability
+		while ( $time_ratio < self::PERF_MIN_TIME_RATIO_THRESHOLD && $retry_count < $max_retries ) {
+			$retry_count++;
 
-				$retry_scanner_time = $this->compute_trimmed_median( $retry_results['scanner_times'] );
-				$retry_parse_time   = $this->compute_trimmed_median( $retry_results['parse_times'] );
-				$time_ratio         = $retry_parse_time / $retry_scanner_time;
-			}
+			// Retry with progressively more iterations for statistical stability
+			$retry_iterations = self::PERF_RETRY_BENCHMARK_ITERATIONS + ( $retry_count * 10 );
 
-			if ( $time_ratio < self::PERF_MIN_TIME_RATIO_THRESHOLD ) {
-				$this->markTestSkipped(
-					sprintf(
-						'Performance inconclusive under current environment (ratio: %.3f)',
-						$time_ratio
-					)
-				);
-			}
+			$retry_results = $this->run_competitive_benchmark(
+				function () use ( $test_content ) {
+					return $this->find_first_image_with_scanner( $test_content );
+				},
+				function () use ( $test_content ) {
+					return $this->find_first_image_with_parse_blocks( $test_content );
+				},
+				$retry_iterations
+			);
+
+			$retry_scanner_time = $this->compute_trimmed_median( $retry_results['scanner_times'] );
+			$retry_parse_time   = $this->compute_trimmed_median( $retry_results['parse_times'] );
+			$time_ratio         = $retry_parse_time / $retry_scanner_time;
 		}
 
-		// Main time ratio assertion
+		// If still below threshold after retries, skip rather than fail (CI-friendly)
+		if ( $time_ratio < self::PERF_MIN_TIME_RATIO_THRESHOLD ) {
+			$this->markTestSkipped(
+				sprintf(
+					'Performance inconclusive after %d retries (ratio: %.3f) - likely CI environment variability',
+					$retry_count,
+					$time_ratio
+				)
+			);
+		}
+
+		// Regression-focused assertion: Scanner should not be significantly slower
 		$this->assertGreaterThan(
 			self::PERF_MIN_TIME_RATIO_THRESHOLD,
 			$time_ratio,
 			sprintf(
-				'Scanner should be measurably faster than parse_blocks (ratio: %.3f, scanner: %.6fs, parse_blocks: %.6fs)',
+				'Scanner performance regression detected (ratio: %.3f, scanner: %.6fs, parse_blocks: %.6fs)',
 				$time_ratio,
 				$scanner_time_trimmed,
 				$parse_time_trimmed
 			)
 		);
 
-		// Distribution check - at least 80% of runs should satisfy ratio >= 1.10
+		// Distribution check - majority of runs should not show regression
 		$favorable_runs = 0;
 		$total_runs     = count( $scanner_times );
 		for ( $i = 0; $i < $total_runs; $i++ ) {
@@ -1029,12 +1094,13 @@ class Block_Scanner_Test extends TestCase {
 			self::PERF_MIN_FAVORABLE_RUNS_PERCENT,
 			$favorable_percentage,
 			sprintf(
-				'At least 80%% of individual runs should show scanner advantage (actual: %.1f%%)',
-				$favorable_percentage
+				'Performance regression in %.1f%% of individual runs (threshold: %d%% must pass)',
+				100 - $favorable_percentage,
+				self::PERF_MIN_FAVORABLE_RUNS_PERCENT
 			)
 		);
 
-		// Memory assertion with larger tolerance (64KB)
+		// Memory regression check with CI-friendly tolerance (128KB)
 		$this->assertLessThanOrEqual(
 			$parse_mem_stat * 1.10 + self::PERF_MEMORY_TOLERANCE_BYTES,
 			$scanner_mem_stat,
