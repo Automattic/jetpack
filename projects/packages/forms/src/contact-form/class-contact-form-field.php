@@ -982,17 +982,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-		$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
-
 		$show_country_selector = $this->get_attribute( 'showcountryselector' );
-		if ( ! $show_country_selector ) {
+		$default_country       = $this->get_attribute( 'default' );
+
+		if ( ! $show_country_selector && ! $default_country ) {
+			// old telephone field treatment
+			$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
+			$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
 			$field = $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
 			return $label . $field;
 		}
 
 		$this->enqueue_phone_field_assets();
 
+		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
+		$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
@@ -1007,11 +1011,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			echo wp_interactivity_data_wp_context(
 				array(
 					'fieldId'             => $id,
-					'defaultCountry'      => $this->get_attribute( 'default' ),
+					'defaultCountry'      => $default_country,
 					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
 					// dynamic
 					'phoneNumber'         => '',
-					'phoneCountryCode'    => $this->get_attribute( 'default' ),
+					'phoneCountryCode'    => $default_country,
 					'countryList'         => array(),
 					'fullPhoneNumber'     => '',
 					'countryPrefix'       => '',
@@ -2319,11 +2323,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'email':
 				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
+			case 'phone':
 			case 'telephone':
 				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
-				break;
-			case 'phone':
-				$field .= $this->render_phone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'url':
 				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );

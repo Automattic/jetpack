@@ -1107,7 +1107,9 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_telephone( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone', $block );
+		// conversion telephone to phone
+		$type = empty( $atts['showcountryselector'] ) && empty( $atts['default'] ) ? 'telephone' : 'phone';
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, $type, $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
