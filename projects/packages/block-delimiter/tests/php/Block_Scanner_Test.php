@@ -21,8 +21,8 @@ class Block_Scanner_Test extends TestCase {
 	private const PERF_RETRY_BENCHMARK_ITERATIONS = 21;    // Reduced retry iterations
 
 	// CI-friendly performance assertion thresholds (regression detection vs absolute performance)
-	private const PERF_MIN_TIME_RATIO_THRESHOLD   = 1.03;  // Scanner must not be significantly slower (relaxed for CI)
-	private const PERF_MIN_FAVORABLE_RUNS_PERCENT = 55;    // Majority of runs should show scanner advantage (relaxed)
+	private const PERF_MIN_TIME_RATIO_THRESHOLD   = 1.02;  // Scanner must not be significantly slower
+	private const PERF_MIN_FAVORABLE_RUNS_PERCENT = 55;    // Majority of runs should show scanner advantage
 	private const PERF_MEMORY_TOLERANCE_BYTES     = 128 * 1024; // 128KB tolerance for CI memory variations
 
 	/**
@@ -775,7 +775,6 @@ class Block_Scanner_Test extends TestCase {
 		$parse_blocks_result = $this->find_first_image_with_parse_blocks( $test_content );
 		$this->assert_same_results( $scanner_result, $parse_blocks_result );
 
-		// Verify performance advantage with relaxed and robust assertions
 		$this->assert_performance_advantage_paired( $benchmark_results, $test_content );
 	}
 
@@ -1056,17 +1055,6 @@ class Block_Scanner_Test extends TestCase {
 			$retry_scanner_time = $this->compute_trimmed_median( $retry_results['scanner_times'] );
 			$retry_parse_time   = $this->compute_trimmed_median( $retry_results['parse_times'] );
 			$time_ratio         = $retry_parse_time / $retry_scanner_time;
-		}
-
-		// If still below threshold after retries, skip rather than fail (CI-friendly)
-		if ( $time_ratio < self::PERF_MIN_TIME_RATIO_THRESHOLD ) {
-			$this->markTestSkipped(
-				sprintf(
-					'Performance inconclusive after %d retries (ratio: %.3f) - likely CI environment variability',
-					$retry_count,
-					$time_ratio
-				)
-			);
 		}
 
 		// Regression-focused assertion: Scanner should not be significantly slower
