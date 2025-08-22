@@ -1,8 +1,8 @@
-# external-connections
+# jetpack-external-connections
 
 Connect your site to external services.
 
-## How to install external-connections
+## How to install jetpack-external-connections
 
 ### Installation From Git Repo
 
@@ -20,5 +20,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-external-connections is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+jetpack-external-connections is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 
