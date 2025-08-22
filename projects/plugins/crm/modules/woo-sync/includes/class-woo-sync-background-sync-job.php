@@ -100,7 +100,7 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 		// good to go?
-		if ( empty( $this->site_key ) || !is_array( $this->site_info ) ){
+		if ( ! is_array( $this->site_info ) ) {
 
 			return false;
 
@@ -1956,8 +1956,8 @@ class Woo_Sync_Background_Sync_Job {
 			if ( isset( $shipping_tax_id ) && ! empty( $shipping_tax_id ) ) {
 				$data['invoice']['shipping_taxes'] = $shipping_tax_id;
 			}
-			if ( isset( $data['tax'] ) && isset( $order_data['discount_tax'] ) ) {
-				$data['tax'] -= $order_data['discount_tax'];
+			if ( isset( $data['invoice']['tax'] ) && isset( $order_data['discount_tax'] ) ) {
+				$data['invoice']['tax'] -= $order_data['discount_tax'];
 			}
 
 			if ( is_array( $extra_meta ) && count( $extra_meta ) > 0 ) {

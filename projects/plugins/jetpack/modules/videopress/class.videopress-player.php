@@ -108,9 +108,7 @@ class VideoPress_Player {
 		}
 		if ( empty( $cached_video ) ) {
 			$video = new VideoPress_Video( $guid, $maxwidth );
-			if ( empty( $video ) ) {
-				return;
-			} elseif ( isset( $video->error ) ) {
+			if ( isset( $video->error ) ) {
 				$this->video = $video->error;
 				return;
 			} elseif ( is_wp_error( $video ) ) {

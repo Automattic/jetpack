@@ -2783,8 +2783,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
 		);
 
+		// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused.
 		if ( ! $response && ! is_array( $response ) ) {
-			// Dealing with empty non-array response. Phan is wrong about it being an "impossible condition".
+			// Dealing with empty non-array response.
 			$response = new WP_Error( 'empty_response', 'Endpoint response is empty', 500 );
 		}
 

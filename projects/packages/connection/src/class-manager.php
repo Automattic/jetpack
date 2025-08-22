@@ -492,7 +492,7 @@ class Manager {
 			$user_id = (int) $user_id;
 
 			$user = new \WP_User( $user_id );
-			if ( ! $user || ! $user->exists() ) {
+			if ( ! $user->exists() ) {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),

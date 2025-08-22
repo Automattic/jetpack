@@ -823,7 +823,6 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 						if (isset($subject)) 		$mail_error_data['subject'] = $subject;
 						// likely huge & not necessary below:
 						//if (isset($message)) 		$mail_error_data['message'] = $message;
-						if (isset($headers)) 		$mail_error_data['headers'] = $headers;
 						if (isset($attachments)) 	$mail_error_data['attachments'] = $attachments;
 						$mail_error_data['phpmailer_exception_code'] 	= esc_html($e->getCode());
 						$mail_error_data['phpmailer_exception_msg'] 	= esc_html($e->getMessage());
@@ -853,7 +852,6 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 						if (isset($subject)) 		$mail_error_data['subject'] = $subject;
 						// likely huge & not necessary below:
 						//if (isset($message)) 		$mail_error_data['message'] = $message;
-						if (isset($headers)) 		$mail_error_data['headers'] = $headers;
 						if (isset($attachments)) 	$mail_error_data['attachments'] = $attachments;
 						$mail_error_data['phpmailer_exception_code'] 	= $e->getCode();
 						$mail_error_data['phpmailer_exception_errinfo'] = $phpmailer->ErrorInfo;
@@ -911,12 +909,9 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 				'host' => $smtpHost,
 				'user' => $smtpUser,
 				'pass' => $smtpPass,
-				'port' => 587,
+				'port'     => (int) $smtpPort, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				'security' => ''
 			);
-
-			#} check
-			if (isset($smtpPort) && !empty($smtpPort)) $smtpSettings['port'] = (int)$smtpPort;
 
 			#} rough switch (though it'll autoswitch below on fail)
 			if ($smtpSettings['port'] == 465) $smtpSettings['security'] = 'ssl';
@@ -929,19 +924,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 			#} Fix for people with / or \ in their bloody passwords!
 
-
-			#} Try send	
-			if (
-				isset($smtpSettings['host']) && !empty($smtpSettings['host']) && 
-				isset($smtpSettings['user']) && !empty($smtpSettings['user']) && 
-				isset($smtpSettings['pass']) && !empty($smtpSettings['pass']) && 
-				isset($smtpSettings['port']) && !empty($smtpSettings['port']) 
-			) {
-
-				if (
-					isset($sendFromName) && !empty($sendFromName) &&
-					isset($sendFromEmail) && zeroBSCRM_validateEmail($sendFromEmail)
-				){
+			if ( zeroBSCRM_validateEmail( $sendFromEmail ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					#} Some test text:
 					$emTo = $sendFromEmail; // - here we send to itself :) VALIDATORTARGET;
@@ -950,7 +933,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 					$emSubject = '[Jetpack CRM] '.__('Mail Delivery Routine',"zero-bs-crm");
 					$commonSMTPSettings = jpcrm_maildelivery_common_SMTP_settings();
 
-					if (
+				if (
 						isset($emHTMLBody) && !empty($emHTMLBody) &&
 						isset($emTo) && zeroBSCRM_validateEmail($emTo)
 					){
@@ -988,7 +971,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 							$emailSentMsg = '';
 
 							#success: or error:
-						if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								$emailWasSent = false;									
 								$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
@@ -999,7 +982,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 	".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 								}
 
-						} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								$emailWasSent = true;								
 								$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
@@ -1106,7 +1089,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 											#} Analysis of send - THIS ISN'T DRY!
 											#success: or error:
-								if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 												$emailWasSent = false;									
 												$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
@@ -1117,12 +1100,12 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 					".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 												}
 
-								} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 												$emailWasSent = true;								
 												$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
 
-								}
+						}
 
 											$testCount++;
 
@@ -1194,7 +1177,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 										#} Analysis of send - THIS ISN'T DRY
 										#success: or error:
-							if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 											$emailWasSent = false;									
 											$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
@@ -1205,12 +1188,12 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 				".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 											}
 
-							} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 											$emailWasSent = true;								
 											$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
 
-							}
+					}
 
 										$testCount++;
 
@@ -1260,7 +1243,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 										#} Analysis of send - THIS ISN'T DRY
 										#success: or error:
-							if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 											$emailWasSent = false;									
 											$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
@@ -1271,16 +1254,16 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 				".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 											}
 
-							} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 											$emailWasSent = true;								
 											$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
 
-							}
+					}
 
 										++$testCount; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-							} // if not already tested
-						}
+						} // if not already tested
+					}
 						#} Return
 
 						#} SUPER ADMIN return full debug: 
@@ -1290,20 +1273,19 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 						$debugArr = array('details'=>true,'sent'=>$emailWasSent,'sentmsg'=>$emailSentMsg, 'tried'=>$testCount,'finset'=>$smtpSettings,'debugs'=>$emailDebugs);
 						return $debugArr;
 
-					} else {
+				} else {
 
 						# rather than erroring, just send as response
 						return array('details'=>true,'sent'=>false,'stage'=>3);
-					}
-				} else {
-
-					# rather than erroring, just send as response
-					return array('details'=>true,'sent'=>false,'stage'=>2);
 				}
 			} else {
 
-				# rather than erroring, just send as response
-				return array('details'=>true,'sent'=>false,'stage'=>1);
+					# rather than erroring, just send as response
+					return array(
+						'details' => true,
+						'sent'    => false,
+						'stage'   => 2,
+					);
 			}
 
 	// / no empties
@@ -1323,9 +1305,8 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
 
 		global $zbs;
 
-		$attachments = false;
-		$msg_text    = '';
-		$msg_html    = '';
+		$msg_text = '';
+		$msg_html = '';
 
 		// ============ LOAD ARGS =============
 		$default_args = array(
@@ -1379,15 +1360,6 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
 				$raw_message .= 'Subject: =?utf-8?B?' . base64_encode( $subject ) . "?=\r\n";
 				$raw_message .= "MIME-Version: 1.0\r\n";
 
-				// Set mixed boundary if the email has attachments
-				$mixed_boundary = '';
-				if ( is_array( $attachments ) && count( $attachments ) > 0 ) {
-					$mixed_boundary = '=-mixed-' . uniqid();
-
-					$raw_message .= 'Content-Type: multipart/mixed; boundary="' . $mixed_boundary . '"' . "\r\n";
-					$raw_message .= "\r\n--{$mixed_boundary}\r\n";
-				}
-
 				// Generate alternative boundary
 				$alt_boundary = '=-alt-' . uniqid(); // unique boundary for the alternative version
 				$raw_message .= 'Content-Type: multipart/alternative; boundary="' . $alt_boundary . '"' . "\r\n";
@@ -1404,37 +1376,6 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
 				$raw_message .= $msg_html . "\r\n";
 
 				$raw_message .= "\r\n--{$alt_boundary}--\r\n"; // end alt boundary
-
-				if ( is_array( $attachments ) && count( $attachments ) > 0 ) {
-					$raw_message .= "\r\n--{$mixed_boundary}\r\n"; // start mixed boundary
-
-					foreach ( $attachments as $file_path ) {
-
-						// Process attachment
-						if ( is_array( $file_path ) ) {
-							$file_path = ( count( $file_path ) > 0 ? $file_path[0] : '' );
-						}
-
-						if ( ! empty( $file_path ) ) {
-
-							$array     = explode( '/', $file_path );
-							$mime_type = jpcrm_get_mimetype( $file_path );
-							$filename  = $array[ count( $array ) - 1 ];
-
-							$raw_message .= "\r\n--{$mixed_boundary}\r\n";
-							$raw_message .= 'Content-Type: ' . $mime_type . '; name="' . $filename . '";' . "\r\n";
-							$raw_message .= 'Content-ID: <' . $filename . '>' . "\r\n";
-							$raw_message .= 'Content-Description: ' . $filename . ';' . "\r\n";
-							$raw_message .= 'Content-Disposition: attachment; filename="' . $filename . '"; size=' . filesize( $file_path ) . ';' . "\r\n";
-							$raw_message .= 'Content-Transfer-Encoding: base64' . "\r\n\r\n";
-							// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-							$file_content = file_get_contents( $file_path );
-							// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-							$raw_message .= chunk_split( base64_encode( $file_content ), 76, "\n" ) . "\r\n";
-						}
-					}
-					$raw_message .= "\r\n--{$mixed_boundary}--\r\n"; // end mixed boundary
-				}
 
 				// The message needs to be encoded in Base64URL
 				$encoded_message = strtr(

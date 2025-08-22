@@ -347,7 +347,7 @@ function render_static_slide( $media_files ) {
 	}
 
 	// if no "static" media was found for the thumbnail try to render a video tag without poster.
-	if ( empty( $media_template ) && ! empty( $media_files ) ) {
+	if ( empty( $media_template ) ) {
 		$media_template = render_video( $media_files[0] );
 	}
 

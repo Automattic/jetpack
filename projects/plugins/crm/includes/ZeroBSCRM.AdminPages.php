@@ -1266,9 +1266,6 @@ function zeroBSCRM_html_home2() {
 	// $add_new_customer_link = admin_url('admin.php?page=zbs-add-edit&action=edit&zbstype=contact');
 	$add_new_customer_link = jpcrm_esc_link( 'create', -1, 'zerobs_customer' );
 
-	// change this to true when ELITE is out
-	$isv3 = false;
-
 	// WH added: Is now polite to License-key based settings like 'entrepreneur' doesn't try and upsell
 	// this might be a bit easy to "hack out" hmmmm
 	$bundle = false;
@@ -1397,11 +1394,7 @@ function zeroBSCRM_html_home2() {
 
 					<div class="feature-block last">
 						<img alt="<?php esc_attr_e( 'Mail Campaigns', 'zero-bs-crm' ); ?>" src="<?php echo esc_url( plugins_url( '/i/mail.png', ZBS_ROOTFILE ) ); ?>">
-			<?php if ( $isv3 ) { ?>
-						<h5><?php esc_html_e( 'Mail Campaigns', 'zero-bs-crm' ); ?><span class='pro-elite'>Elite</span></h5>
-			<?php } else { ?>
 						<h5><?php esc_html_e( 'Mail Campaigns', 'zero-bs-crm' ); ?><span class='pro'>Entrepreneur</span></h5>
-			<?php } ?>
 						<p><?php echo wp_kses( __( 'Send Email Broadcasts and Sequences to your CRM contacts using our <strong>powerful</strong> Mail Campaigns v2.0. which is linked directly into your CRM data!', 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?></p>
 					</div>
 
