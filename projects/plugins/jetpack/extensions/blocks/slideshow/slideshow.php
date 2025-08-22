@@ -403,7 +403,10 @@ function process_slideshow_images_for_email( $attr ) {
 			}
 
 			$image_url = wp_get_attachment_image_url( $id, 'medium' );
-			$alt_text  = get_post_meta( $id, '_wp_attachment_image_alt', true );
+
+			// Sanitize alt text from post meta
+			$alt_text = get_post_meta( $id, '_wp_attachment_image_alt', true );
+			$alt_text = sanitize_text_field( $alt_text );
 
 			// Get caption from attachment post (stored in post_excerpt)
 			$attachment_post = get_post( $id );
@@ -432,11 +435,26 @@ function process_slideshow_images_for_email( $attr ) {
 		// Fall back to images array if IDs aren't available (for testing)
 		foreach ( $attr['images'] as $image_data ) {
 			if ( ! empty( $image_data['url'] ) ) {
+				// Validate and sanitize URL
+				$url = esc_url_raw( $image_data['url'] );
+				if ( ! $url || ! wp_http_validate_url( $url ) ) {
+					continue;
+				}
+
+				// Sanitize alt text
+				$alt_text = ! empty( $image_data['alt'] ) ? sanitize_text_field( $image_data['alt'] ) : '';
+
+				// Sanitize caption
+				$caption = ! empty( $image_data['caption'] ) ? wp_strip_all_tags( $image_data['caption'] ) : '';
+
+				// Validate ID if present
+				$id = ! empty( $image_data['id'] ) ? absint( $image_data['id'] ) : 0;
+
 				$images[] = array(
-					'url'     => $image_data['url'],
-					'alt'     => ! empty( $image_data['alt'] ) ? $image_data['alt'] : '',
-					'caption' => ! empty( $image_data['caption'] ) ? wp_strip_all_tags( $image_data['caption'] ) : '',
-					'id'      => ! empty( $image_data['id'] ) ? $image_data['id'] : 0,
+					'url'     => $url,
+					'alt'     => $alt_text,
+					'caption' => $caption,
+					'id'      => $id,
 				);
 			}
 		}
