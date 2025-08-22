@@ -11,6 +11,7 @@ import JetpackDateField from '../field-date';
 import JetpackEmailField from '../field-email';
 import JetpackFieldFile from '../field-file';
 import JetpackHiddenField from '../field-hidden';
+import JetpackImageSelectField from '../field-image-select';
 import JetpackMultipleChoiceField from '../field-multiple-choice';
 import JetpackNameField from '../field-name';
 import JetpackNumberField from '../field-number';
