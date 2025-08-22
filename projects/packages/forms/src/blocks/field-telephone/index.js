@@ -8,7 +8,7 @@ import edit from './edit';
 import save from './save';
 
 const name = 'field-telephone';
-const settings = {
+export const settings = {
 	...defaultSettings,
 	title: __( 'Phone number field', 'jetpack-forms' ),
 	keywords: [
@@ -22,9 +22,32 @@ const settings = {
 		src: <Icon icon={ mobile } />,
 	},
 	edit,
+	attributes: {
+		...defaultSettings.attributes,
+		showCountrySelector: {
+			type: 'boolean',
+		},
+		default: {
+			type: 'string',
+		},
+		onChangeDefaultCountry: {
+			type: 'function',
+		},
+	},
+	supports: {
+		interactivity: true,
+	},
+	providesContext: {
+		'jetpack/field-prefix-default': 'default',
+		'jetpack/field-phone-country-toggle': 'showCountrySelector',
+	},
+	allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
 	deprecated,
 	save,
 	example: {
+		attributes: {
+			default: 'US',
+		},
 		innerBlocks: [
 			{
 				name: 'jetpack/label',
@@ -33,10 +56,8 @@ const settings = {
 				},
 			},
 			{
-				name: 'jetpack/input',
-				attributes: {
-					type: 'tel',
-				},
+				name: 'jetpack/phone-input',
+				attributes: {},
 			},
 		],
 	},
