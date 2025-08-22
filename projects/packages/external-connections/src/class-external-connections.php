@@ -158,15 +158,7 @@ class External_Connections {
 	 * @return array The connection data.
 	 */
 	private static function get_connection_data( $service ) {
-		$connection = self::get_connection( $service );
-		if ( empty( $connection ) ) {
-			return array(
-				'is_connected'  => false,
-				'account_name'  => '',
-				'profile_image' => '',
-			);
-		}
-
+		$connection    = self::get_connection( $service );
 		$is_connected  = isset( $connection['status'] ) && $connection['status'] === 'ok';
 		$account_name  = $is_connected ? ( $connection['external_display'] ?? $connection['external_name'] ) : '';
 		$profile_image = $is_connected ? $connection['external_profile_picture'] : '';
