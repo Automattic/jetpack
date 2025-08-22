@@ -2,8 +2,14 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
 module.exports = {
 	...baseConfig,
-	roots: [ '<rootDir>/src' ],
-
+	roots: [ '<rootDir>/tests' ], // Only our tests directory
+	testEnvironmentOptions: {
+		...baseConfig.testEnvironmentOptions,
+		url: 'https://example.com',
+	},
+	// Override testMatch to look in our tests directory
+	testMatch: [ '<rootDir>/tests/**/?(*.)+(spec|test).[jt]s?(x)' ],
+	// Keep other settings from base config
 	transform: {
 		...baseConfig.transform,
 		'\\.[jt]sx?$': require( 'jetpack-js-tools/jest/babel-jest-config-factory.js' )(

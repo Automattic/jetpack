@@ -1560,7 +1560,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "6b541ca53f442b3751fa6a3094f498f6c5b9cb68"
+                "reference": "2a95b63ad7c0d51c615ac631a309920cdf0fff3f"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1616,7 +1616,7 @@
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
+                    "pnpm concurrently --names php,js-dashboard,js-url 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-scripts --coverage' 'pnpm:test-url-tests --coverage'"
                 ],
                 "test-js": [
                     "pnpm run test"

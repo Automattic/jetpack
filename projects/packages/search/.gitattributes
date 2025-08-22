@@ -12,6 +12,7 @@ package.json                                             export-ignore
 /.size-limit.js                                          production-exclude
 /babel.config*                                           production-exclude
 /jest.config.js                                          production-exclude
+/jest.url-tests.config.js                                production-exclude
 /postcss.config.js                                       production-exclude
 /tools/**                                                production-exclude
 /tests/**                                                production-exclude
