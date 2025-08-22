@@ -507,7 +507,7 @@ class Contact_Form_Plugin {
 					continue;
 				}
 
-				// This input is exclusively used by the new phone field (not telephone).
+				// This input is exclusively used by the new telephone field.
 				if ( 'jetpack/phone-input' === $block_name ) {
 					$atts['placeholder'] = $inner_block['attrs']['placeholder'] ?? '';
 

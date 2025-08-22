@@ -346,7 +346,22 @@ class Contact_Form_Block {
 			'jetpack/field-telephone',
 			array(
 				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_telephone' ),
-				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				'attributes'       => array(
+					'showCountrySelector' => array(
+						'type' => 'boolean',
+					),
+					'default'             => array(
+						'type' => 'string',
+						'role' => 'content',
+					),
+				),
+				'supports'         => array(
+					'interactivity' => true,
+				),
+				'provides_context' => array(
+					'jetpack/field-required'       => 'required',
+					'jetpack/field-prefix-default' => 'default',
+				),
 			)
 		);
 		Blocks::jetpack_register_block(
