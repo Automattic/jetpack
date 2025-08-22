@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
 	QUERY_PRODUCT_INTERSTITIALS_KEY,
 	REST_API_SITE_PRODUCTS_INTERSTITIALS_ENDPOINT,
@@ -22,7 +22,7 @@ export function useInterstitialsState() {
 		query: { path: REST_API_SITE_PRODUCTS_INTERSTITIALS_ENDPOINT },
 	} );
 
-	const { mutate: update, isPending } = useSimpleMutation< InterstitialsData >( {
+	const { mutate, isPending } = useSimpleMutation< InterstitialsData >( {
 		name: QUERY_PRODUCT_INTERSTITIALS_KEY + '-update',
 		query: {
 			path: REST_API_SITE_PRODUCTS_INTERSTITIALS_ENDPOINT,
@@ -34,6 +34,13 @@ export function useInterstitialsState() {
 			},
 		},
 	} );
+
+	const update = useCallback(
+		( products: InterstitialsData[ 'products' ], options: Parameters< typeof mutate >[ 1 ] ) => {
+			mutate( { data: { products } }, options );
+		},
+		[ mutate ]
+	);
 
 	return useMemo(
 		() => ( {
