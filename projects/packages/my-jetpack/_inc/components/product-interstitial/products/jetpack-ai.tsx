@@ -3,7 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/jetpack-ai-logo';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
+import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -27,7 +27,7 @@ export function getJetpackAiConfig(): ProductConfig {
 	return {
 		title: __( 'The most powerful AI tool for WordPress', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: COMPLETE,
+		bundle: COMPLETE_SLUG,
 		features: [
 			{
 				name: __( 'Usage quota', 'jetpack-my-jetpack' ),
@@ -133,7 +133,7 @@ export function getJetpackAiConfig(): ProductConfig {
 				cta: __( 'Get AI Assistant', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Complete',
+				name: COMPLETE,
 				cta: GET_COMPLETE,
 			},
 		},

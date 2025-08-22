@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/search-logo';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
+import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -22,7 +22,7 @@ export function getSearchConfig(): ProductConfig {
 	return {
 		title: __( 'Help visitors find exactly what they need', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: COMPLETE,
+		bundle: COMPLETE_SLUG,
 		features: [
 			{
 				name: __( 'Number of Records', 'jetpack-my-jetpack' ),
@@ -92,7 +92,7 @@ export function getSearchConfig(): ProductConfig {
 				cta: __( 'Get Search', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Complete',
+				name: COMPLETE,
 				cta: GET_COMPLETE,
 			},
 		},

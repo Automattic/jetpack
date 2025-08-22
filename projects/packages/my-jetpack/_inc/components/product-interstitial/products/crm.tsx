@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import crmLogoSvg from '../logos/crm-logo.png';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
+import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
 
 const CrmLogo = ( { height = 42 } ) => {
 	return <img src={ crmLogoSvg } alt="CRM Logo" height={ height } />;
@@ -30,7 +30,7 @@ export function getCrmConfig(): ProductConfig {
 	return {
 		title: __( 'Nurture Contacts. Grow your Business.', 'jetpack-my-jetpack' ),
 		logo: CrmLogo,
-		bundle: COMPLETE,
+		bundle: COMPLETE_SLUG,
 		features: [
 			{
 				name: __( 'Contacts', 'jetpack-my-jetpack' ),
@@ -127,7 +127,7 @@ export function getCrmConfig(): ProductConfig {
 				cta: __( 'Get CRM', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Complete',
+				name: COMPLETE,
 				cta: GET_COMPLETE,
 			},
 		},

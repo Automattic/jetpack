@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/backup-logo';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, SECURITY } from './shared-labels';
+import { getTranslatableFeatureLabels, SECURITY, SECURITY_SLUG } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -15,7 +15,7 @@ export function getBackupConfig(): ProductConfig {
 	return {
 		title: __( 'The best real-time WordPress backup plugin', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: SECURITY,
+		bundle: SECURITY_SLUG,
 		features: [
 			{
 				name: __( 'Real-time backups', 'jetpack-my-jetpack' ),
@@ -83,7 +83,7 @@ export function getBackupConfig(): ProductConfig {
 				cta: __( 'Get Backup', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Security',
+				name: SECURITY,
 				cta: GET_SECURITY,
 			},
 		},

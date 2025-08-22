@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import antispamLogo from '../logos/antispam-logo.svg';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, SECURITY } from './shared-labels';
+import { getTranslatableFeatureLabels, SECURITY, SECURITY_SLUG } from './shared-labels';
 
 const AntiSpamLogo = ( { height = 42 } ) => {
 	return <img src={ antispamLogo } alt="Anti-Spam Logo" height={ height } />;
@@ -19,7 +19,7 @@ export function getAntiSpamConfig(): ProductConfig {
 	return {
 		title: __( 'Automatically stop comment and form spam', 'jetpack-my-jetpack' ),
 		logo: AntiSpamLogo,
-		bundle: SECURITY,
+		bundle: SECURITY_SLUG,
 		features: [
 			{
 				name: __( 'Commercial usage', 'jetpack-my-jetpack' ),
@@ -74,7 +74,7 @@ export function getAntiSpamConfig(): ProductConfig {
 				cta: __( 'Get Anti-Spam', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Security',
+				name: SECURITY,
 				cta: GET_SECURITY,
 			},
 		},

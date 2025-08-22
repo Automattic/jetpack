@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/social-logo';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
+import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -24,7 +24,7 @@ export function getSocialConfig(): ProductConfig {
 	return {
 		title: __( 'Publish once. Share everywhere.', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: COMPLETE,
+		bundle: COMPLETE_SLUG,
 		features: [
 			{
 				name: __(
@@ -137,7 +137,7 @@ export function getSocialConfig(): ProductConfig {
 				cta: __( 'Get Social', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Complete',
+				name: COMPLETE,
 				cta: GET_COMPLETE,
 			},
 		},

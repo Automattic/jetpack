@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 
+export const SECURITY_SLUG = 'security';
 export const SECURITY = 'Security';
+export const COMPLETE_SLUG = 'complete';
 export const COMPLETE = 'Complete';
 
 export const getTranslatableFeatureLabels = () => ( {

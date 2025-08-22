@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/boost-logo';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
+import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -27,7 +27,7 @@ export function getBoostConfig(): ProductConfig {
 	return {
 		title: __( 'Improves your site performance.', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: COMPLETE,
+		bundle: COMPLETE_SLUG,
 		features: [
 			{
 				name: __( 'Auto CSS Optimization', 'jetpack-my-jetpack' ),
@@ -124,7 +124,7 @@ export function getBoostConfig(): ProductConfig {
 				cta: __( 'Get Boost', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Complete',
+				name: COMPLETE,
 				cta: GET_COMPLETE,
 			},
 		},

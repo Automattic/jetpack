@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/videopress-logo';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
+import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -24,7 +24,7 @@ export function getVideoPressConfig(): ProductConfig {
 	return {
 		title: __( 'Stunning‑quality video for WordPress', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: COMPLETE,
+		bundle: COMPLETE_SLUG,
 		features: [
 			{
 				name: __( 'Video Storage', 'jetpack-my-jetpack' ),
@@ -115,7 +115,7 @@ export function getVideoPressConfig(): ProductConfig {
 				cta: __( 'Get VideoPress', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Complete',
+				name: COMPLETE,
 				cta: GET_COMPLETE,
 			},
 		},

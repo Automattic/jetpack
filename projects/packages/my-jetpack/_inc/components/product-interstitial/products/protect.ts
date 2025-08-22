@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/protect-logo';
 import { ProductConfig } from '../types';
-import { getTranslatableFeatureLabels, SECURITY } from './shared-labels';
+import { getTranslatableFeatureLabels, SECURITY, SECURITY_SLUG } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -15,7 +15,7 @@ export function getProtectConfig(): ProductConfig {
 	return {
 		title: __( 'Guard against malware and bad actors 24/7', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: SECURITY,
+		bundle: SECURITY_SLUG,
 		features: [
 			{
 				name: __( 'Scan for threats and vulnerabilities', 'jetpack-my-jetpack' ),
@@ -109,7 +109,7 @@ export function getProtectConfig(): ProductConfig {
 				cta: __( 'Get Protect', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
-				name: 'Security',
+				name: SECURITY,
 				cta: GET_SECURITY,
 			},
 		},
