@@ -847,6 +847,7 @@ class Feedback {
 		$decoded_content['fields'] = $fields;
 		return $decoded_content;
 	}
+
 	/**
 	 * Parse the legacy content format.
 	 *
