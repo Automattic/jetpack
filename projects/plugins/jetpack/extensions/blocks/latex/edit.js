@@ -6,6 +6,7 @@ import {
 	__experimentalHStack as HStack,
 	__experimentalSurface as Surface,
 	__experimentalVStack as VStack,
+	__experimentalText as Text,
 	/* eslint-enable @wordpress/no-unsafe-wp-apis */
 	Placeholder,
 } from '@wordpress/components';
@@ -43,11 +44,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 	if ( isSelected ) {
 		return (
 			<div { ...props }>
-				<Placeholder
-					label={ __( 'LaTeX block', 'jetpack' ) }
-					instructions={ __( 'Enter LaTeX code below', 'jetpack' ) }
-					icon={ icon }
-				>
+				<Placeholder label={ __( 'LaTeX', 'jetpack' ) } icon={ icon }>
 					<VStack
 						className="jetpack-latex-textarea-container"
 						gap={ 4 }
@@ -67,7 +64,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 							}
 						/>
 
-						<Surface variant="secondary" className="jetpack-latex-rendered-container">
+						<Text upperCase>{ __( 'Preview', 'jetpack' ) }</Text>
+						<Surface label="hello" variant="secondary" className="jetpack-latex-rendered-container">
 							{ latex.trim() ? (
 								<span
 									className="jetpack-latex-rendered"
