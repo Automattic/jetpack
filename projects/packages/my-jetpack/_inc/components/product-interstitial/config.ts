@@ -7,6 +7,7 @@ import { getJetpackAiConfig } from './products/jetpack-ai';
 import { getProtectConfig } from './products/protect';
 import { getSearchConfig } from './products/search';
 import { getSocialConfig } from './products/social';
+import { getVideoPressConfig } from './products/videopress';
 import { ProductConfig } from './types';
 
 export type ProductConfigs = {
@@ -22,5 +23,6 @@ export const getProductConfigs = (): ProductConfigs => ( {
 	protect: getProtectConfig(),
 	social: getSocialConfig(),
 	search: getSearchConfig(),
+	videopress: getVideoPressConfig(),
 	'jetpack-ai': getJetpackAiConfig(),
 } );
