@@ -1,15 +1,11 @@
-import { useBlockProps } from '@wordpress/block-editor';
-import { Icon } from '@wordpress/components';
+import { Placeholder, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
-
-import './editor.scss';
+import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function HiddenFieldEdit( props ) {
 	const { attributes, setAttributes } = props;
-
-	const blockProps = useBlockProps();
-	blockProps.className += ' jetpack-form-hidden-field__container';
+	useFormWrapper( props );
 
 	const handleLabelChange = textValue => {
 		setAttributes( { label: textValue } );
@@ -20,30 +16,27 @@ export default function HiddenFieldEdit( props ) {
 	};
 
 	return (
-		<div { ...blockProps }>
-			<div className="jetpack-form-hidden-field">
-				<div className="jetpack-form-hidden-field__name-container">
-					<Icon icon={ unseen } />
-					<input
-						type="text"
-						className="jetpack-form-hidden-field__name jetpack-form-hidden-field__input"
-						value={ attributes.label }
-						placeholder={ __( 'Hidden input field', 'jetpack-forms' ) }
-						onChange={ e => handleLabelChange( e.target.value ) }
-						aria-label={ __( 'Field label', 'jetpack-forms' ) }
-					/>
-				</div>
-				<div>
-					<input
-						type="text"
-						className="jetpack-form-hidden-field__value jetpack-form-hidden-field__input"
-						placeholder={ __( 'Field value', 'jetpack-forms' ) }
-						value={ attributes.default }
-						onChange={ e => handleValueChange( e.target.value ) }
-						aria-label={ __( 'Field value', 'jetpack-forms' ) }
-					/>
-				</div>
-			</div>
-		</div>
+		<Placeholder
+			icon={ unseen }
+			label={ __( 'Hidden Field', 'jetpack-forms' ) }
+			isColumnLayout={ true }
+		>
+			<TextControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				onChange={ handleLabelChange }
+				placeholder={ __( 'Hidden input field', 'jetpack-forms' ) }
+				value={ attributes.label }
+				label={ __( 'Field Label', 'jetpack-forms' ) }
+			/>
+			<TextControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				onChange={ handleValueChange }
+				placeholder={ __( 'Field value', 'jetpack-forms' ) }
+				value={ attributes.default }
+				label={ __( 'Field value', 'jetpack-forms' ) }
+			/>
+		</Placeholder>
 	);
 }
