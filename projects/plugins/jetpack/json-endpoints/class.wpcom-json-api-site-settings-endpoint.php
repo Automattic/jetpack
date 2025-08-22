@@ -385,6 +385,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$newsletter_category_ids = Jetpack_Newsletter_Category_Helper::get_category_ids();
 
 					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
+					$mcp_settings = get_option( 'wpcom_mcp_settings', array() );
 
 					$response[ $key ] = array(
 						// also exists as "options".
@@ -514,6 +515,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_waf_automatic_rules_last_updated_timestamp' => (int) get_option( 'jetpack_waf_automatic_rules_last_updated_timestamp' ),
 						'is_fully_managed_agency_site'     => (bool) get_option( 'is_fully_managed_agency_site' ),
 						'wpcom_hide_action_bar'            => (bool) get_option( 'wpcom_hide_action_bar' ),
+						'mcp_settings'                     => $mcp_settings,
 					);
 
 					require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
@@ -1183,6 +1185,32 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$coerce_value = (int) (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = (bool) $coerce_value;
+					}
+					break;
+
+				case 'mcp_settings':
+					if ( ! is_array( $value ) ) {
+						break;
+					}
+
+					$allowed_keys   = array( 'mcp_server_active' );
+					$filtered_value = array_filter(
+						$value,
+						function ( $key ) use ( $allowed_keys ) {
+							return in_array( $key, $allowed_keys, true );
+						},
+						ARRAY_FILTER_USE_KEY
+					);
+
+					if ( empty( $filtered_value ) ) {
+						break;
+					}
+
+					$old_mcp_settings = get_option( 'mcp_settings' );
+					$new_mcp_settings = array_merge( $old_mcp_settings, $filtered_value );
+
+					if ( update_option( $key, $new_mcp_settings ) ) {
+						$updated[ $key ] = $filtered_value;
 					}
 					break;
 
