@@ -248,21 +248,25 @@ export const ColorPresets: Story = {
 							{ presetName } Preset
 						</h3>
 						<div style={ { display: 'flex', gap: '0.5rem', marginBottom: '1rem' } }>
-							{ colors.map( ( color, index ) => (
-								<div
-									key={ index }
-									style={ {
-										width: '30px',
-										height: '30px',
-										backgroundColor: color,
-										border: '1px solid #ccc',
-										borderRadius: '4px',
-									} }
-									title={ color }
-								/>
-							) ) }
+							{ colors && Array.isArray( colors ) ? (
+								colors.map( ( color, index ) => (
+									<div
+										key={ index }
+										style={ {
+											width: '30px',
+											height: '30px',
+											backgroundColor: color,
+											border: '1px solid #ccc',
+											borderRadius: '4px',
+										} }
+										title={ color }
+									/>
+								) )
+							) : (
+								<div>No colors available</div>
+							) }
 						</div>
-						<GlobalChartsProvider theme={ buildCustomTheme( colors ) }>
+						<GlobalChartsProvider theme={ buildCustomTheme( colors || [] ) }>
 							<div
 								style={ { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' } }
 							>
@@ -304,7 +308,9 @@ export const NestedThemes: Story = {
 						width: '100%',
 					} }
 				>
-					<ThemeProvider theme={ { colors: [ '#FF6B6B', ...wooTheme.colors.slice( 1 ) ] } }>
+					<ThemeProvider
+						theme={ { colors: [ '#FF6B6B', ...( wooTheme.colors?.slice( 1 ) || [] ) ] } }
+					>
 						<LineChart
 							data={ lineData }
 							width={ 350 }
@@ -316,7 +322,9 @@ export const NestedThemes: Story = {
 						/>
 					</ThemeProvider>
 
-					<ThemeProvider theme={ { colors: [ '#2ECC71', ...wooTheme.colors.slice( 1 ) ] } }>
+					<ThemeProvider
+						theme={ { colors: [ '#2ECC71', ...( wooTheme.colors?.slice( 1 ) || [] ) ] } }
+					>
 						<BarChart
 							data={ barData }
 							width={ 350 }
@@ -326,7 +334,9 @@ export const NestedThemes: Story = {
 						/>
 					</ThemeProvider>
 
-					<ThemeProvider theme={ { colors: [ '#E91E63', ...wooTheme.colors.slice( 1 ) ] } }>
+					<ThemeProvider
+						theme={ { colors: [ '#E91E63', ...( wooTheme.colors?.slice( 1 ) || [] ) ] } }
+					>
 						<PieSemiCircleChart
 							data={ pieData }
 							width={ 350 }
@@ -336,15 +346,21 @@ export const NestedThemes: Story = {
 						/>
 					</ThemeProvider>
 
-					<ThemeProvider theme={ { colors: [ '#F9CA24', ...wooTheme.colors.slice( 1 ) ] } }>
+					<ThemeProvider
+						theme={ { colors: [ '#F9CA24', ...( wooTheme.colors?.slice( 1 ) || [] ) ] } }
+					>
 						<BarListChart data={ barListData } width={ 350 } height={ 250 } withTooltips={ true } />
 					</ThemeProvider>
 
-					<ThemeProvider theme={ { colors: [ '#F0932B', ...wooTheme.colors.slice( 1 ) ] } }>
+					<ThemeProvider
+						theme={ { colors: [ '#F0932B', ...( wooTheme.colors?.slice( 1 ) || [] ) ] } }
+					>
 						<PieChart size={ 300 } data={ pieData } withTooltips={ true } showLegend={ true } />
 					</ThemeProvider>
 
-					<ThemeProvider theme={ { colors: [ '#EB4D4B', ...wooTheme.colors.slice( 1 ) ] } }>
+					<ThemeProvider
+						theme={ { colors: [ '#EB4D4B', ...( wooTheme.colors?.slice( 1 ) || [] ) ] } }
+					>
 						<PieChart
 							size={ 300 }
 							thickness={ 0.5 }
