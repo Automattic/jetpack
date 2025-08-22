@@ -2,9 +2,10 @@ import { Placeholder, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
 
 export default function HiddenFieldEdit( props ) {
-	const { attributes, setAttributes } = props;
+	const { attributes, setAttributes, clientId } = props;
 	useFormWrapper( props );
 
 	const handleLabelChange = textValue => {
@@ -14,6 +15,7 @@ export default function HiddenFieldEdit( props ) {
 	const handleValueChange = textValue => {
 		setAttributes( { default: textValue } );
 	};
+	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId, true );
 
 	return (
 		<Placeholder
@@ -36,6 +38,7 @@ export default function HiddenFieldEdit( props ) {
 				placeholder={ __( 'Field value', 'jetpack-forms' ) }
 				value={ attributes.default }
 				label={ __( 'Field value', 'jetpack-forms' ) }
+				onKeyDown={ onKeyDown }
 			/>
 		</Placeholder>
 	);
