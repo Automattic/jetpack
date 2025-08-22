@@ -8,11 +8,11 @@ import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { countries } from '../field-telephone/country-list';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import { countries } from './country-list';
 
 const EMPTY_ARRAY = [];
 
