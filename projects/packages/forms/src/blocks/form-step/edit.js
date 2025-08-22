@@ -12,8 +12,7 @@ import AttributesControls from './attributes-controls';
 
 import './editor.scss';
 
-// Define allowed blocks directly in this file to break circular dependency
-const ALLOWED_BLOCKS = [
+const FIELD_BLOCKS = [
 	'jetpack/field-text',
 	'jetpack/field-name',
 	'jetpack/field-email',
@@ -36,8 +35,10 @@ const ALLOWED_BLOCKS = [
 	'jetpack/field-image-select',
 	'jetpack/form-step-navigation',
 	'jetpack/form-step-divider',
-	...CORE_BLOCKS,
 ];
+
+// Define allowed blocks directly in this file to break circular dependency
+const ALLOWED_BLOCKS = [ ...FIELD_BLOCKS, ...CORE_BLOCKS ];
 
 // Template helper: returns a default template when the previous step already
 // contains a navigation block. We pass a simple boolean flag instead of the
@@ -179,6 +180,7 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: getStepTemplate( hasPrevNavigation ),
 		allowedBlocks: ALLOWED_BLOCKS,
+		prioritizedInserterBlocks: FIELD_BLOCKS,
 		renderAppender,
 	} );
 
