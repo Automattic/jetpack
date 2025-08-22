@@ -147,7 +147,7 @@ export function generateThemeStories< T >( baseStory: T ): Record< string, T > {
 		stories[ `${ name }Theme` ] = {
 			...baseStory,
 			args: {
-				...( baseStory as Record< string, unknown > ).args,
+				...( ( baseStory as Record< string, unknown > ).args as Record< string, unknown > ),
 				theme: key,
 			},
 		};
