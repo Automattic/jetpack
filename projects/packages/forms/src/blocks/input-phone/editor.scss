@@ -59,6 +59,7 @@
 			border: 0;
 			color: inherit;
 			display: flex;
+			max-width: 40%;
 
 			// these class is used to style select elements
 			.jetpack-field__input-element {
@@ -69,6 +70,9 @@
 				outline: none;
 				background-color: transparent;
 				padding: 0;
+				max-width: 100%;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 
 				&:where(select) {
 					// compensate spacing for downarrow

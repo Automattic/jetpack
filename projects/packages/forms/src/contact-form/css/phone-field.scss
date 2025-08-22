@@ -16,6 +16,13 @@
 
 		.jetpack-field__input-prefix:not([hidden]) {
 			display: flex;
+			max-width: 40%;
+
+			.jetpack-field__input-element {
+				max-width: 100%;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
 		}
 
 		.jetpack-field__input-element {
