@@ -3,6 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/jetpack-ai-logo';
 import { ProductConfig } from '../types';
+import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -10,10 +11,23 @@ import { ProductConfig } from '../types';
  * @return The configuration object for the product.
  */
 export function getJetpackAiConfig(): ProductConfig {
+	const {
+		INCLUDED,
+		NOT_INCLUDED,
+		FREE,
+		START_FOR_FREE,
+		GET_COMPLETE,
+		DETAILED_STATS,
+		SOCIAL_TOOLS,
+		INSTANT_SITE_SEARCH,
+		VIDEO_HOSTING_1TB,
+		PRIORITY_SUPPORT,
+	} = getTranslatableFeatureLabels();
+
 	return {
 		title: __( 'The most powerful AI tool for WordPress', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: 'complete',
+		bundle: COMPLETE,
 		features: [
 			{
 				name: __( 'Usage quota', 'jetpack-my-jetpack' ),
@@ -32,35 +46,35 @@ export function getJetpackAiConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Prompt based content generation', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
-					label: __( 'Detailed stats and insights', 'jetpack-my-jetpack' ),
+					label: DETAILED_STATS,
 				},
 			},
 			{
 				name: __( 'Generate text, images, tables, and lists', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
-					label: __( 'Social tools', 'jetpack-my-jetpack' ),
+					label: SOCIAL_TOOLS,
 				},
 			},
 			{
 				name: __( 'Adaptive tone adjustment', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
-					label: __( 'Instant site search', 'jetpack-my-jetpack' ),
+					label: INSTANT_SITE_SEARCH,
 				},
 			},
 			{
 				name: __( 'Superior spelling and grammar correction', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Real-time backups and one-click restores', 'jetpack-my-jetpack' ),
@@ -68,17 +82,17 @@ export function getJetpackAiConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Title & summary generation', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Malware scanning and security protection', 'jetpack-my-jetpack' ),
 				},
 			},
 			{
-				name: __( 'Priority support', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				name: PRIORITY_SUPPORT,
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Spam filtering for comments and forms', 'jetpack-my-jetpack' ),
@@ -99,20 +113,20 @@ export function getJetpackAiConfig(): ProductConfig {
 				paid: { included: false, label: '' },
 				bundle: {
 					included: true,
-					label: __( 'Video hosting (1TB, ad-free)', 'jetpack-my-jetpack' ),
+					label: VIDEO_HOSTING_1TB,
 				},
 			},
 			{
 				name: '',
 				free: { included: false, label: '' },
 				paid: { included: false, label: '' },
-				bundle: { included: true, label: __( 'Priority support', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: PRIORITY_SUPPORT },
 			},
 		],
 		tiers: {
 			free: {
-				name: __( 'Free', 'jetpack-my-jetpack' ),
-				cta: __( 'Start for Free', 'jetpack-my-jetpack' ),
+				name: FREE,
+				cta: START_FOR_FREE,
 			},
 			paid: {
 				name: 'AI Assistant',
@@ -120,7 +134,7 @@ export function getJetpackAiConfig(): ProductConfig {
 			},
 			bundle: {
 				name: 'Complete',
-				cta: __( 'Get Complete', 'jetpack-my-jetpack' ),
+				cta: GET_COMPLETE,
 			},
 		},
 	};

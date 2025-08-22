@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import crmLogoSvg from '../logos/crm-logo.png';
 import { ProductConfig } from '../types';
+import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
 
 const CrmLogo = ( { height = 42 } ) => {
 	return <img src={ crmLogoSvg } alt="CRM Logo" height={ height } />;
@@ -12,27 +13,41 @@ const CrmLogo = ( { height = 42 } ) => {
  * @return The configuration object for the product.
  */
 export function getCrmConfig(): ProductConfig {
+	const {
+		INCLUDED,
+		NOT_INCLUDED,
+		FREE,
+		START_FOR_FREE,
+		GET_COMPLETE,
+		REAL_TIME_BACKUPS,
+		MALWARE_SCANNING,
+		INSTANT_SITE_SEARCH,
+		DETAILED_STATS,
+		VIDEO_HOSTING_1TB,
+		PRIORITY_SUPPORT,
+	} = getTranslatableFeatureLabels();
+
 	return {
 		title: __( 'Nurture Contacts. Grow your Business.', 'jetpack-my-jetpack' ),
 		logo: CrmLogo,
-		bundle: 'complete',
+		bundle: COMPLETE,
 		features: [
 			{
 				name: __( 'Contacts', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: __( 'All Jetpack CRM features', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'Quotes', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: __( '30+ premium CRM extensions', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'Invoices', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Access to CRM Slack community', 'jetpack-my-jetpack' ),
@@ -40,32 +55,32 @@ export function getCrmConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Transactions', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
-					label: __( 'Real-time backups and restores', 'jetpack-my-jetpack' ),
+					label: REAL_TIME_BACKUPS,
 				},
 			},
 			{
 				name: __( 'Tasks', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
-					label: __( 'Malware scanning and protection', 'jetpack-my-jetpack' ),
+					label: MALWARE_SCANNING,
 				},
 			},
 			{
 				name: __( 'Forms', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: __( 'Spam filtering', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'Invoicing Pro', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'AI-powered content generation', 'jetpack-my-jetpack' ),
@@ -73,17 +88,17 @@ export function getCrmConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Gravity Forms', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				bundle: { included: true, label: __( 'Instant site search', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
+				bundle: { included: true, label: INSTANT_SITE_SEARCH },
 			},
 			{
 				name: __( 'PayPal Connect', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
-					label: __( 'Detailed stats and insights', 'jetpack-my-jetpack' ),
+					label: DETAILED_STATS,
 				},
 			},
 			{
@@ -92,20 +107,20 @@ export function getCrmConfig(): ProductConfig {
 				paid: { included: true, label: '' },
 				bundle: {
 					included: true,
-					label: __( 'Video hosting (1TB, ad-free)', 'jetpack-my-jetpack' ),
+					label: VIDEO_HOSTING_1TB,
 				},
 			},
 			{
 				name: '',
 				free: { included: false, label: '' },
 				paid: { included: false, label: '' },
-				bundle: { included: true, label: __( 'Priority support', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: PRIORITY_SUPPORT },
 			},
 		],
 		tiers: {
 			free: {
-				name: __( 'Free', 'jetpack-my-jetpack' ),
-				cta: __( 'Start for free', 'jetpack-my-jetpack' ),
+				name: FREE,
+				cta: START_FOR_FREE,
 			},
 			paid: {
 				name: 'CRM',
@@ -113,7 +128,7 @@ export function getCrmConfig(): ProductConfig {
 			},
 			bundle: {
 				name: 'Complete',
-				cta: __( 'Get Complete', 'jetpack-my-jetpack' ),
+				cta: GET_COMPLETE,
 			},
 		},
 	};

@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/videopress-logo';
 import { ProductConfig } from '../types';
+import { getTranslatableFeatureLabels, COMPLETE } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -8,10 +9,22 @@ import { ProductConfig } from '../types';
  * @return The configuration object for the product.
  */
 export function getVideoPressConfig(): ProductConfig {
+	const {
+		INCLUDED,
+		NOT_INCLUDED,
+		FREE,
+		START_FOR_FREE,
+		GET_COMPLETE,
+		INSTANT_SITE_SEARCH,
+		DETAILED_STATS,
+		SOCIAL_TOOLS,
+		PRIORITY_SUPPORT,
+	} = getTranslatableFeatureLabels();
+
 	return {
 		title: __( 'Stunning‑quality video for WordPress', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: 'complete',
+		bundle: COMPLETE,
 		features: [
 			{
 				name: __( 'Video Storage', 'jetpack-my-jetpack' ),
@@ -21,8 +34,8 @@ export function getVideoPressConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Built into WordPress editor', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Site performance and SEO optimization', 'jetpack-my-jetpack' ),
@@ -30,8 +43,8 @@ export function getVideoPressConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Ad-free and customizable player', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Real-time backups and one-click restores', 'jetpack-my-jetpack' ),
@@ -39,17 +52,17 @@ export function getVideoPressConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Unlimited users', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Malware scanning and security protection', 'jetpack-my-jetpack' ),
 				},
 			},
 			{
-				name: __( 'Priority support', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				name: PRIORITY_SUPPORT,
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Spam filtering for comments and forms', 'jetpack-my-jetpack' ),
@@ -68,7 +81,7 @@ export function getVideoPressConfig(): ProductConfig {
 				name: '',
 				free: { included: false, label: '' },
 				paid: { included: false, label: '' },
-				bundle: { included: true, label: __( 'Instant site search', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: INSTANT_SITE_SEARCH },
 			},
 			{
 				name: '',
@@ -76,26 +89,26 @@ export function getVideoPressConfig(): ProductConfig {
 				paid: { included: false, label: '' },
 				bundle: {
 					included: true,
-					label: __( 'Detailed stats and insights', 'jetpack-my-jetpack' ),
+					label: DETAILED_STATS,
 				},
 			},
 			{
 				name: '',
 				free: { included: false, label: '' },
 				paid: { included: false, label: '' },
-				bundle: { included: true, label: __( 'Social tools', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: SOCIAL_TOOLS },
 			},
 			{
 				name: '',
 				free: { included: false, label: '' },
 				paid: { included: false, label: '' },
-				bundle: { included: true, label: __( 'Priority support', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: PRIORITY_SUPPORT },
 			},
 		],
 		tiers: {
 			free: {
-				name: __( 'Free', 'jetpack-my-jetpack' ),
-				cta: __( 'Start for Free', 'jetpack-my-jetpack' ),
+				name: FREE,
+				cta: START_FOR_FREE,
 			},
 			paid: {
 				name: 'VideoPress',
@@ -103,7 +116,7 @@ export function getVideoPressConfig(): ProductConfig {
 			},
 			bundle: {
 				name: 'Complete',
-				cta: __( 'Get Complete', 'jetpack-my-jetpack' ),
+				cta: GET_COMPLETE,
 			},
 		},
 	};

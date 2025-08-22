@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/backup-logo';
 import { ProductConfig } from '../types';
+import { getTranslatableFeatureLabels, SECURITY } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -8,15 +9,18 @@ import { ProductConfig } from '../types';
  * @return The configuration object for the product.
  */
 export function getBackupConfig(): ProductConfig {
+	const { INCLUDED, NOT_INCLUDED, FREE, START_FOR_FREE, GET_SECURITY } =
+		getTranslatableFeatureLabels();
+
 	return {
 		title: __( 'The best real-time WordPress backup plugin', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: 'security',
+		bundle: SECURITY,
 		features: [
 			{
 				name: __( 'Real-time backups', 'jetpack-my-jetpack' ),
 				free: { included: false, label: __( 'Manual backups only', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: __( 'Real-time cloud backups', 'jetpack-my-jetpack' ) },
 			},
 			{
@@ -27,7 +31,7 @@ export function getBackupConfig(): ProductConfig {
 			},
 			{
 				name: __( 'One-click restores', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: __( '30-day history', 'jetpack-my-jetpack' ) },
 				bundle: { included: true, label: __( 'Automated malware scan', 'jetpack-my-jetpack' ) },
 			},
@@ -47,32 +51,32 @@ export function getBackupConfig(): ProductConfig {
 			{
 				name: __( 'Activity log', 'jetpack-my-jetpack' ),
 				free: { included: true, label: __( 'Last 20 events', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: __( 'Spam protection', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'File Browser (granular restore)', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
 			{
 				name: __( 'Copy to Staging', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
 			{
 				name: __( 'Scheduled Backups', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
 		],
 		tiers: {
 			free: {
-				name: __( 'Free', 'jetpack-my-jetpack' ),
-				cta: __( 'Start for Free', 'jetpack-my-jetpack' ),
+				name: FREE,
+				cta: START_FOR_FREE,
 			},
 			paid: {
 				name: 'Backup',
@@ -80,7 +84,7 @@ export function getBackupConfig(): ProductConfig {
 			},
 			bundle: {
 				name: 'Security',
-				cta: __( 'Get Security', 'jetpack-my-jetpack' ),
+				cta: GET_SECURITY,
 			},
 		},
 	};

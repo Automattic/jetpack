@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import logo from '../logos/protect-logo';
 import { ProductConfig } from '../types';
+import { getTranslatableFeatureLabels, SECURITY } from './shared-labels';
 
 /**
  * Get the configuration for the product.
@@ -8,10 +9,13 @@ import { ProductConfig } from '../types';
  * @return The configuration object for the product.
  */
 export function getProtectConfig(): ProductConfig {
+	const { INCLUDED, NOT_INCLUDED, FREE, START_FOR_FREE, GET_SECURITY, PRIORITY_SUPPORT } =
+		getTranslatableFeatureLabels();
+
 	return {
 		title: __( 'Guard against malware and bad actors 24/7', 'jetpack-my-jetpack' ),
 		logo,
-		bundle: 'security',
+		bundle: SECURITY,
 		features: [
 			{
 				name: __( 'Scan for threats and vulnerabilities', 'jetpack-my-jetpack' ),
@@ -30,7 +34,7 @@ export function getProtectConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Daily automated scans', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: __( 'Plus on-demand manual scans', 'jetpack-my-jetpack' ) },
 				bundle: {
 					included: true,
@@ -51,8 +55,8 @@ export function getProtectConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Brute force protection', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'Real-time cloud backups', 'jetpack-my-jetpack' ),
@@ -60,45 +64,45 @@ export function getProtectConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Account protection', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: 'Spam protection' },
 			},
 			{
 				name: __( 'Access to scan on Cloud', 'jetpack-my-jetpack' ),
-				free: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
 			{
 				name: __( 'One-click auto fixes', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
 			{
 				name: __( 'Notifications', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
 			{
 				name: __( 'Severity labels', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
 			{
-				name: __( 'Priority support', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Not included', 'jetpack-my-jetpack' ) },
-				paid: { included: true, label: __( 'Included', 'jetpack-my-jetpack' ) },
+				name: PRIORITY_SUPPORT,
+				free: { included: false, label: NOT_INCLUDED },
+				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
 		],
 		tiers: {
 			free: {
-				name: __( 'Free', 'jetpack-my-jetpack' ),
-				cta: __( 'Start for Free', 'jetpack-my-jetpack' ),
+				name: FREE,
+				cta: START_FOR_FREE,
 			},
 			paid: {
 				name: 'Protect',
@@ -106,7 +110,7 @@ export function getProtectConfig(): ProductConfig {
 			},
 			bundle: {
 				name: 'Security',
-				cta: __( 'Get Security', 'jetpack-my-jetpack' ),
+				cta: GET_SECURITY,
 			},
 		},
 	};
