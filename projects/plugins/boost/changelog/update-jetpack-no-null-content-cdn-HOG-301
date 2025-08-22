@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image CDN: gracefully handle an attempt to filter null.
