@@ -23,8 +23,8 @@ const settings = {
 	},
 	example: {
 		attributes: {
-			label: __( 'ACME Inc.', 'jetpack-forms' ),
-			default: __( 'Company_ID', 'jetpack-forms' ),
+			label: __( 'Company_ID', 'jetpack-forms' ),
+			default: __( 'ACME Inc.', 'jetpack-forms' ),
 		},
 	},
 };
