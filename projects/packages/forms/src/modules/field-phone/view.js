@@ -23,7 +23,11 @@ const { actions } = store( NAMESPACE, {
 				// from this point on, we discard the value as we
 				// use our internal full phone number state getter:
 				value = context.fullPhoneNumber;
-				if ( context.showCountrySelector || value.indexOf( '+' ) === 0 ) {
+				if (
+					context.showCountrySelector ||
+					value.indexOf( '+' ) === 0 ||
+					value.indexOf( '00' ) === 0
+				) {
 					const internationalNumber = parsePhoneNumber( value );
 					if ( ! internationalNumber || ! internationalNumber.isValid() ) {
 						return 'invalid_phone';
@@ -53,8 +57,10 @@ const { actions } = store( NAMESPACE, {
 				context.phoneNumber = context.fullPhoneNumber = value;
 				return;
 			}
+			const groomedValue = value.indexOf( '00' ) === 0 ? '+' + value.slice( 2 ) : value;
+
 			asYouTypes[ fieldId ].reset();
-			asYouTypes[ fieldId ].input( value );
+			asYouTypes[ fieldId ].input( groomedValue );
 			if ( asYouTypes[ fieldId ].getCountry() ) {
 				context.phoneCountryCode = asYouTypes[ fieldId ].getCountry();
 				context.phoneNumber = asYouTypes[ fieldId ].getNationalNumber();
