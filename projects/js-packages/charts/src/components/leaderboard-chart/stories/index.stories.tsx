@@ -1,13 +1,8 @@
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { leaderboardSample as sampleData } from '../../../stories/sample-data';
 import { formatMetricValue } from '../../shared/format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';
-import {
-	sampleData,
-	smallDataset,
-	largeValues,
-	negativeGrowth,
-	dataWithImageColor,
-} from './sample-data';
+import { smallDataset, largeValues, negativeGrowth, dataWithImageColor } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LeaderboardChart > = {
