@@ -10,6 +10,7 @@
 	/* Layout */
 	.jetpack-field-rating__options {
 		display: flex;
+		flex-wrap: wrap;
 
 		.jetpack-field-rating__label {
 			padding-right: 5px;

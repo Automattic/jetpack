@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute.

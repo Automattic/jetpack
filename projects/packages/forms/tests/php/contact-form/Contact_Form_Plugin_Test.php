@@ -20,6 +20,8 @@ use WP_Error;
  */
 #[CoversClass( Contact_Form_Plugin::class )]
 class Contact_Form_Plugin_Test extends BaseTestCase {
+
+	private $get_current_user;
 	/**
 	 * Test that ::revert_that_print works correctly
 	 *
@@ -572,6 +574,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 	private function setup_token_test( $token = null, $name = null ) {
 		global $post;
+		$this->get_current_user = wp_get_current_user();
+		wp_set_current_user( 0 );
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => 'Test Contact Form',
@@ -599,6 +603,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 	private function teardown_post_for_test( $previous_post ) {
 		global $post;
+		wp_set_current_user( $this->get_current_user->ID );
 		wp_delete_post( $post->ID, true ); // Clean up the test post.
 		$post = $previous_post; // Restore the previous post.
 		remove_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );

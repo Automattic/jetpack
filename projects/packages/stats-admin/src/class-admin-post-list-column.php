@@ -199,6 +199,14 @@ class Admin_Post_List_Column {
 			$pos = count( $columns );
 		}
 
+		// If comments position is 0, then prepend the element at the beginning of the array.
+		if ( 0 === $pos ) {
+			return array_merge(
+				array( 'stats' => esc_html__( 'Stats', 'jetpack-stats-admin' ) ),
+				$columns
+			);
+		}
+
 		$chunks             = array_chunk( $columns, $pos, true );
 		$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack-stats-admin' );
 

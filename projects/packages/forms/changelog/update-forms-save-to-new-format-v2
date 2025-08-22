@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: use the new Feedback class to save the feedback entries in a new format

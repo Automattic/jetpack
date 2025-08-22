@@ -52,6 +52,36 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test if the stats column is added when comments is the first column of the table.
+	 *
+	 * @return void
+	 */
+	public function test_adds_stats_column_when_comments_is_the_first_column() {
+		// Prepare a simple columns array
+		$columns = array(
+			'comments' => 'comments',
+			'date'     => 'Date',
+		);
+
+		wp_set_current_user( $this->admin_id );
+
+		$set_cap = function ( $caps ) {
+			$caps['view_stats'] = true;
+
+			return $caps;
+		};
+
+		add_filter( 'user_has_cap', $set_cap );
+		// Call the method to add the stats column
+		$columns_with_stats = Admin_Post_List_Column::register()->add_stats_post_table( $columns );
+		remove_filter( 'user_has_cap', $set_cap );
+
+		// Assert that the 'stats' column is added
+		$this->assertArrayHasKey( 'stats', $columns_with_stats );
+		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+	}
+
+	/**
 	 * Test if doesn't add the stats column if they don't have the right to view stats.
 	 *
 	 * @return void

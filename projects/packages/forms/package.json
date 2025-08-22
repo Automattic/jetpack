@@ -97,7 +97,7 @@
 		"glob": "11.0.2",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
-		"jquery": "3.6.0",
+		"jquery": "3.7.1",
 		"postcss": "8.4.47",
 		"postcss-loader": "8.1.1",
 		"sass-embedded": "1.87.0",

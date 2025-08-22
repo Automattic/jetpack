@@ -19,12 +19,18 @@ export default function SliderInputEdit( props ) {
 	const onChangeMin = context[ 'jetpack/field-slider-onChangeMin' ];
 	const onChangeMax = context[ 'jetpack/field-slider-onChangeMax' ];
 	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
+	const minTextLabel = context[ 'jetpack/field-slider-minLabel' ];
+	const maxTextLabel = context[ 'jetpack/field-slider-maxLabel' ];
+	const onChangeMinLabel = context[ 'jetpack/field-slider-onChangeMinLabel' ];
+	const onChangeMaxLabel = context[ 'jetpack/field-slider-onChangeMaxLabel' ];
 
 	// Setup local state.
 	const [ localMin, setLocalMin ] = useState( String( minFromContext ) );
 	const [ localMax, setLocalMax ] = useState( String( maxFromContext ) );
 	const [ minFocused, setMinFocused ] = useState( false );
 	const [ maxFocused, setMaxFocused ] = useState( false );
+	const [ localMinLabel, setLocalMinLabel ] = useState( String( minTextLabel ) );
+	const [ localMaxLabel, setLocalMaxLabel ] = useState( String( maxTextLabel ) );
 
 	// Derived variables
 	const isMinValid = Number( localMin ) <= Number( localMax );
@@ -57,7 +63,7 @@ export default function SliderInputEdit( props ) {
 		maxInputRef.current?.ownerDocument.activeElement === e.target || e.target.focus();
 	};
 
-	// Sync min/max if context updates or min/max input loses focus.
+	// Sync min/max numbers if context updates or min/max input loses focus.
 	useEffect( () => {
 		if ( ! minFocused ) {
 			setLocalMin( String( minFromContext ) );
@@ -133,6 +139,31 @@ export default function SliderInputEdit( props ) {
 						onChangeMax( localMax );
 					} }
 					onKeyDown={ onKeyDown }
+				/>
+			</div>
+			<div className="jetpack-field-slider__text-labels">
+				<input
+					className="jetpack-field-slider__min-text-label"
+					type="text"
+					size={ Math.max( 3, localMinLabel.length ) }
+					value={ localMinLabel }
+					placeholder={ __( 'Add label…', 'jetpack-forms' ) }
+					onChange={ e => setLocalMinLabel( e.target.value ) }
+					onBlur={ () => {
+						onChangeMinLabel?.( localMinLabel );
+					} }
+				/>
+				<input
+					className="jetpack-field-slider__max-text-label"
+					autoComplete="off"
+					type="text"
+					size={ Math.max( 3, localMaxLabel.length ) }
+					value={ localMaxLabel }
+					placeholder={ __( 'Add label…', 'jetpack-forms' ) }
+					onChange={ e => setLocalMaxLabel( e.target.value ) }
+					onBlur={ () => {
+						onChangeMaxLabel?.( localMaxLabel );
+					} }
 				/>
 			</div>
 		</div>
