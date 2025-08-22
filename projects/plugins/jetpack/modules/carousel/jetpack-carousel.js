@@ -967,10 +967,9 @@
 					args.origMaxHeight = args.maxHeight * 2;
 					// Add the fit arg to the list of Photon args.
 					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + ',' + args.origMaxHeight );
-					return sanitizedUrl.toString();
 				}
 
-				// Return a clean Photon URL without sizing parameters, but with other params like quality, ssl, etc.
+				// Return a Photon URL image that's better fitted for the viewport.
 				return sanitizedUrl.toString();
 			}
 
