@@ -3,25 +3,20 @@
  * It provides all the necessary props like the class name.
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import type { BlockSaveProps } from '@wordpress/blocks';
-
-interface BlockAttributes {
-	latex: string;
-	editing: boolean;
-}
 
 /**
  * The save function outputs the static markup for the rendered formula,
  * with a data-latex attribute for possible front-end enhancement.
- * @param root0
- * @param root0.attributes
+ * @param {object} props            - Block props.
+ * @param {object} props.attributes - Block attributes.
+ * @return {object} The static markup for the rendered formula.
  */
-export default function save( { attributes }: BlockSaveProps< BlockAttributes > ) {
+export default function save( { attributes } ) {
 	const { latex = '' } = attributes;
 	return (
-		<div { ...useBlockProps.save( { className: 'jetpack-latex-formula' } ) } data-latex={ latex }>
+		<div { ...useBlockProps.save( { className: 'jetpack-latex' } ) } data-latex={ latex }>
 			{ /* The actual rendering will take place in view.js using KaTeX */ }
-			<span className="jetpack-latex-formula-render" />
+			<span className="jetpack-latex-render" />
 		</div>
 	);
 }
