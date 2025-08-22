@@ -11,9 +11,12 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			.map( series => series.options?.stroke )
 			.filter( ( color ): color is string => Boolean( color ) );
 
+		// Ensure theme.colors is an array before spreading
+		const themeColors = Array.isArray( theme.colors ) ? theme.colors : [];
+
 		return buildChartTheme( {
 			...theme,
-			colors: [ ...seriesColors, ...( theme.colors ?? [] ) ],
+			colors: [ ...seriesColors, ...themeColors ],
 		} );
 	}, [ theme, data ] );
 };
