@@ -1290,80 +1290,21 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::log( '' );
 
-			// 6. PHP Errors (filtered to recent fatals and errors)
-			WP_CLI::log( WP_CLI::colorize( '%Y--- Recent PHP Errors ---%n' ) );
-			$php_errors_result = WP_CLI::runcommand(
-				'php-errors',
-				array(
-					'launch'     => false,
-					'return'     => 'all',
-					'exit_error' => false,
-				)
-			);
+			// 6. PHP Errors (filtered to critical errors)
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Critical PHP Errors ---%n' ) );
+			$error_log_file = '/tmp/php-errors';
 
-			if ( 0 === $php_errors_result->return_code ) {
-				$error_lines     = explode( "\n", trim( $php_errors_result->stdout ) );
-				$filtered_errors = array();
+			if ( file_exists( $error_log_file ) ) {
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
+				$output = shell_exec( "grep -E 'Fatal error|PHP Fatal error|Parse error|Uncaught Error|Uncaught Exception|TypeError|ArgumentCountError|Compile error' " . escapeshellarg( $error_log_file ) . ' | tail -n 100' );
 
-				$recent_dates = array(
-					gmdate( 'd-M-Y' ),
-					gmdate( 'd-M-Y', strtotime( '-1 day' ) ),
-					gmdate( 'd-M-Y', strtotime( '-2 days' ) ),
-				);
-
-				foreach ( $error_lines as $line ) {
-					if ( empty( trim( $line ) ) ) {
-						continue;
-					}
-
-					$is_recent = false;
-					foreach ( $recent_dates as $date ) {
-						if ( strpos( $line, $date ) !== false ) {
-							$is_recent = true;
-							break;
-						}
-					}
-
-					if ( $is_recent ) {
-						// Check for various types of critical/fatal errors
-						$critical_patterns = array(
-							'Fatal error',
-							'PHP Fatal error',
-							'Parse error',
-							'Uncaught Error',
-							'Uncaught Exception',
-							'TypeError',
-							'ArgumentCountError',
-							'Compile error',
-						);
-
-						foreach ( $critical_patterns as $pattern ) {
-							if ( strpos( $line, $pattern ) !== false ) {
-								$filtered_errors[] = $line;
-								break;
-							}
-						}
-					}
-				}
-
-				if ( ! empty( $filtered_errors ) ) {
-					WP_CLI::log( WP_CLI::colorize( '%RRecent Critical PHP Errors:%n' ) );
-					foreach ( $filtered_errors as $error ) {
-						WP_CLI::log( $error );
-					}
+				if ( ! empty( trim( (string) $output ) ) ) {
+					WP_CLI::log( trim( (string) $output ) );
 				} else {
-					// Show last 10 errors of any type if no recent critical errors
-					WP_CLI::log( WP_CLI::colorize( '%GNo recent critical errors found. Last 10 PHP errors:%n' ) );
-					$recent_errors = array_slice( $error_lines, -10 );
-					foreach ( $recent_errors as $error ) {
-						if ( ! empty( trim( $error ) ) ) {
-							WP_CLI::log( $error );
-						}
-					}
+					WP_CLI::log( WP_CLI::colorize( '%GNo critical PHP errors found.%n' ) );
 				}
 			} else {
-				WP_CLI::log( WP_CLI::colorize( '%RPHP errors command failed:%n' ) );
-				WP_CLI::log( $php_errors_result->stderr );
+				WP_CLI::log( WP_CLI::colorize( '%RPHP errors file not found:%n /tmp/php-errors' ) );
 			}
 
 			WP_CLI::log( '' );
