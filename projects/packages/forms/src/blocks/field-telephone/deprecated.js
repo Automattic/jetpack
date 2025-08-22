@@ -38,7 +38,7 @@ export default [
 			const inputBlock = innerBlocks.find( block => block.name === 'jetpack/input' );
 			return (
 				attributes.showCountrySelector === undefined ||
-				( inputBlock && inputBlock.attributes.type === 'tel' )
+				Boolean( inputBlock && inputBlock.attributes && inputBlock.attributes.type === 'tel' )
 			);
 		},
 		save,
