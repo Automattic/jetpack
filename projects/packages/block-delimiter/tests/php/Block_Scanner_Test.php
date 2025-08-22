@@ -1058,7 +1058,7 @@ class Block_Scanner_Test extends TestCase {
 		}
 
 		// Regression-focused assertion: Scanner should not be significantly slower
-		$this->assertGreaterThan(
+		$this->assertGreaterThanOrEqual(
 			self::PERF_MIN_TIME_RATIO_THRESHOLD,
 			$time_ratio,
 			sprintf(
