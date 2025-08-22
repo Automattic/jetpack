@@ -1540,6 +1540,50 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( $expected, $compiled_fields, $message );
 	}
 
+	public function test_get_compiled_fields_hidden_field() {
+		// Test data
+		$test_email = 'john.smith@example.com';
+		$form_id    = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'hidden' => 'hidden_value',
+				'email'  => $test_email,
+			),
+			'g' . $form_id
+		);
+
+		// Test that get_compiled_fields returns the correct structure for a default form
+		$form     = new Contact_Form( array(), '[contact-field label="Hidden" type="hidden" default="hidden_value"][contact-field label="Email" type="email" ]' );
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		// Test the specified format
+		$web     = $response->get_compiled_fields( 'web' );
+		$ajax    = $response->get_compiled_fields( 'ajax' );
+		$default = $response->get_compiled_fields( 'default' );
+
+		$empty = array(
+			'2_Email' => array(
+				'label' => 'Email',
+				'value' => 'john.smith@example.com',
+			),
+		);
+
+		$default_expected = array_merge(
+			array(
+				'1_Hidden' => array(
+					'label' => 'Hidden',
+					'value' => 'hidden_value',
+				),
+			),
+			$empty
+		);
+
+		$this->assertEquals( $empty, $web );
+		$this->assertEquals( $empty, $ajax );
+		$this->assertEquals( $default_expected, $default );
+	}
+
 	/**
 	 *
 	 * Test file uploads in feedback
