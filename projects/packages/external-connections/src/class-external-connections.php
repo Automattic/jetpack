@@ -132,24 +132,6 @@ class External_Connections {
 	}
 
 	/**
-	 * Checks if a connection to the specified service exists and is active.
-	 *
-	 * @param string $service The service identifier.
-	 *
-	 * @return bool True if an active connection exists, false otherwise.
-	 */
-	public static function has_connection( $service ) {
-		$connection = self::get_connection( $service );
-
-		if ( empty( $connection ) ) {
-			return false;
-		}
-
-		$connection_status = $connection['status'] ?? 'not_connected';
-		return $connection_status === 'ok';
-	}
-
-	/**
 	 * Deletes a connection for the provided service.
 	 *
 	 * @param string $service The service identifier.
@@ -180,6 +162,33 @@ class External_Connections {
 		}
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
 		return $body->deleted ?? false;
+	}
+
+	/**
+	 * Gets the connection data for the provided service.
+	 *
+	 * @param string $service The service identifier.
+	 * @return array The connection data.
+	 */
+	private static function get_connection_data( $service ) {
+		$connection = self::get_connection( $service );
+		if ( empty( $connection ) ) {
+			return array(
+				'is_connected'  => false,
+				'account_name'  => '',
+				'profile_image' => '',
+			);
+		}
+
+		$is_connected  = ! empty( $connection ) && isset( $connection['status'] ) && $connection['status'] === 'ok';
+		$account_name  = $is_connected ? ( $connection['external_display'] ?? $connection['external_name'] ) : '';
+		$profile_image = $is_connected ? $connection['external_profile_picture'] : '';
+
+		return array(
+			'is_connected'  => $is_connected,
+			'account_name'  => $account_name,
+			'profile_image' => $profile_image,
+		);
 	}
 
 	/**
@@ -217,9 +226,8 @@ class External_Connections {
 				"build/$asset_name/$asset_name.js",
 				self::BASE_FILE,
 				array(
-					'in_footer'    => true,
-					'textdomain'   => 'jetpack-external-connections',
-					'dependencies' => array( 'wp-util' ),
+					'in_footer'  => true,
+					'textdomain' => 'jetpack-external-connections',
 				)
 			);
 			Assets::enqueue_script( $asset_name );
@@ -236,26 +244,23 @@ class External_Connections {
 					$support_link = Redirect::get_url( $service['support_link']['jetpack'] );
 				}
 
-				$is_connected = self::has_connection( $service['service'] );
-				$connect_url  = self::get_connect_url( $service['service'] );
-				if ( empty( $connect_url ) && ! $is_connected ) {
+				$connect_url     = self::get_connect_url( $service['service'] );
+				$connection_data = self::get_connection_data( $service['service'] );
+
+				if ( ( empty( $connect_url ) && ! $connection_data['is_connected'] ) ) {
 					continue;
 				}
 
 				add_settings_field(
 					'jetpack_external_connections_field_' . $service['service'],
 					$service['title'],
-					function () use ( $service, $is_connected, $support_link ) {
+					function () use ( $service, $support_link ) {
 						?>
-						<div>
-							<button class="button-secondary jetpack-external-connection" type="button" data-service="<?php echo esc_attr( $service['service'] ); ?>">
-								<?php $is_connected ? esc_html_e( 'Disconnect', 'jetpack-external-connections' ) : esc_html_e( 'Connect', 'jetpack-external-connections' ); ?>
-							</button>
-							<p class="description">
-								<?php echo esc_html( $service['description'] ); ?>
-								<a href="<?php echo esc_url( $support_link ); ?>" target="_blank" data-target="wpcom-help-center"><?php esc_html_e( 'Learn more', 'jetpack-external-connections' ); ?></a>
-							</p>
-						</div>
+						<div class="jetpack-external-connection" data-service="<?php echo esc_attr( $service['service'] ); ?>"><em><?php esc_html_e( 'Loading…', 'jetpack-external-connections' ); ?></em></div>
+						<p class="description">
+							<?php echo esc_html( $service['description'] ); ?>
+							<a href="<?php echo esc_url( $support_link ); ?>" target="_blank" data-target="wpcom-help-center"><?php esc_html_e( 'Learn more', 'jetpack-external-connections' ); ?></a>
+						</p>
 						<?php
 					},
 					$page,
@@ -263,9 +268,13 @@ class External_Connections {
 				);
 
 				$script_data[ $service['service'] ] = array(
-					'isConnected' => $is_connected,
-					'connectUrl'  => $connect_url,
-					'deleteNonce' => wp_create_nonce( 'jetpack_delete_external_connection_' . $service['service'] ),
+					'accountName'  => $connection_data['account_name'],
+					'connectUrl'   => $connect_url,
+					'deleteNonce'  => wp_create_nonce( 'jetpack_delete_external_connection_' . $service['service'] ),
+					'getNonce'     => wp_create_nonce( 'jetpack_get_external_connection_' . $service['service'] ),
+					'isConnected'  => $connection_data['is_connected'],
+					'profileImage' => $connection_data['profile_image'],
+					'supportLink'  => $support_link,
 				);
 			}
 
@@ -293,6 +302,27 @@ class External_Connections {
 	}
 
 	/**
+	 * Handles the AJAX request to delete an external connection.
+	 */
+	public static function ajax_get_connection() {
+		if ( ! isset( $_REQUEST['service'] ) ) {
+			wp_send_json( array( 'isConnected' => 'false' ) );
+		}
+
+		$service = sanitize_text_field( wp_unslash( $_REQUEST['service'] ) );
+		check_ajax_referer( 'jetpack_get_external_connection_' . $service );
+
+		$connection_data = self::get_connection_data( $service );
+		wp_send_json(
+			array(
+				'accountName'  => $connection_data['account_name'],
+				'isConnected'  => $connection_data['is_connected'],
+				'profileImage' => $connection_data['profile_image'],
+			)
+		);
+	}
+
+	/**
 	 * Registers settings and hooks for a specified service on a given admin page.
 	 *
 	 * @param string $page The identifier of the admin page where the service settings are added.
@@ -310,6 +340,10 @@ class External_Connections {
 
 		if ( ! has_action( 'wp_ajax_jetpack_delete_external_connection', array( __CLASS__, 'ajax_delete_connection' ) ) ) {
 			add_action( 'wp_ajax_jetpack_delete_external_connection', array( __CLASS__, 'ajax_delete_connection' ) );
+		}
+
+		if ( ! has_action( 'wp_ajax_jetpack_get_external_connection', array( __CLASS__, 'ajax_get_connection' ) ) ) {
+			add_action( 'wp_ajax_jetpack_get_external_connection', array( __CLASS__, 'ajax_get_connection' ) );
 		}
 	}
 }

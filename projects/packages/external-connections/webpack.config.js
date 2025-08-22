@@ -4,7 +4,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			'jetpack-external-connections-settings': './src/settings.js',
+			'jetpack-external-connections-settings': [ './src/settings.js', './src/settings.scss' ],
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -20,7 +20,11 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: jetpackWebpackConfig.StandardPlugins(),
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [
@@ -32,6 +36,12 @@ module.exports = [
 				// Transpile @automattic/jetpack-* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'scss' ],
+					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
 				} ),
 			],
 		},

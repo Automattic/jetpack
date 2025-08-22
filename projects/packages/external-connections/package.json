@@ -25,11 +25,18 @@
 	"dependencies": {
 		"@automattic/request-external-access": "1.0.1",
 		"@wordpress/dom-ready": "4.28.0",
-		"@wordpress/i18n": "6.1.0"
+		"@wordpress/element": "6.28.0",
+		"@wordpress/i18n": "6.1.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.0",
+		"@babel/plugin-transform-react-jsx": "7.27.1",
+		"@babel/preset-react": "7.27.1",
+		"sass-embedded": "1.87.0",
+		"sass-loader": "16.0.5",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
 	}
