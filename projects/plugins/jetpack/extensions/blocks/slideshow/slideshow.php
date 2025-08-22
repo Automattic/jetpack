@@ -66,17 +66,17 @@ function load_assets( $attr, $content ) {
  * @return string
  */
 function render_email( $block_content, array $parsed_block, $rendering_context ) {
-	// Email rendering configuration - only extract values used multiple times
-	$email_grid_padding_margin = 20; // Total padding/margin space for grid layout
-	$email_common_margin       = 16; // Common margin/padding value used multiple times
-	$email_cell_padding        = 8; // Cell padding used in multiple places
-
 	// Validate input parameters and required dependencies
 	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
 		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
 		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
 		return '';
 	}
+
+	// Email rendering configuration - only extract values used multiple times
+	$email_grid_padding_margin = 20; // Total padding/margin space for grid layout
+	$email_common_margin       = 16; // Common margin/padding value used multiple times
+	$email_cell_padding        = 8; // Cell padding used in multiple places
 
 	$attr = $parsed_block['attrs'];
 
