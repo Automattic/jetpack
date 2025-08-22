@@ -42,12 +42,11 @@ export default function SliderFieldEdit( props ) {
 	}, [ defaultValue, defaultFocused ] );
 
 	const snapToStep = useCallback(
-		val => {
-			const v = Number( val );
-			const clamped = Math.min( Math.max( v, min ), max );
-			return min + Math.round( ( clamped - min ) / step ) * step;
+		( val, stepSize ) => {
+			const clamped = Math.min( Math.max( val, min ), max );
+			return min + Math.round( ( clamped - min ) / stepSize ) * stepSize;
 		},
-		[ min, max, step ]
+		[ min, max ]
 	);
 
 	const onChangeMin = useCallback(
@@ -79,26 +78,20 @@ export default function SliderFieldEdit( props ) {
 	// This is passed to child input-range block via context.
 	const onChangeDefault = useCallback(
 		newDefault => {
-			const snapped = snapToStep( newDefault );
+			const snapped = snapToStep( newDefault, step );
 			setAttributes( { default: snapped } );
 			setLocalDefault( String( snapped ) );
 		},
-		[ snapToStep, setAttributes ]
+		[ snapToStep, step, setAttributes ]
 	);
 
 	const onChangeStep = useCallback(
 		newStep => {
-			const parsedStep = parseFloat( newStep );
-			const safeStep = ! isNaN( parsedStep ) && parsedStep > 0 ? parsedStep : 1;
-			// Snap default to the new step within [min, max]
-			const snappedDefault = ( () => {
-				const ratio = ( defaultValue - min ) / safeStep;
-				const snapped = min + Math.round( ratio ) * safeStep;
-				return Math.max( Math.min( snapped, max ), min );
-			} )();
-			setAttributes( { step: safeStep, default: snappedDefault } );
+			const stepSize = newStep > 0 ? newStep : 1;
+			const snappedDefault = snapToStep( defaultValue, stepSize );
+			setAttributes( { step: stepSize, default: snappedDefault } );
 		},
-		[ defaultValue, min, max, setAttributes ]
+		[ defaultValue, setAttributes, snapToStep ]
 	);
 
 	const onChangeMinLabel = useCallback(
@@ -205,7 +198,7 @@ export default function SliderFieldEdit( props ) {
 							value={ localDefault }
 							onChange={ val => {
 								setLocalDefault( val );
-								const snapped = snapToStep( val );
+								const snapped = snapToStep( val, step );
 								setAttributes( { default: snapped } );
 							} }
 							onFocus={ () => setDefaultFocused( true ) }
