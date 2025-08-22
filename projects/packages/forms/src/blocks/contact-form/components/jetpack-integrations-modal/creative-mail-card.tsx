@@ -78,6 +78,7 @@ const CreativeMailCard = ( {
 						label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
 						checked={ !! consentBlock }
 						onChange={ toggleConsent }
+						__nextHasNoMarginBottom
 					/>
 				) }
 				<Button
