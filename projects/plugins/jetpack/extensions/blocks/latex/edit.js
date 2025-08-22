@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
 import katex from 'katex';
 import { icon } from './icon';
 import 'katex/dist/katex.min.css';
-import './editor.scss';
+import './editor.css';
 
 const LatexPlaceholder = () => {
 	return (
