@@ -14,7 +14,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 export default function save( { attributes } ) {
 	const { latex = '' } = attributes;
 	return (
-		<div { ...useBlockProps.save( { className: 'jetpack-latex' } ) } data-latex={ latex }>
+		<div { ...useBlockProps.save() } data-latex={ latex }>
 			{ /* The actual rendering will take place in view.js using KaTeX */ }
 			<span className="jetpack-latex-render" />
 		</div>

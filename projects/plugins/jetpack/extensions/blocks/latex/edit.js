@@ -15,11 +15,11 @@ import { __ } from '@wordpress/i18n';
 import katex from 'katex';
 import { icon } from './icon';
 import 'katex/dist/katex.min.css';
-import './editor.css';
+import './editor.scss';
 
 const LatexPlaceholder = () => {
 	return (
-		<span className="jetpack-latex-rendered-placeholder">{ __( 'Write LaTex…', 'jetpack' ) }</span>
+		<span className="jetpack-latex-rendered-placeholder">{ __( 'Write LaTeX…', 'jetpack' ) }</span>
 	);
 };
 
@@ -28,7 +28,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 	const textareaRef = useRef();
 	const [ renderAreaRef, setRenderAreaRef ] = useState( null );
 	const dispatch = useDispatch();
-	const props = useBlockProps( { className: 'jetpack-latex' } );
+	const props = useBlockProps();
 
 	useEffect( () => {
 		if ( renderAreaRef ) {
@@ -44,19 +44,22 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		return (
 			<div { ...props }>
 				<Placeholder
-					label={ __( 'LaTeX Block', 'jetpack' ) }
+					label={ __( 'LaTeX block', 'jetpack' ) }
 					instructions={ __( 'Enter LaTeX code below', 'jetpack' ) }
 					icon={ icon }
 				>
 					<VStack gap={ 4 } justify="flex-start" align="stretch">
 						<TextareaControl
-							__nextHasNoMarginBottom
-							label={ __( 'LaTeX Code', 'jetpack' ) }
+							label={ __( 'LaTeX code', 'jetpack' ) }
+							className="jetpack-latex-textarea"
 							ref={ textareaRef }
 							value={ latex }
 							onChange={ value => setAttributes( { latex: value } ) }
-							help={ __( 'Example: \\frac{a}{b}', 'jetpack' ) }
 							rows={ 4 }
+							help={
+								/* translators: \frac{a}{b} is an example of LaTeX code. Should stay as is. */
+								__( 'Example: \\frac{a}{b}', 'jetpack' )
+							}
 						/>
 
 						<Surface variant="secondary" className="jetpack-latex-rendered-container">
@@ -92,7 +95,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			{ ...props }
 			tabIndex={ 0 }
 			role="button"
-			aria-label={ __( 'Edit LaTex', 'jetpack' ) }
+			aria-label={ __( 'Edit LaTeX', 'jetpack' ) }
 			data-latex={ latex }
 		>
 			<Surface variant="secondary" className="jetpack-latex-rendered-container">

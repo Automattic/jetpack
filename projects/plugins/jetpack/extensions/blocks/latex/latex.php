@@ -1,14 +1,10 @@
 <?php
 /**
- * Plugin Name:       LaTex
- * Description:       A WordPress block for live editing and displaying LaTex in posts and pages.
- * Version:           0.1.0
- * Author:            Jetpack Team
- * License:           GPL-2.0-or-later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       jetpack
+ * LaTeX Block.
  *
- * @package LatexFormula
+ * @since $$next-version$$
+ *
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Latex;

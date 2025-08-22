@@ -1,4 +1,6 @@
-.jetpack-latex {
+@use "@wordpress/base-styles/variables" as *;
+
+.wp-block-jetpack-latex {
 
 	.components-placeholder__label {
 
@@ -13,8 +15,8 @@
 		padding: 1em 0;
 	}
 
-	.jetpack-latex-textarea textarea {
-		font-family: "Fira Mono", Consolas, Menlo, monospace;
+	.jetpack-latex-textarea {
+		font-family: $font-family-mono;
 	}
 
 	.components-v-stack {

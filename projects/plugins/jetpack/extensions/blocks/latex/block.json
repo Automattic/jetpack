@@ -3,9 +3,9 @@
 	"apiVersion": 3,
 	"name": "jetpack/latex",
 	"version": "0.1.0",
-	"title": "LaTex",
+	"title": "LaTeX",
 	"category": "formatting",
-	"description": "Create and display LaTex with live preview and easy editing.",
+	"description": "Create and display LaTeX with live preview and easy editing.",
 	"example": {
 		"attributes": {
 			"latex": "\\frac{a}{b}"
