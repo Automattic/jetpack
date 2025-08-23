@@ -1300,26 +1300,6 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Render the image choices field.
-	 *
-	 * @return string HTML for the image choices form field.
-	 */
-	public static function gutenblock_render_fieldset_image_options() {
-		// TODO: Implement the block rendering
-		return '';
-	}
-
-	/**
-	 * Render the image choice field.
-	 *
-	 * @return string HTML for the image choice form field.
-	 */
-	public static function gutenblock_render_input_image_option() {
-		// TODO: Implement the block rendering
-		return '';
-	}
-
-	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
