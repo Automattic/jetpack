@@ -1876,6 +1876,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		wp_enqueue_style( 'jetpack-form-field-image-select-style', plugins_url( '../../dist/blocks/field-image-select/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+
 		$is_multiple       = $this->get_attribute( 'ismultiple' );
 		$show_labels       = $this->get_attribute( 'showlabels' );
 		$randomize_options = $this->get_attribute( 'randomizeoptions' );

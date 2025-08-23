@@ -8,25 +8,59 @@
 	flex-basis: unset;
 }
 
+.jetpack-field-image-select fieldset {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
 .jetpack-fieldset-image-options__wrapper {
 	--jetpack-field-image-options-gap: 16px;
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--jetpack-field-image-options-gap);
 
-	.jetpack-input-image-option {
-		box-sizing: border-box;
+	.jetpack-input-image-option__outer {
 		display: flex;
-		flex-direction: column;
 		width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-options-gap) * ( 3 / 4 ));
 
 		&.is-supersized {
 			width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
 		}
+	}
+
+	.jetpack-input-image-option {
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		overflow: hidden;
+
+		&:not(.wp-block):hover {
+			backdrop-filter: contrast(0.9) saturate(1.2);
+			cursor: pointer;
+		}
 
 		.jetpack-input-image-option__wrapper {
 			width: 100%;
 			overflow: hidden;
+			position: relative;
+
+			.jetpack-input-image-option__input {
+				position: absolute;
+				top: 4px;
+				right: 4px;
+				margin: 0;
+
+				&:not(:checked) {
+
+					@extend %visually-hidden;
+				}
+			}
+
+			figure {
+				margin: 0;
+			}
 
 			figcaption {
 
@@ -41,6 +75,11 @@
 			align-items: center;
 			padding-top: 8px;
 
+			.jetpack-input-image-option__label {
+				min-width: 1px;
+				overflow-wrap: break-word;
+			}
+
 			.jetpack-input-image-option__label-code {
 				display: flex;
 				justify-content: center;
@@ -50,6 +89,7 @@
 				border-radius: 2px;
 				border: 1px solid #ccc;
 				line-height: 1;
+				color: #333;
 			}
 		}
 	}
