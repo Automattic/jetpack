@@ -10,7 +10,10 @@ const name = 'field-hidden';
 const settings = {
 	...defaultSettings,
 	title: __( 'Hidden field', 'jetpack-forms' ),
-	description: __( 'Dynamically add values from the field.', 'jetpack-forms' ),
+	description: __(
+		'Invisible to users, this field lets you store extra data with each form submission.',
+		'jetpack-forms'
+	),
 	icon: {
 		foreground: getIconColor(),
 		src: <Icon icon={ unseen } />,
