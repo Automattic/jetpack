@@ -30,17 +30,21 @@ export default function HiddenFieldEdit( props ) {
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 					onChange={ handleLabelChange }
-					placeholder={ __( 'Hidden input field', 'jetpack-forms' ) }
-					value={ attributes.label }
 					label={ __( 'Field Label', 'jetpack-forms' ) }
+					hideLabelFromVision={ true }
+					placeholder={ __( 'Field Label', 'jetpack-forms' ) }
+					value={ attributes.label }
+					help={ attributes.label ? __( 'Field Label', 'jetpack-forms' ) : '' }
 				/>
 				<TextControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 					onChange={ handleValueChange }
+					label={ __( 'Field Value', 'jetpack-forms' ) }
+					hideLabelFromVision={ true }
 					placeholder={ __( 'Field value', 'jetpack-forms' ) }
 					value={ attributes.default }
-					label={ __( 'Field value', 'jetpack-forms' ) }
+					help={ attributes.default ? __( 'Field value', 'jetpack-forms' ) : '' }
 					onKeyDown={ onKeyDown }
 				/>
 			</Placeholder>
