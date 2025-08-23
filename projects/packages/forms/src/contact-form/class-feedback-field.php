@@ -376,6 +376,10 @@ class Feedback_Field {
 			$data['value'] = self::normalize_unicode( $data['value'] );
 		}
 
+		if ( is_string( $data['label'] ) ) { // just normalize plain string for now.
+			$data['label'] = self::normalize_unicode( $data['label'] );
+		}
+
 		return new self(
 			$data['key'],
 			$data['label'],
