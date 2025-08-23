@@ -3,6 +3,7 @@
  * It provides all the necessary props like the class name.
  */
 import { useBlockProps } from '@wordpress/block-editor';
+import katex from 'katex';
 
 /**
  * The save function outputs the static markup for the rendered formula,
@@ -15,8 +16,18 @@ export default function save( { attributes } ) {
 	const { latex = '' } = attributes;
 	return (
 		<div { ...useBlockProps.save() } data-latex={ latex }>
-			{ /* The actual rendering will take place in view.js using KaTeX */ }
-			<span className="jetpack-latex-render" />
+			<span
+				className="jetpack-latex-render"
+				// WP KSES will scrutinize this HTML.
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={ {
+					__html: katex.renderToString( latex, {
+						throwOnError: false,
+						output: 'mathml',
+						displayMode: false,
+					} ),
+				} }
+			/>
 		</div>
 	);
 }

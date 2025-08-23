@@ -15,7 +15,6 @@ import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import katex from 'katex';
 import { icon } from './icon';
-import 'katex/dist/katex.min.css';
 import './editor.scss';
 
 const LatexPlaceholder = () => {
@@ -36,7 +35,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			katex.render( latex, renderAreaRef, {
 				throwOnError: false,
 				displayMode: false,
-				output: 'html',
+				output: 'mathml',
 			} );
 		}
 	}, [ latex, renderAreaRef ] );
@@ -65,7 +64,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 						/>
 
 						<Text upperCase>{ __( 'Preview', 'jetpack' ) }</Text>
-						<Surface label="hello" variant="secondary" className="jetpack-latex-rendered-container">
+						<Surface variant="secondary" className="jetpack-latex-rendered-container">
 							{ latex.trim() ? (
 								<span
 									className="jetpack-latex-rendered"
