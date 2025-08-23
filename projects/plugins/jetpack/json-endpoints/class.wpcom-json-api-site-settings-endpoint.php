@@ -384,7 +384,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					$newsletter_category_ids = Jetpack_Newsletter_Category_Helper::get_category_ids();
 
-					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
+					$api_cache    = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 					$mcp_settings = get_option( 'wpcom_mcp_settings', array() );
 
 					$response[ $key ] = array(
