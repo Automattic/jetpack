@@ -1881,21 +1881,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$is_multiple       = $this->get_attribute( 'ismultiple' );
 		$show_labels       = $this->get_attribute( 'showlabels' );
 		$randomize_options = $this->get_attribute( 'randomizeoptions' );
+		$is_supersized     = $this->get_attribute( 'issupersized' );
 
 		$input_type = $is_multiple ? 'checkbox' : 'radio';
 		$input_name = $is_multiple ? $id . '[]' : $id;
 
-		$options_classes   = $this->get_attribute( 'optionsclasses' );
-		$options_styles    = $this->get_attribute( 'optionsstyles' );
+		$field = "<div class='jetpack-field jetpack-field-image-select'>";
+
 		$form_style        = $this->get_form_style();
 		$is_outlined_style = 'outlined' === $form_style; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- TODO: Implement style variations
 		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
 
-		$field = "<fieldset {$fieldset_id} class='jetpack-field-image-select__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldHasErrors' >";
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
-		$field .= "<div class='grunion-image-select-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
+		$options_classes = $this->get_attribute( 'optionsclasses' );
+		$options_styles  = $this->get_attribute( 'optionsstyles' );
+
+		$field .= "<div class='" . esc_attr( $options_classes ) . " jetpack-field jetpack-fieldset-image-options' style='" . esc_attr( $options_styles ) . "'>";
+		$field .= "<div class='jetpack-fieldset-image-options__wrapper'>";
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
 		$used_html_ids = array();
@@ -1920,34 +1925,77 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$option_label                = Contact_Form_Plugin::strip_tags( $option['label'] );
 				$option_letter               = Contact_Form_Plugin::strip_tags( $option['letter'] );
 				$option_value                = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option_letter );
+				$image_block                 = $option['image'];
 				$option_id                   = $id . '-' . sanitize_html_class( $option_value );
 				$used_html_ids[ $option_id ] = true;
 
-				$default_classes = 'contact-form-field';
-				$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
-				$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
+				// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
+				// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
+				$option_outer_classes = "jetpack-input-image-option__outer {$option['classcolor']}";
 
-				$field .= "<p {$option_styles} class='{$option_classes}'>";
+				if ( $is_supersized ) {
+					$option_outer_classes .= ' is-supersized';
+				}
+
+				$border_styles = '';
+				preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
+				preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
+
+				if ( ! empty( $radius_match[1] ) ) {
+					$radius_value = trim( $radius_match[1] );
+
+					if ( ! empty( $width_match[1] ) ) {
+							$width_value   = trim( $width_match[1] );
+							$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
+					} else {
+							$border_styles = "border-radius:{$radius_value};";
+					}
+				}
+
+				$option_outer_styles = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
+				$option_outer_styles = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
+
+				$field .= "<div class='{$option_outer_classes}' {$option_outer_styles}>";
+
+				$default_classes = 'jetpack-field jetpack-input-image-option';
+				$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
+				$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
+
+				$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick'>";
+
+				$field .= "<div class='jetpack-input-image-option__wrapper'>";
 				$field .= "<input
-								id='" . esc_attr( $option_id ) . "'
-								type='" . esc_attr( $input_type ) . "'
-								name='" . esc_attr( $input_name ) . "'
-								value='" . esc_attr( $option_value ) . "'
-								data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
-								. $class
-								. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '
-								. ( $required ? "required aria-required='true'" : '' )
-								. '/> ';
-				$field .= "<label for='" . esc_attr( $option_id ) . "' class='grunion-image-select-label " . esc_attr( $input_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-				$field .= "<span class='grunion-field-text'>" . esc_html( $original_letters[ $option_index ] ) . ( $show_labels ? ' - ' . esc_html( $option_label ) : '' ) . '</span>';
-				$field .= '</label>';
-				$field .= '</p>';
+				id='" . esc_attr( $option_id ) . "'
+				class='jetpack-input-image-option__input'
+				type='" . esc_attr( $input_type ) . "'
+				name='" . esc_attr( $input_name ) . "'
+				value='" . esc_attr( $option_value ) . "'
+				data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
+				. $class
+				. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '
+				. ( $required ? "required aria-required='true'" : '' )
+				. '/> ';
+
+				$field .= render_block( $image_block );
+				$field .= '</div>';
+
+				$field .= "<div class='jetpack-input-image-option__label-wrapper'>";
+				$field .= "<div class='jetpack-input-image-option__label-code'>" . esc_html( $original_letters[ $option_index ] ) . '</div>';
+
+				$label_classes  = 'jetpack-input-image-option__label';
+				$label_classes .= $show_labels ? '' : ' visually-hidden';
+				$field         .= "<span class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
+				$field         .= '</div>';
+				$field         .= '</div>';
+				$field         .= '</div>';
 			}
 		}
 
-		$field .= '</div>';
+		$field .= '</div></div>';
 
 		$field .= '</fieldset>';
+
+		$field .= '</div>';
 
 		return $field;
 	}
