@@ -626,10 +626,12 @@ class Contact_Form_Plugin {
 						// Generate letter for this option (A, B, C, ..., AA, AB, etc.)
 						$option_letter = self::get_image_option_letter( $option_index + 1 );
 
-						$option_attrs = self::get_block_support_classes_and_styles( 'jetpack/input-image-option', $option['attrs'] );
-						$option_data  = array(
+						$option_attrs       = self::get_block_support_classes_and_styles( 'jetpack/input-image-option', $option['attrs'], array( 'typography', 'border', 'custom', 'spacing' ) );
+						$option_attrs_color = self::get_block_support_classes_and_styles( 'jetpack/input-image-option', $option['attrs'], array( 'color' ) );
+						$option_data        = array(
 							'label'  => $option_label,
 							'letter' => $option_letter,
+							'image'  => $option['innerBlocks'][0],
 						);
 
 						if ( isset( $option_attrs['class'] ) ) {
@@ -637,9 +639,15 @@ class Contact_Form_Plugin {
 						} else {
 							$option_data['class'] = 'wp-block-jetpack-input-image-option';
 						}
+						if ( isset( $option_attrs_color['class'] ) ) {
+							$option_data['classcolor'] = $option_attrs_color['class'];
+						}
 
 						if ( isset( $option_attrs['style'] ) ) {
 							$option_data['style'] = $option_attrs['style'];
+						}
+						if ( isset( $option_attrs_color['style'] ) ) {
+							$option_data['stylecolor'] = $option_attrs_color['style'];
 						}
 
 						$options[]      = $option_letter; // Legacy shortcode attribute - use letter for consistent submission
