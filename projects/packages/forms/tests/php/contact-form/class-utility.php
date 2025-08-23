@@ -80,6 +80,66 @@ class Utility {
 		);
 	}
 
+	public static function create_legacy_feedback_v2(
+		$all_values = array(),
+		$comment_author = 'Test User',
+		$comment_ip_text = 'https://127.0.0.1',
+		$subject = 'Test Subject',
+		$status = 'publish'
+	) {
+		global $post;
+		$feedback_time  = current_time( 'mysql' );
+		$feedback_title = "{$comment_author} - {$feedback_time}";
+		$feedback_id    = md5( $feedback_title );
+
+		if ( empty( $all_values ) ) {
+			$all_values = array(
+				'field1'                  => 'value1',
+				'field2'                  => 'value2',
+				'email_marketing_consent' => 'yes',
+			);
+		}
+
+		$entry_values = array(
+			'entry_title'     => 'Cool Post Title',
+			'entry_permalink' => 'https://example.com/post/123',
+			'feedback_id'     => $feedback_id,
+		);
+
+		if ( isset( $_POST['page'] ) ) {
+			$entry_values['entry_page'] = absint( wp_unslash( $_POST['page'] ) );
+		}
+
+		$fields = array();
+		$i      = 1;
+		foreach ( $all_values as $key => $value ) {
+			$fields[] = new \Automattic\Jetpack\Forms\ContactForm\Feedback_Field( $i . '_' . $key, $key, $value, 'textarea', array(), $key )->serialize();
+			++$i;
+		}
+
+		$content = array(
+			'subject'     => $subject,
+			'ip'          => $comment_ip_text,
+			'entry_title' => $entry_values['entry_title'],
+			'entry_page'  => isset( $entry_values['entry_page'] ) ? $entry_values['entry_page'] : 1,
+			'fields'      => $fields,
+		);
+
+		// Create a mock post with JSON_DATA format
+		return wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => $status,
+				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
+				'post_date'      => $feedback_time,
+				'post_name'      => $feedback_id,
+				'post_content'   => wp_json_encode( $content ),
+				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
+				'post_parent'    => $post ? $post->ID : 0,
+			)
+		);
+	}
+
 	/**
 	 * Adds the field values to the global $_POST value.
 	 *

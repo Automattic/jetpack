@@ -267,6 +267,19 @@ class Feedback_Field_Test extends BaseTestCase {
 		$field = new Feedback_Field( 'test_key', 'á&#044; ç&#044; ü&#044; ń&#044; ğ', 'test_value' );
 		$this->assertSame( 'á, ç, ü, ń, ğ', $field->get_label() );
 	}
+
+	public function test_normalize_unicode() {
+		$input    = 'hello world \ud83d\ude48';
+		$expected = 'hello world 🙈';
+		$this->assertEquals( $expected, Feedback_Field::normalize_unicode( $input ) );
+	}
+
+	public function test_normalize_unicode_non_escaped() {
+		$input    = 'á, ç, ü, ń, ğ hello world ud83dude48';
+		$expected = 'á, ç, ü, ń, ğ hello world 🙈';
+		$this->assertEquals( $expected, Feedback_Field::normalize_unicode( $input ) );
+	}
+
 	/**
 	 * Helper function to return a URL for the file.
 	 *

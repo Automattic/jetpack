@@ -2166,4 +2166,66 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( $expected_content, $response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the form submission when new lines are present' );
 		$this->assertEquals( $expected_content, $saved_response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the saved response when new lines are present' );
 	}
+
+	public function test_escape_legacy_special_characters_handeling() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'special' => 'こんにちは世界',
+				'message' => '🙈',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+
+		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'special' ), 'Special field value should match' );
+		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'message' ), 'Message field value should match' );
+	}
+
+	public function test_escape_legacy_v2_special_characters_handeling() {
+		$post_id = Utility::create_legacy_feedback_v2(
+			array(
+				'Special こんにちは世界' => 'こんにちは世界',
+				'Message'         => '🙈',
+			)
+		);
+
+		$post_object = get_post( $post_id );
+		$this->assertTrue( str_contains( $post_object->post_content, 'ud83dude48' ) ); // ud83dude48 => 🙈 withouth the /
+
+		$response = Feedback::get( $post_id );
+
+		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'Special こんにちは世界' ), 'Special field value should match' );
+		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'Message' ), 'Message field value should match' );
+	}
+
+	public function test_special_characters_handling() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'special' => 'こんにちは世界',
+				'message' => '🙈',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Special' type='text' required='1'/]"
+			. "[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'Special' ), 'Special field value should match' );
+		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'Message' ), 'Message field value should match' );
+
+		$this->assertEquals( 'こんにちは世界', $saved_response->get_field_value_by_label( 'Special' ), 'Special field value should match saved value' );
+		$this->assertEquals( '🙈', $saved_response->get_field_value_by_label( 'Message' ), 'Message field value should match saved value' );
+	}
 }
