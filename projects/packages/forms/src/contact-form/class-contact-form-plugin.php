@@ -348,21 +348,26 @@ class Contact_Form_Plugin {
 	 *
 	 * @param string $block_name - the block name.
 	 * @param array  $attrs      - the block attributes.
+	 * @param array  $options    - the types of support to apply.
 	 *
 	 * @return array
 	 */
-	private static function get_block_support_classes_and_styles( $block_name, $attrs ) {
+	private static function get_block_support_classes_and_styles( $block_name, $attrs, $options = array() ) {
 		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
 
 		if ( ! $block_type ) {
 			return array();
 		}
 
+		$default_options = array( 'color', 'typography', 'border', 'custom', 'spacing' );
+		$enabled_options = empty( $options ) ? $default_options : $options;
+
 		// Leverage the individual core block support functions to generate classes and styles.
-		$color_styles      = \wp_apply_colors_support( $block_type, $attrs );
-		$typography_styles = \wp_apply_typography_support( $block_type, $attrs );
-		$border_styles     = \wp_apply_border_support( $block_type, $attrs );
-		$custom_classname  = \wp_apply_custom_classname_support( $block_type, $attrs );
+		$color_styles      = in_array( 'color', $enabled_options, true ) ? \wp_apply_colors_support( $block_type, $attrs ) : array();
+		$typography_styles = in_array( 'typography', $enabled_options, true ) ? \wp_apply_typography_support( $block_type, $attrs ) : array();
+		$border_styles     = in_array( 'border', $enabled_options, true ) ? \wp_apply_border_support( $block_type, $attrs ) : array();
+		$custom_classname  = in_array( 'custom', $enabled_options, true ) ? \wp_apply_custom_classname_support( $block_type, $attrs ) : array();
+		$spacing_styles    = in_array( 'spacing', $enabled_options, true ) ? \wp_apply_spacing_support( $block_type, $attrs ) : array();
 
 		// Merge all the block support classes and styles.
 		$classes = array_filter(
@@ -371,6 +376,7 @@ class Contact_Form_Plugin {
 				$typography_styles['class'] ?? '',
 				$border_styles['class'] ?? '',
 				$custom_classname['class'] ?? '',
+				$spacing_styles['class'] ?? '',
 			),
 			'strlen'
 		);
@@ -380,6 +386,7 @@ class Contact_Form_Plugin {
 				$color_styles['style'] ?? '',
 				$typography_styles['style'] ?? '',
 				$border_styles['style'] ?? '',
+				$spacing_styles['style'] ?? '',
 			),
 			'strlen'
 		);
