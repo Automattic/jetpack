@@ -55,7 +55,6 @@ export const childBlocks = [
 	JetpackNumberField,
 	JetpackPhoneInput,
 	JetpackSingleChoiceField,
-	JetpackHiddenField,
 	JetpackTextField,
 	JetpackUrlField,
 	JetpackTelephoneField,
@@ -64,7 +63,7 @@ export const childBlocks = [
 	...( getJetpackBlocksVariation() === 'experimental'
 		? [ JetpackRatingField, JetpackRatingInput, JetpackFieldSlider, JetpackSliderInput ]
 		: [] ),
-	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackTimeField ] : [] ),
+	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackTimeField, JetpackHiddenField ] : [] ),
 
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
