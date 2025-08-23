@@ -421,7 +421,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$response    = Feedback::get( $feedback_id );
 
 		// Default metadata should be saved.
-		$this->assertEquals( "I'm sorry, but the party's over", $response->get_subject(), 'The stored subject didn\'t match the given' );
+		$this->assertEquals( "I\'m sorry, but the party\'s over", $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
