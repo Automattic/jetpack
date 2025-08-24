@@ -2085,7 +2085,7 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertNull( $response->get_field_by_form_field_id( 'email' ) );
 	}
 
-	public function test_edgecase_feedback_v2() {
+	public function test_edgecase_feedback_v2_missing_field_value() {
 		// Post data with missing field value.
 		$post_id = wp_insert_post(
 			array(
