@@ -117,6 +117,48 @@ class MailPoet_Integration {
 
 	/**
 	 * Extract subscriber data (email, first_name, last_name) from form fields.
+	 * Once refactored form storage is in place, use get_subscriber_data() instead.
+	 *
+	 * @param array $fields Collection of Contact_Form_Field instances.
+	 * @return array Associative array with at least 'email', optionally 'first_name', 'last_name'. Empty array if no email found.
+	 */
+	protected static function get_subscriber_data_from_fields( $fields ) {
+		// Try and get the form from any of the fields
+		$form = null;
+		foreach ( $fields as $field ) {
+			if ( ! empty( $field->form ) ) {
+				$form = $field->form;
+				break;
+			}
+		}
+		if ( ! $form || ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
+			return array();
+		}
+
+		$subscriber_data = array();
+		foreach ( $form->fields as $field ) {
+			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
+			$label = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'label' ) ) );
+			$value = trim( $field->value );
+
+			if ( ( $id === 'email' || $label === 'email' ) && ! empty( $value ) ) {
+				$subscriber_data['email'] = $value;
+			} elseif ( ( $id === 'firstname' || $label === 'firstname' ) && ! empty( $value ) ) {
+				$subscriber_data['first_name'] = $value;
+			} elseif ( ( $id === 'lastname' || $label === 'lastname' ) && ! empty( $value ) ) {
+				$subscriber_data['last_name'] = $value;
+			}
+		}
+
+		if ( empty( $subscriber_data['email'] ) ) {
+			return array();
+		}
+
+		return $subscriber_data;
+	}
+
+	/**
+	 * Extract subscriber data (email, first_name, last_name) from form fields.
 	 *
 	 * @param Feedback $feedback Feedback object for the submission.
 	 * @return array Associative array with at least 'email', optionally 'first_name', 'last_name'. Empty array if no email found.
@@ -182,8 +224,29 @@ class MailPoet_Integration {
 			return;
 		}
 
-		if ( $feedback->has_field_type( 'consent' ) && ! $feedback->has_consent() ) {
-			return;
+		$post       = get_post( $post_id );
+		$is_v2_data = ( $post && $post->post_mime_type === 'v2' );
+
+		if ( $is_v2_data ) {
+			if ( $feedback->has_field_type( 'consent' ) && ! $feedback->has_consent() ) {
+				return;
+			}
+		} else {
+			$consent_field = null;
+			if ( is_array( $form->fields ) ) {
+				foreach ( $form->fields as $form_field ) {
+					if ( 'consent' === $form_field->get_attribute( 'type' ) ) {
+						$consent_field = $form_field;
+						break;
+					}
+				}
+			}
+			if ( $consent_field ) {
+				$consent_type = strtolower( (string) $consent_field->get_attribute( 'consenttype' ) );
+				if ( 'explicit' === $consent_type && ! $consent_field->value ) {
+					return;
+				}
+			}
 		}
 
 		$mailpoet_api = self::get_api();
@@ -203,7 +266,7 @@ class MailPoet_Integration {
 			return;
 		}
 
-		$subscriber_data = self::get_subscriber_data( $feedback );
+		$subscriber_data = $is_v2_data ? self::get_subscriber_data( $feedback ) : self::get_subscriber_data_from_fields( $fields );
 		if ( empty( $subscriber_data ) ) {
 			// Email is required for MailPoet subscribers.
 			return;
