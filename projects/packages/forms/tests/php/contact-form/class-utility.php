@@ -113,7 +113,8 @@ class Utility {
 		$fields = array();
 		$i      = 1;
 		foreach ( $all_values as $key => $value ) {
-			$fields[] = new Feedback_Field( $i . '_' . $key, $key, $value, 'textarea', array(), $key )->serialize();
+			$field    = new Feedback_Field( $i . '_' . $key, $key, $value, 'textarea', array(), $key );
+			$fields[] = $field->serialize();
 			++$i;
 		}
 
