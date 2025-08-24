@@ -871,7 +871,6 @@ class Jetpack_Gutenberg {
 			$extensions_to_load = array(
 				'extended-blocks',
 				'plugins',
-				'blocks',
 			);
 
 			// Collect the extension paths.
