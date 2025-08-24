@@ -113,7 +113,7 @@ class Utility {
 		$fields = array();
 		$i      = 1;
 		foreach ( $all_values as $key => $value ) {
-			$fields[] = new \Automattic\Jetpack\Forms\ContactForm\Feedback_Field( $i . '_' . $key, $key, $value, 'textarea', array(), $key )->serialize();
+			$fields[] = new Feedback_Field( $i . '_' . $key, $key, $value, 'textarea', array(), $key )->serialize();
 			++$i;
 		}
 
@@ -121,7 +121,7 @@ class Utility {
 			'subject'     => $subject,
 			'ip'          => $comment_ip_text,
 			'entry_title' => $entry_values['entry_title'],
-			'entry_page'  => isset( $entry_values['entry_page'] ) ? $entry_values['entry_page'] : 1,
+			'entry_page'  => $entry_values['entry_page'] ?? 1,
 			'fields'      => $fields,
 		);
 
