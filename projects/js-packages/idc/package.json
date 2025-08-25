@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "1.0.22",
+	"version": "1.0.23",
 	"description": "Jetpack Connection Component",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

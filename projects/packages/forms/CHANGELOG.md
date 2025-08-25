@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.5.0] - 2025-08-25
+### Added
+- Add optional country selector to Phone field. [#44635]
+- Add phone number validation on international phone number input. [#44854]
+- Add slider min/max labels. [#44834]
+- Preserve HTML IDs when processing feedback. [#44760]
+- Remove MailPoet integration feature flag. [#44831]
+- Show trash action alongside view action in list. [#44882]
+
+### Changed
+- Adjust slider field controls. [#44875]
+- Allow new fields in step container. [#44864]
+- Create form when inserting standalone slider field. [#44840]
+- Create new field below when pressing enter on Slider or Rating fields. [#44781]
+- Integrations: Adjust UI for opt-in toggle controls. [#44817]
+- Let MailPoet handle old/new form data. [#44930]
+- Remove call to unused font. [#44815]
+- Rename 'Stars Rating' to 'Stars rating field'. [#44880]
+- Reorganise shared lists of allowed inner blocks - core blocks. [#44879]
+- Update MailPoet to use Feedback class. [#44852]
+- Update slider default and step controls. [#44803]
+- Use the new Feedback class to save the feedback entries in a new format. [#44821]
+- Form step navigation button: Prevent wrapping of inner text. [#44926]
+- Update specificity and CSS on the site editor to match the frontend for forms. [#44802]
+- Update package dependencies. [#44899]
+
+### Fixed
+- Fix a case where fatal error might occur after form submission. [#44908]
+- Fix MailPoet markup console error. [#44916]
+- Fix null handling in `wp_style_engine_get_styles` to prevent PHP warnings. [#44827]
+- Fix radio button validation. [#44836]
+- Fix ratings field in small screens. [#44884]
+- Fix undefined array key "blockName" warning in contact form pre-render hook. [#44833]
+- Slider: Prevent JavaScript warning. [#44837]
+- Phone field: Fix styling inconsistencies. [#44850]
+
 ## [5.4.0] - 2025-08-18
 ### Added
 - Add slider field increment option. [#44782]
@@ -1443,6 +1479,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[5.5.0]: https://github.com/automattic/jetpack-forms/compare/v5.4.0...v5.5.0
 [5.4.0]: https://github.com/automattic/jetpack-forms/compare/v5.3.0...v5.4.0
 [5.3.0]: https://github.com/automattic/jetpack-forms/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/automattic/jetpack-forms/compare/v5.1.0...v5.2.0
