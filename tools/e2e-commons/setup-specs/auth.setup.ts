@@ -3,7 +3,7 @@
  */
 import { test as setup } from '../fixtures/base-test';
 
-setup( 'authenticate users', async ( { testUtils } ) => {
+setup( 'authenticate users', { tag: `@${ process.env.PROJECT_NAME }` }, async ( { testUtils } ) => {
 	await setup.step( 'authenticate local user', async () => {
 		await testUtils.authenticateUser( testUtils, testUtils.getSiteCredentials() );
 	} );
