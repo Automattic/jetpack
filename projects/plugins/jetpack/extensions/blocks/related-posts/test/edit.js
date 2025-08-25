@@ -73,13 +73,19 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 jest.mock( '../hooks/use-status-toggle' );
 
 jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
-useSelect.mockImplementation( cb => {
-	return cb( () => ( {
-		getCurrentPost: jest.fn().mockReturnValueOnce( currentPost ),
-		isFirstMultiSelectedBlock: jest.fn().mockReturnValueOnce( true ),
-		getMultiSelectedBlockClientIds: () => [],
-	} ) );
-} );
+
+const makeSelect =
+	( { inSiteEditor } = { inSiteEditor: false } ) =>
+	store => {
+		if ( store === 'core/edit-site' ) {
+			return inSiteEditor ? {} : undefined;
+		}
+		return {
+			getCurrentPost: jest.fn().mockReturnValue( currentPost ),
+			isFirstMultiSelectedBlock: jest.fn().mockReturnValue( true ),
+			getMultiSelectedBlockClientIds: () => [],
+		};
+	};
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
@@ -125,6 +131,8 @@ beforeEach( () => {
 		isFetchingStatus: false,
 		isUpdatingStatus: false,
 	} );
+
+	useSelect.mockImplementation( cb => cb( makeSelect( { inSiteEditor: false } ) ) );
 } );
 
 describe( 'RelatedPostsEdit', () => {
@@ -168,6 +176,18 @@ describe( 'RelatedPostsEdit', () => {
 			expect(
 				screen.getByText(
 					"Preview unavailable: you haven't published enough posts with similar content."
+				)
+			).toBeInTheDocument();
+		} );
+		test( 'loads and displays placeholder when there are not enough related posts within Site Editor context', () => {
+			useSelect.mockImplementation( cb => cb( makeSelect( { inSiteEditor: true } ) ) );
+			renderRelatedPosts( { postsToShow: 3 } );
+
+			expect( screen.getByText( 'Test Post One' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Test Post Two' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					'Preview unavailable in site editor. The post title will appear normally on your site.'
 				)
 			).toBeInTheDocument();
 		} );
