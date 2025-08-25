@@ -8,7 +8,6 @@ import {
 import { Path, SVG } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import metadata from './block.json';
@@ -31,7 +30,10 @@ function PlaceholderPostEdit( props ) {
 		>
 			<strong id={ props.id + '-heading' } className="jp-related-posts-i2__post-link">
 				{ props.isInSiteEditor
-					? __( 'Preview unavailable in site editor.', 'jetpack' )
+					? __(
+							'Preview unavailable in site editor. The post title will appear normally on your site.',
+							'jetpack'
+					  )
 					: __(
 							"Preview unavailable: you haven't published enough posts with similar content.",
 							'jetpack'
@@ -68,7 +70,7 @@ function PlaceholderPostEdit( props ) {
 
 			{ props.displayDate && (
 				<div className="jp-related-posts-i2__post-date has-small-font-size">
-					{ __( 'August 3, 2018', 'jetpack' ) }
+					{ __( 'August 3, 2025', 'jetpack' ) }
 				</div>
 			) }
 			{ props.displayAuthor && (
@@ -185,12 +187,7 @@ export default function RelatedPostsEdit( { attributes, setAttributes } ) {
 
 	const { posts, isLoading: isLoadingRelatedPosts } = useRelatedPosts( isEnabled );
 
-	const { isInSiteEditor } = useSelect( select => {
-		const currentPost = select( editorStore ).getCurrentPost();
-		return {
-			isInSiteEditor: ! currentPost || Object.keys( currentPost ).length === 0,
-		};
-	} );
+	const isInSiteEditor = useSelect( select => !! select( 'core/edit-site' ), [] );
 
 	const { instanceId } = useInstanceId( RelatedPostsEdit );
 
