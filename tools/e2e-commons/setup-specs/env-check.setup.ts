@@ -2,6 +2,7 @@
 import dns from 'dns/promises';
 import { test as setup, expect } from '../fixtures/base-test';
 import logger from '../logger';
+import { getCIProjectNameTestTag } from '../utils/formatting';
 
 /**
  * Helper function to run an expectation with polling measurement
@@ -32,7 +33,7 @@ async function retry(
 
 setup(
 	'verify environment readiness',
-	{ tag: `@CI_PROJECT: "${ process.env.PROJECT_NAME }"` },
+	{ tag: [ getCIProjectNameTestTag() ] },
 	async ( { baseURL, request } ) => {
 		// Skip connectivity checks for localhost URLs
 		if ( baseURL.includes( 'localhost' ) || baseURL.includes( '127.0.0.1' ) ) {
