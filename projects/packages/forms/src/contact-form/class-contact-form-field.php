@@ -985,7 +985,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$show_country_selector = $this->get_attribute( 'showcountryselector' );
 		$default_country       = $this->get_attribute( 'default' );
 
-		if ( ! $show_country_selector && ! $default_country ) {
+		if ( ! $show_country_selector ) {
 			// old telephone field treatment
 			$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
 			$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
