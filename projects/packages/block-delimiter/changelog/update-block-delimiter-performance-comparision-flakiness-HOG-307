@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Reduce flakiness of Block_Scanner performance comparison unit test
+
+
