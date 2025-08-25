@@ -32,14 +32,14 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 				// Handle chart-specific compound components (e.g., PieChart.SVG)
 				if ( displayName === `${ chartType }.SVG` || displayName === 'Chart.SVG' ) {
 					// Extract children from Chart.SVG with safety checks
-					if ( child.props.children != null ) {
+					if ( child.props?.children ) {
 						Children.forEach( child.props.children, svgChild => {
 							svg.push( svgChild );
 						} );
 					}
 				} else if ( displayName === `${ chartType }.HTML` || displayName === 'Chart.HTML' ) {
 					// Extract children from Chart.HTML with safety checks
-					if ( child.props.children != null ) {
+					if ( child.props?.children ) {
 						Children.forEach( child.props.children, htmlChild => {
 							html.push( htmlChild );
 						} );
