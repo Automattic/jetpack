@@ -42,9 +42,9 @@ export default function SliderFieldEdit( props ) {
 	}, [ defaultValue, defaultFocused ] );
 
 	const snapToStep = useCallback(
-		( val, stepSize ) => {
-			const clamped = Math.min( Math.max( val, min ), max );
-			return min + Math.round( ( clamped - min ) / stepSize ) * stepSize;
+		( val, stepSize, base = min ) => {
+			const clamped = Math.min( Math.max( val, base ), max );
+			return base + Math.round( ( clamped - base ) / stepSize ) * stepSize;
 		},
 		[ min, max ]
 	);
@@ -54,12 +54,13 @@ export default function SliderFieldEdit( props ) {
 			const parsedMin = parseInt( newMin ) || 0;
 			const validatedMin = Math.min( parsedMin, max );
 			const validatedDefault = Math.max( defaultValue, validatedMin );
+			const snappedDefault = snapToStep( validatedDefault, step, validatedMin );
 			setAttributes( {
 				min: validatedMin,
-				default: validatedDefault,
+				default: snappedDefault,
 			} );
 		},
-		[ max, defaultValue, setAttributes ]
+		[ max, defaultValue, step, setAttributes, snapToStep ]
 	);
 
 	const onChangeMax = useCallback(
