@@ -206,7 +206,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		// allow boolean values for showcountryselector, only if it's set so we don't pollute other fields attrs
 		if ( isset( $attributes['showcountryselector'] ) ) {
-			if ( '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
+			if ( true === $attributes['showcountryselector'] || '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
 				$attributes['showcountryselector'] = true;
 			} else {
 				$attributes['showcountryselector'] = false;
@@ -995,8 +995,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$this->enqueue_phone_field_assets();
 
+		$link_label_id = $id . '-number';
+
 		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-		$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
+		$label = $this->render_label( 'telephone', $link_label_id, $label, $required, $required_field_text );
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
@@ -1049,6 +1051,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						required="true"
 						aria-required="true"
 					<?php } ?>
+					id="<?php echo esc_attr( $link_label_id ); ?>"
+					name="<?php echo esc_attr( $link_label_id ); ?>"
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldHasErrors'
 					data-wp-bind--value='context.phoneNumber'
