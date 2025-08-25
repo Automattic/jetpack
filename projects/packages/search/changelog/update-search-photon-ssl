@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Images: properly pass SSL argument to Photon for sites with https enabled.

@@ -1413,7 +1413,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "9b494cec905766e4fa678c239792b3940e952f3e"
+                "reference": "5d4a4142720915e0dfef85d9966f274e40704ca9"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1445,7 +1445,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.4.x-dev"
+                    "dev-trunk": "5.5.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -2009,7 +2009,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "f0d31f93658c0edd3fe5c0fbac4b4e8112429e8d"
+                "reference": "1fdedf2e743790023c783c0b0102db549e38b686"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2048,7 +2048,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.23.x-dev"
+                    "dev-trunk": "5.24.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2164,7 +2164,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "04258ee66e0062b46432bed7fd5de358622dc1fe"
+                "reference": "f0368a2fca675efe3c32941fde51c2e09d5144c8"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2187,7 +2187,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"

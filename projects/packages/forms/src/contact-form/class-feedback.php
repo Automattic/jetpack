@@ -1233,7 +1233,7 @@ class Feedback {
 	/**
 	 * Get a field by its original form ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.5.0
 	 *
 	 * @param string $id Original form field ID.
 	 * @return Feedback_Field|null
@@ -1253,7 +1253,7 @@ class Feedback {
 	/**
 	 * Get a field render value by its original form ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.5.0
 	 *
 	 * @param string $id Original form field ID.
 	 * @param string $context Render context.

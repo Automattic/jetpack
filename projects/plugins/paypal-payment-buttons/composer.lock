@@ -526,7 +526,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "04258ee66e0062b46432bed7fd5de358622dc1fe"
+                "reference": "f0368a2fca675efe3c32941fde51c2e09d5144c8"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -549,7 +549,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"
