@@ -555,8 +555,7 @@ class Tiled_Gallery {
 				}
 			}
 
-			$content_parts[] = '</div>'; // Close clear:both container
-			$content_parts[] = '</div>'; // Close column
+			$content_parts[] = '</div></div>'; // Close clear:both container and column container
 		}
 
 		$content_parts[] = '</div>'; // Close main flex container
@@ -634,7 +633,7 @@ class Tiled_Gallery {
 				9 => array( 3, 3, 3 ),   // 9 images: 3 + 3 + 3
 			);
 
-			$pattern     = isset( $patterns[ $image_count ] ) ? $patterns[ $image_count ] : array( 3, 3, 3 );
+			$pattern     = $patterns[ $image_count ] ?? array( 3, 3, 3 );
 			$image_index = 0;
 
 			foreach ( $pattern as $images_in_row ) {
