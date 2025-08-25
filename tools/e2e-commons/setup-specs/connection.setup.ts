@@ -6,7 +6,7 @@ import logger from '../logger';
 
 test(
 	'connect site',
-	{ tag: [ `@CI_PROJECT: ${ process.env.PROJECT_NAME }` ] },
+	{ tag: [ `@CI_PROJECT: "${ process.env.PROJECT_NAME }"` ] },
 	async ( { testUtils } ) => {
 		// Used to ease development and debugging.
 		// Sometimes locally the site is already connected and we want to skip the connection rather than resetting the environment.

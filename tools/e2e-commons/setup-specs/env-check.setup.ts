@@ -32,7 +32,7 @@ async function retry(
 
 setup(
 	'verify environment readiness',
-	{ tag: `@CI_PROJECT: ${ process.env.PROJECT_NAME }` },
+	{ tag: `@CI_PROJECT: "${ process.env.PROJECT_NAME }"` },
 	async ( { baseURL, request, testUtils } ) => {
 		// Skip connectivity checks for localhost URLs
 		if ( baseURL.includes( 'localhost' ) || baseURL.includes( '127.0.0.1' ) ) {
