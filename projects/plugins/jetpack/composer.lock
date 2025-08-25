@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/block-delimiter",
-                "reference": "41dd424045497847c74751adbc9efa6063326b63"
+                "reference": "d22d4af194b81a0f9336ea03eb9d9ca65cbcf6bd"
             },
             "require": {
                 "php": ">=7.2"
@@ -43,6 +43,9 @@
                 ]
             },
             "autoload-dev": {
+                "classmap": [
+                    "tests/php/lib/"
+                ],
                 "psr-4": {
                     "Automattic\\Block_Delimiter\\Tests\\": "tests/php/"
                 }
