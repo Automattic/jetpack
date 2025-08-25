@@ -1758,8 +1758,8 @@ EOT;
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				$cat_link = get_category_link( $category );
-				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+				if ( $category instanceof WP_Term && 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+					$cat_link = get_category_link( $category );
 					return array(
 						'text' => trim( $category->name ),
 						'link' => $cat_link,
@@ -1814,7 +1814,7 @@ EOT;
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+				if ( $category instanceof WP_Term && 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
 					$post_cat_context = sprintf(
 						// Translators: The category or tag name.
 						esc_html_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
