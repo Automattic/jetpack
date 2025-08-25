@@ -321,6 +321,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_modern_view() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
 		// The menu slug might vary depending on language, but modern view is always a jetpack-forms page.
 		// See: https://a8c.slack.com/archives/C03TY6J1A/p1747148941583849
 		$page_hook_suffix = '_page_jetpack-forms';
@@ -338,6 +342,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_jetpack_forms_admin_page() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
 		$screen = get_current_screen();
 		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
 	}
