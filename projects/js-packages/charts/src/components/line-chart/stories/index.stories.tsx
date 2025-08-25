@@ -322,11 +322,10 @@ BrokenLine.args = {
 			...webTrafficData[ 0 ],
 			label: 'Vistors to compare',
 			options: {
-				...webTrafficData[ 0 ].options,
 				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
 			},
 		},
-		webTrafficData[ 1 ],
+		webTrafficData[ 0 ],
 	],
 	showLegend: true,
 };
