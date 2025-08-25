@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/block-delimiter",
-                "reference": "85f04d247da736ac8ac7e02729208c97c8721b3c"
+                "reference": "41dd424045497847c74751adbc9efa6063326b63"
             },
             "require": {
                 "php": ">=7.2"
@@ -41,6 +41,11 @@
                 "classmap": [
                     "src/"
                 ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Block_Delimiter\\Tests\\": "tests/php/"
+                }
             },
             "scripts": {
                 "phpunit": [
@@ -3539,16 +3544,16 @@
     "packages-dev": [
         {
             "name": "antecedent/patchwork",
-            "version": "2.2.1",
+            "version": "2.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/antecedent/patchwork.git",
-                "reference": "1bf183a3e1bd094f231a2128b9ecc5363c269245"
+                "reference": "724f03c777ddcc436ec2c8ecd4c97cdbceef8ab9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/1bf183a3e1bd094f231a2128b9ecc5363c269245",
-                "reference": "1bf183a3e1bd094f231a2128b9ecc5363c269245",
+                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/724f03c777ddcc436ec2c8ecd4c97cdbceef8ab9",
+                "reference": "724f03c777ddcc436ec2c8ecd4c97cdbceef8ab9",
                 "shasum": ""
             },
             "require": {
@@ -3581,9 +3586,9 @@
             ],
             "support": {
                 "issues": "https://github.com/antecedent/patchwork/issues",
-                "source": "https://github.com/antecedent/patchwork/tree/2.2.1"
+                "source": "https://github.com/antecedent/patchwork/tree/2.2.2"
             },
-            "time": "2024-12-11T10:19:54+00:00"
+            "time": "2025-08-12T16:59:40+00:00"
         },
         {
             "name": "automattic/jetpack-changelogger",
