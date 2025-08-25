@@ -1770,11 +1770,8 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				if ( ! $tag instanceof WP_Term ) {
-					continue;
-				}
-				$tag_link = get_tag_link( $tag );
-				if ( '' !== trim( $tag->name ) ) {
+				if ( $tag instanceof WP_Term && '' !== trim( $tag->name ) ) {
+					$tag_link = get_tag_link( $tag );
 					return array(
 						'text' => trim( $tag->name ),
 						'link' => $tag_link,
@@ -1841,10 +1838,7 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				if ( ! $tag instanceof WP_Term ) {
-					continue;
-				}
-				if ( '' !== trim( $tag->name ) ) {
+				if ( $tag instanceof WP_Term && '' !== trim( $tag->name ) ) {
 					$post_tag_context = sprintf(
 						// Translators: the category or tag name.
 						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
