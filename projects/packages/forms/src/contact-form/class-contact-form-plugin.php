@@ -510,6 +510,9 @@ class Contact_Form_Plugin {
 				// This input is exclusively used by the new telephone field.
 				if ( 'jetpack/phone-input' === $block_name ) {
 					$atts['placeholder'] = $inner_block['attrs']['placeholder'] ?? '';
+					if ( ! isset( $atts['showcountryselector'] ) || ! $atts['showcountryselector'] ) {
+						unset( $atts['default'] );
+					}
 
 					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
 						unset( $atts['default'] );

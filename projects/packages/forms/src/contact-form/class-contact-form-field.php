@@ -210,6 +210,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$attributes['showcountryselector'] = true;
 			} else {
 				$attributes['showcountryselector'] = false;
+				// phone uses default for country selector, so unset it
+				unset( $attributes['default'] );
 			}
 		}
 
