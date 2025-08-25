@@ -1770,6 +1770,9 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
+				if ( ! $tag instanceof WP_Term ) {
+					continue;
+				}
 				$tag_link = get_tag_link( $tag );
 				if ( '' !== trim( $tag->name ) ) {
 					return array(
@@ -1838,6 +1841,9 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
+				if ( ! $tag instanceof WP_Term ) {
+					continue;
+				}
 				if ( '' !== trim( $tag->name ) ) {
 					$post_tag_context = sprintf(
 						// Translators: the category or tag name.
