@@ -16,7 +16,6 @@ const reporter: ReporterDescription[] = [
 			suiteTitle: false,
 		},
 	],
-	[ `${ rootPath }/reporters/suite-fixer.ts` ],
 ];
 
 if ( process.env.CI ) {
