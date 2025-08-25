@@ -1,3 +1,4 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 // grunion-field-wrap is a backwards compat class,
 //need to remove this generic classes
 // *-wrap classes are helpers added by backend
@@ -17,14 +18,20 @@
 
 		.jetpack-field__input-prefix:not([hidden]) {
 			display: flex;
-			max-width: 40%;
+			width: 40%;
 
 			.jetpack-field__input-element {
-				max-width: 100%;
+
+				@media (max-width: #{ (gb.$break-mobile) }) {
+
+					max-width: calc(gb.$break-mobile / 3);
+				}
+				width: 100%;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
 		}
+
 
 		.jetpack-field__input-element {
 			border: 0;
