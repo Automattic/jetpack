@@ -12,6 +12,8 @@ export { sampleData as leaderboardSample } from '../../components/leaderboard-ch
 export { sampleFunnelData } from '../../components/conversion-funnel-chart/stories/sample-data';
 export { salesByChannel as barListSample } from '../../components/bar-list-chart/stories/sample-data';
 
+import type { SampleDataConfig, DatasetCategory } from './types';
+
 // Export types for external use
 export type {
 	DatasetCategory,
@@ -19,7 +21,6 @@ export type {
 	ExtendedSampleDataConfig,
 	DataQuality,
 } from './types';
-import type { SampleDataConfig, DatasetCategory } from './types';
 
 /**
  * Registry of all available sample datasets with metadata

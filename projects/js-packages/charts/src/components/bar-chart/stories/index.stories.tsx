@@ -157,7 +157,7 @@ export const WithPatterns: Story = {
 	args: {
 		...Default.args,
 		withPatterns: true,
-		data: data.map( country => {
+		data: Default.args.data.map( country => {
 			return {
 				...country,
 				data: country.data.filter( d => parseInt( d.label ) >= 2016 ),
@@ -260,7 +260,7 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 export const CustomLegendPositioning: Story = {
 	args: {
 		withTooltips: true,
-		data: data.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		data: olympicMedals.slice( 0, 3 ), // Use first 3 series for cleaner legend
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
