@@ -249,11 +249,11 @@ class Tiled_Gallery {
 		// Determine target width from the email layout if available
 		$target_width = self::get_email_target_width( $rendering_context );
 
-		// Determine layout style from className
-		$layout_style = self::get_layout_style_from_attributes( $attr );
+		// Determine layout style and columns from attributes
+		$layout_info = self::get_layout_style_from_attributes( $attr );
 
-		// Build layout content based on style
-		$grid_content = self::build_email_layout_content( $images, $layout_style, $target_width, $email_cell_padding );
+		// Build layout content based on style and columns
+		$grid_content = self::build_email_layout_content( $images, $layout_info, $target_width, $email_cell_padding );
 
 		// Use Table_Wrapper_Helper for consistent email rendering
 		$image_table_attrs = array(
@@ -309,7 +309,26 @@ class Tiled_Gallery {
 					continue;
 				}
 
-				$image_url = wp_get_attachment_image_url( $id, 'medium' );
+				// For square/circle layouts, get a high-quality square crop
+				if ( isset( $attr['className'] ) &&
+					( str_contains( $attr['className'], 'is-style-square' ) ||
+						str_contains( $attr['className'], 'is-style-circle' ) ) ) {
+					// Start with full size image for better quality when resizing
+					$image_url = wp_get_attachment_image_url( $id, 'full' );
+
+					// If we have Photon/Jetpack image processing, request high-quality square crop
+					if ( function_exists( 'jetpack_photon_url' ) && $image_url ) {
+						$image_url = add_query_arg(
+							array(
+								'resize' => '1300,1300',
+								'crop'   => '1',
+							),
+							$image_url
+						);
+					}
+				} else {
+					$image_url = wp_get_attachment_image_url( $id, 'large' );
+				}
 
 				// Sanitize alt text from post meta
 				$alt_text = get_post_meta( $id, '_wp_attachment_image_alt', true );
@@ -352,40 +371,56 @@ class Tiled_Gallery {
 	}
 
 	/**
-	 * Get layout style from block attributes.
+	 * Get layout style and columns from block attributes.
 	 *
 	 * @param array $attr Block attributes.
-	 * @return string Layout style.
+	 * @return array Array with 'style' and 'columns' keys.
 	 */
 	private static function get_layout_style_from_attributes( $attr ) {
+		$layout_info = array(
+			'style'   => 'rectangular', // Default to rectangular/mosaic layout
+			'columns' => 3, // Default to 3 columns
+		);
+
+		// Get number of columns from attributes
+		if ( ! empty( $attr['columns'] ) && is_numeric( $attr['columns'] ) ) {
+			$layout_info['columns'] = absint( $attr['columns'] );
+		}
+
+		// Get layout style from className
 		if ( ! empty( $attr['className'] ) ) {
 			if ( str_contains( $attr['className'], 'is-style-square' ) ) {
-				return 'square';
+				$layout_info['style'] = 'square';
 			} elseif ( str_contains( $attr['className'], 'is-style-circle' ) ) {
-				return 'circle';
+				$layout_info['style'] = 'circle';
 			} elseif ( str_contains( $attr['className'], 'is-style-columns' ) ) {
-				return 'columns';
+				$layout_info['style'] = 'columns';
 			}
 		}
-		return 'rectangular'; // Default to rectangular/mosaic layout
+
+		return $layout_info;
 	}
 
 	/**
-	 * Build email layout content based on layout style.
+	 * Build email layout content based on layout style and columns.
 	 *
-	 * @param array  $images Array of image data.
-	 * @param string $layout_style Layout style (rectangular, square, circle, columns).
-	 * @param int    $target_width Target width for email.
-	 * @param int    $cell_padding Cell padding.
+	 * @param array $images Array of image data.
+	 * @param array $layout_info Array with 'style' and 'columns' keys.
+	 * @param int   $target_width Target width for email.
+	 * @param int   $cell_padding Cell padding.
 	 * @return string HTML content.
 	 */
-	private static function build_email_layout_content( $images, $layout_style, $target_width, $cell_padding ) {
+	private static function build_email_layout_content( $images, $layout_info, $target_width, $cell_padding ) {
+		$layout_style = $layout_info['style'];
+		$columns      = $layout_info['columns'];
+
 		switch ( $layout_style ) {
 			case 'square':
+				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'square' );
 			case 'circle':
-				return self::build_square_layout_content( $images, $target_width, $cell_padding );
+				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'circle' );
 			case 'columns':
-				return self::build_columns_layout_content( $images, $target_width, $cell_padding );
+				return self::build_columns_layout_content( $images, $target_width, $cell_padding, $columns );
 			case 'rectangular':
 			default:
 				return self::build_mosaic_layout_content( $images, $target_width, $cell_padding );
@@ -395,46 +430,78 @@ class Tiled_Gallery {
 	/**
 	 * Build square/circle layout content.
 	 *
-	 * @param array $images Array of image data.
-	 * @param int   $target_width Target width for email.
-	 * @param int   $cell_padding Cell padding.
+	 * @param array  $images Array of image data.
+	 * @param int    $target_width Target width for email.
+	 * @param int    $cell_padding Cell padding.
+	 * @param int    $columns Number of columns for the layout.
+	 * @param string $style Layout style (square or circle).
 	 * @return string HTML content.
 	 */
-	private static function build_square_layout_content( $images, $target_width, $cell_padding ) {
-		$columns = 3; // Default to 3 columns for square layout
+	private static function build_square_layout_content( $images, $target_width, $cell_padding, $columns, $style = 'square' ) {
 
 		$grid_content  = '<div style="margin-bottom:24px;clear:both;text-align:center;margin:0 auto;padding:4px;background-color:white">';
 		$grid_content .= '<div style="margin-bottom:24px">';
 		$grid_content .= '<div style="margin-bottom:24px;padding:0;width:100%;display:block">';
 
-		// Create rows of images
-		$image_chunks = array_chunk( $images, $columns );
+		// Create rows of images with special handling for square/circle layouts
+		if ( $style === 'square' || $style === 'circle' ) {
+			$image_chunks = self::create_hierarchical_chunks( $images, $columns );
+		} else {
+			$image_chunks = array_chunk( $images, $columns );
+		}
 
-		foreach ( $image_chunks as $index => $row_images ) {
-			$margin_bottom = ( $index < count( $image_chunks ) - 1 ) ? $cell_padding : '0';
-			$grid_content .= '<div style="margin-bottom:' . $margin_bottom . 'px;display:flex;margin:0;width:100%;max-width:100%;box-sizing:border-box">';
+		foreach ( $image_chunks as $row_images ) {
+			// Create row container (like the working HTML)
+			$grid_content .= '<div style="margin-bottom:' . $cell_padding . 'px;display:flex;width:100%">';
 
 			foreach ( $row_images as $image_index => $image ) {
-				$margin_right  = ( $image_index < count( $row_images ) - 1 ) ? $cell_padding : '0';
-				$flex_basis    = ( 100 / $columns ) . '%';
-				$grid_content .= '<div style="margin:0;margin-right:' . $margin_right . 'px;flex:0 0 ' . $flex_basis . ';display:flex;max-width:' . $flex_basis . ';box-sizing:border-box">';
-				$grid_content .= '<figure style="margin:0;overflow:hidden;padding:0;display:flex;width:100%;aspect-ratio:1;box-sizing:border-box">';
+				// Calculate explicit width to ensure proper layout in email clients
+				$images_in_row = count( $row_images );
 
-				// Build individual image content
-				$grid_content .= sprintf(
-					'<img src="%s" alt="%s" style="border:none;background-color:#0000001a;display:block;height:auto;margin:0;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:100%%;box-sizing:border-box" />',
-					esc_url( $image['url'] ),
-					esc_attr( $image['alt'] )
-				);
+				if ( $images_in_row === 1 ) {
+					// Single image takes full width
+					$width_style = 'width:100%';
+				} else {
+					$total_margin_width  = ( $images_in_row - 1 ) * $cell_padding;
+					$image_width_percent = ( 100 / $images_in_row );
+					$width_style         = 'width:calc(' . $image_width_percent . '% - ' . ( $total_margin_width / $images_in_row ) . 'px)';
+				}
+
+				// Add margin-right to all but last image in row
+				$margin_right = ( $image_index < count( $row_images ) - 1 ) ? 'margin-right:' . $cell_padding . 'px;' : '';
+
+				// Add border-radius for circle style
+				$border_radius = ( $style === 'circle' ) ? 'border-radius:50%' : '';
+
+				// Use simple structure - images are pre-cropped to squares for square/circle styles
+				$grid_content .= '<div style="margin-bottom:24px;display:flex;margin:0;' . $width_style . ';' . $margin_right . '">';
+				$grid_content .= '<figure style="margin:0;overflow:hidden;padding:0">';
+
+				// Build individual image content with conditional styling for single vs multiple
+				if ( $images_in_row === 1 ) {
+					// Single image - centered with natural sizing
+					$grid_content .= sprintf(
+						'<img alt="%s" src="%s" style="border:none;margin-bottom:24px;background-color:#0000001a;display:block;height:auto;margin:0 auto;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:auto;%s" />',
+						esc_attr( $image['alt'] ),
+						esc_url( $image['url'] ),
+						$border_radius
+					);
+				} else {
+					// Multiple images - fill container width
+					$grid_content .= sprintf(
+						'<img alt="%s" src="%s" style="border:none;margin-bottom:24px;background-color:#0000001a;display:block;height:auto;margin:0;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:100%%;%s" />',
+						esc_attr( $image['alt'] ),
+						esc_url( $image['url'] ),
+						$border_radius
+					);
+				}
 
 				$grid_content .= '</figure>';
 				$grid_content .= '</div>';
 			}
 
-			$grid_content .= '</div>';
+			$grid_content .= '</div>'; // Close row container
 		}
-
-		$grid_content .= '</div>';
 		$grid_content .= '</div>';
 		$grid_content .= '</div>';
 
@@ -447,10 +514,10 @@ class Tiled_Gallery {
 	 * @param array $images Array of image data.
 	 * @param int   $target_width Target width for email.
 	 * @param int   $cell_padding Cell padding.
+	 * @param int   $columns Number of columns for the layout.
 	 * @return string HTML content.
 	 */
-	private static function build_columns_layout_content( $images, $target_width, $cell_padding ) {
-		$columns = 3; // Default to 3 columns
+	private static function build_columns_layout_content( $images, $target_width, $cell_padding, $columns ) {
 
 		$grid_content  = '<div style="margin-bottom:24px;clear:both;text-align:center;margin:0 auto;padding:4px;background-color:white">';
 		$grid_content .= '<div style="margin-bottom:24px">';
@@ -464,9 +531,15 @@ class Tiled_Gallery {
 			$grid_content .= '<div style="margin-bottom:' . $margin_bottom . 'px;display:flex;margin:0;width:100%;max-width:100%;box-sizing:border-box">';
 
 			foreach ( $row_images as $image_index => $image ) {
-				$margin_right  = ( $image_index < count( $row_images ) - 1 ) ? $cell_padding : '0';
-				$flex_basis    = ( 100 / $columns ) . '%';
-				$grid_content .= '<div style="margin:0;margin-right:' . $margin_right . 'px;flex:0 0 ' . $flex_basis . ';display:flex;max-width:' . $flex_basis . ';box-sizing:border-box">';
+				$margin_right = ( $image_index < count( $row_images ) - 1 ) ? $cell_padding : '0';
+
+				// Calculate explicit width to ensure proper layout in email clients
+				$images_in_row       = count( $row_images );
+				$total_margin_width  = ( $images_in_row - 1 ) * $cell_padding;
+				$image_width_percent = ( 100 / $images_in_row );
+				$width_style         = 'width:calc(' . $image_width_percent . '% - ' . ( $total_margin_width / $images_in_row ) . 'px);';
+
+				$grid_content .= '<div style="margin:0;margin-right:' . $margin_right . 'px;' . $width_style . 'display:flex;min-width:0;box-sizing:border-box">';
 				$grid_content .= '<figure style="margin:0;overflow:hidden;padding:0;display:flex;width:100%;box-sizing:border-box">';
 
 				// Build individual image content
@@ -597,6 +670,45 @@ class Tiled_Gallery {
 		}
 
 		return $rows;
+	}
+
+	/**
+	 * Create hierarchical chunks for square/circle layouts with larger items first.
+	 *
+	 * @param array $images Array of image data.
+	 * @param int   $columns Number of columns for the layout.
+	 * @return array Array of rows with different sized chunks.
+	 */
+	private static function create_hierarchical_chunks( $images, $columns ) {
+		$image_count = count( $images );
+		$chunks      = array();
+
+		if ( $image_count <= $columns ) {
+			// For column count or fewer, single row
+			$chunks[] = $images;
+		} else {
+			// Calculate remainder when dividing by columns
+			$remainder   = $image_count % $columns;
+			$start_index = 0;
+
+			if ( $remainder === 1 ) {
+				// 1 extra: 1 large image on top
+				$chunks[]    = array_slice( $images, 0, 1 );
+				$start_index = 1;
+			} elseif ( $remainder === 2 ) {
+				// 2 extra: 2 medium images on top
+				$chunks[]    = array_slice( $images, 0, 2 );
+				$start_index = 2;
+			}
+			// If remainder === 0, start_index stays 0
+
+			// Rest in groups of $columns
+			$remaining        = array_slice( $images, $start_index );
+			$remaining_chunks = array_chunk( $remaining, $columns );
+			$chunks           = array_merge( $chunks, $remaining_chunks );
+		}
+
+		return $chunks;
 	}
 }
 
