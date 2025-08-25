@@ -1139,7 +1139,7 @@ class Feedback_Test extends BaseTestCase {
 		);
 
 		$expected_file = array(
-			'field_id' => 'g2376-1-uploadafile',
+			'field_id' => 'g' . $form_id . '-uploadafile',
 			'files'    => array(
 				array(
 					'file_id' => 54321,
