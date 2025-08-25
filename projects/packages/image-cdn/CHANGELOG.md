@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.18] - 2025-08-25
 ### Fixed
-- Prevent an error when an attempting to filter null. [#44874]
+- Prevent an error when attempting to filter null. [#44874]
 
 ## [0.7.17] - 2025-08-18
 ### Fixed
