@@ -9,7 +9,7 @@ import {
 	SeriesData,
 	ThemeProvider,
 } from '../../../.';
-import barSampleData from '../../../components/bar-chart/stories/sample-data';
+import { olympicMedals as barSampleData } from '../../../stories/sample-data';
 import { jetpackTheme, wooTheme } from '../../theme/themes';
 import { GlobalChartsProvider } from '../global-charts-provider';
 
