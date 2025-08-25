@@ -374,12 +374,13 @@ class Tiled_Gallery {
 	 * Get layout style and columns from block attributes.
 	 *
 	 * @param array $attr Block attributes.
-	 * @return array Array with 'style' and 'columns' keys.
+	 * @return array Array with 'style', 'columns', and 'border_radius' keys.
 	 */
 	private static function get_layout_style_from_attributes( $attr ) {
 		$layout_info = array(
-			'style'   => 'rectangular', // Default to rectangular/mosaic layout
-			'columns' => 3, // Default to 3 columns
+			'style'         => 'rectangular', // Default to rectangular/mosaic layout
+			'columns'       => 3, // Default to 3 columns
+			'border_radius' => 0, // Default to no border radius
 		);
 
 		// Get number of columns from attributes
@@ -387,7 +388,14 @@ class Tiled_Gallery {
 			$layout_info['columns'] = absint( $attr['columns'] );
 		}
 
-		// Get layout style from className
+		// Get border radius from roundedCorners attribute (preferred method)
+		if ( ! empty( $attr['roundedCorners'] ) && is_numeric( $attr['roundedCorners'] ) ) {
+			$border_radius_value = absint( $attr['roundedCorners'] );
+			// Clamp value between 0 and 20
+			$layout_info['border_radius'] = max( 0, min( 20, $border_radius_value ) );
+		}
+
+		// Get layout style and border radius from className
 		if ( ! empty( $attr['className'] ) ) {
 			if ( str_contains( $attr['className'], 'is-style-square' ) ) {
 				$layout_info['style'] = 'square';
@@ -395,6 +403,13 @@ class Tiled_Gallery {
 				$layout_info['style'] = 'circle';
 			} elseif ( str_contains( $attr['className'], 'is-style-columns' ) ) {
 				$layout_info['style'] = 'columns';
+			}
+
+			// Extract border radius from has-rounded-corners-{value} class (fallback method)
+			if ( $layout_info['border_radius'] === 0 && preg_match( '/has-rounded-corners-(\d+)/', $attr['className'], $matches ) ) {
+				$border_radius_value = absint( $matches[1] );
+				// Clamp value between 0 and 20
+				$layout_info['border_radius'] = max( 0, min( 20, $border_radius_value ) );
 			}
 		}
 
@@ -411,19 +426,20 @@ class Tiled_Gallery {
 	 * @return string HTML content.
 	 */
 	private static function build_email_layout_content( $images, $layout_info, $target_width, $cell_padding ) {
-		$layout_style = $layout_info['style'];
-		$columns      = $layout_info['columns'];
+		$layout_style  = $layout_info['style'];
+		$columns       = $layout_info['columns'];
+		$border_radius = $layout_info['border_radius'];
 
 		switch ( $layout_style ) {
 			case 'square':
-				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'square' );
+				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'square', $border_radius );
 			case 'circle':
-				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'circle' );
+				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'circle', $border_radius );
 			case 'columns':
-				return self::build_columns_layout_content( $images, $target_width, $cell_padding, $columns );
+				return self::build_columns_layout_content( $images, $target_width, $cell_padding, $columns, $border_radius );
 			case 'rectangular':
 			default:
-				return self::build_mosaic_layout_content( $images, $target_width, $cell_padding );
+				return self::build_mosaic_layout_content( $images, $target_width, $cell_padding, $border_radius );
 		}
 	}
 
@@ -435,9 +451,10 @@ class Tiled_Gallery {
 	 * @param int    $cell_padding Cell padding.
 	 * @param int    $columns Number of columns for the layout.
 	 * @param string $style Layout style (square or circle).
+	 * @param int    $border_radius Border radius value (0-20).
 	 * @return string HTML content.
 	 */
-	private static function build_square_layout_content( $images, $target_width, $cell_padding, $columns, $style = 'square' ) {
+	private static function build_square_layout_content( $images, $target_width, $cell_padding, $columns, $style = 'square', $border_radius = 0 ) {
 
 		$grid_content  = '<div style="margin-bottom:24px;clear:both;text-align:center;margin:0 auto;padding:4px;background-color:white">';
 		$grid_content .= '<div style="margin-bottom:24px">';
@@ -470,8 +487,13 @@ class Tiled_Gallery {
 				// Add margin-right to all but last image in row
 				$margin_right = ( $image_index < count( $row_images ) - 1 ) ? 'margin-right:' . $cell_padding . 'px;' : '';
 
-				// Add border-radius for circle style
-				$border_radius = ( $style === 'circle' ) ? 'border-radius:50%' : '';
+				// Add border-radius for circle style or rounded corners
+				$border_radius_style = '';
+				if ( $style === 'circle' ) {
+					$border_radius_style = 'border-radius:50%';
+				} elseif ( $border_radius > 0 ) {
+					$border_radius_style = 'border-radius:' . $border_radius . 'px';
+				}
 
 				// Use simple structure - images are pre-cropped to squares for square/circle styles
 				$grid_content .= '<div style="margin-bottom:24px;display:flex;margin:0;' . $width_style . ';' . $margin_right . '">';
@@ -484,7 +506,7 @@ class Tiled_Gallery {
 						'<img alt="%s" src="%s" style="border:none;margin-bottom:24px;background-color:#0000001a;display:block;height:auto;margin:0 auto;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:auto;%s" />',
 						esc_attr( $image['alt'] ),
 						esc_url( $image['url'] ),
-						$border_radius
+						$border_radius_style
 					);
 				} else {
 					// Multiple images - fill container width
@@ -492,7 +514,7 @@ class Tiled_Gallery {
 						'<img alt="%s" src="%s" style="border:none;margin-bottom:24px;background-color:#0000001a;display:block;height:auto;margin:0;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:100%%;%s" />',
 						esc_attr( $image['alt'] ),
 						esc_url( $image['url'] ),
-						$border_radius
+						$border_radius_style
 					);
 				}
 
@@ -509,53 +531,83 @@ class Tiled_Gallery {
 	}
 
 	/**
-	 * Build columns layout content.
+	 * Build columns layout content using mosaic logic organized into columns.
 	 *
 	 * @param array $images Array of image data.
 	 * @param int   $target_width Target width for email.
 	 * @param int   $cell_padding Cell padding.
 	 * @param int   $columns Number of columns for the layout.
+	 * @param int   $border_radius Border radius value (0-20).
 	 * @return string HTML content.
 	 */
-	private static function build_columns_layout_content( $images, $target_width, $cell_padding, $columns ) {
+	private static function build_columns_layout_content( $images, $target_width, $cell_padding, $columns, $border_radius = 0 ) {
 
 		$grid_content  = '<div style="margin-bottom:24px;clear:both;text-align:center;margin:0 auto;padding:4px;background-color:white">';
 		$grid_content .= '<div style="margin-bottom:24px">';
 		$grid_content .= '<div style="margin-bottom:24px;padding:0;width:100%;display:block">';
 
-		// Create rows of images
-		$image_chunks = array_chunk( $images, $columns );
+		// Use simple div approach with display:flex for horizontal layout
+		$grid_content .= '<div style="margin-bottom:24px;display:flex;margin:0;width:100%">';
 
-		foreach ( $image_chunks as $index => $row_images ) {
-			$margin_bottom = ( $index < count( $image_chunks ) - 1 ) ? $cell_padding : '0';
-			$grid_content .= '<div style="margin-bottom:' . $margin_bottom . 'px;display:flex;margin:0;width:100%;max-width:100%;box-sizing:border-box">';
-
-			foreach ( $row_images as $image_index => $image ) {
-				$margin_right = ( $image_index < count( $row_images ) - 1 ) ? $cell_padding : '0';
-
-				// Calculate explicit width to ensure proper layout in email clients
-				$images_in_row       = count( $row_images );
-				$total_margin_width  = ( $images_in_row - 1 ) * $cell_padding;
-				$image_width_percent = ( 100 / $images_in_row );
-				$width_style         = 'width:calc(' . $image_width_percent . '% - ' . ( $total_margin_width / $images_in_row ) . 'px);';
-
-				$grid_content .= '<div style="margin:0;margin-right:' . $margin_right . 'px;' . $width_style . 'display:flex;min-width:0;box-sizing:border-box">';
-				$grid_content .= '<figure style="margin:0;overflow:hidden;padding:0;display:flex;width:100%;box-sizing:border-box">';
-
-				// Build individual image content
-				$grid_content .= sprintf(
-					'<img src="%s" alt="%s" style="border:none;background-color:#0000001a;display:block;height:auto;margin:0;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:100%%;box-sizing:border-box" />',
-					esc_url( $image['url'] ),
-					esc_attr( $image['alt'] )
-				);
-
-				$grid_content .= '</figure>';
-				$grid_content .= '</div>';
-			}
-
-			$grid_content .= '</div>';
+		// Distribute images across columns using round-robin approach for better balance
+		$column_arrays = array_fill( 0, $columns, array() );
+		foreach ( $images as $index => $image ) {
+			$column_index                     = $index % $columns;
+			$column_arrays[ $column_index ][] = $image;
 		}
 
+		// Prepare border radius style
+		$border_radius_style = $border_radius > 0 ? 'border-radius:' . $border_radius . 'px;' : '';
+
+		foreach ( $column_arrays as $col_index => $column_images ) {
+			if ( empty( $column_images ) ) {
+				continue;
+			}
+
+			// Add margin-right to all columns except the last
+			$column_margin = ( $col_index < $columns - 1 ) ? 'margin-right:' . $cell_padding . 'px;' : '';
+
+			// Create column container using display:flex for the outer horizontal layout
+			$grid_content .= '<div style="margin-bottom:24px;display:flex;margin:0;' . $column_margin . '">';
+			$grid_content .= '<div style="margin-bottom:24px;clear:both">';
+
+			// Generate mosaic-style groupings within this column
+			$column_rows = self::generate_column_mosaic_rows( $column_images );
+
+			foreach ( $column_rows as $row_index => $row_images ) {
+				// Add margin-top for spacing between images in the column (except first)
+				$margin_top_style = ( $row_index > 0 ) ? 'margin-top:' . $cell_padding . 'px;' : '';
+
+				if ( count( $row_images ) === 1 ) {
+					// Single image - use clear:both for vertical stacking
+					$grid_content .= '<figure style="margin:0;overflow:hidden;padding:0;display:flex;' . $margin_top_style . '">';
+					$grid_content .= sprintf(
+						'<img src="%s" alt="%s" style="border:none;margin-bottom:24px;background-color:#0000001a;display:block;height:auto;margin:0;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:100%%;%s" />',
+						esc_url( $row_images[0]['url'] ),
+						esc_attr( $row_images[0]['alt'] ),
+						$border_radius_style
+					);
+					$grid_content .= '</figure>';
+				} else {
+					// Multiple images in a horizontal row - not typical for columns layout but handle it
+					foreach ( $row_images as $image ) {
+						$grid_content .= '<figure style="margin:0;overflow:hidden;padding:0;display:flex;' . $margin_top_style . '">';
+						$grid_content .= sprintf(
+							'<img src="%s" alt="%s" style="border:none;margin-bottom:24px;background-color:#0000001a;display:block;height:auto;margin:0;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:100%%;%s" />',
+							esc_url( $image['url'] ),
+							esc_attr( $image['alt'] ),
+							$border_radius_style
+						);
+						$grid_content .= '</figure>';
+					}
+				}
+			}
+
+			$grid_content .= '</div>'; // Close clear:both container
+			$grid_content .= '</div>'; // Close column
+		}
+
+		$grid_content .= '</div>'; // Close main flex container
 		$grid_content .= '</div>';
 		$grid_content .= '</div>';
 		$grid_content .= '</div>';
@@ -569,12 +621,16 @@ class Tiled_Gallery {
 	 * @param array $images Array of image data.
 	 * @param int   $target_width Target width for email.
 	 * @param int   $cell_padding Cell padding.
+	 * @param int   $border_radius Border radius value (0-20).
 	 * @return string HTML content.
 	 */
-	private static function build_mosaic_layout_content( $images, $target_width, $cell_padding ) {
+	private static function build_mosaic_layout_content( $images, $target_width, $cell_padding, $border_radius = 0 ) {
 		$grid_content  = '<div style="margin-bottom:24px;clear:both;text-align:center;margin:0 auto;padding:4px;background-color:white">';
 		$grid_content .= '<div style="margin-bottom:24px">';
 		$grid_content .= '<div style="margin-bottom:24px;padding:0;width:100%;display:block">';
+
+		// Prepare border radius style
+		$border_radius_style = $border_radius > 0 ? 'border-radius:' . $border_radius . 'px;' : '';
 
 		// Generate mosaic layout rows
 		$rows = self::generate_mosaic_rows( $images, $target_width, $cell_padding );
@@ -601,9 +657,10 @@ class Tiled_Gallery {
 
 				// Build individual image content
 				$grid_content .= sprintf(
-					'<img alt="%s" src="%s" style="border:none;background-color:#0000001a;display:block;height:auto;margin:0;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:100%%;box-sizing:border-box" />',
+					'<img alt="%s" src="%s" style="border:none;background-color:#0000001a;display:block;height:auto;margin:0;max-width:100%%;object-fit:cover;object-position:center;padding:0;width:100%%;box-sizing:border-box;%s" />',
 					esc_attr( $image['alt'] ),
-					esc_url( $image['url'] )
+					esc_url( $image['url'] ),
+					$border_radius_style
 				);
 
 				$grid_content .= '</figure>';
@@ -665,6 +722,58 @@ class Tiled_Gallery {
 				$remaining = array_slice( $images, $image_index );
 				if ( ! empty( $remaining ) ) {
 					$rows[] = $remaining;
+				}
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Generate mosaic-style rows within a single column for columns layout.
+	 *
+	 * @param array $images Array of image data for this column.
+	 * @return array Array of rows, each containing 1-2 images for variety.
+	 */
+	private static function generate_column_mosaic_rows( $images ) {
+		$rows        = array();
+		$image_count = count( $images );
+
+		if ( $image_count <= 2 ) {
+			// For 2 or fewer images, each gets its own row
+			foreach ( $images as $image ) {
+				$rows[] = array( $image );
+			}
+		} else {
+			// Create varied patterns: mix of single and paired images
+			$image_index = 0;
+
+			while ( $image_index < $image_count ) {
+				$remaining = $image_count - $image_index;
+
+				if ( $remaining === 1 ) {
+					// Last image - single row
+					$rows[] = array( $images[ $image_index ] );
+					++$image_index;
+				} elseif ( $remaining === 3 ) {
+					// 3 remaining - do 1 + 2 for better balance
+					$rows[] = array( $images[ $image_index ] );
+					++$image_index;
+					$rows[]       = array( $images[ $image_index ], $images[ $image_index + 1 ] );
+					$image_index += 2;
+				} else {
+					// 2 or more remaining - alternate between single and pairs
+					$use_pair = ( count( $rows ) % 2 === 1 ); // Alternate pattern
+
+					if ( $use_pair && $remaining >= 2 ) {
+						// Create a pair
+						$rows[]       = array( $images[ $image_index ], $images[ $image_index + 1 ] );
+						$image_index += 2;
+					} else {
+						// Single image
+						$rows[] = array( $images[ $image_index ] );
+						++$image_index;
+					}
 				}
 			}
 		}
