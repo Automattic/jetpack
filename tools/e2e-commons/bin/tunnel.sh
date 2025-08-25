@@ -68,31 +68,47 @@ function health_check() {
 	
 	echo "✗ Tunnel failed to respond with 200 or 301 after $max_attempts attempts"
 	echo "Note: This may be normal if the tunnel takes longer to become available"
-	# Return success to allow test suite to run - environment readiness checks will catch tunnel issues later. 
-	# We want tests to run so that these issues are caught in test reports.
-	return 0
+	return 1
 }
 
 function up() {
-	down
-	local tunnel_output
-	if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
-		tunnel_output=$(node "$BASE_DIR"/cloudflaretunnel.js on "$@" 2>&1)
-	else
-		tunnel_output=$(node "$BASE_DIR"/localtunnel.js on "$@" 2>&1)
-	fi
+	local retry_count=0
+	local max_retries=1
 	
-	echo "$tunnel_output"
+	while [ $retry_count -le $max_retries ]; do
+		if [ $retry_count -gt 0 ]; then
+			echo "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
+		fi
+		
+		down
+		local tunnel_output
+		if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
+			tunnel_output=$(node "$BASE_DIR"/cloudflaretunnel.js on "$@" 2>&1)
+		else
+			tunnel_output=$(node "$BASE_DIR"/localtunnel.js on "$@" 2>&1)
+		fi
+		
+		echo "$tunnel_output"
+		
+		# Extract tunnel URL from the startup output
+		local tunnel_url
+		tunnel_url=$(echo "$tunnel_output" | grep -oE "https?://[^'\"[:space:]]+" | tail -1)
+		
+		if [[ -n "$tunnel_url" ]]; then
+			if health_check "$tunnel_url"; then
+				echo "Tunnel setup successful!"
+				return 0
+			fi
+		else
+			echo "Warning: Could not extract tunnel URL from output for health check"
+		fi
+		
+		retry_count=$((retry_count + 1))
+	done
 	
-	# Extract tunnel URL from the startup output
-	local tunnel_url
-	tunnel_url=$(echo "$tunnel_output" | grep -oE "https?://[^'\"[:space:]]+" | tail -1)
-	
-	if [[ -n "$tunnel_url" ]]; then
-		health_check "$tunnel_url"
-	else
-		echo "Warning: Could not extract tunnel URL from output for health check"
-	fi
+	echo "Tunnel setup completed after $((max_retries + 1)) attempts"
+	# Return success to allow test suite to run - environment readiness checks will catch tunnel issues later
+	return 0
 }
 
 function down() {
