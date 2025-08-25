@@ -173,7 +173,7 @@ class Feedback {
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
-		$this->has_consent     = ( in_array( strtolower( $this->get_first_field_of_type( 'consent' ) ), array( 'yes', 'true', '1' ), true ) );
+		$this->has_consent     = (bool) $this->get_first_field_of_type( 'consent' );
 
 		$this->legacy_feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}
@@ -839,9 +839,12 @@ class Feedback {
 		}
 		$fields = array();
 		foreach ( $decoded_content['fields'] as $field ) {
-			$fields[ $field['key'] ] = Feedback_Field::from_serialized( $field );
-			if ( ! $this->has_file && $fields[ $field['key'] ]->has_file() ) {
-				$this->has_file = true;
+			$feedback_field = Feedback_Field::from_serialized( $field );
+			if ( $feedback_field instanceof Feedback_Field ) {
+				$fields[ $feedback_field->get_key() ] = $feedback_field;
+				if ( ! $this->has_file && $feedback_field->has_file() ) {
+					$this->has_file = true;
+				}
 			}
 		}
 		$decoded_content['fields'] = $fields;

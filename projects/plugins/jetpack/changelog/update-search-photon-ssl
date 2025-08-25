@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: ensure images are loaded efficiently when on https sites.

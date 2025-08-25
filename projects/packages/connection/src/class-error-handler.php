@@ -753,7 +753,7 @@ class Error_Handler {
 	private function garbage_collector( $errors ) {
 		foreach ( $errors as $error_code => $users ) {
 			foreach ( $users as $user_id => $error ) {
-				if ( self::ERROR_LIFE_TIME < time() - (int) $error['timestamp'] ) {
+				if ( empty( $error['timestamp'] ) || self::ERROR_LIFE_TIME < time() - (int) $error['timestamp'] ) {
 					unset( $errors[ $error_code ][ $user_id ] );
 				}
 			}

@@ -4,7 +4,7 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, Children, isValidElement } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -15,15 +15,17 @@ import { GlobalChartsContext } from '../../providers/chart-context/global-charts
 import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
 import { SingleChartContext } from '../shared/single-chart-context';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type { ChartComponentWithComposition } from '../shared/chart-composition';
 import type { ResponsiveConfig } from '../shared/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
-import type { FC, MouseEvent, ComponentType, ReactNode, PropsWithChildren } from 'react';
+import type { FC, MouseEvent, ReactNode } from 'react';
 
 const PAD_ANGLE = 0.03; // Padding between segments
 
@@ -64,16 +66,10 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 type PieSemiCircleChartBaseProps = Optional< PieSemiCircleChartProps, 'width' >;
 
 // Composition API types
-interface PieSemiCircleChartSubComponents {
-	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
-	SVG: FC< PropsWithChildren >;
-	HTML: FC< PropsWithChildren >;
-}
-
-type PieSemiCircleChartComponent = FC< PieSemiCircleChartBaseProps > &
-	PieSemiCircleChartSubComponents;
-type PieSemiCircleChartResponsiveComponent = FC< PieSemiCircleChartBaseProps & ResponsiveConfig > &
-	PieSemiCircleChartSubComponents;
+type PieSemiCircleChartComponent = ChartComponentWithComposition< PieSemiCircleChartBaseProps >;
+type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
+	PieSemiCircleChartBaseProps & ResponsiveConfig
+>;
 
 type ArcData = PieArcDatum< DataPointPercentage >;
 
@@ -101,36 +97,6 @@ const validateData = ( data: DataPointPercentage[] ) => {
 
 	return { isValid: true, message: '' };
 };
-
-/**
- * Compound component for SVG children in the PieSemiCircleChart
- * @param {PropsWithChildren} props          - Component props
- * @param {ReactNode}         props.children - Child elements to render
- * @return {JSX.Element} The children wrapped in a fragment
- */
-const PieSemiCircleChartSVG: FC< PropsWithChildren > = ( { children } ) => {
-	// This component doesn't render directly - its children are extracted by PieSemiCircleChart
-	// We just return the children as-is
-	return <>{ children }</>;
-};
-
-// Set displayName for better debugging and type checking
-PieSemiCircleChartSVG.displayName = 'PieSemiCircleChart.SVG';
-
-/**
- * Compound component for HTML children in the PieSemiCircleChart
- * @param {PropsWithChildren} props          - Component props
- * @param {ReactNode}         props.children - Child elements to render
- * @return {JSX.Element} The children wrapped in a fragment
- */
-const PieSemiCircleChartHTML: FC< PropsWithChildren > = ( { children } ) => {
-	// This component doesn't render directly - its children are extracted by PieSemiCircleChart
-	// We just return the children as-is
-	return <>{ children }</>;
-};
-
-// Set displayName for better debugging and type checking
-PieSemiCircleChartHTML.displayName = 'PieSemiCircleChart.HTML';
 
 const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
@@ -205,38 +171,10 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const legendItems = useChartLegendData( data, legendOptions );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useMemo( () => {
-		const svg: ReactNode[] = [];
-		const html: ReactNode[] = [];
-		const other: ReactNode[] = [];
-
-		Children.forEach( children, child => {
-			if ( isValidElement( child ) ) {
-				// Check displayName for compound components
-				const childType = child.type as { displayName?: string };
-				const displayName = childType?.displayName;
-
-				if ( displayName === 'PieSemiCircleChart.SVG' ) {
-					// Extract children from PieSemiCircleChart.SVG
-					Children.forEach( child.props.children, svgChild => {
-						svg.push( svgChild );
-					} );
-				} else if ( displayName === 'PieSemiCircleChart.HTML' ) {
-					// Extract children from PieSemiCircleChart.HTML
-					Children.forEach( child.props.children, htmlChild => {
-						html.push( htmlChild );
-					} );
-				} else if ( child.type === Group ) {
-					// Legacy support: still check for Group type for backward compatibility
-					svg.push( child );
-				} else {
-					other.push( child );
-				}
-			}
-		} );
-
-		return { svgChildren: svg, htmlChildren: html, otherChildren: other };
-	}, [ children ] );
+	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
+		children,
+		'PieSemiCircleChart'
+	);
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -419,8 +357,8 @@ PieSemiCircleChartWithProvider.displayName = 'PieSemiCircleChart';
 // Create PieSemiCircleChart with composition API
 const PieSemiCircleChart = attachSubComponents( PieSemiCircleChartWithProvider, {
 	Legend: Legend,
-	SVG: PieSemiCircleChartSVG,
-	HTML: PieSemiCircleChartHTML,
+	SVG: ChartSVG,
+	HTML: ChartHTML,
 } ) as PieSemiCircleChartComponent;
 
 // Create responsive PieSemiCircleChart with composition API
@@ -428,8 +366,8 @@ const PieSemiCircleChartResponsive = attachSubComponents(
 	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChartWithProvider ),
 	{
 		Legend: Legend,
-		SVG: PieSemiCircleChartSVG,
-		HTML: PieSemiCircleChartHTML,
+		SVG: ChartSVG,
+		HTML: ChartHTML,
 	}
 ) as PieSemiCircleChartResponsiveComponent;
 

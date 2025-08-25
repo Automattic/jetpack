@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 4.3.0
+Stable tag: 4.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,11 +183,11 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.3.1-beta - 2025-08-21
+### 4.3.1 - 2025-08-25
 #### Changed
-- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name.
 - Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior.
 - Cornerstone Pages: Improve behavior when running on WordPress MU installations.
+- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name.
 - My Jetpack: Fixed multisite availability check for restricted products and modules.
 - Update package dependencies.
 

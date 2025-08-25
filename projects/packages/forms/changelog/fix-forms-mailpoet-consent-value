@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: Update MailPoet to use Feedback class.

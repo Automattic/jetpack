@@ -1,7 +1,7 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
-import { useContext, useMemo, Children, isValidElement } from 'react';
+import { useContext, useMemo } from 'react';
 import { useChartMouseHandler, useGlobalChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -12,14 +12,16 @@ import { GlobalChartsContext } from '../../providers/chart-context/global-charts
 import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
 import { SingleChartContext } from '../shared/single-chart-context';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type { ChartComponentWithComposition } from '../shared/chart-composition';
 import type { ResponsiveConfig } from '../shared/with-responsive';
-import type { SVGProps, MouseEvent, ReactNode, FC, ComponentType, PropsWithChildren } from 'react';
+import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -61,15 +63,10 @@ interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 type PieChartBaseProps = Optional< PieChartProps, 'size' >;
 
 // Composition API types
-interface PieChartSubComponents {
-	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
-	SVG: FC< PropsWithChildren >;
-	HTML: FC< PropsWithChildren >;
-}
-
-type PieChartComponent = FC< PieChartBaseProps > & PieChartSubComponents;
-type PieChartResponsiveComponent = FC< PieChartBaseProps & ResponsiveConfig > &
-	PieChartSubComponents;
+type PieChartComponent = ChartComponentWithComposition< PieChartBaseProps >;
+type PieChartResponsiveComponent = ChartComponentWithComposition<
+	PieChartBaseProps & ResponsiveConfig
+>;
 
 /**
  * Validates the pie chart data
@@ -96,36 +93,6 @@ const validateData = ( data: DataPointPercentage[] ) => {
 
 	return { isValid: true, message: '' };
 };
-
-/**
- * Compound component for SVG children in the PieChart
- * @param {PropsWithChildren} props          - Component props
- * @param {ReactNode}         props.children - Child elements to render
- * @return {JSX.Element} The children wrapped in a fragment
- */
-const PieChartSVG: FC< PropsWithChildren > = ( { children } ) => {
-	// This component doesn't render directly - its children are extracted by PieChart
-	// We just return the children as-is
-	return <>{ children }</>;
-};
-
-// Set displayName for better debugging and type checking
-PieChartSVG.displayName = 'PieChart.SVG';
-
-/**
- * Compound component for HTML children in the PieChart
- * @param {PropsWithChildren} props          - Component props
- * @param {ReactNode}         props.children - Child elements to render
- * @return {JSX.Element} The children wrapped in a fragment
- */
-const PieChartHTML: FC< PropsWithChildren > = ( { children } ) => {
-	// This component doesn't render directly - its children are extracted by PieChart
-	// We just return the children as-is
-	return <>{ children }</>;
-};
-
-// Set displayName for better debugging and type checking
-PieChartHTML.displayName = 'PieChart.HTML';
 
 /**
  * Renders a pie or donut chart using the provided data.
@@ -167,38 +134,7 @@ const PieChartInternal = ( {
 	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useMemo( () => {
-		const svg: ReactNode[] = [];
-		const html: ReactNode[] = [];
-		const other: ReactNode[] = [];
-
-		Children.forEach( children, child => {
-			if ( isValidElement( child ) ) {
-				// Check displayName for compound components
-				const childType = child.type as { displayName?: string };
-				const displayName = childType?.displayName;
-
-				if ( displayName === 'PieChart.SVG' ) {
-					// Extract children from PieChart.SVG
-					Children.forEach( child.props.children, svgChild => {
-						svg.push( svgChild );
-					} );
-				} else if ( displayName === 'PieChart.HTML' ) {
-					// Extract children from PieChart.HTML
-					Children.forEach( child.props.children, htmlChild => {
-						html.push( htmlChild );
-					} );
-				} else if ( child.type === Group ) {
-					// Legacy support: still check for Group type for backward compatibility
-					svg.push( child );
-				} else {
-					other.push( child );
-				}
-			}
-		} );
-
-		return { svgChildren: svg, htmlChildren: html, otherChildren: other };
-	}, [ children ] );
+	const { svgChildren, htmlChildren, otherChildren } = useChartChildren( children, 'PieChart' );
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -389,8 +325,8 @@ PieChartWithProvider.displayName = 'PieChart';
 // Create PieChart with composition API
 const PieChart = attachSubComponents( PieChartWithProvider, {
 	Legend: Legend,
-	SVG: PieChartSVG,
-	HTML: PieChartHTML,
+	SVG: ChartSVG,
+	HTML: ChartHTML,
 } ) as PieChartComponent;
 
 // Create responsive PieChart with composition API
@@ -398,8 +334,8 @@ const PieChartResponsive = attachSubComponents(
 	withResponsive< PieChartProps >( PieChartWithProvider ),
 	{
 		Legend: Legend,
-		SVG: PieChartSVG,
-		HTML: PieChartHTML,
+		SVG: ChartSVG,
+		HTML: ChartHTML,
 	}
 ) as PieChartResponsiveComponent;
 

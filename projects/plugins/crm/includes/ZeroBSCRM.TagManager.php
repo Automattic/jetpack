@@ -51,7 +51,7 @@ class zeroBSCRM_TagManager{
         global $zbs;
 
         // we load from DAL defaults, if objType passed (overriding anything passed, if empty/false)
-		if ( isset( $objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( ! empty( $objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             $objTypeID = (int)$objTypeID;
             if ($objTypeID > 0){

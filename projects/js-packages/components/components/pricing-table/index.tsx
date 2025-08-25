@@ -61,6 +61,7 @@ export const PricingTableItem: FC< PricingTableItemProps > = ( {
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const item = useContext( PricingTableContext )[ index ];
+	const isExplicitlyEmpty = label === '';
 	const showTick = isComingSoon || isIncluded;
 
 	const featureNameLabel = item.name;
@@ -72,6 +73,15 @@ export const PricingTableItem: FC< PricingTableItemProps > = ( {
 	const labels = getItemLabels( isComingSoon, isIncluded, featureNameLabel );
 
 	const defaultLabel = isLg ? labels.lg : labels.default;
+
+	// Handle explicitly empty items (when label is empty string)
+	if ( isExplicitlyEmpty ) {
+		return (
+			<div className={ clsx( styles.item, styles.value, styles.empty ) }>
+				{ /* No icon and no text for explicitly empty items */ }
+			</div>
+		);
+	}
 
 	return (
 		<div className={ clsx( styles.item, styles.value ) }>
@@ -162,34 +172,45 @@ const PricingTable: FC< PricingTableProps > = ( {
 				<div className={ styles.table }>
 					<div>
 						{ headerLogo && <div className={ styles[ 'header-logo' ] }>{ headerLogo }</div> }
-						<Text variant="headline-small">{ title }</Text>
+						<Text variant="headline-small" className={ styles.tableTitle }>
+							{ title }
+						</Text>
 					</div>
 					{ isLg &&
-						items.map( ( item, i ) => (
-							<div
-								className={ clsx( styles.item, styles.feature, {
-									[ styles[ 'last-feature' ] ]: i === items.length - 1,
-								} ) }
-								key={ i }
-							>
-								<Text variant="body-small">
-									<strong>{ item.name }</strong>
-								</Text>
-								{ item.tooltipInfo && (
-									<IconTooltip
-										title={ item.tooltipTitle }
-										iconClassName={ styles[ 'popover-icon' ] }
-										className={ styles.popover }
-										placement={ item.tooltipPlacement ? item.tooltipPlacement : 'bottom-end' }
-										iconSize={ 14 }
-										offset={ 4 }
-										wide={ Boolean( item.tooltipTitle && item.tooltipInfo ) }
-									>
-										<Text variant="body-small">{ item.tooltipInfo }</Text>
-									</IconTooltip>
-								) }
-							</div>
-						) ) }
+						items.map( ( item, i ) => {
+							// Skip rendering feature names that are empty
+							if ( ! item.name ) {
+								return (
+									<div key={ i } className={ clsx( styles.item, styles.feature, styles.empty ) } />
+								);
+							}
+
+							return (
+								<div
+									className={ clsx( styles.item, styles.feature, {
+										[ styles[ 'last-feature' ] ]: i === items.length - 1,
+									} ) }
+									key={ i }
+								>
+									<Text variant="body-small">
+										<strong>{ item.name }</strong>
+									</Text>
+									{ item.tooltipInfo && (
+										<IconTooltip
+											title={ item.tooltipTitle }
+											iconClassName={ styles[ 'popover-icon' ] }
+											className={ styles.popover }
+											placement={ item.tooltipPlacement ? item.tooltipPlacement : 'bottom-end' }
+											iconSize={ 14 }
+											offset={ 4 }
+											wide={ Boolean( item.tooltipTitle && item.tooltipInfo ) }
+										>
+											<Text variant="body-small">{ item.tooltipInfo }</Text>
+										</IconTooltip>
+									) }
+								</div>
+							);
+						} ) }
 					{ children }
 				</div>
 			</div>

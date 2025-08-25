@@ -6264,13 +6264,15 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 
         #} ========== CHECK FIELDS ============
 
-            $id = (int)$id;
+	$id = (int) $id;
 
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
+	// if owner = -1, add current
+	if ( $owner === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		$owner = zeroBSCRM_user();
+	}
 
-            // check if exists already (where no id passed)
-            if ( $id < 1 && isset( $data['name'] ) && isset( $data['rate'] ) ){
+	// check if exists already (where no id passed)
+	if ( $id < 1 && ! empty( $data['name'] ) && isset( $data['rate'] ) ) {
 
             		// simple query
 		    				$query = 'SELECT ID FROM '.$ZBSCRM_t['tax'].' WHERE zbsc_tax_name = %s AND zbsc_rate = %d ORDER BY ID DESC LIMIT 0,1';
@@ -6603,23 +6605,11 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 
 		global $ZBSCRM_t,$wpdb;
 
-		$whereStr = ''; $additionalWHERE = ''; $queryVars = array();
+		$additionalWHERE = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$queryVars       = array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		if (!empty($id)){
-
-			$queryVars[] = $id;
-			$whereStr = 'ID = %d';
-
-		} else {
-
-			if (!empty($hash)){
-
-				$queryVars[] = $hash;
-				$whereStr = 'zbstemphash_objhash = %s';
-
-			}
-
-		}
+		$queryVars[] = $id; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$whereStr    = 'ID = %d'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		if (!empty($type)){
 
@@ -6637,14 +6627,10 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 		}
 
 		/* -- prep started, see: #OWNERSHIP */
-		
-		if (!empty($whereStr)){
 
 			$sql = "SELECT * FROM ".$ZBSCRM_t['temphash']." WHERE ".$whereStr." ".$additionalWHERE."ORDER BY ID ASC LIMIT 0,1";
 
 				$potentialReponse = $wpdb->get_row( $wpdb->prepare($sql,$queryVars), OBJECT );
-
-		}
 
 			if (isset($potentialReponse) && isset($potentialReponse->ID)){
 

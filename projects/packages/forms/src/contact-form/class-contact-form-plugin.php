@@ -514,10 +514,6 @@ class Contact_Form_Plugin {
 					$style_variation_data                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
 					$atts                                     = array_merge( $atts, $style_variation_data );
 					$add_block_style_classes_to_field_wrapper = true;
-					if ( isset( $atts['countryList'] ) ) {
-						// this is necessary (same as optionsdata) to make the countrydata attribute digestible by the Contact_Form_Field class
-						$atts['countryData'] = \wp_json_encode( $atts['countryList'] );
-					}
 
 					continue;
 				}

@@ -1,89 +1,98 @@
 import { store, getContext } from '@wordpress/interactivity';
+import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
 import { countries } from '../../blocks/field-phone/country-list';
 import { isEmptyValue } from '../../contact-form/js/validate-helper';
 const NAMESPACE = 'jetpack/form';
 
-const { state } = store( NAMESPACE, {
+const asYouTypes = {};
+
+const { actions } = store( NAMESPACE, {
 	state: {
 		validators: {
 			phone: ( value, isRequired ) => {
-				if ( isEmptyValue( value ) && isRequired ) {
+				const context = getContext();
+				if ( isEmptyValue( context.phoneNumber ) && isRequired ) {
+					// this is not triggering any error, but then no other input does either
 					return 'is_required';
 				}
-
-				if ( ! isRequired && isEmptyValue( value ) ) {
+				if ( ! isRequired && isEmptyValue( context.phoneNumber ) ) {
 					// No need to validate anything.
 					return 'yes';
 				}
 
+				// from this point on, we discard the value as we
+				// use our internal full phone number state getter:
+				value = context.fullPhoneNumber;
+				if (
+					context.showCountrySelector ||
+					value.indexOf( '+' ) === 0 ||
+					value.indexOf( '00' ) === 0
+				) {
+					const internationalNumber = parsePhoneNumber( value );
+					if ( ! internationalNumber || ! internationalNumber.isValid() ) {
+						return 'invalid_phone';
+					}
+				}
+
+				// if no country selector or value starting with +, use legacy regex check
 				if ( ! /^\+?[0-9\s\-()]+$/.test( value ) ) {
 					return 'invalid_phone';
 				}
+
 				return 'yes';
 			},
 		},
-		get fullPhoneNumber() {
-			const context = getContext();
-			if ( context.showCountrySelector ) {
-				// if the user has typed the country code and didn't add a space,
-				// assume they already typed a full international phone number
-				if ( state.phoneNumber.indexOf( state.phoneCountryCode ) === 0 ) {
-					return state.phoneNumber;
-				}
-				return `${ state.phoneCountryCode } ${ state.phoneNumber }`;
-			}
-			return state.phoneNumber;
-		},
 	},
 	actions: {
-		onReset() {
+		phoneResetHandler() {
 			const context = getContext();
-			state.phoneCountryCode = context.defaultCountry;
-			state.phoneNumber = '';
+			context.phoneCountryCode = context.defaultCountry;
+			context.phoneNumber = '';
 		},
 		onPhoneNumberChange( event ) {
 			const context = getContext();
+			const fieldId = context.fieldId;
 			const value = event.target.value;
-
 			if ( ! context.showCountrySelector ) {
-				state.phoneNumber = value;
+				context.phoneNumber = context.fullPhoneNumber = value;
 				return;
 			}
+			const groomedValue = value.indexOf( '00' ) === 0 ? '+' + value.slice( 2 ) : value;
 
-			// Check for country code pattern: + followed by 1-3 digits
-			const countryCodeMatch = value.match( /^\+(\d{1,4})/ );
-
-			if ( countryCodeMatch ) {
-				const potentialCode = countryCodeMatch[ 0 ];
-
-				const countryItem = countries?.find( country => country.value === potentialCode );
-
-				state.phoneCountryCode = countryItem?.value || context.phoneCountryCode;
-				// If there's a space after the country code, split the input
-				if ( value.charAt( potentialCode.length ) === ' ' ) {
-					state.phoneNumber = value.substring( potentialCode.length + 1 );
-				} else {
-					// If no space yet, keep the whole input in phoneNumber
-					state.phoneNumber = value;
-				}
+			asYouTypes[ fieldId ].reset();
+			asYouTypes[ fieldId ].input( groomedValue );
+			if ( asYouTypes[ fieldId ].getCountry() ) {
+				context.phoneCountryCode = asYouTypes[ fieldId ].getCountry();
+				context.phoneNumber = asYouTypes[ fieldId ].getNationalNumber();
+				asYouTypes[ fieldId ] = new AsYouType( context.phoneCountryCode );
 			} else {
-				state.phoneNumber = value;
+				context.phoneNumber = value;
 			}
+			context.countryPrefix = countries.find(
+				item => item.code === context.phoneCountryCode
+			)?.value;
+			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
+			actions.updateField( fieldId, value );
 		},
 		onPhoneCountryChange( event ) {
 			const context = getContext();
-			state.phoneCountryCode = event?.target?.value || context.defaultCountry;
+			context.countryPrefix = countries.find( item => item.code === event?.target?.value )?.value;
+			context.phoneCountryCode = event?.target?.value || context.defaultCountry;
+			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
 		},
 	},
 	callbacks: {
 		initializeCountrySelector() {
 			const context = getContext();
 			if ( context.showCountrySelector ) {
-				state.countryList = countries.map( country => ( {
+				context.countryList = countries.map( country => ( {
 					...country,
-					selected: country.value === context.defaultCountry,
+					label: country.country + ' ' + country.flag + ' ' + country.value,
+					value: country.code,
+					selected: country.code === context.defaultCountry,
 				} ) );
 			}
+			asYouTypes[ context.fieldId ] = new AsYouType( context.defaultCountry );
 		},
 	},
 } );

@@ -763,9 +763,9 @@ class zbsDAL {
             if (isset($ownerID) && $ownerID == $potentialOwnerID) 
                 return true;
             // no owner owns this!
-            else if ($allowNoOwnerAccess && (!isset($potentialOwner) || $potentialOwner == -1))
-                return true;
-
+			elseif ( $allowNoOwnerAccess && $potentialOwner === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				return true;
+			}
         }
 
         return false;
@@ -978,9 +978,13 @@ class zbsDAL {
         // hard ignored for now :)
         $ignoreowner = true;
 
-        if (!isset($objtypefrom) || empty($objtypefrom)) return false;
+		if ( empty( $objtypefrom ) ) {
+			return false;
+		}
         if ($this->objTypeKey($objtypefrom) === -1) return false;
-        if (!isset($objtypeto) || empty($objtypeto)) return false;
+		if ( empty( $objtypeto ) ) {
+			return false;
+		}
         if ($this->objTypeKey($objtypeto) === -1) return false;
 
         #} Check ID
@@ -1120,9 +1124,13 @@ class zbsDAL {
         // hard ignored for now
         $ignoreowner = true;
         
-        if (!isset($objtypefrom) || empty($objtypefrom)) return false;
+		if ( empty( $objtypefrom ) ) {
+			return false;
+		}
         if ($this->objTypeKey($objtypefrom) === -1) return false;
-        if (!isset($objtypeto) || empty($objtypeto)) return false;
+		if ( empty( $objtypeto ) ) {
+			return false;
+		}
         if ($this->objTypeKey($objtypeto) === -1) return false;
 
         #} Check ID 
@@ -1237,10 +1245,14 @@ class zbsDAL {
 
         // hard ignored for now
         $ignoreowner = true;
-        
-        if (!isset($objtypefrom) || empty($objtypefrom)) return false;
+
+		if ( empty( $objtypefrom ) ) {
+			return false;
+		}
         if ($this->objTypeKey($objtypefrom) === -1) return false;
-        if (!isset($objtypeto) || empty($objtypeto)) return false;
+		if ( empty( $objtypeto ) ) {
+			return false;
+		}
         if ($this->objTypeKey($objtypeto) === -1) return false;
 
         #} Check ID 
@@ -1339,10 +1351,14 @@ class zbsDAL {
 
         #} ========== CHECK FIELDS ============
 
-            // check obtype is completed + legit
-            if (!isset($data['objtypefrom']) || empty($data['objtypefrom'])) return false;
+		// check obtype is completed + legit
+		if ( empty( $data['objtypefrom'] ) ) {
+			return false;
+		}
             if ($this->objTypeKey($data['objtypefrom']) === -1) return false;
-            if (!isset($data['objtypeto']) || empty($data['objtypeto'])) return false;
+		if ( empty( $data['objtypeto'] ) ) {
+			return false;
+		}
             if ($this->objTypeKey($data['objtypeto']) === -1) return false;
 
             // if owner = -1, add current
@@ -1478,14 +1494,20 @@ class zbsDAL {
 
         #} ========== CHECK FIELDS ============
 
-            // check obtype is completed + legit
-            if (!isset($objtypefrom) || empty($objtypefrom)) return false;
+		// check obtype is completed + legit
+		if ( empty( $objtypefrom ) ) {
+			return false;
+		}
             if ($this->objTypeKey($objtypefrom) === -1) return false;
-            if (!isset($objtypeto) || empty($objtypeto)) return false;
+		if ( empty( $objtypeto ) ) {
+			return false;
+		}
             if ($this->objTypeKey($objtypeto) === -1) return false;
 
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
+		// if owner = -1, add current
+		if ( $owner === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$owner = zeroBSCRM_user();
+		}
 
             // tagging id
             $objfromid = (int)$objfromid; if (empty($objfromid) || $objfromid < 1) return false;
@@ -1607,10 +1629,14 @@ class zbsDAL {
 
         #} ========== CHECK FIELDS ============
 
-            // check obtype is completed + legit
-            if (!isset($objtypefrom) || empty($objtypefrom)) return false;
+		// check obtype is completed + legit
+		if ( empty( $objtypefrom ) ) {
+			return false;
+		}
             if ($this->objTypeKey($objtypefrom) === -1) return false;
-            if (!isset($objtypeto) || empty($objtypeto)) return false;
+		if ( empty( $objtypeto ) ) {
+			return false;
+		}
             if ($this->objTypeKey($objtypeto) === -1) return false;
 
             // obj id
@@ -2107,13 +2133,17 @@ class zbsDAL {
 
             $id = (int)$id;
 
-            // if owner = -1, add current
-            // Hard -1 for now - settings don't need - if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
-            // ... they do now, (screen options) $owner = -1;
-            if (isset($owner) && $owner !== -1) $owner = (int)$owner;
+		// if owner = -1, add current
+		// Hard -1 for now - settings don't need - if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
+		// ... they do now, (screen options) $owner = -1;
+		if ( $owner !== -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$owner = (int) $owner;
+		}
 
-            // check key present + legit
-            if (!isset($data['key']) || empty($data['key'])) return false;
+		// check key present + legit
+		if ( empty( $data['key'] ) ) {
+			return false;
+		}
 
             // setting ID finder - if obj key provided, check setting not already present (if so overwrite) 
             // keeps unique...  
@@ -2450,9 +2480,11 @@ class zbsDAL {
 
         #} =========== CHECK FIELDS =============
 
-            // check obtype is legit
-            if ( isset( $objtype ) && $objtype !== -1 && $this->objTypeKey( $objtype ) === -1) return false;
-            
+		// check obtype is legit
+		if ( $objtype !== -1 && $this->objTypeKey( $objtype ) === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return false;
+		}
+
             // obj id
             $objid = (int)$objid;
 
@@ -2594,8 +2626,10 @@ class zbsDAL {
 
         #} =========== CHECK FIELDS =============
 
-            // check obtype is completed + legit
-            if (!isset($objtype) || empty($objtype)) return false;
+		// check obtype is completed + legit
+		if ( empty( $objtype ) ) {
+			return false;
+		}
             if ($this->objTypeKey($objtype) === -1) return false;
             
             // meta key
@@ -2605,9 +2639,6 @@ class zbsDAL {
             $ignoreowner = true;
 
         #} =========== / CHECK FIELDS =============
-        
-        #} Check key
-        if (!empty($key)){
 
             global $ZBSCRM_t,$wpdb; 
             $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array();
@@ -2653,8 +2684,6 @@ class zbsDAL {
                 $this->catchSQLError($e);
 
             }
-
-        } // / if ID
 
         return -1;
 
@@ -2733,8 +2762,10 @@ class zbsDAL {
             // owner HARD disabled for this for now - not req. for each meta
             $owner = -1;
 
-            // check key present + legit
-            if (!isset($data['key']) || empty($data['key'])) return false;
+		// check key present + legit
+		if ( empty( $data['key'] ) ) {
+			return false;
+		}
 
             // check obtype is completed + legit
             if (!isset($data['objtype']) || empty($data['objtype'])) return false;
@@ -3041,9 +3072,9 @@ class zbsDAL {
 
             // got objtype / name/slug?
 
-            // check obtype is legit (if completed)
-            if (isset($objtype) && $objtype !== -1 && $this->objTypeKey($objtype) === -1) {
-            
+		// check obtype is legit (if completed)
+		if ( $objtype !== -1 && $this->objTypeKey( $objtype ) === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
                 // if using obj type - check name/slug
                 if (empty($name) && empty($slug)) return false;
 
@@ -3129,8 +3160,8 @@ class zbsDAL {
                     // tidy
                     $res = $this->tidy_tag($potentialRes);
 
-                    // with stats?
-                    if (isset($withStats) && $withStats){
+				// with stats?
+				if ( $withStats ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         // add all stats lines
                         $res['stats'] = $this->getTagStats(array('tagid'=>$potentialRes->ID));
@@ -3282,8 +3313,10 @@ class zbsDAL {
 
             $id = (int)$id;
 
-            // check obtype is completed + legit
-            if (!isset($data['objtype']) || empty($data['objtype'])) return false;
+		// check obtype is completed + legit
+		if ( empty( $data['objtype'] ) ) {
+			return false;
+		}
             if ($this->objTypeKey($data['objtype']) === -1) return false;
 
             // if owner = -1, add current
@@ -3466,8 +3499,10 @@ class zbsDAL {
             // check id
             $objid = (int)$objid; if (empty($objid) || $objid <= 0) return false;
 
-            // check obtype is legit (if completed)
-            if (!isset($objtype) || $objtype == -1 || $this->objTypeKey($objtype) == -1) return false;
+		// check obtype is legit (if completed)
+		if ( $objtype === -1 || $this->objTypeKey( $objtype ) === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return false;
+		}
 
         #} ========= / CHECK FIELDS ===========
 
@@ -3494,8 +3529,9 @@ class zbsDAL {
 
             }
 
-            #} If using tags, convert these to id's :)
-            if ($tags !== -1 && is_array($tags)){
+		// If using tags, convert these to ids :)
+		// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
+		if ( is_array( $tags ) ) {
 
                 // overwrite
                 $tagIDs = array();
@@ -3627,9 +3663,9 @@ class zbsDAL {
                 $wheres['zbstl_tagid'] = array('zbstl_tagid','=','%d',$id);
 
 
-                #} If 'owner' is set then have to ignore owner, because can't do both
-                if (isset($owner) && $owner > 0) {
-                    
+			// If 'owner' is set then have to ignore owner, because can't do both
+			if ( $owner > 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
                     // stops ownership check
                     $ignoreowner = true;
 
@@ -3747,9 +3783,9 @@ class zbsDAL {
                 }
 
 
-                #} If 'owner' is set then have to ignore owner, because can't do both
-                if (isset($owner) && $owner > 0) {
-                    
+			// If 'owner' is set then have to ignore owner, because can't do both
+			if ( $owner > 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
                     // stops ownership check
                     $ignoreowner = true;
 
@@ -4226,12 +4262,16 @@ class zbsDAL {
 
         #} ========== CHECK FIELDS ============
 
-            // check obtype is completed + legit
-            if (!isset($data['objtype']) || empty($data['objtype'])) return false;
+		// check obtype is completed + legit
+		if ( empty( $data['objtype'] ) ) {
+			return false;
+		}
             if ($this->objTypeKey($data['objtype']) === -1) return false;
 
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
+		// if owner = -1, add current
+		if ( $owner === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$owner = zeroBSCRM_user();
+		}
 
             $objid = (int)$data['objid']; $tagid = (int)$data['tagid'];
             if (empty($data['objid']) || $data['objid'] < 1 || empty($data['tagid']) || $data['tagid'] < 1) return false;
@@ -4358,12 +4398,16 @@ class zbsDAL {
 
         #} ========== CHECK FIELDS ============
 
-            // check obtype is completed + legit
-            if (!isset($objtype) || empty($objtype)) return false;
+		// check obtype is completed + legit
+		if ( empty( $objtype ) ) {
+			return false;
+		}
             if ($this->objTypeKey($objtype) === -1) return false;
 
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
+		// if owner = -1, add current
+		if ( $owner === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$owner = zeroBSCRM_user();
+		}
 
             // tagging id
             $objid = (int)$objid; if (empty($objid) || $objid < 1) return false;
@@ -4557,8 +4601,10 @@ class zbsDAL {
 
         #} ========== CHECK FIELDS ============
 
-            // check obtype is completed + legit
-            if (!isset($objtype) || empty($objtype)) return false;
+		// check obtype is completed + legit
+		if ( empty( $objtype ) ) {
+			return false;
+		}
             if ($this->objTypeKey($objtype) === -1) return false;
             
             // obj id
@@ -4611,8 +4657,10 @@ class zbsDAL {
 
         #} ========== CHECK FIELDS ============
 
-            // check obtype is completed + legit
-            if (!isset($objtype) || empty($objtype)) return false;
+		// check obtype is completed + legit
+		if ( empty( $objtype ) ) {
+			return false;
+		}
             if ($this->objTypeKey($objtype) === -1) return false;
             
             // obj id
@@ -4950,7 +4998,9 @@ class zbsDAL {
 
             $id = (int)$id;
 
-            if (isset($data['objid'])) $data['objid'] = (int)$data['objid'];
+		if ( ! empty( $data['objid'] ) ) { // phpcs:ignore -- PHPCS chokes on this line, but the var does exist.
+			$data['objid'] = (int) $data['objid']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		}
             if (isset($data['objtype'])) $data['objtype'] = (int)$data['objtype'];
 
             // check obtype is completed + legit
@@ -4959,10 +5009,14 @@ class zbsDAL {
 
             // check key + ID present
             if (!isset($data['objkey']) || empty($data['objkey'])) return false;
-            if (!isset($data['objid']) || $data['objid'] <= 0) return false;
+		if ( $data['objid'] <= 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return false;
+		}
 
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
+		// if owner = -1, add current
+		if ( $owner === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$owner = zeroBSCRM_user();
+		}
 
             // ID finder - if obj id +  key + val + typeid provided, check CF not already present (if so overwrite)     
             if ((empty($id) || $id <= 0)
@@ -5222,10 +5276,7 @@ class zbsDAL {
                     $wheres['zbss_objid'] = array( 'zbss_objid', '=', '%d', $objectID );
                 }
 
-                // Object Type
-                if (!empty($objectType) && $objectType > 0) {
                     $wheres['zbss_objtype'] = array( 'zbss_objtype', '=', '%d', $objectType );
-                }
 
                 // Source
                 if (!empty($source) && $source !== -1) {
@@ -5345,8 +5396,8 @@ class zbsDAL {
                 #} zbss_objid
                 if (!empty($objectID) && $objectID > 0) $wheres['zbss_objid'] = array('zbss_objid','=','%d',$objectID);
 
-                #} zbss_objid
-                if (!empty($objectType) && $objectType > 0) $wheres['zbss_objtype'] = array('zbss_objtype','=','%d',$objectType);
+				// zbss_objid
+				$wheres['zbss_objtype'] = array( 'zbss_objtype', '=', '%d', $objectType ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             #} ============ / WHERE ==============
 
@@ -5452,8 +5503,10 @@ class zbsDAL {
 
             $id = (int)$id;
 
-            // objectType
-            if (!isset($data['objectType']) || $data['objectType'] <= 0) return false;
+		// objectType
+		if ( empty( $data['objectType'] ) || $data['objectType'] <= 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return false;
+		}
 
             // objectID
             if (!isset($data['objectID']) || $data['objectID'] <= 0) return false;
@@ -5934,8 +5987,8 @@ class zbsDAL {
 
             #} ============= WHERE ================
 
-                #} Add ID
-                if (!empty($id) && $id > 0) $wheres['ID'] = array('ID','=','%d',$id);
+				// Add ID
+				$wheres['ID'] = array( 'ID', '=', '%d', $id );
 
             #} ============ / WHERE ==============
 
@@ -6027,8 +6080,10 @@ class zbsDAL {
 
             $id = (int)$id;
 
-            // contactID
-            if (!isset($data['contactID']) || $data['contactID'] <= 0) return false;
+		// contactID
+		if ( empty( $data['contactID'] ) || $data['contactID'] <= 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return false;
+		}
 
             // if owner = -1, add current
             if (!isset($data['owner']) || $data['owner'] === -1) $data['owner'] = zeroBSCRM_user();
@@ -6372,8 +6427,10 @@ class zbsDAL {
 
             $id = (int)$id;
 
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
+		// if owner = -1, add current
+		if ( $owner === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$owner = zeroBSCRM_user();
+		}
 
         #} ========= / CHECK FIELDS ===========
 
@@ -6960,8 +7017,8 @@ class zbsDAL {
 
             #} ============= WHERE ================
 
-                #} Add ID
-                if (!empty($id) && $id > 0) $wheres['ID'] = array('ID','=','%d',$id);
+			// Add ID
+			$wheres['ID'] = array( 'ID', '=', '%d', $id );
 
 
             #} ============ / WHERE ==============

@@ -167,25 +167,23 @@ const MailPoetCard = ( {
 			) : (
 				<div>
 					{ mailpoetLists?.length ? (
-						<p className="integration-card__description">
-							<SelectControl
-								label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
-								value={ mailpoet.listId }
-								options={ mailpoetLists.map( list => ( { label: list.name, value: list.id } ) ) }
-								onChange={ value => {
-									const selected = mailpoetLists.find( l => l.id === value );
-									setAttributes( {
-										mailpoet: {
-											...mailpoet,
-											listId: selected?.id ?? null,
-											listName: selected?.name ?? null,
-										},
-									} );
-								} }
-								__next40pxDefaultSize={ true }
-								__nextHasNoMarginBottom={ true }
-							/>
-						</p>
+						<SelectControl
+							label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
+							value={ mailpoet.listId }
+							options={ mailpoetLists.map( list => ( { label: list.name, value: list.id } ) ) }
+							onChange={ value => {
+								const selected = mailpoetLists.find( l => l.id === value );
+								setAttributes( {
+									mailpoet: {
+										...mailpoet,
+										listId: selected?.id ?? null,
+										listName: selected?.name ?? null,
+									},
+								} );
+							} }
+							__next40pxDefaultSize={ true }
+							__nextHasNoMarginBottom={ true }
+						/>
 					) : (
 						<p className="integration-card__description">
 							{ __(
@@ -195,11 +193,14 @@ const MailPoetCard = ( {
 						</p>
 					) }
 					{ hasEmailBlock && (
-						<ToggleControl
-							label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
-							checked={ !! consentBlock }
-							onChange={ toggleConsent }
-						/>
+						<div className="integration-card__section">
+							<ToggleControl
+								label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
+								checked={ !! consentBlock }
+								onChange={ toggleConsent }
+								__nextHasNoMarginBottom
+							/>
+						</div>
 					) }
 					<p className="integration-card__description">
 						<ExternalLink href={ settingsUrl }>

@@ -1,3 +1,5 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
 .container {
 	--padding: calc(var(--spacing-base) * 4);
 	color: var(--jp-black);
@@ -14,6 +16,13 @@
 		grid-auto-flow: column;
 		grid-template-rows: repeat(var(--rows), minmax(min-content, max-content));
 		column-gap: var(--gap);
+	}
+
+	.tableTitle {
+		font-size: 32px;
+		font-weight: 500;
+		line-height: 40px;
+		word-wrap: break-word;
 	}
 }
 
@@ -54,10 +63,13 @@
 		border-inline: 1.5px solid var(--jp-gray-10);
 	}
 
+	> * {
+		background: var(--jp-white);
+	}
+
 	&.is-primary {
 
 		> * {
-			background: var(--jp-white);
 			position: relative;
 
 			&::after {
@@ -83,7 +95,11 @@
 			background-image: url(./gradient.svg);
 			background-repeat: no-repeat;
 			background-size: 450px;
-			background-position-x: 170px;
+			background-position-x: center;
+
+			@media (max-width: gb.$break-large) {
+				background-position-x: right;
+			}
 		}
 
 		> :last-child {
@@ -123,7 +139,7 @@
 	padding-bottom: calc(var(--spacing-base) * 2);
 	position: relative;
 
-	&:not(:nth-child(2)) {
+	&:not(:nth-child(2)):not(.empty) {
 		padding-top: calc(var(--spacing-base) * 2);
 
 		&::before {
