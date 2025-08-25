@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.0] - 2025-08-25
 ### Changed
-- No longer allow inserting Simple Payments block via inserter. [#44724]
+- Disallow inserting Simple Payments block via inserter. [#44724]
 
 ## [0.4.3] - 2025-08-18
 ### Changed

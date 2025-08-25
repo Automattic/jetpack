@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.23.2] - 2025-08-21
 ### Changed
-- Lifted the TS types up from product tabs for reusability. [#44857]
+- Lift the TS types up from product tabs for reusability. [#44857]
 
 ## [5.23.1] - 2025-08-18
 ### Changed

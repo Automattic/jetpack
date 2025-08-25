@@ -4,7 +4,7 @@
 
 ## [1.3.0] - 2025-08-25
 ### Changed
-- Start using the improved PricingTable component for product interstitials. [#44801]
+- Use the improved PricingTable component for product interstitials. [#44801]
 
 ## [1.2.2] - 2025-08-25
 ### Changed

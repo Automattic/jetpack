@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.29.0] - 2025-08-25
 ### Changed
-- Charts: consolidate and clean up pie chart composition api. [#44856]
+- Charts: Consolidate and clean up pie chart composition API. [#44856]
 
 ## [0.28.0] - 2025-08-21
 ### Added
-- Charts: adds composition legend to pie family charts [#44796]
+- Charts: Add composition legend to pie family charts. [#44796]
 - Charts: Add theme to global context and use instead of that from theme provider [#44809]
 
 ## [0.27.0] - 2025-08-18

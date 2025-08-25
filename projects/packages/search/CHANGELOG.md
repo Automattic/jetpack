@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.52.14] - 2025-08-25
 ### Fixed
 - Resolve `PhanImpossibleCondition` violations. [#44869]
-- Properly pass SSL argument to Photon for sites with https enabled. [#44851]
+- Pass SSL argument properly to Photon for sites with https enabled. [#44851]
 
 ## [0.52.13] - 2025-08-18
 ### Changed

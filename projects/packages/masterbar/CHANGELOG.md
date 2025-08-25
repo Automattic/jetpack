@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.22.1] - 2025-08-25
 ### Fixed
-- Fix the target upsell plan for the Additional CSS feature, needed for Atomic Personal sites. [#44838]
+- Fix the target upsell plan for the Additional CSS feature (needed for WP Cloud Personal sites). [#44838]
 
 ## [0.22.0] - 2025-08-18
 ### Removed
