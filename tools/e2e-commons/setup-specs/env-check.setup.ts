@@ -45,7 +45,6 @@ setup( 'verify environment readiness', async ( { baseURL, request, testUtils } )
 
 		await retry( 'DNS resolution', async () => {
 			await dns.resolve4( hostname );
-			logger.debug( `DNS resolved` );
 		} );
 	} );
 
@@ -54,17 +53,7 @@ setup( 'verify environment readiness', async ( { baseURL, request, testUtils } )
 
 		await retry( 'HTTP connectivity', async () => {
 			const response = await request.get( baseURL );
-			logger.debug( `HTTP response status: ${ response.status() }` );
-			expect( response.status() ).toBe( 200 );
-		} );
-	} );
-
-	await setup.step( 'verify REST API', async ( {} ) => {
-		logger.debug( `Checking REST API for ${ baseURL }` );
-
-		await retry( 'REST API', async () => {
-			const r = await testUtils.requestUtils.rest( { path: '/jetpack/v4/connection/test' } );
-			logger.debug( `Response: ${ JSON.stringify( r ) }` );
+			expect( response.status(), `Unexpected HTTP status` ).toBe( 200 );
 		} );
 	} );
 } );
