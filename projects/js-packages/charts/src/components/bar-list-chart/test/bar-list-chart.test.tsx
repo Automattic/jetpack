@@ -3,8 +3,8 @@
  */
 
 import { render, screen } from '@testing-library/react';
+import { barListSample as salesByChannel, salesByProduct } from '../../../stories/sample-data';
 import BarListChart from '../bar-list-chart';
-import { salesByChannel, salesByProduct } from '../stories/sample-data';
 
 const defaultProps = {
 	width: 500,
