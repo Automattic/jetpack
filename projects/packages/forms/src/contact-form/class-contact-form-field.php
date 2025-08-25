@@ -343,7 +343,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$possible_values = array();
 					if ( ! empty( $options_data ) ) {
 						foreach ( $options_data as $option_index => $option ) {
-							$option_label = Contact_Form_Plugin::strip_tags( $option['label'] );
+							$option_label = isset( $option['label'] ) ? Contact_Form_Plugin::strip_tags( $option['label'] ) : '';
 							if ( is_string( $option_label ) && '' !== $option_label ) {
 								$possible_values[] = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option_label );
 							}
