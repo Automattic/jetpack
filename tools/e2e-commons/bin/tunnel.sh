@@ -68,6 +68,8 @@ function health_check() {
 	
 	echo "✗ Tunnel failed to respond with 200 or 301 after $max_attempts attempts"
 	echo "Note: This may be normal if the tunnel takes longer to become available"
+	# Return success to allow test suite to run - environment readiness checks will catch tunnel issues later. 
+	# We want tests to run so that these issues are caught in test reports.
 	return 0
 }
 
