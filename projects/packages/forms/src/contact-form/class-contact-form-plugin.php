@@ -510,7 +510,8 @@ class Contact_Form_Plugin {
 				// This input is exclusively used by the new telephone field.
 				if ( 'jetpack/phone-input' === $block_name ) {
 					$atts['placeholder'] = $inner_block['attrs']['placeholder'] ?? '';
-					if ( ! isset( $atts['showcountryselector'] ) || ! $atts['showcountryselector'] ) {
+
+					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
 						unset( $atts['default'] );
 					}
 
@@ -1111,22 +1112,8 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_telephone( $atts, $content, $block ) {
 		// conversion telephone to phone
-		$type = empty( $atts['showcountryselector'] ) && empty( $atts['default'] ) ? 'telephone' : 'phone';
+		$type = empty( $atts['showcountryselector'] ) ? 'telephone' : 'phone';
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, $type, $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
-	}
-
-	/**
-	 * Render the phone field.
-	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
-	 *
-	 * @return string HTML for the contact form field.
-	 */
-	public static function gutenblock_render_field_phone( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'phone', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
