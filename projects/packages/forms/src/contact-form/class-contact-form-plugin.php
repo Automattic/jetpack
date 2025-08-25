@@ -510,6 +510,9 @@ class Contact_Form_Plugin {
 				// This input is exclusively used by the new telephone field.
 				if ( 'jetpack/phone-input' === $block_name ) {
 					$atts['placeholder'] = $inner_block['attrs']['placeholder'] ?? '';
+					if ( ! isset( $atts['showcountryselector'] ) || ! $atts['showcountryselector'] ) {
+						unset( $atts['default'] );
+					}
 
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses']  = 'wp-block-jetpack-input jetpack-field__input-element';
