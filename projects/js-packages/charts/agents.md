@@ -64,3 +64,23 @@ pnpm run build:prod         # Production build (clean + optimized)
 - @testing-library/react for component testing
 - Test both interaction and visual rendering
 - Maintain existing coverage standards
+
+## Development Workflow
+
+### For New Components
+1. **Check existing components** - Determine if functionality can be added to existing components rather than creating new ones
+2. **Use the template** - Start with `docs/feature-documentation.mdx.template`
+3. **Follow compound patterns** - Study existing chart components for composition patterns
+4. **Integrate with providers** - Ensure compatibility with existing context providers
+
+### For Component Modifications
+1. **Study surrounding code** - Understand existing patterns and conventions
+2. **Maintain backward compatibility** - Avoid breaking changes to public APIs
+3. **Update documentation** - Follow the ai-documentation-guide.md standards
+4. **Test thoroughly** - Verify existing functionality remains intact
+
+### For New Chart Types
+1. **Use visx primitives** - Build on established @visx/xychart patterns
+2. **Follow theme system** - Integrate with existing color and styling systems
+3. **Consider animations** - Use @react-spring/web patterns for smooth transitions
+4. **Accessibility review** - Ensure screen reader compatibility and keyboard navigation
