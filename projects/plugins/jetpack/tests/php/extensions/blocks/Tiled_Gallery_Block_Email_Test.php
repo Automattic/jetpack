@@ -323,9 +323,9 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 	 */
 	public function test_render_email_with_attachment_links() {
 		// Create test attachments
-		$attachment_id_1 = $this->factory->attachment->create();
-		$attachment_id_2 = $this->factory->attachment->create();
-		$attachment_id_3 = $this->factory->attachment->create();
+		$attachment_id_1 = $this->factory()->attachment->create();
+		$attachment_id_2 = $this->factory()->attachment->create();
+		$attachment_id_3 = $this->factory()->attachment->create();
 
 		$parsed_block = $this->create_parsed_block_with_attrs(
 			array(
