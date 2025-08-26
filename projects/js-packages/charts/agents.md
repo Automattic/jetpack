@@ -29,3 +29,11 @@ pnpm run test-coverage      # Run tests with coverage report
 # Production
 pnpm run build:prod         # Production build (clean + optimized)
 ```
+
+## Documentation Standards
+
+**IMPORTANT:** This project has comprehensive documentation standards. Before creating or modifying any components, agents must reference:
+
+- **[docs/ai-documentation-guide.md](docs/ai-documentation-guide.md)** - 354-line comprehensive guide defining 11 standard sections for chart documentation, writing patterns, and quality standards
+- **[docs/feature-documentation.mdx.template](docs/feature-documentation.mdx.template)** - Standard MDX template with bracket placeholders for new component documentation
+- **[Storybook Documentation](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts)** - Live examples and API references
