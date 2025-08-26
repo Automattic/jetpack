@@ -2,6 +2,9 @@
 
 .container {
 	--padding: calc(var(--spacing-base) * 4);
+	--padding-horizontal: calc(var(--spacing-base) * 3);
+	--padding-vertical: var(--spacing-base);
+	--item-border-color: #f0f0f0;
 	color: var(--jp-black);
 }
 
@@ -45,7 +48,7 @@
 	// Border styles for all columns (default gray borders)
 	> :first-child {
 		border-style: solid;
-		border-color: var(--jp-gray-10);
+		border-color: var(--item-border-color);
 		border-width: 1.5px 1.5px 0;
 		border-start-start-radius: 8px;
 		border-start-end-radius: 8px;
@@ -53,14 +56,14 @@
 
 	> :last-child {
 		border-style: solid;
-		border-color: var(--jp-gray-10);
+		border-color: var(--item-border-color);
 		border-width: 0 1.5px 1.5px;
 		border-end-start-radius: 8px;
 		border-end-end-radius: 8px;
 	}
 
 	> :not(:first-child):not(:last-child) {
-		border-inline: 1.5px solid var(--jp-gray-10);
+		border-inline: 1.5px solid var(--item-border-color);
 	}
 
 	> * {
@@ -136,18 +139,19 @@
 .item {
 	display: flex;
 	align-items: center;
-	padding-bottom: calc(var(--spacing-base) * 2);
+	padding-bottom: var(--padding-vertical);
 	position: relative;
+	line-height: 20px;
 
 	&:not(:nth-child(2)):not(.empty) {
-		padding-top: calc(var(--spacing-base) * 2);
+		padding-top: var(--padding-vertical);
 
 		&::before {
 			content: "";
 			position: absolute;
 			top: 0;
-			inset-inline-start: var(--padding);
-			inset-inline-end: var(--padding);
+			inset-inline-start: var(--padding-horizontal);
+			inset-inline-end: var(--padding-horizontal);
 			height: 1px;
 
 			z-index: 5;
@@ -165,7 +169,7 @@
 	}
 
 	&:last-of-type {
-		padding-bottom: var(--padding);
+		padding-bottom: var(--padding-vertical);
 	}
 }
 
@@ -174,8 +178,8 @@
 }
 
 .value {
-	padding-left: var(--padding);
-	padding-right: var(--padding);
+	padding-left: var(--padding-horizontal);
+	padding-right: var(--padding-horizontal);
 }
 
 .icon {
