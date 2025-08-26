@@ -1,23 +1,19 @@
 {
-	"name": "automattic/jetpack-external-media",
-	"description": "The external media feature allows users to select and import photos from external media",
+	"name": "automattic/jetpack-external-connections",
+	"description": "Connect your site to external services.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-external-connections": "@dev",
+		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/phpunit-select-config": "@dev"
-	},
-	"suggest": {
-		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -49,22 +45,20 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-external-media",
-		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-external-media/compare/v${old}...v${new}"
-		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.4.x-dev"
+			"dev-trunk": "0.1.x-dev"
 		},
-		"textdomain": "jetpack-external-media",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-external-connections/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/jetpack-external-connections",
+		"textdomain": "jetpack-external-connections",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-external-media.php"
+			"::PACKAGE_VERSION": "src/class-external-connections.php"
 		}
 	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	}
 }
