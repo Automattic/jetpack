@@ -802,13 +802,7 @@ class Feedback {
 			$fields_to_serialize['ip'] = null;
 		}
 
-		$json = wp_json_encode( $fields_to_serialize );
-
-		// WordPress strips backslashes during save/load, so we need to double-escape
-		// JSON newlines to ensure they survive the WordPress content processing
-		$json = str_replace( '\\n', '\\\\n', $json );
-
-		return $json;
+		return addslashes( wp_json_encode( $fields_to_serialize ) );
 	}
 
 	/**
