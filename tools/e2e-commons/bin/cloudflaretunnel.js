@@ -10,6 +10,14 @@ const tunnelConfig = config.get( 'tunnel' );
 
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
+/**
+ * Log a message with cloudflared manager prefix
+ * @param {...*} args - Arguments to log
+ */
+function log( ...args ) {
+	console.log( '[cloudflared manager]', ...args );
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs( hideBin( process.argv ) )
 	.usage( 'Usage: $0 <cmd>' )
@@ -77,12 +85,18 @@ async function tunnelChild() {
 	} );
 
 	// Redirect console stuff to process.send too.
-	const wrap = func => m => {
-		func( m );
-		process.send?.( m );
-	};
-	console.log = wrap( console.log );
-	console.error = wrap( console.error );
+	const originalConsoleLog = console.log;
+	const originalConsoleError = console.error;
+
+	const wrap =
+		func =>
+		( ...args ) => {
+			const message = `[cloudflared manager] ${ args.join( ' ' ) }`;
+			func( message );
+			process.send?.( message );
+		};
+	console.log = wrap( originalConsoleLog );
+	console.error = wrap( originalConsoleError );
 
 	console.log( 'Starting cloudflared tunnel...' );
 
@@ -111,7 +125,7 @@ async function tunnelChild() {
 			const urlMatch = output.match( /https:\/\/.*\.trycloudflare\.com/ );
 			if ( urlMatch && ! resolved ) {
 				tunnelUrl = urlMatch[ 0 ];
-				console.log( `[tunnel manager] Cloudflare tunnel started: ${ tunnelUrl }` );
+				console.log( `Cloudflare tunnel started: ${ tunnelUrl }` );
 
 				// Save the tunnel URL and PID immediately
 				// The connectivity checks will be done by the Playwright test
@@ -128,24 +142,24 @@ async function tunnelChild() {
 
 		cloudflaredProcess.on( 'error', error => {
 			if ( ! resolved ) {
-				console.error( '[tunnel manager] Failed to start cloudflared tunnel:', error );
+				console.error( 'Failed to start cloudflared tunnel:', error );
 				reject( error );
 			}
 		} );
 
 		cloudflaredProcess.on( 'exit', code => {
-			console.log( `[tunnel manager] Cloudflared process exited with code ${ code }` );
+			console.log( `Cloudflared process exited with code ${ code }` );
 			if ( ! resolved && code !== 0 ) {
-				reject( new Error( `[tunnel manager] Cloudflared exited with code ${ code }` ) );
+				reject( new Error( `Cloudflared exited with code ${ code }` ) );
 			}
 		} );
 
 		// Timeout after 30 seconds
 		setTimeout( () => {
 			if ( ! resolved ) {
-				console.error( '[tunnel manager] Cloudflared tunnel startup timeout' );
+				console.error( 'Cloudflared tunnel startup timeout' );
 				cloudflaredProcess.kill();
-				reject( new Error( '[tunnel manager] Tunnel startup timeout' ) );
+				reject( new Error( 'Tunnel startup timeout' ) );
 			}
 		}, 30000 );
 	} );
@@ -157,7 +171,7 @@ async function tunnelChild() {
  * @return {Promise<void>}
  */
 async function tunnelOff() {
-	console.log( '[tunnel manager] Stopping cloudflared tunnel...' );
+	log( 'Stopping cloudflared tunnel...' );
 
 	const pidfile = config.get( 'temp.pid' );
 	if ( fs.existsSync( pidfile ) ) {
@@ -171,7 +185,7 @@ async function tunnelOff() {
 			}
 		};
 		if ( pid.match( /^\d+$/ ) && processExists( pid ) ) {
-			console.log( `[tunnel manager] Terminating cloudflared process ${ pid }` );
+			log( `Terminating cloudflared process ${ pid }` );
 			process.kill( pid );
 			await new Promise( resolve => {
 				const check = () => {
@@ -193,5 +207,5 @@ async function tunnelOff() {
 		fs.unlinkSync( cloudflaredPath );
 	}
 
-	console.log( '[tunnel manager] Cloudflare tunnel stopped' );
+	log( 'Cloudflare tunnel stopped' );
 }
