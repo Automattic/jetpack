@@ -7,9 +7,9 @@ import {
 } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
+import { getEditorType, SITE_EDITOR } from '../../shared/get-editor-type';
 import metadata from './block.json';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
 import { useRelatedPosts } from './hooks/use-related-posts';
@@ -187,7 +187,7 @@ export default function RelatedPostsEdit( { attributes, setAttributes } ) {
 
 	const { posts, isLoading: isLoadingRelatedPosts } = useRelatedPosts( isEnabled );
 
-	const isInSiteEditor = useSelect( select => !! select( 'core/edit-site' ), [] );
+	const isInSiteEditor = SITE_EDITOR === getEditorType();
 
 	const { instanceId } = useInstanceId( RelatedPostsEdit );
 
