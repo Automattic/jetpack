@@ -77,8 +77,11 @@ const { actions } = store( NAMESPACE, {
 		},
 		onPhoneCountryChange( event ) {
 			const context = getContext();
-			context.countryPrefix = countries.find( item => item.code === event?.target?.value )?.value;
 			context.phoneCountryCode = event?.target?.value || context.defaultCountry;
+			context.countryPrefix = countries.find(
+				item => item.code === context.phoneCountryCode
+			)?.value;
+			asYouTypes[ context.fieldId ] = new AsYouType( context.phoneCountryCode );
 			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
 		},
 	},
