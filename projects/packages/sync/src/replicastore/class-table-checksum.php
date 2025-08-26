@@ -289,7 +289,7 @@ class Table_Checksum {
 			),
 			'links'                      => $wpdb->links, // TODO describe in the array format or add exceptions.
 			'options'                    => $wpdb->options, // TODO describe in the array format or add exceptions.
-			'woocommerce_products'       => array(
+			'wc_product_lookup'          => array( // wc_product_lookup is a table in the cache database
 				'table'                     => $wpdb->posts,
 				'range_field'               => 'ID',
 				'key_fields'                => array( 'ID' ),
