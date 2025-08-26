@@ -3,8 +3,9 @@
  */
 import { useConnection } from '@automattic/jetpack-connection';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import requestExternalAccess from '@automattic/request-external-access';
 import { Button, Path, Spinner, SVG } from '@wordpress/components';
-import { useCallback, useRef } from '@wordpress/element';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
@@ -19,26 +20,12 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 	const isConnectedToGoogleDrive = !! integration?.isConnected;
 	const { tracks } = useAnalytics();
 	const autoConnectOpened = useRef( false );
+	const [ isTogglingConnection, setIsTogglingConnection ] = useState( false );
 
 	const { isUserConnected, handleConnectUser, userIsConnecting, isOfflineMode } = useConnection( {
 		redirectUri:
 			PARTIAL_RESPONSES_PATH + ( PREFERRED_VIEW === 'classic' ? '' : '&connect-gdrive=true' ),
 	} );
-
-	const pollForConnection = useCallback( () => {
-		const interval = setInterval( async () => {
-			if ( isConnectedToGoogleDrive ) {
-				clearInterval( interval );
-				return;
-			}
-
-			try {
-				await refreshStatus();
-			} catch {
-				clearInterval( interval );
-			}
-		}, 5000 );
-	}, [ isConnectedToGoogleDrive, refreshStatus ] );
 
 	const exportToGoogleDrive = useCallback( () => {
 		tracks.recordEvent( 'jetpack_forms_export_click', {
@@ -54,12 +41,19 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 	}, [ tracks, onExport ] );
 
 	const handleConnectClick = useCallback( () => {
-		pollForConnection();
-
+		if ( ! integration?.settingsUrl ) return;
 		tracks.recordEvent( 'jetpack_forms_upsell_googledrive_click', {
 			screen: 'form-responses-inbox',
 		} );
-	}, [ tracks, pollForConnection ] );
+		setIsTogglingConnection( true );
+		requestExternalAccess( integration?.settingsUrl, ( { keyring_id: keyringId } ) => {
+			if ( keyringId ) {
+				refreshStatus();
+			} else {
+				setIsTogglingConnection( false );
+			}
+		} );
+	}, [ tracks, integration?.settingsUrl, refreshStatus ] );
 
 	if ( isOfflineMode ) {
 		return null;
@@ -136,12 +130,12 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 
 							{ ! isConnectedToGoogleDrive && isUserConnected && (
 								<Button
-									href={ integration?.settingsUrl }
 									className={ buttonClasses }
 									variant="primary"
 									rel="noopener noreferrer"
 									target="_blank"
 									onClick={ handleConnectClick }
+									disabled={ ! integration?.settingsUrl || isTogglingConnection }
 									ref={ el => {
 										if ( autoConnect && ! autoConnectOpened.current ) {
 											el?.click();
@@ -149,7 +143,9 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 										}
 									} }
 								>
-									{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
+									{ isTogglingConnection
+										? __( 'Connecting…', 'jetpack-forms' )
+										: __( 'Connect to Google Drive', 'jetpack-forms' ) }
 								</Button>
 							) }
 						</>
