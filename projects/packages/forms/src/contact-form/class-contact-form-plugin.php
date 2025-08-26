@@ -348,21 +348,26 @@ class Contact_Form_Plugin {
 	 *
 	 * @param string $block_name - the block name.
 	 * @param array  $attrs      - the block attributes.
+	 * @param array  $options    - the types of support to apply.
 	 *
 	 * @return array
 	 */
-	private static function get_block_support_classes_and_styles( $block_name, $attrs ) {
+	private static function get_block_support_classes_and_styles( $block_name, $attrs, $options = array() ) {
 		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
 
 		if ( ! $block_type ) {
 			return array();
 		}
 
+		$default_options = array( 'color', 'typography', 'border', 'custom', 'spacing' );
+		$enabled_options = empty( $options ) ? $default_options : $options;
+
 		// Leverage the individual core block support functions to generate classes and styles.
-		$color_styles      = \wp_apply_colors_support( $block_type, $attrs );
-		$typography_styles = \wp_apply_typography_support( $block_type, $attrs );
-		$border_styles     = \wp_apply_border_support( $block_type, $attrs );
-		$custom_classname  = \wp_apply_custom_classname_support( $block_type, $attrs );
+		$color_styles      = in_array( 'color', $enabled_options, true ) ? \wp_apply_colors_support( $block_type, $attrs ) : array();
+		$typography_styles = in_array( 'typography', $enabled_options, true ) ? \wp_apply_typography_support( $block_type, $attrs ) : array();
+		$border_styles     = in_array( 'border', $enabled_options, true ) ? \wp_apply_border_support( $block_type, $attrs ) : array();
+		$custom_classname  = in_array( 'custom', $enabled_options, true ) ? \wp_apply_custom_classname_support( $block_type, $attrs ) : array();
+		$spacing_styles    = in_array( 'spacing', $enabled_options, true ) ? \wp_apply_spacing_support( $block_type, $attrs ) : array();
 
 		// Merge all the block support classes and styles.
 		$classes = array_filter(
@@ -371,6 +376,7 @@ class Contact_Form_Plugin {
 				$typography_styles['class'] ?? '',
 				$border_styles['class'] ?? '',
 				$custom_classname['class'] ?? '',
+				$spacing_styles['class'] ?? '',
 			),
 			'strlen'
 		);
@@ -380,6 +386,7 @@ class Contact_Form_Plugin {
 				$color_styles['style'] ?? '',
 				$typography_styles['style'] ?? '',
 				$border_styles['style'] ?? '',
+				$spacing_styles['style'] ?? '',
 			),
 			'strlen'
 		);
@@ -590,6 +597,76 @@ class Contact_Form_Plugin {
 					continue;
 				}
 
+				if ( 'jetpack/fieldset-image-options' === $block_name ) {
+					$option_blocks           = $inner_block['innerBlocks'] ?? array();
+					$options                 = array();
+					$options_data            = array();
+					$atts['optionsclasses']  = 'wp-block-jetpack-fieldset-image-options';
+					$options_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['optionsclasses'] .= isset( $options_attrs['class'] ) ? ' ' . $options_attrs['class'] : '';
+
+					// Check if the block has left border, then apply a class for indentation.
+					$global_styles = wp_get_global_styles(
+						array( 'border' ),
+						array(
+							'block_name' => $block_name,
+							'transforms' => array( 'resolve-variables' ),
+						)
+					);
+
+					if ( isset( $inner_block['attrs']['style']['border']['width'] ) || isset( $inner_block['attrs']['style']['border']['left']['width'] ) || isset( $global_styles['width'] ) || isset( $global_styles['left']['width'] ) ) {
+						$atts['optionsclasses'] .= ' jetpack-field-image-select__list--has-border';
+					}
+
+					$atts['optionsstyles'] = $options_attrs['style'] ?? null;
+
+					foreach ( $option_blocks as $option_index => $option ) {
+						$option_label = trim( $option['attrs']['label'] ?? '' );
+
+						// Generate letter for this option (A, B, C, ..., AA, AB, etc.)
+						$option_letter = self::get_image_option_letter( $option_index + 1 );
+
+						$option_attrs       = self::get_block_support_classes_and_styles( 'jetpack/input-image-option', $option['attrs'], array( 'typography', 'border', 'custom', 'spacing' ) );
+						$option_attrs_color = self::get_block_support_classes_and_styles( 'jetpack/input-image-option', $option['attrs'], array( 'color' ) );
+						$option_data        = array(
+							'label'  => $option_label,
+							'letter' => $option_letter,
+							'image'  => $option['innerBlocks'][0],
+						);
+
+						if ( isset( $option_attrs['class'] ) ) {
+							$option_data['class'] = $option_attrs['class'] . ' wp-block-jetpack-input-image-option';
+						} else {
+							$option_data['class'] = 'wp-block-jetpack-input-image-option';
+						}
+						if ( isset( $option_attrs_color['class'] ) ) {
+							$option_data['classcolor'] = $option_attrs_color['class'];
+						}
+
+						if ( isset( $option_attrs['style'] ) ) {
+							$option_data['style'] = $option_attrs['style'];
+						}
+						if ( isset( $option_attrs_color['style'] ) ) {
+							$option_data['stylecolor'] = $option_attrs_color['style'];
+						}
+
+						$options[]      = $option_letter; // Legacy shortcode attribute - use letter for consistent submission
+						$options_data[] = $option_data;
+					}
+
+					$atts['options']     = implode( ',', $options );
+					$atts['optionsdata'] = \wp_json_encode( $options_data );
+
+					/*
+						Borders for the outlined notched HTML.
+					*/
+					$style_variation_atts                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
+					$atts                                     = array_merge( $atts, $style_variation_atts );
+					$add_block_style_classes_to_field_wrapper = true;
+
+					continue;
+				}
+
 				if ( 'jetpack/input-rating' === $block_name ) {
 					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
@@ -617,6 +694,28 @@ class Contact_Form_Plugin {
 		}
 
 		return $atts;
+	}
+
+	/**
+	 * Generates a letter for image options based on position (A, B, C, ..., AA, AB, etc.)
+	 *
+	 * @param int $position The 1-based position of the option.
+	 * @return string The letter representation.
+	 */
+	private static function get_image_option_letter( $position ) {
+		if ( $position < 1 ) {
+			return '';
+		}
+
+		$result = '';
+
+		while ( $position > 0 ) {
+			--$position;
+			$result   = chr( 65 + ( $position % 26 ) ) . $result;
+			$position = floor( $position / 26 );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1207,27 +1306,12 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_field_image_select( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select', $block );
 
+		// Ensure showLabels is always present in the shortcode attributes, as it defaults to true.
+		if ( ! array_key_exists( 'showLabels', $atts ) ) {
+			$atts['showLabels'] = true;
+		}
+
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
-	}
-
-	/**
-	 * Render the image choices field.
-	 *
-	 * @return string HTML for the image choices form field.
-	 */
-	public static function gutenblock_render_fieldset_image_options() {
-		// TODO: Implement the block rendering
-		return '';
-	}
-
-	/**
-	 * Render the image choice field.
-	 *
-	 * @return string HTML for the image choice form field.
-	 */
-	public static function gutenblock_render_input_image_option() {
-		// TODO: Implement the block rendering
-		return '';
 	}
 
 	/**
