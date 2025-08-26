@@ -36,9 +36,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+if ( ! defined( 'JETPACK__VERSION' ) ) {
+	// This breaks the project version checks when a one-liner.
+	define( 'JETPACK__VERSION', '15.0-a.7' );
+}
 defined( 'JETPACK__MINIMUM_WP_VERSION' ) || define( 'JETPACK__MINIMUM_WP_VERSION', '6.7' );
 defined( 'JETPACK__MINIMUM_PHP_VERSION' ) || define( 'JETPACK__MINIMUM_PHP_VERSION', '7.2' );
-defined( 'JETPACK__VERSION' ) || define( 'JETPACK__VERSION', '15.0-a.7' );
 
 /**
  * Constant used to fetch the connection owner token
