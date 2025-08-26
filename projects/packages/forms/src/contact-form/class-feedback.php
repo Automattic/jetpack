@@ -236,8 +236,16 @@ class Feedback {
 		}
 		if ( isset( $post_data[ $key ] ) ) {
 			if ( is_array( $post_data[ $key ] ) ) {
+				// For textarea fields, use sanitize_textarea_field to preserve newlines
+				if ( $type === 'textarea' ) {
+					return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
+				}
 				return array_map( 'sanitize_text_field', wp_unslash( $post_data[ $key ] ) );
 			} else {
+				// For textarea fields, use sanitize_textarea_field to preserve newlines
+				if ( $type === 'textarea' ) {
+					return sanitize_textarea_field( wp_unslash( $post_data[ $key ] ) );
+				}
 				return sanitize_text_field( wp_unslash( $post_data[ $key ] ) );
 			}
 		}
@@ -802,7 +810,13 @@ class Feedback {
 			$fields_to_serialize['ip'] = null;
 		}
 
-		return wp_json_encode( $fields_to_serialize );
+		$json = wp_json_encode( $fields_to_serialize );
+
+		// WordPress strips backslashes during save/load, so we need to double-escape
+		// JSON newlines to ensure they survive the WordPress content processing
+		$json = str_replace( '\\n', '\\\\n', $json );
+
+		return $json;
 	}
 
 	/**
@@ -827,10 +841,13 @@ class Feedback {
 	 * @return array Parsed fields.
 	 */
 	private function parse_content_v2( $post_content = '' ) {
-		$decoded_content = json_decode( $post_content, true );
+		// WordPress automatically adds slashes to post content when saving
+		// We need to unslash it first before JSON parsing
+		$unslashed_content = wp_unslash( $post_content );
+		$decoded_content   = json_decode( $unslashed_content, true );
 		if ( $decoded_content === null ) {
-			// If JSON decoding fails, try to decode the second try with stripslashes and trim.
-			// This is a workaround for some cases where the JSON data is not properly formatted.
+			// If JSON decoding still fails, try with stripslashes and trim as a fallback
+			// This is a workaround for some cases where the JSON data is not properly formatted
 			$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
 		}
 
