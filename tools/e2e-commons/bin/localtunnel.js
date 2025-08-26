@@ -13,6 +13,30 @@ const tunnelConfig = config.get( 'tunnel' );
 
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
+/**
+ * Log a message with localtunnel manager prefix
+ * @param {...*} args - Arguments to log
+ */
+function log( ...args ) {
+	console.log( '[localtunnel manager]', ...args );
+}
+
+/**
+ * Log an error message with localtunnel manager prefix
+ * @param {...*} args - Arguments to log
+ */
+function logError( ...args ) {
+	console.error( '[localtunnel manager]', ...args );
+}
+
+/**
+ * Log a warning message with localtunnel manager prefix
+ * @param {...*} args - Arguments to log
+ */
+function logWarn( ...args ) {
+	console.warn( '[localtunnel manager]', ...args );
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs( hideBin( process.argv ) )
 	.usage( 'Usage: $0 <cmd>' )
@@ -49,9 +73,9 @@ export function getReusableUrlFromFile() {
 	} catch ( error ) {
 		if ( error.code === 'ENOENT' ) {
 			// We expect this, reduce noise in logs
-			console.warn( "Localtunnel file doesn't exist" );
+			logWarn( "Localtunnel file doesn't exist" );
 		} else {
-			console.error( error );
+			logError( error );
 		}
 	}
 	return urlFromFile;
@@ -127,12 +151,18 @@ async function tunnelChild() {
 	} );
 
 	// Redirect console stuff to process.send too.
-	const wrap = func => m => {
-		func( m );
-		process.send?.( m );
-	};
-	console.log = wrap( console.log );
-	console.error = wrap( console.error );
+	const originalConsoleLog = console.log;
+	const originalConsoleError = console.error;
+
+	const wrap =
+		func =>
+		( ...args ) => {
+			const message = `[localtunnel manager] ${ args.join( ' ' ) }`;
+			func( message );
+			process.send?.( message );
+		};
+	console.log = wrap( originalConsoleLog );
+	console.error = wrap( originalConsoleError );
 
 	const customTunnelUrl = getTunnelOverrideURL();
 	if ( customTunnelUrl ) {
@@ -174,7 +204,7 @@ async function tunnelOff() {
 	const subdomain = await getTunnelSubdomain();
 
 	if ( subdomain ) {
-		console.log( `Closing tunnel ${ subdomain }` );
+		log( `Closing tunnel ${ subdomain }` );
 
 		const pidfile = config.get( 'temp.pid' );
 		if ( fs.existsSync( pidfile ) ) {
@@ -188,7 +218,7 @@ async function tunnelOff() {
 				}
 			};
 			if ( pid.match( /^\d+$/ ) && processExists( pid ) ) {
-				console.log( `Terminating tunnel process ${ pid }` );
+				log( `Terminating tunnel process ${ pid }` );
 				process.kill( pid );
 				await new Promise( resolve => {
 					const check = () => {
@@ -206,9 +236,9 @@ async function tunnelOff() {
 
 		try {
 			const res = await axios.get( `${ tunnelConfig.host }/api/tunnels/${ subdomain }/delete` );
-			console.log( JSON.stringify( res.data ) );
+			log( JSON.stringify( res.data ) );
 		} catch ( error ) {
-			console.error( error.message );
+			logError( error.message );
 		}
 	}
 }
