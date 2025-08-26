@@ -7,21 +7,68 @@ import {
 	BarListChart,
 	DataPointPercentage,
 	SeriesData,
-	ThemeProvider,
 } from '../../../.';
 import { medalCountsData as barSampleData } from '../../../stories/sample-data';
-import { jetpackTheme, wooTheme } from '../../theme/themes';
+import { jetpackTheme, wooTheme, defaultTheme } from '../../theme/themes';
 import { GlobalChartsProvider } from '../global-charts-provider';
+import type { ChartTheme } from '../../../types';
 
-const meta: Meta = {
+type StoryArgs = {
+	themeName?: string;
+};
+
+const THEME_MAP: Record< string, ChartTheme | undefined > = {
+	default: defaultTheme,
+	jetpack: jetpackTheme,
+	woo: wooTheme,
+	custom: {
+		colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
+		seriesLineStyles: [
+			{
+				strokeWidth: 1,
+				strokeDasharray: '8 8',
+				strokeLinecap: 'square',
+			},
+			{
+				strokeDasharray: '5 8',
+				strokeWidth: 2,
+				strokeLinecap: 'square',
+			},
+		],
+		gridStyles: {
+			stroke: '#ffe3e3',
+			strokeWidth: 2,
+		},
+	} as ChartTheme,
+};
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Chart Context',
 	parameters: {
 		layout: 'centered',
 	},
+	decorators: [
+		( Story, { args }: { args: StoryArgs } ) => {
+			const theme = THEME_MAP[ args.themeName || 'default' ];
+
+			return (
+				<GlobalChartsProvider theme={ theme }>
+					<Story />
+				</GlobalChartsProvider>
+			);
+		},
+	],
+	argTypes: {
+		themeName: {
+			control: { type: 'select' },
+			options: [ 'default', 'jetpack', 'woo', 'custom' ],
+			defaultValue: 'default',
+		},
+	},
 };
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj< StoryArgs >;
 
 const barData: SeriesData[] = [ barSampleData[ 0 ], barSampleData[ 1 ], barSampleData[ 2 ] ];
 
@@ -211,7 +258,7 @@ const ChartGrid = ( {
 				width={ 350 }
 				height={ 250 }
 				withGradientFill={ false }
-				withLegendGlyph={ false }
+				showLegend={ true }
 				withTooltips={ true }
 				margin={ { bottom: 40 } }
 			/>
@@ -249,143 +296,12 @@ const ChartGrid = ( {
 
 export const Default: Story = {
 	render: () => (
-		<GlobalChartsProvider>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
+		<ChartGrid
+			lineChartData={ lineData }
+			barChartData={ barData }
+			pieChartData={ pieData }
+			barListChartData={ barListData }
+			donutChartData={ donutData }
+		/>
 	),
-};
-
-export const JetpackTheme: Story = {
-	render: () => (
-		<GlobalChartsProvider theme={ jetpackTheme }>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
-	),
-};
-
-export const WooTheme: Story = {
-	render: () => (
-		<GlobalChartsProvider theme={ wooTheme }>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
-	),
-};
-
-export const CustomTheme: Story = {
-	render: () => (
-		<GlobalChartsProvider
-			theme={ {
-				colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
-				seriesLineStyles: [
-					{
-						strokeWidth: 1,
-						strokeDasharray: '8 8',
-						strokeLinecap: 'square',
-					},
-					{
-						strokeDasharray: '5 8',
-						strokeWidth: 2,
-						strokeLinecap: 'square',
-					},
-				],
-				gridStyles: {
-					stroke: '#ffe3e3',
-					strokeWidth: 2,
-				},
-			} }
-		>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
-	),
-};
-
-export const NestedThemes: Story = {
-	render: () => {
-		return (
-			<GlobalChartsProvider theme={ wooTheme }>
-				<div
-					style={ {
-						display: 'grid',
-						gridTemplateColumns: 'repeat(2, 1fr)',
-						gap: '4rem',
-						width: '100%',
-					} }
-				>
-					<ThemeProvider theme={ { colors: [ '#FF6B6B', ...wooTheme.colors.slice( 1 ) ] } }>
-						<LineChart
-							data={ lineData }
-							width={ 350 }
-							height={ 250 }
-							withGradientFill={ false }
-							withLegendGlyph={ false }
-							withTooltips={ true }
-							margin={ { bottom: 40 } }
-						/>
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#2ECC71', ...wooTheme.colors.slice( 1 ) ] } }>
-						<BarChart
-							data={ barData }
-							width={ 350 }
-							height={ 250 }
-							withTooltips={ true }
-							showLegend={ true }
-						/>
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#E91E63', ...wooTheme.colors.slice( 1 ) ] } }>
-						<PieSemiCircleChart
-							data={ pieData }
-							width={ 350 }
-							label="Semi-Circle Chart"
-							withTooltips={ true }
-							showLegend={ true }
-						/>
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#F9CA24', ...wooTheme.colors.slice( 1 ) ] } }>
-						<BarListChart data={ barListData } width={ 350 } height={ 250 } withTooltips={ true } />
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#F0932B', ...wooTheme.colors.slice( 1 ) ] } }>
-						<PieChart size={ 300 } data={ pieData } withTooltips={ true } showLegend={ true } />
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#EB4D4B', ...wooTheme.colors.slice( 1 ) ] } }>
-						<PieChart
-							size={ 300 }
-							thickness={ 0.5 }
-							data={ donutData }
-							withTooltips={ true }
-							showLegend={ true }
-						/>
-					</ThemeProvider>
-				</div>
-			</GlobalChartsProvider>
-		);
-	},
 };
