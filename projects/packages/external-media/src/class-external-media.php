@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\External_Media;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\External_Connections;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -39,6 +40,19 @@ class External_Media {
 			// This loads assets specific to the editing interface like the block toolbar, as well as a front-end fallback.
 			add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		}
+
+		External_Connections::add_settings_for_service(
+			'media',
+			array(
+				'service'      => 'google_photos',
+				'title'        => __( 'Google Photos', 'jetpack-external-media' ),
+				'description'  => __( 'Access photos stored in your Google Photos library.', 'jetpack-external-media' ),
+				'support_link' => array(
+					'wpcom'   => 'https://wordpress.com/support/google-photos/',
+					'jetpack' => 'using-your-google-photos-with-jetpack/',
+				),
+			)
+		);
 	}
 
 	/**

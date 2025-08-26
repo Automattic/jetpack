@@ -1348,17 +1348,86 @@
             }
         },
         {
+            "name": "automattic/jetpack-external-connections",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/external-connections",
+                "reference": "b387edc2bcc648016797a8c23d7e22a8d949aad7"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-redirect": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-external-connections/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-external-connections",
+                "textdomain": "jetpack-external-connections",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-external-connections.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build-js"
+                ],
+                "build-production": [
+                    "pnpm run build-production-js"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Connect your site to external services.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-external-media",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/external-media",
-                "reference": "7cad8e8882445ccee15d738c566c541323e0e698"
+                "reference": "c0e69c7f79e604ec30d5e592e22fa399e11b4371"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-external-connections": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.2"
             },
