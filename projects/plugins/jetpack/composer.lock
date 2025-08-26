@@ -1421,12 +1421,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/external-media",
-                "reference": "7cad8e8882445ccee15d738c566c541323e0e698"
+                "reference": "c0e69c7f79e604ec30d5e592e22fa399e11b4371"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-external-connections": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.2"
             },
