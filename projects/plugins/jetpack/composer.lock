@@ -1497,6 +1497,7 @@
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-external-connections": "@dev",
                 "automattic/jetpack-jwt": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-plans": "@dev",

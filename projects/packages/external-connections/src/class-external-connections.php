@@ -157,7 +157,7 @@ class External_Connections {
 	 * @param string $service The service identifier.
 	 * @return array The connection data.
 	 */
-	private static function get_connection_data( $service ) {
+	public static function get_connection_data( $service ) {
 		$connection = self::get_connection( $service );
 		if ( empty( $connection ) ) {
 			return array(

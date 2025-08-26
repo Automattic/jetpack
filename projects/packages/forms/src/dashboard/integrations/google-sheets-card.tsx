@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
+import requestExternalAccess from '@automattic/request-external-access';
 import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from 'react-router';
 /**
@@ -24,6 +25,7 @@ const GoogleSheetsDashboardCard = ( {
 	const isConnected = !! data?.isConnected;
 	const settingsUrl = data?.settingsUrl;
 	const navigate = useNavigate();
+	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	const cardData: IntegrationCardData = {
 		...data,
@@ -37,8 +39,15 @@ const GoogleSheetsDashboardCard = ( {
 
 	const handleConnectClick = useCallback( () => {
 		if ( ! settingsUrl ) return;
-		window.open( settingsUrl, '_blank', 'noopener,noreferrer' );
-	}, [ settingsUrl ] );
+		setIsConnecting( true );
+		requestExternalAccess( settingsUrl, ( { keyring_id: keyringId } ) => {
+			if ( keyringId ) {
+				refreshStatus();
+			} else {
+				setIsConnecting( false );
+			}
+		} );
+	}, [ settingsUrl, refreshStatus ] );
 
 	const handleViewResponsesClick = useCallback( () => {
 		navigate( '/responses' );
@@ -68,12 +77,11 @@ const GoogleSheetsDashboardCard = ( {
 							target="_blank"
 							rel="noopener noreferrer"
 							__next40pxDefaultSize={ true }
-							disabled={ ! settingsUrl }
+							disabled={ ! settingsUrl || isConnecting }
 						>
-							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
-						</Button>
-						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
-							{ __( 'Refresh status', 'jetpack-forms' ) }
+							{ isConnecting
+								? __( 'Connecting…', 'jetpack-forms' )
+								: __( 'Connect to Google Drive', 'jetpack-forms' ) }
 						</Button>
 					</HStack>
 				</div>
