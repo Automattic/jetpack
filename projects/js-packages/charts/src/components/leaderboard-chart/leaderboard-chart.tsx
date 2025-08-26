@@ -58,6 +58,11 @@ export interface LeaderboardEntry {
 	 * Delta of the entry
 	 */
 	delta: number;
+
+	/**
+	 * Optional color for the entry's image/icon
+	 */
+	imageColor?: string;
 }
 
 export interface LeaderboardChartProps {

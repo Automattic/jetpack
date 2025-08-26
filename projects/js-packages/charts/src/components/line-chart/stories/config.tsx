@@ -2,9 +2,9 @@ import { GlyphDiamond, GlyphStar } from '@visx/glyph';
 import merge from 'deepmerge';
 import { createElement } from 'react';
 import { jetpackTheme, wooTheme, ThemeProvider } from '../../../providers/theme';
+import { temperatureData as sampleData } from '../../../stories/sample-data';
 import { DefaultGlyph } from '../../shared/default-glyph';
 import LineChart from '../line-chart';
-import sampleData from './sample-data';
 import type { Meta } from '@storybook/react';
 
 type StoryArgs = React.ComponentProps< typeof LineChart > & {
