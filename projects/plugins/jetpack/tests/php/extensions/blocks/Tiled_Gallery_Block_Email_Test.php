@@ -280,4 +280,201 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 		$this->assertTrue( $styles_helper_exists, 'Styles_Helper class should be mocked and available' );
 		$this->assertTrue( $table_helper_exists, 'Table_Wrapper_Helper class should be mocked and available' );
 	}
+
+	/**
+	 * Test render_email with no link setting (default: none).
+	 */
+	public function test_render_email_with_no_link() {
+		$parsed_block = $this->create_parsed_block_with_attrs(
+			array(
+				'linkTo' => 'none',
+			)
+		);
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', $parsed_block, $mock_context );
+
+		// Should return HTML content without any links
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( '<img', $result );
+		$this->assertStringNotContainsString( '<a href=', $result );
+	}
+
+	/**
+	 * Test render_email with media file links.
+	 */
+	public function test_render_email_with_media_links() {
+		$parsed_block = $this->create_parsed_block_with_attrs(
+			array(
+				'linkTo' => 'media',
+			)
+		);
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', $parsed_block, $mock_context );
+
+		// Should return HTML content with media file links
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( '<a href="http://example.com/test-image-1.jpg">', $result );
+		$this->assertStringContainsString( '<a href="http://example.com/test-image-2.jpg">', $result );
+		$this->assertStringContainsString( '<a href="http://example.com/test-image-3.jpg">', $result );
+	}
+
+	/**
+	 * Test render_email with attachment page links.
+	 */
+	public function test_render_email_with_attachment_links() {
+		// Create test attachments
+		$attachment_id_1 = $this->factory->attachment->create();
+		$attachment_id_2 = $this->factory->attachment->create();
+		$attachment_id_3 = $this->factory->attachment->create();
+
+		$parsed_block = $this->create_parsed_block_with_attrs(
+			array(
+				'linkTo' => 'attachment',
+				'images' => array(
+					array(
+						'url' => 'http://example.com/test-image-1.jpg',
+						'alt' => 'Test Alt Text 1',
+						'id'  => $attachment_id_1,
+					),
+					array(
+						'url' => 'http://example.com/test-image-2.jpg',
+						'alt' => 'Test Alt Text 2',
+						'id'  => $attachment_id_2,
+					),
+					array(
+						'url' => 'http://example.com/test-image-3.jpg',
+						'alt' => 'Test Alt Text 3',
+						'id'  => $attachment_id_3,
+					),
+				),
+			)
+		);
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', $parsed_block, $mock_context );
+
+		// Should return HTML content with attachment page links
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( '<a href=', $result );
+
+		// Check that links contain attachment URLs
+		$expected_url_1 = get_permalink( $attachment_id_1 );
+		$expected_url_2 = get_permalink( $attachment_id_2 );
+		$expected_url_3 = get_permalink( $attachment_id_3 );
+
+		if ( $expected_url_1 ) {
+			$this->assertStringContainsString( 'href="' . esc_url( $expected_url_1 ) . '"', $result );
+		}
+		if ( $expected_url_2 ) {
+			$this->assertStringContainsString( 'href="' . esc_url( $expected_url_2 ) . '"', $result );
+		}
+		if ( $expected_url_3 ) {
+			$this->assertStringContainsString( 'href="' . esc_url( $expected_url_3 ) . '"', $result );
+		}
+	}
+
+	/**
+	 * Test render_email with invalid linkTo setting.
+	 */
+	public function test_render_email_with_invalid_link_setting() {
+		$parsed_block = $this->create_parsed_block_with_attrs(
+			array(
+				'linkTo' => 'invalid-setting',
+			)
+		);
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', $parsed_block, $mock_context );
+
+		// Should return HTML content without any links (fallback to no links)
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( '<img', $result );
+		$this->assertStringNotContainsString( '<a href=', $result );
+	}
+
+	/**
+	 * Test front-end render method with media links.
+	 */
+	public function test_render_frontend_with_media_links() {
+		// Sample HTML content with tiled gallery images
+		$content = '<div class="wp-block-jetpack-tiled-gallery">
+			<div class="tiled-gallery__gallery">
+				<div class="tiled-gallery__row">
+					<div class="tiled-gallery__col">
+						<figure class="tiled-gallery__item">
+							<img alt="Test Image 1" data-height="1254" data-id="1" data-link="https://example.com/?attachment_id=1" data-url="https://example.com/image1.jpg" data-width="1880" src="https://example.com/image1.jpg" />
+						</figure>
+					</div>
+					<div class="tiled-gallery__col">
+						<figure class="tiled-gallery__item">
+							<img alt="Test Image 2" data-height="1254" data-id="2" data-link="https://example.com/?attachment_id=2" data-url="https://example.com/image2.jpg" data-width="1880" src="https://example.com/image2.jpg" />
+						</figure>
+					</div>
+				</div>
+			</div>
+		</div>';
+
+		$attr = array(
+			'linkTo' => 'media',
+		);
+
+		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render( $attr, $content );
+
+		// Should wrap images in media file links
+		$this->assertStringContainsString( '<a href="https://example.com/image1.jpg">', $result );
+		$this->assertStringContainsString( '<a href="https://example.com/image2.jpg">', $result );
+	}
+
+	/**
+	 * Test front-end render method with attachment links.
+	 */
+	public function test_render_frontend_with_attachment_links() {
+		// Sample HTML content with tiled gallery images
+		$content = '<div class="wp-block-jetpack-tiled-gallery">
+			<div class="tiled-gallery__gallery">
+				<div class="tiled-gallery__row">
+					<div class="tiled-gallery__col">
+						<figure class="tiled-gallery__item">
+							<img alt="Test Image 1" data-height="1254" data-id="1" data-link="https://example.com/?attachment_id=1" data-url="https://example.com/image1.jpg" data-width="1880" src="https://example.com/image1.jpg" />
+						</figure>
+					</div>
+				</div>
+			</div>
+		</div>';
+
+		$attr = array(
+			'linkTo' => 'attachment',
+		);
+
+		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render( $attr, $content );
+
+		// Should wrap images in attachment page links
+		$this->assertStringContainsString( '<a href="https://example.com/?attachment_id=1">', $result );
+	}
+
+	/**
+	 * Test front-end render method with no links (default).
+	 */
+	public function test_render_frontend_with_no_links() {
+		// Sample HTML content with tiled gallery images
+		$content = '<div class="wp-block-jetpack-tiled-gallery">
+			<div class="tiled-gallery__gallery">
+				<div class="tiled-gallery__row">
+					<div class="tiled-gallery__col">
+						<figure class="tiled-gallery__item">
+							<img alt="Test Image 1" data-height="1254" data-id="1" data-link="https://example.com/?attachment_id=1" data-url="https://example.com/image1.jpg" data-width="1880" src="https://example.com/image1.jpg" />
+						</figure>
+					</div>
+				</div>
+			</div>
+		</div>';
+
+		$attr = array(
+			'linkTo' => 'none',
+		);
+
+		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render( $attr, $content );
+
+		// Should not wrap images in any links
+		$this->assertStringNotContainsString( '<a href=', $result );
+		$this->assertStringContainsString( '<img', $result );
+	}
 }

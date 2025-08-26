@@ -64,6 +64,9 @@ class Tiled_Gallery {
 		$jetpack_plan = Jetpack_Plan::get();
 		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
 
+		// Get link settings from attributes
+		$link_to = ! empty( $attr['linkTo'] ) ? $attr['linkTo'] : 'none';
+
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {
 			/**
 			 * This block processes all of the images that are found and builds $find and $replace.
@@ -147,8 +150,14 @@ class Tiled_Gallery {
 					if ( ! empty( $srcset_parts ) ) {
 						$srcset = 'srcset="' . esc_attr( implode( ',', $srcset_parts ) ) . '"';
 
+						// Process the image with srcset
+						$processed_img = str_replace( '<img', $img_element . $srcset, $image_html );
+
+						// Handle link settings
+						$final_img = self::process_image_link( $processed_img, $attr, $link_to );
+
 						$find[]    = $image_html;
-						$replace[] = str_replace( '<img', $img_element . $srcset, $image_html );
+						$replace[] = $final_img;
 					}
 				}
 			}
@@ -168,6 +177,51 @@ class Tiled_Gallery {
 		 * @param string $content Tiled Gallery block content.
 		 */
 		return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
+	}
+
+	/**
+	 * Process image link based on linkTo setting.
+	 * Excludes custom links which email clients will replace with the image.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $image_html The processed image HTML.
+	 * @param array  $attr       Block attributes.
+	 * @param string $link_to    Link setting (none, attachment, media, custom).
+	 * @return string The image HTML with or without link wrapper.
+	 */
+	private static function process_image_link( $image_html, $attr, $link_to ) {
+		// If linkTo is 'none' or empty, return image as-is
+		if ( 'none' === $link_to || empty( $link_to ) ) {
+			return $image_html;
+		}
+
+		// Extract image data attributes needed for link generation
+		$href = '';
+
+		switch ( $link_to ) {
+			case 'media':
+				// Link to media file - extract from data-url attribute
+				if ( preg_match( '/data-url="([^"]+)"/', $image_html, $data_url_match ) ) {
+					$href = esc_url( $data_url_match[1] );
+				}
+				break;
+
+			case 'attachment':
+				// Link to attachment page - extract from data-link attribute
+				if ( preg_match( '/data-link="([^"]+)"/', $image_html, $data_link_match ) ) {
+					$href = esc_url( $data_link_match[1] );
+				}
+				break;
+		}
+
+		// If we have a valid href, wrap the image in a link
+		if ( ! empty( $href ) ) {
+			return '<a href="' . $href . '">' . $image_html . '</a>';
+		}
+
+		// Fallback: return image without link
+		return $image_html;
 	}
 
 	/**
@@ -253,7 +307,7 @@ class Tiled_Gallery {
 		$layout_info = self::get_layout_style_from_attributes( $attr );
 
 		// Build layout content based on style and columns
-		$grid_content = self::build_email_layout_content( $images, $layout_info, $target_width, $email_cell_padding );
+		$grid_content = self::build_email_layout_content( $images, $layout_info, $target_width, $email_cell_padding, $attr );
 
 		// Use Table_Wrapper_Helper for consistent email rendering
 		$image_table_attrs = array(
@@ -427,23 +481,24 @@ class Tiled_Gallery {
 	 * @param array $layout_info Array with 'style' and 'columns' keys.
 	 * @param int   $target_width Target width for email.
 	 * @param int   $cell_padding Cell padding.
+	 * @param array $attr Block attributes.
 	 * @return string HTML content.
 	 */
-	private static function build_email_layout_content( $images, $layout_info, $target_width, $cell_padding ) {
+	private static function build_email_layout_content( $images, $layout_info, $target_width, $cell_padding, $attr ) {
 		$layout_style  = $layout_info['style'];
 		$columns       = $layout_info['columns'];
 		$border_radius = $layout_info['border_radius'];
 
 		switch ( $layout_style ) {
 			case 'square':
-				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'square', $border_radius );
+				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'square', $border_radius, $attr );
 			case 'circle':
-				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'circle', $border_radius );
+				return self::build_square_layout_content( $images, $target_width, $cell_padding, $columns, 'circle', $border_radius, $attr );
 			case 'columns':
-				return self::build_columns_layout_content( $images, $target_width, $cell_padding, $columns, $border_radius );
+				return self::build_columns_layout_content( $images, $target_width, $cell_padding, $columns, $border_radius, $attr );
 			case 'rectangular':
 			default:
-				return self::build_mosaic_layout_content( $images, $target_width, $cell_padding, $border_radius );
+				return self::build_mosaic_layout_content( $images, $target_width, $cell_padding, $border_radius, $attr );
 		}
 	}
 
@@ -456,9 +511,10 @@ class Tiled_Gallery {
 	 * @param int    $columns Number of columns for the layout.
 	 * @param string $style Layout style (square or circle).
 	 * @param int    $border_radius Border radius value (0-20).
+	 * @param array  $attr Block attributes.
 	 * @return string HTML content.
 	 */
-	private static function build_square_layout_content( $images, $target_width, $cell_padding, $columns, $style = 'square', $border_radius = 0 ) {
+	private static function build_square_layout_content( $images, $target_width, $cell_padding, $columns, $style = 'square', $border_radius = 0, $attr = array() ) {
 		$content_parts = array();
 
 		// Create rows of images with special handling for square/circle layouts
@@ -493,7 +549,7 @@ class Tiled_Gallery {
 				// Use simple structure - images are pre-cropped to squares for square/circle styles
 				$content_parts[] = '<div style="margin-bottom:24px;display:flex;margin:0;' . $width_style . ';' . $margin_right . '">';
 				$content_parts[] = '<figure style="margin:0;overflow:hidden;padding:0">';
-				$content_parts[] = self::generate_image_html( $image, $image_styles, $border_radius_style );
+				$content_parts[] = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
 				$content_parts[] = '</figure>';
 				$content_parts[] = '</div>';
 			}
@@ -512,9 +568,10 @@ class Tiled_Gallery {
 	 * @param int   $cell_padding Cell padding.
 	 * @param int   $columns Number of columns for the layout.
 	 * @param int   $border_radius Border radius value (0-20).
+	 * @param array $attr Block attributes.
 	 * @return string HTML content.
 	 */
-	private static function build_columns_layout_content( $images, $target_width, $cell_padding, $columns, $border_radius = 0 ) {
+	private static function build_columns_layout_content( $images, $target_width, $cell_padding, $columns, $border_radius = 0, $attr = array() ) {
 		$content_parts       = array();
 		$border_radius_style = self::generate_border_radius_style( '', $border_radius );
 
@@ -550,7 +607,7 @@ class Tiled_Gallery {
 
 				foreach ( $row_images as $image ) {
 					$content_parts[] = '<figure style="margin:0;overflow:hidden;padding:0;display:flex;' . $margin_top_style . '">';
-					$content_parts[] = self::generate_image_html( $image, $image_styles, $border_radius_style );
+					$content_parts[] = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
 					$content_parts[] = '</figure>';
 				}
 			}
@@ -570,9 +627,10 @@ class Tiled_Gallery {
 	 * @param int   $target_width Target width for email.
 	 * @param int   $cell_padding Cell padding.
 	 * @param int   $border_radius Border radius value (0-20).
+	 * @param array $attr Block attributes.
 	 * @return string HTML content.
 	 */
-	private static function build_mosaic_layout_content( $images, $target_width, $cell_padding, $border_radius = 0 ) {
+	private static function build_mosaic_layout_content( $images, $target_width, $cell_padding, $border_radius = 0, $attr = array() ) {
 		$content_parts       = array();
 		$border_radius_style = self::generate_border_radius_style( '', $border_radius );
 
@@ -598,7 +656,7 @@ class Tiled_Gallery {
 
 				$content_parts[] = '<div style="margin:0;margin-right:' . $margin_right . 'px;' . $width_style . 'display:flex;min-width:0;box-sizing:border-box">';
 				$content_parts[] = '<figure style="margin:0;overflow:hidden;padding:0;display:flex;width:100%;box-sizing:border-box">';
-				$content_parts[] = self::generate_image_html( $image, $image_styles, $border_radius_style );
+				$content_parts[] = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
 				$content_parts[] = '</figure>';
 				$content_parts[] = '</div>';
 			}
@@ -747,18 +805,57 @@ class Tiled_Gallery {
 	 * @param array  $image Image data array.
 	 * @param string $additional_styles Additional CSS styles.
 	 * @param string $border_radius_style Border radius CSS.
+	 * @param array  $attr Block attributes (optional, for link processing).
 	 * @return string Image HTML.
 	 */
-	private static function generate_image_html( $image, $additional_styles = '', $border_radius_style = '' ) {
+	private static function generate_image_html( $image, $additional_styles = '', $border_radius_style = '', $attr = array() ) {
 		$base_styles     = 'border:none;background-color:#0000001a;display:block;height:auto;max-width:100%;object-fit:cover;object-position:center;padding:0;';
 		$combined_styles = $base_styles . $additional_styles . $border_radius_style;
 
-		return sprintf(
+		$img_html = sprintf(
 			'<img alt="%s" src="%s" style="%s" />',
 			esc_attr( $image['alt'] ),
 			esc_url( $image['url'] ),
 			$combined_styles
 		);
+
+		// Handle link settings for email
+		$link_to = ! empty( $attr['linkTo'] ) ? $attr['linkTo'] : 'none';
+		$href    = self::get_image_link_href( $image, $attr, $link_to );
+
+		if ( ! empty( $href ) ) {
+			return sprintf( '<a href="%s">%s</a>', esc_url( $href ), $img_html );
+		}
+
+		return $img_html;
+	}
+
+	/**
+	 * Get the href for an image based on link settings (used for email rendering).
+	 * Excludes custom links which email clients will replace with the image.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array  $image Image data array.
+	 * @param array  $attr Block attributes.
+	 * @param string $link_to Link setting.
+	 * @return string The href URL or empty string.
+	 */
+	private static function get_image_link_href( $image, $attr, $link_to ) {
+		switch ( $link_to ) {
+			case 'media':
+				return ! empty( $image['url'] ) ? $image['url'] : '';
+
+			case 'attachment':
+				// For email, we need to generate the attachment page URL from the image ID
+				if ( ! empty( $image['id'] ) ) {
+					$attachment_url = get_permalink( $image['id'] );
+					return $attachment_url ? $attachment_url : '';
+				}
+				return '';
+			default:
+				return '';
+		}
 	}
 
 	/**
