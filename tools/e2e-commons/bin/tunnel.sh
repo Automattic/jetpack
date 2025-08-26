@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-# Wrapper over tunnel.js script
+# Tunnel Manager
+#
+# Manages HTTP tunnels using either Cloudflare Tunnel or LocalTunnel
+#
+# Environment Variables:
+# - USE_CLOUDFLARE_TUNNEL: Use Cloudflare Tunnel instead of LocalTunnel
+#
 
 set -e
 
@@ -20,54 +26,61 @@ function usage() {
 BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$BASE_DIR/../node_modules/.bin:$PATH"
 
+function log() {
+	echo "[tunnel manager] $*"
+}
+
 function health_check() {
 	local url="$1"
-	local max_attempts=30
+	local max_attempts=20
 	local attempt=1
+	local dns_wait_time=5
+	local retry_interval=3
 	
-	echo "Health checking tunnel at: $url"
+	log "Checking tunnel at: $url"
 	
-	# Check if curl is available
 	if ! command -v curl > /dev/null 2>&1; then
-		echo "Warning: curl not found, skipping health check"
+		log "Warning: curl not found, skipping health check"
 		return 0
 	fi
 	
-	# Give DNS some time to propagate
-	echo "Waiting 5 seconds for DNS propagation..."
-	sleep 5
+	# Give DNS some time to propagate, especially useful for Cloudflare Tunnel
+	log "Waiting $dns_wait_time seconds for DNS propagation..."
+	sleep $dns_wait_time
 	
 	while [ $attempt -le $max_attempts ]; do
 		local http_code curl_exit_code
 		http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 15 "$url" 2>/dev/null)
 		curl_exit_code=$?
 		
-		echo "Attempt $attempt/$max_attempts: HTTP $http_code (curl exit: $curl_exit_code)"
-		
 		if [ "$http_code" = "200" ] || [ "$http_code" = "301" ]; then
-			echo "✓ Tunnel is responding with $http_code status"
+			log "✓ Tunnel is responding with $http_code status"
 			return 0
+		else
+			log "Attempt $attempt of $max_attempts failed: HTTP $http_code (curl exit: $curl_exit_code)"
+			
+			case $curl_exit_code in
+				6)
+					log "  DNS resolution failed"
+					;;
+				7)
+					log "  Connection refused"
+					;;
+				28)
+					log "  Connection timeout"
+					;;
+			esac
+			
+			if [ $attempt -lt $max_attempts ]; then
+				log "  Retrying in $retry_interval seconds..."
+				sleep $retry_interval
+			fi
 		fi
 		
-		# Handle specific curl error codes
-		case $curl_exit_code in
-			6)
-				echo "  DNS resolution failed, retrying..."
-				;;
-			7)
-				echo "  Connection refused, retrying..."
-				;;
-			28)
-				echo "  Connection timeout, retrying..."
-				;;
-		esac
-		
-		sleep 2
 		attempt=$((attempt + 1))
 	done
 	
-	echo "✗ Tunnel failed to respond with 200 or 301 after $max_attempts attempts"
-	echo "Note: This may be normal if the tunnel takes longer to become available"
+	log "✗ Tunnel failed to respond with 200 or 301 after $max_attempts attempts"
 	return 1
 }
 
@@ -77,7 +90,7 @@ function up() {
 	
 	while [ $retry_count -le $max_retries ]; do
 		if [ $retry_count -gt 0 ]; then
-			echo "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
+			log "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
 		fi
 		
 		down
@@ -96,17 +109,17 @@ function up() {
 		
 		if [[ -n "$tunnel_url" ]]; then
 			if health_check "$tunnel_url"; then
-				echo "Tunnel setup successful!"
+				log "Tunnel setup successful"
 				return 0
 			fi
 		else
-			echo "Warning: Could not extract tunnel URL from output for health check"
+			log "Warning: Could not extract tunnel URL from output for health check"
 		fi
 		
 		retry_count=$((retry_count + 1))
 	done
 	
-	echo "Tunnel setup completed after $((max_retries + 1)) attempts"
+	log "Tunnel setup failed after $((max_retries + 1)) attempts"
 	# Return success to allow test suite to run - environment readiness checks will catch tunnel issues later
 	return 0
 }
