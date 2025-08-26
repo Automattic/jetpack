@@ -1077,7 +1077,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php
 		$input = ob_get_clean();
 
-		$field = $label . $input . $this->get_error_div( $id, 'telephone' );
+		$field = $label . $input . $this->get_error_div( $id, 'phone' );
 		return $field;
 	}
 
