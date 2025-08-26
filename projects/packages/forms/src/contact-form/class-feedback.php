@@ -236,9 +236,9 @@ class Feedback {
 		}
 		if ( isset( $post_data[ $key ] ) ) {
 			if ( is_array( $post_data[ $key ] ) ) {
-				return array_map( 'sanitize_text_field', wp_unslash( $post_data[ $key ] ) );
+				return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
 			} else {
-				return sanitize_text_field( wp_unslash( $post_data[ $key ] ) );
+				return sanitize_textarea_field( wp_unslash( $post_data[ $key ] ) );
 			}
 		}
 		return '';
@@ -802,7 +802,7 @@ class Feedback {
 			$fields_to_serialize['ip'] = null;
 		}
 
-		return wp_json_encode( $fields_to_serialize );
+		return addslashes( wp_json_encode( $fields_to_serialize ) );
 	}
 
 	/**
@@ -829,8 +829,8 @@ class Feedback {
 	private function parse_content_v2( $post_content = '' ) {
 		$decoded_content = json_decode( $post_content, true );
 		if ( $decoded_content === null ) {
-			// If JSON decoding fails, try to decode the second try with stripslashes and trim.
-			// This is a workaround for some cases where the JSON data is not properly formatted.
+			// If JSON decoding still fails, try with stripslashes and trim as a fallback
+			// This is a workaround for some cases where the JSON data is not properly formatted
 			$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
 		}
 
