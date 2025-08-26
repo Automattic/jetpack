@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+	useEffect,
+	useRef,
+} from 'react';
 import { defaultTheme } from '../theme/themes';
 import type { ChartContextValue, ChartRegistration } from './types';
 import type { ChartTheme } from '../../types';
@@ -21,7 +29,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	const providerTheme: ChartTheme = useMemo( () => ( { ...defaultTheme, ...theme } ), [ theme ] );
 
 	// Stable group -> color mapping for this provider lifecycle
-	const [ groupToColorMap ] = useState< Map< string, string > >( () => new Map() );
+	const groupToColorMapRef = useRef< Map< string, string > >( new Map() );
+
+	// Reset group color mappings when theme changes
+	useEffect( () => {
+		groupToColorMapRef.current = new Map();
+	}, [ providerTheme.colors ] );
 
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
 		setCharts( prev => new Map( prev ).set( id, data ) );
@@ -43,9 +56,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	);
 
 	const resolveGroupColor = useCallback< ChartContextValue[ 'resolveGroupColor' ] >(
-		params => {
-			const { group, index, overrideColor } = params;
-
+		( { group, index, overrideColor } ) => {
 			// Highest precedence: explicit series stroke
 			if ( overrideColor ) {
 				return overrideColor;
@@ -53,15 +64,15 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 
 			// If group provided, maintain a stable assignment
 			if ( group ) {
-				const existing = groupToColorMap.get( group );
+				const existing = groupToColorMapRef.current.get( group );
 				if ( existing ) {
 					return existing;
 				}
 				// Assign next color from palette in a deterministic cycling manner
 				const palette = providerTheme.colors ?? [];
-				const assignedCount = groupToColorMap.size;
+				const assignedCount = groupToColorMapRef.current.size;
 				const color = palette.length > 0 ? palette[ assignedCount % palette.length ] : '#000000';
-				groupToColorMap.set( group, color );
+				groupToColorMapRef.current.set( group, color );
 				return color;
 			}
 
@@ -69,7 +80,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			const palette = providerTheme.colors ?? [];
 			return palette.length > 0 ? palette[ index % palette.length ] : '#000000';
 		},
-		[ groupToColorMap, providerTheme.colors ]
+		[ providerTheme.colors ]
 	);
 
 	const value: ChartContextValue = useMemo(
