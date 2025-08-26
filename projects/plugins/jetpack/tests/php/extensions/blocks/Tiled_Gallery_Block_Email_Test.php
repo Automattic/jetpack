@@ -90,11 +90,11 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( '<table', $result );
 		$this->assertStringContainsString( '<img', $result );
 
-		// Should contain flexbox layout
-		$this->assertStringContainsString( 'display:flex', $result );
+		// Should contain table-based layout for email compatibility
+		$this->assertStringContainsString( 'border-collapse: collapse', $result );
 
 		// Should contain margin below block
-		$this->assertStringContainsString( 'margin-bottom: 2em', $result );
+		$this->assertStringContainsString( 'margin-bottom: 32px', $result );
 	}
 
 	/**
@@ -115,8 +115,8 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( '<table', $result );
 		$this->assertStringContainsString( '<img', $result );
 
-		// Should contain flexbox layout
-		$this->assertStringContainsString( 'display:flex', $result );
+		// Should contain table-based layout for email compatibility
+		$this->assertStringContainsString( 'border-collapse: collapse', $result );
 	}
 
 	/**
@@ -152,7 +152,7 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 
 		// Should return HTML content with columns layout
 		$this->assertNotEmpty( $result );
-		$this->assertStringContainsString( 'clear:both', $result );
+		$this->assertStringContainsString( 'border-collapse: collapse', $result );
 	}
 
 	/**
