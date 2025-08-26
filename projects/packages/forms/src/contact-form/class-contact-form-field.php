@@ -997,8 +997,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$link_label_id = $id . '-number';
 
-		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-		$label = $this->render_label( 'telephone', $link_label_id, $label, $required, $required_field_text );
+		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
+		$label = $this->render_label( 'phone', $link_label_id, $label, $required, $required_field_text );
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
@@ -1069,7 +1069,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php
 		$input = ob_get_clean();
 
-		$field = $label . $input . $this->get_error_div( $id, 'telephone' );
+		$field = $label . $input . $this->get_error_div( $id, 'phone' );
 		return $field;
 	}
 
