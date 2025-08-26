@@ -1,10 +1,12 @@
 import { useGlobalChartTheme } from '../../../hooks';
 import { legendArgTypes } from '../../../stories/legend-config';
+import {
+	temperatureData as sampleData,
+	largeValuesData,
+	trafficData as webTrafficData,
+} from '../../../stories/sample-data';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
-import largeValuesData from './large-values-sample';
-import sampleData from './sample-data';
-import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 type StoryArgs = React.ComponentProps< typeof LineChart > & {
@@ -320,11 +322,10 @@ BrokenLine.args = {
 			...webTrafficData[ 0 ],
 			label: 'Vistors to compare',
 			options: {
-				...webTrafficData[ 0 ].options,
 				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
 			},
 		},
-		webTrafficData[ 1 ],
+		webTrafficData[ 0 ],
 	],
 	showLegend: true,
 };
