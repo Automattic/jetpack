@@ -1,10 +1,10 @@
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import {
-	leaderboardSample as sampleData,
-	leaderboardSmall as smallDataset,
-	leaderboardLarge as largeValues,
-	leaderboardNegativeGrowth as negativeGrowth,
-	leaderboardWithImageColor as dataWithImageColor,
+	trafficSourcesData as sampleData,
+	shortTrafficSourcesData as smallDataset,
+	revenueMetricsData as largeValues,
+	decliningMetricsData as negativeGrowth,
+	categorizedMetricsData as dataWithImageColor,
 } from '../../../stories/sample-data';
 import { formatMetricValue } from '../../shared/format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';

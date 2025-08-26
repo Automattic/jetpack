@@ -2,7 +2,10 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
 import { sharedDecorator } from '../../../stories/decorator-config';
-import { barListSample as salesByChannel, salesByProduct } from '../../../stories/sample-data';
+import {
+	marketingChannelsData as salesByChannel,
+	salesByProduct,
+} from '../../../stories/sample-data';
 import BarListChart from '../bar-list-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 

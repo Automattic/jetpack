@@ -1,5 +1,5 @@
 import { legendArgTypes } from '../../../stories/legend-config';
-import { olympicMedals, largeValuesData, trafficData } from '../../../stories/sample-data';
+import { medalCountsData, largeValuesData, trafficData } from '../../../stories/sample-data';
 import BarChart from '../bar-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -60,7 +60,7 @@ type Story = StoryObj< typeof BarChart >;
 export const Default: Story = {
 	args: {
 		withTooltips: true,
-		data: [ olympicMedals[ 0 ], olympicMedals[ 1 ], olympicMedals[ 2 ] ], // limit to 3 series for better readability
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
@@ -72,7 +72,7 @@ export const Default: Story = {
 export const SingleSeries: Story = {
 	args: {
 		...Default.args,
-		data: [ olympicMedals[ 0 ] ],
+		data: [ medalCountsData[ 0 ] ],
 	},
 	parameters: {
 		docs: {
@@ -126,7 +126,7 @@ export const TimeSeries: Story = {
 export const ManyDataSeries: Story = {
 	args: {
 		...Default.args,
-		data: olympicMedals,
+		data: medalCountsData,
 	},
 	parameters: {
 		docs: {
@@ -142,7 +142,7 @@ export const FixedDimensions: Story = {
 		...Default.args,
 		width: 800,
 		height: 400,
-		data: [ olympicMedals[ 0 ], olympicMedals[ 1 ], olympicMedals[ 2 ] ],
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 	},
 	parameters: {
 		docs: {
@@ -236,7 +236,7 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 	render: () => (
 		<div style={ { width: '800px' } }>
 			<BarChart
-				data={ [ olympicMedals[ 0 ], olympicMedals[ 1 ], olympicMedals[ 2 ] ] }
+				data={ [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
 				withTooltips={ true }
 				gridVisibility="x"
 				maxWidth={ 1200 }
@@ -260,7 +260,7 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 export const CustomLegendPositioning: Story = {
 	args: {
 		withTooltips: true,
-		data: olympicMedals.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
@@ -284,7 +284,7 @@ export const CustomLegendPositioning: Story = {
 export const HorizontalBarChart: Story = {
 	args: {
 		...Default.args,
-		data: [ olympicMedals[ 0 ], olympicMedals[ 1 ], olympicMedals[ 2 ] ],
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 		orientation: 'horizontal',
 		gridVisibility: 'none',
 	},

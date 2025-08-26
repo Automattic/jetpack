@@ -2,7 +2,7 @@ import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import { legendArgTypes } from '../../../stories/legend-config';
-import { operatingSystemsSemiCircleData as data } from '../../../stories/sample-data';
+import { partialOsUsageData as data } from '../../../stories/sample-data';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 

@@ -3,7 +3,9 @@
  * Provides reusable, high-quality datasets across all chart components
  */
 
-import type { SampleDataConfig, DatasetCategory } from './types';
+import type { SampleDataConfig } from './types';
+import type { LeaderboardEntry } from '../../components/leaderboard-chart';
+import type { SeriesData, DataPointPercentage, FunnelStep } from '../../types';
 
 // Re-export types for external use
 export type {
@@ -17,7 +19,7 @@ export type {
  * Olympic medals data for top countries (1896-2020)
  * Total medals (Gold + Silver + Bronze) for Summer Olympics
  */
-export const olympicMedals = [
+export const medalCountsData: SeriesData[] = [
 	{
 		group: 'United States',
 		label: 'United States',
@@ -129,95 +131,100 @@ export const olympicMedals = [
 ];
 
 /**
- * Temperature data for multiple cities
+ * Temperature data for multiple cities - formatted for line charts with proper date objects
  */
-export const temperatureData = [
+export const temperatureData: SeriesData[] = [
 	{
 		group: 'New York',
 		label: 'New York',
 		data: [
-			{ label: 'Jan', value: 2 },
-			{ label: 'Feb', value: 3 },
-			{ label: 'Mar', value: 8 },
-			{ label: 'Apr', value: 14 },
-			{ label: 'May', value: 20 },
-			{ label: 'Jun', value: 24 },
-			{ label: 'Jul', value: 27 },
-			{ label: 'Aug', value: 26 },
-			{ label: 'Sep', value: 22 },
-			{ label: 'Oct', value: 16 },
-			{ label: 'Nov', value: 10 },
-			{ label: 'Dec', value: 4 },
+			{ date: new Date( '2024-01-01' ), value: 2 },
+			{ date: new Date( '2024-02-01' ), value: 3 },
+			{ date: new Date( '2024-03-01' ), value: 8 },
+			{ date: new Date( '2024-04-01' ), value: 14 },
+			{ date: new Date( '2024-05-01' ), value: 20 },
+			{ date: new Date( '2024-06-01' ), value: 24 },
+			{ date: new Date( '2024-07-01' ), value: 27 },
+			{ date: new Date( '2024-08-01' ), value: 26 },
+			{ date: new Date( '2024-09-01' ), value: 22 },
+			{ date: new Date( '2024-10-01' ), value: 16 },
+			{ date: new Date( '2024-11-01' ), value: 10 },
+			{ date: new Date( '2024-12-01' ), value: 4 },
 		],
+		options: {},
 	},
 	{
 		group: 'London',
 		label: 'London',
 		data: [
-			{ label: 'Jan', value: 5 },
-			{ label: 'Feb', value: 5 },
-			{ label: 'Mar', value: 7 },
-			{ label: 'Apr', value: 9 },
-			{ label: 'May', value: 13 },
-			{ label: 'Jun', value: 16 },
-			{ label: 'Jul', value: 18 },
-			{ label: 'Aug', value: 18 },
-			{ label: 'Sep', value: 15 },
-			{ label: 'Oct', value: 12 },
-			{ label: 'Nov', value: 8 },
-			{ label: 'Dec', value: 6 },
+			{ date: new Date( '2024-01-01' ), value: 5 },
+			{ date: new Date( '2024-02-01' ), value: 5 },
+			{ date: new Date( '2024-03-01' ), value: 7 },
+			{ date: new Date( '2024-04-01' ), value: 9 },
+			{ date: new Date( '2024-05-01' ), value: 13 },
+			{ date: new Date( '2024-06-01' ), value: 16 },
+			{ date: new Date( '2024-07-01' ), value: 18 },
+			{ date: new Date( '2024-08-01' ), value: 18 },
+			{ date: new Date( '2024-09-01' ), value: 15 },
+			{ date: new Date( '2024-10-01' ), value: 12 },
+			{ date: new Date( '2024-11-01' ), value: 8 },
+			{ date: new Date( '2024-12-01' ), value: 6 },
 		],
+		options: {},
 	},
 	{
 		group: 'Tokyo',
 		label: 'Tokyo',
 		data: [
-			{ label: 'Jan', value: 6 },
-			{ label: 'Feb', value: 7 },
-			{ label: 'Mar', value: 10 },
-			{ label: 'Apr', value: 15 },
-			{ label: 'May', value: 20 },
-			{ label: 'Jun', value: 23 },
-			{ label: 'Jul', value: 27 },
-			{ label: 'Aug', value: 28 },
-			{ label: 'Sep', value: 25 },
-			{ label: 'Oct', value: 19 },
-			{ label: 'Nov', value: 14 },
-			{ label: 'Dec', value: 9 },
+			{ date: new Date( '2024-01-01' ), value: 6 },
+			{ date: new Date( '2024-02-01' ), value: 7 },
+			{ date: new Date( '2024-03-01' ), value: 10 },
+			{ date: new Date( '2024-04-01' ), value: 15 },
+			{ date: new Date( '2024-05-01' ), value: 20 },
+			{ date: new Date( '2024-06-01' ), value: 23 },
+			{ date: new Date( '2024-07-01' ), value: 27 },
+			{ date: new Date( '2024-08-01' ), value: 28 },
+			{ date: new Date( '2024-09-01' ), value: 25 },
+			{ date: new Date( '2024-10-01' ), value: 19 },
+			{ date: new Date( '2024-11-01' ), value: 14 },
+			{ date: new Date( '2024-12-01' ), value: 9 },
 		],
+		options: {},
 	},
 ];
 
 /**
- * Large values dataset for testing number formatting
+ * Large values dataset for testing number formatting - formatted for line charts
  */
-export const largeValuesData = [
+export const largeValuesData: SeriesData[] = [
 	{
 		group: 'Revenue',
 		label: 'Revenue',
 		data: [
-			{ label: 'Q1', value: 1250000 },
-			{ label: 'Q2', value: 1340000 },
-			{ label: 'Q3', value: 1180000 },
-			{ label: 'Q4', value: 1520000 },
+			{ date: new Date( '2024-01-01' ), value: 1250000 },
+			{ date: new Date( '2024-04-01' ), value: 1340000 },
+			{ date: new Date( '2024-07-01' ), value: 1180000 },
+			{ date: new Date( '2024-10-01' ), value: 1520000 },
 		],
+		options: {},
 	},
 	{
 		group: 'Costs',
 		label: 'Costs',
 		data: [
-			{ label: 'Q1', value: 850000 },
-			{ label: 'Q2', value: 920000 },
-			{ label: 'Q3', value: 780000 },
-			{ label: 'Q4', value: 1100000 },
+			{ date: new Date( '2024-01-01' ), value: 850000 },
+			{ date: new Date( '2024-04-01' ), value: 920000 },
+			{ date: new Date( '2024-07-01' ), value: 780000 },
+			{ date: new Date( '2024-10-01' ), value: 1100000 },
 		],
+		options: {},
 	},
 ];
 
 /**
  * Daily website traffic data
  */
-export const trafficData = [
+export const trafficData: SeriesData[] = [
 	{
 		group: 'Visitors',
 		label: 'Visitors',
@@ -230,13 +237,14 @@ export const trafficData = [
 			{ dateString: '2023-01-06', value: 1150 },
 			{ dateString: '2023-01-07', value: 980 },
 		],
+		options: {},
 	},
 ];
 
 /**
  * Leaderboard sample data
  */
-export const leaderboardSample = [
+export const trafficSourcesData: LeaderboardEntry[] = [
 	{
 		id: 'direct',
 		label: 'Direct',
@@ -275,7 +283,7 @@ export const leaderboardSample = [
 	},
 ];
 
-export const leaderboardSmall = [
+export const shortTrafficSourcesData: LeaderboardEntry[] = [
 	{
 		id: 'direct',
 		label: 'Direct',
@@ -296,7 +304,7 @@ export const leaderboardSmall = [
 	},
 ];
 
-export const leaderboardLarge = [
+export const revenueMetricsData: LeaderboardEntry[] = [
 	{
 		id: 'large1',
 		label: 'Large Value 1',
@@ -326,7 +334,7 @@ export const leaderboardLarge = [
 	},
 ];
 
-export const leaderboardNegativeGrowth = [
+export const decliningMetricsData: LeaderboardEntry[] = [
 	{
 		id: 'negative1',
 		label: 'Declining Channel',
@@ -356,7 +364,7 @@ export const leaderboardNegativeGrowth = [
 	},
 ];
 
-export const leaderboardWithImageColor = [
+export const categorizedMetricsData: LeaderboardEntry[] = [
 	{
 		id: 'direct',
 		label: 'Direct',
@@ -365,7 +373,6 @@ export const leaderboardWithImageColor = [
 		currentShare: 100,
 		previousShare: 80,
 		delta: 25,
-		imageColor: '#007aff',
 	},
 	{
 		id: 'social',
@@ -375,7 +382,6 @@ export const leaderboardWithImageColor = [
 		currentShare: 30,
 		previousShare: 76,
 		delta: -7.9,
-		imageColor: '#ffc0cb',
 	},
 	{
 		id: 'referral',
@@ -385,14 +391,13 @@ export const leaderboardWithImageColor = [
 		currentShare: 10,
 		previousShare: 16,
 		delta: -7.9,
-		imageColor: '#00ff00',
 	},
 ];
 
 /**
  * Conversion funnel sample data
  */
-export const sampleFunnelData = [
+export const ecommerceFunnelData: FunnelStep[] = [
 	{
 		id: 'sessions',
 		label: 'Sessions',
@@ -419,7 +424,7 @@ export const sampleFunnelData = [
 	},
 ];
 
-export const lowConversionData = [
+export const lowConversionFunnelData: FunnelStep[] = [
 	{
 		id: 'sessions',
 		label: 'Sessions',
@@ -446,7 +451,7 @@ export const lowConversionData = [
 	},
 ];
 
-export const highConversionData = [
+export const highConversionFunnelData: FunnelStep[] = [
 	{
 		id: 'sessions',
 		label: 'Sessions',
@@ -476,7 +481,7 @@ export const highConversionData = [
 /**
  * Bar list chart sample data
  */
-export const barListSample = [
+export const marketingChannelsData: SeriesData[] = [
 	{
 		group: 'primary',
 		label: 'Jan 21-Aug 8, 2024',
@@ -499,7 +504,7 @@ export const barListSample = [
 	},
 ];
 
-export const salesByProduct = [
+export const salesByProduct: SeriesData[] = [
 	{
 		group: 'primary',
 		label: 'Sales By Product',
@@ -514,7 +519,7 @@ export const salesByProduct = [
 ];
 
 // Pie chart sample data
-export const operatingSystemsData = [
+export const osUsageData: DataPointPercentage[] = [
 	{
 		label: 'MacOS',
 		value: 30000,
@@ -536,7 +541,7 @@ export const operatingSystemsData = [
 ];
 
 // Semi-circle pie chart sample data (different percentages)
-export const operatingSystemsSemiCircleData = [
+export const partialOsUsageData: DataPointPercentage[] = [
 	{
 		label: 'MacOS',
 		value: 30000,
@@ -567,7 +572,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'time-series',
 		dataPoints: 2970,
 		suitableFor: [ 'BarChart', 'LineChart', 'AreaChart' ],
-		data: 'olympicMedals',
+		data: 'medalCountsData',
 	},
 	temperatureData: {
 		name: 'Temperature Data',
@@ -599,7 +604,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'performance',
 		dataPoints: 4,
 		suitableFor: [ 'LeaderboardChart', 'BarChart' ],
-		data: 'leaderboardSample',
+		data: 'trafficSourcesData',
 	},
 	leaderboardSmall: {
 		name: 'Small Leaderboard Dataset',
@@ -607,7 +612,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'performance',
 		dataPoints: 2,
 		suitableFor: [ 'LeaderboardChart' ],
-		data: 'leaderboardSmall',
+		data: 'shortTrafficSourcesData',
 	},
 	leaderboardLarge: {
 		name: 'Large Values Leaderboard',
@@ -615,7 +620,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'performance',
 		dataPoints: 3,
 		suitableFor: [ 'LeaderboardChart' ],
-		data: 'leaderboardLarge',
+		data: 'revenueMetricsData',
 	},
 	leaderboardNegative: {
 		name: 'Negative Growth Leaderboard',
@@ -639,7 +644,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'funnel',
 		dataPoints: 4,
 		suitableFor: [ 'ConversionFunnelChart', 'BarChart' ],
-		data: 'sampleFunnelData',
+		data: 'ecommerceFunnelData',
 	},
 	conversionFunnelLow: {
 		name: 'Low Conversion Funnel',
@@ -647,7 +652,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'funnel',
 		dataPoints: 4,
 		suitableFor: [ 'ConversionFunnelChart' ],
-		data: 'lowConversionData',
+		data: 'lowConversionFunnelData',
 	},
 	conversionFunnelHigh: {
 		name: 'High Conversion Funnel',
@@ -655,7 +660,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'funnel',
 		dataPoints: 4,
 		suitableFor: [ 'ConversionFunnelChart' ],
-		data: 'highConversionData',
+		data: 'highConversionFunnelData',
 	},
 	salesChannels: {
 		name: 'Sales Channels',
@@ -663,7 +668,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'comparative',
 		dataPoints: 8,
 		suitableFor: [ 'BarListChart', 'BarChart' ],
-		data: 'barListSample',
+		data: 'marketingChannelsData',
 	},
 	salesProducts: {
 		name: 'Sales by Product',
@@ -679,7 +684,7 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'categorical',
 		dataPoints: 3,
 		suitableFor: [ 'PieChart', 'PieSemiCircleChart' ],
-		data: 'operatingSystemsData',
+		data: 'osUsageData',
 	},
 	operatingSystemsSemiCircle: {
 		name: 'Operating Systems (Semi-Circle)',
@@ -687,26 +692,6 @@ export const sampleDataRegistry: Record< string, SampleDataConfig > = {
 		category: 'categorical',
 		dataPoints: 3,
 		suitableFor: [ 'PieSemiCircleChart', 'PieChart' ],
-		data: 'operatingSystemsSemiCircleData',
+		data: 'partialOsUsageData',
 	},
 };
-
-/**
- * Get sample data by category
- * @param {DatasetCategory} category - The category to filter by
- * @return {SampleDataConfig[]} Array of sample data configs matching the category
- */
-export function getSampleDataByCategory( category: DatasetCategory ): SampleDataConfig[] {
-	return Object.values( sampleDataRegistry ).filter( config => config.category === category );
-}
-
-/**
- * Get sample data suitable for a specific chart type
- * @param {string} chartType - The chart type to find suitable data for
- * @return {SampleDataConfig[]} Array of sample data configs suitable for the chart type
- */
-export function getSampleDataForChart( chartType: string ): SampleDataConfig[] {
-	return Object.values( sampleDataRegistry ).filter( config =>
-		config.suitableFor.includes( chartType )
-	);
-}

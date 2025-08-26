@@ -1,7 +1,7 @@
 import { jetpackTheme, wooTheme } from '../../../providers/theme';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import { legendArgTypes } from '../../../stories/legend-config';
-import { operatingSystemsData as data } from '../../../stories/sample-data';
+import { osUsageData as data } from '../../../stories/sample-data';
 import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';

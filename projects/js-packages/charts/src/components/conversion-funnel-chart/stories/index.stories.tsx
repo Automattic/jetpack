@@ -1,8 +1,8 @@
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import {
-	sampleFunnelData,
-	lowConversionData,
-	highConversionData,
+	ecommerceFunnelData,
+	lowConversionFunnelData,
+	highConversionFunnelData,
 } from '../../../stories/sample-data';
 import { ConversionFunnelChart } from '../conversion-funnel-chart';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -227,7 +227,7 @@ export const Default: Story = {
 	args: {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
-		steps: sampleFunnelData,
+		steps: ecommerceFunnelData,
 		loading: false,
 	},
 };
@@ -236,7 +236,7 @@ export const NegativeChange: Story = {
 	args: {
 		mainRate: 8.7,
 		changeIndicator: '-1.6%',
-		steps: lowConversionData,
+		steps: lowConversionFunnelData,
 		loading: false,
 	},
 };
@@ -245,7 +245,7 @@ export const HighConversion: Story = {
 	args: {
 		mainRate: 18.7,
 		changeIndicator: '+5.2%',
-		steps: highConversionData,
+		steps: highConversionFunnelData,
 		loading: false,
 	},
 };
@@ -253,7 +253,7 @@ export const HighConversion: Story = {
 export const WithoutChangeIndicator: Story = {
 	args: {
 		mainRate: 10.3,
-		steps: sampleFunnelData,
+		steps: ecommerceFunnelData,
 		loading: false,
 	},
 };
@@ -262,7 +262,7 @@ export const Loading: Story = {
 	args: {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
-		steps: sampleFunnelData,
+		steps: ecommerceFunnelData,
 		loading: true,
 	},
 };
@@ -280,7 +280,7 @@ export const JetpackTheme: Story = {
 	args: {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
-		steps: sampleFunnelData,
+		steps: ecommerceFunnelData,
 		loading: false,
 	},
 	decorators: [
@@ -298,7 +298,7 @@ export const WooCommerceTheme: Story = {
 	args: {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
-		steps: sampleFunnelData,
+		steps: ecommerceFunnelData,
 		loading: false,
 	},
 	decorators: [

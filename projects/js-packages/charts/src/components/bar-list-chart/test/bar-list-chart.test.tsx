@@ -3,7 +3,10 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { barListSample as salesByChannel, salesByProduct } from '../../../stories/sample-data';
+import {
+	marketingChannelsData as salesByChannel,
+	salesByProduct,
+} from '../../../stories/sample-data';
 import BarListChart from '../bar-list-chart';
 
 const defaultProps = {
