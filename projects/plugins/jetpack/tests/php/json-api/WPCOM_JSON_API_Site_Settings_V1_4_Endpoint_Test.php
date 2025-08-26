@@ -71,6 +71,31 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		parent::set_up();
 
 		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
+
+		// Mock MCP abilities for testing
+		add_filter(
+			'jetpack_mcp_abilities',
+			function () {
+				return array(
+					'wpcom-mcp/posts-search' => array(
+						'label'       => 'Posts Search',
+						'description' => 'Search posts',
+						'enabled'     => true,
+					),
+					'wpcom-mcp/user-sites'   => array(
+						'label'       => 'User Sites',
+						'description' => 'Access user sites',
+						'enabled'     => false,
+					),
+				);
+			}
+		);
+	}
+
+	public function tear_down() {
+		// Remove the filter to avoid affecting other tests
+		remove_all_filters( 'jetpack_mcp_abilities' );
+		parent::tear_down();
 	}
 
 	/**
@@ -272,7 +297,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
-					'mcp_settings'                         => '(string) Whether MCP Settings is enabled and list of enabled abilities',
+					'mcp_settings'                         => '(array) Whether MCP Settings is enabled and list of enabled abilities',
 				),
 
 				'response_format' => array(
@@ -308,7 +333,18 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				'mcp_settings',
 				array(
 					'mcp_enabled'   => true,
-					'mcp_abilities' => array(),
+					'mcp_abilities' => array(
+						'wpcom-mcp/posts-search' => array(
+							'label'       => 'Posts Search',
+							'description' => 'Search posts',
+							'enabled'     => true,
+						),
+						'wpcom-mcp/user-sites'   => array(
+							'label'       => 'User Sites',
+							'description' => 'Access user sites',
+							'enabled'     => false,
+						),
+					),
 				),
 			),
 		);
@@ -334,8 +370,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				array(
 					'mcp_enabled'   => true,
 					'mcp_abilities' => array(
-						'wpcom-mcp/posts-search' => true,
-						'wpcom-mcp/user-sites'   => false,
+						'wpcom-mcp/posts-search' => array(
+							'label'       => 'Posts Search',
+							'description' => 'Search posts',
+							'enabled'     => true,
+						),
+						'wpcom-mcp/user-sites'   => array(
+							'label'       => 'User Sites',
+							'description' => 'Access user sites',
+							'enabled'     => false,
+						),
 					),
 				),
 			),
@@ -373,42 +417,63 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				),
 			),
 			// Add MCP settings POST tests
-			'mcp_settings valid json'                   => array(
+			'mcp_settings valid params'                 => array(
 				'mcp_settings',
-				wp_json_encode(
-					array(
-						'mcp_enabled'   => true,
-						'mcp_abilities' => array(
-							'wpcom-mcp/posts-search' => array( 'enabled' => true ),
-							'wpcom-mcp/user-sites'   => array( 'enabled' => false ),
-						),
-					)
-				),
-				array(
+				array(  // This should be the actual input structure
 					'mcp_enabled'   => true,
 					'mcp_abilities' => array(
-						'wpcom-mcp/posts-search' => true,
-						'wpcom-mcp/user-sites'   => false,
+						'wpcom-mcp/posts-search' => array( 'enabled' => true ),
+						'wpcom-mcp/user-sites'   => array( 'enabled' => false ),
+					),
+				),
+				array(  // Expected output
+					'mcp_enabled'   => true,
+					'mcp_abilities' => array(
+						'wpcom-mcp/posts-search' => array(
+							'label'       => 'Posts Search',
+							'description' => 'Search posts',
+							'enabled'     => true,
+						),
+						'wpcom-mcp/user-sites'   => array(
+							'label'       => 'User Sites',
+							'description' => 'Access user sites',
+							'enabled'     => false,
+						),
 					),
 				),
 			),
 			'mcp_settings disabled'                     => array(
 				'mcp_settings',
-				wp_json_encode(
-					array(
-						'mcp_enabled'   => false,
-						'mcp_abilities' => array(),
-					)
+				array(
+					'mcp_enabled'   => false,
+					'mcp_abilities' => array(
+						'wpcom-mcp/posts-search' => array(
+							'label'       => 'Posts Search',
+							'description' => 'Search posts',
+							'enabled'     => true,
+						),
+						'wpcom-mcp/user-sites'   => array(
+							'label'       => 'User Sites',
+							'description' => 'Access user sites',
+							'enabled'     => false,
+						),
+					),
 				),
 				array(
 					'mcp_enabled'   => false,
-					'mcp_abilities' => array(),
+					'mcp_abilities' => array(
+						'wpcom-mcp/posts-search' => array(
+							'label'       => 'Posts Search',
+							'description' => 'Search posts',
+							'enabled'     => true,
+						),
+						'wpcom-mcp/user-sites'   => array(
+							'label'       => 'User Sites',
+							'description' => 'Access user sites',
+							'enabled'     => false,
+						),
+					),
 				),
-			),
-			'mcp_settings malformed json'               => array(
-				'mcp_settings',
-				'invalid json string',
-				false, // Should fail validation
 			),
 		);
 	}

@@ -139,7 +139,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_waf_share_data'                    => '(bool) Whether the WAF should share basic data with Jetpack',
 			'jetpack_waf_share_debug_data'              => '(bool) Whether the WAF should share debug data with Jetpack',
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => '(int) Timestamp of the last time the automatic rules were updated',
-			'mcp_settings'                              => '(string) Whether MCP Settings is enabled and list of enabled abilities',
+			'mcp_settings'                              => '(array) Whether MCP Settings is enabled and list of enabled abilities',
 		),
 
 		'response_format'     => array(
@@ -420,12 +420,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							);
 						}
 					}
+					$mcp_abilities = apply_filters( 'jetpack_mcp_abilities', $mcp_abilities );
 
-					$mcp_settings = wp_json_encode(
-						array(
-							'mcp_enabled'   => ! empty( $mcp_settings['mcp_enabled'] ?? true ),
-							'mcp_abilities' => $mcp_abilities,
-						)
+					$mcp_settings = array(
+						'mcp_enabled'   => ! empty( $mcp_settings['mcp_enabled'] ?? true ),
+						'mcp_abilities' => $mcp_abilities,
 					);
 
 					$response[ $key ] = array(
@@ -911,7 +910,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					);
 
-					$old_subscription_options = get_option( 'subscription_options' );
+					$old_subscription_options = get_option( 'subscription_options', array() );
 					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
 
 					if ( update_option( $key, $new_subscription_options ) ) {
@@ -1230,12 +1229,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'mcp_settings':
-					if ( ! is_string( $value ) ) {
-						break;
-					}
-
-					$new_mcp_settings = json_decode( $value, true );
-					if ( ! is_array( $new_mcp_settings ) ) {
+					if ( ! is_array( $value ) ) {
 						break;
 					}
 
@@ -1248,12 +1242,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 
 					$filtered_value = array(
-						'mcp_enabled'   => ! empty( $new_mcp_settings['mcp_enabled'] ),
+						'mcp_enabled'   => ! empty( $value['mcp_enabled'] ),
 						'mcp_abilities' => array(),
 					);
 
-					if ( ! empty( $new_mcp_settings['mcp_abilities'] ) && is_array( $new_mcp_settings['mcp_abilities'] ) ) {
-						foreach ( $new_mcp_settings['mcp_abilities'] as $ability_name => $ability ) {
+					if ( ! empty( $value['mcp_abilities'] ) && is_array( $value['mcp_abilities'] ) ) {
+						foreach ( $value['mcp_abilities'] as $ability_name => $ability ) {
 							// Validate ability name exists in registered abilities
 							if ( ! in_array( $ability_name, $valid_abilities, true ) ) {
 								continue;
@@ -1269,7 +1263,30 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 
 					if ( update_option( $key, $filtered_value ) ) {
-						$updated[ $key ] = $filtered_value;
+						$response_abilities = array();
+
+						if ( function_exists( 'wp_get_abilities' ) ) {
+							$abilities = wp_get_abilities();
+							foreach ( $abilities as $ability ) {
+								$ability_name = $ability->get_name();
+								if ( ! empty( $ability_name ) ) {
+									$is_enabled                          = $filtered_value['mcp_abilities'][ $ability_name ] ?? false;
+									$response_abilities[ $ability_name ] = array(
+										'label'       => $ability->get_label(),
+										'description' => $ability->get_description(),
+										'enabled'     => $is_enabled,
+									);
+								}
+							}
+						}
+
+						$response_abilities = apply_filters( 'jetpack_mcp_abilities', $response_abilities );
+
+						// Return enriched structure for API consistency
+						$updated[ $key ] = array(
+							'mcp_enabled'   => $filtered_value['mcp_enabled'],
+							'mcp_abilities' => $response_abilities,
+						);
 					}
 					break;
 
