@@ -1985,9 +1985,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$label_classes  = 'jetpack-input-image-option__label';
 				$label_classes .= $show_labels ? '' : ' visually-hidden';
 				$field         .= "<span class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
-				$field         .= '</div>';
-				$field         .= '</div>';
-				$field         .= '</div>';
+				$field         .= '</div></div></div>';
 			}
 		}
 
