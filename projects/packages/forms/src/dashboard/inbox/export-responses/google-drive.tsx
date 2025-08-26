@@ -6,7 +6,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import requestExternalAccess from '@automattic/request-external-access';
 import { Button, Path, Spinner, SVG } from '@wordpress/components';
 import { useCallback, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -145,7 +145,11 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 								>
 									{ isTogglingConnection
 										? __( 'Connecting…', 'jetpack-forms' )
-										: __( 'Connect to Google Drive', 'jetpack-forms' ) }
+										: _x(
+												'Connect to Google Drive',
+												'', // Dummy context to avoid bad minification. See https://github.com/Automattic/jetpack/tree/e3f007ec7ac80715f3d82db33c9ed8098a7b45b4/projects/js-packages/i18n-check-webpack-plugin#conditional-function-call-compaction
+												'jetpack-forms'
+										  ) }
 								</Button>
 							) }
 						</>

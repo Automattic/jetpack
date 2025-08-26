@@ -5,7 +5,7 @@ import requestExternalAccess from '@automattic/request-external-access';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -104,7 +104,11 @@ const GoogleSheetsDashboardCard = ( {
 						>
 							{ isTogglingConnection
 								? __( 'Connecting…', 'jetpack-forms' )
-								: __( 'Connect to Google Drive', 'jetpack-forms' ) }
+								: _x(
+										'Connect to Google Drive',
+										'', // Dummy context to avoid bad minification. See https://github.com/Automattic/jetpack/tree/e3f007ec7ac80715f3d82db33c9ed8098a7b45b4/projects/js-packages/i18n-check-webpack-plugin#conditional-function-call-compaction
+										'jetpack-forms'
+								  ) }
 						</Button>
 					</HStack>
 				</div>
@@ -130,7 +134,11 @@ const GoogleSheetsDashboardCard = ( {
 						>
 							{ isTogglingConnection
 								? __( 'Disconnecting…', 'jetpack-forms' )
-								: __( 'Disconnect Google Drive', 'jetpack-forms' ) }
+								: _x(
+										'Disconnect Google Drive',
+										'', // Dummy context to avoid bad minification. See https://github.com/Automattic/jetpack/tree/e3f007ec7ac80715f3d82db33c9ed8098a7b45b4/projects/js-packages/i18n-check-webpack-plugin#conditional-function-call-compaction
+										'jetpack-forms'
+								  ) }
 						</Button>
 					</HStack>
 				</div>
