@@ -16,7 +16,7 @@ import {
 import { attachSubComponents } from '../../utils/create-composition';
 import { getSeriesLineStyles } from '../../utils/get-styles';
 import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { useChartLegendItems } from '../legend/use-chart-legend-items';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../shared/single-chart-context';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
@@ -345,7 +345,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, legendOptions, legendShape );
+		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
 		// Memoize metadata to prevent unnecessary re-registration
 		const chartMetadata = useMemo(
@@ -516,7 +516,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 					{ showLegend && (
 						<Legend
-							items={ legendItems }
 							orientation={ legendOrientation }
 							alignment={ legendAlignment }
 							position={ legendPosition }

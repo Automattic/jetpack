@@ -12,6 +12,10 @@ export type BaseLegendItem = {
 	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	shapeStyle?: CSSProperties & LineStyles;
+	// Optional group info for dynamic color resolution
+	group?: string;
+	index?: number;
+	overrideColor?: string;
 };
 
 export type LegendItemWithGlyph = BaseLegendItem & {
