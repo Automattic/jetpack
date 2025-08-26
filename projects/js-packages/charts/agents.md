@@ -125,3 +125,25 @@ When contributing to the Charts library, follow the Jetpack monorepo's standard 
 - [Changelog Guidelines](../../../../docs/writing-a-good-changelog-entry.md) - Required changelog format
 
 **Note**: All PRs automatically use the monorepo-wide PR template from `.github/PULL_REQUEST_TEMPLATE.md`.
+
+## Agent-Specific Guidelines
+
+### Before Making Changes
+- Read existing component documentation and stories
+- Check Storybook for usage patterns and examples
+- Verify TypeScript types compile without errors
+- Run tests to ensure no regressions
+
+### When Adding Features
+- Prefer extending existing components over creating new ones
+- Use established theme and provider patterns
+- Follow the documentation template for new features
+- Consider performance impact on large datasets
+
+### Quality Checklist
+- [ ] TypeScript compiles without errors (`pnpm run typecheck`)
+- [ ] Tests pass (`pnpm run test`)
+- [ ] Documentation follows ai-documentation-guide.md standards
+- [ ] Component works with existing providers and themes
+- [ ] Accessibility requirements met
+- [ ] Storybook stories updated/created
