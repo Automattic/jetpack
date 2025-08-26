@@ -236,17 +236,9 @@ class Feedback {
 		}
 		if ( isset( $post_data[ $key ] ) ) {
 			if ( is_array( $post_data[ $key ] ) ) {
-				// For textarea fields, use sanitize_textarea_field to preserve newlines
-				if ( $type === 'textarea' ) {
-					return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
-				}
-				return array_map( 'sanitize_text_field', wp_unslash( $post_data[ $key ] ) );
+				return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
 			} else {
-				// For textarea fields, use sanitize_textarea_field to preserve newlines
-				if ( $type === 'textarea' ) {
-					return sanitize_textarea_field( wp_unslash( $post_data[ $key ] ) );
-				}
-				return sanitize_text_field( wp_unslash( $post_data[ $key ] ) );
+				return sanitize_textarea_field( wp_unslash( $post_data[ $key ] ) );
 			}
 		}
 		return '';
