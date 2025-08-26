@@ -13,3 +13,19 @@ This file provides AI coding agents with specific instructions and context for w
 - PostCSS/Sass with BEM naming convention
 - Jest + Testing Library for testing
 - Storybook for documentation and development
+
+## Essential Commands
+
+```bash
+# Development
+pnpm run build:dev          # Development build with source maps
+pnpm run storybook          # Start Storybook development server
+pnpm run typecheck          # TypeScript type checking
+
+# Testing & Quality
+pnpm run test               # Run Jest test suite (TZ=UTC)
+pnpm run test-coverage      # Run tests with coverage report
+
+# Production
+pnpm run build:prod         # Production build (clean + optimized)
+```
