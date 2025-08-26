@@ -24,9 +24,9 @@
 		"env:start": "./bin/e2e-env.sh start",
 		"env:stop": "./bin/e2e-env.sh stop",
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js",
-		"tunnel:off": "./bin/tunnel.sh down",
-		"tunnel:on": "./bin/tunnel.sh up",
+		"tunnel:down": "./bin/tunnel.sh down",
 		"tunnel:reset": "./bin/tunnel.sh reset",
+		"tunnel:up": "./bin/tunnel.sh up",
 		"typecheck": "tsc --noEmit"
 	},
 	"browserslist": [],
