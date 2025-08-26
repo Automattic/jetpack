@@ -84,3 +84,13 @@ pnpm run build:prod         # Production build (clean + optimized)
 2. **Follow theme system** - Integrate with existing color and styling systems
 3. **Consider animations** - Use @react-spring/web patterns for smooth transitions
 4. **Accessibility review** - Ensure screen reader compatibility and keyboard navigation
+
+## Build System
+
+- **Rollup** for production builds (CJS/ESM/Types)
+- **Webpack** for alternative build pipeline
+- **Multiple export patterns** in package.json:
+  - `./` - Main library entry
+  - `./*` - Individual components
+  - `./providers/*` - Context providers
+  - `./visx/*` - visx-related utilities
