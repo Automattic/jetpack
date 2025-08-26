@@ -94,3 +94,10 @@ pnpm run build:prod         # Production build (clean + optimized)
   - `./*` - Individual components
   - `./providers/*` - Context providers
   - `./visx/*` - visx-related utilities
+
+## Security & Compliance
+
+- GPL-2.0-or-later license
+- No secrets or sensitive data in components
+- WordPress security standards where applicable
+- Report security issues via [automattic.com/security](https://automattic.com/security)
