@@ -101,3 +101,27 @@ pnpm run build:prod         # Production build (clean + optimized)
 - No secrets or sensitive data in components
 - WordPress security standards where applicable
 - Report security issues via [automattic.com/security](https://automattic.com/security)
+
+## Pull Request Guidelines
+
+When contributing to the Charts library, follow the Jetpack monorepo's standard PR process:
+
+### Required Elements
+- **PR Title**: Use format "Charts: [clear description of change]"
+- **Changelog Entry**: Run `pnpm changelog add` in the charts directory
+- **Testing Instructions**: Include specific steps for testing chart components
+- **Visual Changes**: Provide screenshots/GIFs for any UI modifications
+
+### Charts-Specific Considerations
+- **Storybook Links**: Include links to new/modified component stories
+- **Accessibility Notes**: Document accessibility features and testing approach
+- **Performance Impact**: Note any considerations for large datasets or complex visualizations
+- **Browser Compatibility**: Highlight any browser-specific concerns
+- **Theme Integration**: Verify changes work across different theme configurations
+
+### Reference Documentation
+- [Jetpack Contributing Guide](../../../../docs/CONTRIBUTING.md) - Main contribution standards
+- [PR Lifecycle Documentation](../../../../docs/pull-request.md) - Detailed PR process
+- [Changelog Guidelines](../../../../docs/writing-a-good-changelog-entry.md) - Required changelog format
+
+**Note**: All PRs automatically use the monorepo-wide PR template from `.github/PULL_REQUEST_TEMPLATE.md`.
