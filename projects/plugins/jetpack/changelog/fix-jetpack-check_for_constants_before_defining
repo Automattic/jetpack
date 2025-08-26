@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Prevent PHP warnings when constants are already defined.
