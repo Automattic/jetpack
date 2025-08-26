@@ -2683,7 +2683,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		ob_start();
 		?>
-		<div class="jetpack-field-slider__input-row"
+		<div class="jetpack-field-slider__input-row <?php echo esc_attr( $this->field_classes ); ?>"
 			data-wp-context='
 			<?php
 			echo wp_json_encode(
@@ -2725,7 +2725,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
 		<?php if ( '' !== $min_text_label || '' !== $max_text_label ) : ?>
-			<div class="jetpack-field-slider__text-labels" aria-hidden="true">
+			<div class="jetpack-field-slider__text-labels <?php echo esc_attr( $this->field_classes ); ?>" aria-hidden="true">
 				<span class="jetpack-field-slider__min-text-label"><?php echo esc_html( $min_text_label ); ?></span>
 				<span class="jetpack-field-slider__max-text-label"><?php echo esc_html( $max_text_label ); ?></span>
 			</div>

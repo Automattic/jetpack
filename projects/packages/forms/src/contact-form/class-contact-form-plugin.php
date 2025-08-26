@@ -674,6 +674,18 @@ class Contact_Form_Plugin {
 					$atts['iconStyle']    = $atts['iconStyle'] ?? $inner_block['attrs']['iconStyle'] ?? 'stars';
 					continue;
 				}
+
+				if ( 'jetpack/input-range' === $block_name ) {
+					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
+					$atts['inputstyles']  = $input_attrs['style'] ?? null;
+					// Also add classes to the field wrapper so color/typography presets cascade to slider labels on the frontend.
+					if ( isset( $input_attrs['class'] ) && $input_attrs['class'] ) {
+						$atts['fieldwrapperclasses'] = trim( ( $atts['fieldwrapperclasses'] ?? '' ) . ' ' . $input_attrs['class'] );
+					}
+					$add_block_style_classes_to_field_wrapper = true;
+					continue;
+				}
 			}
 
 			/*
