@@ -272,6 +272,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
+					'mcp_settings'                         => '(string) Whether MCP Settings is enabled and list of enabled abilities',
 				),
 
 				'response_format' => array(
@@ -302,6 +303,14 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
+			// Add MCP settings default
+			'mcp_settings'                   => array(
+				'mcp_settings',
+				array(
+					'mcp_enabled'   => true,
+					'mcp_abilities' => array(),
+				),
+			),
 		);
 	}
 
@@ -318,6 +327,18 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'woocommerce_default_country', 'US:NY' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', 'woocommerce_store_postcode', '98738' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
+			// Add MCP settings GET test
+			'mcp_settings'                   => array(
+				'mcp_settings',
+				'mcp_settings',
+				array(
+					'mcp_enabled'   => true,
+					'mcp_abilities' => array(
+						'wpcom-mcp/posts-search' => true,
+						'wpcom-mcp/user-sites'   => false,
+					),
+				),
+			),
 		);
 	}
 
@@ -350,6 +371,44 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'invitation'     => 'Test string <a href="#">link</a>',
 					'comment_follow' => "Test string 2\n\n Other line",
 				),
+			),
+			// Add MCP settings POST tests
+			'mcp_settings valid json'                   => array(
+				'mcp_settings',
+				wp_json_encode(
+					array(
+						'mcp_enabled'   => true,
+						'mcp_abilities' => array(
+							'wpcom-mcp/posts-search' => array( 'enabled' => true ),
+							'wpcom-mcp/user-sites'   => array( 'enabled' => false ),
+						),
+					)
+				),
+				array(
+					'mcp_enabled'   => true,
+					'mcp_abilities' => array(
+						'wpcom-mcp/posts-search' => true,
+						'wpcom-mcp/user-sites'   => false,
+					),
+				),
+			),
+			'mcp_settings disabled'                     => array(
+				'mcp_settings',
+				wp_json_encode(
+					array(
+						'mcp_enabled'   => false,
+						'mcp_abilities' => array(),
+					)
+				),
+				array(
+					'mcp_enabled'   => false,
+					'mcp_abilities' => array(),
+				),
+			),
+			'mcp_settings malformed json'               => array(
+				'mcp_settings',
+				'invalid json string',
+				false, // Should fail validation
 			),
 		);
 	}
