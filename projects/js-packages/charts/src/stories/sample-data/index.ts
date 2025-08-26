@@ -3,21 +3,17 @@
  * Provides reusable, high-quality datasets across all chart components
  */
 
-import type { SampleDataConfig } from './types';
 import type { LeaderboardEntry } from '../../components/leaderboard-chart';
 import type { SeriesData, DataPointPercentage, FunnelStep } from '../../types';
-
-// Re-export types for external use
-export type {
-	DatasetCategory,
-	SampleDataConfig,
-	ExtendedSampleDataConfig,
-	DataQuality,
-} from './types';
 
 /**
  * Olympic medals data for top countries (1896-2020)
  * Total medals (Gold + Silver + Bronze) for Summer Olympics
+ *
+ * Historical Olympic medal counts by country (1896-2020)
+ * - Category: time-series
+ * - Data points: 2970
+ * - Suitable for: BarChart, LineChart, AreaChart
  */
 export const medalCountsData: SeriesData[] = [
 	{
@@ -132,6 +128,11 @@ export const medalCountsData: SeriesData[] = [
 
 /**
  * Temperature data for multiple cities - formatted for line charts with proper date objects
+ *
+ * Weekly temperature readings for multiple cities (2022-2023)
+ * - Category: time-series
+ * - Data points: 312
+ * - Suitable for: LineChart, AreaChart
  */
 export const temperatureData: SeriesData[] = [
 	{
@@ -195,6 +196,11 @@ export const temperatureData: SeriesData[] = [
 
 /**
  * Large values dataset for testing number formatting - formatted for line charts
+ *
+ * High-scale numeric data for testing large number formatting
+ * - Category: time-series
+ * - Data points: 200
+ * - Suitable for: LineChart, BarChart
  */
 export const largeValuesData: SeriesData[] = [
 	{
@@ -223,6 +229,11 @@ export const largeValuesData: SeriesData[] = [
 
 /**
  * Daily website traffic data
+ *
+ * Daily website traffic and conversion metrics
+ * - Category: time-series
+ * - Data points: 365
+ * - Suitable for: LineChart, AreaChart
  */
 export const trafficData: SeriesData[] = [
 	{
@@ -242,7 +253,12 @@ export const trafficData: SeriesData[] = [
 ];
 
 /**
- * Leaderboard sample data
+ * Traffic sources leaderboard data
+ *
+ * Traffic source performance with current vs previous comparisons
+ * - Category: performance
+ * - Data points: 4
+ * - Suitable for: LeaderboardChart, BarChart
  */
 export const trafficSourcesData: LeaderboardEntry[] = [
 	{
@@ -283,6 +299,14 @@ export const trafficSourcesData: LeaderboardEntry[] = [
 	},
 ];
 
+/**
+ * Minimal leaderboard dataset
+ *
+ * Minimal leaderboard data for testing small datasets
+ * - Category: performance
+ * - Data points: 2
+ * - Suitable for: LeaderboardChart
+ */
 export const shortTrafficSourcesData: LeaderboardEntry[] = [
 	{
 		id: 'direct',
@@ -304,6 +328,14 @@ export const shortTrafficSourcesData: LeaderboardEntry[] = [
 	},
 ];
 
+/**
+ * Large values leaderboard data
+ *
+ * Leaderboard data with large numeric values for formatting tests
+ * - Category: performance
+ * - Data points: 3
+ * - Suitable for: LeaderboardChart
+ */
 export const revenueMetricsData: LeaderboardEntry[] = [
 	{
 		id: 'large1',
@@ -334,6 +366,14 @@ export const revenueMetricsData: LeaderboardEntry[] = [
 	},
 ];
 
+/**
+ * Negative growth leaderboard data
+ *
+ * Leaderboard showing negative growth trends
+ * - Category: performance
+ * - Data points: 3
+ * - Suitable for: LeaderboardChart
+ */
 export const decliningMetricsData: LeaderboardEntry[] = [
 	{
 		id: 'negative1',
@@ -364,6 +404,14 @@ export const decliningMetricsData: LeaderboardEntry[] = [
 	},
 ];
 
+/**
+ * Leaderboard data with custom categories
+ *
+ * Leaderboard data including custom image colors
+ * - Category: performance
+ * - Data points: 3
+ * - Suitable for: LeaderboardChart
+ */
 export const categorizedMetricsData: LeaderboardEntry[] = [
 	{
 		id: 'direct',
@@ -395,7 +443,12 @@ export const categorizedMetricsData: LeaderboardEntry[] = [
 ];
 
 /**
- * Conversion funnel sample data
+ * E-commerce conversion funnel data
+ *
+ * User conversion steps from sessions to purchase
+ * - Category: funnel
+ * - Data points: 4
+ * - Suitable for: ConversionFunnelChart, BarChart
  */
 export const ecommerceFunnelData: FunnelStep[] = [
 	{
@@ -424,6 +477,14 @@ export const ecommerceFunnelData: FunnelStep[] = [
 	},
 ];
 
+/**
+ * Low conversion funnel data
+ *
+ * Funnel data with lower conversion rates
+ * - Category: funnel
+ * - Data points: 4
+ * - Suitable for: ConversionFunnelChart
+ */
 export const lowConversionFunnelData: FunnelStep[] = [
 	{
 		id: 'sessions',
@@ -451,6 +512,14 @@ export const lowConversionFunnelData: FunnelStep[] = [
 	},
 ];
 
+/**
+ * High conversion funnel data
+ *
+ * Funnel data with higher conversion rates
+ * - Category: funnel
+ * - Data points: 4
+ * - Suitable for: ConversionFunnelChart
+ */
 export const highConversionFunnelData: FunnelStep[] = [
 	{
 		id: 'sessions',
@@ -479,7 +548,12 @@ export const highConversionFunnelData: FunnelStep[] = [
 ];
 
 /**
- * Bar list chart sample data
+ * Marketing channels performance data
+ *
+ * Sales performance by channel with primary vs comparison data
+ * - Category: comparative
+ * - Data points: 8
+ * - Suitable for: BarListChart, BarChart
  */
 export const marketingChannelsData: SeriesData[] = [
 	{
@@ -504,6 +578,14 @@ export const marketingChannelsData: SeriesData[] = [
 	},
 ];
 
+/**
+ * Product sales data
+ *
+ * Product sales performance data for bar list visualization
+ * - Category: performance
+ * - Data points: 5
+ * - Suitable for: BarListChart, BarChart
+ */
 export const salesByProduct: SeriesData[] = [
 	{
 		group: 'primary',
@@ -518,7 +600,14 @@ export const salesByProduct: SeriesData[] = [
 	},
 ];
 
-// Pie chart sample data
+/**
+ * Operating system usage data
+ *
+ * Market share data for different operating systems
+ * - Category: categorical
+ * - Data points: 3
+ * - Suitable for: PieChart, PieSemiCircleChart
+ */
 export const osUsageData: DataPointPercentage[] = [
 	{
 		label: 'MacOS',
@@ -540,7 +629,14 @@ export const osUsageData: DataPointPercentage[] = [
 	},
 ];
 
-// Semi-circle pie chart sample data (different percentages)
+/**
+ * Partial operating system usage data
+ *
+ * Market share data optimized for semi-circle pie chart visualization
+ * - Category: categorical
+ * - Data points: 3
+ * - Suitable for: PieSemiCircleChart, PieChart
+ */
 export const partialOsUsageData: DataPointPercentage[] = [
 	{
 		label: 'MacOS',
@@ -561,137 +657,3 @@ export const partialOsUsageData: DataPointPercentage[] = [
 		percentage: 2,
 	},
 ];
-
-/**
- * Registry of all available sample datasets with metadata
- */
-export const sampleDataRegistry: Record< string, SampleDataConfig > = {
-	olympicMedals: {
-		name: 'Olympic Medals',
-		description: 'Historical Olympic medal counts by country (1896-2020)',
-		category: 'time-series',
-		dataPoints: 2970,
-		suitableFor: [ 'BarChart', 'LineChart', 'AreaChart' ],
-		data: 'medalCountsData',
-	},
-	temperatureData: {
-		name: 'Temperature Data',
-		description: 'Weekly temperature readings for multiple cities (2022-2023)',
-		category: 'time-series',
-		dataPoints: 312,
-		suitableFor: [ 'LineChart', 'AreaChart' ],
-		data: 'temperatureData',
-	},
-	largeValues: {
-		name: 'Large Values Dataset',
-		description: 'High-scale numeric data for testing large number formatting',
-		category: 'time-series',
-		dataPoints: 200,
-		suitableFor: [ 'LineChart', 'BarChart' ],
-		data: 'largeValuesData',
-	},
-	trafficData: {
-		name: 'Website Traffic',
-		description: 'Daily website traffic and conversion metrics',
-		category: 'time-series',
-		dataPoints: 365,
-		suitableFor: [ 'LineChart', 'AreaChart' ],
-		data: 'trafficData',
-	},
-	leaderboard: {
-		name: 'Performance Leaderboard',
-		description: 'Traffic source performance with current vs previous comparisons',
-		category: 'performance',
-		dataPoints: 4,
-		suitableFor: [ 'LeaderboardChart', 'BarChart' ],
-		data: 'trafficSourcesData',
-	},
-	leaderboardSmall: {
-		name: 'Small Leaderboard Dataset',
-		description: 'Minimal leaderboard data for testing small datasets',
-		category: 'performance',
-		dataPoints: 2,
-		suitableFor: [ 'LeaderboardChart' ],
-		data: 'shortTrafficSourcesData',
-	},
-	leaderboardLarge: {
-		name: 'Large Values Leaderboard',
-		description: 'Leaderboard data with large numeric values for formatting tests',
-		category: 'performance',
-		dataPoints: 3,
-		suitableFor: [ 'LeaderboardChart' ],
-		data: 'revenueMetricsData',
-	},
-	leaderboardNegative: {
-		name: 'Negative Growth Leaderboard',
-		description: 'Leaderboard showing negative growth trends',
-		category: 'performance',
-		dataPoints: 3,
-		suitableFor: [ 'LeaderboardChart' ],
-		data: 'leaderboardNegativeGrowth',
-	},
-	leaderboardWithColors: {
-		name: 'Leaderboard with Image Colors',
-		description: 'Leaderboard data including custom image colors',
-		category: 'performance',
-		dataPoints: 3,
-		suitableFor: [ 'LeaderboardChart' ],
-		data: 'leaderboardWithImageColor',
-	},
-	conversionFunnel: {
-		name: 'E-commerce Funnel',
-		description: 'User conversion steps from sessions to purchase',
-		category: 'funnel',
-		dataPoints: 4,
-		suitableFor: [ 'ConversionFunnelChart', 'BarChart' ],
-		data: 'ecommerceFunnelData',
-	},
-	conversionFunnelLow: {
-		name: 'Low Conversion Funnel',
-		description: 'Funnel data with lower conversion rates',
-		category: 'funnel',
-		dataPoints: 4,
-		suitableFor: [ 'ConversionFunnelChart' ],
-		data: 'lowConversionFunnelData',
-	},
-	conversionFunnelHigh: {
-		name: 'High Conversion Funnel',
-		description: 'Funnel data with higher conversion rates',
-		category: 'funnel',
-		dataPoints: 4,
-		suitableFor: [ 'ConversionFunnelChart' ],
-		data: 'highConversionFunnelData',
-	},
-	salesChannels: {
-		name: 'Sales Channels',
-		description: 'Sales performance by channel with primary vs comparison data',
-		category: 'comparative',
-		dataPoints: 8,
-		suitableFor: [ 'BarListChart', 'BarChart' ],
-		data: 'marketingChannelsData',
-	},
-	salesProducts: {
-		name: 'Sales by Product',
-		description: 'Product sales performance data for bar list visualization',
-		category: 'performance',
-		dataPoints: 5,
-		suitableFor: [ 'BarListChart', 'BarChart' ],
-		data: 'salesByProduct',
-	},
-	operatingSystems: {
-		name: 'Operating Systems',
-		description: 'Market share data for different operating systems',
-		category: 'categorical',
-		dataPoints: 3,
-		suitableFor: [ 'PieChart', 'PieSemiCircleChart' ],
-		data: 'osUsageData',
-	},
-	operatingSystemsSemiCircle: {
-		name: 'Operating Systems (Semi-Circle)',
-		description: 'Market share data optimized for semi-circle pie chart visualization',
-		category: 'categorical',
-		dataPoints: 3,
-		suitableFor: [ 'PieSemiCircleChart', 'PieChart' ],
-		data: 'partialOsUsageData',
-	},
-};
