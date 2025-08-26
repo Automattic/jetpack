@@ -218,6 +218,7 @@ class Contact_Form_Plugin {
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
+		add_action( 'current_screen', array( $this, 'redirect_edit_feedback_to_jetpack_forms' ) );
 
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
 
@@ -3260,5 +3261,34 @@ class Contact_Form_Plugin {
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Redirect users from the edit-feedback screen to the Jetpack Forms admin page.
+	 *
+	 * This method is hooked to 'current_screen' and checks if the current screen
+	 * is 'edit-feedback'. If so, it redirects the user to admin.php?page=jetpack-forms-admin.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function redirect_edit_feedback_to_jetpack_forms() {
+		// Only proceed if we have a valid screen object
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		// Check if this is the edit-feedback screen
+		if ( ! $screen || $screen->id !== 'edit-feedback' ) {
+			return;
+		}
+
+		// Perform the redirect to the Jetpack Forms admin page
+		$redirect_url = admin_url( 'admin.php?page=jetpack-forms-admin' );
+
+		// Use wp_safe_redirect to ensure we're redirecting to a safe location
+		wp_safe_redirect( $redirect_url );
+		exit;
 	}
 }
