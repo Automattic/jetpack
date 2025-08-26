@@ -26,6 +26,12 @@ function usage() {
 BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$BASE_DIR/../node_modules/.bin:$PATH"
 
+TUNNEL_BASE_COMMAND="node $BASE_DIR/tunnel/tunnel.js --provider localtunnel"
+
+if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
+	TUNNEL_BASE_COMMAND="node $BASE_DIR/tunnel/tunnel.js --provider cloudflared"
+fi
+
 function log() {
 	echo "[tunnel manager] $*"
 }
@@ -92,15 +98,13 @@ function up() {
 		if [ $retry_count -gt 0 ]; then
 			log "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
 		fi
-		
+
+		log "Closing potentially running tunnel..."
 		down
+
+		log "Opening new tunnel..."
 		local tunnel_output
-		if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
-			tunnel_output=$(node "$BASE_DIR"/cloudflaretunnel.js on "$@" 2>&1)
-		else
-			tunnel_output=$(node "$BASE_DIR"/localtunnel.js on "$@" 2>&1)
-		fi
-		
+		tunnel_output=$($TUNNEL_BASE_COMMAND on "$@" 2>&1)	
 		echo "$tunnel_output"
 		
 		# Extract tunnel URL from the startup output
@@ -125,16 +129,13 @@ function up() {
 }
 
 function down() {
-	if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
-		node "$BASE_DIR"/cloudflaretunnel.js off
-	else
-		node "$BASE_DIR"/localtunnel.js off
-	fi
+	$TUNNEL_BASE_COMMAND off
 }
 
 function reset() {
 	down
-	rm -rf config/tmp
+	log "Resetting tunnel..."
+	$TUNNEL_BASE_COMMAND reset
 	up
 }
 
