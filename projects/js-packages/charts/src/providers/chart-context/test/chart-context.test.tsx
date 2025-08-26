@@ -3,9 +3,14 @@ import { useMemo } from 'react';
 import { GlobalChartsProvider, useGlobalChartsContext } from '../global-charts-provider';
 import { useChartId, useChartRegistration } from '../utils';
 import type { BaseLegendItem } from '../../../components/legend/types';
+import type { ChartTheme } from '../../../types';
 import type { ChartContextValue } from '../types';
 
 describe( 'ChartContext', () => {
+	const mockTheme: ChartTheme = {
+		colors: [ '#ff0000', '#00ff00', '#0000ff' ],
+	} as ChartTheme;
+
 	const mockLegendItems: BaseLegendItem[] = [
 		{ label: 'Series 1', value: '100', color: '#ff0000' },
 		{ label: 'Series 2', value: '200', color: '#00ff00' },
