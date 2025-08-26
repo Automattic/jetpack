@@ -8,6 +8,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-external-connections": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
