@@ -139,6 +139,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_waf_share_data'                    => '(bool) Whether the WAF should share basic data with Jetpack',
 			'jetpack_waf_share_debug_data'              => '(bool) Whether the WAF should share debug data with Jetpack',
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => '(int) Timestamp of the last time the automatic rules were updated',
+			'mcp_settings'                              => '(string) Whether MCP Settings is enabled and list of enabled abilities',
 		),
 
 		'response_format'     => array(
@@ -384,8 +385,48 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					$newsletter_category_ids = Jetpack_Newsletter_Category_Helper::get_category_ids();
 
-					$api_cache    = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
-					$mcp_settings = get_option( 'wpcom_mcp_settings', array() );
+					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
+
+					// MCP Settings
+					// Define default state for abilities if not already set
+					$mcp_abilities_default_state = array(
+						'wpcom-mcp/user-sites'   => true,
+						'wpcom-mcp/posts-search' => true,
+					);
+
+					// Get Sites MCP settings
+					$mcp_settings     = get_option( 'mcp_settings', array() );
+					$stored_abilities = $mcp_settings['mcp_abilities'] ?? array();
+
+					$abilities = array();
+					if ( function_exists( 'wp_get_abilities' ) ) {
+						$abilities = wp_get_abilities();
+					}
+
+					$mcp_abilities = array();
+					foreach ( $abilities as $ability ) {
+						$ability_name = $ability->get_name();
+						if ( ! empty( $ability_name ) ) {
+							// Check stored abilities first, then default state, then false
+							$is_enabled = $stored_abilities[ $ability_name ] ?? $mcp_abilities_default_state[ $ability_name ] ?? false;
+
+							// Convert string/numeric values to boolean
+							$is_enabled = ! empty( $is_enabled );
+
+							$mcp_abilities[ $ability_name ] = array(
+								'label'       => $ability->get_label(),
+								'description' => $ability->get_description(),
+								'enabled'     => $is_enabled,
+							);
+						}
+					}
+
+					$mcp_settings = wp_json_encode(
+						array(
+							'mcp_enabled'   => ! empty( $mcp_settings['mcp_enabled'] ?? true ),
+							'mcp_abilities' => $mcp_abilities,
+						)
+					);
 
 					$response[ $key ] = array(
 						// also exists as "options".
@@ -1189,27 +1230,45 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'mcp_settings':
-					if ( ! is_array( $value ) ) {
+					if ( ! is_string( $value ) ) {
 						break;
 					}
 
-					$allowed_keys   = array( 'mcp_server_active' );
-					$filtered_value = array_filter(
-						$value,
-						function ( $key ) use ( $allowed_keys ) {
-							return in_array( $key, $allowed_keys, true );
-						},
-						ARRAY_FILTER_USE_KEY
+					$new_mcp_settings = json_decode( $value, true );
+					if ( ! is_array( $new_mcp_settings ) ) {
+						break;
+					}
+
+					// Get list of valid abilities for validation
+					$valid_abilities = array();
+					if ( function_exists( 'wp_get_abilities' ) ) {
+						foreach ( wp_get_abilities() as $ability ) {
+							$valid_abilities[] = $ability->get_name();
+						}
+					}
+
+					$filtered_value = array(
+						'mcp_enabled'   => ! empty( $new_mcp_settings['mcp_enabled'] ),
+						'mcp_abilities' => array(),
 					);
 
-					if ( empty( $filtered_value ) ) {
-						break;
+					if ( ! empty( $new_mcp_settings['mcp_abilities'] ) && is_array( $new_mcp_settings['mcp_abilities'] ) ) {
+						foreach ( $new_mcp_settings['mcp_abilities'] as $ability_name => $ability ) {
+							// Validate ability name exists in registered abilities
+							if ( ! in_array( $ability_name, $valid_abilities, true ) ) {
+								continue;
+							}
+
+							// Ensure ability is array with enabled key
+							if ( ! is_array( $ability ) || ! isset( $ability['enabled'] ) ) {
+								continue;
+							}
+
+							$filtered_value['mcp_abilities'][ $ability_name ] = ! empty( $ability['enabled'] );
+						}
 					}
 
-					$old_mcp_settings = get_option( 'mcp_settings' );
-					$new_mcp_settings = array_merge( $old_mcp_settings, $filtered_value );
-
-					if ( update_option( $key, $new_mcp_settings ) ) {
+					if ( update_option( $key, $filtered_value ) ) {
 						$updated[ $key ] = $filtered_value;
 					}
 					break;
