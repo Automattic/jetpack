@@ -37,3 +37,30 @@ pnpm run build:prod         # Production build (clean + optimized)
 - **[docs/ai-documentation-guide.md](docs/ai-documentation-guide.md)** - 354-line comprehensive guide defining 11 standard sections for chart documentation, writing patterns, and quality standards
 - **[docs/feature-documentation.mdx.template](docs/feature-documentation.mdx.template)** - Standard MDX template with bracket placeholders for new component documentation
 - **[Storybook Documentation](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts)** - Live examples and API references
+
+## Code Standards & Architecture
+
+### Component Architecture
+- **Compound Components**: Follow established patterns where parent components provide context and child components handle specific functionality
+- **Theme System**: Use the centralized theme system for colors, spacing, and styling
+- **Accessibility First**: Ensure WCAG 2.1 AA compliance for all chart components
+
+### TypeScript Standards
+- Strict TypeScript mode enabled
+- Export types for all public APIs
+- Use proper generic constraints for data types
+- Define clear prop interfaces with JSDoc comments
+
+### Styling Standards
+- **BEM CSS naming convention** (per global guidelines)
+- PostCSS with Sass support
+- CSS custom properties for theming
+- **Never use `!important`** (per global guidelines)
+- Responsive design patterns
+
+### Testing Requirements
+- Jest configuration: `tests/jest.config.cjs`
+- UTC timezone for consistent test results
+- @testing-library/react for component testing
+- Test both interaction and visual rendering
+- Maintain existing coverage standards
