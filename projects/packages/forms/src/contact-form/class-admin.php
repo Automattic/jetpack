@@ -261,9 +261,7 @@ class Admin {
 			return;
 		}
 
-		$user_id = (int) get_current_user_id();
-
-		$has_valid_connection = Google_Drive::has_valid_connection( $user_id );
+		$has_valid_connection = Google_Drive::has_valid_connection();
 
 		if ( $has_valid_connection ) {
 			$button_html = $this->get_gdrive_export_button_markup();
@@ -328,7 +326,7 @@ class Admin {
 			return;
 		}
 
-		$has_valid_connection = Google_Drive::has_valid_connection( $user_id );
+		$has_valid_connection = Google_Drive::has_valid_connection();
 
 		$replacement_html = $has_valid_connection
 			? $this->get_gdrive_export_button_markup()

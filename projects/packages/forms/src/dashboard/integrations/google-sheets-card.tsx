@@ -2,8 +2,9 @@
  * External dependencies
  */
 import requestExternalAccess from '@automattic/request-external-access';
+import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from 'react-router';
 /**
@@ -25,7 +26,11 @@ const GoogleSheetsDashboardCard = ( {
 	const isConnected = !! data?.isConnected;
 	const settingsUrl = data?.settingsUrl;
 	const navigate = useNavigate();
-	const [ isConnecting, setIsConnecting ] = useState( false );
+	const [ isTogglingConnection, setIsTogglingConnection ] = useState( false );
+
+	useEffect( () => {
+		setIsTogglingConnection( false );
+	}, [ isConnected ] );
 
 	const cardData: IntegrationCardData = {
 		...data,
@@ -39,12 +44,12 @@ const GoogleSheetsDashboardCard = ( {
 
 	const handleConnectClick = useCallback( () => {
 		if ( ! settingsUrl ) return;
-		setIsConnecting( true );
+		setIsTogglingConnection( true );
 		requestExternalAccess( settingsUrl, ( { keyring_id: keyringId } ) => {
 			if ( keyringId ) {
 				refreshStatus();
 			} else {
-				setIsConnecting( false );
+				setIsTogglingConnection( false );
 			}
 		} );
 	}, [ settingsUrl, refreshStatus ] );
@@ -52,6 +57,24 @@ const GoogleSheetsDashboardCard = ( {
 	const handleViewResponsesClick = useCallback( () => {
 		navigate( '/responses' );
 	}, [ navigate ] );
+
+	const handleDisconnectClick = useCallback( () => {
+		setIsTogglingConnection( true );
+		apiFetch( {
+			method: 'DELETE',
+			path: '/wp/v2/feedback/integrations/google-drive',
+		} )
+			.then( ( response: { deleted: boolean } ) => {
+				if ( response.deleted ) {
+					refreshStatus();
+				} else {
+					setIsTogglingConnection( false );
+				}
+			} )
+			.catch( () => {
+				setIsTogglingConnection( false );
+			} );
+	}, [ refreshStatus ] );
 
 	return (
 		<IntegrationCard
@@ -77,9 +100,9 @@ const GoogleSheetsDashboardCard = ( {
 							target="_blank"
 							rel="noopener noreferrer"
 							__next40pxDefaultSize={ true }
-							disabled={ ! settingsUrl || isConnecting }
+							disabled={ ! settingsUrl || isTogglingConnection }
 						>
-							{ isConnecting
+							{ isTogglingConnection
 								? __( 'Connecting…', 'jetpack-forms' )
 								: __( 'Connect to Google Drive', 'jetpack-forms' ) }
 						</Button>
@@ -100,12 +123,14 @@ const GoogleSheetsDashboardCard = ( {
 						<span>|</span>
 						<Button
 							variant="link"
-							onClick={ handleConnectClick }
+							onClick={ handleDisconnectClick }
 							target="_blank"
 							rel="noopener noreferrer"
-							disabled={ ! settingsUrl }
+							disabled={ isTogglingConnection }
 						>
-							{ __( 'Disconnect Google Drive', 'jetpack-forms' ) }
+							{ isTogglingConnection
+								? __( 'Disconnecting…', 'jetpack-forms' )
+								: __( 'Disconnect Google Drive', 'jetpack-forms' ) }
 						</Button>
 					</HStack>
 				</div>
