@@ -1,6 +1,7 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
+import { getEditorType, SITE_EDITOR } from '../../../shared/get-editor-type';
 import RelatedPostsEdit from '../edit';
 import { useRelatedPostsStatus } from '../hooks/use-status-toggle';
 
@@ -74,18 +75,23 @@ jest.mock( '../hooks/use-status-toggle' );
 
 jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
 
-const makeSelect =
-	( { inSiteEditor } = { inSiteEditor: false } ) =>
-	store => {
-		if ( store === 'core/edit-site' ) {
-			return inSiteEditor ? {} : undefined;
-		}
-		return {
-			getCurrentPost: jest.fn().mockReturnValue( currentPost ),
-			isFirstMultiSelectedBlock: jest.fn().mockReturnValue( true ),
-			getMultiSelectedBlockClientIds: () => [],
-		};
+useSelect.mockImplementation( cb => {
+	return cb( () => ( {
+		getCurrentPost: jest.fn().mockReturnValueOnce( currentPost ),
+		isFirstMultiSelectedBlock: jest.fn().mockReturnValueOnce( true ),
+		getMultiSelectedBlockClientIds: () => [],
+	} ) );
+} );
+
+jest.mock( '../../../shared/get-editor-type', () => {
+	// eslint-disable-next-line no-shadow
+	const SITE_EDITOR = 'site-editor';
+	return {
+		__esModule: true,
+		SITE_EDITOR,
+		getEditorType: jest.fn( () => 'post-editor' ),
 	};
+} );
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
@@ -132,7 +138,7 @@ beforeEach( () => {
 		isUpdatingStatus: false,
 	} );
 
-	useSelect.mockImplementation( cb => cb( makeSelect( { inSiteEditor: false } ) ) );
+	getEditorType.mockReturnValue( 'post-editor' );
 } );
 
 describe( 'RelatedPostsEdit', () => {
@@ -180,7 +186,7 @@ describe( 'RelatedPostsEdit', () => {
 			).toBeInTheDocument();
 		} );
 		test( 'loads and displays placeholder when there are not enough related posts within Site Editor context', () => {
-			useSelect.mockImplementation( cb => cb( makeSelect( { inSiteEditor: true } ) ) );
+			getEditorType.mockReturnValue( SITE_EDITOR );
 			renderRelatedPosts( { postsToShow: 3 } );
 
 			expect( screen.getByText( 'Test Post One' ) ).toBeInTheDocument();
