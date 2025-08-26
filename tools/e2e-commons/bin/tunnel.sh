@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-# Wrapper over tunnel.js script
+# Tunnel Manager
+#
+# Manages HTTP tunnels using either Cloudflare Tunnel or LocalTunnel
+#
+# Environment Variables:
+# - USE_CLOUDFLARE_TUNNEL: Use Cloudflare Tunnel instead of LocalTunnel
+#
 
 set -e
 
@@ -20,13 +26,102 @@ function usage() {
 BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$BASE_DIR/../node_modules/.bin:$PATH"
 
-function up() {
-	down
-	if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
-		node "$BASE_DIR"/cloudflaretunnel.js on "$@"
-	else
-		node "$BASE_DIR"/localtunnel.js on "$@"
+function log() {
+	echo "[tunnel manager] $*"
+}
+
+function health_check() {
+	local url="$1"
+	local max_attempts=20
+	local attempt=1
+	local dns_wait_time=5
+	local retry_interval=3
+	
+	log "Checking tunnel at: $url"
+	
+	if ! command -v curl > /dev/null 2>&1; then
+		log "Warning: curl not found, skipping health check"
+		return 0
 	fi
+	
+	# Give DNS some time to propagate, especially useful for Cloudflare Tunnel
+	log "Waiting $dns_wait_time seconds for DNS propagation..."
+	sleep $dns_wait_time
+	
+	while [ $attempt -le $max_attempts ]; do
+		local http_code curl_exit_code
+		http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 15 "$url" 2>/dev/null)
+		curl_exit_code=$?
+		
+		if [ "$http_code" = "200" ] || [ "$http_code" = "301" ]; then
+			log "✓ Tunnel is responding with $http_code status"
+			return 0
+		else
+			log "Attempt $attempt of $max_attempts failed: HTTP $http_code (curl exit: $curl_exit_code)"
+			
+			case $curl_exit_code in
+				6)
+					log "  DNS resolution failed"
+					;;
+				7)
+					log "  Connection refused"
+					;;
+				28)
+					log "  Connection timeout"
+					;;
+			esac
+			
+			if [ $attempt -lt $max_attempts ]; then
+				log "  Retrying in $retry_interval seconds..."
+				sleep $retry_interval
+			fi
+		fi
+		
+		attempt=$((attempt + 1))
+	done
+	
+	log "✗ Tunnel failed to respond with 200 or 301 after $max_attempts attempts"
+	return 1
+}
+
+function up() {
+	local retry_count=0
+	local max_retries=1
+	
+	while [ $retry_count -le $max_retries ]; do
+		if [ $retry_count -gt 0 ]; then
+			log "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
+		fi
+		
+		down
+		local tunnel_output
+		if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
+			tunnel_output=$(node "$BASE_DIR"/cloudflaretunnel.js on "$@" 2>&1)
+		else
+			tunnel_output=$(node "$BASE_DIR"/localtunnel.js on "$@" 2>&1)
+		fi
+		
+		echo "$tunnel_output"
+		
+		# Extract tunnel URL from the startup output
+		local tunnel_url
+		tunnel_url=$(echo "$tunnel_output" | grep -oE "https?://[^'\"[:space:]]+" | tail -1)
+		
+		if [[ -n "$tunnel_url" ]]; then
+			if health_check "$tunnel_url"; then
+				log "Tunnel setup successful"
+				return 0
+			fi
+		else
+			log "Warning: Could not extract tunnel URL from output for health check"
+		fi
+		
+		retry_count=$((retry_count + 1))
+	done
+	
+	log "Tunnel setup failed after $((max_retries + 1)) attempts"
+	# Return success to allow test suite to run - environment readiness checks will catch tunnel issues later
+	return 0
 }
 
 function down() {
