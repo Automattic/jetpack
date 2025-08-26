@@ -147,3 +147,12 @@ When contributing to the Charts library, follow the Jetpack monorepo's standard 
 - [ ] Component works with existing providers and themes
 - [ ] Accessibility requirements met
 - [ ] Storybook stories updated/created
+
+## Getting Help
+
+- **Documentation**: Start with `docs/ai-documentation-guide.md`
+- **Examples**: Review existing chart components and their stories
+- **Build Issues**: Check package.json scripts and build configurations
+- **Testing**: Follow patterns in existing test files
+
+This library prioritizes maintainability, accessibility, and developer experience. Always consider how changes affect the broader ecosystem and existing users.
