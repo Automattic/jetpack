@@ -6,16 +6,19 @@ Tunnel management system for E2E testing with support for multiple providers.
 
 ```bash
 # Start tunnel (defaults to localtunnel)
-node tunnel.js on
+node tunnel-cli.js on
 
 # Start with specific provider
-node tunnel.js on --provider cloudflared
+node tunnel-cli.js on --provider cloudflared
 
 # Stop tunnel
-node tunnel.js off --provider cloudflared
+node tunnel-cli.js off --provider cloudflared
 
 # Clear stored data
-node tunnel.js clear --provider cloudflared
+node tunnel-cli.js clear --provider cloudflared
+
+# Print help
+node tunnel-cli.js --help
 ```
 
 ## Providers

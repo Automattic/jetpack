@@ -1,20 +1,24 @@
 import axios from 'axios';
 import localtunnel from 'localtunnel';
-import BaseTunnelProvider from './base-provider.js';
+import { TunnelManager } from './tunnel.js';
 
-export default class LocalTunnelProvider extends BaseTunnelProvider {
+export default class LocalTunnelProvider extends TunnelManager {
+	constructor() {
+		super( 'localtunnel' );
+	}
+
 	/**
 	 * Start the localtunnel. If a stored URL is found, it will be reused.
 	 * @return {Promise<void>}
 	 */
 	async start() {
 		console.log( 'Starting localtunnel...' );
-		const subdomain = this.manager.getTunnelSubdomain();
+		const subdomain = this.getTunnelSubdomain();
 
 		console.log( `Opening tunnel. Subdomain: '${ subdomain }'` );
 		const tunnel = await localtunnel( {
-			host: this.manager.config.host,
-			port: this.manager.config.port,
+			host: this.config.host,
+			port: this.config.port,
 			subdomain,
 		} );
 
@@ -23,8 +27,8 @@ export default class LocalTunnelProvider extends BaseTunnelProvider {
 		} );
 
 		console.log( `Opened tunnel '${ tunnel.url }'` );
-		this.manager.storeUrl( tunnel.url );
-		this.manager.storePid( process.pid );
+		this.storeUrl( tunnel.url );
+		this.storePid( process.pid );
 	}
 
 	/**
@@ -32,18 +36,16 @@ export default class LocalTunnelProvider extends BaseTunnelProvider {
 	 * @return {Promise<void>}
 	 */
 	async stop() {
-		const subdomain = this.manager.getTunnelSubdomain();
+		const subdomain = this.getTunnelSubdomain();
 
 		if ( subdomain ) {
-			this.manager.log( `Closing tunnel ${ subdomain }` );
+			this.log( `Closing tunnel ${ subdomain }` );
 			try {
-				this.manager.log( `Sending delete request for ${ subdomain }` );
-				const res = await axios.get(
-					`${ this.manager.config.host }/api/tunnels/${ subdomain }/delete`
-				);
-				this.manager.log( JSON.stringify( res.data ) );
+				this.log( `Sending delete request for ${ subdomain }` );
+				const res = await axios.get( `${ this.config.host }/api/tunnels/${ subdomain }/delete` );
+				this.log( JSON.stringify( res.data ) );
 			} catch ( error ) {
-				this.manager.logError( error.message );
+				this.logError( error.message );
 			}
 		}
 	}
@@ -61,9 +63,7 @@ export default class LocalTunnelProvider extends BaseTunnelProvider {
 			responseStatusCode = 404;
 		} else {
 			try {
-				const res = await axios.get(
-					`${ this.manager.config.host }/api/tunnels/${ subdomain }/status`
-				);
+				const res = await axios.get( `${ this.config.host }/api/tunnels/${ subdomain }/status` );
 				console.log( res.status );
 				responseStatusCode = res.status;
 			} catch ( error ) {

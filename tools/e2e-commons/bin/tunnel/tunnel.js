@@ -1,39 +1,16 @@
-#!/usr/bin/env node
-
-import childProcess from 'child_process';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
+import path from 'path';
 import config from 'config';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
-
-const SUPPORTED_PROVIDERS = [ 'localtunnel', 'cloudflared' ];
-
-fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
 export class TunnelManager {
 	constructor( providerName ) {
-		if ( ! SUPPORTED_PROVIDERS.includes( providerName ) ) {
-			throw new Error(
-				`Unsupported provider: ${ providerName }. Supported providers: ${ SUPPORTED_PROVIDERS.join(
-					', '
-				) }`
-			);
-		}
 		this.providerName = providerName;
-		this.provider = null;
 		this.config = config.get( 'tunnel' );
-		this.urlFile = config.get( 'dirs.temp' ) + '/' + providerName + '-url';
-		this.pidFile = config.get( 'dirs.temp' ) + '/' + providerName + '-pid';
-	}
 
-	/**
-	 * Load the provider implementation
-	 */
-	async loadProvider() {
-		const providerModule = await import( `./${ this.providerName }.js` );
-		const ProviderClass = providerModule.default;
-		this.provider = new ProviderClass( this );
+		fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
+
+		this.urlFile = path.resolve( `${ config.get( 'dirs.temp' ) }/${ providerName }-url` );
+		this.pidFile = path.resolve( `${ config.get( 'dirs.temp' ) }/${ providerName }-pid` );
 	}
 
 	/**
@@ -61,34 +38,13 @@ export class TunnelManager {
 	}
 
 	/**
-	 * Fork a subprocess to run the tunnel
-	 * @param {object} argv - Args
-	 * @return {Promise<void>}
+	 * Log a debug message with provider-specific prefix (only if TUNNEL_DEBUG is enabled)
+	 * @param {...*} args - Arguments to log
 	 */
-	async tunnelOn( argv ) {
-		const s = argv.logfile ? fs.createWriteStream( argv.logfile, { flags: 'a' } ) : 'ignore';
-		if ( argv.logfile ) {
-			await new Promise( resolve => {
-				s.on( 'open', resolve );
-			} );
+	logDebug( ...args ) {
+		if ( process.env.TUNNEL_DEBUG ) {
+			console.log( `[${ this.providerName } manager]`, ...args );
 		}
-
-		const cp = childProcess.fork(
-			fileURLToPath( import.meta.url ),
-			[ 'child', this.providerName ],
-			{
-				detached: true,
-				stdio: [ 'ignore', s, s, 'ipc' ],
-			}
-		);
-		cp.on( 'exit', code => process.exit( code ) );
-		cp.on( 'message', m => {
-			if ( m === 'ok' ) {
-				process.exit( 0 );
-			} else {
-				console.log( m );
-			}
-		} );
 	}
 
 	/**
@@ -116,8 +72,7 @@ export class TunnelManager {
 		console.log = wrap( originalConsoleLog );
 		console.error = wrap( originalConsoleError );
 
-		await this.loadProvider();
-		await this.provider.start();
+		await this.start();
 		process.send?.( 'ok' );
 	}
 
@@ -126,8 +81,7 @@ export class TunnelManager {
 	 * @return {Promise<void>}
 	 */
 	async tunnelOff() {
-		await this.loadProvider();
-		await this.provider.stop();
+		await this.stop();
 		await this.genericStop();
 	}
 
@@ -203,6 +157,7 @@ export class TunnelManager {
 	 */
 	getPid() {
 		if ( fs.existsSync( this.pidFile ) ) {
+			this.logDebug( `Found stored PID for ${ this.providerName }: ${ this.pidFile }` );
 			return fs.readFileSync( this.pidFile ).toString().trim();
 		}
 		this.logWarn(
@@ -217,7 +172,7 @@ export class TunnelManager {
 	clearPid() {
 		if ( fs.existsSync( this.pidFile ) ) {
 			fs.unlinkSync( this.pidFile );
-			this.log( `Removed ${ this.pidFile }` );
+			this.logDebug( `Removed ${ this.pidFile }` );
 		}
 	}
 
@@ -227,6 +182,7 @@ export class TunnelManager {
 	 */
 	getUrl() {
 		if ( fs.existsSync( this.urlFile ) ) {
+			this.logDebug( `Found stored URL for ${ this.providerName }: ${ this.urlFile }` );
 			return fs.readFileSync( this.urlFile ).toString().trim();
 		}
 		this.logWarn(
@@ -241,7 +197,11 @@ export class TunnelManager {
 	clearUrl() {
 		if ( fs.existsSync( this.urlFile ) ) {
 			fs.unlinkSync( this.urlFile );
-			this.log( `Removed ${ this.urlFile }` );
+			this.logDebug( `Removed ${ this.urlFile }` );
+		} else {
+			this.logWarn(
+				`Cannot find stored URL for ${ this.providerName }. Looking for ${ this.urlFile } file`
+			);
 		}
 	}
 
@@ -292,66 +252,4 @@ export class TunnelManager {
 		this.clearUrl();
 		this.clearPid();
 	}
-}
-
-if ( import.meta.url === `file://${ process.argv[ 1 ] }` ) {
-	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-	yargs( hideBin( process.argv ) )
-		.usage( 'Usage: $0 <cmd>' )
-		.demandCommand( 1, 1 )
-		.option( 'provider', {
-			alias: 'p',
-			describe: 'Tunnel provider to use',
-			choices: SUPPORTED_PROVIDERS,
-			default: 'localtunnel',
-		} )
-		.command(
-			'on [logfile]',
-			'Opens a tunnel',
-			yarg => {
-				yarg.positional( 'logfile', {
-					describe: 'File to write tunnel logs to',
-					type: 'string',
-				} );
-			},
-			async argv => {
-				const manager = new TunnelManager( argv.provider );
-				await manager.tunnelOn( argv );
-			}
-		)
-		.command(
-			'child [provider]',
-			false,
-			yarg => {
-				yarg.positional( 'provider', {
-					describe: 'Tunnel provider',
-					type: 'string',
-					default: 'localtunnel',
-				} );
-			},
-			async argv => {
-				const manager = new TunnelManager( argv.provider );
-				await manager.tunnelChild( argv.provider );
-			}
-		)
-		.command(
-			'off',
-			'Closes a tunnel',
-			() => {},
-			async argv => {
-				const manager = new TunnelManager( argv.provider );
-				await manager.tunnelOff();
-			}
-		)
-		.command(
-			'clear',
-			'Clears all stored tunnel data (URL and PID files)',
-			() => {},
-			async argv => {
-				const manager = new TunnelManager( argv.provider );
-				manager.clear();
-			}
-		)
-		.help( 'h' )
-		.alias( 'h', 'help' ).argv;
 }

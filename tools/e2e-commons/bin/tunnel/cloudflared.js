@@ -1,7 +1,11 @@
 import childProcess from 'child_process';
-import BaseTunnelProvider from './base-provider.js';
+import { TunnelManager } from './tunnel.js';
 
-export default class CloudflaredProvider extends BaseTunnelProvider {
+export default class CloudflaredProvider extends TunnelManager {
+	constructor() {
+		super( 'cloudflared' );
+	}
+
 	/**
 	 * Start the cloudflared tunnel
 	 * @return {Promise<void>}
@@ -12,7 +16,7 @@ export default class CloudflaredProvider extends BaseTunnelProvider {
 		return new Promise( ( resolve, reject ) => {
 			const cloudflaredProcess = childProcess.spawn(
 				'cloudflared',
-				[ 'tunnel', '--url', `localhost:${ this.manager.config.port }` ],
+				[ 'tunnel', '--url', `localhost:${ this.config.port }` ],
 				{
 					stdio: [ 'ignore', 'pipe', 'pipe' ],
 				}
@@ -30,8 +34,8 @@ export default class CloudflaredProvider extends BaseTunnelProvider {
 					tunnelUrl = urlMatch[ 0 ];
 					console.log( `Cloudflare tunnel started: ${ tunnelUrl }` );
 
-					this.manager.storeUrl( tunnelUrl );
-					this.manager.storePid( cloudflaredProcess.pid );
+					this.storeUrl( tunnelUrl );
+					this.storePid( cloudflaredProcess.pid );
 					resolved = true;
 					resolve();
 				}
@@ -70,8 +74,8 @@ export default class CloudflaredProvider extends BaseTunnelProvider {
 	 * @return {Promise<void>}
 	 */
 	async stop() {
-		this.manager.log( 'Stopping cloudflared tunnel...' );
-		this.manager.clearUrl();
-		this.manager.log( 'Cloudflare tunnel stopped' );
+		this.log( 'Stopping cloudflared tunnel...' );
+		this.clearUrl();
+		this.log( 'Cloudflare tunnel stopped' );
 	}
 }
