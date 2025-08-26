@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1a27da69800e51b4c01d0fd2ba0783cf",
+    "content-hash": "348eaa917c58181b10e968f2a67535b1",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -6470,6 +6470,7 @@
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
+        "automattic/jetpack-external-connections": 20,
         "automattic/jetpack-external-media": 20,
         "automattic/jetpack-forms": 20,
         "automattic/jetpack-image-cdn": 20,
