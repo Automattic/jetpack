@@ -66,12 +66,12 @@ const { actions } = store( NAMESPACE, {
 				context.phoneCountryCode = asYouTypes[ fieldId ].getCountry();
 				context.phoneNumber = asYouTypes[ fieldId ].getNationalNumber();
 				asYouTypes[ fieldId ] = new AsYouType( context.phoneCountryCode );
+				context.countryPrefix = countries.find(
+					item => item.code === context.phoneCountryCode
+				)?.value;
 			} else {
 				context.phoneNumber = value;
 			}
-			context.countryPrefix = countries.find(
-				item => item.code === context.phoneCountryCode
-			)?.value;
 			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
 			actions.updateField( fieldId, value );
 		},
