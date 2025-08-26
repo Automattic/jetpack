@@ -406,7 +406,7 @@ class WooCommerce_Products extends Module {
 				'include'     => $ids,
 				'order'       => $order,
 				'post_type'   => array( 'product', 'product_variation' ),
-				'post_status' => 'any',
+				'post_status' => array( 'any', 'trash', 'auto-draft' ),
 				'numberposts' => -1, // Get all posts.
 			)
 		);
