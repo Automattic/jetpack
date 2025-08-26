@@ -318,7 +318,7 @@ class External_Connections {
 		self::$services[ $page ][] = $service;
 
 		if ( ! has_action( 'admin_init', array( __CLASS__, 'register_settings' ) ) ) {
-			add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+			add_action( 'admin_init', array( __CLASS__, 'register_settings' ), 15 );
 		}
 
 		if ( ! has_action( 'wp_ajax_jetpack_delete_external_connection', array( __CLASS__, 'ajax_delete_connection' ) ) ) {
