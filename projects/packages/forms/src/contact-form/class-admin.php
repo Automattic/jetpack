@@ -676,9 +676,10 @@ class Admin {
 	public function grunion_manage_post_column_response( $post ) {
 
 		$post_content = get_post_field( 'post_content', $post->ID );
-		$content      = explode( '<!--more-->', $post_content );
-		$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-		$chunks       = explode( "\nJSON_DATA", $content );
+		$parts        = explode( '<!--more-->', $post_content );
+		$content_body = isset( $parts[1] ) ? $parts[1] : $post_content;
+		$content_body = str_ireplace( array( '<br />', ')</p>' ), '', $content_body );
+		$chunks       = explode( "\nJSON_DATA", $content_body );
 		// Get content fields.
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
 
@@ -686,7 +687,7 @@ class Admin {
 			return;
 		}
 
-		$chunks = explode( "\nArray", $content );
+		$chunks = explode( "\nArray", $content_body );
 		if ( ! empty( $chunks[1] ) ) {
 			// re-construct the array string
 			$array = 'Array' . $chunks[1];
