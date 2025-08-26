@@ -827,10 +827,7 @@ class Feedback {
 	 * @return array Parsed fields.
 	 */
 	private function parse_content_v2( $post_content = '' ) {
-		// WordPress automatically adds slashes to post content when saving
-		// We need to unslash it first before JSON parsing
-		$unslashed_content = wp_unslash( $post_content );
-		$decoded_content   = json_decode( $unslashed_content, true );
+		$decoded_content = json_decode( $post_content, true );
 		if ( $decoded_content === null ) {
 			// If JSON decoding still fails, try with stripslashes and trim as a fallback
 			// This is a workaround for some cases where the JSON data is not properly formatted
