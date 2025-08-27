@@ -20,13 +20,13 @@ import { GlobalChartsContext } from '../../providers/chart-context/global-charts
 import { attachSubComponents } from '../../utils';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { withResponsive } from '../shared/with-responsive';
+import { SingleChartContext } from '../single-chart-context';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
+import { withResponsive } from '../with-responsive';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ResponsiveConfig } from '../with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, ComponentType } from 'react';
 

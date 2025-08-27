@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { withResponsive } from '../with-responsive';
+import { withResponsive } from '../index';
 import type { BaseChartProps } from '../../../types';
 
 // Mock the useParentSize hook

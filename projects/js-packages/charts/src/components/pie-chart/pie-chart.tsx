@@ -11,16 +11,16 @@ import {
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
+import { ChartSVG, ChartHTML, useChartChildren } from '../chart-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { withResponsive } from '../shared/with-responsive';
+import { SingleChartContext } from '../single-chart-context';
 import { BaseTooltip } from '../tooltip';
+import { withResponsive } from '../with-responsive';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
-import type { ChartComponentWithComposition } from '../shared/chart-composition';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ChartComponentWithComposition } from '../chart-composition';
+import type { ResponsiveConfig } from '../with-responsive';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {

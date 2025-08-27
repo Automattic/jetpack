@@ -5,7 +5,7 @@ import { Text, type TextProps } from '@visx/text';
 import { useContext, useMemo } from 'react';
 import { GlobalChartsContext, GlobalChartsProvider } from '../../providers/chart-context';
 import { BarChart } from '../bar-chart';
-import { withResponsive } from '../shared/with-responsive';
+import { withResponsive } from '../with-responsive';
 import type { SeriesData } from '../..';
 import type { ScaleOptions } from '../../types';
 import type { BarChartProps } from '../bar-chart/bar-chart';
