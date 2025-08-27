@@ -400,7 +400,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					$abilities = array();
 					if ( function_exists( 'wp_get_abilities' ) ) {
-						$abilities = wp_get_abilities();
+						$abilities = wp_get_abilities(); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first.
 					}
 
 					$mcp_abilities = array();
@@ -1236,7 +1236,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// Get list of valid abilities for validation
 					$valid_abilities = array();
 					if ( function_exists( 'wp_get_abilities' ) ) {
-						foreach ( wp_get_abilities() as $ability ) {
+						foreach ( wp_get_abilities() as $ability ) { // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first.
 							$valid_abilities[] = $ability->get_name();
 						}
 					}
@@ -1266,7 +1266,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response_abilities = array();
 
 						if ( function_exists( 'wp_get_abilities' ) ) {
-							$abilities = wp_get_abilities();
+							$abilities = wp_get_abilities(); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first.
 							foreach ( $abilities as $ability ) {
 								$ability_name = $ability->get_name();
 								if ( ! empty( $ability_name ) ) {
