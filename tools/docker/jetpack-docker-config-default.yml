@@ -22,7 +22,7 @@ dev:
         links:
           - db:mysql
         ports:
-          - 8181:80
+          - '${PORT_PHPMY:-8181}:80'
         environment:
           MYSQL_USERNAME: '${MYSQL_USER:-wordpress}'
           MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD:-wordpress}'
@@ -39,7 +39,7 @@ dev:
           MP_SMTP_AUTH_ACCEPT_ANY: 1
           MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
-      ## SFTP server running at localhost:1022
+      ## SFTP server running at localhost:1022 by default
       sftp:
         image: jmcombs/sftp:alpine
         volumes:
