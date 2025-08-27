@@ -554,8 +554,8 @@ class Tiled_Gallery {
 
 			// Build table cells for this row
 			$row_cells = '';
-			foreach ( $row_images as $image_index => $image ) {
-				// Calculate cell attributes
+			foreach ( $row_images as $image ) {
+				// Calculate cell attributes with consistent padding
 				$cell_attrs = array(
 					'style' => sprintf(
 						'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
@@ -563,11 +563,6 @@ class Tiled_Gallery {
 						$cell_padding
 					),
 				);
-
-				// Add right padding to all but last cell
-				if ( $image_index < $images_in_row - 1 ) {
-					$cell_attrs['style'] .= 'padding-right: ' . ( $cell_padding * 2 ) . 'px;';
-				}
 
 				$image_styles = 'margin: 0; width: 100%; max-width: 100%; height: auto; display: block;';
 
