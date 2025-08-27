@@ -13,18 +13,32 @@
 		flex: 1 1 auto;
 		min-width: 0;
 		position: relative;
+
+		&::before {
+			content: "";
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 50%;
+			transform: translateY(-50%);
+			height: 4px;
+			width: 100%;
+			background: var(--jetpack--contact-form--button-primary--background-color);
+			z-index: 0;
+		}
 	}
 
 	&__range {
 		-webkit-appearance: none;
 		appearance: none;
-		height: 4px;
-		background: var(--jetpack--contact-form--button-primary--background-color);
+		height: 100%;
+		background: transparent;
 		outline: none;
 		border-radius: 2px;
 		transition: background 0.3s;
 		width: 100%;
 		box-sizing: border-box;
+		z-index: 1;
 
 		&:focus {
 			outline: none;
