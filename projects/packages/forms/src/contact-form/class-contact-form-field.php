@@ -2706,7 +2706,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					min="<?php echo esc_attr( $min ); ?>"
 					max="<?php echo esc_attr( $max ); ?>"
 					step="<?php echo esc_attr( $step ); ?>"
-					class="<?php echo esc_attr( $class ); ?>"
+					class="<?php echo esc_attr( trim( $class . ' jetpack-field-slider__range' ) ); ?>"
 					placeholder="<?php echo esc_attr( $placeholder ); ?>"
 					<?php
 					if ( $required ) :
@@ -2747,7 +2747,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		\wp_enqueue_style(
 			'jetpack-form-slider-field',
-			plugins_url( '../../dist/contact-form/css/slider-field.css', __FILE__ ),
+			plugins_url( '../../dist/blocks/input-range/style.css', __FILE__ ),
 			array(),
 			$version
 		);
