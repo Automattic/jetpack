@@ -89,8 +89,8 @@ export const medalCountsData: SeriesData[] = [
 		],
 	},
 	{
-		group: 'germany',
-		label: 'Germany',
+		group: 'japan',
+		label: 'Japan',
 		data: [
 			{ label: '1896', value: 13 },
 			{ label: '1900', value: 17 },
@@ -574,7 +574,7 @@ export const highConversionFunnelData: FunnelStep[] = [
  * - Data points: 8
  * - Suitable for: BarListChart, BarChart
  */
-export const marketingChannelsData: SeriesData[] = [
+export const marketingChannelsComparison: SeriesData[] = [
 	{
 		group: 'primary',
 		label: 'Jan 21-Aug 8, 2024',
@@ -593,6 +593,44 @@ export const marketingChannelsData: SeriesData[] = [
 			{ label: 'Affiliates', value: 15000 },
 			{ label: 'Display', value: 19900 },
 			{ label: 'Organic shopping', value: 20500 },
+		],
+	},
+];
+
+/**
+ * Marketing channels by country data
+ *
+ * Sales performance by channel by country
+ * - Category: comparative
+ * - Data points: 3
+ * - Suitable for: BarListChart, BarChart
+ */
+export const marketingChannelsByCountry: SeriesData[] = [
+	{
+		group: 'united-states',
+		label: 'Jan 21-Aug 8, 2024',
+		data: [
+			{ label: 'Organic search', value: 30000 },
+			{ label: 'Affiliates', value: 19000 },
+			{ label: 'Display', value: 18000 },
+		],
+	},
+	{
+		group: 'great-britain',
+		label: 'Jan 21-Aug 8, 2023',
+		data: [
+			{ label: 'Organic search', value: 20000 },
+			{ label: 'Affiliates', value: 15000 },
+			{ label: 'Display', value: 19900 },
+		],
+	},
+	{
+		group: 'japan',
+		label: 'Jan 21-Aug 8, 2022',
+		data: [
+			{ label: 'Organic search', value: 15000 },
+			{ label: 'Affiliates', value: 12000 },
+			{ label: 'Display', value: 14000 },
 		],
 	},
 ];
@@ -674,5 +712,94 @@ export const partialOsUsageData: DataPointPercentage[] = [
 		value: 80000,
 		valueDisplay: '80K',
 		percentage: 2,
+	},
+];
+
+/**
+ * Global market metrics with comparison data
+ *
+ * Country-based metrics with current vs comparison period data
+ * - Category: time-series comparison
+ * - Data points: 6 series (3 countries × 2 periods)
+ * - Suitable for: LineChart with comparison types, BarChart
+ */
+export const globalMarketComparisonByCountry: SeriesData[] = [
+	{
+		group: 'united-states',
+		label: 'United States',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+			{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+			{ date: new Date( '2024-01-03' ), value: 15, label: 'Jan 3' },
+			{ date: new Date( '2024-01-04' ), value: 25, label: 'Jan 4' },
+			{ date: new Date( '2024-01-05' ), value: 30, label: 'Jan 5' },
+		],
+		options: {},
+	},
+	{
+		group: 'united-states',
+		label: 'United States comparison',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 1, label: 'Jan 1' },
+			{ date: new Date( '2024-01-02' ), value: 2, label: 'Jan 2' },
+			{ date: new Date( '2024-01-03' ), value: 1.5, label: 'Jan 3' },
+			{ date: new Date( '2024-01-04' ), value: 2.5, label: 'Jan 4' },
+			{ date: new Date( '2024-01-05' ), value: 3, label: 'Jan 5' },
+		],
+		options: {
+			type: 'comparison' as const,
+		},
+	},
+	{
+		group: 'great-britain',
+		label: 'Great Britain',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 8, label: 'Jan 1' },
+			{ date: new Date( '2024-01-02' ), value: 12, label: 'Jan 2' },
+			{ date: new Date( '2024-01-03' ), value: 18, label: 'Jan 3' },
+			{ date: new Date( '2024-01-04' ), value: 22, label: 'Jan 4' },
+			{ date: new Date( '2024-01-05' ), value: 28, label: 'Jan 5' },
+		],
+		options: {},
+	},
+	{
+		group: 'great-britain',
+		label: 'Great Britain comparison',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 0.8, label: 'Jan 1' },
+			{ date: new Date( '2024-01-02' ), value: 1.2, label: 'Jan 2' },
+			{ date: new Date( '2024-01-03' ), value: 1.8, label: 'Jan 3' },
+			{ date: new Date( '2024-01-04' ), value: 2.2, label: 'Jan 4' },
+			{ date: new Date( '2024-01-05' ), value: 2.8, label: 'Jan 5' },
+		],
+		options: {
+			type: 'comparison' as const,
+		},
+	},
+	{
+		group: 'japan',
+		label: 'Japan',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 5, label: 'Jan 1' },
+			{ date: new Date( '2024-01-02' ), value: 8, label: 'Jan 2' },
+			{ date: new Date( '2024-01-03' ), value: 6, label: 'Jan 3' },
+			{ date: new Date( '2024-01-04' ), value: 12, label: 'Jan 4' },
+			{ date: new Date( '2024-01-05' ), value: 16, label: 'Jan 5' },
+		],
+		options: {},
+	},
+	{
+		group: 'japan',
+		label: 'Japan comparison',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 0.5, label: 'Jan 1' },
+			{ date: new Date( '2024-01-02' ), value: 0.8, label: 'Jan 2' },
+			{ date: new Date( '2024-01-03' ), value: 0.6, label: 'Jan 3' },
+			{ date: new Date( '2024-01-04' ), value: 1.2, label: 'Jan 4' },
+			{ date: new Date( '2024-01-05' ), value: 1.6, label: 'Jan 5' },
+		],
+		options: {
+			type: 'comparison' as const,
+		},
 	},
 ];

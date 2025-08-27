@@ -3,7 +3,7 @@ import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import {
-	marketingChannelsData as salesByChannel,
+	marketingChannelsComparison as salesByChannel,
 	salesByProduct,
 } from '../../../stories/sample-data';
 import BarListChart from '../bar-list-chart';
