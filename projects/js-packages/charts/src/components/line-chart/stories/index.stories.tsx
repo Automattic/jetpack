@@ -37,7 +37,7 @@ SingleSeries.args = {
 
 export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
 WithLegend.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	showLegend: true,
 };
 
