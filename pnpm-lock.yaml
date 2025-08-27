@@ -3702,6 +3702,9 @@ importers:
       '@testing-library/react':
         specifier: 16.3.0
         version: 16.3.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -18723,7 +18726,7 @@ snapshots:
       '@jest/schemas': 30.0.5
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.19.10
+      '@types/node': 22.17.1
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -27137,7 +27140,7 @@ snapshots:
   jest-mock@30.0.5:
     dependencies:
       '@jest/types': 30.0.5
-      '@types/node': 20.19.10
+      '@types/node': 22.17.1
       jest-util: 30.0.5
 
   jest-playwright-preset@4.0.0(jest-circus@30.0.5)(jest-environment-node@30.0.5)(jest-runner@30.0.5)(jest@30.0.4):
@@ -27407,7 +27410,7 @@ snapshots:
   jest-util@30.0.5:
     dependencies:
       '@jest/types': 30.0.5
-      '@types/node': 20.19.10
+      '@types/node': 22.17.1
       chalk: 4.1.2
       ci-info: 4.3.0
       graceful-fs: 4.2.11
