@@ -2136,7 +2136,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
 			// We check the left side due to writing direction—this variable is used to offset text.
 			// TODO: this should factor in RTL languages.
-			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
+			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . ( $border_radius['topLeft'] ?? '0' ) . ',' . ( $border_radius['bottomLeft'] ?? '0' ) . ');' : '';
 		} elseif ( isset( $border_radius ) ) {
 			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
 		}
@@ -2683,7 +2683,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		ob_start();
 		?>
-		<div class="jetpack-field-slider__input-row"
+		<div class="jetpack-field-slider__input-row <?php echo esc_attr( $this->field_classes ); ?>"
 			data-wp-context='
 			<?php
 			echo wp_json_encode(
@@ -2725,7 +2725,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
 		<?php if ( '' !== $min_text_label || '' !== $max_text_label ) : ?>
-			<div class="jetpack-field-slider__text-labels" aria-hidden="true">
+			<div class="jetpack-field-slider__text-labels <?php echo esc_attr( $this->field_classes ); ?>" aria-hidden="true">
 				<span class="jetpack-field-slider__min-text-label"><?php echo esc_html( $min_text_label ); ?></span>
 				<span class="jetpack-field-slider__max-text-label"><?php echo esc_html( $max_text_label ); ?></span>
 			</div>

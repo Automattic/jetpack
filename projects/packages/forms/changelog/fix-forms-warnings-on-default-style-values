@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Forms: add default values when border radius style is missing
