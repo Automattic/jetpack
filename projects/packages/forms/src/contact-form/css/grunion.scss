@@ -249,6 +249,7 @@ that needs to mimic the input element styles */
 .contact-form-submission .field-value {
 	margin-bottom: 20px;
 	font-weight: 600;
+	white-space: pre-wrap;
 }
 
 .form-errors .form-error-message {

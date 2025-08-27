@@ -2100,4 +2100,70 @@ class Feedback_Test extends BaseTestCase {
 		$response = Feedback::get( $post_id );
 		$this->assertInstanceOf( Feedback::class, $response );
 	}
+
+	/**
+	 * Test that new lines are not stripped from the field value.
+	 */
+	public function test_new_lines_dont_get_stripped() {
+		$form_id          = Utility::get_form_id();
+		$content          = 'Hello, this is a' . PHP_EOL . ' test message from our contact form.';
+		$expected_content = $content;
+
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => $content,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertTrue( str_contains( get_post( $feedback_post_id )->post_content, '\\n' ) ); // Double escaped PHP_EOL
+		$this->assertEquals( $expected_content, $response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the form submission when new lines are present' );
+		$this->assertEquals( $expected_content, $saved_response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the saved response when new lines are present' );
+	}
+
+	/**
+	 * Test that new lines are not stripped from the field value.
+	 */
+	public function test_new_lines_dont_get_stripped_when_addslashes() {
+		$form_id          = Utility::get_form_id();
+		$content          = addslashes( 'Hello, this is a' . PHP_EOL . ' test message from our contact form.' );
+		$expected_content = stripslashes( $content );
+
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => $content,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertTrue( str_contains( get_post( $feedback_post_id )->post_content, '\\n' ) ); // Double escaped PHP_EOL
+		$this->assertEquals( $expected_content, $response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the form submission when new lines are present' );
+		$this->assertEquals( $expected_content, $saved_response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the saved response when new lines are present' );
+	}
 }

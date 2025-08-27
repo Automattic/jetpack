@@ -1,6 +1,7 @@
 import { jetpackTheme, wooTheme } from '../../../providers/theme';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import { legendArgTypes } from '../../../stories/legend-config';
+import { osUsageData as data } from '../../../stories/sample-data';
 import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -11,27 +12,6 @@ type StoryArgs = React.ComponentProps< typeof PieChart > & {
 	containerWidth?: string;
 	containerHeight?: string;
 };
-
-const data = [
-	{
-		label: 'MacOS',
-		value: 30000,
-		valueDisplay: '30K',
-		percentage: 23,
-	},
-	{
-		label: 'Linux',
-		value: 22000,
-		valueDisplay: '22K',
-		percentage: 17,
-	},
-	{
-		label: 'Windows',
-		value: 80000,
-		valueDisplay: '80K',
-		percentage: 60,
-	},
-];
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Chart',

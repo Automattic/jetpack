@@ -676,18 +676,18 @@ function zeroBS_getDemoCustomer(){
 
 	);
 
-	foreach ($zbsCustomerFields as $fK => $fV){
-
-		$ret[$fK] = '';
-		if (isset($demoData[$fK])) $ret[$fK] = $demoData[$fK][mt_rand(0, count($demoData[$fK]) - 1)];
-
+	foreach ( $zbsCustomerFields as $key => $value ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$ret[ $key ] = '';
+		if ( isset( $demoData[ $key ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$ret[ $key ] = $demoData[ $key ][ wp_rand( 0, count( $demoData[ $key ] ) - 1 ) ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
 	}
 
 	// add fullname
-	$ret['fullname'] = $demoData['fullname'][mt_rand(0, count($demoData['fullname']) - 1)];
+	$ret['fullname'] = $demoData['fullname'][ wp_rand( 0, count( $demoData['fullname'] ) - 1 ) ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	// fill in some randoms
-	$ret['status'] = $demoData['status'][mt_rand(0, count($demoData['status']) - 1)];
+	$ret['status'] = $demoData['status'][ wp_rand( 0, count( $demoData['status'] ) - 1 ) ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	return $ret;
 

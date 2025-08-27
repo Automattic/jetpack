@@ -19,6 +19,7 @@ const sharedWebpackConfig = {
 		'form-step-navigation/style': './src/blocks/form-step-navigation/style.scss',
 		'field-rating/style': './src/blocks/field-rating/style.scss',
 		'field-image-select/style': './src/blocks/field-image-select/style.scss',
+		'input-range/style': './src/blocks/input-range/style.scss',
 	},
 	output: {
 		...jetpackWebpackConfig.output,

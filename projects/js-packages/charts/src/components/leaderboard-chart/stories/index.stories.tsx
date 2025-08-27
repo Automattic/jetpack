@@ -1,13 +1,13 @@
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import {
+	trafficSourcesData as sampleData,
+	shortTrafficSourcesData as smallDataset,
+	revenueMetricsData as largeValues,
+	decliningMetricsData as negativeGrowth,
+	categorizedMetricsData as dataWithImageColor,
+} from '../../../stories/sample-data';
 import { formatMetricValue } from '../../shared/format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';
-import {
-	sampleData,
-	smallDataset,
-	largeValues,
-	negativeGrowth,
-	dataWithImageColor,
-} from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LeaderboardChart > = {
