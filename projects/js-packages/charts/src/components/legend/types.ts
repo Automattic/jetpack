@@ -18,18 +18,8 @@ export type BaseLegendItem = {
 	overrideColor?: string;
 };
 
-export type LegendItemWithGlyph = BaseLegendItem & {
-	renderGlyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphSize: number;
-};
-
-export type LegendItemWithoutGlyph = BaseLegendItem & {
-	renderGlyph?: never;
-	glyphSize?: number;
-};
-
 export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
-	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
+	items: BaseLegendItem[];
 	orientation?: 'horizontal' | 'vertical';
 	/**
 	 * TODO: Add 'left' | 'right' positioning support in future implementation
@@ -39,6 +29,6 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {
-	items?: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
+	items?: BaseLegendItem[];
 	chartId?: string;
 };

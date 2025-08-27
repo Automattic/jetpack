@@ -1,15 +1,16 @@
-import { LineStyles } from '@visx/xychart';
-import { CSSProperties, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
 import { getItemShapeStyles, getSeriesStroke } from '../../utils/get-styles';
-import type { LegendItemWithGlyph, LegendItemWithoutGlyph } from './types';
+import type { BaseLegendItem } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
 import type { LegendShape } from '@visx/legend/lib/types';
+import type { GlyphProps } from '@visx/xychart';
+import type { ReactNode } from 'react';
 
 export interface ChartLegendOptions {
 	withGlyph?: boolean;
 	glyphSize?: number;
-	renderGlyph?: React.ComponentType< unknown >;
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	showValues?: boolean;
 }
 
@@ -37,37 +38,6 @@ function formatPointValue(
 }
 
 /**
- * Creates a base legend item with common properties
- * @param label         - The label for the legend item
- * @param value         - The value for the legend item
- * @param color         - The color for the legend item
- * @param shapeStyle    - The shape style for the legend item
- * @param group         - The group identifier for dynamic color resolution
- * @param index         - The index for color palette selection
- * @param overrideColor - Override color that takes precedence over theme colors
- * @return Base legend item object
- */
-function createBaseLegendItem(
-	label: string,
-	value: string,
-	color: string,
-	shapeStyle?: CSSProperties & LineStyles,
-	group?: string,
-	index?: number,
-	overrideColor?: string
-): Omit< LegendItemWithGlyph, 'glyphSize' | 'renderGlyph' > {
-	return {
-		label,
-		value,
-		color,
-		shapeStyle,
-		group,
-		index,
-		overrideColor,
-	};
-}
-
-/**
  * Processes SeriesData into legend items
  * @param seriesData  - The series data to process
  * @param theme       - The chart theme for colors
@@ -84,33 +54,33 @@ function processSeriesData(
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
-	renderGlyph?: React.ComponentType< unknown >,
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
 	legendShape?: LegendShape< SeriesData[], number >
-): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
+): BaseLegendItem[] {
 	const mapper = ( series: SeriesData, index: number ) => {
 		const { shapeStyles } = getItemShapeStyles( series, index, theme, legendShape );
-		const baseItem = createBaseLegendItem(
-			series.label,
-			showValues ? series.data?.length?.toString() || '0' : '',
-			getSeriesStroke( series, index, theme.colors ),
-			shapeStyles,
-			series.group,
+		const baseItem = {
+			label: series.label,
+			value: showValues ? series.data?.length?.toString() || '0' : '',
+			color: getSeriesStroke( series, index, theme.colors ),
+			shapeStyle: shapeStyles,
+			group: series.group,
 			index,
-			series.options?.stroke
-		);
+			overrideColor: series.options?.stroke,
+		};
 
 		if ( withGlyph && renderGlyph ) {
 			return {
 				...baseItem,
 				glyphSize,
 				renderGlyph,
-			} as LegendItemWithGlyph;
+			};
 		}
 
 		return baseItem;
 	};
 
-	return seriesData.map( mapper ) as LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
+	return seriesData.map( mapper );
 }
 
 /**
@@ -129,31 +99,32 @@ function processPointData(
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
-	renderGlyph?: React.ComponentType< unknown >
-): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode
+): BaseLegendItem[] {
 	const mapper = ( point: DataPointDate | DataPointPercentage, index: number ) => {
-		const baseItem = createBaseLegendItem(
-			point.label,
-			formatPointValue( point, showValues ),
-			( point as DataPointPercentage ).color ?? theme.colors[ index % theme.colors.length ],
-			undefined, // no shapeStyle for point data
-			( point as DataPointPercentage ).group,
+		const baseItem = {
+			label: point.label,
+			value: formatPointValue( point, showValues ),
+			color: ( point as DataPointPercentage ).color ?? theme.colors[ index % theme.colors.length ],
+			group: ( point as DataPointPercentage ).group,
 			index,
-			( point as DataPointPercentage ).color
-		);
+			overrideColor: ( point as DataPointPercentage ).color,
+		};
 
 		if ( withGlyph && renderGlyph ) {
-			return {
+			const itemWithGlyph = {
 				...baseItem,
 				glyphSize,
 				renderGlyph,
-			} as LegendItemWithGlyph;
+			};
+
+			return itemWithGlyph;
 		}
 
-		return baseItem as LegendItemWithoutGlyph;
+		return baseItem;
 	};
 
-	return pointData.map( mapper ) as LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
+	return pointData.map( mapper );
 }
 
 /**
@@ -169,7 +140,7 @@ export function useChartLegendData<
 	data: T,
 	options: ChartLegendOptions = {},
 	legendShape?: LegendShape< SeriesData[], number >
-): LegendItemWithGlyph[] | LegendItemWithoutGlyph[] {
+): BaseLegendItem[] {
 	const { showValues = false, withGlyph = false, glyphSize = 8, renderGlyph } = options;
 	const theme = useGlobalChartTheme();
 
