@@ -5,6 +5,7 @@ export { PieChart } from './components/pie-chart';
 export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
 export { BarListChart } from './components/bar-list-chart';
 export { LeaderboardChart } from './components/leaderboard-chart';
+export { ConversionFunnelChart } from './components/conversion-funnel-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
@@ -36,3 +37,4 @@ export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 
 export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
 export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
+export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';
