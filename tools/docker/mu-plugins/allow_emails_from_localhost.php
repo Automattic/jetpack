@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Allow Emails from localhost
- * Description: WordPress doesn't allow emails from localhost so we changes the hostname when sending.
+ * Description: WordPress doesn't allow emails from localhost so we change the hostname when sending.
  * Version: 1.0
  * Author: Automattic
  * Author URI: https://automattic.com/
