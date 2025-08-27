@@ -324,10 +324,24 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					series =>
 						series.label === props.key || series.data.includes( props.datum as DataPointDate )
 				);
+
+				// Resolve group color for tooltip glyph
+				const seriesData = dataSorted[ seriesIndex ];
+				const resolvedColor = seriesData
+					? resolveGroupColor( {
+							group: seriesData.group,
+							index: seriesIndex,
+							overrideColor: seriesData.options?.stroke,
+					  } )
+					: props.color;
+
+				const propsWithResolvedColor = { ...props, color: resolvedColor };
 				const themeGlyph = providerTheme.glyphs?.[ seriesIndex ];
-				return themeGlyph ? themeGlyph( props ) : renderGlyph( props );
+				return themeGlyph
+					? themeGlyph( propsWithResolvedColor )
+					: renderGlyph( propsWithResolvedColor );
 			};
-		}, [ dataSorted, providerTheme.glyphs, renderGlyph ] );
+		}, [ dataSorted, providerTheme.glyphs, renderGlyph, resolveGroupColor ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
