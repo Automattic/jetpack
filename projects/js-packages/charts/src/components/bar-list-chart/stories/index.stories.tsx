@@ -61,7 +61,7 @@ export const CustomLabelComponent: Story = {
 			labelComponent: ( { textProps, x, y, label, formatter } ) => {
 				return (
 					<>
-						<Circle cx={ x + 6 } cy={ y } r={ 8 } />
+						<Circle cx={ x + 6 } cy={ y } r={ 8 } fill="#3858E9" />
 						<Text { ...textProps } textAnchor="start" x={ x + 24 } y={ y } fontWeight={ 500 }>
 							{ formatter( label ) }
 						</Text>
