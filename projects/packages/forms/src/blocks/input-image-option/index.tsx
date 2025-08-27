@@ -74,21 +74,6 @@ const settings = {
 	},
 	edit,
 	attributes: {
-		style: {
-			type: 'object',
-			default: {
-				border: {
-					width: '1px',
-					color: 'var(--jetpack--contact-form--primary-color)',
-					radius: '4px',
-					style: 'solid',
-				},
-				spacing: {
-					margin: '0',
-					padding: '8px',
-				},
-			},
-		},
 		allowResize: {
 			type: 'boolean',
 			default: false,
