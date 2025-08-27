@@ -19,17 +19,17 @@ export function getBackupConfig(): ProductConfig {
 			{
 				name: __( 'Real-time backups', 'jetpack-my-jetpack' ),
 				paid: { included: true, label: INCLUDED },
-				bundle: { included: true, label: __( 'Real-time cloud backups', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: __( 'All Backup features', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'Cloud backup storage', 'jetpack-my-jetpack' ),
 				paid: { included: true, label: __( '10 GB', 'jetpack-my-jetpack' ) },
-				bundle: { included: true, label: __( '10GB of backup storage', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: __( 'Real-time cloud backups', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'One-click restores', 'jetpack-my-jetpack' ),
 				paid: { included: true, label: __( '30-day history', 'jetpack-my-jetpack' ) },
-				bundle: { included: true, label: __( 'Automated malware scan', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: __( '10GB of backup storage', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'Backup history', 'jetpack-my-jetpack' ),
@@ -38,20 +38,20 @@ export function getBackupConfig(): ProductConfig {
 					'jetpack-my-jetpack'
 				),
 				paid: { included: true, label: __( '30-day log', 'jetpack-my-jetpack' ) },
+				bundle: { included: true, label: __( 'Automated malware scan', 'jetpack-my-jetpack' ) },
+			},
+			{
+				name: __( 'Activity log', 'jetpack-my-jetpack' ),
+				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
 					label: __( 'One-click fixes for threats', 'jetpack-my-jetpack' ),
 				},
 			},
 			{
-				name: __( 'Activity log', 'jetpack-my-jetpack' ),
-				paid: { included: true, label: INCLUDED },
-				bundle: { included: true, label: __( 'Spam protection', 'jetpack-my-jetpack' ) },
-			},
-			{
 				name: __( 'File Browser (granular restore)', 'jetpack-my-jetpack' ),
 				paid: { included: true, label: INCLUDED },
-				bundle: { included: true, label: '' },
+				bundle: { included: true, label: __( 'Spam protection', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'Copy to Staging', 'jetpack-my-jetpack' ),
