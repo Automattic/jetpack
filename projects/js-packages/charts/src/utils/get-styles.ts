@@ -43,7 +43,6 @@ export function getSeriesStroke(
 	index: number,
 	themeColors: string[]
 ): string {
-	// Legacy fallback (when not in a ChartProvider). This is kept for non-context usages (e.g., tests).
 	return seriesData.options?.stroke ?? themeColors[ index % themeColors.length ];
 }
 
