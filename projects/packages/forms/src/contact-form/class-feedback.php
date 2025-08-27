@@ -767,7 +767,7 @@ class Feedback {
 				'post_title'     => $this->legacy_feedback_title,
 				'post_date'      => $this->feedback_time,
 				'post_name'      => $this->legacy_feedback_id,
-				'post_content'   => addslashes( $this->serialize() ),
+				'post_content'   => $this->serialize(), // In V3 we started to addslashes.
 				'post_mime_type' => 'v3', // a way to help us identify what version of the data this is.
 				'post_parent'    => $this->source->get_id(),
 			)
