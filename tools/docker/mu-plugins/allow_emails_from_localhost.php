@@ -23,8 +23,9 @@ namespace Jetpack\Docker\MuPlugin\AllowEmailsFromLocalhost;
  * @return string Filtered email address to send from.
  */
 function jetpack_allow_emails_from_localhost( $from_email ) {
-	if ( str_ends_with( $from_email, '@localhost' ) ) {
+	if ( $from_email === 'wordpress@localhost' ) {
 		return 'wordpress@jetpack.docker';
+
 	}
 	return $from_email;
 }
