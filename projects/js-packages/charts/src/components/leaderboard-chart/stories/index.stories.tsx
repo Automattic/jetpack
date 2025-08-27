@@ -6,7 +6,7 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 } from '../../../stories/sample-data';
-import { formatMetricValue } from '../../shared/format-metric-value';
+import { formatMetricValue } from '../../../utils/format-metric-value';
 import { LeaderboardChart } from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -23,7 +23,7 @@ A flexible and accessible leaderboard chart component for displaying ranked data
 ## Features
 
 - 📊 Clean, responsive leaderboard visualization
-- 🎨 Customizable colors and styling  
+- 🎨 Customizable colors and styling
 - 🔄 Optional comparison data support
 - 📱 Mobile-friendly design
 - 🎯 TypeScript support with full type definitions
@@ -89,7 +89,7 @@ import { LeaderboardChart } from '@automattic/charts';
 // Transform your raw data into LeaderboardEntry format
 function transformRawData(rawData) {
   const maxValue = Math.max(...rawData.map(item => item.current_period.value));
-  
+
   return rawData.map(item => ({
     id: item.id,
     label: item.name,
@@ -103,7 +103,7 @@ function transformRawData(rawData) {
 
 function ProcessedDataChart() {
   const processedData = transformRawData(rawData);
-  
+
   return (
     <LeaderboardChart
       data={processedData}
