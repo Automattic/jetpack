@@ -14,7 +14,7 @@ import {
 } from '../../providers/chart-context';
 import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
-import { useChartLegendItems } from '../legend/use-chart-legend-items';
+import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
 import { SingleChartContext } from '../shared/single-chart-context';
 import { useElementHeight } from '../shared/use-element-height';
@@ -168,7 +168,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendItems( data, legendOptions );
+	const legendItems = useChartLegendData( data, legendOptions );
 
 	// Process children to extract compound components
 	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
