@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit c14eaecaad5e16e99877104f2e1bbe3d871f8193.
+ * Stubs automatically generated from WordPress.com commit ddb9e21c8b220cdf41488b314a70e5d5683f85e4.
  */
 
 namespace {
@@ -261,6 +261,12 @@ namespace {
     {
     }
     function global_css()
+    {
+    }
+    /**
+     * @return WP_Ability[]
+     */
+    function wp_get_abilities(): array
     {
     }
     class WPCOM_External_Connections
@@ -1152,7 +1158,25 @@ namespace {
     /**
      * @phan-return mixed
      */
+    function stats_get_visitors($blog_id, $end_date = \false, $num_units = 1, $unit = 1)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
     function stats_get_daily_history($site_id, $blog_id, $table, $field, $end_date = \false, $num_days = 1, $and = '', $limit = 0, $summarize = \false, $rollup = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function stats_grandtotal_views($blog_id = \null, $site_id = \null, $update_if_older_than = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function get_all_time_postviews($post_id = \null)
     {
     }
     /**
