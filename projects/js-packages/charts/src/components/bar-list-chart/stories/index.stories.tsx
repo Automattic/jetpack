@@ -62,11 +62,19 @@ export const CustomLabelComponent: Story = {
 			labelComponent: ( { textProps, x, y, label, formatter } ) => {
 				// eslint-disable-next-line react-hooks/rules-of-hooks
 				const theme = useGlobalChartTheme();
-				const circleColor = theme.colors[ 0 ]; // Use first theme color
+				const circleColor = theme.colors[ 1 ]; // Use second theme color for contrast
+				const strokeColor = theme.backgroundColor || '#FFFFFF';
 
 				return (
 					<>
-						<Circle cx={ x + 6 } cy={ y } r={ 8 } fill={ circleColor } />
+						<Circle
+							cx={ x + 6 }
+							cy={ y }
+							r={ 8 }
+							fill={ circleColor }
+							stroke={ strokeColor }
+							strokeWidth={ 2 }
+						/>
 						<Text { ...textProps } textAnchor="start" x={ x + 24 } y={ y } fontWeight={ 500 }>
 							{ formatter( label ) }
 						</Text>
