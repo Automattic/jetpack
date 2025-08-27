@@ -234,7 +234,7 @@ class Tiled_Gallery {
 		}
 
 		// Get spacing from email_attrs for better consistency with core blocks
-		$email_attrs        = isset( $parsed_block['email_attrs'] ) ? $parsed_block['email_attrs'] : array();
+		$email_attrs        = $parsed_block['email_attrs'] ?? array();
 		$table_margin_style = '';
 
 		if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
