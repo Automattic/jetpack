@@ -705,62 +705,70 @@ class Tiled_Gallery {
 	 * @return string HTML content.
 	 */
 	private static function build_mosaic_layout_content( $images, $cell_padding, $border_radius = 0, $attr = array() ) {
-		$content_parts       = array();
 		$border_radius_style = self::generate_border_radius_style( '', $border_radius );
 
 		// Generate mosaic layout rows
 		$rows = self::generate_mosaic_rows( $images );
 
+		// Determine the maximum number of columns to ensure consistent layout
+		$max_columns = 0;
 		foreach ( $rows as $row ) {
-			$images_in_row      = count( $row );
+			$max_columns = max( $max_columns, count( $row ) );
+		}
+
+		// Build each row as a separate table to match flexbox behavior
+		$content_parts = array();
+		foreach ( $rows as $row ) {
+			$images_in_row = count( $row );
+
+			// Calculate width for each cell in this row (like flexbox)
 			$cell_width_percent = ( 100 / $images_in_row );
 
 			// Build table cells for this row
 			$row_cells = '';
 			foreach ( $row as $image_index => $image ) {
-				// Calculate cell attributes
-				$cell_attrs = array(
-					'style' => sprintf(
-						'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
-						$cell_width_percent,
-						$cell_padding
-					),
+				$cell_style = sprintf(
+					'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
+					$cell_width_percent,
+					$cell_padding
 				);
 
-				// Add right padding to all but last cell
+				// Add right padding to all but last cell in the actual row
 				if ( $image_index < $images_in_row - 1 ) {
-					$cell_attrs['style'] .= 'padding-right: ' . ( $cell_padding * 2 ) . 'px;';
+					$cell_style .= 'padding-right: ' . ( $cell_padding * 2 ) . 'px;';
 				}
 
-				$image_styles = 'margin: 0; width: 100%; max-width: 100%; height: auto; display: block;';
+				// Set consistent height for all images in this row to ensure alignment
+				// Use progressive enhancement: object-fit for supported clients, natural layout for others
+				$image_styles = 'margin: 0; width: 100%; max-width: 100%; height: 200px; display: block; object-fit: cover; object-position: center;';
 
 				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
 
-				$row_cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
-					$cell_content,
-					$cell_attrs
+				$row_cells .= sprintf(
+					'<td style="%s">%s</td>',
+					esc_attr( $cell_style ),
+					$cell_content
 				);
 			}
 
-			// Use Table_Wrapper_Helper for email-compatible table rendering
-			$table_attrs = array(
-				'style' => 'width: 100%; border-collapse: collapse;',
+			// Create a separate table for each row with flexible height for alignment
+			$row_table = sprintf(
+				'<table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: %dpx; table-layout: fixed;"><tr>%s</tr></table>',
+				$cell_padding,
+				$row_cells
 			);
 
-			$content_parts[] = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
-				$row_cells,
-				$table_attrs
-			);
+			$content_parts[] = $row_table;
 		}
 
-		// Use Table_Wrapper_Helper for consistent email rendering
-		$wrapper_attrs = array(
+		// Use Table_Wrapper_Helper for the main container
+		$table_attrs = array(
 			'style' => 'width: 100%; border-collapse: collapse;',
 		);
 
 		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
 			implode( '', $content_parts ),
-			$wrapper_attrs
+			$table_attrs
 		);
 	}
 
