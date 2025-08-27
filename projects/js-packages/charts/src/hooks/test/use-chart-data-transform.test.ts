@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { useChartDataTransform } from '../use-chart-data-transform';
-import type { SeriesData } from '../../../types';
+import type { SeriesData } from '../../types';
 
 describe( 'useChartDataTransform', () => {
 	it( 'should return data unchanged when no date properties are present', () => {

@@ -2,7 +2,7 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import { useChartMouseHandler, useGlobalChartTheme } from '../../hooks';
+import { useChartMouseHandler, useGlobalChartTheme, useElementHeight } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -15,7 +15,6 @@ import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
 import { SingleChartContext } from '../shared/single-chart-context';
-import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';

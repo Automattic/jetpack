@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { parseAsLocalDate } from './date-parsing';
-import type { SeriesData } from '../../types';
+import { parseAsLocalDate } from '../components/shared/date-parsing';
+import type { SeriesData } from '../types';
 
 /**
  * Hook that transforms and sorts chart data, handling date parsing and sorting

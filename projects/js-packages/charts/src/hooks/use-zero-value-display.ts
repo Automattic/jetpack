@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { SeriesData, DataPointDate } from '../../types';
+import type { SeriesData, DataPointDate } from '../types';
 
 export type EnhancedDataPoint = DataPointDate & {
 	visualValue?: number;

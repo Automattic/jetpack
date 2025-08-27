@@ -1,7 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { useMemo } from 'react';
+import type { EnhancedDataPoint } from '../../hooks/use-zero-value-display';
 import type { DataPointDate, BaseChartProps, SeriesData } from '../../types';
-import type { EnhancedDataPoint } from '../shared/use-zero-value-display';
 import type { TickFormatter } from '@visx/axis';
 
 const formatDateTick = ( timestamp: number ) => {

@@ -5,7 +5,13 @@ import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
-import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
+import {
+	useGlobalChartTheme,
+	useXYChartTheme,
+	useChartDataTransform,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
@@ -19,9 +25,6 @@ import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../shared/single-chart-context';
-import { useChartDataTransform } from '../shared/use-chart-data-transform';
-import { useChartMargin } from '../shared/use-chart-margin';
-import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import LineChartAnnotation from './line-chart-annotation';

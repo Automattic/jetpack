@@ -4,8 +4,8 @@ import { useChartMargin } from '../use-chart-margin';
 import type { XYChartTheme } from '@visx/xychart';
 
 const mockGetLongestTickWidth = jest.fn();
-jest.mock( '../utils', () => ( {
-	...jest.requireActual( '../utils' ),
+jest.mock( '../../utils/get-longest-tick-width', () => ( {
+	...jest.requireActual( '../../utils/get-longest-tick-width' ),
 	getLongestTickWidth: ( ...args: unknown[] ) => mockGetLongestTickWidth( ...args ),
 } ) );
 

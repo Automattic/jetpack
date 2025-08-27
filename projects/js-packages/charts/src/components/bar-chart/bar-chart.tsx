@@ -3,7 +3,13 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { useXYChartTheme } from '../../hooks';
+import {
+	useXYChartTheme,
+	useChartDataTransform,
+	useZeroValueDisplay,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -15,10 +21,6 @@ import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { SingleChartContext } from '../shared/single-chart-context';
-import { useChartDataTransform } from '../shared/use-chart-data-transform';
-import { useChartMargin } from '../shared/use-chart-margin';
-import { useElementHeight } from '../shared/use-element-height';
-import { useZeroValueDisplay } from '../shared/use-zero-value-display';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import styles from './bar-chart.module.scss';

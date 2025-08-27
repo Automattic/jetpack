@@ -1,7 +1,7 @@
 import { createScale, getTicks } from '@visx/scale';
 import { useMemo } from 'react';
-import { getLongestTickWidth } from './utils';
-import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import { getLongestTickWidth } from '../utils/get-longest-tick-width';
+import type { BaseChartProps, DataPointDate, SeriesData } from '../types';
 import type { XYChartTheme } from '@visx/xychart';
 
 export const useChartMargin = (
