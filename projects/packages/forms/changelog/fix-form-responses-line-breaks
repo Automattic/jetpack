@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: fix line break stripping on response values

@@ -1,9 +1,10 @@
-import './editor.scss';
 import { useBlockProps } from '@wordpress/block-editor';
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef } from 'react';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
+import './style.scss';
+import './editor.scss';
 
 export default function SliderInputEdit( props ) {
 	const { context = {}, isSelected, clientId } = props;
@@ -75,7 +76,7 @@ export default function SliderInputEdit( props ) {
 
 	return (
 		<div { ...blockProps }>
-			<div className="jetpack-field-slider__row">
+			<div className="jetpack-field-slider__input-row">
 				<VisuallyHidden as="label" htmlFor={ `${ clientId }-slider-min` }>
 					{ __( 'Slider minimum value', 'jetpack-forms' ) }
 				</VisuallyHidden>
