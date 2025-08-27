@@ -6,7 +6,7 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 } from '../../../stories/sample-data';
-import { formatMetricValue } from '../../../utils/format-metric-value';
+import { formatMetricValue } from '../../../utils';
 import { LeaderboardChart } from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 

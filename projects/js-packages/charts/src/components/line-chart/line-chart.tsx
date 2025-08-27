@@ -19,8 +19,7 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 } from '../../providers/chart-context';
-import { attachSubComponents } from '../../utils/create-composition';
-import { getSeriesLineStyles } from '../../utils/get-styles';
+import { attachSubComponents, getSeriesLineStyles } from '../../utils';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { DefaultGlyph } from '../shared/default-glyph';

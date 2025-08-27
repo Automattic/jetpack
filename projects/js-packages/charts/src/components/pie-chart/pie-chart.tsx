@@ -10,7 +10,7 @@ import {
 	useGlobalChartsContext,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
+import { attachSubComponents } from '../../utils';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
 import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';

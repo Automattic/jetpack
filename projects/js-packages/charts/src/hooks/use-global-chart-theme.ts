@@ -2,7 +2,7 @@ import { useContext, useMemo } from 'react';
 import { GlobalChartsContext } from '../providers/chart-context/global-charts-provider';
 import { useChartTheme } from '../providers/theme';
 import { defaultTheme } from '../providers/theme/themes';
-import { mergeThemes } from '../utils/merge-themes';
+import { mergeThemes } from '../utils';
 import type { ChartTheme } from '../types';
 
 /**

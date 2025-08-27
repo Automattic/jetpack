@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
-import { getItemShapeStyles, getSeriesStroke } from '../../utils/get-styles';
+import { getItemShapeStyles, getSeriesStroke } from '../../utils';
 import type { BaseLegendItem } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
 import type { LegendShape } from '@visx/legend/lib/types';

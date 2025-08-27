@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { parseAsLocalDate } from '../utils/date-parsing';
+import { parseAsLocalDate } from '../utils';
 import type { SeriesData } from '../types';
 
 /**

@@ -21,7 +21,7 @@ export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
 // Utilities
-export { mergeThemes } from './utils/merge-themes';
+export { mergeThemes } from './utils';
 
 // Hooks
 export { useDeepMemo, useGlobalChartTheme, useChartMouseHandler, useXYChartTheme } from './hooks';
