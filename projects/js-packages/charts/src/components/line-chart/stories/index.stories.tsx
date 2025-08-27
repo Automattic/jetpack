@@ -314,15 +314,19 @@ SmartFormatting.parameters = {
 export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
 BrokenLine.args = {
 	...Default.args,
-	margin: {
-		bottom: 40,
-	},
+	width: 600,
+	height: 400,
 	data: [
 		{
 			...webTrafficData[ 0 ],
-			label: 'Vistors to compare',
+			label: 'Visitors with dashed line',
+			data: webTrafficData[ 0 ].data.map( point => ( {
+				...point,
+				value: point.value + 100, // Offset by 100 to make lines visible
+			} ) ),
 			options: {
-				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
+				...webTrafficData[ 0 ].options,
+				seriesLineStyle: { strokeDasharray: '5 5', strokeWidth: 3 },
 			},
 		},
 		webTrafficData[ 0 ],
