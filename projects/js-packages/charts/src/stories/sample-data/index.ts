@@ -608,7 +608,7 @@ export const marketingChannelsComparison: SeriesData[] = [
 export const marketingChannelsByCountry: SeriesData[] = [
 	{
 		group: 'united-states',
-		label: 'Jan 21-Aug 8, 2024',
+		label: 'United States Jan 21-Aug 8, 2024',
 		data: [
 			{ label: 'Organic search', value: 30000 },
 			{ label: 'Affiliates', value: 19000 },
@@ -617,7 +617,7 @@ export const marketingChannelsByCountry: SeriesData[] = [
 	},
 	{
 		group: 'great-britain',
-		label: 'Jan 21-Aug 8, 2023',
+		label: 'Great Britain Jan 21-Aug 8, 2023',
 		data: [
 			{ label: 'Organic search', value: 20000 },
 			{ label: 'Affiliates', value: 15000 },
@@ -626,7 +626,7 @@ export const marketingChannelsByCountry: SeriesData[] = [
 	},
 	{
 		group: 'japan',
-		label: 'Jan 21-Aug 8, 2022',
+		label: 'Japan Jan 21-Aug 8, 2022',
 		data: [
 			{ label: 'Organic search', value: 15000 },
 			{ label: 'Affiliates', value: 12000 },
