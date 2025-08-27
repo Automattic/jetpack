@@ -394,6 +394,9 @@ class Callables extends Module {
 			return;
 		}
 		$plugins = Functions::get_plugins();
+		if ( ! is_array( $plugins ) ) {
+			return;
+		}
 		foreach ( $plugins as $plugin_file => $plugin_data ) {
 			/**
 			 *  Plugins often like to unset things but things break if they are not able to.
