@@ -136,7 +136,7 @@ export const medalCountsData: SeriesData[] = [
  */
 export const temperatureData: SeriesData[] = [
 	{
-		group: 'New York',
+		group: 'new-york',
 		label: 'New York',
 		data: [
 			{ date: new Date( '2024-01-01' ), value: 2 },
@@ -155,7 +155,7 @@ export const temperatureData: SeriesData[] = [
 		options: {},
 	},
 	{
-		group: 'London',
+		group: 'london',
 		label: 'London',
 		data: [
 			{ date: new Date( '2024-01-01' ), value: 5 },
@@ -174,7 +174,7 @@ export const temperatureData: SeriesData[] = [
 		options: {},
 	},
 	{
-		group: 'Tokyo',
+		group: 'tokyo',
 		label: 'Tokyo',
 		data: [
 			{ date: new Date( '2024-01-01' ), value: 6 },
@@ -192,6 +192,25 @@ export const temperatureData: SeriesData[] = [
 		],
 		options: {},
 	},
+	{
+		group: 'madrid',
+		label: 'Madrid',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 8 },
+			{ date: new Date( '2024-02-01' ), value: 10 },
+			{ date: new Date( '2024-03-01' ), value: 14 },
+			{ date: new Date( '2024-04-01' ), value: 16 },
+			{ date: new Date( '2024-05-01' ), value: 21 },
+			{ date: new Date( '2024-06-01' ), value: 26 },
+			{ date: new Date( '2024-07-01' ), value: 29 },
+			{ date: new Date( '2024-08-01' ), value: 29 },
+			{ date: new Date( '2024-09-01' ), value: 25 },
+			{ date: new Date( '2024-10-01' ), value: 18 },
+			{ date: new Date( '2024-11-01' ), value: 12 },
+			{ date: new Date( '2024-12-01' ), value: 9 },
+		],
+		options: {},
+	},
 ];
 
 /**
@@ -204,7 +223,7 @@ export const temperatureData: SeriesData[] = [
  */
 export const largeValuesData: SeriesData[] = [
 	{
-		group: 'Revenue',
+		group: 'revenue',
 		label: 'Revenue',
 		data: [
 			{ date: new Date( '2024-01-01' ), value: 1250000 },
@@ -215,7 +234,7 @@ export const largeValuesData: SeriesData[] = [
 		options: {},
 	},
 	{
-		group: 'Costs',
+		group: 'costs',
 		label: 'Costs',
 		data: [
 			{ date: new Date( '2024-01-01' ), value: 850000 },
@@ -237,7 +256,7 @@ export const largeValuesData: SeriesData[] = [
  */
 export const trafficData: SeriesData[] = [
 	{
-		group: 'Visitors',
+		group: 'visitors',
 		label: 'Visitors',
 		data: [
 			{ dateString: '2023-01-01', value: 1000 },

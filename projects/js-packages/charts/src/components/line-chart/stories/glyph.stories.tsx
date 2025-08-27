@@ -1,7 +1,9 @@
 import { GlyphStar } from '@visx/glyph';
 import { useGlobalChartTheme } from '../../../hooks';
+import { GlobalChartsProvider } from '../../../providers/chart-context/global-charts-provider';
+import { CHART_THEME_MAP, themeArgTypes } from '../../../stories/theme-config';
 import LineChart from '../line-chart';
-import { lineChartMetaArgs, lineChartStoryArgs } from './config';
+import { lineChartMetaArgs, lineChartStoryArgs, glyphTheme } from './config';
 import type { DataPointDate } from '../../../types';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
@@ -10,9 +12,45 @@ type StoryArgs = React.ComponentProps< typeof LineChart > & {
 	themeName?: string;
 };
 
+// Add the customStorybook theme to the central theme map for glyph stories
+const GLYPH_THEME_MAP = {
+	...CHART_THEME_MAP,
+	glyph: glyphTheme,
+};
+
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart/Glyphs',
+	decorators: [
+		( Story, { args }: { args: StoryArgs } ) => {
+			const theme = GLYPH_THEME_MAP[ args.themeName || 'default' ];
+
+			return (
+				<GlobalChartsProvider theme={ theme }>
+					<div
+						style={ {
+							resize: 'both',
+							overflow: 'auto',
+							padding: '2rem',
+							width: '800px',
+							maxWidth: '1200px',
+							border: '1px dashed #ccc',
+							display: 'inline-block',
+						} }
+					>
+						<Story />
+					</div>
+				</GlobalChartsProvider>
+			);
+		},
+	],
+	argTypes: {
+		...lineChartMetaArgs.argTypes,
+		themeName: {
+			...themeArgTypes.themeName,
+			options: [ 'default', 'jetpack', 'woo', 'custom', 'glyph' ],
+		},
+	},
 };
 
 export default meta;
@@ -137,7 +175,7 @@ CustomPerDataPoint.args = {
 	showLegend: true,
 	withStartGlyphs: true,
 	withLegendGlyph: true,
-	themeName: 'customStorybook', // Mock prop used to switch the rendered theme in the storybook.
+	themeName: 'glyph', // Mock prop used to switch the rendered theme in the storybook.
 	glyphStyle: {
 		radius: 8,
 	},

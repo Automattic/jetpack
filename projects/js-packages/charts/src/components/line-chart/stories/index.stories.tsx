@@ -1,11 +1,6 @@
-import { legendArgTypes } from '../../../stories/legend-config';
-import {
-	temperatureData as sampleData,
-	largeValuesData,
-	trafficData as webTrafficData,
-} from '../../../stories/sample-data';
+import { temperatureData, largeValuesData, trafficData } from '../../../stories/sample-data';
 import LineChart from '../line-chart';
-import { lineChartStoryArgs, lineChartMetaArgs } from './config';
+import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 type StoryArgs = React.ComponentProps< typeof LineChart > & {
@@ -17,7 +12,6 @@ const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Line Chart',
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
-		...legendArgTypes,
 	},
 };
 
@@ -34,18 +28,18 @@ Default.args = {
 // Story with single data series
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
-	data: [ sampleData[ 0 ] ], // Only London temperature data
+	data: [ temperatureData[ 0 ] ], // Only London temperature data
 };
 
 export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
 WithLegend.args = {
-	...lineChartStoryArgs,
+	...Default.args,
 	showLegend: true,
 };
 
 export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomLegendPositioning.args = {
-	data: sampleData,
+	data: temperatureData,
 	showLegend: true,
 	height: 400,
 	legendAlignment: 'start',
@@ -68,7 +62,7 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 	render: () => (
 		<div style={ { width: '600px', height: '400px' } }>
 			<LineChart
-				data={ webTrafficData }
+				data={ trafficData }
 				width={ 600 }
 				height={ 300 }
 				withGradientFill={ false }
@@ -92,7 +86,7 @@ export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} 
 CustomDimensions.args = {
 	width: 800,
 	height: 400,
-	data: sampleData,
+	data: temperatureData,
 };
 
 // Add after existing stories
@@ -100,7 +94,7 @@ export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} )
 FixedDimensions.args = {
 	width: 800,
 	height: 400,
-	data: sampleData,
+	data: temperatureData,
 	withTooltips: true,
 };
 
@@ -117,7 +111,7 @@ export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GradientFilled.args = {
 	...Default.args,
 	margin: undefined,
-	data: webTrafficData,
+	data: trafficData,
 	withGradientFill: true,
 	options: {
 		axis: { y: { orientation: 'right' } },
@@ -318,13 +312,13 @@ BrokenLine.args = {
 	},
 	data: [
 		{
-			...webTrafficData[ 0 ],
+			...trafficData[ 0 ],
 			label: 'Vistors to compare',
 			options: {
 				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
 			},
 		},
-		webTrafficData[ 0 ],
+		trafficData[ 0 ],
 	],
 	showLegend: true,
 };
@@ -381,29 +375,25 @@ Comparison.args = {
 	smoothing: false,
 	data: [
 		{
-			...sampleData[ 0 ],
-			label: 'Current Year Sales',
-			group: 'sales',
-			options: {},
+			...temperatureData[ 0 ],
+			label: 'New York',
 		},
 		{
-			...sampleData[ 1 ],
-			label: 'Previous Year Sales',
-			group: 'sales',
+			...temperatureData[ 1 ],
+			label: 'New York last year',
+			group: 'new-york',
 			options: {
 				type: 'comparison' as const,
 			},
 		},
 		{
-			...sampleData[ 2 ],
-			label: 'Current Year Expenses',
-			group: 'expenses',
-			options: {},
+			...temperatureData[ 2 ],
+			label: 'Tokyo',
 		},
 		{
-			...sampleData[ 3 ],
-			label: 'Previous Year Expenses',
-			group: 'expenses',
+			...temperatureData[ 3 ],
+			label: 'Tokyo last year',
+			group: 'tokyo',
 			options: {
 				type: 'comparison' as const,
 			},

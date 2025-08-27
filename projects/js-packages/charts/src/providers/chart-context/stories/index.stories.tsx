@@ -9,37 +9,11 @@ import {
 	SeriesData,
 } from '../../../.';
 import { medalCountsData as barSampleData } from '../../../stories/sample-data';
-import { jetpackTheme, wooTheme, defaultTheme } from '../../theme/themes';
+import { CHART_THEME_MAP } from '../../../stories/theme-config';
 import { GlobalChartsProvider } from '../global-charts-provider';
-import type { ChartTheme } from '../../../types';
 
 type StoryArgs = {
 	themeName?: string;
-};
-
-const THEME_MAP: Record< string, ChartTheme | undefined > = {
-	default: defaultTheme,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
-	custom: {
-		colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
-		seriesLineStyles: [
-			{
-				strokeWidth: 1,
-				strokeDasharray: '8 8',
-				strokeLinecap: 'square',
-			},
-			{
-				strokeDasharray: '5 8',
-				strokeWidth: 2,
-				strokeLinecap: 'square',
-			},
-		],
-		gridStyles: {
-			stroke: '#ffe3e3',
-			strokeWidth: 2,
-		},
-	} as ChartTheme,
 };
 
 const meta: Meta< StoryArgs > = {
@@ -49,7 +23,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	decorators: [
 		( Story, { args }: { args: StoryArgs } ) => {
-			const theme = THEME_MAP[ args.themeName || 'default' ];
+			const theme = CHART_THEME_MAP[ args.themeName || 'default' ];
 
 			return (
 				<GlobalChartsProvider theme={ theme }>

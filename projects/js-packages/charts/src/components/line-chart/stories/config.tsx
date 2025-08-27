@@ -1,8 +1,11 @@
 import { GlyphDiamond, GlyphStar } from '@visx/glyph';
 import merge from 'deepmerge';
 import { createElement } from 'react';
-import { jetpackTheme, wooTheme, ThemeProvider } from '../../../providers/theme';
+import { GlobalChartsProvider } from '../../../providers/chart-context/global-charts-provider';
+import { jetpackTheme } from '../../../providers/theme/themes';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { temperatureData as sampleData } from '../../../stories/sample-data';
+import { CHART_THEME_MAP, themeArgTypes } from '../../../stories/theme-config';
 import { DefaultGlyph } from '../../shared/default-glyph';
 import LineChart from '../line-chart';
 import type { Meta } from '@storybook/react';
@@ -11,7 +14,10 @@ type StoryArgs = React.ComponentProps< typeof LineChart > & {
 	themeName?: string;
 };
 
-const customStorybookTheme = merge( jetpackTheme, {
+/**
+ * Custom storybook theme with glyphs
+ */
+export const glyphTheme = merge( jetpackTheme, {
 	glyphs: [
 		props => createElement( DefaultGlyph, { ...props, key: props.key } ),
 		props =>
@@ -38,13 +44,6 @@ const customStorybookTheme = merge( jetpackTheme, {
 	},
 } );
 
-const THEME_MAP = {
-	default: undefined,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
-	customStorybook: customStorybookTheme,
-};
-
 export const lineChartMetaArgs: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Line Chart',
 	component: LineChart,
@@ -53,10 +52,10 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 	},
 	decorators: [
 		( Story, { args }: { args: StoryArgs } ) => {
-			const theme = THEME_MAP[ args.themeName ];
+			const theme = CHART_THEME_MAP[ args.themeName || 'default' ];
 
 			return (
-				<ThemeProvider theme={ theme }>
+				<GlobalChartsProvider theme={ theme }>
 					<div
 						style={ {
 							resize: 'both',
@@ -70,16 +69,13 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 					>
 						<Story />
 					</div>
-				</ThemeProvider>
+				</GlobalChartsProvider>
 			);
 		},
 	],
 	argTypes: {
-		themeName: {
-			control: { type: 'select' as const },
-			options: [ 'default', 'jetpack', 'woo', 'customStorybook' ],
-			defaultValue: 'default',
-		},
+		...legendArgTypes,
+		...themeArgTypes,
 		maxWidth: {
 			control: {
 				type: 'number',
