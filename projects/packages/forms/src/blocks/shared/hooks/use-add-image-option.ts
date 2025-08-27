@@ -8,6 +8,7 @@ import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import defaultAttributes from '../../input-image-option/default-attributes';
 import { getImageOptionLabel } from '../../input-image-option/label';
 /**
  * Types
@@ -20,9 +21,29 @@ import type { BlockEditorStoreDispatch, BlockEditorStoreSelect } from '../../../
  * @param {string} optionsClientId - The client ID of the options container block.
  * @return {Function} Function to add a new option block.
  */
-export default function useAddImageOption( optionsClientId: string ): { addOption: () => void } {
+export default function useAddImageOption( optionsClientId: string ): {
+	newImageOption: () => {
+		name: string;
+		attributes: Record< string, unknown >;
+	};
+	addOption: () => void;
+} {
 	const { insertBlock } = useDispatch( blockEditorStore ) as BlockEditorStoreDispatch;
-	const { getBlock } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
+	const { getBlock, getBlocks } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
+
+	const childBlocksCount = getBlocks( optionsClientId ).length;
+
+	const newImageOption = useCallback( () => {
+		const newIndex = childBlocksCount + 1;
+
+		return {
+			name: 'jetpack/input-image-option',
+			attributes: {
+				label: getImageOptionLabel( newIndex ),
+				...defaultAttributes,
+			},
+		};
+	}, [ childBlocksCount ] );
 
 	const addOption = useCallback( () => {
 		// Get the current options block
@@ -33,22 +54,11 @@ export default function useAddImageOption( optionsClientId: string ): { addOptio
 			return;
 		}
 
-		const newIndex = optionsBlock.innerBlocks.length + 1;
-		const newOptionBlock = createBlock(
-			'jetpack/input-image-option',
-			{
-				label: getImageOptionLabel( newIndex ),
-			},
-			[
-				createBlock( 'core/image', {
-					scale: 'cover',
-					aspectRatio: '1',
-				} ),
-			]
-		);
+		const { name, attributes } = newImageOption();
+		const newOptionBlock = createBlock( name, attributes );
 
 		insertBlock( newOptionBlock, optionsBlock.innerBlocks.length, optionsClientId );
-	}, [ optionsClientId, insertBlock, getBlock ] );
+	}, [ getBlock, optionsClientId, newImageOption, insertBlock ] );
 
-	return { addOption };
+	return { newImageOption, addOption };
 }

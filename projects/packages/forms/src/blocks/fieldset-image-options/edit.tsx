@@ -9,12 +9,13 @@ import {
 } from '@wordpress/block-editor';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import defaultAttributes from '../input-image-option/default-attributes';
 import { getImageOptionLabel } from '../input-image-option/label';
 import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
@@ -28,7 +29,7 @@ export default function ImageOptionsFieldsetEdit( props ) {
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const { 'jetpack/field-image-select-is-multiple': isMultiple } = context || {};
 
-	const { addOption } = useAddImageOption( clientId );
+	const { addOption, newImageOption } = useAddImageOption( clientId );
 
 	const { isInnerBlockSelected } = useSelect(
 		select => {
@@ -59,10 +60,12 @@ export default function ImageOptionsFieldsetEdit( props ) {
 
 	// Starts with 3 empty options.
 	const template = [
-		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 1 ) } ],
-		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 2 ) } ],
-		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 3 ) } ],
+		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 1 ), ...defaultAttributes } ],
+		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 2 ), ...defaultAttributes } ],
+		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 3 ), ...defaultAttributes } ],
 	];
+
+	const defaultBlock = useMemo( () => newImageOption(), [ newImageOption ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-fieldset-image-options__wrapper' },
@@ -71,6 +74,8 @@ export default function ImageOptionsFieldsetEdit( props ) {
 			template,
 			templateLock: false, // Allow adding, removing, and moving options
 			orientation: 'horizontal',
+			defaultBlock,
+			directInsert: true,
 		}
 	);
 
