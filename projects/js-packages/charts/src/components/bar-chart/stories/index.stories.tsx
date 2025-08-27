@@ -1,8 +1,6 @@
 import { legendArgTypes } from '../../../stories/legend-config';
-import largeValuesData from '../../line-chart/stories/large-values-sample';
-import trafficData from '../../line-chart/stories/site-traffic-sample';
+import { medalCountsData, largeValuesData, trafficData } from '../../../stories/sample-data';
 import BarChart from '../bar-chart';
-import data from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof BarChart > = {
@@ -62,7 +60,7 @@ type Story = StoryObj< typeof BarChart >;
 export const Default: Story = {
 	args: {
 		withTooltips: true,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ], // limit to 3 series for better readability
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
@@ -74,7 +72,7 @@ export const Default: Story = {
 export const SingleSeries: Story = {
 	args: {
 		...Default.args,
-		data: [ data[ 0 ] ],
+		data: [ medalCountsData[ 0 ] ],
 	},
 	parameters: {
 		docs: {
@@ -128,7 +126,7 @@ export const TimeSeries: Story = {
 export const ManyDataSeries: Story = {
 	args: {
 		...Default.args,
-		data,
+		data: medalCountsData,
 	},
 	parameters: {
 		docs: {
@@ -144,7 +142,7 @@ export const FixedDimensions: Story = {
 		...Default.args,
 		width: 800,
 		height: 400,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 	},
 	parameters: {
 		docs: {
@@ -159,7 +157,7 @@ export const WithPatterns: Story = {
 	args: {
 		...Default.args,
 		withPatterns: true,
-		data: data.map( country => {
+		data: Default.args.data.map( country => {
 			return {
 				...country,
 				data: country.data.filter( d => parseInt( d.label ) >= 2016 ),
@@ -238,7 +236,7 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 	render: () => (
 		<div style={ { width: '800px' } }>
 			<BarChart
-				data={ [ data[ 0 ], data[ 1 ], data[ 2 ] ] }
+				data={ [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
 				withTooltips={ true }
 				gridVisibility="x"
 				maxWidth={ 1200 }
@@ -262,7 +260,7 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 export const CustomLegendPositioning: Story = {
 	args: {
 		withTooltips: true,
-		data: data.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
@@ -286,7 +284,7 @@ export const CustomLegendPositioning: Story = {
 export const HorizontalBarChart: Story = {
 	args: {
 		...Default.args,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 		orientation: 'horizontal',
 		gridVisibility: 'none',
 	},

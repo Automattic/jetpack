@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useConnection } from '@automattic/jetpack-connection';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import requestExternalAccess from '@automattic/request-external-access';
 import { Button, Path, Spinner, SVG } from '@wordpress/components';
@@ -26,6 +27,8 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 		redirectUri:
 			PARTIAL_RESPONSES_PATH + ( PREFERRED_VIEW === 'classic' ? '' : '&connect-gdrive=true' ),
 	} );
+
+	const needsUserConnection = ! isSimpleSite() && ! isUserConnected;
 
 	const exportToGoogleDrive = useCallback( () => {
 		tracks.recordEvent( 'jetpack_forms_export_click', {
@@ -115,7 +118,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 								</Button>
 							) }
 
-							{ ! isConnectedToGoogleDrive && ! isUserConnected && (
+							{ ! isConnectedToGoogleDrive && needsUserConnection && (
 								<Button
 									className={ buttonClasses }
 									variant="primary"
@@ -128,7 +131,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 								</Button>
 							) }
 
-							{ ! isConnectedToGoogleDrive && isUserConnected && (
+							{ ! isConnectedToGoogleDrive && ! needsUserConnection && (
 								<Button
 									className={ buttonClasses }
 									variant="primary"

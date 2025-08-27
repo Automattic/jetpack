@@ -304,6 +304,30 @@ const { state, actions } = store( NAMESPACE, {
 			actions.updateField( fieldId, newValues );
 		},
 
+		onImageOptionClick: event => {
+			// Find the parent container that has the data-wp-on--click attribute
+			let target = event.target;
+			while ( target && ! target.classList.contains( 'jetpack-input-image-option' ) ) {
+				target = target.parentElement;
+			}
+
+			if ( target ) {
+				// Find the input inside this container
+				const input = target.querySelector( '.jetpack-input-image-option__input' );
+				if ( input ) {
+					// Toggle the input state
+					if ( input.type === 'checkbox' ) {
+						input.checked = ! input.checked;
+					} else if ( input.type === 'radio' ) {
+						input.checked = true;
+					}
+
+					// Dispatch change event to trigger any change handlers
+					input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+				}
+			}
+		},
+
 		onFieldBlur: event => {
 			const context = getContext();
 			actions.updateField( context.fieldId, event.target.value, true );

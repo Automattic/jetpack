@@ -191,4 +191,6 @@ export type BlockEditorStoreSelect = {
 	hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
 	getBlockRootClientId: ( clientId: string ) => string;
 	getSelectedBlock: () => Block;
+	getBlockIndex: ( clientId: string ) => number;
+	getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
 };

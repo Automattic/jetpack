@@ -9,7 +9,7 @@ export interface FeatureTier {
 export interface ProductFeature {
 	name: string;
 	tooltipInfo?: React.ReactNode;
-	free: FeatureTier;
+	free?: FeatureTier;
 	paid: FeatureTier;
 	bundle: FeatureTier;
 }
@@ -25,7 +25,7 @@ export interface ProductConfig {
 	bundle: string;
 	features: ProductFeature[];
 	tiers: {
-		free: ProductTier;
+		free?: ProductTier;
 		paid: ProductTier;
 		bundle: ProductTier;
 	};
