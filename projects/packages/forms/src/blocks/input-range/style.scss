@@ -65,8 +65,9 @@
 
 	&__value-indicator {
 		position: absolute;
-		top: -36px;
 		left: 0;
+		bottom: calc(100% + 0.7em);
+		bottom: calc(100% + clamp(10px, 0.7em, 14px));
 		transform: translateX(-50%);
 		background: var(--jetpack--contact-form--button-primary--background-color);
 		color: var(--jetpack--contact-form--button-primary--color);

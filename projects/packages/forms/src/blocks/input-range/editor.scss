@@ -8,9 +8,11 @@
 	background: transparent;
 	font: inherit;
 	font-size: 0.9em;
+	color: inherit;
 	padding: 0 0.2em;
 	margin: 0;
 	appearance: textfield;
+	text-transform: inherit;
 
 	&.has-error {
 		outline-color: var(--color-error, #d63638);
@@ -29,10 +31,12 @@ input[type="text"].jetpack-field-slider__max-text-label {
 	border: none;
 	background: transparent;
 	font: inherit;
+	color: inherit;
 	padding: 0 0.2em;
 	margin: 0;
 	width: auto;
 	field-sizing: content;
 	min-width: 3ch;
 	max-width: 24ch;
+	text-transform: inherit;
 }
