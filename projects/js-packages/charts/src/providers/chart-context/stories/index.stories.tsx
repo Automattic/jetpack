@@ -19,6 +19,9 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 
 type StoryArgs = {
 	themeName?: string;
+	showUnitedStates?: boolean;
+	showGreatBritain?: boolean;
+	showJapan?: boolean;
 };
 
 const meta: Meta< StoryArgs > = {
@@ -43,6 +46,21 @@ const meta: Meta< StoryArgs > = {
 			options: [ 'default', 'jetpack', 'woo', 'custom' ],
 			defaultValue: 'default',
 		},
+		showUnitedStates: {
+			control: { type: 'boolean' },
+			description: 'Show United States data in all charts',
+			defaultValue: true,
+		},
+		showGreatBritain: {
+			control: { type: 'boolean' },
+			description: 'Show Great Britain data in all charts',
+			defaultValue: true,
+		},
+		showJapan: {
+			control: { type: 'boolean' },
+			description: 'Show Japan data in all charts',
+			defaultValue: true,
+		},
 	},
 };
 
@@ -50,10 +68,14 @@ export default meta;
 type Story = StoryObj< StoryArgs >;
 
 // Use centralized sample data
-const barData: SeriesData[] = [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ];
-const lineData: SeriesData[] = globalMarketComparisonByCountry;
-const barListData: SeriesData[] = marketingChannelsByCountry;
-const pieDataWithCountries: DataPointPercentage[] = [
+const baseBarData: SeriesData[] = [
+	medalCountsData[ 0 ],
+	medalCountsData[ 1 ],
+	medalCountsData[ 2 ],
+];
+const baseLineData: SeriesData[] = globalMarketComparisonByCountry;
+const baseBarListData: SeriesData[] = marketingChannelsByCountry;
+const basePieDataWithCountries: DataPointPercentage[] = [
 	{
 		...osUsageData[ 0 ],
 		label: 'United States',
@@ -70,23 +92,34 @@ const pieDataWithCountries: DataPointPercentage[] = [
 		group: 'japan',
 	},
 ];
-const pieData: DataPointPercentage[] = pieDataWithCountries;
-const donutData: DataPointPercentage[] = pieDataWithCountries;
+
+// Filtering functions
+const filterSeriesData = ( data: SeriesData[], args: StoryArgs ): SeriesData[] => {
+	return data.filter( series => {
+		if ( series.group === 'united-states' && ! args.showUnitedStates ) return false;
+		if ( series.group === 'great-britain' && ! args.showGreatBritain ) return false;
+		if ( series.group === 'japan' && ! args.showJapan ) return false;
+		return true;
+	} );
+};
+
+const filterPieData = ( data: DataPointPercentage[], args: StoryArgs ): DataPointPercentage[] => {
+	return data.filter( item => {
+		if ( item.group === 'united-states' && ! args.showUnitedStates ) return false;
+		if ( item.group === 'great-britain' && ! args.showGreatBritain ) return false;
+		if ( item.group === 'japan' && ! args.showJapan ) return false;
+		return true;
+	} );
+};
 
 // Reusable grid component
-const ChartGrid = ( {
-	lineChartData,
-	barChartData,
-	pieChartData,
-	barListChartData,
-	donutChartData,
-}: {
-	lineChartData: SeriesData[];
-	barChartData: SeriesData[];
-	pieChartData: DataPointPercentage[];
-	barListChartData: SeriesData[];
-	donutChartData: DataPointPercentage[];
-} ) => {
+const ChartGrid = ( { args }: { args: StoryArgs } ) => {
+	// Apply filtering based on args
+	const lineChartData = filterSeriesData( baseLineData, args );
+	const barChartData = filterSeriesData( baseBarData, args );
+	const pieChartData = filterPieData( basePieDataWithCountries, args );
+	const barListChartData = filterSeriesData( baseBarListData, args );
+	const donutChartData = filterPieData( basePieDataWithCountries, args );
 	return (
 		<div
 			style={ {
@@ -138,13 +171,10 @@ const ChartGrid = ( {
 };
 
 export const Default: Story = {
-	render: () => (
-		<ChartGrid
-			lineChartData={ lineData }
-			barChartData={ barData }
-			pieChartData={ pieData }
-			barListChartData={ barListData }
-			donutChartData={ donutData }
-		/>
-	),
+	render: ( _, { args } ) => <ChartGrid args={ args } />,
+	args: {
+		showUnitedStates: true,
+		showGreatBritain: true,
+		showJapan: true,
+	},
 };
