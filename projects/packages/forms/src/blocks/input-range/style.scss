@@ -13,6 +13,7 @@
 		flex: 1 1 auto;
 		min-width: 0;
 		position: relative;
+		min-height: 36px;
 
 		&::before {
 			content: "";
@@ -25,13 +26,17 @@
 			width: 100%;
 			background: var(--jetpack--contact-form--button-primary--background-color);
 			z-index: 0;
+			pointer-events: none;
+			border-radius: 2px;
 		}
 	}
 
 	&__range {
 		-webkit-appearance: none;
 		appearance: none;
-		height: 100%;
+		-moz-appearance: none;
+		height: 4px; /* visual track height */
+		padding: 18px 0 16px; /* enlarge hit area without moving track */
 		background: transparent;
 		outline: none;
 		border-radius: 2px;
@@ -39,6 +44,27 @@
 		width: 100%;
 		box-sizing: border-box;
 		z-index: 1;
+		cursor: pointer;
+
+		/* Hide native tracks to prevent double-track rendering */
+		&::-webkit-slider-runnable-track,
+		&::-moz-range-track,
+		&::-ms-track,
+		&::-moz-range-progress {
+			background: transparent;
+			border-color: transparent;
+			color: transparent;
+			height: 4px;
+		}
+
+		&::-moz-range-progress {
+			border: 0;
+		}
+
+		/* Remove extra focus ring gap in Firefox */
+		&::-moz-focus-outer {
+			border: 0;
+		}
 
 		&:focus {
 			outline: none;
@@ -48,8 +74,8 @@
 		&::-webkit-slider-thumb {
 			-webkit-appearance: none;
 			appearance: none;
-			width: 16px;
-			height: 16px;
+			width: 18px;
+			height: 18px;
 			background: var(--jetpack--contact-form--button-primary--background-color);
 			border-radius: 50%;
 			cursor: pointer;
@@ -57,14 +83,29 @@
 			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 		}
 
-		&::-moz-range-thumb,
-		&::-ms-thumb {
-			width: 16px;
-			height: 16px;
+		&::-moz-range-thumb {
+			appearance: none !important;
+			-moz-appearance: none !important;
+			width: 18px;
+			height: 18px;
 			background: var(--jetpack--contact-form--button-primary--background-color);
 			border-radius: 50%;
 			cursor: pointer;
 			transition: background 0.3s;
+			border: none;
+			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+		}
+
+		&::-ms-thumb {
+			appearance: none !important;
+			width: 18px;
+			height: 18px;
+			background: var(--jetpack--contact-form--button-primary--background-color);
+			border-radius: 50%;
+			cursor: pointer;
+			transition: background 0.3s;
+			border: none;
+			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 		}
 
 		&:focus::-webkit-slider-thumb,
@@ -80,8 +121,7 @@
 	&__value-indicator {
 		position: absolute;
 		left: 0;
-		bottom: calc(100% + 0.7em);
-		bottom: calc(100% + clamp(10px, 0.7em, 14px));
+		bottom: 100%;
 		transform: translateX(-50%);
 		background: var(--jetpack--contact-form--button-primary--background-color);
 		color: var(--jetpack--contact-form--button-primary--color);
