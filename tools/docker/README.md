@@ -69,6 +69,7 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 * `PORT_WORDPRESS`: (default=`80`) The port on your host machine connected to the WordPress container's HTTP server.
 * `PORT_INBOX`: (default=`1080`) The port on your host machine connected to the Mailpit container's web interface.
 * `PORT_SMTP`: (default=`25`) The port on your host machine connected to the Mailpit container's SMTP server.
+* `PORT_PHPMY`: (default=`8181`) The port on your host machine connected to the phpMyAdmin container's web interface.
 * `PORT_SFTP`: (default=`1022`) The port on your host machine connected to the SFTP container's SFTP server.
 
 ### Container Environments
