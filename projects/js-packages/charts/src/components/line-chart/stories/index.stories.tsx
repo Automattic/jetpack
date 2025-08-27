@@ -311,18 +311,23 @@ SmartFormatting.parameters = {
 	},
 };
 
+// Offset for dashed line to prevent overlapping with solid line
+const DASHED_LINE_OFFSET = 100;
+
 export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
 BrokenLine.args = {
 	...Default.args,
-	margin: {
-		bottom: 40,
-	},
 	data: [
 		{
 			...webTrafficData[ 0 ],
-			label: 'Vistors to compare',
+			label: 'Visitors with dashed line',
+			data: webTrafficData[ 0 ].data.map( point => ( {
+				...point,
+				value: point.value + DASHED_LINE_OFFSET,
+			} ) ),
 			options: {
-				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
+				...webTrafficData[ 0 ].options,
+				seriesLineStyle: { strokeDasharray: '5 5', strokeWidth: 3 },
 			},
 		},
 		webTrafficData[ 0 ],
