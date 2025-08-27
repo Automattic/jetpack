@@ -79,7 +79,7 @@ const settings = {
 			default: {
 				border: {
 					width: '1px',
-					color: 'var(--wp--preset--color--contrast)',
+					color: 'var(--jetpack--contact-form--primary-color)',
 					radius: '4px',
 					style: 'solid',
 				},
