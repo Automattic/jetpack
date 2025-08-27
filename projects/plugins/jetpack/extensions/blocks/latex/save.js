@@ -14,10 +14,13 @@ import katex from 'katex';
  */
 export default function save( { attributes } ) {
 	const { latex = '' } = attributes;
+	const blockProps = useBlockProps.save();
+	const { style, ...props } = blockProps;
 	return (
-		<div { ...useBlockProps.save() } data-latex={ latex }>
-			<span
-				className="jetpack-latex-render"
+		<div { ...props } data-latex={ latex }>
+			<div
+				className="jetpack-latex-rendered"
+				style={ style }
 				// WP KSES will scrutinize this HTML.
 				// eslint-disable-next-line react/no-danger
 				dangerouslySetInnerHTML={ {

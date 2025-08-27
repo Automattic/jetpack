@@ -28,7 +28,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 	const textareaRef = useRef();
 	const [ renderAreaRef, setRenderAreaRef ] = useState( null );
 	const dispatch = useDispatch();
-	const props = useBlockProps();
+	const blockProps = useBlockProps();
+	const { style, ...props } = blockProps;
 
 	useEffect( () => {
 		if ( renderAreaRef ) {
@@ -66,8 +67,9 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 						<Text upperCase>{ __( 'Preview', 'jetpack' ) }</Text>
 						<Surface variant="secondary" className="jetpack-latex-rendered-container">
 							{ latex.trim() ? (
-								<span
+								<div
 									className="jetpack-latex-rendered"
+									style={ style }
 									ref={ r => r !== renderAreaRef && setRenderAreaRef( r ) }
 								/>
 							) : (
@@ -94,7 +96,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 
 	return (
 		<div
-			{ ...props }
+			{ ...blockProps }
 			tabIndex={ 0 }
 			role="button"
 			aria-label={ __( 'Edit LaTeX', 'jetpack' ) }
@@ -102,8 +104,9 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		>
 			<Surface variant="secondary" className="jetpack-latex-rendered-container">
 				{ latex.trim() ? (
-					<span
+					<div
 						className="jetpack-latex-rendered"
+						style={ style }
 						ref={ r => r !== renderAreaRef && setRenderAreaRef( r ) }
 					/>
 				) : (

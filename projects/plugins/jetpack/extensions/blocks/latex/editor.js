@@ -12,5 +12,6 @@ registerJetpackBlockFromMetadata(
 	{
 		edit,
 		save,
+		supports: metadata.supports,
 	}
 );
