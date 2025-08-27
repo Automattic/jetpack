@@ -1,4 +1,8 @@
-import { temperatureData, largeValuesData, trafficData } from '../../../stories/sample-data';
+import {
+	temperatureData as sampleData,
+	largeValuesData,
+	trafficData as webTrafficData,
+} from '../../../stories/sample-data';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
@@ -28,7 +32,7 @@ Default.args = {
 // Story with single data series
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
-	data: [ temperatureData[ 0 ] ], // Only London temperature data
+	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
 export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
@@ -39,7 +43,7 @@ WithLegend.args = {
 
 export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomLegendPositioning.args = {
-	data: temperatureData,
+	data: sampleData,
 	showLegend: true,
 	height: 400,
 	legendAlignment: 'start',
@@ -62,7 +66,7 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 	render: () => (
 		<div style={ { width: '600px', height: '400px' } }>
 			<LineChart
-				data={ trafficData }
+				data={ webTrafficData }
 				width={ 600 }
 				height={ 300 }
 				withGradientFill={ false }
@@ -86,7 +90,7 @@ export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} 
 CustomDimensions.args = {
 	width: 800,
 	height: 400,
-	data: temperatureData,
+	data: sampleData,
 };
 
 // Add after existing stories
@@ -94,7 +98,7 @@ export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} )
 FixedDimensions.args = {
 	width: 800,
 	height: 400,
-	data: temperatureData,
+	data: sampleData,
 	withTooltips: true,
 };
 
@@ -111,7 +115,7 @@ export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GradientFilled.args = {
 	...Default.args,
 	margin: undefined,
-	data: trafficData,
+	data: webTrafficData,
 	withGradientFill: true,
 	options: {
 		axis: { y: { orientation: 'right' } },
@@ -312,13 +316,13 @@ BrokenLine.args = {
 	},
 	data: [
 		{
-			...trafficData[ 0 ],
+			...webTrafficData[ 0 ],
 			label: 'Vistors to compare',
 			options: {
 				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
 			},
 		},
-		trafficData[ 0 ],
+		webTrafficData[ 0 ],
 	],
 	showLegend: true,
 };
@@ -375,11 +379,11 @@ Comparison.args = {
 	smoothing: false,
 	data: [
 		{
-			...temperatureData[ 0 ],
+			...sampleData[ 0 ],
 			label: 'New York',
 		},
 		{
-			...temperatureData[ 1 ],
+			...sampleData[ 1 ],
 			label: 'New York last year',
 			group: 'new-york',
 			options: {
@@ -387,11 +391,11 @@ Comparison.args = {
 			},
 		},
 		{
-			...temperatureData[ 2 ],
+			...sampleData[ 2 ],
 			label: 'Tokyo',
 		},
 		{
-			...temperatureData[ 3 ],
+			...sampleData[ 3 ],
 			label: 'Tokyo last year',
 			group: 'tokyo',
 			options: {
