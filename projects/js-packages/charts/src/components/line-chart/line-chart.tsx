@@ -6,7 +6,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
 import {
-	useGlobalChartTheme,
 	useXYChartTheme,
 	useChartDataTransform,
 	useChartMargin,
@@ -17,7 +16,8 @@ import {
 	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
-	useGlobalChartsContext,
+	useGlobalChartContext,
+	useGlobalChartTheme,
 } from '../../providers/chart-context';
 import { attachSubComponents, getSeriesLineStyles } from '../../utils';
 import { DefaultGlyph } from '../default-glyph';
@@ -278,7 +278,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { resolveGroupColor } = useGlobalChartsContext();
+		const { resolveGroupColor } = useGlobalChartContext();
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {

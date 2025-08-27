@@ -7,7 +7,7 @@ import {
 import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
 import { type FC } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
+import { useGlobalChartTheme } from '../../providers/chart-context';
 import { formatMetricValue } from '../../utils';
 import styles from './leaderboard-chart.module.scss';
 

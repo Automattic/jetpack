@@ -3,8 +3,7 @@ import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legen
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
 import { forwardRef, useCallback, useMemo, useContext } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
-import { GlobalChartsContext } from '../../providers/chart-context';
+import { useGlobalChartTheme, GlobalChartsContext } from '../../providers/chart-context';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
 import type { BaseLegendProps } from './types';

@@ -1,7 +1,7 @@
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
+import { useGlobalChartTheme } from '../../providers/chart-context';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './hooks/use-funnel-selection';
 import { hexToRgba } from './utils/color-utils';

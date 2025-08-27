@@ -2,12 +2,13 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import { useChartMouseHandler, useGlobalChartTheme, useElementHeight } from '../../hooks';
+import { useChartMouseHandler, useElementHeight } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
-	useGlobalChartsContext,
+	useGlobalChartContext,
+	useGlobalChartTheme,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
@@ -155,7 +156,7 @@ const PieChartInternal = ( {
 		metadata: chartMetadata,
 	} );
 
-	const { resolveGroupColor } = useGlobalChartsContext();
+	const { resolveGroupColor } = useGlobalChartContext();
 
 	if ( ! isValid ) {
 		return (

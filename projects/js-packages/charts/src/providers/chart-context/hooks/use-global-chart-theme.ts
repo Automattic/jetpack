@@ -1,9 +1,9 @@
 import { useContext, useMemo } from 'react';
-import { GlobalChartsContext } from '../providers/chart-context/global-charts-provider';
-import { useChartTheme } from '../providers/theme';
-import { defaultTheme } from '../providers/theme/themes';
-import { mergeThemes } from '../utils';
-import type { ChartTheme } from '../types';
+import { mergeThemes } from '../../../utils';
+import { useChartTheme } from '../../theme';
+import { defaultTheme } from '../../theme/themes';
+import { GlobalChartsContext } from '../global-charts-provider';
+import type { ChartTheme } from '../../../types';
 
 /**
  * Hook to get the effective chart theme, merging global and local themes.

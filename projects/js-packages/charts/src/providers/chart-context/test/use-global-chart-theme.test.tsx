@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
-import { GlobalChartsProvider } from '../../providers/chart-context/global-charts-provider';
-import { ThemeProvider } from '../../providers/theme';
-import { defaultTheme, jetpackTheme, wooTheme } from '../../providers/theme/themes';
-import { useGlobalChartTheme } from '../use-global-chart-theme';
-import type { ChartTheme } from '../../types';
+import { ThemeProvider } from '../../theme';
+import { defaultTheme, jetpackTheme, wooTheme } from '../../theme/themes';
+import { GlobalChartsProvider } from '../global-charts-provider';
+import { useGlobalChartTheme } from '../hooks/use-global-chart-theme';
+import type { ChartTheme } from '../../../types';
 import type { ReactNode } from 'react';
 
 const createWrapper = ( {

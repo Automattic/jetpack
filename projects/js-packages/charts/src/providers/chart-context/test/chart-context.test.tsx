@@ -1,7 +1,9 @@
 import { render } from '@testing-library/react';
 import { useMemo } from 'react';
-import { GlobalChartsProvider, useGlobalChartsContext } from '../global-charts-provider';
-import { useChartId, useChartRegistration } from '../utils';
+import { GlobalChartsProvider } from '../global-charts-provider';
+import { useChartId } from '../hooks/use-chart-id';
+import { useChartRegistration } from '../hooks/use-chart-registration';
+import { useGlobalChartContext } from '../hooks/use-global-chart-context';
 import type { BaseLegendItem } from '../../../components/legend/types';
 import type { ChartTheme } from '../../../types';
 import type { ChartContextValue } from '../types';
@@ -21,7 +23,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -38,9 +40,9 @@ describe( 'ChartContext', () => {
 			expect( contextValue.charts ).toBeInstanceOf( Map );
 		} );
 
-		it( 'throws error when useGlobalChartsContext is used outside provider', () => {
+		it( 'throws error when useGlobalChartContext is used outside provider', () => {
 			const TestComponent = () => {
-				useGlobalChartsContext();
+				useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -49,7 +51,7 @@ describe( 'ChartContext', () => {
 
 			expect( () => {
 				render( <TestComponent /> );
-			} ).toThrow( 'useGlobalChartsContext must be used within a GlobalChartsProvider' );
+			} ).toThrow( 'useGlobalChartContext must be used within a GlobalChartsProvider' );
 
 			consoleSpy.mockRestore();
 		} );
@@ -98,7 +100,7 @@ describe( 'ChartContext', () => {
 
 			const TestComponent = () => {
 				const chartId = useChartId( 'test-chart' );
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 
 				// Memoize metadata to prevent infinite loop
 				const metadata = useMemo( () => ( { test: true } ), [] );
@@ -133,7 +135,7 @@ describe( 'ChartContext', () => {
 			const TestComponent = () => {
 				const chartId1 = useChartId( 'chart-1' );
 				const chartId2 = useChartId( 'chart-2' );
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 
 				useChartRegistration( {
 					chartId: chartId1,
@@ -166,7 +168,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -184,7 +186,7 @@ describe( 'ChartContext', () => {
 
 			const TestComponent = () => {
 				const chartId = useChartId( 'same-id' );
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 
 				// Register first chart
 				useChartRegistration( {
@@ -220,7 +222,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -237,7 +239,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -259,7 +261,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -282,7 +284,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -311,7 +313,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -330,7 +332,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -349,7 +351,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -375,7 +377,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -397,7 +399,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -426,7 +428,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -454,7 +456,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -500,7 +502,7 @@ describe( 'ChartContext', () => {
 			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
+				contextValue = useGlobalChartContext();
 				return <div>Test</div>;
 			};
 
@@ -550,7 +552,7 @@ describe( 'ChartContext', () => {
 			} > = [];
 
 			const TestComponent = () => {
-				const context = useGlobalChartsContext();
+				const context = useGlobalChartContext();
 				functionRefs.push( {
 					registerChart: context.registerChart,
 					unregisterChart: context.unregisterChart,

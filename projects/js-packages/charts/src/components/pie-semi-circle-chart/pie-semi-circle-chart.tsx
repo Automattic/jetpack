@@ -10,7 +10,7 @@ import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
-	useGlobalChartsContext,
+	useGlobalChartContext,
 	GlobalChartsContext,
 } from '../../providers/chart-context';
 import { attachSubComponents } from '../../utils';
@@ -148,7 +148,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
 
-	const { resolveGroupColor } = useGlobalChartsContext();
+	const { resolveGroupColor } = useGlobalChartContext();
 
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(

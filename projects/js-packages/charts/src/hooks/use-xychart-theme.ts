@@ -1,7 +1,7 @@
 import { buildChartTheme } from '@visx/xychart';
 import { useMemo } from 'react';
+import { useGlobalChartTheme } from '../providers/chart-context';
 import { SeriesData } from '../types';
-import { useGlobalChartTheme } from './use-global-chart-theme';
 
 export const useXYChartTheme = ( data: SeriesData[] ) => {
 	const theme = useGlobalChartTheme();

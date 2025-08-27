@@ -1,12 +1,4 @@
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-	useEffect,
-	useRef,
-} from 'react';
+import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { defaultTheme } from '../theme/themes';
 import type { ChartContextValue, ChartRegistration } from './types';
 import type { ChartTheme } from '../../types';
@@ -97,12 +89,4 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
-};
-
-export const useGlobalChartsContext = (): ChartContextValue => {
-	const context = useContext( GlobalChartsContext );
-	if ( ! context ) {
-		throw new Error( 'useGlobalChartsContext must be used within a GlobalChartsProvider' );
-	}
-	return context;
 };
