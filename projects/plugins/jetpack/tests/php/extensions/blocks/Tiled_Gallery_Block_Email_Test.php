@@ -93,8 +93,8 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 		// Should contain table-based layout for email compatibility
 		$this->assertStringContainsString( 'border-collapse: collapse', $result );
 
-		// Should contain margin below block
-		$this->assertStringContainsString( 'margin-bottom: 32px', $result );
+		// Should contain margin styling for email spacing
+		$this->assertStringContainsString( 'margin: 16px 0', $result );
 	}
 
 	/**
@@ -388,93 +388,5 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( '<img', $result );
 		$this->assertStringNotContainsString( '<a href=', $result );
-	}
-
-	/**
-	 * Test front-end render method with media links.
-	 */
-	public function test_render_frontend_with_media_links() {
-		// Sample HTML content with tiled gallery images
-		$content = '<div class="wp-block-jetpack-tiled-gallery">
-			<div class="tiled-gallery__gallery">
-				<div class="tiled-gallery__row">
-					<div class="tiled-gallery__col">
-						<figure class="tiled-gallery__item">
-							<img alt="Test Image 1" data-height="1254" data-id="1" data-link="https://example.com/?attachment_id=1" data-url="https://example.com/image1.jpg" data-width="1880" src="https://example.com/image1.jpg" />
-						</figure>
-					</div>
-					<div class="tiled-gallery__col">
-						<figure class="tiled-gallery__item">
-							<img alt="Test Image 2" data-height="1254" data-id="2" data-link="https://example.com/?attachment_id=2" data-url="https://example.com/image2.jpg" data-width="1880" src="https://example.com/image2.jpg" />
-						</figure>
-					</div>
-				</div>
-			</div>
-		</div>';
-
-		$attr = array(
-			'linkTo' => 'media',
-		);
-
-		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render( $attr, $content );
-
-		// Should wrap images in media file links
-		$this->assertStringContainsString( '<a href="https://example.com/image1.jpg">', $result );
-		$this->assertStringContainsString( '<a href="https://example.com/image2.jpg">', $result );
-	}
-
-	/**
-	 * Test front-end render method with attachment links.
-	 */
-	public function test_render_frontend_with_attachment_links() {
-		// Sample HTML content with tiled gallery images
-		$content = '<div class="wp-block-jetpack-tiled-gallery">
-			<div class="tiled-gallery__gallery">
-				<div class="tiled-gallery__row">
-					<div class="tiled-gallery__col">
-						<figure class="tiled-gallery__item">
-							<img alt="Test Image 1" data-height="1254" data-id="1" data-link="https://example.com/?attachment_id=1" data-url="https://example.com/image1.jpg" data-width="1880" src="https://example.com/image1.jpg" />
-						</figure>
-					</div>
-				</div>
-			</div>
-		</div>';
-
-		$attr = array(
-			'linkTo' => 'attachment',
-		);
-
-		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render( $attr, $content );
-
-		// Should wrap images in attachment page links
-		$this->assertStringContainsString( '<a href="https://example.com/?attachment_id=1">', $result );
-	}
-
-	/**
-	 * Test front-end render method with no links (default).
-	 */
-	public function test_render_frontend_with_no_links() {
-		// Sample HTML content with tiled gallery images
-		$content = '<div class="wp-block-jetpack-tiled-gallery">
-			<div class="tiled-gallery__gallery">
-				<div class="tiled-gallery__row">
-					<div class="tiled-gallery__col">
-						<figure class="tiled-gallery__item">
-							<img alt="Test Image 1" data-height="1254" data-id="1" data-link="https://example.com/?attachment_id=1" data-url="https://example.com/image1.jpg" data-width="1880" src="https://example.com/image1.jpg" />
-						</figure>
-					</div>
-				</div>
-			</div>
-		</div>';
-
-		$attr = array(
-			'linkTo' => 'none',
-		);
-
-		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render( $attr, $content );
-
-		// Should not wrap images in any links
-		$this->assertStringNotContainsString( '<a href=', $result );
-		$this->assertStringContainsString( '<img', $result );
 	}
 }

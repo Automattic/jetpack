@@ -64,9 +64,6 @@ class Tiled_Gallery {
 		$jetpack_plan = Jetpack_Plan::get();
 		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
 
-		// Get link settings from attributes
-		$link_to = ! empty( $attr['linkTo'] ) ? $attr['linkTo'] : 'none';
-
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {
 			/**
 			 * This block processes all of the images that are found and builds $find and $replace.
@@ -150,14 +147,8 @@ class Tiled_Gallery {
 					if ( ! empty( $srcset_parts ) ) {
 						$srcset = 'srcset="' . esc_attr( implode( ',', $srcset_parts ) ) . '"';
 
-						// Process the image with srcset
-						$processed_img = str_replace( '<img', $img_element . $srcset, $image_html );
-
-						// Handle link settings
-						$final_img = self::process_image_link( $processed_img, $attr, $link_to );
-
 						$find[]    = $image_html;
-						$replace[] = $final_img;
+						$replace[] = str_replace( '<img', $img_element . $srcset, $image_html );
 					}
 				}
 			}
@@ -177,51 +168,6 @@ class Tiled_Gallery {
 		 * @param string $content Tiled Gallery block content.
 		 */
 		return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
-	}
-
-	/**
-	 * Process image link based on linkTo setting.
-	 * Excludes custom links which email clients will replace with the image.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $image_html The processed image HTML.
-	 * @param array  $attr       Block attributes.
-	 * @param string $link_to    Link setting (none, attachment, media, custom).
-	 * @return string The image HTML with or without link wrapper.
-	 */
-	private static function process_image_link( $image_html, $attr, $link_to ) {
-		// If linkTo is 'none' or empty, return image as-is
-		if ( 'none' === $link_to || empty( $link_to ) ) {
-			return $image_html;
-		}
-
-		// Extract image data attributes needed for link generation
-		$href = '';
-
-		switch ( $link_to ) {
-			case 'media':
-				// Link to media file - extract from data-url attribute
-				if ( preg_match( '/data-url="([^"]+)"/', $image_html, $data_url_match ) ) {
-					$href = esc_url( $data_url_match[1] );
-				}
-				break;
-
-			case 'attachment':
-				// Link to attachment page - extract from data-link attribute
-				if ( preg_match( '/data-link="([^"]+)"/', $image_html, $data_link_match ) ) {
-					$href = esc_url( $data_link_match[1] );
-				}
-				break;
-		}
-
-		// If we have a valid href, wrap the image in a link
-		if ( ! empty( $href ) ) {
-			return '<a href="' . $href . '">' . $image_html . '</a>';
-		}
-
-		// Fallback: return image without link
-		return $image_html;
 	}
 
 	/**
@@ -289,29 +235,23 @@ class Tiled_Gallery {
 
 		// Get spacing from email_attrs for better consistency with core blocks
 		$email_attrs        = isset( $parsed_block['email_attrs'] ) ? $parsed_block['email_attrs'] : array();
-		$gap_style          = '';
 		$table_margin_style = '';
-		$cell_padding_style = '';
 
 		if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
-			// Get margin-top for gap spacing
-			$gap_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin-top' ) ) ), '' ) ?? '';
-
 			// Get margin for table styling
 			$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' ) ?? '';
-
-			// Get padding for cell spacing
-			$cell_padding_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'padding' ) ) ), '' ) ?? '';
 		}
 
-		// Email rendering configuration - use computed values or fallbacks
-		$email_common_margin = 16; // Common margin/padding value used multiple times
-		$email_cell_padding  = 4;  // Cell padding used in multiple places
+		// Email cell padding
+		$email_cell_padding = 2;  // Cell padding
 
 		$attr = $parsed_block['attrs'];
 
+		// Determine layout style and columns from attributes (needed for both image processing and layout building)
+		$layout_info = self::get_layout_style_from_attributes( $attr );
+
 		// Process images for email rendering
-		$images = self::process_tiled_gallery_images_for_email( $attr );
+		$images = self::process_tiled_gallery_images_for_email( $attr, $layout_info );
 
 		if ( empty( $images ) ) {
 			return '';
@@ -320,33 +260,22 @@ class Tiled_Gallery {
 		// Determine target width from the email layout if available
 		$target_width = self::get_email_target_width( $rendering_context );
 
-		// Determine layout style and columns from attributes
-		$layout_info = self::get_layout_style_from_attributes( $attr );
-
 		// Build layout content based on style and columns
-		$grid_content = self::build_email_layout_content( $images, $layout_info, $email_cell_padding, $attr, $cell_padding_style );
+		$grid_content = self::build_email_layout_content( $images, $layout_info, $email_cell_padding, $attr );
 
 		// Use Table_Wrapper_Helper for consistent email rendering
-		$table_style = 'padding: 0; border-collapse: collapse;';
+		$table_style = sprintf( 'width: 100%%; max-width: %dpx; padding: 0; border-collapse: collapse;', $target_width );
 		if ( ! empty( $table_margin_style ) ) {
 			$table_style = $table_margin_style . '; ' . $table_style;
 		} else {
-			$table_style = 'margin: ' . $email_common_margin . 'px 0; ' . $table_style;
+			$table_style = 'margin: 16px 0; ' . $table_style;
 		}
 
 		$image_table_attrs = array(
 			'style' => $table_style,
-			'width' => $target_width,
 		);
 
 		$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $grid_content, $image_table_attrs );
-
-		// Add margin below the block using gap_style if available, otherwise use default
-		if ( ! empty( $gap_style ) ) {
-			$html .= '<div style="' . $gap_style . '"></div>';
-		} else {
-			$html .= '<div style="margin-bottom: 32px;"></div>';
-		}
 
 		return $html;
 	}
@@ -377,14 +306,14 @@ class Tiled_Gallery {
 	 * Process tiled gallery images for email rendering.
 	 *
 	 * @param array $attr Block attributes containing image data.
+	 * @param array $layout_info Layout information from get_layout_style_from_attributes.
 	 * @return array Processed image data for email rendering.
 	 */
-	private static function process_tiled_gallery_images_for_email( $attr ) {
+	private static function process_tiled_gallery_images_for_email( $attr, $layout_info ) {
 		$images = array();
 
-		// Determine if this is a squareish layout once
-		$layout_info  = self::get_layout_style_from_attributes( $attr );
-		$is_squareish = self::is_squareish_layout_style( $layout_info['style'] );
+		// Determine if this is a squareish layout
+		$is_squareish = in_array( $layout_info['style'], array( 'square', 'circle' ), true );
 
 		// Get images from IDs (primary data source)
 		if ( ! empty( $attr['ids'] ) && is_array( $attr['ids'] ) ) {
@@ -564,7 +493,7 @@ class Tiled_Gallery {
 					),
 				);
 
-				$image_styles = 'margin: 0; width: 100%; max-width: 100%; height: auto; display: block;';
+				$image_styles = self::generate_image_styles( false );
 
 				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
 
@@ -619,7 +548,7 @@ class Tiled_Gallery {
 
 		// Build table cells for columns layout
 		$row_cells = '';
-		foreach ( $column_arrays as $col_index => $column_images ) {
+		foreach ( $column_arrays as $column_images ) {
 			if ( empty( $column_images ) ) {
 				// Add empty cell for balance
 				$cell_attrs = array(
@@ -646,18 +575,18 @@ class Tiled_Gallery {
 				),
 			);
 
-			// Add right padding to all but last cell
-			if ( $col_index < $columns - 1 ) {
-				$cell_attrs['style'] .= 'padding-right: ' . ( $cell_padding * 2 ) . 'px;';
-			}
-
 			// Generate mosaic-style groupings within this column
 			$column_rows = self::generate_column_mosaic_rows( $column_images );
 
 			$cell_content = '';
-			foreach ( $column_rows as $row_images ) {
+			foreach ( $column_rows as $row_index => $row_images ) {
 				foreach ( $row_images as $image ) {
-					$image_styles = 'margin: 0; width: 100%; max-width: 100%; height: auto; display: block;';
+					$image_styles = self::generate_image_styles( false );
+
+					// Add top margin to all images except the first one in the column
+					if ( $row_index > 0 || $cell_content !== '' ) {
+						$image_styles .= ' margin-top: ' . ( $cell_padding * 2 ) . 'px;';
+					}
 
 					$cell_content .= self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
 				}
@@ -721,21 +650,16 @@ class Tiled_Gallery {
 
 			// Build table cells for this row
 			$row_cells = '';
-			foreach ( $row as $image_index => $image ) {
+			foreach ( $row as $image ) {
 				$cell_style = sprintf(
 					'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
 					$cell_width_percent,
 					$cell_padding
 				);
 
-				// Add right padding to all but last cell in the actual row
-				if ( $image_index < $images_in_row - 1 ) {
-					$cell_style .= 'padding-right: ' . ( $cell_padding * 2 ) . 'px;';
-				}
-
 				// Set consistent height for all images in this row to ensure alignment
 				// Use progressive enhancement: object-fit for supported clients, natural layout for others
-				$image_styles = 'margin: 0; width: 100%; max-width: 100%; height: 200px; display: block; object-fit: cover; object-position: center;';
+				$image_styles = self::generate_image_styles( true );
 
 				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
 
@@ -748,8 +672,7 @@ class Tiled_Gallery {
 
 			// Create a separate table for each row with flexible height for alignment
 			$row_table = sprintf(
-				'<table role="presentation" style="width: 100%%; border-collapse: collapse; margin-bottom: %dpx; table-layout: fixed;"><tr>%s</tr></table>',
-				$cell_padding,
+				'<table role="presentation" style="width: 100%%; border-collapse: collapse; table-layout: fixed;"><tr>%s</tr></table>',
 				$row_cells
 			);
 
@@ -902,6 +825,22 @@ class Tiled_Gallery {
 	}
 
 	/**
+	 * Generate image styles for email rendering.
+	 *
+	 * @param bool $use_fixed_height Whether to use fixed height with object-fit.
+	 * @return string CSS style string.
+	 */
+	private static function generate_image_styles( $use_fixed_height = false ) {
+		$base_styles = 'margin: 0; width: 100%; max-width: 100%; display: block;';
+
+		if ( $use_fixed_height ) {
+			return $base_styles . ' height: 200px; object-fit: cover; object-position: center;';
+		}
+
+		return $base_styles . ' height: auto;';
+	}
+
+	/**
 	 * Generate image HTML with consistent styling.
 	 *
 	 * @param array  $image Image data array.
@@ -958,16 +897,6 @@ class Tiled_Gallery {
 			default:
 				return '';
 		}
-	}
-
-	/**
-	 * Check if layout style is square or circle (squareish).
-	 *
-	 * @param string $layout_style The layout style.
-	 * @return bool True if squareish layout.
-	 */
-	private static function is_squareish_layout_style( $layout_style ) {
-		return in_array( $layout_style, array( 'square', 'circle' ), true );
 	}
 
 	/**
