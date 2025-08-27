@@ -13,7 +13,7 @@ const name = 'input-image-option';
 
 const settings = {
 	apiVersion: 3,
-	title: __( 'Image option', 'jetpack-forms' ),
+	title: __( 'Image Option', 'jetpack-forms' ),
 	description: __( 'A single image option for an image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/fieldset-image-options' ],
