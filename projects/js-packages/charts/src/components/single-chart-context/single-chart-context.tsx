@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 
 export interface ChartInstanceRef {
 	getScales: () => { xScale: unknown; yScale: unknown } | null;
@@ -19,16 +19,7 @@ export interface ChartInstanceContextValue {
 
 export const ChartInstanceContext = createContext< ChartInstanceContextValue | null >( null );
 
-export const useChartInstanceContext = (): ChartInstanceContextValue => {
-	const context = useContext( ChartInstanceContext );
-	if ( ! context ) {
-		throw new Error( 'useChartInstanceContext must be used within a Chart component' );
-	}
-	return context;
-};
-
 // Backward compatibility exports
 export const SingleChartContext = ChartInstanceContext;
 export type SingleChartContextValue = ChartInstanceContextValue;
 export type SingleChartRef = ChartInstanceRef;
-export const useSingleChartContext = useChartInstanceContext;
