@@ -8,7 +8,6 @@ import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import defaultAttributes from '../../input-image-option/default-attributes';
 import { getImageOptionLabel } from '../../input-image-option/label';
 /**
  * Types
@@ -40,7 +39,6 @@ export default function useAddImageOption( optionsClientId: string ): {
 			name: 'jetpack/input-image-option',
 			attributes: {
 				label: getImageOptionLabel( newIndex ),
-				...defaultAttributes,
 			},
 		};
 	}, [ childBlocksCount ] );

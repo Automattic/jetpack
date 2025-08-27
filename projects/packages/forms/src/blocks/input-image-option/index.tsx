@@ -76,10 +76,18 @@ const settings = {
 	attributes: {
 		style: {
 			type: 'object',
-		},
-		fontSize: {
-			type: 'string',
-			default: 'medium',
+			default: {
+				border: {
+					width: '1px',
+					color: 'var(--wp--preset--color--contrast)',
+					radius: '4px',
+					style: 'solid',
+				},
+				spacing: {
+					margin: '0',
+					padding: '8px',
+				},
+			},
 		},
 		allowResize: {
 			type: 'boolean',

@@ -94,3 +94,14 @@
 		}
 	}
 }
+
+:where(.jetpack-input-image-option__outer) {
+	border-radius: 5px;
+}
+
+:where(.jetpack-input-image-option) {
+	border: 1px solid var(--wp--preset--color--contrast);
+	border-radius: 4px;
+	padding: 8px;
+	margin: 0;
+}
