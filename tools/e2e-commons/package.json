@@ -44,7 +44,7 @@
 		"lodash-es": "4.17.21",
 		"shell-escape": "0.2.0",
 		"typescript": "5.8.3",
-		"winston": "3.8.1",
-		"yargs": "17.6.2"
+		"winston": "3.17.0",
+		"yargs": "17.7.2"
 	}
 }

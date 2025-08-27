@@ -28,6 +28,7 @@ import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
+import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
@@ -225,21 +226,35 @@ export default function PricingInterstitial( { slug } ) {
 		}
 	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutRun, bundleDetail, config ] );
 
+	const { update: updateInterstitialsState } = useInterstitialsState();
+
 	const handleFreeActivation = useCallback( () => {
+		if ( ! config?.tiers?.free ) {
+			return;
+		}
 		setLoadingButton( 'free' );
-		trackProductOrBundleClick( { isFreePlan: true, ctaText: config?.tiers?.free?.cta } );
+		trackProductOrBundleClick( { isFreePlan: true, ctaText: config.tiers.free.cta } );
 
 		// Products like Search have wpcomFreeProductSlug, so they need checkout even for free
 		const hasPurchasableFree = !! detail?.pricingForUi?.wpcomFreeProductSlug;
 		const checkout = hasPurchasableFree ? freeCheckoutRun : null;
 
-		clickHandler( { checkout, product: detail, tier: 'free' } );
+		updateInterstitialsState(
+			{ [ slug ]: true },
+			{
+				onSettled() {
+					clickHandler( { checkout, product: detail, tier: 'free' } );
+				},
+			}
+		);
 	}, [
 		trackProductOrBundleClick,
 		clickHandler,
 		detail,
-		config?.tiers?.free?.cta,
+		config?.tiers?.free,
 		freeCheckoutRun,
+		updateInterstitialsState,
+		slug,
 	] );
 
 	// If no config exists, fallback to old ProductInterstitial
@@ -299,33 +314,35 @@ export default function PricingInterstitial( { slug } ) {
 						showIntroOfferDisclaimer={ false }
 						headerLogo={ config.logo ? <config.logo height={ 32 } /> : null }
 					>
-						<PricingTableColumn className={ styles[ 'pricing-column' ] }>
-							<PricingTableHeader title={ config.tiers.free.name }>
-								<ProductPrice
-									price={ 0 }
-									legend=""
-									currency={ currencyCode }
-									hidePriceFraction
-									variant="simple"
-								/>
-								<Button
-									fullWidth
-									variant="secondary"
-									onClick={ handleFreeActivation }
-									isLoading={ loadingButton === 'free' }
-									disabled={ buttonsDisabled }
-								>
-									{ config.tiers.free.cta }
-								</Button>
-							</PricingTableHeader>
-							{ config.features.map( ( feature, index ) => (
-								<PricingTableItem
-									key={ index }
-									isIncluded={ feature.free.included }
-									label={ feature.free.label }
-								/>
-							) ) }
-						</PricingTableColumn>
+						{ config.tiers.free && (
+							<PricingTableColumn className={ styles[ 'pricing-column' ] }>
+								<PricingTableHeader title={ config.tiers.free.name }>
+									<ProductPrice
+										price={ 0 }
+										legend=""
+										currency={ currencyCode }
+										hidePriceFraction
+										variant="simple"
+									/>
+									<Button
+										fullWidth
+										variant="secondary"
+										onClick={ handleFreeActivation }
+										isLoading={ loadingButton === 'free' }
+										disabled={ buttonsDisabled }
+									>
+										{ config.tiers.free.cta }
+									</Button>
+								</PricingTableHeader>
+								{ config.features.map( ( feature, index ) => (
+									<PricingTableItem
+										key={ index }
+										isIncluded={ feature.free?.included || false }
+										label={ feature.free?.label || '' }
+									/>
+								) ) }
+							</PricingTableColumn>
+						) }
 						<PricingTableColumn primary className={ styles[ 'pricing-column' ] }>
 							<PricingTableHeader title={ config.tiers.paid.name }>
 								{ productPricing ? (
