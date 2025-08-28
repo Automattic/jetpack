@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { Group } from '@visx/group';
-import { useChartChildren } from './use-chart-children';
-import { ChartSVG, ChartHTML } from './index';
+import { ChartSVG, ChartHTML } from '../index';
+import { useChartChildren } from '../use-chart-children';
 
 // Shared test utilities to reduce duplication
 const TestSVG = ( { children }: { children: React.ReactNode } ) => <>{ children }</>;
