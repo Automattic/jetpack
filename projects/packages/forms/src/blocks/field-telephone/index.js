@@ -30,14 +30,12 @@ export const settings = {
 		default: {
 			type: 'string',
 		},
-		onChangeDefaultCountry: {
-			type: 'function',
-		},
 	},
 	supports: {
 		interactivity: true,
 	},
 	providesContext: {
+		...defaultSettings.providesContext,
 		'jetpack/field-prefix-default': 'default',
 		'jetpack/field-phone-country-toggle': 'showCountrySelector',
 	},
