@@ -85,6 +85,8 @@ export type ChartTheme = {
 	backgroundColor: string;
 	/** Background color for labels */
 	labelBackgroundColor?: string;
+	/** Text color for labels */
+	labelTextColor?: string;
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */
