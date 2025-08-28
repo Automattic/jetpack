@@ -90,13 +90,19 @@ function ExternalConnection( { service } ) {
 			{ isConnected && accountName && (
 				<>
 					{ __( 'Connected as:', 'jetpack-external-connections' ) }
-					{ profileImage ? (
-						<img src={ profileImage } alt="" />
-					) : (
-						<span className="dashicons dashicons-admin-users"></span>
-					) }
+					{ profileImage && <img src={ profileImage } alt="" /> }
 					<strong>{ accountName } </strong>
 				</>
+			) }
+			{ ! isConnected && config.signupLink && (
+				<a
+					className="button-secondary"
+					href={ config.signupLink }
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{ __( 'Sign up', 'jetpack-external-connections' ) }
+				</a>
 			) }
 			<button
 				className="button-secondary"

@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Mailchimp;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\External_Connections;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Options;
@@ -32,6 +33,20 @@ function register_block() {
 			__DIR__,
 			array(
 				'render_callback' => __NAMESPACE__ . '\load_assets',
+			)
+		);
+
+		External_Connections::add_settings_for_service(
+			'writing',
+			array(
+				'service'      => 'mailchimp',
+				'title'        => __( 'Mailchimp', 'jetpack' ),
+				'signup_link'  => 'https://public-api.wordpress.com/rest/v1.1/sharing/mailchimp/signup',
+				'description'  => __( 'Allow users to sign up to your Mailchimp mailing list.', 'jetpack' ),
+				'support_link' => array(
+					'wpcom'   => 'https://wordpress.com/support/wordpress-editor/blocks/mailchimp-block/',
+					'jetpack' => 'mailchimp-block',
+				),
 			)
 		);
 	}
