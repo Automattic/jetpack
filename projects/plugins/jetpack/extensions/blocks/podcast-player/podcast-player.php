@@ -26,10 +26,10 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		__DIR__,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
+			'render_callback'       => __NAMESPACE__ . '\render_block',
 			// Since Gutenberg #31873.
-			'style'           => 'wp-mediaelement',
-
+			'style'                 => 'wp-mediaelement',
+			'render_email_callback' => __NAMESPACE__ . '\render_email',
 		)
 	);
 }
@@ -292,4 +292,67 @@ function render( $name, $template_props = array(), $print = true ) {
 
 		return $markup;
 	}
+}
+
+/**
+ * Render podcast player block for email.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $block_content     The original block HTML content.
+ * @param array  $parsed_block      The parsed block data including attributes.
+ * @param object $rendering_context Email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Validate input parameters and required dependencies
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+		return '';
+	}
+
+	$attr = $parsed_block['attrs'];
+
+	// Check if we have a valid podcast URL
+	if ( empty( $attr['url'] ) || ! wp_http_validate_url( $attr['url'] ) ) {
+		return '';
+	}
+
+	// Get spacing from email_attrs for better consistency with core blocks
+	$email_attrs        = $parsed_block['email_attrs'] ?? array();
+	$table_margin_style = '';
+
+	if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
+		// Get margin for table styling
+		$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' ) ?? '';
+	}
+
+	$icon_image = 'https://s0.wp.com/i/emails/wpcom-notifications/audio-play.png';
+	$label      = __( 'Listen to the podcast', 'jetpack' );
+	$audio_url  = esc_url( $attr['url'] );
+
+	// Build the podcast player button content with Outlook 2021 compatibility
+	$button_content = sprintf(
+		'<a target="_blank" rel="noopener noreferrer" style="text-decoration: none;" href="%s"><div style="margin-bottom: 0; background-color: #f6f7f7; padding: 16px 24px; border-radius: 40px; border: 1px solid #AAA; font-size: 14px; mso-line-height-alt: 21.6px; line-height: 18px; font-weight: 400; font-family: Arial, Helvetica, sans-serif; text-align:center; letter-spacing: normal; margin-top: 0;"><div style="font-weight: 600; text-decoration: none; color: #000; line-height: 20px;"><img src="%s" style="display: inline-block; margin-right: 6px; vertical-align: middle;" width="18" height="18" /><div style="display: inline-block; vertical-align: middle;">%s</div></div></div></a>',
+		$audio_url,
+		esc_url( $icon_image ),
+		esc_html( $label )
+	);
+
+	// Use Table_Wrapper_Helper for consistent email rendering
+	$table_style = 'width: 100%; border-collapse: collapse;';
+	if ( ! empty( $table_margin_style ) ) {
+		$table_style = $table_margin_style . '; ' . $table_style;
+	} else {
+		$table_style = 'margin: 16px 0; ' . $table_style;
+	}
+
+	$table_attrs = array(
+		'style' => $table_style,
+	);
+
+	$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $button_content, $table_attrs );
+
+	return $html;
 }
