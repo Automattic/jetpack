@@ -1,3 +1,5 @@
+import { GlobalChartsProvider } from '../../../providers/chart-context';
+import { defaultTheme } from '../../../providers/theme/themes';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { medalCountsData, largeValuesData, trafficData } from '../../../stories/sample-data';
 import BarChart from '../bar-chart';
@@ -11,19 +13,21 @@ const meta: Meta< typeof BarChart > = {
 	},
 	decorators: [
 		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
+			<GlobalChartsProvider theme={ defaultTheme }>
+				<div
+					style={ {
+						resize: 'both',
+						overflow: 'auto',
+						padding: '2rem',
+						width: '800px',
+						maxWidth: '1200px',
+						border: '1px dashed #ccc',
+						display: 'inline-block',
+					} }
+				>
+					<Story />
+				</div>
+			</GlobalChartsProvider>
 		),
 	],
 	argTypes: {
