@@ -1020,22 +1020,71 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- function is supposed to work this way
 			echo wp_interactivity_data_wp_context(
 				array(
-					'fieldId'             => $id,
-					'defaultCountry'      => $default_country,
-					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
+					'fieldId'                => $id,
+					'defaultCountry'         => $default_country,
+					'showCountrySelector'    => $this->get_attribute( 'showcountryselector' ),
 					// dynamic
-					'phoneNumber'         => '',
-					'phoneCountryCode'    => $default_country,
-					'countryList'         => array(),
-					'fullPhoneNumber'     => '',
-					'countryPrefix'       => '',
+					'phoneNumber'            => '',
+					'phoneCountryCode'       => $default_country,
+					'countryList'            => array(),
+					'fullPhoneNumber'        => '',
+					'countryPrefix'          => '',
+					// combobox state
+					'useCombobox'            => true,
+					'comboboxOpen'           => false,
+					'searchTerm'             => '',
+					'filteredCountries'      => array(),
+					'selectedCountryIndex'   => 0,
+					'selectedCountryDisplay' => '',
 				)
 			);
 			?>
 			>
 				<div class="jetpack-field__input-prefix" data-wp-bind--hidden="!context.showCountrySelector" data-wp-init="callbacks.initializeCustomComboBox">
+					<div class="jetpack-custom-combobox">
+						<button 
+							class="jetpack-combobox-trigger"
+							type="button"
+							data-wp-on--click="actions.phoneComboboxToggle"
+							data-wp-bind--aria-expanded="context.comboboxOpen">
+							<span 
+								class="jetpack-combobox-selected"
+								data-wp-text="context.selectedCountryDisplay"></span>
+							<span 
+								class="jetpack-combobox-trigger-arrow"
+								data-wp-class--is-open="context.comboboxOpen">▼</span>
+						</button>
+						<div 
+							class="jetpack-combobox-dropdown"
+							data-wp-bind--hidden="!context.comboboxOpen">
+							<input 
+								class="jetpack-combobox-search" 
+								type="text" 
+								placeholder="Search countries..."
+								data-wp-bind--value="context.searchTerm"
+								data-wp-on--input="actions.onComboboxSearch"
+								data-wp-on--keydown="actions.onComboboxKeydown">
+							<div class="jetpack-combobox-options">
+								<template
+								data-wp-each--filtered="context.filteredCountries"
+								data-wp-each-key="context.filtered.code">
+									<div 
+										class="jetpack-combobox-option"
+										data-wp-class--jetpack-combobox-option-selected="context.filtered.selected"
+										data-wp-on--click="actions.selectCountryOption"
+										data-wp-on--mouseenter="actions.highlightOption"
+										data-wp-on--mouseleave="actions.unhighlightOption">
+										<span class="jetpack-combobox-option-icon" data-wp-text="context.filtered.flag"></span>
+										<span class="jetpack-combobox-option-value" data-wp-text="context.filtered.value"></span>
+										<span class="jetpack-combobox-option-description" data-wp-text="context.filtered.country"></span>
+									</div>
+								</template>
+							</div>
+						</div>
+					</div>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
 					<select <?php echo $class; ?>
+						data-wp-bind--hidden="context.useCombobox"
 						data-wp-bind--disabled='state.isSubmitting'
 						data-wp-on--change="actions.onPhoneCountryChange"
 						data-wp-bind--value="context.phoneCountryCode"
