@@ -1025,11 +1025,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 			?>
 			>
-				<div class="jetpack-field__input-prefix" data-wp-bind--hidden="!context.showCountrySelector">
+				<div class="jetpack-field__input-prefix" data-wp-bind--hidden="!context.showCountrySelector" data-wp-init="callbacks.initializeCustomComboBox">
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
 					<select <?php echo $class; ?>
 						data-wp-bind--disabled='state.isSubmitting'
-						data-wp-init="callbacks.initializeCountrySelector"
 						data-wp-on--change="actions.onPhoneCountryChange"
 						data-wp-bind--value="context.phoneCountryCode"
 						data-wp-on--blur='actions.onFieldBlur'>
@@ -2767,6 +2766,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function enqueue_phone_field_assets() {
 		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		// combobox styles
+		\wp_enqueue_style(
+			'jetpack-form-combobox',
+			plugins_url( '../../dist/contact-form/css/combobox.css', __FILE__ ),
+			array(),
+			$version
+		);
 
 		\wp_enqueue_style(
 			'jetpack-form-phone-field',
