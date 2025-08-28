@@ -359,8 +359,10 @@ class Contact_Form_Block {
 					'interactivity' => true,
 				),
 				'provides_context' => array(
-					'jetpack/field-required'       => 'required',
-					'jetpack/field-prefix-default' => 'default',
+					'jetpack/field-share-attributes'     => 'shareAttributes',
+					'jetpack/field-required'             => 'required',
+					'jetpack/field-prefix-default'       => 'default',
+					'jetpack/field-phone-country-toggle' => 'showCountrySelector',
 				),
 			)
 		);
