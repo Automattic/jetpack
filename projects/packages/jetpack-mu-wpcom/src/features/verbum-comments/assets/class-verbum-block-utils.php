@@ -28,8 +28,8 @@ class Verbum_Block_Utils {
 
 		// Fast pre-scan: if all blocks are allowed, skip expensive processing
 		if ( ! self::has_disallowed_blocks_fast( $unslashed_content ) ) {
-			// Common case: all blocks allowed, return original content unchanged
-			return $content;
+			// Return unslashed content for consistency - all paths now return processed content
+			return $unslashed_content;
 		}
 
 		// Rare case: contains disallowed blocks, use full parse_blocks approach
@@ -65,7 +65,6 @@ class Verbum_Block_Utils {
 
 			return false; // All blocks are allowed
 		} catch ( \Exception $e ) {
-			// If Block_Scanner fails for any reason, fall back to full processing
 			return true;
 		}
 	}
@@ -182,6 +181,12 @@ class Verbum_Block_Utils {
 	public static function get_allowed_blocks() {
 		global $allowedtags;
 
+		// Validate $allowedtags integrity - use local variable to avoid override warning
+		$validated_allowedtags = $allowedtags;
+		if ( ! is_array( $validated_allowedtags ) ) {
+			$validated_allowedtags = wp_kses_allowed_html( 'post' );
+		}
+
 		$allowed_blocks = array( 'core/paragraph', 'core/list', 'core/code', 'core/list-item', 'core/quote', 'core/image', 'core/embed' );
 		$convert        = array(
 			'blockquote' => 'core/quote',
@@ -194,7 +199,7 @@ class Verbum_Block_Utils {
 			'pre'        => 'core/code',
 		);
 
-		foreach ( array_keys( $allowedtags ) as $tag ) {
+		foreach ( array_keys( $validated_allowedtags ) as $tag ) {
 			if ( isset( $convert[ $tag ] ) ) {
 				$allowed_blocks[] = $convert[ $tag ];
 			}

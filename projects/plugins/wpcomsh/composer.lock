@@ -27,6 +27,69 @@
             "time": "2025-06-04T10:44:48+00:00"
         },
         {
+            "name": "automattic/block-delimiter",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/block-delimiter",
+                "reference": "d22d4af194b81a0f9336ea03eb9d9ca65cbcf6bd"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.3.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/block-delimiter/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/block-delimiter",
+                "textdomain": "jetpack-block-delimiter"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "autoload-dev": {
+                "classmap": [
+                    "tests/php/lib/"
+                ],
+                "psr-4": {
+                    "Automattic\\Block_Delimiter\\Tests\\": "tests/php/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Efficiently work with block structure",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/custom-fonts",
             "version": "v3.0.6",
             "source": {
@@ -1302,9 +1365,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "6cc15474e9746c54b72cb6ec33d65237fa57355d"
+                "reference": "1a92c2a1197abdee14408053e6f61a7037eb9bae"
             },
             "require": {
+                "automattic/block-delimiter": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-calypsoify": "@dev",
