@@ -8,4 +8,5 @@ module.exports = {
 		'<rootDir>/tools/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		...baseConfig.collectCoverageFrom,
 	],
+	transformIgnorePatterns: [ '/node_modules/(?!.pnpm|uplot/dist/uPlot.min.css)' ],
 };

@@ -11,7 +11,7 @@ import { type Annotation, Period } from './index.tsx';
 import { tooltipsPlugin } from './tooltips-plugin.ts';
 import { useBoostScoreTransform } from './use-boost-score-transform.ts';
 import useResize from './use-resize.ts';
-import './style-uplot.scss';
+import 'uplot/dist/uPlot.min.css';
 import type { ReactElement, RefObject, ComponentType } from 'react';
 
 const DEFAULT_DIMENSIONS = {
