@@ -777,17 +777,13 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	// sends to itself to test
 	$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryIndxKey, $mailArray );
 	if ( is_array( $sent ) && $sent[0] ) {
-
 		// fini
-		zeroBSCRM_sendJSONSuccess( $res );
-
-	} else {
-
-		// error
-		$res['errors'] = array( 'sendfail' => 1 );
-		wp_send_json_error( $res, 500 );
-
+		wp_send_json( $res );
 	}
+
+	// error
+	$res['errors'] = array( 'sendfail' => 1 );
+	wp_send_json_error( $res, 500 );
 }
 
 // } Attempts to remove a delivery route

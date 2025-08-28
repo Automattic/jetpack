@@ -80,12 +80,12 @@ function jpcrm_woosync_ajax_get_auth_url(){
 
 			global $zbs;
 
-			zeroBSCRM_sendJSONSuccess( array(
-				'target_url' => $zbs->modules->woosync->get_external_woo_url_for_oauth( $site_url )
-			));
-
+			wp_send_json(
+				array(
+					'target_url' => $zbs->modules->woosync->get_external_woo_url_for_oauth( $site_url ),
+				)
+			);
 		}
-
 	}
 
 	wp_send_json_error( array(), 500 );

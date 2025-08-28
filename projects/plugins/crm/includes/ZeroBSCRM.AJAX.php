@@ -236,7 +236,7 @@ function jpcrm_set_jpcrm_transient() {
 		}
 	}
 
-	zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
+	wp_send_json( array( 'fini' => 1 ) );
 }
 
 	// } Feedback
@@ -1053,16 +1053,11 @@ function jpcrm_ajax_quote_send_email() {
 		if ( $sent ) {
 
 			// send result
-			zeroBSCRM_sendJSONSuccess( array( 'message' => 'sent' ) );
-
-		} else {
-
-			// send err
-			wp_send_json_error( array( 'message' => __( 'not sent', 'zero-bs-crm' ) ), 500 );
+			wp_send_json( array( 'message' => 'sent' ) );
 
 		}
-
-		exit( 0 );
+		// send err
+		wp_send_json_error( array( 'message' => __( 'not sent', 'zero-bs-crm' ) ), 500 );
 }
 
 /**
@@ -1131,7 +1126,7 @@ function ZeroBSCRM_accept_quote() {
 	} // / if email notification active
 
 	// success
-	zeroBSCRM_sendJSONSuccess( array( 'success' => 1 ) );
+	wp_send_json( array( 'success' => 1 ) );
 }
 
 /*
@@ -4530,7 +4525,7 @@ function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = 
 			$passBack['tagged'] = $tagged;
 
 			// This function outputs JSON and exits.
-			zeroBSCRM_sendJSONSuccess( $passBack );
+			wp_send_json( $passBack ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	} else {
 
@@ -4597,7 +4592,7 @@ function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id
 			$passBack['untagged'] = $untagged;
 
 			// This function outputs JSON and exits.
-			zeroBSCRM_sendJSONSuccess( $passBack );
+			wp_send_json( $passBack ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	} else {
 
@@ -4845,7 +4840,7 @@ function zeroBSCRM_AJAX_addTag() {
 					)
 				);
 
-				zeroBSCRM_sendJSONSuccess(
+				wp_send_json(
 					array(
 						'id'   => $tagID,
 						'slug' => $slug,
@@ -4893,7 +4888,7 @@ function zeroBSCRM_AJAX_deleteTag() {
 				)
 			);
 
-			zeroBSCRM_sendJSONSuccess( array( 'res' => $res ) );
+			wp_send_json( array( 'res' => $res ) );
 
 		} // if objtype match
 
@@ -5073,8 +5068,7 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 		// } Brutally update
 		$zbs->DAL->updateSetting( 'screenopts_' . $pageKey, $screenOpts ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-		zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
-		exit( 0 );
+		wp_send_json( array( 'fini' => 1 ) );
 
 	}
 
@@ -5130,7 +5124,7 @@ function zeroBSCRM_AJAX_listViewInlineEdit_save() {
 				}
 
 				if ( $success ) {
-					zeroBSCRM_sendJSONSuccess( array( 'success' => 1 ) );
+					wp_send_json( array( 'success' => 1 ) );
 				}
 			}
 
@@ -5195,7 +5189,7 @@ function zbs_invoice_send_invoice() {
 	if ( $sent ) {
 
 		// send result
-		zeroBSCRM_sendJSONSuccess( array( 'message' => 'sent' ) );
+		wp_send_json( array( 'message' => 'sent' ) );
 
 	}
 
@@ -5477,8 +5471,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 		unlink( $statementPDFfilepath );
 
 		$r['success'] = __( 'Sent', 'zero-bs-crm' );
-		zeroBSCRM_sendJSONSuccess( $r );
-		exit( 0 );
+		wp_send_json( $r );
 }
 
 /*
@@ -5699,8 +5692,7 @@ function zeroBSCRM_AJAX_getInvoice() {
 		$data = zeroBSCRM_invoicing_getInvoiceData( $invID );
 
 		// pass back in json
-		zeroBSCRM_sendJSONSuccess( $data );
-		exit( 0 );
+		wp_send_json( $data );
 
 	} else {
 
@@ -5720,8 +5712,7 @@ function zeroBSCRM_AJAX_getInvoice() {
 		$data['tax_linesObj'] = zeroBSCRM_taxRates_getTaxTableArr();
 
 		// pass back in json
-		zeroBSCRM_sendJSONSuccess( $data );
-		exit( 0 );
+		wp_send_json( $data );
 
 	}
 
@@ -5774,9 +5765,3 @@ function zeroBSCRM_ajax_mark_task_complete() {
 	/ Admin AJAX: Tasks
 ====================================================== */
 
-function zeroBSCRM_sendJSONSuccess( $successObj = '' ) {
-
-	header( 'Content-Type: application/json' );
-	echo json_encode( $successObj, true );
-	exit( 0 );
-}

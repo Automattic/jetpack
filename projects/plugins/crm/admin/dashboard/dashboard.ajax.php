@@ -170,7 +170,7 @@ function jpcrm_dash_setting() {
 			update_user_meta( $current_user_id, $setting_key, $is_checked );
 
 			// No rights or failed key match
-			zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
+			wp_send_json( array( 'fini' => 1 ) );
 		}
 	}
 

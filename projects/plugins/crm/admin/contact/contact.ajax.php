@@ -153,7 +153,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 					zeroBSCRM_customerPortalDisableEnable( $contact_id, 'enable' );
 
 					// send success
-					zeroBSCRM_sendJSONSuccess( array( 'success' => 1 ) );
+					wp_send_json( array( 'success' => 1 ) );
 
 					break;
 				// disable
@@ -162,7 +162,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 					zeroBSCRM_customerPortalDisableEnable( $contact_id, 'disable' );
 
 					// send success
-					zeroBSCRM_sendJSONSuccess( array( 'success' => 1 ) );
+					wp_send_json( array( 'success' => 1 ) );
 
 					break;
 				// Reset client portal password
@@ -171,7 +171,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 					$newpw = zeroBSCRM_customerPortalPWReset( $contact_id );
 
 					// send success
-					zeroBSCRM_sendJSONSuccess(
+					wp_send_json(
 						array(
 							'success' => 1,
 							'pw'      => $newpw,

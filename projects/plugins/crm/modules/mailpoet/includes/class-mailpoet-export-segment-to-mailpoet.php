@@ -319,20 +319,13 @@ class Mailpoet_Export_Segment_To_MailPoet {
 
 
 				if ( ! is_array( $list_details ) ) {
-
 					// nope
-					zeroBSCRM_sendJSONSuccess( false );
-					exit( 0 );
-
+					wp_send_json( false );
 				} else {
-
 					// success
-	    			zeroBSCRM_sendJSONSuccess( $list_details );
-					exit( 0 );
-
+					wp_send_json( $list_details );
 				}
-
-			} catch (\Throwable $th) {
+			} catch ( \Throwable $th ) {
 				wp_send_json_error( array( 'fail' => 1 ), 500 );
 			}
 
