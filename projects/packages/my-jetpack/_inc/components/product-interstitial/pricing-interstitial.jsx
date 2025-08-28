@@ -312,6 +312,12 @@ export default function PricingInterstitial( { slug } ) {
 		slug,
 	] );
 
+	const handleLicenseActivationClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_interstitial_license_link_click', {
+			product_slug: slug,
+		} );
+	}, [ recordEvent, slug ] );
+
 	// If no config exists, fallback to old ProductInterstitial
 	if ( ! config ) {
 		return <ProductInterstitial slug={ slug } installsPlugin={ true } />;
@@ -345,6 +351,7 @@ export default function PricingInterstitial( { slug } ) {
 										className={ styles[ 'product-interstitial__license-activation-link' ] }
 										href={ getMyJetpackUrl( '#/add-license' ) }
 										variant="link"
+										onClick={ handleLicenseActivationClick }
 									/>
 								),
 							}
