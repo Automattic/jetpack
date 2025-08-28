@@ -1,6 +1,6 @@
-.jetpack-field-slider {
+.wp-block-jetpack-field-slider {
 
-	&__input-row {
+	.jetpack-field-slider__input-row {
 		display: flex;
 		align-items: center;
 		width: 100%;
@@ -8,7 +8,7 @@
 		margin-top: 30px;
 	}
 
-	&__input-container {
+	.jetpack-field-slider__input-container {
 		display: flex;
 		flex: 1 1 auto;
 		min-width: 0;
@@ -24,14 +24,14 @@
 			transform: translateY(-50%);
 			height: 4px;
 			width: 100%;
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			background: var(--jetpack--contact-form--text-color);
 			z-index: 0;
 			pointer-events: none;
 			border-radius: 2px;
 		}
 	}
 
-	&__range {
+	.jetpack-field-slider__range[type="range"] {
 		-webkit-appearance: none;
 		appearance: none;
 		-moz-appearance: none;
@@ -39,10 +39,12 @@
 		padding: 18px 0 16px; /* enlarge hit area without moving track */
 		background: transparent;
 		outline: none;
+		border: none;
 		border-radius: 2px;
 		transition: background 0.3s;
 		width: 100%;
 		box-sizing: border-box;
+		box-shadow: none;
 		z-index: 1;
 		cursor: pointer;
 
@@ -76,7 +78,7 @@
 			appearance: none;
 			width: 18px;
 			height: 18px;
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			background: var(--jetpack--contact-form--text-color);
 			border-radius: 50%;
 			cursor: pointer;
 			transition: background 0.3s;
@@ -88,7 +90,7 @@
 			-moz-appearance: none !important;
 			width: 18px;
 			height: 18px;
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			background: var(--jetpack--contact-form--text-color);
 			border-radius: 50%;
 			cursor: pointer;
 			transition: background 0.3s;
@@ -100,7 +102,7 @@
 			appearance: none !important;
 			width: 18px;
 			height: 18px;
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			background: var(--jetpack--contact-form--text-color);
 			border-radius: 50%;
 			cursor: pointer;
 			transition: background 0.3s;
@@ -114,17 +116,17 @@
 		&::-ms-fill-upper,
 		&:focus::-ms-fill-lower,
 		&:focus::-ms-fill-upper {
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			background: var(--jetpack--contact-form--text-color);
 		}
 	}
 
-	&__value-indicator {
+	.jetpack-field-slider__value-indicator {
 		position: absolute;
 		left: 0;
 		bottom: 100%;
 		transform: translateX(-50%);
-		background: var(--jetpack--contact-form--button-primary--background-color);
-		color: var(--jetpack--contact-form--button-primary--color);
+		background: var(--jetpack--contact-form--text-color);
+		color: var(--jetpack--contact-form--background-color);
 		border-radius: 8px;
 		padding: 2px 8px;
 		font-size: 0.7em;
@@ -132,24 +134,24 @@
 		text-wrap: nowrap;
 	}
 
-	&__min-label,
-	&__max-label {
+	.jetpack-field-slider__min-label,
+	.jetpack-field-slider__max-label {
 		font-size: 0.9em;
 		text-align: center;
 	}
 
-	&__text-labels {
+	.jetpack-field-slider__text-labels {
 		display: flex;
 		justify-content: space-between;
 		margin-top: 6px;
 		font-size: 0.9em;
 	}
 
-	&__min-text-label {
+	.jetpack-field-slider__min-text-label {
 		text-align: left;
 	}
 
-	&__max-text-label {
+	.jetpack-field-slider__max-text-label {
 		text-align: right;
 	}
 }
