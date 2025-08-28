@@ -57,13 +57,13 @@ function zerobscrm_doing_it_wrong( $function, $message, $version ) {
 		$prefix = rest_get_url_prefix();
 		if (defined('REST_REQUEST') && REST_REQUEST // (#1)
 			|| isset($_GET['rest_route']) // (#2)
-				&& str_starts_with( trim( $_GET['rest_route'], '\\/' ), $prefix, 0 ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				&& str_starts_with( trim( $_GET['rest_route'], '\\/' ), $prefix ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return true;
 
 		// (#3)
 		$rest_url = wp_parse_url( site_url( $prefix ) );
 		$current_url = wp_parse_url( add_query_arg( array() ) );
-		return str_starts_with( $current_url['path'], $rest_url['path'], 0 );
+		return str_starts_with( $current_url['path'], $rest_url['path'] );
 	}
 
 
