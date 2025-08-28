@@ -127,13 +127,34 @@ const meta: Meta< StoryArgs > = {
 			} as ChartTheme;
 		}
 
-		const ChartComponent = customTheme ? (
-			<ThemeProvider theme={ customTheme }>
-				<PieChart { ...args } />
-			</ThemeProvider>
-		) : (
-			<PieChart { ...args } theme={ theme } />
-		);
+		let ChartComponent;
+		if ( customTheme ) {
+			ChartComponent = (
+				<ThemeProvider theme={ customTheme }>
+					<PieChart { ...args } />
+				</ThemeProvider>
+			);
+		} else if ( typeof theme === 'object' ) {
+			ChartComponent = (
+				<ThemeProvider theme={ theme as ChartTheme }>
+					<PieChart { ...args } />
+				</ThemeProvider>
+			);
+		} else if ( theme === 'jetpack' ) {
+			ChartComponent = (
+				<ThemeProvider theme={ jetpackTheme }>
+					<PieChart { ...args } />
+				</ThemeProvider>
+			);
+		} else if ( theme === 'woo' ) {
+			ChartComponent = (
+				<ThemeProvider theme={ wooTheme }>
+					<PieChart { ...args } />
+				</ThemeProvider>
+			);
+		} else {
+			ChartComponent = <PieChart { ...args } />;
+		}
 
 		return ChartComponent;
 	},
