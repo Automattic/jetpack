@@ -368,9 +368,6 @@ function zeroBSCRM_AJAX_filterCustomers() {
 	// Add log
 	add_action( 'wp_ajax_zbsaddlog', 'zeroBSCRM_AJAX_addLog' );
 function zeroBSCRM_AJAX_addLog() {
-
-	header( 'Content-Type: application/json' );
-
 	// req
 	$res = -1;
 
@@ -449,9 +446,6 @@ function zeroBSCRM_AJAX_addLog() {
 	// Update log
 	add_action( 'wp_ajax_zbsupdatelog', 'zeroBSCRM_AJAX_updateLog' );
 function zeroBSCRM_AJAX_updateLog() {
-
-	header( 'Content-Type: application/json' );
-
 	// req
 	$res = -1;
 
@@ -543,9 +537,6 @@ function zeroBSCRM_AJAX_updateLog() {
 	// } Del log
 	add_action( 'wp_ajax_zbsdellog', 'zeroBSCRM_AJAX_deleteLog' );
 function zeroBSCRM_AJAX_deleteLog() {
-
-	header( 'Content-Type: application/json' );
-
 	// } req
 	$res = -1;
 
@@ -4524,9 +4515,6 @@ function zeroBSCRM_AJAX_previewSegment() {
 	// } Check nonce
 	check_ajax_referer( 'zbs-ajax-nonce', 'sec' );
 
-	// either way
-	header( 'Content-Type: application/json' );
-
 	if ( current_user_can( 'admin_zerobs_customers' ) ) {
 
 		global $zbs;
@@ -4803,9 +4791,6 @@ function zeroBSCRM_AJAX_previewTagged() {
 
 	// } Check nonce
 	check_ajax_referer( 'zbs-ajax-nonce', 'sec' );
-
-	// either way
-	header( 'Content-Type: application/json' );
 
 	if ( current_user_can( 'admin_zerobs_customers' ) ) {
 

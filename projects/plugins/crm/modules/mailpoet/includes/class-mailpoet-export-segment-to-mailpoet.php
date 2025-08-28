@@ -121,8 +121,6 @@ class Mailpoet_Export_Segment_To_MailPoet {
 			// Check nonce
 			check_ajax_referer( 'zbs-ajax-nonce', 'sec' );
 
-			header( 'Content-Type: application/json' );
-
 			if ( current_user_can( 'admin_zerobs_customers' ) ) {
 				global $zbs;
 
