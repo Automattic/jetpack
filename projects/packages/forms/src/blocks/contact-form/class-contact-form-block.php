@@ -121,7 +121,7 @@ class Contact_Form_Block {
 		}
 
 		$p = new \WP_HTML_Tag_Processor( $content );
-		if ( ! $p->next_tag( array( 'tag_name' => array( 'button', 'a' ) ) ) ) {
+		if ( ! $p->next_tag( array( 'tag_name' => 'button' ) ) ) {
 			return $content;
 		}
 

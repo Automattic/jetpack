@@ -1324,7 +1324,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: none;
 }
 
-.jetpack-form-submit-button.is-submitting .wp-block-button__link::after,
 .jetpack-form-submit-button.is-submitting button::after {
 	content: "";
 	display: inline-block;
