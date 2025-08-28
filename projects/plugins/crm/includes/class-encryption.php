@@ -196,10 +196,10 @@ class Encryption {
 
 	}
 
-	/*
+	/**
 	 * Retrieves default key
-	*/
-	public function get_default_encryption_key( ){
+	 */
+	public function get_default_encryption_key() {
 
 		// cached?
 		if ( !empty( $this->default_key ) ){

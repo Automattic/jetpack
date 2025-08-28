@@ -27,7 +27,7 @@ class Woo_Sync_My_Account_Integration {
 	 * Note: This will effectively fire after core settings and modules loaded
 	 * ... effectively on tail end of `init`
 	 */
-	public function __construct( ) {
+	public function __construct() {
 		// Initialise Hooks
 		$this->init_hooks();
 		// Styles and scripts
@@ -56,7 +56,7 @@ class Woo_Sync_My_Account_Integration {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		// Add menu item to Woo My Account
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'append_items_to_woo_menu' ), 99, 1 );

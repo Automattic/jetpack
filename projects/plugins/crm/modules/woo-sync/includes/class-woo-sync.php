@@ -135,7 +135,7 @@ class Woo_Sync {
 	 * Note: This will effectively fire after core settings and modules loaded
 	 * ... effectively on tail end of `init`
 	 */
-	public function __construct( ) {
+	public function __construct() {
 
 		// Definitions
 		$this->definitions();
@@ -197,7 +197,7 @@ class Woo_Sync {
 	 * Initialise endpoints
 	 *  (previously on `init`)
 	 */
-	private function init_endpoints( ) {
+	private function init_endpoints() {
 
 		add_rewrite_endpoint('invoices', EP_PAGES );
 
@@ -206,7 +206,7 @@ class Woo_Sync {
 	/**
 	 * Initialise Settings
 	 */
-	private function init_settings( ) {
+	private function init_settings() {
 		
 		$this->settings = new \WHWPConfigExtensionsLib( $this->config_key, $this->default_settings() );
 
@@ -318,7 +318,7 @@ class Woo_Sync {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		// Add settings tab
 		add_filter( 'zbs_settings_tabs', array( $this, 'add_settings_tab' ) );
@@ -373,7 +373,7 @@ class Woo_Sync {
 	/**
 	 * Initialise Features
 	 */
-	private function init_features( ) {
+	private function init_features() {
 
 		// Contact Tabs
 		if ( zeroBSCRM_is_customer_view_page() ) {
@@ -420,7 +420,7 @@ class Woo_Sync {
 	/**
 	 * Autoload page AJAX
 	 */
-	private function load_ajax( ) {
+	private function load_ajax() {
 
 		$admin_page_directories = jpcrm_get_directories( JPCRM_WOO_SYNC_ROOT_PATH . 'admin' );
 
@@ -1159,7 +1159,7 @@ class Woo_Sync {
 		$last_order_synced = $this->get_crm_woo_latest_woo_transaction_string();
 		$contacts_synced = zeroBSCRM_prettifyLongInts( $this->get_crm_woo_contact_count() );
 		$transactions_synced = zeroBSCRM_prettifyLongInts( $this->get_crm_woo_transaction_count() );
-		$transaction_total = zeroBSCRM_formatCurrency( $this->get_crm_woo_transaction_total( ) );
+		$transaction_total = zeroBSCRM_formatCurrency( $this->get_crm_woo_transaction_total() );
 
 		return array(
 			'last_order_synced'   => $last_order_synced,
@@ -1300,7 +1300,7 @@ class Woo_Sync {
 	 *	 
 	 * @return string URL
 	 */
-	public function get_local_woo_admin_url( ){
+	public function get_local_woo_admin_url() {
 
 		return site_url( '/wp-admin/admin.php?page=wc-admin' );
 
