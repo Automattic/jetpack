@@ -9,7 +9,7 @@ import {
 import { DataContext } from '@visx/xychart';
 import merge from 'deepmerge';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
-import { useGlobalChartTheme } from '../../providers/chart-context';
+import { useGlobalChartsTheme } from '../../providers/chart-context';
 import { isSafari } from '../../utils';
 import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,
@@ -175,7 +175,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	renderLabel,
 	renderLabelPopover,
 } ) => {
-	const providerTheme = useGlobalChartTheme();
+	const providerTheme = useGlobalChartsTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	const labelRef = useRef< SVGGElement >( null );
 	const [ height, setHeight ] = useState< number | null >( null );

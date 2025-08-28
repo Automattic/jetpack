@@ -16,8 +16,8 @@ import {
 	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
-	useGlobalChartContext,
-	useGlobalChartTheme,
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
 } from '../../providers/chart-context';
 import { attachSubComponents, getSeriesLineStyles } from '../../utils';
 import { DefaultGlyph } from '../default-glyph';
@@ -257,7 +257,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		},
 		ref
 	) => {
-		const providerTheme = useGlobalChartTheme();
+		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -278,7 +278,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { resolveGroupColor } = useGlobalChartContext();
+		const { resolveGroupColor } = useGlobalChartsContext();
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {

@@ -19,7 +19,7 @@ export { LineShape, CircleShape, RectShape } from './visx/legend';
 // Themes
 export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
-export { useGlobalChartTheme } from './providers/chart-context';
+export { useGlobalChartsTheme } from './providers/chart-context';
 
 // Utilities
 export { mergeThemes } from './utils';

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useDeepMemo } from '../../../hooks';
-import { useGlobalChartContext } from './use-global-chart-context';
+import { useGlobalChartsContext } from './use-global-charts-context';
 import type { BaseLegendItem } from '../../../components/legend/types';
 
 export const useChartRegistration = ( {
@@ -16,7 +16,7 @@ export const useChartRegistration = ( {
 	isDataValid: boolean;
 	metadata?: Record< string, unknown >;
 } ): void => {
-	const { registerChart, unregisterChart } = useGlobalChartContext();
+	const { registerChart, unregisterChart } = useGlobalChartsContext();
 
 	// Memoize legendItems with deep comparison to prevent infinite loops
 	const stableLegendItems = useDeepMemo( legendItems );

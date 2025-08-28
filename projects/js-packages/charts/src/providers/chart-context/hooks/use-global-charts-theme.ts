@@ -14,7 +14,7 @@ import type { ChartTheme } from '../../../types';
  *
  * @return The effective chart theme to use
  */
-export const useGlobalChartTheme = (): ChartTheme => {
+export const useGlobalChartsTheme = (): ChartTheme => {
 	// Get context but don't throw if it doesn't exist (for testing or standalone usage)
 	const context = useContext( GlobalChartsContext );
 	const globalTheme = context?.theme;

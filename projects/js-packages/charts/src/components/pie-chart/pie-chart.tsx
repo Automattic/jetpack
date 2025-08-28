@@ -7,8 +7,8 @@ import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
-	useGlobalChartContext,
-	useGlobalChartTheme,
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
@@ -118,7 +118,7 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	children = null,
 }: PieChartProps ) => {
-	const providerTheme = useGlobalChartTheme();
+	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -156,7 +156,7 @@ const PieChartInternal = ( {
 		metadata: chartMetadata,
 	} );
 
-	const { resolveGroupColor } = useGlobalChartContext();
+	const { resolveGroupColor } = useGlobalChartsContext();
 
 	if ( ! isValid ) {
 		return (

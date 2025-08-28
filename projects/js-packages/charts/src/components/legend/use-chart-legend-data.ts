@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useGlobalChartTheme } from '../../providers/chart-context';
+import { useGlobalChartsTheme } from '../../providers/chart-context';
 import { getItemShapeStyles, getSeriesStroke } from '../../utils';
 import type { BaseLegendItem } from './types';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../types';
@@ -142,7 +142,7 @@ export function useChartLegendData<
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem[] {
 	const { showValues = false, withGlyph = false, glyphSize = 8, renderGlyph } = options;
-	const theme = useGlobalChartTheme();
+	const theme = useGlobalChartsTheme();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {

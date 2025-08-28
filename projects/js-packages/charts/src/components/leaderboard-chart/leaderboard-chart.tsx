@@ -7,7 +7,7 @@ import {
 import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
 import { type FC } from 'react';
-import { useGlobalChartTheme } from '../../providers/chart-context';
+import { useGlobalChartsTheme } from '../../providers/chart-context';
 import { formatMetricValue } from '../../utils';
 import styles from './leaderboard-chart.module.scss';
 
@@ -209,7 +209,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	className,
 	style,
 } ) => {
-	const theme = useGlobalChartTheme();
+	const theme = useGlobalChartsTheme();
 
 	// Get component settings from theme with fallbacks
 	const leaderboardSettings = theme.leaderboardChart;

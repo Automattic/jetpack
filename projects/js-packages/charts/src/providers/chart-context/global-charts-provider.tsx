@@ -1,10 +1,10 @@
 import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { defaultTheme } from '../theme/themes';
-import type { ChartContextValue, ChartRegistration } from './types';
+import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme } from '../../types';
 import type { FC, ReactNode } from 'react';
 
-export const GlobalChartsContext = createContext< ChartContextValue | null >( null );
+export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
@@ -47,7 +47,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ charts ]
 	);
 
-	const resolveGroupColor = useCallback< ChartContextValue[ 'resolveGroupColor' ] >(
+	const resolveGroupColor = useCallback< GlobalChartsContextValue[ 'resolveGroupColor' ] >(
 		( { group, index, overrideColor } ) => {
 			// Highest precedence: explicit series stroke
 			if ( overrideColor ) {
@@ -76,7 +76,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ providerTheme.colors ]
 	);
 
-	const value: ChartContextValue = useMemo(
+	const value: GlobalChartsContextValue = useMemo(
 		() => ( {
 			charts,
 			registerChart,

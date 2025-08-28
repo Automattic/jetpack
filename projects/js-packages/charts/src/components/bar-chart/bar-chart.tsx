@@ -14,7 +14,7 @@ import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
-	useGlobalChartContext,
+	useGlobalChartsContext,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
@@ -125,7 +125,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	const { resolveGroupColor } = useGlobalChartContext();
+	const { resolveGroupColor } = useGlobalChartsContext();
 
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>

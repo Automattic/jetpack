@@ -3,10 +3,10 @@ import { useMemo } from 'react';
 import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
-import { useGlobalChartContext } from '../hooks/use-global-chart-context';
+import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
 import type { BaseLegendItem } from '../../../components/legend/types';
 import type { ChartTheme } from '../../../types';
-import type { ChartContextValue } from '../types';
+import type { GlobalChartsContextValue } from '../types';
 
 describe( 'ChartContext', () => {
 	const mockTheme: ChartTheme = {
@@ -20,10 +20,10 @@ describe( 'ChartContext', () => {
 
 	describe( 'GlobalChartsProvider', () => {
 		it( 'provides context to child components', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -40,9 +40,9 @@ describe( 'ChartContext', () => {
 			expect( contextValue.charts ).toBeInstanceOf( Map );
 		} );
 
-		it( 'throws error when useGlobalChartContext is used outside provider', () => {
+		it( 'throws error when useGlobalChartsContext is used outside provider', () => {
 			const TestComponent = () => {
-				useGlobalChartContext();
+				useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -51,7 +51,7 @@ describe( 'ChartContext', () => {
 
 			expect( () => {
 				render( <TestComponent /> );
-			} ).toThrow( 'useGlobalChartContext must be used within a GlobalChartsProvider' );
+			} ).toThrow( 'useGlobalChartsContext must be used within a GlobalChartsProvider' );
 
 			consoleSpy.mockRestore();
 		} );
@@ -96,11 +96,11 @@ describe( 'ChartContext', () => {
 
 	describe( 'Chart registration', () => {
 		it( 'registers and retrieves chart data correctly', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
 				const chartId = useChartId( 'test-chart' );
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 
 				// Memoize metadata to prevent infinite loop
 				const metadata = useMemo( () => ( { test: true } ), [] );
@@ -130,12 +130,12 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'supports multiple independent charts', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
 				const chartId1 = useChartId( 'chart-1' );
 				const chartId2 = useChartId( 'chart-2' );
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 
 				useChartRegistration( {
 					chartId: chartId1,
@@ -165,10 +165,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'returns undefined for non-existent charts', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -182,11 +182,11 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'handles chart ID collisions by overwriting', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
 				const chartId = useChartId( 'same-id' );
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 
 				// Register first chart
 				useChartRegistration( {
@@ -219,10 +219,10 @@ describe( 'ChartContext', () => {
 
 	describe( 'Group Color Resolver', () => {
 		it( 'provides resolveGroupColor function', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -236,10 +236,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'returns consistent colors for same group across different indices', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -258,10 +258,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'returns different colors for different groups', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -281,10 +281,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'respects overrideColor when provided', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -310,10 +310,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'handles undefined group gracefully', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -329,10 +329,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'handles empty string group gracefully', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -348,10 +348,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'falls back to theme colors by index when group is invalid', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -374,10 +374,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'wraps around theme colors when index exceeds theme color array', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -396,10 +396,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'maintains color stability when same group accessed multiple times', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -425,10 +425,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'overrideColor takes precedence over group-based colors', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -453,10 +453,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'maintains color stability when groups are removed from chart', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -499,10 +499,10 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'maintains color stability when groups are re-added to chart', () => {
-			let contextValue: ChartContextValue;
+			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
-				contextValue = useGlobalChartContext();
+				contextValue = useGlobalChartsContext();
 				return <div>Test</div>;
 			};
 
@@ -545,14 +545,14 @@ describe( 'ChartContext', () => {
 	describe( 'Context stability', () => {
 		it( 'maintains stable function references', () => {
 			const functionRefs: Array< {
-				registerChart: ChartContextValue[ 'registerChart' ];
-				unregisterChart: ChartContextValue[ 'unregisterChart' ];
-				getChartData: ChartContextValue[ 'getChartData' ];
-				resolveGroupColor: ChartContextValue[ 'resolveGroupColor' ];
+				registerChart: GlobalChartsContextValue[ 'registerChart' ];
+				unregisterChart: GlobalChartsContextValue[ 'unregisterChart' ];
+				getChartData: GlobalChartsContextValue[ 'getChartData' ];
+				resolveGroupColor: GlobalChartsContextValue[ 'resolveGroupColor' ];
 			} > = [];
 
 			const TestComponent = () => {
-				const context = useGlobalChartContext();
+				const context = useGlobalChartsContext();
 				functionRefs.push( {
 					registerChart: context.registerChart,
 					unregisterChart: context.unregisterChart,

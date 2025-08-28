@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { ThemeProvider } from '../../theme';
 import { defaultTheme, jetpackTheme, wooTheme } from '../../theme/themes';
 import { GlobalChartsProvider } from '../global-charts-provider';
-import { useGlobalChartTheme } from '../hooks/use-global-chart-theme';
+import { useGlobalChartsTheme } from '../hooks/use-global-charts-theme';
 import type { ChartTheme } from '../../../types';
 import type { ReactNode } from 'react';
 
@@ -28,10 +28,10 @@ const createWrapper = ( {
 	};
 };
 
-describe( 'useGlobalChartTheme', () => {
+describe( 'useGlobalChartsTheme', () => {
 	describe( 'without any providers', () => {
 		it( 'should return default theme when no providers are present', () => {
-			const { result } = renderHook( () => useGlobalChartTheme() );
+			const { result } = renderHook( () => useGlobalChartsTheme() );
 
 			expect( result.current ).toEqual( defaultTheme );
 		} );
@@ -42,7 +42,7 @@ describe( 'useGlobalChartTheme', () => {
 			const globalTheme = { colors: [ '#FF0000', '#00FF00', '#0000FF' ] };
 			const wrapper = createWrapper( { globalTheme } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			expect( result.current ).toEqual( {
 				...defaultTheme,
@@ -53,7 +53,7 @@ describe( 'useGlobalChartTheme', () => {
 		it( 'should work with predefined themes like jetpackTheme', () => {
 			const wrapper = createWrapper( { globalTheme: jetpackTheme } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			expect( result.current ).toEqual( {
 				...defaultTheme,
@@ -64,7 +64,7 @@ describe( 'useGlobalChartTheme', () => {
 		it( 'should work with predefined themes like wooTheme', () => {
 			const wrapper = createWrapper( { globalTheme: wooTheme } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			expect( result.current ).toEqual( {
 				...defaultTheme,
@@ -78,7 +78,7 @@ describe( 'useGlobalChartTheme', () => {
 			const localTheme = { backgroundColor: '#F0F0F0' };
 			const wrapper = createWrapper( { localTheme } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			expect( result.current ).toEqual( {
 				...defaultTheme,
@@ -93,7 +93,7 @@ describe( 'useGlobalChartTheme', () => {
 			const localTheme = { colors: [ '#0000FF' ], backgroundColor: '#LOCAL' };
 			const wrapper = createWrapper( { globalTheme, localTheme } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			// mergeThemes(globalTheme, localTheme) gives localTheme precedence
 			expect( result.current.colors ).toEqual( [ '#0000FF' ] ); // from local
@@ -112,7 +112,7 @@ describe( 'useGlobalChartTheme', () => {
 			};
 			const wrapper = createWrapper( { globalTheme, localTheme } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			// Local theme properties should override global ones
 			expect( result.current.backgroundColor ).toBe( '#LOCAL_BG' );
@@ -129,7 +129,7 @@ describe( 'useGlobalChartTheme', () => {
 			const globalTheme = { colors: [ '#FF0000' ] };
 			const wrapper = createWrapper( { globalTheme } );
 
-			const { result, rerender } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result, rerender } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 			const firstResult = result.current;
 
 			rerender();
@@ -148,7 +148,7 @@ describe( 'useGlobalChartTheme', () => {
 			} ) => <GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>;
 
 			let theme = { colors: [ '#FF0000' ] };
-			const { result, rerender } = renderHook( () => useGlobalChartTheme(), {
+			const { result, rerender } = renderHook( () => useGlobalChartsTheme(), {
 				wrapper: ( { children } ) => <TestWrapper theme={ theme }>{ children }</TestWrapper>,
 			} );
 			const firstResult = result.current;
@@ -169,7 +169,7 @@ describe( 'useGlobalChartTheme', () => {
 		it( 'should handle empty global theme object', () => {
 			const wrapper = createWrapper( { globalTheme: {} } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			expect( result.current ).toEqual( defaultTheme );
 		} );
@@ -177,7 +177,7 @@ describe( 'useGlobalChartTheme', () => {
 		it( 'should handle empty local theme object', () => {
 			const wrapper = createWrapper( { localTheme: {} } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			expect( result.current ).toEqual( defaultTheme );
 		} );
@@ -187,7 +187,7 @@ describe( 'useGlobalChartTheme', () => {
 			const globalTheme = { colors: undefined as any };
 			const wrapper = createWrapper( { globalTheme } );
 
-			const { result } = renderHook( () => useGlobalChartTheme(), { wrapper } );
+			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			expect( result.current ).toEqual( {
 				...defaultTheme,
@@ -199,7 +199,7 @@ describe( 'useGlobalChartTheme', () => {
 	describe( 'context isolation', () => {
 		it( 'should not throw when GlobalChartsContext is not available', () => {
 			expect( () => {
-				renderHook( () => useGlobalChartTheme() );
+				renderHook( () => useGlobalChartsTheme() );
 			} ).not.toThrow();
 		} );
 	} );
