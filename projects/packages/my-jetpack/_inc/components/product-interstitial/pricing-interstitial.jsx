@@ -19,7 +19,7 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -100,6 +100,22 @@ export default function PricingInterstitial( { slug } ) {
 		useBlogIdSuffix: true,
 	} );
 
+	// Handle tiered pricing like trunk does - check for tiers.upgraded first
+	const productPricing = useMemo( () => {
+		return detail?.pricingForUi?.tiers?.upgraded
+			? {
+					...detail.pricingForUi.tiers.upgraded,
+					// Calculate monthly prices from annual if needed
+					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
+					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
+			  }
+			: detail?.pricingForUi;
+	}, [ detail?.pricingForUi ] );
+
+	const bundlePricing = useMemo( () => {
+		return bundleDetail?.pricingForUi;
+	}, [ bundleDetail?.pricingForUi ] );
+
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
@@ -129,12 +145,20 @@ export default function PricingInterstitial( { slug } ) {
 
 	const trackProductOrBundleClick = useCallback(
 		options => {
-			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
+			const {
+				customSlug = null,
+				isFreePlan = false,
+				ctaText = null,
+				tier = null,
+				hasDiscount = false,
+			} = options || {};
 			const productSlug = customSlug ? customSlug : config?.bundle ?? slug;
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
 				cta_text: ctaText,
+				tier_selected: tier,
+				has_discount: hasDiscount,
 			} );
 		},
 		[ recordEvent, slug, getProductSlugForTrackEvent, config?.bundle ]
@@ -205,7 +229,17 @@ export default function PricingInterstitial( { slug } ) {
 
 	const handleGetProduct = useCallback( () => {
 		setLoadingButton( 'paid' );
-		trackProductOrBundleClick( { ctaText: config?.tiers?.paid?.cta } );
+
+		// Calculate discount for paid tier
+		const paidHasDiscount =
+			productPricing?.discountPricePerMonth &&
+			productPricing.discountPricePerMonth < productPricing.fullPricePerMonth;
+
+		trackProductOrBundleClick( {
+			ctaText: config?.tiers?.paid?.cta,
+			tier: 'paid',
+			hasDiscount: paidHasDiscount || false,
+		} );
 		clickHandler( { checkout: paidCheckoutRun, product: detail, tier: 'paid' } );
 	}, [
 		trackProductOrBundleClick,
@@ -213,18 +247,34 @@ export default function PricingInterstitial( { slug } ) {
 		paidCheckoutRun,
 		detail,
 		config?.tiers?.paid?.cta,
+		productPricing,
 	] );
 
 	const handleGetBundle = useCallback( () => {
 		if ( config?.bundle ) {
 			setLoadingButton( 'bundle' );
+
+			// Calculate discount for bundle
+			const bundleHasDiscount =
+				bundlePricing?.discountPricePerMonth &&
+				bundlePricing.discountPricePerMonth < bundlePricing.fullPricePerMonth;
+
 			trackProductOrBundleClick( {
 				customSlug: config.bundle,
 				ctaText: config?.tiers?.bundle?.cta,
+				tier: 'bundle',
+				hasDiscount: bundleHasDiscount || false,
 			} );
 			clickHandler( { checkout: bundleCheckoutRun, product: bundleDetail, tier: 'bundle' } );
 		}
-	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutRun, bundleDetail, config ] );
+	}, [
+		trackProductOrBundleClick,
+		clickHandler,
+		bundleCheckoutRun,
+		bundleDetail,
+		config,
+		bundlePricing,
+	] );
 
 	const { update: updateInterstitialsState } = useInterstitialsState();
 
@@ -233,7 +283,12 @@ export default function PricingInterstitial( { slug } ) {
 			return;
 		}
 		setLoadingButton( 'free' );
-		trackProductOrBundleClick( { isFreePlan: true, ctaText: config.tiers.free.cta } );
+		trackProductOrBundleClick( {
+			isFreePlan: true,
+			ctaText: config.tiers.free.cta,
+			tier: 'free',
+			hasDiscount: false, // Free tier never has discount
+		} );
 
 		// Products like Search have wpcomFreeProductSlug, so they need checkout even for free
 		const hasPurchasableFree = !! detail?.pricingForUi?.wpcomFreeProductSlug;
@@ -261,17 +316,6 @@ export default function PricingInterstitial( { slug } ) {
 	if ( ! config ) {
 		return <ProductInterstitial slug={ slug } installsPlugin={ true } />;
 	}
-
-	// Handle tiered pricing like trunk does - check for tiers.upgraded first
-	const productPricing = detail?.pricingForUi?.tiers?.upgraded
-		? {
-				...detail.pricingForUi.tiers.upgraded,
-				// Calculate monthly prices from annual if needed
-				fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
-				discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
-		  }
-		: detail?.pricingForUi;
-	const bundlePricing = bundleDetail?.pricingForUi;
 
 	// Get currency code with USD fallback
 	const currencyCode = productPricing?.currencyCode || bundlePricing?.currencyCode || 'USD';
