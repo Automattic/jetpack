@@ -1,11 +1,24 @@
 @use "../shared/styles/visually-hidden" as *;
 
-// There is a high specificity flex rule that we need to override.
+// There is a high specificity flex rule that we
+// need to override in the block editor only.
 .wp-block-jetpack-contact-form
 .jetpack-contact-form
 .jetpack-fieldset-image-options__wrapper
 .jetpack-input-image-option {
 	flex-basis: unset;
+}
+
+// Themes target the image block directly to fit their needs,
+// not expecting it to be inside an image select field.
+.wp-block-jetpack-input-image-option
+figure.wp-block-image {
+	margin: 0 !important;
+	padding: 0 !important;
+
+	img {
+		max-width: 100% !important;
+	}
 }
 
 .jetpack-field-image-select fieldset {
@@ -93,4 +106,16 @@
 			}
 		}
 	}
+}
+
+div:where(.jetpack-input-image-option__outer) {
+	border-radius: 5px;
+	background-color: var(--jetpack--contact-form--background-color);
+}
+
+div:where(.jetpack-input-image-option) {
+	border: 1px solid var(--jetpack--contact-form--primary-color);
+	border-radius: 4px;
+	padding: 8px;
+	margin: 0;
 }
