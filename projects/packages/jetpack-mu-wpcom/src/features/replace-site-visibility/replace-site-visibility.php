@@ -43,10 +43,7 @@ function wp_ajax_wpcom_generate_site_preview_link() {
 	}
 
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
-	if ( ! is_array( $response ) ) {
-		wp_send_json( $response );
-	}
-	wp_send_json( $response[0] );
+	wp_send_json( $response[0] ?? $response );
 }
 add_action( 'wp_ajax_wpcom_generate_site_preview_link', 'wp_ajax_wpcom_generate_site_preview_link' );
 
