@@ -227,7 +227,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 
 	// } Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit( '{permserror:1}' );
+		wp_send_json( array( 'permserror' => 1 ) );
 	}
 
 	// } Retrieve...
@@ -302,7 +302,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 					if ( ! isset( $existing_mail_delivery_methods[ $settingsKey ] ) ) {
 						$existing_mail_delivery_methods[ $settingsKey ] = $settingsArr;
 					} else {
-						exit( '{keyerror:1}' );
+						wp_send_json( array( 'keyerror' => 1 ) );
 					}
 
 					// } Update
@@ -432,7 +432,15 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 						if ( ! isset( $existing_mail_delivery_methods[ $settingsKey ] ) ) {
 							$existing_mail_delivery_methods[ $settingsKey ] = $settingsArr;
 						} else {
-							exit( '{errors:[{keyerrors:1}]}' );
+							wp_send_json(
+								array(
+									'errors' => array(
+										array(
+											'keyerrors' => 1,
+										),
+									),
+								)
+							);
 						}
 
 						// } Update
@@ -563,7 +571,7 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 
 	// Permission check
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit( '{permserror:1}' );
+		wp_send_json( array( 'permserror' => 1 ) );
 	}
 
 	// return

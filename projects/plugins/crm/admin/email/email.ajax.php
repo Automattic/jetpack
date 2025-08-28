@@ -20,7 +20,7 @@ function zeroBSCRM_star_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -41,7 +41,7 @@ function zeroBSCRM_unstar_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -61,7 +61,7 @@ function zeroBSCRM_delete_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -83,7 +83,7 @@ function zeroBSCRM_send_email_thread_ajax() {
 
 	// check permissions
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -123,7 +123,7 @@ function zeroBSCRM_emails_customer_panel() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	$contact_id = ( empty( $_POST['cid'] ) ? -1 : (int) $_POST['cid'] );
@@ -204,7 +204,7 @@ function jpcrm_send_single_email_from_box( $send_to_email = '', $thread_id = -1,
 	// check permissions
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
 		if ( $exit_json ) {
-			exit( '{processed:-1}' );
+			wp_send_json( array( 'processed' => -1 ) );
 		} else {
 			exit( 0 );
 		}

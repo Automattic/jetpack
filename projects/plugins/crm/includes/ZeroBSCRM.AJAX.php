@@ -349,7 +349,7 @@ function zeroBSCRM_AJAX_filterCustomers() {
 	check_ajax_referer( 'zbscrmjs-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	// } Running this auto-pulls POSTED filters + finds customers
@@ -379,7 +379,7 @@ function zeroBSCRM_AJAX_addLog() {
 
 	// brutal
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $zbs;
@@ -460,7 +460,7 @@ function zeroBSCRM_AJAX_updateLog() {
 
 	// brutal
 	if ( ! zeroBSCRM_permsLogsAddEdit() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $zbs;
@@ -556,7 +556,7 @@ function zeroBSCRM_AJAX_deleteLog() {
 	// from 2.94.2 uses sub perms
 	// if (!zeroBSCRM_permsCustomers()) exit('{processed:-1}');
 	if ( ! zeroBSCRM_permsLogsDelete() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 	// if (!current_user_can('edit_page', $post_id)) return;
 
@@ -671,10 +671,10 @@ function ZeroBSCRM_get_quote_template() {
 
 	// } brutal
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 	if ( ! zeroBSCRM_permsQuotes() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	// } Retrive deets
@@ -860,10 +860,10 @@ function jpcrm_ajax_quote_send_email() {
 
 	// Check Permissions
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 	if ( ! zeroBSCRM_permsQuotes() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	// Retrive details
@@ -1601,8 +1601,8 @@ function zeroBSCRM_AJAX_addAlias() {
 
 	// } Check perms
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		header( 'Content-Type: application/json' );
-		exit( '{err:1}' ); }
+		wp_send_json( array( 'err' => 1 ) );
+	}
 
 	// } Proceed :)
 	$passback = array();
@@ -1650,8 +1650,8 @@ function zeroBSCRM_AJAX_removeAlias() {
 
 	// } Check perms
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		header( 'Content-Type: application/json' );
-		exit( '{err:1}' ); }
+		wp_send_json( array( 'err' => 1 ) );
+	}
 
 	// } Proceed :)
 	$passback = array();
@@ -1702,8 +1702,8 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 	// } Check perms
 	if ( ! zeroBSCRM_isZBSAdminOrAdmin() ) {
-		header( 'Content-Type: application/json' );
-		exit( '{err:1}' ); }
+		wp_send_json( array( 'err' => 1 ) );
+	}
 
 		global $zbs;
 
