@@ -1490,13 +1490,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "5d4a4142720915e0dfef85d9966f274e40704ca9"
+                "reference": "1ccb2f846b5e40b1877be3e4c4675c27d675cf80"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-external-connections": "@dev",
                 "automattic/jetpack-jwt": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-plans": "@dev",

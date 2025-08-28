@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\External_Connections;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
@@ -135,6 +136,26 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_integration_status' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'args'                => array(
+					'slug' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => function ( $param ) {
+							return isset( $this->get_supported_integrations()[ $param ] );
+						},
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'disable_integration' ),
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 				'args'                => array(
 					'slug' => array(
@@ -867,9 +888,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			case 'google-drive':
 				$user_id                 = get_current_user_id();
 				$jetpack_connected       = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
-				$is_connected            = $jetpack_connected && Google_Drive::has_valid_connection( $user_id );
+				$is_connected            = $jetpack_connected && Google_Drive::has_valid_connection();
 				$response['isConnected'] = $is_connected;
-				$response['settingsUrl'] = Redirect::get_url( 'jetpack-forms-responses-connect' );
+				$response['settingsUrl'] = External_Connections::get_connect_url( $slug );
 				break;
 			case 'salesforce':
 				// No overrides needed for now; keep defaults.
@@ -945,5 +966,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * REST callback for DELETE /integrations/{slug}
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object or error.
+	 */
+	public function disable_integration( $request ) {
+		$slug         = $request->get_param( 'slug' );
+		$integrations = $this->get_supported_integrations();
+		if ( ! isset( $integrations[ $slug ] ) ) {
+			return new \WP_Error( 'rest_integration_not_found', __( 'Integration not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+		if ( $slug !== 'google-drive' ) {
+			return new \WP_Error( 'rest_integration_invalid', __( 'This integration cannot be disabled.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+		$is_deleted = External_Connections::delete_connection( $slug );
+		return rest_ensure_response( array( 'deleted' => $is_deleted ) );
 	}
 }
