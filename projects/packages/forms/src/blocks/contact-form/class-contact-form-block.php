@@ -47,7 +47,7 @@ class Contact_Form_Block {
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
-		add_filter( 'render_block_core/buttons', array( __CLASS__, 'render_buttons_block' ), 10, 2 );
+		add_filter( 'render_block_core/button', array( __CLASS__, 'render_submit_button' ), 10, 2 );
 		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'register_feature' ) );
 		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
 
@@ -106,50 +106,29 @@ class Contact_Form_Block {
 	/**
 	 * Add Jetpack Forms interactivity attributes to core/buttons blocks that live inside a contact form.
 	 *
-	 * @param string $content       Rendered block HTML.
-	 * @param array  $parsed_block  Parsed block data.
-	 *
-	 * @return string
+	 * @param string $content Rendered HTML of the core/button block.
+	 * @param array  $parsed_block Parsed block array.
+	 * @return string Possibly modified HTML.
 	 */
-	public static function render_buttons_block( $content, $parsed_block ) {
-		// We don't need the parsed_block details anymore; suppress unused-variable warning.
-		unset( $parsed_block );
-		// We simply scan the content for our marker class; if absent, return early.
-		if ( ! str_contains( $content, 'jetpack-form-submit-button' ) ) {
-			return $content;
+	public static function render_submit_button( $content, $parsed_block ) {
+		$class = $parsed_block['attrs']['className'] ?? '';
+		if ( ! str_contains( $class, 'jetpack-form-submit-button' ) ) {
+			return $content; // Not our submit button.
 		}
 
 		if ( ! class_exists( '\WP_HTML_Tag_Processor' ) ) {
 			return $content;
 		}
 
-		$processor = new \WP_HTML_Tag_Processor( $content );
-		$modified  = false;
-
-		// Find wrapper div with marker class.
-		while ( $processor->next_tag( array( 'tag_name' => 'div' ) ) ) {
-			$class_attr = $processor->get_attribute( 'class' );
-			if ( $class_attr && str_contains( $class_attr, 'jetpack-form-submit-button' ) ) {
-				// Ensure interactivity root attribute on wrapper.
-				if ( ! $processor->get_attribute( 'data-wp-interactive' ) ) {
-					$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
-				}
-				// Save bookmark to return later.
-				$processor->set_bookmark( 'wrapper' );
-
-				// Dive into its children to find first link or button.
-				if ( $processor->next_tag( array( 'tag_name' => array( 'a', 'button' ) ) ) ) {
-					$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
-					$processor->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
-					$modified = true;
-				}
-
-				// Jump back to wrapper to continue outer loop safely.
-				$processor->seek( 'wrapper' );
-			}
+		$p = new \WP_HTML_Tag_Processor( $content );
+		if ( ! $p->next_tag( array( 'tag_name' => array( 'button', 'a' ) ) ) ) {
+			return $content;
 		}
 
-		return $modified ? $processor->get_updated_html() : $content;
+		$p->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+		$p->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
+
+		return $p->get_updated_html();
 	}
 
 	/**
