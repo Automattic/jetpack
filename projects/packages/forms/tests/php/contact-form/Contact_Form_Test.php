@@ -3092,6 +3092,7 @@ EOT;
 				'radioempty'     => '',
 				'radioemptydata' => '',
 				'pick'           => $pick,
+				'pickvalue'      => array( 'truth' ), // a value but not a part of the values array.
 			),
 			'g' . $form_id
 		);
@@ -3109,7 +3110,8 @@ EOT;
 			[contact-field label='Choose Radio' type='radio' options='truth,dare' required='1'/]
 			[contact-field label='Choose Empty' type='radio' options='truth,dare' required='1'/]
 			[contact-field label='Choose Empty Data' type='radio' options='truth,dare' optionsdata='&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;' required='1'/]
-			[contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]"
+			[contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]
+			[contact-field label='Pick Value' type='checkbox-multiple' options='truth,dare' values='one,two' required='1'/]"
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.
@@ -3126,6 +3128,7 @@ EOT;
 				'Choose Empty requires at least one selection.',
 				'Choose Empty Data requires at least one selection.',
 				'Pick requires at least one selection.',
+				'Pick Value requires at least one selection.',
 			),
 			$form->get_error_messages()
 		);
@@ -3176,19 +3179,18 @@ EOT;
 	}
 
 	public function test_validate_checkboxes_form() {
-		$name    = '';
-		$email   = '';
 		$form_id = Utility::get_form_id();
 
 		// Create a form submission
 		$_POST = Utility::get_post_request(
 			array(
-				'name'                        => $name,
-				'email'                       => $email,
-				'choose'                      => array( 'truth' ),
+
+				'choose'                      => array( 'truth 🙈 ' ),
 				'chooseoptions'               => array( 'hello  there' ),
 				'chooseseveraloptions'        => array( 'hello, there' ),
 				'chooseseveraloptionsspecial' => array( 'hello, world' ),
+				'chooseseveraloptionsvalues'  => array( 'one' ),
+				'choosevalueoptionsdata'      => array( 'one' ),
 
 			),
 			'g' . $form_id
@@ -3199,23 +3201,23 @@ EOT;
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			'[contact-field label="Name" type="name" /][contact-field label="Email" type="email" /][contact-field label="Choose" type="checkbox-multiple" options="truth,dare" /][contact-field type="checkbox-multiple" label="Choose options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello  there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
-
-
+			'
+			[contact-field label="Choose" type="checkbox-multiple" options="truth 🙈 , dare" ]
+			[contact-field type="checkbox-multiple" label="Choose options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello  there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
 &lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
-
-
-
 &lt;/ul&gt;
-&lt;/div&gt;[/contact-field][contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
-
-
+&lt;/div&gt;[/contact-field]
+[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
 &lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
-
-
-
 &lt;/ul&gt;
-&lt;/div&gt;[/contact-field][contact-field label="Choose several options special" type="checkbox-multiple" options="hello&#044; world,dare" /]'
+&lt;/div&gt;[/contact-field]
+[contact-field label="Choose several options special" type="checkbox-multiple" options="hello&#044; world,dare" /]
+[contact-field label="Choose several options  values" type="checkbox-multiple" options="hello world,dare" values="one,two" /]
+[contact-field type="checkbox-multiple" label="Choose value options data" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" values="one,two" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]
+'
 		);
 		$form->validate();
 		unset( $_POST ); // Clean up the global $_POST variable after the test.

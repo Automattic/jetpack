@@ -200,7 +200,7 @@ const PieChartInternal = ( {
 		<SingleChartContext.Provider
 			value={ {
 				chartId,
-				chartWidth: size,
+				chartWidth: width,
 				chartHeight: adjustedHeight,
 			} }
 		>
@@ -212,9 +212,9 @@ const PieChartInternal = ( {
 				} }
 			>
 				<svg
-					viewBox={ `0 0 ${ size } ${ adjustedHeight }` }
+					viewBox={ `0 0 ${ width } ${ adjustedHeight }` }
 					preserveAspectRatio="xMidYMid meet"
-					width={ size }
+					width={ width }
 					height={ adjustedHeight }
 				>
 					<Group top={ centerY } left={ centerX }>

@@ -421,6 +421,7 @@ export const categorizedMetricsData: LeaderboardEntry[] = [
 		currentShare: 100,
 		previousShare: 80,
 		delta: 25,
+		imageColor: '#3858E9',
 	},
 	{
 		id: 'social',
@@ -430,6 +431,7 @@ export const categorizedMetricsData: LeaderboardEntry[] = [
 		currentShare: 30,
 		previousShare: 76,
 		delta: -7.9,
+		imageColor: '#66BDFF',
 	},
 	{
 		id: 'referral',
@@ -439,6 +441,7 @@ export const categorizedMetricsData: LeaderboardEntry[] = [
 		currentShare: 10,
 		previousShare: 16,
 		delta: -7.9,
+		imageColor: '#8B5CF6',
 	},
 ];
 
