@@ -10,7 +10,10 @@
  */
 class Verbum_Block_Utils {
 	/**
-	 * Remove blocks that aren't allowed
+	 * Remove blocks that aren't allowed using hybrid Block_Scanner optimization
+	 *
+	 * Uses Block_Scanner for fast pre-filtering when possible, falling back to
+	 * parse_blocks approach only when disallowed blocks are detected.
 	 *
 	 * @param string $content - Text of the comment.
 	 * @return string
@@ -21,12 +24,64 @@ class Verbum_Block_Utils {
 		}
 
 		// The block attributes come slashed and `parse_blocks` won't be able to parse them.
-		$content = wp_unslash( $content );
-		$blocks  = parse_blocks( $content );
+		$unslashed_content = wp_unslash( $content );
 
+		// Fast pre-scan: if all blocks are allowed, skip expensive processing
+		if ( ! self::has_disallowed_blocks_fast( $unslashed_content ) ) {
+			// Common case: all blocks allowed, return original content unchanged
+			return $content;
+		}
+
+		// Rare case: contains disallowed blocks, use full parse_blocks approach
+		return self::remove_blocks_with_parse_blocks( $unslashed_content );
+	}
+
+	/**
+	 * Fast check using Block_Scanner to detect if content contains disallowed blocks
+	 *
+	 * This method provides significant performance benefits by avoiding expensive
+	 * parse_blocks() processing when all blocks are allowed (the common case).
+	 *
+	 * @param string $content Unslashed content to scan.
+	 * @return bool True if disallowed blocks found, false if all blocks are allowed.
+	 */
+	private static function has_disallowed_blocks_fast( $content ) {
+		if ( ! class_exists( '\\Automattic\\Block_Scanner' ) ) {
+			return true;
+		}
+
+		try {
+			$scanner        = \Automattic\Block_Scanner::create( $content );
+			$allowed_blocks = self::get_allowed_blocks();
+
+			while ( $scanner->next_delimiter() ) {
+				if ( $scanner->opens_block() ) {
+					$block_type = $scanner->get_block_type();
+					if ( ! in_array( $block_type, $allowed_blocks, true ) ) {
+						return true; // Found disallowed block
+					}
+				}
+			}
+
+			return false; // All blocks are allowed
+		} catch ( \Exception $e ) {
+			// If Block_Scanner fails for any reason, fall back to full processing
+			return true;
+		}
+	}
+
+	/**
+	 * Remove disallowed blocks using the traditional parse_blocks approach
+	 *
+	 * This is the original implementation, now used as a fallback when
+	 * disallowed blocks are detected by the fast pre-scan.
+	 *
+	 * @param string $unslashed_content Content with blocks (already unslashed).
+	 * @return string Filtered content with disallowed blocks removed.
+	 */
+	private static function remove_blocks_with_parse_blocks( $unslashed_content ) {
+		$blocks          = parse_blocks( $unslashed_content );
 		$filtered_blocks = self::filter_blocks_recursive( $blocks );
-
-		// Convert the filtered blocks back to string
 		return serialize_blocks( $filtered_blocks );
 	}
 
