@@ -106,9 +106,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 			$m['message'] = 'WordPress User Created';
 			$m['success'] = true;
 			$m['user_id'] = $created;
-			echo wp_json_encode( $m );
-			die( 0 );
-
+			wp_send_json( $m );
 		} else {
 
 			// if has wp id, & contact ID is set
@@ -122,9 +120,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 			$m['message'] = __( 'User already exists or invalid email!', 'zero-bs-crm' );
 			$m['success'] = false;
 			$m['email']   = $email;
-			echo wp_json_encode( $m );
-			die( 0 );
-
+			wp_send_json( $m );
 		}
 	}
 }

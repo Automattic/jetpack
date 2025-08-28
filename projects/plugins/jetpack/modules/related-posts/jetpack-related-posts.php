@@ -1317,9 +1317,7 @@ EOT;
 			$response['items'] = $related_posts;
 		}
 
-		echo wp_json_encode( $response );
-
-		exit( 0 );
+		wp_send_json( $response );
 	}
 
 	/**

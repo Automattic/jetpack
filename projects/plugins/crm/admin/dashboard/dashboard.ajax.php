@@ -140,8 +140,7 @@ function jetpackcrm_dash_refresh() {
 		'chart'   => $chart,
 	);
 
-	echo wp_json_encode( $r );
-	die( 0 );
+	wp_send_json( $r );
 }
 add_action( 'wp_ajax_jetpackcrm_dash_refresh', 'jetpackcrm_dash_refresh' );
 
