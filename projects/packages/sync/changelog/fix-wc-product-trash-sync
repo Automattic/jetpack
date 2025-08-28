@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix WooCommerce product sync to handle trashed products
