@@ -475,7 +475,7 @@ class Universal {
 
 		$event_properties = array_merge(
 			array(
-				'pq'           => (string) $quantity ?? null,
+				'pq'           => isset( $quantity ) ? (string) $quantity : null,
 				'session_id'   => $this->get_session_id(),
 				'landing_page' => $this->get_landing_page(),
 				'is_engaged'   => $this->is_engaged_session(),
