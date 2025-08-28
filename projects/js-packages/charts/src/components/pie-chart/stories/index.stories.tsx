@@ -13,7 +13,6 @@ type StoryArgs = React.ComponentProps< typeof PieChart > & {
 	containerWidth?: string;
 	containerHeight?: string;
 	labelTextColor?: string;
-	labelBackgroundColor?: string;
 };
 
 const meta: Meta< StoryArgs > = {
@@ -101,15 +100,11 @@ const meta: Meta< StoryArgs > = {
 			control: { type: 'color' },
 			description: 'Color of the label text displayed on pie chart segments',
 		},
-		labelBackgroundColor: {
-			control: { type: 'color' },
-			description: 'Background color for labels (future use for label backgrounds)',
-		},
 	},
-	render: ( { labelTextColor, labelBackgroundColor, theme, ...args } ) => {
-		// Create custom theme if label colors are provided
+	render: ( { labelTextColor, theme, ...args } ) => {
+		// Create custom theme if labelTextColor is provided
 		let customTheme: ChartTheme | undefined;
-		if ( labelTextColor || labelBackgroundColor ) {
+		if ( labelTextColor ) {
 			let baseTheme: ChartTheme | undefined;
 
 			if ( typeof theme === 'object' ) {
@@ -123,7 +118,6 @@ const meta: Meta< StoryArgs > = {
 			customTheme = {
 				...baseTheme,
 				labelTextColor: labelTextColor || baseTheme?.labelTextColor,
-				labelBackgroundColor: labelBackgroundColor || baseTheme?.labelBackgroundColor,
 			} as ChartTheme;
 		}
 
@@ -396,9 +390,9 @@ export const CustomLabelColors: Story = {
 				story: `This example demonstrates custom label text colors. The \`labelTextColor\` property controls the color of text displayed on pie chart segments. Here we use white text (\`#FFFFFF\`) against colorful segment backgrounds for better contrast.
 
 **Key Features:**
-- **labelTextColor**: Controls the text color of labels displayed on chart segments
-- **labelBackgroundColor**: Reserved for future implementation of label backgrounds
+- **labelTextColor**: Controls the text color of labels displayed on chart segments  
 - **Custom segment colors**: Each data point can override the default theme colors
+- **Theme integration**: Label colors are managed through the theme system
 
 Use the Storybook controls below to experiment with different label text colors and see how they interact with various segment colors.`,
 			},
