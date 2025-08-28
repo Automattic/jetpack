@@ -243,21 +243,42 @@ const PieChartInternal = ( {
 										pathProps.onMouseLeave = onMouseLeave;
 									}
 
+									// Estimate text width more accurately for background sizing
+									const fontSize = 12;
+									const estimatedTextWidth = arc.data.label.length * fontSize * 0.6; // Rough estimate
+									const labelPadding = 6;
+									const backgroundWidth = estimatedTextWidth + labelPadding * 2;
+									const backgroundHeight = fontSize + labelPadding * 2;
+
 									return (
 										<g key={ `arc-${ index }` }>
 											<path { ...pathProps } />
 											{ hasSpaceForLabel && (
-												<text
-													x={ centroidX }
-													y={ centroidY }
-													dy=".33em"
-													fill={ providerTheme.labelTextColor || '#333' }
-													fontSize={ 12 }
-													textAnchor="middle"
-													pointerEvents="none"
-												>
-													{ arc.data.label }
-												</text>
+												<g>
+													{ providerTheme.labelBackgroundColor && (
+														<rect
+															x={ centroidX - backgroundWidth / 2 }
+															y={ centroidY - backgroundHeight / 2 }
+															width={ backgroundWidth }
+															height={ backgroundHeight }
+															fill={ providerTheme.labelBackgroundColor }
+															rx={ 4 }
+															ry={ 4 }
+															pointerEvents="none"
+														/>
+													) }
+													<text
+														x={ centroidX }
+														y={ centroidY }
+														dy=".33em"
+														fill={ providerTheme.labelTextColor || '#333' }
+														fontSize={ fontSize }
+														textAnchor="middle"
+														pointerEvents="none"
+													>
+														{ arc.data.label }
+													</text>
+												</g>
 											) }
 										</g>
 									);

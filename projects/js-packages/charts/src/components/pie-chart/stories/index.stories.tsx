@@ -13,6 +13,7 @@ type StoryArgs = React.ComponentProps< typeof PieChart > & {
 	containerWidth?: string;
 	containerHeight?: string;
 	labelTextColor?: string;
+	labelBackgroundColor?: string;
 };
 
 const meta: Meta< StoryArgs > = {
@@ -100,11 +101,15 @@ const meta: Meta< StoryArgs > = {
 			control: { type: 'color' },
 			description: 'Color of the label text displayed on pie chart segments',
 		},
+		labelBackgroundColor: {
+			control: { type: 'color' },
+			description: 'Background color for labels displayed on pie chart segments',
+		},
 	},
-	render: ( { labelTextColor, theme, ...args } ) => {
-		// Create custom theme if labelTextColor is provided
+	render: ( { labelTextColor, labelBackgroundColor, theme, ...args } ) => {
+		// Create custom theme if label colors are provided
 		let customTheme: ChartTheme | undefined;
-		if ( labelTextColor ) {
+		if ( labelTextColor || labelBackgroundColor ) {
 			let baseTheme: ChartTheme | undefined;
 
 			if ( typeof theme === 'object' ) {
@@ -118,6 +123,7 @@ const meta: Meta< StoryArgs > = {
 			customTheme = {
 				...baseTheme,
 				labelTextColor: labelTextColor || baseTheme?.labelTextColor,
+				labelBackgroundColor: labelBackgroundColor || baseTheme?.labelBackgroundColor,
 			} as ChartTheme;
 		}
 
@@ -382,19 +388,21 @@ export const CustomLabelColors: Story = {
 			},
 		],
 		labelTextColor: '#FFFFFF', // White text for contrast
+		labelBackgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent black background
 		size: 400,
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: `This example demonstrates custom label text colors. The \`labelTextColor\` property controls the color of text displayed on pie chart segments. Here we use white text (\`#FFFFFF\`) against colorful segment backgrounds for better contrast.
+				story: `This example demonstrates custom label colors with both text and background styling. The \`labelTextColor\` controls the text color while \`labelBackgroundColor\` adds a background behind each label for enhanced readability.
 
 **Key Features:**
-- **labelTextColor**: Controls the text color of labels displayed on chart segments  
-- **Custom segment colors**: Each data point can override the default theme colors
-- **Theme integration**: Label colors are managed through the theme system
+- **labelTextColor**: White text (\`#FFFFFF\`) for high contrast
+- **labelBackgroundColor**: Semi-transparent dark background (\`rgba(0, 0, 0, 0.7)\`) behind labels
+- **Custom segment colors**: Each data point uses bright colors that would normally make text hard to read
+- **Enhanced readability**: The background ensures labels are visible on any segment color
 
-Use the Storybook controls below to experiment with different label text colors and see how they interact with various segment colors.`,
+Use the Storybook controls below to experiment with different label text and background colors.`,
 			},
 		},
 	},
