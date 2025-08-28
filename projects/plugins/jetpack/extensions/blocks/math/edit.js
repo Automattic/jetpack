@@ -12,19 +12,19 @@ import {
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import katex from 'katex';
 import { icon } from './icon';
 import 'katex/dist/katex.min.css';
 import './editor.scss';
+import { renderMath } from './utils';
 
 const LatexPlaceholder = () => {
 	return (
-		<span className="jetpack-latex-rendered-placeholder">{ __( 'Write LaTeX…', 'jetpack' ) }</span>
+		<span className="jetpack-math-rendered-placeholder">{ __( 'Write Math…', 'jetpack' ) }</span>
 	);
 };
 
 export default function Edit( { attributes, setAttributes, isSelected } ) {
-	const { latex = '' } = attributes;
+	const { source = '' } = attributes;
 	const textareaRef = useRef();
 	const [ renderAreaRef, setRenderAreaRef ] = useState( null );
 	const dispatch = useDispatch();
@@ -33,46 +33,36 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 
 	useEffect( () => {
 		if ( renderAreaRef ) {
-			katex.render( latex, renderAreaRef, {
-				throwOnError: false,
-				displayMode: false,
-				output: 'mathml',
-			} );
+			renderAreaRef.innerHTML = renderMath( source );
 		}
-	}, [ latex, renderAreaRef ] );
+	}, [ source, renderAreaRef ] );
 
 	if ( isSelected ) {
 		return (
 			<div { ...props }>
-				<Placeholder label={ __( 'LaTeX', 'jetpack' ) } icon={ icon }>
+				<Placeholder label={ __( 'Math', 'jetpack' ) } icon={ icon }>
 					<VStack
-						className="jetpack-latex-textarea-container"
+						className="jetpack-math-textarea-container"
 						gap={ 4 }
 						justify="flex-start"
 						align="stretch"
 					>
 						<TextareaControl
-							label={ __( 'LaTeX code', 'jetpack' ) }
-							className="jetpack-latex-textarea"
+							label={ __( 'Math code (Tex or MathML)', 'jetpack' ) }
+							className="jetpack-math-textarea"
 							ref={ textareaRef }
-							value={ latex }
-							onChange={ value => setAttributes( { latex: value } ) }
+							value={ source }
+							onChange={ value => setAttributes( { source: value } ) }
 							rows={ 4 }
-							help={
-								/* translators: \frac{a}{b} is an example of LaTeX code. Should stay as is. */
-								__( 'Example: \\frac{a}{b}', 'jetpack' )
-							}
+							help={ __( 'To render MathML your code must be wrapped in <math> tags.', 'jetpack' ) }
 						/>
-
 						<Text upperCase>{ __( 'Preview', 'jetpack' ) }</Text>
-						{ latex.trim() ? (
+						{ source.trim() && (
 							<div
-								className="jetpack-latex-rendered"
+								className="jetpack-math-rendered"
 								style={ style }
 								ref={ r => r !== renderAreaRef && setRenderAreaRef( r ) }
 							/>
-						) : (
-							<LatexPlaceholder />
 						) }
 					</VStack>
 					<HStack justify="flex-end">
@@ -80,7 +70,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 							__next40pxDefaultSize
 							variant="primary"
 							onClick={ () => {
-								setAttributes( { latex } );
+								setAttributes( { source } );
 								dispatch( 'core/block-editor' ).clearSelectedBlock();
 							} }
 						>
@@ -97,12 +87,12 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			{ ...blockProps }
 			tabIndex={ 0 }
 			role="button"
-			aria-label={ __( 'Edit LaTeX', 'jetpack' ) }
-			data-latex={ latex }
+			aria-label={ __( 'Edit Math', 'jetpack' ) }
+			data-source={ source }
 		>
-			{ latex.trim() ? (
+			{ source.trim() ? (
 				<div
-					className="jetpack-latex-rendered"
+					className="jetpack-math-rendered"
 					ref={ r => r !== renderAreaRef && setRenderAreaRef( r ) }
 				/>
 			) : (

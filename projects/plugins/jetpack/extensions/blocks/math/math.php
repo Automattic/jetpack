@@ -15,14 +15,14 @@ use Jetpack_Gutenberg;
 /**
  * Register the block.
  */
-function latex_formula_block_init() {
+function math_block_init() {
 	Blocks::jetpack_register_block(
 		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
 }
 
-add_action( 'init', __NAMESPACE__ . '\latex_formula_block_init' );
+add_action( 'init', __NAMESPACE__ . '\math_block_init' );
 
 /**
  * Load the assets for the block.

@@ -1,23 +1,23 @@
 @use "@wordpress/base-styles/variables" as *;
 
-.wp-block-jetpack-latex {
+.wp-block-jetpack-math {
 
 	&.has-background {
 
-		.jetpack-latex-rendered {
+		.jetpack-math-rendered {
 			padding: 1em;
 		}
 	}
 
-	.jetpack-latex-textarea {
+	.jetpack-math-textarea {
 		font-family: $font-family-mono;
 	}
 
-	.jetpack-latex-textarea-container {
+	.jetpack-math-textarea-container {
 		width: 100%;
 	}
 
-	.jetpack-latex-rendered-placeholder {
+	.jetpack-math-rendered-placeholder {
 		display: block;
 		background-color: var(--wp--preset--color--accent-5);
 		padding: var(--wp--preset--spacing--40);

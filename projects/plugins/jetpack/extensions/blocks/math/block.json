@@ -1,24 +1,25 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "jetpack/latex",
+	"name": "jetpack/math",
 	"version": "0.1.0",
-	"title": "LaTeX",
+	"title": "Math",
+	"keywords": [ "math", "formula", "equation", "mathml", "latex" ],
 	"category": "formatting",
-	"description": "Create and display LaTeX with live preview and easy editing.",
+	"description": "Create and display math formulas with live preview and easy editing.",
 	"example": {
 		"attributes": {
-			"latex": "\\frac{a}{b}"
+			"source": "\\frac{a}{b}"
 		}
 	},
 	"attributes": {
-		"latex": {
+		"source": {
 			"type": "string",
 			"default": ""
 		}
 	},
 	"supports": {
-		"html": false,
+		"html": true,
 		"color": {
 			"gradients": true
 		},

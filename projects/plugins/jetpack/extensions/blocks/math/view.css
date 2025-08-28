@@ -1,0 +1,9 @@
+.wp-block-jetpack-math.has-background {
+
+	&.has-background {
+
+		.jetpack-math-rendered {
+			padding: 1em;
+		}
+	}
+}
