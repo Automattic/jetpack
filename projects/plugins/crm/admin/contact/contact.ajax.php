@@ -184,7 +184,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 		}
 	}
 
-	zeroBSCRM_sendJSONError( array( 'no-action-or-rights' => 1 ) );
+	wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
 }
 add_action( 'wp_ajax_zbsPortalAction', 'zeroBSCRM_AJAX_zbsPortalAction' );
 

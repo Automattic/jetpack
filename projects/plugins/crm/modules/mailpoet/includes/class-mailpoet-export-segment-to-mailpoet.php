@@ -333,10 +333,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 				}
 
 			} catch (\Throwable $th) {
-
-				zeroBSCRM_sendJSONError( array( 'fail' => 1 ) );
-				exit( 0 );
-
+				wp_send_json_error( array( 'fail' => 1 ), 500 );
 			}
 
 		} );

@@ -68,7 +68,7 @@ function jpcrm_woosync_ajax_get_auth_url(){
 
 	// Check perms
 	if ( !zeroBSCRM_isZBSAdminOrAdmin() ) { 
-		zeroBSCRM_sendJSONError(array());
+		wp_send_json_error( array(), 500 );
 	}
 
 	// retrieve params
@@ -88,5 +88,5 @@ function jpcrm_woosync_ajax_get_auth_url(){
 
 	}
 
-	zeroBSCRM_sendJSONError(array());
+	wp_send_json_error( array(), 500 );
 }

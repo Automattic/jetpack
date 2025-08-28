@@ -175,6 +175,6 @@ function jpcrm_dash_setting() {
 	}
 
 	// No rights or failed key match
-	zeroBSCRM_sendJSONError( array( 'no-action-or-rights' => 1 ) );
+	wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
 }
 add_action( 'wp_ajax_zbs_dash_setting', 'jpcrm_dash_setting' );

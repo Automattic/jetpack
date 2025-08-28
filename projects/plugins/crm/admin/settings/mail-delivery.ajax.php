@@ -785,7 +785,7 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 
 		// error
 		$res['errors'] = array( 'sendfail' => 1 );
-		zeroBSCRM_sendJSONError( $res );
+		wp_send_json_error( $res, 500 );
 
 	}
 }
