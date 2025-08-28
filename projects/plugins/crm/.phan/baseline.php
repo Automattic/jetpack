@@ -15,9 +15,9 @@ return [
     // PhanTypeMismatchReturn : 290+ occurrences
     // PhanUnextractableAnnotationElementName : 210+ occurrences
     // PhanTypeArraySuspicious : 190+ occurrences
-    // PhanPluginUnreachableCode : 170+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 160+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 150+ occurrences
+    // PhanPluginUnreachableCode : 140+ occurrences
     // PhanPossiblyUndeclaredVariable : 140+ occurrences
     // PhanTypeMismatchArgument : 140+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 130+ occurrences
@@ -30,7 +30,6 @@ return [
     // PhanPluginRedundantAssignment : 60+ occurrences
     // PhanTypeMismatchArgumentInternal : 60+ occurrences
     // PhanTypeMismatchArgumentInternalReal : 60+ occurrences
-    // PhanPluginNeverReturnFunction : 55+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 50+ occurrences
     // PhanTypeExpectedObjectPropAccess : 45+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 45+ occurrences
@@ -68,6 +67,7 @@ return [
     // PhanAccessMethodPrivate : 9 occurrences
     // PhanTypeMismatchDimFetchNullable : 9 occurrences
     // PhanTypeSuspiciousEcho : 8 occurrences
+    // PhanPluginNeverReturnFunction : 7 occurrences
     // PhanTypeInvalidDimOffset : 7 occurrences
     // PhanAbstractStaticMethodCallInStatic : 6 occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 6 occurrences
@@ -119,13 +119,13 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'admin/activation/welcome-to-jpcrm.php' => ['PhanTypeMismatchForeach'],
-        'admin/activation/wizard.ajax.php' => ['PhanPluginNeverReturnFunction', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison'],
+        'admin/activation/wizard.ajax.php' => ['PhanRedundantCondition', 'PhanSuspiciousValueComparison'],
         'admin/company/view.page.php' => ['PhanNoopBinaryOperator', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression'],
         'admin/contact/add-file.page.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentNullable', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredFunction'],
         'admin/contact/contact.ajax.php' => ['PhanDeprecatedFunction'],
         'admin/contact/view.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression'],
         'admin/crm-resources/main.page.php' => ['PhanDeprecatedFunction'],
-        'admin/dashboard/dashboard.ajax.php' => ['PhanDeprecatedFunction', 'PhanPluginNeverReturnFunction', 'PhanTypeArraySuspiciousNullable'],
+        'admin/dashboard/dashboard.ajax.php' => ['PhanDeprecatedFunction', 'PhanTypeArraySuspiciousNullable'],
         'admin/dashboard/main.page.php' => ['PhanDeprecatedFunction', 'PhanRedundantCondition', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'admin/email/email.ajax.php' => ['PhanPluginNeverReturnFunction', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault'],
         'admin/email/main.page.php' => ['PhanEmptyForeach', 'PhanPluginDuplicateAdjacentStatement', 'PhanRedundantCondition', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeSuspiciousStringExpression'],
@@ -138,7 +138,7 @@ return [
         'admin/settings/general.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeSuspiciousEcho'],
         'admin/settings/license.page.php' => ['PhanPluginDuplicateAdjacentStatement'],
         'admin/settings/locale.page.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanUndeclaredVariableDim'],
-        'admin/settings/mail-delivery.ajax.php' => ['PhanPluginNeverReturnFunction', 'PhanRedundantCondition', 'PhanUndeclaredVariableDim'],
+        'admin/settings/mail-delivery.ajax.php' => ['PhanRedundantCondition'],
         'admin/settings/mail.page.php' => ['PhanUndeclaredVariableDim'],
         'admin/settings/main.page.php' => ['PhanTypePossiblyInvalidDimOffset', 'PhanUnextractableAnnotationElementName'],
         'admin/settings/oauth-connections.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
@@ -155,7 +155,7 @@ return [
         'api/create_transaction.php' => ['PhanPossiblyUndeclaredGlobalVariable'],
         'api/customers.php' => ['PhanPluginSimplifyExpressionBool'],
         'api/status.php' => ['PhanTypePossiblyInvalidDimOffset'],
-        'includes/ZeroBSCRM.AJAX.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignment', 'PhanPluginNeverReturnFunction', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeVoidAssignment', 'PhanUndeclaredConstant', 'PhanUndeclaredVariableDim'],
+        'includes/ZeroBSCRM.AJAX.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignment', 'PhanPluginNeverReturnFunction', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeVoidAssignment', 'PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.API.php' => ['PhanCommentParamWithoutRealParam', 'PhanRedefineFunctionInternal', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal'],
         'includes/ZeroBSCRM.AdminPages.Checks.php' => ['PhanPluginUnreachableCode'],
         'includes/ZeroBSCRM.AdminPages.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginRedundantAssignment', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeSuspiciousEcho'],
@@ -166,7 +166,7 @@ return [
         'includes/ZeroBSCRM.Core.Menus.Top.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanTypeVoidArgument'],
         'includes/ZeroBSCRM.Core.Menus.WP.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'includes/ZeroBSCRM.Core.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateArrayKey', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionBinaryOp', 'PhanPluginNeverReturnMethod', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchDimAssignment', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType', 'PhanUnextractableAnnotation', 'PhanUnextractableAnnotationSuffix'],
-        'includes/ZeroBSCRM.CustomerFilters.php' => ['PhanDeprecatedFunction', 'PhanPluginNeverReturnFunction', 'PhanRedundantCondition', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternal'],
+        'includes/ZeroBSCRM.CustomerFilters.php' => ['PhanDeprecatedFunction', 'PhanRedundantCondition', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternal'],
         'includes/ZeroBSCRM.DAL.Fields.php' => ['PhanPluginMixedKeyNoKey', 'PhanRedefineFunction'],
         'includes/ZeroBSCRM.DAL2.Mail.php' => ['PhanPluginRedundantAssignment', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchDefault'],
         'includes/ZeroBSCRM.DAL3.Export.php' => ['PhanRedundantCondition'],
@@ -219,7 +219,7 @@ return [
         'includes/ZeroBSCRM.MetaBoxes3.Tasks.php' => ['PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeVoidAssignment', 'PhanUndeclaredTypeParameter'],
         'includes/ZeroBSCRM.MetaBoxes3.Transactions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.Migrations.php' => ['PhanPluginRedundantAssignment'],
-        'includes/ZeroBSCRM.NotifyMe.php' => ['PhanNoopBinaryOperator', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginNeverReturnFunction', 'PhanTypeMismatchArgumentInternal', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredVariableDim'],
+        'includes/ZeroBSCRM.NotifyMe.php' => ['PhanNoopBinaryOperator', 'PhanPluginDuplicateAdjacentStatement', 'PhanTypeSuspiciousStringExpression'],
         'includes/ZeroBSCRM.Permissions.php' => ['PhanDeprecatedFunction', 'PhanPluginNeverReturnFunction', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'includes/ZeroBSCRM.PluginUpdates.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         'includes/ZeroBSCRM.QuoteBuilder.php' => ['PhanMisspelledAnnotation', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeReturnType'],
@@ -244,11 +244,10 @@ return [
         'includes/wh.config.lib.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanUndeclaredVariable'],
         'modules/givewp/class-jpcrm-givewp.php' => ['PhanTypePossiblyInvalidDimOffset'],
         'modules/givewp/jpcrm-givewp-init.php' => ['PhanPluginMixedKeyNoKey'],
-        'modules/mailpoet/admin/mailpoet-hub/main.page.ajax.php' => ['PhanPluginNeverReturnFunction'],
         'modules/mailpoet/admin/settings/main.page.php' => ['PhanRedundantCondition'],
         'modules/mailpoet/includes/class-mailpoet-background-sync-job.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredVariable', 'PhanUnextractableAnnotationElementName'],
         'modules/mailpoet/includes/class-mailpoet-background-sync.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeInvalidRightOperandOfAdd', 'PhanUnextractableAnnotationElementName'],
-        'modules/mailpoet/includes/class-mailpoet-export-segment-to-mailpoet.php' => ['PhanPluginNeverReturnFunction', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturn'],
+        'modules/mailpoet/includes/class-mailpoet-export-segment-to-mailpoet.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturn'],
         'modules/mailpoet/includes/class-mailpoet.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassCatch', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType', 'PhanUnextractableAnnotation', 'PhanUnextractableAnnotationSuffix'],
         'modules/mailpoet/includes/jpcrm-mailpoet-contact-tabs.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/mailpoet/includes/segment-conditions/class-segment-condition-mailpoet-subscriber.php' => ['PhanTypeArraySuspiciousNullable'],
@@ -264,7 +263,6 @@ return [
         'modules/portal/templates/transactions.php' => ['PhanUndeclaredFunction'],
         'modules/woo-sync/admin/settings/connection_edit.page.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
         'modules/woo-sync/admin/settings/connections.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable'],
-        'modules/woo-sync/admin/woo-sync-hub/main.page.ajax.php' => ['PhanPluginNeverReturnFunction'],
         'modules/woo-sync/admin/woo-sync-hub/main.page.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
         'modules/woo-sync/includes/class-woo-sync-background-sync-job.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginDuplicateCatchStatementBody', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonFromArray', 'PhanTypeMagicVoidWithReturn', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredVariable', 'PhanUnextractableAnnotationElementName', 'PhanUnreferencedUseNormal'],
         'modules/woo-sync/includes/class-woo-sync-background-sync.php' => ['PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotationElementName'],
