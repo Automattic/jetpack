@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+	useEffect,
+	useRef,
+} from 'react';
 import { defaultTheme } from '../theme/themes';
 import type { ChartContextValue, ChartRegistration } from './types';
 import type { ChartTheme } from '../../types';
@@ -20,6 +28,14 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 
 	const providerTheme: ChartTheme = useMemo( () => ( { ...defaultTheme, ...theme } ), [ theme ] );
 
+	// Stable group -> color mapping for this provider lifecycle
+	const groupToColorMapRef = useRef< Map< string, string > >( new Map() );
+
+	// Reset group color mappings when theme changes
+	useEffect( () => {
+		groupToColorMapRef.current = new Map();
+	}, [ providerTheme.colors ] );
+
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
 		setCharts( prev => new Map( prev ).set( id, data ) );
 	}, [] );
@@ -39,6 +55,35 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ charts ]
 	);
 
+	const resolveGroupColor = useCallback< ChartContextValue[ 'resolveGroupColor' ] >(
+		( { group, index, overrideColor } ) => {
+			// Highest precedence: explicit series stroke
+			if ( overrideColor ) {
+				return overrideColor;
+			}
+
+			const palette = providerTheme.colors ?? [];
+
+			// If group provided, maintain a stable assignment
+			if ( group ) {
+				const existing = groupToColorMapRef.current.get( group );
+				if ( existing ) {
+					return existing;
+				}
+				// Assign next color from palette in a deterministic cycling manner
+
+				const assignedCount = groupToColorMapRef.current.size;
+				const color = palette.length > 0 ? palette[ assignedCount % palette.length ] : '#000000';
+				groupToColorMapRef.current.set( group, color );
+				return color;
+			}
+
+			// Fallback: index-based color cycling
+			return palette.length > 0 ? palette[ ( index || 0 ) % palette.length ] : '#000000';
+		},
+		[ providerTheme.colors ]
+	);
+
 	const value: ChartContextValue = useMemo(
 		() => ( {
 			charts,
@@ -46,8 +91,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			unregisterChart,
 			getChartData,
 			theme: providerTheme,
+			resolveGroupColor,
 		} ),
-		[ charts, registerChart, unregisterChart, getChartData, providerTheme ]
+		[ charts, registerChart, unregisterChart, getChartData, providerTheme, resolveGroupColor ]
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;

@@ -3,11 +3,12 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
+import { useXYChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	useGlobalChartsContext,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils/create-composition';
@@ -91,7 +92,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
-	const providerTheme = useGlobalChartTheme();
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -123,10 +123,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
+	const { resolveGroupColor } = useGlobalChartsContext();
+
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>
-			seriesData?.options?.stroke || providerTheme.colors[ index % providerTheme.colors.length ],
-		[ providerTheme ]
+			resolveGroupColor( {
+				group: seriesData.group,
+				index,
+				overrideColor: seriesData.options?.stroke,
+			} ),
+		[ resolveGroupColor ]
 	);
 
 	const getBarBackground = useCallback(
@@ -378,7 +384,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }

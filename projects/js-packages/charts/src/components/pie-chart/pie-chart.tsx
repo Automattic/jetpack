@@ -7,6 +7,7 @@ import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	useGlobalChartsContext,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils/create-composition';
@@ -155,6 +156,8 @@ const PieChartInternal = ( {
 		metadata: chartMetadata,
 	} );
 
+	const { resolveGroupColor } = useGlobalChartsContext();
+
 	if ( ! isValid ) {
 		return (
 			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
@@ -192,8 +195,8 @@ const PieChartInternal = ( {
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( d: DataPointPercentage & { index: number } ) =>
-			d?.color || providerTheme.colors[ d.index ],
+		fill: ( { group, index, color: overrideColor }: DataPointPercentage & { index: number } ) =>
+			resolveGroupColor( { group, index, overrideColor } ),
 	};
 
 	return (
@@ -272,7 +275,6 @@ const PieChartInternal = ( {
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }
