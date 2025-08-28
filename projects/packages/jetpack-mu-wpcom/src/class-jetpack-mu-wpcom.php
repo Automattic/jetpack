@@ -49,6 +49,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -290,23 +291,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
-		/**
-		 * Load features for the editor and the frontend pages.
-		 *
-		 * This also avoid redeclaring the `Newspack_Blocks` class as follows
-		 * - The `Newspack_Blocks` class is declared by jetpack-mu-wpcom plugin by the `plugin_loaded` hook.
-		 * - When people try to activate the newspack blocks plugin, it will try to declare it again.
-		 */
-		global $pagenow;
-		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
-		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
-			// To avoid potential collisions with newspack-blocks plugin.
-			if ( ! class_exists( '\Newspack_Blocks', false ) ) {
-				define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
-				require_once __DIR__ . '/features/newspack-blocks/index.php';
-			}
-		}
-
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Code_Editor::setup();
@@ -432,10 +416,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
 			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
-			// To avoid potential collisions with newspack-blocks plugin.
-			if ( ! class_exists( '\Newspack_Blocks', false ) ) {
-				require_once __DIR__ . '/features/newspack-blocks/index.php';
-			}
 			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 			require_once __DIR__ . '/features/tags-education/tags-education.php';
@@ -447,6 +427,25 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+		}
+	}
+
+	/**
+	 * Load the newspack blocks feature for the editor and the frontend pages.
+	 */
+	public static function load_newspack_blocks() {
+		/**
+		 * Avoid potential collisions with newspack-blocks plugin.
+		 */
+		if ( class_exists( '\Newspack_Blocks', false ) ) {
+			return;
+		}
+
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
+			require_once __DIR__ . '/features/newspack-blocks/index.php';
 		}
 	}
 
