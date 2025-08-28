@@ -1212,7 +1212,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	align-items: baseline;
 }
 
-.contact-form :is([type="submit"],button:not([type="reset"])) {
+.contact-form :is([type="submit"]) {
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
