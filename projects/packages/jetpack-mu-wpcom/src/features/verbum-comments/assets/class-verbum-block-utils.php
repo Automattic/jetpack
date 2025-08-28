@@ -26,13 +26,10 @@ class Verbum_Block_Utils {
 		// The block attributes come slashed and `parse_blocks` won't be able to parse them.
 		$unslashed_content = wp_unslash( $content );
 
-		// Fast pre-scan: if all blocks are allowed, skip expensive processing
 		if ( ! self::has_disallowed_blocks_fast( $unslashed_content ) ) {
-			// Return unslashed content for consistency - all paths now return processed content
 			return $unslashed_content;
 		}
 
-		// Rare case: contains disallowed blocks, use full parse_blocks approach
 		return self::remove_blocks_with_parse_blocks( $unslashed_content );
 	}
 
@@ -70,10 +67,7 @@ class Verbum_Block_Utils {
 	}
 
 	/**
-	 * Remove disallowed blocks using the traditional parse_blocks approach
-	 *
-	 * This is the original implementation, now used as a fallback when
-	 * disallowed blocks are detected by the fast pre-scan.
+	 * Remove disallowed blocks using parse_blocks
 	 *
 	 * @param string $unslashed_content Content with blocks (already unslashed).
 	 * @return string Filtered content with disallowed blocks removed.
@@ -116,7 +110,10 @@ class Verbum_Block_Utils {
 				$block['innerContent'] = $inner_content;
 			}
 
-			$block['innerHTML'] ??= '';
+			if ( ! isset( $block['innerHTML'] ) ) {
+				$block['innerHTML'] = '';
+			}
+
 			if ( empty( $block['innerContent'] ) ) {
 				$block['innerContent'] = array( $block['innerHTML'] );
 			}
