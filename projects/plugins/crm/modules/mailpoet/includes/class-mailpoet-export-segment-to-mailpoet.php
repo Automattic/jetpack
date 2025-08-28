@@ -24,7 +24,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 	/**
 	 * Setup Mailpoet_Export_Segment_To_MailPoet
 	 */
-	public function __construct( ) {
+	public function __construct() {
 
 		// Initialise Hooks
 		$this->init_hooks();
@@ -53,7 +53,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		add_action( 'jpcrm_segment_edit_export_mailpoet_button', function() {
 			// AJAX call to action 'jpcrm_segment_export_to_mailpoet'

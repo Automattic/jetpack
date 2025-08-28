@@ -34,7 +34,7 @@ class Mailpoet_Background_Sync {
 	/**
 	 * Setup MailPoet Background Sync
 	 */
-	public function __construct( ) {
+	public function __construct() {
 
 		// load job class
 		require_once JPCRM_MAILPOET_ROOT_PATH. 'includes/class-mailpoet-background-sync-job.php';
@@ -96,7 +96,7 @@ class Mailpoet_Background_Sync {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		// cron
 		add_action( 'jpcrm_mailpoet_sync', array( $this, 'cron_job' ) );
@@ -120,7 +120,7 @@ class Mailpoet_Background_Sync {
 	/**
 	 * Setup cron schedule
 	 */
-	private function schedule_cron( ) {
+	private function schedule_cron() {
 
 		// schedule it
 		if ( ! wp_next_scheduled( 'jpcrm_mailpoet_sync' ) ) {
