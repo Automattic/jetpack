@@ -11,20 +11,13 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/podcast-player/podcast-pla
 require_once __DIR__ . '/class-mock-styles-helper.php';
 require_once __DIR__ . '/class-mock-table-wrapper-helper.php';
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
-
 /**
  * Podcast Player Block Email Rendering tests.
  *
  * These tests verify the render_email function works correctly for various scenarios
  * including valid inputs, security validation, and email rendering.
- *
- * @covers Automattic\Jetpack\Extensions\Podcast_Player\render_email
- * @covers \Automattic\Jetpack\Extensions\Podcast_Player::render_email
  */
-#[CoversMethod( Automattic\Jetpack\Extensions\Podcast_Player::class, 'render_email' )]
-#[CoversClass( Automattic\Jetpack\Extensions\Podcast_Player\render_email::class )]
+#[CoversFunction( 'Automattic\Jetpack\Extensions\Podcast_Player\render_email' )]
 class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
