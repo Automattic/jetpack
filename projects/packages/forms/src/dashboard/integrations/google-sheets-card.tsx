@@ -128,8 +128,6 @@ const GoogleSheetsDashboardCard = ( {
 						<Button
 							variant="link"
 							onClick={ handleDisconnectClick }
-							target="_blank"
-							rel="noopener noreferrer"
 							disabled={ isTogglingConnection }
 						>
 							{ isTogglingConnection
