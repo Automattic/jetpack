@@ -1,0 +1,9 @@
+.wp-block-jetpack-latex.has-background {
+
+	&.has-background {
+
+		.jetpack-latex-rendered {
+			padding: 1em;
+		}
+	}
+}

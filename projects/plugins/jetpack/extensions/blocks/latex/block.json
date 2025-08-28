@@ -27,10 +27,22 @@
 			"padding": true
 		},
 		"typography": {
-			"fontSize": true,
-			"lineHeight": true
+			"fontSize": true
 		},
-		"align": [ "wide", "full" ]
+		"align": [ "wide", "full" ],
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true,
+			"__experimentalDefaultControls": {
+				"color": true,
+				"radius": true,
+				"style": true,
+				"width": true
+			}
+		}
 	},
-	"textdomain": "jetpack"
+	"textdomain": "jetpack",
+	"style": "file:./view.css"
 }

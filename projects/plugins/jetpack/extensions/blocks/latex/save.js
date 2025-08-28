@@ -16,8 +16,10 @@ export default function save( { attributes } ) {
 	const { latex = '' } = attributes;
 	const blockProps = useBlockProps.save();
 	const { style, ...props } = blockProps;
+	const borderRadius = style?.borderRadius;
 	return (
-		<div { ...props } data-latex={ latex }>
+		// Copy borderRadius to the parent to avoid overflowing.
+		<div { ...props } data-latex={ latex } style={ { borderRadius } }>
 			<div
 				className="jetpack-latex-rendered"
 				style={ style }

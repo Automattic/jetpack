@@ -6,7 +6,7 @@ import { renderToString } from 'react-dom/server';
  */
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-		<text y="13" fontFamily="sans-serif" fontSize="11">
+		<text y="13" fontFamily="sans-serif" fontSize="11" fontWeight="normal">
 			𝑓(𝑥)
 		</text>
 	</SVG>

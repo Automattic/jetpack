@@ -4,7 +4,6 @@ import {
 	TextareaControl,
 	/* eslint-disable @wordpress/no-unsafe-wp-apis */
 	__experimentalHStack as HStack,
-	__experimentalSurface as Surface,
 	__experimentalVStack as VStack,
 	__experimentalText as Text,
 	/* eslint-enable @wordpress/no-unsafe-wp-apis */
@@ -15,6 +14,7 @@ import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import katex from 'katex';
 import { icon } from './icon';
+import 'katex/dist/katex.min.css';
 import './editor.scss';
 
 const LatexPlaceholder = () => {
@@ -65,17 +65,15 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 						/>
 
 						<Text upperCase>{ __( 'Preview', 'jetpack' ) }</Text>
-						<Surface variant="secondary" className="jetpack-latex-rendered-container">
-							{ latex.trim() ? (
-								<div
-									className="jetpack-latex-rendered"
-									style={ style }
-									ref={ r => r !== renderAreaRef && setRenderAreaRef( r ) }
-								/>
-							) : (
-								<LatexPlaceholder />
-							) }
-						</Surface>
+						{ latex.trim() ? (
+							<div
+								className="jetpack-latex-rendered"
+								style={ style }
+								ref={ r => r !== renderAreaRef && setRenderAreaRef( r ) }
+							/>
+						) : (
+							<LatexPlaceholder />
+						) }
 					</VStack>
 					<HStack justify="flex-end">
 						<Button
@@ -102,17 +100,14 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			aria-label={ __( 'Edit LaTeX', 'jetpack' ) }
 			data-latex={ latex }
 		>
-			<Surface variant="secondary" className="jetpack-latex-rendered-container">
-				{ latex.trim() ? (
-					<div
-						className="jetpack-latex-rendered"
-						style={ style }
-						ref={ r => r !== renderAreaRef && setRenderAreaRef( r ) }
-					/>
-				) : (
-					<LatexPlaceholder />
-				) }
-			</Surface>
+			{ latex.trim() ? (
+				<div
+					className="jetpack-latex-rendered"
+					ref={ r => r !== renderAreaRef && setRenderAreaRef( r ) }
+				/>
+			) : (
+				<LatexPlaceholder />
+			) }
 		</div>
 	);
 }

@@ -2,17 +2,11 @@
 
 .wp-block-jetpack-latex {
 
-	.components-placeholder__label {
+	&.has-background {
 
-		/* The placeholder title makes the text inside the SVG bold. */
-		svg {
-			font-weight: 400;
+		.jetpack-latex-rendered {
+			padding: 1em;
 		}
-	}
-
-	.jetpack-latex-rendered {
-		font-size: 1.2em;
-		padding: 1em 0;
 	}
 
 	.jetpack-latex-textarea {
@@ -23,13 +17,12 @@
 		width: 100%;
 	}
 
-	.jetpack-latex-rendered-container {
-		padding: 1em;
-		min-height: 30px;
-
-		.jetpack-latex-rendered-placeholder {
-			opacity: 0.62;
-			user-select: none;
-		}
+	.jetpack-latex-rendered-placeholder {
+		display: block;
+		background-color: var(--wp--preset--color--accent-5);
+		padding: var(--wp--preset--spacing--40);
+		font-family: var(--wp--preset--font-family--fira-code);
+		font-size: var(--wp--preset--font-size--medium);
+		color: rgba(from var(--wp--preset--color--contrast) r g b / 0.62);
 	}
 }
