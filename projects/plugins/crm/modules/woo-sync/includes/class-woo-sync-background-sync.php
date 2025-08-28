@@ -421,8 +421,7 @@ class Woo_Sync_Background_Sync {
 				'percentage_completed' => $overall_percentage,
 			);
 			$woosync_latest_stats = $this->woosync()->get_jpcrm_woo_latest_stats();
-			echo json_encode( array_merge( $woosync_latest_stats, $woosync_status_array ) );
-			exit( 0 );
+			wp_send_json( array_merge( $woosync_latest_stats, $woosync_status_array ) );
 
 		}
 

@@ -500,7 +500,8 @@ function zeroBSCRM_notifyme_activity(){
 add_action('wp_ajax_nopriv_notifyme_get_notifications_ajax','zeroBSCRM_notifyme_get_notifications_ajax');
 add_action( 'wp_ajax_notifyme_get_notifications_ajax', 'zeroBSCRM_notifyme_get_notifications_ajax' );
 function zeroBSCRM_notifyme_get_notifications_ajax(){
-      global $wpdb;
+	global $wpdb;
+	$res = array();
       check_ajax_referer( 'notifyme_nonce', 'security' );
       $cid = get_current_user_id();
       $now = date("U");
@@ -526,6 +527,5 @@ function zeroBSCRM_notifyme_get_notifications_ajax(){
         $res['notifybody'] = 'This is the body';
         $res['count'] = count($res['notifications']);
       }
-      echo json_encode($res,true);
-	die( 0 );
+	wp_send_json( $res );
 }

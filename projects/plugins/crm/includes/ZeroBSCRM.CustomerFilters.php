@@ -122,24 +122,18 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 	// } Returns json representing the first 10k customers in db... brutal
 	// } MS NOTE: useful to return EMAIL in the response (for auto filling - WITHOUT getting ALL meta)?
 function zeroBSCRM_cjson() {
-
-	header( 'Content-Type: application/json' );
 	$ret = array();
 
 	if ( is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
 		$ret = zeroBS_getCustomers( true, 10000, 0, false, false, '', false, false, false );
 	}
 
-	echo json_encode( $ret );
-
-	exit( 0 );
+	wp_send_json( $ret );
 }
 
 	// WH NOTE: WHY is this getting ALL of them and not s? param
 	// } Returns json representing the first 10k customers in db... brutal
 function zeroBSCRM_cojson() {
-
-	header( 'Content-Type: application/json' );
 	$ret = array();
 
 	if ( is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
@@ -159,9 +153,7 @@ function zeroBSCRM_cojson() {
 
 	}
 
-	echo json_encode( $ret );
-
-	exit( 0 );
+	wp_send_json( $ret );
 }
 
 /*

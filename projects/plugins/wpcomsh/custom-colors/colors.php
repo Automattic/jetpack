@@ -602,8 +602,7 @@ class Colors_Manager_Common {
 		$response = array( 'palettes' => $palettes );
 
 		header( 'Content-Type: text/javascript' );
-		echo wp_json_encode( $response );
-		die( 0 );
+		wp_send_json( $response );
 	}
 
 	/**
@@ -614,8 +613,7 @@ class Colors_Manager_Common {
 	public static function ajax_generate_palette() {
 		$response = self::get_generated_palette( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 		header( 'Content-Type: text/javascript' );
-		echo wp_json_encode( $response );
-		die( 0 );
+		wp_send_json( $response );
 	}
 
 	/**
@@ -629,8 +627,7 @@ class Colors_Manager_Common {
 		$response = array( 'colors' => $colors );
 
 		header( 'Content-Type: text/javascript' );
-		echo wp_json_encode( $response );
-		die( 0 );
+		wp_send_json( $response );
 	}
 
 	/**
@@ -644,8 +641,7 @@ class Colors_Manager_Common {
 		$response = array( 'patterns' => $patterns );
 
 		header( 'Content-Type: text/javascript' );
-		echo wp_json_encode( $response );
-		die( 0 );
+		wp_send_json( $response );
 	}
 
 	/**
