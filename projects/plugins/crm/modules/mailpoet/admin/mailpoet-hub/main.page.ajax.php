@@ -3,7 +3,7 @@
 /**
  * Fired by AJAX on hub page (where still contacts to import, checks nonce and initiates sync)
  */
-function jpcrm_mailpoet_ajax_import_subscribers( ){
+function jpcrm_mailpoet_ajax_import_subscribers() {
 
 	global $zbs;
 
