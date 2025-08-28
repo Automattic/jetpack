@@ -45,6 +45,10 @@
 			resize: none;
 			padding: 0;
 			min-width: unset;
+
+			&:not(.jetpack-field__input-prefix .jetpack-field__input-element) {
+				letter-spacing: inherit;
+			}
 		}
 
 		.jetpack-field__input-element::before,
