@@ -32,6 +32,7 @@ export const settings = {
 		},
 	},
 	supports: {
+		...defaultSettings.supports,
 		interactivity: true,
 	},
 	providesContext: {
