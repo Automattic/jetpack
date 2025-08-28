@@ -5,8 +5,8 @@ import type { ChartTheme } from '../../types';
  */
 const defaultTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
-	labelBackgroundColor: 'rgba(255, 255, 255, 0.8)', // label background color (semi-transparent white)
-	labelTextColor: '#2c3338', // label text color
+	labelBackgroundColor: 'transparent', // label background color (transparent by default)
+	labelTextColor: '#333', // label text color (dark gray to match original fallback)
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: '#DCDCDE',
@@ -63,8 +63,8 @@ const defaultTheme: ChartTheme = {
  */
 const jetpackTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
-	labelBackgroundColor: 'rgba(255, 255, 255, 0.8)', // label background color (semi-transparent white)
-	labelTextColor: '#2c3338', // label text color
+	labelBackgroundColor: 'transparent', // label background color (transparent by default)
+	labelTextColor: '#333', // label text color (dark gray to match original fallback)
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: '#DCDCDE',
@@ -121,8 +121,8 @@ const jetpackTheme: ChartTheme = {
  */
 const wooTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
-	labelBackgroundColor: 'rgba(255, 255, 255, 0.8)', // label background color (semi-transparent white)
-	labelTextColor: '#2c3338', // label text color
+	labelBackgroundColor: 'transparent', // label background color (transparent by default)
+	labelTextColor: '#333', // label text color (dark gray to match original fallback)
 	colors: [ '#80C8FF', '#B999FF', '#3858E9' ],
 	gridStyles: {
 		stroke: '#787C82',

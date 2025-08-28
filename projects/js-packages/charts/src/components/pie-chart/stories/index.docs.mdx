@@ -251,8 +251,8 @@ The Pie Chart supports customizable label colors through the theme system:
 
 const customTheme = {
 	...defaultTheme,
-	labelTextColor: '#FFFFFF', // White text for labels
-	labelBackgroundColor: 'rgba(0, 0, 0, 0.8)', // Semi-transparent black background
+	labelTextColor: '#FFFFFF', // White text for labels  
+	labelBackgroundColor: 'rgba(0, 0, 0, 0.8)', // Enable dark background (transparent by default)
 };
 
 <ThemeProvider theme={ customTheme }>
@@ -262,8 +262,8 @@ const customTheme = {
 
 **Label Color Properties:**
 
-- **`labelTextColor`** - Controls the color of text displayed on pie chart segments. Use contrasting colors for better readability.
-- **`labelBackgroundColor`** - Controls the background color of labels. Creates a rounded rectangle behind each label for enhanced readability. Supports any CSS color value including transparency (e.g., `rgba(0, 0, 0, 0.7)`).
+- **`labelTextColor`** - Controls the color of text displayed on pie chart segments. Defaults to `#333` (dark gray) for visibility.
+- **`labelBackgroundColor`** - Controls the background color of labels. Defaults to `transparent` (no background). When set to any color value, creates a rounded rectangle behind each label for enhanced readability. Supports any CSS color including transparency (e.g., `rgba(0, 0, 0, 0.7)`).
 
 **Best Practices:**
 - Use high contrast between `labelTextColor` and `labelBackgroundColor` for optimal readability
@@ -321,8 +321,8 @@ The following properties can be customized via the theme system:
 
 | Prop                        | Type                            | Default        | Description                                                                       |
 | --------------------------- | ------------------------------- | -------------- | --------------------------------------------------------------------------------- |
-| `labelTextColor`            | `string`                        | `'#2c3338'`    | Color of text displayed on pie chart segments                                    |
-| `labelBackgroundColor`      | `string`                        | `'rgba(255, 255, 255, 0.8)'` | Background color for labels displayed on pie chart segments |
+| `labelTextColor`            | `string`                        | `'#333'`       | Color of text displayed on pie chart segments                                    |
+| `labelBackgroundColor`      | `string`                        | `'transparent'` | Background color for labels. Set to any color value to enable label backgrounds |
 
 ### Compound Components
 

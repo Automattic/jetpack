@@ -363,46 +363,46 @@ This pattern provides:
 export const CustomLabelColors: Story = {
 	args: {
 		...Default.args,
-		thickness: 0.8, // Make it a donut chart to better show labels
+		thickness: 0.85, // Slightly thinner for better label visibility
 		data: [
 			{
 				label: 'Desktop',
 				value: 45000,
 				valueDisplay: '45K',
 				percentage: 45,
-				color: '#FF6B6B', // Light red background
+				color: '#FF6B6B', // Light red segment
 			},
 			{
 				label: 'Mobile',
 				value: 35000,
 				valueDisplay: '35K',
 				percentage: 35,
-				color: '#4ECDC4', // Light teal background
+				color: '#4ECDC4', // Light teal segment
 			},
 			{
 				label: 'Tablet',
 				value: 20000,
 				valueDisplay: '20K',
 				percentage: 20,
-				color: '#45B7D1', // Light blue background
+				color: '#45B7D1', // Light blue segment
 			},
 		],
-		labelTextColor: '#FFFFFF', // White text for contrast
-		labelBackgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent black background
+		labelTextColor: '#FFFFFF', // White text for high contrast
+		labelBackgroundColor: 'rgba(0, 0, 0, 0.75)', // Dark semi-transparent background
 		size: 400,
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: `This example demonstrates custom label colors with both text and background styling. The \`labelTextColor\` controls the text color while \`labelBackgroundColor\` adds a background behind each label for enhanced readability.
+				story: `This example demonstrates how to enable label backgrounds for enhanced readability. By default, labels have no background (transparent) to preserve the original chart appearance, but you can add backgrounds when needed.
 
 **Key Features:**
-- **labelTextColor**: White text (\`#FFFFFF\`) for high contrast
-- **labelBackgroundColor**: Semi-transparent dark background (\`rgba(0, 0, 0, 0.7)\`) behind labels
-- **Custom segment colors**: Each data point uses bright colors that would normally make text hard to read
-- **Enhanced readability**: The background ensures labels are visible on any segment color
+- **labelTextColor**: White text (\`#FFFFFF\`) for contrast against dark background
+- **labelBackgroundColor**: Dark semi-transparent background (\`rgba(0, 0, 0, 0.75)\`) - disabled by default
+- **Custom segment colors**: Bright colors that would make default dark text hard to read
+- **Opt-in enhancement**: Backgrounds only appear when explicitly set
 
-Use the Storybook controls below to experiment with different label text and background colors.`,
+Use the Storybook controls to experiment with different combinations. Try setting labelBackgroundColor to \`transparent\` to see the default behavior.`,
 			},
 		},
 	},
