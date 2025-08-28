@@ -14,7 +14,7 @@ import { GlobalChartsContext } from '../../providers/chart-context/global-charts
 import { attachSubComponents } from '../../utils';
 import { ChartSVG, ChartHTML, useChartChildren } from '../chart-composition';
 import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { useChartLegendItems } from '../legend/use-chart-legend-items';
 import { SingleChartContext } from '../single-chart-context';
 import { BaseTooltip } from '../tooltip';
 import { withResponsive } from '../with-responsive';
@@ -130,7 +130,7 @@ const PieChartInternal = ( {
 	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, legendOptions );
+	const legendItems = useChartLegendItems( data, legendOptions );
 
 	const { isValid, message } = validateData( data );
 

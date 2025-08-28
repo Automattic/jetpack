@@ -134,7 +134,7 @@ function processPointData(
  * @param legendShape - The shape type for legend items (string literal or React component)
  * @return Array of legend items ready for display
  */
-export function useChartLegendData<
+export function useChartLegendItems<
 	T extends SeriesData[] | DataPointDate[] | DataPointPercentage[],
 >(
 	data: T,

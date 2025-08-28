@@ -13,4 +13,4 @@ export { ThemeProvider } from './src/providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './src/providers/theme/themes';
 
 // Hooks
-export { default as useChartMouseHandler } from './src/hooks/use-chart-mouse-handler';
+export { useChartMouseHandler } from './src/hooks';

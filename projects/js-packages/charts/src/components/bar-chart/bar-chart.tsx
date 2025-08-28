@@ -19,7 +19,7 @@ import {
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
 import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { useChartLegendItems } from '../legend/use-chart-legend-items';
 import { SingleChartContext } from '../single-chart-context';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import { withResponsive } from '../with-responsive';
@@ -104,7 +104,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( dataSorted );
+	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();

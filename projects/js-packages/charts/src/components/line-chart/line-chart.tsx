@@ -22,7 +22,7 @@ import {
 import { attachSubComponents, getSeriesLineStyles } from '../../utils';
 import { DefaultGlyph } from '../default-glyph';
 import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
+import { useChartLegendItems } from '../legend/use-chart-legend-items';
 import { SingleChartContext, type SingleChartRef } from '../single-chart-context';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import { withResponsive } from '../with-responsive';
@@ -361,7 +361,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, legendOptions, legendShape );
+		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
 		// Memoize metadata to prevent unnecessary re-registration
 		const chartMetadata = useMemo(

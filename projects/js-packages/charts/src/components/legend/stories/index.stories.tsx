@@ -4,7 +4,7 @@ import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
 import { PieChart } from '../../pie-chart';
 import { Legend } from '../legend';
-import { useChartLegendData } from '../use-chart-legend-data';
+import { useChartLegendItems } from '../use-chart-legend-items';
 import type { SeriesData, DataPointPercentage } from '../../../types';
 
 const meta: Meta< typeof Legend > = {
@@ -147,7 +147,7 @@ export const Vertical: Story = {
 
 // Story showing use with LineChart data
 const WithLineChartData = () => {
-	const legendItems = useChartLegendData( lineChartData, {
+	const legendItems = useChartLegendItems( lineChartData, {
 		showValues: false,
 	} );
 
@@ -183,7 +183,7 @@ export const WithLineChart: Story = {
 
 // Story showing use with BarChart data
 const WithBarChartData = () => {
-	const legendItems = useChartLegendData( barChartData );
+	const legendItems = useChartLegendItems( barChartData );
 
 	return (
 		<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
