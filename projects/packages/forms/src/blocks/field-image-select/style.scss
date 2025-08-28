@@ -1,14 +1,5 @@
 @use "../shared/styles/visually-hidden" as *;
 
-// There is a high specificity flex rule that we
-// need to override in the block editor only.
-.wp-block-jetpack-contact-form
-.jetpack-contact-form
-.jetpack-fieldset-image-options__wrapper
-.jetpack-input-image-option {
-	flex-basis: unset;
-}
-
 // Themes target the image block directly to fit their needs,
 // not expecting it to be inside an image select field.
 .wp-block-jetpack-input-image-option
@@ -33,6 +24,7 @@ figure.wp-block-image {
 	flex-wrap: wrap;
 	gap: var(--jetpack-field-image-options-gap);
 
+	// Frontend-only wrapper element for background color change on hover.
 	.jetpack-input-image-option__outer {
 		display: flex;
 		width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-options-gap) * ( 3 / 4 ));
@@ -46,7 +38,6 @@ figure.wp-block-image {
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
-		width: 100%;
 		overflow: hidden;
 
 		&:not(.wp-block):hover {

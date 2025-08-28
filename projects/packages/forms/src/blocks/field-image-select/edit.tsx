@@ -20,6 +20,7 @@ import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import './style.scss';
+import './editor.scss';
 /**
  * Types
  */
