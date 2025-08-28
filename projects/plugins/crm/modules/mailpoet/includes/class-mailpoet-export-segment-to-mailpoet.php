@@ -154,7 +154,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 						$list_id = $zbs->modules->mailpoet->reset_mailpoet_list_by_segment_name( $list_name );
 
 						if ( ! empty( $list_id ) ) {
-							echo json_encode(
+							wp_send_json(
 								array(
 									'jpcrm_segment_ID' => $segment_id,
 									'mailpoet_list_ID' => $list_id,
@@ -169,12 +169,10 @@ class Mailpoet_Export_Segment_To_MailPoet {
 									)
 								)
 							);
-							exit( 0 );
 						}
 					}
-				} catch (\Throwable $th) {
-					//var_dump($th);
-					echo json_encode(
+				} catch ( \Throwable $th ) {
+					wp_send_json(
 						array(
 							'success'   => false,
 							'lang'		=> array(
@@ -183,12 +181,11 @@ class Mailpoet_Export_Segment_To_MailPoet {
 							)
 						)
 					);
-					exit( 0 );
 				}
 			}
 
 			// empty handed
-			echo json_encode(
+			wp_send_json(
 				array(
 					'segmentID'     => $segment_id,
 					'success'     	=> false,
@@ -198,9 +195,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 					)
 				)
 			);
-			exit( 0 );
 
-			
 	   	} );
 
 		/**
@@ -239,7 +234,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 
 					$is_last_batch = ( count($contacts_batch) < $per_page );
 
-					echo json_encode(
+					wp_send_json(
 						array(
 							'success'     	=> true,
 							'segmentID'     => $segment_id,
@@ -247,11 +242,10 @@ class Mailpoet_Export_Segment_To_MailPoet {
 							'is_last_batch' => $is_last_batch
 						)
 					);
-					exit( 0 );
 
 				} else {
 
-					echo json_encode(
+					wp_send_json(
 						array(
 							'segmentID' => $segment_id,
 							'success'   => false,
@@ -262,13 +256,12 @@ class Mailpoet_Export_Segment_To_MailPoet {
 							)
 						)
 					);
-					exit( 0 );
 
 				}
 
-			} catch (\Throwable $th) {
+			} catch ( \Throwable $th ) {
 
-				echo json_encode(
+				wp_send_json(
 					array(
 						'segmentID' => $segment_id,
 						'success'   => false,
@@ -279,7 +272,6 @@ class Mailpoet_Export_Segment_To_MailPoet {
 						)
 					)
 				);
-				exit( 0 );
 
 			}
 

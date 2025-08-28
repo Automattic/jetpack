@@ -290,9 +290,7 @@ class Mailpoet_Background_Sync {
 				'total_crm_contacts_from_mailpoet' => $this->mailpoet()->get_crm_mailpoet_contact_count()
 			);
 			$mailpoet_latest_stats = $this->mailpoet()->get_jpcrm_mailpoet_latest_stats();
-			echo json_encode( array_merge( $mailpoet_latest_stats, $mailpoetsync_status_array ) );
-			exit( 0 );
-
+			wp_send_json( array_merge( $mailpoet_latest_stats, $mailpoetsync_status_array ) );
 		}
 
 	}

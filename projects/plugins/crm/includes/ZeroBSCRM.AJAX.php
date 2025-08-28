@@ -66,8 +66,7 @@ function zbs_create_email_templates() {
 	} else {
 		$m['message'] = 'no permissions';
 	}
-	echo json_encode( $m );
-	die( 0 );
+	wp_send_json( $m );
 }
 
 	// save email template
@@ -155,8 +154,7 @@ function zbs_save_email_status() {
 		$m['message'] = 'no perms';
 	}
 
-	echo json_encode( $m );
-	die( 0 );
+	wp_send_json( $m );
 	// nonce field is zbs-save-email_active
 }
 
@@ -183,9 +181,7 @@ function zeroBSCRM_AJAX_logClose() {
 		update_option( 'zbs_closers_' . $potentialKey, time(), false );
 	}
 
-	header( 'Content-Type: application/json' );
-	echo json_encode( array( 'fini' => 1 ) );
-	exit( 0 );
+	wp_send_json( array( 'fini' => 1 ) );
 }
 
 	/*
@@ -250,9 +246,7 @@ function zeroBSCRM_AJAX_markFeedback() {
 		}
 		update_option( 'zbsfeedback', $feedbackVal, false );
 	}
-	header( 'Content-Type: application/json' );
-	echo json_encode( array( 'fini' => 1 ) );
-	exit( 0 );
+	wp_send_json( array( 'fini' => 1 ) );
 }
 
 	// } Retrieve list of invoice deets for customer ID
@@ -281,9 +275,7 @@ function zeroBSCRM_AJAX_getCustInvs() {
 		}
 	}
 
-	header( 'Content-Type: application/json' );
-	echo json_encode( $ret );
-	exit( 0 );
+	wp_send_json( $ret );
 }
 
 	// } Remove file
@@ -338,14 +330,12 @@ function zeroBSCRM_removeFile() {
 		}
 	}
 
-	header( 'Content-Type: application/json' );
-	echo json_encode(
+	wp_send_json(
 		array(
 			'res'    => $res,
 			'errors' => $errors,
 		)
 	);
-	exit( 0 );
 }
 
 	// } Filter customers + retrieve count
@@ -372,9 +362,7 @@ function zeroBSCRM_AJAX_filterCustomers() {
 		$res                      = zeroBS__customerFiltersRetrieveCustomerCountAndTopCustomers();
 		$res['filters_in_effect'] = $zbsCustomerFiltersInEffect;
 
-	header( 'Content-Type: application/json' );
-	echo json_encode( $res );
-	exit( 0 );
+	wp_send_json( $res );
 }
 
 	// Add log
@@ -455,8 +443,7 @@ function zeroBSCRM_AJAX_addLog() {
 
 	}
 
-	echo json_encode( array( 'processed' => $res ) );
-	exit( 0 );
+	wp_send_json( array( 'processed' => $res ) );
 }
 
 	// Update log
@@ -550,8 +537,7 @@ function zeroBSCRM_AJAX_updateLog() {
 		}
 	}
 
-	echo json_encode( array( 'processed' => $res ) );
-	exit( 0 );
+	wp_send_json( array( 'processed' => $res ) );
 }
 
 	// } Del log
@@ -591,8 +577,7 @@ function zeroBSCRM_AJAX_deleteLog() {
 		$res = $zbs->DAL->logs->deleteLog( array( 'id' => $zbsNoteID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 
-	echo json_encode( array( 'processed' => $res ) );
-	exit( 0 );
+	wp_send_json( array( 'processed' => $res ) );
 }
 
 	// Pin log
@@ -1200,8 +1185,7 @@ function zbs_lead_form_views() {
 	$form_id    = (int) sanitize_text_field( $_POST['id'] );
 	$form_views = $zbs->DAL->forms->add_form_view( $form_id );
 
-	echo json_encode( array( 'view_logged' => 'true' ) );
-	exit( 0 );
+	wp_send_json( array( 'view_logged' => 'true' ) );
 }
 	add_action( 'wp_ajax_nopriv_zbs_lead_form_views', 'zbs_lead_form_views' );
 	add_action( 'wp_ajax_zbs_lead_form_views', 'zbs_lead_form_views' );
@@ -1270,8 +1254,7 @@ function zbs_lead_form_capture() {
 			// } AXE IT
 			$r['message'] = 'Nope.';
 			$r['code']    = 'recaptcha';
-			echo json_encode( $r );
-			wp_die();
+			wp_send_json( $r );
 
 		}
 	}
@@ -1288,8 +1271,7 @@ function zbs_lead_form_capture() {
 		// } AXE IT
 		$r['message'] = 'Nope.';
 		$r['code']    = 'form';
-		echo json_encode( $r );
-		wp_die();
+		wp_send_json( $r );
 
 	}
 
@@ -1299,8 +1281,7 @@ function zbs_lead_form_capture() {
 		// then this is likely a spambot who has filled in the form since its hidden from humans
 		$r['message'] = 'This is a honeypot.. something has gone wrong can alert the member on response';
 		$r['code']    = 'honey';
-		echo json_encode( $r );
-		wp_die();
+		wp_send_json( $r );
 	} else {
 
 		// } Added here: REQUIRE email...
@@ -1314,8 +1295,7 @@ function zbs_lead_form_capture() {
 			// } AXE IT
 			$r['message'] = 'Email Required.';
 			$r['code']    = 'emailfail';
-			echo json_encode( $r );
-			wp_die();
+			wp_send_json( $r );
 
 		}
 
@@ -1589,8 +1569,7 @@ function zbs_lead_form_capture() {
 			// return
 			$r['message'] = 'Contact received.';
 			$r['code']    = 'success';
-			echo json_encode( $r );
-			die( 0 );
+			wp_send_json( $r );
 
 	}
 }
@@ -1626,7 +1605,7 @@ function zeroBSCRM_AJAX_addAlias() {
 		exit( '{err:1}' ); }
 
 	// } Proceed :)
-	$passBack = array();
+	$passback = array();
 
 		$custID = -1;
 	if ( isset( $_POST['cid'] ) ) {
@@ -1643,28 +1622,25 @@ function zeroBSCRM_AJAX_addAlias() {
 		// check if already exists as alias
 		if ( zeroBS_canUseCustomerAlias( $alias ) == false ) {
 
-			$passBack['fail'] = 'existing';
+			$passback['fail'] = 'existing';
 
 		} else {
 
 			// all good, proceed
 
-			$passBack['res'] = zeroBS_addCustomerAlias( $custID, $alias );
+			$passback['res'] = zeroBS_addCustomerAlias( $custID, $alias ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } For now, no checks :)
 
 		}
 
 		// } Return
-		header( 'Content-Type: application/json' );
-		echo json_encode( $passBack );
-		exit( 0 );
+		wp_send_json( $passback );
 
 	}
 
 		// err really :o
-		header( 'Content-Type: application/json' );
-		exit( '[]' );
+		wp_send_json( array() );
 }
 	add_action( 'wp_ajax_removeAlias', 'zeroBSCRM_AJAX_removeAlias' );
 function zeroBSCRM_AJAX_removeAlias() {
@@ -1678,7 +1654,7 @@ function zeroBSCRM_AJAX_removeAlias() {
 		exit( '{err:1}' ); }
 
 	// } Proceed :)
-	$passBack = array();
+	$passback = array();
 
 		$custID = -1;
 	if ( isset( $_POST['cid'] ) ) {
@@ -1694,20 +1670,17 @@ function zeroBSCRM_AJAX_removeAlias() {
 
 		// NOTE: by passing cust + alias id's, rather than just ALIAS id, we do ANOTHER check to make sure
 		// that user's deleting smt they mean to (this is also pre-emptive for provider-platform + ownership rights)
-		$passBack['res'] = zeroBS_removeCustomerAliasByID( $custID, $aliasID );
+		$passback['res'] = zeroBS_removeCustomerAliasByID( $custID, $aliasID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } For now, no checks :)
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 	}
 
 		// err really :o
-		header( 'Content-Type: application/json' );
-		exit( '[]' );
+		wp_send_json( array() );
 }
 
 /*
@@ -1754,13 +1727,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 			// } Use existing (stores all types of custom views - not just this one)
 			$newCustomViews = $customViews;
-			$passBack       = array();
+			$passback       = array();
 
 			// } Build
 			$newCustomerColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
 				$newCustomerColumns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
-				$passBack[]                                = array(
+				$passback[]                                = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
 				);
@@ -1772,9 +1745,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 			break;
 
@@ -1783,13 +1754,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 			// } Use existing (stores all types of custom views - not just this one)
 			$newCustomViews = $customViews;
-			$passBack       = array();
+			$passback       = array();
 
 			// } Build
 			$newCoColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
 				$newCoColumns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
-				$passBack[]                          = array(
+				$passback[]                          = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
 				);
@@ -1801,9 +1772,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 			break;
 
@@ -1812,13 +1781,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 			// } Use existing (stores all types of custom views - not just this one)
 			$newCustomViews = $customViews;
-			$passBack       = array();
+			$passback       = array();
 
 			// } Build
 			$newQuoColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
 				$newQuoColumns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
-				$passBack[]                           = array(
+				$passback[]                           = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
 				);
@@ -1830,9 +1799,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 			break;
 
@@ -1841,13 +1808,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 			// } Use existing (stores all types of custom views - not just this one)
 			$newCustomViews = $customViews;
-			$passBack       = array();
+			$passback       = array();
 
 			// } Build
 			$newInvColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
 				$newInvColumns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
-				$passBack[]                           = array(
+				$passback[]                           = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
 				);
@@ -1859,9 +1826,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 			break;
 
@@ -1870,13 +1835,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 			// } Use existing (stores all types of custom views - not just this one)
 			$newCustomViews = $customViews;
-			$passBack       = array();
+			$passback       = array();
 
 			// } Build
 			$newTransColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
 				$newTransColumns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
-				$passBack[]                             = array(
+				$passback[]                             = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
 				);
@@ -1888,9 +1853,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 			break;
 
@@ -1899,13 +1862,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 			// } Use existing (stores all types of custom views - not just this one)
 			$newCustomViews = $customViews;
-			$passBack       = array();
+			$passback       = array();
 
 			// } Build
 			$newFormsColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
 				$newFormsColumns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
-				$passBack[]                             = array(
+				$passback[]                             = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
 				);
@@ -1917,9 +1880,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 			break;
 
@@ -1928,13 +1889,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 			// } Use existing (stores all types of custom views - not just this one)
 			$newCustomViews = $customViews;
-			$passBack       = array();
+			$passback       = array();
 
 			// } Build
 			$newColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
 				$newColumns[ $colVal['fieldstr'] ] = array( $colVal['namestr'] );
-				$passBack[]                        = array(
+				$passback[]                        = array(
 					'fieldstr' => $colVal['fieldstr'],
 					'namestr'  => $colVal['namestr'],
 				);
@@ -1946,22 +1907,20 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 			break;
 
 		case 'event':
 			// } Use existing (stores all types of custom views - not just this one)
 			$newCustomViews = $customViews;
-			$passBack       = array();
+			$passback       = array();
 
 			// } Build
 			$new_task_columns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
 				$new_task_columns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
-				$passBack[]                             = array(
+				$passback[]                              = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
 				);
@@ -1973,16 +1932,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			header( 'Content-Type: application/json' );
-			echo json_encode( $passBack );
-			exit( 0 );
+			wp_send_json( $passback );
 
 			break;
 
 		default:
 			// err really :o
-			header( 'Content-Type: application/json' );
-			exit( '[]' );
+			wp_send_json( array() );
 
 			break;
 
@@ -3650,9 +3606,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 		// debug $res = array(isset($listViewParams),gettype($listViewParams) == 'array',isset($listViewParams['listtype']));
 
-		header( 'Content-Type: application/json' );
-		echo json_encode( $res );
-		exit( 0 );
+		wp_send_json( $res );
 }
 
 	// } Enact some bulk action :)
@@ -3678,7 +3632,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 	}
 
 	// ret
-	$passBack = array();
+	$passback = array();
 
 		$actionstr = '';
 	if ( isset( $_POST['actionstr'] ) ) {
@@ -3728,12 +3682,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 							}
 
-							$passBack['deleted'] = $deleted;
+							$passback['deleted'] = $deleted;
 
 							// } Return
-							header( 'Content-Type: application/json' );
-							echo json_encode( $passBack );
-							exit( 0 );
+							wp_send_json( $passback );
 
 							break;
 
@@ -3759,12 +3711,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								zeroBSCRM_API_error( 'Invalid status!' );
 							}
 
-							$passBack['accepted'] = $accepted;
+							$passback['accepted'] = $accepted;
 
 							// } Return
-							header( 'Content-Type: application/json' );
-							echo json_encode( $passBack );
-							exit( 0 );
+							wp_send_json( $passback );
 
 							break;
 
@@ -3799,27 +3749,23 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 							if ( ! empty( $dominant ) && ! empty( $slave ) ) {
 
-								$passBack['merged'] = zeroBSCRM_mergeCustomers( $dominant, $slave );
+								$passback['merged'] = zeroBSCRM_mergeCustomers( $dominant, $slave );
 
 							} else {
 
-								$passBack = false;
+								$passback = false;
 
 							}
 
 							// } Return
-							header( 'Content-Type: application/json' );
-							echo json_encode( $passBack );
-							exit( 0 );
+							wp_send_json( $passback );
 
 							break;
 
 					}
 
-						// } Return - will be an error if here, really!?!? should be passsing headers as such.
-						header( 'Content-Type: application/json' );
-						echo json_encode( $passBack );
-					exit( 0 );
+						// } Return - will be an error if here
+						wp_send_json( $passback );
 
 					break;
 
@@ -3861,12 +3807,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['deleted'] = $deleted;
+								$passback['deleted'] = $deleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -3889,10 +3833,8 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 					}
 
-					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					header( 'Content-Type: application/json' );
-					echo json_encode( $passBack );
-					exit( 0 );
+					// } Return - will be an error if here
+					wp_send_json( $passback );
 
 					break;
 
@@ -3931,12 +3873,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['deleted'] = $deleted;
+								$passback['deleted'] = $deleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -3953,12 +3893,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['accepted'] = $accepted;
+								$passback['accepted'] = $accepted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -3975,12 +3913,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['unaccepted'] = $unaccepted;
+								$passback['unaccepted'] = $unaccepted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -4003,10 +3939,8 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 					}
 
-					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					header( 'Content-Type: application/json' );
-					echo json_encode( $passBack );
-					exit( 0 );
+					// } Return - will be an error if here
+					wp_send_json( $passback );
 
 					break;
 
@@ -4044,12 +3978,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 									++$deleted;
 								}
 
-								$passBack['deleted'] = $deleted;
+								$passback['deleted'] = $deleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -4072,12 +4004,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 									}
 								}
 
-								$passBack['accepted'] = $accepted;
+								$passback['accepted'] = $accepted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -4100,10 +4030,8 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 					}
 
-					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					header( 'Content-Type: application/json' );
-					echo json_encode( $passBack );
-					exit( 0 );
+					// } Return - will be an error if here
+					wp_send_json( $passback );
 
 					break;
 
@@ -4142,12 +4070,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['deleted'] = $deleted;
+								$passback['deleted'] = $deleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -4170,10 +4096,8 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 					}
 
-					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					header( 'Content-Type: application/json' );
-					echo json_encode( $passBack );
-					exit( 0 );
+					// } Return - will be an error if here
+					wp_send_json( $passback );
 
 					break;
 
@@ -4212,12 +4136,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['deleted'] = $deleted;
+								$passback['deleted'] = $deleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -4228,10 +4150,8 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 					}
 
-					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					header( 'Content-Type: application/json' );
-					echo json_encode( $passBack );
-					exit( 0 );
+					// } Return - will be an error if here
+					wp_send_json( $passback );
 
 					break;
 
@@ -4264,12 +4184,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['deleted'] = $deleted;
+								$passback['deleted'] = $deleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -4280,10 +4198,8 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 					}
 
-					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					header( 'Content-Type: application/json' );
-					echo json_encode( $passBack );
-					exit( 0 );
+					// } Return - will be an error if here, really!?!?
+					wp_send_json( $passback );
 
 					break;
 
@@ -4316,12 +4232,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['deleted'] = $deleted;
+								$passback['deleted'] = $deleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -4333,9 +4247,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					header( 'Content-Type: application/json' );
-					echo json_encode( $passBack );
-					exit( 0 );
+					wp_send_json( $passback );
 
 					break;
 
@@ -4374,12 +4286,10 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['deleted'] = $deleted;
+								$passback['deleted'] = $deleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
 								break;
 
@@ -4408,14 +4318,12 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['completed'] = $completed;
+								$passback['completed'] = $completed;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
-									break;
+								break;
 
 								// mark completed
 							case 'markincomplete':
@@ -4430,14 +4338,12 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								}
 
-								$passBack['incompleted'] = $incompleted;
+								$passback['incompleted'] = $incompleted;
 
 								// } Return
-								header( 'Content-Type: application/json' );
-								echo json_encode( $passBack );
-								exit( 0 );
+								wp_send_json( $passback );
 
-									break;
+								break;
 
 						}
 					} else {
@@ -4447,16 +4353,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					header( 'Content-Type: application/json' );
-					echo json_encode( $passBack );
-					exit( 0 );
+					wp_send_json( $passback );
 
 					break;
 
 				default:
 					// err really :o
-					header( 'Content-Type: application/json' );
-					exit( '[]' );
+					wp_send_json( array() );
 
 					break;
 
@@ -4483,7 +4386,7 @@ function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = 
 		global $zbs;
 
 		// return
-		$passBack = array();
+		$passback = array();
 
 		// retrieve tag (array of id's)
 		$tagArr = zeroBSCRM_dataIO_postedArrayOfInts( $_POST['tags'] );
@@ -4522,10 +4425,10 @@ function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = 
 
 		}
 
-			$passBack['tagged'] = $tagged;
+			$passback['tagged'] = $tagged;
 
 			// This function outputs JSON and exits.
-			wp_send_json( $passBack ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			wp_send_json( $passback ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	} else {
 
@@ -4550,7 +4453,7 @@ function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id
 		global $zbs;
 
 		// return
-		$passBack = array();
+		$passback = array();
 
 		// retrieve tag (array of id's)
 		$tagArr = zeroBSCRM_dataIO_postedArrayOfInts( $_POST['tags'] );
@@ -4589,10 +4492,10 @@ function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id
 
 		}
 
-			$passBack['untagged'] = $untagged;
+			$passback['untagged'] = $untagged;
 
 			// This function outputs JSON and exits.
-			wp_send_json( $passBack ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			wp_send_json( $passback ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	} else {
 
@@ -4689,15 +4592,13 @@ function zeroBSCRM_AJAX_previewSegment() {
 		if ( is_array( $ret ) && isset( $ret['count'] ) ) {
 
 			// return id / fail
-			echo json_encode( $ret );
-			exit( 0 );
+			wp_send_json( $ret );
 
 		}
 	}
 
 	// empty handed
-	echo json_encode( array( 'count' => 0 ) );
-	exit( 0 );
+	wp_send_json( array( 'count' => 0 ) );
 }
 // } Save a segment down (update or add)
 add_action( 'wp_ajax_zbs_segment_savesegment', 'zeroBSCRM_AJAX_saveSegment' );
@@ -4737,8 +4638,7 @@ function zeroBSCRM_AJAX_saveSegment() {
 		if ( ! empty( $segmentID ) ) {
 
 			// return id / fail
-			echo json_encode( array( 'id' => $segmentID ) );
-			exit( 0 );
+			wp_send_json( array( 'id' => $segmentID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		}
 	}
@@ -4952,15 +4852,13 @@ function zeroBSCRM_AJAX_previewTagged() {
 		if ( is_array( $ret ) && isset( $ret['count'] ) ) {
 
 			// return id / fail
-			echo json_encode( $ret );
-			exit( 0 );
+			wp_send_json( $ret );
 
 		}
 	}
 
 	// empty handed
-	echo json_encode( array( 'count' => 0 ) );
-	exit( 0 );
+	wp_send_json( array( 'count' => 0 ) );
 }
 
 /*
@@ -5500,22 +5398,18 @@ function zbs_invoice_mark_paid() {
 
 		die( 0 );
 
-	} else {
-
-		// } Continue
-
-		// once the invoice is sent it will mark it as unpaid (automatically)
-		$zbs_inv_meta           = get_post_meta( $zbs_invID, 'zbs_customer_invoice_meta', true );
-		$zbs_inv_meta['status'] = 'Paid';
-		update_post_meta( $zbs_invID, 'zbs_customer_invoice_meta', $zbs_inv_meta );
-
-		// all OK ....
-		$r['message'] = 'All done OK';
-		echo json_encode( $r );
-
 	}
 
-	die( 0 ); // exiting ... yarp..
+	// } Continue
+
+	// once the invoice is sent it will mark it as unpaid (automatically)
+	$zbs_inv_meta           = get_post_meta( $zbs_invID, 'zbs_customer_invoice_meta', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$zbs_inv_meta['status'] = 'Paid';
+	update_post_meta( $zbs_invID, 'zbs_customer_invoice_meta', $zbs_inv_meta ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// all OK ....
+	$r = array( 'message' => 'All done OK' );
+	wp_send_json( $r );
 }
 
 // } and send test so they can test before actually sending the invoice
@@ -5541,8 +5435,7 @@ function zbs_invoice_send_test_invoice() {
 	// validate the email
 	if ( ! zeroBSCRM_validateEmail( $em ) ) {
 		$r['message'] = 'Not a valid email';
-		echo json_encode( $r );
-		die( 0 );
+		wp_send_json( $r );
 	} else {
 		$email = $em;
 	}
@@ -5632,8 +5525,7 @@ function zbs_invoice_send_test_invoice() {
 
 	// sends the invoice via wp_mail (for now)...
 	$r['message'] = 'All done OK';
-	echo json_encode( $r );
-	die( 0 ); // exiting ... yarp..
+	wp_send_json( $r );
 }
 
 /*

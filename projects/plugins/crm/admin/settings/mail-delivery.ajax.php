@@ -737,9 +737,8 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 
 	// validate the email
 	if ( ! zeroBSCRM_validateEmail( $sendToEmail ) ) {
-		$r['message'] = 'Not a valid email';
-		echo json_encode( $r );
-		die( 0 );
+		$res['message'] = 'Not a valid email';
+		wp_send_json( $res );
 	}
 
 	// } Check id + perms + em

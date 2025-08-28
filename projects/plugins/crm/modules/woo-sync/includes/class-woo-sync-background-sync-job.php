@@ -523,7 +523,7 @@ class Woo_Sync_Background_Sync_Job {
 			// error if X-WP-TotalPages header doesn't exist
 			if ( !isset( $lc_response_headers['x-wp-totalpages'] ) ) {
 
-				echo json_encode(
+				wp_send_json(
 					array(
 						'status'               => 'error',
 						'status_short_text'    => 'woo_api_missing_headers',
@@ -533,7 +533,6 @@ class Woo_Sync_Background_Sync_Job {
 						'percentage_completed' => 0,
 					)
 				);
-				exit( 0 );
 			}
 
 			// cache values
@@ -612,20 +611,6 @@ class Woo_Sync_Background_Sync_Job {
 
 			$this->debug( 'Sync Failed in `import_orders_from_api()`, WooCommerce REST API error: ' . $e->getMessage() );
 
-			/* 
-			echo json_encode(
-				array(
-
-					'status'               => 'error',
-					'status_short_text'    => 'woo_client_error',
-					'status_long_text'     => $this->woosync()->process_error( $e->getMessage() ),
-					'page_no'              => $page_no,
-					'orders_imported'      => 0,
-					'percentage_completed' => 0,
-
-				)
-			); */
-
 			// log connection error (3x = auto-pause)
 			$this->log_connection_error();
 
@@ -643,21 +628,6 @@ class Woo_Sync_Background_Sync_Job {
 			}
 
 			$this->debug( 'Sync Failed in `import_orders_from_api()` due to missing settings against `' . $this->site_key . '` (could not, therefore, load WooCommerce API Connection): ' . $e->getMessage() . $missing_string );
-
-			/* 
-			echo json_encode(
-				array(
-
-					'status'               => 'error',
-					'status_short_text'    => 'woo_client_error',
-					'status_long_text'     => $this->woosync()->process_error( $e->getMessage() ),
-					'page_no'              => $page_no,
-					'orders_imported'      => 0,
-					'percentage_completed' => 0,
-
-				)
-			);
-			*/
 
 			// log connection error (3x = auto-pause)
 			$this->log_connection_error();
