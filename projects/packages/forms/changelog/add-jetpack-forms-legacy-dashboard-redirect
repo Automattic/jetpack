@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: deprecate legacy feedback page, redirect to new dashboard jetpack-forms-admin

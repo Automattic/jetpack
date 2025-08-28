@@ -249,6 +249,7 @@ that needs to mimic the input element styles */
 .contact-form-submission .field-value {
 	margin-bottom: 20px;
 	font-weight: 600;
+	white-space: pre-wrap;
 }
 
 .form-errors .form-error-message {
@@ -1118,9 +1119,10 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__error.show-errors {
-	display: inline;
+	display: inline-block;
 	min-width: 100%;
 	box-sizing: inherit;
+	margin-block-end: 0.5em;
 }
 
 .contact-form__error ul {

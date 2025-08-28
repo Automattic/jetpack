@@ -432,7 +432,7 @@ class Jetpack_Redux_State_Helper {
 	/**
 	 * Get a representative image for the site.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 *
 	 * @return string
 	 */

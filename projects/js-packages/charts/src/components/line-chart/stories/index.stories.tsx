@@ -1,10 +1,12 @@
 import { useGlobalChartTheme } from '../../../hooks';
 import { legendArgTypes } from '../../../stories/legend-config';
+import {
+	temperatureData as sampleData,
+	largeValuesData,
+	trafficData as webTrafficData,
+} from '../../../stories/sample-data';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
-import largeValuesData from './large-values-sample';
-import sampleData from './sample-data';
-import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 type StoryArgs = React.ComponentProps< typeof LineChart > & {
@@ -309,22 +311,26 @@ SmartFormatting.parameters = {
 	},
 };
 
+// Offset for dashed line to prevent overlapping with solid line
+const DASHED_LINE_OFFSET = 100;
+
 export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
 BrokenLine.args = {
 	...Default.args,
-	margin: {
-		bottom: 40,
-	},
 	data: [
 		{
 			...webTrafficData[ 0 ],
-			label: 'Vistors to compare',
+			label: 'Visitors with dashed line',
+			data: webTrafficData[ 0 ].data.map( point => ( {
+				...point,
+				value: point.value + DASHED_LINE_OFFSET,
+			} ) ),
 			options: {
 				...webTrafficData[ 0 ].options,
-				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
+				seriesLineStyle: { strokeDasharray: '5 5', strokeWidth: 3 },
 			},
 		},
-		webTrafficData[ 1 ],
+		webTrafficData[ 0 ],
 	],
 	showLegend: true,
 };

@@ -1,0 +1,155 @@
+.jetpack-field-slider {
+
+	&__input-row {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		gap: 12px;
+		margin-top: 30px;
+	}
+
+	&__input-container {
+		display: flex;
+		flex: 1 1 auto;
+		min-width: 0;
+		position: relative;
+		min-height: 36px;
+
+		&::before {
+			content: "";
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 50%;
+			transform: translateY(-50%);
+			height: 4px;
+			width: 100%;
+			background: var(--jetpack--contact-form--button-primary--background-color);
+			z-index: 0;
+			pointer-events: none;
+			border-radius: 2px;
+		}
+	}
+
+	&__range {
+		-webkit-appearance: none;
+		appearance: none;
+		-moz-appearance: none;
+		height: 4px; /* visual track height */
+		padding: 18px 0 16px; /* enlarge hit area without moving track */
+		background: transparent;
+		outline: none;
+		border-radius: 2px;
+		transition: background 0.3s;
+		width: 100%;
+		box-sizing: border-box;
+		z-index: 1;
+		cursor: pointer;
+
+		/* Hide native tracks to prevent double-track rendering */
+		&::-webkit-slider-runnable-track,
+		&::-moz-range-track,
+		&::-ms-track,
+		&::-moz-range-progress {
+			background: transparent;
+			border-color: transparent;
+			color: transparent;
+			height: 4px;
+		}
+
+		&::-moz-range-progress {
+			border: 0;
+		}
+
+		/* Remove extra focus ring gap in Firefox */
+		&::-moz-focus-outer {
+			border: 0;
+		}
+
+		&:focus {
+			outline: none;
+			opacity: 1;
+		}
+
+		&::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 18px;
+			height: 18px;
+			background: var(--jetpack--contact-form--button-primary--background-color);
+			border-radius: 50%;
+			cursor: pointer;
+			transition: background 0.3s;
+			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+		}
+
+		&::-moz-range-thumb {
+			appearance: none !important;
+			-moz-appearance: none !important;
+			width: 18px;
+			height: 18px;
+			background: var(--jetpack--contact-form--button-primary--background-color);
+			border-radius: 50%;
+			cursor: pointer;
+			transition: background 0.3s;
+			border: none;
+			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+		}
+
+		&::-ms-thumb {
+			appearance: none !important;
+			width: 18px;
+			height: 18px;
+			background: var(--jetpack--contact-form--button-primary--background-color);
+			border-radius: 50%;
+			cursor: pointer;
+			transition: background 0.3s;
+			border: none;
+			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+		}
+
+		&:focus::-webkit-slider-thumb,
+		&:focus::-moz-range-thumb,
+		&::-ms-fill-lower,
+		&::-ms-fill-upper,
+		&:focus::-ms-fill-lower,
+		&:focus::-ms-fill-upper {
+			background: var(--jetpack--contact-form--button-primary--background-color);
+		}
+	}
+
+	&__value-indicator {
+		position: absolute;
+		left: 0;
+		bottom: 100%;
+		transform: translateX(-50%);
+		background: var(--jetpack--contact-form--button-primary--background-color);
+		color: var(--jetpack--contact-form--button-primary--color);
+		border-radius: 8px;
+		padding: 2px 8px;
+		font-size: 0.7em;
+		z-index: 2;
+		text-wrap: nowrap;
+	}
+
+	&__min-label,
+	&__max-label {
+		font-size: 0.9em;
+		text-align: center;
+	}
+
+	&__text-labels {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 6px;
+		font-size: 0.9em;
+	}
+
+	&__min-text-label {
+		text-align: left;
+	}
+
+	&__max-text-label {
+		text-align: right;
+	}
+}

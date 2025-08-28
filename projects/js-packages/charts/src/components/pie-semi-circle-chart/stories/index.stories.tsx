@@ -2,6 +2,7 @@ import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import { legendArgTypes } from '../../../stories/legend-config';
+import { partialOsUsageData as data } from '../../../stories/sample-data';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -10,27 +11,6 @@ type StoryArgs = React.ComponentProps< typeof PieSemiCircleChart > & {
 	containerHeight?: string;
 	resize?: string;
 };
-
-const data = [
-	{
-		label: 'MacOS',
-		value: 30000,
-		valueDisplay: '30K',
-		percentage: 5,
-	},
-	{
-		label: 'Linux',
-		value: 22000,
-		valueDisplay: '22K',
-		percentage: 1,
-	},
-	{
-		label: 'Windows',
-		value: 80000,
-		valueDisplay: '80K',
-		percentage: 2,
-	},
-];
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',

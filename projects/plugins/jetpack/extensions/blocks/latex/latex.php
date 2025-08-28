@@ -2,7 +2,7 @@
 /**
  * LaTeX Block.
  *
- * @since $$next-version$$
+ * @since 15.0
  *
  * @package automattic/jetpack
  */

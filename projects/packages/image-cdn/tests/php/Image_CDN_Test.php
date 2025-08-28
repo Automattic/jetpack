@@ -1099,7 +1099,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	/**
 	 * Tests that filter_the_content returns original content when passed null.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.18
 	 */
 	public function test_image_cdn_filter_the_content_returns_original_content_when_passed_null() {
 		$filtered_content = Image_CDN::filter_the_content( null );
@@ -1109,7 +1109,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	/**
 	 * Tests that filter_the_content returns original content when passed empty string.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.18
 	 */
 	public function test_image_cdn_filter_the_content_returns_original_content_when_passed_empty_string() {
 		$filtered_content = Image_CDN::filter_the_content( '' );
@@ -1119,7 +1119,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	/**
 	 * Tests that filter_the_content returns original content when passed non-string input.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.18
 	 */
 	public function test_image_cdn_filter_the_content_returns_original_content_when_passed_non_string() {
 		$filtered_content = Image_CDN::filter_the_content( 123 );

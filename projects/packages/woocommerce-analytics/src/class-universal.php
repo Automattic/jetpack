@@ -50,8 +50,9 @@ class Universal {
 		// Send events after checkout block.
 		add_action( 'woocommerce_blocks_enqueue_checkout_block_scripts_after', array( $this, 'checkout_process' ) );
 
-		// order confirmed.
-		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
+		// order processed.
+		add_action( 'woocommerce_checkout_order_processed', array( $this, 'order_process' ), 10, 1 );
+		add_action( 'woocommerce_store_api_checkout_order_processed', array( $this, 'order_process' ), 10, 1 );
 
 		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
 
@@ -84,27 +85,9 @@ class Universal {
 			$data = WC()->session->get( 'wca_session_data' );
 			if ( ! empty( $data ) ) {
 				foreach ( $data as $data_instance ) {
-					$event_props = array(
-						'pq' => $data_instance['quantity'] ?? null,
-					);
-
-					// Attach the session ID, engagement status and landing_page to this event in case it's saved in the Data Instance.
-					// Otherwise, keep it unset to allow override.
-					if ( isset( $data_instance['session_id'] ) && $data_instance['session_id'] ) {
-						$event_props['session_id'] = $data_instance['session_id'];
-					}
-
-					if ( isset( $data_instance['is_engaged'] ) && $data_instance['is_engaged'] ) {
-						$event_props['is_engaged'] = $data_instance['is_engaged'];
-					}
-
-					if ( isset( $data_instance['landing_page'] ) && $data_instance['landing_page'] ) {
-						$event_props['landing_page'] = $data_instance['landing_page'];
-					}
-
 					$this->record_event(
 						$data_instance['event'],
-						$event_props,
+						$data_instance['properties'] ?? array(),
 						$data_instance['product_id']
 					);
 				}
@@ -153,7 +136,7 @@ class Universal {
 	 */
 	public function capture_remove_from_cart( $cart_item_key, $cart ) {
 		$item = $cart->removed_cart_contents[ $cart_item_key ] ?? null;
-		$this->capture_event_in_session_data( (int) $item['product_id'], (int) $item['quantity'], 'woocommerceanalytics_remove_from_cart' );
+		$this->capture_event_in_session_data( 'woocommerceanalytics_remove_from_cart', (int) $item['product_id'], (int) $item['quantity'] );
 	}
 
 	/**
@@ -169,13 +152,13 @@ class Universal {
 	public function capture_cart_quantity_update( $cart_item_key, $quantity, $old_quantity, $cart ) {
 		$product_id = $cart->cart_contents[ $cart_item_key ]['product_id'];
 		if ( $quantity > $old_quantity ) {
-			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
+			$this->capture_event_in_session_data( 'woocommerceanalytics_add_to_cart', $product_id, $quantity );
 			$this->lock_add_to_cart_events = true;
 			return;
 		}
 
 		if ( $quantity < $old_quantity ) {
-			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_remove_from_cart' );
+			$this->capture_event_in_session_data( 'woocommerceanalytics_remove_from_cart', $product_id, $quantity );
 			return;
 		}
 	}
@@ -291,12 +274,16 @@ class Universal {
 	}
 
 	/**
-	 * After the checkout process, fire an event for each item in the order
+	 * After the order processed, fire an event for each item in the order
 	 *
-	 * @param string $order_id Order Id.
+	 * @param string|WC_Order $order_id_or_order Order Id or Order object.
 	 */
-	public function order_process( $order_id ) {
-		$order = wc_get_order( $order_id );
+	public function order_process( $order_id_or_order ) {
+		if ( is_string( $order_id_or_order ) ) {
+			$order = wc_get_order( $order_id_or_order );
+		} else {
+			$order = $order_id_or_order;
+		}
 
 		if (
 			! $order
@@ -359,8 +346,11 @@ class Universal {
 			if ( is_array( $order_coupons ) ) {
 				$order_coupons_count = count( $order_coupons );
 			}
-			$this->record_event(
+
+			$this->capture_event_in_session_data(
 				'woocommerceanalytics_product_purchase',
+				$product_id,
+				$order_item->get_quantity(),
 				array(
 					'oi'                       => $order->get_order_number(),
 					'pq'                       => $order_item->get_quantity(),
@@ -379,8 +369,7 @@ class Universal {
 					'from_checkout'            => $checkout_page_used,
 					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
-				),
-				$product_id
+				)
 			);
 		}
 	}
@@ -455,23 +444,23 @@ class Universal {
 		if ( $this->lock_add_to_cart_events ) {
 			return;
 		}
-		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
+		$this->capture_event_in_session_data( 'woocommerceanalytics_add_to_cart', $product_id, $quantity );
 	}
 
 	/**
 	 * Track in-session data.
 	 *
+	 * @param string $event Fired event.
 	 * @param int    $product_id Product ID.
 	 * @param int    $quantity Quantity.
-	 * @param string $event Fired event.
+	 * @param array  $properties Event properties.
 	 */
-	public function capture_event_in_session_data( $product_id, $quantity, $event ) {
+	public function capture_event_in_session_data( $event, $product_id, $quantity, $properties = array() ) {
 
 		$product = wc_get_product( $product_id );
 		if ( ! $product instanceof WC_Product ) {
 			return;
 		}
-
 		$quantity = ( 0 === $quantity ) ? 1 : $quantity;
 
 		// check for existing data.
@@ -484,14 +473,21 @@ class Universal {
 			$data = array();
 		}
 
+		$event_properties = array_merge(
+			array(
+				'pq'           => isset( $quantity ) ? (string) $quantity : null,
+				'session_id'   => $this->get_session_id(),
+				'landing_page' => $this->get_landing_page(),
+				'is_engaged'   => $this->is_engaged_session(),
+			),
+			$properties
+		);
+
 		// extract new event data.
 		$new_data = array(
-			'event'        => $event,
-			'product_id'   => (string) $product_id,
-			'quantity'     => (string) $quantity,
-			'session_id'   => $this->get_session_id(),
-			'landing_page' => $this->get_landing_page(),
-			'is_engaged'   => $this->is_engaged_session(),
+			'event'      => $event,
+			'product_id' => (string) $product_id,
+			'properties' => $event_properties,
 		);
 
 		// append new data.

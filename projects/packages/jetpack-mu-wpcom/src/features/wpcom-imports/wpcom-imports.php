@@ -20,9 +20,11 @@ function wpcom_imports_register_imports() {
 
 	$squarespace_description = __( 'Import <strong>posts, comments, images and tags</strong> from a Squarespace export file.', 'jetpack-mu-wpcom' );
 	$medium_description      = __( 'Import <strong>posts</strong> from a Medium export file.', 'jetpack-mu-wpcom' );
+	$wix_description         = __( 'Import <strong>posts, pages, and media</strong> from your Wix.com site.', 'jetpack-mu-wpcom' );
 
 	register_importer( 'wpcom-squarespace', __( 'Squarespace', 'jetpack-mu-wpcom' ), $squarespace_description, $page );
 	register_importer( 'wpcom-medium', __( 'Medium', 'jetpack-mu-wpcom' ), $medium_description, $page );
+	register_importer( 'wpcom-wix', __( 'Wix', 'jetpack-mu-wpcom' ), $wix_description, $page );
 }
 
 add_action( 'admin_init', 'wpcom_imports_register_imports' );
@@ -59,6 +61,25 @@ add_action(
 		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 		wp_redirect( 'https://wordpress.com/setup/site-setup/importerMedium?ref=wp-admin-importers-list-direct-importer&siteSlug=' . $domain );
+		exit();
+	}
+);
+
+/**
+ * Redirect to Calypso Stepper Wix importer
+ */
+add_action(
+	'load-importer-wpcom-wix',
+	/**
+	 * Redirect to the Wix importer in the Calypso Stepper.
+	 *
+	 * @return never-return
+	 */
+	function () {
+		$domain  = wp_parse_url( home_url(), PHP_URL_HOST );
+		$site_id = get_wpcom_blog_id();
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		wp_redirect( 'https://wordpress.com/setup/site-migration/site-migration-identify?platform=wix&action=skip_platform_identification&hide_importer_link=true&siteSlug=' . $domain . '&siteId=' . $site_id );
 		exit();
 	}
 );

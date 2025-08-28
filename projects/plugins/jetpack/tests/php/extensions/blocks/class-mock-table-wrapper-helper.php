@@ -29,6 +29,24 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Tab
 				$style
 			) . '<tr><td style="padding: 0; font-family: Arial, sans-serif;">' . $content . '</td></tr></table>';
 		}
+
+		/**
+		 * Mock render_table_cell method
+		 *
+		 * @param string $content    The content to wrap in a cell.
+		 * @param array  $attributes The cell attributes.
+		 * @return string The wrapped cell HTML.
+		 */
+		public static function render_table_cell( $content, $attributes ) {
+			// Simple mock that wraps content in a table cell
+			$style = $attributes['style'] ?? '';
+
+			return sprintf(
+				'<td style="%s">%s</td>',
+				$style,
+				$content
+			);
+		}
 	}
 	class_alias( 'Mock_Table_Wrapper_Helper', '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' );
 }
