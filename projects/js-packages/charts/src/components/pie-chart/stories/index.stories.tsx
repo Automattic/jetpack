@@ -387,7 +387,7 @@ export const CustomLabelColors: Story = {
 				color: '#45B7D1', // Light blue segment
 			},
 		],
-		labelTextColor: '#FFFFFF', // White text for high contrast
+		labelTextColor: '#FFFFFF', // White text for contrast against dark background
 		labelBackgroundColor: 'rgba(0, 0, 0, 0.75)', // Dark semi-transparent background
 		size: 400,
 	},

@@ -6,7 +6,7 @@ import type { ChartTheme } from '../../types';
 const defaultTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	labelTextColor: '#333', // label text color (dark gray to match original fallback)
+	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: '#DCDCDE',
@@ -64,7 +64,7 @@ const defaultTheme: ChartTheme = {
 const jetpackTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	labelTextColor: '#333', // label text color (dark gray to match original fallback)
+	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: '#DCDCDE',
@@ -122,7 +122,7 @@ const jetpackTheme: ChartTheme = {
 const wooTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	labelTextColor: '#333', // label text color (dark gray to match original fallback)
+	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [ '#80C8FF', '#B999FF', '#3858E9' ],
 	gridStyles: {
 		stroke: '#787C82',
