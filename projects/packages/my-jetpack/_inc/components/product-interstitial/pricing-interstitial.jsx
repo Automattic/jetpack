@@ -171,13 +171,31 @@ export default function PricingInterstitial( { slug } ) {
 		( { checkout, product, tier } ) => {
 			if ( product?.isBundle ) {
 				// Get straight to the checkout page for bundles.
-				checkout?.();
+				try {
+					checkout?.();
+				} catch ( error ) {
+					recordEvent( 'jetpack_myjetpack_interstitial_loading_error', {
+						product_slug: slug,
+						error_type: 'checkout_failed',
+						tier_attempted: 'bundle',
+						error_message: error?.message || 'Bundle checkout failed',
+					} );
+					throw error; // Re-throw to preserve existing behavior
+				}
 				return;
 			}
 
 			activate(
 				{ productId: slug },
 				{
+					onError: error => {
+						recordEvent( 'jetpack_myjetpack_interstitial_loading_error', {
+							product_slug: slug,
+							error_type: 'plugin_activation_failed',
+							tier_attempted: tier || 'unknown',
+							error_message: error?.message || 'Unknown activation error',
+						} );
+					},
 					onSettled: activatedProduct => {
 						const postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
 
@@ -200,15 +218,25 @@ export default function PricingInterstitial( { slug } ) {
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
-							handleRegisterSite().then( postRegisterRedirectUri => {
-								if ( postRegisterRedirectUri ) {
-									// Redirect to the product's admin page
-									window.location.href = postRegisterRedirectUri;
-								} else {
-									// Fall back to the My Jetpack overview page.
-									return navigateToMyJetpackOverviewPage();
-								}
-							} );
+							handleRegisterSite()
+								.then( postRegisterRedirectUri => {
+									if ( postRegisterRedirectUri ) {
+										// Redirect to the product's admin page
+										window.location.href = postRegisterRedirectUri;
+									} else {
+										// Fall back to the My Jetpack overview page.
+										return navigateToMyJetpackOverviewPage();
+									}
+								} )
+								.catch( error => {
+									recordEvent( 'jetpack_myjetpack_interstitial_loading_error', {
+										product_slug: slug,
+										error_type: 'site_registration_failed',
+										tier_attempted: tier || 'unknown',
+										error_message: error?.message || 'Site registration failed',
+									} );
+									throw error; // Re-throw to preserve existing behavior
+								} );
 
 							return;
 						}
@@ -222,12 +250,29 @@ export default function PricingInterstitial( { slug } ) {
 						}
 
 						// Redirect to the checkout page.
-						checkout?.( null, postCheckoutUrl );
+						try {
+							checkout?.( null, postCheckoutUrl );
+						} catch ( error ) {
+							recordEvent( 'jetpack_myjetpack_interstitial_loading_error', {
+								product_slug: slug,
+								error_type: 'checkout_failed',
+								tier_attempted: tier || 'unknown',
+								error_message: error?.message || 'Checkout failed',
+							} );
+							throw error; // Re-throw to preserve existing behavior
+						}
 					},
 				}
 			);
 		},
-		[ myJetpackCheckoutUri, slug, activate, handleRegisterSite, navigateToMyJetpackOverviewPage ]
+		[
+			myJetpackCheckoutUri,
+			slug,
+			activate,
+			handleRegisterSite,
+			navigateToMyJetpackOverviewPage,
+			recordEvent,
+		]
 	);
 
 	const handleGetProduct = useCallback( () => {
