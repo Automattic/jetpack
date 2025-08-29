@@ -800,7 +800,7 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 							}
 						}
 						// if has long desc, show/hide
-						if ( !empty( $log['longdesc'] ) ) {
+						if ( ! empty( $log['longdesc'] ) ) {
 							?>
 							<i class="angle down icon zbs-show-longdesc"></i><i class="angle up icon zbs-hide-longdesc"></i>
 							<div class="zbs-long-desc">
