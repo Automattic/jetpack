@@ -172,7 +172,6 @@ function format_attributes_for_woocommerce( $attributes ) {
 		$formatted['customBackgroundColor'] = $attributes['customBackgroundColor'];
 	}
 
-	// Handle text colors
 	if ( ! empty( $attributes['textColor'] ) ) {
 		$formatted['textColor'] = $attributes['textColor'];
 	}
@@ -240,7 +239,6 @@ function get_button_classes( $attributes ) {
 		$classes[] = $attributes['className'];
 	}
 
-	// Handle text colors
 	if ( $has_named_text_color || $has_custom_text_color ) {
 		$classes[] = 'has-text-color';
 	}
@@ -248,12 +246,10 @@ function get_button_classes( $attributes ) {
 		$classes[] = sprintf( 'has-%s-color', $attributes['textColor'] );
 	}
 
-	// Handle border colors
 	if ( $has_named_border_color ) {
 		$classes[] = sprintf( 'has-%s-border-color', $attributes['borderColor'] );
 	}
 
-	// Handle backgrounds
 	if (
 		$has_named_background_color ||
 		$has_custom_background_color ||
@@ -269,7 +265,6 @@ function get_button_classes( $attributes ) {
 		$classes[] = sprintf( 'has-%s-gradient-background', $attributes['gradient'] );
 	}
 
-	// Handle border radius
 	// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 	if ( $has_border_radius && 0 == $attributes['borderRadius'] ) {
 		$classes[] = 'no-border-radius';
@@ -324,15 +319,15 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'text-transform: %s;', $attributes['style']['typography']['textTransform'] );
 	}
 
-	// Handle text colors
 	if ( ! $has_named_text_color && $has_custom_text_color ) {
 		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
 	}
 
-	// Handle background colors and gradients
 	if ( ! $has_named_background_color && ! $has_named_gradient && $has_custom_gradient ) {
 		$styles[] = sprintf( 'background: %s;', $attributes['customGradient'] );
-	} elseif (
+	}
+
+	if (
 		$has_custom_background_color &&
 		! $has_named_background_color &&
 		! $has_named_gradient &&
@@ -341,18 +336,15 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
 	}
 
-	// Handle border radius
 	// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 	if ( $has_border_radius && 0 != $attributes['borderRadius'] ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
 	}
 
-	// Handle border colors
 	if ( $has_custom_border_color ) {
 		$border_styles['color'] = $attributes['style']['border']['color'];
 	}
 
-	// Handle border styles (button only)
 	if ( $has_border_style ) {
 		$border_styles['style'] = $attributes['style']['border']['style'];
 	}
