@@ -21,6 +21,34 @@ export interface FunnelStep {
 }
 
 /**
+ * Render prop for customizing step labels
+ */
+export interface StepLabelRenderProps {
+	step: FunnelStep;
+	index: number;
+	className?: string;
+}
+
+/**
+ * Render prop for customizing step rates
+ */
+export interface StepRateRenderProps {
+	step: FunnelStep;
+	index: number;
+	className?: string;
+}
+
+/**
+ * Render prop for customizing the entire main metric section
+ */
+export interface MainMetricRenderProps {
+	mainRate: number;
+	changeIndicator?: string;
+	className?: string;
+	changeColor?: string;
+}
+
+/**
  * Props for the ConversionFunnelChart component
  */
 export interface ConversionFunnelChartProps {
@@ -36,6 +64,12 @@ export interface ConversionFunnelChartProps {
 	className?: string;
 	/** Custom styling */
 	style?: React.CSSProperties;
+	/** Custom render function for step labels */
+	renderStepLabel?: ( props: StepLabelRenderProps ) => React.ReactNode;
+	/** Custom render function for step rates */
+	renderStepRate?: ( props: StepRateRenderProps ) => React.ReactNode;
+	/** Custom render function for the entire main metric section */
+	renderMainMetric?: ( props: MainMetricRenderProps ) => React.ReactNode;
 }
 
 /**
@@ -51,13 +85,16 @@ const DEFAULT_FUNNEL_SETTINGS = {
 /**
  * ConversionFunnelChart component displays a conversion funnel with main metric and visualization
  *
- * @param props                 - Component props
- * @param props.mainRate        - Main conversion rate to highlight
- * @param props.changeIndicator - Change indicator (e.g., +2%, -1.5%)
- * @param props.steps           - Array of funnel steps
- * @param props.loading         - Whether the chart is in loading state
- * @param props.className       - Additional CSS class name
- * @param props.style           - Custom styling
+ * @param props                  - Component props
+ * @param props.mainRate         - Main conversion rate to highlight
+ * @param props.changeIndicator  - Change indicator (e.g., +2%, -1.5%)
+ * @param props.steps            - Array of funnel steps
+ * @param props.loading          - Whether the chart is in loading state
+ * @param props.className        - Additional CSS class name
+ * @param props.style            - Custom styling
+ * @param props.renderStepLabel  - Custom render function for step labels
+ * @param props.renderStepRate   - Custom render function for step rates
+ * @param props.renderMainMetric - Custom render function for the entire main metric section
  * @return JSX element representing the conversion funnel chart
  */
 export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
@@ -67,6 +104,9 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	loading = false,
 	className,
 	style,
+	renderStepLabel,
+	renderStepRate,
+	renderMainMetric,
 } ) => {
 	const theme = useGlobalChartTheme();
 	const chartRef = useRef< HTMLDivElement >( null );
@@ -145,9 +185,17 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	const chartStyle = {
 		'--primary-color': primaryColor,
 		'--light-background-color': lightBackgroundColor,
-		'--change-color': changeColor,
+		'--change-indicator-color': changeColor,
 		...style,
 	} as React.CSSProperties;
+
+	// Default main metric rendering function
+	const renderDefaultMainMetric = () => (
+		<>
+			<span className={ styles.mainRate }>{ mainRate.toFixed( 1 ) }%</span>
+			{ changeIndicator && <span className={ styles.changeIndicator }>{ changeIndicator }</span> }
+		</>
+	);
 
 	// Handle empty or undefined data
 	if ( ! steps || steps.length === 0 ) {
@@ -171,18 +219,20 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 			style={ chartStyle }
 		>
 			{ /* Main Metric */ }
-			<div className={ styles.mainMetric }>
-				<Text className={ styles.mainRate }>{ mainRate.toFixed( 1 ) }%</Text>
-				{ changeIndicator && (
-					<Text className={ styles.changeIndicator } style={ { color: changeColor } }>
-						{ changeIndicator }
-					</Text>
-				) }
-			</div>
+			{ renderMainMetric ? (
+				renderMainMetric( {
+					mainRate,
+					changeIndicator,
+					className: styles.mainMetric,
+					changeColor,
+				} )
+			) : (
+				<div className={ styles.mainMetric }>{ renderDefaultMainMetric() }</div>
+			) }
 
 			{ /* Funnel Steps */ }
 			<div className={ styles.funnelContainer }>
-				{ steps.map( step => {
+				{ steps.map( ( step, index ) => {
 					const barHeight = ( step.rate / maxRate ) * 100;
 					const { isClicked, isBlurred } = getStepState( step.id );
 
@@ -193,8 +243,24 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 						>
 							{ /* Step Label and Rate */ }
 							<div className={ styles.stepHeader }>
-								<Text className={ styles.stepLabel }>{ step.label }</Text>
-								<Text className={ styles.stepRate }>{ step.rate.toFixed( 1 ) }%</Text>
+								{ renderStepLabel ? (
+									renderStepLabel( {
+										step,
+										index,
+										className: styles.stepLabel,
+									} )
+								) : (
+									<span className={ styles.stepLabel }>{ step.label }</span>
+								) }
+								{ renderStepRate ? (
+									renderStepRate( {
+										step,
+										index,
+										className: styles.stepRate,
+									} )
+								) : (
+									<span className={ styles.stepRate }>{ step.rate.toFixed( 1 ) }%</span>
+								) }
 							</div>
 
 							{ /* Funnel Bar */ }
