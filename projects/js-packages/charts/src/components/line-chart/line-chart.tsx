@@ -21,8 +21,7 @@ import {
 } from '../../providers/chart-context';
 import { attachSubComponents, getSeriesLineStyles } from '../../utils';
 import { DefaultGlyph } from '../default-glyph';
-import { Legend } from '../legend';
-import { useChartLegendItems } from '../legend/use-chart-legend-items';
+import { Legend, useChartLegendItems } from '../legend';
 import { SingleChartContext, type SingleChartRef } from '../single-chart-context';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import { withResponsive } from '../with-responsive';

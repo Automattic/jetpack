@@ -9,7 +9,7 @@ export { ConversionFunnelChart } from './components/conversion-funnel-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
-export { Legend, BaseLegend, useChartLegendItems } from './components/legend';
+export { Legend, useChartLegendItems } from './components/legend';
 
 // Visx components
 export { Text, getStringWidth, useText } from './visx/text';

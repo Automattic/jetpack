@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { BaseLegend } from './base-legend';
-import type { LegendProps } from './types';
+import { BaseLegend } from '../private/base-legend';
+import type { LegendProps } from '../types';
 
 const TestShape: LegendProps[ 'shape' ] = props => {
 	return (

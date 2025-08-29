@@ -13,8 +13,7 @@ import {
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
 import { ChartSVG, ChartHTML, useChartChildren } from '../chart-composition';
-import { Legend } from '../legend';
-import { useChartLegendItems } from '../legend/use-chart-legend-items';
+import { Legend, useChartLegendItems } from '../legend';
 import { SingleChartContext } from '../single-chart-context';
 import { BaseTooltip } from '../tooltip';
 import { withResponsive } from '../with-responsive';

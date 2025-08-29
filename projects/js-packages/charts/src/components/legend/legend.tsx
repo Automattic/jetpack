@@ -1,7 +1,7 @@
 import { useContext, useMemo, forwardRef } from 'react';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { SingleChartContext } from '../single-chart-context';
-import { BaseLegend } from './base-legend';
+import { BaseLegend } from './private/base-legend';
 import type { LegendProps } from './types';
 
 export const Legend = forwardRef< HTMLDivElement, LegendProps >(

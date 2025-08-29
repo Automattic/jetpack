@@ -3,10 +3,10 @@ import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legen
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
 import { forwardRef, useCallback, useMemo, useContext } from 'react';
-import { useGlobalChartsTheme, GlobalChartsContext } from '../../providers/chart-context';
+import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers/chart-context';
+import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './legend.module.scss';
-import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
-import type { BaseLegendProps } from './types';
+import type { BaseLegendProps } from '../types';
 
 const orientationToFlexDirection = {
 	horizontal: 'row' as const,

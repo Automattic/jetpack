@@ -18,8 +18,7 @@ import {
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
-import { Legend } from '../legend';
-import { useChartLegendItems } from '../legend/use-chart-legend-items';
+import { Legend, useChartLegendItems } from '../legend';
 import { SingleChartContext } from '../single-chart-context';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import { withResponsive } from '../with-responsive';

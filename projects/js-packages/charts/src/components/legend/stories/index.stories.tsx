@@ -3,8 +3,8 @@ import { GlobalChartsProvider } from '../../../providers/chart-context';
 import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
 import { PieChart } from '../../pie-chart';
+import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
-import { useChartLegendItems } from '../use-chart-legend-items';
 import type { SeriesData, DataPointPercentage } from '../../../types';
 
 const meta: Meta< typeof Legend > = {
