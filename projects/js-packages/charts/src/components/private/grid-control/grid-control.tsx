@@ -1,6 +1,6 @@
 import { GridRows, GridColumns } from '@visx/grid';
 import styles from './grid-control.module.scss';
-import type { GridProps } from '../../types';
+import type { GridProps } from '../../../types';
 import type { FC } from 'react';
 
 const GridControl: FC< GridProps > = ( {

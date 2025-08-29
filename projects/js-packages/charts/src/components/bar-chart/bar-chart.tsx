@@ -19,12 +19,12 @@ import {
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
-import { SingleChartContext } from '../single-chart-context';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
-import { withResponsive } from '../with-responsive';
 import { useBarChartOptions, styles } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
-import type { ResponsiveConfig } from '../with-responsive';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, ComponentType } from 'react';
 

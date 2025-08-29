@@ -1,5 +1,5 @@
 import { useParentSize } from '@visx/responsive';
-import type { BaseChartProps, Optional } from '../../types';
+import type { BaseChartProps, Optional } from '../../../types';
 import type { ComponentType } from 'react';
 
 export type ResponsiveConfig = {

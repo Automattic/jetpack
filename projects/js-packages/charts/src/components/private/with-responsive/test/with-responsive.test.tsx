@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { withResponsive } from '../index';
-import type { BaseChartProps } from '../../../types';
+import type { BaseChartProps } from '../../../../types';
 
 // Mock the useParentSize hook
 jest.mock( '@visx/responsive', () => ( {

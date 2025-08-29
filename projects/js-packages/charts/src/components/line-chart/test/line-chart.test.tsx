@@ -9,7 +9,7 @@ import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
-import type { SingleChartRef } from '../../single-chart-context';
+import type { SingleChartRef } from '../../private/single-chart-context';
 
 const customTheme = {
 	...jetpackTheme,

@@ -20,16 +20,16 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers/chart-context';
 import { attachSubComponents, getSeriesLineStyles } from '../../utils';
-import { DefaultGlyph } from '../default-glyph';
 import { Legend, useChartLegendItems } from '../legend';
-import { SingleChartContext, type SingleChartRef } from '../single-chart-context';
+import { DefaultGlyph } from '../private/default-glyph';
+import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
-import { withResponsive } from '../with-responsive';
 import LineChartAnnotation from './line-chart-annotation';
 import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
-import type { ResponsiveConfig } from '../with-responsive';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';

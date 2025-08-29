@@ -12,15 +12,15 @@ import {
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
-import { ChartSVG, ChartHTML, useChartChildren } from '../chart-composition';
 import { Legend, useChartLegendItems } from '../legend';
-import { SingleChartContext } from '../single-chart-context';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
-import { withResponsive } from '../with-responsive';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
-import type { ChartComponentWithComposition } from '../chart-composition';
-import type { ResponsiveConfig } from '../with-responsive';
+import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {

@@ -1,6 +1,6 @@
 import { useContext, useMemo, forwardRef } from 'react';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { SingleChartContext } from '../single-chart-context';
+import { SingleChartContext } from '../private/single-chart-context';
 import { BaseLegend } from './private/base-legend';
 import type { LegendProps } from './types';
 
