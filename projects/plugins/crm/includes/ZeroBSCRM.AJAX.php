@@ -5353,8 +5353,149 @@ function zeroBSCRM_AJAX_sendStatement() {
 		// delete the PDF file once it's been read (i.e. sent)
 		unlink( $statementPDFfilepath );
 
+		// Add activity log entry
+		zeroBS_addUpdateContactLog(
+			$cID,
+			-1,
+			-1,
+			array(
+				'type'           => 'email',
+				'shortdesc'      => __( 'Statement Sent', 'zero-bs-crm' ),
+				'longdesc'       => sprintf( __( 'Invoice statement sent to: %s', 'zero-bs-crm' ), $email ),
+				'meta_assoc_src' => 'statement',
+			)
+		);
+
 		$r['success'] = __( 'Sent', 'zero-bs-crm' );
 		wp_send_json( $r );
+}
+
+// } AJAX Send Company Statement
+add_action( 'wp_ajax_zbs_company_send_statement', 'zeroBSCRM_AJAX_sendCompanyStatement' );
+function zeroBSCRM_AJAX_sendCompanyStatement() {
+
+	// } Check nonce
+	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
+
+	$cID = -1;
+	$em  = '';
+	$r   = array();
+	if ( isset( $_POST['cid'] ) && ! empty( $_POST['cid'] ) ) {
+		$cID = (int) sanitize_text_field( $_POST['cid'] );  // accepts the company ID
+	}
+	if ( isset( $_POST['em'] ) && ! empty( $_POST['em'] ) ) {
+		$em = sanitize_text_field( $_POST['em'] );
+	}
+
+	// validate the email
+	if ( ! zeroBSCRM_validateEmail( $em ) ) {
+
+		$r['error'] = __( 'Not a valid email', 'zero-bs-crm' );
+		zeroBSCRM_sendJSONError( $r );
+		exit( 0 );
+
+	} else {
+		$email = $em;
+	}
+
+	// } Check id + perms + em
+	if ( $cID <= 0 || empty( $email ) || ! zeroBSCRM_permsInvoices() ) {
+
+		$r['error'] = '';
+		zeroBSCRM_sendJSONError( $r );
+		exit( 0 );
+
+	}
+
+	// ==== BUILD STATEMENT PDF
+	// generates pdf file
+	$statementPDFfilepath = zeroBSCRM_invoicing_generateCompanyStatementPDF( $cID, false );
+
+	// check worked
+	if ( ! file_exists( $statementPDFfilepath ) ) {
+		$r['error'] = __( 'Could not generate statement PDF', 'zero-bs-crm' );
+		zeroBSCRM_sendJSONError( $r );
+		exit( 0 );
+	}
+
+	// ==== SEND VIA EMAIL ATTACHMENT
+	// ==========================================================================================
+	// =================================== MAIL SENDING =========================================
+
+	// Attachment
+	$attachments = array(
+		array( $statementPDFfilepath, __( 'statement', 'zero-bs-crm' ) . '.pdf' ),
+	);
+
+	// generate html
+	$emailHTML = zeroBSCRM_company_statement_generateNotificationHTML( $cID, true );
+
+		// build send array
+		$mailArray = array(
+			'toEmail'     => $email,
+			'toName'      => '',
+			'subject'     => zeroBSCRM_mailTemplate_getSubject( ZBSEMAIL_STATEMENT ),
+			'headers'     => zeroBSCRM_mailTemplate_getHeaders( ZBSEMAIL_STATEMENT ),
+			'body'        => $emailHTML,
+			'textbody'    => '',
+			'attachments' => $attachments,
+			'options'     => array(
+				'html' => 1,
+			),
+			'tracking'    => array(
+				// tracking :D (auto-inserted pixel + saved in history db)
+				'emailTypeID'     => ZBSEMAIL_STATEMENT,
+				'targetObjID'     => $cID,
+				'senderWPID'      => -15, // wh added -15 you have a statement sent to customer,
+				'associatedObjID' => -1,
+			),
+		);
+
+		// DEBUG echo 'Sending:<pre>'; print_r($mailArray); echo '</pre>Result:';
+
+		// Sends email, including tracking, via setting stored route out, (or default if none)
+		// and logs trcking :)
+
+		// discern del method
+		$mailDeliveryMethod = zeroBSCRM_mailTemplate_getMailDelMethod( ZBSEMAIL_STATEMENT );
+		if ( ! isset( $mailDeliveryMethod ) || empty( $mailDeliveryMethod ) ) {
+			$mailDeliveryMethod = -1;
+		}
+
+		// send
+		$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryMethod, $mailArray );
+
+		// Check if sending failed
+		if ( ! $sent ) {
+			$r['error'] = __( 'Could not send statement email', 'zero-bs-crm' );
+			zeroBSCRM_sendJSONError( $r );
+			exit( 0 );
+		}
+
+		// =================================== / MAIL SENDING =======================================
+		// ==========================================================================================
+
+		// DELETE statement
+		// delete the PDF file once it's been read (i.e. sent)
+		unlink( $statementPDFfilepath );
+
+		// Add activity log entry
+		zeroBS_addUpdateObjLog(
+			ZBS_TYPE_COMPANY,
+			$cID,
+			-1,
+			-1,
+			array(
+				'type'           => 'email',
+				'shortdesc'      => __( 'Statement Sent', 'zero-bs-crm' ),
+				'longdesc'       => sprintf( __( 'Invoice statement sent to: %s', 'zero-bs-crm' ), $email ),
+				'meta_assoc_src' => 'statement',
+			)
+		);
+
+	$r['success'] = __( 'Sent', 'zero-bs-crm' );
+	zeroBSCRM_sendJSONSuccess( $r );
+	exit( 0 );
 }
 
 /*

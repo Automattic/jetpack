@@ -739,6 +739,252 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 	return false;
 }
 
+/* ======================================================
+    ZBS Invoicing - COMPANY STATEMENT FUNCTIONS
+   ====================================================== */
+
+#} this generates a PDF statement for a company, either returning the filepath or a PDF download prompt
+function zeroBSCRM_invoicing_generateCompanyStatementPDF( $companyID = -1, $returnPDF = false ){
+
+	if ( ! zeroBSCRM_permsInvoices() ) {
+		exit( 0 );
+	}
+
+	global $zbs;
+
+    #} Check ID
+    $companyID = (int)$companyID;
+    #} If user has no perms, or id not present, die
+    if (!zeroBSCRM_permsInvoices() || empty($companyID) || $companyID <= 0){
+		die( 0 );
+    }
+
+    $html = zeroBSCRM_invoicing_generateCompanyStatementHTML($companyID);
+    
+    // check if HTML generation worked
+    if ( empty( $html ) ) {
+        return false;
+    }
+
+    // build PDF
+    $dompdf = $zbs->pdf_engine();
+    $dompdf->loadHtml($html,'UTF-8');
+    $dompdf->render();
+
+    // target dir
+    $upload_dir = wp_upload_dir();
+    $zbsInvoicingDir = $upload_dir['basedir'].'/invoices/';
+
+    if ( ! file_exists( $zbsInvoicingDir ) ) {
+        wp_mkdir_p( $zbsInvoicingDir );
+    }
+    // got it?
+    if ( ! file_exists( $zbsInvoicingDir ) ) {
+        return false;
+    }
+
+    // make a hash
+    // here we've tried to protect against someone overriding the security,
+    // but if they're inside... it's too late anyhow.
+    $hash = wp_generate_password(14, false);
+    if (empty($hash) || strlen($hash) < 14) $hash = md5(time().'xcsac'); // backup 
+    
+    $statementFilename = $zbsInvoicingDir.$hash.'-'.__('company-statement','zero-bs-crm').'-'.$companyID.'.pdf';
+
+    //save the pdf file on the server
+    file_put_contents($statementFilename, $dompdf->output());  
+
+    if (file_exists( $statementFilename )) {
+
+        // if return pdf, return, otherwise return filepath
+        if ($returnPDF){
+
+            //print the pdf file to the screen for saving
+            header('Content-type: application/pdf');
+            header('Content-Disposition: attachment; filename="company-statement-'.$companyID.'.pdf"');
+            header('Content-Transfer-Encoding: binary');
+            header('Content-Length: ' . filesize($statementFilename));
+            header('Accept-Ranges: bytes');
+            readfile($statementFilename);
+
+            //delete the PDF file once it's been read (i.e. downloaded)
+            unlink($statementFilename); 
+
+        } else {
+
+            return $statementFilename;
+
+        }
+
+
+    } // if file
+
+    return false;
+}
+
+/**
+ * Generates the HTML of a company statement based on the template in templates/invoices/statement-pdf.html
+ * if $return, it'll return, otherwise it'll echo + exit
+ **/
+function zeroBSCRM_invoicing_generateCompanyStatementHTML( $company_id = -1, $return = true ) {
+
+	if ( ! empty( $company_id ) && $company_id > 0 ) {
+
+		// Discern template and retrieve
+		$global_statement_pdf_template = zeroBSCRM_getSetting( 'statement_pdf_template' );
+		if ( ! empty( $global_statement_pdf_template ) ) {
+			$templated_html = jpcrm_retrieve_template( $global_statement_pdf_template, false );
+		}
+
+		// fallback to default template  
+		if ( ! isset( $templated_html ) || empty( $templated_html ) ) {
+			// template failed as setting potentially holds out of date (removed) template
+			// so use the default (same as contact version)
+			$templated_html = jpcrm_retrieve_template( 'invoices/statement-pdf.html', false );
+		}
+
+		// If still empty, let's try a different approach
+		if ( empty( $templated_html ) ) {
+			$template_path = ZEROBSCRM_PATH . 'templates/invoices/statement-pdf.html';
+			if ( file_exists( $template_path ) ) {
+				$templated_html = file_get_contents( $template_path );
+			}
+		}
+		return zeroBSCRM_invoicing_generateCompanyStatementHTML_v3( $company_id, $return, $templated_html );
+
+	}
+
+	return false;
+}
+
+function zeroBSCRM_invoicing_generateCompanyStatementHTML_v3( $company_id = -1, $return = true, $templated_html = '' ) {
+
+	if ( $company_id > 0 && $templated_html !== '' ) {
+
+		global $zbs;
+
+		// load templating
+		$placeholder_templating = $zbs->get_templating();
+
+		// Get company statement data
+		$statement_data = jpcrm_get_company_statement_data( $company_id );
+		if ( ! $statement_data ) {
+			return '';
+		}
+
+		// Globals
+		$statement_extra = zeroBSCRM_getSetting( 'statementextra' );
+		$logo_url        = zeroBSCRM_getSetting( 'invoicelogourl' );
+		$biz_name        = zeroBSCRM_getSetting( 'businessname' );
+
+		$statement_table = '';
+
+		// logo header
+		if ( ! empty( $logo_url ) ) {
+			$statement_table .= sprintf(
+				"<div class='header-image'><img src='%s' alt='%s'></div>",
+				esc_url( $logo_url ),
+				esc_attr( $biz_name )
+			);
+		}
+
+		// title
+		$statement_table .= sprintf(
+			'<div class="div-table" role="table" aria-label="Statement Details">
+				<div class="div-table-row-group">
+					<div class="div-table-row">
+						<div class="div-table-cell">
+							<h2 style="margin: 0; font-size: 24px;">%s</h2>
+						</div>
+					</div>
+				</div>
+			</div>',
+			esc_html__( 'STATEMENT', 'zero-bs-crm' )
+		);
+
+		// company and business info
+		$statement_table .= '<div class="div-table" style="margin-bottom: 20px;">
+			<div class="div-table-row-group">
+				<div class="div-table-row">
+					<div class="div-table-cell" style="border: none; width: 50%;">
+						<h4>' . esc_html( $statement_data['company']['name'] ) . '</h4>';
+
+		if ( ! empty( $statement_data['company']['address'] ) ) {
+			$statement_table .= '<div>' . wp_kses_post( implode( '<br>', $statement_data['company']['address'] ) ) . '</div>';
+		}
+
+		$statement_table .= '</div>
+					<div class="div-table-cell right" style="border: none; width: 50%;">
+						<h4>' . esc_html( $statement_data['business']['name'] ) . '</h4>';
+
+		if ( ! empty( $statement_data['business']['address'] ) ) {
+			$statement_table .= '<div>' . wp_kses_post( implode( '<br>', $statement_data['business']['address'] ) ) . '</div>';
+		}
+
+		$statement_table .= '<div style="margin-top: 10px;"><strong>' . esc_html__( 'Statement Date', 'zero-bs-crm' ) . ':</strong> ' . esc_html( $statement_data['statement_date'] ) . '</div>
+					</div>
+				</div>
+			</div>
+		</div>';
+
+		// statement items table
+		if ( ! empty( $statement_data['items'] ) ) {
+			$statement_table .= '<div class="div-table" style="margin-bottom: 20px;">
+				<div class="div-table-head">
+					<div class="div-table-row">
+						<div class="div-table-heading">' . esc_html__( 'Date', 'zero-bs-crm' ) . '</div>
+						<div class="div-table-heading">' . esc_html__( 'Reference', 'zero-bs-crm' ) . '</div>
+						<div class="div-table-heading">' . esc_html__( 'Due Date', 'zero-bs-crm' ) . '</div>
+						<div class="div-table-heading right">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</div>
+						<div class="div-table-heading right">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</div>
+						<div class="div-table-heading right">' . esc_html__( 'Balance', 'zero-bs-crm' ) . '</div>
+					</div>
+				</div>
+				<div class="div-table-row-group">';
+
+			foreach ( $statement_data['items'] as $item ) {
+				$statement_table .= '<div class="div-table-row">
+					<div class="div-table-cell">' . esc_html( $item['date'] ) . '</div>
+					<div class="div-table-cell">' . esc_html( $item['reference'] ) . '</div>
+					<div class="div-table-cell">' . esc_html( $item['due_date'] ) . '</div>
+					<div class="div-table-cell right">' . zeroBSCRM_formatCurrency( $item['amount'] ) . '</div>
+					<div class="div-table-cell right">' . zeroBSCRM_formatCurrency( $item['payments'] ) . '</div>
+					<div class="div-table-cell right">' . zeroBSCRM_formatCurrency( $item['balance'] ) . '</div>
+				</div>';
+			}
+
+			$statement_table .= '</div>
+			</div>';
+
+			// Total balance due
+			$statement_table .= '<div class="div-footer">
+				<div class="div-footer-cell right">
+					<h3 style="margin: 0;">' . esc_html__( 'BALANCE DUE', 'zero-bs-crm' ) . ': ' . zeroBSCRM_formatCurrency( $statement_data['total_balance_due'] ) . '</h3>
+				</div>
+			</div>';
+		}
+
+		// statement extra (if any)
+		if ( ! empty( $statement_extra ) ) {
+			$statement_table .= '<div style="margin-top: 20px; font-size: 12px;">' . wp_kses_post( $statement_extra ) . '</div>';
+		}
+
+		// main content build using templating engine like the contact version
+		$html = $placeholder_templating->replace_single_placeholder( 'invoice-statement-html', $statement_table, $templated_html );
+
+		// return
+		if ( ! $return ) {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit( 0 );
+		}
+
+		return $html;
+
+	} // /if anything
+
+	return false;
+}
+
 // phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Generic.Commenting.DocComment.MissingShort
 /**
  *

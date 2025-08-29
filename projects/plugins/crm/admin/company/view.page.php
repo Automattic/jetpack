@@ -200,8 +200,9 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 				}
 
 				// retrieve any additional tabs peeps have prepared
-				$companyVitalTabs = apply_filters( 'jetpack-crm-company-vital-tabs', array(), $id );
-
+				// phpcs:disable
+				$companyVitalTabs = apply_filters( 'jetpack-crm-company-vital-tabs', array(), $id, $company );
+				// phpcs:enable
 				?>
 
 				<div id="zbs-vitals-box">

@@ -689,6 +689,75 @@ function zeroBSCRM_statement_generateNotificationHTML( $contact_id = -1, $return
 	// FAIL
 	return;
 }
+
+// generates company statement email html based on template in sys mail
+function zeroBSCRM_company_statement_generateNotificationHTML( $company_id = -1, $return = true ) {
+
+	global $zbs;
+
+	if ( !empty( $company_id ) ) {
+		$company = $zbs->DAL->companies->getCompany( $company_id );
+
+		$pWrap = '<p style="font-family:sans-serif;font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">';
+
+		// load templater
+		$placeholder_templating = $zbs->get_templating();
+
+		// Get templated notify email
+
+		// body template
+		$mailTemplate = zeroBSCRM_mailTemplate_get( ZBSEMAIL_STATEMENT );
+		$bodyHTML = $mailTemplate->zbsmail_body;
+
+		// html template
+		$html = jpcrm_retrieve_template( 'emails/default-email.html', false );
+		$html = $placeholder_templating->replace_single_placeholder( 'msg-content', $bodyHTML, $html );
+
+		// Act
+		if ( !empty( $html ) ) {
+
+			// the business info from the settings
+			$zbs_biz_name = zeroBSCRM_getSetting( 'businessname' );
+			$zbs_biz_yourname = zeroBSCRM_getSetting( 'businessyourname' );
+			$zbs_biz_extra = zeroBSCRM_getSetting( 'businessextra' );
+
+			// For now, use this, ripped from invoices:
+			// (We need to centralise)
+			$bizInfoTable = '<table class="table zbs-table" style="width:100%;">';
+			$bizInfoTable .= '<tbody>';
+			$bizInfoTable .= '<tr><td style="font-family:sans-serif;font-size:14px;vertical-align:top;padding-bottom:5px;"><strong>' . $zbs_biz_name . '</strong></td></tr>';
+			$bizInfoTable .= '<tr><td style="font-family:sans-serif;font-size:14px;vertical-align:top;padding-bottom:5px;">' . $zbs_biz_yourname . '</td></tr>';
+			$bizInfoTable .= '<tr><td style="font-family:sans-serif;font-size:14px;vertical-align:top;padding-bottom:5px;">' . $zbs_biz_extra . '</td></tr>';
+			$bizInfoTable .= '</tbody>';
+			$bizInfoTable .= '</table>';
+
+					// get generics
+			$replacements = $placeholder_templating->get_generic_replacements();
+
+			// view in portal?
+			$replacements['title'] = __( 'Statement', 'zero-bs-crm' );
+			$replacements['biz-info'] = $bizInfoTable;
+
+			// replacements
+			$html = $placeholder_templating->replace_placeholders( array( 'global', 'company' ), $html, $replacements, array( ZBS_TYPE_COMPANY => $company ) );
+
+			// return
+			if ( !$return ) {
+
+				echo $html;
+				exit( 0 );
+
+			}
+
+		}
+
+		return $html;
+
+	}
+	// FAIL
+	return;
+}
+
 /* ======================================================
 	/ ZBS Invoices - Generate HTML (notification email)
    ====================================================== */

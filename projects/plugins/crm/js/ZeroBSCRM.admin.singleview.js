@@ -236,6 +236,9 @@ function zeroBSCRMJS_viewCompanyInit() {
 
 	// files
 	zeroBSCRMJS_bindViewFiles();
+
+	// log long desc toggles
+	zeroBSCRMJS_bindActivityStream();
 }
 
 /* ============================================================================================================
