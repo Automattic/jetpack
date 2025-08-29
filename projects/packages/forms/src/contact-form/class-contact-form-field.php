@@ -1934,24 +1934,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 				// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
 				// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
-				$option_outer_classes = "jetpack-input-image-option__outer {$option['classcolor']}";
+				$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
 
 				if ( $is_supersized ) {
 					$option_outer_classes .= ' is-supersized';
 				}
 
 				$border_styles = '';
-				preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
-				preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
+				if ( ! empty( $option['style'] ) ) {
+					preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
+					preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
 
-				if ( ! empty( $radius_match[1] ) ) {
-					$radius_value = trim( $radius_match[1] );
+					if ( ! empty( $radius_match[1] ) ) {
+						$radius_value = trim( $radius_match[1] );
 
-					if ( ! empty( $width_match[1] ) ) {
-							$width_value   = trim( $width_match[1] );
-							$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
-					} else {
-							$border_styles = "border-radius:{$radius_value};";
+						if ( ! empty( $width_match[1] ) ) {
+								$width_value   = trim( $width_match[1] );
+								$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
+						} else {
+								$border_styles = "border-radius:{$radius_value};";
+						}
 					}
 				}
 

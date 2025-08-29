@@ -73,17 +73,12 @@ export default function ImageOptionInputEdit( props ) {
 	// Use the block's own synced attributes for styling
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	const outerClassName = useMemo( () => {
-		return clsx( 'jetpack-input-image-option__outer', {
-			'is-supersized': isSupersized,
-		} );
-	}, [ isSupersized ] );
-
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-input-image-option', {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-image': !! imageBlockAttributes?.url,
 			[ `is-${ selectionType }` ]: !! selectionType,
+			'is-supersized': isSupersized,
 		} ),
 		style: blockStyle,
 	} );
@@ -116,20 +111,18 @@ export default function ImageOptionInputEdit( props ) {
 	);
 
 	return (
-		<div className={ outerClassName }>
-			<div { ...blockProps }>
-				<div { ...innerBlocksProps } />
-				<div className="jetpack-input-image-option__label-wrapper">
-					<div className="jetpack-input-image-option__label-code">{ positionLetter }</div>
-					<RichText
-						tagName="span"
-						className={ labelClassName }
-						value={ label }
-						placeholder={ __( 'Add option…', 'jetpack-forms' ) }
-						__unstableDisableFormats
-						onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
-					/>
-				</div>
+		<div { ...blockProps }>
+			<div { ...innerBlocksProps } />
+			<div className="jetpack-input-image-option__label-wrapper">
+				<div className="jetpack-input-image-option__label-code">{ positionLetter }</div>
+				<RichText
+					tagName="span"
+					className={ labelClassName }
+					value={ label }
+					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+					__unstableDisableFormats
+					onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
+				/>
 			</div>
 		</div>
 	);
