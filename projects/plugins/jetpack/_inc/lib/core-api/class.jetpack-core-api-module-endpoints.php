@@ -13,6 +13,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  */
