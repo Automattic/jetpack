@@ -113,7 +113,7 @@ class Contact_Form_Block {
 	public static function render_submit_button( $content, $parsed_block ) {
 		$class = $parsed_block['attrs']['className'] ?? '';
 		if ( ! str_contains( $class, 'jetpack-form-submit-button' ) ) {
-			return $content; // Not our submit button.
+			return $content;
 		}
 
 		if ( ! class_exists( '\WP_HTML_Tag_Processor' ) ) {
