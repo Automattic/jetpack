@@ -17,6 +17,7 @@
 		font-size: var(--jetpack--contact-form--font-size);
 		padding: var(--jetpack--contact-form--input-padding);
 		line-height: var(--jetpack--contact-form--line-height);
+		align-items: center;
 
 		&:has(.jetpack-field__input-element:focus) {
 			outline-width: 2px;
