@@ -21,7 +21,7 @@ import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/private/accessible-tooltip';
 import { useBarChartOptions, styles } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';

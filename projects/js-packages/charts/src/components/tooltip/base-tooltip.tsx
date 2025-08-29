@@ -1,4 +1,4 @@
-import styles from './base-tooltip.module.scss';
+import styles from './private/base-tooltip.module.scss';
 import type { CSSProperties, ComponentType, ReactNode } from 'react';
 
 type TooltipData = {
