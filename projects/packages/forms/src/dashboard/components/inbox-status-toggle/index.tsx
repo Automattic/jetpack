@@ -66,10 +66,11 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 			setSearchParams( prev => {
 				const params = new URLSearchParams( prev );
 				params.set( 'status', newStatus );
-				onChange( newStatus );
 
 				return params;
 			} );
+
+			onChange( newStatus );
 		},
 		[ isSm, status, setSearchParams, onChange ]
 	);
