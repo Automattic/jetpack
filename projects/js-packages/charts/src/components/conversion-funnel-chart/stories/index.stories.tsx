@@ -24,7 +24,7 @@ A focused conversion funnel chart component for visualizing step-by-step convers
 - 🎨 Dynamic color theming - bar backgrounds automatically adapt to primary color
 - 🔧 **Render Props** - Complete customization control with \`renderMainMetric\`, \`renderStepLabel\`, \`renderStepRate\`, and \`renderTooltip\`
 - 🎭 **CSS Variables** - Easy theming with \`--funnel-font-family\` and \`--step-font-family\`
-- 📱 Mobile-friendly responsive design with flexible layouts
+- 📱 Flexible layouts that adapt to container size
 - 🎯 TypeScript support with full type definitions
 - ♿ Accessible design with semantic markup
 - 🧪 Comprehensive test coverage

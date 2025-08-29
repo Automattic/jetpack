@@ -163,31 +163,3 @@
 	font-size: 16px;
 }
 
-// Responsive design
-@media (max-width: 640px) {
-
-	.conversionFunnelChart {
-		padding: 16px;
-	}
-
-	.mainRate {
-		font-size: 36px;
-	}
-
-	.changeIndicator {
-		font-size: 16px;
-	}
-
-	.funnelContainer {
-		height: 180px;
-		gap: 12px;
-	}
-
-	.stepRate {
-		font-size: 16px;
-	}
-
-	.stepLabel {
-		font-size: 12px;
-	}
-}
