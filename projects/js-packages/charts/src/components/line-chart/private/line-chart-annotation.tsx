@@ -14,7 +14,8 @@ import { isSafari } from '../../../utils';
 import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,
 } from './line-chart-annotation-label-popover';
-import type { DataPointDate, AnnotationStyles } from '../../../types';
+import type { DataPointDate } from '../../../types';
+import type { AnnotationStyles } from '../types';
 import type { LabelProps } from '@visx/annotation/lib/components/Label';
 import type { TextProps } from '@visx/text';
 import type { FC } from 'react';

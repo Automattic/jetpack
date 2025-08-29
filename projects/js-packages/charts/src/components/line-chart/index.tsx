@@ -5,3 +5,4 @@ export type {
 	TooltipDatum,
 	CurveType,
 } from './line-chart';
+export type { AnnotationStyles } from './types';
