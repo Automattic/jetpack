@@ -83,3 +83,27 @@ add_action(
 		exit();
 	}
 );
+
+/**
+ * Update the WordPress importer URL to point to the Calypso Stepper importer.
+ *
+ * @param string $url the Importer URL.
+ * @param string $importer_type The type of the importer (e.g. WordPress).
+ *
+ * @return string
+ */
+function wpcom_import_update_wordpress_url_on_simple( $url, $importer_type ) {
+	// @phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+	if ( 'wordpress' !== $importer_type ) {
+		return $url;
+	}
+
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	return 'https://wordpress.com/setup/site-setup/importerWordpress?ref=wp-admin-importers-list-direct-importer&siteSlug=' . $domain;
+}
+
+/**
+ * Although the hook is prefixed with wp_*, it's actually a custom WPCOM one that's only executed on Simple Sites.
+ */
+add_action( 'wp_import_run_import_url_filter', 'wpcom_import_update_wordpress_url_on_simple', 11, 2 );
