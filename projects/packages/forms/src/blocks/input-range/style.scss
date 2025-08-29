@@ -26,7 +26,7 @@
 			transform: translateY(-50%);
 			height: 4px; /* visual track height */
 			width: auto;
-			background: var(--jetpack--contact-form--text-color);
+			background: var(--jetpack--contact-form--body-text-color);
 			z-index: 0;
 			pointer-events: none;
 			border-radius: 2px;
@@ -81,7 +81,7 @@
 			appearance: none;
 			width: 32px;
 			height: 32px;
-			background: radial-gradient(circle at center, var(--jetpack--contact-form--text-color) 0%, var(--jetpack--contact-form--text-color) 40%, transparent 40%);
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
 			cursor: pointer;
 			box-shadow: none;
 			border: none;
@@ -92,7 +92,7 @@
 			-moz-appearance: none !important;
 			width: 32px;
 			height: 32px;
-			background: radial-gradient(circle at center, var(--jetpack--contact-form--text-color) 0%, var(--jetpack--contact-form--text-color) 40%, transparent 40%);
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
 			cursor: pointer;
 			border: none;
 			box-shadow: none;
@@ -102,7 +102,7 @@
 			appearance: none !important;
 			width: 32px;
 			height: 32px;
-			background: radial-gradient(circle at center, var(--jetpack--contact-form--text-color) 0%, var(--jetpack--contact-form--text-color) 40%, transparent 40%);
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
 			cursor: pointer;
 			border: none;
 			box-shadow: none;
@@ -114,7 +114,7 @@
 		&::-ms-fill-upper,
 		&:focus::-ms-fill-lower,
 		&:focus::-ms-fill-upper {
-			background: var(--jetpack--contact-form--text-color);
+			background: var(--jetpack--contact-form--body-text-color);
 		}
 	}
 
@@ -123,8 +123,8 @@
 		left: 0;
 		bottom: 100%;
 		transform: translateX(-50%);
-		background: var(--jetpack--contact-form--text-color);
-		color: var(--jetpack--contact-form--background-color);
+		background: var(--jetpack--contact-form--body-text-color);
+		color: var(--jetpack--contact-form--inverted-body-text-color);
 		border-radius: 8px;
 		padding: 2px 8px;
 		font-size: 0.7em;
