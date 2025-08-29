@@ -231,20 +231,7 @@ function get_button_classes( $attributes ) {
 	$has_font_size               = array_key_exists( 'fontSize', $attributes );
 	$has_named_border_color      = array_key_exists( 'borderColor', $attributes );
 
-	// Handle subscription block attributes
-	$has_subscription_text_color              = array_key_exists( 'textColor', $attributes );
-	$has_subscription_custom_text_color       = array_key_exists( 'customTextColor', $attributes );
-	$has_subscription_background_color        = array_key_exists( 'buttonBackgroundColor', $attributes );
-	$has_subscription_custom_background_color = array_key_exists( 'customButtonBackgroundColor', $attributes );
-	$has_subscription_gradient                = array_key_exists( 'buttonGradient', $attributes );
-	$has_subscription_custom_gradient         = array_key_exists( 'customButtonGradient', $attributes );
-	$has_subscription_border_color            = array_key_exists( 'borderColor', $attributes );
-	$has_subscription_font_size               = array_key_exists( 'fontSize', $attributes );
-
 	if ( $has_font_size ) {
-		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
-		$classes[] = 'has-custom-font-size';
-	} elseif ( $has_subscription_font_size ) {
 		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
 		$classes[] = 'has-custom-font-size';
 	}
@@ -253,48 +240,36 @@ function get_button_classes( $attributes ) {
 		$classes[] = $attributes['className'];
 	}
 
-	// Handle text colors (button or subscription)
-	if ( $has_named_text_color || $has_custom_text_color || $has_subscription_text_color || $has_subscription_custom_text_color ) {
+	// Handle text colors
+	if ( $has_named_text_color || $has_custom_text_color ) {
 		$classes[] = 'has-text-color';
 	}
 	if ( $has_named_text_color ) {
 		$classes[] = sprintf( 'has-%s-color', $attributes['textColor'] );
-	} elseif ( $has_subscription_text_color ) {
-		$classes[] = sprintf( 'has-%s-color', $attributes['textColor'] );
 	}
 
-	// Handle border colors (button or subscription)
+	// Handle border colors
 	if ( $has_named_border_color ) {
 		$classes[] = sprintf( 'has-%s-border-color', $attributes['borderColor'] );
-	} elseif ( $has_subscription_border_color ) {
-		$classes[] = sprintf( 'has-%s-border-color', $attributes['borderColor'] );
 	}
 
-	// Handle backgrounds (button or subscription)
+	// Handle backgrounds
 	if (
 		$has_named_background_color ||
 		$has_custom_background_color ||
 		$has_named_gradient ||
-		$has_custom_gradient ||
-		$has_subscription_background_color ||
-		$has_subscription_custom_background_color ||
-		$has_subscription_gradient ||
-		$has_subscription_custom_gradient
+		$has_custom_gradient
 	) {
 		$classes[] = 'has-background';
 	}
 	if ( $has_named_background_color && ! $has_custom_gradient ) {
 		$classes[] = sprintf( 'has-%s-background-color', $attributes['backgroundColor'] );
-	} elseif ( $has_subscription_background_color && ! $has_subscription_custom_gradient ) {
-		$classes[] = sprintf( 'has-%s-background-color', $attributes['buttonBackgroundColor'] );
 	}
 	if ( $has_named_gradient ) {
 		$classes[] = sprintf( 'has-%s-gradient-background', $attributes['gradient'] );
-	} elseif ( $has_subscription_gradient ) {
-		$classes[] = sprintf( 'has-%s-gradient-background', $attributes['buttonGradient'] );
 	}
 
-	// Handle border radius (button or subscription)
+	// Handle border radius
 	// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 	if ( $has_border_radius && 0 == $attributes['borderRadius'] ) {
 		$classes[] = 'no-border-radius';
@@ -337,18 +312,6 @@ function get_button_styles( $attributes ) {
 		isset( $border_attribute['left'] )
 	);
 
-	// Handle subscription block attributes (mapped to button attributes)
-	$has_subscription_text_color              = array_key_exists( 'textColor', $attributes ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	$has_subscription_custom_text_color       = array_key_exists( 'customTextColor', $attributes );
-	$has_subscription_background_color        = array_key_exists( 'buttonBackgroundColor', $attributes ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	$has_subscription_custom_background_color = array_key_exists( 'customButtonBackgroundColor', $attributes );
-	$has_subscription_gradient                = array_key_exists( 'buttonGradient', $attributes ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	$has_subscription_custom_gradient         = array_key_exists( 'customButtonGradient', $attributes );
-	$has_subscription_border_color            = array_key_exists( 'borderColor', $attributes ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	$has_subscription_custom_border_color     = array_key_exists( 'customBorderColor', $attributes );
-	$has_subscription_font_size               = array_key_exists( 'fontSize', $attributes );
-	$has_subscription_custom_font_size        = array_key_exists( 'customFontSize', $attributes );
-
 	if ( $has_font_family ) {
 		$styles[] = sprintf( 'font-family: %s;', $attributes['fontFamily'] );
 	}
@@ -357,32 +320,18 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'font-size: %s;', $attributes['style']['typography']['fontSize'] );
 	}
 
-	// Handle subscription font size
-	if ( $has_subscription_custom_font_size ) {
-		$font_size = $attributes['customFontSize'];
-		$styles[]  = sprintf( 'font-size: %s%s;', $font_size, is_numeric( $font_size ) ? 'px' : '' );
-	} elseif ( $has_subscription_font_size ) {
-		$styles[] = sprintf( 'font-size: %s;', $attributes['fontSize'] );
-	}
-
 	if ( $has_custom_text_transform ) {
 		$styles[] = sprintf( 'text-transform: %s;', $attributes['style']['typography']['textTransform'] );
 	}
 
-	// Handle text colors (button or subscription)
+	// Handle text colors
 	if ( ! $has_named_text_color && $has_custom_text_color ) {
-		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
-	} elseif ( $has_subscription_custom_text_color ) {
 		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
 	}
 
-	// Handle background colors and gradients (button or subscription)
+	// Handle background colors and gradients
 	if ( ! $has_named_background_color && ! $has_named_gradient && $has_custom_gradient ) {
 		$styles[] = sprintf( 'background: %s;', $attributes['customGradient'] );
-	} elseif ( $has_subscription_custom_gradient ) {
-		$styles[] = sprintf( 'background: %s;', $attributes['customButtonGradient'] );
-	} elseif ( $has_subscription_custom_background_color ) {
-		$styles[] = sprintf( 'background-color: %s;', $attributes['customButtonBackgroundColor'] );
 	} elseif (
 		$has_custom_background_color &&
 		! $has_named_background_color &&
@@ -392,17 +341,15 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
 	}
 
-	// Handle border radius (button or subscription)
+	// Handle border radius
 	// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 	if ( $has_border_radius && 0 != $attributes['borderRadius'] ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
 	}
 
-	// Handle border colors (button or subscription)
+	// Handle border colors
 	if ( $has_custom_border_color ) {
 		$border_styles['color'] = $attributes['style']['border']['color'];
-	} elseif ( $has_subscription_custom_border_color ) {
-		$styles[] = sprintf( 'border-color: %s; border-style: solid;', $attributes['customBorderColor'] );
 	}
 
 	// Handle border styles (button only)
