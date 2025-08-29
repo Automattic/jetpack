@@ -238,14 +238,14 @@ class Encryption {
 
 	}
 
-	/*
+	/**
 	 * Returns random hex string. The returned string length will be 2x the input bytes.
-	 * 
+	 *
 	 * Inspired by WooCommerce: wc_rand_hash()
-	 * 
-	 * @param int $bytes - number of bytes to generate a hash from
-	 * 
-	 * @return str
+	 *
+	 * @param int $bytes - number of bytes to generate a hash from.
+	 *
+	 * @return string
 	 */
 	public function get_rand_hex( $bytes = 20 ) {
 		return bin2hex( openssl_random_pseudo_bytes( (int)$bytes ) );
@@ -253,13 +253,13 @@ class Encryption {
 
 	/**
 	 * Returns hashed string.
-	 * 
+	 *
 	 * Inspired by WooCommerce: wc_api_hash()
-	 * 
-	 * @param str $str - string to hash
-	 * 
-	 * @return str
-	**/
+	 *
+	 * @param string $str - string to hash.
+	 *
+	 * @return string
+	 */
 	public function hash( $str ) {
 		return hash_hmac( 'sha256', $str, 'jpcrm' );
 	}

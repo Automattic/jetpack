@@ -2684,13 +2684,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
     }
 
 
-    /**
-     * Returns an status against a invoice
-     *
-     * @param int id invoice ID
-     *
-     * @return str invoice status string
-     */
+		/**
+		 * Returns an status against a invoice
+		 *
+		 * @param int $id invoice ID.
+		 *
+		 * @return string invoice status string
+		 */
     public function getInvoiceStatus($id=-1){
 
         global $zbs;
@@ -2715,7 +2715,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 		 * Returns an SQL query addition which will allow filtering of invoices
 		 * that should be included in "total value" fields, excluding 'deleted' status invoices.
 		 *
-		 * @param str $table_alias_sql - if using a table alias pass that here, e.g. `invoices.`.
+		 * @param string $table_alias_sql - if using a table alias pass that here, e.g. `invoices.`.
 		 * @return array
 		 */
 		public function get_invoice_status_except_deleted_for_query( $table_alias_sql = '' ) {
@@ -2729,13 +2729,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 			return $query_addition;
 		}
 
-    /**
-     * Returns an hash against a invoice
-     *
-     * @param int id invoice ID
-     *
-     * @return str invoice hash string
-     */
+		/**
+		 * Returns an hash against a invoice
+		 *
+		 * @param int $id invoice ID.
+		 *
+		 * @return string invoice hash string
+		 */
     public function getInvoiceHash($id=-1){
 
         global $zbs;
@@ -2757,13 +2757,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
     }
 
 
-    /**
-     * Retrieves outstanding balanace against an invoice, based on transactions assigned to it.
-     *
-     * @param int id invoice ID
-     *
-     * @return float invoice outstanding balance
-     */
+		/**
+		 * Retrieves outstanding balanace against an invoice, based on transactions assigned to it.
+		 *
+		 * @param int $invoiceID invoice ID.
+		 *
+		 * @return float invoice outstanding balance
+		 */
     public function getOutstandingBalance($invoiceID=-1){
 
         if ($invoiceID > 0){
