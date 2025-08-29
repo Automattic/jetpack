@@ -72,23 +72,39 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 
 		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
 
-		// Mock MCP abilities for testing
+		// Mock available abilities (just names)
 		add_filter(
-			'jetpack_mcp_abilities',
+			'jetpack_site_mcp_abilities',
 			function () {
 				return array(
+					'wpcom-mcp/posts-search',
+					'wpcom-mcp/user-sites',
+				);
+			}
+		);
+
+		// Mock ability metadata
+		add_filter(
+			'jetpack_site_mcp_ability_meta',
+			function ( $ability_meta, $ability_name ) {
+				$test_metadata = array(
 					'wpcom-mcp/posts-search' => array(
-						'label'       => 'Posts Search',
 						'description' => 'Search posts',
+						'category'    => 'search',
+						'type'        => 'tool',
 						'enabled'     => true,
 					),
 					'wpcom-mcp/user-sites'   => array(
-						'label'       => 'User Sites',
 						'description' => 'Access user sites',
+						'category'    => 'user',
+						'type'        => 'resource',
 						'enabled'     => false,
 					),
 				);
-			}
+				return $test_metadata[ $ability_name ] ?? array();
+			},
+			10,
+			2
 		);
 	}
 
@@ -297,7 +313,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
-					'mcp_settings'                         => '(array) Whether MCP Settings is enabled and list of enabled abilities',
+					'mcp_abilities'                        => '(array) List of MCP Abilities',
 				),
 
 				'response_format' => array(
@@ -329,21 +345,22 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
 			// Add MCP settings default
-			'mcp_settings'                   => array(
-				'mcp_settings',
+			'mcp_abilities'                  => array(
+				'mcp_abilities',
 				array(
-					'mcp_enabled'   => true,
-					'mcp_abilities' => array(
-						'wpcom-mcp/posts-search' => array(
-							'label'       => 'Posts Search',
-							'description' => 'Search posts',
-							'enabled'     => true,
-						),
-						'wpcom-mcp/user-sites'   => array(
-							'label'       => 'User Sites',
-							'description' => 'Access user sites',
-							'enabled'     => false,
-						),
+					'wpcom-mcp/posts-search' => array(
+						'name'        => 'wpcom-mcp/posts-search',
+						'description' => 'Search posts',
+						'category'    => 'search',
+						'type'        => 'tool',
+						'enabled'     => true,
+					),
+					'wpcom-mcp/user-sites'   => array(
+						'name'        => 'wpcom-mcp/user-sites',
+						'description' => 'Access user sites',
+						'category'    => 'user',
+						'type'        => 'resource',
+						'enabled'     => false,
 					),
 				),
 			),
@@ -364,22 +381,23 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', 'woocommerce_store_postcode', '98738' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
 			// Add MCP settings GET test
-			'mcp_settings'                   => array(
-				'mcp_settings',
-				'mcp_settings',
+			'mcp_abilities'                  => array(
+				'mcp_abilities',        // option name
+				'mcp_abilities',        // setting name
 				array(
-					'mcp_enabled'   => true,
-					'mcp_abilities' => array(
-						'wpcom-mcp/posts-search' => array(
-							'label'       => 'Posts Search',
-							'description' => 'Search posts',
-							'enabled'     => true,
-						),
-						'wpcom-mcp/user-sites'   => array(
-							'label'       => 'User Sites',
-							'description' => 'Access user sites',
-							'enabled'     => false,
-						),
+					'wpcom-mcp/posts-search' => array(
+						'name'        => 'wpcom-mcp/posts-search',
+						'description' => 'Search posts',
+						'category'    => 'search',
+						'type'        => 'tool',
+						'enabled'     => true,
+					),
+					'wpcom-mcp/user-sites'   => array(
+						'name'        => 'wpcom-mcp/user-sites',
+						'description' => 'Access user sites',
+						'category'    => 'user',
+						'type'        => 'resource',
+						'enabled'     => true,
 					),
 				),
 			),
@@ -417,61 +435,26 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				),
 			),
 			// Add MCP settings POST tests
-			'mcp_settings valid params'                 => array(
-				'mcp_settings',
-				array(  // This should be the actual input structure
-					'mcp_enabled'   => true,
-					'mcp_abilities' => array(
-						'wpcom-mcp/posts-search' => array( 'enabled' => true ),
-						'wpcom-mcp/user-sites'   => array( 'enabled' => false ),
-					),
-				),
-				array(  // Expected output
-					'mcp_enabled'   => true,
-					'mcp_abilities' => array(
-						'wpcom-mcp/posts-search' => array(
-							'label'       => 'Posts Search',
-							'description' => 'Search posts',
-							'enabled'     => true,
-						),
-						'wpcom-mcp/user-sites'   => array(
-							'label'       => 'User Sites',
-							'description' => 'Access user sites',
-							'enabled'     => false,
-						),
-					),
-				),
-			),
-			'mcp_settings disabled'                     => array(
-				'mcp_settings',
+			'mcp_abilities valid'                       => array(
+				'mcp_abilities',
 				array(
-					'mcp_enabled'   => false,
-					'mcp_abilities' => array(
-						'wpcom-mcp/posts-search' => array(
-							'label'       => 'Posts Search',
-							'description' => 'Search posts',
-							'enabled'     => true,
-						),
-						'wpcom-mcp/user-sites'   => array(
-							'label'       => 'User Sites',
-							'description' => 'Access user sites',
-							'enabled'     => false,
-						),
-					),
+					'wpcom-mcp/posts-search' => 1,
+					'wpcom-mcp/user-sites'   => 0,
 				),
 				array(
-					'mcp_enabled'   => false,
-					'mcp_abilities' => array(
-						'wpcom-mcp/posts-search' => array(
-							'label'       => 'Posts Search',
-							'description' => 'Search posts',
-							'enabled'     => true,
-						),
-						'wpcom-mcp/user-sites'   => array(
-							'label'       => 'User Sites',
-							'description' => 'Access user sites',
-							'enabled'     => false,
-						),
+					'wpcom-mcp/posts-search' => array(
+						'name'        => 'wpcom-mcp/posts-search',
+						'description' => 'Search posts',
+						'category'    => 'search',
+						'type'        => 'tool',
+						'enabled'     => true,
+					),
+					'wpcom-mcp/user-sites'   => array(
+						'name'        => 'wpcom-mcp/user-sites',
+						'description' => 'Access user sites',
+						'category'    => 'user',
+						'type'        => 'resource',
+						'enabled'     => false,
 					),
 				),
 			),
