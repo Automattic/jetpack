@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixes an issue with Social where default image id could not be cleared.
