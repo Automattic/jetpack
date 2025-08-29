@@ -14,6 +14,7 @@
 		min-width: 0;
 		position: relative;
 		min-height: 36px;
+		touch-action: pan-x;
 
 		&::before {
 			content: "";
@@ -22,7 +23,7 @@
 			right: 0;
 			top: 50%;
 			transform: translateY(-50%);
-			height: 4px;
+			height: 4px; /* visual track height */
 			width: 100%;
 			background: var(--jetpack--contact-form--button-primary--background-color);
 			z-index: 0;
@@ -31,14 +32,16 @@
 		}
 	}
 
-	&__range {
+	&__range.jetpack-field-slider__range {
 		-webkit-appearance: none;
 		appearance: none;
 		-moz-appearance: none;
-		height: 4px; /* visual track height */
-		padding: 18px 0 16px; /* enlarge hit area without moving track */
+		height: 100%;
+		min-height: 36px;
+		padding: 0; /* enlarge hit area without moving track */
 		background: transparent;
 		outline: none;
+		border: none;
 		border-radius: 2px;
 		transition: background 0.3s;
 		width: 100%;
