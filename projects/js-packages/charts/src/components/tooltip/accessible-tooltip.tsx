@@ -1,6 +1,6 @@
 import { Tooltip, TooltipContext } from '@visx/xychart';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
-import type { SeriesData, DataPointDate } from '../../../types';
+import type { SeriesData, DataPointDate } from '../../types';
 import type {
 	TooltipProps as BaseTooltipProps,
 	RenderTooltipParams,

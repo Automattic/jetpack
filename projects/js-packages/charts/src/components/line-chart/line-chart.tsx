@@ -24,7 +24,7 @@ import { Legend, useChartLegendItems } from '../legend';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/private/accessible-tooltip';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, styles } from './private';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';
