@@ -1,4 +1,5 @@
-import type { BaseLegendItem, ChartTheme } from '../../types';
+import type { BaseLegendItem } from '../../components/legend';
+import type { ChartTheme } from '../../types';
 
 export interface ChartRegistration {
 	legendItems: BaseLegendItem[];

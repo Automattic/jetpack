@@ -1,13 +1,8 @@
 import { useMemo } from 'react';
 import { useGlobalChartsTheme } from '../../../providers/chart-context';
 import { getItemShapeStyles, getSeriesStroke } from '../../../utils';
-import type {
-	ChartTheme,
-	SeriesData,
-	DataPointDate,
-	DataPointPercentage,
-	BaseLegendItem,
-} from '../../../types';
+import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../../types';
+import type { BaseLegendItem } from '../types';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { GlyphProps } from '@visx/xychart';
 import type { ReactNode } from 'react';

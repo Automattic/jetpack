@@ -82,22 +82,6 @@ export type DataPointPercentage = {
 };
 
 /**
- * Base legend item type used across chart components
- */
-export type BaseLegendItem = {
-	label: string;
-	value: number | string;
-	color: string;
-	glyphSize?: number;
-	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	shapeStyle?: CSSProperties & LineStyles;
-	// Optional group info for dynamic color resolution
-	group?: string;
-	index?: number;
-	overrideColor?: string;
-};
-
-/**
  * Theme configuration for chart components
  */
 export type ChartTheme = {

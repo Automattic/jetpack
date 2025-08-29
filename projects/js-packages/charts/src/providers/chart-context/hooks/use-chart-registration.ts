@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useDeepMemo } from '../../../hooks';
 import { useGlobalChartsContext } from './use-global-charts-context';
-import type { BaseLegendItem } from '../../../types';
+import type { BaseLegendItem } from '../../../components/legend';
 
 export const useChartRegistration = ( {
 	chartId,
