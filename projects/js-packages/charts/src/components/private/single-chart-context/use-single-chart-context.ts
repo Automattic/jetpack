@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ChartInstanceContextValue, ChartInstanceContext } from './single-chart-context';
+import { ChartInstanceContext, type ChartInstanceContextValue } from './single-chart-context';
 
 export const useChartInstanceContext = (): ChartInstanceContextValue => {
 	const context = useContext( ChartInstanceContext );

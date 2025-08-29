@@ -1,7 +1,7 @@
-import { LineStyles } from '@visx/xychart';
-import { CSSProperties } from 'react';
-import { ChartTheme, SeriesData } from '../types';
+import type { ChartTheme, SeriesData } from '../types';
 import type { LegendShape } from '@visx/legend/lib/types';
+import type { LineStyles } from '@visx/xychart';
+import type { CSSProperties } from 'react';
 
 /**
  * Utility function to get consolidated line styles for a series
