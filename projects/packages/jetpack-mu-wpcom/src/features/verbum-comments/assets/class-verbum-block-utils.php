@@ -110,9 +110,7 @@ class Verbum_Block_Utils {
 				$block['innerContent'] = $inner_content;
 			}
 
-			if ( ! isset( $block['innerHTML'] ) ) {
-				$block['innerHTML'] = '';
-			}
+			$block['innerHTML'] = isset( $block['innerHTML'] ) && is_string( $block['innerHTML'] ) ? $block['innerHTML'] : '';
 
 			if ( empty( $block['innerContent'] ) ) {
 				$block['innerContent'] = array( $block['innerHTML'] );
