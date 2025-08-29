@@ -31,7 +31,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_appearance_menu();
 		$this->add_plugins_menu();
 		$this->add_users_menu();
-		$this->add_tools_menu();
 		$this->add_options_menu();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
@@ -316,22 +315,6 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
-	}
-
-	/**
-	 * Adds Tools menu.
-	 */
-	public function add_tools_menu() {
-		$submenus_to_update = array();
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'import.php' ) ) {
-			$submenus_to_update['import.php'] = 'https://wordpress.com/import/' . $this->domain;
-		}
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'export.php' ) ) {
-			$submenus_to_update['export.php'] = 'https://wordpress.com/export/' . $this->domain;
-		}
-		$this->update_submenus( 'tools.php', $submenus_to_update );
-
-		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 	}
 
 	/**

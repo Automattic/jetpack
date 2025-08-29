@@ -303,18 +303,6 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_tools_menu
-	 */
-	public function test_add_tools_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][2][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][3][2] );
-	}
-
-	/**
 	 * Tests add_options_menu
 	 */
 	public function test_add_options_menu() {
