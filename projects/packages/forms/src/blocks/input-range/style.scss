@@ -75,38 +75,38 @@
 		&::-webkit-slider-thumb {
 			-webkit-appearance: none;
 			appearance: none;
-			width: 18px;
-			height: 18px;
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			width: 32px;
+			height: 32px;
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
 			border-radius: 50%;
 			cursor: pointer;
 			transition: background 0.3s;
-			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+			box-shadow: none;
 		}
 
 		&::-moz-range-thumb {
 			appearance: none !important;
 			-moz-appearance: none !important;
-			width: 18px;
-			height: 18px;
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			width: 32px;
+			height: 32px;
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
 			border-radius: 50%;
 			cursor: pointer;
 			transition: background 0.3s;
 			border: none;
-			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+			box-shadow: none;
 		}
 
 		&::-ms-thumb {
 			appearance: none !important;
-			width: 18px;
-			height: 18px;
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			width: 32px;
+			height: 32px;
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
 			border-radius: 50%;
 			cursor: pointer;
 			transition: background 0.3s;
 			border: none;
-			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+			box-shadow: none;
 		}
 
 		&:focus::-webkit-slider-thumb,
