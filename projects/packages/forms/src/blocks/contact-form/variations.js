@@ -671,7 +671,7 @@ const variations = [
 					[
 						'core/button',
 						{
-							text: __( 'Send Feedback', 'jetpack-forms' ),
+							text: __( 'Send feedback', 'jetpack-forms' ),
 							tagName: 'button',
 							className: 'jetpack-form-submit-button',
 							type: 'submit',
