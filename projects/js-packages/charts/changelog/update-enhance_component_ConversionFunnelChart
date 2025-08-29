@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Enhanced ConversionFunnelChart with render props and TooltipInPortal
