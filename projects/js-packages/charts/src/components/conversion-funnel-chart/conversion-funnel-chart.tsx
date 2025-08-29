@@ -1,4 +1,5 @@
-import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { localPoint } from '@visx/event';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
@@ -115,11 +116,22 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	// Use custom hook for selection management
 	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } = useFunnelSelection();
 
+	// Use @visx/tooltip hooks for tooltip positioning
+	const { tooltipData, tooltipLeft, tooltipTop, tooltipOpen, showTooltip, hideTooltip } =
+		useTooltip();
+	const { containerRef: portalContainerRef, TooltipInPortal } = useTooltipInPortal( {
+		// use TooltipWithBounds for boundary detection
+		detectBounds: true,
+		// when tooltip containers are scrolled, this will correctly update the Tooltip position
+		scroll: true,
+	} );
+
 	// Wrapper to clear selectedBarRef after clearing selection
 	const clearSelectionAndRef = useCallback( () => {
 		clearSelection();
 		selectedBarRef.current = null;
-	}, [ clearSelection ] );
+		hideTooltip();
+	}, [ clearSelection, hideTooltip ] );
 
 	// Create handler factories to avoid arrow functions in JSX
 	const stepHandlers = useMemo( () => {
@@ -137,6 +149,20 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 				// Store reference to the clicked bar element
 				selectedBarRef.current = event.currentTarget as HTMLDivElement;
 				handleBarClick( step.id );
+
+				// Show tooltip with @visx positioning
+				// For DOM elements, use the container element as reference
+				const containerElement = chartRef.current;
+				if ( containerElement ) {
+					const coords = localPoint( containerElement, event.nativeEvent );
+					if ( coords ) {
+						showTooltip( {
+							tooltipData: step,
+							tooltipLeft: coords.x,
+							tooltipTop: coords.y - 10,
+						} );
+					}
+				}
 			};
 
 			const onKeyDown = ( event: React.KeyboardEvent ) => {
@@ -149,7 +175,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		} );
 
 		return handlers;
-	}, [ steps, handleBarClick, handleBarKeyDown ] );
+	}, [ steps, handleBarClick, handleBarKeyDown, showTooltip ] );
 
 	// Handle document-level click to clear selection when clicking outside selected bar
 	useEffect( () => {
@@ -213,95 +239,106 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	const maxRate = Math.max( ...steps.map( step => step.rate ) );
 
 	return (
-		<div
-			ref={ chartRef }
-			className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-			style={ chartStyle }
-		>
-			{ /* Main Metric */ }
-			{ renderMainMetric ? (
-				renderMainMetric( {
-					mainRate,
-					changeIndicator,
-					className: styles.mainMetric,
-					changeColor,
-				} )
-			) : (
-				<div className={ styles.mainMetric }>{ renderDefaultMainMetric() }</div>
-			) }
+		<>
+			<div
+				ref={ node => {
+					// Set containerRef for @visx coordinate system
+					portalContainerRef( node );
+					chartRef.current = node;
+				} }
+				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
+				style={ chartStyle }
+			>
+				{ /* Main Metric */ }
+				{ renderMainMetric ? (
+					renderMainMetric( {
+						mainRate,
+						changeIndicator,
+						className: styles.mainMetric,
+						changeColor,
+					} )
+				) : (
+					<div className={ styles.mainMetric }>{ renderDefaultMainMetric() }</div>
+				) }
 
-			{ /* Funnel Steps */ }
-			<div className={ styles.funnelContainer }>
-				{ steps.map( ( step, index ) => {
-					const barHeight = ( step.rate / maxRate ) * 100;
-					const { isClicked, isBlurred } = getStepState( step.id );
+				{ /* Funnel Steps */ }
+				<div className={ styles.funnelContainer }>
+					{ steps.map( ( step, index ) => {
+						const barHeight = ( step.rate / maxRate ) * 100;
+						const { isClicked, isBlurred } = getStepState( step.id );
 
-					return (
-						<div
-							key={ step.id }
-							className={ clsx( styles.funnelStep, isBlurred && styles.blurred ) }
-						>
-							{ /* Step Label and Rate */ }
-							<div className={ styles.stepHeader }>
-								{ renderStepLabel ? (
-									renderStepLabel( {
-										step,
-										index,
-										className: styles.stepLabel,
-									} )
-								) : (
-									<span className={ styles.stepLabel }>{ step.label }</span>
-								) }
-								{ renderStepRate ? (
-									renderStepRate( {
-										step,
-										index,
-										className: styles.stepRate,
-									} )
-								) : (
-									<span className={ styles.stepRate }>{ step.rate.toFixed( 1 ) }%</span>
-								) }
-							</div>
-
-							{ /* Funnel Bar */ }
+						return (
 							<div
-								className={ clsx(
-									styles.barContainer,
-									isClicked && styles.selected,
-									isBlurred && styles.disabled
-								) }
-								onClick={ stepHandlers.get( step.id )?.onClick }
-								onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
-								role="button"
-								tabIndex={ isBlurred ? -1 : 0 }
-								aria-label={ step.label }
+								key={ step.id }
+								className={ clsx( styles.funnelStep, isBlurred && styles.blurred ) }
 							>
-								<div
-									className={ clsx( styles.funnelBar, isClicked && styles.selected ) }
-									style={ {
-										height: `${ barHeight }%`,
-										backgroundColor: primaryColor,
-									} }
-								/>
+								{ /* Step Label and Rate */ }
+								<div className={ styles.stepHeader }>
+									{ renderStepLabel ? (
+										renderStepLabel( {
+											step,
+											index,
+											className: styles.stepLabel,
+										} )
+									) : (
+										<span className={ styles.stepLabel }>{ step.label }</span>
+									) }
+									{ renderStepRate ? (
+										renderStepRate( {
+											step,
+											index,
+											className: styles.stepRate,
+										} )
+									) : (
+										<span className={ styles.stepRate }>{ step.rate.toFixed( 1 ) }%</span>
+									) }
+								</div>
 
-								{ /* Tooltip */ }
-								{ isClicked && (
-									<div className={ styles.tooltip }>
-										<div className={ styles.tooltipContent }>
-											<Text className={ styles.tooltipTitle }>{ step.label }</Text>
-											<Text className={ styles.tooltipRate }>
-												{ step.rate.toFixed( 1 ) }%
-												{ step.count && ` • ${ step.count.toLocaleString() } items` }
-											</Text>
-										</div>
-									</div>
-								) }
+								{ /* Funnel Bar */ }
+								<div
+									className={ clsx(
+										styles.barContainer,
+										isClicked && styles.selected,
+										isBlurred && styles.disabled
+									) }
+									onClick={ stepHandlers.get( step.id )?.onClick }
+									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
+									role="button"
+									tabIndex={ isBlurred ? -1 : 0 }
+									aria-label={ step.label }
+								>
+									<div
+										className={ clsx( styles.funnelBar, isClicked && styles.selected ) }
+										style={ {
+											height: `${ barHeight }%`,
+											backgroundColor: primaryColor,
+										} }
+									/>
+								</div>
 							</div>
-						</div>
-					);
-				} ) }
+						);
+					} ) }
+				</div>
 			</div>
-		</div>
+
+			{ /* Tooltip Portal */ }
+			{ tooltipOpen && tooltipData && (
+				<TooltipInPortal
+					// set this to random so it correctly updates with parent bounds
+					key={ Math.random() }
+					top={ tooltipTop }
+					left={ tooltipLeft }
+					className={ styles.tooltipWrapper }
+				>
+					<div className={ styles.tooltipTitle }>{ ( tooltipData as FunnelStep ).label }</div>
+					<div className={ styles.tooltipContent }>
+						{ ( tooltipData as FunnelStep ).rate.toFixed( 1 ) }%
+						{ ( tooltipData as FunnelStep ).count &&
+							` • ${ ( tooltipData as FunnelStep ).count.toLocaleString() } items` }
+					</div>
+				</TooltipInPortal>
+			) }
+		</>
 	);
 };
 
