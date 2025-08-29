@@ -9,12 +9,12 @@ import {
 import { DataContext } from '@visx/xychart';
 import merge from 'deepmerge';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
-import { useGlobalChartsTheme } from '../../providers/chart-context';
-import { isSafari } from '../../utils';
+import { useGlobalChartsTheme } from '../../../providers/chart-context';
+import { isSafari } from '../../../utils';
 import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,
 } from './line-chart-annotation-label-popover';
-import type { DataPointDate } from '../../types';
+import type { DataPointDate } from '../../../types';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
 import type { LabelProps } from '@visx/annotation/lib/components/Label';
