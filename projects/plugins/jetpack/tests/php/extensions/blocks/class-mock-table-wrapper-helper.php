@@ -47,6 +47,25 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Tab
 				$content
 			);
 		}
+
+		/**
+		 * Mock render_outlook_table_wrapper method
+		 *
+		 * @param string $content    The content to wrap.
+		 * @param array  $attributes The table attributes.
+		 * @return string The wrapped table HTML.
+		 */
+		public static function render_outlook_table_wrapper( $content, $attributes ) {
+			// Simple mock that wraps content in a table for Outlook compatibility
+			$style = $attributes['style'] ?? '';
+			$align = $attributes['align'] ?? 'left';
+
+			return sprintf(
+				'<table role="presentation" style="width: 100%%; max-width: 600px; margin: 16px auto; border-collapse: collapse; padding: 0; text-align: %s; %s">',
+				$align,
+				$style
+			) . '<tr><td style="padding: 0; font-family: Arial, sans-serif;">' . $content . '</td></tr></table>';
+		}
 	}
 	class_alias( 'Mock_Table_Wrapper_Helper', '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' );
 }

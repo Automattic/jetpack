@@ -176,7 +176,7 @@ class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'background-color: #f6f7f7', $result );
 		$this->assertStringContainsString( 'border: 1px solid #AAA', $result );
-		$this->assertStringContainsString( 'border-radius: 40px', $result );
+		$this->assertStringContainsString( 'border-radius: 9999px', $result );
 	}
 
 	/**

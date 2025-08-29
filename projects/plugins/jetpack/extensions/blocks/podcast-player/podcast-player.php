@@ -326,22 +326,65 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
 		// Get margin for table styling
 		$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' ) ?? '';
+
+		// Validate CSS output to prevent injection
+		if ( ! empty( $table_margin_style ) && ! preg_match( '/^[a-zA-Z0-9\s:;()-]+$/', $table_margin_style ) ) {
+			$table_margin_style = '';
+		}
 	}
 
 	$icon_image = 'https://s0.wp.com/i/emails/wpcom-notifications/audio-play.png';
 	$label      = __( 'Listen to the podcast', 'jetpack' );
 	$audio_url  = esc_url( $attr['url'] );
 
-	// Build the podcast player button content with Outlook 2021 compatibility
-	$button_content = sprintf(
-		'<a target="_blank" rel="noopener noreferrer" style="text-decoration: none;" href="%s"><div style="margin-bottom: 0; background-color: #f6f7f7; padding: 16px 24px; border-radius: 40px; border: 1px solid #AAA; font-size: 14px; mso-line-height-alt: 21.6px; line-height: 18px; font-weight: 400; font-family: Arial, Helvetica, sans-serif; text-align:center; letter-spacing: normal; margin-top: 0;"><div style="font-weight: 600; text-decoration: none; color: #000; line-height: 20px;"><img src="%s" style="display: inline-block; margin-right: 6px; vertical-align: middle;" width="18" height="18" /><div style="display: inline-block; vertical-align: middle;">%s</div></div></div></a>',
-		$audio_url,
+	// Define pill-style colors and styling
+	$background_color = '#f6f7f7';
+	$border_color     = '#AAA';
+	$icon_size        = '18px';
+	$font_size        = '14px';
+
+	// Generate the icon content
+	$icon_content = sprintf(
+		'<a href="%1$s" rel="noopener nofollow" target="_blank" style="padding: 0.25em; padding-left: 17px; display: inline-block; vertical-align: middle;"><img height="%2$s" src="%3$s" style="display:block;margin-right:0;vertical-align:middle;" width="%2$s" alt="%4$s"></a>',
+		esc_url( $audio_url ),
+		esc_attr( $icon_size ),
 		esc_url( $icon_image ),
+		// translators: %s is the podcast player icon.
+		sprintf( __( '%s icon', 'jetpack' ), __( 'Podcast', 'jetpack' ) )
+	);
+	$icon_content = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell( $icon_content, array( 'style' => sprintf( 'vertical-align:middle;font-size:%s;', $font_size ) ) );
+
+	// Generate the label content
+	$label_content    = sprintf(
+		'<a href="%1$s" rel="noopener nofollow" target="_blank" style="text-decoration:none; padding: 0.25em; padding-right: 17px; display: inline-block;"><span style="margin-left:.5em;margin-right:.5em;font-weight:bold"> %2$s </span></a>',
+		esc_url( $audio_url ),
 		esc_html( $label )
 	);
+	$label_cell_style = sprintf(
+		'vertical-align:middle;font-size:%s;',
+		$font_size
+	);
+	$label_content    = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell( $label_content, array( 'style' => $label_cell_style ) );
 
-	// Use Table_Wrapper_Helper for consistent email rendering
-	$table_style = 'width: 100%; border-collapse: collapse;';
+	// Combine icon and label tables
+	$podcast_content = $icon_content . $label_content;
+
+	// Create the main pill-style table
+	$main_table_styles = sprintf(
+		'background-color: %s; border-radius: 9999px; display: inline-table; float: none; border: 1px solid %s; border-collapse: separate;',
+		$background_color,
+		$border_color
+	);
+
+	$main_table_attrs = array(
+		'align' => 'left',
+		'style' => $main_table_styles,
+	);
+
+	$main_table = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $podcast_content, $main_table_attrs, array(), array(), false );
+
+	// Create the main wrapper table
+	$table_style = 'width: 100%;';
 	if ( ! empty( $table_margin_style ) ) {
 		$table_style = $table_margin_style . '; ' . $table_style;
 	} else {
@@ -352,7 +395,11 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		'style' => $table_style,
 	);
 
-	$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $button_content, $table_attrs );
+	$cell_attrs = array(
+		'style' => 'min-width: 100%; vertical-align: middle; word-break: break-word; text-align: left;',
+	);
 
-	return $html;
+	$main_wrapper = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $main_table, $table_attrs, $cell_attrs );
+
+	return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_outlook_table_wrapper( $main_wrapper, array( 'align' => 'left' ) );
 }
