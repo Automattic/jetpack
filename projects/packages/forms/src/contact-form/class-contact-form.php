@@ -17,6 +17,10 @@ use WP_Block;
 use WP_Error;
 use WP_Post;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class for the contact-form shortcode.
  * Parses shortcode to output the contact form as HTML

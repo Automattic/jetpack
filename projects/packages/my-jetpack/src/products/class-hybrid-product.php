@@ -11,6 +11,10 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the hybrid products
  *

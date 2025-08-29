@@ -11,6 +11,10 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class for the contact-field shortcode.
  * Parses shortcode to output the contact form field as HTML.

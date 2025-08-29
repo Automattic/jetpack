@@ -8,6 +8,10 @@
 use Automattic\Block_Scanner;
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Hide or show legacy widgets conditionally.
  *
