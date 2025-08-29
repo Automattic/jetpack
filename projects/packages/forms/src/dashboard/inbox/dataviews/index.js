@@ -35,7 +35,6 @@ import {
 import { useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
-const EMPTY_OBJECT = {};
 const MOBILE_BREAKPOINT = 780;
 const getItemId = item => item.id.toString();
 
@@ -94,7 +93,6 @@ export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
-	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
 
 	const dateSettings = getDateSettings();
 	const containerRef = useResizeObserver(
@@ -146,12 +144,6 @@ export default function InboxView() {
 		// We need to keep the current query args in the store to be used in `export`
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
-		// We also need to keep the args in local state and update it inside `useEffect`
-		// to run after the component mounts. This is because the `status` filter is retrieved
-		// from URL and can be changed through the parent components (Tabs), and if we'd used
-		// `useMemo` it would run during rendering and would update the component while also
-		// rendering different ones.
-		setQueryArgs( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
 	const data = useMemo(
 		() =>
@@ -310,6 +302,10 @@ export default function InboxView() {
 		return _actions;
 	}, [ isMobile, onChangeSelection, selection ] );
 
+	const resetPage = useCallback( () => {
+		view.page = 1;
+	}, [ view ] );
+
 	return (
 		<HStack
 			spacing={ 0 }
@@ -331,7 +327,7 @@ export default function InboxView() {
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
-					header={ <InboxStatusToggle currentQuery={ queryArgs } /> }
+					header={ <InboxStatusToggle onChange={ resetPage } /> }
 				/>
 			</div>
 			<SingleResponse
