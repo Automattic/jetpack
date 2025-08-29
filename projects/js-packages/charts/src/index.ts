@@ -19,16 +19,6 @@ export { LineShape, CircleShape, RectShape } from './visx/legend';
 // Themes
 export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
-export { useGlobalChartsTheme } from './providers/chart-context';
-
-// Utilities
-export { mergeThemes } from './utils';
-
-// Hooks
-export { useDeepMemo, useChartMouseHandler, useXYChartTheme } from './hooks';
-
-// LeaderboardChart utilities
-export { formatMetricValue } from './components/leaderboard-chart';
 
 // Types
 export type * from './types';
