@@ -50,6 +50,17 @@ export interface MainMetricRenderProps {
 }
 
 /**
+ * Render prop for customizing tooltip content
+ */
+export interface TooltipRenderProps {
+	step: FunnelStep;
+	index: number;
+	top: number;
+	left: number;
+	className?: string;
+}
+
+/**
  * Props for the ConversionFunnelChart component
  */
 export interface ConversionFunnelChartProps {
@@ -71,6 +82,8 @@ export interface ConversionFunnelChartProps {
 	renderStepRate?: ( props: StepRateRenderProps ) => React.ReactNode;
 	/** Custom render function for the entire main metric section */
 	renderMainMetric?: ( props: MainMetricRenderProps ) => React.ReactNode;
+	/** Custom render function for tooltip content */
+	renderTooltip?: ( props: TooltipRenderProps ) => React.ReactNode;
 }
 
 /**
@@ -96,6 +109,7 @@ const DEFAULT_FUNNEL_SETTINGS = {
  * @param props.renderStepLabel  - Custom render function for step labels
  * @param props.renderStepRate   - Custom render function for step rates
  * @param props.renderMainMetric - Custom render function for the entire main metric section
+ * @param props.renderTooltip    - Custom render function for tooltip content
  * @return JSX element representing the conversion funnel chart
  */
 export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
@@ -108,6 +122,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	renderStepLabel,
 	renderStepRate,
 	renderMainMetric,
+	renderTooltip,
 } ) => {
 	const theme = useGlobalChartTheme();
 	const chartRef = useRef< HTMLDivElement >( null );
@@ -223,6 +238,16 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		</>
 	);
 
+	// Default tooltip rendering function
+	const renderDefaultTooltip = ( step: FunnelStep ) => (
+		<>
+			<div className={ styles.tooltipTitle }>{ step.label }</div>
+			<div className={ styles.tooltipContent }>
+				{ step.rate.toFixed( 1 ) }%{ step.count && ` • ${ step.count.toLocaleString() } items` }
+			</div>
+		</>
+	);
+
 	// Handle empty or undefined data
 	if ( ! steps || steps.length === 0 ) {
 		return (
@@ -322,22 +347,34 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 			</div>
 
 			{ /* Tooltip Portal */ }
-			{ tooltipOpen && tooltipData && (
-				<TooltipInPortal
-					// set this to random so it correctly updates with parent bounds
-					key={ Math.random() }
-					top={ tooltipTop }
-					left={ tooltipLeft }
-					className={ styles.tooltipWrapper }
-				>
-					<div className={ styles.tooltipTitle }>{ ( tooltipData as FunnelStep ).label }</div>
-					<div className={ styles.tooltipContent }>
-						{ ( tooltipData as FunnelStep ).rate.toFixed( 1 ) }%
-						{ ( tooltipData as FunnelStep ).count &&
-							` • ${ ( tooltipData as FunnelStep ).count.toLocaleString() } items` }
-					</div>
-				</TooltipInPortal>
-			) }
+			{ tooltipOpen &&
+				tooltipData &&
+				( () => {
+					const tooltipContent = renderTooltip
+						? renderTooltip( {
+								step: tooltipData as FunnelStep,
+								index: steps.findIndex( s => s.id === ( tooltipData as FunnelStep ).id ),
+								top: tooltipTop,
+								left: tooltipLeft,
+								className: styles.tooltipWrapper,
+						  } )
+						: renderDefaultTooltip( tooltipData as FunnelStep );
+
+					// Don't render tooltip if renderTooltip returns falsy
+					if ( ! tooltipContent ) return null;
+
+					return (
+						<TooltipInPortal
+							// set this to random so it correctly updates with parent bounds
+							key={ Math.random() }
+							top={ tooltipTop }
+							left={ tooltipLeft }
+							className={ styles.tooltipWrapper }
+						>
+							{ tooltipContent }
+						</TooltipInPortal>
+					);
+				} )() }
 		</>
 	);
 };
