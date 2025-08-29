@@ -28,7 +28,7 @@ import type { FC, MouseEvent, ReactNode } from 'react';
 
 const PAD_ANGLE = 0.03; // Padding between segments
 
-interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
+export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Width of the chart in pixels; height would be half of this value calculated automatically.
 	 */
@@ -70,7 +70,7 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 	PieSemiCircleChartBaseProps & ResponsiveConfig
 >;
 
-type ArcData = PieArcDatum< DataPointPercentage >;
+export type ArcData = PieArcDatum< DataPointPercentage >;
 
 /**
  * Validates the semi-circle pie chart data

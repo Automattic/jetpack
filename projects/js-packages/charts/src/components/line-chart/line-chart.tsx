@@ -33,7 +33,7 @@ import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, Ref, SVGProps } from 'react';
 
-type CurveType = 'smooth' | 'linear' | 'monotone';
+export type CurveType = 'smooth' | 'linear' | 'monotone';
 
 const X_TICK_WIDTH = 100;
 
@@ -115,7 +115,7 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 	}
 };
 
-interface LineChartProps extends BaseChartProps< SeriesData[] > {
+export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
 	smoothing?: boolean;
 	curveType?: CurveType;
@@ -131,7 +131,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	children?: ReactNode;
 }
 
-type TooltipDatum = {
+export type TooltipDatum = {
 	key: string;
 	value: number;
 };

@@ -23,7 +23,7 @@ import type { ChartComponentWithComposition } from '../private/chart-composition
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
-interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
+export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
