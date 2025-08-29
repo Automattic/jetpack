@@ -546,8 +546,8 @@ class Woo_Sync_Background_Sync {
 	/**
 	 * Catches deletion of WooCommerce orders and (optionally) removes transactions from CRM
 	 *
-	 * @param int $order_post_id
-	 * @param str $delete_action
+	 * @param int    $order_post_id Order post ID.
+	 * @param string $delete_action Delete action.
 	 */
 	private function woocommerce_order_removed( $order_post_id, $delete_action ) {
 
