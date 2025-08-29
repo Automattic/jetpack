@@ -28,9 +28,10 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'uses_context'    => array( 'jetpack/parentBlockWidth' ),
-			'selectors'       => array(
+			'render_callback'       => __NAMESPACE__ . '\render_block',
+			'render_email_callback' => __NAMESPACE__ . '\render_email',
+			'uses_context'          => array( 'jetpack/parentBlockWidth' ),
+			'selectors'             => array(
 				'border' => '.wp-block-jetpack-button .wp-block-button__link',
 			),
 		)
@@ -106,6 +107,111 @@ function render_block( $attributes, $content ) {
 }
 
 /**
+ * WooCommerce Email Editor render callback for the button block.
+ *
+ * @param string $block_content The block content.
+ * @param array  $parsed_block  The parsed block data.
+ * @param object $rendering_context The email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
+	// Validate input parameters and required dependencies
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
+		return '';
+	}
+
+	$attributes = $parsed_block['attrs'];
+
+	// Create a mock innerHTML that WooCommerce's button renderer can parse
+	$button_text = ! empty( $attributes['text'] ) ? sanitize_text_field( $attributes['text'] ) : __( 'Click here', 'jetpack' );
+	$button_url  = ! empty( $attributes['url'] ) ? $attributes['url'] : '#';
+
+	// Create the innerHTML that WooCommerce's button renderer expects
+	$inner_html = sprintf(
+		'<div class="wp-block-button"><a class="wp-block-button__link" href="%s">%s</a></div>',
+		esc_url( $button_url ),
+		esc_html( $button_text )
+	);
+
+	// Format attributes for WooCommerce's Styles_Helper
+	$formatted_attributes = format_attributes_for_woocommerce( $attributes );
+
+	// Create a mock parsed block that WooCommerce's button renderer can handle
+	$mock_parsed_block = array(
+		'innerHTML' => $inner_html,
+		'attrs'     => $formatted_attributes,
+	);
+
+	// Use WooCommerce's core button renderer
+	$woo_button_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button();
+
+	return $woo_button_renderer->render( $block_content, $mock_parsed_block, $rendering_context );
+}
+
+/**
+ * Format button attributes for WooCommerce's Styles_Helper.
+ *
+ * @param array $attributes The original attributes.
+ * @return array The formatted attributes.
+ */
+function format_attributes_for_woocommerce( $attributes ) {
+	$formatted = array();
+
+	// Handle background colors (prioritize subscription attributes)
+	if ( ! empty( $attributes['buttonBackgroundColor'] ) ) {
+		$formatted['backgroundColor'] = $attributes['buttonBackgroundColor'];
+	} elseif ( ! empty( $attributes['backgroundColor'] ) ) {
+		$formatted['backgroundColor'] = $attributes['backgroundColor'];
+	}
+
+	if ( ! empty( $attributes['customButtonBackgroundColor'] ) ) {
+		$formatted['customBackgroundColor'] = $attributes['customButtonBackgroundColor'];
+	} elseif ( ! empty( $attributes['customBackgroundColor'] ) ) {
+		$formatted['customBackgroundColor'] = $attributes['customBackgroundColor'];
+	}
+
+	// Handle text colors
+	if ( ! empty( $attributes['textColor'] ) ) {
+		$formatted['textColor'] = $attributes['textColor'];
+	}
+	if ( ! empty( $attributes['customTextColor'] ) ) {
+		$formatted['customTextColor'] = $attributes['customTextColor'];
+	}
+
+	// Handle typography (font size)
+	if ( ! empty( $attributes['fontSize'] ) ) {
+		$formatted['style']['typography']['fontSize'] = $attributes['fontSize'];
+	}
+	if ( ! empty( $attributes['customFontSize'] ) ) {
+		$formatted['style']['typography']['fontSize'] = $attributes['customFontSize'];
+	}
+
+	// Handle borders
+	if ( ! empty( $attributes['borderRadius'] ) ) {
+		$formatted['style']['border']['radius'] = $attributes['borderRadius'] . 'px';
+	}
+	if ( ! empty( $attributes['borderColor'] ) ) {
+		$formatted['style']['border']['color'] = $attributes['borderColor'];
+	}
+	if ( ! empty( $attributes['customBorderColor'] ) ) {
+		$formatted['style']['border']['color'] = $attributes['customBorderColor'];
+	}
+	// Handle border weight (subscription block uses borderWeight, button block expects style.border.width)
+	if ( ! empty( $attributes['borderWeight'] ) ) {
+		$formatted['style']['border']['width'] = $attributes['borderWeight'] . 'px';
+	}
+
+	// Handle padding
+	if ( ! empty( $attributes['padding'] ) ) {
+		$formatted['style']['spacing']['padding'] = $attributes['padding'] . 'px';
+	}
+
+	return $formatted;
+}
+
+/**
  * Get the Button block classes.
  *
  * @param array $attributes Array containing the block attributes.
@@ -125,7 +231,20 @@ function get_button_classes( $attributes ) {
 	$has_font_size               = array_key_exists( 'fontSize', $attributes );
 	$has_named_border_color      = array_key_exists( 'borderColor', $attributes );
 
+	// Handle subscription block attributes
+	$has_subscription_text_color              = array_key_exists( 'textColor', $attributes );
+	$has_subscription_custom_text_color       = array_key_exists( 'customTextColor', $attributes );
+	$has_subscription_background_color        = array_key_exists( 'buttonBackgroundColor', $attributes );
+	$has_subscription_custom_background_color = array_key_exists( 'customButtonBackgroundColor', $attributes );
+	$has_subscription_gradient                = array_key_exists( 'buttonGradient', $attributes );
+	$has_subscription_custom_gradient         = array_key_exists( 'customButtonGradient', $attributes );
+	$has_subscription_border_color            = array_key_exists( 'borderColor', $attributes );
+	$has_subscription_font_size               = array_key_exists( 'fontSize', $attributes );
+
 	if ( $has_font_size ) {
+		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
+		$classes[] = 'has-custom-font-size';
+	} elseif ( $has_subscription_font_size ) {
 		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
 		$classes[] = 'has-custom-font-size';
 	}
@@ -134,32 +253,48 @@ function get_button_classes( $attributes ) {
 		$classes[] = $attributes['className'];
 	}
 
-	if ( $has_named_text_color || $has_custom_text_color ) {
+	// Handle text colors (button or subscription)
+	if ( $has_named_text_color || $has_custom_text_color || $has_subscription_text_color || $has_subscription_custom_text_color ) {
 		$classes[] = 'has-text-color';
 	}
 	if ( $has_named_text_color ) {
 		$classes[] = sprintf( 'has-%s-color', $attributes['textColor'] );
+	} elseif ( $has_subscription_text_color ) {
+		$classes[] = sprintf( 'has-%s-color', $attributes['textColor'] );
 	}
 
+	// Handle border colors (button or subscription)
 	if ( $has_named_border_color ) {
+		$classes[] = sprintf( 'has-%s-border-color', $attributes['borderColor'] );
+	} elseif ( $has_subscription_border_color ) {
 		$classes[] = sprintf( 'has-%s-border-color', $attributes['borderColor'] );
 	}
 
+	// Handle backgrounds (button or subscription)
 	if (
 		$has_named_background_color ||
 		$has_custom_background_color ||
 		$has_named_gradient ||
-		$has_custom_gradient
+		$has_custom_gradient ||
+		$has_subscription_background_color ||
+		$has_subscription_custom_background_color ||
+		$has_subscription_gradient ||
+		$has_subscription_custom_gradient
 	) {
 		$classes[] = 'has-background';
 	}
 	if ( $has_named_background_color && ! $has_custom_gradient ) {
 		$classes[] = sprintf( 'has-%s-background-color', $attributes['backgroundColor'] );
+	} elseif ( $has_subscription_background_color && ! $has_subscription_custom_gradient ) {
+		$classes[] = sprintf( 'has-%s-background-color', $attributes['buttonBackgroundColor'] );
 	}
 	if ( $has_named_gradient ) {
 		$classes[] = sprintf( 'has-%s-gradient-background', $attributes['gradient'] );
+	} elseif ( $has_subscription_gradient ) {
+		$classes[] = sprintf( 'has-%s-gradient-background', $attributes['buttonGradient'] );
 	}
 
+	// Handle border radius (button or subscription)
 	// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 	if ( $has_border_radius && 0 == $attributes['borderRadius'] ) {
 		$classes[] = 'no-border-radius';
@@ -202,6 +337,18 @@ function get_button_styles( $attributes ) {
 		isset( $border_attribute['left'] )
 	);
 
+	// Handle subscription block attributes (mapped to button attributes)
+	$has_subscription_text_color              = array_key_exists( 'textColor', $attributes ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	$has_subscription_custom_text_color       = array_key_exists( 'customTextColor', $attributes );
+	$has_subscription_background_color        = array_key_exists( 'buttonBackgroundColor', $attributes ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	$has_subscription_custom_background_color = array_key_exists( 'customButtonBackgroundColor', $attributes );
+	$has_subscription_gradient                = array_key_exists( 'buttonGradient', $attributes ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	$has_subscription_custom_gradient         = array_key_exists( 'customButtonGradient', $attributes );
+	$has_subscription_border_color            = array_key_exists( 'borderColor', $attributes ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	$has_subscription_custom_border_color     = array_key_exists( 'customBorderColor', $attributes );
+	$has_subscription_font_size               = array_key_exists( 'fontSize', $attributes );
+	$has_subscription_custom_font_size        = array_key_exists( 'customFontSize', $attributes );
+
 	if ( $has_font_family ) {
 		$styles[] = sprintf( 'font-family: %s;', $attributes['fontFamily'] );
 	}
@@ -210,19 +357,33 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'font-size: %s;', $attributes['style']['typography']['fontSize'] );
 	}
 
+	// Handle subscription font size
+	if ( $has_subscription_custom_font_size ) {
+		$font_size = $attributes['customFontSize'];
+		$styles[]  = sprintf( 'font-size: %s%s;', $font_size, is_numeric( $font_size ) ? 'px' : '' );
+	} elseif ( $has_subscription_font_size ) {
+		$styles[] = sprintf( 'font-size: %s;', $attributes['fontSize'] );
+	}
+
 	if ( $has_custom_text_transform ) {
 		$styles[] = sprintf( 'text-transform: %s;', $attributes['style']['typography']['textTransform'] );
 	}
 
+	// Handle text colors (button or subscription)
 	if ( ! $has_named_text_color && $has_custom_text_color ) {
+		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
+	} elseif ( $has_subscription_custom_text_color ) {
 		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
 	}
 
+	// Handle background colors and gradients (button or subscription)
 	if ( ! $has_named_background_color && ! $has_named_gradient && $has_custom_gradient ) {
 		$styles[] = sprintf( 'background: %s;', $attributes['customGradient'] );
-	}
-
-	if (
+	} elseif ( $has_subscription_custom_gradient ) {
+		$styles[] = sprintf( 'background: %s;', $attributes['customButtonGradient'] );
+	} elseif ( $has_subscription_custom_background_color ) {
+		$styles[] = sprintf( 'background-color: %s;', $attributes['customButtonBackgroundColor'] );
+	} elseif (
 		$has_custom_background_color &&
 		! $has_named_background_color &&
 		! $has_named_gradient &&
@@ -231,15 +392,20 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
 	}
 
+	// Handle border radius (button or subscription)
 	// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 	if ( $has_border_radius && 0 != $attributes['borderRadius'] ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
 	}
 
+	// Handle border colors (button or subscription)
 	if ( $has_custom_border_color ) {
 		$border_styles['color'] = $attributes['style']['border']['color'];
+	} elseif ( $has_subscription_custom_border_color ) {
+		$styles[] = sprintf( 'border-color: %s; border-style: solid;', $attributes['customBorderColor'] );
 	}
 
+	// Handle border styles (button only)
 	if ( $has_border_style ) {
 		$border_styles['style'] = $attributes['style']['border']['style'];
 	}

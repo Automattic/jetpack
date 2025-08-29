@@ -6,15 +6,20 @@
  */
 
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/button/button.php';
 
-// Ensure the function is available
+// Ensure the functions are available
 if ( ! function_exists( 'Automattic\Jetpack\Extensions\Subscriptions\render_email' ) ) {
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
+}
+if ( ! function_exists( 'Automattic\Jetpack\Extensions\Button\render_email' ) ) {
+	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/button/button.php';
 }
 
 // Include mock classes for WooCommerce Email Editor helpers
 require_once __DIR__ . '/class-mock-styles-helper.php';
 require_once __DIR__ . '/class-mock-table-wrapper-helper.php';
+require_once __DIR__ . '/class-mock-woocommerce-button-renderer.php';
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 
@@ -130,137 +135,61 @@ class Subscriptions_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_email with custom button text.
+	 * Test render_email with custom button text and HTML stripping.
 	 */
-	public function test_render_email_with_custom_button_text() {
+	public function test_render_email_with_custom_button_text_and_html_stripping() {
 		$attributes = array(
-			'submitButtonText' => 'Join Newsletter',
+			'submitButtonText' => '<strong><em>Join Newsletter</em></strong>',
 		);
 
 		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
 		$mock_context = $this->create_rendering_context_mock();
 		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
 
-		// Should contain the custom button text
+		// Should contain the custom button text (stripped of HTML)
 		$this->assertStringContainsString( 'Join Newsletter', $result );
-		$this->assertStringNotContainsString( 'Subscribe', $result );
-	}
-
-	/**
-	 * Test render_email with HTML in button text.
-	 */
-	public function test_render_email_with_html_button_text() {
-		$attributes = array(
-			'submitButtonText' => '<strong><em>Subscribe</em></strong>',
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should strip HTML and show only text content
-		$this->assertStringContainsString( 'Subscribe', $result );
 		$this->assertStringNotContainsString( '<strong>', $result );
 		$this->assertStringNotContainsString( '<em>', $result );
 	}
 
 	/**
-	 * Test render_email with custom colors.
+	 * Test render_email with custom styling attributes.
 	 */
-	public function test_render_email_with_custom_colors() {
+	public function test_render_email_with_custom_styling() {
 		$attributes = array(
 			'buttonBackgroundColor' => 'red',
 			'textColor'             => 'yellow',
 			'borderColor'           => 'green',
+			'fontSize'              => '2.5rem',
+			'borderRadius'          => 18,
+			'borderWeight'          => 4,
+			'padding'               => 21,
 		);
 
 		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
 		$mock_context = $this->create_rendering_context_mock();
 		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
 
-		// Should contain color styles (CSS format without spaces after colons)
+		// Should contain styling (CSS format without spaces after colons)
 		$this->assertStringContainsString( 'background-color:', $result );
 		$this->assertStringContainsString( 'color:', $result );
-		// Note: border-color may not be present if the color resolves to empty
-	}
-
-	/**
-	 * Test render_email with custom font size.
-	 */
-	public function test_render_email_with_custom_font_size() {
-		$attributes = array(
-			'fontSize' => '2.5rem',
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should contain font size (CSS format without spaces after colons)
 		$this->assertStringContainsString( 'font-size:2.5rem', $result );
-	}
-
-	/**
-	 * Test render_email with custom border radius.
-	 */
-	public function test_render_email_with_custom_border_radius() {
-		$attributes = array(
-			'borderRadius' => 18,
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should contain border radius (CSS format without spaces after colons)
 		$this->assertStringContainsString( 'border-radius:18px', $result );
-	}
-
-	/**
-	 * Test render_email with custom border weight.
-	 */
-	public function test_render_email_with_custom_border_weight() {
-		$attributes = array(
-			'borderWeight' => 4,
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should contain border width (CSS format without spaces after colons)
 		$this->assertStringContainsString( 'border-width:4px', $result );
-	}
-
-	/**
-	 * Test render_email with custom padding.
-	 */
-	public function test_render_email_with_custom_padding() {
-		$attributes = array(
-			'padding' => 21,
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should contain padding (CSS format without spaces after colons)
 		$this->assertStringContainsString( 'padding:21px', $result );
 	}
 
 	/**
-	 * Test render_email table structure.
+	 * Test render_email table structure and email compatibility.
 	 */
 	public function test_render_email_table_structure() {
 		$parsed_block = $this->create_parsed_block_with_attributes();
 		$mock_context = $this->create_rendering_context_mock();
 		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
 
-		// Should have table-based structure
+		// Should have table-based structure for email compatibility
 		$this->assertStringContainsString( 'role="presentation"', $result );
 		$this->assertStringContainsString( 'border-collapse:collapse', $result );
-
-		// Should have proper cell structure
 		$this->assertStringContainsString( '<td', $result );
 		$this->assertStringContainsString( '</td>', $result );
 
@@ -279,74 +208,6 @@ class Subscriptions_Block_Email_Test extends WP_UnitTestCase {
 
 		// Should use the provided width (CSS format without spaces after colons)
 		$this->assertStringContainsString( 'max-width:800px', $result );
-	}
-
-	/**
-	 * Test render_email security - HTML stripping.
-	 */
-	public function test_render_email_html_stripping() {
-		$attributes = array(
-			'submitButtonText' => '<strong><em>Subscribe</em></strong>',
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should strip HTML and show only text content
-		$this->assertStringContainsString( 'Subscribe', $result );
-		$this->assertStringNotContainsString( '<strong>', $result );
-		$this->assertStringNotContainsString( '<em>', $result );
-	}
-
-	/**
-	 * Test render_email with long button text.
-	 */
-	public function test_render_email_with_long_button_text() {
-		$long_text  = str_repeat( 'A', 300 ); // 300 characters
-		$attributes = array(
-			'submitButtonText' => $long_text,
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should contain the long text (may not be truncated as expected)
-		$this->assertStringContainsString( substr( $long_text, 0, 100 ), $result );
-	}
-
-	/**
-	 * Test render_email with invalid font size.
-	 */
-	public function test_render_email_with_invalid_font_size() {
-		$attributes = array(
-			'fontSize' => 'invalid-size',
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should fall back to default font size (CSS format without spaces after colons)
-		$this->assertStringContainsString( 'font-size:16px', $result );
-	}
-
-	/**
-	 * Test render_email with excessive border radius.
-	 */
-	public function test_render_email_with_excessive_border_radius() {
-		$attributes = array(
-			'borderRadius' => 100, // Above the 50px cap
-		);
-
-		$parsed_block = $this->create_parsed_block_with_attributes( $attributes );
-		$mock_context = $this->create_rendering_context_mock();
-		$result       = \Automattic\Jetpack\Extensions\Subscriptions\render_email( '', $parsed_block, $mock_context );
-
-		// Should cap at 50px (CSS format without spaces after colons)
-		$this->assertStringContainsString( 'border-radius:50px', $result );
-		$this->assertStringNotContainsString( 'border-radius:100px', $result );
 	}
 
 	/**

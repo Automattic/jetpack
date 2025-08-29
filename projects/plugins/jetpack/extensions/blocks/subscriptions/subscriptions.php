@@ -287,7 +287,7 @@ function newsletter_access_column_styles() {
 /**
  * Determine the amount of folks currently subscribed to the blog, splitted out in total_subscribers, email_subscribers, social_followers & paid_subscribers.
  *
- * @return array containing ['value' => ['total_subscribers' => 0, 'email_subscribers' => 0, 'social_followers' => 0, 'paid_subscribers' => 0]]
+ * @return array containing ['value' => ['total_subscribers' => 0, 'email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
  */
 function fetch_subscriber_counts() {
 	$subs_count = 0;
@@ -940,154 +940,45 @@ function render_for_email( $data, $styles ) {
  * @return string
  */
 function render_email( $block_content, array $parsed_block, $rendering_context ) {
-	// Validate input parameters and required dependencies
-	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
-		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
-		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) || ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' ) || ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
 		return '';
 	}
 
-	$attributes = $parsed_block['attrs'];
-
-	// Get email attributes for styling
-	$email_attrs = $parsed_block['email_attrs'] ?? array();
-
-	// Build button styles from attributes
-	$button_styles = array();
-
-	// Background color - use existing color resolution function
-	$background_color                  = get_attribute_color( 'buttonBackgroundColor', $attributes, '#113AF5' );
-	$button_styles['background-color'] = $background_color;
-
-	// Text color - use existing color resolution function
-	$text_color             = get_attribute_color( 'textColor', $attributes, '#FFFFFF' );
-	$button_styles['color'] = $text_color;
-
-	// Border color - use existing color resolution function
-	$border_color = get_attribute_color( 'borderColor', $attributes, '' );
-	if ( ! empty( $border_color ) ) {
-		$button_styles['border-color'] = $border_color;
-	}
-
-	// Border width - validate numeric value
-	$border_weight = ! empty( $attributes['borderWeight'] ) ? absint( $attributes['borderWeight'] ) : 1;
-	$border_weight = min( $border_weight, 10 ); // Cap at 10px for security
-	if ( $border_weight > 0 ) {
-		$button_styles['border-width'] = $border_weight . 'px';
-		$button_styles['border-style'] = 'solid';
-	}
-
-	// Border radius - validate numeric value
-	$border_radius = ! empty( $attributes['borderRadius'] ) ? absint( $attributes['borderRadius'] ) : 0;
-	$border_radius = min( $border_radius, 50 ); // Cap at 50px for security
-	if ( $border_radius > 0 ) {
-		$button_styles['border-radius'] = $border_radius . 'px';
-	}
-
-	// Padding - validate numeric value
-	$padding                  = ! empty( $attributes['padding'] ) ? absint( $attributes['padding'] ) : 15;
-	$padding                  = min( $padding, 50 ); // Cap at 50px for security
-	$button_styles['padding'] = $padding . 'px ' . round( $padding * 1.5 ) . 'px';
-
-	// Font size - check fontSize first, then customFontSize
-	$font_size = ! empty( $attributes['fontSize'] ) ? $attributes['fontSize'] :
-				( ! empty( $attributes['customFontSize'] ) ? $attributes['customFontSize'] : '16px' );
-	// Basic validation for font size (allow px, em, rem, %)
-	if ( is_numeric( $font_size ) ) {
-		$font_size = absint( $font_size );
-		$font_size = min( $font_size, 72 ); // Cap at 72px for security
-		$font_size = $font_size . 'px';
-	} elseif ( is_string( $font_size ) ) {
-		// Allow common CSS units with decimal numbers
-		if ( ! preg_match( '/^[0-9]+\.?[0-9]*(px|em|rem|%)$/', $font_size ) ) {
-			$font_size = '16px'; // Fallback to safe default
-		}
-	} else {
-		$font_size = '16px'; // Fallback to safe default
-	}
-	$button_styles['font-size'] = $font_size;
-
-	// Button text - sanitize for security
-	$button_text = ! empty( $attributes['submitButtonText'] ) ? sanitize_text_field( $attributes['submitButtonText'] ) : __( 'Subscribe', 'jetpack' );
-	// Limit button text length for security
-	$button_text = substr( $button_text, 0, 200 );
-
-	// Additional button styles
-	$button_styles['display']         = 'inline-block';
-	$button_styles['text-decoration'] = 'none';
-	$button_styles['font-family']     = 'Arial, sans-serif';
-	$button_styles['text-align']      = 'center';
-
-	// Compile button styles using WP_Style_Engine
-	if ( class_exists( '\WP_Style_Engine' ) ) {
-		$button_style_string = \WP_Style_Engine::compile_css( $button_styles, '' );
-	} else {
-		// Fallback: build CSS string manually
-		$button_style_parts = array();
-		foreach ( $button_styles as $property => $value ) {
-			$button_style_parts[] = $property . ': ' . $value;
-		}
-		$button_style_string = implode( '; ', $button_style_parts );
-	}
-
-	// Get target width from the email layout if available
-	$target_width = 600; // Default
-	if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
-		$layout_width_px = $rendering_context->get_layout_width_without_padding();
-		if ( is_string( $layout_width_px ) ) {
-			$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px );
-			if ( $parsed_width > 0 ) {
-				$target_width = $parsed_width;
-			}
-		}
-	}
-
-	// Table wrapper styles
-	$table_styles = array(
-		'width'           => '100%',
-		'max-width'       => $target_width . 'px',
-		'padding'         => '0',
-		'border-collapse' => 'collapse',
-		'margin'          => '16px 0',
+	// Map subscription block attributes to button block attributes
+	$button_attributes = array(
+		'text'                  => $parsed_block['attrs']['submitButtonText'] ?? __( 'Subscribe', 'jetpack' ),
+		'url'                   => get_post_permalink(),
+		'element'               => 'a',
+		// Map background colors
+		'backgroundColor'       => $parsed_block['attrs']['buttonBackgroundColor'] ?? null,
+		'customBackgroundColor' => $parsed_block['attrs']['customButtonBackgroundColor'] ?? null,
+		// Map text colors
+		'textColor'             => $parsed_block['attrs']['textColor'] ?? null,
+		'customTextColor'       => $parsed_block['attrs']['customTextColor'] ?? null,
+		// Map borders
+		'borderRadius'          => $parsed_block['attrs']['borderRadius'] ?? 0,
+		'borderWeight'          => $parsed_block['attrs']['borderWeight'] ?? 1,
+		'borderColor'           => $parsed_block['attrs']['borderColor'] ?? null,
+		'customBorderColor'     => $parsed_block['attrs']['customBorderColor'] ?? null,
+		// Map typography
+		'fontSize'              => $parsed_block['attrs']['fontSize'] ?? null,
+		'customFontSize'        => $parsed_block['attrs']['customFontSize'] ?? null,
+		// Map spacing
+		'padding'               => $parsed_block['attrs']['padding'] ?? null,
 	);
 
-	// Add margin from email attributes if available
-	if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
-		$email_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' );
-		if ( ! empty( $email_margin_style ) ) {
-			$table_styles['margin'] = $email_margin_style;
-		}
-	}
-
-	// Compile table styles using WP_Style_Engine
-	if ( class_exists( '\WP_Style_Engine' ) ) {
-		$table_style_string = \WP_Style_Engine::compile_css( $table_styles, '' );
-	} else {
-		// Fallback: build CSS string manually
-		$table_style_parts = array();
-		foreach ( $table_styles as $property => $value ) {
-			$table_style_parts[] = $property . ': ' . $value;
-		}
-		$table_style_string = implode( '; ', $table_style_parts );
-	}
-
-	// Build table content - left-aligned by default
-	$table_content = sprintf(
-		'<tr><td style="%s"><a href="%s" style="%s">%s</a></td></tr>',
-		esc_attr( $table_style_string ),
-		esc_url( get_post_permalink() ),
-		esc_attr( $button_style_string ),
-		esc_html( $button_text )
+	// Create a mock button block structure
+	$button_parsed_block = array(
+		'attrs'       => $button_attributes,
+		'email_attrs' => $parsed_block['email_attrs'] ?? array(),
 	);
 
-	$table_attrs = array(
-		'style' => $table_style_string,
+	// Call the Jetpack button's email rendering
+	return \Automattic\Jetpack\Extensions\Button\render_email(
+		$block_content,
+		$button_parsed_block,
+		$rendering_context
 	);
-
-	// Use Table_Wrapper_Helper for consistent email rendering
-	$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $table_content, $table_attrs );
-
-	return $html;
 }
 
 /**
