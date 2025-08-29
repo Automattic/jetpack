@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix dataview footer width and reset page on status change
