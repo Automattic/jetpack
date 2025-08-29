@@ -337,7 +337,7 @@ export const WooCommerceTheme: Story = {
 	],
 };
 
-export const CustomTypography: Story = {
+export const CustomRenderProps: Story = {
 	args: {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
@@ -415,14 +415,82 @@ export const CustomTypography: Story = {
 				</p>
 			</div>
 		),
+		renderTooltip: ( { step } ) => (
+			<div
+				style={ {
+					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+					borderRadius: '12px',
+					padding: '16px 20px',
+					color: 'white',
+					fontFamily: 'Inter, sans-serif',
+					boxShadow: '0 8px 32px rgba(118, 75, 162, 0.3)',
+					border: 'none',
+					minWidth: '200px',
+				} }
+			>
+				<div
+					style={ {
+						fontSize: '11px',
+						fontWeight: '500',
+						opacity: 0.8,
+						textTransform: 'uppercase',
+						letterSpacing: '0.5px',
+						margin: '0 0 8px 0',
+					} }
+				>
+					{ step.label }
+				</div>
+				<div
+					style={ {
+						fontSize: '18px',
+						fontWeight: 'bold',
+						margin: '0',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+					} }
+				>
+					{ step.rate.toFixed( 1 ) }%
+					{ step.count && (
+						<span
+							style={ {
+								fontSize: '14px',
+								fontWeight: '400',
+								opacity: 0.9,
+							} }
+						>
+							• { step.count.toLocaleString() } items
+						</span>
+					) }
+				</div>
+			</div>
+		),
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Custom typography with renderMainMetric showing a dashboard-style header with gradient background, larger fonts, and enhanced styling compared to the default simple display.',
+					'Custom typography with renderMainMetric and renderTooltip showing a dashboard-style header and custom tooltip, both with gradient background, larger fonts, and enhanced styling compared to the default display.',
 			},
 		},
 	},
 	decorators: [ Story => <Story /> ],
+};
+
+export const FunnelOnly: Story = {
+	args: {
+		mainRate: 10.3,
+		changeIndicator: '+2%',
+		steps: ecommerceFunnelData,
+		renderMainMetric: () => null,
+		renderTooltip: () => null,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Shows just the funnel visualization by disabling the main metric display and tooltips through null return values from render props.',
+			},
+		},
+	},
 };
