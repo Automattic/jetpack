@@ -2,9 +2,8 @@ import { __experimentalText as Text } from '@wordpress/components'; // eslint-di
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useGlobalChartsTheme } from '../../providers/chart-context';
-import styles from './conversion-funnel-chart.module.scss';
-import { useFunnelSelection } from './hooks/use-funnel-selection';
-import { hexToRgba } from './utils/color-utils';
+import { hexToRgba } from '../../utils';
+import { useFunnelSelection, styles } from './private';
 
 /**
  * Represents a single step in the conversion funnel

@@ -1,4 +1,4 @@
-import { hexToRgba } from '../utils/color-utils';
+import { hexToRgba } from '../color-utils';
 
 describe( 'hexToRgba', () => {
 	describe( 'Valid hex colors', () => {

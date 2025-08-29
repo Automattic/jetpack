@@ -19,3 +19,6 @@ export { isSafari } from './is-safari';
 
 // Theme merging utilities
 export { mergeThemes } from './merge-themes';
+
+// Color utilities
+export { hexToRgba } from './color-utils';
