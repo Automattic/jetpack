@@ -1,6 +1,6 @@
-.jetpack-field-slider {
+.wp-block-jetpack-field-slider {
 
-	&__input-row {
+	.jetpack-field-slider__input-row {
 		display: flex;
 		align-items: center;
 		width: 100%;
@@ -8,7 +8,7 @@
 		margin-top: 30px;
 	}
 
-	&__input-container {
+	.jetpack-field-slider__input-container {
 		display: flex;
 		flex: 1 1 auto;
 		min-width: 0;
@@ -26,14 +26,14 @@
 			transform: translateY(-50%);
 			height: 4px; /* visual track height */
 			width: auto;
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			background: var(--jetpack--contact-form--body-text-color);
 			z-index: 0;
 			pointer-events: none;
 			border-radius: 2px;
 		}
 	}
 
-	&__range.jetpack-field-slider__range {
+	.jetpack-field-slider__range.jetpack-field-slider__range {
 		-webkit-appearance: none;
 		appearance: none;
 		-moz-appearance: none;
@@ -49,6 +49,7 @@
 		box-sizing: border-box;
 		z-index: 1;
 		cursor: pointer;
+		box-shadow: none;
 
 		/* Hide native tracks to prevent double-track rendering */
 		&::-webkit-slider-runnable-track,
@@ -80,9 +81,10 @@
 			appearance: none;
 			width: 32px;
 			height: 32px;
-			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
 			cursor: pointer;
 			box-shadow: none;
+			border: none;
 		}
 
 		&::-moz-range-thumb {
@@ -90,7 +92,7 @@
 			-moz-appearance: none !important;
 			width: 32px;
 			height: 32px;
-			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
 			cursor: pointer;
 			border: none;
 			box-shadow: none;
@@ -100,7 +102,7 @@
 			appearance: none !important;
 			width: 32px;
 			height: 32px;
-			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
 			cursor: pointer;
 			border: none;
 			box-shadow: none;
@@ -112,17 +114,17 @@
 		&::-ms-fill-upper,
 		&:focus::-ms-fill-lower,
 		&:focus::-ms-fill-upper {
-			background: var(--jetpack--contact-form--button-primary--background-color);
+			background: var(--jetpack--contact-form--body-text-color);
 		}
 	}
 
-	&__value-indicator {
+	.jetpack-field-slider__value-indicator {
 		position: absolute;
 		left: 0;
 		bottom: 100%;
 		transform: translateX(-50%);
-		background: var(--jetpack--contact-form--button-primary--background-color);
-		color: var(--jetpack--contact-form--button-primary--color);
+		background: var(--jetpack--contact-form--body-text-color);
+		color: var(--jetpack--contact-form--inverted-body-text-color);
 		border-radius: 8px;
 		padding: 2px 8px;
 		font-size: 0.7em;
@@ -130,24 +132,24 @@
 		text-wrap: nowrap;
 	}
 
-	&__min-label,
-	&__max-label {
+	.jetpack-field-slider__min-label,
+	.jetpack-field-slider__max-label {
 		font-size: 0.9em;
 		text-align: center;
 	}
 
-	&__text-labels {
+	.jetpack-field-slider__text-labels {
 		display: flex;
 		justify-content: space-between;
 		margin-top: 6px;
 		font-size: 0.9em;
 	}
 
-	&__min-text-label {
+	.jetpack-field-slider__min-text-label {
 		text-align: left;
 	}
 
-	&__max-text-label {
+	.jetpack-field-slider__max-text-label {
 		text-align: right;
 	}
 }
