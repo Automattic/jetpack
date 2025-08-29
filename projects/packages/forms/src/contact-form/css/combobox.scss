@@ -1,6 +1,7 @@
 // Custom Combobox Styles for Country Selector
 .jetpack-custom-combobox {
 	position: relative;
+	letter-spacing: normal; // don't let input attributes rule over this
 
 	.jetpack-combobox-trigger {
 		width: 100%;
@@ -31,11 +32,11 @@
 		}
 
 		.jetpack-combobox-selected {
-			flex: 1;
-			text-align: left;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
+			// flex: 1;
+			// text-align: left;
+			// overflow: hidden;
+			// text-overflow: ellipsis;
+			// white-space: nowrap;
 		}
 	}
 

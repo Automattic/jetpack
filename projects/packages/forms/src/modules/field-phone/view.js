@@ -1,23 +1,28 @@
-import { store, getContext, getElement, withSyncEvent, withScope } from '@wordpress/interactivity';
+import { store, getContext, getConfig, getElement, withSyncEvent } from '@wordpress/interactivity';
 import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
 import { countries } from '../../blocks/field-telephone/country-list';
 import { isEmptyValue } from '../../contact-form/js/validate-helper';
 const NAMESPACE = 'jetpack/form';
 
 const asYouTypes = {};
-
-// const updateSelection = ( selectedDisplay, selectedCountry ) => {
-// 	selectedDisplay.innerHTML = `
-// 		<span>
-// 			${ selectedCountry.flag } ${ selectedCountry.value }
-// 		</span>
-// 	`;
-// 	const context = getContext();
-// 	context.phoneCountryCode = selectedCountry.code;
-// 	context.countryPrefix = selectedCountry.value;
-// 	context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
-// 	asYouTypes[ context.fieldId ] = new AsYouType( context.phoneCountryCode );
-// };
+const phoneInputRefs = {};
+const searchInputRefs = {};
+const optionsListRefs = {};
+const updateSelection = selectedCountry => {
+	const context = getContext();
+	context.phoneCountryCode = selectedCountry.code;
+	context.countryPrefix = selectedCountry.value;
+	context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
+	asYouTypes[ context.fieldId ] = new AsYouType( context.phoneCountryCode );
+	context.filteredCountries = context.filteredCountries.map( country => ( {
+		...country,
+		selected: country.code === selectedCountry.code,
+	} ) );
+	context.allCountries = context.allCountries.map( country => ( {
+		...country,
+		selected: country.code === selectedCountry.code,
+	} ) );
+};
 
 const { actions } = store( NAMESPACE, {
 	state: {
@@ -33,7 +38,7 @@ const { actions } = store( NAMESPACE, {
 					// No need to validate anything.
 					return 'yes';
 				}
-				console.log( 'context.fullPhoneNumber', context.fullPhoneNumber );
+
 				// from this point on, we discard the value as we
 				// use our internal full phone number state getter:
 				value = context.fullPhoneNumber;
@@ -89,7 +94,6 @@ const { actions } = store( NAMESPACE, {
 			actions.updateField( fieldId, value );
 		},
 		onPhoneCountryChange( event ) {
-			console.log( 'onPhoneCountryChange', event );
 			const context = getContext();
 			context.phoneCountryCode = event?.target?.value || context.defaultCountry;
 			context.countryPrefix = countries.find(
@@ -98,9 +102,83 @@ const { actions } = store( NAMESPACE, {
 			asYouTypes[ context.fieldId ] = new AsYouType( context.phoneCountryCode );
 			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
 		},
+		phoneNumberInputHandler( event ) {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const value = event.target.value;
+			if ( ! context.showCountrySelector ) {
+				context.phoneNumber = context.fullPhoneNumber = value;
+				return;
+			}
+			const groomedValue = value.indexOf( '00' ) === 0 ? '+' + value.slice( 2 ) : value;
+
+			asYouTypes[ fieldId ].reset();
+			asYouTypes[ fieldId ].input( groomedValue );
+			if ( asYouTypes[ fieldId ].getCountry() ) {
+				const countryCode = asYouTypes[ fieldId ].getCountry();
+				context.phoneNumber = asYouTypes[ fieldId ].getNationalNumber();
+				context.selectedCountry = context.allCountries.find(
+					country => country.code === countryCode
+				);
+				updateSelection( context.selectedCountry );
+			} else {
+				context.phoneNumber = value;
+			}
+
+			actions.updateField( fieldId, value );
+		},
+		phoneCountryChangeHandler() {
+			const context = getContext();
+			// this context.filtered is from the template iterator
+			context.selectedCountry = { ...context.filtered };
+			updateSelection( context.selectedCountry );
+			context.comboboxOpen = false;
+			phoneInputRefs[ context.fieldId ]?.focus?.();
+		},
+		phoneComboboxInputHandler( event ) {
+			const context = getContext();
+			const searchTerm = event.target.value;
+			context.filteredCountries = context.allCountries.filter(
+				country =>
+					country.country.toLowerCase().includes( searchTerm ) ||
+					country.code.toLowerCase().includes( searchTerm ) ||
+					country.value.includes( searchTerm )
+			);
+			optionsListRefs[ context.fieldId ]
+				.querySelector( '.jetpack-combobox-option-selected' )
+				?.scrollIntoView?.( { block: 'nearest', container: 'nearest', behavior: 'instant' } );
+		},
+		phoneComboboxKeydownHandler: withSyncEvent( event => {
+			const context = getContext();
+			if ( event.key === 'Escape' ) {
+				context.comboboxOpen = false;
+			} else if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				// Select the first filtered option if available
+				if ( event.target.value && context.filteredCountries.length > 0 ) {
+					context.selectedCountry = context.filteredCountries[ 0 ];
+					updateSelection( context.selectedCountry );
+					context.comboboxOpen = false;
+					// Focus on the ref input
+					phoneInputRefs[ context.fieldId ]?.focus?.();
+				}
+			}
+		} ),
+		phoneNumberFocusHandler() {
+			const context = getContext();
+			context.comboboxOpen = false;
+		},
 		phoneComboboxToggle() {
 			const context = getContext();
 			context.comboboxOpen = ! context.comboboxOpen;
+			if ( context.comboboxOpen ) {
+				setTimeout( () => {
+					searchInputRefs[ context.fieldId ]?.focus?.();
+					optionsListRefs[ context.fieldId ]
+						.querySelector( '.jetpack-combobox-option-selected' )
+						?.scrollIntoView?.( { block: 'nearest', container: 'nearest' } );
+				}, 0 );
+			}
 		},
 	},
 	callbacks: {
@@ -116,21 +194,35 @@ const { actions } = store( NAMESPACE, {
 			}
 			asYouTypes[ context.fieldId ] = new AsYouType( context.defaultCountry );
 		},
+		initializePhoneField() {
+			const element = getElement().ref;
+			const context = getContext();
+			// store refs for quick access later and less intensive dom scouting
+			phoneInputRefs[ context.fieldId ] = element.querySelector( 'input[type="tel"]' );
+			searchInputRefs[ context.fieldId ] = element.parentElement.querySelector(
+				'.jetpack-combobox-search'
+			);
+			optionsListRefs[ context.fieldId ] = element.parentElement.querySelector(
+				'.jetpack-combobox-options'
+			);
+		},
 		initializeCustomComboBox() {
 			const context = getContext();
 			if ( ! context.showCountrySelector ) {
 				return;
 			}
-			context.filteredCountries = countries.map( country => ( {
+			const config = getConfig( 'jetpack/field-phone' );
+			context.allCountries = countries.map( country => ( {
 				...country,
-				label: country.country + ' ' + country.flag + ' ' + country.value,
-				value: country.code,
+				country: config?.i18n?.countryNames?.[ country.code ] || '',
 				selected: country.code === context.defaultCountry,
 			} ) );
-			context.selectedCountry = countries.find(
+			context.filteredCountries = [ ...context.allCountries ];
+			context.selectedCountry = context.filteredCountries.find(
 				country => country.code === context.defaultCountry
 			);
-			context.selectedCountryDisplay = `${ context.selectedCountry.flag } ${ context.selectedCountry.value }`;
+			asYouTypes[ context.fieldId ] = new AsYouType( context.defaultCountry );
+
 			// // Find the parent element with class jetpack-field__input-prefix
 			// const parentElement = getElement().ref;
 			// if ( ! parentElement ) {
