@@ -305,8 +305,9 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		onImageOptionClick: event => {
-			// Find the parent container that has the data-wp-on--click attribute
+			// Find the block container
 			let target = event.target;
+
 			while ( target && ! target.classList.contains( 'jetpack-input-image-option' ) ) {
 				target = target.parentElement;
 			}
@@ -314,12 +315,25 @@ const { state, actions } = store( NAMESPACE, {
 			if ( target ) {
 				// Find the input inside this container
 				const input = target.querySelector( '.jetpack-input-image-option__input' );
+
 				if ( input ) {
-					// Toggle the input state
 					if ( input.type === 'checkbox' ) {
 						input.checked = ! input.checked;
+						target.classList.toggle( 'is-checked', input.checked );
 					} else if ( input.type === 'radio' ) {
 						input.checked = true;
+
+						// Find all image options in the same fieldset and toggle the checked class
+						const fieldset = target.closest( '.jetpack-fieldset-image-options__wrapper' );
+
+						if ( fieldset ) {
+							const imageOptions = fieldset.querySelectorAll( '.jetpack-input-image-option' );
+
+							imageOptions.forEach( imageOption => {
+								const imageOptionInput = imageOption.querySelector( 'input' );
+								imageOption.classList.toggle( 'is-checked', imageOptionInput.id === input.id );
+							} );
+						}
 					}
 
 					// Dispatch change event to trigger any change handlers
