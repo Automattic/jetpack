@@ -56,6 +56,35 @@ const formatFieldValue = fieldValue => {
 	return fieldValue;
 };
 
+const updateSidebarWidth = () => {
+	const wrapper = document.querySelector( '.dataviews-wrapper' );
+
+	if ( wrapper ) {
+		const left = wrapper.getBoundingClientRect().left;
+		wrapper.style.setProperty( '--forms-admin-sidebar-width', `${ left }px` );
+	}
+};
+
+const setupSidebarWidthObserver = () => {
+	const wrapper = document.querySelector( '.dataviews-wrapper' );
+
+	if ( ! wrapper ) {
+		return () => {};
+	}
+
+	updateSidebarWidth();
+
+	const resizeObserver = new ResizeObserver( () => {
+		requestAnimationFrame( updateSidebarWidth );
+	} );
+
+	resizeObserver.observe( wrapper );
+
+	return () => {
+		resizeObserver.disconnect();
+	};
+};
+
 /**
  * The DataViews implementation.
  *
@@ -76,6 +105,10 @@ export default function InboxView() {
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
 	const selectedResponses = searchParams.get( 'r' );
+
+	useEffect( () => {
+		return setupSidebarWidthObserver();
+	}, [] );
 
 	const {
 		setCurrentQuery,
