@@ -22,7 +22,7 @@ A focused conversion funnel chart component for visualizing step-by-step convers
 - 📊 Clear funnel visualization with proportional bar heights and light backgrounds
 - 📈 Main conversion rate highlighting with positive/negative change indicators
 - 🎨 Dynamic color theming - bar backgrounds automatically adapt to primary color
-- 🔧 **Render Props** - Complete customization control with \`renderMainMetric\`, \`renderStepLabel\`, and \`renderStepRate\`
+- 🔧 **Render Props** - Complete customization control with \`renderMainMetric\`, \`renderStepLabel\`, \`renderStepRate\`, and \`renderTooltip\`
 - 🎭 **CSS Variables** - Easy theming with \`--funnel-font-family\` and \`--step-font-family\`
 - 📱 Mobile-friendly responsive design with flexible layouts
 - 🎯 TypeScript support with full type definitions
@@ -144,6 +144,9 @@ Complete control over component rendering with optional render functions:
   )}
   renderStepRate={({ step, className }) => (
     <strong className={className}>{step.rate}%</strong>
+  )}
+  renderTooltip={({ step }) => (
+    <div>Custom tooltip for {step.label}: {step.rate}%</div>
   )}
 />
 \`\`\`
