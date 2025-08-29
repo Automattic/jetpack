@@ -1,7 +1,7 @@
-import { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
-import { ConnectorProps } from '@visx/annotation/lib/components/Connector';
-import { LabelProps } from '@visx/annotation/lib/components/Label';
-import { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
+import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
+import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
+import type { LabelProps } from '@visx/annotation/lib/components/Label';
+import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
 
 export type AnnotationStyles = {
 	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
