@@ -4,8 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
-import type { BaseLegendItem } from '../../../components/legend/types';
-import type { ChartTheme } from '../../../types';
+import type { BaseLegendItem, ChartTheme } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
 
 describe( 'ChartContext', () => {
