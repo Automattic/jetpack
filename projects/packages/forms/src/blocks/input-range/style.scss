@@ -12,6 +12,7 @@
 		display: flex;
 		flex: 1 1 auto;
 		min-width: 0;
+		padding: 0;
 		position: relative;
 		min-height: 36px;
 		touch-action: pan-x;
@@ -19,12 +20,12 @@
 		&::before {
 			content: "";
 			position: absolute;
-			left: 0;
-			right: 0;
+			left: 8px;
+			right: 8px;
 			top: 50%;
 			transform: translateY(-50%);
 			height: 4px; /* visual track height */
-			width: 100%;
+			width: auto;
 			background: var(--jetpack--contact-form--button-primary--background-color);
 			z-index: 0;
 			pointer-events: none;
@@ -38,7 +39,9 @@
 		-moz-appearance: none;
 		height: 100%;
 		min-height: 36px;
-		padding: 0; /* enlarge hit area without moving track */
+
+		margin: 0; /* enlarge hit area without moving track */
+		padding: 0;
 		background: transparent;
 		outline: none;
 		border: none;
@@ -78,9 +81,7 @@
 			width: 32px;
 			height: 32px;
 			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
-			border-radius: 50%;
 			cursor: pointer;
-			transition: background 0.3s;
 			box-shadow: none;
 		}
 
@@ -90,9 +91,7 @@
 			width: 32px;
 			height: 32px;
 			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
-			border-radius: 50%;
 			cursor: pointer;
-			transition: background 0.3s;
 			border: none;
 			box-shadow: none;
 		}
@@ -102,9 +101,7 @@
 			width: 32px;
 			height: 32px;
 			background: radial-gradient(circle at center, var(--jetpack--contact-form--button-primary--background-color) 0%, var(--jetpack--contact-form--button-primary--background-color) 40%, transparent 40%);
-			border-radius: 50%;
 			cursor: pointer;
-			transition: background 0.3s;
 			border: none;
 			box-shadow: none;
 		}
