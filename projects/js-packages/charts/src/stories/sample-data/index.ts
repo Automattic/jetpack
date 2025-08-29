@@ -3,8 +3,9 @@
  * Provides reusable, high-quality datasets across all chart components
  */
 
+import type { FunnelStep } from '../../components/conversion-funnel-chart';
 import type { LeaderboardEntry } from '../../components/leaderboard-chart';
-import type { SeriesData, DataPointPercentage, FunnelStep } from '../../types';
+import type { DataPointPercentage, SeriesData } from '../../types';
 
 /**
  * Olympic medals data for top countries (1896-2020)

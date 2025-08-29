@@ -25,7 +25,3 @@ export type * from './types';
 export type * from './visx/types';
 
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
-
-export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
-export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
-export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';
