@@ -263,6 +263,7 @@ class WooCommerce_Products extends Module {
 		// Build base product data from posts.
 		foreach ( $posts as $post ) {
 			$products[ $post->ID ] = array(
+				'product_id'    => $post->ID,
 				'title'         => $post->post_title,
 				'post_status'   => $post->post_status,
 				'slug'          => $post->post_name,
