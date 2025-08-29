@@ -59,10 +59,9 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
-	JetpackRatingField,
-	JetpackRatingInput,
-	JetpackFieldSlider,
-	JetpackSliderInput,
+	...( getJetpackBlocksVariation() === 'experimental'
+		? [ JetpackRatingField, JetpackRatingInput, JetpackFieldSlider, JetpackSliderInput ]
+		: [] ),
 	...( getJetpackBlocksVariation() === 'beta'
 		? [ JetpackTimeField, JetpackPhoneField, JetpackPhoneInput ]
 		: [] ),
