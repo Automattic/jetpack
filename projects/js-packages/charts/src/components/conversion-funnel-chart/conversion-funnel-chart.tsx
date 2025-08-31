@@ -233,16 +233,18 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (
 		<>
-			<span className={ styles.mainRate }>{ mainRate.toFixed( 1 ) }%</span>
-			{ changeIndicator && <span className={ styles.changeIndicator }>{ changeIndicator }</span> }
+			<span className={ styles[ 'main-rate' ] }>{ mainRate.toFixed( 1 ) }%</span>
+			{ changeIndicator && (
+				<span className={ styles[ 'change-indicator' ] }>{ changeIndicator }</span>
+			) }
 		</>
 	);
 
 	// Default tooltip rendering function
 	const renderDefaultTooltip = ( step: FunnelStep ) => (
 		<>
-			<div className={ styles.tooltipTitle }>{ step.label }</div>
-			<div className={ styles.tooltipContent }>
+			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
+			<div className={ styles[ 'tooltip-content' ] }>
 				{ step.rate.toFixed( 1 ) }%{ step.count && ` • ${ step.count.toLocaleString() } items` }
 			</div>
 		</>
@@ -255,7 +257,9 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
 				style={ chartStyle }
 			>
-				<div className={ styles.emptyState }>{ loading ? 'Loading...' : 'No data available' }</div>
+				<div className={ styles[ 'empty-state' ] }>
+					{ loading ? 'Loading...' : 'No data available' }
+				</div>
 			</div>
 		);
 	}
@@ -279,15 +283,15 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 					renderMainMetric( {
 						mainRate,
 						changeIndicator,
-						className: styles.mainMetric,
+						className: styles[ 'main-metric' ],
 						changeColor,
 					} )
 				) : (
-					<div className={ styles.mainMetric }>{ renderDefaultMainMetric() }</div>
+					<div className={ styles[ 'main-metric' ] }>{ renderDefaultMainMetric() }</div>
 				) }
 
 				{ /* Funnel Steps */ }
-				<div className={ styles.funnelContainer }>
+				<div className={ styles[ 'funnel-container' ] }>
 					{ steps.map( ( step, index ) => {
 						const barHeight = ( step.rate / maxRate ) * 100;
 						const { isClicked, isBlurred } = getStepState( step.id );
@@ -295,34 +299,34 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 						return (
 							<div
 								key={ step.id }
-								className={ clsx( styles.funnelStep, isBlurred && styles.blurred ) }
+								className={ clsx( styles[ 'funnel-step' ], isBlurred && styles.blurred ) }
 							>
 								{ /* Step Label and Rate */ }
-								<div className={ styles.stepHeader }>
+								<div className={ styles[ 'step-header' ] }>
 									{ renderStepLabel ? (
 										renderStepLabel( {
 											step,
 											index,
-											className: styles.stepLabel,
+											className: styles[ 'step-label' ],
 										} )
 									) : (
-										<span className={ styles.stepLabel }>{ step.label }</span>
+										<span className={ styles[ 'step-label' ] }>{ step.label }</span>
 									) }
 									{ renderStepRate ? (
 										renderStepRate( {
 											step,
 											index,
-											className: styles.stepRate,
+											className: styles[ 'step-rate' ],
 										} )
 									) : (
-										<span className={ styles.stepRate }>{ step.rate.toFixed( 1 ) }%</span>
+										<span className={ styles[ 'step-rate' ] }>{ step.rate.toFixed( 1 ) }%</span>
 									) }
 								</div>
 
 								{ /* Funnel Bar */ }
 								<div
 									className={ clsx(
-										styles.barContainer,
+										styles[ 'bar-container' ],
 										isClicked && styles.selected,
 										isBlurred && styles.disabled
 									) }
@@ -333,7 +337,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 									aria-label={ step.label }
 								>
 									<div
-										className={ clsx( styles.funnelBar, isClicked && styles.selected ) }
+										className={ clsx( styles[ 'funnel-bar' ], isClicked && styles.selected ) }
 										style={ {
 											height: `${ barHeight }%`,
 											backgroundColor: primaryColor,
@@ -356,7 +360,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 								index: steps.findIndex( s => s.id === ( tooltipData as FunnelStep ).id ),
 								top: tooltipTop,
 								left: tooltipLeft,
-								className: styles.tooltipWrapper,
+								className: styles[ 'tooltip-wrapper' ],
 						  } )
 						: renderDefaultTooltip( tooltipData as FunnelStep );
 
@@ -369,7 +373,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 							key={ Math.random() }
 							top={ tooltipTop }
 							left={ tooltipLeft }
-							className={ styles.tooltipWrapper }
+							className={ styles[ 'tooltip-wrapper' ] }
 						>
 							{ tooltipContent }
 						</TooltipInPortal>

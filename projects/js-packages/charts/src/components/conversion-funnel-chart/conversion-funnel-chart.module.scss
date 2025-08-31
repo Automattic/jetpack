@@ -7,14 +7,14 @@
 	}
 }
 
-.mainMetric {
+.main-metric {
 	display: flex;
 	align-items: baseline;
 	gap: 8px;
 	margin-bottom: 24px;
 }
 
-.mainRate {
+.main-rate {
 	overflow: hidden;
 	color: #1e1e1e;
 	text-overflow: ellipsis;
@@ -26,7 +26,7 @@
 	margin: 0;
 }
 
-.changeIndicator {
+.change-indicator {
 	overflow: hidden;
 	color: var(--change-indicator-color, #008a20);
 	text-overflow: ellipsis;
@@ -38,7 +38,7 @@
 	margin: 0;
 }
 
-.funnelContainer {
+.funnel-container {
 	display: flex;
 	gap: 16px;
 	align-items: flex-end;
@@ -46,7 +46,7 @@
 	width: 100%;
 }
 
-.funnelStep {
+.funnel-step {
 	flex: 1 1 0;
 	min-width: 0;
 	display: flex;
@@ -59,11 +59,11 @@
 	}
 }
 
-.stepHeader {
+.step-header {
 	margin-bottom: 24px;
 }
 
-.stepLabel {
+.step-label {
 	color: #757575;
 	font-family: var(--step-font-family, "SF Pro");
 	font-size: 12px;
@@ -76,7 +76,7 @@
 	text-overflow: ellipsis;
 }
 
-.stepRate {
+.step-rate {
 	color: #1e1e1e;
 	font-family: var(--step-font-family, "SF Pro");
 	font-size: 13px;
@@ -87,7 +87,7 @@
 	display: block;
 }
 
-.barContainer {
+.bar-container {
 	flex: 1;
 	display: flex;
 	align-items: flex-end;
@@ -107,7 +107,7 @@
 	}
 }
 
-.funnelBar {
+.funnel-bar {
 	width: 100%;
 	min-height: 4px;
 	border-radius: 4px 4px 0 0;
@@ -121,7 +121,7 @@
 	}
 }
 
-.tooltipWrapper {
+.tooltip-wrapper {
 	display: inline-flex;
 	flex-direction: column;
 	justify-content: center;
@@ -138,7 +138,7 @@
 
 }
 
-.tooltipTitle {
+.tooltip-title {
 	color: #1e1e1e;
 	font-family: "SF Pro", sans-serif;
 	font-size: 12px;
@@ -147,7 +147,7 @@
 	line-height: 16px;
 }
 
-.tooltipContent {
+.tooltip-content {
 	color: #1e1e1e;
 	font-family: "SF Pro", sans-serif;
 	font-size: 13px;
@@ -156,7 +156,7 @@
 	line-height: 20px;
 }
 
-.emptyState {
+.empty-state {
 	text-align: center;
 	padding: 48px 24px;
 	color: #6b7280;
