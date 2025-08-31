@@ -75,6 +75,10 @@ class Red_Bubble_Notifications {
 			if ( in_array( $slug, Products::get_not_shown_products(), true ) ) {
 				continue;
 			}
+			// Skip CRM from installation requirements - e.g. don't enforce installation for Complete plan users
+			if ( $slug === 'crm' ) {
+				continue;
+			}
 			if ( ! $product_class::has_paid_plan_for_product() ) {
 				continue;
 			}
