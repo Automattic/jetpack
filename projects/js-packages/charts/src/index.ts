@@ -37,10 +37,4 @@ export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 
 export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
 export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
-export type {
-	ConversionFunnelChartProps,
-	FunnelStep,
-	StepLabelRenderProps,
-	StepRateRenderProps,
-	MainMetricRenderProps,
-} from './components/conversion-funnel-chart';
+export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';
