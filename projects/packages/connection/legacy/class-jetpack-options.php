@@ -335,8 +335,8 @@ class Jetpack_Options {
 		 * @since 1.1.2
 		 * @since-jetpack 3.0.0
 		 *
-		 * @param str $name The name of the option being updated.
-		 * @param mixed $value The new value of the option.
+		 * @param string $name The name of the option being updated.
+		 * @param mixed  $value The new value of the option.
 		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {

@@ -2251,13 +2251,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		
 	}
 
-    /**
-     * Returns an hash against a quote
-     *
-     * @param int id quote ID
-     *
-     * @return str quote hash string
-     */
+		/**
+		 * Returns an hash against a quote
+		 *
+		 * @param int $id quote ID.
+		 *
+		 * @return string quote hash string
+		 */
     public function getQuoteHash($id=-1){
 
         global $zbs;
@@ -2277,35 +2277,6 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
         return false;
         
     }
-
-	/**
-	 * Returns an status against a quote
-	 *
-	 * @param int id quote ID
-	 *
-	 * @return str quote status string
-	 */
-	/* IS THIS USED?
-	public function getQuoteStatus($id=-1){
-
-		global $zbs;
-
-		$id = (int)$id;
-
-		if ($id > 0){
-
-			return $this->DAL()->getFieldByID(array(
-				'id' => $id,
-				'objtype' => ZBS_TYPE_QUOTE,
-				'colname' => 'zbsq_status',
-				'ignoreowner'=>true));
-
-		}
-
-		return false;
-		
-	}*/
-
 
 	/**
 	 * remove any non-db fields from the object

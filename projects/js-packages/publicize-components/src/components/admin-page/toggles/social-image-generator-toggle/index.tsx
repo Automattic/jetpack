@@ -45,7 +45,7 @@ const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( { di
 			updateSocialImageGeneratorConfig( {
 				enabled: isEnabled,
 				template,
-				default_image_id: imageId,
+				default_image_id: imageId || 0,
 				font,
 			} );
 		},

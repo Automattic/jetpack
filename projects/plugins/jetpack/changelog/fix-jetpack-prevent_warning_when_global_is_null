@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Image CDN: Prevent PHP warnings when handling malformed data. 

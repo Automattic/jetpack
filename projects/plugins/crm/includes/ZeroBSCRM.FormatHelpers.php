@@ -1045,9 +1045,9 @@ function get_jpcrm_table_options_button() {
 /**
  * Returns a task datetime range string
  *
- * @param arr $task Task array.
+ * @param array $task Task array.
  *
- * @return str datetime range string
+ * @return string datetime range string
  */
 function zeroBSCRM_html_taskDate( $task = array() ) {
 

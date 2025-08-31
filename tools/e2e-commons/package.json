@@ -38,7 +38,7 @@
 		"@wordpress/e2e-test-utils-playwright": "1.28.0",
 		"allure-playwright": "2.9.2",
 		"axios": "1.11.0",
-		"chalk": "5.4.1",
+		"chalk": "5.6.0",
 		"config": "3.3.12",
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.17.21",

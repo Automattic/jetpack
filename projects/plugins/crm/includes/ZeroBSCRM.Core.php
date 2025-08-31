@@ -2425,7 +2425,7 @@ final class ZeroBSCRM {
 	/**
 	 * Get Globalised ZBS Vars
 	 *
-	 * @return str/int/bool
+	 * @return string|int|bool
 	 */
 	public function zbsvar( $key = '' ) {
 

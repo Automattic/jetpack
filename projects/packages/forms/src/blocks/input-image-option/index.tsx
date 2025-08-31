@@ -13,7 +13,7 @@ const name = 'input-image-option';
 
 const settings = {
 	apiVersion: 3,
-	title: __( 'Image option', 'jetpack-forms' ),
+	title: __( 'Image Option', 'jetpack-forms' ),
 	description: __( 'A single image option for an image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/fieldset-image-options' ],
@@ -74,29 +74,6 @@ const settings = {
 	},
 	edit,
 	attributes: {
-		style: {
-			type: 'object',
-			default: {
-				border: {
-					width: '1px',
-					color: '#dee2e6',
-					radius: '4px',
-					style: 'solid',
-				},
-				spacing: {
-					margin: '0',
-					padding: '8px',
-				},
-				color: {
-					background: '#f8f9fa',
-					text: '#212529',
-				},
-			},
-		},
-		fontSize: {
-			type: 'string',
-			default: 'medium',
-		},
 		allowResize: {
 			type: 'boolean',
 			default: false,

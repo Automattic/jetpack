@@ -16,6 +16,10 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action( 'wp_head', 'jetpack_og_tags' );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 

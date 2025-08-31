@@ -5,13 +5,13 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	useGlobalChartsContext,
+	GlobalChartsContext,
 } from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils/create-composition';
 import { Legend } from '../legend';
 import { useChartLegendData } from '../legend/use-chart-legend-data';
@@ -115,7 +115,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	className,
 	children,
 } ) => {
-	const providerTheme = useGlobalChartTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -149,6 +148,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
 
+	const { resolveGroupColor } = useGlobalChartsContext();
+
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
@@ -157,11 +158,10 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				a: DataPointPercentage & { index: number },
 				b: DataPointPercentage & { index: number }
 			) => b.value - a.value,
-			// Use the color property from the data object as a last resort. The theme provides colours by default.
-			fill: ( d: DataPointPercentage & { index: number } ) =>
-				d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
+			fill: ( { group, index, color: overrideColor }: DataPointPercentage & { index: number } ) =>
+				resolveGroupColor( { group, index, overrideColor } ),
 		} ),
-		[ providerTheme.colors ]
+		[ resolveGroupColor ]
 	);
 
 	// Memoize legend options to prevent unnecessary re-calculations
@@ -316,7 +316,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }

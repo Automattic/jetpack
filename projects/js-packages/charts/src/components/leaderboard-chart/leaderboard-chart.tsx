@@ -1,6 +1,5 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import {
-	ProgressBar,
 	__experimentalVStack as VStack,
 	__experimentalGrid as Grid,
 	__experimentalText as Text,
@@ -147,42 +146,38 @@ const defaultDeltaFormatter = ( value: number ): string => {
 	} );
 };
 
-const ProgressBarWithOverlayLabel = ( { entry }: { entry: LeaderboardEntry } ) => (
-	<div className={ styles.progressContainerWithOverlayLabel }>
-		{ typeof entry.label === 'string' ? (
-			<Text className={ styles.progressBarLabel }>{ entry.label }</Text>
-		) : (
-			entry.label
-		) }
-
-		<div className={ styles.progressBar } style={ { width: entry.currentShare + '%' } }></div>
-	</div>
+const BarLabel = ( { label }: { label: string | JSX.Element } ) => (
+	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
 
-const ProgressBarWithLabel = ( {
+const BarWithLabel = ( {
 	entry,
 	withComparison,
+	withOverlayLabel,
 }: {
 	entry: LeaderboardEntry;
 	withComparison?: boolean;
+	withOverlayLabel?: boolean;
 } ) => (
-	<>
-		{ typeof entry.label === 'string' ? <Text>{ entry.label }</Text> : entry.label }
+	<div
+		className={ clsx( styles.barWithLabelContainer, {
+			[ styles[ 'is-overlay' ] ]: withOverlayLabel,
+		} ) }
+	>
+		<BarLabel label={ entry.label } />
 
-		<div className={ styles.progressContainer }>
-			<ProgressBar
-				value={ entry.currentShare }
-				className={ clsx( styles.progressBar, styles.primaryBar ) }
-			/>
+		<div
+			className={ clsx( styles.bar, styles.primaryBar ) }
+			style={ { width: entry.currentShare + '%' } }
+		></div>
 
-			{ withComparison && (
-				<ProgressBar
-					value={ entry.previousShare }
-					className={ clsx( styles.progressBar, styles.secondaryBar ) }
-				/>
-			) }
-		</div>
-	</>
+		{ withComparison && ! withOverlayLabel && (
+			<div
+				className={ clsx( styles.bar, styles.secondaryBar ) }
+				style={ { width: entry.previousShare + '%' } }
+			></div>
+		) }
+	</div>
 );
 
 /**
@@ -267,11 +262,11 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 				return (
 					<Fragment key={ entry.id }>
 						<VStack spacing={ labelSpacing }>
-							{ withOverlayLabel ? (
-								<ProgressBarWithOverlayLabel entry={ entry } />
-							) : (
-								<ProgressBarWithLabel entry={ entry } withComparison={ withComparison } />
-							) }
+							<BarWithLabel
+								entry={ entry }
+								withComparison={ withComparison }
+								withOverlayLabel={ withOverlayLabel }
+							/>
 						</VStack>
 
 						<div

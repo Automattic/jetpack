@@ -18,12 +18,16 @@ use WP_Error;
  * Note: This module is currently used for analytics purposes only.
  */
 class WooCommerce_Products extends Module {
+
+	const PRODUCT_POST_TYPES = array( 'product', 'product_variation' );
+
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		// Preprocess action to be sent by Jetpack sync for wp_delete_post.
 		add_action( 'delete_post', array( $this, 'action_wp_delete_post' ), 10, 1 );
+		add_action( 'trashed_post', array( $this, 'action_wp_trash_post' ), 10, 1 );
 	}
 
 	/**
@@ -90,6 +94,9 @@ class WooCommerce_Products extends Module {
 		// Listen to specific stock update.
 		add_action( 'woocommerce_updated_product_stock', $callable, 10, 1 );
 
+		// Listen to product trashed.
+		add_action( 'jetpack_sync_woocommerce_product_trashed', $callable, 10, 1 );
+
 		// Listen to product deletion via wp_delete_post (more reliable than WC hooks)
 		add_action( 'jetpack_sync_woocommerce_product_deleted', $callable, 10, 1 );
 
@@ -100,6 +107,7 @@ class WooCommerce_Products extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_product_variation', array( $this, 'expand_product_data' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_updated_product_stock', array( $this, 'expand_product_data' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_woocommerce_product_deleted', array( $this, 'expand_product_data' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_woocommerce_product_trashed', array( $this, 'expand_product_data' ) );
 	}
 
 	/**
@@ -140,16 +148,29 @@ class WooCommerce_Products extends Module {
 	 * @param int $post_id The post ID being deleted.
 	 */
 	public function action_wp_delete_post( $post_id ) {
-		$post_type = get_post_type( $post_id );
-
-		// Only process WooCommerce product and product variation post types
-		if ( in_array( $post_type, array( 'product', 'product_variation' ), true ) ) {
+		if ( $this->is_a_product_post( $post_id ) ) {
 			/**
 			 * Fires when a WooCommerce product is deleted via wp_delete_post.
 			 *
 			 * @param int $post_id The product ID being deleted.
 			 */
 			do_action( 'jetpack_sync_woocommerce_product_deleted', $post_id );
+		}
+	}
+
+	/**
+	 * Handle wp_trash_post action and trigger custom product trashed sync for WooCommerce products.
+	 *
+	 * @param int $post_id The post ID being trashed.
+	 */
+	public function action_wp_trash_post( $post_id ) {
+		if ( $this->is_a_product_post( $post_id ) ) {
+			/**
+			 * Fires when a WooCommerce product is trashed via wp_trash_post.
+			 *
+			 * @param int $post_id The product ID being trashed.
+			 */
+			do_action( 'jetpack_sync_woocommerce_product_trashed', $post_id );
 		}
 	}
 
@@ -263,6 +284,7 @@ class WooCommerce_Products extends Module {
 		// Build base product data from posts.
 		foreach ( $posts as $post ) {
 			$products[ $post->ID ] = array(
+				'product_id'    => $post->ID,
 				'title'         => $post->post_title,
 				'post_status'   => $post->post_status,
 				'slug'          => $post->post_name,
@@ -405,8 +427,8 @@ class WooCommerce_Products extends Module {
 			array(
 				'include'     => $ids,
 				'order'       => $order,
-				'post_type'   => array( 'product', 'product_variation' ),
-				'post_status' => 'any',
+				'post_type'   => self::PRODUCT_POST_TYPES,
+				'post_status' => array( 'any', 'trash', 'auto-draft' ),
 				'numberposts' => -1, // Get all posts.
 			)
 		);
@@ -528,5 +550,16 @@ class WooCommerce_Products extends Module {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Check if the post is a product post.
+	 *
+	 * @param int $post_id The post ID to check.
+	 * @return bool True if the post is a product post, false otherwise.
+	 */
+	private function is_a_product_post( $post_id ) {
+		$post_type = get_post_type( $post_id );
+		return in_array( $post_type, self::PRODUCT_POST_TYPES, true );
 	}
 }

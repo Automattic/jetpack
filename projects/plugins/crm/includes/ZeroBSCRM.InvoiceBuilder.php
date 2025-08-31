@@ -262,7 +262,7 @@ add_action( 'zerobscrm_post_init', 'zbs_invoice_generate_pdf' );
  * Generate PDF file for an invoice
  *
  * @param int $invoice_id Invoice ID.
- * @return str path to PDF file
+ * @return string path to PDF file
  */
 function jpcrm_invoice_generate_pdf( $invoice_id = -1 ) {
 

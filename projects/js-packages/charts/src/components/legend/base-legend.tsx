@@ -2,8 +2,9 @@ import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
-import { forwardRef, useCallback } from 'react';
+import { forwardRef, useCallback, useMemo, useContext } from 'react';
 import { useGlobalChartTheme } from '../../hooks';
+import { GlobalChartsContext } from '../../providers/chart-context';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
 import type { BaseLegendProps } from './types';
@@ -44,18 +45,37 @@ export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
 		ref
 	) => {
 		const theme = useGlobalChartTheme();
+		const context = useContext( GlobalChartsContext );
+		const resolveGroupColor = context?.resolveGroupColor;
+
+		// Resolve colors dynamically for items that have group info
+		const itemsWithResolvedColors = useMemo( () => {
+			return items.map( item => {
+				// If item has group info and we have a context, resolve color dynamically
+				if ( item.group !== undefined && item.index !== undefined && resolveGroupColor ) {
+					const resolvedColor = resolveGroupColor( {
+						group: item.group,
+						index: item.index,
+						overrideColor: item.overrideColor,
+					} );
+					return { ...item, color: resolvedColor };
+				}
+				// Otherwise use the static color
+				return item;
+			} );
+		}, [ items, resolveGroupColor ] );
 
 		const legendScale = scaleOrdinal( {
-			domain: items.map( item => item.label ),
-			range: items.map( item => item.color ),
+			domain: itemsWithResolvedColors.map( item => item.label ),
+			range: itemsWithResolvedColors.map( item => item.color ),
 		} );
 		const domain = legendScale.domain();
 
 		// For right-aligned vertical legends, use row-reverse to align text consistently
 
 		const getShapeStyle = useCallback(
-			( { index }: { index: number } ) => items[ index ]?.shapeStyle,
-			[ items ]
+			( { index }: { index: number } ) => itemsWithResolvedColors[ index ]?.shapeStyle,
+			[ itemsWithResolvedColors ]
 		);
 
 		return (

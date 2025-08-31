@@ -4,7 +4,7 @@
 
 import { render, screen } from '@testing-library/react';
 import {
-	marketingChannelsData as salesByChannel,
+	marketingChannelsComparison as salesByChannel,
 	salesByProduct,
 } from '../../../stories/sample-data';
 import BarListChart from '../bar-list-chart';
