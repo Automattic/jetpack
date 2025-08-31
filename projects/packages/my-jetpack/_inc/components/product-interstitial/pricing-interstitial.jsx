@@ -19,7 +19,7 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -59,9 +59,6 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Track which button is currently loading ('free', 'paid', 'bundle', or null)
 	const [ loadingButton, setLoadingButton ] = useState( null );
-
-	// Track time on page for go back analytics
-	const timeOnPageStart = useRef( Date.now() );
 
 	// Disable all buttons when any action is in progress or data is loading
 	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading;
@@ -367,11 +364,8 @@ export default function PricingInterstitial( { slug } ) {
 	}, [ recordEvent, slug ] );
 
 	const handleGoBack = useCallback( () => {
-		const timeOnPage = Math.round( ( Date.now() - timeOnPageStart.current ) / 1000 );
-
 		recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
 			product_slug: slug,
-			time_on_page: timeOnPage,
 		} );
 
 		// Call the original go back functionality
