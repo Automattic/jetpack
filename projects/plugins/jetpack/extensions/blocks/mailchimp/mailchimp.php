@@ -14,6 +14,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\External_Connections;
+use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Options;
@@ -336,13 +337,18 @@ function update_settings() {
 		);
 	}
 
-	$response = Client::wpcom_json_api_request_as_user(
-		sprintf( '/sites/%d/mailchimp/settings', $site_id ),
-		'1.1',
-		array( 'method' => 'POST' ),
-		$data,
-		'rest'
-	);
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		require_lib( 'mailchimp' );
+		\MailchimpApi::save_settings( $site_id, $data );
+	} else {
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/mailchimp/settings', $site_id ),
+			'1.1',
+			array( 'method' => 'POST' ),
+			$data,
+			'rest'
+		);
+	}
 	if ( is_wp_error( $response ) ) {
 		add_settings_error( 'general', 'settings_updated', __( 'Settings save failed.', 'jetpack' ), 'error' );
 	}

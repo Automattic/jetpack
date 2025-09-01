@@ -14,6 +14,10 @@ const MailchimpSettings = ( { isConnected } ) => {
 			return;
 		}
 		apiFetch( { path: '/wpcom/v2/mailchimp/settings', method: 'GET' } ).then( response => {
+			if ( ! response.audiences ) {
+				return;
+			}
+
 			setAudiences( [ ...audiences, ...response.audiences ] );
 			if (
 				response.follower_list_id &&

@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -65,7 +66,9 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_mailchimp_settings' ),
-					'permission_callback' => '__return_true',
+					'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+					},
 				),
 			)
 		);
@@ -163,16 +166,27 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		}
 
 		$settings = array();
-		$path     = sprintf( '/sites/%d/mailchimp/settings', $site_id );
-		$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
-		if ( ! is_wp_error( $response ) ) {
-			$settings = json_decode( wp_remote_retrieve_body( $response ), true );
-		}
 
-		$path     = sprintf( '/sites/%d/mailchimp/lists', $site_id );
-		$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
-		if ( ! is_wp_error( $response ) ) {
-			$settings['audiences'] = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			require_lib( 'mailchimp' );
+			$user_id = get_current_user_id();
+			$api     = new MailchimpApi( $site_id, $user_id );
+			if ( $api ) {
+				$settings              = $api::get_settings( $site_id );
+				$settings['audiences'] = $api->get_lists();
+			}
+		} else {
+			$path     = sprintf( '/sites/%d/mailchimp/settings', $site_id );
+			$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
+			if ( ! is_wp_error( $response ) ) {
+				$settings = json_decode( wp_remote_retrieve_body( $response ), true );
+			}
+
+			$path     = sprintf( '/sites/%d/mailchimp/lists', $site_id );
+			$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
+			if ( ! is_wp_error( $response ) ) {
+				$settings['audiences'] = json_decode( wp_remote_retrieve_body( $response ), true );
+			}
 		}
 
 		return $settings;
