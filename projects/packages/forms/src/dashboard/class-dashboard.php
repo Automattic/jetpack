@@ -216,7 +216,7 @@ class Dashboard {
 			'siteURL'                 => ( new Status() )->get_site_suffix(),
 			'hasFeedback'             => $this->has_feedback(),
 			'hasAI'                   => $has_ai,
-			'enableIntegrationsTab'   => Jetpack_Forms::should_show_integrations(),
+			'enableIntegrationsTab'   => Jetpack_Forms::is_integrations_enabled(),
 			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
 			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $this->switch->get_forms_admin_url() ),
 			'isMailpoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),

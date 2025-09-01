@@ -131,7 +131,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					)[ 0 ];
 				}
 
-				const { getUser, canUser } = select( coreStore );
+				const { getUser } = select( coreStore );
 				const innerBlocksData = getBlocks( clientId );
 
 				const title = getEditedPostAttribute( 'title' );
@@ -140,7 +140,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 				return {
 					postTitle: title,
-					canUserInstallPlugins: canUser( 'create', 'plugins' ),
 					hasAnyInnerBlocks: innerBlocksData.length > 0,
 					postAuthorEmail: authorEmail,
 					selectedBlockClientId: selectedStepBlockId,
