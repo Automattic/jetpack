@@ -1,13 +1,20 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+} from '../../../stories/chart-decorator';
 import {
 	ecommerceFunnelData,
 	lowConversionFunnelData,
 	highConversionFunnelData,
 } from '../../../stories/sample-data';
+import { themeArgTypes } from '../../../stories/theme-config';
 import { ConversionFunnelChart } from '../conversion-funnel-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof ConversionFunnelChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof ConversionFunnelChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Conversion Funnel Chart',
 	component: ConversionFunnelChart,
 	parameters: {
@@ -45,10 +52,10 @@ const funnelData = [
 
 function MyComponent() {
   return (
-    <ConversionFunnelChart 
+    <ConversionFunnelChart
       mainRate={10.3}
       changeIndicator="+2%"
-      steps={funnelData} 
+      steps={funnelData}
     />
   );
 }
@@ -69,10 +76,10 @@ function FullDashboard() {
           <span className="change positive">+2%</span>
         </div>
       </header>
-      <ConversionFunnelChart 
+      <ConversionFunnelChart
         mainRate={10.3}
         changeIndicator="+2%"
-        steps={funnelData} 
+        steps={funnelData}
       />
     </div>
   );
@@ -90,10 +97,10 @@ const ecommerceFunnel = [
   { id: 'purchase', label: 'Purchase', rate: 12.3 },
 ];
 
-<ConversionFunnelChart 
+<ConversionFunnelChart
   mainRate={12.3}
   changeIndicator="+3.2%"
-  steps={ecommerceFunnel} 
+  steps={ecommerceFunnel}
 />
 \`\`\`
 
@@ -107,10 +114,10 @@ const saasFunnel = [
   { id: 'subscription', label: 'Paid Plan', rate: 3.1 },
 ];
 
-<ConversionFunnelChart 
+<ConversionFunnelChart
   mainRate={3.1}
   changeIndicator="-0.4%"
-  steps={saasFunnel} 
+  steps={saasFunnel}
 />
 \`\`\`
 
@@ -166,7 +173,7 @@ Easy theming with CSS custom properties:
 
 **Available CSS Variables:**
 - \`--primary-color\` - Chart bar colors
-- \`--light-background-color\` - Bar container backgrounds  
+- \`--light-background-color\` - Bar container backgrounds
 - \`--funnel-font-family\` - Font for main rate and change indicator
 - \`--step-font-family\` - Font for step labels and rates
 
@@ -242,18 +249,14 @@ Measure content consumption funnel:
 				type: { summary: 'React.CSSProperties' },
 			},
 		},
+		...sharedChartArgTypes,
+		...themeArgTypes,
 	},
-	decorators: [
-		Story => (
-			<div style={ { width: '600px', padding: '20px' } }>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [ chartDecorator ],
 };
 
 export default meta;
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
@@ -305,39 +308,6 @@ export const EmptyData: Story = {
 		steps: [],
 		loading: false,
 	},
-};
-
-// Themed stories
-export const JetpackTheme: Story = {
-	args: {
-		mainRate: 10.3,
-		changeIndicator: '+2%',
-		steps: ecommerceFunnelData,
-		loading: false,
-	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ jetpackTheme }>
-				<Story />
-			</ThemeProvider>
-		),
-	],
-};
-
-export const WooCommerceTheme: Story = {
-	args: {
-		mainRate: 10.3,
-		changeIndicator: '+2%',
-		steps: ecommerceFunnelData,
-		loading: false,
-	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ wooTheme }>
-				<Story />
-			</ThemeProvider>
-		),
-	],
 };
 
 export const CustomRenderProps: Story = {
