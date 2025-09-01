@@ -3,10 +3,12 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 	BlockContextProvider,
+	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import { PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
@@ -15,6 +17,10 @@ import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { countries } from './country-list';
 
 const EMPTY_ARRAY = [];
+
+const isBoolean = value => {
+	return value === true || value === false;
+};
 
 export default function PhoneFieldEdit( props ) {
 	const { setAttributes, attributes, clientId, isSelected } = props;
@@ -55,6 +61,10 @@ export default function PhoneFieldEdit( props ) {
 	}, [] );
 
 	const onChangeShowCountrySelector = value => {
+		if ( ! isBoolean( value ) ) {
+			// if not a boolean (ie, event object), toggle the value
+			value = ! showCountrySelector;
+		}
 		setAttributes( {
 			showCountrySelector: value,
 		} );
@@ -105,6 +115,17 @@ export default function PhoneFieldEdit( props ) {
 			>
 				<div { ...innerBlocksProps } />
 			</BlockContextProvider>
+
+			<BlockControls __experimentalShareWithChildBlocks>
+				<ToolbarGroup>
+					<ToolbarButton
+						title={ __( 'Show country selector', 'jetpack-forms' ) }
+						icon={ globe }
+						onClick={ onChangeShowCountrySelector }
+						className={ showCountrySelector ? 'is-pressed' : undefined }
+					/>
+				</ToolbarGroup>
+			</BlockControls>
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
