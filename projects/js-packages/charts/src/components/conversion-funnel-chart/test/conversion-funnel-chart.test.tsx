@@ -3,6 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { ConversionFunnelChart } from '../conversion-funnel-chart';
 import type { FunnelStep } from '../conversion-funnel-chart';
 
+// Helper function to format percentage the same way the component does
+const formatPercentage = ( value: number ): string => {
+	return `${ parseFloat( value.toFixed( 2 ) ) }%`;
+};
+
 // Mock data for testing
 const mockSteps: FunnelStep[] = [
 	{
@@ -47,7 +52,7 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
 			// Check main rate is displayed (first occurrence)
-			expect( screen.getAllByText( '10.3%' ) ).toHaveLength( 2 ); // Main rate + Purchase step
+			expect( screen.getAllByText( formatPercentage( 10.3 ) ) ).toHaveLength( 2 ); // Main rate + Purchase step
 		} );
 
 		it( 'renders all funnel steps', () => {
@@ -57,7 +62,7 @@ describe( 'ConversionFunnelChart', () => {
 				expect( screen.getByText( step.label ) ).toBeInTheDocument();
 				// Use getAllByText since some rates might appear multiple times
 				expect(
-					screen.getAllByText( `${ step.rate.toFixed( 1 ) }%` ).length
+					screen.getAllByText( formatPercentage( step.rate ) ).length
 				).toBeGreaterThanOrEqual( 1 );
 			} );
 		} );
@@ -72,7 +77,7 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } loading /> );
 
 			// Check for loading state by finding an element with loading behavior
-			expect( screen.getAllByText( '10.3%' ) ).toHaveLength( 2 );
+			expect( screen.getAllByText( formatPercentage( 10.3 ) ) ).toHaveLength( 2 );
 			// Note: Loading state affects opacity/pointer-events, visible in rendered component
 		} );
 
@@ -259,7 +264,7 @@ describe( 'ConversionFunnelChart', () => {
 	} );
 
 	describe( 'Data Formatting', () => {
-		it( 'formats rates to one decimal place', () => {
+		it( 'formats rates with smart decimal handling', () => {
 			const stepsWithPreciseRates: FunnelStep[] = [
 				{ id: 'test', label: 'Test', rate: 12.345, count: 100 },
 			];
@@ -268,8 +273,8 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart mainRate={ 12.345 } steps={ stepsWithPreciseRates } />
 			);
 
-			// Should format both main rate and step rate to 12.3%
-			expect( screen.getAllByText( '12.3%' ) ).toHaveLength( 2 );
+			// Should format both main rate and step rate to 12.35% (rounded to 2 decimals, trailing zeros removed)
+			expect( screen.getAllByText( formatPercentage( 12.345 ) ) ).toHaveLength( 2 );
 		} );
 
 		it( 'renders large count numbers in component', async () => {
@@ -288,7 +293,7 @@ describe( 'ConversionFunnelChart', () => {
 			// Check that component renders correctly with large numbers
 			// After clicking, there will be multiple 'Test' texts (header + tooltip)
 			expect( screen.getAllByText( 'Test' ) ).toHaveLength( 2 );
-			expect( screen.getAllByText( '50.0%' ) ).toHaveLength( 2 );
+			expect( screen.getAllByText( formatPercentage( 50 ) ) ).toHaveLength( 2 );
 		} );
 
 		it( 'handles steps without count in tooltip', async () => {
@@ -300,8 +305,8 @@ describe( 'ConversionFunnelChart', () => {
 			const bar = screen.getByRole( 'button', { name: /test/i } );
 			await user.click( bar );
 
-			// Should show rate in tooltip, but we have multiple 75.0% (main + step)
-			expect( screen.getAllByText( '75.0%' ).length ).toBeGreaterThanOrEqual( 1 );
+			// Should show rate in tooltip, but we have multiple 75% (main + step)
+			expect( screen.getAllByText( formatPercentage( 75 ) ).length ).toBeGreaterThanOrEqual( 1 );
 			expect( screen.queryByText( 'items' ) ).not.toBeInTheDocument();
 		} );
 	} );
