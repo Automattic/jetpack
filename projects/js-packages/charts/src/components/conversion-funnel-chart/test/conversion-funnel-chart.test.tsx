@@ -1,12 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { formatPercentage } from '../../../utils';
 import { ConversionFunnelChart } from '../conversion-funnel-chart';
 import type { FunnelStep } from '../conversion-funnel-chart';
-
-// Helper function to format percentage the same way the component does
-const formatPercentage = ( value: number ): string => {
-	return `${ parseFloat( value.toFixed( 2 ) ) }%`;
-};
 
 // Mock data for testing
 const mockSteps: FunnelStep[] = [
