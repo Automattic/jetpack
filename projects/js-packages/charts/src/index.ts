@@ -9,7 +9,7 @@ export { ConversionFunnelChart } from './components/conversion-funnel-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
-export { Legend, BaseLegend, useChartLegendData } from './components/legend';
+export { Legend, useChartLegendItems } from './components/legend';
 
 // Visx components
 export { Text, getStringWidth, useText } from './visx/text';
@@ -20,21 +20,8 @@ export { LineShape, CircleShape, RectShape } from './visx/legend';
 export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
-// Utilities
-export { mergeThemes } from './utils/merge-themes';
-
-// Hooks
-export { useDeepMemo, useGlobalChartTheme, useChartMouseHandler, useXYChartTheme } from './hooks';
-
-// LeaderboardChart utilities
-export { formatMetricValue } from './components/leaderboard-chart';
-
 // Types
 export type * from './types';
 export type * from './visx/types';
 
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
-
-export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
-export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
-export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';

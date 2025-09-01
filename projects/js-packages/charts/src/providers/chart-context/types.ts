@@ -1,4 +1,4 @@
-import type { BaseLegendItem } from '../../components/legend/types';
+import type { BaseLegendItem } from '../../components/legend';
 import type { ChartTheme } from '../../types';
 
 export interface ChartRegistration {
@@ -7,7 +7,7 @@ export interface ChartRegistration {
 	metadata?: Record< string, unknown >;
 }
 
-export interface ChartContextValue {
+export interface GlobalChartsContextValue {
 	charts: Map< string, ChartRegistration >;
 	registerChart: ( id: string, data: ChartRegistration ) => void;
 	unregisterChart: ( id: string ) => void;

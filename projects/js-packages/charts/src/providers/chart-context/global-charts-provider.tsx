@@ -1,18 +1,10 @@
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-	useEffect,
-	useRef,
-} from 'react';
+import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { defaultTheme } from '../theme/themes';
-import type { ChartContextValue, ChartRegistration } from './types';
+import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme } from '../../types';
 import type { FC, ReactNode } from 'react';
 
-export const GlobalChartsContext = createContext< ChartContextValue | null >( null );
+export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
@@ -55,7 +47,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ charts ]
 	);
 
-	const resolveGroupColor = useCallback< ChartContextValue[ 'resolveGroupColor' ] >(
+	const resolveGroupColor = useCallback< GlobalChartsContextValue[ 'resolveGroupColor' ] >(
 		( { group, index, overrideColor } ) => {
 			// Highest precedence: explicit series stroke
 			if ( overrideColor ) {
@@ -84,7 +76,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ providerTheme.colors ]
 	);
 
-	const value: ChartContextValue = useMemo(
+	const value: GlobalChartsContextValue = useMemo(
 		() => ( {
 			charts,
 			registerChart,
@@ -97,12 +89,4 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
-};
-
-export const useGlobalChartsContext = (): ChartContextValue => {
-	const context = useContext( GlobalChartsContext );
-	if ( ! context ) {
-		throw new Error( 'useGlobalChartsContext must be used within a GlobalChartsProvider' );
-	}
-	return context;
 };

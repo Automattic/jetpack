@@ -5,42 +5,37 @@ import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
-import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
+import {
+	useXYChartTheme,
+	useChartDataTransform,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
+	useGlobalChartsTheme,
 } from '../../providers/chart-context';
-import { attachSubComponents } from '../../utils/create-composition';
-import { getSeriesLineStyles } from '../../utils/get-styles';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { DefaultGlyph } from '../shared/default-glyph';
-import { SingleChartContext, type SingleChartRef } from '../shared/single-chart-context';
-import { useChartDataTransform } from '../shared/use-chart-data-transform';
-import { useChartMargin } from '../shared/use-chart-margin';
-import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
-import LineChartAnnotation from './line-chart-annotation';
-import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
+import { attachSubComponents, getSeriesLineStyles } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { DefaultGlyph } from '../private/default-glyph';
+import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './line-chart.module.scss';
-import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import { LineChartAnnotation, LineChartAnnotationsOverlay } from './private';
+import type { CurveType, RenderLineStartGlyphProps, LineChartProps, TooltipDatum } from './types';
+import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, Ref, SVGProps } from 'react';
 
-type CurveType = 'smooth' | 'linear' | 'monotone';
-
 const X_TICK_WIDTH = 100;
-
-export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
-	glyphStyle?: SVGProps< SVGCircleElement >;
-};
 
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
@@ -114,27 +109,6 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 		default:
 			return curveLinear;
 	}
-};
-
-interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	withGradientFill: boolean;
-	smoothing?: boolean;
-	curveType?: CurveType;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
-	withStartGlyphs?: boolean;
-	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphStyle?: SVGProps< SVGCircleElement >;
-	withLegendGlyph?: boolean;
-	withTooltipCrosshairs?: {
-		showVertical?: boolean;
-		showHorizontal?: boolean;
-	};
-	children?: ReactNode;
-}
-
-type TooltipDatum = {
-	key: string;
-	value: number;
 };
 
 const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
@@ -255,7 +229,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		},
 		ref
 	) => {
-		const providerTheme = useGlobalChartTheme();
+		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -359,7 +333,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, legendOptions, legendShape );
+		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
 		// Memoize metadata to prevent unnecessary re-registration
 		const chartMetadata = useMemo(

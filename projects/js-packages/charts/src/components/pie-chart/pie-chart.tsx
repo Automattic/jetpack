@@ -2,29 +2,28 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import { useChartMouseHandler, useGlobalChartTheme } from '../../hooks';
+import { useChartMouseHandler, useElementHeight } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
+	useGlobalChartsTheme,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
-import type { ChartComponentWithComposition } from '../shared/chart-composition';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
-interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
+export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
@@ -118,7 +117,7 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	children = null,
 }: PieChartProps ) => {
-	const providerTheme = useGlobalChartTheme();
+	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -130,7 +129,7 @@ const PieChartInternal = ( {
 	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, legendOptions );
+	const legendItems = useChartLegendItems( data, legendOptions );
 
 	const { isValid, message } = validateData( data );
 

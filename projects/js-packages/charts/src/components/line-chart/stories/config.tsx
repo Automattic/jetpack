@@ -6,7 +6,7 @@ import { jetpackTheme } from '../../../providers/theme/themes';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { temperatureData as sampleData } from '../../../stories/sample-data';
 import { CHART_THEME_MAP, themeArgTypes } from '../../../stories/theme-config';
-import { DefaultGlyph } from '../../shared/default-glyph';
+import { DefaultGlyph } from '../../private/default-glyph';
 import LineChart from '../line-chart';
 import type { Meta } from '@storybook/react';
 

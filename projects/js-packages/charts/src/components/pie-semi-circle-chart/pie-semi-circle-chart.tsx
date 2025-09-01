@@ -5,6 +5,7 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
+import { useElementHeight } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -12,24 +13,22 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers/chart-context';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
-import type { ChartComponentWithComposition } from '../shared/chart-composition';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import type { FC, MouseEvent, ReactNode } from 'react';
 
 const PAD_ANGLE = 0.03; // Padding between segments
 
-interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
+export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Width of the chart in pixels; height would be half of this value calculated automatically.
 	 */
@@ -71,7 +70,7 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 	PieSemiCircleChartBaseProps & ResponsiveConfig
 >;
 
-type ArcData = PieArcDatum< DataPointPercentage >;
+export type ArcData = PieArcDatum< DataPointPercentage >;
 
 /**
  * Validates the semi-circle pie chart data
@@ -168,7 +167,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, legendOptions );
+	const legendItems = useChartLegendItems( data, legendOptions );
 
 	// Process children to extract compound components
 	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(

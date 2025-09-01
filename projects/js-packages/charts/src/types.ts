@@ -1,4 +1,4 @@
-import type { AnnotationStyles } from './components/line-chart/line-chart-annotation';
+import type { AnnotationStyles } from './components/line-chart';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
@@ -339,5 +339,3 @@ export interface ToggleEvent extends Event {
 	newState: 'open' | 'closed';
 	oldState: 'open' | 'closed';
 }
-// ConversionFunnelChart types
-export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';
