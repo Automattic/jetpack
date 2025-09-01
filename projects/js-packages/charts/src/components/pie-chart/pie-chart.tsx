@@ -12,6 +12,7 @@ import {
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
 import { attachSubComponents } from '../../utils';
+import { getStringWidth } from '../../visx/text';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
@@ -247,7 +248,7 @@ const PieChartInternal = ( {
 
 									// Estimate text width more accurately for background sizing
 									const fontSize = 12;
-									const estimatedTextWidth = arc.data.label.length * fontSize * 0.6; // Rough estimate
+									const estimatedTextWidth = getStringWidth( arc.data.label, { fontSize } );
 									const labelPadding = 6;
 									const backgroundWidth = estimatedTextWidth + labelPadding * 2;
 									const backgroundHeight = fontSize + labelPadding * 2;
