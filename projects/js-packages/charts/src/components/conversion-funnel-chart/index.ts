@@ -1,8 +1,9 @@
-export {
-	ConversionFunnelChart,
-	type ConversionFunnelChartProps,
-	type FunnelStep,
-	type StepLabelRenderProps,
-	type StepRateRenderProps,
-	type MainMetricRenderProps,
+export { default as ConversionFunnelChart } from './conversion-funnel-chart';
+export type {
+	ConversionFunnelChartProps,
+	FunnelStep,
+	StepLabelRenderProps,
+	StepRateRenderProps,
+	MainMetricRenderProps,
+	TooltipRenderProps,
 } from './conversion-funnel-chart';
