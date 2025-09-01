@@ -95,7 +95,7 @@ const meta: Meta< StoryArgs > = {
 
 		return ChartComponent;
 	},
-};
+} satisfies Meta< StoryArgs >;
 
 export default meta;
 type Story = StoryObj< StoryArgs >;
