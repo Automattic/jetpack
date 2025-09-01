@@ -1,13 +1,13 @@
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
-import { formatMetricValue } from '../../shared/format-metric-value';
-import { LeaderboardChart } from '../leaderboard-chart';
 import {
-	sampleData,
-	smallDataset,
-	largeValues,
-	negativeGrowth,
-	dataWithImageColor,
-} from './sample-data';
+	trafficSourcesData as sampleData,
+	shortTrafficSourcesData as smallDataset,
+	revenueMetricsData as largeValues,
+	decliningMetricsData as negativeGrowth,
+	categorizedMetricsData as dataWithImageColor,
+} from '../../../stories/sample-data';
+import { formatMetricValue } from '../../../utils';
+import { LeaderboardChart } from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LeaderboardChart > = {
@@ -23,7 +23,7 @@ A flexible and accessible leaderboard chart component for displaying ranked data
 ## Features
 
 - 📊 Clean, responsive leaderboard visualization
-- 🎨 Customizable colors and styling  
+- 🎨 Customizable colors and styling
 - 🔄 Optional comparison data support
 - 📱 Mobile-friendly design
 - 🎯 TypeScript support with full type definitions
@@ -89,7 +89,7 @@ import { LeaderboardChart } from '@automattic/charts';
 // Transform your raw data into LeaderboardEntry format
 function transformRawData(rawData) {
   const maxValue = Math.max(...rawData.map(item => item.current_period.value));
-  
+
   return rawData.map(item => ({
     id: item.id,
     label: item.name,
@@ -103,7 +103,7 @@ function transformRawData(rawData) {
 
 function ProcessedDataChart() {
   const processedData = transformRawData(rawData);
-  
+
   return (
     <LeaderboardChart
       data={processedData}

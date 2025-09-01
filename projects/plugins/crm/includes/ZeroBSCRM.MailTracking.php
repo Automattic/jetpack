@@ -183,6 +183,7 @@ function zeroBSCRM_mailTracking_logEmail($emailTypeID=-1, $targetObjID=-1, $send
 	global $wpdb, $ZBSCRM_t;
 
 	// MAKE A HASH - this isn't particularly legitimate, #torethink
+	 // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
 	$hash = sha1(time().$emailTypeID.$associatedObjID.$senderEmailAddress.$emailSubject.$senderWPID.rand(0,99999).$targetObjID);
 
 	if($thread == -1){

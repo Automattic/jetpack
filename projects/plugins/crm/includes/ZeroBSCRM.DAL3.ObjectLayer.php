@@ -757,17 +757,17 @@ class zbsDAL_ObjectLayer {
     }
 
 
-    /**
-     * Offers generic custom field tidying, where an obj and it's cleaned version are passed
-     * ... centralised here as all objects (which have custom fields) had this repeated
-     *
-     * @param int $objTypeID e.g. 1 = ZBS_TYPE_CONTACT
-     * @param obj $obj (DB obj)
-     * @param array $res (tidied DB obj)
-     * @param bool $includeAddrCustomFields (whether or not to also probe + tidy custom fields for addrs (mainly contacts + company tidying))
-     *
-     * @return array (clean obj)
-     */
+	/**
+	 * Offers generic custom field tidying, where an obj and it's cleaned version are passed
+	 * ... centralised here as all objects (which have custom fields) had this repeated
+	 *
+	 * @param int    $objTypeID e.g. 1 = ZBS_TYPE_CONTACT.
+	 * @param object $obj (DB obj).
+	 * @param array  $res (tidied DB obj).
+	 * @param bool   $includeAddrCustomFields (whether or not to also probe + tidy custom fields for addrs (mainly contacts + company tidying)).
+	 *
+	 * @return array (clean obj)
+	 */
     public function tidyAddCustomFields($objTypeID=ZBS_TYPE_CONTACT,$obj=false,$res=false,$includeAddrCustomFields=false){
       
         // vague catch

@@ -29,7 +29,7 @@ export function getProtectConfig(): ProductConfig {
 				},
 				bundle: {
 					included: true,
-					label: __( 'Real-time cloud backups with 10GB storage', 'jetpack-my-jetpack' ),
+					label: __( 'All Jetpack Protect features', 'jetpack-my-jetpack' ),
 				},
 			},
 			{
@@ -38,7 +38,7 @@ export function getProtectConfig(): ProductConfig {
 				paid: { included: true, label: __( 'Plus on-demand manual scans', 'jetpack-my-jetpack' ) },
 				bundle: {
 					included: true,
-					label: __( 'Automated malware scan', 'jetpack-my-jetpack' ),
+					label: __( 'Real-time cloud backups with 10GB storage', 'jetpack-my-jetpack' ),
 				},
 			},
 			{
@@ -50,7 +50,7 @@ export function getProtectConfig(): ProductConfig {
 				},
 				bundle: {
 					included: true,
-					label: __( 'One-click fixes for threats', 'jetpack-my-jetpack' ),
+					label: __( 'Automated malware scan', 'jetpack-my-jetpack' ),
 				},
 			},
 			{
@@ -59,20 +59,23 @@ export function getProtectConfig(): ProductConfig {
 				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
-					label: __( 'Real-time cloud backups', 'jetpack-my-jetpack' ),
+					label: __( 'One-click fixes for threats', 'jetpack-my-jetpack' ),
 				},
 			},
 			{
 				name: __( 'Account protection', 'jetpack-my-jetpack' ),
 				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: INCLUDED },
-				bundle: { included: true, label: 'Spam protection' },
+				bundle: {
+					included: true,
+					label: __( 'Real-time cloud backups', 'jetpack-my-jetpack' ),
+				},
 			},
 			{
 				name: __( 'Access to scan on Cloud', 'jetpack-my-jetpack' ),
 				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: INCLUDED },
-				bundle: { included: true, label: '' },
+				bundle: { included: true, label: 'Spam protection' },
 			},
 			{
 				name: __( 'One-click auto fixes', 'jetpack-my-jetpack' ),

@@ -192,7 +192,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$characters_length = strlen( $characters );
 		$random_string     = '';
 		for ( $i = 0; $i < 2000; $i++ ) {
-			$random_string .= $characters[ rand( 0, $characters_length - 1 ) ];
+			$random_string .= $characters[ wp_rand( 0, $characters_length - 1 ) ];
 		}
 
 		return $random_string;

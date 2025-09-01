@@ -6,6 +6,7 @@
 #
 # Environment Variables:
 # - USE_CLOUDFLARE_TUNNEL: Use Cloudflare Tunnel instead of LocalTunnel
+# - TUNNEL_DEBUG: Enable verbose debug logging
 #
 
 set -e
@@ -26,9 +27,25 @@ function usage() {
 BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$BASE_DIR/../node_modules/.bin:$PATH"
 
+TUNNEL_CLI_COMMAND="node $BASE_DIR/tunnel/tunnel-cli.js"
+
+if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
+	TUNNEL_CLI_COMMAND="$TUNNEL_CLI_COMMAND --provider cloudflared"
+else
+	TUNNEL_CLI_COMMAND="$TUNNEL_CLI_COMMAND --provider localtunnel"
+fi
+
 function log() {
 	echo "[tunnel manager] $*"
 }
+
+function debug_log() {
+	if [[ -n "${TUNNEL_DEBUG}" ]]; then
+		echo "[tunnel manager DEBUG] $*"
+	fi
+}
+
+debug_log "TUNNEL_CLI_COMMAND: $TUNNEL_CLI_COMMAND"
 
 function health_check() {
 	local url="$1"
@@ -92,15 +109,14 @@ function up() {
 		if [ $retry_count -gt 0 ]; then
 			log "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
 		fi
-		
+
+		log "Closing potentially running tunnel..."
 		down
+
+		log "Opening new tunnel..."
+		debug_log "Executing: $TUNNEL_CLI_COMMAND on $*"
 		local tunnel_output
-		if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
-			tunnel_output=$(node "$BASE_DIR"/cloudflaretunnel.js on "$@" 2>&1)
-		else
-			tunnel_output=$(node "$BASE_DIR"/localtunnel.js on "$@" 2>&1)
-		fi
-		
+		tunnel_output=$($TUNNEL_CLI_COMMAND on "$@" 2>&1)
 		echo "$tunnel_output"
 		
 		# Extract tunnel URL from the startup output
@@ -125,16 +141,15 @@ function up() {
 }
 
 function down() {
-	if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
-		node "$BASE_DIR"/cloudflaretunnel.js off
-	else
-		node "$BASE_DIR"/localtunnel.js off
-	fi
+	debug_log "Executing: $TUNNEL_CLI_COMMAND off"
+	$TUNNEL_CLI_COMMAND off
 }
 
 function reset() {
 	down
-	rm -rf config/tmp
+	log "Resetting tunnel..."
+	debug_log "Executing: $TUNNEL_CLI_COMMAND clear"
+	$TUNNEL_CLI_COMMAND clear
 	up
 }
 

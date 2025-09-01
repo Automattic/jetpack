@@ -19,6 +19,7 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import './style.scss';
 import './editor.scss';
 /**
  * Types
@@ -63,7 +64,7 @@ export default function ImageSelectFieldEdit( props ) {
 			[
 				'jetpack/label',
 				{
-					label: __( 'Choose one option', 'jetpack-forms' ),
+					label: __( 'Choose one image', 'jetpack-forms' ),
 					required,
 				},
 			],

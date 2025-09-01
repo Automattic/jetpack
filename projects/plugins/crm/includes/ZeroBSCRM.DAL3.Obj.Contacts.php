@@ -4054,13 +4054,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         
     }
 
-    /**
-     * Returns an status against a contact
-     *
-     * @param int id Contact ID
-     *
-     * @return str contact status string
-     */
+		/**
+		 * Returns an status against a contact
+		 *
+		 * @param int $id Contact ID.
+		 *
+		 * @return string contact status string
+		 */
     public function getContactStatus($id=-1){
 
         global $zbs;
@@ -4081,14 +4081,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         
     }
 
-    /**
-     * Sets the status of a contact
-     *
-     * @param int id Contact ID
-     * @param str status Contact status
-     *
-     * @return int changed
-     */
+		/**
+		 * Sets the status of a contact
+		 *
+		 * @param int    $id Contact ID.
+		 * @param string $status Contact status.
+		 *
+		 * @return int|false contact ID if successful, false otherwise
+		 */
     public function setContactStatus( $id=-1, $status=-1 ){
 
         global $zbs;

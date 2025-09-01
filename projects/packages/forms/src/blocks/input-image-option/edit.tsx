@@ -16,6 +16,7 @@ import clsx from 'clsx';
  */
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import { getImageOptionLetter } from './label';
 /**
  * Types
  */
@@ -37,17 +38,27 @@ export default function ImageOptionInputEdit( props ) {
 
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
-	const { isInnerBlockSelected, imageBlockAttributes } = useSelect(
+	const { isInnerBlockSelected, imageBlockAttributes, positionLetter } = useSelect(
 		select => {
-			const { getBlock, hasSelectedInnerBlock } = select(
-				blockEditorStore
-			) as BlockEditorStoreSelect;
+			const blockEditor = select( blockEditorStore ) as BlockEditorStoreSelect;
+			const { getBlock, hasSelectedInnerBlock } = blockEditor;
 
 			const currentBlock = getBlock( clientId );
+			const parentClientIds = blockEditor.getBlockParentsByBlockName(
+				clientId,
+				'jetpack/fieldset-image-options'
+			);
+			const parentId = parentClientIds[ parentClientIds.length - 1 ];
+			const parentBlock = getBlock( parentId );
+
+			// Find position within parent's inner blocks
+			const position =
+				parentBlock.innerBlocks.findIndex( block => block.clientId === clientId ) + 1;
 
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
 				imageBlockAttributes: currentBlock?.innerBlocks[ 1 ]?.attributes,
+				positionLetter: getImageOptionLetter( position ),
 			};
 		},
 		[ clientId ]
@@ -56,6 +67,7 @@ export default function ImageOptionInputEdit( props ) {
 	const {
 		'jetpack/field-image-select-is-supersized': isSupersized,
 		'jetpack/field-image-select-show-labels': showLabels,
+		'jetpack/field-image-options-type': selectionType = 'radio',
 	} = context || {};
 
 	// Use the block's own synced attributes for styling
@@ -65,6 +77,7 @@ export default function ImageOptionInputEdit( props ) {
 		className: clsx( 'jetpack-field jetpack-input-image-option', {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-image': !! imageBlockAttributes?.url,
+			[ `is-${ selectionType }` ]: !! selectionType,
 			'is-supersized': isSupersized,
 		} ),
 		style: blockStyle,
@@ -100,14 +113,17 @@ export default function ImageOptionInputEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
-			<RichText
-				tagName="span"
-				className={ labelClassName }
-				value={ label }
-				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
-				__unstableDisableFormats
-				onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
-			/>
+			<div className="jetpack-input-image-option__label-wrapper">
+				<div className="jetpack-input-image-option__label-code">{ positionLetter }</div>
+				<RichText
+					tagName="span"
+					className={ labelClassName }
+					value={ label }
+					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+					__unstableDisableFormats
+					onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
+				/>
+			</div>
 		</div>
 	);
 }

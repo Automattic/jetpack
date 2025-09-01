@@ -1222,7 +1222,7 @@ function wpsc_get_protected_directories() {
 function wpsc_debug_username() {
 	global $wp_cache_debug_username;
 	if ( ! isset( $wp_cache_debug_username ) || $wp_cache_debug_username == '' ) {
-		$wp_cache_debug_username = md5( time() + mt_rand() );
+		$wp_cache_debug_username = md5( (string) ( time() + wp_rand() ) );
 		wp_cache_setting( 'wp_cache_debug_username', $wp_cache_debug_username );
 	}
 	return $wp_cache_debug_username;
@@ -1232,7 +1232,7 @@ function wpsc_create_debug_log( $filename = '', $username = '' ) {
 	if ( $filename != '' ) {
 		$wp_cache_debug_log = $filename;
 	} else {
-		$wp_cache_debug_log = md5( time() + mt_rand() ) . '.php';
+		$wp_cache_debug_log = md5( (string) ( time() + wp_rand() ) ) . '.php';
 	}
 	if ( $username != '' ) {
 		$wp_cache_debug_username = $username;
@@ -1366,9 +1366,9 @@ function is_writeable_ACLSafe( $path ) {
 	// PHP's is_writable does not work with Win32 NTFS
 
 	if ( $path[ strlen( $path ) - 1 ] == '/' ) { // recursively return a temporary file path
-		return is_writeable_ACLSafe( $path . uniqid( mt_rand() ) . '.tmp' );
+		return is_writeable_ACLSafe( $path . uniqid( (string) wp_rand() ) . '.tmp' );
 	} elseif ( is_dir( $path ) ) {
-		return is_writeable_ACLSafe( $path . '/' . uniqid( mt_rand() ) . '.tmp' );
+		return is_writeable_ACLSafe( $path . '/' . uniqid( (string) wp_rand() ) . '.tmp' );
 	}
 
 	// check tmp file for read/write capabilities
@@ -1450,7 +1450,7 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 		}
 	}
 
-	$tmp_config_filename = tempnam( $GLOBALS['cache_path'], md5( mt_rand( 0, 9999 ) ) );
+	$tmp_config_filename = tempnam( $GLOBALS['cache_path'], md5( (string) wp_rand( 0, 9999 ) ) );
 	if ( file_exists( $tmp_config_filename . '.php' ) ) {
 		unlink( $tmp_config_filename . '.php' );
 		if ( file_exists( $tmp_config_filename . '.php' ) ) {
@@ -2322,7 +2322,7 @@ function wp_cache_get_ob( &$buffer ) {
 		$super_cache_enabled = false;
 	}
 
-	$tmp_wpcache_filename = $cache_path . uniqid( mt_rand(), true ) . '.tmp';
+	$tmp_wpcache_filename = $cache_path . uniqid( (string) wp_rand(), true ) . '.tmp';
 
 	if ( defined( 'WPSC_SUPERCACHE_ONLY' ) ) {
 		$supercacheonly = true;
@@ -2398,7 +2398,7 @@ function wp_cache_get_ob( &$buffer ) {
 			)
 		) {
 			$cache_fname        = $dir . supercache_filename();
-			$tmp_cache_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
+			$tmp_cache_filename = $dir . uniqid( (string) wp_rand(), true ) . '.tmp';
 			$fr2                = @fopen( $tmp_cache_filename, 'w' );
 			if ( ! $fr2 ) {
 				wp_cache_debug( 'Error. Supercache could not write to ' . str_replace( ABSPATH, '', $tmp_cache_filename ), 1 );
@@ -2958,7 +2958,7 @@ function wp_cache_shutdown_callback() {
 		if ( wp_cache_writers_entry() ) {
 			wp_cache_debug( "Writing meta file: {$dir}meta-{$meta_file}", 2 );
 
-			$tmp_meta_filename   = $dir . uniqid( mt_rand(), true ) . '.tmp';
+			$tmp_meta_filename   = $dir . uniqid( (string) wp_rand(), true ) . '.tmp';
 			$final_meta_filename = $dir . 'meta-' . $meta_file;
 			$fr                  = @fopen( $tmp_meta_filename, 'w' );
 			if ( $fr ) {

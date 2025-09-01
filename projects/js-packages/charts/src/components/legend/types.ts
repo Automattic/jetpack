@@ -5,27 +5,8 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 // See https://airbnb.io/visx/docs/legend#Ordinal for more details.
 type LegendOrdinalProps = Omit< ComponentProps< typeof LegendOrdinal >, 'scale' | 'direction' >;
 
-export type BaseLegendItem = {
-	label: string;
-	value: number | string;
-	color: string;
-	glyphSize?: number;
-	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	shapeStyle?: CSSProperties & LineStyles;
-};
-
-export type LegendItemWithGlyph = BaseLegendItem & {
-	renderGlyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphSize: number;
-};
-
-export type LegendItemWithoutGlyph = BaseLegendItem & {
-	renderGlyph?: never;
-	glyphSize?: number;
-};
-
 export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
-	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
+	items: BaseLegendItem[];
 	orientation?: 'horizontal' | 'vertical';
 	/**
 	 * TODO: Add 'left' | 'right' positioning support in future implementation
@@ -35,6 +16,19 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {
-	items?: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
+	items?: BaseLegendItem[];
 	chartId?: string;
+};
+
+export type BaseLegendItem = {
+	label: string;
+	value: number | string;
+	color: string;
+	glyphSize?: number;
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	shapeStyle?: CSSProperties & LineStyles;
+	// Optional group info for dynamic color resolution
+	group?: string;
+	index?: number;
+	overrideColor?: string;
 };

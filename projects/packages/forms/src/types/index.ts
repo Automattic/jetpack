@@ -188,7 +188,10 @@ export type BlockEditorStoreDispatch = {
  */
 export type BlockEditorStoreSelect = {
 	getBlock: ( clientId: string ) => Block;
+	getBlocks: ( clientId: string ) => Block[];
 	hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
 	getBlockRootClientId: ( clientId: string ) => string;
 	getSelectedBlock: () => Block;
+	getBlockIndex: ( clientId: string ) => number;
+	getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
 };

@@ -11,6 +11,10 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class for the contact-field shortcode.
  * Parses shortcode to output the contact form field as HTML.
@@ -160,6 +164,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
 				// full phone field attributes, might become a standalone country list input block
 				'showcountryselector'      => false,
+				// Image select field attributes
+				'ismultiple'               => null,
+				'showlabels'               => null,
+				'issupersized'             => null,
+				'randomizeoptions'         => null,
+				'showotheroption'          => null,
 			),
 			$attributes,
 			'contact-field'
@@ -332,27 +342,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 				} else {
-					// Check that the selected options are valid
-					$options      = (array) $this->get_attribute( 'options' );
-					$options_data = (array) $this->get_attribute( 'optionsdata' );
 
+					$options_data    = (array) $this->get_attribute( 'optionsdata' );
+					$possible_values = array();
 					if ( ! empty( $options_data ) ) {
-						$options = array_map(
-							function ( $option ) {
-								return $this->sanitize_text_field( trim( $option['label'] ) );
-							},
-							$options_data
-						);
+						foreach ( $options_data as $option_index => $option ) {
+							$option_label = isset( $option['label'] ) ? Contact_Form_Plugin::strip_tags( $option['label'] ) : '';
+							if ( is_string( $option_label ) && '' !== $option_label ) {
+								$possible_values[] = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option_label );
+							}
+						}
 					} else {
-						$options = array_map( array( $this, 'sanitize_text_field' ), $options );
+						foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
+							$option = Contact_Form_Plugin::strip_tags( $option );
+							if ( is_string( $option ) && '' !== $option ) {
+								$possible_values[] = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option );
+							}
+						}
 					}
 
-					$non_empty_options = array_filter(
-						$options,
-						function ( $option ) {
-							return $option !== '';
-						}
-					);
+					$non_empty_options = array_map( array( $this, 'sanitize_text_field' ), $possible_values );
 
 					foreach ( $field_value  as $field_value_item ) {
 						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
@@ -394,6 +403,51 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						/* translators: %s is the name of a form field */
 						$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 						break;
+					}
+				}
+				break;
+			case 'image-select':
+				// Check that there is at least one option selected
+				if ( empty( $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+				} else {
+					// Check that the selected options are valid
+					$options      = (array) $this->get_attribute( 'options' );
+					$options_data = (array) $this->get_attribute( 'optionsdata' );
+
+					if ( ! empty( $options_data ) ) {
+						// Extract letters from options_data for validation
+						$options = array_map(
+							function ( $option ) {
+								return sanitize_text_field( trim( $option['letter'] ?? '' ) );
+							},
+							$options_data
+						);
+					}
+
+					$non_empty_options = array_filter(
+						$options,
+						function ( $option ) {
+							return $option !== '';
+						}
+					);
+
+					// For single selection (radio), check if the value is in the options
+					if ( ! $this->get_attribute( 'ismultiple' ) ) {
+						if ( ! in_array( $field_value, $non_empty_options, true ) ) {
+							/* translators: %s is the name of a form field */
+							$this->add_error( sprintf( __( '%s requires a valid selection.', 'jetpack-forms' ), $field_label ) );
+						}
+					} else {
+						// For multiple selection (checkbox), check each selected value
+						foreach ( $field_value as $field_value_item ) {
+							if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
+								/* translators: %s is the name of a form field */
+								$this->add_error( sprintf( __( '%s requires valid selections.', 'jetpack-forms' ), $field_label ) );
+								break;
+							}
+						}
 					}
 				}
 				break;
@@ -1825,8 +1879,126 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = $this->render_label( 'image-select', $id, $label, $required, $required_field_text );
-		// TODO: Implement the image select field rendering.
+		wp_enqueue_style( 'jetpack-form-field-image-select-style', plugins_url( '../../dist/blocks/field-image-select/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+
+		$is_multiple       = $this->get_attribute( 'ismultiple' );
+		$show_labels       = $this->get_attribute( 'showlabels' );
+		$randomize_options = $this->get_attribute( 'randomizeoptions' );
+		$is_supersized     = $this->get_attribute( 'issupersized' );
+
+		$input_type = $is_multiple ? 'checkbox' : 'radio';
+		$input_name = $is_multiple ? $id . '[]' : $id;
+
+		$field = "<div class='jetpack-field jetpack-field-image-select'>";
+
+		$form_style        = $this->get_form_style();
+		$is_outlined_style = 'outlined' === $form_style; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- TODO: Implement style variations
+		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
+
+		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+
+		$options_classes = $this->get_attribute( 'optionsclasses' );
+		$options_styles  = $this->get_attribute( 'optionsstyles' );
+
+		$field .= "<div class='" . esc_attr( $options_classes ) . " jetpack-field jetpack-fieldset-image-options' style='" . esc_attr( $options_styles ) . "'>";
+		$field .= "<div class='jetpack-fieldset-image-options__wrapper'>";
+
+		$options_data  = $this->get_attribute( 'optionsdata' );
+		$used_html_ids = array();
+
+		if ( ! empty( $options_data ) ) {
+			// Create a separate array of original letters in sequence (A, B, C...)
+			$original_letters = array();
+
+			foreach ( $options_data as $option ) {
+				$original_letters[] = Contact_Form_Plugin::strip_tags( $option['letter'] );
+			}
+
+			// Create a working copy of options for potential randomization
+			$working_options = $options_data;
+
+			// Randomize options if requested, but preserve original letter values
+			if ( $randomize_options ) {
+				shuffle( $working_options );
+			}
+
+			foreach ( $working_options as $option_index => $option ) {
+				$option_label                = Contact_Form_Plugin::strip_tags( $option['label'] );
+				$option_letter               = Contact_Form_Plugin::strip_tags( $option['letter'] );
+				$option_value                = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option_letter );
+				$image_block                 = $option['image'];
+				$option_id                   = $id . '-' . sanitize_html_class( $option_value );
+				$used_html_ids[ $option_id ] = true;
+
+				// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
+				// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
+				$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
+
+				if ( $is_supersized ) {
+					$option_outer_classes .= ' is-supersized';
+				}
+
+				$border_styles = '';
+				if ( ! empty( $option['style'] ) ) {
+					preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
+					preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
+
+					if ( ! empty( $radius_match[1] ) ) {
+						$radius_value = trim( $radius_match[1] );
+
+						if ( ! empty( $width_match[1] ) ) {
+								$width_value   = trim( $width_match[1] );
+								$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
+						} else {
+								$border_styles = "border-radius:{$radius_value};";
+						}
+					}
+				}
+
+				$option_outer_styles = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
+				$option_outer_styles = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
+
+				$field .= "<div class='{$option_outer_classes}' {$option_outer_styles}>";
+
+				$default_classes = 'jetpack-field jetpack-input-image-option';
+				$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
+				$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
+
+				$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick'>";
+
+				$field .= "<div class='jetpack-input-image-option__wrapper'>";
+				$field .= "<input
+				id='" . esc_attr( $option_id ) . "'
+				class='jetpack-input-image-option__input'
+				type='" . esc_attr( $input_type ) . "'
+				name='" . esc_attr( $input_name ) . "'
+				value='" . esc_attr( $option_value ) . "'
+				data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
+				. $class
+				. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '
+				. ( $required ? "required aria-required='true'" : '' )
+				. '/> ';
+
+				$field .= render_block( $image_block );
+				$field .= '</div>';
+
+				$field .= "<div class='jetpack-input-image-option__label-wrapper'>";
+				$field .= "<div class='jetpack-input-image-option__label-code'>" . esc_html( $original_letters[ $option_index ] ) . '</div>';
+
+				$label_classes  = 'jetpack-input-image-option__label';
+				$label_classes .= $show_labels ? '' : ' visually-hidden';
+				$field         .= "<span class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
+				$field         .= '</div></div></div>';
+			}
+		}
+
+		$field .= '</div></div>';
+
+		$field .= '</fieldset>';
+
+		$field .= '</div>';
 
 		return $field;
 	}
@@ -1969,7 +2141,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
 			// We check the left side due to writing direction—this variable is used to offset text.
 			// TODO: this should factor in RTL languages.
-			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
+			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . ( $border_radius['topLeft'] ?? '0' ) . ',' . ( $border_radius['bottomLeft'] ?? '0' ) . ');' : '';
 		} elseif ( isset( $border_radius ) ) {
 			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
 		}
@@ -2292,9 +2464,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return bool
 	 */
 	public function is_field_renderable( $type ) {
-		// Check that radio, select, and multiple choice
-		// fields have at leaast one valid option.
-		if ( $type === 'radio' || $type === 'checkbox-multiple' || $type === 'select' ) {
+		// Check that radio, select, multiple choice, and image select
+		// fields have at least one valid option.
+		if ( $type === 'radio' || $type === 'checkbox-multiple' || $type === 'select' || $type === 'image-select' ) {
 			$options           = (array) $this->get_attribute( 'options' );
 			$non_empty_options = array_filter(
 				$options,
@@ -2516,7 +2688,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		ob_start();
 		?>
-		<div class="jetpack-field-slider__input-row"
+		<div class="jetpack-field-slider__input-row <?php echo esc_attr( $this->field_classes ); ?>"
 			data-wp-context='
 			<?php
 			echo wp_json_encode(
@@ -2539,7 +2711,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					min="<?php echo esc_attr( $min ); ?>"
 					max="<?php echo esc_attr( $max ); ?>"
 					step="<?php echo esc_attr( $step ); ?>"
-					class="<?php echo esc_attr( $class ); ?>"
+					class="<?php echo esc_attr( trim( $class . ' jetpack-field-slider__range' ) ); ?>"
 					placeholder="<?php echo esc_attr( $placeholder ); ?>"
 					<?php
 					if ( $required ) :
@@ -2558,7 +2730,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
 		<?php if ( '' !== $min_text_label || '' !== $max_text_label ) : ?>
-			<div class="jetpack-field-slider__text-labels" aria-hidden="true">
+			<div class="jetpack-field-slider__text-labels <?php echo esc_attr( $this->field_classes ); ?>" aria-hidden="true">
 				<span class="jetpack-field-slider__min-text-label"><?php echo esc_html( $min_text_label ); ?></span>
 				<span class="jetpack-field-slider__max-text-label"><?php echo esc_html( $max_text_label ); ?></span>
 			</div>
@@ -2580,7 +2752,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		\wp_enqueue_style(
 			'jetpack-form-slider-field',
-			plugins_url( '../../dist/contact-form/css/slider-field.css', __FILE__ ),
+			plugins_url( '../../dist/blocks/input-range/style.css', __FILE__ ),
 			array(),
 			$version
 		);

@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class External_Connections {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 	const BASE_FILE       = __FILE__;
 
 	/**
@@ -157,7 +157,7 @@ class External_Connections {
 	 * @param string $service The service identifier.
 	 * @return array The connection data.
 	 */
-	private static function get_connection_data( $service ) {
+	public static function get_connection_data( $service ) {
 		$connection = self::get_connection( $service );
 		if ( empty( $connection ) ) {
 			return array(

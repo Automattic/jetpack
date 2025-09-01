@@ -1156,7 +1156,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "1a92c2a1197abdee14408053e6f61a7037eb9bae"
+                "reference": "ceb77b1c05b16c7e2e37dde2a5946c1c878770aa"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1174,7 +1174,7 @@
                 "automattic/jetpack-subscribers-dashboard": "@dev",
                 "automattic/scheduled-updates": "@dev",
                 "php": ">=8.1",
-                "scssphp/scssphp": "1.12.0"
+                "scssphp/scssphp": "1.13.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -1751,7 +1751,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "8489ae0df5b91f1ec7783734d45bb050d9968d30"
+                "reference": "af10348f9f9b9be5a2093dc8810b1170d55a4e49"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1785,7 +1785,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.20.x-dev"
+                    "dev-trunk": "4.21.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1885,16 +1885,16 @@
         },
         {
             "name": "scssphp/scssphp",
-            "version": "v1.12.0",
+            "version": "v1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scssphp/scssphp.git",
-                "reference": "a6b20c170ddb95f116b3d148a466a7bed1e85c35"
+                "reference": "63d1157457e5554edf00b0c1fabab4c1511d2520"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scssphp/scssphp/zipball/a6b20c170ddb95f116b3d148a466a7bed1e85c35",
-                "reference": "a6b20c170ddb95f116b3d148a466a7bed1e85c35",
+                "url": "https://api.github.com/repos/scssphp/scssphp/zipball/63d1157457e5554edf00b0c1fabab4c1511d2520",
+                "reference": "63d1157457e5554edf00b0c1fabab4c1511d2520",
                 "shasum": ""
             },
             "require": {
@@ -1959,9 +1959,9 @@
             ],
             "support": {
                 "issues": "https://github.com/scssphp/scssphp/issues",
-                "source": "https://github.com/scssphp/scssphp/tree/v1.12.0"
+                "source": "https://github.com/scssphp/scssphp/tree/v1.13.0"
             },
-            "time": "2023-11-14T14:56:09+00:00"
+            "time": "2024-08-17T21:02:11+00:00"
         }
     ],
     "packages-dev": [

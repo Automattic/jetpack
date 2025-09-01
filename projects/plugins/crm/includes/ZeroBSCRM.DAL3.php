@@ -506,8 +506,8 @@ class zbsDAL {
 	/**
 	 * Check if a given status is valid for the given object
 	 *
-	 * @param int $obj_type_id Object type ID.
-	 * @param str $obj_status  Object status string.
+	 * @param int    $obj_type_id Object type ID.
+	 * @param string $obj_status  Object status string.
 	 */
 	public function is_valid_obj_status( $obj_type_id, $obj_status ) {
 		switch ( $obj_type_id ) {

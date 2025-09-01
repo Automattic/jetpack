@@ -244,6 +244,27 @@ class Contact_Form_Block {
 			);
 
 			Blocks::jetpack_register_block(
+				'jetpack/input-range',
+				array(
+					'supports' => array(
+						'color'      => array(
+							'text'       => true,
+							'background' => false,
+						),
+						'typography' => array(
+							'fontSize'                     => true,
+							'__experimentalFontFamily'     => true,
+							'__experimentalFontWeight'     => true,
+							'__experimentalFontStyle'      => true,
+							'__experimentalTextTransform'  => true,
+							'__experimentalTextDecoration' => true,
+							'__experimentalLetterSpacing'  => true,
+						),
+					),
+				)
+			);
+
+			Blocks::jetpack_register_block(
 				'jetpack/phone-input',
 				array(
 					'supports'     => array(
@@ -518,21 +539,89 @@ class Contact_Form_Block {
 				'jetpack/field-image-select',
 				array(
 					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
-					'provides_context' => array( 'jetpack/field-required' => 'required' ),
+					'provides_context' => array(
+						'jetpack/field-required' => 'required',
+						'jetpack/field-image-select-show-labels' => 'showLabels',
+						'jetpack/field-image-select-is-supersized' => 'isSupersized',
+						'jetpack/field-image-select-is-multiple' => 'isMultiple',
+						'jetpack/field-image-select-randomize-options' => 'randomizeOptions',
+						'jetpack/field-image-select-show-other-option' => 'showOtherOption',
+					),
 				)
 			);
 
 			Blocks::jetpack_register_block(
 				'jetpack/fieldset-image-options',
 				array(
-					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_fieldset_image_options' ),
+					'uses_context'     => array(
+						'jetpack/field-image-select-is-supersized',
+						'jetpack/field-image-select-is-multiple',
+						'jetpack/field-share-attributes',
+					),
+					'provides_context' => array(
+						'jetpack/field-image-options-type' => 'type',
+					),
 				)
 			);
 
 			Blocks::jetpack_register_block(
 				'jetpack/input-image-option',
 				array(
-					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_input_image_option' ),
+					'supports'         => array(
+						'color'                => array(
+							'background' => true,
+							'text'       => true,
+							'gradients'  => false,
+							'__experimentalDefaultControls' => array(
+								'background' => true,
+								'text'       => true,
+							),
+						),
+						'typography'           => array(
+							'fontSize'                     => true,
+							'lineHeight'                   => true,
+							'__experimentalFontFamily'     => true,
+							'__experimentalFontWeight'     => true,
+							'__experimentalFontStyle'      => true,
+							'__experimentalTextTransform'  => true,
+							'__experimentalTextDecoration' => true,
+							'__experimentalLetterSpacing'  => true,
+							'__experimentalDefaultControls' => array(
+								'fontSize' => true,
+							),
+						),
+						'__experimentalBorder' => array(
+							'color'  => true,
+							'radius' => true,
+							'style'  => true,
+							'width'  => true,
+							'__experimentalDefaultControls' => array(
+								'color'  => true,
+								'radius' => true,
+								'style'  => true,
+								'width'  => true,
+							),
+						),
+						'spacing'              => array(
+							'margin'  => true,
+							'padding' => true,
+							'__experimentalDefaultControls' => array(
+								'margin'  => true,
+								'padding' => true,
+							),
+						),
+					),
+					'uses_context'     => array(
+						'jetpack/field-image-select-is-supersized',
+						'jetpack/field-image-select-show-labels',
+						'jetpack/field-image-options-type',
+						'jetpack/field-share-attributes',
+					),
+					'provides_context' => array(
+						'allowResize' => 'allowResize',
+						'imageCrop'   => 'imageCrop',
+						'fixedHeight' => 'fixedHeight',
+					),
 				)
 			);
 		}
