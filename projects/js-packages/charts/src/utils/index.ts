@@ -5,8 +5,9 @@ export { attachSubComponents } from './create-composition';
 export { parseAsLocalDate } from './date-parsing';
 
 // Number and metric formatting utilities
-export { formatMetricValue, formatPercentage } from './format-metric-value';
+export { formatMetricValue } from './format-metric-value';
 export type { MetricValueType } from './format-metric-value';
+export { formatPercentage } from './format-percentage';
 
 // Chart measurement utilities
 export { getLongestTickWidth } from './get-longest-tick-width';

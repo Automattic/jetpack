@@ -1,7 +1,8 @@
 /**
  * Tests for formatMetricValue and formatPercentage utilities
  */
-import { formatMetricValue, formatPercentage } from '../format-metric-value';
+import { formatMetricValue } from '../format-metric-value';
+import { formatPercentage } from '../format-percentage';
 
 describe( 'formatMetricValue', () => {
 	it( 'formats numbers correctly', () => {
