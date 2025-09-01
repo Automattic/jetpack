@@ -169,12 +169,9 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			require_lib( 'mailchimp' );
-			$user_id = get_current_user_id();
-			$api     = new MailchimpApi( $site_id, $user_id );
-			if ( $api ) {
-				$settings              = $api::get_settings( $site_id );
-				$settings['audiences'] = $api->get_lists();
-			}
+			$api                   = new MailchimpApi( $site_id, get_current_user_id() );
+			$settings              = $api::get_settings( $site_id );
+			$settings['audiences'] = $api->get_lists();
 		} else {
 			$path     = sprintf( '/sites/%d/mailchimp/settings', $site_id );
 			$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );

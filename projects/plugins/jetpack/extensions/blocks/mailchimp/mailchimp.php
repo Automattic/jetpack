@@ -339,7 +339,7 @@ function update_settings() {
 
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		require_lib( 'mailchimp' );
-		\MailchimpApi::save_settings( $site_id, $data );
+		$response = \MailchimpApi::save_settings( $site_id, $data );
 	} else {
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/mailchimp/settings', $site_id ),
