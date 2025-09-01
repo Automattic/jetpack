@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -53,6 +54,17 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_mailchimp_groups' ),
+					'permission_callback' => '__return_true',
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/settings',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_mailchimp_settings' ),
 					'permission_callback' => '__return_true',
 				),
 			)
@@ -133,6 +145,37 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		$request = Client::wpcom_json_api_request_as_blog( $path );
 		$body    = wp_remote_retrieve_body( $request );
 		return json_decode( $body );
+	}
+
+	/**
+	 * Get the Mailchimp connection settings.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_mailchimp_settings() {
+		$site_id = Connection_Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return new WP_Error(
+				'unavailable_site_id',
+				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack' ),
+				403
+			);
+		}
+
+		$settings = array();
+		$path     = sprintf( '/sites/%d/mailchimp/settings', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
+		if ( ! is_wp_error( $response ) ) {
+			$settings = json_decode( wp_remote_retrieve_body( $response ), true );
+		}
+
+		$path     = sprintf( '/sites/%d/mailchimp/lists', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
+		if ( ! is_wp_error( $response ) ) {
+			$settings['audiences'] = json_decode( wp_remote_retrieve_body( $response ), true );
+		}
+
+		return $settings;
 	}
 }
 

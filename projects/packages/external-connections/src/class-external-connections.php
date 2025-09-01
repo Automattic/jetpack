@@ -270,10 +270,6 @@ class External_Connections {
 				if ( isset( $service['script'] ) ) {
 					Assets::enqueue_script( $service['script'] );
 				}
-
-				if ( isset( $service['script_data'] ) && is_callable( $service['script_data'] ) ) {
-					$script_data[ $service['service'] ] = array_merge( $script_data[ $service['service'] ], call_user_func( $service['script_data'] ) );
-				}
 			}
 
 			wp_add_inline_script(

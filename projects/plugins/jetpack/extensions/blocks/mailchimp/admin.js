@@ -1,23 +1,34 @@
-/* global jetpackExternalConnectionsData */
-
-import { useState } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 
 import './admin.scss';
 
 const MailchimpSettings = ( { isConnected } ) => {
-	const config = jetpackExternalConnectionsData.mailchimp;
+	const [ audiences, setAudiences ] = useState( [ { id: 'none', name: __( 'None', 'jetpack' ) } ] );
+	const [ selectedAudience, setSelectedAudience ] = useState( 'none' );
 
-	const [ selectedAudience, setSelectedAudience ] = useState(
-		config.settings?.follower_list_id ?? 'none'
-	);
+	useEffect( () => {
+		if ( ! isConnected ) {
+			return;
+		}
+		apiFetch( { path: '/wpcom/v2/mailchimp/settings', method: 'GET' } ).then( response => {
+			setAudiences( [ ...audiences, ...response.audiences ] );
+			if (
+				response.follower_list_id &&
+				response.audiences.find( ( { id } ) => id === response.follower_list_id )
+			) {
+				setSelectedAudience( response.follower_list_id );
+			}
+		} );
+		// Don't include audiences in the dependency array to avoid loop.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isConnected ] );
 
 	if ( ! isConnected ) {
 		return null;
 	}
-
-	const audiences = [ { id: 'none', name: __( 'None', 'jetpack' ) }, ...config.audiences ];
 
 	return (
 		<div className="jetpack-mailchimp-settings">

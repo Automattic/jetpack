@@ -292,7 +292,6 @@ function register_admin_settings() {
 			'signup_link'  => 'https://public-api.wordpress.com/rest/v1.1/sharing/mailchimp/signup',
 			'description'  => __( 'Allow users to sign up to your Mailchimp mailing list.', 'jetpack' ),
 			'script'       => 'jetpack-mailchimp-admin-extra-settings',
-			'script_data'  => __NAMESPACE__ . '\get_admin_settings_script_data',
 			'support_link' => array(
 				'wpcom'   => 'https://wordpress.com/support/wordpress-editor/blocks/mailchimp-block/',
 				'jetpack' => 'mailchimp-block',
@@ -301,37 +300,6 @@ function register_admin_settings() {
 	);
 
 	add_action( 'load-options.php', __NAMESPACE__ . '\update_settings' );
-}
-
-/**
- * Prepares the data needed for the admin settings script.
- *
- * @return array
- */
-function get_admin_settings_script_data() {
-	$script_data = array(
-		'audiences' => array(),
-		'settings'  => null,
-	);
-
-	$site_id = Connection_Manager::get_site_id();
-	if ( is_wp_error( $site_id ) ) {
-		return $script_data;
-	}
-
-	$path     = sprintf( '/sites/%d/mailchimp/lists', $site_id );
-	$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
-	if ( ! is_wp_error( $response ) ) {
-		$script_data['audiences'] = json_decode( wp_remote_retrieve_body( $response ), true );
-	}
-
-	$path     = sprintf( '/sites/%d/mailchimp/settings', $site_id );
-	$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
-	if ( ! is_wp_error( $response ) ) {
-		$script_data['settings'] = json_decode( wp_remote_retrieve_body( $response ), true );
-	}
-
-	return $script_data;
 }
 
 /**
