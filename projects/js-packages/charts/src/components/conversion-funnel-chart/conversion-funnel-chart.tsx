@@ -128,12 +128,13 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
-	// Use custom hook for selection management
-	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } = useFunnelSelection();
-
 	// Use @visx/tooltip hooks for tooltip positioning
 	const { tooltipData, tooltipLeft, tooltipTop, tooltipOpen, showTooltip, hideTooltip } =
 		useTooltip();
+
+	// Use custom hook for selection management
+	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
+		useFunnelSelection( hideTooltip );
 	const { containerRef: portalContainerRef, TooltipInPortal } = useTooltipInPortal( {
 		// use TooltipWithBounds for boundary detection
 		detectBounds: true,
@@ -148,6 +149,90 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		hideTooltip();
 	}, [ clearSelection, hideTooltip ] );
 
+	// Helper function to show tooltip at specific coordinates
+	const showTooltipAt = useCallback(
+		( step: FunnelStep, x: number, y: number ) => {
+			showTooltip( {
+				tooltipData: step,
+				tooltipLeft: x,
+				tooltipTop: y - 10,
+			} );
+		},
+		[ showTooltip ]
+	);
+
+	// Helper function to get tooltip coordinates for mouse events
+	const getMouseTooltipCoords = useCallback( ( event: React.MouseEvent ) => {
+		const containerElement = chartRef.current;
+		if ( containerElement ) {
+			const coords = localPoint( containerElement, event.nativeEvent );
+			if ( coords ) {
+				return { x: coords.x, y: coords.y };
+			}
+		}
+		return null;
+	}, [] );
+
+	// Helper function to get tooltip coordinates for keyboard events
+	const getKeyboardTooltipCoords = useCallback( ( event: React.KeyboardEvent ) => {
+		const rect = event.currentTarget.getBoundingClientRect();
+		const containerElement = chartRef.current;
+		if ( containerElement ) {
+			const containerRect = containerElement.getBoundingClientRect();
+			const x = rect.left + rect.width / 2 - containerRect.left;
+			const y = rect.top - containerRect.top;
+			return { x, y };
+		}
+		return null;
+	}, [] );
+
+	// Helper function to handle step interaction (both click and keyboard)
+	const handleStepInteraction = useCallback(
+		(
+			step: FunnelStep,
+			event: React.MouseEvent | React.KeyboardEvent,
+			interactionType: 'click' | 'keyboard'
+		) => {
+			// Store reference to the interacted element
+			selectedBarRef.current = event.currentTarget as HTMLDivElement;
+
+			// Check if deselecting the same step
+			const { isClicked } = getStepState( step.id );
+			if ( isClicked ) {
+				// Deselecting - clear selection (tooltip will be hidden by hook)
+				if ( interactionType === 'click' ) {
+					handleBarClick( step.id );
+				} else {
+					handleBarKeyDown( step.id, event as React.KeyboardEvent );
+				}
+				return;
+			}
+
+			// Selecting - handle selection and show tooltip
+			if ( interactionType === 'click' ) {
+				handleBarClick( step.id );
+				const coords = getMouseTooltipCoords( event as React.MouseEvent );
+				if ( coords ) {
+					showTooltipAt( step, coords.x, coords.y );
+				}
+			} else {
+				handleBarKeyDown( step.id, event as React.KeyboardEvent );
+				const coords = getKeyboardTooltipCoords( event as React.KeyboardEvent );
+				if ( coords ) {
+					showTooltipAt( step, coords.x, coords.y );
+				}
+			}
+		},
+		[
+			getStepState,
+			handleBarClick,
+			handleBarKeyDown,
+			showTooltipAt,
+			getMouseTooltipCoords,
+			getKeyboardTooltipCoords,
+		]
+	);
+
 	// Create handler factories to avoid arrow functions in JSX
 	const stepHandlers = useMemo( () => {
 		const handlers = new Map<
@@ -161,36 +246,24 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		steps.forEach( step => {
 			const onClick = ( event: React.MouseEvent ) => {
 				event.stopPropagation();
-				// Store reference to the clicked bar element
-				selectedBarRef.current = event.currentTarget as HTMLDivElement;
-				handleBarClick( step.id );
-
-				// Show tooltip with @visx positioning
-				// For DOM elements, use the container element as reference
-				const containerElement = chartRef.current;
-				if ( containerElement ) {
-					const coords = localPoint( containerElement, event.nativeEvent );
-					if ( coords ) {
-						showTooltip( {
-							tooltipData: step,
-							tooltipLeft: coords.x,
-							tooltipTop: coords.y - 10,
-						} );
-					}
-				}
+				handleStepInteraction( step, event, 'click' );
 			};
 
 			const onKeyDown = ( event: React.KeyboardEvent ) => {
-				// Store reference to the focused bar element for keyboard interactions
-				selectedBarRef.current = event.currentTarget as HTMLDivElement;
-				handleBarKeyDown( step.id, event );
+				if ( event.key === 'Enter' || event.key === ' ' ) {
+					handleStepInteraction( step, event, 'keyboard' );
+				} else {
+					// For other keys (like Escape), just handle the selection
+					selectedBarRef.current = event.currentTarget as HTMLDivElement;
+					handleBarKeyDown( step.id, event );
+				}
 			};
 
 			handlers.set( step.id, { onClick, onKeyDown } );
 		} );
 
 		return handlers;
-	}, [ steps, handleBarClick, handleBarKeyDown, showTooltip ] );
+	}, [ steps, handleStepInteraction, handleBarKeyDown ] );
 
 	// Handle document-level click to clear selection when clicking outside selected bar
 	useEffect( () => {

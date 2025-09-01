@@ -124,8 +124,8 @@ describe( 'ConversionFunnelChart', () => {
 			await user.keyboard( '{Enter}' );
 
 			// Check that component still works after keyboard interaction
-			// Keyboard navigation only handles selection, not tooltips
-			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 1 );
+			// Keyboard navigation now shows tooltip, so label appears twice
+			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
 		} );
 
 		it( 'handles keyboard navigation with Space key', async () => {
@@ -137,8 +137,8 @@ describe( 'ConversionFunnelChart', () => {
 			await user.keyboard( ' ' );
 
 			// Check that component still works after keyboard interaction
-			// Keyboard navigation only handles selection, not tooltips
-			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 1 );
+			// Keyboard navigation now shows tooltip, so label appears twice
+			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
 		} );
 
 		it( 'maintains component state after bar interactions', async () => {
@@ -213,7 +213,7 @@ describe( 'ConversionFunnelChart', () => {
 			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 1 );
 		} );
 
-		it( 'maintains selection when clicking within the selected bar', async () => {
+		it( 'toggles selection when clicking the same bar', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
@@ -224,12 +224,11 @@ describe( 'ConversionFunnelChart', () => {
 			// Verify the bar is selected (tooltip appears, so label appears twice)
 			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
 
-			// Click within the selected bar again (should maintain selection)
+			// Click the same bar again to deselect
 			await user.click( cartBar );
 
-			// Verify selection is maintained (tooltip still shows)
-			// Clicking the same bar again keeps the tooltip open
-			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
+			// Verify selection is cleared (tooltip disappears, so only one label remains)
+			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 1 );
 		} );
 	} );
 
