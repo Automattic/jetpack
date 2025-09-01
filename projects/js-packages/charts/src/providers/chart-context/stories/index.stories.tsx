@@ -8,44 +8,29 @@ import {
 	DataPointPercentage,
 	SeriesData,
 } from '../../../.';
+import { simpleChartDecorator, ChartStoryArgs } from '../../../stories/chart-decorator';
 import {
 	medalCountsData,
 	marketingChannelsByCountry,
 	globalMarketComparisonByCountry,
 	osUsageData,
 } from '../../../stories/sample-data';
-import { CHART_THEME_MAP } from '../../../stories/theme-config';
-import { GlobalChartsProvider } from '../global-charts-provider';
+import { themeArgTypes } from '../../../stories/theme-config';
 
-type StoryArgs = {
-	themeName?: string;
+type StoryArgs = ChartStoryArgs< {
 	showUnitedStates?: boolean;
 	showGreatBritain?: boolean;
 	showJapan?: boolean;
-};
+} >;
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Chart Context',
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		( Story, { args }: { args: StoryArgs } ) => {
-			const theme = CHART_THEME_MAP[ args.themeName || 'default' ];
-
-			return (
-				<GlobalChartsProvider theme={ theme }>
-					<Story />
-				</GlobalChartsProvider>
-			);
-		},
-	],
+	decorators: [ simpleChartDecorator ],
 	argTypes: {
-		themeName: {
-			control: { type: 'select' },
-			options: [ 'default', 'jetpack', 'woo', 'custom' ],
-			defaultValue: 'default',
-		},
+		...themeArgTypes,
 		showUnitedStates: {
 			control: { type: 'boolean' },
 			description: 'Show United States data in all charts',
