@@ -1026,7 +1026,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					// dynamic
 					'phoneNumber'         => '',
 					'phoneCountryCode'    => $default_country,
-					'countryList'         => array(),
 					'fullPhoneNumber'     => '',
 					'countryPrefix'       => '',
 					// combobox state
@@ -1083,22 +1082,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 							</div>
 						</div>
 					</div>
-					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
-					<select <?php echo $class; ?>
-						data-wp-bind--hidden="context.useCombobox"
-						data-wp-bind--disabled='state.isSubmitting'
-						data-wp-on--change="actions.onPhoneCountryChange"
-						data-wp-bind--value="context.phoneCountryCode"
-						data-wp-on--blur='actions.onFieldBlur'>
-						<template
-							data-wp-each--country="context.countryList"
-							data-wp-each-key="context.country.code">
-							<option
-								data-wp-bind--value="context.country.value"
-								data-wp-bind--selected="context.country.selected"
-								data-wp-text="context.country.label"></option>
-						</template>
-					</select>
 				</div>
 				<input
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- both are escaped in calling function ?>
