@@ -93,4 +93,18 @@ class Jetpack_Forms {
 		 */
 		return apply_filters( 'jetpack_forms_mailpoet_enable', true );
 	}
+
+	/**
+	 * Returns true if Integrations UI should be shown in the editor.
+	 *
+	 * @return boolean
+	 */
+	public static function should_show_integrations() {
+		/**
+		 * Show Integrations UI in the editor.
+		 *
+		 * @param bool true Whether to show the Integrations UI. Default true.
+		 */
+		return apply_filters( 'jetpack_forms_show_integrations', true );
+	}
 }

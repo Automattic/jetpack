@@ -1,6 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { useModuleStatus, hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -99,6 +98,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		formTitle,
 		variationName,
 	} = attributes;
+	const showFormIntegrations = hasFeatureFlag( 'forms_show_integrations' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	const steps = useFormSteps( clientId );
@@ -114,48 +114,42 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		block => block.name === 'jetpack/button'
 	);
 
-	const {
-		postTitle,
-		canUserInstallPlugins,
-		hasAnyInnerBlocks,
-		postAuthorEmail,
-		selectedBlockClientId,
-		onlySubmitBlock,
-	} = useSelect(
-		select => {
-			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
-				select( blockEditorStore );
-			const { getEditedPostAttribute } = select( editorStore );
-			const selectedBlockId = getSelectedBlockClientId();
-			const selectedBlock = getBlock( selectedBlockId );
-			let selectedStepBlockId = selectedBlockId;
+	const { postTitle, hasAnyInnerBlocks, postAuthorEmail, selectedBlockClientId, onlySubmitBlock } =
+		useSelect(
+			select => {
+				const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
+					select( blockEditorStore );
+				const { getEditedPostAttribute } = select( editorStore );
+				const selectedBlockId = getSelectedBlockClientId();
+				const selectedBlock = getBlock( selectedBlockId );
+				let selectedStepBlockId = selectedBlockId;
 
-			if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
-				selectedStepBlockId = getBlockParentsByBlockName(
-					selectedBlockId,
-					'jetpack/form-step'
-				)[ 0 ];
-			}
+				if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
+					selectedStepBlockId = getBlockParentsByBlockName(
+						selectedBlockId,
+						'jetpack/form-step'
+					)[ 0 ];
+				}
 
-			const { getUser, canUser } = select( coreStore );
-			const innerBlocksData = getBlocks( clientId );
+				const { getUser, canUser } = select( coreStore );
+				const innerBlocksData = getBlocks( clientId );
 
-			const title = getEditedPostAttribute( 'title' );
-			const authorId = getEditedPostAttribute( 'author' );
-			const authorEmail = authorId && getUser( authorId )?.email;
+				const title = getEditedPostAttribute( 'title' );
+				const authorId = getEditedPostAttribute( 'author' );
+				const authorEmail = authorId && getUser( authorId )?.email;
 
-			return {
-				postTitle: title,
-				canUserInstallPlugins: canUser( 'create', 'plugins' ),
-				hasAnyInnerBlocks: innerBlocksData.length > 0,
-				postAuthorEmail: authorEmail,
-				selectedBlockClientId: selectedStepBlockId,
-				onlySubmitBlock:
-					innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
-			};
-		},
-		[ clientId ]
-	);
+				return {
+					postTitle: title,
+					canUserInstallPlugins: canUser( 'create', 'plugins' ),
+					hasAnyInnerBlocks: innerBlocksData.length > 0,
+					postAuthorEmail: authorEmail,
+					selectedBlockClientId: selectedStepBlockId,
+					onlySubmitBlock:
+						innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
+				};
+			},
+			[ clientId ]
+		);
 
 	useEffect( () => {
 		if ( submitButton && ! submitButton.attributes.lock ) {
@@ -754,8 +748,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-
-					{ ! isSimpleSite() && canUserInstallPlugins && (
+					{ showFormIntegrations && (
 						<Suspense fallback={ <div /> }>
 							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
 						</Suspense>
