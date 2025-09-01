@@ -15,10 +15,17 @@
 		font: inherit;
 		line-height: inherit;
 		padding-block: 0;
+		padding-inline: 0;
 		gap: 0.5em;
+		color: inherit;
 
 		&:focus {
 			outline: 0;
+			text-decoration: none;
+		}
+
+		&:hover {
+			text-decoration: none;
 		}
 
 		.jetpack-combobox-trigger-arrow {
@@ -26,7 +33,7 @@
 			transition: transform 0.2s;
 
 			&.is-open {
-				transform: rotate(180deg);
+				transform: scaleY(-1);
 			}
 		}
 	}
