@@ -14,8 +14,7 @@ import { isSafari } from '../../../utils';
 import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,
 } from './line-chart-annotation-label-popover';
-import type { DataPointDate } from '../../../types';
-import type { AnnotationStyles } from '../types';
+import type { LineChartAnnotationProps } from '../types';
 import type { LabelProps } from '@visx/annotation/lib/components/Label';
 import type { TextProps } from '@visx/text';
 import type { FC } from 'react';
@@ -24,17 +23,6 @@ type SubjectType = 'circle' | 'line-vertical' | 'line-horizontal';
 
 const ANNOTATION_MAX_WIDTH = 125; // visx default
 const ANNOTATION_INIT_HEIGHT = 100;
-
-export type LineChartAnnotationProps = {
-	datum: DataPointDate;
-	title: string;
-	subtitle?: string;
-	subjectType?: SubjectType;
-	styles?: AnnotationStyles;
-	testId?: string;
-	renderLabel?: FC< { title: string; subtitle?: string } >;
-	renderLabelPopover?: FC< { title: string; subtitle?: string } >;
-};
 
 export const getLabelPosition = ( {
 	subjectType,

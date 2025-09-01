@@ -1,6 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
-import type { RenderLineStartGlyphProps } from '../../line-chart/line-chart';
+import type { RenderLineStartGlyphProps } from '../../line-chart';
 
 export const DefaultGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
