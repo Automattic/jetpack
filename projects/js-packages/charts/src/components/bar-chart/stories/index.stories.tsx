@@ -1,64 +1,33 @@
-import { GlobalChartsProvider } from '../../../providers/chart-context';
-import { defaultTheme } from '../../../providers/theme/themes';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+} from '../../../stories/chart-decorator';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { medalCountsData, largeValuesData, trafficData } from '../../../stories/sample-data';
+import { themeArgTypes } from '../../../stories/theme-config';
 import BarChart from '../bar-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof BarChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar Chart',
 	component: BarChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<GlobalChartsProvider theme={ defaultTheme }>
-				<div
-					style={ {
-						resize: 'both',
-						overflow: 'auto',
-						padding: '2rem',
-						width: '800px',
-						maxWidth: '1200px',
-						border: '1px dashed #ccc',
-						display: 'inline-block',
-					} }
-				>
-					<Story />
-				</div>
-			</GlobalChartsProvider>
-		),
-	],
+	decorators: [ chartDecorator ],
 	argTypes: {
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
+		...sharedChartArgTypes,
+		...themeArgTypes,
 		...legendArgTypes,
 	},
-} satisfies Meta< typeof BarChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
 
-type Story = StoryObj< typeof BarChart >;
+type Story = StoryObj< StoryArgs >;
 
 // Default story with multiple series
 export const Default: Story = {

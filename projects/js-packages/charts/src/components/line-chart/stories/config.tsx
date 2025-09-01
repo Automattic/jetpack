@@ -1,18 +1,20 @@
 import { GlyphDiamond, GlyphStar } from '@visx/glyph';
 import merge from 'deepmerge';
 import { createElement } from 'react';
-import { GlobalChartsProvider } from '../../../providers/chart-context/global-charts-provider';
 import { jetpackTheme } from '../../../providers/theme/themes';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+} from '../../../stories/chart-decorator';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { temperatureData as sampleData } from '../../../stories/sample-data';
-import { CHART_THEME_MAP, themeArgTypes } from '../../../stories/theme-config';
+import { themeArgTypes } from '../../../stories/theme-config';
 import { DefaultGlyph } from '../../private/default-glyph';
 import LineChart from '../line-chart';
 import type { Meta } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 /**
  * Custom storybook theme with glyphs
@@ -50,53 +52,11 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		( Story, { args }: { args: StoryArgs } ) => {
-			const theme = CHART_THEME_MAP[ args.themeName || 'default' ];
-
-			return (
-				<GlobalChartsProvider theme={ theme }>
-					<div
-						style={ {
-							resize: 'both',
-							overflow: 'auto',
-							padding: '2rem',
-							width: '800px',
-							maxWidth: '1200px',
-							border: '1px dashed #ccc',
-							display: 'inline-block',
-						} }
-					>
-						<Story />
-					</div>
-				</GlobalChartsProvider>
-			);
-		},
-	],
+	decorators: [ chartDecorator ],
 	argTypes: {
 		...legendArgTypes,
 		...themeArgTypes,
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
+		...sharedChartArgTypes,
 	},
 };
 
