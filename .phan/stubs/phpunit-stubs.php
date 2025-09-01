@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.5
+ * Stubs automatically generated from PHPUnit 12.3.6
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -28548,6 +28548,17 @@ final class RawCodeCoverageData
      * @param int[] $lines
      */
     public function removeCoverageDataForLines(string $filename, array $lines): void
+    {
+    }
+    /**
+     * At the end of a file, the PHP interpreter always sees an implicit return. Where this occurs in a file that has
+     * e.g. a class definition, that line cannot be invoked from a test and results in confusing coverage. This engine
+     * implementation detail therefore needs to be masked which is done here by simply ensuring that all empty lines
+     * are skipped over for coverage purposes.
+     *
+     * @see https://github.com/sebastianbergmann/php-code-coverage/issues/799
+     */
+    public function skipEmptyLines(): void
     {
     }
 }

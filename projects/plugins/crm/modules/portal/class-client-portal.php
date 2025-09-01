@@ -535,13 +535,12 @@ class Client_Portal {
 	}
 
 	/**
-	* Gets client portal endpoint name for a given object type.
-	* 
-	* @param   int $obj_type_id  object type ID
-	* 
-	* @return	str
-	* @return	bool false if endpoint is not supported
-	*/
+	 * Gets client portal endpoint name for a given object type.
+	 *
+	 * @param int $obj_type_id  object type ID.
+	 *
+	 * @return string|bool endpoint name or false if endpoint is not supported
+	 */
 	function get_endpoint( $obj_type_id ) {
 		return $this->router->get_endpoint( $obj_type_id );
 	}
@@ -556,13 +555,12 @@ class Client_Portal {
 	}
 
 	/**
-	* Gets current object ID based on portal page URL.
-	* 
-	* @param   int $obj_type_id  object type ID
-	* 
-	* @return	int
-	* @return	false if invalid object, bad permissions, or any other failure
-	*/
+	 * Gets current object ID based on portal page URL.
+	 *
+	 * @param int $obj_type_id  object type ID.
+	 *
+	 * @return int|false Object ID or false if invalid object, bad permissions, or any other failure
+	 */
 	function get_obj_id_from_current_portal_page_url( $obj_type_id ) {
 		return $this->router->get_obj_id_from_current_portal_page_url( $obj_type_id );
 	}	

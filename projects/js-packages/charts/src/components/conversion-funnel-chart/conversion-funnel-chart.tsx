@@ -2,10 +2,10 @@ import { localPoint } from '@visx/event';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
+import { useGlobalChartsTheme } from '../../providers/chart-context';
+import { hexToRgba } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
-import { useFunnelSelection } from './hooks/use-funnel-selection';
-import { hexToRgba } from './utils/color-utils';
+import { useFunnelSelection } from './private';
 
 /**
  * Represents a single step in the conversion funnel
@@ -124,7 +124,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	renderMainMetric,
 	renderTooltip,
 } ) => {
-	const theme = useGlobalChartTheme();
+	const theme = useGlobalChartsTheme();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 

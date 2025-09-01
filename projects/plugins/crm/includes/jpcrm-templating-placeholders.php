@@ -149,46 +149,46 @@ class jpcrm_templating_placeholders {
 
 				'biz-your-name' => array(
 
-					'description' => __( 'Business: Your Name', 'zero-bs-crm' ),
-					'origin' => __( 'Global', 'zero-bs-crm' ),
+					'description'     => __( 'Business: Your Name', 'zero-bs-crm' ),
+					'origin'          => __( 'Global', 'zero-bs-crm' ),
 					'expected_format' => 'str',
-					'available_in' => array(),
+					'available_in'    => array(),
 					'associated_type' => false,
-					'replace_str' => '##BIZ-YOUR-NAME##',
-					'aliases'			=> array( )
+					'replace_str'     => '##BIZ-YOUR-NAME##',
+					'aliases'         => array(),
 				),
 
 				'biz-your-email' => array(
 
-					'description' => __( 'Business: Your Email', 'zero-bs-crm' ),
-					'origin' => __( 'Global', 'zero-bs-crm' ),
+					'description'     => __( 'Business: Your Email', 'zero-bs-crm' ),
+					'origin'          => __( 'Global', 'zero-bs-crm' ),
 					'expected_format' => 'str',
-					'available_in' => array(),
+					'available_in'    => array(),
 					'associated_type' => false,
-					'replace_str' => '##BIZ-YOUR-EMAIL##',
-					'aliases'			=> array( )
+					'replace_str'     => '##BIZ-YOUR-EMAIL##',
+					'aliases'         => array(),
 				),
 
 				'biz-your-url' => array(
 
-					'description' => __( 'Business: Your URL', 'zero-bs-crm' ),
-					'origin' => __( 'Global', 'zero-bs-crm' ),
+					'description'     => __( 'Business: Your URL', 'zero-bs-crm' ),
+					'origin'          => __( 'Global', 'zero-bs-crm' ),
 					'expected_format' => 'str',
-					'available_in' => array(),
+					'available_in'    => array(),
 					'associated_type' => false,
-					'replace_str' => '##BIZ-YOUR-URL##',
-					'aliases'			=> array( )
+					'replace_str'     => '##BIZ-YOUR-URL##',
+					'aliases'         => array(),
 				),
 
 				'biz-extra'          => array(
 
-					'description' => __( 'Business: Extra Info', 'zero-bs-crm' ),
-					'origin' => __( 'Global', 'zero-bs-crm' ),
+					'description'     => __( 'Business: Extra Info', 'zero-bs-crm' ),
+					'origin'          => __( 'Global', 'zero-bs-crm' ),
 					'expected_format' => 'str',
-					'available_in' => array(),
+					'available_in'    => array(),
 					'associated_type' => false,
-					'replace_str' => '##BIZ-EXTRA-INFO##',
-					'aliases'			=> array( )
+					'replace_str'     => '##BIZ-EXTRA-INFO##',
+					'aliases'         => array(),
 				),
 
 				'social-links' => array(
@@ -1392,7 +1392,7 @@ class jpcrm_templating_placeholders {
 
 		// for MVP we let this get the whole lot then filter down, if this proves unperformant we could optimise here
 		// .. or cache.
-		$placeholders = $this->get_placeholders( );
+		$placeholders = $this->get_placeholders();
 
 		// cycle through all looking at the `available_in` attribute.
 		// alternatively if an object type is passed, it'll return all fields for that type

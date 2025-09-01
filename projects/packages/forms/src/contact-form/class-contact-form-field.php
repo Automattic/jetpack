@@ -11,6 +11,10 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class for the contact-field shortcode.
  * Parses shortcode to output the contact form field as HTML.
@@ -338,27 +342,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 				} else {
-					// Check that the selected options are valid
-					$options      = (array) $this->get_attribute( 'options' );
-					$options_data = (array) $this->get_attribute( 'optionsdata' );
 
+					$options_data    = (array) $this->get_attribute( 'optionsdata' );
+					$possible_values = array();
 					if ( ! empty( $options_data ) ) {
-						$options = array_map(
-							function ( $option ) {
-								return $this->sanitize_text_field( trim( $option['label'] ) );
-							},
-							$options_data
-						);
+						foreach ( $options_data as $option_index => $option ) {
+							$option_label = isset( $option['label'] ) ? Contact_Form_Plugin::strip_tags( $option['label'] ) : '';
+							if ( is_string( $option_label ) && '' !== $option_label ) {
+								$possible_values[] = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option_label );
+							}
+						}
 					} else {
-						$options = array_map( array( $this, 'sanitize_text_field' ), $options );
+						foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
+							$option = Contact_Form_Plugin::strip_tags( $option );
+							if ( is_string( $option ) && '' !== $option ) {
+								$possible_values[] = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option );
+							}
+						}
 					}
 
-					$non_empty_options = array_filter(
-						$options,
-						function ( $option ) {
-							return $option !== '';
-						}
-					);
+					$non_empty_options = array_map( array( $this, 'sanitize_text_field' ), $possible_values );
 
 					foreach ( $field_value  as $field_value_item ) {
 						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
@@ -1931,24 +1934,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 				// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
 				// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
-				$option_outer_classes = "jetpack-input-image-option__outer {$option['classcolor']}";
+				$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
 
 				if ( $is_supersized ) {
 					$option_outer_classes .= ' is-supersized';
 				}
 
 				$border_styles = '';
-				preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
-				preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
+				if ( ! empty( $option['style'] ) ) {
+					preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
+					preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
 
-				if ( ! empty( $radius_match[1] ) ) {
-					$radius_value = trim( $radius_match[1] );
+					if ( ! empty( $radius_match[1] ) ) {
+						$radius_value = trim( $radius_match[1] );
 
-					if ( ! empty( $width_match[1] ) ) {
-							$width_value   = trim( $width_match[1] );
-							$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
-					} else {
-							$border_styles = "border-radius:{$radius_value};";
+						if ( ! empty( $width_match[1] ) ) {
+								$width_value   = trim( $width_match[1] );
+								$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
+						} else {
+								$border_styles = "border-radius:{$radius_value};";
+						}
 					}
 				}
 
@@ -2683,7 +2688,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		ob_start();
 		?>
-		<div class="jetpack-field-slider__input-row"
+		<div class="jetpack-field-slider__input-row <?php echo esc_attr( $this->field_classes ); ?>"
 			data-wp-context='
 			<?php
 			echo wp_json_encode(
@@ -2725,7 +2730,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
 		<?php if ( '' !== $min_text_label || '' !== $max_text_label ) : ?>
-			<div class="jetpack-field-slider__text-labels" aria-hidden="true">
+			<div class="jetpack-field-slider__text-labels <?php echo esc_attr( $this->field_classes ); ?>" aria-hidden="true">
 				<span class="jetpack-field-slider__min-text-label"><?php echo esc_html( $min_text_label ); ?></span>
 				<span class="jetpack-field-slider__max-text-label"><?php echo esc_html( $max_text_label ); ?></span>
 			</div>

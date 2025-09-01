@@ -66,7 +66,7 @@ Example usage for deprecating a function:
  *
  * @return string
  */
-function example_function( ) {
+function example_function() {
  
     _deprecated_function( __FUNCTION__, '{plugin/package}-$$next-version$$' );
  

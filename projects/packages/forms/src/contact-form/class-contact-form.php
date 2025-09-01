@@ -17,6 +17,10 @@ use WP_Block;
 use WP_Error;
 use WP_Post;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class for the contact-form shortcode.
  * Parses shortcode to output the contact form as HTML
@@ -2095,22 +2099,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$accepts_json = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
 		if ( $this->is_response_without_reload_enabled && $accepts_json ) {
-			header( 'Content-Type: application/json' );
-
 			$data     = array();
 			$response = Feedback::get( $post_id );
 			if ( $response instanceof Feedback ) {
 				$data = $response->get_compiled_fields( 'ajax', 'label|value' );
 			}
-			echo wp_json_encode(
+			wp_send_json(
 				array(
 					'success'     => true,
 					'data'        => $data,
 					'refreshArgs' => $refresh_args,
 				)
 			);
-
-			exit( 0 );
 		}
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {

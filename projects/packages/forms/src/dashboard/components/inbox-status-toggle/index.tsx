@@ -29,12 +29,17 @@ function getTabLabel( label: string, count: number ): string {
 	return sprintf( __( '%1$s (%2$d)', 'jetpack-forms' ), label, count || 0 );
 }
 
+type InboxStatusToggleProps = {
+	onChange: ( status: string ) => void;
+};
+
 /**
  * Renders the status toggle for the inbox view.
  *
+ * @param {Function} onChange - The function to call when the status changes.
  * @return {JSX.Element} The status toggle component.
  */
-export default function InboxStatusToggle(): JSX.Element {
+export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -64,8 +69,10 @@ export default function InboxStatusToggle(): JSX.Element {
 
 				return params;
 			} );
+
+			onChange( newStatus );
 		},
-		[ setSearchParams, status, isSm ]
+		[ isSm, status, setSearchParams, onChange ]
 	);
 
 	return (

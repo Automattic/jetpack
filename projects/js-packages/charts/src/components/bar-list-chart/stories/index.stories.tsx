@@ -1,9 +1,10 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
+import { useGlobalChartsTheme } from '../../../providers/chart-context';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import {
-	marketingChannelsData as salesByChannel,
+	marketingChannelsComparison as salesByChannel,
 	salesByProduct,
 } from '../../../stories/sample-data';
 import BarListChart from '../bar-list-chart';
@@ -59,9 +60,13 @@ export const CustomLabelComponent: Story = {
 			xScale: {},
 			yScale: {},
 			labelComponent: ( { textProps, x, y, label, formatter } ) => {
+				// eslint-disable-next-line react-hooks/rules-of-hooks
+				const theme = useGlobalChartsTheme();
+				const circleColor = theme.colors[ 1 ]; // Use second theme color for contrast
+
 				return (
 					<>
-						<Circle cx={ x + 6 } cy={ y } r={ 8 } />
+						<Circle cx={ x + 6 } cy={ y } r={ 8 } fill={ circleColor } />
 						<Text { ...textProps } textAnchor="start" x={ x + 24 } y={ y } fontWeight={ 500 }>
 							{ formatter( label ) }
 						</Text>

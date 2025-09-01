@@ -1,9 +1,10 @@
-import { jetpackTheme, wooTheme } from '../../../providers/theme';
+import { jetpackTheme, wooTheme, ThemeProvider } from '../../../providers/theme';
 import { sharedDecorator } from '../../../stories/decorator-config';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { osUsageData as data } from '../../../stories/sample-data';
 import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
+import type { ChartTheme } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = React.ComponentProps< typeof PieChart > & {
@@ -11,6 +12,8 @@ type StoryArgs = React.ComponentProps< typeof PieChart > & {
 	resize?: string;
 	containerWidth?: string;
 	containerHeight?: string;
+	labelTextColor?: string;
+	labelBackgroundColor?: string;
 };
 
 const meta: Meta< StoryArgs > = {
@@ -94,6 +97,66 @@ const meta: Meta< StoryArgs > = {
 				max: 10000,
 			},
 		},
+		labelTextColor: {
+			control: { type: 'color' },
+			description: 'Color of the label text displayed on pie chart segments',
+		},
+		labelBackgroundColor: {
+			control: { type: 'color' },
+			description: 'Background color for labels displayed on pie chart segments',
+		},
+	},
+	render: ( { labelTextColor, labelBackgroundColor, theme, ...args } ) => {
+		// Create custom theme if label colors are provided
+		let customTheme: ChartTheme | undefined;
+		if ( labelTextColor || labelBackgroundColor ) {
+			let baseTheme: ChartTheme | undefined;
+
+			if ( typeof theme === 'object' ) {
+				baseTheme = theme as ChartTheme;
+			} else if ( theme === 'jetpack' ) {
+				baseTheme = jetpackTheme;
+			} else if ( theme === 'woo' ) {
+				baseTheme = wooTheme;
+			}
+
+			customTheme = {
+				...baseTheme,
+				labelTextColor: labelTextColor || baseTheme?.labelTextColor,
+				labelBackgroundColor: labelBackgroundColor || baseTheme?.labelBackgroundColor,
+			} as ChartTheme;
+		}
+
+		let ChartComponent;
+		if ( customTheme ) {
+			ChartComponent = (
+				<ThemeProvider theme={ customTheme }>
+					<PieChart { ...args } />
+				</ThemeProvider>
+			);
+		} else if ( typeof theme === 'object' ) {
+			ChartComponent = (
+				<ThemeProvider theme={ theme as ChartTheme }>
+					<PieChart { ...args } />
+				</ThemeProvider>
+			);
+		} else if ( theme === 'jetpack' ) {
+			ChartComponent = (
+				<ThemeProvider theme={ jetpackTheme }>
+					<PieChart { ...args } />
+				</ThemeProvider>
+			);
+		} else if ( theme === 'woo' ) {
+			ChartComponent = (
+				<ThemeProvider theme={ wooTheme }>
+					<PieChart { ...args } />
+				</ThemeProvider>
+			);
+		} else {
+			ChartComponent = <PieChart { ...args } />;
+		}
+
+		return ChartComponent;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -313,6 +376,54 @@ This pattern provides:
 - Type safety for different content types
 - Flexibility to extend the chart with custom elements
 - Backward compatibility with existing implementations`,
+			},
+		},
+	},
+};
+
+export const CustomLabelColors: Story = {
+	args: {
+		...Default.args,
+		thickness: 0.85, // Slightly thinner for better label visibility
+		data: [
+			{
+				label: 'Desktop',
+				value: 45000,
+				valueDisplay: '45K',
+				percentage: 45,
+				color: '#FF6B6B', // Light red segment
+			},
+			{
+				label: 'Mobile',
+				value: 35000,
+				valueDisplay: '35K',
+				percentage: 35,
+				color: '#4ECDC4', // Light teal segment
+			},
+			{
+				label: 'Tablet',
+				value: 20000,
+				valueDisplay: '20K',
+				percentage: 20,
+				color: '#45B7D1', // Light blue segment
+			},
+		],
+		labelTextColor: '#FFFFFF', // White text for contrast against dark background
+		labelBackgroundColor: 'rgba(0, 0, 0, 0.75)', // Dark semi-transparent background
+		size: 400,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `This example demonstrates how to enable label backgrounds for enhanced readability. By default, labels have no background (transparent) to preserve the original chart appearance, but you can add backgrounds when needed.
+
+**Key Features:**
+- **labelTextColor**: White text (\`#FFFFFF\`) for contrast against dark background
+- **labelBackgroundColor**: Dark semi-transparent background (\`rgba(0, 0, 0, 0.75)\`) - disabled by default
+- **Custom segment colors**: Bright colors that would make default dark text hard to read
+- **Opt-in enhancement**: Backgrounds only appear when explicitly set
+
+Use the Storybook controls to experiment with different combinations. Try setting labelBackgroundColor to \`transparent\` to see the default behavior.`,
 			},
 		},
 	},

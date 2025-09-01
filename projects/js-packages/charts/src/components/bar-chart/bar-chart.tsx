@@ -3,27 +3,29 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
+import {
+	useXYChartTheme,
+	useChartDataTransform,
+	useZeroValueDisplay,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	useGlobalChartsContext,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useChartDataTransform } from '../shared/use-chart-data-transform';
-import { useChartMargin } from '../shared/use-chart-margin';
-import { useElementHeight } from '../shared/use-element-height';
-import { useZeroValueDisplay } from '../shared/use-zero-value-display';
-import { withResponsive } from '../shared/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import { useBarChartOptions } from './use-bar-chart-options';
+import { useBarChartOptions } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, ComponentType } from 'react';
 
@@ -91,7 +93,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
-	const providerTheme = useGlobalChartTheme();
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -102,7 +103,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( dataSorted );
+	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -123,10 +124,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
+	const { resolveGroupColor } = useGlobalChartsContext();
+
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>
-			seriesData?.options?.stroke || providerTheme.colors[ index % providerTheme.colors.length ],
-		[ providerTheme ]
+			resolveGroupColor( {
+				group: seriesData.group,
+				index,
+				overrideColor: seriesData.options?.stroke,
+			} ),
+		[ resolveGroupColor ]
 	);
 
 	const getBarBackground = useCallback(
@@ -378,7 +385,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }

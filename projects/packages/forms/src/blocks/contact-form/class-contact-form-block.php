@@ -244,6 +244,27 @@ class Contact_Form_Block {
 			);
 
 			Blocks::jetpack_register_block(
+				'jetpack/input-range',
+				array(
+					'supports' => array(
+						'color'      => array(
+							'text'       => true,
+							'background' => false,
+						),
+						'typography' => array(
+							'fontSize'                     => true,
+							'__experimentalFontFamily'     => true,
+							'__experimentalFontWeight'     => true,
+							'__experimentalFontStyle'      => true,
+							'__experimentalTextTransform'  => true,
+							'__experimentalTextDecoration' => true,
+							'__experimentalLetterSpacing'  => true,
+						),
+					),
+				)
+			);
+
+			Blocks::jetpack_register_block(
 				'jetpack/phone-input',
 				array(
 					'supports'     => array(
