@@ -180,6 +180,14 @@ const { actions } = store( NAMESPACE, {
 				}, 0 );
 			}
 		},
+		phoneComboboxDocumentClickHandler( event ) {
+			const { ref } = getElement();
+			if ( ref.contains( event.target ) ) {
+				return;
+			}
+			const context = getContext();
+			context.comboboxOpen = false;
+		},
 	},
 	callbacks: {
 		initializePhoneField() {
@@ -194,7 +202,7 @@ const { actions } = store( NAMESPACE, {
 				'.jetpack-combobox-options'
 			);
 		},
-		initializeCustomComboBox() {
+		initializePhoneFieldCustomComboBox() {
 			const context = getContext();
 			if ( ! context.showCountrySelector ) {
 				return;
