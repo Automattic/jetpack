@@ -14,18 +14,26 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
  * Shared decorator for chart stories with GlobalChartsProvider and dynamic theme support
  * Provides a resizable container for testing responsive behavior
  * Composes with simpleChartDecorator to add container styling
+ * Supports configurable container dimensions via containerWidth/containerHeight args
  * @param Story   - The story component to render
  * @param context - The full story context object
  * @return The decorated story component wrapped in GlobalChartsProvider and container
  */
 export const chartDecorator: Decorator = ( Story, context ) => {
+	const args = context.args as ChartStoryArgs & {
+		containerWidth?: string;
+		containerHeight?: string;
+		resize?: 'none' | 'both' | 'horizontal' | 'vertical';
+	};
+
 	const StoryWithContainer = () => (
 		<div
 			style={ {
-				resize: 'both',
+				resize: args.resize || 'both',
 				overflow: 'auto',
-				padding: '2rem',
-				width: '800px',
+				padding: '1rem',
+				width: args.containerWidth || '800px',
+				height: args.containerHeight,
 				maxWidth: '1200px',
 				border: '1px dashed #ccc',
 				display: 'inline-block',
@@ -81,5 +89,18 @@ export const sharedChartArgTypes = {
 			min: 0,
 			max: 10000,
 		},
+	},
+	containerWidth: {
+		control: { type: 'text' },
+		description: 'CSS width value for the chart container (e.g., "400px", "100%")',
+	},
+	containerHeight: {
+		control: { type: 'text' },
+		description: 'CSS height value for the chart container (e.g., "400px", "100%")',
+	},
+	resize: {
+		control: { type: 'select' },
+		options: [ 'none', 'both', 'horizontal', 'vertical' ],
+		description: 'Resize behavior for the chart container',
 	},
 } as const;

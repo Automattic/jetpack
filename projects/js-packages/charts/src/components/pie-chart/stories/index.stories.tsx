@@ -1,19 +1,22 @@
-import { jetpackTheme, wooTheme, ThemeProvider } from '../../../providers/theme';
-import { sharedDecorator } from '../../../stories/decorator-config';
+import { ThemeProvider } from '../../../providers/theme';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+} from '../../../stories/chart-decorator';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { osUsageData as data } from '../../../stories/sample-data';
+import { themeArgTypes } from '../../../stories/theme-config';
 import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
-import type { ChartTheme } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof PieChart > & {
-	theme?: string | object;
-	resize?: string;
-	containerWidth?: string;
-	containerHeight?: string;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > & {
 	labelTextColor?: string;
 	labelBackgroundColor?: string;
+	containerWidth?: string;
+	containerHeight?: string;
+	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
 };
 
 const meta: Meta< StoryArgs > = {
@@ -22,8 +25,10 @@ const meta: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: sharedDecorator,
+	decorators: [ chartDecorator ],
 	argTypes: {
+		...sharedChartArgTypes,
+		...themeArgTypes,
 		...legendArgTypes,
 		size: {
 			control: {
@@ -66,37 +71,6 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
-		theme: {
-			control: { type: 'select' as const },
-			options: [ 'default', 'jetpack', 'woo' ],
-			mapping: {
-				default: undefined,
-				jetpack: jetpackTheme,
-				woo: wooTheme,
-			},
-			defaultValue: 'default',
-		},
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
 		labelTextColor: {
 			control: { type: 'color' },
 			description: 'Color of the label text displayed on pie chart segments',
@@ -106,59 +80,25 @@ const meta: Meta< StoryArgs > = {
 			description: 'Background color for labels displayed on pie chart segments',
 		},
 	},
-	render: ( { labelTextColor, labelBackgroundColor, theme, ...args } ) => {
-		// Create custom theme if label colors are provided
-		let customTheme: ChartTheme | undefined;
+	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
+		const ChartComponent = <PieChart { ...chartProps } />;
+
 		if ( labelTextColor || labelBackgroundColor ) {
-			let baseTheme: ChartTheme | undefined;
-
-			if ( typeof theme === 'object' ) {
-				baseTheme = theme as ChartTheme;
-			} else if ( theme === 'jetpack' ) {
-				baseTheme = jetpackTheme;
-			} else if ( theme === 'woo' ) {
-				baseTheme = wooTheme;
-			}
-
-			customTheme = {
-				...baseTheme,
-				labelTextColor: labelTextColor || baseTheme?.labelTextColor,
-				labelBackgroundColor: labelBackgroundColor || baseTheme?.labelBackgroundColor,
-			} as ChartTheme;
-		}
-
-		let ChartComponent;
-		if ( customTheme ) {
-			ChartComponent = (
-				<ThemeProvider theme={ customTheme }>
-					<PieChart { ...args } />
+			return (
+				<ThemeProvider
+					theme={ {
+						labelTextColor,
+						labelBackgroundColor,
+					} }
+				>
+					{ ChartComponent }
 				</ThemeProvider>
 			);
-		} else if ( typeof theme === 'object' ) {
-			ChartComponent = (
-				<ThemeProvider theme={ theme as ChartTheme }>
-					<PieChart { ...args } />
-				</ThemeProvider>
-			);
-		} else if ( theme === 'jetpack' ) {
-			ChartComponent = (
-				<ThemeProvider theme={ jetpackTheme }>
-					<PieChart { ...args } />
-				</ThemeProvider>
-			);
-		} else if ( theme === 'woo' ) {
-			ChartComponent = (
-				<ThemeProvider theme={ wooTheme }>
-					<PieChart { ...args } />
-				</ThemeProvider>
-			);
-		} else {
-			ChartComponent = <PieChart { ...args } />;
 		}
 
 		return ChartComponent;
 	},
-} satisfies Meta< StoryArgs >;
+};
 
 export default meta;
 type Story = StoryObj< StoryArgs >;
@@ -171,7 +111,6 @@ export const Default: Story = {
 		cornerScale: 0,
 		withTooltips: false,
 		data,
-		theme: 'default',
 		resize: 'none',
 		size: 400,
 		containerWidth: '432px',
@@ -285,7 +224,7 @@ export const CustomLegendPositioning: Story = {
 	},
 };
 
-const responsiveArgs = { ...Default.args, resize: 'both' };
+const responsiveArgs = { ...Default.args, resize: 'both' as const };
 delete responsiveArgs.size;
 export const Responsiveness: Story = {
 	args: responsiveArgs,
@@ -368,7 +307,7 @@ export const CompositionAPI: Story = {
 		docs: {
 			description: {
 				story: `Demonstrates the compound component pattern for PieChart composition.
-				
+
 Use \`<PieChart.SVG>\` to add custom SVG elements inside the chart area, and \`<PieChart.HTML>\` to add HTML elements outside the SVG.
 
 This pattern provides:
