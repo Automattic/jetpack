@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { useFunnelSelection } from '../hooks/use-funnel-selection';
+import { useFunnelSelection } from '../private/use-funnel-selection';
 
 describe( 'useFunnelSelection', () => {
 	describe( 'Initial State', () => {

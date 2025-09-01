@@ -9,7 +9,7 @@ import {
 } from '@wordpress/block-editor';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
@@ -28,7 +28,7 @@ export default function ImageOptionsFieldsetEdit( props ) {
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const { 'jetpack/field-image-select-is-multiple': isMultiple } = context || {};
 
-	const { addOption } = useAddImageOption( clientId );
+	const { addOption, newImageOption } = useAddImageOption( clientId );
 
 	const { isInnerBlockSelected } = useSelect(
 		select => {
@@ -64,6 +64,8 @@ export default function ImageOptionsFieldsetEdit( props ) {
 		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 3 ) } ],
 	];
 
+	const defaultBlock = useMemo( () => newImageOption(), [ newImageOption ] );
+
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-fieldset-image-options__wrapper' },
 		{
@@ -71,6 +73,8 @@ export default function ImageOptionsFieldsetEdit( props ) {
 			template,
 			templateLock: false, // Allow adding, removing, and moving options
 			orientation: 'horizontal',
+			defaultBlock,
+			directInsert: true,
 		}
 	);
 

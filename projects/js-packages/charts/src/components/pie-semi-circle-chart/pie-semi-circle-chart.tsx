@@ -5,31 +5,30 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
+import { useElementHeight } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	useGlobalChartsContext,
+	GlobalChartsContext,
 } from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
-import type { ChartComponentWithComposition } from '../shared/chart-composition';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import type { FC, MouseEvent, ReactNode } from 'react';
 
 const PAD_ANGLE = 0.03; // Padding between segments
 
-interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
+export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Width of the chart in pixels; height would be half of this value calculated automatically.
 	 */
@@ -71,7 +70,7 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 	PieSemiCircleChartBaseProps & ResponsiveConfig
 >;
 
-type ArcData = PieArcDatum< DataPointPercentage >;
+export type ArcData = PieArcDatum< DataPointPercentage >;
 
 /**
  * Validates the semi-circle pie chart data
@@ -115,7 +114,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	className,
 	children,
 } ) => {
-	const providerTheme = useGlobalChartTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -149,6 +147,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
 
+	const { resolveGroupColor } = useGlobalChartsContext();
+
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
@@ -157,18 +157,17 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				a: DataPointPercentage & { index: number },
 				b: DataPointPercentage & { index: number }
 			) => b.value - a.value,
-			// Use the color property from the data object as a last resort. The theme provides colours by default.
-			fill: ( d: DataPointPercentage & { index: number } ) =>
-				d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
+			fill: ( { group, index, color: overrideColor }: DataPointPercentage & { index: number } ) =>
+				resolveGroupColor( { group, index, overrideColor } ),
 		} ),
-		[ providerTheme.colors ]
+		[ resolveGroupColor ]
 	);
 
 	// Memoize legend options to prevent unnecessary re-calculations
 	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, legendOptions );
+	const legendItems = useChartLegendItems( data, legendOptions );
 
 	// Process children to extract compound components
 	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
@@ -316,7 +315,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }

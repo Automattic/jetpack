@@ -15,7 +15,7 @@ const name = 'field-image-select';
 
 const settings = {
 	...defaultSettings,
-	title: __( 'Image select field', 'jetpack-forms' ),
+	title: __( 'Image Select Field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Image', 'jetpack-forms' ),
 		__( 'Image select', 'jetpack-forms' ),

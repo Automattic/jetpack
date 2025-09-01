@@ -328,8 +328,8 @@
 		width: 100%;
 
 		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-			left: variables.$admin-sidebar-width;
-			width: calc(100% - variables.$admin-sidebar-width);
+			left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
+			width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
 		}
 	}
 }
@@ -342,13 +342,13 @@
 .auto-fold .jp-forms__inbox__dataviews .dataviews-footer {
 
 	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: variables.$admin-sidebar-width-collapsed;
-		width: calc(100% - variables.$admin-sidebar-width-collapsed);
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
 	}
 
 	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
-		left: variables.$admin-sidebar-width;
-		width: calc(100% - variables.$admin-sidebar-width);
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
 	}
 }
 
@@ -361,8 +361,8 @@
 	left: 0;
 
 	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: variables.$admin-sidebar-width-collapsed;
-		width: calc(100% - variables.$admin-sidebar-width-collapsed);
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
 	}
 }
 

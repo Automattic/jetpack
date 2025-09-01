@@ -34,16 +34,17 @@ class JPCRM_FeatureSniffer {
 	 * Checks if there is an unused CRM integration
 	 * with installed plugins
 	 *
-	 * @param str $args params passed to check, e.g.:
+	 * $args may look something like this:
 	 *  array(
 	 *    'feature_slug'    => 'feature_slug',
 	 *    'plugin_slug'     => 'plugin.php',
 	 *    'more_info_link'  => 'https://kb.jetpackcrm.com/some_link_to_docs'
 	 *  )
-	 * @param bool $is_silent determine whether to show notices to the end user or not
 	 *
-	 * @return    bool
+	 * @param array $args params passed to check, e.g.
+	 * @param bool  $is_silent determine whether to show notices to the end user or not.
 	 *
+	 * @return bool
 	 */
 	public function sniff_for_plugin( $args = array(), $is_silent = false ) {
 

@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 
 	/**

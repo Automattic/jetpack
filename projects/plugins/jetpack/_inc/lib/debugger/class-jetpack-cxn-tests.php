@@ -13,6 +13,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Health as Sync_Health;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
  */
