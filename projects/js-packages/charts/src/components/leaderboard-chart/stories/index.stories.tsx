@@ -1,4 +1,9 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+} from '../../../stories/chart-decorator';
 import {
 	trafficSourcesData as sampleData,
 	shortTrafficSourcesData as smallDataset,
@@ -6,11 +11,14 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 } from '../../../stories/sample-data';
+import { themeArgTypes } from '../../../stories/theme-config';
 import { formatMetricValue } from '../../../utils';
 import { LeaderboardChart } from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof LeaderboardChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Leaderboard Chart',
 	component: LeaderboardChart,
 	parameters: {
@@ -248,18 +256,14 @@ const trafficData = [
 				type: { summary: 'React.CSSProperties' },
 			},
 		},
+		...sharedChartArgTypes,
+		...themeArgTypes,
 	},
-	decorators: [
-		Story => (
-			<div style={ { width: '400px', padding: '20px' } }>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [ chartDecorator ],
 };
 
 export default meta;
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
@@ -506,11 +510,4 @@ export const OverlayLabelWithImage: Story = {
 			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
 	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ wooTheme }>
-				<Story />
-			</ThemeProvider>
-		),
-	],
 };
