@@ -120,13 +120,40 @@ const { actions } = store( NAMESPACE, {
 				context.comboboxOpen = false;
 			} else if ( event.key === 'Enter' ) {
 				event.preventDefault();
-				// Select the first filtered option if available
+				// Select either the currently selected country or the first filtered option if available
 				if ( event.target.value && context.filteredCountries.length > 0 ) {
-					context.selectedCountry = context.filteredCountries[ 0 ];
+					const selectedCountry =
+						context.filteredCountries.find( country => country.selected ) ||
+						context.filteredCountries[ 0 ];
+					context.selectedCountry = selectedCountry;
 					updateSelection( context.selectedCountry );
 					context.comboboxOpen = false;
 					// Focus on the ref input
 					phoneInputRefs[ context.fieldId ]?.focus?.();
+				}
+			} else if ( event.key === 'ArrowDown' ) {
+				event.preventDefault();
+				if ( event.target.value && context.filteredCountries.length > 0 ) {
+					// Find index of currently selected country in filtered list
+					const selectedIndex = context.filteredCountries.findIndex( country => country.selected );
+
+					// If there's a next country in filtered list, select it, otherwise wrap to first
+					const nextIndex =
+						selectedIndex === context.filteredCountries.length - 1 ? 0 : selectedIndex + 1;
+					context.selectedCountry = context.filteredCountries[ nextIndex ];
+					updateSelection( context.selectedCountry );
+				}
+			} else if ( event.key === 'ArrowUp' ) {
+				event.preventDefault();
+				if ( event.target.value && context.filteredCountries.length > 0 ) {
+					// Find index of currently selected country in filtered list
+					const selectedIndex = context.filteredCountries.findIndex( country => country.selected );
+
+					// If there's a previous country in filtered list, select it, otherwise wrap to last
+					const prevIndex =
+						selectedIndex <= 0 ? context.filteredCountries.length - 1 : selectedIndex - 1;
+					context.selectedCountry = context.filteredCountries[ prevIndex ];
+					updateSelection( context.selectedCountry );
 				}
 			}
 		} ),
