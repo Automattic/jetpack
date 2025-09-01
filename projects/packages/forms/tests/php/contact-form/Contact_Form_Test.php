@@ -1703,9 +1703,9 @@ class Contact_Form_Test extends BaseTestCase {
 		// Get label.
 		$label = $this->getFirstElement( $wrapper_div, 'label' );
 
-		// Inputs.
-		$visible_input = $this->getFirstElement( $wrapper_div, 'input', 0 );
-		$input         = $this->getFirstElement( $wrapper_div, 'input', 1 );
+		// Inputs. (0 is the comboxbox search input, 1 is the visible input and 2 is the hidden, actual, input)
+		$visible_input = $this->getFirstElement( $wrapper_div, 'input', 1 );
+		$input         = $this->getFirstElement( $wrapper_div, 'input', 2 );
 
 		// Label matches for matches input ID.
 		$this->assertEquals(
