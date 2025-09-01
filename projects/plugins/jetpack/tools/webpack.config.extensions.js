@@ -56,6 +56,15 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 	return viewBlocks;
 }, {} );
 
+// Helps split up each block into its own folder admin script
+const adminBlocksScripts = presetBetaBlocks.reduce( ( adminBlocks, block ) => {
+	const adminScriptPath = path.join( __dirname, '../extensions/blocks', block, 'admin.js' );
+	if ( fs.existsSync( adminScriptPath ) ) {
+		adminBlocks[ block + '/admin' ] = adminScriptPath;
+	}
+	return adminBlocks;
+}, {} );
+
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
@@ -205,6 +214,7 @@ module.exports = [
 			'editor-beta': editorBetaScript,
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
+			...adminBlocksScripts,
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
