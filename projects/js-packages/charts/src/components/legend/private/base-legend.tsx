@@ -4,8 +4,8 @@ import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
 import { forwardRef, useCallback, useMemo, useContext } from 'react';
 import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers/chart-context';
-import styles from '../legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
+import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
 
 const orientationToFlexDirection = {
