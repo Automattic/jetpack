@@ -1047,7 +1047,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 			?>
 			>
-				<div class="jetpack-field__input-prefix" data-wp-bind--hidden="!context.showCountrySelector" data-wp-init="callbacks.initializeCustomComboBox">
+				<div class="jetpack-field__input-prefix"
+					data-wp-bind--hidden="!context.showCountrySelector"
+					data-wp-init="callbacks.initializePhoneFieldCustomComboBox"
+					data-wp-on-document--click="actions.phoneComboboxDocumentClickHandler">
 					<div class="jetpack-custom-combobox">
 						<button 
 							class="jetpack-combobox-trigger"
