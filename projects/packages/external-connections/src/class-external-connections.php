@@ -27,11 +27,12 @@ class External_Connections {
 	 * Each service has the following keys:
 	 * - service: The service identifier.
 	 * - title: The title of the service.
-	 * - signup_link: The URL to the service's signup page.'
+	 * - signup_link: The URL to the service's signup page.
 	 * - description: The description of the service.
 	 * - support_link: An array with the following keys:
 	 *     - jetpack: The URL handler registered in jetpack.com/redirect/.
 	 *     - wpcom: The URL of the support page for the service on WordPress.com.
+	 * - script: An optional script handle to enqueue.
 	 *
 	 * @example
 	 * ```php
@@ -265,6 +266,14 @@ class External_Connections {
 					'supportLink'  => $support_link,
 					'signupLink'   => $service['signup_link'] ?? '',
 				);
+
+				if ( isset( $service['script'] ) ) {
+					Assets::enqueue_script( $service['script'] );
+				}
+
+				if ( isset( $service['script_data'] ) && is_callable( $service['script_data'] ) ) {
+					$script_data[ $service['service'] ] = array_merge( $script_data[ $service['service'] ], call_user_func( $service['script_data'] ) );
+				}
 			}
 
 			wp_add_inline_script(
