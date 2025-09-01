@@ -26,7 +26,6 @@ export const customTheme: ChartTheme = {
 
 /**
  * Centralized theme map for all chart stories
- * Note: glyph theme is added dynamically by line chart stories
  */
 export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 	default: defaultTheme,
