@@ -627,16 +627,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return array
 	 */
 	private function get_all_site_mcp_abilities(): array {
-		$all_abilities         = array();
-		$ability_registry_file = WP_CONTENT_DIR . '/mu-plugins/wpcom-mcp/includes/AbilitiesRegistry/Registry/AbilityRegistry.php';
-		if ( file_exists( $ability_registry_file ) ) {
-			require_once $ability_registry_file;
-			$abilities_resources = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_resources_for_server( 'site-level' );
-			$abilities_tools     = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_tools_for_server( 'site-level' );
-			$abilities_prompts   = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_prompts_for_server( 'site-level' );
-			$all_abilities       = array_merge( $abilities_resources, $abilities_tools, $abilities_prompts );
-		}
-		return apply_filters( 'jetpack_site_mcp_abilities', $all_abilities );
+		return apply_filters( 'jetpack_site_mcp_abilities', array() );
 	}
 
 	/**
@@ -647,13 +638,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return array
 	 */
 	private function get_mcp_abilities_metadata( string $ability_name ): array {
-		$ability_meta          = array();
-		$ability_registry_file = WP_CONTENT_DIR . '/mu-plugins/wpcom-mcp/includes/AbilitiesRegistry/Registry/AbilityRegistry.php';
-		if ( file_exists( $ability_registry_file ) ) {
-			require_once $ability_registry_file;
-			$ability_meta = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_metadata( $ability_name );
-		}
-		return apply_filters( 'jetpack_site_mcp_ability_meta', $ability_meta, $ability_name );
+		return apply_filters( 'jetpack_site_mcp_ability_meta', array(), $ability_name );
 	}
 
 	/**
