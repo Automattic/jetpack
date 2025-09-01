@@ -7,7 +7,6 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Redirect;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -95,13 +94,7 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 				403
 			);
 		}
-		$connect_url = Redirect::get_url(
-			'calypso-marketing-connections',
-			array(
-				'site'  => rawurlencode( $site_id ),
-				'query' => 'mailchimp',
-			)
-		);
+		$connect_url = '/wp-admin/options-writing.php';
 		return array(
 			'code'        => $this->is_connected() ? 'connected' : 'not_connected',
 			'connect_url' => $connect_url,
