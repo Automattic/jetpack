@@ -36,7 +36,8 @@
 		top: 100%;
 		left: 0;
 		right: 0;
-		background: #fff;
+
+		background-color: var(--jetpack--contact-form--input-background-fallback, #fff);
 		border: 1px solid #ddd;
 		border-top: none;
 		border-radius: 0 0 4px 4px;
@@ -59,7 +60,8 @@
 			font-size: 14px;
 			position: sticky;
 			top: 0;
-			background: #fff;
+			color: inherit;
+			background-color: inherit;
 			z-index: 1;
 
 			&:focus {
