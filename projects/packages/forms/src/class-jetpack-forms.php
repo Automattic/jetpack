@@ -99,12 +99,12 @@ class Jetpack_Forms {
 	 *
 	 * @return boolean
 	 */
-	public static function enable_integrations() {
+	public static function is_integrations_enabled() {
 		/**
 		 * Whether to enable the Integrations UI.
 		 *
 		 * @param bool true Whether to enable the Integrations UI. Default true.
 		 */
-		return apply_filters( 'jetpack_forms_enable_integrations', true );
+		return apply_filters( 'jetpack_forms_is_integrations_enabled', true );
 	}
 }

@@ -98,7 +98,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		formTitle,
 		variationName,
 	} = attributes;
-	const showFormIntegrations = hasFeatureFlag( 'forms_enable_integrations' );
+	const showFormIntegrations = hasFeatureFlag( 'forms_integrations_enabled' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	const steps = useFormSteps( clientId );
