@@ -60,7 +60,7 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 					<div className="jetpack-field__input-prefix">
 						<select
 							className="jetpack-field__input-element"
-							defaultValue={ defaultPrefix }
+							value={ defaultPrefix }
 							onChange={ onChangeDefaultPrefix }
 						>
 							{ prefixOptions.map( ( { label, value } ) => (
