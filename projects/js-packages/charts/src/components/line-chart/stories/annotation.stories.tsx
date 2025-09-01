@@ -1,7 +1,7 @@
 import { temperatureData as sampleData } from '../../../stories/sample-data';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
-import type { LineChartAnnotationProps } from '../private/line-chart-annotation';
+import type { LineChartAnnotationProps } from '../types';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 type StoryArgs = React.ComponentProps< typeof LineChart > & {
