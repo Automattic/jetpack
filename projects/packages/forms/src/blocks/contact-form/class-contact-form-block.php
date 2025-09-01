@@ -67,7 +67,7 @@ class Contact_Form_Block {
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 
 		// Whether to show integrations in the editor UI.
-		$features['forms_show_integrations'] = Jetpack_Forms::is_integrations_enabled();
+		$features['forms_enable_integrations'] = Jetpack_Forms::enable_integrations();
 
 		return $features;
 	}

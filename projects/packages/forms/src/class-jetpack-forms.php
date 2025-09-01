@@ -95,16 +95,16 @@ class Jetpack_Forms {
 	}
 
 	/**
-	 * Returns true if the Integrations UI is enabled in the editor.
+	 * Returns true if the Integrations UI should be enabled.
 	 *
 	 * @return boolean
 	 */
-	public static function is_integrations_enabled() {
+	public static function enable_integrations() {
 		/**
-		 * Whether to enable the Integrations UI in the editor.
+		 * Whether to enable the Integrations UI.
 		 *
 		 * @param bool true Whether to enable the Integrations UI. Default true.
 		 */
-		return apply_filters( 'jetpack_forms_is_integrations_enabled', true );
+		return apply_filters( 'jetpack_forms_enable_integrations', true );
 	}
 }
