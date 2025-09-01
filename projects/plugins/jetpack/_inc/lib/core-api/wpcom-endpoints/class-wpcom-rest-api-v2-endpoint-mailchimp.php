@@ -150,7 +150,7 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 	/**
 	 * Get the Mailchimp connection settings.
 	 *
-	 * @return array|WP_Error
+	 * @return mixed
 	 */
 	public function get_mailchimp_settings() {
 		$site_id = Connection_Manager::get_site_id();
