@@ -10,11 +10,7 @@ import { Text } from '../../../visx/text';
 import { PieChart } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > & {
-	containerWidth?: string;
-	containerHeight?: string;
-	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
 
 const data = [
 	{

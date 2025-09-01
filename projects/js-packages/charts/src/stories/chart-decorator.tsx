@@ -8,6 +8,9 @@ import type { Decorator } from '@storybook/react';
  */
 export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 	themeName?: string;
+	containerWidth?: string;
+	containerHeight?: string;
+	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
 };
 
 /**
@@ -20,11 +23,7 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
  * @return The decorated story component wrapped in GlobalChartsProvider and container
  */
 export const chartDecorator: Decorator = ( Story, context ) => {
-	const args = context.args as ChartStoryArgs & {
-		containerWidth?: string;
-		containerHeight?: string;
-		resize?: 'none' | 'both' | 'horizontal' | 'vertical';
-	};
+	const args = context.args as ChartStoryArgs;
 
 	const StoryWithContainer = () => (
 		<div

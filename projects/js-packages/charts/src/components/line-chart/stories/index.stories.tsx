@@ -1,3 +1,4 @@
+import { ChartStoryArgs } from '../../../stories/chart-decorator';
 import {
 	temperatureData as sampleData,
 	largeValuesData,
@@ -7,9 +8,7 @@ import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,

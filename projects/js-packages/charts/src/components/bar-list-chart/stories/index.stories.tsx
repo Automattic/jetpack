@@ -39,8 +39,8 @@ export const Default: Story = {
 	args: {
 		withTooltips: true,
 		data: salesByProduct,
-		width: 600,
-		height: 332,
+		containerWidth: '600px',
+		containerHeight: '332px',
 	},
 };
 

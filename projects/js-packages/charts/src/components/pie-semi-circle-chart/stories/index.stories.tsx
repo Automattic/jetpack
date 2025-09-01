@@ -11,11 +11,7 @@ import { themeArgTypes } from '../../../stories/theme-config';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > > & {
-	containerWidth?: string;
-	containerHeight?: string;
-	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > >;
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',

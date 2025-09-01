@@ -14,9 +14,6 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > & {
 	labelTextColor?: string;
 	labelBackgroundColor?: string;
-	containerWidth?: string;
-	containerHeight?: string;
-	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
 };
 
 const meta: Meta< StoryArgs > = {
