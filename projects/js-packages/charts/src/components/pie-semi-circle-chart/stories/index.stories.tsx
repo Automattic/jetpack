@@ -1,16 +1,17 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { sharedDecorator } from '../../../stories/decorator-config';
-import { legendArgTypes } from '../../../stories/legend-config';
-import { partialOsUsageData as data } from '../../../stories/sample-data';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	legendArgTypes,
+	partialOsUsageData as data,
+	themeArgTypes,
+} from '../../../stories';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof PieSemiCircleChart > & {
-	containerWidth?: string;
-	containerHeight?: string;
-	resize?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > >;
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
@@ -18,8 +19,11 @@ const meta: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: sharedDecorator,
+	decorators: [ chartDecorator ],
 	argTypes: {
+		...sharedChartArgTypes,
+		...themeArgTypes,
+		...legendArgTypes,
 		width: {
 			control: {
 				type: 'range',
@@ -36,28 +40,6 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
-		...legendArgTypes,
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -192,7 +174,7 @@ export const CustomLegendPositioning: Story = {
 	},
 };
 
-const responsiveArgs = { ...Default.args, resize: 'both' };
+const responsiveArgs = { ...Default.args, resize: 'both' as const };
 delete responsiveArgs.width;
 export const Responsiveness: Story = {
 	args: responsiveArgs,
@@ -401,7 +383,7 @@ The \`PieSemiCircleChart\` now supports a comprehensive composition API that all
       <Text x={0} y={-50} textAnchor="middle">Custom SVG Text</Text>
     </Group>
   </PieSemiCircleChart.SVG>
-  
+
   <PieSemiCircleChart.HTML>
     <div style={{ textAlign: 'center', marginTop: '1rem' }}>
       <PieSemiCircleChart.Legend orientation="horizontal" />

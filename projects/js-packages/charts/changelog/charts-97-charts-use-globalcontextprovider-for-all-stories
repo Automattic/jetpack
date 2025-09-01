@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: Use a global context provider for theme configuration in all stories
