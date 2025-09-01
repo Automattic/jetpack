@@ -24,19 +24,10 @@
 		.jetpack-combobox-trigger-arrow {
 			font-size: 10px;
 			transition: transform 0.2s;
-			color: #666;
 
 			&.is-open {
 				transform: rotate(180deg);
 			}
-		}
-
-		.jetpack-combobox-selected {
-			// flex: 1;
-			// text-align: left;
-			// overflow: hidden;
-			// text-overflow: ellipsis;
-			// white-space: nowrap;
 		}
 	}
 
