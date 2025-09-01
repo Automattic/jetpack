@@ -90,3 +90,15 @@ export const formatMetricValue = (
 		}
 	}
 };
+
+/**
+ * Format a percentage value with smart decimal handling.
+ * Removes unnecessary trailing zeros and caps at 2 decimal places.
+ *
+ * @param value - The percentage value (0-100 range)
+ * @return Formatted percentage string (e.g., "30%", "30.1%", "30.25%")
+ */
+export const formatPercentage = ( value: number ): string => {
+	// Round to max 2 decimal places, then remove trailing zeros
+	return `${ parseFloat( value.toFixed( 2 ) ) }%`;
+};
