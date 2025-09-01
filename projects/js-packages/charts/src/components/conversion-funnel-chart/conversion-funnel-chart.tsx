@@ -3,7 +3,8 @@ import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useGlobalChartsTheme } from '../../providers/chart-context';
 import { hexToRgba } from '../../utils';
-import { useFunnelSelection, styles } from './private';
+import styles from './conversion-funnel-chart.module.scss';
+import { useFunnelSelection } from './private';
 
 /**
  * Represents a single step in the conversion funnel

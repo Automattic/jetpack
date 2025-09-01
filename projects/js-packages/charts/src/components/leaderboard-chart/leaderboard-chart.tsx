@@ -9,7 +9,7 @@ import clsx from 'clsx';
 import { type FC } from 'react';
 import { useGlobalChartsTheme } from '../../providers/chart-context';
 import { formatMetricValue } from '../../utils';
-import styles from './private/leaderboard-chart.module.scss';
+import styles from './leaderboard-chart.module.scss';
 
 /**
  * Default settings for LeaderboardChart component

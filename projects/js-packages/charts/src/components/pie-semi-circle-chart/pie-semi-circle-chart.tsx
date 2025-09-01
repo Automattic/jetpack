@@ -19,7 +19,7 @@ import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composit
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
-import { styles } from './private';
+import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';

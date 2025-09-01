@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import Gridicon from 'gridicons';
 import { useEffect, useId, useRef, useState } from 'react';
 import { isSafari } from '../../../utils';
-import styles from './line-chart.module.scss';
+import styles from '../line-chart.module.scss';
 import type { ButtonWithPopover, PopoverElement, ToggleEvent } from '../../../types';
 import type { FC } from 'react';
 
