@@ -3,15 +3,13 @@ import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
-} from '../../../stories/chart-decorator';
-import {
 	trafficSourcesData as sampleData,
 	shortTrafficSourcesData as smallDataset,
 	revenueMetricsData as largeValues,
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
-} from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+	themeArgTypes,
+} from '../../../stories';
 import { formatMetricValue } from '../../../utils';
 import { LeaderboardChart } from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';

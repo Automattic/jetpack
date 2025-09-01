@@ -4,10 +4,10 @@ import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
-} from '../../../stories/chart-decorator';
-import { legendArgTypes } from '../../../stories/legend-config';
-import { partialOsUsageData as data } from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+	legendArgTypes,
+	partialOsUsageData as data,
+	themeArgTypes,
+} from '../../../stories';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 

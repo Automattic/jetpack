@@ -1,4 +1,4 @@
-import { ChartStoryArgs } from '../../../stories/chart-decorator';
+import { ChartStoryArgs } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';

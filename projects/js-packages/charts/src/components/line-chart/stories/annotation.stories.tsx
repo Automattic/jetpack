@@ -1,5 +1,4 @@
-import { ChartStoryArgs } from '../../../stories/chart-decorator';
-import { temperatureData as sampleData } from '../../../stories/sample-data';
+import { ChartStoryArgs, temperatureData as sampleData } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { LineChartAnnotationProps } from '../types';

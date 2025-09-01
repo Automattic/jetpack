@@ -2,9 +2,9 @@ import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
-} from '../../../stories/chart-decorator';
-import { legendArgTypes } from '../../../stories/legend-config';
-import { themeArgTypes } from '../../../stories/theme-config';
+	legendArgTypes,
+	themeArgTypes,
+} from '../../../stories';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
 import { PieChart } from '../../pie-chart';

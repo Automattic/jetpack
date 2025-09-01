@@ -1,9 +1,9 @@
-import { ChartStoryArgs } from '../../../stories/chart-decorator';
 import {
+	ChartStoryArgs,
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
-} from '../../../stories/sample-data';
+} from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';

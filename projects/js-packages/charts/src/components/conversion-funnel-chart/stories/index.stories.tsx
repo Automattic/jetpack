@@ -2,13 +2,11 @@ import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
-} from '../../../stories/chart-decorator';
-import {
 	ecommerceFunnelData,
 	lowConversionFunnelData,
 	highConversionFunnelData,
-} from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+	themeArgTypes,
+} from '../../../stories';
 import { ConversionFunnelChart } from '../conversion-funnel-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 

@@ -2,10 +2,12 @@ import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
-} from '../../../stories/chart-decorator';
-import { legendArgTypes } from '../../../stories/legend-config';
-import { medalCountsData, largeValuesData, trafficData } from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+	legendArgTypes,
+	medalCountsData,
+	largeValuesData,
+	trafficData,
+	themeArgTypes,
+} from '../../../stories';
 import BarChart from '../bar-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 

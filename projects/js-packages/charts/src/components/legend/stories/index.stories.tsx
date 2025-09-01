@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { simpleChartDecorator, ChartStoryArgs } from '../../../stories/chart-decorator';
-import { themeArgTypes } from '../../../stories/theme-config';
+import { simpleChartDecorator, ChartStoryArgs, themeArgTypes } from '../../../stories';
 import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
 import { PieChart } from '../../pie-chart';

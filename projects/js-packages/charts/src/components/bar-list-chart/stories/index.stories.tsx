@@ -6,12 +6,10 @@ import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
-} from '../../../stories/chart-decorator';
-import {
 	marketingChannelsComparison as salesByChannel,
 	salesByProduct,
-} from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+	themeArgTypes,
+} from '../../../stories';
 import BarListChart from '../bar-list-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
