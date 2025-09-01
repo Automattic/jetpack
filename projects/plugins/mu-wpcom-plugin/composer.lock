@@ -1156,7 +1156,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "ceb77b1c05b16c7e2e37dde2a5946c1c878770aa"
+                "reference": "1fd6fcfaf89e737fef7b78f8b0d68c0590c960e7"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
