@@ -480,7 +480,7 @@ export const CustomRenderProps: Story = {
 	decorators: [ Story => <Story /> ],
 };
 
-export const FunnelOnly: Story = {
+export const WithoutTooltips: Story = {
 	args: {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
@@ -492,7 +492,7 @@ export const FunnelOnly: Story = {
 		docs: {
 			description: {
 				story:
-					'Shows just the funnel visualization by disabling the main metric display and tooltips through null return values from render props.',
+					'Demonstrates disabling the main metric display and tooltips by returning null from renderMainMetric and renderTooltip render props.',
 			},
 		},
 	},
