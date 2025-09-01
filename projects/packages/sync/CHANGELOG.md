@@ -5,10 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.21.0] - 2025-09-01
+### Changed
+- Add product sync checksum support and include trash/auto-draft post statuses in queries. [#44951]
+- Sync: Ensure proper data type before setting plugin action links in callables. [#44975]
+
+### Fixed
+- Fix WooCommerce product sync to handle trashed products. [#44993]
+
 ## [4.20.0] - 2025-08-25
 ### Changed
-- Enhance WooCommerce Products Sync to include post-related fields [#44810]
-- Sync: Themes module, added default value when updating sidebar widgets [#44878]
+- Enhance WooCommerce Products Sync to include post-related fields. [#44810]
+- Sync: Add default value when updating sidebar widgets via Themes module. [#44878]
 
 ## [4.19.0] - 2025-08-18
 ### Added
@@ -1532,6 +1540,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.21.0]: https://github.com/Automattic/jetpack-sync/compare/v4.20.0...v4.21.0
 [4.20.0]: https://github.com/Automattic/jetpack-sync/compare/v4.19.0...v4.20.0
 [4.19.0]: https://github.com/Automattic/jetpack-sync/compare/v4.18.2...v4.19.0
 [4.18.2]: https://github.com/Automattic/jetpack-sync/compare/v4.18.1...v4.18.2

@@ -3365,7 +3365,7 @@ class Contact_Form_Plugin {
 	 * This method is hooked to 'current_screen' and checks if the current screen
 	 * is 'edit-feedback'. If so, it redirects the user to admin.php?page=jetpack-forms-admin.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.0.0
 	 */
 	public function redirect_edit_feedback_to_jetpack_forms() {
 		// Only proceed if we have a valid screen object

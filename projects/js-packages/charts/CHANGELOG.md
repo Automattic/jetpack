@@ -7,33 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.31.0] - 2025-09-01
 ### Added
-- Charts: adds an agents.md file to project root [#44954]
-- Charts: Refactor shared components, hooks and utils [#44971]
-- Charts: Stable colors for series groups [#44730]
-- Refactor Pie Chart to improve readability. [#44989]
+- Add an agents.md file to project root. [#44954]
+- Ensure stable colors for series groups. [#44730]
+- Pie Chart: Refactor to improve readability. [#44989]
 
 ### Changed
-- Enhanced ConversionFunnelChart with render props and TooltipInPortal [#45019]
+- Enhance ConversionFunnelChart with render props and TooltipInPortal. [#45019]
+- Refactor shared components, hooks and utils. [#44971]
 
 ### Fixed
-- Charts: fix label background colour and text colour [#44990]
-- Refactored leaderboard chart to remove progressbar. [#44982]
+- Fix label background and text color. [#44990]
+- Refactor leaderboard chart to remove progress bar. [#44982]
 
 ## [0.30.0] - 2025-08-27
 ### Added
 - Export ConversionFunnelChart for usage outside. [#44952]
 
 ### Changed
-- Consolidate sample data across Storybook stories for consistency and maintainability [#44903]
+- Storybook: Consolidate sample data across stories for consistency and maintainability. [#44903]
 
 ## [0.29.0] - 2025-08-25
 ### Changed
-- Charts: Consolidate and clean up pie chart composition API. [#44856]
+- Consolidate and clean up pie chart composition API. [#44856]
 
 ## [0.28.0] - 2025-08-21
 ### Added
-- Charts: Add composition legend to pie family charts. [#44796]
-- Charts: Add theme to global context and use instead of that from theme provider [#44809]
+- Add composition legend to pie family charts. [#44796]
+- Add theme to global context and use instead of that from theme provider. [#44809]
 
 ## [0.27.0] - 2025-08-18
 ### Added
@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Line Chart: Add comparison style to theme. [#44676]
 
 ### Changed
-- Updated legend positioning and alignment. [#44747]
+- Update legend positioning and alignment. [#44747]
 - Update package dependencies. [#44701]
 
 ## [0.25.0] - 2025-08-11

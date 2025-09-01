@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Sync: Ensure plugins is array before setting plugin action links in callables

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.8] - 2025-08-18
 ### Added
-- Add type-check script to ensure that the TypeScript files are type-checked. [#44795]
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
 
 ## [0.3.7] - 2025-08-14
 ### Changed
