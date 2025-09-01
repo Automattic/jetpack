@@ -5,13 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.3] - 2025-09-01
+### Changed
+- Update dependencies. [#44736]
+
 ## [0.32.2] - 2025-08-25
 ### Changed
 - Update package dependencies. [#44899]
 
 ## [0.32.1] - 2025-08-18
 ### Added
-- Add type-check placeholder script (to be implemented). [#44795]
+- Add `typecheck` placeholder script (to be implemented). [#44795]
 
 ## [0.32.0] - 2025-08-14
 ### Changed
@@ -1728,6 +1732,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.32.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.2...v0.32.3
 [0.32.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.31.2...v0.32.0
