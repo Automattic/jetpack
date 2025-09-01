@@ -5,7 +5,13 @@ import {
 	BlockContextProvider,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import {
+	PanelBody,
+	ToggleControl,
+	ToolbarButton,
+	ToolbarGroup,
+	SelectControl,
+} from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
@@ -55,6 +61,13 @@ export default function PhoneFieldEdit( props ) {
 
 	const countryPairs = useMemo( () => {
 		return countries.map( country => ( {
+			label: country.label,
+			value: country.code,
+		} ) );
+	}, [] );
+
+	const countryPairsWithNames = useMemo( () => {
+		return countries.map( country => ( {
 			label: country.country + ' ' + country.label,
 			value: country.code,
 		} ) );
@@ -99,7 +112,8 @@ export default function PhoneFieldEdit( props ) {
 	// Handler is provided as context from edit as index.js can't pass it as a prop.
 	const onChangeDefaultCountry = useCallback(
 		event => {
-			const value = event.target.value;
+			// if event is an array, we're using the select control
+			const value = Array.isArray( event ) ? event[ 0 ] : event.target.value;
 			setAttributes( { default: value } );
 		},
 		[ setAttributes ]
@@ -135,6 +149,17 @@ export default function PhoneFieldEdit( props ) {
 						onChange={ onChangeShowCountrySelector }
 						__nextHasNoMarginBottom={ true }
 					/>
+					{ showCountrySelector && (
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Default country', 'jetpack-forms' ) }
+							multiple
+							onChange={ onChangeDefaultCountry }
+							options={ countryPairsWithNames }
+							value={ [ defaultCountry ] }
+						/>
+					) }
 				</PanelBody>
 			</InspectorControls>
 
