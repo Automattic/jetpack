@@ -27,20 +27,15 @@ import { withResponsive } from '../private/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay } from './private';
-import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type { CurveType, RenderLineStartGlyphProps, LineChartProps, TooltipDatum } from './types';
+import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, Ref, SVGProps } from 'react';
 
-export type CurveType = 'smooth' | 'linear' | 'monotone';
-
 const X_TICK_WIDTH = 100;
-
-export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
-	glyphStyle?: SVGProps< SVGCircleElement >;
-};
 
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
@@ -114,27 +109,6 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 		default:
 			return curveLinear;
 	}
-};
-
-export interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	withGradientFill: boolean;
-	smoothing?: boolean;
-	curveType?: CurveType;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
-	withStartGlyphs?: boolean;
-	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphStyle?: SVGProps< SVGCircleElement >;
-	withLegendGlyph?: boolean;
-	withTooltipCrosshairs?: {
-		showVertical?: boolean;
-		showHorizontal?: boolean;
-	};
-	children?: ReactNode;
-}
-
-export type TooltipDatum = {
-	key: string;
-	value: number;
 };
 
 const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
