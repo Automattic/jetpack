@@ -5,7 +5,6 @@ module.exports = {
 	roots: [ '<rootDir>/_inc/client/' ],
 	testMatch: [ '<rootDir>/_inc/client/test/main.js', '<rootDir>/_inc/client/**/test/component.js' ],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
-	transformIgnorePatterns: [ '/node_modules/(?!(.pnpm|@automattic|uplot)/)' ],
 	coverageDirectory: baseConfig.coverageDirectory + '/gui',
 	collectCoverageFrom: [
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',

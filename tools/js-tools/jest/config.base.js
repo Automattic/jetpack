@@ -26,6 +26,7 @@ module.exports = {
 			},
 		],
 	},
+	transformIgnorePatterns: [ '/node_modules/(?!.*uplot.*\\.css)' ],
 	testMatch: [
 		// Note: Keep the patterns here in sync with ./config.coverage.js and tools/js-tools/eslintrc/base.mjs.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
