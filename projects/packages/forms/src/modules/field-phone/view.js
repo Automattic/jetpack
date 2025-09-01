@@ -68,40 +68,6 @@ const { actions } = store( NAMESPACE, {
 			context.phoneCountryCode = context.defaultCountry;
 			context.phoneNumber = '';
 		},
-		onPhoneNumberChange( event ) {
-			const context = getContext();
-			const fieldId = context.fieldId;
-			const value = event.target.value;
-			if ( ! context.showCountrySelector ) {
-				context.phoneNumber = context.fullPhoneNumber = value;
-				return;
-			}
-			const groomedValue = value.indexOf( '00' ) === 0 ? '+' + value.slice( 2 ) : value;
-
-			asYouTypes[ fieldId ].reset();
-			asYouTypes[ fieldId ].input( groomedValue );
-			if ( asYouTypes[ fieldId ].getCountry() ) {
-				context.phoneCountryCode = asYouTypes[ fieldId ].getCountry();
-				context.phoneNumber = asYouTypes[ fieldId ].getNationalNumber();
-				asYouTypes[ fieldId ] = new AsYouType( context.phoneCountryCode );
-				context.countryPrefix = countries.find(
-					item => item.code === context.phoneCountryCode
-				)?.value;
-			} else {
-				context.phoneNumber = value;
-			}
-			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
-			actions.updateField( fieldId, value );
-		},
-		onPhoneCountryChange( event ) {
-			const context = getContext();
-			context.phoneCountryCode = event?.target?.value || context.defaultCountry;
-			context.countryPrefix = countries.find(
-				item => item.code === context.phoneCountryCode
-			)?.value;
-			asYouTypes[ context.fieldId ] = new AsYouType( context.phoneCountryCode );
-			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
-		},
 		phoneNumberInputHandler( event ) {
 			const context = getContext();
 			const fieldId = context.fieldId;
