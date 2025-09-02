@@ -946,7 +946,7 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 
 	// Map subscription block attributes to button block attributes
 	$button_attributes = array(
-		'text'                  => $parsed_block['attrs']['submitButtonText'] ?? __( 'Subscribe', 'jetpack' ),
+		'text'                  => ! empty( $parsed_block['attrs']['submitButtonText'] ) ? sanitize_text_field( $parsed_block['attrs']['submitButtonText'] ) : __( 'Subscribe', 'jetpack' ),
 		'url'                   => get_post_permalink(),
 		'element'               => 'a',
 		// Map background colors
