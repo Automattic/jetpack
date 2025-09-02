@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use DOMDocument;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -433,16 +434,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						}
 					);
 
-					// For single selection (radio), check if the value is in the options
+					// For single selection (radio), check if the selected value is in the options
 					if ( ! $this->get_attribute( 'ismultiple' ) ) {
-						if ( ! in_array( $field_value, $non_empty_options, true ) ) {
+						// Decode the JSON response to get the selected value
+						$decoded_value  = json_decode( $field_value, true );
+						$selected_value = $decoded_value['selected'] ?? '';
+
+						if ( ! in_array( $selected_value, $non_empty_options, true ) ) {
 							/* translators: %s is the name of a form field */
 							$this->add_error( sprintf( __( '%s requires a valid selection.', 'jetpack-forms' ), $field_label ) );
 						}
 					} else {
 						// For multiple selection (checkbox), check each selected value
 						foreach ( $field_value as $field_value_item ) {
-							if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
+							// Decode the JSON response to get the selected value
+							$decoded_item   = json_decode( $field_value_item, true );
+							$selected_value = $decoded_item['selected'] ?? '';
+
+							if ( ! in_array( $selected_value, $non_empty_options, true ) ) {
 								/* translators: %s is the name of a form field */
 								$this->add_error( sprintf( __( '%s requires valid selections.', 'jetpack-forms' ), $field_label ) );
 								break;
@@ -1931,10 +1940,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		if ( ! empty( $options_data ) ) {
 			// Create a separate array of original letters in sequence (A, B, C...)
-			$original_letters = array();
+			$perceived_letters = array();
 
 			foreach ( $options_data as $option ) {
-				$original_letters[] = Contact_Form_Plugin::strip_tags( $option['letter'] );
+				$perceived_letters[] = Contact_Form_Plugin::strip_tags( $option['letter'] );
 			}
 
 			// Create a working copy of options for potential randomization
@@ -1946,11 +1955,39 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 
 			foreach ( $working_options as $option_index => $option ) {
-				$option_label                = Contact_Form_Plugin::strip_tags( $option['label'] );
-				$option_letter               = Contact_Form_Plugin::strip_tags( $option['letter'] );
-				$option_value                = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option_letter );
-				$image_block                 = $option['image'];
-				$option_id                   = $id . '-' . sanitize_html_class( $option_value );
+				$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
+				$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
+				$image_block   = $option['image'];
+
+				// Extract image src from rendered block
+				$rendered_block = render_block( $image_block );
+				$image_src      = '';
+
+				if ( ! empty( $rendered_block ) ) {
+					// Use DOMDocument to parse the HTML and extract src reliably
+					$dom = new DOMDocument();
+					libxml_use_internal_errors( true ); // Suppress HTML parsing warnings
+					$dom->loadHTML( '<?xml encoding="utf-8" ?>' . $rendered_block );
+					libxml_clear_errors();
+
+					$images = $dom->getElementsByTagName( 'img' );
+
+					if ( $images->length > 0 ) {
+						$image_src = $images->item( 0 )->getAttribute( 'src' );
+					}
+				}
+
+				$option_value                = wp_json_encode(
+					array(
+						'perceived' => $perceived_letters[ $option_index ],
+						'selected'  => $option_letter,
+						'image'     => array(
+							'id'  => $image_block['attrs']['id'],
+							'src' => $image_src,
+						),
+					)
+				);
+				$option_id                   = $id . '-' . $option_letter;
 				$used_html_ids[ $option_id ] = true;
 
 				// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
@@ -2002,11 +2039,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. ( $required ? "required aria-required='true'" : '' )
 				. '/> ';
 
-				$field .= render_block( $image_block );
+				$field .= $rendered_block;
 				$field .= '</div>';
 
 				$field .= "<div class='jetpack-input-image-option__label-wrapper'>";
-				$field .= "<div class='jetpack-input-image-option__label-code'>" . esc_html( $original_letters[ $option_index ] ) . '</div>';
+				$field .= "<div class='jetpack-input-image-option__label-code'>" . esc_html( $perceived_letters[ $option_index ] ) . '</div>';
 
 				$label_classes  = 'jetpack-input-image-option__label';
 				$label_classes .= $show_labels ? '' : ' visually-hidden';
