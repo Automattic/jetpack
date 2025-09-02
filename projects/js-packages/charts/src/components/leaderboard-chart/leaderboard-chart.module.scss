@@ -11,6 +11,7 @@
 	align-items: center;
 	grid-template-columns: 1fr;
 	row-gap: 6px;
+	isolation: isolate;
 
 	&.is-overlay {
 		grid-template: "overlap" 1fr / 1fr; /* contains a single cell callded 'overlap' */
