@@ -76,6 +76,10 @@ const meta: Meta< StoryArgs > = {
 			control: { type: 'color' },
 			description: 'Background color for labels displayed on pie chart segments',
 		},
+		showLabels: {
+			control: 'boolean',
+			description: 'Show or hide labels on pie segments',
+		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
 		const ChartComponent = <PieChart { ...chartProps } />;
