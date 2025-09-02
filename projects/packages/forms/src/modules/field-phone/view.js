@@ -110,9 +110,7 @@ const { actions } = store( NAMESPACE, {
 					country.code.toLowerCase().includes( searchTerm ) ||
 					country.value.includes( searchTerm )
 			);
-			optionsListRefs[ context.fieldId ]
-				.querySelector( '.jetpack-combobox-option-selected' )
-				?.scrollIntoView?.( { block: 'nearest', container: 'nearest', behavior: 'instant' } );
+			optionsListRefs[ context.fieldId ].scrollTo?.( { top: 0, behavior: 'instant' } );
 		},
 		phoneComboboxKeydownHandler: withSyncEvent( event => {
 			const context = getContext();
