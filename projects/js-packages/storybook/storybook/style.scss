@@ -8,3 +8,7 @@
 @import "@wordpress/block-library/build-style/theme.css";
 @import "@wordpress/block-library/build-style/editor.css";
 @import "@wordpress/format-library/build-style/style.css";
+
+#storybook-root {
+	background: #fff;
+}
