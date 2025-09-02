@@ -32,6 +32,6 @@ class Observer_Settings extends Async_Option_Template {
 	}
 
 	public function parse( $value ) {
-		return json_decode( $value, ARRAY_A );
+		return json_decode( $value, true );
 	}
 }

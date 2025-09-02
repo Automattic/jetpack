@@ -347,7 +347,7 @@ class Status_Test extends TestCase {
 			sprintf(
 				'Expected %1$s to return %2$s for is_local_site()',
 				$site_url,
-				$expected_response
+				$expected_response ? 'true' : 'false'
 			)
 		);
 	}
