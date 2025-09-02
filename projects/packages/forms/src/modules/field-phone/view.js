@@ -119,7 +119,7 @@ const { actions } = store( NAMESPACE, {
 			} else if ( event.key === 'Enter' ) {
 				event.preventDefault();
 				// Select either the currently selected country or the first filtered option if available
-				if ( event.target.value && context.filteredCountries.length > 0 ) {
+				if ( context.filteredCountries.length > 0 ) {
 					const selectedCountry =
 						context.filteredCountries.find( country => country.selected ) ||
 						context.filteredCountries[ 0 ];
@@ -131,7 +131,7 @@ const { actions } = store( NAMESPACE, {
 				}
 			} else if ( event.key === 'ArrowDown' ) {
 				event.preventDefault();
-				if ( event.target.value && context.filteredCountries.length > 0 ) {
+				if ( context.filteredCountries.length > 0 ) {
 					// Find index of currently selected country in filtered list
 					const selectedIndex = context.filteredCountries.findIndex( country => country.selected );
 
@@ -143,7 +143,7 @@ const { actions } = store( NAMESPACE, {
 				}
 			} else if ( event.key === 'ArrowUp' ) {
 				event.preventDefault();
-				if ( event.target.value && context.filteredCountries.length > 0 ) {
+				if ( context.filteredCountries.length > 0 ) {
 					// Find index of currently selected country in filtered list
 					const selectedIndex = context.filteredCountries.findIndex( country => country.selected );
 
