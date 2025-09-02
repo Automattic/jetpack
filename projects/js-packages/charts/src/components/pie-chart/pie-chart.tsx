@@ -55,6 +55,11 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	cornerScale?: number;
 
 	/**
+	 * Whether to show labels on pie segments. Defaults to true.
+	 */
+	showLabels?: boolean;
+
+	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
@@ -116,6 +121,7 @@ const PieChartInternal = ( {
 	padding = 20,
 	gapScale = 0,
 	cornerScale = 0,
+	showLabels = true,
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useGlobalChartsTheme();
@@ -256,7 +262,7 @@ const PieChartInternal = ( {
 									return (
 										<g key={ `arc-${ index }` }>
 											<path { ...pathProps } />
-											{ hasSpaceForLabel && (
+											{ showLabels && hasSpaceForLabel && (
 												<g>
 													{ providerTheme.labelBackgroundColor && (
 														<rect
