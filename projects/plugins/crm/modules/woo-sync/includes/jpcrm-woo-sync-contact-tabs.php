@@ -26,7 +26,7 @@ class Woo_Sync_Contact_Tabs {
      * Note: This will effectively fire after core settings and modules loaded
      * ... effectively on tail end of `init`
      */
-    public function __construct( ) {
+	public function __construct() {
 
         // Initialise Hooks
         $this->init_hooks();
@@ -56,7 +56,7 @@ class Woo_Sync_Contact_Tabs {
     /**
      * Initialise Hooks
      */
-    private function init_hooks( ){
+	private function init_hooks() {
 
         // add in tabs
         add_filter( 'jetpack-crm-contact-vital-tabs', array( $this, 'append_info_tabs' ) , 10, 2 );

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.10] - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## [0.33.9] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## [0.33.8] - 2025-08-18
+### Changed
+- Update dependencies. [#44615]
+
+## [0.33.7] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.33.6] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [0.33.5] - 2025-08-04
+### Changed
+- Update dependencies. [#44551]
+
 ## [0.33.4] - 2025-07-28
 ### Fixed
 - Block Editor: Fix Jetpack AI upgrade links. [#44405]
@@ -671,6 +698,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.33.10]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.9...v0.33.10
+[0.33.9]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.8...v0.33.9
+[0.33.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.7...v0.33.8
+[0.33.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.6...v0.33.7
+[0.33.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.5...v0.33.6
+[0.33.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.4...v0.33.5
 [0.33.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.3...v0.33.4
 [0.33.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.2...v0.33.3
 [0.33.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.1...v0.33.2

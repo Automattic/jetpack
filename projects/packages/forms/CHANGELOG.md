@@ -5,6 +5,162 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2025-09-01
+### Added
+- Add default values when border radius style is missing. [#44978]
+- Add input styles to image select field. [#45009]
+- Add slider field typography controls. [#44967]
+- Add styles for image select field on front end. [#44923]
+
+### Changed
+- Consolidate slider front end and editor styles. [#44947]
+- Deprecate legacy feedback page and add redirect to new `jetpack-forms-admin` dashboard. [#44961]
+- Improve checkbox validation for older checkboxes. [#44931]
+- Improve slider range touch area. [#44985]
+- Improve the showing of the error div to display correctly across themes. [#44939]
+- Manage Google Drive connection in dashboard. [#44956]
+- Send JSON with built-in WordPress functions. [#45002]
+
+### Fixed
+- Ensure slider default obeys step. [#44919]
+- Fix dataview footer width and reset page on status change. [#45021]
+- Fix default styles for image select field. [#44969]
+- Fix fatal when checking for classic forms dashboard. [#44935]
+- Fix file field test. [#44959]
+- Fix form response line breaks. [#44966]
+- Fix Google export on Simple sites. [#44960]
+- Fix range slider mobile input. [#45010]
+- Fix slider theme CSS conflicts. [#45024]
+- Fix text wrapping in the slider tooltip. [#44988]
+
+## [5.5.0] - 2025-08-25
+### Added
+- Add optional country selector to Phone field. [#44635]
+- Add phone number validation on international phone number input. [#44854]
+- Add slider min/max labels. [#44834]
+- Preserve HTML IDs when processing feedback. [#44760]
+- Remove MailPoet integration feature flag. [#44831]
+- Show trash action alongside view action in list. [#44882]
+
+### Changed
+- Adjust slider field controls. [#44875]
+- Allow new fields in step container. [#44864]
+- Create form when inserting standalone slider field. [#44840]
+- Create new field below when pressing enter on Slider or Rating fields. [#44781]
+- Integrations: Adjust UI for opt-in toggle controls. [#44817]
+- Let MailPoet handle old/new form data. [#44930]
+- Remove call to unused font. [#44815]
+- Rename 'Stars Rating' to 'Stars rating field'. [#44880]
+- Reorganise shared lists of allowed inner blocks - core blocks. [#44879]
+- Update MailPoet to use Feedback class. [#44852]
+- Update slider default and step controls. [#44803]
+- Use the new Feedback class to save the feedback entries in a new format. [#44821]
+- Form step navigation button: Prevent wrapping of inner text. [#44926]
+- Update specificity and CSS on the site editor to match the frontend for forms. [#44802]
+- Update package dependencies. [#44899]
+
+### Fixed
+- Fix a case where fatal error might occur after form submission. [#44908]
+- Fix MailPoet markup console error. [#44916]
+- Fix null handling in `wp_style_engine_get_styles` to prevent PHP warnings. [#44827]
+- Fix radio button validation. [#44836]
+- Fix ratings field in small screens. [#44884]
+- Fix undefined array key "blockName" warning in contact form pre-render hook. [#44833]
+- Slider: Prevent JavaScript warning. [#44837]
+- Phone field: Fix styling inconsistencies. [#44850]
+
+## [5.4.0] - 2025-08-18
+### Added
+- Add slider field increment option. [#44782]
+- Add "dots" style variant to form progress indicator block. [#44582]
+
+### Changed
+- Add styling and settings to "Image Select" field under feature flag. [#44786]
+- Update method used to check for a valid MailPoet connection. [#44784]
+- Improve the selected checkbox style. [#44743]
+
+### Fixed
+- Fix phone validation in responses. [#44806]
+- Silence PHP warnings with more careful calls on expected values. [#44805]
+
+## [5.3.0] - 2025-08-14
+### Added
+- Add several methods to the Feedback method. [#44713] [#44759] [#44768]
+- MailPoet: Implement email consent. [#44744] [#44780]
+- Slider: Make min/max editable. [#44715]
+
+### Changed
+- Defer loading JavaScript for more responsive page loading. [#44752]
+- Enable SCSS processing for field assets. [#44763]
+- Extract visually-hidden styles to shared SCSS partial for better code reuse. [#44769]
+- Increase default consent field size. [#44690]
+- Move CSS to SCSS files. [#44777]
+- Slider: Add visually hidden labels for inputs. [#44779]
+- Slider: Update `is-selected` styling. [#44783]
+- Slider: Visual update to min/max/default value inputs. [#44778]
+- Update package dependencies. [#44701]
+- Update rating field implementation with improved styling and visual feedback. [#44757]
+
+### Fixed
+- Add radio input field backend validation. [#44739]
+- Fix animated form style in Safari. [#44689]
+- Fix minor CSS glitches in the ratings field. [#44738]
+- Fix validation of jetpack multi-checkboxes [#44722]
+- Use the new Feedback `get_all_legacy_values` method in `parse_fields_from_content`. [#44761]
+
+## [5.2.0] - 2025-08-11
+### Added
+- Add initial image select field under feature flag. [#44675]
+- Add Time field. [#44272]
+
+### Changed
+- Add Typescript support to all webpack files. [#44617]
+- Introduce toolbar option to add image choice on image select field. [#44718]
+- Revert back to the variation picker if the form only has the submit button. [#42479]
+- Update rating field max field visually. [#44592]
+- Update package dependencies. [#44677] [#44703]
+
+### Fixed
+- Disallow connecting MailPoet without key. [#44687]
+- Do not show dropzone in the block picker. [#44695]
+- Do not append form HTML ID on post-submission link. [#44683]
+- Fix default checkboxes styles, and allow for "browser" styles as a choice. [#44408]
+- Fix heart/star icons showing as filled instead of outlined in Twenty Sixteen theme. [#44672]
+- Fix MailPoet icon border radius. [#44688]
+- Fix ordering of fields on submit when JavaScript is disabled. [#44644]
+- Fix rating field causing unsaved post state by replacing useEffect pattern with BlockContextProvider. [#44672]
+- I18n: Improve context hints in comments for translators. [#44686]
+- Prevent PHP errors when directly accessing various files. [#44646]
+- Upgrade checkbox only on first try on Simple sites. [#44711]
+- Validate form on submission. [#44562]
+
+## [5.1.0] - 2025-08-04
+### Added
+- Add MailPoet/lists endpoint. [#44516]
+- Add slider field block. [#44150]
+
+### Changed
+- Fix how form id is calculated. [#44501]
+- Ratings field: Fix translation issues. [#44593]
+- Submit forms without page reload. [#44422]
+- Update @wordpress/dataviews to 5.0.0. [#44376]
+- Update how the success messages to use the new Feedback class. [#44489]
+- Update internal_personal_data_exporter to use new Feedback class. [#44488]
+- Update to shorter way to get view.js path. [#44542]
+- Use the new Feedback Class in feedback endpoint response. [#44485]
+- Use the new Feedback Class when downloading a CSV file. [#44487]
+
+### Fixed
+- Add safeguards when getting post properties during AJAX calls. [#44533]
+- Do not send AJAX submission if form has custom redirect. [#44557]
+- Fix flaky CSV export test. [#44552]
+- Fix label encoding issues, and handle empty and duplicate label names. [#44599]
+- Fix PHP warning in forms admin class. [#44534]
+- Fix PHP warnings in Contact_Form_Plugin class. [#44528]
+- Handle placeholder for textareas in the editor the same way input tags do. [#44596]
+- Remove a PHP notice when non-string is passed in. [#44523]
+- Trim the value before validating if empty form. [#44579]
+
 ## [5.0.0] - 2025-07-28
 ### Added
 - Add error message on network request failure for AJAX submission. [#44386]
@@ -1351,6 +1507,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.0.0]: https://github.com/automattic/jetpack-forms/compare/v5.5.0...v6.0.0
+[5.5.0]: https://github.com/automattic/jetpack-forms/compare/v5.4.0...v5.5.0
+[5.4.0]: https://github.com/automattic/jetpack-forms/compare/v5.3.0...v5.4.0
+[5.3.0]: https://github.com/automattic/jetpack-forms/compare/v5.2.0...v5.3.0
+[5.2.0]: https://github.com/automattic/jetpack-forms/compare/v5.1.0...v5.2.0
+[5.1.0]: https://github.com/automattic/jetpack-forms/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/automattic/jetpack-forms/compare/v4.0.1...v5.0.0
 [4.0.1]: https://github.com/automattic/jetpack-forms/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/automattic/jetpack-forms/compare/v3.1.0...v4.0.0

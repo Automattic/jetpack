@@ -54,6 +54,9 @@ class Image_CDN_Core {
 	 * @return string The raw final URL. You should run this through esc_url() before displaying it.
 	 */
 	public static function cdn_url( $image_url, $args = array(), $scheme = null ) {
+		if ( ! is_string( $image_url ) || empty( $image_url ) ) {
+			return '';
+		}
 		$image_url = trim( $image_url );
 
 		if ( ! defined( 'IS_WPCOM' ) || ! \IS_WPCOM ) {
@@ -386,6 +389,7 @@ class Image_CDN_Core {
 			'/^(commons|upload)\.wikimedia\.org$/',
 			'/\.wikipedia\.org$/',
 			'/^m\.media-amazon\.com$/',
+			'/^covers\.openlibrary\.org$/',
 		);
 
 		$host = wp_parse_url( $image_url, PHP_URL_HOST );

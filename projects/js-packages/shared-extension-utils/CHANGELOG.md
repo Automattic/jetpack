@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.14] - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## [1.3.13] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## [1.3.12] - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## [1.3.11] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.3.10] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## [1.3.9] - 2025-08-04
+### Changed
+- Internal updates.
+
 ## [1.3.8] - 2025-07-30
 ### Changed
 - Update dependencies. [#43796]
@@ -735,6 +759,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[1.3.14]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.13...1.3.14
+[1.3.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.12...1.3.13
+[1.3.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.11...1.3.12
+[1.3.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.10...1.3.11
+[1.3.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.9...1.3.10
+[1.3.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.8...1.3.9
 [1.3.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.7...1.3.8
 [1.3.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.6...1.3.7
 [1.3.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.5...1.3.6

@@ -44,6 +44,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 	const settings = {
 		name: formatName,
 		interactive: false,
+		object: false,
 
 		edit: () => {},
 		...configSettings,

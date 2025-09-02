@@ -1,10 +1,9 @@
-<?php
-/*!
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+/**
  * Jetpack CRM
  * https://jetpackcrm.com
  *
  * WooSync: Admin: Connections page AJAX
- *
  */
 
 // block direct access
@@ -12,8 +11,10 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Language labels for JS
+ *
+ * @param array $language_array Array of language labels.
  */
-function jpcrm_woosync_connections_js_language_labels( $language_array = array() ){
+function jpcrm_woosync_connections_js_language_labels( $language_array = array() ) {
 
 	// add our labels
 
@@ -30,24 +31,24 @@ function jpcrm_woosync_connections_js_language_labels( $language_array = array()
 	$language_array['connect-woo-ajax-error']            = __( 'AJAX Error', 'zero-bs-crm' );
 
 	return $language_array;
-
 }
 add_filter( 'zbs_globaljs_lang', 'jpcrm_woosync_connections_js_language_labels' );
 
-
 /**
  * JS Vars (get added to jpcrm_root var stack)
+ *
+ * @param array $var_array Array of JS variables.
  */
-function jpcrm_woosync_connections_js_vars( $var_array = array() ){
+function jpcrm_woosync_connections_js_vars( $var_array = array() ) {
 
 	global $zbs;
 
 	// add our vars
 	// now retrieved via AJAX - $var_array['connect_woo_querystring'] = $this->get_external_woo_url_for_oauth_query_string();
-	$var_array['woosync_token'] = wp_create_nonce( "jpcrm-woosync-ajax-nonce" );
+	$var_array['woosync_token'] = wp_create_nonce( 'jpcrm-woosync-ajax-nonce' );
 
 	// add array of sync sites
-	$sync_sites = $zbs->modules->woosync->settings->get( 'sync_sites' );
+	$sync_sites          = $zbs->modules->woosync->settings->get( 'sync_sites' );
 	$woosync_connections = array();
 	foreach ( $sync_sites as $site ) {
 		$woosync_connections[] = rtrim( $site['domain'], '/' );
@@ -55,38 +56,38 @@ function jpcrm_woosync_connections_js_vars( $var_array = array() ){
 	$var_array['woosync_connections'] = $woosync_connections;
 
 	return $var_array;
-
 }
 add_filter( 'zbs_globaljs_vars', 'jpcrm_woosync_connections_js_vars' );
 
-// Send a quote via email
-add_action( 'wp_ajax_jpcrm_woosync_get_auth_url', 'jpcrm_woosync_ajax_get_auth_url' );
-function jpcrm_woosync_ajax_get_auth_url(){
-	
+/**
+ * Send a quote via email
+ */
+function jpcrm_woosync_ajax_get_auth_url() {
 	// Check nonce
 	check_ajax_referer( 'jpcrm-woosync-ajax-nonce', 'sec' );
 
 	// Check perms
-	if ( !zeroBSCRM_isZBSAdminOrAdmin() ) { 
-		zeroBSCRM_sendJSONError(array());
+	if ( ! zeroBSCRM_isZBSAdminOrAdmin() ) {
+		wp_send_json_error( array(), 500 );
 	}
 
 	// retrieve params
-	if ( isset( $_POST['site_url'] ) ){
+	if ( isset( $_POST['site_url'] ) ) {
 
-		$site_url = sanitize_text_field( $_POST['site_url'] );
+		$site_url = sanitize_text_field( $_POST['site_url'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
-		if ( !empty( $site_url ) ){
+		if ( ! empty( $site_url ) ) {
 
 			global $zbs;
 
-			zeroBSCRM_sendJSONSuccess( array(
-				'target_url' => $zbs->modules->woosync->get_external_woo_url_for_oauth( $site_url )
-			));
-
+			wp_send_json(
+				array(
+					'target_url' => $zbs->modules->woosync->get_external_woo_url_for_oauth( $site_url ),
+				)
+			);
 		}
-
 	}
 
-	zeroBSCRM_sendJSONError(array());
+	wp_send_json_error( array(), 500 );
 }
+add_action( 'wp_ajax_jpcrm_woosync_get_auth_url', 'jpcrm_woosync_ajax_get_auth_url' );

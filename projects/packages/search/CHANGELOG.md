@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.52.15] - 2025-09-01
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.14] - 2025-08-25
+### Fixed
+- Resolve `PhanImpossibleCondition` violations. [#44869]
+- Pass SSL argument properly to Photon for sites with https enabled. [#44851]
+
+## [0.52.13] - 2025-08-18
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.12] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.52.11] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+- Prevent PHP errors when directly accessing various files. [#44646]
+
+## [0.52.10] - 2025-08-04
+### Changed
+- Update dependencies. [#44551]
+
 ## [0.52.9] - 2025-07-28
 ### Changed
 - Internal updates.
@@ -1291,6 +1320,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.52.15]: https://github.com/Automattic/jetpack-search/compare/v0.52.14...v0.52.15
+[0.52.14]: https://github.com/Automattic/jetpack-search/compare/v0.52.13...v0.52.14
+[0.52.13]: https://github.com/Automattic/jetpack-search/compare/v0.52.12...v0.52.13
+[0.52.12]: https://github.com/Automattic/jetpack-search/compare/v0.52.11...v0.52.12
+[0.52.11]: https://github.com/Automattic/jetpack-search/compare/v0.52.10...v0.52.11
+[0.52.10]: https://github.com/Automattic/jetpack-search/compare/v0.52.9...v0.52.10
 [0.52.9]: https://github.com/Automattic/jetpack-search/compare/v0.52.8...v0.52.9
 [0.52.8]: https://github.com/Automattic/jetpack-search/compare/v0.52.7...v0.52.8
 [0.52.7]: https://github.com/Automattic/jetpack-search/compare/v0.52.6...v0.52.7

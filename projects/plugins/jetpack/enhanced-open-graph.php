@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 }

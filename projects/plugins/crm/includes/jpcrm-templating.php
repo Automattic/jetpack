@@ -58,8 +58,8 @@ function jpcrm_template_file_path( $template_file = '' ) {
 			// no theme template
 			// no filter-given template
 			// default to core version:
-			if ( empty( $template_file_path ) || !$template_file_path ){
-				
+			if ( ! $template_file_path ) {
+
 				$template_file_path = ZEROBSCRM_PATH . 'templates/' . $template_file;
 
 			}

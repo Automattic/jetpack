@@ -1061,7 +1061,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 * Test if an array of images can be extracted from Image blocks using Block_Scanner.
 	 *
 	 * @since 14.8
-	 * @since $$next-version$$ Updated to use Block_Scanner.
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_block_scanner() {
 		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
@@ -1083,7 +1083,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 * Test if an array of images can be extracted from Gallery blocks using Block_Scanner.
 	 *
 	 * @since 14.8
-	 * @since $$next-version$$ Updated to use Block_Scanner.
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_gallery_block_scanner() {
 		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
@@ -1105,7 +1105,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 * Test if an array of images can be extracted from Columns blocks using Block_Scanner.
 	 *
 	 * @since 14.8
-	 * @since $$next-version$$ Updated to use Block_Scanner.
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_columns_block_scanner() {
 		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
@@ -1127,7 +1127,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 * Test if an array of images can be extracted from Story blocks using Block_Scanner.
 	 *
 	 * @since 14.8
-	 * @since $$next-version$$ Updated to use Block_Scanner.
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_story_block_scanner() {
 		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {
@@ -1151,7 +1151,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 * Test if an array of images can be extracted from mixed blocks using Block_Scanner.
 	 *
 	 * @since 14.8
-	 * @since $$next-version$$ Updated to use Block_Scanner.
+	 * @since 14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_mixed_blocks_scanner() {
 		if ( ! class_exists( 'Automattic\Block_Scanner' ) ) {

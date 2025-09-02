@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class that has various methods for outputting functionality into a theme that doesn't support widgets.
  * Additionally the widget itself makes use of these class.

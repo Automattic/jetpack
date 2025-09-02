@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Phan: Clean up PhanImpossibleType* violations (and associated linting).
+
+

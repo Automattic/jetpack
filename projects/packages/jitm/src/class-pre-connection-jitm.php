@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\JITMS;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack pre-connection just in time messaging through out the admin.
  */

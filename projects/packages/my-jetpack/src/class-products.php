@@ -32,6 +32,8 @@ class Products {
 	public const STATUS_NEEDS_ATTENTION__WARNING    = 'needs_attention_warning';
 	public const STATUS_NEEDS_ATTENTION__ERROR      = 'needs_attention_error';
 
+	public const INTERSTITIALS_OPTION_NAME = 'my_jetpack_products_interstitials_state';
+
 	/**
 	 * List of statuses that display the module as disabled
 	 * This is defined as the statuses in which the user willingly has the module disabled whether it be by
@@ -132,7 +134,7 @@ class Products {
 			'creator'          => Products\Creator::class,
 			'extras'           => Products\Extras::class,
 			'jetpack-ai'       => Products\Jetpack_Ai::class,
-			// TODO: Remove this duplicate class ('ai')? See: https://github.com/Automattic/jetpack/pull/35910#pullrequestreview-2456462227
+			// TODO: Remove this duplicate class ('ai')? See: https://github.com/Automattic/jetpack/pull/35910#pullrequestreview-2456462227.
 			'ai'               => Products\Jetpack_Ai::class,
 			'scan'             => Products\Scan::class,
 			'search'           => Products\Search::class,
@@ -143,7 +145,7 @@ class Products {
 			'stats'            => Products\Stats::class,
 			'growth'           => Products\Growth::class,
 			'complete'         => Products\Complete::class,
-			// Features
+			// Features.
 			'newsletter'       => Products\Newsletter::class,
 			'site-accelerator' => Products\Site_Accelerator::class,
 			'related-posts'    => Products\Related_Posts::class,
@@ -225,7 +227,7 @@ class Products {
 	public static function get_products( $product_slugs = array() ) {
 		$all_classes = self::get_products_classes();
 		$products    = array();
-		// If an array of $product_slugs are passed, return only the products specified in $product_slugs array
+		// If an array of $product_slugs are passed, return only the products specified in $product_slugs array.
 		if ( $product_slugs ) {
 			foreach ( $product_slugs as $product_slug ) {
 				if ( isset( $all_classes[ $product_slug ] ) ) {
@@ -253,7 +255,7 @@ class Products {
 	public static function get_products_api_data( $product_slugs = array() ) {
 		$all_classes = self::get_products_classes();
 		$products    = array();
-		// If an array of $product_slugs are passed, return only the products specified in $product_slugs array
+		// If an array of $product_slugs are passed, return only the products specified in $product_slugs array.
 		if ( $product_slugs ) {
 			foreach ( $product_slugs as $product_slug ) {
 				if ( isset( $all_classes[ $product_slug ] ) ) {
@@ -297,7 +299,7 @@ class Products {
 			if ( $class::is_owned() ) {
 				// This sorts the the products in the order of active -> warning -> inactive.
 				// This enables the frontend to display them in that order.
-				// This is not needed for unowned products as those will always have a status of 'inactive'
+				// This is not needed for unowned products as those will always have a status of 'inactive'.
 				if ( in_array( $status, self::$active_module_statuses, true ) ) {
 					array_push( $owned_active_products, $product_slug );
 				} elseif ( in_array( $status, self::$warning_module_statuses, true ) ) {
@@ -461,5 +463,29 @@ class Products {
 			$class_name = self::get_product_class( $product );
 			$class_name::extend_plugin_action_links();
 		}
+	}
+
+	/**
+	 * Get interstitials state for the products
+	 *
+	 * @return array A key-value array of product slugs and their interstitial states. True means the interstitial was seen by the user for that product.
+	 */
+	public static function get_interstitials_state() {
+		return get_option( self::INTERSTITIALS_OPTION_NAME, array() );
+	}
+
+	/**
+	 * Update interstitials state for the products
+	 *
+	 * @param array $new_state A key-value array of product slugs and their interstitial states.
+	 *
+	 * @return bool True if the option was updated successfully, false otherwise.
+	 */
+	public static function update_interstitials_state( $new_state ) {
+
+		// Merge the existing interstitials state with the new state.
+		$interstitials_state = array_merge( self::get_interstitials_state(), $new_state );
+
+		return update_option( self::INTERSTITIALS_OPTION_NAME, $interstitials_state );
 	}
 }

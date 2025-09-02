@@ -10,13 +10,12 @@
 return [
     // # Issue statistics:
     // PhanRedefineFunction : 9 occurrences
-    // PhanImpossibleCondition : 1 occurrence
     // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
     // PhanRedefineFunctionInternal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-redirect.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing'],
+        'src/class-redirect.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanRedefineFunctionInternal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

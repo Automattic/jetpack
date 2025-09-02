@@ -1,4 +1,4 @@
-## Jetpack 14.9
+## Jetpack 15.0
 
 ### Before you start:
 
@@ -11,62 +11,61 @@
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
-### Open Graph site image
+### Forms: MailPoet integration
 
-The social preview image fallback logic was adjusted, so make sure it's still working:
+Try the following:
 
-1. Start with a site that has a paid plan (Social, Business, or Complete).
-2. Go to Jetpack > Settings > Sharing.
-3. Enable the Sharing module or the Publicize module.
-4. Load your site's home page.
-5. View source.
-6. Check the `og:image` tag
-   * The tag should use a `https://s0.wp.com/_si/` URL.
-   * That URL should return a preview image using the site title and any representative image you use for the site.
-   * Try uploading a site logo if you haven't yet. You can do so in Settings > General for example. It should change the generated image.
+1. Go to Jetpack -> Forms -> Integrations and install/activate the MailPoet plugin.
+2. After adding a list or two in MailPoet, add a Form block and test the "Manage integrations" feature in the block settings, selecting what list contacts should be added to.
+3. Submit a few forms and ensure submissions end up as contacts in the selected MailPoet list, with the email and name fields properly mapped.
 
-### Slideshow block and Carousel
+### Forms: Dots-style progress indicator
 
-The Swiper dependency used in both components has been updated. As a result, we need to make sure things work as before. For the Slideshow, try variations of the following:
+1. Create a new post/page in the block editor
+2. Add a "Form" block
+3. Add multiple "Form Step" blocks inside the form (at least 3 steps for best testing)
+4. Add a "Progress Indicator" block inside the form
+5. Select the Progress Indicator block
+6. In the block toolbar, click the style picker (should show "Line" and "Dots" options)
+7. Choose "Dots" style
+8. Expected: Circular dots appear with thin connecting lines, evenly distributed across the form width
+9. Navigate between form steps using the step navigation controls
+10. Expected: Active step dot is highlighted with primary color, completed steps show checkmark (✓) icons
+11. Expected: Progress line fills between dots as you advance through steps
 
-* One image and several images
-* Autoplay enabled/disabled
-* Fade/slide effect
-* Captions/no captions
-* Editor and frontend
-* Adding under an old JP version and upgrading to the latest JP version
+Verify the colors, transitions, animations and overall behavior match what one would expect.
 
-For the gallery there aren't many options, but try with one image and several images.
+### Social: Add support for Chinese, Japanese, and Korean fonts
 
-Ensure there are no Swiper-related logs in the JS console, and that everything works as expected.
+1. Ensure the site has a paid plan that gives access to Social features.
+2. Go to Jetpack -> Social and enable the Social Image Generator.
+3. Click on "Change defaults", and ensure that the font setting shows and can be changed/saved there.
+4. Create a post with a Chinese (e.g. simplified: `我会说一点中文`, traditional: `我會說一點中文`), Japanese (e.g. `日本語を少し話せます`) or Korean (e.g. `나는 한국어를 조금 할 줄 알아요`) title.
+5. Open the Jetpack sidebar and confirm the Social Image Generator shows the text properly (adjusting the font as needed).
 
-### Pay with PayPal Block
+### Blocks
 
-For this block, we only show the block with certain plans. Ensure that you only see the Pay with PayPal block when you have a [Growth, Security, Complete, or Creator plan](https://jetpack.com/support/pay-with-paypal/).
+The way JavaScript loaded for some Jetpack blocks has changed. Make sure the following blocks work as expected:
 
-For testing purposes:
-* On a site that does not have one of the above plans, search for the Pay with PayPal block. Ensure that you do not see the block in the inserter.
-* On a site that does have one of the above plans, search for the block and insert it.
-    * Test the various settings of the block.
-    * Ensure that validation works. For example, are you required to enter your PayPal email address?
-    * Ensure that the block functions on the frontend of the site.
-    * Ensure that, when you click the button to make a purchase, the PayPal modal correctly loads.
-    * Optionally, make a purchase.
-
-### PayPal Payment Buttons
-
-This block is currently marked as a beta block, but is available on all plans otherwise.
-
-For testing purposes:
-* Start with a site that does not have beta blocks enabled and does not have a plan.
-* In the block editor, search for PayPal. Ensure that you do not see the `Pay with PayPal` block.
-* Enable beta block for the site.
-* In the block editor, ensure that you can now find the `Pay with PayPal` block.
-* In the block, you'll notice links out to log in to, or create, a PayPal account. When you hover over these links, ensure that you see `wp_org` or `wp_com` as expected on the block.
-* On PayPal, configure a payment button.
-* When you click "Build It" after configuring, you'll have an option to get code for stacked buttons or single buttons. The values that you are presented there will map to the settings in the block.
-* Ensure that you can save the block and then see the button on the frontend of the site.
-* On the frontend of the site, click the button and ensure that it either loads a modal or sends you to PayPal.com.
-* Optionally, complete a purchase.
+* Jetpack AI Search
+* Blogroll
+* Cookie Consent
+* Donations Form
+* Google Docs (Beta)
+* Image Compare
+* Like
+* Mailchimp
+* Map
+* Nextdoor
+* OpenTable
+* Podcast Player
+* Paid Content
+* Recipe (Beta)
+* Payment Button
+* Repeat Visitor
+* Sharing Buttons
+* Slideshow
+* Subscribe
+* Tiled Gallery
 
 **Thank you for all your help!**

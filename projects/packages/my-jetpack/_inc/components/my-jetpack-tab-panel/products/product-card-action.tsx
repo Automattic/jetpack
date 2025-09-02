@@ -3,16 +3,19 @@ import { Button, Flex, FormToggle } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN } from '../../../constants';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import { useDeactivatePlugins } from '../../../data/products/use-deactivate-plugins';
 import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
+import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
+import { MyJetpackModule } from '../../../types';
 import { PRODUCT_STATUSES } from '../../product-card';
-import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN } from './constants';
 import { useProductFiltersContext } from './products-tracking-context';
 
 export type ProductCardActionProps = {
 	product: ProductCamelCase;
+	module?: MyJetpackModule;
 };
 
 /**
@@ -106,7 +109,13 @@ function ActivationToggle( {
  *
  * @return The rendered component
  */
-export function ProductCardAction( { product }: ProductCardActionProps ) {
+export function ProductCardAction( { product, module: $module }: ProductCardActionProps ) {
+	const { data: interstitials } = useInterstitialsState();
+
+	if ( ! product.hasPaidPlanForProduct && ! interstitials?.[ product.slug ] ) {
+		return <UpgradeAction product={ product } />;
+	}
+
 	// If we already have a standalone plugin installed, we render the activation toggle
 	if (
 		PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN.includes( product.slug ) &&
@@ -130,8 +139,6 @@ export function ProductCardAction( { product }: ProductCardActionProps ) {
 			return <UpgradeAction product={ product } />;
 
 		default:
-			// We assume that the product is active but can't be deactivated
-			// For example AI Assistant.
-			return <ActivationToggle product={ product } disabled />;
+			return <ActivationToggle product={ product } disabled={ ! $module?.available } />;
 	}
 }

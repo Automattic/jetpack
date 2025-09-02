@@ -1,6 +1,7 @@
-import { Page } from '@playwright/test';
-import logger from '_jetpack-e2e-commons/logger.js';
-import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
+import { type Page, expect } from '@playwright/test';
+import logger from '_jetpack-e2e-commons/logger';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
+import { createUser, deleteUser } from '_jetpack-e2e-commons/utils/user';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];
@@ -14,15 +15,21 @@ export async function insertTestUsers(): Promise< void > {
 
 	// Create user accounts with compromised passwords.
 	for ( const role of [ ...PRIVILEGED_ROLES, ...NON_PRIVILEGED_ROLES ] ) {
-		await executeWpCommand(
-			`user create ${ role } ${ role }@example.com --role=${ role } --user_pass=password`
-		);
+		await createUser( {
+			username: role,
+			email: `${ role }@example.com`,
+			role,
+			password: 'password',
+		} );
 	}
 
 	// Create a user with a secure password.
-	await executeWpCommand(
-		`user create secure_user secure_user@example.com --role=administrator --user_pass=87h23foi2uhfljhdakdh9812df`
-	);
+	await createUser( {
+		username: 'secure_user',
+		email: 'secure_user@example.com',
+		role: 'administrator',
+		password: '87h23foi2uhfljhdakdh9812df',
+	} );
 }
 
 /**
@@ -35,7 +42,7 @@ export async function deleteTestUsers(): Promise< void > {
 	// Delete users by role name
 	for ( const role of [ ...PRIVILEGED_ROLES, ...NON_PRIVILEGED_ROLES ] ) {
 		try {
-			await executeWpCommand( `user delete ${ role } --yes` );
+			await deleteUser( role );
 		} catch {
 			logger.debug( `User ${ role } not found or already deleted` );
 		}
@@ -43,7 +50,7 @@ export async function deleteTestUsers(): Promise< void > {
 
 	// Delete the secure user
 	try {
-		await executeWpCommand( `user delete secure_user --yes` );
+		await deleteUser( 'secure_user' );
 	} catch {
 		logger.debug( `User secure_user not found or already deleted` );
 	}
@@ -89,9 +96,19 @@ export async function submitCredentials(
 	username: string,
 	password: string
 ): Promise< void > {
-	await page.getByRole( 'textbox', { name: 'Username or Email Address' } ).fill( username );
-	await page.getByRole( 'textbox', { name: 'Password' } ).fill( password );
-	await page.getByRole( 'button', { name: 'Log In' } ).click();
+	const usernameField = page.getByRole( 'textbox', { name: 'Username or Email Address' } );
+	await usernameField.click( { delay: 500 } );
+	await usernameField.fill( username );
+
+	const passwordField = page.getByRole( 'textbox', { name: 'Password' } );
+	await passwordField.click( { delay: 500 } );
+	await passwordField.fill( password );
+
+	await expect( usernameField ).toHaveValue( username );
+	await expect( passwordField ).toHaveValue( password );
+
+	const loginButton = page.getByRole( 'button', { name: 'Log In' } );
+	await loginButton.click();
 }
 
 /**

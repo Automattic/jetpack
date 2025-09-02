@@ -1,0 +1,115 @@
+// grunion-field-wrap is a backwards compat class,
+//need to remove this generic classes
+// *-wrap classes are helpers added by backend
+.wp-block-jetpack-field-phone.wp-block-jetpack-input-wrap.grunion-field-wrap {
+
+	.jetpack-field__input-phone-wrapper {
+		display: flex;
+		gap: 8px;
+
+		&:has(.jetpack-field__input-element:focus) {
+			outline-width: 2px;
+			outline-style: solid;
+			// mimics default focus outline color, need to fix this
+			outline-color: rgb(0, 95, 204);
+		}
+
+		.jetpack-field__input-prefix:not([hidden]) {
+			display: flex;
+			max-width: 40%;
+
+			.jetpack-field__input-element {
+				max-width: 100%;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+		}
+
+		.jetpack-field__input-element {
+			border: 0;
+			font: inherit;
+			flex: 1;
+			outline: none;
+			color: inherit;
+			background: inherit;
+			width: inherit;
+			box-sizing: border-box;
+			resize: none;
+			padding: 0;
+			min-width: unset;
+		}
+
+		.jetpack-field__input-element::before,
+		.jetpack-field__input-element::after {
+			box-sizing: inherit;
+		}
+
+		.jetpack-field__input-element:focus {
+			box-shadow: none;
+		}
+	}
+
+	.is-style-animated & {
+
+		.jetpack-field__input-phone-wrapper {
+			padding-top: 1.4em;
+			padding-left: var(--jetpack--contact-form--animated-left-offset);
+			padding-right: var(--jetpack--contact-form--animated-right-offset);
+
+			&:not(:has(*:focus, *:active)) {
+
+				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
+					pointer-events: none;
+					visibility: hidden;
+				}
+			}
+		}
+
+		.animated-label__label:has(~* .jetpack-field__input-element:focus),
+		.animated-label__label:has(~* .jetpack-field__input-element.has-value),
+		.animated-label__label:has(~* .jetpack-field__input-element.has-placeholder) {
+			transform: translateY(0);
+			top: calc(2px + var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size, 1px)));
+
+			.grunion-label-text {
+				font-size: 0.75em;
+			}
+		}
+	}
+
+	.is-style-outlined & {
+
+		.jetpack-field__input-phone-wrapper {
+
+			&:not(:has(*:focus, *:active)) {
+
+				// notched label is game of superpositions with z-index,
+				// while no input element is selected, force transparent so label is visible
+				.jetpack-field__input-element {
+					background-color: transparent !important;
+				}
+
+				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
+					pointer-events: none;
+					visibility: hidden;
+				}
+			}
+		}
+
+		.notched-label:has(~* .jetpack-field__input-element:focus) .notched-label__label,
+		.notched-label:has(~* .jetpack-field__input-element.has-value) .notched-label__label,
+		.notched-label:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__label {
+			top: calc(var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1);
+
+			.grunion-label-text {
+				font-size: 0.8em;
+			}
+		}
+
+		.notched-label:has(~* .jetpack-field__input-element:focus) .notched-label__notch,
+		.notched-label:has(~* .jetpack-field__input-element.has-value) .notched-label__notch,
+		.notched-label:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__notch {
+			border-top-color: transparent !important;
+		}
+	}
+}

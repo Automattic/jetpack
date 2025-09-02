@@ -11,6 +11,10 @@ use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Build the Jetpack admin menu as a whole.
  */
@@ -38,12 +42,12 @@ class Jetpack_Admin {
 	/**
 	 * Filter callback to add `no-store` to the `Cache-Control` header.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 14.9
 	 * @param array $headers Headers array.
 	 * @return array Modified headers array.
 	 */
 	public static function add_no_store_header( $headers ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '14.9' );
 		$headers['Cache-Control'] .= ', no-store';
 		return $headers;
 	}

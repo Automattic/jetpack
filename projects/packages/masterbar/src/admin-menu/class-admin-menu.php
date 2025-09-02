@@ -7,9 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Assets\Logo;
 
 require_once __DIR__ . '/class-base-admin-menu.php';
 
@@ -19,19 +17,9 @@ require_once __DIR__ . '/class-base-admin-menu.php';
 class Admin_Menu extends Base_Admin_Menu {
 
 	/**
-	 * Register the hooks.
-	 */
-	public function __construct() {
-		parent::__construct();
-		add_action( 'admin_menu', array( $this, 'register_nav_unification_jetpack_menus' ), 999 );
-	}
-
-	/**
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
-		// Remove separators.
-		remove_menu_page( 'separator1' );
 		$this->add_upgrades_menu();
 		$this->add_posts_menu();
 		$this->add_media_menu();
@@ -44,7 +32,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_users_menu();
 		$this->add_tools_menu();
 		$this->add_options_menu();
-		$this->add_jetpack_menu();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -146,7 +133,7 @@ class Admin_Menu extends Base_Admin_Menu {
 				$site_upgrades = __( 'Upgrades', 'jetpack-masterbar' );
 			}
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_menu_page( __( 'Upgrades', 'jetpack-masterbar' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
+			add_menu_page( __( 'Upgrades', 'jetpack-masterbar' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 2.99 );
 		}
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack-masterbar' ), __( 'Plans', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 1 );
@@ -336,15 +323,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->update_submenus( 'tools.php', $submenus_to_update );
 
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack-masterbar' ), __( 'Marketing', 'jetpack-masterbar' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 1 );
-
-		// Temporary "Tools > Monetize" menu for existing users that shows a callout informing that the screen has moved to "Jetpack > Monetize".
-		if ( ! $this->use_wp_admin_interface() && get_current_user_id() < 268854000 ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack-masterbar' ), __( 'Monetize', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/earn/jetpack-monetize/' . $this->domain, null, 2 );
-		}
 	}
 
 	/**
@@ -376,72 +354,11 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
-		// Temporary "Settings > Podcasting" menu for existing users that shows a callout informing that the screen has moved to "Jetpack > Podcasting".
-		if ( get_current_user_id() < 268901000 ) {
+		// Temporary "Settings > Newsletter" menu for existing users that shows a callout informing that the screen has moved to "Jetpack (> Settings) > Newsletter".
+		if ( get_current_user_id() < 269750000 ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-podcasting/' . $this->domain, null, 8 );
+			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-newsletter/' . $this->domain, null, 7 );
 		}
-	}
-
-	/**
-	 * Register the nav unification submenu items using the Jetpack APIs.
-	 *
-	 * This is needed because there's a bug in WP Core that ignores the position argument.
-	 *
-	 * @see https://core.trac.wordpress.org/ticket/52035
-	 *
-	 * @return void
-	 */
-	public function register_nav_unification_jetpack_menus() {
-		Jetpack_Admin_UI_Admin::add_menu(
-			esc_attr__( 'Activity Log', 'jetpack-masterbar' ),
-			__( 'Activity Log', 'jetpack-masterbar' ),
-			'manage_options',
-			'https://wordpress.com/activity-log/' . $this->domain,
-			/**
-			 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			 */
-			null,
-			2
-		);
-	}
-
-	/**
-	 * Create Jetpack menu.
-	 *
-	 * @param int  $position  Menu position.
-	 * @param bool $separator Whether to add a separator before the menu.
-	 */
-	public function create_jetpack_menu( $position = 50, $separator = true ) {
-		if ( $separator ) {
-			$this->add_admin_menu_separator( $position, 'manage_options' );
-			++$position;
-		}
-
-		$icon            = ( new Logo() )->get_base64_logo();
-		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, $position );
-		if ( ! $is_menu_updated ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_menu_page( esc_attr__( 'Jetpack', 'jetpack-masterbar' ), __( 'Jetpack', 'jetpack-masterbar' ), 'manage_options', 'jetpack', null, $icon, $position );
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
-			$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
-		}
-
-		if ( ! $is_menu_updated ) {
-			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
-			remove_submenu_page( 'jetpack', 'jetpack' );
-		}
-	}
-
-	/**
-	 * Adds Jetpack menu.
-	 */
-	public function add_jetpack_menu() {
-		$this->create_jetpack_menu();
 	}
 
 	/**

@@ -868,13 +868,11 @@ function zeroBSCRM_checkTablesExist(){
 
 	// then we cycle through our tables :) - means all keys NEED to be kept up to date :)
 	// No need to add to this ever now :)
-	if ( ! $create ) {
-		foreach ( $ZBSCRM_t as $tableKey => $tableName ) {
-			$tablesExist = $wpdb->get_results( "SHOW TABLES LIKE '" . $tableName . "'" );
-			if ( count( $tablesExist ) < 1 ) {
-				$create = true;
-				break;
-			}
+	foreach ( $ZBSCRM_t as $table_name ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$existing_tables = $wpdb->get_results( "SHOW TABLES LIKE '" . $table_name . "'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+		if ( count( $existing_tables ) < 1 ) {
+			$create = true;
+			break;
 		}
 	}
 

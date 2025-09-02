@@ -16,16 +16,20 @@ type SocialImageGeneratorToggleProps = {
 };
 
 const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( { disabled } ) => {
-	const { isEnabled, isUpdating, defaultTemplate, defaultImageId } = useSelect( select => {
-		const config = select( socialStore ).getSocialSettings().socialImageGenerator;
+	const { isEnabled, isUpdating, defaultTemplate, defaultImageId, defaultFont } = useSelect(
+		select => {
+			const config = select( socialStore ).getSocialSettings().socialImageGenerator;
 
-		return {
-			isEnabled: config.enabled,
-			defaultTemplate: config.template,
-			defaultImageId: config.default_image_id,
-			isUpdating: select( socialStore ).isSavingSiteSettings(),
-		};
-	}, [] );
+			return {
+				isEnabled: config.enabled,
+				defaultTemplate: config.template,
+				defaultImageId: config.default_image_id,
+				defaultFont: config.font,
+				isUpdating: select( socialStore ).isSavingSiteSettings(),
+			};
+		},
+		[]
+	);
 
 	const { updateSocialImageGeneratorConfig } = useDispatch( socialStore );
 
@@ -37,11 +41,12 @@ const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( { di
 	}, [ isEnabled, updateSocialImageGeneratorConfig ] );
 
 	const handleSave = useCallback(
-		( { template, imageId } ) => {
+		( { template, imageId, font } ) => {
 			updateSocialImageGeneratorConfig( {
 				enabled: isEnabled,
 				template,
-				default_image_id: imageId,
+				default_image_id: imageId || 0,
+				font,
 			} );
 		},
 		[ updateSocialImageGeneratorConfig, isEnabled ]
@@ -80,6 +85,7 @@ const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( { di
 			<TemplatePickerModal
 				template={ defaultTemplate }
 				imageId={ defaultImageId }
+				font={ defaultFont }
 				onSave={ handleSave }
 				render={ renderTemplatePickerModal }
 			/>

@@ -1,11 +1,12 @@
 import { __ } from '@wordpress/i18n';
+import { JETPACK_NON_PAID_MODULES, JETPACK_PRODUCTS_WITH_CARD } from '../../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../../data/constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
 import { WP_Error } from '../../../data/types';
 import useSimpleQuery from '../../../data/use-simple-query';
-import { JETPACK_NON_PAID_MODULES, JETPACK_PRODUCTS_WITH_CARD } from './constants';
+import { JetpackProductWithCard } from '../../../types';
 import { PRODUCT_MODULES } from './mappings';
-import { JetpackProductWithCard, ProductSection } from './types';
+import { ProductSection } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { filterAndSortModules, filterSections } from './utils';
 

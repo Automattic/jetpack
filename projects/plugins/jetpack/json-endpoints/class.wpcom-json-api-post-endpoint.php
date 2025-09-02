@@ -196,7 +196,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( 'display' === $context ) {
 						$response[ $key ] = (string) get_the_title( $post->ID );
 					} else {
-						$response[ $key ] = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
+						$response[ $key ] = htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
 					}
 					break;
 				case 'URL':
@@ -244,7 +244,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'password':
 					$response[ $key ] = (string) $post->post_password;
 					if ( 'edit' === $context ) {
-						$response[ $key ] = htmlspecialchars_decode( (string) $response[ $key ], ENT_QUOTES );
+						$response[ $key ] = htmlspecialchars_decode( $response[ $key ], ENT_QUOTES );
 					}
 					break;
 				/** (object|false) */
@@ -254,7 +254,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( 'display' === $context ) {
 							$parent_title = (string) get_the_title( $parent->ID );
 						} else {
-							$parent_title = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
+							$parent_title = htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
 						}
 						$response[ $key ] = (object) array(
 							'ID'    => (int) $parent->ID,
@@ -280,7 +280,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 					$post_likes_switched    = get_post_meta( $post->ID, 'switch_like_status', true );
 					$post_likes_enabled     = $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
-					$response[ $key ]       = (bool) $post_likes_enabled;
+					$response[ $key ]       = $post_likes_enabled;
 					break;
 				case 'sharing_enabled':
 					$show = true;
@@ -404,7 +404,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 							}
 						}
 					}
-					$response[ $key ] = (array) $publicize_urls;
+					$response[ $key ] = $publicize_urls;
 					break;
 				case 'tags':
 					$response[ $key ] = array();

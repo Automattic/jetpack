@@ -14,6 +14,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Modules\Search as Search_Sync_Module;
 use Automattic\Jetpack\Tracking;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Provides a widget to show available/selected filters on searches.
  *

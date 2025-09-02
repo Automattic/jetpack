@@ -83,8 +83,8 @@ function wpcom_enqueue_options_general_assets() {
 		'wpcom-options-general',
 		'window.wpcomSiteUrl = ' . wp_json_encode(
 			array(
-				'siteUrl'           => get_option( 'siteurl' ),
-				'homeUrl'           => get_option( 'home' ),
+				'siteUrl'           => get_site_url(),
+				'homeUrl'           => home_url(),
 				'siteSlug'          => $site_slug,
 				'optionsGeneralUrl' => $options_general_url,
 			)

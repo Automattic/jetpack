@@ -4,6 +4,7 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+      - '**/changelog/**'
   repository_dispatch:
     types: [ 'e2e tests**' ]
 
@@ -13,6 +14,7 @@ concurrency:
 
 env:
   FORCE_COLOR: 1
+  USE_CLOUDFLARE_TUNNEL: ${{ vars.E2E_TUNNEL_TYPE == 'cloudflare' && '1' || '' }}
 
 jobs:
   create-test-matrix:
@@ -146,6 +148,7 @@ jobs:
     timeout-minutes: 60
     env:
       WP_DEBUG_PATH: '${{ github.workspace }}/tools/docker/wordpress/wp-content/debug.log'
+      PROJECT_NAME: '${{ matrix.project }}' # used in tests for enhanced reporting of global projects
     strategy:
       fail-fast: false
       matrix:
@@ -166,6 +169,13 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+
+      - name: Install cloudflared
+        if: env.USE_CLOUDFLARE_TUNNEL
+        run: |
+          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/download/2025.7.0/cloudflared-linux-amd64.deb
+          echo "a65ceb838f1deb941f7ea9101ff54eaba04179135fd562456a59ea293479e113  cloudflared.deb" | sha256sum -c
+          sudo dpkg -i cloudflared.deb
 
       - name: Install monorepo
         run: |

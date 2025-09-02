@@ -51,7 +51,7 @@ class zeroBSCRM_TagManager{
         global $zbs;
 
         // we load from DAL defaults, if objType passed (overriding anything passed, if empty/false)
-		if ( isset( $objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( ! empty( $objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             $objTypeID = (int)$objTypeID;
             if ($objTypeID > 0){
@@ -110,7 +110,7 @@ class zeroBSCRM_TagManager{
         <?php   // left in for later :) 
                 $currentFields = array(); $allFields = array(); ?>
             <!-- field editor -->
-            <div id="zbs-edit-field-editor" class="ui segment secondary hidden">
+			<div id="zbs-edit-field-editor" class="ui segment secondary">
             <?php if (current_user_can('administrator')){ ?>
 
                 <h4 class="ui horizontal divider header">
@@ -146,12 +146,11 @@ class zeroBSCRM_TagManager{
                             <div id="zbs-column-manager-available-fields" class="ui segment zbs-column-manager-connected"> 
                                 <?php if (is_array($allFields)) foreach ($allFields as $colKey => $col){
 
-                                    if (!array_key_exists($colKey, $currentColumns)){
+									if ( ! array_key_exists( $colKey, $currentFields ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                                         
                                         ?><div id="zbs-column-manager-field-<?php echo esc_attr( $colKey ); ?>" class="ui basic button zbs-column-manager-field" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e($col[0],"zero-bs-crm"); ?></div><?php
 
-                                    }
-
+									}
                                 } ?>
                             </div>
 

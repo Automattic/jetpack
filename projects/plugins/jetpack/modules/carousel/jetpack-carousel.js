@@ -777,7 +777,11 @@
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
 
+			// Load current image immediately
 			loadFullImage( carousel.slides[ index ] );
+
+			// Preload adjacent images in background
+			preloadAdjacentImages( index );
 
 			if (
 				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
@@ -952,21 +956,21 @@
 					return args.largeFile;
 				}
 
+				// Sanitize the URL to remove non-cosmetic changes like resize, fit, etc.
+				var sanitizedUrl = sanitizePhotonUrl( args.largeFile );
+
 				// If we have a really large image load a smaller version
 				// that is closer to the viewable size
 				if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-					// Sanitize the URL to remove non-cosmetic changes like resize, fit, etc.
-					var sanitizedUrl = sanitizePhotonUrl( args.largeFile );
-
 					// @2x the max sizes so we get a high enough resolution for zooming.
 					args.origMaxWidth = args.maxWidth * 2;
 					args.origMaxHeight = args.maxHeight * 2;
 					// Add the fit arg to the list of Photon args.
 					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + ',' + args.origMaxHeight );
-					return sanitizedUrl.toString();
 				}
 
-				return args.largeFile;
+				// Return a Photon URL image that's better fitted for the viewport.
+				return sanitizedUrl.toString();
 			}
 
 			return args.origFile;
@@ -1308,6 +1312,38 @@
 			}
 		}
 
+		function preloadAdjacentImages( currentIndex ) {
+			var indicesToPreload = [];
+			var totalSlides = carousel.slides.length;
+
+			// Only preload adjacent images if we have more than one slide (matching loop condition)
+			if ( totalSlides > 1 ) {
+				// Previous image (with loop handling)
+				var prevIndex = currentIndex > 0 ? currentIndex - 1 : totalSlides - 1;
+				indicesToPreload.push( prevIndex );
+
+				// Next image (with loop handling)
+				var nextIndex = currentIndex < totalSlides - 1 ? currentIndex + 1 : 0;
+				indicesToPreload.push( nextIndex );
+			}
+
+			indicesToPreload.forEach( function ( index ) {
+				var slide = carousel.slides[ index ];
+				if ( slide ) {
+					// Load in background without showing
+					loadFullImage( slide );
+
+					// Also load background image if enabled
+					if (
+						Number( jetpackCarouselStrings.display_background_image ) === 1 &&
+						! slide.backgroundImage
+					) {
+						loadBackgroundImage( slide );
+					}
+				}
+			} );
+		}
+
 		function loadBackgroundImage( slide ) {
 			var currentSlide = slide.el;
 
@@ -1438,7 +1474,6 @@
 					// Initially, the image is a 1x1 transparent gif.
 					// The preview is shown as a background image on the slide itself.
 					var image = new Image();
-					image.src = attrs.src;
 
 					var slideEl = document.createElement( 'div' );
 					slideEl.classList.add( 'swiper-slide' );

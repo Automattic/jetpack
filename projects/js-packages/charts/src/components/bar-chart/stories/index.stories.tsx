@@ -1,66 +1,41 @@
-import largeValuesData from '../../line-chart/stories/large-values-sample';
-import trafficData from '../../line-chart/stories/site-traffic-sample';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	legendArgTypes,
+	medalCountsData,
+	largeValuesData,
+	trafficData,
+	themeArgTypes,
+} from '../../../stories';
 import BarChart from '../bar-chart';
-import data from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof BarChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar Chart',
 	component: BarChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [ chartDecorator ],
 	argTypes: {
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
+		...sharedChartArgTypes,
+		...themeArgTypes,
+		...legendArgTypes,
 	},
-} satisfies Meta< typeof BarChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
 
-type Story = StoryObj< typeof BarChart >;
+type Story = StoryObj< StoryArgs >;
 
 // Default story with multiple series
 export const Default: Story = {
 	args: {
 		withTooltips: true,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ], // limit to 3 series for better readability
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
@@ -72,7 +47,7 @@ export const Default: Story = {
 export const SingleSeries: Story = {
 	args: {
 		...Default.args,
-		data: [ data[ 0 ] ],
+		data: [ medalCountsData[ 0 ] ],
 	},
 	parameters: {
 		docs: {
@@ -126,7 +101,7 @@ export const TimeSeries: Story = {
 export const ManyDataSeries: Story = {
 	args: {
 		...Default.args,
-		data,
+		data: medalCountsData,
 	},
 	parameters: {
 		docs: {
@@ -142,7 +117,7 @@ export const FixedDimensions: Story = {
 		...Default.args,
 		width: 800,
 		height: 400,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 	},
 	parameters: {
 		docs: {
@@ -157,7 +132,7 @@ export const WithPatterns: Story = {
 	args: {
 		...Default.args,
 		withPatterns: true,
-		data: data.map( country => {
+		data: Default.args.data.map( country => {
 			return {
 				...country,
 				data: country.data.filter( d => parseInt( d.label ) >= 2016 ),
@@ -224,10 +199,67 @@ SmartFormatting.parameters = {
 	},
 };
 
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
+// Story demonstrating composition API
+export const WithCompositionLegend: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { width: '800px' } }>
+			<BarChart
+				data={ [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+				withTooltips={ true }
+				gridVisibility="x"
+				maxWidth={ 1200 }
+				aspectRatio={ 0.5 }
+			>
+				<BarChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+			</BarChart>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates using the composition API with `<BarChart.Legend />` as a child component. This provides the same functionality as the `showLegend` prop but allows for more flexible composition patterns.',
+			},
+		},
+	},
+};
+
+// Story showcasing legend customization controls
+export const CustomLegendPositioning: Story = {
+	args: {
+		withTooltips: true,
+		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		// showLegend defaults to false, explicitly enabling for demonstration
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignment: 'start',
+		legendPosition: 'top',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
+			},
+		},
+	},
+};
+
 export const HorizontalBarChart: Story = {
 	args: {
 		...Default.args,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 		orientation: 'horizontal',
 		gridVisibility: 'none',
 	},

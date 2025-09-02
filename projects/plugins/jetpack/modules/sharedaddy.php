@@ -15,9 +15,9 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 if ( ! function_exists( 'sharing_init' ) ) {
 	require __DIR__ . '/sharedaddy/sharedaddy.php';
@@ -30,19 +30,5 @@ add_action( 'jetpack_modules_loaded', 'sharedaddy_loaded' );
  */
 function sharedaddy_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	add_filter( 'jetpack_module_configuration_url_sharedaddy', 'jetpack_sharedaddy_configuration_url' );
-}
-
-/**
- * Return Jetpack Sharing configuration URL
- *
- * @return string Sharing config URL
- */
-function jetpack_sharedaddy_configuration_url() {
-	$status = new Status();
-	if ( $status->is_offline_mode() || $status->in_safe_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
-		return admin_url( 'options-general.php?page=sharing' );
-	}
-
-	return Redirect::get_url( 'calypso-marketing-sharing-buttons' );
+	add_filter( 'jetpack_module_configuration_url_sharedaddy', 'get_sharing_buttons_customisation_url' );
 }

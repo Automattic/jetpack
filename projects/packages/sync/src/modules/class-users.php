@@ -11,6 +11,10 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Password_Checker;
 use Automattic\Jetpack\Sync\Defaults;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for users.
  */
@@ -357,7 +361,11 @@ class Users extends Module {
 	 * @param string   $user_login The user login.
 	 * @param \WP_User $user       The user object.
 	 */
-	public function wp_login_handler( $user_login, $user ) {
+	public function wp_login_handler( $user_login, $user = null ) {
+		if ( ! $user instanceof \WP_User ) {
+			return;
+		}
+
 		/**
 		 * Fires when a user is logged into a site.
 		 *
@@ -728,7 +736,7 @@ class Users extends Module {
 	 * @todo Refactor to prepare the SQL query before executing it.
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;

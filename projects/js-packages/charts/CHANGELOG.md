@@ -5,9 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.0] - 2025-09-01
+### Added
+- Add an agents.md file to project root. [#44954]
+- Ensure stable colors for series groups. [#44730]
+- Pie Chart: Refactor to improve readability. [#44989]
+
+### Changed
+- Enhance ConversionFunnelChart with render props and TooltipInPortal. [#45019]
+- Refactor shared components, hooks and utils. [#44971]
+
+### Fixed
+- Fix label background and text color. [#44990]
+- Refactor leaderboard chart to remove progress bar. [#44982]
+
+## [0.30.0] - 2025-08-27
+### Added
+- Export ConversionFunnelChart for usage outside. [#44952]
+
+### Changed
+- Storybook: Consolidate sample data across stories for consistency and maintainability. [#44903]
+
+## [0.29.0] - 2025-08-25
+### Changed
+- Consolidate and clean up pie chart composition API. [#44856]
+
+## [0.28.0] - 2025-08-21
+### Added
+- Add composition legend to pie family charts. [#44796]
+- Add theme to global context and use instead of that from theme provider. [#44809]
+
+## [0.27.0] - 2025-08-18
+### Added
+- Add support for custom labels in the leaderboard chart for greater flexibility. [#44751]
+
+## [0.26.0] - 2025-08-14
+### Added
+- Bar Chart: Add composition API. [#44771]
+- Line Chart: Add composition legends. [#44691]
+- Line Chart: Add comparison style to theme. [#44676]
+
+### Changed
+- Update legend positioning and alignment. [#44747]
+- Update package dependencies. [#44701]
+
+## [0.25.0] - 2025-08-11
+### Added
+- Add internationalization. [#44652]
+
+### Changed
+- Improve legend functionality and tidy up some legend layout issues. [#44573]
+- Update package dependencies. [#44677]
+
+### Removed
+- Remove redundant internal chart ID. [#44728]
+
+### Fixed
+- Fix legend alignment issues for right-aligned vertical legends. [#44622]
+
+## [0.24.0] - 2025-08-04
+### Added
+- Add Conversion Funnel Chart document to Storybook index page. [#44548]
+
+### Fixed
+- Tests: Specify locale in tooltip tests. [#44594]
+
 ## [0.23.1] - 2025-08-01
 ### Fixed
-- Line Chart: Improve pointer event types [#44510]
+- Line Chart: Improve pointer event types. [#44510]
 
 ## [0.23.0] - 2025-07-30
 ### Added
@@ -340,6 +405,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.31.0]: https://github.com/Automattic/charts/compare/v0.30.0...v0.31.0
+[0.30.0]: https://github.com/Automattic/charts/compare/v0.29.0...v0.30.0
+[0.29.0]: https://github.com/Automattic/charts/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/Automattic/charts/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/charts/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/Automattic/charts/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/Automattic/charts/compare/v0.24.0...v0.25.0
+[0.24.0]: https://github.com/Automattic/charts/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/Automattic/charts/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/Automattic/charts/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/Automattic/charts/compare/v0.21.0...v0.22.0

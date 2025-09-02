@@ -125,6 +125,8 @@ class Error_Handler {
 		'invalid_nonce',
 		'signature_mismatch',
 		'invalid_connection_owner',
+		'external_storage_empty',
+		'external_storage_error',
 	);
 
 	/**
@@ -751,7 +753,7 @@ class Error_Handler {
 	private function garbage_collector( $errors ) {
 		foreach ( $errors as $error_code => $users ) {
 			foreach ( $users as $user_id => $error ) {
-				if ( self::ERROR_LIFE_TIME < time() - (int) $error['timestamp'] ) {
+				if ( empty( $error['timestamp'] ) || self::ERROR_LIFE_TIME < time() - (int) $error['timestamp'] ) {
 					unset( $errors[ $error_code ][ $user_id ] );
 				}
 			}
@@ -1067,7 +1069,8 @@ class Error_Handler {
 	 * @return bool True if external filters are applied, false otherwise.
 	 */
 	private function has_external_filters() {
-		return has_filter( 'jetpack_connection_get_verified_errors' ) && $this->should_allow_error_filtering();
+		return has_filter( 'jetpack_connection_get_verified_errors' ) &&
+			$this->should_allow_error_filtering();
 	}
 
 	/**

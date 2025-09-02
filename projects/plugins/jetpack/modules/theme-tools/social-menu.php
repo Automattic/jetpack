@@ -11,6 +11,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	if ( ! function_exists( 'jetpack_social_menu_init' ) ) {
 		/**

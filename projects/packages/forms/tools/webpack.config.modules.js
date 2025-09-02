@@ -14,8 +14,8 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 	// Return empty config if no modules directory
 	module.exports = {};
 } else {
-	// Find all JS files in the modules directory
-	const moduleFiles = glob.sync( path.join( moduleSrcDir, '**/*.js' ) );
+	// Find all JS and TS files in the modules directory
+	const moduleFiles = glob.sync( path.join( moduleSrcDir, '**/*.{js,ts}' ) );
 
 	// Create entry points
 	const entry = moduleFiles.reduce( ( acc, filepath ) => {

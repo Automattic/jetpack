@@ -14,6 +14,10 @@ use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Basic methods implemented by Jetpack Sync extensions.
  *
@@ -195,7 +199,7 @@ abstract class Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) {
 		// In subclasses, return the number of items yet to be enqueued.
@@ -412,12 +416,18 @@ abstract class Module {
 			$status['last_sent'] = $this->get_initial_last_sent();
 		}
 
-		$limits               = Settings::get_setting( 'full_sync_limits' )[ $this->name() ] ??
+		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ] ??
 			Defaults::get_default_setting( 'full_sync_limits' )[ $this->name() ] ??
 			array(
-				'max_chunks' => 10,
-				'chunk_size' => 100,
+				'max_chunks' => null,
+				'chunk_size' => null,
 			);
+
+		$limits = array(
+			'max_chunks' => is_numeric( $limits['max_chunks'] ) ? (int) $limits['max_chunks'] : 10,
+			'chunk_size' => is_numeric( $limits['chunk_size'] ) ? (int) $limits['chunk_size'] : 100,
+		);
+
 		$limits['chunk_size'] = $this->adjust_chunk_size_if_stuck( $status['last_sent'], $limits['chunk_size'], $started );
 
 		$chunks_sent = 0;

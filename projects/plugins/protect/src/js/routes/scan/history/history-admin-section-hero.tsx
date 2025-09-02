@@ -19,7 +19,7 @@ const HistoryAdminSectionHero: FC = () => {
 	} );
 	const { counts, error } = useProtectData( {
 		sourceType: 'history',
-		filter: { status: filter },
+		filter: { status: filter, key: null },
 	} );
 	const { threats: numAllThreats } = counts.all;
 
@@ -53,9 +53,9 @@ const HistoryAdminSectionHero: FC = () => {
 					<AdminSectionHero.Heading showIcon>
 						{ numAllThreats > 0
 							? sprintf(
-									/* translators: %s: Total number of threats  */
+									/* translators: %1$s: Total number of threats, %2$s: singular or plural form of "threat" */
 									__( '%1$s previously active %2$s', 'jetpack-protect' ),
-									numAllThreats,
+									numAllThreats.toString(),
 									numAllThreats === 1 ? 'threat' : 'threats'
 							  )
 							: __( 'No previously active threats', 'jetpack-protect' ) }

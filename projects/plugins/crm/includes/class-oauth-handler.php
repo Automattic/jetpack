@@ -511,10 +511,10 @@ class Oauth_Handler {
 
 	}
 
-	/*
+	/**
 	 * Returns providers array
-	*/
-	public function get_providers( ){
+	 */
+	public function get_providers() {
 
 		return $this->providers;
 

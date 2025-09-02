@@ -1330,7 +1330,7 @@ class Defaults {
 			'max_chunks' => 10,
 		),
 		'posts'                   => array(
-			'chunk_size' => 100,
+			'chunk_size' => 500,
 			'max_chunks' => 1,
 		),
 		'term_relationships'      => array(

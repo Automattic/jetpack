@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Set up Sharing in wp-admin.
 require_once plugin_dir_path( __FILE__ ) . 'sharing.php';
 

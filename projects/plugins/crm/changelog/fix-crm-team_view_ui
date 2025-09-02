@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Team: Account for longer WP user IDs.

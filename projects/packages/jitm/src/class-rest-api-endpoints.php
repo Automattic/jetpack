@@ -12,6 +12,10 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register the JITM's REST API Endpoints and their callbacks.
  */

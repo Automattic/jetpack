@@ -119,7 +119,7 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
         #} ========= / CHECK FIELDS ===========
         
         #} Check key
-        if (!empty($id)){
+		if ( $id ) {
 
             global $ZBSCRM_t,$wpdb; 
             $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array();
@@ -250,7 +250,7 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
         #} ============= WHERE ================
 
             #} objid
-            if (!empty($objid) && $objid > 0) $wheres['zbsl_objid'] = array('zbsl_objid','=','%d',$objid);
+				$wheres['zbsl_objid'] = array( 'zbsl_objid', '=', '%d', $objid );
 
             #} objtype
             if (!empty($objtype) && $objtype !== -1) $wheres['zbsl_objtype'] = array('zbsl_objtype','=','%d',$objtype);
@@ -284,6 +284,7 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
             }
 
             // meta_pair
+						// @phan-suppress-next-line PhanImpossibleCondition -- This var is initialized by arbitrary data in $args.
             if ( is_array( $meta_pair ) && isset( $meta_pair['key'] ) && isset( $meta_pair['value'] ) ){
 
                 // make a clean version
@@ -560,8 +561,10 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
 
             $id = (int)$id;
 
-            // if owner = -1, add current
-            if (!isset($owner) || $owner === -1) $owner = zeroBSCRM_user();
+		// if owner = -1, add current
+		if ( $owner === -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$owner = zeroBSCRM_user();
+		}
 
             // check obtype is legit
             $data['objtype'] = (int)$data['objtype'];
@@ -609,6 +612,7 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
 
             // check for exsting with meta
             $has_meta_matching_record = false;
+						// @phan-suppress-next-line PhanImpossibleCondition -- This var is initialized by arbitrary data in $args.
             if ( is_array( $ignore_if_meta_matching ) && isset( $ignore_if_meta_matching['key'] ) && isset( $ignore_if_meta_matching['value'] ) ){
 
                 // find existing
@@ -730,8 +734,6 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
                             }
                 
                             #} Internal Automator
-                            if (!empty($id)){
-
                                 zeroBSCRM_FireInternalAutomator('log.update',array(
                                     'id'=>$id,
                                     'logagainst'=>$data['objid'],
@@ -740,8 +742,6 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
                                     'logshortdesc' => $data['shortdesc'],
                                     'loglongdesc' => $data['longdesc']
                                     ));
-
-                            }
 
                             // Successfully updated - Return id
                             return $id;

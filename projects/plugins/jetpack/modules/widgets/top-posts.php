@@ -17,6 +17,10 @@ use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Register the widget for use in Appearance -> Widgets
 add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
 
@@ -434,8 +438,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						$post['post_id'],
 						array(
 							'fallback_to_avatars' => (bool) $get_image_options['fallback_to_avatars'],
-							'width'               => (int) $width,
-							'height'              => (int) $height,
+							'width'               => $width,
+							'height'              => $height,
 							'avatar_size'         => (int) $get_image_options['avatar_size'],
 						)
 					);
@@ -704,7 +708,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$days = (int) apply_filters( 'jetpack_top_posts_days', 2, $args );
 
 		/** Handling situations where the number of days makes no sense - allows for unlimited days where $days = -1 */
-		if ( 0 === $days || false === $days ) {
+		if ( 0 === $days ) {
 			$days = 2;
 		}
 

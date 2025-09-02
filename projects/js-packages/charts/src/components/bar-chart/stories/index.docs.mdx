@@ -1,6 +1,5 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as BarChartStories from './index.stories';
-import * as LegendStories from './legend.stories';
 
 <Meta title="JS Packages/Charts/Types/Bar Chart" of={ BarChartStories } />
 
@@ -276,7 +275,7 @@ By default, bars with zero values have no visual height, making them difficult t
 
 Display series information with automatic color and pattern matching:
 
-<Canvas of={ LegendStories.Default } />
+<Canvas of={ BarChartStories.WithLegend } />
 
 <Source
 	language="jsx"
@@ -284,25 +283,9 @@ Display series information with automatic color and pattern matching:
 		data={data}
 		showLegend={true}
 		legendOrientation="horizontal"
-		legendAlignmentHorizontal="center"
-		legendAlignmentVertical="bottom"
+		legendAlignment="center"
+		legendPosition="bottom"
 		legendShape="rect"
-	/>` }
-/>
-
-### Legend Positioning
-
-Control legend placement with alignment options:
-
-<Canvas of={ LegendStories.AlignmentPositioning } />
-
-<Source
-	language="jsx"
-	code={ `<BarChart
-		data={data}
-		showLegend={true}
-		legendAlignmentHorizontal="right"
-		legendAlignmentVertical="top"
 	/>` }
 />
 
@@ -310,7 +293,7 @@ Control legend placement with alignment options:
 
 Display legends vertically for charts with many series:
 
-<Canvas of={ LegendStories.VerticalOrientation } />
+<Canvas of={ BarChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -318,15 +301,55 @@ Display legends vertically for charts with many series:
 		data={data}
 		showLegend={true}
 		legendOrientation="vertical"
-		legendAlignmentHorizontal="right"
+		legendAlignment="start"
+		legendPosition="top"
 	/>` }
 />
 
-### Legends with Horizontal Bars
+### Composition API
 
-Legends work seamlessly with both orientations:
+For more flexible legend positioning and future extensibility, use the composition API with `<BarChart.Legend />` as a child component:
 
-<Canvas of={ LegendStories.HorizontalBars } />
+<Canvas of={ BarChartStories.WithCompositionLegend } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		withTooltips={true}
+		gridVisibility="x"
+	>
+		<BarChart.Legend
+			orientation="horizontal"
+			alignment="center"
+			position="bottom"
+		/>
+	</BarChart>` }
+/>
+
+**Benefits of the composition API:**
+- **Flexible positioning**: Place legends anywhere within the chart container
+- **Future extensibility**: Enables additional chart components like annotations
+- **Consistent API**: Same pattern as LineChart for a unified developer experience
+- **Backward compatibility**: Existing `showLegend` prop continues to work
+
+**Usage patterns:**
+
+<Source
+	language="jsx"
+	code={ `// Composition API (recommended for new code)
+	<BarChart data={data}>
+		<BarChart.Legend legendOrientation="vertical" alignment="end" />
+	</BarChart>
+
+	// Traditional prop-based approach (still supported)
+	<BarChart
+		data={data}
+		showLegend={true}
+		legendOrientation="vertical"
+		legendAlignment="end"
+	/>` }
+/>
 
 ## Advanced Customization
 
@@ -488,14 +511,30 @@ Main chart component with responsive behavior by default.
 | `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
-| `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'` | Horizontal legend alignment |
-| `legendAlignmentVertical` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
+| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
+| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
 | `legendShape` | `LegendShape` | `'rect'` | Shape used in legend markers |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
 | `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
 | `className` | `string` | - | Additional CSS class name |
+| `children` | `ReactNode` | - | Child components (e.g., `<BarChart.Legend />`) |
+
+### BarChart.Legend
+
+Composition API component for displaying chart legends. Must be used as a child of `<BarChart>`.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
+| `alignment` | `'start' \| 'center' \| 'end'` | `'center'` | Horizontal legend alignment |
+| `position` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
+| `shape` | `LegendShape` | `'rect'` | Shape used in legend markers |
+| `className` | `string` | - | Additional CSS class name |
+| `chartId` | `string` | auto-detected | Chart ID (automatically detected from parent context) |
 
 ### SeriesData Type
 

@@ -418,7 +418,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                 }
 
 								$selector = 'transactions.*';
-                if (isset($fields) && is_array($fields)) {
+				if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
 					// always needs id, so add if not present
@@ -722,6 +722,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
             }
 
             #} Custom Fields
+						// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
             if ($withCustomFields){
                 
                 #} Retrieve any cf
@@ -877,30 +878,30 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
             }
 
             // Timestamp checks:
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+			#} olderThan
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbst_date', '<=', '%d', $olderThan );
+			#} newerThan
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbst_date', '>=', '%d', $newerThan );
 
-                #} olderThan
-                if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbst_date','<=','%d',$olderThan);
-                #} newerThan
-                if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbst_date','>=','%d',$newerThan);
+			#} createdBefore
+			if ( ! empty( $createdBefore ) && $createdBefore > 0 ) $wheres['createdBefore'] = array( 'zbst_created', '<=', '%d', $createdBefore );
+			#} createdAfter
+			if ( ! empty( $createdAfter ) && $createdAfter > 0 ) $wheres['createdAfter'] = array( 'zbst_created', '>=', '%d', $createdAfter );
 
-                #} createdBefore
-                if (!empty($createdBefore) && $createdBefore > 0 && $createdBefore !== false) $wheres['createdBefore'] = array('zbst_created','<=','%d',$createdBefore);
-                #} createdAfter
-                if (!empty($createdAfter) && $createdAfter > 0 && $createdAfter !== false) $wheres['createdAfter'] = array('zbst_created','>=','%d',$createdAfter);
+			#} paidBefore
+			if ( ! empty( $paidBefore ) && $paidBefore > 0 ) $wheres['paidBefore'] = array( 'zbst_date_paid', '<=', '%d', $paidBefore );
+			#} paidAfter
+			if ( ! empty( $paidAfter ) && $paidAfter > 0 ) $wheres['paidAfter'] = array( 'zbst_date_paid', '>=', '%d', $paidAfter );
 
-                #} paidBefore
-                if (!empty($paidBefore) && $paidBefore > 0 && $paidBefore !== false) $wheres['paidBefore'] = array('zbst_date_paid','<=','%d',$paidBefore);
-                #} paidAfter
-                if (!empty($paidAfter) && $paidAfter > 0 && $paidAfter !== false) $wheres['paidAfter'] = array('zbst_date_paid','>=','%d',$paidAfter);
+			// status
+			if ( ! empty( $hasStatus ) ) $wheres['hasStatus']     = array( 'zbst_status', '=', '%s', $hasStatus );
+			if ( ! empty( $otherStatus ) ) $wheres['otherStatus'] = array( 'zbst_status', '<>', '%s', $otherStatus );
 
-            // status
-            if (!empty($hasStatus) && $hasStatus !== false) $wheres['hasStatus'] = array('zbst_status','=','%s',$hasStatus);
-            if (!empty($otherStatus) && $otherStatus !== false) $wheres['otherStatus'] = array('zbst_status','<>','%s',$otherStatus);
-
-            // assignedContact + assignedCompany + assignedInvoice
-            if (!empty($assignedContact) && $assignedContact !== false && $assignedContact > 0) $wheres['assignedContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TRANSACTION." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = %d)",$assignedContact);
-            if (!empty($assignedCompany) && $assignedCompany !== false && $assignedCompany > 0) $wheres['assignedCompany'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TRANSACTION." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$assignedCompany);
-            if (!empty($assignedInvoice) && $assignedInvoice !== false && $assignedInvoice > 0) $wheres['assignedInvoice'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TRANSACTION." AND zbsol_objtype_to = ".ZBS_TYPE_INVOICE." AND zbsol_objid_to = %d)",$assignedInvoice);
+			// assignedContact + assignedCompany + assignedInvoice
+			if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
+			if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
+			if ( ! empty( $assignedInvoice ) && $assignedInvoice > 0 ) $wheres['assignedInvoice'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objid_to = %d)', $assignedInvoice );
 
             #} Quick filters - adapted from DAL1 (probs can be slicker)
             if (is_array($quickFilters) && count($quickFilters) > 0){
@@ -926,21 +927,12 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
             }// / quickfilters
 
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
-
-                // add em onto wheres (note these will OVERRIDE if using a key used above)
-                // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
-                $wheres = array_merge_recursive($wheres,$additionalWhereArr);
-
-            }
-
             #} Is Tagged (expects 1 tag ID OR array)
 
                 // catch 1 item arr
                 if (is_array($isTagged) && count($isTagged) == 1) $isTagged = $isTagged[0];
 
-            if (!is_array($isTagged) && !empty($isTagged) && $isTagged > 0){
+			if ( ! empty( $isTagged ) && ! is_array( $isTagged ) && $isTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// add where tagged
 				// 1 int:
@@ -975,8 +967,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
                 // catch 1 item arr
                 if (is_array($isNotTagged) && count($isNotTagged) == 1) $isNotTagged = $isNotTagged[0];
-                
-            if (!is_array($isNotTagged) && !empty($isNotTagged) && $isNotTagged > 0){
+
+				if ( ! empty( $isNotTagged ) && ! is_array( $isNotTagged ) && $isNotTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					// add where tagged
 					// 1 int:
@@ -1778,7 +1770,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                             // Any extra meta keyval pairs
                             // BRUTALLY updates (no checking)
                             $confirmedExtraMeta = false;
-                            if (isset($extraMeta) && is_array($extraMeta)) {
+						if ( is_array( $extraMeta ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 $confirmedExtraMeta = array();
 
@@ -1970,7 +1962,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                     #} Any extra meta keyval pairs?
                     // BRUTALLY updates (no checking)
                     $confirmedExtraMeta = false;
-                    if (isset($extraMeta) && is_array($extraMeta)) {
+								if ( is_array( $extraMeta ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         $confirmedExtraMeta = array();
 
@@ -2452,7 +2444,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
      *
      * @param int id transaction ID
      *
-     * @return str transaction status string
+     * @return string transaction status string
      */
     public function getTransactionStatus($id=-1){
 
@@ -2503,8 +2495,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
      * that should be included in "total value" fields
      * admin.php?page=zerobscrm-plugin-settings&tab=transactions
      *
-     * @param str $table_alias_sql - if using a table alias pass that here, e.g. `transactions.`
-     * @return array 
+     * @param string $table_alias_sql - if using a table alias pass that here, e.g. `transactions`.
+     * @return array
      */
     function getTransactionStatusesToIncludeQuery( $table_alias_sql = '' ){
 

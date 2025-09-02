@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.3.1] - 2025-09-01
+### Changed
+- My Jetpack: Add product interstitials state management. [#44772]
+
+## [1.3.0] - 2025-08-25
+### Changed
+- Use PricingTable component for product interstitials. [#44801]
+
+## [1.2.2] - 2025-08-25
+### Changed
+- Update dependencies.
+
+## [1.2.1] - 2025-08-18
+### Changed
+- Update dependencies.
+
+## [1.2.0] - 2025-08-14
+### Added
+- Add new Interstitial component. [#44665]
+
+## [1.1.19] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.1.18] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [1.1.17] - 2025-08-04
+### Changed
+- Internal updates.
+
 ## [1.1.16] - 2025-07-30
 ### Changed
 - Internal updates.
@@ -1489,6 +1524,14 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.3.1]: https://github.com/Automattic/jetpack-components/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-components/compare/1.2.2...1.3.0
+[1.2.2]: https://github.com/Automattic/jetpack-components/compare/1.2.1...1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-components/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-components/compare/1.1.19...1.2.0
+[1.1.19]: https://github.com/Automattic/jetpack-components/compare/1.1.18...1.1.19
+[1.1.18]: https://github.com/Automattic/jetpack-components/compare/1.1.17...1.1.18
+[1.1.17]: https://github.com/Automattic/jetpack-components/compare/1.1.16...1.1.17
 [1.1.16]: https://github.com/Automattic/jetpack-components/compare/1.1.15...1.1.16
 [1.1.15]: https://github.com/Automattic/jetpack-components/compare/1.1.14...1.1.15
 [1.1.14]: https://github.com/Automattic/jetpack-components/compare/1.1.13...1.1.14

@@ -1,14 +1,15 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { ChartProvider } from '../../../providers/chart-context';
-import { useChartTheme } from '../../../providers/theme';
+import { simpleChartDecorator, ChartStoryArgs, themeArgTypes } from '../../../stories';
 import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
 import { PieChart } from '../../pie-chart';
+import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
-import { useChartLegendData } from '../use-chart-legend-data';
 import type { SeriesData, DataPointPercentage } from '../../../types';
 
-const meta: Meta< typeof Legend > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Legend > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Composites/Legend',
 	component: Legend,
 	parameters: {
@@ -30,7 +31,7 @@ The Legend component provides a flexible way to display chart legends either as 
 
 ### Basic Usage with Manual Data
 \`\`\`jsx
-<Legend 
+<Legend
   items={[
     { label: 'Series 1', value: '25%', color: '#3858E9' },
     { label: 'Series 2', value: '35%', color: '#80C8FF' }
@@ -42,17 +43,17 @@ The Legend component provides a flexible way to display chart legends either as 
 ### Automatic Data from Chart Context
 \`\`\`jsx
 // Chart registers its legend data with chartId
-<LineChart 
-  chartId="sales-chart" 
+<LineChart
+  chartId="sales-chart"
   data={salesData}
   showLegend={false} // Legend hidden on chart
 />
 
 // Standalone legend retrieves data automatically
-<Legend 
+<Legend
   chartId="sales-chart"
   orientation="vertical"
-  alignmentHorizontal="right"
+  alignment="end"
 />
 \`\`\`
 
@@ -75,10 +76,14 @@ The Legend component provides a flexible way to display chart legends either as 
 			},
 		},
 	},
+	decorators: [ simpleChartDecorator ],
+	argTypes: {
+		...themeArgTypes,
+	},
 };
 
 export default meta;
-type Story = StoryObj< typeof Legend >;
+type Story = StoryObj< StoryArgs >;
 
 // Mock data for different chart types
 const lineChartData: SeriesData[] = [
@@ -126,6 +131,11 @@ const pieChartData: DataPointPercentage[] = [
 
 // Basic standalone legends
 export const Horizontal: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return <Legend { ...legendProps } />;
+	},
 	args: {
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
@@ -136,6 +146,11 @@ export const Horizontal: Story = {
 };
 
 export const Vertical: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return <Legend { ...legendProps } />;
+	},
 	args: {
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
@@ -148,8 +163,7 @@ export const Vertical: Story = {
 
 // Story showing use with LineChart data
 const WithLineChartData = () => {
-	const theme = useChartTheme();
-	const legendItems = useChartLegendData( lineChartData, theme, {
+	const legendItems = useChartLegendItems( lineChartData, {
 		showValues: false,
 	} );
 
@@ -181,8 +195,7 @@ export const WithLineChart: Story = {
 
 // Story showing use with BarChart data
 const WithBarChartData = () => {
-	const theme = useChartTheme();
-	const legendItems = useChartLegendData( barChartData, theme );
+	const legendItems = useChartLegendItems( barChartData );
 
 	return (
 		<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
@@ -206,22 +219,20 @@ export const WithBarChart: Story = {
 // Story showing standalone legend using chartId to automatically get data from context
 const StandaloneLegendWithChartIdComponent = () => {
 	return (
-		<ChartProvider>
-			<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
-				{ /* Chart with legend hidden but still registering data */ }
-				<LineChart
-					chartId="standalone-legend-chart"
-					data={ lineChartData }
-					showLegend={ false }
-					width={ 400 }
-					height={ 200 }
-					withGradientFill={ false }
-					withLegendGlyph={ false }
-				/>
-				{ /* Standalone legend that automatically gets data from chart context */ }
-				<Legend chartId="standalone-legend-chart" orientation="horizontal" />
-			</div>
-		</ChartProvider>
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
+			{ /* Chart with legend hidden but still registering data */ }
+			<LineChart
+				chartId="standalone-legend-chart"
+				data={ lineChartData }
+				showLegend={ false }
+				width={ 400 }
+				height={ 200 }
+				withGradientFill={ false }
+				withLegendGlyph={ false }
+			/>
+			{ /* Standalone legend that automatically gets data from chart context */ }
+			<Legend chartId="standalone-legend-chart" orientation="horizontal" />
+		</div>
 	);
 };
 
@@ -230,20 +241,18 @@ export const StandaloneLegendWithChartId: Story = {
 	parameters: {
 		docs: {
 			source: {
-				code: `<ChartProvider>
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-    {/* Chart with legend hidden but still registering data */}
-    <LineChart
-      chartId="standalone-legend-chart"
-      data={lineChartData}
-      showLegend={false}
-      width={400}
-      height={200}
-    />
-    {/* Standalone legend that automatically gets data from chart context */}
-    <Legend chartId="standalone-legend-chart" orientation="horizontal" />
-  </div>
-</ChartProvider>`,
+				code: `<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+  {/* Chart with legend hidden but still registering data */}
+  <LineChart
+    chartId="standalone-legend-chart"
+    data={lineChartData}
+    showLegend={false}
+    width={400}
+    height={200}
+  />
+  {/* Standalone legend that automatically gets data from chart context */}
+  <Legend chartId="standalone-legend-chart" orientation="horizontal" />
+</div>`,
 			},
 			description: {
 				story: `
@@ -277,15 +286,15 @@ This example demonstrates the power of the Legend component's context integratio
 />
 
 // Standalone legend that retrieves data automatically
-<Legend 
-  chartId="standalone-legend-chart" 
-  orientation="horizontal" 
+<Legend
+  chartId="standalone-legend-chart"
+  orientation="horizontal"
 />
 \`\`\`
 
 ### Important Notes
 
-- The chart and legend must be wrapped in the same ChartProvider context
+- The chart and legend must be wrapped in the same GlobalChartsProvider context
 - The \`chartId\` must match exactly between chart and legend
 - Charts with \`showLegend={false}\` still register their legend data
 - If no chart with the given \`chartId\` exists, the legend will render nothing
@@ -298,96 +307,94 @@ This example demonstrates the power of the Legend component's context integratio
 // Story showing a real-world dashboard layout with centralized legends
 const DashboardWithCentralizedLegend = () => {
 	return (
-		<ChartProvider>
-			<div
-				style={ {
-					display: 'grid',
-					gridTemplateColumns: '1fr 300px',
-					gap: '20px',
-					padding: '20px',
-					backgroundColor: '#f5f5f5',
-					borderRadius: '8px',
-				} }
-			>
-				{ /* Main content area with charts */ }
-				<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
+		<div
+			style={ {
+				display: 'grid',
+				gridTemplateColumns: '1fr 300px',
+				gap: '20px',
+				padding: '20px',
+				backgroundColor: '#f5f5f5',
+				borderRadius: '8px',
+			} }
+		>
+			{ /* Main content area with charts */ }
+			<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
+				<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+					<h3 style={ { margin: '0 0 20px 0' } }>Revenue Trends</h3>
+					<LineChart
+						chartId="dashboard-revenue"
+						data={ lineChartData }
+						showLegend={ false }
+						width={ 600 }
+						height={ 200 }
+						withGradientFill={ false }
+						withLegendGlyph={ false }
+					/>
+				</div>
+
+				<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' } }>
 					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
-						<h3 style={ { margin: '0 0 20px 0' } }>Revenue Trends</h3>
-						<LineChart
-							chartId="dashboard-revenue"
-							data={ lineChartData }
+						<h3 style={ { margin: '0 0 20px 0' } }>Sales by Quarter</h3>
+						<BarChart
+							chartId="dashboard-sales"
+							data={ barChartData }
 							showLegend={ false }
-							width={ 600 }
+							width={ 280 }
 							height={ 200 }
-							withGradientFill={ false }
-							withLegendGlyph={ false }
 						/>
 					</div>
 
-					<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' } }>
-						<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
-							<h3 style={ { margin: '0 0 20px 0' } }>Sales by Quarter</h3>
-							<BarChart
-								chartId="dashboard-sales"
-								data={ barChartData }
-								showLegend={ false }
-								width={ 280 }
-								height={ 200 }
-							/>
-						</div>
-
-						<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
-							<h3 style={ { margin: '0 0 20px 0' } }>Device Distribution</h3>
-							<PieChart chartId="dashboard-devices" data={ pieChartData } showLegend={ false } />
-						</div>
+					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+						<h3 style={ { margin: '0 0 20px 0' } }>Device Distribution</h3>
+						<PieChart chartId="dashboard-devices" data={ pieChartData } showLegend={ false } />
 					</div>
 				</div>
-
-				{ /* Centralized legend panel */ }
-				<aside style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
-					<h3 style={ { margin: '0 0 20px 0' } }>Legend</h3>
-
-					<div style={ { marginBottom: '20px' } }>
-						<h4
-							style={ {
-								margin: '0 0 10px 0',
-								fontSize: '14px',
-								color: '#666',
-							} }
-						>
-							Revenue Trends
-						</h4>
-						<Legend chartId="dashboard-revenue" orientation="vertical" />
-					</div>
-
-					<div style={ { marginBottom: '20px' } }>
-						<h4
-							style={ {
-								margin: '0 0 10px 0',
-								fontSize: '14px',
-								color: '#666',
-							} }
-						>
-							Sales by Quarter
-						</h4>
-						<Legend chartId="dashboard-sales" orientation="vertical" />
-					</div>
-
-					<div>
-						<h4
-							style={ {
-								margin: '0 0 10px 0',
-								fontSize: '14px',
-								color: '#666',
-							} }
-						>
-							Device Distribution
-						</h4>
-						<Legend chartId="dashboard-devices" orientation="vertical" />
-					</div>
-				</aside>
 			</div>
-		</ChartProvider>
+
+			{ /* Centralized legend panel */ }
+			<aside style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+				<h3 style={ { margin: '0 0 20px 0' } }>Legend</h3>
+
+				<div style={ { marginBottom: '20px' } }>
+					<h4
+						style={ {
+							margin: '0 0 10px 0',
+							fontSize: '14px',
+							color: '#666',
+						} }
+					>
+						Revenue Trends
+					</h4>
+					<Legend chartId="dashboard-revenue" orientation="vertical" />
+				</div>
+
+				<div style={ { marginBottom: '20px' } }>
+					<h4
+						style={ {
+							margin: '0 0 10px 0',
+							fontSize: '14px',
+							color: '#666',
+						} }
+					>
+						Sales by Quarter
+					</h4>
+					<Legend chartId="dashboard-sales" orientation="vertical" />
+				</div>
+
+				<div>
+					<h4
+						style={ {
+							margin: '0 0 10px 0',
+							fontSize: '14px',
+							color: '#666',
+						} }
+					>
+						Device Distribution
+					</h4>
+					<Legend chartId="dashboard-devices" orientation="vertical" />
+				</div>
+			</aside>
+		</div>
 	);
 };
 
@@ -446,8 +453,7 @@ export const AlignmentOptions: Story = {
 			{ label: 'Series 3', value: '40%', color: '#44B556' },
 		],
 		orientation: 'horizontal',
-		alignmentHorizontal: 'left',
-		alignmentVertical: 'top',
+		alignment: 'start',
 	},
 	parameters: {
 		docs: {

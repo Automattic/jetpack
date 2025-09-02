@@ -292,7 +292,7 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
             #} ============= PRE-QUERY ============
 
                 $selector = 'form.*';
-                if (isset($fields) && is_array($fields)) {
+			if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
                     // always needs id, so add if not present
@@ -558,27 +558,20 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
 
             }
 
-            // quick addition for mike
-            #} olderThan
-            if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbsf_created','<=','%d',$olderThan);
-            #} newerThan
-            if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbsf_created','>=','%d',$newerThan);
-
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
-
-                // add em onto wheres (note these will OVERRIDE if using a key used above)
-                // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
-                $wheres = array_merge_recursive($wheres,$additionalWhereArr);
-
-            }
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+			// quick addition for mike
+			#} olderThan
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsf_created', '<=', '%d', $olderThan );
+			#} newerThan
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsf_created', '>=', '%d', $newerThan );
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
             #} Is Tagged (expects 1 tag ID OR array)
 
                 // catch 1 item arr
                 if (is_array($isTagged) && count($isTagged) == 1) $isTagged = $isTagged[0];
 
-            if (!is_array($isTagged) && !empty($isTagged) && $isTagged > 0){
+		if ( ! empty( $isTagged ) && ! is_array( $isTagged ) && $isTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -607,8 +600,8 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
 
                 // catch 1 item arr
                 if (is_array($isNotTagged) && count($isNotTagged) == 1) $isNotTagged = $isNotTagged[0];
-                
-            if (!is_array($isNotTagged) && !empty($isNotTagged) && $isNotTagged > 0){
+
+		if ( ! empty( $isNotTagged ) && ! is_array( $isNotTagged ) && $isNotTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -641,18 +634,6 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
             // Obj Model based sort conversion
             // converts 'addr1' => 'zbsco_addr1' generically
             if (isset($this->objectModel[$sortByField]) && isset($this->objectModel[$sortByField]['fieldname'])) $sortByField = $this->objectModel[$sortByField]['fieldname'];
-
-            // Mapped sorts
-            // This catches listview and other exception sort cases
-            $sort_map = array(
-
-            );
-            
-            if ( array_key_exists( $sortByField, $sort_map ) ) {
-
-                $sortByField = $sort_map[ $sortByField ];
-
-            }
 
         #} ============ / SORT   ==============
 
@@ -1112,7 +1093,7 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
                             #} Any extra meta keyval pairs?
                             // BRUTALLY updates (no checking)
                             $confirmedExtraMeta = false;
-                            if (isset($extraMeta) && is_array($extraMeta)) {
+				if ( is_array( $extraMeta ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 $confirmedExtraMeta = array();
 
@@ -1193,7 +1174,7 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
                     #} Any extra meta keyval pairs?
                     // BRUTALLY updates (no checking)
                     $confirmedExtraMeta = false;
-                    if (isset($extraMeta) && is_array($extraMeta)) {
+				if ( is_array( $extraMeta ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         $confirmedExtraMeta = array();
 

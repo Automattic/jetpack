@@ -9,10 +9,12 @@
  * - If it fail all 3 times, then it's a **failed** test.
  */
 import fs from 'fs';
-import { fileNameFormatter } from '../utils/formatting.ts';
+import { fileNameFormatter } from '../utils/formatting';
 import type { Reporter, TestCase, TestResult } from '@playwright/test/reporter';
 
 type FormattedTestResult = Omit< TestResult, 'steps' >;
+
+const FLAKY_TESTS_REPORTS_PATH = 'output/flaky-tests';
 
 /**
  * Formats the test result to remove the steps.
@@ -34,7 +36,7 @@ export default class FlakyTestsReporter implements Reporter {
 
 	onBegin() {
 		try {
-			fs.mkdirSync( 'flaky-tests' );
+			fs.mkdirSync( FLAKY_TESTS_REPORTS_PATH );
 		} catch ( err ) {
 			if ( err instanceof Error && ( err as NodeJS.ErrnoException ).code === 'EEXIST' ) {
 				// Ignore the error if the directory already exists.
@@ -58,7 +60,7 @@ export default class FlakyTestsReporter implements Reporter {
 			}
 			case 'flaky': {
 				fs.writeFileSync(
-					`flaky-tests/${ fileNameFormatter( testTitle ) }.json`,
+					`${ FLAKY_TESTS_REPORTS_PATH }/${ fileNameFormatter( testTitle ) }.json`,
 					JSON.stringify( {
 						version: 1,
 						runner: '@playwright/test',

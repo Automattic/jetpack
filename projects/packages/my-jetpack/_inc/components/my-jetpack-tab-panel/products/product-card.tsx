@@ -9,9 +9,7 @@ import {
 	FlexItem,
 } from '@wordpress/components';
 import { ProductCamelCase } from '../../../data/types';
-import { ModuleStatus } from '../../module-status';
-import { ModuleToggle } from '../../module-toggle';
-import { MyJetpackModule } from '../../types';
+import { MyJetpackModule } from '../../../types';
 import { PRODUCT_ICONS } from './mappings';
 import { ProductCardAction } from './product-card-action';
 import styles from './styles.module.scss';
@@ -52,16 +50,8 @@ export function ProductCard( { product, headingLevel = 3, module: $module }: Pro
 						</Flex>
 					</FlexBlock>
 					{ isAvailable ? (
-						// Hide action buttons and status if not available.
 						<FlexItem>
-							{ $module?.available ? (
-								<Flex gap={ 4 }>
-									<ModuleStatus module={ $module } />
-									<ModuleToggle module={ $module } />
-								</Flex>
-							) : (
-								<ProductCardAction product={ product } />
-							) }
+							<ProductCardAction product={ product } module={ $module } />
 						</FlexItem>
 					) : null }
 				</Flex>

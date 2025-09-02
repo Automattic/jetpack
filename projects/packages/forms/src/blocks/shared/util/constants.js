@@ -3,6 +3,23 @@ import { __ } from '@wordpress/i18n';
 export const ALLOWED_FORMATS = [ 'core/bold', 'core/italic' ];
 export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input' ];
 
+export const CORE_BLOCKS = [
+	'core/audio',
+	'core/columns',
+	'core/group',
+	'core/heading',
+	'core/html',
+	'core/image',
+	'core/list',
+	'core/paragraph',
+	'core/row',
+	'core/separator',
+	'core/spacer',
+	'core/stack',
+	'core/subhead',
+	'core/video',
+];
+
 const currentYear = new Date().getFullYear();
 
 // WARNING: sync data with Contact_Form_Field::render_date_field in class-contact-form-field.php

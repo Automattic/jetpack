@@ -5,6 +5,10 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) {
 	/**
 	 * Add SVG definitions to the footer.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Infinite Scroll: Prevent PHP warnings when settings are malformed.

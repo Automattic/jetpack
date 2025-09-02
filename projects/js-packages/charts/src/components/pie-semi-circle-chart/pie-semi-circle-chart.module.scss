@@ -3,16 +3,6 @@
 	flex-direction: column;
 	text-align: center;
 
-	&-legend {
-
-		&.is-on-top {
-			margin-bottom: 1rem; // Add space between legend and pie chart
-		}
-
-		&.is-on-bottom {
-			margin-top: 1rem; // Add space between pie chart and legend
-		}
-	}
 
 	.label {
 		margin-bottom: 0; // Add space between label and pie chart

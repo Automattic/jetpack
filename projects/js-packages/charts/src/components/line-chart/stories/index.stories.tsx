@@ -1,17 +1,21 @@
+import {
+	ChartStoryArgs,
+	temperatureData as sampleData,
+	largeValuesData,
+	trafficData as webTrafficData,
+} from '../../../stories';
 import LineChart from '../line-chart';
-import { lineChartStoryArgs, lineChartMetaArgs } from './config';
-import largeValuesData from './large-values-sample';
-import sampleData from './sample-data';
-import webTrafficData from './site-traffic-sample';
+import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
+	argTypes: {
+		...lineChartMetaArgs.argTypes,
+	},
 };
 
 export default meta;
@@ -28,6 +32,56 @@ Default.args = {
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
+};
+
+export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegend.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+};
+
+export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
+CustomLegendPositioning.args = {
+	data: sampleData,
+	showLegend: true,
+	height: 400,
+	legendAlignment: 'start',
+	legendPosition: 'top',
+	legendOrientation: 'horizontal',
+	withLegendGlyph: true,
+};
+
+CustomLegendPositioning.parameters = {
+	docs: {
+		description: {
+			story:
+				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
+		},
+	},
+};
+
+// Story showing use with LineChart using composition API
+export const WithCompositionLegend: StoryObj< typeof LineChart > = {
+	render: () => (
+		<div style={ { width: '600px', height: '400px' } }>
+			<LineChart
+				data={ webTrafficData }
+				width={ 600 }
+				height={ 300 }
+				withGradientFill={ false }
+				withLegendGlyph={ false }
+			>
+				<LineChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+			</LineChart>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
+			},
+		},
+	},
 };
 
 // Story with custom dimensions
@@ -253,26 +307,28 @@ SmartFormatting.parameters = {
 	},
 };
 
+// Offset for dashed line to prevent overlapping with solid line
+const DASHED_LINE_OFFSET = 100;
+
 export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
 BrokenLine.args = {
 	...Default.args,
-	margin: {
-		bottom: 40,
-	},
 	data: [
 		{
 			...webTrafficData[ 0 ],
-			label: 'Vistors to compare',
+			label: 'Visitors with dashed line',
+			data: webTrafficData[ 0 ].data.map( point => ( {
+				...point,
+				value: point.value + DASHED_LINE_OFFSET,
+			} ) ),
 			options: {
 				...webTrafficData[ 0 ].options,
-				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
-				legendShapeStyle: {
-					strokeDasharray: '5 5 1',
-				},
+				seriesLineStyle: { strokeDasharray: '5 5', strokeWidth: 3 },
 			},
 		},
-		webTrafficData[ 1 ],
+		webTrafficData[ 0 ],
 	],
+	showLegend: true,
 };
 
 BrokenLine.parameters = {
@@ -319,4 +375,36 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
+};
+
+export const Comparison: StoryObj< typeof LineChart > = Template.bind( {} );
+Comparison.args = {
+	showLegend: true,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'New York',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'New York last year',
+			group: 'new-york',
+			options: {
+				type: 'comparison' as const,
+			},
+		},
+		{
+			...sampleData[ 2 ],
+			label: 'Tokyo',
+		},
+		{
+			...sampleData[ 3 ],
+			label: 'Tokyo last year',
+			group: 'tokyo',
+			options: {
+				type: 'comparison' as const,
+			},
+		},
+	],
 };

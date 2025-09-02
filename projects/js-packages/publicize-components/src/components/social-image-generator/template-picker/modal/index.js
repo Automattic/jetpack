@@ -1,8 +1,9 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { Button, Modal, BaseControl } from '@wordpress/components';
+import { Button, Modal, BaseControl, SelectControl } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useMediaDetails from '../../../../hooks/use-media-details';
+import { useSocialImageFontOptions } from '../../../../hooks/use-social-image-font-options';
 import MediaPicker from '../../../media-picker';
 import TemplatePicker from '../picker';
 import styles from './styles.module.scss';
@@ -20,12 +21,14 @@ const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack-publicize-components' );
  * @param {Function}    props.render          - A function that will be called with an object containing an "open" function, which can be called to open the template picker.
  * @param {string|null} [props.template=null] - The name of the currently selected template.
  * @param {number|null} [props.imageId=null]  - The ID of the currently selected default image.
+ * @param {string}      [props.font='']       - The name of the currently selected font.
  * @return {JSXElement} - The component's rendered output.
  */
-const TemplatePickerModal = ( { onSave, render, template = null, imageId = null } ) => {
+const TemplatePickerModal = ( { onSave, render, template = null, imageId = null, font = '' } ) => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ selectedTemplate, setSelectedTemplate ] = useState( template );
 	const [ selectedImageId, setSelectedImageId ] = useState( imageId );
+	const [ selectedFont, setSelectedFont ] = useState( font );
 	const [ mediaDetails ] = useMediaDetails( selectedImageId );
 
 	const openPicker = useCallback( () => setIsOpen( true ), [ setIsOpen ] );
@@ -37,9 +40,10 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null 
 		onSave( {
 			template: selectedTemplate,
 			imageId: selectedImageId,
+			font: selectedFont,
 		} );
 		setIsOpen( false );
-	}, [ onSave, selectedTemplate, selectedImageId ] );
+	}, [ onSave, selectedTemplate, selectedImageId, selectedFont ] );
 
 	const onImageChange = useCallback(
 		media => {
@@ -47,6 +51,14 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null 
 		},
 		[ setSelectedImageId ]
 	);
+
+	const onFontChange = useCallback(
+		newFont => {
+			setSelectedFont( newFont );
+		},
+		[ setSelectedFont ]
+	);
+	const { isLoading: isLoadingFontOptions, fontOptions } = useSocialImageFontOptions();
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
@@ -58,6 +70,7 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null 
 					title={ __( 'Set default Template and Image', 'jetpack-publicize-components' ) }
 				>
 					<BaseControl
+						__nextHasNoMarginBottom
 						id="default-template"
 						label={ __( 'Default Template', 'jetpack-publicize-components' ) }
 					>
@@ -65,6 +78,7 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null 
 					</BaseControl>
 					<br />
 					<BaseControl
+						__nextHasNoMarginBottom
 						id="default-image"
 						label={ __( 'Default Image', 'jetpack-publicize-components' ) }
 						help={ __(
@@ -82,6 +96,16 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null 
 							isEditor={ false }
 						/>
 					</BaseControl>
+					<br />
+					<SelectControl
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+						label={ __( 'Font', 'jetpack-publicize-components' ) }
+						value={ selectedFont ?? '' }
+						disabled={ isLoadingFontOptions }
+						options={ fontOptions }
+						onChange={ onFontChange }
+					/>
 
 					<div className={ styles.footer }>
 						<Button variant="secondary" onClick={ closePicker }>

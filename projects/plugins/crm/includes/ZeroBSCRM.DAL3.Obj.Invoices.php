@@ -334,7 +334,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                 }
 
                 $selector = 'invoice.*';
-                if (isset($fields) && is_array($fields)) {
+				if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
                     // always needs id, so add if not present
@@ -657,6 +657,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
             }
 
             #} Custom Fields
+						// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
             if ($withCustomFields){
                 
                 #} Retrieve any cf
@@ -779,19 +780,21 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
             }
 
-            // quick addition for mike
-            #} olderThan
-            if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbsi_created','<=','%d',$olderThan);
-            #} newerThan
-            if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbsi_created','>=','%d',$newerThan);
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+			// quick addition for mike
+			#} olderThan
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsi_created', '<=', '%d', $olderThan );
+			#} newerThan
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsi_created', '>=', '%d', $newerThan );
 
-            // status
-            if (!empty($hasStatus) && $hasStatus !== false) $wheres['hasStatus'] = array('zbsi_status','=','%s',$hasStatus);
-            if (!empty($otherStatus) && $otherStatus !== false) $wheres['otherStatus'] = array('zbsi_status','<>','%s',$otherStatus);
+			// status
+			if ( ! empty( $hasStatus ) ) $wheres['hasStatus']     = array( 'zbsi_status', '=', '%s', $hasStatus );
+			if ( ! empty( $otherStatus ) ) $wheres['otherStatus'] = array( 'zbsi_status', '<>', '%s', $otherStatus );
 
-            // assignedContact + assignedCompany
-            if (!empty($assignedContact) && $assignedContact !== false && $assignedContact > 0) $wheres['assignedContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_INVOICE." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = %d)",$assignedContact);
-            if (!empty($assignedCompany) && $assignedCompany !== false && $assignedCompany > 0) $wheres['assignedCompany'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_INVOICE." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$assignedCompany);
+			// assignedContact + assignedCompany
+			if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
+			if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
 
             #} Quick filters - adapted from DAL1 (probs can be slicker)
@@ -817,21 +820,12 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                 }
             } // / quickfilters
 
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
-
-                // add em onto wheres (note these will OVERRIDE if using a key used above)
-                // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
-                $wheres = array_merge_recursive($wheres,$additionalWhereArr);
-
-            }
-
             #} Is Tagged (expects 1 tag ID OR array)
 
                 // catch 1 item arr
                 if (is_array($isTagged) && count($isTagged) == 1) $isTagged = $isTagged[0];
 
-            if (!is_array($isTagged) && !empty($isTagged) && $isTagged > 0){
+			if ( ! empty( $isTagged ) && ! is_array( $isTagged ) && $isTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -860,8 +854,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
                 // catch 1 item arr
                 if (is_array($isNotTagged) && count($isNotTagged) == 1) $isNotTagged = $isNotTagged[0];
-                
-            if (!is_array($isNotTagged) && !empty($isNotTagged) && $isNotTagged > 0){
+
+				if ( ! empty( $isNotTagged ) && ! is_array( $isNotTagged ) && $isNotTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -1381,7 +1375,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                 // FULL UPDATE/INSERT
 
                     // (re)calculate the totals etc?
-                    if (isset($calculate_totals) && $calculate_totals){
+					if ( $calculate_totals ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                         $data = $this->recalculate($data);
 
@@ -1714,7 +1708,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                             #} Any extra meta keyval pairs?
                             // BRUTALLY updates (no checking)
                             $confirmedExtraMeta = false;
-                            if (isset($extraMeta) && is_array($extraMeta)) {
+						if ( is_array( $extraMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                                 $confirmedExtraMeta = array();
 
@@ -1908,7 +1902,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                     #} Any extra meta keyval pairs?
                     // BRUTALLY updates (no checking)
                     $confirmedExtraMeta = false;
-                    if (isset($extraMeta) && is_array($extraMeta)) {
+								if ( is_array( $extraMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                         $confirmedExtraMeta = array();
 
@@ -2690,13 +2684,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
     }
 
 
-    /**
-     * Returns an status against a invoice
-     *
-     * @param int id invoice ID
-     *
-     * @return str invoice status string
-     */
+		/**
+		 * Returns an status against a invoice
+		 *
+		 * @param int $id invoice ID.
+		 *
+		 * @return string invoice status string
+		 */
     public function getInvoiceStatus($id=-1){
 
         global $zbs;
@@ -2721,7 +2715,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 		 * Returns an SQL query addition which will allow filtering of invoices
 		 * that should be included in "total value" fields, excluding 'deleted' status invoices.
 		 *
-		 * @param str $table_alias_sql - if using a table alias pass that here, e.g. `invoices.`.
+		 * @param string $table_alias_sql - if using a table alias pass that here, e.g. `invoices.`.
 		 * @return array
 		 */
 		public function get_invoice_status_except_deleted_for_query( $table_alias_sql = '' ) {
@@ -2735,13 +2729,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 			return $query_addition;
 		}
 
-    /**
-     * Returns an hash against a invoice
-     *
-     * @param int id invoice ID
-     *
-     * @return str invoice hash string
-     */
+		/**
+		 * Returns an hash against a invoice
+		 *
+		 * @param int $id invoice ID.
+		 *
+		 * @return string invoice hash string
+		 */
     public function getInvoiceHash($id=-1){
 
         global $zbs;
@@ -2763,13 +2757,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
     }
 
 
-    /**
-     * Retrieves outstanding balanace against an invoice, based on transactions assigned to it.
-     *
-     * @param int id invoice ID
-     *
-     * @return float invoice outstanding balance
-     */
+		/**
+		 * Retrieves outstanding balanace against an invoice, based on transactions assigned to it.
+		 *
+		 * @param int $invoiceID invoice ID.
+		 *
+		 * @return float invoice outstanding balance
+		 */
     public function getOutstandingBalance($invoiceID=-1){
 
         if ($invoiceID > 0){

@@ -1,16 +1,16 @@
-import { jetpackTheme, wooTheme } from '../../../providers/theme';
-import { sharedDecorator } from '../../../stories/decorator-config';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	legendArgTypes,
+	themeArgTypes,
+} from '../../../stories';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
 import { PieChart } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof PieChart > & {
-	containerWidth?: string;
-	containerHeight?: string;
-	resize?: string;
-	theme?: string | object;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
 
 const data = [
 	{
@@ -33,8 +33,11 @@ const meta: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: sharedDecorator,
+	decorators: [ chartDecorator ],
 	argTypes: {
+		...sharedChartArgTypes,
+		...themeArgTypes,
+		...legendArgTypes,
 		size: {
 			control: {
 				type: 'range',
@@ -68,37 +71,6 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
-		theme: {
-			control: { type: 'select' as const },
-			options: [ 'default', 'jetpack', 'woo' ],
-			mapping: {
-				default: undefined,
-				jetpack: jetpackTheme,
-				woo: wooTheme,
-			},
-			defaultValue: 'default',
-		},
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -117,7 +89,6 @@ export const Default: Story = {
 		cornerScale: 0.03,
 		withTooltips: true,
 		data,
-		theme: 'default',
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
@@ -135,13 +106,6 @@ export const WithoutCenter: Story = {
 	args: {
 		...Default.args,
 		children: undefined,
-	},
-};
-
-export const CustomTheme: Story = {
-	args: {
-		...Default.args,
-		theme: wooTheme,
 	},
 };
 
@@ -189,7 +153,6 @@ export const Doughnut: Story = {
 	args: {
 		...Default.args,
 		thickness: 0.5,
-		padding: 0,
 		gapScale: 0.03,
 		cornerScale: 0.03,
 		size: 600,
@@ -225,6 +188,114 @@ export const WithTooltipsDoughnut: Story = {
 		docs: {
 			description: {
 				story: 'Doughnut chart with interactive tooltips that appear on hover.',
+			},
+		},
+	},
+};
+
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
+export const WithCompositionLegend: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'center',
+			} }
+		>
+			<div>
+				<h3>Traditional Props-based</h3>
+				<PieChart
+					size={ 300 }
+					data={ data }
+					thickness={ 0.5 }
+					showLegend={ true }
+					legendPosition="bottom"
+					legendOrientation="horizontal"
+				>
+					<Group>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+							User Stats
+						</Text>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+							100K Total
+						</Text>
+					</Group>
+				</PieChart>
+			</div>
+			<div>
+				<h3>Composition API</h3>
+				<PieChart size={ 300 } data={ data } thickness={ 0.5 }>
+					<Group>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+							User Stats
+						</Text>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+							100K Total
+						</Text>
+					</Group>
+					<PieChart.Legend position="bottom" orientation="horizontal" alignment="center" />
+				</PieChart>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the donut chart composition API, allowing flexible combination of chart elements and legends.',
+			},
+		},
+	},
+};
+
+export const CustomLegendPositioning: Story = {
+	args: {
+		...Default.args,
+		thickness: 0.4,
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignment: 'start',
+		legendPosition: 'top',
+		data: [
+			{
+				label: 'Desktop',
+				value: 45000,
+				valueDisplay: '45K',
+				percentage: 45,
+			},
+			{
+				label: 'Mobile',
+				value: 35000,
+				valueDisplay: '35K',
+				percentage: 35,
+			},
+			{
+				label: 'Tablet',
+				value: 20000,
+				valueDisplay: '20K',
+				percentage: 20,
+			},
+		],
+		children: (
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -8 }>
+					Distribution
+				</Text>
+			</Group>
+		),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Donut chart with vertical legend positioned at the top left.',
 			},
 		},
 	},

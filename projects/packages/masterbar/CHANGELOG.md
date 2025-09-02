@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.2] - 2025-09-01
+### Changed
+- Internal updates.
+
+## [0.22.1] - 2025-08-25
+### Fixed
+- Fix the target upsell plan for the Additional CSS feature (needed for WP Cloud Personal sites). [#44838]
+
+## [0.22.0] - 2025-08-18
+### Removed
+- Admin Menu: Remove "Settings > Podcasting". [#44750]
+- Admin Menu: Remove "Tools > Monetize". [#44748]
+- Admin Menu: Remove "Users > Subscribers". [#44749]
+
+## [0.21.0] - 2025-08-14
+### Changed
+- Admin Menu: Move Jetpack menu before Posts. [#44733]
+- Update package dependencies. [#44701]
+
+## [0.20.0] - 2025-08-11
+### Changed
+- Admin Menu: Move "Hosting > Marketing" to "Tools > Marketing". [#44663]
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+### Deprecated
+- Admin Menu: Deprecate "Settings > Newsletter". [#44630]
+
+## [0.19.2] - 2025-08-04
+### Removed
+- Remove Dashboard link from Jetpack admin menu. [#44565]
+
 ## [0.19.1] - 2025-07-28
 ### Changed
 - Internal updates.
@@ -394,6 +426,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.22.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.19.2...v0.20.0
+[0.19.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.2...v0.19.0
 [0.18.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.1...v0.18.2

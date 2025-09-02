@@ -33,13 +33,14 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( 'test_value', $field->get_value() );
 		$this->assertEquals( 'basic', $field->get_type() );
 		$this->assertEquals( array(), $field->get_meta() );
+		$this->assertSame( '', $field->get_form_field_id() );
 	}
 
 	/**
 	 * Test that the Feedback_Field class can be instantiated with additional parameters.
 	 */
 	public function test_Feedback_Field_with_additional_parameters() {
-		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ), 'firstname' );
 		$this->assertEquals( 'test_key', $field->get_key() );
 		$this->assertEquals( 'test_label', $field->get_label() );
 		$this->assertEquals( 'test_value', $field->get_value() );
@@ -47,6 +48,7 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( array( 'meta_key' => 'meta_value' ), $field->get_meta() );
 		$this->assertEquals( 'meta_value', $field->get_meta_key_value( 'meta_key' ) );
 		$this->assertNull( $field->get_meta_key_value( 'non_existant' ) );
+		$this->assertEquals( 'firstname', $field->get_form_field_id() );
 	}
 
 	/**
@@ -59,6 +61,7 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertSame( '', $field->get_value() );
 		$this->assertEquals( 'basic', $field->get_type() );
 		$this->assertEquals( array(), $field->get_meta() );
+		$this->assertSame( '', $field->get_form_field_id() );
 	}
 
 	/**
@@ -246,6 +249,23 @@ class Feedback_Field_Test extends BaseTestCase {
 		add_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 		$this->assertSame( array( 'files' => array() ), $field->get_render_value( 'api' ) );
 		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
+	}
+
+	public function test_render_label_in_different_contexts() {
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
+		$this->assertEquals( 'test_label', $field->get_label() );
+
+		$field = new Feedback_Field( 'test_key', '', 'test_value' );
+		$this->assertSame( '', $field->get_label() );
+
+		$field = new Feedback_Field( 'test_key', null, 'test_value' );
+		$this->assertSame( '', $field->get_label() );
+
+		$field = new Feedback_Field( 'test_key', false, 'test_value' );
+		$this->assertSame( '', $field->get_label() );
+
+		$field = new Feedback_Field( 'test_key', 'á&#044; ç&#044; ü&#044; ń&#044; ğ', 'test_value' );
+		$this->assertSame( 'á, ç, ü, ń, ğ', $field->get_label() );
 	}
 	/**
 	 * Helper function to return a URL for the file.

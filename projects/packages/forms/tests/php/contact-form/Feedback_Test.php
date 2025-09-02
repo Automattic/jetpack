@@ -1117,6 +1117,60 @@ class Feedback_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_get_all_values_with_file_upload() {
+
+		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'uploadafile' => array( '{"file_id":54321,"name":"Screenshot.png","size":19914,"type":"image/png"}', '{}' ),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field type="file" label="Upload a file" /]'
+		);
+
+		$expected_file = array(
+			'field_id' => 'g' . $form_id . '-uploadafile',
+			'files'    => array(
+				array(
+					'file_id' => 54321,
+					'name'    => 'Screenshot.png',
+					'size'    => 19914,
+					'type'    => 'image/png',
+				),
+				array(
+					'file_id' => 0,
+					'name'    => '',
+					'size'    => 0,
+					'type'    => '',
+				),
+			),
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		$this->assertTrue( $response->has_file(), 'Response should have file uploaded' );
+		$this->assertTrue( $saved_response->has_file(), 'Saved response should have file uploaded' );
+
+		$this->assertEquals( $expected_file, $response->get_all_values( 'submit' )['1_Upload a file'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_file, $saved_response->get_all_values( 'submit' )['1_Upload a file'], 'Saved response all values should match the expected values' );
+
+		$this->assertEquals( $expected_file, $response->get_legacy_extra_values( 'submit' )['2_Upload a file'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_file, $saved_response->get_legacy_extra_values( 'submit' )['2_Upload a file'], 'Saved response all values should match the expected values' );
+
+		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+	}
+
 	public function test_get_akismet_vars() {
 		// Test that the get_akismet_vars method returns the correct variables for Akismet.
 
@@ -1392,7 +1446,7 @@ class Feedback_Test extends BaseTestCase {
 				),
 				'message'  => 'Compiled fields should return key-value pairs only.',
 			),
-			'label-value_format' => array(
+			'label|value_format' => array(
 				'format'   => 'label|value',
 				'expected' => array(
 					array(
@@ -1423,6 +1477,16 @@ class Feedback_Test extends BaseTestCase {
 					$test_message,
 				),
 				'message'  => 'Compiled fields should return only values as indexed array.',
+			),
+			'label-value_format' => array(
+				'format'   => 'label-value',
+				'expected' => array(
+					'Name'    => $test_name,
+					'Email'   => $test_email,
+					'Website' => $test_website,
+					'Message' => $test_message,
+				),
+				'message'  => 'Compiled fields should return only labels as indexed array.',
 			),
 			'label_format'       => array(
 				'format'   => 'label',
@@ -1492,7 +1556,7 @@ class Feedback_Test extends BaseTestCase {
 		$url     = 'https://wordpress.com';
 		$post_id = Utility::create_legacy_feedback(
 			array(
-				'file upload' => array(
+				'1_file upload' => array(
 					'field_id' => 'file_upload',
 					'files'    => array( $file ),
 				),
@@ -1511,5 +1575,595 @@ class Feedback_Test extends BaseTestCase {
 				$this->assertEquals( 'file', $field->get_type() );
 			}
 		}
+
+		$this->assertSame( '', $saved_response->get_field_value_by_label( 'non existing field' ) );
+	}
+
+	public function test_legacy_get_all_legacy_values() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'value2',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+
+		$expected_legacy_values = array(
+			'_feedback_author'       => 'Test User',
+			'_feedback_author_email' => 'test@email.com',
+			'_feedback_author_url'   => 'http://example.com',
+			'_feedback_subject'      => 'Test Subject',
+			'_feedback_ip'           => 'https://127.0.0.1',
+			'_feedback_all_fields'   => array(
+				'1_field'                 => 'value1',
+				'2_field'                 => 'value2',
+				'email_marketing_consent' => 'no',
+				'entry_title'             => 'Cool Post Title',
+				'entry_permalink'         => '',
+				'feedback_id'             => 'skip',
+			),
+		);
+
+		$response_legacy = $response->get_all_legacy_values();
+
+		$this->assertNotEmpty( $response_legacy, 'Legacy values should not be empty for the legacy feedback' );
+
+		foreach ( $expected_legacy_values as $key => $value ) {
+			$this->assertArrayHasKey( $key, $response_legacy, 'Extra values should contain the expected key: ' . $key );
+
+			if ( is_array( $value ) ) {
+				foreach ( $value as $sub_key => $sub_value ) {
+					$this->assertArrayHasKey( $sub_key, $response_legacy[ $key ], 'Extra values should contain the expected sub-key: ' . $sub_key );
+					if ( $sub_value !== 'skip' ) {
+						$this->assertEquals( $sub_value, $response_legacy[ $key ][ $sub_key ], 'Extra values should match the expected sub-value for key: ' . $sub_key );
+					}
+				}
+			} else {
+				$this->assertEquals( $value, $response_legacy[ $key ], 'Extra values should match the expected value for key: ' . $key );
+			}
+		}
+	}
+
+	public function test_get_all_legacy_values() {
+		$form_id = Utility::get_form_id( array( 'widget' => 'widget' ) );
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'text'    => 'Test text',
+				'email'   => 'john.smith@example.com',
+				'email_2' => 'john.smith@example2.com',
+				'website' => 'https://johnsmith.dev',
+				'message' => 'Hello, this is a test message from our contact form.',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+				'widget'      => 'widget',
+			),
+			"[contact-field label='Text' type='text' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Email_2' type='email' required='1'/][contact-field label='Website' type='url' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response               = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id       = $response->save();
+		$saved_response         = Feedback::get( $feedback_post_id );
+		$expected_legacy_values = array(
+			'_feedback_author'       => 'john.smith@example.com',
+			'_feedback_author_email' => 'john.smith@example.com',
+			'_feedback_author_url'   => 'https://johnsmith.dev',
+			'_feedback_subject'      => 'skip',
+			'_feedback_ip'           => '127.0.0.1',
+			'_feedback_all_fields'   => array(
+				'1_Text'                  => 'Test text',
+				'2_Email'                 => 'john.smith@example.com',
+				'3_Email_2'               => 'john.smith@example2.com',
+				'4_Website'               => 'https://johnsmith.dev',
+				'5_Message'               => 'Hello, this is a test message from our contact form.',
+				'email_marketing_consent' => 'no',
+				'entry_title'             => '',
+				'entry_permalink'         => home_url(),
+				'feedback_id'             => 'skip',
+			),
+		);
+
+		$this->assertNotEmpty( $response->get_all_legacy_values(), 'Extra values should not be empty for the form submission' );
+		$this->assertEquals( $response->get_all_legacy_values(), $saved_response->get_all_legacy_values(), 'Extra values should match the saved form submission' );
+		$response_legacy = $response->get_all_legacy_values();
+		$saved_legacy    = $saved_response->get_all_legacy_values();
+		foreach ( $expected_legacy_values as $key => $value ) {
+			$this->assertArrayHasKey( $key, $response_legacy, 'Extra values should contain the expected key: ' . $key );
+			$this->assertArrayHasKey( $key, $saved_legacy, 'Saved extra values should contain the expected key: ' . $key );
+
+			if ( is_array( $value ) ) {
+				foreach ( $value as $sub_key => $sub_value ) {
+					$this->assertArrayHasKey( $sub_key, $response_legacy[ $key ], 'Extra values should contain the expected sub-key: ' . $sub_key );
+					$this->assertArrayHasKey( $sub_key, $saved_legacy[ $key ], 'Saved extra values should contain the expected sub-key: ' . $sub_key );
+					if ( $sub_value !== 'skip' ) {
+						$this->assertEquals( $sub_value, $response_legacy[ $key ][ $sub_key ], 'Extra values should match the expected sub-value for key: ' . $sub_key );
+						$this->assertEquals( $sub_value, $saved_legacy[ $key ][ $sub_key ], 'Saved extra values should match the expected sub-value for key: ' . $sub_key );
+					}
+				}
+			} elseif ( $value !== 'skip' ) {
+				$this->assertEquals( $value, $response_legacy[ $key ], 'Extra values should match the expected value for key: ' . $key );
+				$this->assertEquals( $value, $saved_legacy[ $key ], 'Saved extra values should match the expected value for key: ' . $key );
+			}
+		}
+	}
+
+	public function test_get_legacy_extra_values() {
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'text'    => 'Test text',
+				'email'   => 'john.smith@example.com',
+				'email_2' => 'john.smith@example2.com',
+				'website' => 'https://johnsmith.dev',
+				'message' => 'Hello, this is a test message from our contact form.',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Text' type='text' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Email_2' type='email' required='1'/][contact-field label='Website' type='url' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response              = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id      = $response->save();
+		$saved_response        = Feedback::get( $feedback_post_id );
+		$expected_extra_values = array(
+			'6_Text'    => 'Test text',
+			'7_Email_2' => 'john.smith@example2.com',
+		);
+
+		$this->assertNotEmpty( $response->get_legacy_extra_values(), 'Extra values should not be empty for the form submission' );
+		$this->assertEquals( $response->get_legacy_extra_values(), $saved_response->get_legacy_extra_values(), 'Extra values should match the saved form submission' );
+		$response_extra = $response->get_legacy_extra_values();
+		$saved_extra    = $saved_response->get_legacy_extra_values();
+		$this->assertEquals( $expected_extra_values, $response_extra, 'Extra values should match the expected extra values' );
+		$this->assertEquals( $expected_extra_values, $saved_extra, 'Saved extra values should match the expected extra values' );
+	}
+
+	public function test_legacy_get_legacy_extra_values() {
+		$post_id                = Utility::create_legacy_feedback(
+			array(
+				'1_field' => 'value1',
+				'2_field' => 'test@email.com',
+				'3_field' => 'value2',
+			)
+		);
+		$expected_legacy_values = array(
+			'4_field' => 'value1',
+			'5_field' => 'value2',
+		);
+		$response               = Feedback::get( $post_id );
+		$response_legacy        = $response->get_legacy_extra_values();
+		$this->assertNotEmpty( $response_legacy, 'Legacy values should not be empty for the legacy feedback' );
+		$this->assertEquals( $expected_legacy_values, $response_legacy, 'Legacy extra values should match the expected extra values' );
+	}
+
+	public function test_has_field_type_with_consent_explicit_checked() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@example.com',
+				'consent' => 'Yes',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+			. "[contact-field label='Consent' type='consent' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Check both the in-memory response and the saved one return the same values.
+		$this->assertTrue( $response->has_field_type( 'consent' ), 'Feedback (response) should report consent field exists' );
+		$this->assertTrue( $response->has_consent(), 'Consent (response) should be granted when posted as Yes' );
+
+		$this->assertTrue( $saved_response->has_field_type( 'consent' ), 'Feedback (saved) should report consent field exists' );
+		$this->assertTrue( $saved_response->has_consent(), 'Consent (saved) should be granted when posted as Yes' );
+	}
+
+	public function test_has_field_type_without_consent_field() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'email' => 'email@example.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/]"
+			. "[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Check both the in-memory response and the saved one return the same values.
+		$this->assertFalse( $response->has_field_type( 'consent' ), 'Feedback (response) should report no consent field' );
+		$this->assertFalse( $response->has_consent(), 'Consent (response) should be false when no consent field was present' );
+
+		$this->assertFalse( $saved_response->has_field_type( 'consent' ), 'Feedback (saved) should report no consent field' );
+		$this->assertFalse( $saved_response->has_consent(), 'Consent (saved) should be false when no consent field was present' );
+	}
+
+	public function test_get_files_legacy() {
+		$file1 = array(
+			'file_id' => 1234,
+			'name'    => 'test-file.txt',
+			'size'    => 1234,
+			'type'    => 'text/plain',
+		);
+
+		$file2 = array(
+			'file_id' => 5678,
+			'name'    => 'test-file.png',
+			'size'    => 4567,
+			'type'    => 'image/png',
+		);
+
+		$empty_file = array(
+			'file_id' => null,
+			'name'    => '',
+			'size'    => null,
+			'type'    => '',
+		);
+
+		$empty_file_2 = array(
+			'file_id' => 123,
+			'name'    => '',
+			'size'    => null,
+			'type'    => '',
+		);
+		$empty_file_3 = array(
+			'file_id' => 123,
+			'name'    => 'name',
+			'size'    => null,
+			'type'    => '',
+		);
+
+		$empty_file_4 = array(
+			'file_id' => 123,
+			'name'    => 'name',
+			'size'    => 12345,
+			'type'    => '',
+		);
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'1_file upload' => array(
+					'field_id' => 'file_upload',
+					'files'    => array( $file1, $empty_file, $empty_file_2, $empty_file_3, $empty_file_4, $file2 ),
+				),
+				'2_images'      => array(
+					'field_id' => 'file_upload2',
+					'files'    => array( $file2, $file1 ),
+				),
+				'3_docs'        => array(
+					'field_id' => 'file_upload3',
+					'files'    => array(),
+				),
+			)
+		);
+
+		$expected_legacy_values = array(
+			$file1,
+			$file2,
+			$file2,
+			$file1,
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertNotEmpty( $response->get_files(), 'Legacy file values should not be empty for the legacy feedback' );
+		$this->assertEquals( $expected_legacy_values, $response->get_files(), 'Legacy extra values should match the expected extra values' );
+	}
+
+	public function test_get_files_empty() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'text'    => 'Test text',
+				'email'   => 'john.smith@example.com',
+				'email_2' => 'john.smith@example2.com',
+				'website' => 'https://johnsmith.dev',
+				'message' => 'Hello, this is a test message from our contact form.',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Text' type='text' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Email_2' type='email' required='1'/][contact-field label='Website' type='url' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEmpty( $response->get_files(), 'Files should be empty for the form submission without file uploads' );
+		$this->assertEmpty( $saved_response->get_files(), 'Files should be empty for the saved response without file uploads' );
+	}
+
+	public function test_get_files_valid() {
+		// This is needed for the test to run correctly.
+		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'uploadafile' => array( '{"file_id":54321,"name":"Screenshot.png","size":19914,"type":"image/png"}', '{}' ),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field type="file" label="Upload a file" /]'
+		);
+
+		$expected         = array(
+			array(
+				'file_id' => 54321,
+				'name'    => 'Screenshot.png',
+				'size'    => 19914,
+				'type'    => 'image/png',
+			),
+		);
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertNotEmpty( $response->get_files(), 'Files should not be empty for the form submission with file uploads' );
+		$this->assertNotEmpty( $saved_response->get_files(), 'Files should not be empty for the saved response with file uploads' );
+		$this->assertEquals( $response->get_files(), $saved_response->get_files(), 'Files should match between the response and the saved response' );
+		$this->assertEquals( $expected, $response->get_files(), 'Response files should match the expected files' );
+
+		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+	}
+
+	public function test_get_files_invalid() {
+		// This is needed for the test to run correctly.
+		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'uploadafile'       => null,
+				'uploadanotherfile' => array(),
+				'uploademptyfile'   => array( '{}' ),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field type="file" label="Upload a file" /][contact-field type="file" label="Upload another file" /][contact-field type="file" label="Upload empty file" /]'
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEmpty( $response->get_files(), 'Files should not be empty for the form submission with file uploads' );
+		$this->assertEmpty( $saved_response->get_files(), 'Files should not be empty for the saved response with file uploads' );
+
+		remove_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
+	}
+
+	public function test_validate_radio_form() {
+		$name    = '';
+		$email   = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'                 => $name,
+				'email'                => $email,
+				'choose'               => 'truth',
+				'chooseoptions'        => 'hello  there',
+				'chooseseveraloptions' => 'hello, there',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Name" type="name" /][contact-field label="Email" type="email" /][contact-field label="Choose" type="radio" options="truth,dare" /][contact-field type="radio" label="Choose options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello  there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+
+
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+
+
+
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field][contact-field type="radio" label="Choose several options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+
+
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+
+
+
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
+	}
+
+	public function test_get_field_by_id_and_value_by_id_new_submission() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Hello!',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response  = Feedback::from_submission( $_post_data, $form );
+		$field_ids = $form->get_field_ids();
+		$email_id  = $field_ids['email'];
+
+		$this->assertNotEmpty( $email_id );
+		$this->assertEquals( 'john@example.com', $response->get_field_value_by_form_field_id( $email_id ) );
+
+		$field = $response->get_field_by_form_field_id( $email_id );
+		$this->assertInstanceOf( Feedback_Field::class, $field );
+		$this->assertEquals( $email_id, $field->get_form_field_id() );
+
+		// Save and reload; ensure the field id and value persist correctly
+		$saved_post_id  = $response->save();
+		$saved_response = Feedback::get( $saved_post_id );
+		$this->assertEquals( 'john@example.com', $saved_response->get_field_value_by_form_field_id( $email_id ) );
+		$saved_field = $saved_response->get_field_by_form_field_id( $email_id );
+		$this->assertInstanceOf( Feedback_Field::class, $saved_field );
+		$this->assertEquals( $email_id, $saved_field->get_form_field_id() );
+	}
+
+	public function test_get_field_by_id_and_value_by_id_legacy() {
+		$post_id  = Utility::create_legacy_feedback( array() );
+		$response = Feedback::get( $post_id );
+
+		$this->assertSame( '', $response->get_field_value_by_form_field_id( 'email' ) );
+		$this->assertNull( $response->get_field_by_form_field_id( 'email' ) );
+	}
+
+	public function test_edgecase_feedback_v2() {
+		// Post data with missing field value.
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => Feedback::POST_TYPE,
+				'post_title'     => 'Edgecase Feedback',
+				'post_content'   => '{"subject":"[WR8DAR] Contact us!","entry_title":"Contact us!","entry_page":1,"fields":[{"key":"1_key label","label":"key label","value":"abcd","type":"name","meta":[],"form_field_id":"g124-keylabel"},{"key":"2_Awesome","label":"Awesome","type":"email","meta":[],"form_field_id":"g124-awesome"}]}',
+				'post_status'    => 'publish',
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+	}
+
+	/**
+	 * Test that new lines are not stripped from the field value.
+	 */
+	public function test_new_lines_dont_get_stripped() {
+		$form_id          = Utility::get_form_id();
+		$content          = 'Hello, this is a' . PHP_EOL . ' test message from our contact form.';
+		$expected_content = $content;
+
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => $content,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertTrue( str_contains( get_post( $feedback_post_id )->post_content, '\\n' ) ); // Double escaped PHP_EOL
+		$this->assertEquals( $expected_content, $response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the form submission when new lines are present' );
+		$this->assertEquals( $expected_content, $saved_response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the saved response when new lines are present' );
+	}
+
+	/**
+	 * Test that new lines are not stripped from the field value.
+	 */
+	public function test_new_lines_dont_get_stripped_when_addslashes() {
+		$form_id          = Utility::get_form_id();
+		$content          = addslashes( 'Hello, this is a' . PHP_EOL . ' test message from our contact form.' );
+		$expected_content = stripslashes( $content );
+
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => $content,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertTrue( str_contains( get_post( $feedback_post_id )->post_content, '\\n' ) ); // Double escaped PHP_EOL
+		$this->assertEquals( $expected_content, $response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the form submission when new lines are present' );
+		$this->assertEquals( $expected_content, $saved_response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the saved response when new lines are present' );
 	}
 }

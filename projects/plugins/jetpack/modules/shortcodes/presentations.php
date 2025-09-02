@@ -55,6 +55,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Presentations' ) ) :
 	/**
 	 * Create a shortcode to display Presentations and slides.

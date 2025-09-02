@@ -1,10 +1,22 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
-import { formatMetricValue } from '../../shared/format-metric-value';
+import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	trafficSourcesData as sampleData,
+	shortTrafficSourcesData as smallDataset,
+	revenueMetricsData as largeValues,
+	decliningMetricsData as negativeGrowth,
+	categorizedMetricsData as dataWithImageColor,
+	themeArgTypes,
+} from '../../../stories';
+import { formatMetricValue } from '../../../utils';
 import { LeaderboardChart } from '../leaderboard-chart';
-import { sampleData, smallDataset, largeValues, negativeGrowth } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof LeaderboardChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Leaderboard Chart',
 	component: LeaderboardChart,
 	parameters: {
@@ -17,7 +29,7 @@ A flexible and accessible leaderboard chart component for displaying ranked data
 ## Features
 
 - 📊 Clean, responsive leaderboard visualization
-- 🎨 Customizable colors and styling  
+- 🎨 Customizable colors and styling
 - 🔄 Optional comparison data support
 - 📱 Mobile-friendly design
 - 🎯 TypeScript support with full type definitions
@@ -83,7 +95,7 @@ import { LeaderboardChart } from '@automattic/charts';
 // Transform your raw data into LeaderboardEntry format
 function transformRawData(rawData) {
   const maxValue = Math.max(...rawData.map(item => item.current_period.value));
-  
+
   return rawData.map(item => ({
     id: item.id,
     label: item.name,
@@ -97,7 +109,7 @@ function transformRawData(rawData) {
 
 function ProcessedDataChart() {
   const processedData = transformRawData(rawData);
-  
+
   return (
     <LeaderboardChart
       data={processedData}
@@ -133,6 +145,7 @@ The component uses CSS Modules for styling. You can customize colors using CSS c
 .myCustomChart {
   --primary-color: #ff6b6b;
   --secondary-color: #4ecdc4;
+	--bar-border: 1px solid 8px;
 }
 \`\`\`
 
@@ -241,18 +254,14 @@ const trafficData = [
 				type: { summary: 'React.CSSProperties' },
 			},
 		},
+		...sharedChartArgTypes,
+		...themeArgTypes,
 	},
-	decorators: [
-		Story => (
-			<div style={ { width: '400px', padding: '20px' } }>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [ chartDecorator ],
 };
 
 export default meta;
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
@@ -271,6 +280,14 @@ export const WithoutComparison: Story = {
 		loading: false,
 		primaryColor: '#3858E9',
 		secondaryColor: '#66BDFF',
+	},
+};
+
+export const WithOverlayLabel: Story = {
+	args: {
+		data: sampleData,
+		withOverlayLabel: true,
+		primaryColor: '#66BDFF',
 	},
 };
 
@@ -372,6 +389,42 @@ export const NumberFormatting: Story = {
 	},
 };
 
+const CustomLabelComponent = ( { label, imageColor, style = {} } ) => (
+	<div
+		style={ {
+			display: 'flex',
+			alignItems: 'center',
+			gap: '8px',
+			...style,
+		} }
+	>
+		<img
+			src={ `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='${ encodeURIComponent(
+				imageColor
+			) }'/></svg>` }
+			alt="icon"
+			style={ {
+				width: '28px',
+				height: '28px',
+				verticalAlign: 'middle',
+				borderRadius: '4px',
+			} }
+		/>
+		<span style={ { fontSize: '13px' } }>{ label }</span>
+	</div>
+);
+
+export const CustomLabel: Story = {
+	args: {
+		data: dataWithImageColor.map( entry => ( {
+			...entry,
+			label: <CustomLabelComponent label={ entry.label } imageColor={ entry.imageColor } />,
+		} ) ),
+		withComparison: false,
+		loading: false,
+	},
+};
+
 export const AdvancedFormatting: Story = {
 	args: {
 		data: largeValues,
@@ -432,4 +485,27 @@ export const WooCommerceTheme: Story = {
 			</ThemeProvider>
 		),
 	],
+};
+
+export const OverlayLabelWithImage: Story = {
+	args: {
+		data: dataWithImageColor.map( entry => ( {
+			...entry,
+			label: (
+				<CustomLabelComponent
+					label={ entry.label }
+					imageColor={ entry.imageColor }
+					style={ { padding: '6px' } }
+				/>
+			),
+		} ) ),
+		primaryColor: '#C8CFF6',
+		withComparison: true,
+		withOverlayLabel: true,
+		loading: false,
+		style: {
+			'--bar-border': '4px',
+			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
+		},
+	},
 };

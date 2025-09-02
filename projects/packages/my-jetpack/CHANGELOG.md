@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.25.0] - 2025-09-01
+### Added
+- Add product interstitials state management. [#44772]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+
+## [5.24.0] - 2025-08-25
+### Changed
+- Use PricingTable component for product interstitials. [#44801]
+
+### Fixed
+- Resolve `PhanImpossibleCondition` violations. [#44869]
+
+## [5.23.2] - 2025-08-21
+### Changed
+- Lift the TypeScript types up from product tabs for reusability. [#44857]
+
+## [5.23.1] - 2025-08-18
+### Changed
+- Update dependencies. [#44736]
+
+## [5.23.0] - 2025-08-14
+### Added
+- Add new Interstitial component. [#44665]
+
+### Changed
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Update package dependencies. [#44701]
+
+## [5.22.1] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677] [#44703]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [5.22.0] - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Update @wordpress/dataviews to 5.0.0. [#44376]
+
+### Fixed
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+
 ## [5.21.0] - 2025-07-30
 ### Removed
 - Remove redundant sending on "nocache" headers on the My Jetpack admin screen, as these are already sent by WordPress. [#44322]
@@ -2276,6 +2322,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.25.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.24.0...5.25.0
+[5.24.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.2...5.24.0
+[5.23.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.1...5.23.2
+[5.23.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.0...5.23.1
+[5.23.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.22.1...5.23.0
+[5.22.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.22.0...5.22.1
+[5.22.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.21.0...5.22.0
 [5.21.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.2...5.21.0
 [5.20.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.1...5.20.2
 [5.20.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.0...5.20.1

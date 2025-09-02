@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Extensions\GoogleDocsEmbed;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the blocks for use in Gutenberg
  * This is done via an action so that we can disable

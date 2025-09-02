@@ -1,9 +1,24 @@
 import { LegendOrdinal } from '@visx/legend';
-import type { GlyphProps } from '@visx/xychart';
+import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
 // See https://airbnb.io/visx/docs/legend#Ordinal for more details.
 type LegendOrdinalProps = Omit< ComponentProps< typeof LegendOrdinal >, 'scale' | 'direction' >;
+
+export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
+	items: BaseLegendItem[];
+	orientation?: 'horizontal' | 'vertical';
+	/**
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
+	 */
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
+};
+
+export type LegendProps = Omit< BaseLegendProps, 'items' > & {
+	items?: BaseLegendItem[];
+	chartId?: string;
+};
 
 export type BaseLegendItem = {
 	label: string;
@@ -11,27 +26,9 @@ export type BaseLegendItem = {
 	color: string;
 	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	shapeStyle?: CSSProperties;
-};
-
-export type LegendItemWithGlyph = BaseLegendItem & {
-	renderGlyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphSize: number;
-};
-
-export type LegendItemWithoutGlyph = BaseLegendItem & {
-	renderGlyph?: never;
-	glyphSize?: number;
-};
-
-export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
-	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
-	orientation?: 'horizontal' | 'vertical';
-	alignmentHorizontal?: 'left' | 'center' | 'right';
-	alignmentVertical?: 'top' | 'bottom';
-};
-
-export type LegendProps = Omit< BaseLegendProps, 'items' > & {
-	items?: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
-	chartId?: string;
+	shapeStyle?: CSSProperties & LineStyles;
+	// Optional group info for dynamic color resolution
+	group?: string;
+	index?: number;
+	overrideColor?: string;
 };

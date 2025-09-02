@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Third_Party;
 
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Automattic\Jetpack\Third_Party\Domain_Mapping.
  *

@@ -303,4 +303,32 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 		$this->assertSame( '2024-03-08T01:02:03Z', $result['last_modified'], 'Last modified date is not the one from the other_urls filter.' );
 	}
+
+	/**
+	 * Test that cache suspension state is restored after sitemap update
+	 *
+	 * @group jetpack-sitemap
+	 * @since 15.0
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_cache_suspension_state_restored() {
+		// Create test content
+		self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$initial_state = wp_suspend_cache_addition();
+
+		add_filter( 'jetpack_sitemap_suspend_cache_addition', '__return_true' );
+
+		$this->builder->update_sitemap();
+
+		$final_state = wp_suspend_cache_addition();
+		$this->assertEquals( $initial_state, $final_state );
+
+		remove_filter( 'jetpack_sitemap_suspend_cache_addition', '__return_true' );
+	}
 }

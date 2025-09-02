@@ -2,8 +2,10 @@
 
 namespace Automattic;
 
+use Automattic\Block_Delimiter\Tests\Lib\Performance_Benchmark_Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -721,5 +723,166 @@ class Block_Scanner_Test extends TestCase {
 				$this->assertNotEquals( JSON_ERROR_NONE, $scanner->get_last_json_error(), "Should have JSON error for: {$test_case}" );
 			}
 		}
+	}
+
+	/**
+	 * Test performance regression detection between parse_blocks and Block_Scanner.
+	 *
+	 * Ensures Block_Scanner performance doesn't significantly regress compared to parse_blocks.
+	 * Uses CI-friendly thresholds and extensive retry logic to minimize false positives.
+	 *
+	 * @group performance
+	 */
+	#[Group( 'performance' )]
+	public function test_performance_comparison(): void {
+		if ( ! \function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+		}
+
+		if ( ! \function_exists( 'serialize_blocks' ) ) {
+			$this->markTestSkipped( 'serialize_blocks not available. Block editor not available' );
+		}
+
+		// Skip test under high system load conditions to reduce CI flakiness
+		if ( Performance_Benchmark_Utils::is_system_under_high_load() ) {
+			$this->markTestSkipped( 'System under high load - skipping performance test for stability' );
+		}
+
+		$test_content = Performance_Benchmark_Utils::generate_test_content_with_target_image();
+
+		// Run competitive benchmark with paired measurements
+		$benchmark_results = Performance_Benchmark_Utils::run_competitive_benchmark(
+			function () use ( $test_content ) {
+				return $this->find_first_image_with_scanner( $test_content );
+			},
+			function () use ( $test_content ) {
+				return $this->find_first_image_with_parse_blocks( $test_content );
+			},
+			Performance_Benchmark_Utils::PERF_BENCHMARK_ITERATIONS
+		);
+
+		// Verify correctness - both methods should find the same result
+		$scanner_result      = $this->find_first_image_with_scanner( $test_content );
+		$parse_blocks_result = $this->find_first_image_with_parse_blocks( $test_content );
+		$this->assert_same_results( $scanner_result, $parse_blocks_result );
+
+		Performance_Benchmark_Utils::assert_performance_advantage_paired(
+			$this,
+			$benchmark_results,
+			function () use ( $test_content ) {
+				return $this->find_first_image_with_scanner( $test_content );
+			},
+			function () use ( $test_content ) {
+				return $this->find_first_image_with_parse_blocks( $test_content );
+			}
+		);
+	}
+
+	/**
+	 * Assert both methods found the same target block.
+	 *
+	 * @param array|null $scanner_result Scanner result.
+	 * @param array|null $parse_blocks_result parse_blocks result.
+	 */
+	private function assert_same_results( ?array $scanner_result, ?array $parse_blocks_result ): void {
+		$this->assertNotNull( $scanner_result, 'Scanner should find image block' );
+		$this->assertNotNull( $parse_blocks_result, 'parse_blocks should find image block' );
+		$this->assertSame( $parse_blocks_result['blockName'], $scanner_result['blockName'] );
+		$this->assertSame( $parse_blocks_result['attrs'], $scanner_result['attrs'] );
+	}
+
+	/**
+	 * Find the first image block using Block_Scanner.
+	 *
+	 * @param string $content Block content to search.
+	 * @return array|null Image block data or null if not found.
+	 */
+	private function find_first_image_with_scanner( string $content ): ?array {
+		$scanner = Block_Scanner::create( $content );
+
+		while ( $scanner->next_delimiter() ) {
+			if ( $scanner->opens_block( 'image' ) ) {
+				$attributes = $scanner->allocate_and_return_parsed_attributes();
+				return array(
+					'blockName' => $scanner->get_block_type(),
+					'attrs'     => $attributes ? $attributes : array(),
+					'method'    => 'scanner',
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Find the first image block using parse_blocks.
+	 *
+	 * @param string $content Block content to search.
+	 * @return array|null Image block data or null if not found.
+	 */
+	private function find_first_image_with_parse_blocks( string $content ): ?array {
+		$blocks = \parse_blocks( $content );
+
+		foreach ( $blocks as $block ) {
+			$result = $this->search_blocks_recursive( array( $block ), 'core/image' );
+			if ( $result !== null ) {
+				return array(
+					'blockName' => $result['blockName'],
+					'attrs'     => $result['attrs'] ? $result['attrs'] : array(),
+					'method'    => 'parse_blocks',
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Recursively search through blocks to find a specific block type.
+	 *
+	 * @param array  $blocks Array of block objects to search.
+	 * @param string $target_type Block type to find.
+	 * @return array|null Block data or null if not found.
+	 */
+	private function search_blocks_recursive( array $blocks, string $target_type ): ?array {
+		foreach ( $blocks as $block ) {
+			if ( $block['blockName'] === $target_type ) {
+				return $block;
+			}
+
+			// Search in inner blocks if they exist
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$result = $this->search_blocks_recursive( $block['innerBlocks'], $target_type );
+				if ( $result !== null ) {
+					return $result;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Test that scanner and parse_blocks find the same first image block.
+	 *
+	 * This is an always-on correctness test that verifies both methods return
+	 * the same result without performance assertions.
+	 */
+	public function test_scanner_and_parse_blocks_find_same_first_image(): void {
+		if ( ! \function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+		}
+
+		if ( ! \function_exists( 'serialize_blocks' ) ) {
+			$this->markTestSkipped( 'serialize_blocks not available. Block editor not available' );
+		}
+
+		$test_content = Performance_Benchmark_Utils::generate_test_content_with_target_image();
+
+		$scanner_result      = $this->find_first_image_with_scanner( $test_content );
+		$parse_blocks_result = $this->find_first_image_with_parse_blocks( $test_content );
+
+		// Verify correctness only
+		$this->assert_same_results( $scanner_result, $parse_blocks_result );
 	}
 }

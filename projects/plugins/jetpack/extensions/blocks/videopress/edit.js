@@ -604,7 +604,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									<p id={ videoPosterDescription } hidden>
 										{ hasPoster
 											? sprintf(
-													/* translators: Placeholder is an image URL. */
+													/* translators: %s: an image URL. */
 													__( 'The current poster image url is %s', 'jetpack' ),
 													poster ?? videoPosterImageData
 											  )

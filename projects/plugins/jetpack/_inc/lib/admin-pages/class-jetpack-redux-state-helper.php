@@ -174,6 +174,7 @@ class Jetpack_Redux_State_Helper {
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
+				'representativeImage'        => self::get_site_image(),
 				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				/**
 				 * Whether promotions are visible or not.
@@ -426,6 +427,19 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function generate_purchase_token() {
 		return wp_generate_password( 12, false );
+	}
+
+	/**
+	 * Get a representative image for the site.
+	 *
+	 * @since 15.0
+	 *
+	 * @return string
+	 */
+	public static function get_site_image(): string {
+		// Get the dynamic image generated for the Open Graph Meta tags.
+		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
+		return jetpack_og_get_fallback_social_image( 200, 200 )['src'];
 	}
 }
 

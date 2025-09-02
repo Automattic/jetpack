@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.7.14';
+	const PACKAGE_VERSION = '0.7.18';
 
 	/**
 	 * Singleton.
@@ -325,14 +325,19 @@ final class Image_CDN {
 	/**
 	 * Identify images in post content, and if images are local (uploaded to the current site), pass through Photon.
 	 *
-	 * @param string $content The content.
+	 * @param string|mixed $content The content; should be a string but will convert to an empty string if not.
 	 *
 	 * @uses self::validate_image_url, apply_filters, Image_CDN_Core::cdn_url, esc_url
 	 * @filter the_content
 	 *
-	 * @return string
+	 * @return string The content.
 	 */
 	public static function filter_the_content( $content ) {
+		// Early return if content is empty or not a string.
+		if ( ! is_string( $content ) || '' === $content ) {
+			return '';
+		}
+
 		static $image_tags      = array( 'IMG', 'AMP-IMG', 'AMP-ANIM' );
 		$content_width          = null;
 		$image_sizes            = null;

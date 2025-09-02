@@ -1,0 +1,155 @@
+.wp-block-jetpack-field-slider {
+
+	.jetpack-field-slider__input-row {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		gap: 12px;
+		margin-top: 30px;
+	}
+
+	.jetpack-field-slider__input-container {
+		display: flex;
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 0;
+		position: relative;
+		min-height: 36px;
+		touch-action: pan-x;
+
+		&::before {
+			content: "";
+			position: absolute;
+			left: 8px;
+			right: 8px;
+			top: 50%;
+			transform: translateY(-50%);
+			height: 4px; /* visual track height */
+			width: auto;
+			background: var(--jetpack--contact-form--body-text-color);
+			z-index: 0;
+			pointer-events: none;
+			border-radius: 2px;
+		}
+	}
+
+	.jetpack-field-slider__range.jetpack-field-slider__range {
+		-webkit-appearance: none;
+		appearance: none;
+		-moz-appearance: none;
+		height: 100%;
+		min-height: 36px;
+
+		margin: 0; /* enlarge hit area without moving track */
+		padding: 0;
+		background: transparent;
+		outline: none;
+		border: none;
+		width: 100%;
+		box-sizing: border-box;
+		z-index: 1;
+		cursor: pointer;
+		box-shadow: none;
+
+		/* Hide native tracks to prevent double-track rendering */
+		&::-webkit-slider-runnable-track,
+		&::-moz-range-track,
+		&::-ms-track,
+		&::-moz-range-progress {
+			background: transparent;
+			border-color: transparent;
+			color: transparent;
+			height: 4px;
+		}
+
+		&::-moz-range-progress {
+			border: 0;
+		}
+
+		/* Remove extra focus ring gap in Firefox */
+		&::-moz-focus-outer {
+			border: 0;
+		}
+
+		&:focus {
+			outline: none;
+			opacity: 1;
+		}
+
+		&::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 32px;
+			height: 32px;
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
+			cursor: pointer;
+			box-shadow: none;
+			border: none;
+		}
+
+		&::-moz-range-thumb {
+			appearance: none !important;
+			-moz-appearance: none !important;
+			width: 32px;
+			height: 32px;
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
+			cursor: pointer;
+			border: none;
+			box-shadow: none;
+		}
+
+		&::-ms-thumb {
+			appearance: none !important;
+			width: 32px;
+			height: 32px;
+			background: radial-gradient(circle at center, var(--jetpack--contact-form--body-text-color) 0%, var(--jetpack--contact-form--body-text-color) 40%, transparent 40%);
+			cursor: pointer;
+			border: none;
+			box-shadow: none;
+		}
+
+		&:focus::-webkit-slider-thumb,
+		&:focus::-moz-range-thumb,
+		&::-ms-fill-lower,
+		&::-ms-fill-upper,
+		&:focus::-ms-fill-lower,
+		&:focus::-ms-fill-upper {
+			background: var(--jetpack--contact-form--body-text-color);
+		}
+	}
+
+	.jetpack-field-slider__value-indicator {
+		position: absolute;
+		left: 0;
+		bottom: 100%;
+		transform: translateX(-50%);
+		background: var(--jetpack--contact-form--body-text-color);
+		color: var(--jetpack--contact-form--inverted-body-text-color);
+		border-radius: 8px;
+		padding: 2px 8px;
+		font-size: 0.7em;
+		z-index: 2;
+		text-wrap: nowrap;
+	}
+
+	.jetpack-field-slider__min-label,
+	.jetpack-field-slider__max-label {
+		font-size: 0.9em;
+		text-align: center;
+	}
+
+	.jetpack-field-slider__text-labels {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 6px;
+		font-size: 0.9em;
+	}
+
+	.jetpack-field-slider__min-text-label {
+		text-align: left;
+	}
+
+	.jetpack-field-slider__max-text-label {
+		text-align: right;
+	}
+}

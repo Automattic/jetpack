@@ -326,23 +326,48 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.9-a.7 - 2025-07-28
+### 15.0-beta - 2025-09-01
 #### Enhancements
-- Open Graph Meta tags: Add a new fallback image to display on the home page.
-- Open Graph meta tags: Support site logos when generating fallback Image Meta tags.
+- Add LaTeX block (Beta) to render mathematical formula.
+- Blocks: Update JavaScript to be non-render blocking.
+- Carousel: Fix crashes on large galleries and reduce server requests by preloading only adjacent images instead of all at once.
+- Disallow inserting Simple Payments block via inserter.
+- Enable Settings > Sharing WP Admin page and ensure all relevant links point to this page.
+- Forms: Add MailPoet integration.
+- Forms: Add new Time field.
+- Forms: Add `has_field_type` method to Feedback.
+- Forms: Defer JavaScript loading for more responsive page loading.
+- Forms: Improve the checkbox style.
+- Forms: Preserve HTML IDs when processing feedback.
+- Forms: Save feedback entries in a new format.
+- Forms: Show trash action alongside view action in inbox.
+- Related Posts block: Update placeholder text for the site editor, and update the demo date.
+- Remove CRM installation nudge for Complete plan users
+- Shortcodes: Update embed reversal code to only run when content is inserted in the admin.
+- Site Accelerator: Ignore images from openlibrary.org.
+- Sitemaps: Add filter to allow suspending object cache addition during generation.
+- Social: Add font option for Social Image Generator.
+- Subscription block: Defer JavaScript loading.
+
+#### Improved compatibility
+- Open Graph Meta tags: Add new filter allowing one to define a custom site representative image.
 
 #### Bug fixes
-- Carousel: Fix disabling all photon args when opening an image in a lightbox.
-- Clear PayPal Payment button block parameters when changing block type.
-- Forms: Fix padding on input and textarea fields.
-- Forms: Fix the way forms are submitted.
-- Forms: Enqueue view script only when the form is rendered.
-- JITM: Remove jQuery dependency.
-- Mailchimp block: Fix links to accommodate for a bug in Gutenberg.
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- Related Posts: Ensure results are available via REST API directly.
-- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page.
-- Subscriptions: Display floating subscription button on mobile devices as well when enabled.
+- Carousel: Improve image size processing to return higher quality images in additional situations.
+- Forms: Fix default checkboxes styles, and allow for "browser" styles as a choice.
+- Forms: Fix error wrapper when placing button inside a group block.
+- Forms: Fix phone validation for responses.
+- Forms: Improve checkbox validation for older checkboxes.
+- Forms: Show the form variation picker if you only have the submit button.
+- Image CDN: Prevent errors attempting to filter null.
+- Infinite Scroll: Prevent PHP warnings in various edge cases.
+- My Jetpack: Fix multisite availability check for restricted products and modules.
+- Prevent PHP fatals when handling unexpected data types.
+- Search: Ensure images are loaded efficiently when on https sites.
+- SEO settings: Update the default Open Graph image tag to match the one in use on the site.
+- Sitemaps: Fix PHP warning during generation if there are no posts or pages on the website.
+- Social: Allow default image to be cleared.
+- Social: Fix image generator token reset on save resulting in font not being saved.
 
 --------
 

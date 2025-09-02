@@ -1,1 +1,2 @@
-export { default as PieChart } from './pie-chart';
+export { default as PieChart, PieChartUnresponsive } from './pie-chart';
+export type { PieChartProps } from './pie-chart';

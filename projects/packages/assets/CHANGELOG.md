@@ -5,13 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.5] - 2025-08-18
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.4] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+- Update package dependencies. [#44725]
+
+## [4.3.3] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## [4.3.2] - 2025-08-04
+### Changed
+- Internal updates.
+
 ## [4.3.1] - 2025-07-30
 ### Fixed
 - Script Data: Ensure we always enqueue instead of print script data. [#44447]
 
 ## [4.3.0] - 2025-07-23
 ### Changed
-- Script data: provide script data to authenticated REST API requests [#44077]
+- Script data: Provide script data to authenticated REST API requests. [#44077]
 
 ## [4.2.0] - 2025-07-21
 ### Changed
@@ -688,6 +705,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[4.3.5]: https://github.com/Automattic/jetpack-assets/compare/v4.3.4...v4.3.5
+[4.3.4]: https://github.com/Automattic/jetpack-assets/compare/v4.3.3...v4.3.4
+[4.3.3]: https://github.com/Automattic/jetpack-assets/compare/v4.3.2...v4.3.3
+[4.3.2]: https://github.com/Automattic/jetpack-assets/compare/v4.3.1...v4.3.2
 [4.3.1]: https://github.com/Automattic/jetpack-assets/compare/v4.3.0...v4.3.1
 [4.3.0]: https://github.com/Automattic/jetpack-assets/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/Automattic/jetpack-assets/compare/v4.1.2...v4.2.0

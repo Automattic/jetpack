@@ -6,9 +6,11 @@ import {
 	InspectorAdvancedControls,
 	InspectorControls,
 	useBlockProps,
+	InnerBlocks,
 	useInnerBlocksProps,
 	store as blockEditorStore,
 	BlockControls,
+	BlockContextProvider,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
@@ -37,6 +39,7 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
+import { CORE_BLOCKS } from '../shared/util/constants';
 import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
@@ -63,23 +66,6 @@ const validFields = childBlocks.filter( ( { settings } ) => {
 
 const ALLOWED_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
-const ALLOWED_CORE_BLOCKS = [
-	'core/audio',
-	'core/columns',
-	'core/group',
-	'core/heading',
-	'core/html',
-	'core/image',
-	'core/list',
-	'core/paragraph',
-	'core/row',
-	'core/separator',
-	'core/spacer',
-	'core/stack',
-	'core/subhead',
-	'core/video',
-];
-
 // At the top level of a multistep form we allow navigation, progress indicator
 // and the step-container itself (users may add it manually before steps are
 // auto-structured). The core block list remains unchanged.
@@ -88,7 +74,7 @@ const ALLOWED_MULTI_STEP_BLOCKS = [
 	'jetpack/form-progress-indicator',
 	'jetpack/form-step-container',
 	'jetpack/form-step-divider',
-].concat( ALLOWED_CORE_BLOCKS );
+].concat( CORE_BLOCKS );
 
 const REMOVE_FIELDS_FROM_FORM = [
 	'jetpack/form-step-navigation',
@@ -96,7 +82,7 @@ const REMOVE_FIELDS_FROM_FORM = [
 	'jetpack/form-step-container',
 ];
 
-const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( ALLOWED_CORE_BLOCKS ).filter(
+const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 	block => ! REMOVE_FIELDS_FROM_FORM.includes( block )
 );
 
@@ -117,6 +103,12 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const steps = useFormSteps( clientId );
 
+	// Get current step info for context
+	const currentStepInfo = useSelect(
+		select => select( singleStepStore ).getCurrentStepInfo( clientId, steps ),
+		[ clientId, steps ]
+	);
+
 	const submitButton = useFindBlockRecursively(
 		clientId,
 		block => block.name === 'jetpack/button'
@@ -128,6 +120,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		hasAnyInnerBlocks,
 		postAuthorEmail,
 		selectedBlockClientId,
+		onlySubmitBlock,
 	} = useSelect(
 		select => {
 			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
@@ -157,6 +150,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
 				selectedBlockClientId: selectedStepBlockId,
+				onlySubmitBlock:
+					innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
 			};
 		},
 		[ clientId ]
@@ -218,6 +213,47 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		select => select( blockEditorStore ).getBlocks( clientId ),
 		[ clientId ]
 	);
+
+	// Track previous block count to detect insertions
+	const previousBlockCountRef = useRef( currentInnerBlocks.length );
+
+	// Effect to handle block insertion and reordering
+	useEffect( () => {
+		const currentBlockCount = currentInnerBlocks.length;
+		const previousBlockCount = previousBlockCountRef.current;
+
+		// Detect if a block was just inserted
+		const blockWasInserted = currentBlockCount > previousBlockCount;
+
+		if ( blockWasInserted && currentInnerBlocks.length > 1 ) {
+			// Find the submit button
+			const submitButtonIndex = currentInnerBlocks.findIndex(
+				block =>
+					block.name === 'jetpack/button' &&
+					( block.attributes?.customVariant === 'submit' || block.attributes?.element === 'button' )
+			);
+
+			// If there's a submit button and it's not the last block, reorder
+			if ( submitButtonIndex !== -1 && submitButtonIndex === currentInnerBlocks.length - 2 ) {
+				// Move the submit button to the end
+				const reorderedBlocks = [ ...currentInnerBlocks ];
+				const [ submitButtonBlock ] = reorderedBlocks.splice( submitButtonIndex, 1 );
+				reorderedBlocks.push( submitButtonBlock );
+
+				// Update the blocks without creating an undo step
+				__unstableMarkNextChangeAsNotPersistent();
+				replaceInnerBlocks( clientId, reorderedBlocks, false );
+			}
+		}
+
+		// Update the previous block count
+		previousBlockCountRef.current = currentBlockCount;
+	}, [
+		currentInnerBlocks,
+		clientId,
+		replaceInnerBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	// Deep-scan helper – user might drop a Step block inside nested structures.
 	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {
@@ -634,6 +670,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				classNames={ formClassnames }
 			/>
 		);
+	} else if ( onlySubmitBlock ) {
+		elt = (
+			<>
+				<div className="is-form-empty">
+					<InnerBlocks.ButtonBlockAppender />
+				</div>
+				<div { ...innerBlocksProps } />
+			</>
+		);
 	} else {
 		elt = (
 			<>
@@ -731,7 +776,14 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ __( 'Read more.', 'jetpack-forms' ) }
 					</ExternalLink>
 				</InspectorAdvancedControls>
-				<div { ...innerBlocksProps } />
+				<BlockContextProvider
+					value={ {
+						'jetpack/form-steps': steps,
+						'jetpack/form-current-step': currentStepInfo,
+					} }
+				>
+					<div { ...innerBlocksProps } />
+				</BlockContextProvider>
 			</>
 		);
 	}

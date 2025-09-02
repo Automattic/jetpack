@@ -9,6 +9,10 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Mailchimp: Get Mailchimp Status.
  * API to determine if current site has linked Mailchimp account and mailing list selected.

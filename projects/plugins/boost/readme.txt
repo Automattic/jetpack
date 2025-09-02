@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 4.2.1
+Stable tag: 4.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,27 +183,16 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.2.1 - 2025-07-24
-#### Added
-- Critical CSS: Exclude post types of popular builder plugins from generation.
-- General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality.
-- My Jetpack: Added analytics for empty product search results.
-
+### 4.3.1 - 2025-08-25
 #### Changed
-- Cornerstone Pages: Ensure Home URL is always a predefined Cornerstone Page
-- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript
-- Improves performance of wpcom comments liking by caching and minimizing API requests.
-- My Jetpack: Enabled access to My Jetpack on WP Multisite.
+- Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior.
+- Cornerstone Pages: Improve behavior when running on WordPress MU installations.
+- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name.
+- My Jetpack: Fixed multisite availability check for restricted products and modules.
 - Update package dependencies.
 
-#### Deprecated
-- Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via a temporary filter.
-
 #### Fixed
-- General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2
-- Update JITMs to remove jQuery dependency
-
-Note: There was no public 4.2.0 release.
+- Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute.
 
 --------
 

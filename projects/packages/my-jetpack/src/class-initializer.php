@@ -39,7 +39,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.21.0';
+	const PACKAGE_VERSION = '5.25.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -349,9 +349,6 @@ class Initializer {
 		$plugin_slugs = array_map(
 			static function ( $slug ) {
 				$parts = explode( '/', $slug );
-				if ( empty( $parts ) ) {
-					return '';
-				}
 				// Return the last segment of the filepath without the PHP extension
 				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
 			},
@@ -406,9 +403,6 @@ class Initializer {
 		$plugin_slugs              = array_map(
 			static function ( $slug ) {
 				$parts = explode( '/', $slug );
-				if ( empty( $parts ) ) {
-					return '';
-				}
 				// Return the last segment of the filepath without the PHP extension
 				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
 			},

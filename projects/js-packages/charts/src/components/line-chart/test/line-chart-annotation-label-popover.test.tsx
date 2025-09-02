@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable jsdoc/require-jsdoc */
 import { render, screen } from '@testing-library/react';
-import LineChartAnnotationLabelWithPopover from '../line-chart-annotation-label-popover';
+import LineChartAnnotationLabelWithPopover from '../private/line-chart-annotation-label-popover';
 
 function renderLabel( { title, subtitle } ) {
 	return (

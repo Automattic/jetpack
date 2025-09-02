@@ -23,7 +23,7 @@ const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
 let errorTimeout = null;
 
-const updateField = ( fieldId, value, showFieldError = false ) => {
+const updateField = ( fieldId, value, showFieldError = false, validatorCallback = null ) => {
 	const context = getContext();
 	let field = context.fields[ fieldId ];
 
@@ -35,7 +35,9 @@ const updateField = ( fieldId, value, showFieldError = false ) => {
 	if ( field ) {
 		const { type, isRequired, extra } = field;
 		field.value = value;
-		field.error = validateField( type, value, isRequired, extra );
+		field.error = validatorCallback
+			? validatorCallback( value, isRequired, extra )
+			: validateField( type, value, isRequired, extra );
 		field.showFieldError = showFieldError;
 	}
 };
@@ -109,8 +111,9 @@ const maybeTransformValue = value => {
 	return value;
 };
 
-const { state } = store( NAMESPACE, {
+const { state, actions } = store( NAMESPACE, {
 	state: {
+		validators: {},
 		get fieldHasErrors() {
 			const context = getContext();
 			const fieldId = context.fieldId;
@@ -134,6 +137,16 @@ const { state } = store( NAMESPACE, {
 			}
 
 			return ! Object.values( context.fields ).some( field => ! isEmptyValue( field.value ) );
+		},
+
+		get isStepActive() {
+			const context = getContext();
+			return context.currentStep === context.stepIndex + 1;
+		},
+
+		get isStepCompleted() {
+			const context = getContext();
+			return context.currentStep > context.stepIndex + 1;
 		},
 
 		get isFieldEmpty() {
@@ -237,8 +250,18 @@ const { state } = store( NAMESPACE, {
 	},
 
 	actions: {
+		updateField: ( fieldId, value, showFieldError ) => {
+			const context = getContext();
+			const { fieldType } = context;
+			updateField(
+				fieldId,
+				value,
+				showFieldError,
+				showFieldError ? state.validators?.[ fieldType ] : null
+			);
+		},
 		updateFieldValue: ( fieldId, value ) => {
-			updateField( fieldId, value );
+			actions.updateField( fieldId, value );
 		},
 
 		// prevents the number field value from being changed by non-numeric values
@@ -262,7 +285,7 @@ const { state } = store( NAMESPACE, {
 				value = event.target.checked ? '1' : '';
 			}
 
-			updateField( fieldId, value );
+			actions.updateField( fieldId, value );
 		},
 
 		onMultipleFieldChange: event => {
@@ -278,12 +301,50 @@ const { state } = store( NAMESPACE, {
 				newValues = newValues.filter( v => v !== value );
 			}
 
-			updateField( fieldId, newValues );
+			actions.updateField( fieldId, newValues );
+		},
+
+		onImageOptionClick: event => {
+			// Find the block container
+			let target = event.target;
+
+			while ( target && ! target.classList.contains( 'jetpack-input-image-option' ) ) {
+				target = target.parentElement;
+			}
+
+			if ( target ) {
+				// Find the input inside this container
+				const input = target.querySelector( '.jetpack-input-image-option__input' );
+
+				if ( input ) {
+					if ( input.type === 'checkbox' ) {
+						input.checked = ! input.checked;
+						target.classList.toggle( 'is-checked', input.checked );
+					} else if ( input.type === 'radio' ) {
+						input.checked = true;
+
+						// Find all image options in the same fieldset and toggle the checked class
+						const fieldset = target.closest( '.jetpack-fieldset-image-options__wrapper' );
+
+						if ( fieldset ) {
+							const imageOptions = fieldset.querySelectorAll( '.jetpack-input-image-option' );
+
+							imageOptions.forEach( imageOption => {
+								const imageOptionInput = imageOption.querySelector( 'input' );
+								imageOption.classList.toggle( 'is-checked', imageOptionInput.id === input.id );
+							} );
+						}
+					}
+
+					// Dispatch change event to trigger any change handlers
+					input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+				}
+			}
 		},
 
 		onFieldBlur: event => {
 			const context = getContext();
-			updateField( context.fieldId, event.target.value, true );
+			actions.updateField( context.fieldId, event.target.value, true );
 		},
 
 		onFormReset: () => {
@@ -417,7 +478,9 @@ const { state } = store( NAMESPACE, {
 			}
 		} ),
 
-		goBack: () => {
+		goBack: event => {
+			event.preventDefault();
+			event.stopPropagation();
 			const context = getContext();
 
 			const form = document.getElementById( context.elementId );

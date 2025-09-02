@@ -1,7 +1,6 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as PieChartStories from './index.stories';
 import * as DonutStories from './donut.stories';
-import * as LegendStories from './pie-legend.stories';
 
 <Meta title="JS Packages/Charts/Types/Pie Chart" of={ PieChartStories } />
 
@@ -62,6 +61,46 @@ The simplest pie chart requires only a `data` prop with percentage-based data:
 - **`cornerScale`** (default: `0`): Scale of corner rounding for segments (0-1)
 - **`children`**: Optional React node to render inside the chart center (useful for donut charts)
 
+## Composition API
+
+The Pie Chart now supports a compound component pattern for advanced customization:
+
+<Canvas of={ PieChartStories.CompositionAPI } />
+
+### Using Compound Components
+
+The composition API allows you to add custom SVG and HTML elements to your charts:
+
+<Source
+	language="jsx"
+	code={ `<PieChart data={ data } size={ 400 }>
+	{/* HTML elements rendered outside the SVG */}
+	<PieChart.HTML>
+		<h3>Chart Title</h3>
+	</PieChart.HTML>
+
+	{/* SVG elements rendered inside the chart */}
+	<PieChart.SVG>
+		<text x={ 0 } y={ 0 } textAnchor="middle">
+			Center Text
+		</text>
+	</PieChart.SVG>
+
+	{/* More HTML elements */}
+	<PieChart.HTML>
+		<PieChart.Legend position="bottom" />
+		<p>Additional information</p>
+	</PieChart.HTML>
+</PieChart>` }
+/>
+
+### Benefits of Composition API
+
+- **Clear Intent**: Use `PieChart.SVG` for SVG elements and `PieChart.HTML` for HTML elements
+- **Type Safety**: TypeScript knows where each element type belongs
+- **Flexibility**: Add custom visualizations, annotations, or UI elements
+- **Backward Compatible**: Existing implementations continue to work unchanged
+
 ## Interactive Features
 
 ### Tooltips
@@ -119,7 +158,7 @@ The chart validates:
 
 Control legend alignment and positioning:
 
-<Canvas of={ LegendStories.AlignmentPositioning } />
+<Canvas of={ PieChartStories.CustomLegendPositioning } />
 
 <Source
 	language="jsx"
@@ -127,16 +166,14 @@ Control legend alignment and positioning:
 		size={ 400 }
 		data={ data }
 		showLegend={ true }
-		legendAlignmentHorizontal="right"
-		legendAlignmentVertical="top"
+		legendAlignment="end"
+		legendPosition="top"
 	/>` }
 />
 
 ### Vertical Legend
 
 Use vertical orientation for space-efficient legend placement:
-
-<Canvas of={ LegendStories.VerticalOrientation } />
 
 <Source
 	language="jsx"
@@ -145,8 +182,8 @@ Use vertical orientation for space-efficient legend placement:
 		data={ data }
 		showLegend={ true }
 		legendOrientation="vertical"
-		legendAlignmentHorizontal="right"
-		legendAlignmentVertical="top"
+		legendAlignment="end"
+		legendPosition="top"
 	/>` }
 />
 
@@ -202,6 +239,39 @@ Override theme colors by providing color values in data:
 
 />
 
+### Label Colors and Styling
+
+<Canvas of={ PieChartStories.CustomLabelColors } />
+
+The Pie Chart supports customizable label colors through the theme system:
+
+<Source
+	language="jsx"
+	code={ `import { ThemeProvider } from '@automattic/charts';
+
+const customTheme = {
+	...defaultTheme,
+	labelTextColor: '#FFFFFF', // White text for labels  
+	labelBackgroundColor: 'rgba(0, 0, 0, 0.8)', // Enable dark background (transparent by default)
+};
+
+<ThemeProvider theme={ customTheme }>
+	<PieChart data={ data } />
+</ThemeProvider>` }
+/>
+
+**Label Color Properties:**
+
+- **`labelTextColor`** - Controls the color of text displayed on pie chart segments. Defaults to `#FFFFFF` (white) to match original behavior.
+- **`labelBackgroundColor`** - Controls the background color of labels. Defaults to `transparent` (no background). When set to any color value, creates a rounded rectangle behind each label for enhanced readability. Supports any CSS color including transparency (e.g., `rgba(0, 0, 0, 0.7)`).
+
+**Best Practices:**
+- Use high contrast between `labelTextColor` and `labelBackgroundColor` for optimal readability
+- Consider semi-transparent backgrounds (`rgba()`) to maintain visual connection to segment colors
+- Test with different segment colors to ensure labels remain visible
+- Use `labelBackgroundColor` when segment colors are too varied or bright for consistent text visibility
+- Consider accessibility guidelines when choosing color combinations
+
 ### Theme Integration
 
 Pie Charts automatically integrate with the chart theme system, inheriting colors, typography, and styling from the active theme. Custom themes can be applied using the `ThemeProvider`:
@@ -235,8 +305,8 @@ Main component for rendering pie and donut charts.
 | `withTooltips`              | `boolean`                       | `false`        | Enable interactive tooltips on hover                                              |
 | `showLegend`                | `boolean`                       | `false`        | Display chart legend                                                              |
 | `legendOrientation`         | `'horizontal' \| 'vertical'`    | `'horizontal'` | Legend layout direction                                                           |
-| `legendAlignmentHorizontal` | `'left' \| 'center' \| 'right'` | `'center'`     | Horizontal legend alignment                                                       |
-| `legendAlignmentVertical`   | `'top' \| 'bottom'`             | `'bottom'`     | Vertical legend position                                                          |
+| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'`     | Legend alignment within its position                                                       |
+| `legendPosition`   | `'top' \| 'bottom'`             | `'bottom'`     | Legend position (where the legend appears)                                                          |
 | `legendShape`               | `LegendShape`                   | `'circle'`     | Shape of legend markers                                                           |
 | `children`                  | `ReactNode`                     | -              | Optional content to render inside chart center (useful for donut charts)          |
 | `className`                 | `string`                        | -              | Additional CSS class names                                                        |
@@ -244,6 +314,52 @@ Main component for rendering pie and donut charts.
 | `maxWidth`                  | `number`                        | -              | Maximum width for responsive charts                                               |
 | `aspectRatio`               | `number`                        | `1`            | Aspect ratio for responsive charts                                                |
 | `resizeDebounceTime`        | `number`                        | `100`          | Debounce time for resize events (ms)                                              |
+
+### Theme Properties
+
+The following properties can be customized via the theme system:
+
+| Prop                        | Type                            | Default        | Description                                                                       |
+| --------------------------- | ------------------------------- | -------------- | --------------------------------------------------------------------------------- |
+| `labelTextColor`            | `string`                        | `'#FFFFFF'`    | Color of text displayed on pie chart segments                                    |
+| `labelBackgroundColor`      | `string`                        | `'transparent'` | Background color for labels. Set to any color value to enable label backgrounds |
+
+### Compound Components
+
+#### PieChart.SVG
+
+Container for SVG elements to be rendered inside the chart area.
+
+```jsx
+<PieChart.SVG>
+  <text x={0} y={0}>Center Text</text>
+</PieChart.SVG>
+```
+
+#### PieChart.HTML
+
+Container for HTML elements to be rendered outside the SVG area.
+
+```jsx
+<PieChart.HTML>
+  <h3>Chart Title</h3>
+  <PieChart.Legend />
+</PieChart.HTML>
+```
+
+#### PieChart.Legend
+
+The Legend component for displaying chart data labels. Can be used either as a prop or within composition:
+
+```jsx
+// As a prop
+<PieChart showLegend={true} legendPosition="bottom" />
+
+// With composition
+<PieChart>
+  <PieChart.Legend position="bottom" orientation="horizontal" />
+</PieChart>
+```
 
 ### DataPointPercentage Type
 

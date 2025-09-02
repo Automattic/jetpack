@@ -195,22 +195,12 @@ class Jetpack_Options {
 	public static function get_option( $name, $default = false ) {
 		// Check if external storage should be used for this option
 		if ( self::should_use_external_storage( $name ) ) {
-			/**
-			 * Filter to provide external storage for Jetpack connection options.
-			 * External storage is checked first, with database as fallback.
-			 *
-			 * @since $$next-version$$
-			 *
-			 * @param mixed  $value   Current value (null to let database handle).
-			 * @param string $name    Option name, _without_ `jetpack_%` prefix.
-			 * @param mixed  $default Default value if option doesn't exist.
-			 * @return mixed External storage value, or null to fall back to database.
-			 */
-			$external_value = apply_filters( 'jetpack_external_storage_get', null, $name, $default );
-
-			// If external storage provided a value, use it
-			if ( null !== $external_value ) {
-				return $external_value;
+			// Try external storage
+			if ( class_exists( 'Automattic\Jetpack\Connection\External_Storage' ) ) {
+				$external_value = \Automattic\Jetpack\Connection\External_Storage::get_value( $name );
+				if ( null !== $external_value ) {
+					return $external_value;
+				}
 			}
 		}
 
@@ -254,31 +244,31 @@ class Jetpack_Options {
 	}
 
 	/**
-	 * Determines if external storage should be used for a given option.
+	 * Options that can be stored in external storage.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
+	 *
+	 * @var array
+	 */
+	private static $external_storage_allowlist = array( 'blog_token', 'id' );
+
+	/**
+	 * Determines if external storage should be used for a given option.
+	 * Simple allowlist check with global killswitch.
+	 *
+	 * @since 6.17.0
 	 *
 	 * @param string $name Option name, _without_ `jetpack_%` prefix.
 	 * @return bool True if external storage should be checked for this option.
 	 */
 	private static function should_use_external_storage( $name ) {
-		// Quick bailout for unsupported options or killswitch
-		if ( ! in_array( $name, array( 'blog_token', 'id' ), true ) ||
+		// Check allowlist and global killswitch
+		if ( ! in_array( $name, self::$external_storage_allowlist, true ) ||
 			( defined( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) && constant( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) ) ) {
 			return false;
 		}
 
-		/**
-		 * Filter to control whether external storage should be used for a given option.
-		 * Environments use this to opt-in to external storage for their sites.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool   $enabled     Whether external storage should be used (default: false).
-		 * @param string $option_name Option name, _without_ `jetpack_%` prefix.
-		 * @return bool True to use external storage, false to use database only.
-		 */
-		return apply_filters( 'jetpack_should_use_external_storage', false, $name );
+		return true;
 	}
 
 	/**
@@ -345,8 +335,8 @@ class Jetpack_Options {
 		 * @since 1.1.2
 		 * @since-jetpack 3.0.0
 		 *
-		 * @param str $name The name of the option being updated.
-		 * @param mixed $value The new value of the option.
+		 * @param string $name The name of the option being updated.
+		 * @param mixed  $value The new value of the option.
 		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {

@@ -105,7 +105,7 @@ export default function PosterImageBlockControl( {
 											<p id={ videoPosterDescription } hidden>
 												{ poster
 													? sprintf(
-															/* translators: Placeholder is an image URL. */
+															/* translators: %s: an image URL. */
 															__( 'The current poster image url is %s', 'jetpack-videopress-pkg' ),
 															poster
 													  )

@@ -1,6 +1,6 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
 
-test.beforeEach( async ( { testUtils, requestUtils } ) => {
+test.beforeEach( async ( { testUtils } ) => {
 	const cleanupCMDs = [
 		'jetpack module deactivate monitor',
 		'jetpack module deactivate related-posts',
@@ -12,7 +12,7 @@ test.beforeEach( async ( { testUtils, requestUtils } ) => {
 	}
 
 	// Reset the recommendations data
-	await requestUtils.rest( {
+	await testUtils.requestUtils.rest( {
 		method: 'POST',
 		path: '/jetpack/v4/recommendations/data',
 		data: {
@@ -30,10 +30,9 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 	await test.step( 'Navigate to the Recommendations module', async () => {
 		await page.goto( '/wp-admin/admin.php?page=jetpack#/recommendations' );
 
-		expect(
-			page.url().includes( 'site-type' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
+		await expect( page, 'URL should be in sync with the step name' ).toHaveURL(
+			/recommendations\/site-type/
+		);
 	} );
 
 	await test.step( 'Check Personal and Other checkboxes', async () => {
@@ -61,10 +60,9 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 			page.getByRole( 'link', { name: 'Enable Downtime Monitoring' } ),
 			'Monitor step should be visible'
 		).toBeVisible();
-		expect(
-			page.url().includes( 'monitor' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
+		await expect( page, 'URL should be in sync with the step name' ).toHaveURL(
+			/recommendations\/monitor/
+		);
 
 		await page.getByRole( 'link', { name: 'Enable Downtime Monitoring' } ).click();
 		await page.reload();
@@ -73,10 +71,9 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 			page.getByRole( 'link', { name: 'Enable Related Posts' } ),
 			'Related posts step should be visible'
 		).toBeVisible();
-		expect(
-			page.url().includes( 'related-posts' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
+		await expect( page, 'URL should be in sync with the step name' ).toHaveURL(
+			/recommendations\/related-posts/
+		);
 	} );
 
 	await test.step( 'Enable Related Posts and continue to Newsletter step', async () => {
@@ -87,10 +84,9 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 			page.getByRole( 'link', { name: 'Enable Newsletter' } ),
 			'Newsletter step should be visible'
 		).toBeVisible();
-		expect(
-			page.url().includes( 'newsletter' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
+		await expect( page, 'URL should be in sync with the step name' ).toHaveURL(
+			/recommendations\/newsletter/
+		);
 	} );
 
 	await test.step( 'Enable Newsletter and continue to Site Accelerator', async () => {
@@ -101,10 +97,9 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 			page.getByRole( 'link', { name: 'Enable Site Accelerator' } ),
 			'Site Accelerator step should be visible'
 		).toBeVisible();
-		expect(
-			page.url().includes( 'site-accelerator' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
+		await expect( page, 'URL should be in sync with the step name' ).toHaveURL(
+			/recommendations\/site-accelerator/
+		);
 	} );
 
 	await test.step( 'Skip Site Accelerator and continue to VaultPress Backup card', async () => {
@@ -112,13 +107,12 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 		await page.reload();
 
 		await expect(
-			page.getByRole( 'link', { name: 'Get a discount for your first' } ),
+			page.getByRole( 'link', { name: 'Get' } ),
 			'VaultPress Backup step should be visible'
 		).toBeVisible();
-		expect(
-			page.url().includes( 'vaultpress-backup' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
+		await expect( page, 'URL should be in sync with the step name' ).toHaveURL(
+			/recommendations\/vaultpress-backup/
+		);
 	} );
 
 	await test.step( 'Skip VaultPress Backup card and continue to Summary', async () => {
@@ -134,30 +128,32 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 			'Summary sidebar should be visible'
 		).toBeVisible();
 
-		expect(
-			page.url().includes( 'summary' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
+		await expect( page, 'URL should be in sync with the step name' ).toHaveURL(
+			/recommendations\/summary/
+		);
 	} );
 
 	await test.step( 'Verify Monitoring, Newsletter, and Related Posts are enabled', async () => {
-		const isMonitoringFeatureEnabled = await page
-			.locator(
+		await expect(
+			page.locator(
 				'.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Downtime Monitoring"'
-			)
-			.isVisible();
-		const isRelatedPostsFeatureEnabled = await page
-			.locator(
+			),
+			'Monitoring feature should be enabled'
+		).toBeVisible();
+
+		await expect(
+			page.locator(
 				'.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Related Posts"'
-			)
-			.isVisible();
-		const isNewsletterFeatureEnabled = await page
-			.locator( '.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Newsletter"' )
-			.isVisible();
-		expect(
-			isMonitoringFeatureEnabled && isNewsletterFeatureEnabled && isRelatedPostsFeatureEnabled,
-			'Monitoring feature, Newsletter, and Related Posts should be enabled'
-		).toBeTruthy();
+			),
+			'Related Posts should be enabled'
+		).toBeVisible();
+
+		await expect(
+			page.locator(
+				'.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Newsletter"'
+			),
+			'Newsletter should be enabled'
+		).toBeVisible();
 	} );
 
 	await test.step( 'Verify Site Accelerator is disabled', async () => {

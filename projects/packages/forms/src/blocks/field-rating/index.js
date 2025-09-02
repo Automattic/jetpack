@@ -1,19 +1,13 @@
 import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { DEFAULT_GLYPHS } from '../input-rating/constants';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import defaultSettings from '../shared/settings';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 import save from './save';
+import variations from './variations';
 
 const name = 'field-rating';
-const glyphs = DEFAULT_GLYPHS;
-const stylesArray = Object.entries( glyphs ).map( ( [ key, { label } ] ) => ( {
-	name: key,
-	label,
-	isDefault: key === 'stars',
-} ) );
 const settings = {
 	...defaultSettings,
 	title: __( 'Rating field', 'jetpack-forms' ),
@@ -57,16 +51,23 @@ const settings = {
 			default: 0,
 			role: 'content',
 		},
+		iconStyle: {
+			type: 'string',
+			default: 'stars',
+			role: 'appearance',
+		},
 	},
 	providesContext: {
 		...defaultSettings.providesContext,
 		'jetpack/field-rating-max': 'max',
 		'jetpack/field-rating-default': 'default',
-		'jetpack/field-rating-className': 'className',
-		'jetpack/field-rating-onChangeDefault': 'onChangeDefault',
+		'jetpack/field-rating-iconStyle': 'iconStyle',
 	},
-	styles: stylesArray,
-	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],
+	supports: {
+		...defaultSettings.supports,
+	},
+	variations,
+	allowedBlocks: [ 'jetpack/label', 'jetpack/input-rating' ],
 	edit,
 	save,
 	example: {

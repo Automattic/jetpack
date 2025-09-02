@@ -1,5 +1,5 @@
-import { expect, Page } from '@playwright/test';
-import logger from '_jetpack-e2e-commons/logger.js';
+import { expect, type Page } from '@playwright/test';
+import logger from '_jetpack-e2e-commons/logger';
 
 /**
  * Connect Jetpack Social

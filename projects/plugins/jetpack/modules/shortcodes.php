@@ -14,6 +14,13 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
+// Load shortcode utils.
+require_once __DIR__ . '/shortcodes/shortcode-utils.php';
+
 /**
  * Transforms the $atts array into a string that the old functions expected
  *
@@ -49,7 +56,8 @@ function jetpack_load_shortcodes() {
 	// Prevent third-party shortcode plugins when loading shortcode files.
 	// Format: shortcode => condition_when_to_skip
 	$shortcode_skips = array(
-		'soundcloud' => function_exists( 'soundcloud_shortcode' ), // SoundCloud Shortcodes plugin
+		'shortcode-utils' => true, // Utils aren't shortcodes.
+		'soundcloud'      => function_exists( 'soundcloud_shortcode' ), // SoundCloud Shortcodes plugin
 	);
 
 	$shortcode_includes = array();

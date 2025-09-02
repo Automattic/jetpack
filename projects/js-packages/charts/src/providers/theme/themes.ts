@@ -5,7 +5,8 @@ import type { ChartTheme } from '../../types';
  */
 const defaultTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
-	labelBackgroundColor: '#FFFFFF', // label background color
+	labelBackgroundColor: 'transparent', // label background color (transparent by default)
+	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: '#DCDCDE',
@@ -47,6 +48,14 @@ const defaultTheme: ChartTheme = {
 		positiveChangeColor: '#008A20',
 		negativeChangeColor: '#D63638',
 	},
+	lineChart: {
+		lineStyles: {
+			comparison: {
+				strokeDasharray: '4 4',
+				strokeLinecap: 'square',
+			},
+		},
+	},
 };
 
 /**
@@ -54,7 +63,8 @@ const defaultTheme: ChartTheme = {
  */
 const jetpackTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
-	labelBackgroundColor: '#FFFFFF', // label background color
+	labelBackgroundColor: 'transparent', // label background color (transparent by default)
+	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: '#DCDCDE',
@@ -96,6 +106,14 @@ const jetpackTheme: ChartTheme = {
 		positiveChangeColor: '#1F9828',
 		negativeChangeColor: '#FF8C8F',
 	},
+	lineChart: {
+		lineStyles: {
+			comparison: {
+				strokeDasharray: '4 4',
+				strokeLinecap: 'square',
+			},
+		},
+	},
 };
 
 /**
@@ -103,7 +121,8 @@ const jetpackTheme: ChartTheme = {
  */
 const wooTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
-	labelBackgroundColor: '#FFFFFF', // label background color
+	labelBackgroundColor: 'transparent', // label background color (transparent by default)
+	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [ '#80C8FF', '#B999FF', '#3858E9' ],
 	gridStyles: {
 		stroke: '#787C82',
@@ -149,6 +168,15 @@ const wooTheme: ChartTheme = {
 		backgroundColor: '#F3F4F6',
 		positiveChangeColor: '#008A20',
 		negativeChangeColor: '#D63638',
+	},
+	lineChart: {
+		lineStyles: {
+			comparison: {
+				strokeDasharray: '4 4',
+				strokeWidth: 1.5,
+				strokeLinecap: 'square',
+			},
+		},
 	},
 };
 

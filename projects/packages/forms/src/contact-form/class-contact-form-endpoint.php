@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\External_Connections;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
@@ -16,6 +17,10 @@ use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Class Contact_Form_Endpoint
@@ -131,6 +136,26 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_integration_status' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'args'                => array(
+					'slug' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => function ( $param ) {
+							return isset( $this->get_supported_integrations()[ $param ] );
+						},
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'disable_integration' ),
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 				'args'                => array(
 					'slug' => array(
@@ -469,54 +494,43 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$blog_url             = wp_parse_url( site_url() );
 
 		// resend the original email
-		$email          = get_post_meta( $post_id, '_feedback_email', true );
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+		$email = get_post_meta( $post_id, '_feedback_email', true );
 
-		if ( ! empty( $email ) && ! empty( $content_fields ) ) {
-			if ( isset( $content_fields['_feedback_author_email'] ) ) {
-				$comment_author_email = $content_fields['_feedback_author_email'];
-			}
-
-			if ( isset( $email['to'] ) ) {
-				$to = $email['to'];
-			}
-
-			if ( isset( $email['message'] ) ) {
-				$message = $email['message'];
-			}
-
-			if ( isset( $email['headers'] ) ) {
-				$headers = $email['headers'];
-			} else {
-				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
-
-				if ( ! empty( $comment_author_email ) ) {
-					$reply_to_addr = $comment_author_email;
-				} elseif ( is_array( $to ) ) {
-					$reply_to_addr = $to[0];
-				}
-
-				if ( $reply_to_addr ) {
-					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
-				}
-
-				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
-			}
-
-			/**
-			 * Filters the subject of the email sent after a contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
-			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
-			 */
-			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
-
-			Contact_Form::wp_mail( $to, $subject, $message, $headers );
+		$response = Feedback::get( $post_id );
+		if ( ! $response ) {
+			return;
 		}
+
+		if ( ! empty( $response->get_author_email() ) ) {
+			$comment_author_email = $response->get_author_email();
+		}
+
+		if ( isset( $email['to'] ) ) {
+			$to = $email['to'];
+		}
+
+		if ( isset( $email['message'] ) ) {
+			$message = $email['message'];
+		}
+
+		if ( isset( $email['headers'] ) ) {
+			$headers = $email['headers'];
+		} else {
+			$headers = 'From: "' . $response->get_author() . '" <wordpress@' . $blog_url['host'] . ">\r\n";
+
+			if ( ! empty( $comment_author_email ) ) {
+				$reply_to_addr = $comment_author_email;
+			} elseif ( is_array( $to ) ) {
+				$reply_to_addr = $to[0];
+			}
+
+			if ( $reply_to_addr ) {
+				$headers .= 'Reply-To: "' . $response->get_author() . '" <' . $reply_to_addr . ">\r\n";
+			}
+
+			$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
+		}
+		Contact_Form::wp_mail( $to, $response->get_subject(), $message, $headers );
 	}
 
 	/**
@@ -568,7 +582,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['subject'] = $response->get_subject();
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = $response->get_compiled_fields( 'api', 'key-value' );
+			$data['fields'] = $response->get_compiled_fields( 'api', 'label-value' );
 		}
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {
@@ -874,9 +888,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			case 'google-drive':
 				$user_id                 = get_current_user_id();
 				$jetpack_connected       = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
-				$is_connected            = $jetpack_connected && Google_Drive::has_valid_connection( $user_id );
+				$is_connected            = $jetpack_connected && Google_Drive::has_valid_connection();
 				$response['isConnected'] = $is_connected;
-				$response['settingsUrl'] = Redirect::get_url( 'jetpack-forms-responses-connect' );
+				$response['settingsUrl'] = External_Connections::get_connect_url( $slug );
 				break;
 			case 'salesforce':
 				// No overrides needed for now; keep defaults.
@@ -939,10 +953,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				break;
 			case 'mailpoet':
 				$response['needsConnection'] = true;
-				if ( class_exists( '\MailPoet\Config\ServicesChecker' ) ) {
-					$checker = new \MailPoet\Config\ServicesChecker(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the class exists first
-					if ( method_exists( $checker, 'isMailPoetAPIKeyValid' ) ) {
-						$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the method exists first
+				// Determine if MailPoet setup is complete using the public API.
+				if ( class_exists( \MailPoet\API\API::class ) ) { // @phan-suppress-current-line PhanUndeclaredClassReference
+					$mailpoet_api = \MailPoet\API\API::MP( 'v1' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
+					if ( $mailpoet_api && method_exists( $mailpoet_api, 'isSetupComplete' ) ) {
+						$response['isConnected'] = (bool) $mailpoet_api->isSetupComplete();
 					}
 				}
 				// Add MailPoet lists to details
@@ -951,5 +966,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * REST callback for DELETE /integrations/{slug}
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object or error.
+	 */
+	public function disable_integration( $request ) {
+		$slug         = $request->get_param( 'slug' );
+		$integrations = $this->get_supported_integrations();
+		if ( ! isset( $integrations[ $slug ] ) ) {
+			return new \WP_Error( 'rest_integration_not_found', __( 'Integration not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+		if ( $slug !== 'google-drive' ) {
+			return new \WP_Error( 'rest_integration_invalid', __( 'This integration cannot be disabled.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+		$is_deleted = External_Connections::delete_connection( $slug );
+		return rest_ensure_response( array( 'deleted' => $is_deleted ) );
 	}
 }

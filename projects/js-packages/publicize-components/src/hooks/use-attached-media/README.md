@@ -12,7 +12,7 @@ function AttachedMediaSection() {
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 
 	const mediaObject = useSelect( select =>
-		select( 'core' ).getMedia( attachedMedia[ 0 ] || null, { context: 'view' } )
+		select( 'core' ).getEntityRecord( 'postType', 'attachment', attachedMedia[ 0 ] || null, { context: 'view' } )
 	);
 
 	return (

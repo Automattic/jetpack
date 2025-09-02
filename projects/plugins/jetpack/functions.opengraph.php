@@ -12,7 +12,13 @@
  */
 
 use Automattic\Block_Scanner;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Host;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 add_action( 'wp_head', 'jetpack_og_tags' );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
@@ -408,35 +414,59 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 
 	// Let's get the site's representative image.
 	$site_image = jetpack_og_get_site_image( $width, $height );
+
+	/**
+	 * Define your own site's representative image,
+	 * to override any fallback image found by looking through site's logo, site icon, and blavatar.
+	 * This will allow you to overwrite the default fallback image generated dynamically.
+	 *
+	 * @since 15.0
+	 *
+	 * @param array $site_image Your own site's representative image.
+	 * @param array $site_image The site's representative image picked by Jetpack. {
+	 *     @type string $src    The source of the image.
+	 *     @type int    $width  The width of the image.
+	 *     @type int    $height The height of the image.
+	 *     @type string $type   The type of the image.
+	 * }
+	 */
+	$custom_site_image = apply_filters( 'jetpack_og_default_site_image', array(), $site_image );
+	if ( ! empty( $custom_site_image['src'] ) ) {
+		return $custom_site_image;
+	}
+
 	if ( empty( $site_image['src'] ) ) {
 		// When using the default blank image, use a different template in Social Image Generator.
 		$template          = 'highway';
 		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
 	}
 
-	/**
-	 * Allow filtering the template to use with Social Image Generator.
-	 * Available templates: highway, dois, fullscreen, edge.
-	 *
-	 * @since 14.9
-	 *
-	 * @param string $template The template to use.
+	/*
+	 * Only attempt to generate a dynamic fallback image
+	 * if we have a healthy connection to WPCOM.
+	 * and if the site has the right plan.
 	 */
-	$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
+	if (
+		( ( new Host() )->is_wpcom_simple()
+		|| ( new Connection_Manager() )->is_connected()
+		)
+		&& Current_Plan::supports( 'social-image-generator' )
+	) {
+		/**
+		 * Allow filtering the template to use with Social Image Generator.
+		 * Available templates: highway, dois, fullscreen, edge.
+		 *
+		 * @since 14.9
+		 *
+		 * @param string $template The template to use.
+		 */
+		$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
 
-	// Let's generate the image.
-	$image = jetpack_og_generate_fallback_social_image( $site_image, $template );
-
-	// Final fallback if everything else fails, the blank image.
-	if ( empty( $image['src'] ) ) {
-		return array(
-			'src'    => jetpack_og_get_site_fallback_blank_image(),
-			'width'  => $width,
-			'height' => $height,
-		);
+		// Let's generate the image.
+		$site_image = jetpack_og_generate_fallback_social_image( $site_image, $template );
 	}
 
-	return $image;
+	return $site_image;
 }
 
 /**
@@ -600,8 +630,18 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 
 	$token = \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
 
-	// If we have a token, cache it for a day.
-	if ( ! is_wp_error( $token ) ) {
+	/*
+	 * We want to cache 2 types of responses:
+	 * - Successful responses with a token.
+	 * - WP_Error responses that denote a WordPress.com connection issue.
+	 */
+	if (
+		! is_wp_error( $token )
+		|| (
+			is_wp_error( $token )
+			&& 'invalid_user_permission_publicize' === $token->get_error_code()
+		)
+	) {
 		set_transient( $transient_name, $token, DAY_IN_SECONDS );
 	}
 
@@ -778,6 +818,11 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  * @return string The description with wp:query blocks removed.
  */
 function jetpack_og_remove_query_blocks( $description ) {
+	// Handle non-string input
+	if ( ! is_string( $description ) ) {
+		return '';
+	}
+
 	$output         = '';
 	$offset         = 0;
 	$depth          = 0;

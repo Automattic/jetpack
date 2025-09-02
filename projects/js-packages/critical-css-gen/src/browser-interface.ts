@@ -63,7 +63,7 @@ export class BrowserInterface {
 	static innerGetCssIncludes( { innerWindow } ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		return [ ...innerWindow.document.getElementsByTagName( 'link' ) ]
-			.filter( link => link.rel === 'stylesheet' )
+			.filter( link => link.rel.includes( 'stylesheet' ) )
 			.reduce( ( set, link ) => {
 				set[ link.href ] = {
 					media: link.media || null,

@@ -1143,6 +1143,7 @@ abstract class Publicize_Base {
 				'image_generator_settings' => array(
 					'template'         => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'default_image_id' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_image_id(),
+					'font'             => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_font(),
 					'enabled'          => false,
 				),
 				'version'                  => 2,
@@ -1188,6 +1189,9 @@ abstract class Publicize_Base {
 									'type' => 'number',
 								),
 								'template'         => array(
+									'type' => 'string',
+								),
+								'font'             => array(
 									'type' => 'string',
 								),
 								'token'            => array(
@@ -1310,12 +1314,8 @@ abstract class Publicize_Base {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$title = isset( $_POST['wpas_title'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wpas_title'] ) ) : null;
 
-		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && $title ) {
-			if ( empty( $title ) ) {
-				delete_post_meta( $post_id, $this->POST_MESS );
-			} else {
-				update_post_meta( $post_id, $this->POST_MESS, trim( stripslashes( $title ) ) );
-			}
+		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && ! empty( $title ) ) {
+			update_post_meta( $post_id, $this->POST_MESS, trim( stripslashes( $title ) ) );
 		}
 
 		// Change current user to provide context for get_services() if we're running during cron.

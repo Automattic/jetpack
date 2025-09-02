@@ -104,6 +104,10 @@
 		}
 	}
 
+	&__section {
+		margin: 12px 0;
+	}
+
 	&__links.components-h-stack {
 
 		@media (max-width: 480px) {
@@ -148,7 +152,8 @@
 		text-wrap: pretty;
 	}
 
-	&__service-icon--google-sheets {
+	&__service-icon--google-sheets,
+	&__service-icon--mailpoet {
 		border-radius: 0 !important;
 	}
 }

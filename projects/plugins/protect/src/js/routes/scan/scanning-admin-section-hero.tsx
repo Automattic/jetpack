@@ -37,7 +37,7 @@ const ScanningAdminSectionHero: FC = () => {
 							) }
 							<Text>
 								{ sprintf(
-									// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+									// translators: %s: the number of total vulnerabilities listed (e.g. "22,000").
 									__(
 										'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
 										'jetpack-protect'

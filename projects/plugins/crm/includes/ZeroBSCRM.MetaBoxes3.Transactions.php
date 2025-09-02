@@ -317,7 +317,8 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 				</div>
 
 			    <?php // ========== Line Items 
-			    if (isset($transactions['lineitems']) && is_array($transaction['lineitems'])){ ?>
+				if ( isset( $transaction['lineitems'] ) && is_array( $transaction['lineitems'] ) ) {
+					?>
 
 			    <div class="ui divider"></div>
 			    <h5><?php echo esc_html( __( 'Line Items', 'zero-bs-crm' ) );?></h5>

@@ -218,6 +218,7 @@ class Contact_Form_Plugin {
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
+		add_action( 'current_screen', array( $this, 'redirect_edit_feedback_to_jetpack_forms' ) );
 
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
 
@@ -347,21 +348,26 @@ class Contact_Form_Plugin {
 	 *
 	 * @param string $block_name - the block name.
 	 * @param array  $attrs      - the block attributes.
+	 * @param array  $options    - the types of support to apply.
 	 *
 	 * @return array
 	 */
-	private static function get_block_support_classes_and_styles( $block_name, $attrs ) {
+	private static function get_block_support_classes_and_styles( $block_name, $attrs, $options = array() ) {
 		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
 
 		if ( ! $block_type ) {
 			return array();
 		}
 
+		$default_options = array( 'color', 'typography', 'border', 'custom', 'spacing' );
+		$enabled_options = empty( $options ) ? $default_options : $options;
+
 		// Leverage the individual core block support functions to generate classes and styles.
-		$color_styles      = \wp_apply_colors_support( $block_type, $attrs );
-		$typography_styles = \wp_apply_typography_support( $block_type, $attrs );
-		$border_styles     = \wp_apply_border_support( $block_type, $attrs );
-		$custom_classname  = \wp_apply_custom_classname_support( $block_type, $attrs );
+		$color_styles      = in_array( 'color', $enabled_options, true ) ? \wp_apply_colors_support( $block_type, $attrs ) : array();
+		$typography_styles = in_array( 'typography', $enabled_options, true ) ? \wp_apply_typography_support( $block_type, $attrs ) : array();
+		$border_styles     = in_array( 'border', $enabled_options, true ) ? \wp_apply_border_support( $block_type, $attrs ) : array();
+		$custom_classname  = in_array( 'custom', $enabled_options, true ) ? \wp_apply_custom_classname_support( $block_type, $attrs ) : array();
+		$spacing_styles    = in_array( 'spacing', $enabled_options, true ) ? \wp_apply_spacing_support( $block_type, $attrs ) : array();
 
 		// Merge all the block support classes and styles.
 		$classes = array_filter(
@@ -370,6 +376,7 @@ class Contact_Form_Plugin {
 				$typography_styles['class'] ?? '',
 				$border_styles['class'] ?? '',
 				$custom_classname['class'] ?? '',
+				$spacing_styles['class'] ?? '',
 			),
 			'strlen'
 		);
@@ -379,6 +386,7 @@ class Contact_Form_Plugin {
 				$color_styles['style'] ?? '',
 				$typography_styles['style'] ?? '',
 				$border_styles['style'] ?? '',
+				$spacing_styles['style'] ?? '',
 			),
 			'strlen'
 		);
@@ -499,6 +507,25 @@ class Contact_Form_Plugin {
 					continue;
 				}
 
+				// This input is exclusively used by the new phone field (not telephone).
+				if ( 'jetpack/phone-input' === $block_name ) {
+					$atts['placeholder'] = $inner_block['attrs']['placeholder'] ?? '';
+
+					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['inputclasses']  = 'wp-block-jetpack-input jetpack-field__input-element';
+					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
+					$atts['inputstyles']   = $input_attrs['style'] ?? null;
+
+					/*
+						Borders for the outlined notched HTML.
+					*/
+					$style_variation_data                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
+					$atts                                     = array_merge( $atts, $style_variation_data );
+					$add_block_style_classes_to_field_wrapper = true;
+
+					continue;
+				}
+
 				// The following handles when option blocks are a direct inner block for a field e.g. singular checkbox field.
 				if ( 'jetpack/option' === $block_name ) {
 					$atts['label']                            = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
@@ -570,11 +597,93 @@ class Contact_Form_Plugin {
 					continue;
 				}
 
-				if ( 'jetpack/rating-input' === $block_name ) {
+				if ( 'jetpack/fieldset-image-options' === $block_name ) {
+					$option_blocks           = $inner_block['innerBlocks'] ?? array();
+					$options                 = array();
+					$options_data            = array();
+					$atts['optionsclasses']  = 'wp-block-jetpack-fieldset-image-options';
+					$options_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['optionsclasses'] .= isset( $options_attrs['class'] ) ? ' ' . $options_attrs['class'] : '';
+
+					// Check if the block has left border, then apply a class for indentation.
+					$global_styles = wp_get_global_styles(
+						array( 'border' ),
+						array(
+							'block_name' => $block_name,
+							'transforms' => array( 'resolve-variables' ),
+						)
+					);
+
+					if ( isset( $inner_block['attrs']['style']['border']['width'] ) || isset( $inner_block['attrs']['style']['border']['left']['width'] ) || isset( $global_styles['width'] ) || isset( $global_styles['left']['width'] ) ) {
+						$atts['optionsclasses'] .= ' jetpack-field-image-select__list--has-border';
+					}
+
+					$atts['optionsstyles'] = $options_attrs['style'] ?? null;
+
+					foreach ( $option_blocks as $option_index => $option ) {
+						$option_label = trim( $option['attrs']['label'] ?? '' );
+
+						// Generate letter for this option (A, B, C, ..., AA, AB, etc.)
+						$option_letter = self::get_image_option_letter( $option_index + 1 );
+
+						$option_attrs       = self::get_block_support_classes_and_styles( 'jetpack/input-image-option', $option['attrs'], array( 'typography', 'border', 'custom', 'spacing' ) );
+						$option_attrs_color = self::get_block_support_classes_and_styles( 'jetpack/input-image-option', $option['attrs'], array( 'color' ) );
+						$option_data        = array(
+							'label'  => $option_label,
+							'letter' => $option_letter,
+							'image'  => $option['innerBlocks'][0],
+						);
+
+						if ( isset( $option_attrs['class'] ) ) {
+							$option_data['class'] = $option_attrs['class'] . ' wp-block-jetpack-input-image-option';
+						} else {
+							$option_data['class'] = 'wp-block-jetpack-input-image-option';
+						}
+						if ( isset( $option_attrs_color['class'] ) ) {
+							$option_data['classcolor'] = $option_attrs_color['class'];
+						}
+
+						if ( isset( $option_attrs['style'] ) ) {
+							$option_data['style'] = $option_attrs['style'];
+						}
+						if ( isset( $option_attrs_color['style'] ) ) {
+							$option_data['stylecolor'] = $option_attrs_color['style'];
+						}
+
+						$options[]      = $option_letter; // Legacy shortcode attribute - use letter for consistent submission
+						$options_data[] = $option_data;
+					}
+
+					$atts['options']     = implode( ',', $options );
+					$atts['optionsdata'] = \wp_json_encode( $options_data );
+
+					/*
+						Borders for the outlined notched HTML.
+					*/
+					$style_variation_atts                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
+					$atts                                     = array_merge( $atts, $style_variation_atts );
+					$add_block_style_classes_to_field_wrapper = true;
+
+					continue;
+				}
+
+				if ( 'jetpack/input-rating' === $block_name ) {
 					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']  = $input_attrs['style'] ?? null;
+					$atts['iconStyle']    = $atts['iconStyle'] ?? $inner_block['attrs']['iconStyle'] ?? 'stars';
+					continue;
+				}
 
+				if ( 'jetpack/input-range' === $block_name ) {
+					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
+					$atts['inputstyles']  = $input_attrs['style'] ?? null;
+					// Also add classes to the field wrapper so color/typography presets cascade to slider labels on the frontend.
+					if ( isset( $input_attrs['class'] ) && $input_attrs['class'] ) {
+						$atts['fieldwrapperclasses'] = trim( ( $atts['fieldwrapperclasses'] ?? '' ) . ' ' . $input_attrs['class'] );
+					}
+					$add_block_style_classes_to_field_wrapper = true;
 					continue;
 				}
 			}
@@ -597,6 +706,28 @@ class Contact_Form_Plugin {
 		}
 
 		return $atts;
+	}
+
+	/**
+	 * Generates a letter for image options based on position (A, B, C, ..., AA, AB, etc.)
+	 *
+	 * @param int $position The 1-based position of the option.
+	 * @return string The letter representation.
+	 */
+	private static function get_image_option_letter( $position ) {
+		if ( $position < 1 ) {
+			return '';
+		}
+
+		$result = '';
+
+		while ( $position > 0 ) {
+			--$position;
+			$result   = chr( 65 + ( $position % 26 ) ) . $result;
+			$position = floor( $position / 26 );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -749,46 +880,108 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the progress indicator.
 	 *
-	 * @param array  $attributes - the block attributes.
-	 * @param string $content - html content.
+	 * @param array $attributes - the block attributes.
 	 *
 	 * @return string HTML for the progress indicator.
 	 */
-	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
+	public static function gutenblock_render_form_progress_indicator( $attributes ) {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 		if ( empty( $version ) ) {
 			$version = '0.1';
 		}
 
-		// Enqueue the frontend style for the progress indicator.
+		// Get step count from Contact_Form_Block
+		$max_steps = Contact_Form_Block::get_form_step_count();
+
 		$style_handle = 'jetpack-form-progress-indicator-style';
-		$style_path   = '../../dist/blocks/form-progress-indicator/style.css'; // Path from the 404 error
 		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
-			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+			wp_enqueue_style( $style_handle, plugins_url( 'dist/blocks/form-progress-indicator/style.css', dirname( __DIR__ ) ), array(), $version );
 		}
 
-		// Enqueue the interactivity script module (matching form-step pattern).
 		$script_handle = 'jetpack-form-progress-indicator';
-		$script_path   = '../../dist/modules/form-progress-indicator/view.js'; // Path from previous 404 error
 		\wp_enqueue_script_module(
 			$script_handle,
-			plugins_url( $script_path, __FILE__ ),
+			plugins_url( 'dist/modules/form-progress-indicator/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
 			$version
 		);
 
-		$processor = new \WP_HTML_Tag_Processor( $content );
-		$processor->next_tag();
-		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+		$variant       = isset( $attributes['variant'] ) ? $attributes['variant'] : 'line';
+		$is_dots_style = $variant === 'dots';
 
-		while ( $processor->next_tag() ) {
-			$class = $processor->get_attribute( 'class' );
-			if ( 'jetpack-form-progress-indicator-bar' === $class ) {
-				$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
-			}
+		// Build custom CSS variables for progress indicator colors
+		$custom_styles = array();
+
+		if ( isset( $attributes['progressColor'] ) ) {
+			$custom_styles[] = '--jp-progress-active-color: ' . esc_attr( $attributes['progressColor'] );
 		}
 
-		return $processor->get_updated_html();
+		if ( isset( $attributes['progressBackgroundColor'] ) ) {
+			$custom_styles[] = '--jp-progress-track-color: ' . esc_attr( $attributes['progressBackgroundColor'] );
+		}
+
+		if ( isset( $attributes['textColor'] ) ) {
+			$custom_styles[] = '--jp-progress-text-color: var(--wp--preset--color--' . esc_attr( $attributes['textColor'] ) . ')';
+		} elseif ( isset( $attributes['style']['color']['text'] ) ) {
+			$custom_styles[] = '--jp-progress-text-color: ' . esc_attr( $attributes['style']['color']['text'] );
+		}
+
+		// Use WordPress Style Engine for block supports (dimensions, spacing, background, etc.)
+		$generated_styles = wp_style_engine_get_styles( $attributes['style'] ?? array() );
+
+		$generated_css_parts = ! empty( $generated_styles['css'] ) ? explode( ';', $generated_styles['css'] ) : array();
+		$all_styles          = array_filter( array_merge( $custom_styles, $generated_css_parts ) );
+
+		$extra_attributes = array();
+		if ( ! empty( $all_styles ) ) {
+			$extra_attributes['style'] = implode( '; ', $all_styles );
+		}
+
+		// Add generated classnames if any
+		$classes = array();
+		if ( ! empty( $generated_styles['classnames'] ) ) {
+			$classes[] = $generated_styles['classnames'];
+		}
+		// Add variant class
+		$classes[] = 'is-variant-' . $variant;
+
+		$extra_attributes['class'] = implode( ' ', $classes );
+
+		$wrapper_attributes = get_block_wrapper_attributes( $extra_attributes );
+
+		// Build the complete HTML structure using output buffering for better readability
+		ob_start();
+		$progress_state = $is_dots_style ? 'state.getDotsProgress' : 'state.getStepProgress';
+		?>
+		<div <?php echo wp_kses_post( $wrapper_attributes ); ?>>
+			<div class="jetpack-form-progress-indicator-steps">
+				<?php if ( $is_dots_style ) : ?>
+					<?php for ( $i = 0; $i < $max_steps; $i++ ) : ?>
+						<?php $step_context = array( 'stepIndex' => $i ); ?>
+						<div class="jetpack-form-progress-indicator-step" 
+							data-wp-class--is-active="state.isStepActive" 
+							data-wp-class--is-completed="state.isStepCompleted" 
+							data-wp-context='<?php echo wp_json_encode( $step_context ); ?>'>
+							<div class="jetpack-form-progress-indicator-line"></div>
+							<div class="jetpack-form-progress-indicator-dot">
+								<span class="jetpack-form-progress-indicator-step-number">
+									<span class="step-number"><?php echo esc_html( $i + 1 ); ?></span>
+									<span class="step-checkmark" role="img" aria-label="<?php echo esc_attr__( 'Completed', 'jetpack-forms' ); ?>">
+										<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+											<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" fill="currentColor"/>
+										</svg>
+									</span>
+								</span>
+							</div>
+						</div>
+					<?php endfor; ?>
+				<?php endif; ?>
+				<div class="jetpack-form-progress-indicator-progress" 
+					data-wp-style--width="<?php echo esc_attr( $progress_state ); ?>"></div>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -915,6 +1108,20 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_telephone( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the phone field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_phone( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'phone', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
@@ -1086,6 +1293,40 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Render the time field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the time field.
+	 */
+	public static function gutenblock_render_field_time( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'time', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Render the image select field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the image select form field.
+	 */
+	public static function gutenblock_render_field_image_select( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'image-select', $block );
+
+		// Ensure showLabels is always present in the shortcode attributes, as it defaults to true.
+		if ( ! array_key_exists( 'showLabels', $atts ) ) {
+			$atts['showLabels'] = true;
+		}
+
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
@@ -1231,13 +1472,24 @@ class Contact_Form_Plugin {
 		$is_block_template      = str_starts_with( $id, 'block-template-' );
 		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
-		$form = false;
 		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) {
 			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
 			if ( ! $form ) { // fail early if the JWT is invalid.
 				// If the JWT is invalid, we can't process the form.
 				return false;
 			}
+
+			$form->validate();
+
+			if ( $form->has_errors() ) {
+				return $form->errors;
+			}
+
+			if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+				Post_To_Url::init();
+			}
+			// Process the form
+			return $form->process_submission();
 		}
 
 		if ( $is_widget ) {
@@ -1358,10 +1610,9 @@ class Contact_Form_Plugin {
 				apply_filters( 'the_content', $content );
 			}
 		}
-		if ( ! $form ) {
-			// In future version we will be able to skip this step.
-			$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
-		}
+
+		// In future version we will be able to skip this step.
+		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
@@ -1395,8 +1646,8 @@ class Contact_Form_Plugin {
 			return false;
 		}
 
-		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
-			return $form->errors;
+		if ( $form->has_errors() ) {
+			return false;
 		}
 
 		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
@@ -1561,7 +1812,7 @@ class Contact_Form_Plugin {
 	 * @param array $widget The widget data.
 	 */
 	public function track_current_widget( $widget ) {
-		$this->current_widget_id = $widget['id'];
+		$this->current_widget_id = isset( $widget['id'] ) ? $widget['id'] : '';
 	}
 
 	/**
@@ -2341,7 +2592,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Prepares feedback post data for CSV export.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.1.0
 	 *
 	 * @see get_export_feedback_data()
 	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
@@ -2349,7 +2600,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_export_data_for_posts( $post_ids ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_feedback_data()' );
+		_deprecated_function( __METHOD__, 'package-5.1.0', 'Contact_Form_Plugin::get_export_feedback_data()' );
 		return $this->get_export_feedback_data( $post_ids );
 	}
 
@@ -2360,12 +2611,12 @@ class Contact_Form_Plugin {
 	 * - Positive values render AFTER any form field/value column: 1, 30, 93...
 	 *   Mind using high numbering on these ones as the prefix is used on regular inputs: 1_Name, 2_Email, etc
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 5.1.0
 	 *
 	 * @return array
 	 */
 	public function get_well_known_column_names() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Contact_Form_Plugin::get_export_column_names()' );
+		_deprecated_function( __METHOD__, 'package-5.1.0', 'Contact_Form_Plugin::get_export_column_names()' );
 		return array(
 			'-9_title'         => __( 'Title', 'jetpack-forms' ),
 			'-6_source'        => __( 'Source', 'jetpack-forms' ),
@@ -2747,6 +2998,9 @@ class Contact_Form_Plugin {
 	 *
 	 * @param string $post_content The post content to parse.
 	 * @return array Parsed fields.
+	 *
+	 * @codeCoverageIgnore - No need to be covered.
+	 * @deprecated since 5.3.0
 	 */
 	public static function parse_feedback_content( $post_content ) {
 		$all_values = array();
@@ -2822,22 +3076,13 @@ class Contact_Form_Plugin {
 	 * @return array Fields.
 	 */
 	public static function parse_fields_from_content( $post_id ) {
-		static $post_fields;
+		$response = Feedback::get( $post_id );
 
-		if ( ! is_array( $post_fields ) ) {
-			$post_fields = array();
+		if ( $response instanceof Feedback ) {
+			return $response->get_all_legacy_values();
 		}
 
-		if ( isset( $post_fields[ $post_id ] ) ) {
-			return $post_fields[ $post_id ];
-		}
-
-		$post_content = get_post_field( 'post_content', $post_id );
-		$fields       = self::parse_feedback_content( $post_content );
-
-		$post_fields[ $post_id ] = $fields;
-
-		return $fields;
+		return array();
 	}
 
 	/**
@@ -3102,12 +3347,44 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
 		// Get min, max, and default from the parent block's attributes.
-		$parent_attrs    = $block->parsed_block['attrs'] ?? array();
-		$atts['min']     = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
-		$atts['max']     = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
-		$atts['default'] = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
+		$parent_attrs     = $block->parsed_block['attrs'] ?? array();
+		$atts['min']      = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
+		$atts['max']      = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
+		$atts['default']  = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
+		$atts['step']     = isset( $parent_attrs['step'] ) ? $parent_attrs['step'] : 1;
+		$atts['minLabel'] = isset( $parent_attrs['minLabel'] ) ? $parent_attrs['minLabel'] : '';
+		$atts['maxLabel'] = isset( $parent_attrs['maxLabel'] ) ? $parent_attrs['maxLabel'] : '';
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
+
+	/**
+	 * Redirect users from the edit-feedback screen to the Jetpack Forms admin page.
+	 *
+	 * This method is hooked to 'current_screen' and checks if the current screen
+	 * is 'edit-feedback'. If so, it redirects the user to admin.php?page=jetpack-forms-admin.
+	 *
+	 * @since 6.0.0
+	 */
+	public function redirect_edit_feedback_to_jetpack_forms() {
+		// Only proceed if we have a valid screen object
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		// Check if this is the edit-feedback screen
+		if ( ! $screen || $screen->id !== 'edit-feedback' ) {
+			return;
+		}
+
+		// Perform the redirect to the Jetpack Forms admin page
+		$redirect_url = admin_url( 'admin.php?page=jetpack-forms-admin' );
+
+		// Use wp_safe_redirect to ensure we're redirecting to a safe location
+		wp_safe_redirect( $redirect_url );
+		exit;
 	}
 }

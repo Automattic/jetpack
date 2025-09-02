@@ -1311,13 +1311,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * rebuild : Rebuild all sitemaps
 	 * --purge : if set, will remove all existing sitemap data before rebuilding
+	 * --monitor : if set, will output elapsed time, peak memory usage, CPU time (user/system), and average CPU utilization
+	 * --suspend-cache-addition : if set, will suspend cache additions during sitemap generation
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack sitemap rebuild
+	 * wp jetpack sitemap rebuild --monitor
 	 *
 	 * @subcommand sitemap
-	 * @synopsis <rebuild> [--purge]
+	 * @synopsis <rebuild> [--purge] [--monitor] [--suspend-cache-addition]
 	 *
 	 * @param array $args Positional args.
 	 * @param array $assoc_args Named args.
@@ -1330,6 +1333,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'Jetpack Sitemaps module is active, but unavailable. This can happen if your site is set to discourage search engine indexing. Please enable search engine indexing to allow sitemap generation.', 'jetpack' ) );
 		}
 
+		if ( isset( $assoc_args['suspend-cache-addition'] ) && $assoc_args['suspend-cache-addition'] ) {
+			add_filter( 'jetpack_sitemap_suspend_cache_addition', '__return_true' );
+			WP_CLI::success( 'Suspending cache addition.' );
+		}
+
+		$monitor = isset( $assoc_args['monitor'] ) && $assoc_args['monitor'];
+
+		if ( $monitor ) {
+			$start_time   = microtime( true );
+			$rusage_start = function_exists( 'getrusage' ) ? getrusage() : null;
+		}
+
 		if ( isset( $assoc_args['purge'] ) && $assoc_args['purge'] ) {
 			$librarian = new Jetpack_Sitemap_Librarian();
 			$librarian->delete_all_stored_sitemap_data();
@@ -1337,11 +1352,44 @@ class Jetpack_CLI extends WP_CLI_Command {
 			// Clear sitemap-related transients
 			delete_transient( 'jetpack_news_sitemap_xml' );
 			delete_transient( 'jetpack-sitemap-state-lock' );
-			WP_CLI::success( 'Purged all sitemap data and cleared sitemap transients.' );
+			WP_CLI::success( __( 'Purged all sitemap data and cleared sitemap transients.', 'jetpack' ) );
 		}
 
 		$sitemap_builder = new Jetpack_Sitemap_Builder();
 		$sitemap_builder->update_sitemap();
+
+		WP_CLI::success( __( 'Sitemap rebuilt successfully.', 'jetpack' ) );
+
+		if ( $monitor && isset( $start_time ) ) {
+			$end_time     = microtime( true );
+			$peak_memory  = memory_get_peak_usage();
+			$elapsed_time = $end_time - $start_time;
+			$rusage_end   = function_exists( 'getrusage' ) ? getrusage() : null;
+
+			WP_CLI::log( '----------------------------------' );
+			WP_CLI::log( __( 'Performance Metrics:', 'jetpack' ) );
+			/* translators: %s is a float representing seconds */
+			WP_CLI::log( sprintf( __( 'Elapsed Time: %.4f seconds', 'jetpack' ), $elapsed_time ) );
+			/* translators: %s is a human-readable memory size (e.g., 128MB) */
+			WP_CLI::log( sprintf( __( 'Peak Memory Usage: %s', 'jetpack' ), size_format( $peak_memory ) ) );
+
+			if ( ! empty( $rusage_start ) && ! empty( $rusage_end ) ) {
+				$user_cpu_time   = ( $rusage_end['ru_utime.tv_sec'] * 1e6 + $rusage_end['ru_utime.tv_usec'] ) - ( $rusage_start['ru_utime.tv_sec'] * 1e6 + $rusage_start['ru_utime.tv_usec'] );
+				$system_cpu_time = ( $rusage_end['ru_stime.tv_sec'] * 1e6 + $rusage_end['ru_stime.tv_usec'] ) - ( $rusage_start['ru_stime.tv_sec'] * 1e6 + $rusage_start['ru_stime.tv_usec'] );
+
+				/* translators: %d is an integer representing microseconds */
+				WP_CLI::log( sprintf( __( 'CPU time (user): %d microseconds', 'jetpack' ), $user_cpu_time ) );
+				/* translators: %d is an integer representing microseconds */
+				WP_CLI::log( sprintf( __( 'CPU time (system): %d microseconds', 'jetpack' ), $system_cpu_time ) );
+
+				// Average CPU utilization over the elapsed wall time.
+				$total_cpu_sec = ( $user_cpu_time + $system_cpu_time ) / 1e6;
+				$avg_cpu_pct   = $elapsed_time > 0 ? ( $total_cpu_sec / $elapsed_time ) * 100 : 0.0;
+				/* translators: %s is a percentage like 83.4 */
+				WP_CLI::log( sprintf( __( 'Average CPU Utilization: %.1f%%', 'jetpack' ), $avg_cpu_pct ) );
+			}
+			WP_CLI::log( '----------------------------------' );
+		}
 	}
 
 	/**

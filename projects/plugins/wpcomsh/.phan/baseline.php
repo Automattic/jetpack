@@ -18,7 +18,6 @@ return [
     // PhanTypeVoidAssignment : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeSuspiciousEcho : 4 occurrences
-    // PhanImpossibleCondition : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanContextNotObject : 1 occurrence
@@ -44,9 +43,8 @@ return [
         'feature-plugins/managed-plugins.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'feature-plugins/sensei-pro-mods.php' => ['PhanUndeclaredClassMethod'],
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],
-        'functions.php' => ['PhanImpossibleCondition', 'PhanUndeclaredClassStaticProperty'],
+        'functions.php' => ['PhanUndeclaredClassStaticProperty'],
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
-        'notices/plan-notices.php' => ['PhanImpossibleCondition'],
         'private-site/access-denied-coming-soon-template.php' => ['PhanTypeSuspiciousEcho'],
         'private-site/access-denied-preview-login-template.php' => ['PhanTypeSuspiciousEcho'],
         'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
@@ -62,7 +60,7 @@ return [
         'widgets/class-pd-top-rated.php' => ['PhanRedundantCondition'],
         'widgets/class-widget-top-clicks.php' => ['PhanDeprecatedFunction'],
         'wpcom-features/class-wpcom-features.php' => ['PhanPluginMixedKeyNoKey'],
-        'wpcom-features/functions-wpcom-features.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
+        'wpcom-features/functions-wpcom-features.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

@@ -12,7 +12,7 @@ Automated end-to-end acceptance tests for the Jetpack Boost plugin.
 ## Pre-requisites
 
 - This readme assumes that `node`, `pnpm` and `docker` are already installed on your machine.
-- Make sure you built Jetpack Boost first. `pnpm install && pnpm jetpack build plugins/boost` in the monorepo root directory should walk you through it. You can also refer to the Jetpack Boost [documentation](../../docs/DEVELOPEMENT_GUIDE.md) in how to build Jetpack Boost.
+- Make sure you built Jetpack Boost first. `pnpm install && pnpm jetpack build plugins/boost` in the monorepo root directory should walk you through it. You can also refer to the Jetpack Boost [documentation](../../docs/DEVELOPMENT_GUIDE.md) in how to build Jetpack Boost.
 - Run `pnpm install` from the Jetpack Boost E2E tests directory. This command install all the required dependencies
 
 Jetpack Boost E2E tests also rely on an encrypted configuration file, which is included in the [e2e commons package](../../../../../tools/e2e-commons) config folder as [`encrypted.enc`](../../../../../tools/e2e-commons/config/encrypted.enc). To be able to run tests - that file should be decrypted first.
@@ -26,7 +26,7 @@ To decrypt the config file (a8c only):
 
 Typically, the workflow is the same as the one described in the Jetpack E2E [documentation](../../../jetpack/tests/e2e/README.md). You can follow the same workflow but running the commands inside the Jetpack Boost E2E tests folder.
 
-However,below is a quick reminder of the critical steps to run the tests.
+However, below is a quick reminder of the critical steps to run the tests.
 
 From the root of the repo (this has to be done only once or when pulling new changes):
 
@@ -47,3 +47,72 @@ However, Boost has some shortcuts to get the environment started and run all the
 - `pnpm test-e2e:start` - This command will start the e2e testing environment and the tunnel.
 - `pnpm test-e2e:run` - This command will run the e2e tests.
 - `pnpm test-e2e:stop` - This command will stop the e2e testing environment.
+
+## Fixtures and Utilities
+
+A fixture-based architecture was implemented with custom utilities for most common operations.
+
+### Available Fixtures (specific to Boost tests)
+
+- `boostUtils` - Boost-specific utility functions (module control, mocking, environment setup). Extends the e2e-commons `testUtils` fixture, which offers Jetpack, WordPress or general environment utilities.
+- `jetpackBoostPage` - Pre-configured Jetpack Boost page object for interacting with the Jetpack Boost admin interface.
+
+### `boostUtils` Usage
+
+```typescript
+test('My test', async ({ boostUtils, jetpackBoostPage, page }) => {
+  // Environment setup
+  await boostUtils.resetEnvironment();
+  
+  // Module management
+  await boostUtils.activateBoostModule(['critical_css', 'render_blocking_js']);
+  await boostUtils.deactivateBoostModule('page_cache');
+  
+  // Connection management
+  await boostUtils.mockConnection(); // Mocks the connection
+  // OR for real connection:
+  await boostUtils.connectIfNeeded(page); // Go through the real connection flow
+  
+  // Speed score management
+  await boostUtils.mockSpeedScore(); // Fast, consistent scores
+  // OR for real API:
+  await boostUtils.unMockSpeedScore(); // Real PageSpeed API calls
+  
+  // Premium features
+  await boostUtils.mockPremiumFeatures(['cornerstone-10-pages']);
+  
+  // WordPress CLI commands
+  await boostUtils.executeWpCommand('option set permalink_structure "/%postname%/"');
+});
+```
+
+### `jetpackBoostPage` Usage
+
+```typescript
+test('Page interactions', async ({ jetpackBoostPage, page }) => {
+  // Navigate to Boost admin
+  await jetpackBoostPage.visit();
+  
+  // Module interactions
+  await jetpackBoostPage.toggleModule('critical_css', true);
+});
+```
+
+### ⚠️ Important: Mock Cleanup
+
+Always clean up mocked states in teardown hooks to prevent test isolation issues:
+
+```typescript
+test.beforeAll(async ({ boostUtils }) => {
+  await boostUtils.mockConnection();
+  await boostUtils.mockSpeedScore();
+  await boostUtils.mockPremiumFeatures(['feature1']);
+});
+
+test.afterAll(async ({ boostUtils }) => {
+  // Clean up all mocks
+  await boostUtils.unMockConnection();
+  await boostUtils.unMockSpeedScore();
+  await boostUtils.unMockPremiumFeatures();
+});
+```

@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.6] - 2025-09-01
+### Fixed
+- Social: Allow default image to be cleared. [#44994]
+
+## [1.2.5] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## [1.2.4] - 2025-08-18
+### Changed
+- Update dependencies. [#43971]
+
+## [1.2.3] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+### Removed
+- Removed unused dependencies. [#44746]
+
+## [1.2.2] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677] [#44703]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [1.2.1] - 2025-08-05
+### Added
+- Social: Add font option for Image Generator. [#44514]
+
+## [1.2.0] - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Update @wordpress/dataviews to 5.0.0. [#44376]
+
+### Fixed
+- Fix UX for Social modal when resharing without user connection. [#44513]
+
 ## [1.1.6] - 2025-07-28
 ### Changed
 - Internal updates.
@@ -1317,6 +1355,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.2.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.5...v1.2.6
+[1.2.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.4...v1.2.5
+[1.2.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.3...v1.2.4
+[1.2.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.6...v1.2.0
 [1.1.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.3...v1.1.4

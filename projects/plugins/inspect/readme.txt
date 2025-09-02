@@ -33,19 +33,13 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 2.0.0-a.3 - 2025-06-05
+### 2.0.0-a.5 - 2025-08-05
 #### Changed
-- Code: First pass of style coding standards.
+- My Jetpack: Unify the user connection flow with a unified screen.
 - Update package dependencies.
 
-#### Removed
-- General: Update minimum WordPress version to 6.7.
-
 #### Fixed
-- Code: Update stylesheets to use hex instead of named colors.
-- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
-- Linting: Do additional stylesheet cleanup.
-- Linting: Fix more Stylelint violations.
+- Autoloader: Prevent double slash in autoloader path.
 
 == Arbitrary section ==
 

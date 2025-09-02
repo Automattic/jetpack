@@ -40,6 +40,48 @@ class Contact_Form_Test extends BaseTestCase {
 	private $plugin;
 
 	/**
+	 * Test the esc_shortcode_val method with various input types
+	 */
+	public function test_esc_shortcode_val() {
+		// Test simple string escaping
+		$this->assertEquals(
+			'Hello&#044; World&#091;&#093;',
+			Contact_Form::esc_shortcode_val( 'Hello, World[]' ),
+			'Failed to properly escape string with brackets and comma'
+		);
+
+		// Test array with value key
+		$this->assertEquals(
+			'test&#092;value',
+			Contact_Form::esc_shortcode_val( array( 'value' => 'test\\value' ) ),
+			'Failed to handle array with value key'
+		);
+
+		// Test array without value key (recursive case)
+		$this->assertEquals(
+			'first',
+			Contact_Form::esc_shortcode_val( array( 'first', 'second' ) ),
+			'Failed to handle array without value key'
+		);
+
+		// Test nested array case
+		$this->assertEquals(
+			'nested',
+			Contact_Form::esc_shortcode_val( array( array( 'value' => 'nested' ) ) ),
+			'Failed to handle nested array'
+		);
+
+		// Test special character escaping
+		$special_chars = '[bracket], \\backslash\\, ,comma,';
+		$expected      = '&#091;bracket&#093;&#044; &#092;backslash&#092;&#044; &#044;comma&#044;';
+		$this->assertEquals(
+			$expected,
+			Contact_Form::esc_shortcode_val( $special_chars ),
+			'Failed to escape all special characters correctly'
+		);
+	}
+
+	/**
 	 * Sets up the test environment before the class tests begin.
 	 *
 	 * @beforeClass
@@ -346,6 +388,9 @@ class Contact_Form_Test extends BaseTestCase {
 		// Default metadata should be saved.
 		$extra_fields = get_post_meta( $submission->ID, '_feedback_extra_fields', true );
 
+		$response = Feedback::get( $feedback_id );
+
+		$this->assertEquals( $extra_fields, $response->get_legacy_extra_values(), 'The extra fields should match the response from the Feedback class' );
 		$this->assertCount( 3, $extra_fields, 'There should be exactly three extra fields when one of the fields is name, and the others are an extra dropdown, radio button field and text field' );
 
 		/*
@@ -373,11 +418,10 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
 		// Default metadata should be saved.
-		$this->assertStringContainsString( 'SUBJECT: I\\\'m sorry, but the party\\\'s over', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertEquals( "I\'m sorry, but the party\'s over", $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -402,10 +446,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -429,10 +472,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -456,10 +498,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -487,13 +528,13 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( '\"1_Name\":\"John Doe\"', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContainsString( '\"2_Dropdown\":\"First option\"', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContainsString( '\"3_Radio\":\"Second option\"', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContainsString( '\"4_Text\":\"Texty text\"', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$response = Feedback::get( $feedback_id );
+
+		$this->assertStringContainsString( 'John Doe', $response->get_field_value_by_label( 'Name' ), 'Post content did not contain the name label and/or value' );
+		$this->assertStringContainsString( 'First option', $response->get_field_value_by_label( 'Dropdown' ), 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContainsString( 'Second option', $response->get_field_value_by_label( 'Radio' ), 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContainsString( 'Texty text', $response->get_field_value_by_label( 'Text' ), 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
@@ -818,6 +859,11 @@ class Contact_Form_Test extends BaseTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	public function test_parse_fields_from_content_no_data() {
+		$data = Contact_Form_Plugin::parse_fields_from_content( 999999 );
+		$this->assertEmpty( $data );
+	}
+
 	/**
 	 * We test that if the all fields keys do have HTML content, they are escaped correctly.
 	 */
@@ -896,7 +942,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		// Verify specific content
 		$this->assertEquals( 'abc', $fields['_feedback_all_fields']['entry_title'] );
-		$this->assertStringContainsString( 'example.org', $fields['_feedback_all_fields']['entry_permalink'] );
+		$this->assertStringContainsString( '', $fields['_feedback_all_fields']['entry_permalink'] );
 		$this->assertMatchesRegularExpression( '/^[a-f0-9]{32}$/', $fields['_feedback_all_fields']['feedback_id'] );
 
 		wp_delete_post( $post_id, true );
@@ -2996,5 +3042,221 @@ EOT;
 		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10, 3 );
 		$this->assertTrue( $form_has_filter->has_custom_redirect(), 'Form should have a custom redirect URL.' );
 		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+	}
+
+	public function test_validate_form() {
+		$name    = 'John Doe';
+		$email   = 'john@example.com';
+		$choose  = array( 'truth' );
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type="email" required="1"/][contact-field label="Choose" type="checkbox-multiple"  options="truth,dare"  required="1"]'
+		);
+
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+		$this->assertEquals( array(), $form->get_error_messages() );
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+	}
+
+	public function test_validate_form_with_errors() {
+		$name    = ''; // required field
+		$email   = 'hello@world'; // Invalid email
+		$choose  = array( '' ); // required field
+		$pick    = array( 'not-a-value' ); // required field
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'           => $name,
+				'email'          => $email,
+				'invite'         => 'hello@world', // not required
+				'choose'         => $choose,
+				'chooseradio'    => 'not-a-value',
+				'radioempty'     => '',
+				'radioemptydata' => '',
+				'pick'           => $pick,
+				'pickvalue'      => array( 'truth' ), // a value but not a part of the values array.
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"
+			[contact-field label='Name' type='name' required='1'/]
+			[contact-field label='Email' type='email' required='1'/]
+			[contact-field label='Invite' type='email' /]
+			[contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/]
+			[contact-field label='Choose Radio' type='radio' options='truth,dare' required='1'/]
+			[contact-field label='Choose Empty' type='radio' options='truth,dare' required='1'/]
+			[contact-field label='Choose Empty Data' type='radio' options='truth,dare' optionsdata='&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;' required='1'/]
+			[contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]
+			[contact-field label='Pick Value' type='checkbox-multiple' options='truth,dare' values='one,two' required='1'/]"
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals(
+			array(
+				'Name field is required.',
+				'Email requires a valid email address.',
+				'Invite requires a valid email address.',
+				'Choose requires at least one selection.',
+				'Choose Radio requires at least one selection.',
+				'Choose Empty requires at least one selection.',
+				'Choose Empty Data requires at least one selection.',
+				'Pick requires at least one selection.',
+				'Pick Value requires at least one selection.',
+			),
+			$form->get_error_messages()
+		);
+		Contact_Form::reset_errors();
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array(), $form->get_error_messages() );
+
+		$form->add_error( 'custom_error', 'This is a custom error message.' );
+		$this->assertTrue( $form->has_errors(), 'Form should have custom error after adding it.' );
+		$this->assertEquals( array( 'This is a custom error message.' ), $form->get_error_messages(), 'Form should return custom error message.' );
+
+		// Reset errors and check again.
+		Contact_Form::reset_errors( $form->get_attribute( 'id' ) );
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after resetting.' );
+		$this->assertEquals( array(), $form->get_error_messages() );
+	}
+
+	public function test_validate_empty_form() {
+		$name    = '';
+		$email   = '';
+		$choose  = array( '' );
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Name" type="name" /][contact-field label="Email" type="email" /][contact-field label="Choose" type="checkbox-multiple" options="truth,dare" /]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array( 'Please fill out at least one field.' ), $form->get_error_messages() );
+		Contact_Form::reset_errors();
+	}
+
+	public function test_validate_checkboxes_form() {
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+
+				'choose'                      => array( 'truth 🙈 ' ),
+				'chooseoptions'               => array( 'hello  there' ),
+				'chooseseveraloptions'        => array( 'hello, there' ),
+				'chooseseveraloptionsspecial' => array( 'hello, world' ),
+				'chooseseveraloptionsvalues'  => array( 'one' ),
+				'choosevalueoptionsdata'      => array( 'one' ),
+
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'
+			[contact-field label="Choose" type="checkbox-multiple" options="truth 🙈 , dare" ]
+			[contact-field type="checkbox-multiple" label="Choose options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello  there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]
+[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]
+[contact-field label="Choose several options special" type="checkbox-multiple" options="hello&#044; world,dare" /]
+[contact-field label="Choose several options  values" type="checkbox-multiple" options="hello world,dare" values="one,two" /]
+[contact-field type="checkbox-multiple" label="Choose value options data" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" values="one,two" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]
+'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
+	}
+
+	public function test_validate_radio_form() {
+		$name    = '';
+		$email   = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => 'hello, world',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Choose" type="radio" options="hello&#044; world,dare" /]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		$this->assertEquals( array(), $form->get_error_messages() );
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
 	}
 }

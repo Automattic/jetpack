@@ -8,6 +8,10 @@
 
 namespace Automattic\Jetpack\Scan;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! apply_filters( 'jetpack_disable_scan', false ) ) {
 	require_once __DIR__ . '/class-admin-bar-notice.php';
 	require_once __DIR__ . '/class-admin-sidebar-link.php';

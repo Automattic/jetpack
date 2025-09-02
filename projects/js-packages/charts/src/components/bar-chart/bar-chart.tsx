@@ -1,30 +1,53 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useId, useState, useRef, useMemo } from 'react';
-import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
-import { ChartContext } from '../../providers/chart-context/chart-context';
-import { useChartTheme, useXYChartTheme } from '../../providers/theme';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { useChartDataTransform } from '../shared/use-chart-data-transform';
-import { useChartMargin } from '../shared/use-chart-margin';
-import { useElementHeight } from '../shared/use-element-height';
-import { useZeroValueDisplay } from '../shared/use-zero-value-display';
-import { withResponsive } from '../shared/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
+import { useCallback, useContext, useState, useRef, useMemo } from 'react';
+import {
+	useXYChartTheme,
+	useChartDataTransform,
+	useZeroValueDisplay,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+	useGlobalChartsContext,
+} from '../../providers/chart-context';
+import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import { useBarChartOptions } from './use-bar-chart-options';
-import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import { useBarChartOptions } from './private';
+import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, ComponentType } from 'react';
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
+	children?: ReactNode;
 }
+
+// Base props type with optional responsive properties
+type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
+
+// Composition API types
+interface BarChartSubComponents {
+	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
+}
+
+type BarChartComponent = FC< BarChartBaseProps > & BarChartSubComponents;
+type BarChartResponsiveComponent = FC< BarChartBaseProps & ResponsiveConfig > &
+	BarChartSubComponents;
 
 // Validation function similar to LineChart
 const validateData = ( data: SeriesData[] ) => {
@@ -57,8 +80,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendAlignmentHorizontal = 'center',
-	legendAlignmentVertical = 'bottom',
+	legendPosition = 'bottom',
+	legendAlignment = 'center',
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -66,12 +89,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
+	children,
 } ) => {
 	const horizontal = orientation === 'horizontal';
-	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
-	const internalChartId = useId();
 	const chartId = useChartId( providedChartId );
-	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -82,7 +103,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( dataSorted, providerTheme );
+	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -103,18 +124,24 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
+	const { resolveGroupColor } = useGlobalChartsContext();
+
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>
-			seriesData?.options?.stroke || theme.colors[ index % theme.colors.length ],
-		[ theme ]
+			resolveGroupColor( {
+				group: seriesData.group,
+				index,
+				overrideColor: seriesData.options?.stroke,
+			} ),
+		[ resolveGroupColor ]
 	);
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
 			withPatterns
-				? `url(#${ getPatternId( internalChartId, index ) })`
+				? `url(#${ getPatternId( chartId, index ) })`
 				: getColor( dataSorted[ index ], index ),
-		[ withPatterns, getColor, dataSorted, internalChartId ]
+		[ withPatterns, getColor, dataSorted, chartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -147,7 +174,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const renderPattern = useCallback(
 		( index: number, color: string ) => {
 			const patternType = index % 4;
-			const id = getPatternId( internalChartId, index );
+			const id = getPatternId( chartId, index );
 			const commonProps = {
 				id,
 				stroke: 'white',
@@ -177,12 +204,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
 			}
 		},
-		[ internalChartId ]
+		[ chartId ]
 	);
 
 	const createPatternBorderStyle = useCallback(
 		( index: number, color: string ) => {
-			const patternId = getPatternId( internalChartId, index );
+			const patternId = getPatternId( chartId, index );
 			return `
 			.visx-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };
@@ -190,7 +217,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				}
 			`;
 		},
-		[ internalChartId ]
+		[ chartId ]
 	);
 
 	const createKeyboardHighlightStyle = useCallback( () => {
@@ -245,7 +272,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'bar', isDataValid, chartMetadata );
+	useChartRegistration( {
+		chartId,
+		legendItems,
+		chartType: 'bar',
+		isDataValid,
+		metadata: chartMetadata,
+	} );
 
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
@@ -255,127 +288,148 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const highlightedBarStyle = createKeyboardHighlightStyle();
 
 	return (
-		<div
-			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
-			data-testid="bar-chart"
-			role="grid"
-			aria-label="bar chart"
-			style={ {
-				width,
-				height,
-				display: 'flex',
-				flexDirection:
-					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+		<SingleChartContext.Provider
+			value={ {
+				chartId,
+				chartWidth: width,
+				chartHeight: height - ( showLegend ? legendHeight : 0 ),
 			} }
-			tabIndex={ 0 }
-			onKeyDown={ onChartKeyDown }
-			onFocus={ onChartFocus }
-			onBlur={ onChartBlur }
-			ref={ chartRef }
-			data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
 		>
-			<XYChart
-				theme={ theme }
-				width={ width }
-				height={ height - ( showLegend ? legendHeight : 0 ) }
-				margin={ {
-					...defaultMargin,
-					...margin,
-					...( showLegend && legendAlignmentVertical === 'top'
-						? { top: ( defaultMargin.top || 0 ) + legendHeight }
-						: {} ),
+			<div
+				className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+				data-testid="bar-chart"
+				role="grid"
+				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+				style={ {
+					width,
+					height,
+					display: 'flex',
+					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 				} }
-				xScale={ chartOptions.xScale }
-				yScale={ chartOptions.yScale }
-				horizontal={ horizontal }
-				pointerEventsDataKey="nearest"
+				tabIndex={ 0 }
+				onKeyDown={ onChartKeyDown }
+				onFocus={ onChartFocus }
+				onBlur={ onChartBlur }
+				ref={ chartRef }
+				data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
 			>
-				<Grid
-					columns={ gridVisibility.includes( 'y' ) }
-					rows={ gridVisibility.includes( 'x' ) }
-					numTicks={ 4 }
-				/>
+				<XYChart
+					theme={ theme }
+					width={ width }
+					height={ height - ( showLegend ? legendHeight : 0 ) }
+					margin={ {
+						...defaultMargin,
+						...margin,
+						...( showLegend && legendPosition === 'top'
+							? { top: ( defaultMargin.top || 0 ) + legendHeight }
+							: {} ),
+					} }
+					xScale={ chartOptions.xScale }
+					yScale={ chartOptions.yScale }
+					horizontal={ horizontal }
+					pointerEventsDataKey="nearest"
+				>
+					<Grid
+						columns={ gridVisibility.includes( 'y' ) }
+						rows={ gridVisibility.includes( 'x' ) }
+						numTicks={ 4 }
+					/>
 
-				{ withPatterns && (
-					<>
-						<defs data-testid="bar-chart-patterns">
-							{ dataSorted.map( ( seriesData, index ) =>
-								renderPattern( index, getColor( seriesData, index ) )
-							) }
-						</defs>
-						<style>
-							{ dataSorted.map( ( seriesData, index ) =>
-								createPatternBorderStyle( index, getColor( seriesData, index ) )
-							) }
-						</style>
-					</>
-				) }
+					{ withPatterns && (
+						<>
+							<defs data-testid="bar-chart-patterns">
+								{ dataSorted.map( ( seriesData, index ) =>
+									renderPattern( index, getColor( seriesData, index ) )
+								) }
+							</defs>
+							<style>
+								{ dataSorted.map( ( seriesData, index ) =>
+									createPatternBorderStyle( index, getColor( seriesData, index ) )
+								) }
+							</style>
+						</>
+					) }
 
-				{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
-				<BarGroup padding={ chartOptions.barGroup.padding }>
-					{ dataWithVisibleZeros.map( ( seriesData, index ) => (
-						<BarSeries
-							key={ seriesData?.label }
-							dataKey={ seriesData?.label }
-							data={ seriesData.data as DataPointDate[] }
-							yAccessor={ chartOptions.accessors.yAccessor }
-							xAccessor={ chartOptions.accessors.xAccessor }
-							colorAccessor={ getBarBackground( index ) }
+					<BarGroup padding={ chartOptions.barGroup.padding }>
+						{ dataWithVisibleZeros.map( ( seriesData, index ) => (
+							<BarSeries
+								key={ seriesData?.label }
+								dataKey={ seriesData?.label }
+								data={ seriesData.data as DataPointDate[] }
+								yAccessor={ chartOptions.accessors.yAccessor }
+								xAccessor={ chartOptions.accessors.xAccessor }
+								colorAccessor={ getBarBackground( index ) }
+							/>
+						) ) }
+					</BarGroup>
+
+					<Axis { ...chartOptions.axis.x } />
+					<Axis { ...chartOptions.axis.y } />
+
+					{ withTooltips && (
+						<AccessibleTooltip
+							detectBounds
+							snapTooltipToDatumX
+							snapTooltipToDatumY
+							renderTooltip={ renderTooltip || renderDefaultTooltip }
+							selectedIndex={ selectedIndex }
+							tooltipRef={ tooltipRef }
+							keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
+							series={ data }
+							mode="individual"
 						/>
-					) ) }
-				</BarGroup>
+					) }
+				</XYChart>
 
-				<Axis { ...chartOptions.axis.x } />
-				<Axis { ...chartOptions.axis.y } />
-
-				{ withTooltips && (
-					<AccessibleTooltip
-						detectBounds
-						snapTooltipToDatumX
-						snapTooltipToDatumY
-						renderTooltip={ renderTooltip || renderDefaultTooltip }
-						selectedIndex={ selectedIndex }
-						tooltipRef={ tooltipRef }
-						keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
-						series={ data }
-						mode="individual"
+				{ showLegend && (
+					<Legend
+						orientation={ legendOrientation }
+						position={ legendPosition }
+						alignment={ legendAlignment }
+						className={ styles[ 'bar-chart__legend' ] }
+						shape={ legendShape }
+						ref={ legendRef }
+						chartId={ chartId }
 					/>
 				) }
-			</XYChart>
 
-			{ showLegend && (
-				<Legend
-					items={ legendItems }
-					orientation={ legendOrientation }
-					alignmentHorizontal={ legendAlignmentHorizontal }
-					alignmentVertical={ legendAlignmentVertical }
-					className={ styles[ 'bar-chart__legend' ] }
-					shape={ legendShape }
-					ref={ legendRef }
-					chartId={ chartId }
-				/>
-			) }
-		</div>
+				{ children }
+			</div>
+		</SingleChartContext.Provider>
 	);
 };
 
-const BarChart: FC< BarChartProps > = props => {
-	const existingContext = useContext( ChartContext );
+const BarChartWithProvider: FC< BarChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
 
-	// If we're already in a ChartProvider context, don't create a new one
+	// If we're already in a GlobalChartsProvider context, don't create a new one
 	if ( existingContext ) {
 		return <BarChartInternal { ...props } />;
 	}
 
-	// Otherwise, create our own ChartProvider
+	// Otherwise, create our own GlobalChartsProvider
 	return (
-		<ChartProvider>
+		<GlobalChartsProvider>
 			<BarChartInternal { ...props } />
-		</ChartProvider>
+		</GlobalChartsProvider>
 	);
 };
 
-BarChart.displayName = 'BarChart';
+BarChartWithProvider.displayName = 'BarChart';
 
-export default withResponsive< BarChartProps >( BarChart );
+// Create BarChart with composition API
+const BarChart = attachSubComponents( BarChartWithProvider, {
+	Legend: Legend,
+} ) as BarChartComponent;
+
+// Create responsive BarChart with composition API
+const BarChartResponsive = attachSubComponents(
+	withResponsive< BarChartProps >( BarChartWithProvider ),
+	{
+		Legend: Legend,
+	}
+) as BarChartResponsiveComponent;
+
+export { BarChartResponsive as default, BarChart as BarChartUnresponsive };

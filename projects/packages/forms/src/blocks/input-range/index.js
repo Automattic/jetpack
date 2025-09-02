@@ -5,6 +5,7 @@ import save from './save';
 
 const name = 'input-range';
 const settings = {
+	apiVersion: 3,
 	title: __( 'Slider input', 'jetpack-forms' ),
 	description: __( 'A slider input for selecting a value.', 'jetpack-forms' ),
 	icon: <RangeIcon />,
@@ -17,7 +18,32 @@ const settings = {
 		'jetpack/field-slider-max',
 		'jetpack/field-slider-default',
 		'jetpack/field-slider-onChangeDefault',
+		'jetpack/field-slider-onChangeMin',
+		'jetpack/field-slider-onChangeMax',
+		'jetpack/field-slider-step',
+		'jetpack/field-slider-minLabel',
+		'jetpack/field-slider-maxLabel',
+		'jetpack/field-slider-onChangeMinLabel',
+		'jetpack/field-slider-onChangeMaxLabel',
 	],
+	supports: {
+		reusable: false,
+		html: false,
+		color: {
+			text: true,
+			background: false,
+		},
+		typography: {
+			fontSize: true,
+			__experimentalFontFamily: true,
+			__experimentalFontWeight: true,
+			__experimentalFontStyle: true,
+			__experimentalTextTransform: true,
+			__experimentalDefaultControls: {
+				fontSize: true,
+			},
+		},
+	},
 };
 
 export default { name, settings };

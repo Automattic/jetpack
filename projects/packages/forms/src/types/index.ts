@@ -1,3 +1,4 @@
+import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
 import type { ReactNode } from 'react';
 
 /**
@@ -120,6 +121,14 @@ declare global {
 			};
 		};
 		MSStream?: unknown;
+		ajaxurl?: string;
+		jpDatePicker?: {
+			lang: ILanguage;
+			offset: string;
+		};
+		jetpackForms?: {
+			generateStyleVariables: ( formNode: HTMLElement ) => Record< string, string >;
+		};
 	}
 }
 
@@ -150,4 +159,39 @@ export type IntegrationCardData = Partial< Integration > & {
 	notActivatedMessage?: ReactNode;
 	/** Whether the card is in a loading state. */
 	isLoading?: boolean;
+};
+
+/**
+ * Represents a Gutenberg block
+ */
+export type Block = {
+	attributes?: {
+		[ key: string ]: unknown;
+	};
+	clientId?: string;
+	innerBlocks?: Block[];
+	isValid?: boolean;
+	name?: string;
+	originalContent?: string;
+};
+
+/**
+ * Dispatch actions for the block editor store.
+ */
+export type BlockEditorStoreDispatch = {
+	insertBlock: ( block: Block, index: number, parentClientId: string ) => void;
+	removeBlock: ( clientId: string, isInnerBlock?: boolean ) => void;
+};
+
+/**
+ * Select actions for the block editor store.
+ */
+export type BlockEditorStoreSelect = {
+	getBlock: ( clientId: string ) => Block;
+	getBlocks: ( clientId: string ) => Block[];
+	hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
+	getBlockRootClientId: ( clientId: string ) => string;
+	getSelectedBlock: () => Block;
+	getBlockIndex: ( clientId: string ) => number;
+	getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
 };

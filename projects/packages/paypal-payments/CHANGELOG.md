@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2025-09-01
+### Changed
+- Internal updates.
+
+## [0.5.0] - 2025-08-25
+### Changed
+- Disallow inserting Simple Payments block via inserter. [#44724]
+
+## [0.4.3] - 2025-08-18
+### Changed
+- Update dependencies. [#44736]
+
+## [0.4.2] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.4.1] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [0.4.0] - 2025-08-04
+### Changed
+- Improve alignment of "Pay with PayPal" block labels. [#44560]
+- Move link location to instructions. [#44585]
+- Update copy of PayPal Payment Buttons block to add numbered steps. [#44564]
+- Update dependencies. [#44551]
+
 ## [0.3.0] - 2025-07-28
 ### Changed
 - Change copy and links for PayPal Payments Buttons block. [#44424]
@@ -28,5 +59,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.5.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.4.3...v0.5.0
+[0.4.3]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.1.0...v0.2.0

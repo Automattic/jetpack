@@ -7,6 +7,7 @@ import AddStepControls from '../shared/components/form-add-step-controls';
 import StepControls from '../shared/components/form-step-controls';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
+import { CORE_BLOCKS } from '../shared/util/constants';
 import AttributesControls from './attributes-controls';
 
 import './editor.scss';
@@ -20,6 +21,7 @@ const ALLOWED_BLOCKS = [
 	'jetpack/field-date',
 	'jetpack/field-telephone',
 	'jetpack/field-number',
+	'jetpack/field-time',
 	'jetpack/field-textarea',
 	'jetpack/field-checkbox',
 	'jetpack/field-checkbox-multiple',
@@ -29,22 +31,12 @@ const ALLOWED_BLOCKS = [
 	'jetpack/field-select',
 	'jetpack/field-file',
 	'jetpack/field-consent',
+	'jetpack/field-rating',
+	'jetpack/field-slider',
+	'jetpack/field-image-select',
 	'jetpack/form-step-navigation',
 	'jetpack/form-step-divider',
-	'core/audio',
-	'core/columns',
-	'core/group',
-	'core/heading',
-	'core/html',
-	'core/image',
-	'core/list',
-	'core/paragraph',
-	'core/row',
-	'core/separator',
-	'core/spacer',
-	'core/stack',
-	'core/subhead',
-	'core/video',
+	...CORE_BLOCKS,
 ];
 
 // Template helper: returns a default template when the previous step already

@@ -43,7 +43,7 @@ type UseChartMouseHandlerReturn = {
  * @param {UseChartMouseHandlerProps} props - Hook configuration
  * @return {UseChartMouseHandlerReturn} Object containing handlers and tooltip state
  */
-const useChartMouseHandler = ( {
+export const useChartMouseHandler = ( {
 	withTooltips,
 }: UseChartMouseHandlerProps ): UseChartMouseHandlerReturn => {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -86,5 +86,3 @@ const useChartMouseHandler = ( {
 		tooltipTop,
 	};
 };
-
-export default useChartMouseHandler;

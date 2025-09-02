@@ -1,4 +1,4 @@
-import type { AnnotationStyles } from './components/line-chart/line-chart-annotation';
+import type { AnnotationStyles } from './components/line-chart';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
@@ -34,16 +34,19 @@ export type DataPointDate = {
 	label?: string;
 };
 
+export type SeriesDataOptions = {
+	gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
+	stroke?: string;
+	seriesLineStyle?: LineStyles;
+	legendShapeStyle?: CSSProperties;
+	type?: 'comparison';
+};
+
 export type SeriesData = {
 	group?: string;
 	label: string;
 	data: DataPointDate[] | DataPoint[];
-	options?: {
-		gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
-		stroke?: string;
-		seriesLineStyle?: LineStyles;
-		legendShapeStyle?: CSSProperties;
-	};
+	options?: SeriesDataOptions;
 };
 
 export type MultipleDataPointsDate = {
@@ -72,6 +75,10 @@ export type DataPointPercentage = {
 	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
 	 */
 	color?: string;
+	/**
+	 * Group for the data point, used to match color with groups on other charts
+	 */
+	group?: string;
 };
 
 /**
@@ -82,6 +89,8 @@ export type ChartTheme = {
 	backgroundColor: string;
 	/** Background color for labels */
 	labelBackgroundColor?: string;
+	/** Text color for labels */
+	labelTextColor?: string;
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */
@@ -99,7 +108,7 @@ export type ChartTheme = {
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
 	/** Styles for legend shapes */
-	legendShapeStyles?: CSSProperties[];
+	legendShapeStyles?: ( CSSProperties & LineStyles )[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
 	/** Styles for legend labels */
@@ -132,6 +141,9 @@ export type ChartTheme = {
 		positiveChangeColor?: string;
 		/** Color for negative change indicators */
 		negativeChangeColor?: string;
+	};
+	lineChart?: {
+		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
 };
 
@@ -245,13 +257,14 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	legendShape?: LegendShape< T, number >;
 	/**
-	 * Legend horizontal alignment
+	 * Legend position (where the legend appears)
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
 	 */
-	legendAlignmentHorizontal?: 'left' | 'center' | 'right';
+	legendPosition?: 'top' | 'bottom';
 	/**
-	 * Legend vertical alignment
+	 * Legend alignment within its position
 	 */
-	legendAlignmentVertical?: 'top' | 'bottom';
+	legendAlignment?: 'start' | 'center' | 'end';
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
@@ -328,5 +341,3 @@ export interface ToggleEvent extends Event {
 	newState: 'open' | 'closed';
 	oldState: 'open' | 'closed';
 }
-// ConversionFunnelChart types
-export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';
