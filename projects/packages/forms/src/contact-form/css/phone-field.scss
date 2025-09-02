@@ -74,9 +74,13 @@
 	.is-style-animated & {
 
 		.jetpack-field__input-phone-wrapper {
-			padding-top: 1.4em;
+			padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
 			padding-left: var(--jetpack--contact-form--animated-left-offset);
 			padding-right: var(--jetpack--contact-form--animated-right-offset);
+
+			&:has(.jetpack-field__input-element:focus) {
+				outline: unset;
+			}
 
 			&:not(:has(*:focus, *:active)) {
 
@@ -102,6 +106,10 @@
 	.is-style-outlined & {
 
 		.jetpack-field__input-phone-wrapper {
+
+			&:has(.jetpack-field__input-element:focus) {
+				outline: unset;
+			}
 
 			&:not(:has(*:focus, *:active)) {
 
