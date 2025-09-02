@@ -106,7 +106,6 @@ class WooCommerce_Products extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_product_variation', array( $this, 'expand_product_data' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_product_variation', array( $this, 'expand_product_data' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_updated_product_stock', array( $this, 'expand_product_data' ) );
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_woocommerce_product_deleted', array( $this, 'expand_product_data' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_woocommerce_product_trashed', array( $this, 'expand_product_data' ) );
 	}
 
