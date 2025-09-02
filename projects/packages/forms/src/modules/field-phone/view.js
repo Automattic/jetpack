@@ -140,6 +140,17 @@ const { actions } = store( NAMESPACE, {
 						selectedIndex === context.filteredCountries.length - 1 ? 0 : selectedIndex + 1;
 					context.selectedCountry = context.filteredCountries[ nextIndex ];
 					updateSelection( context.selectedCountry );
+					setTimeout( () => {
+						// Find and scroll the newly selected option into view
+						const selectedOption = optionsListRefs[ context.fieldId ].querySelector(
+							'.jetpack-combobox-option-selected'
+						);
+						selectedOption?.scrollIntoView?.( {
+							block: 'nearest',
+							container: 'nearest',
+							behavior: 'instant',
+						} );
+					}, 0 );
 				}
 			} else if ( event.key === 'ArrowUp' ) {
 				event.preventDefault();
@@ -152,6 +163,17 @@ const { actions } = store( NAMESPACE, {
 						selectedIndex <= 0 ? context.filteredCountries.length - 1 : selectedIndex - 1;
 					context.selectedCountry = context.filteredCountries[ prevIndex ];
 					updateSelection( context.selectedCountry );
+					setTimeout( () => {
+						// Find and scroll the newly selected option into view
+						const selectedOption = optionsListRefs[ context.fieldId ].querySelector(
+							'.jetpack-combobox-option-selected'
+						);
+						selectedOption?.scrollIntoView?.( {
+							block: 'nearest',
+							container: 'nearest',
+							behavior: 'instant',
+						} );
+					}, 0 );
 				}
 			}
 		} ),
