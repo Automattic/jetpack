@@ -9,7 +9,6 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
@@ -97,28 +96,6 @@ function wpcom_add_my_home_menu() {
 	add_menu_page( __( 'My Home', 'jetpack-mu-wpcom' ), __( 'My Home', 'jetpack-mu-wpcom' ), 'read', 'https://wordpress.com/home/' . $domain, null, 'dashicons-admin-home', 2.01 ); // The 2.01 position is to ensure it's above the VIP menu on P2 sites.'
 }
 add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
-
-/**
- * Add the top menu item for the "Stats".
- *
- * @return void
- */
-function wpcom_add_stats_menu() {
-	$host = new Host();
-
-	/**
-	 * If the site is Atomic and the module is disabled, the page doesn't exist.
-	 */
-	// @phan-suppress-next-line PhanUndeclaredClassMethod -- We need to suppress it for WordPress.com tests.
-	if ( $host->is_atomic_platform() && ! Jetpack::is_module_active( 'stats' ) ) {
-		return;
-	}
-
-	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	add_menu_page( __( 'Stats', 'jetpack-mu-wpcom' ), __( 'Stats', 'jetpack-mu-wpcom' ), 'view_stats', 'admin.php?page=stats', null, 'dashicons-chart-bar', 3 );
-}
-
-add_action( 'admin_menu', 'wpcom_add_stats_menu' );
 
 /**
  * Adds a Hosting menu.
