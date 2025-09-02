@@ -341,7 +341,7 @@ class Feedback_Field {
 		// Case 1: JSON-style escapes, e.g. "\u003cstrong\u003e" or "\ud83d\ude48"
 		if ( strpos( $string, '\u' ) !== false ) {
 			$decoded = json_decode( '"' . $string . '"' );
-			if ( $decoded !== null && json_last_error() === JSON_ERROR_NONE ) {
+			if ( self::is_valid_json_decode( $decoded ) ) {
 				return $decoded;
 			}
 		}
@@ -351,13 +351,23 @@ class Feedback_Field {
 			// Add missing backslashes before each uXXXX
 			$json_ready = preg_replace( '/u([0-9a-fA-F]{4})/', '\\\\u$1', $string );
 			$decoded    = json_decode( '"' . $json_ready . '"' );
-			if ( $decoded !== null && json_last_error() === JSON_ERROR_NONE ) {
+			if ( self::is_valid_json_decode( $decoded ) ) {
 				return $decoded;
 			}
 		}
 
 		// Fallback: return unchanged
 		return $string;
+	}
+
+	/**
+	 * Check if the decoded JSON is valid.
+	 *
+	 * @param mixed $decoded The decoded JSON data.
+	 * @return bool True if there are no errors, false otherwise.
+	 */
+	private static function is_valid_json_decode( $decoded ) {
+		return $decoded !== null && json_last_error() === JSON_ERROR_NONE;
 	}
 
 	/**
