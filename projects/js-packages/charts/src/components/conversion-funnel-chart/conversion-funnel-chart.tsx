@@ -3,7 +3,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useGlobalChartsTheme } from '../../providers/chart-context';
-import { hexToRgba } from '../../utils';
+import { hexToRgba, formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
 
@@ -306,7 +306,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (
 		<>
-			<span className={ styles[ 'main-rate' ] }>{ mainRate.toFixed( 1 ) }%</span>
+			<span className={ styles[ 'main-rate' ] }>{ formatPercentage( mainRate ) }</span>
 			{ changeIndicator && (
 				<span className={ styles[ 'change-indicator' ] }>{ changeIndicator }</span>
 			) }
@@ -318,7 +318,8 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		<>
 			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
 			<div className={ styles[ 'tooltip-content' ] }>
-				{ step.rate.toFixed( 1 ) }%{ step.count && ` • ${ step.count.toLocaleString() } items` }
+				{ formatPercentage( step.rate ) }
+				{ step.count && ` • ${ step.count.toLocaleString() } items` }
 			</div>
 		</>
 	);
@@ -392,7 +393,9 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 											className: styles[ 'step-rate' ],
 										} )
 									) : (
-										<span className={ styles[ 'step-rate' ] }>{ step.rate.toFixed( 1 ) }%</span>
+										<span className={ styles[ 'step-rate' ] }>
+											{ formatPercentage( step.rate ) }
+										</span>
 									) }
 								</div>
 
