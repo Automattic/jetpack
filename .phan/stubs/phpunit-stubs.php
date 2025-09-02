@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.6
+ * Stubs automatically generated from PHPUnit 12.3.7
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -28189,6 +28189,12 @@ namespace SebastianBergmann\CodeCoverage;
 final class CodeCoverage
 {
     public function __construct(\SebastianBergmann\CodeCoverage\Driver\Driver $driver, \SebastianBergmann\CodeCoverage\Filter $filter)
+    {
+    }
+    /**
+     * @return non-empty-list<non-empty-string>
+     */
+    public function __sleep(): array
     {
     }
     /**
