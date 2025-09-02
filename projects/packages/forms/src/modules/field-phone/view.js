@@ -103,7 +103,7 @@ const { actions } = store( NAMESPACE, {
 		},
 		phoneComboboxInputHandler( event ) {
 			const context = getContext();
-			const searchTerm = event.target.value;
+			const searchTerm = event.target.value.toLowerCase();
 			context.filteredCountries = context.allCountries.filter(
 				country =>
 					country.country.toLowerCase().includes( searchTerm ) ||
