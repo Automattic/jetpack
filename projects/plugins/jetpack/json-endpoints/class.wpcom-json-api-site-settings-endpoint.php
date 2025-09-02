@@ -139,6 +139,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_waf_share_data'                    => '(bool) Whether the WAF should share basic data with Jetpack',
 			'jetpack_waf_share_debug_data'              => '(bool) Whether the WAF should share debug data with Jetpack',
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => '(int) Timestamp of the last time the automatic rules were updated',
+			'mcp_abilities'                             => '(array) List of MCP Abilities',
 		),
 
 		'response_format'     => array(
@@ -386,6 +387,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
+					// Get Sites MCP settings
+					$mcp_abilities = $this->get_site_mcp_abilities();
+
 					$response[ $key ] = array(
 						// also exists as "options".
 						'admin_url'                        => get_admin_url(),
@@ -514,6 +518,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_waf_automatic_rules_last_updated_timestamp' => (int) get_option( 'jetpack_waf_automatic_rules_last_updated_timestamp' ),
 						'is_fully_managed_agency_site'     => (bool) get_option( 'is_fully_managed_agency_site' ),
 						'wpcom_hide_action_bar'            => (bool) get_option( 'wpcom_hide_action_bar' ),
+						'mcp_abilities'                    => $mcp_abilities,
 					);
 
 					require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
@@ -614,6 +619,122 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get list of all site level MCP abilities.
+	 *
+	 * @return array
+	 */
+	private function get_all_site_mcp_abilities(): array {
+		$all_abilities         = array();
+		$ability_registry_file = WP_CONTENT_DIR . '/mu-plugins/wpcom-mcp/includes/AbilitiesRegistry/Registry/AbilityRegistry.php';
+		if ( file_exists( $ability_registry_file ) ) {
+			require_once $ability_registry_file;
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$abilities_resources = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_resources_for_server( 'site-level' );
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$abilities_tools = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_tools_for_server( 'site-level' );
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$abilities_prompts = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_prompts_for_server( 'site-level' );
+			$all_abilities     = array_merge( $abilities_resources, $abilities_tools, $abilities_prompts );
+		}
+		return apply_filters( 'jetpack_site_mcp_abilities', $all_abilities );
+	}
+
+	/**
+	 * Get ability meta from config.
+	 *
+	 * @param string $ability_name Ability name, i.e. wpcom-mcp/posts-search.
+	 *
+	 * @return array
+	 */
+	private function get_mcp_abilities_metadata( string $ability_name ): array {
+		$ability_meta          = array();
+		$ability_registry_file = WP_CONTENT_DIR . '/mu-plugins/wpcom-mcp/includes/AbilitiesRegistry/Registry/AbilityRegistry.php';
+		if ( file_exists( $ability_registry_file ) ) {
+			require_once $ability_registry_file;
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$ability_meta = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_metadata( $ability_name );
+		}
+		return apply_filters( 'jetpack_site_mcp_ability_meta', $ability_meta, $ability_name );
+	}
+
+	/**
+	 * Get MCP abilities for the current site.
+	 *
+	 * @return array
+	 */
+	public function get_site_mcp_abilities(): array {
+		$current_mcp_abilities = get_option( 'mcp_abilities', array() );
+		if ( ! is_array( $current_mcp_abilities ) ) {
+			$current_mcp_abilities = array();
+		}
+
+		$all_abilities = $this->get_all_site_mcp_abilities();
+		if ( empty( $all_abilities ) ) {
+			return array();
+		}
+
+		$computed_abilities = array();
+		foreach ( $all_abilities as $ability_name ) {
+			// Get base metadata first
+			$ability_meta = $this->get_mcp_abilities_metadata( $ability_name );
+			if ( ! empty( $ability_meta ) ) {
+				// Use stored value or fall back to metadata default
+				$enabled = $current_mcp_abilities[ $ability_name ] ?? $ability_meta['enabled'] ?? false;
+
+				$computed_abilities[ $ability_name ] = array(
+					'name'        => $ability_name,
+					'description' => $ability_meta['description'] ?? '',
+					'category'    => $ability_meta['category'] ?? '',
+					'type'        => $ability_meta['type'] ?? '',
+					'enabled'     => (bool) $enabled,
+				);
+			}
+		}
+		return $computed_abilities;
+	}
+
+	/**
+	 * Sets the MCP abilities for the current site.
+	 *
+	 * @param mixed $value MCP abilities array.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function set_site_mcp_abilities( $value ) {
+		// Validate input format
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'invalid_format', __( 'Site MCP abilities must be an array', 'jetpack' ) );
+		}
+
+		$all_abilities = $this->get_all_site_mcp_abilities();
+
+		// Filter ability names that don't exist
+		$value = array_filter(
+			$value,
+			function ( $ability_name ) use ( $all_abilities ) {
+				return in_array( $ability_name, $all_abilities, true );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+
+		// Validate each ability exists and value is boolean-like
+		foreach ( $value as $ability_name => $enabled ) {
+			if ( ! is_string( $ability_name ) || ( ! WPCOM_JSON_API::is_truthy( $enabled ) && ! WPCOM_JSON_API::is_falsy( $enabled ) ) ) {
+				$error_message = sprintf(
+					// Translators: %s is an MCP ability name
+					__( 'Invalid ability: %s', 'jetpack' ),
+					$ability_name
+				);
+				return new WP_Error( 'invalid_ability', $error_message );
+			}
+		}
+
+		update_option( 'mcp_abilities', $value );
+
+		return true;
 	}
 
 	/**
@@ -868,7 +989,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					);
 
-					$old_subscription_options = get_option( 'subscription_options' );
+					$old_subscription_options = get_option( 'subscription_options', array() );
 					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
 
 					if ( update_option( $key, $new_subscription_options ) ) {
@@ -1184,6 +1305,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = (bool) $coerce_value;
 					}
+					break;
+
+				case 'mcp_abilities':
+					$result = $this->set_site_mcp_abilities( $value );
+					if ( is_wp_error( $result ) ) {
+						return $result;
+					}
+					$updated[ $key ] = $this->get_site_mcp_abilities();
 					break;
 
 				default:
