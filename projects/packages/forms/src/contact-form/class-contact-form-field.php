@@ -1062,7 +1062,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								data-wp-text="context.selectedCountry.flag"></span>
 							<span 
 								class="jetpack-combobox-trigger-arrow"
-								data-wp-class--is-open="context.comboboxOpen">▼</span>
+								data-wp-class--is-open="context.comboboxOpen">&nbsp;</span>
 							<span 
 								class="jetpack-combobox-selected"
 								data-wp-text="context.selectedCountry.value"></span>

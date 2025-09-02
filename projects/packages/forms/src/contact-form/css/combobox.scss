@@ -31,6 +31,20 @@
 		.jetpack-combobox-trigger-arrow {
 			font-size: 10px;
 			transition: transform 0.2s;
+			position: relative;
+			width: 8px;
+
+			&::after {
+				content: "";
+				position: absolute;
+				left: 1px;
+				top: 0;
+				transform: translateY(75%) rotate(45deg);
+				width: 7px;
+				height: 7px;
+				border-right: 1px solid currentColor;
+				border-bottom: 1px solid currentColor;
+			}
 
 			&.is-open {
 				transform: scaleY(-1);
