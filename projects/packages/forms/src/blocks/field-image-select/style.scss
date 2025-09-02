@@ -6,9 +6,12 @@
 figure.wp-block-image {
 	margin: 0 !important;
 	padding: 0 !important;
+	position: relative;
 
 	img {
 		max-width: 100% !important;
+		width: 100% !important;
+		margin: 0 !important;
 	}
 }
 
@@ -39,6 +42,7 @@ figure.wp-block-image {
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
+		width: 100%;
 
 		&:not(.wp-block):hover,
 		&.is-checked {
@@ -47,7 +51,7 @@ figure.wp-block-image {
 		}
 
 		.jetpack-input-image-option__wrapper {
-			width: 100%;
+			height: 100%;
 			overflow: hidden;
 			position: relative;
 
@@ -60,6 +64,7 @@ figure.wp-block-image {
 				color: currentColor;
 				outline-offset: 1px;
 				border-radius: 4px;
+				z-index: 1;
 
 				&:checked {
 					background-color: currentColor;
@@ -89,10 +94,6 @@ figure.wp-block-image {
 
 					@extend %visually-hidden;
 				}
-			}
-
-			figure {
-				margin: 0;
 			}
 
 			figcaption {
