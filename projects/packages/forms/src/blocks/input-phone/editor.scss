@@ -4,7 +4,7 @@
 	.jetpack-field__input,
 	.jetpack-field__textarea {
 		box-sizing: border-box;
-		border-color: var(--jetpack--contact-form--border-color);
+		border-color: currentColor;
 		border-radius: var(--jetpack--contact-form--border-radius);
 		border-width: var(--jetpack--contact-form--border-size);
 		font-size: var(--jetpack--contact-form--font-size);
@@ -86,7 +86,7 @@
 				&:where(select) {
 					// compensate spacing for downarrow
 					// TODO: misbehaves with :focus, fixed on next version of Gutenberg
-					padding-right: 24px;
+					padding-right: 20px;
 				}
 
 				&:focus {
