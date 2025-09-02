@@ -112,4 +112,50 @@ describe( 'PieChart', () => {
 			expect( chartLabels.length ).toBeGreaterThanOrEqual( 2 );
 		} );
 	} );
+
+	describe( 'Label Visibility', () => {
+		test( 'shows labels by default', () => {
+			renderWithTheme();
+			// Labels should be visible by default
+			const labels = screen.getAllByText( /^[AB]$/ );
+			expect( labels.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+
+		test( 'hides labels when showLabels is false', () => {
+			renderWithTheme( { showLabels: false } );
+
+			// When showLabels is false, the chart should not display the data labels
+			// We filter out measurement elements by checking that text is not inside measurement element
+			const labelElements = screen.queryAllByText( ( content, element ) => {
+				// Check if this text element is not the measurement element
+				return (
+					( content === 'A' || content === 'B' ) &&
+					element?.id !== '__react_svg_text_measurement_id'
+				);
+			} );
+
+			// Labels should not be present in the rendered output (excluding measurement text)
+			expect( labelElements ).toHaveLength( 0 );
+		} );
+
+		test( 'shows labels when showLabels is explicitly true', () => {
+			renderWithTheme( { showLabels: true } );
+			// Labels should be visible
+			const labels = screen.getAllByText( /^[AB]$/ );
+			expect( labels.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+
+		test( 'shows labels for backward compatibility when prop not specified', () => {
+			// Render without showLabels prop to test backward compatibility
+			render(
+				<ThemeProvider>
+					<PieChart size={ 500 } data={ defaultProps.data } />
+				</ThemeProvider>
+			);
+
+			// Should find label text using Testing Library queries
+			const labels = screen.getAllByText( /^[AB]$/ );
+			expect( labels.length ).toBeGreaterThan( 0 );
+		} );
+	} );
 } );
