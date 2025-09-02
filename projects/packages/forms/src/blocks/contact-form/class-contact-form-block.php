@@ -227,7 +227,7 @@ class Contact_Form_Block {
 			)
 		);
 
-		if ( Blocks::get_variation() === 'beta' ) {
+		if ( Blocks::get_variation() === 'experimental' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/input-rating',
 				array(
@@ -263,6 +263,9 @@ class Contact_Form_Block {
 					),
 				)
 			);
+		}
+
+		if ( Blocks::get_variation() === 'beta' ) {
 
 			Blocks::jetpack_register_block(
 				'jetpack/phone-input',
@@ -299,6 +302,7 @@ class Contact_Form_Block {
 				)
 			);
 		}
+
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
@@ -427,7 +431,7 @@ class Contact_Form_Block {
 			)
 		);
 
-		if ( Blocks::get_variation() === 'beta' ) {
+		if ( Blocks::get_variation() === 'experimental' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-rating',
 				array(
@@ -437,6 +441,7 @@ class Contact_Form_Block {
 					),
 				)
 			);
+
 			Blocks::jetpack_register_block(
 				'jetpack/field-slider',
 				array(
@@ -444,6 +449,9 @@ class Contact_Form_Block {
 					'provides_context' => array( 'jetpack/field-required' => 'required' ),
 				)
 			);
+		}
+
+		if ( Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-time',
 				array(
