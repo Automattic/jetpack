@@ -99,17 +99,29 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	);
 
 	/**
+	 * List of disallowed core block types.
+	 *
+	 * @var array
+	 */
+	const DISALLOWED_CORE_BLOCKS = array(
+		'core/freeform', // Classic editor - TinyMCE is unavailable in the mobile editor
+	);
+
+	/**
 	 * Get the list of allowed core block types.
 	 *
 	 * @return array List of core block types.
 	 */
 	private function get_core_block_types() {
-		return array_filter(
+		$core_blocks = array_filter(
 			array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() ),
 			function ( $block_name ) {
 				return strpos( $block_name, 'core/' ) === 0;
 			}
 		);
+
+		// Remove disallowed core blocks
+		return array_diff( $core_blocks, self::DISALLOWED_CORE_BLOCKS );
 	}
 
 	/**
