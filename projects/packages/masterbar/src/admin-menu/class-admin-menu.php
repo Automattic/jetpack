@@ -32,7 +32,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_plugins_menu();
 		$this->add_users_menu();
 		$this->add_tools_menu();
-		$this->add_options_menu();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -332,42 +331,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->update_submenus( 'tools.php', $submenus_to_update );
 
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
-	}
-
-	/**
-	 * Adds Settings menu.
-	 */
-	public function add_options_menu() {
-		$submenus_to_update = array();
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
-			$this->hide_submenu_page( 'options-general.php', 'sharing' );
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
-			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
-			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-reading.php' )
-		) {
-			$submenus_to_update['options-reading.php'] = 'https://wordpress.com/settings/reading/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
-			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
-		}
-
-		$this->update_submenus( 'options-general.php', $submenus_to_update );
-
-		// Temporary "Settings > Newsletter" menu for existing users that shows a callout informing that the screen has moved to "Jetpack (> Settings) > Newsletter".
-		if ( get_current_user_id() < 269750000 ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-newsletter/' . $this->domain, null, 7 );
-		}
 	}
 
 	/**
