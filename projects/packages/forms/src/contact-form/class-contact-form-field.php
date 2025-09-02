@@ -1078,8 +1078,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								data-wp-on--keydown="actions.phoneComboboxKeydownHandler">
 							<div class="jetpack-combobox-options">
 								<template
-								data-wp-each--filtered="context.filteredCountries"
-								data-wp-each-key="context.filtered.code">
+									data-wp-each--filtered="context.filteredCountries"
+									data-wp-each-key="context.filtered.code">
 									<div 
 										class="jetpack-combobox-option"
 										data-wp-key="context.filtered.code"
