@@ -227,6 +227,41 @@ class Contact_Form_Block {
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/phone-input',
+			array(
+				'supports'     => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradients'  => false,
+					),
+					'typography'           => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array(
+					'jetpack/field-share-attributes',
+					'jetpack/field-prefix-options',
+					'jetpack/field-prefix-default',
+					'jetpack/field-prefix-onChange',
+				),
+			)
+		);
+
 		if ( Blocks::get_variation() === 'experimental' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/input-rating',
@@ -260,44 +295,6 @@ class Contact_Form_Block {
 							'__experimentalTextDecoration' => true,
 							'__experimentalLetterSpacing'  => true,
 						),
-					),
-				)
-			);
-		}
-
-		if ( Blocks::get_variation() === 'beta' ) {
-
-			Blocks::jetpack_register_block(
-				'jetpack/phone-input',
-				array(
-					'supports'     => array(
-						'__experimentalBorder' => array(
-							'color'  => true,
-							'radius' => true,
-							'style'  => true,
-							'width'  => true,
-						),
-						'color'                => array(
-							'text'       => true,
-							'background' => true,
-							'gradients'  => false,
-						),
-						'typography'           => array(
-							'fontSize'                     => true,
-							'lineHeight'                   => true,
-							'__experimentalFontFamily'     => true,
-							'__experimentalFontWeight'     => true,
-							'__experimentalFontStyle'      => true,
-							'__experimentalTextTransform'  => true,
-							'__experimentalTextDecoration' => true,
-							'__experimentalLetterSpacing'  => true,
-						),
-					),
-					'uses_context' => array(
-						'jetpack/field-share-attributes',
-						'jetpack/field-prefix-options',
-						'jetpack/field-prefix-default',
-						'jetpack/field-prefix-onChange',
 					),
 				)
 			);
