@@ -3,7 +3,6 @@
 	"compilerOptions": {
 		"module": "esnext",
 		"outDir": "dist/esm",
-		"rootDir": "src"
 	},
 	"include": [ "./src" ],
 	"exclude": [ "tests", "**/*.test.*", "stories", "**/*.stories.*" ]
