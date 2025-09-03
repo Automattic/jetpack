@@ -2,7 +2,14 @@ import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
-import { forwardRef, useCallback, useMemo, useContext } from 'react';
+import {
+	type RefAttributes,
+	type ForwardRefExoticComponent,
+	forwardRef,
+	useCallback,
+	useMemo,
+	useContext,
+} from 'react';
 import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers/chart-context';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
@@ -17,7 +24,9 @@ const orientationToFlexDirection = {
  * Base legend component that displays color-coded items with labels based on visx LegendOrdinal.
  * We avoid using LegendOrdinal directly to enable support for advanced features such as interactivity.
  */
-export const BaseLegend = forwardRef< HTMLDivElement, BaseLegendProps >(
+export const BaseLegend: ForwardRefExoticComponent<
+	BaseLegendProps & RefAttributes< HTMLDivElement >
+> = forwardRef< HTMLDivElement, BaseLegendProps >(
 	(
 		{
 			items,
