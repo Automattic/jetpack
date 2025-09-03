@@ -62,8 +62,9 @@ function register_block() {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
-				'render_callback' => __NAMESPACE__ . '\render_block',
-				'supports'        => array(
+				'render_callback'       => __NAMESPACE__ . '\render_block',
+				'render_email_callback' => __NAMESPACE__ . '\render_email',
+				'supports'              => array(
 					'spacing' => array(
 						'margin'  => true,
 						'padding' => true,
@@ -927,6 +928,57 @@ function render_for_email( $data, $styles ) {
 	</div>';
 
 	return $html;
+}
+
+/**
+ * WooCommerce Email Editor render callback for the subscriptions block.
+ *
+ * @param string $block_content The block content.
+ * @param array  $parsed_block  The parsed block data.
+ * @param object $rendering_context The email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) || ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' ) || ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
+		return '';
+	}
+
+	// Map subscription block attributes to button block attributes
+	$button_attributes = array(
+		'text'                  => ! empty( $parsed_block['attrs']['submitButtonText'] ) ? sanitize_text_field( $parsed_block['attrs']['submitButtonText'] ) : __( 'Subscribe', 'jetpack' ),
+		'url'                   => get_post_permalink(),
+		'element'               => 'a',
+		// Map background colors
+		'backgroundColor'       => $parsed_block['attrs']['buttonBackgroundColor'] ?? null,
+		'customBackgroundColor' => $parsed_block['attrs']['customButtonBackgroundColor'] ?? null,
+		// Map text colors
+		'textColor'             => $parsed_block['attrs']['textColor'] ?? null,
+		'customTextColor'       => $parsed_block['attrs']['customTextColor'] ?? null,
+		// Map borders
+		'borderRadius'          => $parsed_block['attrs']['borderRadius'] ?? 0,
+		'borderWeight'          => $parsed_block['attrs']['borderWeight'] ?? 1,
+		'borderColor'           => $parsed_block['attrs']['borderColor'] ?? null,
+		'customBorderColor'     => $parsed_block['attrs']['customBorderColor'] ?? null,
+		// Map typography
+		'fontSize'              => $parsed_block['attrs']['fontSize'] ?? null,
+		'customFontSize'        => $parsed_block['attrs']['customFontSize'] ?? null,
+		// Map spacing
+		'padding'               => $parsed_block['attrs']['padding'] ?? null,
+	);
+
+	// Create a mock button block structure
+	$button_parsed_block = array(
+		'attrs'       => $button_attributes,
+		'email_attrs' => $parsed_block['email_attrs'] ?? array(),
+	);
+
+	// Call the Jetpack button's email rendering
+	return \Automattic\Jetpack\Extensions\Button\render_email(
+		$block_content,
+		$button_parsed_block,
+		$rendering_context
+	);
 }
 
 /**
