@@ -80,6 +80,13 @@ const meta: Meta< StoryArgs > = {
 			control: 'boolean',
 			description: 'Show or hide labels on pie segments',
 		},
+		legendValueDisplay: {
+			control: {
+				type: 'select',
+				options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			},
+			description: 'What type of value to display in the legend when showValues is true',
+		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
 		const ChartComponent = <PieChart { ...chartProps } />;
