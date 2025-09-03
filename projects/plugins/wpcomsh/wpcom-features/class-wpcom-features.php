@@ -552,6 +552,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// BACKUPS_DAILY - Site has product that includes daily backups.
 		self::BACKUPS_DAILY                     => array(
@@ -562,6 +563,7 @@ class WPCOM_Features {
 		self::BACKUPS_RESTORE                   => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		/*
@@ -953,6 +955,7 @@ class WPCOM_Features {
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::RECURRING_PAYMENTS                => array(
 			self::WPCOM_ALL_SITES,
@@ -986,6 +989,7 @@ class WPCOM_Features {
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		/*
@@ -995,6 +999,7 @@ class WPCOM_Features {
 		self::SCAN_MANAGED                      => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		/*
