@@ -1,4 +1,3 @@
-import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 import defaultSettings from '../shared/settings';
@@ -16,7 +15,7 @@ const settings = {
 	),
 	icon: {
 		foreground: getIconColor(),
-		src: <Icon icon={ unseen } />,
+		src: unseen,
 	},
 	edit,
 	save,
