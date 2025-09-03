@@ -7,7 +7,7 @@ type EmptyResponsesProps = {
 
 const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 	if ( isSearch ) {
-		return <h4>{ __( 'No responses found', 'jetpack-forms' ) }</h4>;
+		return __( 'No responses found', 'jetpack-forms' );
 	}
 
 	if ( status === 'trash' ) {
