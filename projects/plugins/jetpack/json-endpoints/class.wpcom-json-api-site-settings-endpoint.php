@@ -686,6 +686,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				$computed_abilities[ $ability_name ] = array(
 					'name'        => $ability_name,
+					'title'       => $ability_meta['title'] ?? '',
 					'description' => $ability_meta['description'] ?? '',
 					'category'    => $ability_meta['category'] ?? '',
 					'type'        => $ability_meta['type'] ?? '',
