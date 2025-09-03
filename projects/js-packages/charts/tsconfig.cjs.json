@@ -3,7 +3,6 @@
 	"compilerOptions": {
 		"composite": true,
 		"target": "esnext",
-		"moduleResolution": "bundler",
 		"sourceMap": true,
 		"declaration": true,
 		"declarationMap": true,
