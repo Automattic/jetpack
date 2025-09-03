@@ -122,7 +122,7 @@ const GoogleSheetsDashboardCard = ( {
 					</p>
 					<HStack spacing="2" justify="start" className="integration-card__links">
 						<Button variant="link" onClick={ handleViewResponsesClick }>
-							{ __( 'View Form Responses', 'jetpack-forms' ) }
+							{ __( 'View form responses', 'jetpack-forms' ) }
 						</Button>
 						<span>|</span>
 						<Button
