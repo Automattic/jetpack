@@ -9,11 +9,13 @@ import { osUsageData as data } from '../../../stories/sample-data';
 import { themeArgTypes } from '../../../stories/theme-config';
 import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
+import type { LegendValueDisplay } from '../../legend';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > & {
 	labelTextColor?: string;
 	labelBackgroundColor?: string;
+	legendValueDisplay?: LegendValueDisplay;
 };
 
 const meta: Meta< StoryArgs > = {
