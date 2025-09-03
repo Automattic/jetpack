@@ -6,7 +6,7 @@
 		"moduleResolution": "bundler",
 		"declaration": true,
 		"noEmit": false,
-		"outDir": "dist/esm",
+		"outDir": "dist/mjs",
 		"declarationDir": "dist/types",
 		"rootDir": "src"
 	},
