@@ -14,7 +14,6 @@ import JetpackImageSelectField from '../field-image-select';
 import JetpackMultipleChoiceField from '../field-multiple-choice';
 import JetpackNameField from '../field-name';
 import JetpackNumberField from '../field-number';
-import JetpackPhoneField from '../field-phone';
 import JetpackRatingField from '../field-rating';
 import JetpackDropdownField from '../field-select';
 import JetpackSingleChoiceField from '../field-single-choice';
@@ -62,9 +61,7 @@ export const childBlocks = [
 	...( getJetpackBlocksVariation() === 'experimental'
 		? [ JetpackRatingField, JetpackRatingInput, JetpackFieldSlider, JetpackSliderInput ]
 		: [] ),
-	...( getJetpackBlocksVariation() === 'beta'
-		? [ JetpackTimeField, JetpackPhoneField, JetpackPhoneInput ]
-		: [] ),
+	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackTimeField, JetpackPhoneInput ] : [] ),
 
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
