@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent PHP fatal when using WP-CLI.
