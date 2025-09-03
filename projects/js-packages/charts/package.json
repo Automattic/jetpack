@@ -49,10 +49,9 @@
 	"types": "./dist/types/index.d.ts",
 	"scripts": {
 		"build": "pnpm run build:prod",
-		"build:dev": "tsc --build ./tsconfig.json ./tsconfig-cjs.json --watch",
-		"build:prod": "tsc --build ./tsconfig.json ./tsconfig-cjs.json && node ./bin/copy-assets.js",
+		"build:dev": "tsc --build ./tsconfig.json ./tsconfig.cjs.json --watch",
+		"build:prod": "tsc --build ./tsconfig.json ./tsconfig.cjs.json && node ./bin/copy-assets.js",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types",
-		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && pnpm run build:types",
 		"clean": "rm -rf dist",
 		"clean-build": "rm -rf dist/",
 		"compile-ts": "tsc --pretty",
@@ -89,7 +88,6 @@
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.0",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
 		"@babel/plugin-transform-runtime": "7.28.0",
@@ -111,7 +109,6 @@
 		"babel-jest": "30.0.0",
 		"babel-loader": "9.1.2",
 		"css-loader": "^6.7.0",
-		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
 		"jest-extended": "5.0.3",
@@ -126,10 +123,7 @@
 		"sass-embedded": "1.87.0",
 		"sass-loader": "^16.0.0",
 		"storybook": "9.0.15",
-		"tsconfig-paths-webpack-plugin": "4.2.0",
-		"typescript": "5.8.3",
-		"webpack": "^5.88.0",
-		"webpack-cli": "^6.0.0"
+		"typescript": "5.8.3"
 	},
 	"peerDependencies": {
 		"react": "^17.0.0 || ^18.0.0",
