@@ -352,7 +352,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				array(
 					'wpcom-mcp/posts-search' => array(
 						'name'        => 'wpcom-mcp/posts-search',
-						'title'       => 'Posts Search',
+						'title'       => 'Posts search',
 						'description' => 'Search posts',
 						'category'    => 'search',
 						'type'        => 'tool',
@@ -360,7 +360,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					),
 					'wpcom-mcp/user-sites'   => array(
 						'name'        => 'wpcom-mcp/user-sites',
-						'title'       => 'User Sites',
+						'title'       => 'User sites',
 						'description' => 'Access user sites',
 						'category'    => 'user',
 						'type'        => 'resource',
@@ -391,7 +391,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				array(
 					'wpcom-mcp/posts-search' => array(
 						'name'        => 'wpcom-mcp/posts-search',
-						'title'       => 'Posts Search',
+						'title'       => 'Posts search',
 						'description' => 'Search posts',
 						'category'    => 'search',
 						'type'        => 'tool',
@@ -399,7 +399,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					),
 					'wpcom-mcp/user-sites'   => array(
 						'name'        => 'wpcom-mcp/user-sites',
-						'title'       => 'User Sites',
+						'title'       => 'User sites',
 						'description' => 'Access user sites',
 						'category'    => 'user',
 						'type'        => 'resource',
@@ -450,6 +450,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				array(
 					'wpcom-mcp/posts-search' => array(
 						'name'        => 'wpcom-mcp/posts-search',
+						'title'       => 'Posts search',
 						'description' => 'Search posts',
 						'category'    => 'search',
 						'type'        => 'tool',
@@ -457,6 +458,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					),
 					'wpcom-mcp/user-sites'   => array(
 						'name'        => 'wpcom-mcp/user-sites',
+						'title'       => 'User sites',
 						'description' => 'Access user sites',
 						'category'    => 'user',
 						'type'        => 'resource',
