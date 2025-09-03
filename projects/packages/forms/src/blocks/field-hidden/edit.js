@@ -10,6 +10,7 @@ export default function HiddenFieldEdit( props ) {
 
 	const icon = unseen;
 	const label = __( 'Hidden Field', 'jetpack-forms' );
+	const fieldNameLabel = __( 'Field Name', 'jetpack-forms' );
 	const valueLabel = __( 'Field Value', 'jetpack-forms' );
 
 	useFormWrapper( props );
@@ -27,15 +28,28 @@ export default function HiddenFieldEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<Placeholder icon={ icon } label={ label } isColumnLayout={ true }>
+				<div
+					style={ {
+						marginBottom: '12px',
+						fontSize: '12px',
+						color: '#757575',
+						fontStyle: 'italic',
+					} }
+				>
+					{ __( 'This field is invisible to site visitors', 'jetpack-forms' ) }
+				</div>
 				<TextControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 					onChange={ handleLabelChange }
-					label={ __( 'Field Label', 'jetpack-forms' ) }
+					label={ fieldNameLabel }
 					hideLabelFromVision={ true }
-					placeholder={ __( 'Field Label', 'jetpack-forms' ) }
+					placeholder={ fieldNameLabel }
 					value={ attributes.label }
-					help={ attributes.label ? __( 'Field Label', 'jetpack-forms' ) : '' }
+					help={ __(
+						'Internal name used to identify this field in form responses',
+						'jetpack-forms'
+					) }
 				/>
 				<TextControl
 					__next40pxDefaultSize
@@ -45,7 +59,7 @@ export default function HiddenFieldEdit( props ) {
 					hideLabelFromVision={ true }
 					placeholder={ valueLabel }
 					value={ attributes.default }
-					help={ attributes.default ? valueLabel : '' }
+					help={ __( 'The value that will be submitted with the form', 'jetpack-forms' ) }
 					onKeyDown={ onKeyDown }
 				/>
 			</Placeholder>
