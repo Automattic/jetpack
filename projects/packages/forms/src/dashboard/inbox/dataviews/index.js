@@ -329,7 +329,7 @@ export default function InboxView() {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 					header={ <InboxStatusToggle onChange={ resetPage } /> }
-					empty={ <EmptyResponses /> }
+					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
 				/>
 			</div>
 			<SingleResponse
