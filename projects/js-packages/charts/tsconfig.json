@@ -1,10 +1,13 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
+		"composite": true,
 		"target": "esnext",
-		"module": "ES2022",
+		"module": "esnext",
 		"moduleResolution": "bundler",
+		"sourceMap": true,
 		"declaration": true,
+		"declarationMap": true,
 		"noEmit": false,
 		"outDir": "dist/mjs",
 		"declarationDir": "dist/types",
