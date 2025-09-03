@@ -233,6 +233,7 @@ const PieChartInternal = ( {
 					display: 'flex',
 					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 				} }
+				data-legend-value-display={ legendValueDisplay }
 			>
 				<svg
 					viewBox={ `0 0 ${ width } ${ adjustedHeight }` }
