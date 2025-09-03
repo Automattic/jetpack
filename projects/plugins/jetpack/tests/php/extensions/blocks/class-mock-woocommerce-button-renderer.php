@@ -31,20 +31,20 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 			// Build styles from attributes
 			$styles = array();
 
-			// Background color
+			// Background color - named colors go in backgroundColor, hex colors go in style.color.background
 			if ( ! empty( $attributes['backgroundColor'] ) ) {
 				$styles[] = 'background-color:' . $attributes['backgroundColor'];
 			}
-			if ( ! empty( $attributes['customBackgroundColor'] ) ) {
-				$styles[] = 'background-color:' . $attributes['customBackgroundColor'];
+			if ( ! empty( $attributes['style']['color']['background'] ) ) {
+				$styles[] = 'background-color:' . $attributes['style']['color']['background'];
 			}
 
-			// Text color
+			// Text color - named colors go in textColor, hex colors go in style.color.text
 			if ( ! empty( $attributes['textColor'] ) ) {
 				$styles[] = 'color:' . $attributes['textColor'];
 			}
-			if ( ! empty( $attributes['customTextColor'] ) ) {
-				$styles[] = 'color:' . $attributes['customTextColor'];
+			if ( ! empty( $attributes['style']['color']['text'] ) ) {
+				$styles[] = 'color:' . $attributes['style']['color']['text'];
 			}
 
 			// Typography
@@ -61,8 +61,12 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 				}
 				$styles[] = 'border-radius:' . $radius;
 			}
+			// Border color - named colors go in style.border.color, hex colors go in style.color.border
 			if ( ! empty( $attributes['style']['border']['color'] ) ) {
 				$styles[] = 'border-color:' . $attributes['style']['border']['color'];
+			}
+			if ( ! empty( $attributes['style']['color']['border'] ) ) {
+				$styles[] = 'border-color:' . $attributes['style']['color']['border'];
 			}
 			if ( ! empty( $attributes['style']['border']['width'] ) ) {
 				$styles[] = 'border-width:' . $attributes['style']['border']['width'];
