@@ -521,23 +521,50 @@ class Jetpack_Sitemap_Manager {
 	}
 
 	/**
-	 * Callback to filter whether to suspend cache addition via the blog sticker where available during sitemap generation.
+	 * Callback to set the sitemap location.
 	 *
-	 * @param mixed $suspend_cache_addition Whether to suspend cache addition.
 	 * @access public
-	 * @since 14.6
+	 * @since 4.8.0
 	 */
-	public function callback_filter_suspend_cache_addition( $suspend_cache_addition ) {
-		$blog_sticker = 'jetpack-sitemaps-suspend-cache-addition';
-
-		if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( $blog_sticker, Jetpack_Options::get_option( 'id' ) ) ) {
-			return true;
-		}
-
-		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( $blog_sticker ) ) {
-			return true;
-		}
-		return $suspend_cache_addition;
+	public function callback_action_filter_sitemap_location() {
+		update_option(
+			'jetpack_sitemap_location',
+			/**
+			 * Additional path for sitemap URIs. Default value is empty.
+			 *
+			 * This string is any additional path fragment you want included between
+			 * the home URL and the sitemap filenames. Exactly how this fragment is
+			 * interpreted depends on your permalink settings. For example:
+			 *
+			 *   Pretty permalinks:
+			 *     home_url() . jetpack_sitemap_location . '/sitemap.xml'
+			 *
+			 *   Plain ("ugly") permalinks:
+			 *     home_url() . jetpack_sitemap_location . '/?jetpack-sitemap=sitemap.xml'
+			 *
+			 *   PATHINFO permalinks:
+			 *     home_url() . '/index.php' . jetpack_sitemap_location . '/sitemap.xml'
+			 *
+			 * where 'sitemap.xml' is the name of a specific sitemap file.
+			 * The value of this filter must be a valid path fragment per RFC 3986;
+			 * in particular it must either be empty or begin with a '/'.
+			 * Also take care that any restrictions on sitemap location imposed by
+			 * the sitemap protocol are satisfied.
+			 *
+			 * The result of this filter is stored in an option, 'jetpack_sitemap_location';
+			 * that option is what gets read when the sitemap location is needed.
+			 * This way we don't have to wait for init to finish before building sitemaps.
+			 *
+			 * @link https://tools.ietf.org/html/rfc3986#section-3.3 RFC 3986
+			 * @link https://www.sitemaps.org/ The sitemap protocol
+			 *
+			 * @since 4.8.0
+			 */
+			apply_filters(
+				'jetpack_sitemap_location',
+				''
+			)
+		);
 	}
 } // End Jetpack_Sitemap_Manager class.
 
