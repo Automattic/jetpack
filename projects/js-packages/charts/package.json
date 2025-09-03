@@ -49,7 +49,6 @@
 	"types": "./dist/types/index.d.ts",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build:prod",
-		"build:dev": "tsc --build ./tsconfig.json ./tsconfig.cjs.json --watch",
 		"build:prod": "tsc --build ./tsconfig.json ./tsconfig.cjs.json && node ./bin/copy-assets.js",
 		"clean": "tsc --build ./tsconfig.json ./tsconfig.cjs.json --clean && rm -rf dist",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
