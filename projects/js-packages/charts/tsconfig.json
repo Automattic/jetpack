@@ -1,12 +1,7 @@
 {
 	"extends": "./tsconfig.cjs.json",
 	"compilerOptions": {
-		"target": "esnext",
 		"module": "esnext",
-		"moduleResolution": "bundler",
-		"sourceMap": true,
-		"declaration": true,
-		"declarationMap": true,
 		"outDir": "dist/esm",
 		"declarationDir": "dist/types",
 		"rootDir": "src"
