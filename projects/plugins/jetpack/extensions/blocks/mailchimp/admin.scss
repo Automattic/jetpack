@@ -3,5 +3,9 @@
 
 	select {
 		margin-left: 8px;
+
+		@media (max-width: 782px) {
+			margin-left: 0;
+		}
 	}
 }
