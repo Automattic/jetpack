@@ -186,8 +186,12 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		$this->assertTrue( $result );
 
 		// Clean up mocks
-		\Patchwork\restore( $has_blog_sticker_handle );
-		\Patchwork\restore( $jetpack_options_handle );
+		if ( $has_blog_sticker_handle ) {
+			\Patchwork\restore( $has_blog_sticker_handle );
+		}
+		if ( $jetpack_options_handle ) {
+			\Patchwork\restore( $jetpack_options_handle );
+		}
 	}
 
 	/**
@@ -239,9 +243,15 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		$this->assertTrue( $result );
 
 		// Clean up mocks
-		\Patchwork\restore( $wpcomsh_sticker_handle );
-		\Patchwork\restore( $has_blog_sticker_handle );
-		\Patchwork\restore( $jetpack_options_handle );
+		if ( $wpcomsh_sticker_handle ) {
+			\Patchwork\restore( $wpcomsh_sticker_handle );
+		}
+		if ( $has_blog_sticker_handle ) {
+			\Patchwork\restore( $has_blog_sticker_handle );
+		}
+		if ( $jetpack_options_handle ) {
+			\Patchwork\restore( $jetpack_options_handle );
+		}
 	}
 
 	/**
@@ -297,9 +307,15 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		$this->assertEquals( 'test', $result );
 
 		// Clean up mocks
-		\Patchwork\restore( $wpcomsh_sticker_handle );
-		\Patchwork\restore( $has_blog_sticker_handle );
-		\Patchwork\restore( $jetpack_options_handle );
+		if ( $wpcomsh_sticker_handle ) {
+			\Patchwork\restore( $wpcomsh_sticker_handle );
+		}
+		if ( $has_blog_sticker_handle ) {
+			\Patchwork\restore( $has_blog_sticker_handle );
+		}
+		if ( $jetpack_options_handle ) {
+			\Patchwork\restore( $jetpack_options_handle );
+		}
 	}
 
 	/**
@@ -371,8 +387,12 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		$this->assertTrue( $result );
 
 		// Clean up mocks
-		\Patchwork\restore( $has_blog_sticker_handle );
-		\Patchwork\restore( $jetpack_options_handle );
+		if ( $has_blog_sticker_handle ) {
+			\Patchwork\restore( $has_blog_sticker_handle );
+		}
+		if ( $jetpack_options_handle ) {
+			\Patchwork\restore( $jetpack_options_handle );
+		}
 	}
 
 	/**
@@ -403,6 +423,8 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		$this->assertTrue( $result );
 
 		// Clean up mocks
-		\Patchwork\restore( $wpcomsh_sticker_handle );
+		if ( $wpcomsh_sticker_handle ) {
+			\Patchwork\restore( $wpcomsh_sticker_handle );
+		}
 	}
 }

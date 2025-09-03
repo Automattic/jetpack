@@ -573,7 +573,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Callback to leverage XMLWriter via the blog sticker where available during sitemap generation.
 	 *
-	 * @param bool $use_xmlwriter Whether to use XMLWriter.
+	 * @param mixed $use_xmlwriter Whether to use XMLWriter.
 	 * @access public
 	 * @since 14.6
 	 */
@@ -593,7 +593,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Callback to filter whether to suspend cache addition via the blog sticker where available during sitemap generation.
 	 *
-	 * @param bool $suspend_cache_addition Whether to suspend cache addition.
+	 * @param mixed $suspend_cache_addition Whether to suspend cache addition.
 	 * @access public
 	 * @since 14.6
 	 */
