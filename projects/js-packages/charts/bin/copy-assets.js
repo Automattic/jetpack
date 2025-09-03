@@ -7,7 +7,7 @@ const rcopy = require( 'recursive-copy' );
 const dir = process.cwd();
 
 const inputDir = path.join( dir, 'src' );
-const outputDirESM = path.join( dir, 'dist', 'mjs' );
+const outputDirESM = path.join( dir, 'dist', 'esm' );
 const outputDirCJS = path.join( dir, 'dist', 'cjs' );
 
 const copyOptions = {
