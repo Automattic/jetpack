@@ -68,7 +68,7 @@ const sharedWebpackConfig = {
 
 			// Leave fonts and images in place.
 			{
-				test: /\.(eot|ttf|woff|png|svg)$/i,
+				test: /\.(eot|ttf|woff|png|svg|jpg)$/i,
 				type: 'asset/resource',
 				generator: {
 					emit: false,

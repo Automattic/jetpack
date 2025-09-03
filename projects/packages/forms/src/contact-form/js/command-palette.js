@@ -2,7 +2,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCommand } from '@wordpress/commands';
 import domReady from '@wordpress/dom-ready';
 import { __ } from '@wordpress/i18n';
-import { icon } from '../../blocks/contact-form/';
+import FormsIcon from '../../blocks/shared/components/forms-icon';
 
 domReady( () => {
 	// Command palette available across WP Admin from WP 6.9
@@ -10,7 +10,7 @@ domReady( () => {
 		const { tracks } = useAnalytics();
 
 		useCommand( {
-			icon,
+			icon: FormsIcon,
 			label: __( 'View form responses', 'jetpack-forms' ),
 			name: 'jetpack/forms-inbox',
 			callback: ( { close } ) => {
@@ -20,7 +20,7 @@ domReady( () => {
 			},
 		} );
 		useCommand( {
-			icon,
+			icon: FormsIcon,
 			label: __( 'View form spam', 'jetpack-forms' ),
 			name: 'jetpack/forms-spam',
 			callback: ( { close } ) => {

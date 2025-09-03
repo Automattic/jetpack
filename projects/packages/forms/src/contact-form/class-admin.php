@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
@@ -92,18 +93,17 @@ class Admin {
 	public function admin_enqueue_scripts() {
 
 		// Command palette loaded everywhere in wp-admin
-		$command_palette_handle = 'jetpack-forms-command-palette';
 		Assets::register_script(
-			$command_palette_handle,
-			'../../../dist/contact-form/js/command-palette.js',
+			'jetpack-forms-command-palette',
+			'../../dist/contact-form/js/command-palette.js',
 			__FILE__,
 			array(
+				'enqueue'    => true,
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
+				'version'    => Constants::get_constant( 'JETPACK__VERSION' ),
 			)
 		);
-		Assets::enqueue_script( $command_palette_handle );
 
 		// Page specific admin scripts
 		$current_screen = get_current_screen();
