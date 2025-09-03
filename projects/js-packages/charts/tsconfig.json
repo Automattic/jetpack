@@ -1,5 +1,5 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
 	"compilerOptions": {
 		"composite": true,
 		"target": "esnext",
@@ -8,7 +8,6 @@
 		"sourceMap": true,
 		"declaration": true,
 		"declarationMap": true,
-		"noEmit": false,
 		"outDir": "dist/esm",
 		"declarationDir": "dist/types",
 		"rootDir": "src"
