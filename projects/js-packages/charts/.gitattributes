@@ -13,3 +13,4 @@ node_modules      export-ignore
 **/tests/**       production-exclude
 **/docs/**        production-exclude
 agents.md         production-exclude
+/bin/**           production-exclude
