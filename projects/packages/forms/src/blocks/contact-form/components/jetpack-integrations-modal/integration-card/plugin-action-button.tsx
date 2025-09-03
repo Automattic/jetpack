@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { Button, Spinner, Tooltip } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -30,8 +32,19 @@ const PluginActionButton = ( {
 		trackEventName
 	);
 
+	const canUserInstallPlugins =
+		useSelect( select => select( coreStore ).canUser( 'create', 'plugins' ), [] ) ?? false;
+	const canUserActivatePlugins =
+		useSelect( select => select( coreStore ).canUser( 'update', 'plugins' ), [] ) ?? false;
+
+	const canPerformAction = isInstalled ? canUserActivatePlugins : canUserInstallPlugins;
+	const isDisabled = isInstalling || ! canPerformAction;
+
 	const handleAction = async ( event: MouseEvent ) => {
 		event.stopPropagation();
+		if ( isDisabled ) {
+			return;
+		}
 		const success = await installPlugin();
 
 		if ( success && refreshStatus ) {
@@ -50,18 +63,39 @@ const PluginActionButton = ( {
 
 	const tooltipTextActivate = __( 'Activate this plugin', 'jetpack-forms' );
 	const tooltipTextInstall = __( 'Install this plugin', 'jetpack-forms' );
+	const tooltipTextNoInstallPerms = __(
+		'You do not have permission to install plugins.',
+		'jetpack-forms'
+	);
+	const tooltipTextNoActivatePerms = __(
+		'You do not have permission to activate plugins.',
+		'jetpack-forms'
+	);
+
+	const getTooltipText = (): string => {
+		if ( isInstalled && ! canUserActivatePlugins ) {
+			return tooltipTextNoActivatePerms;
+		}
+		if ( ! isInstalled && ! canUserInstallPlugins ) {
+			return tooltipTextNoInstallPerms;
+		}
+		return String( isInstalled ? tooltipTextActivate : tooltipTextInstall );
+	};
 
 	return (
-		<Tooltip text={ isInstalled ? tooltipTextActivate : tooltipTextInstall }>
-			<Button
-				variant="primary"
-				onClick={ handleAction }
-				disabled={ isInstalling }
-				icon={ isInstalling ? <Spinner /> : undefined }
-				__next40pxDefaultSize
-			>
-				{ getButtonText() }
-			</Button>
+		<Tooltip text={ getTooltipText() }>
+			<span style={ { display: 'inline-flex' } }>
+				<Button
+					variant="primary"
+					onClick={ handleAction }
+					disabled={ isDisabled }
+					style={ isDisabled ? { pointerEvents: 'none' } : undefined }
+					icon={ isInstalling ? <Spinner /> : undefined }
+					__next40pxDefaultSize
+				>
+					{ getButtonText() }
+				</Button>
+			</span>
 		</Tooltip>
 	);
 };
