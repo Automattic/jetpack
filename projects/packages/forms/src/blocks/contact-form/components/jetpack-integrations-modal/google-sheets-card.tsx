@@ -114,7 +114,7 @@ const GoogleSheetsCard = ( {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'View Form Responses', 'jetpack-forms' ) }
+							{ __( 'View form responses', 'jetpack-forms' ) }
 						</Button>
 						<span>|</span>
 						<Button
