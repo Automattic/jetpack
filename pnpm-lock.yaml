@@ -395,9 +395,6 @@ importers:
         specifier: 2.5.0
         version: 2.5.0
     devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../webpack-config
       '@babel/core':
         specifier: 7.28.0
         version: 7.28.0
@@ -457,13 +454,10 @@ importers:
         version: 30.0.0(@babel/core@7.28.0)
       babel-loader:
         specifier: 9.1.2
-        version: 9.1.2(@babel/core@7.28.0)(webpack@5.94.0)
+        version: 9.1.2(@babel/core@7.28.0)
       css-loader:
         specifier: ^6.7.0
-        version: 6.11.0(webpack@5.94.0)
-      fork-ts-checker-webpack-plugin:
-        specifier: 9.0.2
-        version: 9.0.2(typescript@5.8.3)(webpack@5.94.0)
+        version: 6.11.0
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -475,13 +469,13 @@ importers:
         version: 5.0.3(jest@30.0.4)
       mini-css-extract-plugin:
         specifier: ^2.7.0
-        version: 2.9.1(webpack@5.94.0)
+        version: 2.9.1
       postcss:
         specifier: 8.4.47
         version: 8.4.47
       postcss-loader:
         specifier: ^8.0.0
-        version: 8.1.1(postcss@8.4.47)(typescript@5.8.3)(webpack@5.94.0)
+        version: 8.1.1(postcss@8.4.47)(typescript@5.8.3)
       postcss-modules:
         specifier: 6.0.1
         version: 6.0.1(postcss@8.4.47)
@@ -502,22 +496,13 @@ importers:
         version: 1.87.0
       sass-loader:
         specifier: ^16.0.0
-        version: 16.0.5(sass-embedded@1.87.0)(sass-embedded@1.87.0)(webpack@5.94.0)
+        version: 16.0.5(sass-embedded@1.87.0)(sass-embedded@1.87.0)
       storybook:
         specifier: 9.0.15
         version: 9.0.15(@testing-library/dom@10.4.0)
-      tsconfig-paths-webpack-plugin:
-        specifier: 4.2.0
-        version: 4.2.0
       typescript:
         specifier: 5.8.3
         version: 5.8.3
-      webpack:
-        specifier: ^5.88.0
-        version: 5.94.0(webpack-cli@6.0.1)
-      webpack-cli:
-        specifier: ^6.0.0
-        version: 6.0.1(webpack@5.94.0)
 
   projects/js-packages/components:
     dependencies:
@@ -16025,10 +16010,6 @@ packages:
       jest-util:
         optional: true
 
-  tsconfig-paths-webpack-plugin@4.2.0:
-    resolution: {integrity: sha512-zbem3rfRS8BgeNK50Zz5SIQgXzLafiHjOwUAvk/38/o1jHn/V5QAgVUcz884or7WYcPaH3N2CIfUc2u0ul7UcA==}
-    engines: {node: '>=10.13.0'}
-
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
 
@@ -23844,6 +23825,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  babel-loader@9.1.2(@babel/core@7.28.0):
+    dependencies:
+      '@babel/core': 7.28.0
+      find-cache-dir: 3.3.2
+      schema-utils: 4.3.2
+
   babel-loader@9.1.2(@babel/core@7.28.0)(webpack@5.94.0):
     dependencies:
       '@babel/core': 7.28.0
@@ -24606,6 +24593,17 @@ snapshots:
       postcss: 8.4.47
 
   css-functions-list@3.2.3: {}
+
+  css-loader@6.11.0:
+    dependencies:
+      icss-utils: 5.1.0(postcss@8.4.47)
+      postcss: 8.4.47
+      postcss-modules-extract-imports: 3.1.0(postcss@8.4.47)
+      postcss-modules-local-by-default: 4.2.0(postcss@8.4.47)
+      postcss-modules-scope: 3.2.1(postcss@8.4.47)
+      postcss-modules-values: 4.0.0(postcss@8.4.47)
+      postcss-value-parser: 4.2.0
+      semver: 7.7.1
 
   css-loader@6.11.0(webpack@5.94.0):
     dependencies:
@@ -28427,6 +28425,11 @@ snapshots:
 
   min-indent@1.0.1: {}
 
+  mini-css-extract-plugin@2.9.1:
+    dependencies:
+      schema-utils: 4.3.2
+      tapable: 2.2.2
+
   mini-css-extract-plugin@2.9.1(webpack@5.94.0):
     dependencies:
       schema-utils: 4.3.2
@@ -29067,6 +29070,15 @@ snapshots:
       yaml: 1.10.2
     optionalDependencies:
       postcss: 8.5.6
+
+  postcss-loader@8.1.1(postcss@8.4.47)(typescript@5.8.3):
+    dependencies:
+      cosmiconfig: 9.0.0(typescript@5.8.3)
+      jiti: 1.21.7
+      postcss: 8.4.47
+      semver: 7.7.1
+    transitivePeerDependencies:
+      - typescript
 
   postcss-loader@8.1.1(postcss@8.4.47)(typescript@5.8.3)(webpack@5.94.0):
     dependencies:
@@ -30114,13 +30126,12 @@ snapshots:
       sass-embedded-win32-ia32: 1.87.0
       sass-embedded-win32-x64: 1.87.0
 
-  sass-loader@16.0.5(sass-embedded@1.87.0)(sass-embedded@1.87.0)(webpack@5.94.0):
+  sass-loader@16.0.5(sass-embedded@1.87.0)(sass-embedded@1.87.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       sass: sass-embedded@1.87.0
       sass-embedded: 1.87.0
-      webpack: 5.94.0(webpack-cli@6.0.1)
 
   sass-loader@16.0.5(sass-embedded@1.87.0)(webpack@5.94.0):
     dependencies:
@@ -31068,13 +31079,6 @@ snapshots:
       yargs-parser: 21.1.1
     optionalDependencies:
       jest-util: 30.0.5
-
-  tsconfig-paths-webpack-plugin@4.2.0:
-    dependencies:
-      chalk: 4.1.2
-      enhanced-resolve: 5.18.3
-      tapable: 2.2.2
-      tsconfig-paths: 4.2.0
 
   tsconfig-paths@3.15.0:
     dependencies:
