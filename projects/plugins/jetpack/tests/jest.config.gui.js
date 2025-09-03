@@ -5,8 +5,12 @@ module.exports = {
 	roots: [ '<rootDir>/_inc/client/' ],
 	testMatch: [ '<rootDir>/_inc/client/test/main.js', '<rootDir>/_inc/client/**/test/component.js' ],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
-	transformIgnorePatterns: [ '/node_modules/(?!(.pnpm|@automattic)/)' ],
 	coverageDirectory: baseConfig.coverageDirectory + '/gui',
+	// This is necessary to allow css from uplot to be imported.
+	transformIgnorePatterns: [
+		'/node_modules/(?!(.pnpm|@automattic)/|.*uplot.*\\.css)',
+		...baseConfig.transformIgnorePatterns,
+	],
 	collectCoverageFrom: [
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/3rd-party/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',

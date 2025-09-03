@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix e2e tests related to boost score graph update.
+
+
