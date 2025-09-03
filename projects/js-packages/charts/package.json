@@ -20,32 +20,32 @@
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
-			"import": "./dist/mjs/index.js",
+			"import": "./dist/esm/index.js",
 			"require": "./dist/cjs/index.js",
 			"types": "./dist/types/index.d.ts"
 		},
 		"./*": {
 			"jetpack:src": "./src/components/*",
-			"import": "./dist/mjs/components/*/index.js",
+			"import": "./dist/esm/components/*/index.js",
 			"require": "./dist/cjs/components/*/index.js",
 			"types": "./dist/types/components/*/index.d.ts"
 		},
 		"./providers/*": {
 			"jetpack:src": "./src/providers/*",
-			"import": "./dist/mjs/providers/*/index.js",
+			"import": "./dist/esm/providers/*/index.js",
 			"require": "./dist/cjs/providers/*/index.js",
 			"types": "./dist/types/providers/*/index.d.ts"
 		},
-		"./style.css": "./dist/mjs/style.css",
+		"./style.css": "./dist/esm/style.css",
 		"./visx/*": {
 			"jetpack:src": "./src/visx/*",
-			"import": "./dist/mjs/visx/*/index.js",
+			"import": "./dist/esm/visx/*/index.js",
 			"require": "./dist/cjs/visx/*/index.js",
 			"types": "./dist/types/visx/*/index.d.ts"
 		}
 	},
 	"main": "./dist/cjs/index.js",
-	"module": "./dist/mjs/index.js",
+	"module": "./dist/esm/index.js",
 	"types": "./dist/types/index.d.ts",
 	"scripts": {
 		"build": "pnpm run build:prod",

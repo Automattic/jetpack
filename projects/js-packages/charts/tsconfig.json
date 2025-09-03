@@ -9,7 +9,7 @@
 		"declaration": true,
 		"declarationMap": true,
 		"noEmit": false,
-		"outDir": "dist/mjs",
+		"outDir": "dist/esm",
 		"declarationDir": "dist/types",
 		"rootDir": "src"
 	},
