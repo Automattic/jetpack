@@ -1960,14 +1960,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$image_block   = $option['image'];
 
 				// Extract image src from rendered block
-				$rendered_block = render_block( $image_block );
-				$image_src      = '';
+				$rendered_image_block = render_block( $image_block );
+				$image_src            = '';
 
-				if ( ! empty( $rendered_block ) ) {
+				if ( ! empty( $rendered_image_block ) ) {
 					// Use DOMDocument to parse the HTML and extract src reliably
 					$dom = new DOMDocument();
 					libxml_use_internal_errors( true ); // Suppress HTML parsing warnings
-					$dom->loadHTML( '<?xml encoding="utf-8" ?>' . $rendered_block );
+					$dom->loadHTML( '<?xml encoding="utf-8" ?>' . $rendered_image_block );
 					libxml_clear_errors();
 
 					$images = $dom->getElementsByTagName( 'img' );
@@ -1975,6 +1975,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( $images->length > 0 ) {
 						$image_src = $images->item( 0 )->getAttribute( 'src' );
 					}
+				} else {
+					$rendered_image_block = '<figure class="wp-block-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
 				}
 
 				$option_value                = wp_json_encode(
@@ -2039,7 +2041,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. ( $required ? "required aria-required='true'" : '' )
 				. '/> ';
 
-				$field .= $rendered_block;
+				$field .= $rendered_image_block;
 				$field .= '</div>';
 
 				$field .= "<div class='jetpack-input-image-option__label-wrapper'>";

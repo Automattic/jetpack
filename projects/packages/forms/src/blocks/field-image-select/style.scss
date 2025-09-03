@@ -35,6 +35,10 @@ figure.wp-block-image {
 		&.is-supersized {
 			width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
 		}
+
+		.jetpack-input-image-option {
+			width: 100%;
+		}
 	}
 
 	.jetpack-input-image-option {
@@ -42,7 +46,6 @@ figure.wp-block-image {
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
-		width: 100%;
 
 		&:not(.wp-block):hover,
 		&.is-checked {
@@ -51,7 +54,6 @@ figure.wp-block-image {
 		}
 
 		.jetpack-input-image-option__wrapper {
-			height: 100%;
 			overflow: hidden;
 			position: relative;
 
