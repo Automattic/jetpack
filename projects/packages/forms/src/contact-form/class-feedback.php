@@ -555,7 +555,7 @@ class Feedback {
 
 			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
 			// from a spam-filtering point of view.
-			if ( in_array( $field->get_type(), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
+			if ( in_array( $field->get_type(), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file', 'image-select' ), true ) ) {
 				continue;
 			}
 
