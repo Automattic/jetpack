@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { Button, Spinner, Tooltip } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { config as dashboardConfig } from '../../../../../dashboard';
 import { usePluginInstallation } from '../hooks/use-plugin-installation';
+import type { JPFormsBlocksDefaults } from '../../../../../types';
 
 type PluginActionButtonProps = {
 	slug: string;
@@ -32,10 +32,14 @@ const PluginActionButton = ( {
 		trackEventName
 	);
 
+	// Permissions checks. We need to check both the editor-provided jpFormsBlocks
+	// and the dashboard config since this component loads in both places.
+	// In a future PR, we should consolidate this to a single source of truth.
+	const jpDefaults: JPFormsBlocksDefaults | undefined = window.jpFormsBlocks?.defaults;
 	const canUserInstallPlugins =
-		useSelect( select => select( coreStore ).canUser( 'create', 'plugins' ), [] ) ?? false;
+		Boolean( jpDefaults?.canInstallPlugins ) || Boolean( dashboardConfig( 'canInstallPlugins' ) );
 	const canUserActivatePlugins =
-		useSelect( select => select( coreStore ).canUser( 'update', 'plugins' ), [] ) ?? false;
+		Boolean( jpDefaults?.canActivatePlugins ) || Boolean( dashboardConfig( 'canActivatePlugins' ) );
 
 	const canPerformAction = isInstalled ? canUserActivatePlugins : canUserInstallPlugins;
 	const isDisabled = isInstalling || ! canPerformAction;

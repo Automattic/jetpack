@@ -104,6 +104,10 @@ export interface JPFormsBlocksDefaults {
 	formsResponsesSpamUrl?: string;
 	/** Whether MailPoet integration is enabled. */
 	isMailPoetEnabled?: boolean;
+	/** Whether the current user can install plugins. */
+	canInstallPlugins?: boolean;
+	/** Whether the current user can activate plugins. */
+	canActivatePlugins?: boolean;
 }
 
 /**
