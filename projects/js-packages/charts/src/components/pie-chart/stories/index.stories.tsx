@@ -9,13 +9,11 @@ import { osUsageData as data } from '../../../stories/sample-data';
 import { themeArgTypes } from '../../../stories/theme-config';
 import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
-import type { LegendValueDisplay } from '../../legend';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > & {
 	labelTextColor?: string;
 	labelBackgroundColor?: string;
-	legendValueDisplay?: LegendValueDisplay;
 };
 
 const meta: Meta< StoryArgs > = {
@@ -82,14 +80,6 @@ const meta: Meta< StoryArgs > = {
 			control: 'boolean',
 			description: 'Show or hide labels on pie segments',
 		},
-		legendValueDisplay: {
-			control: {
-				type: 'select',
-				options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
-			},
-			description:
-				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
-		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
 		const ChartComponent = <PieChart { ...chartProps } />;
@@ -147,7 +137,6 @@ export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		legendValueDisplay: 'percentage', // Default value to show in controls
 	},
 };
 
@@ -375,45 +364,6 @@ export const CustomLabelColors: Story = {
 - **Opt-in enhancement**: Backgrounds only appear when explicitly set
 
 Use the Storybook controls to experiment with different combinations. Try setting labelBackgroundColor to \`transparent\` to see the default behavior.`,
-			},
-		},
-	},
-};
-
-export const LegendValueDisplayOptions: Story = {
-	args: {
-		...Default.args,
-		showLegend: true,
-		data: [
-			{
-				label: 'Chrome',
-				value: 80000,
-				valueDisplay: '80K',
-				percentage: 60,
-			},
-			{
-				label: 'Firefox',
-				value: 30000,
-				valueDisplay: '30K',
-				percentage: 23,
-			},
-			{
-				label: 'Safari',
-				value: 22000,
-				valueDisplay: '22K',
-				percentage: 17,
-			},
-		],
-		legendValueDisplay: 'percentage', // Try changing this control
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: `Demonstrates the legendValueDisplay prop options. Enable showLegend and try different values:
-- **percentage**: Shows "60%", "23%", "17%" (default)
-- **value**: Shows raw numbers "80000", "30000", "22000"
-- **valueDisplay**: Shows formatted values "80K", "30K", "22K"
-- **none**: Shows only labels without values`,
 			},
 		},
 	},
