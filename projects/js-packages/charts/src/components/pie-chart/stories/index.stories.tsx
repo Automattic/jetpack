@@ -80,9 +80,15 @@ const meta: Meta< StoryArgs > = {
 			control: 'boolean',
 			description: 'Show or hide labels on pie segments',
 		},
-		// Explicitly override the legendValueDisplay control to ensure it works
+		// Explicitly define the legendValueDisplay control
 		legendValueDisplay: {
-			...legendArgTypes.legendValueDisplay,
+			control: {
+				type: 'select',
+				options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			},
+			table: { category: 'Legend' },
+			description:
+				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
 		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
