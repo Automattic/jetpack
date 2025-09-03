@@ -193,7 +193,7 @@ function format_attributes_for_woocommerce( $attributes ) {
 	if ( ! empty( $attributes['borderRadius'] ) ) {
 		$formatted['style']['border']['radius'] = $attributes['borderRadius'] . 'px';
 	}
-	// Named colors go in border.color, hex colors go in style.color.border
+	// Named colors go in borderColor, hex colors go in style.color.border
 	if ( ! empty( $attributes['borderColor'] ) ) {
 		$formatted['borderColor'] = $attributes['borderColor'];
 	}

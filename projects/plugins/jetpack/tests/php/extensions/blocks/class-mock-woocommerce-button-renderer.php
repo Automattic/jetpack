@@ -53,6 +53,12 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 			}
 
 			// Borders
+			if ( ! empty( $attributes['borderColor'] ) ) {
+				$styles[] = 'border-color:' . $attributes['borderColor'];
+			}
+			if ( ! empty( $attributes['style']['border']['color'] ) ) {
+				$styles[] = 'border-color:' . $attributes['style']['border']['color'];
+			}
 			if ( ! empty( $attributes['style']['border']['radius'] ) ) {
 				$radius = $attributes['style']['border']['radius'];
 				// Cap border radius at 50px for email compatibility
@@ -60,12 +66,6 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 					$radius = '50px';
 				}
 				$styles[] = 'border-radius:' . $radius;
-			}
-			// Border color - check both locations for maximum compatibility
-			if ( ! empty( $attributes['style']['border']['color'] ) ) {
-				$styles[] = 'border-color:' . $attributes['style']['border']['color'];
-			} elseif ( ! empty( $attributes['style']['color']['border'] ) ) {
-				$styles[] = 'border-color:' . $attributes['style']['color']['border'];
 			}
 			if ( ! empty( $attributes['style']['border']['width'] ) ) {
 				$styles[] = 'border-width:' . $attributes['style']['border']['width'];
