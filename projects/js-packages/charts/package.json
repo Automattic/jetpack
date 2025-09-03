@@ -52,7 +52,7 @@
 		"build:dev": "tsc --build ./tsconfig.json ./tsconfig.cjs.json --watch",
 		"build:prod": "tsc --build ./tsconfig.json ./tsconfig.cjs.json && node ./bin/copy-assets.js",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types",
-		"clean": "rm -rf dist",
+		"clean": "tsc --build ./tsconfig.json ./tsconfig-cjs.json --clean && rm -rf dist",
 		"clean-build": "rm -rf dist/",
 		"compile-ts": "tsc --pretty",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
