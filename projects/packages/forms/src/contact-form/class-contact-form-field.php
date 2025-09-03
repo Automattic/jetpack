@@ -206,7 +206,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		// allow boolean values for showcountryselector, only if it's set so we don't pollute other fields attrs
 		if ( isset( $attributes['showcountryselector'] ) ) {
-			if ( true === $attributes['showcountryselector'] || '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
+			if ( '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
 				$attributes['showcountryselector'] = true;
 			} else {
 				$attributes['showcountryselector'] = false;
@@ -982,23 +982,30 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-		$show_country_selector = $this->get_attribute( 'showcountryselector' );
-		$default_country       = $this->get_attribute( 'default' );
+		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
+		$field  = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
+		return $field;
+	}
 
-		if ( ! $show_country_selector ) {
-			// old telephone field treatment
-			$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-			$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
-			$field = $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
-			return $label . $field;
-		}
-
+	/**
+	 * Return the HTML for the telephone field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return string HTML
+	 */
+	public function render_phone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$this->enqueue_phone_field_assets();
-
-		$link_label_id = $id . '-number';
-
 		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-		$label = $this->render_label( 'phone', $link_label_id, $label, $required, $required_field_text );
+		$label = $this->render_label( 'phone', $id, $label, $required, $required_field_text );
+
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
@@ -1013,11 +1020,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			echo wp_interactivity_data_wp_context(
 				array(
 					'fieldId'             => $id,
-					'defaultCountry'      => $default_country,
+					'defaultCountry'      => $this->get_attribute( 'default' ),
 					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
 					// dynamic
 					'phoneNumber'         => '',
-					'phoneCountryCode'    => $default_country,
+					'phoneCountryCode'    => $this->get_attribute( 'default' ),
 					'countryList'         => array(),
 					'fullPhoneNumber'     => '',
 					'countryPrefix'       => '',
@@ -1051,8 +1058,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						required="true"
 						aria-required="true"
 					<?php } ?>
-					id="<?php echo esc_attr( $link_label_id ); ?>"
-					name="<?php echo esc_attr( $link_label_id ); ?>"
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldHasErrors'
 					data-wp-bind--value='context.phoneNumber'
@@ -2327,9 +2332,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'email':
 				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
-			case 'phone':
 			case 'telephone':
 				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'phone':
+				$field .= $this->render_phone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'url':
 				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );

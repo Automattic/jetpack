@@ -41,7 +41,7 @@ function useSiblingBlock( clientId ) {
 				: 'jetpack/input';
 
 			// Special case for phone field, which uses a different input block.
-			if ( parentBlock.name === 'jetpack/field-telephone' ) {
+			if ( parentBlock.name === 'jetpack/field-phone' ) {
 				siblingBlockType = 'jetpack/phone-input';
 			}
 

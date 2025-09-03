@@ -260,7 +260,7 @@ const variations = [
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
-				'jetpack/field-telephone',
+				'jetpack/field-phone',
 				{},
 				[
 					[ 'jetpack/label', { label: __( 'Phone', 'jetpack-forms' ) } ],
@@ -343,7 +343,7 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/field-telephone',
+					name: 'jetpack/field-phone',
 					innerBlocks: [
 						{
 							name: 'jetpack/label',
@@ -445,7 +445,7 @@ const variations = [
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
-				'jetpack/field-telephone',
+				'jetpack/field-phone',
 				{ required: true },
 				[
 					[ 'jetpack/label', { label: __( 'Phone', 'jetpack-forms' ) } ],
@@ -523,7 +523,7 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/field-telephone',
+					name: 'jetpack/field-phone',
 					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Phone', 'jetpack-forms' ) } },
@@ -947,7 +947,7 @@ const variations = [
 								],
 							],
 							[
-								'jetpack/field-telephone',
+								'jetpack/field-phone',
 								{},
 								[
 									[ 'jetpack/label', { label: __( 'Phone Number', 'jetpack-forms' ) } ],
