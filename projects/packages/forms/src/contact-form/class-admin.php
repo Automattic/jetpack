@@ -90,6 +90,22 @@ class Admin {
 	 * Hook handler for admin_enqueue_scripts hook
 	 */
 	public function admin_enqueue_scripts() {
+
+		// Command palette loaded everywhere in wp-admin
+		$command_palette_handle = 'jetpack-forms-command-palette';
+		Assets::register_script(
+			$command_palette_handle,
+			'../../../dist/contact-form/js/command-palette.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
+			)
+		);
+		Assets::enqueue_script( $command_palette_handle );
+
+		// Page specific admin scripts
 		$current_screen = get_current_screen();
 		if ( empty( $current_screen ) || ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
 			return;

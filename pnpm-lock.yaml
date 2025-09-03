@@ -481,7 +481,7 @@ importers:
         version: 5.0.3(jest@30.0.4)
       mini-css-extract-plugin:
         specifier: ^2.7.0
-        version: 2.9.4(webpack@5.101.3)
+        version: 2.9.1(webpack@5.101.3)
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -1144,7 +1144,7 @@ importers:
         version: 4.4.3
       tslib:
         specifier: ^2.5.0
-        version: 2.8.1
+        version: 2.5.0
     devDependencies:
       '@babel/core':
         specifier: 7.28.4
@@ -2515,6 +2515,9 @@ importers:
       '@wordpress/blocks':
         specifier: 15.4.0
         version: 15.4.0(react@18.3.1)
+      '@wordpress/commands':
+        specifier: 1.28.0
+        version: 1.28.0(@types/react-dom@18.3.7(@types/react@18.3.25))(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/components':
         specifier: 30.4.0
         version: 30.4.0(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -9655,6 +9658,13 @@ packages:
     resolution: {integrity: sha512-8NemosyPrey1yswd6LH8vX9mcRF6Xmqt2mKUCspnmEX4KvayyezmtJPh2EQo3GfySVHGWePzb0yfMYEqDdsC0Q==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
+  '@wordpress/commands@1.28.0':
+    resolution: {integrity: sha512-iokqHdXs9WrFw7Rf9MVJSW3+Z8aJbpUDkLQpIYbL/PX3WTz05nEIUI/p45fH3vPoOeoJqVZ8YwC6uvnoUxy9Cw==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+
   '@wordpress/commands@1.31.0':
     resolution: {integrity: sha512-PaBQVIHNGBn2sMxPj5ILJPAe4h79MvUcb5DzgiXA+H+0nNHLsQxg2u8Cfm2spct37dqOLMnQ6PVMRS+SwCLESQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -14077,6 +14087,12 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
 
+  mini-css-extract-plugin@2.9.1:
+    resolution: {integrity: sha512-+Vyi+GCCOHnrJ2VPS+6aPoXN2k2jgUzDRhTFLjjTBn23qyXJXkjUWQgTL+mXpF5/A8ixLdCc6kWsoeOjKGejKQ==}
+    engines: {node: '>= 12.13.0'}
+    peerDependencies:
+      webpack: ^5.0.0
+
   mini-css-extract-plugin@2.9.4:
     resolution: {integrity: sha512-ZWYT7ln73Hptxqxk2DxPU9MmapXRhxkJD6tkSR04dnQxm8BGu2hzgKLugK5yySD97u/8yy7Ma7E76k9ZdvtjkQ==}
     engines: {node: '>= 12.13.0'}
@@ -16573,6 +16589,9 @@ packages:
 
   tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
+
+  tslib@2.5.0:
+    resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -22861,6 +22880,26 @@ snapshots:
   '@wordpress/browserslist-config@6.31.0': {}
 
   '@wordpress/browserslist-config@6.32.0': {}
+
+  '@wordpress/commands@1.28.0(@types/react-dom@18.3.7(@types/react@18.3.25))(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@wordpress/components': 30.4.0(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/data': 10.31.0(react@18.3.1)
+      '@wordpress/element': 6.31.0
+      '@wordpress/i18n': 6.4.0
+      '@wordpress/icons': 10.31.0(react@18.3.1)
+      '@wordpress/keyboard-shortcuts': 5.32.0(react@18.3.1)
+      '@wordpress/private-apis': 1.32.0
+      clsx: 2.1.1
+      cmdk: 1.1.1(@types/react-dom@18.3.7(@types/react@18.3.25))(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
+      - '@types/react'
+      - '@types/react-dom'
+      - supports-color
 
   '@wordpress/commands@1.31.0(@types/react-dom@18.3.7(@types/react@18.3.25))(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -29981,11 +30020,17 @@ snapshots:
 
   min-indent@1.0.1: {}
 
-  mini-css-extract-plugin@2.9.4(webpack@5.101.3):
+  mini-css-extract-plugin@2.9.1(webpack@5.101.3):
     dependencies:
       schema-utils: 4.3.3
       tapable: 2.3.0
       webpack: 5.101.3(esbuild@0.25.9)(webpack-cli@6.0.1)
+
+  mini-css-extract-plugin@2.9.4(webpack@5.101.3):
+    dependencies:
+      schema-utils: 4.3.3
+      tapable: 2.3.0
+      webpack: 5.101.3(webpack-cli@6.0.1)
 
   minimalistic-assert@1.0.1: {}
 
@@ -32733,6 +32778,8 @@ snapshots:
       strip-bom: 3.0.0
 
   tslib@1.14.1: {}
+
+  tslib@2.5.0: {}
 
   tslib@2.8.1: {}
 

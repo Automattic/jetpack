@@ -47,6 +47,7 @@
 		"@wordpress/base-styles": "6.7.0",
 		"@wordpress/block-editor": "15.4.0",
 		"@wordpress/blocks": "15.4.0",
+		"@wordpress/commands": "1.28.0",
 		"@wordpress/components": "30.4.0",
 		"@wordpress/compose": "7.31.0",
 		"@wordpress/core-data": "7.31.0",
