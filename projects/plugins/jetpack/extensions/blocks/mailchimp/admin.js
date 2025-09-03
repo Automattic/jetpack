@@ -18,7 +18,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 				return;
 			}
 
-			setAudiences( [ ...audiences, ...response.audiences ] );
+			setAudiences( [ { id: 'none', name: __( 'None', 'jetpack' ) }, ...response.audiences ] );
 			if (
 				response.follower_list_id &&
 				response.audiences.find( ( { id } ) => id === response.follower_list_id )
@@ -27,7 +27,6 @@ const MailchimpSettings = ( { isConnected } ) => {
 			}
 		} );
 		// Don't include audiences in the dependency array to avoid loop.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ isConnected ] );
 
 	if ( ! isConnected ) {
