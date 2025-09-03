@@ -160,6 +160,7 @@ function format_attributes_for_woocommerce( $attributes ) {
 	$formatted = array();
 
 	// Handle background colors (prioritize subscription attributes)
+	// Named colors go in backgroundColor, hex colors go in style.color.background
 	if ( ! empty( $attributes['buttonBackgroundColor'] ) ) {
 		$formatted['backgroundColor'] = $attributes['buttonBackgroundColor'];
 	} elseif ( ! empty( $attributes['backgroundColor'] ) ) {
@@ -167,16 +168,17 @@ function format_attributes_for_woocommerce( $attributes ) {
 	}
 
 	if ( ! empty( $attributes['customButtonBackgroundColor'] ) ) {
-		$formatted['customBackgroundColor'] = $attributes['customButtonBackgroundColor'];
+		$formatted['style']['color']['background'] = $attributes['customButtonBackgroundColor'];
 	} elseif ( ! empty( $attributes['customBackgroundColor'] ) ) {
-		$formatted['customBackgroundColor'] = $attributes['customBackgroundColor'];
+		$formatted['style']['color']['background'] = $attributes['customBackgroundColor'];
 	}
 
+	// Named colors go in textColor, hex colors go in style.color.text
 	if ( ! empty( $attributes['textColor'] ) ) {
 		$formatted['textColor'] = $attributes['textColor'];
 	}
 	if ( ! empty( $attributes['customTextColor'] ) ) {
-		$formatted['customTextColor'] = $attributes['customTextColor'];
+		$formatted['style']['color']['text'] = $attributes['customTextColor'];
 	}
 
 	// Handle typography (font size)
@@ -191,11 +193,12 @@ function format_attributes_for_woocommerce( $attributes ) {
 	if ( ! empty( $attributes['borderRadius'] ) ) {
 		$formatted['style']['border']['radius'] = $attributes['borderRadius'] . 'px';
 	}
+	// Named colors go in border.color, hex colors go in style.color.border
 	if ( ! empty( $attributes['borderColor'] ) ) {
 		$formatted['style']['border']['color'] = $attributes['borderColor'];
 	}
 	if ( ! empty( $attributes['customBorderColor'] ) ) {
-		$formatted['style']['border']['color'] = $attributes['customBorderColor'];
+		$formatted['style']['color']['border'] = $attributes['customBorderColor'];
 	}
 	// Handle border weight (subscription block uses borderWeight, button block expects style.border.width)
 	if ( ! empty( $attributes['borderWeight'] ) ) {
