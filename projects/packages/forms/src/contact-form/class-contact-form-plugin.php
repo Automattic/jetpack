@@ -102,6 +102,9 @@ class Contact_Form_Plugin {
 
 			// Schedule our daily cleanup
 			add_action( 'wp_scheduled_delete', array( $instance, 'daily_akismet_meta_cleanup' ) );
+
+			// Provide consolidated Forms script data to both editor and admin via JetpackScriptData.
+			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_forms_script_data' ), 10, 1 );
 		}
 
 		return $instance;
@@ -3378,5 +3381,67 @@ class Contact_Form_Plugin {
 		// Use wp_safe_redirect to ensure we're redirecting to a safe location
 		wp_safe_redirect( $redirect_url );
 		exit;
+	}
+
+	/**
+	 * Add Forms script data to the global JetpackScriptData object for use across admin and editor.
+	 *
+	 * All Forms-related data (including capabilities used by Forms UIs) is nested under the 'forms' key.
+	 *
+	 * @param array $data Existing script data.
+	 * @return array Modified script data including Forms data.
+	 */
+	public static function add_forms_script_data( $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = array();
+		}
+
+		$forms = isset( $data['forms'] ) && is_array( $data['forms'] ) ? $data['forms'] : array();
+
+		// Capabilities relevant to Forms UIs.
+		$forms['capabilities'] = array(
+			'install_plugins'  => current_user_can( 'install_plugins' ),
+			'activate_plugins' => current_user_can( 'activate_plugins' ),
+		);
+
+		// Editor defaults formerly passed via window.jpFormsBlocks.defaults.
+		$dashboard_view_switch = new \Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch();
+		$forms['defaults']     = array(
+			'formsResponsesUrl'    => $dashboard_view_switch->get_forms_admin_url(),
+			'akismetActiveWithKey' => \Jetpack::is_akismet_active(),
+			'akismetUrl'           => admin_url( 'admin.php?page=akismet-key-config' ),
+			'assetsUrl'            => \Automattic\Jetpack\Forms\Jetpack_Forms::assets_url(),
+			'preferredView'        => $dashboard_view_switch->get_preferred_view(),
+			'isMailPoetEnabled'    => \Automattic\Jetpack\Forms\Jetpack_Forms::is_mailpoet_enabled(),
+		);
+
+		// Dashboard-specific data formerly passed via the dashboard config and inline apiRoot.
+		$forms['dashboard'] = array(
+			'blogId'                  => get_current_blog_id(),
+			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
+			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
+			'checkForSpamNonce'       => wp_create_nonce( 'grunion_recheck_queue' ),
+			'gdriveConnectSupportURL' => esc_url( \Automattic\Jetpack\Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
+			'pluginAssetsURL'         => \Automattic\Jetpack\Forms\Jetpack_Forms::assets_url(),
+			'siteURL'                 => ( new \Automattic\Jetpack\Status() )->get_site_suffix(),
+			'enableIntegrationsTab'   => apply_filters( 'jetpack_forms_enable_integrations_tab', true ),
+			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $dashboard_view_switch->get_forms_admin_url() ),
+			'isMailpoetEnabled'       => \Automattic\Jetpack\Forms\Jetpack_Forms::is_mailpoet_enabled(),
+			'apiRoot'                 => ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+				? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) )
+				: '/wp-json/wpcom/v2/',
+		);
+
+		// Optionally include AI flag mirroring the dashboard behavior.
+		$forms['dashboard']['hasAI'] = ( function () {
+			if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
+				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+			}
+			$feature = \Jetpack_AI_Helper::get_ai_assistance_feature();
+			return ! is_wp_error( $feature ) ? ( $feature['has-feature'] ?? false ) : false;
+		} )();
+
+		$data['forms'] = $forms;
+		return $data;
 	}
 }

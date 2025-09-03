@@ -16,7 +16,6 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Request;
-use Jetpack;
 
 /**
  * Contact Form block render callback.
@@ -772,22 +771,17 @@ class Contact_Form_Block {
 		);
 
 		// Create a Contact_Form instance to get the default values
-		$dashboard_view_switch   = new Dashboard_View_Switch();
-		$form_responses_url      = $dashboard_view_switch->get_forms_admin_url();
-		$akismet_active_with_key = Jetpack::is_akismet_active();
-		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
-		$preferred_view          = $dashboard_view_switch->get_preferred_view();
+		$dashboard_view_switch = new Dashboard_View_Switch();
+		$form_responses_url    = $dashboard_view_switch->get_forms_admin_url();
+		$preferred_view        = $dashboard_view_switch->get_preferred_view();
 
 		$data = array(
 			'defaults' => array(
-				'to'                   => Contact_Form::get_default_to( $post ? Contact_Form::get_post_property( $post, 'post_author' ) : null ),
-				'subject'              => Contact_Form::get_default_subject( array() ),
-				'formsResponsesUrl'    => $form_responses_url,
-				'akismetActiveWithKey' => $akismet_active_with_key,
-				'akismetUrl'           => $akismet_key_url,
-				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'preferredView'        => $preferred_view,
-				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
+				'to'                => Contact_Form::get_default_to( $post ? Contact_Form::get_post_property( $post, 'post_author' ) : null ),
+				'subject'           => Contact_Form::get_default_subject( array() ),
+				'formsResponsesUrl' => $form_responses_url,
+				'preferredView'     => $preferred_view,
+				'isMailPoetEnabled' => Jetpack_Forms::is_mailpoet_enabled(),
 			),
 		);
 
