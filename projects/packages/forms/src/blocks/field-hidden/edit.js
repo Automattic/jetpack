@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { Placeholder, TextControl } from '@wordpress/components';
+import { Placeholder, TextControl, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
@@ -9,9 +9,7 @@ export default function HiddenFieldEdit( props ) {
 	const { attributes, setAttributes, clientId } = props;
 
 	const icon = unseen;
-	const label = __( 'Hidden Field', 'jetpack-forms' );
-	const fieldNameLabel = __( 'Field Name', 'jetpack-forms' );
-	const valueLabel = __( 'Field Value', 'jetpack-forms' );
+	const label = __( 'Hidden field', 'jetpack-forms' );
 
 	useFormWrapper( props );
 	const blockProps = useBlockProps();
@@ -28,40 +26,29 @@ export default function HiddenFieldEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<Placeholder icon={ icon } label={ label } isColumnLayout={ true }>
-				<div
-					style={ {
-						marginBottom: '12px',
-						fontSize: '12px',
-						color: '#757575',
-						fontStyle: 'italic',
-					} }
-				>
-					{ __( 'This field is invisible to site visitors', 'jetpack-forms' ) }
-				</div>
-				<TextControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					onChange={ handleLabelChange }
-					label={ fieldNameLabel }
-					hideLabelFromVision={ true }
-					placeholder={ fieldNameLabel }
-					value={ attributes.label }
-					help={ __(
-						'Internal name used to identify this field in form responses',
-						'jetpack-forms'
-					) }
-				/>
-				<TextControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					onChange={ handleValueChange }
-					label={ valueLabel }
-					hideLabelFromVision={ true }
-					placeholder={ valueLabel }
-					value={ attributes.default }
-					help={ __( 'The value that will be submitted with the form', 'jetpack-forms' ) }
-					onKeyDown={ onKeyDown }
-				/>
+				<HStack alignment="top">
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						onChange={ handleLabelChange }
+						label={ __( 'Name', 'jetpack-forms' ) }
+						value={ attributes.label }
+						help={ __(
+							'Internal name used to identify this field in form responses.',
+							'jetpack-forms'
+						) }
+						onKeyDown={ onKeyDown }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						onChange={ handleValueChange }
+						label={ __( 'Value', 'jetpack-forms' ) }
+						value={ attributes.default }
+						help={ __( 'The value that will be submitted with the form.', 'jetpack-forms' ) }
+						onKeyDown={ onKeyDown }
+					/>
+				</HStack>
 			</Placeholder>
 		</div>
 	);
