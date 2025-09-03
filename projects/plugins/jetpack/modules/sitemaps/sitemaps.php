@@ -151,6 +151,9 @@ class Jetpack_Sitemap_Manager {
 			array( $this, 'callback_action_filter_sitemap_location' ),
 			999
 		);
+
+		add_filter( 'jetpack_sitemap_suspend_cache_addition', array( $this, 'callback_filter_suspend_cache_addition' ), 10, 1 );
+		add_filter( 'jetpack_sitemap_use_xmlwriter', array( $this, 'callback_filter_use_xmlwriter' ), 10, 1 );
 	}
 
 	/**
@@ -565,6 +568,46 @@ class Jetpack_Sitemap_Manager {
 				''
 			)
 		);
+	}
+
+	/**
+	 * Callback to leverage XMLWriter via the blog sticker where available during sitemap generation.
+	 *
+	 * @param bool $use_xmlwriter Whether to use XMLWriter.
+	 * @access public
+	 * @since 14.6
+	 */
+	public function callback_filter_use_xmlwriter( $use_xmlwriter ) {
+		$blog_sticker = 'jetpack-sitemaps-use-xmlwriter';
+
+		if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( $blog_sticker, Jetpack_Options::get_option( 'id' ) ) ) {
+			return true;
+		}
+
+		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( $blog_sticker ) ) {
+			return true;
+		}
+		return $use_xmlwriter;
+	}
+
+	/**
+	 * Callback to filter whether to suspend cache addition via the blog sticker where available during sitemap generation.
+	 *
+	 * @param bool $suspend_cache_addition Whether to suspend cache addition.
+	 * @access public
+	 * @since 14.6
+	 */
+	public function callback_filter_suspend_cache_addition( $suspend_cache_addition ) {
+		$blog_sticker = 'jetpack-sitemaps-suspend-cache-addition';
+
+		if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( $blog_sticker, Jetpack_Options::get_option( 'id' ) ) ) {
+			return true;
+		}
+
+		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( $blog_sticker ) ) {
+			return true;
+		}
+		return $suspend_cache_addition;
 	}
 } // End Jetpack_Sitemap_Manager class.
 
