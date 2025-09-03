@@ -125,12 +125,14 @@ function wpcom_imports_enqueue_script() {
 
 	$url = 'https://wordpress.com/setup/site-migration/site-migration-identify?hide_importer_link=true&siteSlug=' . $domain . '&siteId=' . $site_id;
 
-	wp_localize_script(
+	wp_add_inline_script(
 		'wpcom-importer-entry',
-		'wpcomImporterData',
-		array(
-			'wpcomImporterUrl' => $url,
-		)
+		'const wpcomImporterData = ' . wp_json_encode(
+			array(
+				'wpcomImporterUrl' => $url,
+			)
+		) . ';',
+		'before'
 	);
 }
 
