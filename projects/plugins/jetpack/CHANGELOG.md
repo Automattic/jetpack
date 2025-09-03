@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.0-beta.2 - 2025-09-02
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add MCP settings to settings endpoint. [#44921]
+- Prevent PHP error when checking for available Gutenberg extensions. [#45046]
+
 ## 15.0-beta - 2025-09-01
 ### Enhancements
 - Remove CRM installation nudge for Complete plan users [#45026]

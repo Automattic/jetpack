@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Remove unnecessary filter for deleted WooCommerce products in the WooCommerce_Products module
