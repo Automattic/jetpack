@@ -20,6 +20,7 @@ import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type { LegendValueDisplay } from '../legend';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
@@ -58,6 +59,15 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * Whether to show labels on pie segments. Defaults to true.
 	 */
 	showLabels?: boolean;
+
+	/**
+	 * What type of value to display in the legend when showValues is true.
+	 * - 'percentage': Shows percentage values (e.g., "23%") [default]
+	 * - 'value': Shows raw numeric values (e.g., "30000")
+	 * - 'valueDisplay': Shows formatted values (e.g., "30K")
+	 * - 'none': Shows no values, only labels
+	 */
+	legendValueDisplay?: LegendValueDisplay;
 
 	/**
 	 * Use the children prop to render additional elements on the chart.
@@ -122,6 +132,7 @@ const PieChartInternal = ( {
 	gapScale = 0,
 	cornerScale = 0,
 	showLabels = true,
+	legendValueDisplay = 'percentage',
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useGlobalChartsTheme();
@@ -133,7 +144,10 @@ const PieChartInternal = ( {
 		} );
 
 	// Memoize legend options to prevent unnecessary re-calculations
-	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+	const legendOptions = useMemo(
+		() => ( { showValues: true, legendValueDisplay } ),
+		[ legendValueDisplay ]
+	);
 
 	// Create legend items using the reusable hook
 	const legendItems = useChartLegendItems( data, legendOptions );
