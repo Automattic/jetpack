@@ -195,10 +195,10 @@ function format_attributes_for_woocommerce( $attributes ) {
 	}
 	// Named colors go in border.color, hex colors go in style.color.border
 	if ( ! empty( $attributes['borderColor'] ) ) {
-		$formatted['style']['border']['color'] = $attributes['borderColor'];
+		$formatted['borderColor'] = $attributes['borderColor'];
 	}
 	if ( ! empty( $attributes['customBorderColor'] ) ) {
-		$formatted['style']['color']['border'] = $attributes['customBorderColor'];
+		$formatted['style']['border']['color'] = $attributes['customBorderColor'];
 	}
 	// Handle border weight (subscription block uses borderWeight, button block expects style.border.width)
 	if ( ! empty( $attributes['borderWeight'] ) ) {

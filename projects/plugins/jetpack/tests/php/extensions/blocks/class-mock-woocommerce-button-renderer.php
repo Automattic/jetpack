@@ -61,11 +61,10 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 				}
 				$styles[] = 'border-radius:' . $radius;
 			}
-			// Border color - named colors go in style.border.color, hex colors go in style.color.border
+			// Border color - check both locations for maximum compatibility
 			if ( ! empty( $attributes['style']['border']['color'] ) ) {
 				$styles[] = 'border-color:' . $attributes['style']['border']['color'];
-			}
-			if ( ! empty( $attributes['style']['color']['border'] ) ) {
+			} elseif ( ! empty( $attributes['style']['color']['border'] ) ) {
 				$styles[] = 'border-color:' . $attributes['style']['color']['border'];
 			}
 			if ( ! empty( $attributes['style']['border']['width'] ) ) {
