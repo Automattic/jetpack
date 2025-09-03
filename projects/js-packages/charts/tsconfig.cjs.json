@@ -7,7 +7,7 @@
 		"sourceMap": true,
 		"declaration": true,
 		"declarationMap": true,
-		"outDir": "dist/esm",
+		"outDir": "dist/cjs",
 		"declarationDir": "dist/types",
 		"rootDir": "src"
 	},
