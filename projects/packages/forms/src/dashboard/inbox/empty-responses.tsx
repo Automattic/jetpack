@@ -1,6 +1,4 @@
-import { __experimentalText as Text, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
-import CreateFormButton from '../components/create-form-button';
 
 type EmptyResponsesProps = {
 	status: string;
@@ -13,33 +11,14 @@ const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 	}
 
 	if ( status === 'trash' ) {
-		return (
-			<VStack justify="space-around" alignment="center">
-				<h4>{ __( 'Trash is empty', 'jetpack-forms' ) }</h4>
-				<Text variant="muted">
-					{ __( 'Spam responses are automatically trashed after 15 days.', 'jetpack-forms' ) }
-				</Text>
-			</VStack>
-		);
+		return __( 'Trash is empty', 'jetpack-forms' );
 	}
 
 	if ( status === 'spam' ) {
-		return (
-			<VStack justify="space-around" alignment="center">
-				<h4>{ __( 'No spam', 'jetpack-forms' ) }</h4>
-				<Text variant="muted">
-					{ __( 'Spam responses are automatically trashed after 15 days.', 'jetpack-forms' ) }
-				</Text>
-			</VStack>
-		);
+		return __( 'Spam responses are automatically trashed after 15 days.', 'jetpack-forms' );
 	}
 
-	return (
-		<VStack justify="space-around" alignment="center">
-			<h4>{ __( 'No responses', 'jetpack-forms' ) }</h4>
-			<CreateFormButton showPatterns label={ __( 'Create form', 'jetpack-forms' ) } />
-		</VStack>
-	);
+	return __( 'No responses', 'jetpack-forms' );
 };
 
 export default EmptyResponses;
