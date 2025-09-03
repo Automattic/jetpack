@@ -1510,13 +1510,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML for the hidden field.
 	 */
 	private function render_hidden_field( $id, $label, $value, $interactivity_attrs ) {
-		$variation = $this->get_attribute( 'variation' );
-		if ( $variation === 'urlQuery' ) {
-			$value = '';
-			if ( isset( $_GET[ $value ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$value = sanitize_text_field( wp_unslash( $_GET[ $value ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			}
-		}
 
 		/**
 		 *
@@ -1531,7 +1524,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 *
 		 * @return string The modified value of the hidden field.
 		 */
-		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $variation, $id );
+		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, 'static', $id );
 		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' $interactivity_attrs />\n";
 	}
 

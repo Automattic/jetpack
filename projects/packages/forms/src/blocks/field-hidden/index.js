@@ -5,7 +5,6 @@ import defaultSettings from '../shared/settings';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 import save from './save';
-import variations from './variations';
 
 const name = 'field-hidden';
 const settings = {
@@ -24,9 +23,7 @@ const settings = {
 	attributes: {
 		label: { type: 'string', default: '' },
 		default: { type: 'string', default: '' },
-		variation: { type: 'string', default: 'static' },
 	},
-	variations,
 	example: {
 		attributes: {
 			label: __( 'Company_ID', 'jetpack-forms' ),

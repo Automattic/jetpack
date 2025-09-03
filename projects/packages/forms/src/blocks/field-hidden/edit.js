@@ -1,21 +1,16 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { unseen, link } from '@wordpress/icons';
+import { unseen } from '@wordpress/icons';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
 
 export default function HiddenFieldEdit( props ) {
 	const { attributes, setAttributes, clientId } = props;
 
-	let icon = unseen;
-	let label = __( 'Hidden Field', 'jetpack-forms' );
-	let valueLabel = __( 'Field Value', 'jetpack-forms' );
-	if ( attributes.variation === 'urlQuery' ) {
-		icon = link;
-		label = __( 'Query Parameter Hidden Field', 'jetpack-forms' );
-		valueLabel = __( 'Query Parameter Value', 'jetpack-forms' );
-	}
+	const icon = unseen;
+	const label = __( 'Hidden Field', 'jetpack-forms' );
+	const valueLabel = __( 'Field Value', 'jetpack-forms' );
 
 	useFormWrapper( props );
 	const blockProps = useBlockProps();
