@@ -1,9 +1,16 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
-		"typeRoots": [ "./node_modules/@types/", "src/*" ]
+		"target": "esnext",
+		"module": "ES2022",
+		"moduleResolution": "bundler",
+		"declaration": true,
+		"noEmit": false,
+		"outDir": "dist/esm",
+		"declarationDir": "dist/types",
+		"rootDir": "src"
 	},
 	// List all sources and source-containing subdirs.
 	"include": [ "./src" ],
-	"exclude": [ "node_modules", "dist" ]
+	"exclude": [ "tests", "**/*.test.*", "stories", "**/*.stories.*" ]
 }

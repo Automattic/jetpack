@@ -20,37 +20,37 @@
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
-			"import": "./dist/mjs/index.js",
+			"import": "./dist/esm/index.js",
 			"require": "./dist/cjs/index.js",
 			"types": "./dist/types/index.d.ts"
 		},
 		"./*": {
 			"jetpack:src": "./src/components/*",
-			"import": "./dist/mjs/components/*/index.js",
+			"import": "./dist/esm/components/*/index.js",
 			"require": "./dist/cjs/components/*/index.js",
 			"types": "./dist/types/components/*/index.d.ts"
 		},
 		"./providers/*": {
 			"jetpack:src": "./src/providers/*",
-			"import": "./dist/mjs/providers/*/index.js",
+			"import": "./dist/esm/providers/*/index.js",
 			"require": "./dist/cjs/providers/*/index.js",
 			"types": "./dist/types/providers/*/index.d.ts"
 		},
-		"./style.css": "./dist/mjs/style.css",
+		"./style.css": "./dist/esm/style.css",
 		"./visx/*": {
 			"jetpack:src": "./src/visx/*",
-			"import": "./dist/mjs/visx/*/index.js",
+			"import": "./dist/esm/visx/*/index.js",
 			"require": "./dist/cjs/visx/*/index.js",
 			"types": "./dist/types/visx/*/index.d.ts"
 		}
 	},
 	"main": "./dist/cjs/index.js",
-	"module": "./dist/mjs/index.js",
+	"module": "./dist/esm/index.js",
 	"types": "./dist/types/index.d.ts",
 	"scripts": {
 		"build": "pnpm run build:prod",
-		"build:dev": "rollup -c --environment NODE_ENV:development",
-		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
+		"build:dev": "tsc --build ./tsconfig.json ./tsconfig-cjs.json --watch",
+		"build:prod": "tsc --build ./tsconfig.json ./tsconfig-cjs.json && node ./bin/copy-assets.js",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types",
 		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && pnpm run build:types",
 		"clean": "rm -rf dist",
@@ -96,11 +96,6 @@
 		"@babel/preset-env": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"@babel/preset-typescript": "7.27.1",
-		"@rollup/plugin-commonjs": "26.0.1",
-		"@rollup/plugin-json": "6.1.0",
-		"@rollup/plugin-node-resolve": "15.3.0",
-		"@rollup/plugin-terser": "0.4.3",
-		"@rollup/plugin-typescript": "12.1.0",
 		"@storybook/addon-docs": "9.0.15",
 		"@storybook/react": "9.0.15",
 		"@testing-library/dom": "^10.0.0",
@@ -126,10 +121,7 @@
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"rollup": "3.29.5",
-		"rollup-plugin-dts": "6.1.1",
-		"rollup-plugin-peer-deps-external": "2.2.4",
-		"rollup-plugin-postcss": "4.0.2",
+		"recursive-copy": "2.0.14",
 		"sass": "npm:sass-embedded@1.87.0",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "^16.0.0",
