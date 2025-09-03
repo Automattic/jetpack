@@ -24,7 +24,7 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback } from '@wordpress/element';
+import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { store as singleStepStore } from '../../store/form-step-preview';
@@ -44,7 +44,7 @@ import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
-import IntegrationControls from './components/jetpack-integration-controls';
+const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls' ) );
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 
@@ -756,7 +756,9 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					</PanelBody>
 
 					{ ! isSimpleSite() && canUserInstallPlugins && (
-						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+						<Suspense fallback={ <div /> }>
+							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+						</Suspense>
 					) }
 				</InspectorControls>
 				<InspectorAdvancedControls>
