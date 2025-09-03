@@ -395,6 +395,9 @@ importers:
         specifier: 2.5.0
         version: 2.5.0
     devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
       '@babel/core':
         specifier: 7.28.0
         version: 7.28.0
@@ -503,6 +506,9 @@ importers:
       typescript:
         specifier: 5.8.3
         version: 5.8.3
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1
 
   projects/js-packages/components:
     dependencies:
@@ -21293,15 +21299,27 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
+  '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)':
+    dependencies:
+      webpack-cli: 6.0.1
+
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.94.0)':
     dependencies:
       webpack: 5.94.0(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.94.0)
 
+  '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)':
+    dependencies:
+      webpack-cli: 6.0.1
+
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.94.0)':
     dependencies:
       webpack: 5.94.0(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack@5.94.0)
+
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)':
+    dependencies:
+      webpack-cli: 6.0.1
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.94.0)':
     dependencies:
@@ -31475,6 +31493,22 @@ snapshots:
   web-vitals@4.2.4: {}
 
   webidl-conversions@7.0.0: {}
+
+  webpack-cli@6.0.1:
+    dependencies:
+      '@discoveryjs/json-ext': 0.6.3
+      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)
+      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)
+      colorette: 2.0.20
+      commander: 12.1.0
+      cross-spawn: 7.0.6
+      envinfo: 7.14.0
+      fastest-levenshtein: 1.0.16
+      import-local: 3.2.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      webpack-merge: 6.0.1
 
   webpack-cli@6.0.1(webpack@5.94.0):
     dependencies:
