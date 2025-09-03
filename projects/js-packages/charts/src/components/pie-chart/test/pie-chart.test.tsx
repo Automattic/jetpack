@@ -158,4 +158,69 @@ describe( 'PieChart', () => {
 			expect( labels.length ).toBeGreaterThan( 0 );
 		} );
 	} );
+
+	describe( 'Legend Value Display', () => {
+		const testData = [
+			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 60 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 23 },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 17 },
+		];
+
+		test( 'shows percentage values by default when showLegend and showValues are enabled', () => {
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				// legendValueDisplay defaults to 'percentage'
+			} );
+
+			// Should display percentage values (using formatPercentage which shows "60%", "23%", "17%")
+			expect( screen.getByText( '60%' ) ).toBeInTheDocument();
+			expect( screen.getByText( '23%' ) ).toBeInTheDocument();
+			expect( screen.getByText( '17%' ) ).toBeInTheDocument();
+		} );
+
+		test( 'shows raw values when legendValueDisplay is set to "value"', () => {
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendValueDisplay: 'value',
+			} );
+
+			// Should display raw numeric values
+			expect( screen.getByText( '80000' ) ).toBeInTheDocument();
+			expect( screen.getByText( '30000' ) ).toBeInTheDocument();
+			expect( screen.getByText( '22000' ) ).toBeInTheDocument();
+		} );
+
+		test( 'shows formatted values when legendValueDisplay is set to "valueDisplay"', () => {
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendValueDisplay: 'valueDisplay',
+			} );
+
+			// Should display formatted values (valueDisplay field)
+			expect( screen.getByText( '80K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '30K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '22K' ) ).toBeInTheDocument();
+		} );
+
+		test( 'shows no values when legendValueDisplay is set to "none"', () => {
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				showLabels: false, // Disable pie slice labels to avoid confusion
+				legendValueDisplay: 'none',
+			} );
+
+			// Should not display any values in legend
+			expect( screen.queryByText( '60%' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( '80000' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( '80K' ) ).not.toBeInTheDocument();
+
+			// Legend should have the correct number of items (labels only, no values)
+			const legendItems = screen.getAllByTestId( 'legend-item' );
+			expect( legendItems ).toHaveLength( 3 );
+		} );
+	} );
 } );
