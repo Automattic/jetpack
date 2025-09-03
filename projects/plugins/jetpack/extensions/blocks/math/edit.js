@@ -87,7 +87,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			{ ...blockProps }
 			tabIndex={ 0 }
 			role="button"
-			aria-label={ __( 'Edit Math', 'jetpack' ) }
+			aria-label={ __( 'Edit math', 'jetpack' ) }
 			data-source={ source }
 		>
 			{ source.trim() ? (
