@@ -80,6 +80,10 @@ const meta: Meta< StoryArgs > = {
 			control: 'boolean',
 			description: 'Show or hide labels on pie segments',
 		},
+		// Explicitly override the legendValueDisplay control to ensure it works
+		legendValueDisplay: {
+			...legendArgTypes.legendValueDisplay,
+		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
 		const ChartComponent = <PieChart { ...chartProps } />;
