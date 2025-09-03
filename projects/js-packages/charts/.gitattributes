@@ -12,3 +12,4 @@ node_modules      export-ignore
 **/stories/**     production-exclude
 **/tests/**       production-exclude
 **/docs/**        production-exclude
+agents.md         production-exclude
