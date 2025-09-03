@@ -2,7 +2,9 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCommand } from '@wordpress/commands';
 import domReady from '@wordpress/dom-ready';
 import { __ } from '@wordpress/i18n';
+import { trash } from '@wordpress/icons';
 import FormsIcon from '../../blocks/shared/components/forms-icon';
+import { spam } from '../../dashboard/icons';
 
 domReady( () => {
 	// Command palette available across WP Admin from WP 6.9
@@ -20,12 +22,22 @@ domReady( () => {
 			},
 		} );
 		useCommand( {
-			icon: FormsIcon,
+			icon: spam,
 			label: __( 'View form spam', 'jetpack-forms' ),
 			name: 'jetpack/forms-spam',
 			callback: ( { close } ) => {
 				tracks.recordEvent( 'jetpack_command_palette_forms_spam_open' );
 				document.location.href = 'admin.php?page=jetpack-forms-admin#/responses?status=spam';
+				close();
+			},
+		} );
+		useCommand( {
+			icon: trash,
+			label: __( 'View form trash', 'jetpack-forms' ),
+			name: 'jetpack/forms-trash',
+			callback: ( { close } ) => {
+				tracks.recordEvent( 'jetpack_command_palette_forms_trash_open' );
+				document.location.href = 'admin.php?page=jetpack-forms-admin#/responses?status=trash';
 				close();
 			},
 		} );
