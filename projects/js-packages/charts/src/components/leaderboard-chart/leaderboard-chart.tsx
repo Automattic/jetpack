@@ -11,19 +11,10 @@ import {
 	GlobalChartsContext,
 	GlobalChartsProvider,
 	useGlobalChartsContext,
+	useGlobalChartsTheme,
 } from '../../providers/chart-context';
 import { formatMetricValue } from '../../utils';
 import styles from './leaderboard-chart.module.scss';
-
-/**
- * Default settings for LeaderboardChart component
- */
-const DEFAULT_LEADERBOARD_SETTINGS = {
-	labelSpacing: 1.5,
-	rowGap: 12,
-	columnGap: 4,
-	deltaColors: [ '#D63638', '#757575', '#008A20' ] as [ string, string, string ],
-} as const;
 
 export interface LeaderboardEntry {
 	/**
@@ -220,27 +211,24 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	className,
 	style,
 } ) => {
-	const { resolveGroupColor, theme } = useGlobalChartsContext();
-
-	// Get component settings from theme with fallbacks
-	const leaderboardSettings = theme.leaderboardChart;
-	const labelSpacing =
-		leaderboardSettings?.labelSpacing ?? DEFAULT_LEADERBOARD_SETTINGS.labelSpacing;
-	const rowGap = leaderboardSettings?.rowGap ?? DEFAULT_LEADERBOARD_SETTINGS.rowGap;
-	const columnGap = leaderboardSettings?.columnGap ?? DEFAULT_LEADERBOARD_SETTINGS.columnGap;
-
-	// Use theme colors with prop overrides, fallback to defaults
+	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
+	const {
+		labelSpacing,
+		rowGap,
+		columnGap,
+		primaryColor: themePrimaryColor,
+		secondaryColor: themeSecondaryColor,
+		deltaColors,
+	} = leaderboardChartSettings;
+	const { resolveGroupColor } = useGlobalChartsContext();
 	const resolvedPrimaryColor = resolveGroupColor( {
 		index: 0,
-		overrideColor: primaryColor || leaderboardSettings?.primaryColor,
+		overrideColor: primaryColor || themePrimaryColor,
 	} );
 	const resolvedSecondaryColor = resolveGroupColor( {
 		index: 1,
-		overrideColor: secondaryColor || leaderboardSettings?.secondaryColor,
+		overrideColor: secondaryColor || themeSecondaryColor,
 	} );
-
-	// Delta sign colors: negative, neutral, positive
-	const signColors = leaderboardSettings?.deltaColors ?? DEFAULT_LEADERBOARD_SETTINGS.deltaColors;
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
@@ -264,7 +252,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		>
 			{ data.map( entry => {
 				const colorIndex = Math.sign( entry.delta ) + 1;
-				const deltaColor = signColors[ colorIndex ];
+				const deltaColor = deltaColors[ colorIndex ];
 
 				return (
 					<Fragment key={ entry.id }>
