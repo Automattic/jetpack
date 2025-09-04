@@ -6,7 +6,6 @@
 		"sourceMap": true,
 		"declaration": true,
 		"declarationMap": true,
-		"declarationDir": "dist/types",
 		"outDir": "dist/cjs",
 		"rootDir": "src"
 	},

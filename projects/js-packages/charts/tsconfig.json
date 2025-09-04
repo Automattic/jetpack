@@ -1,7 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc-esm.json",
 	"compilerOptions": {
-		"declarationDir": "dist/types",
 		"outDir": "dist/esm",
 		"rootDir": "src"
 	},
