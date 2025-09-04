@@ -146,9 +146,6 @@
 			]
 		}
 	},
-	"files": [
-		"dist"
-	],
 	"scripts": {
 		"build": "pnpm run build:prod",
 		"build:prod": "tsup",
