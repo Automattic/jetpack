@@ -62,7 +62,7 @@ const useSimpleMutation = <
 				delete variables.queryParams;
 			}
 
-			return apiFetch< T >( { ...finalQuery, ...variables } );
+			return apiFetch< T >( { ...finalQuery, ...variables, parse: true } );
 		},
 		...options,
 	} );

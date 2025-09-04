@@ -29,7 +29,7 @@ type QueryParams< T > = {
 const useSimpleQuery = < T >( { name, query, options, errorMessage }: QueryParams< T > ) => {
 	const queryResult = useQuery< T, WP_Error >( {
 		queryKey: [ name, query ],
-		queryFn: () => apiFetch< T >( query ),
+		queryFn: () => apiFetch< T >( { ...query, parse: true } ),
 		refetchOnWindowFocus: false,
 		refetchIntervalInBackground: false,
 		...options,
