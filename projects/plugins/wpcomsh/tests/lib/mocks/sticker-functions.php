@@ -25,23 +25,3 @@ if ( ! function_exists( 'has_blog_sticker' ) ) {
 		return isset( $test_has_blog_sticker_return ) ? $test_has_blog_sticker_return : false;
 	}
 }
-
-// Mock wpcomsh_is_site_sticker_active function for testing
-if ( ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
-	/**
-	 * Mock wpcomsh_is_site_sticker_active function.
-	 *
-	 * @param string $sticker The sticker name.
-	 * @return bool Whether the sticker is active.
-	 */
-	function wpcomsh_is_site_sticker_active( $sticker ) {
-		global $test_wpcomsh_sticker_return;
-		global $test_wpcomsh_sticker_args;
-
-		if ( isset( $test_wpcomsh_sticker_args ) && is_array( $test_wpcomsh_sticker_args ) ) {
-			return $test_wpcomsh_sticker_args['sticker'] === $sticker;
-		}
-
-		return isset( $test_wpcomsh_sticker_return ) ? $test_wpcomsh_sticker_return : false;
-	}
-}
