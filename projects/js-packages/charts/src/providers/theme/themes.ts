@@ -125,8 +125,8 @@ const wooTheme: ChartTheme = {
 	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [
 		'#3858E9', // WooCommerce brand blue
-		'#66BDFF', // Light blue
 		'#873EFF', // Purple
+		'#66BDFF', // Light blue
 		'#7B90FF', // Periwinkle blue
 		'#EB6594', // Pink/rose
 	],
@@ -166,7 +166,7 @@ const wooTheme: ChartTheme = {
 		columnGap: 4,
 		labelSpacing: 1.5,
 		primaryColor: '#3858E9',
-		secondaryColor: '#80C8FF',
+		secondaryColor: '#66BDFF',
 		deltaColors: [ '#D63638', '#757575', '#008A20' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
