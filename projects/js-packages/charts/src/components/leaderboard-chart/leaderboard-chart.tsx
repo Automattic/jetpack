@@ -312,4 +312,4 @@ const LeaderboardChart: FC< LeaderboardChartProps > = props => {
 	);
 };
 
-export { LeaderboardChart as default };
+export default LeaderboardChart;
