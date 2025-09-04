@@ -67,7 +67,8 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "tsup",
+		"build": "pnpm run build:prod",
+		"build:prod": "tsup",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
