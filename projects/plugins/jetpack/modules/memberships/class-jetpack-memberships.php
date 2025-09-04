@@ -538,7 +538,11 @@ class Jetpack_Memberships {
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
 			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
 			$subscribe_url = $this->get_subscription_url( $plan_id );
-			return preg_replace( '/(href=".*")/U', 'href="' . $subscribe_url . '"', $content );
+
+			$content = preg_replace( '/(href=".*")/U', 'href="' . $subscribe_url . '"', $content );
+			$content = wp_kses_post( $content );
+
+			return $content;
 		}
 
 		return $this->deprecated_render_button_v1( $attributes, $plan_id );
