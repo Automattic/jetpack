@@ -1,9 +1,9 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc-esm.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
-		"outDir": "dist/esm",
+		"outDir": "dist",
 		"rootDir": "src"
 	},
-	"include": [ "./src" ],
+	"include": [ "src" ],
 	"exclude": [ "tests", "**/*.test.*", "stories", "**/*.stories.*" ]
 }
