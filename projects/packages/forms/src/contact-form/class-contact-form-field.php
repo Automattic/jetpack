@@ -1984,8 +1984,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						'perceived' => $perceived_letters[ $option_index ],
 						'selected'  => $option_letter,
 						'image'     => array(
-							'id'  => $image_block['attrs']['id'],
-							'src' => $image_src,
+							'id'  => $image_block['attrs']['id'] ?? null,
+							'src' => $image_src ?? null,
 						),
 					)
 				);
