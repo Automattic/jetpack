@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
+use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Forms\Service\Hostinger_Reach_Integration;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -96,6 +97,13 @@ class Contact_Form_Plugin {
 		'entry_page'              => '',
 		'feedback_id'             => '',
 	);
+
+	/**
+	 * GDrive export nonce field name
+	 *
+	 * @var string The nonce field name for GDrive export.
+	 */
+	private $export_nonce_field_gdrive = 'feedback_export_nonce_gdrive';
 
 	/**
 	 * Initializing function.
@@ -221,6 +229,8 @@ class Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
+			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
+			add_action( 'wp_ajax_grunion_gdrive_connection', array( $this, 'test_gdrive_connection' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
@@ -3652,5 +3662,109 @@ class Contact_Form_Plugin {
 		// Use wp_safe_redirect to ensure we're redirecting to a safe location
 		wp_safe_redirect( $redirect_url );
 		exit;
+	}
+
+	/**
+	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
+	 * Exports data to Google Drive, based on POST data.
+	 *
+	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
+	 */
+	public function export_to_gdrive() {
+		$post_data = wp_unslash( $_POST );
+
+		if (
+			! current_user_can( 'export' )
+			|| empty( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ) )
+			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
+		) {
+			wp_send_json_error(
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
+				403
+			);
+
+			return;
+		}
+
+		$grunion     = self::init();
+		$export_data = $grunion->get_feedback_entries_from_post();
+
+		$fields    = is_array( $export_data ) ? array_keys( $export_data ) : array();
+		$row_count = ! is_array( $export_data ) || empty( $export_data ) ? 0 : count( reset( $export_data ) );
+
+		$sheet_data = array( $fields );
+
+		for ( $i = 0; $i < $row_count; $i++ ) {
+
+			$current_row = array();
+
+			/**
+			 * Put all the fields in `$current_row` array.
+			 */
+			foreach ( $fields as $single_field_name ) {
+				$current_row[] = $export_data[ $single_field_name ][ $i ];
+			}
+
+			$sheet_data[] = $current_row;
+		}
+
+		$user_id = (int) get_current_user_id();
+
+		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
+			$spreadsheet_title = sprintf(
+				'%1$s - %2$s',
+				Util::get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				gmdate( 'Y-m-d H:i' )
+			);
+		} else {
+			$spreadsheet_title = sprintf( '%s - %s', Util::get_export_filename(), gmdate( 'Y-m-d H:i' ) );
+		}
+
+		$sheet = Google_Drive::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
+
+		$grunion->record_tracks_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
+
+		wp_send_json(
+			array(
+				'success' => ! is_wp_error( $sheet ),
+				'data'    => $sheet,
+			)
+		);
+	}
+
+	/**
+	 * Ajax handler. Sends a payload with connection status and html to replace
+	 * the Connect button with the Export button using get_gdrive_export_button
+	 */
+	public function test_gdrive_connection() {
+		$post_data = wp_unslash( $_POST );
+		$user_id   = (int) get_current_user_id();
+
+		if (
+			! $user_id ||
+			! current_user_can( 'export' ) ||
+			empty( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ) ) ||
+			! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
+		) {
+			wp_send_json_error(
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
+				403
+			);
+
+			return;
+		}
+
+		$has_valid_connection = Google_Drive::has_valid_connection();
+
+		$replacement_html = $has_valid_connection
+			? $this->get_gdrive_export_button_markup()
+			: '';
+
+		wp_send_json(
+			array(
+				'connection' => $has_valid_connection,
+				'html'       => $replacement_html,
+			)
+		);
 	}
 }
