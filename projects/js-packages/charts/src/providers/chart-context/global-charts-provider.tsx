@@ -1,4 +1,5 @@
 import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import { mergeThemes } from '../../utils';
 import { defaultTheme } from '../theme/themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme } from '../../types';
@@ -18,7 +19,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 
-	const providerTheme: ChartTheme = useMemo( () => ( { ...defaultTheme, ...theme } ), [ theme ] );
+	const providerTheme: ChartTheme = useMemo( () => mergeThemes( defaultTheme, theme ), [ theme ] );
 
 	// Stable group -> color mapping for this provider lifecycle
 	const groupToColorMapRef = useRef< Map< string, string > >( new Map() );
