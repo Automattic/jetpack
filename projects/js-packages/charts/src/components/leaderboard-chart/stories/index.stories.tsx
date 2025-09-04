@@ -139,13 +139,11 @@ Since the LeaderboardChart expects pre-processed data, you'll need to handle dat
 
 ## Styling
 
-The component uses CSS Modules for styling. You can customize colors using CSS custom properties:
+The component uses CSS Modules for styling. You can customize the border radius using CSS custom properties:
 
 \`\`\`css
 .myCustomChart {
-  --primary-color: #ff6b6b;
-  --secondary-color: #4ecdc4;
-	--bar-border: 1px solid 8px;
+	--a8c--charts--leaderboard--bar--border-radius: 8px;
 }
 \`\`\`
 
