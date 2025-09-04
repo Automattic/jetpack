@@ -19,7 +19,7 @@ import { renderMath } from './utils';
 
 const LatexPlaceholder = () => {
 	return (
-		<span className="jetpack-math-rendered-placeholder">{ __( 'Write Math…', 'jetpack' ) }</span>
+		<span className="jetpack-math-rendered-placeholder">{ __( 'Write math…', 'jetpack' ) }</span>
 	);
 };
 
