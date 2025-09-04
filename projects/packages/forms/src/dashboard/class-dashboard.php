@@ -220,7 +220,6 @@ class Dashboard {
 			'enableIntegrationsTab'   => self::$show_integrations,
 			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
 			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $this->switch->get_forms_admin_url() ),
-			'isMailPoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
 		);
 
 		if ( ! empty( $extra_config ) ) {
