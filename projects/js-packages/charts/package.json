@@ -36,7 +36,6 @@
 			"require": "./dist/cjs/providers/*/index.js",
 			"types": "./dist/types/providers/*/index.d.ts"
 		},
-		"./style.css": "./dist/esm/style.css",
 		"./visx/*": {
 			"jetpack:src": "./src/visx/*",
 			"import": "./dist/esm/visx/*/index.js",
