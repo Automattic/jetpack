@@ -17,6 +17,7 @@ import { useIntegrationStatus } from '../../../blocks/contact-form/components/je
 import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
+	const [ isExporting, setIsExporting ] = useState( false );
 	const { integration, refreshStatus } = useIntegrationStatus( 'google-drive' );
 	const isConnectedToGoogleDrive = !! integration?.isConnected;
 	const { tracks } = useAnalytics();
@@ -31,6 +32,10 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 	const needsUserConnection = ! isSimpleSite() && ! isUserConnected;
 
 	const exportToGoogleDrive = useCallback( () => {
+		if ( isExporting ) {
+			return;
+		}
+		setIsExporting( true );
 		tracks.recordEvent( 'jetpack_forms_export_click', {
 			destination: 'google-drive',
 			screen: 'form-responses-inbox',
@@ -40,8 +45,11 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 			.then( ( response: Response ) => response.json() )
 			.then( ( { data } ) => {
 				window.open( data.sheet_link, '_blank' );
+			} )
+			.finally( () => {
+				setIsExporting( false );
 			} );
-	}, [ tracks, onExport ] );
+	}, [ tracks, onExport, isExporting ] );
 
 	const handleConnectClick = useCallback( () => {
 		if ( ! integration?.settingsUrl ) return;
@@ -113,6 +121,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 									className={ buttonClasses }
 									variant="primary"
 									onClick={ exportToGoogleDrive }
+									isBusy={ isExporting }
 								>
 									{ __( 'Export', 'jetpack-forms' ) }
 								</Button>
