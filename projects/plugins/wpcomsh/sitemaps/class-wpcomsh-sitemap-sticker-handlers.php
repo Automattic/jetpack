@@ -23,7 +23,7 @@ class WPCOMSH_Sitemap_Sticker_Handlers {
 	/**
 	 * Handle sitemap cache suspension based on stickers.
 	 *
-	 * @param bool $suspend_cache_addition Current suspension state.
+	 * @param mixed $suspend_cache_addition Current suspension state.
 	 * @return bool Whether to suspend cache addition.
 	 */
 	public static function handle_cache_suspension( $suspend_cache_addition ) {
@@ -33,7 +33,7 @@ class WPCOMSH_Sitemap_Sticker_Handlers {
 	/**
 	 * Handle XMLWriter usage based on stickers.
 	 *
-	 * @param bool $use_xmlwriter Current XMLWriter usage state.
+	 * @param mixed $use_xmlwriter Current XMLWriter usage state.
 	 * @return bool Whether to use XMLWriter.
 	 */
 	public static function handle_xmlwriter_usage( $use_xmlwriter ) {
