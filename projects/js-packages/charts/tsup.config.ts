@@ -19,7 +19,7 @@ export default defineConfig( {
 		'src/visx/group/index.ts',
 	],
 	clean: true,
-	splitting: false,
+	splitting: true,
 	sourcemap: true,
 	dts: true,
 	minify: true,
