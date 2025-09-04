@@ -452,6 +452,7 @@ export const OverlayLabelWithImage: Story = {
 		withComparison: true,
 		withOverlayLabel: true,
 		loading: false,
+		primaryColor: '#ddd',
 		style: {
 			'--a8c--charts--leaderboard--bar--border-radius': '4px',
 			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
