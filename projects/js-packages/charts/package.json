@@ -63,6 +63,9 @@
 			]
 		}
 	},
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "tsup",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
