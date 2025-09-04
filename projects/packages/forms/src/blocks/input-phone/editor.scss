@@ -1,4 +1,5 @@
-.jetpack-contact-form .jetpack-field.jetpack-field-phone {
+.jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
 	.jetpack-field__input,
 	.jetpack-field__textarea {
@@ -7,7 +8,9 @@
 		border-radius: var(--jetpack--contact-form--border-radius);
 		border-width: var(--jetpack--contact-form--border-size);
 		font-size: var(--jetpack--contact-form--font-size);
-		line-height: 2; // matches default input line-height
+		line-height: var(--jetpack--contact-form--line-height);
+		// defaulting to white, it's gutenberg's default background for inputs
+		background-color: var(--jetpack--contact-form--input-background, #fff);
 
 		// TODO: Doesn't work well with next version of Gutenberg, should be removed
 		&.is-selected {
@@ -16,7 +19,7 @@
 		}
 
 		// these class is used to style input and textarea elements
-		.jetpack-field__input-element {
+		.jetpack-field__input-element:not(.jetpack-field__input-prefix .jetpack-field__input-element) {
 			font: inherit;
 			line-height: inherit;
 			border: 0;
@@ -24,11 +27,12 @@
 			outline: none;
 			background-color: transparent;
 			padding: 0;
+			letter-spacing: inherit;
 
 			flex: 1;
-			width: inherit;
 			box-sizing: border-box;
 			resize: none;
+			min-height: unset;
 
 			&::before,
 			&::after {
@@ -37,6 +41,10 @@
 
 			&:focus {
 				box-shadow: none;
+			}
+
+			&::placeholder {
+				opacity: 0.5;
 			}
 		}
 
@@ -73,6 +81,7 @@
 				max-width: 100%;
 				text-overflow: ellipsis;
 				white-space: nowrap;
+				min-height: unset;
 
 				&:where(select) {
 					// compensate spacing for downarrow
@@ -88,7 +97,8 @@
 	}
 }
 
-.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone {
+.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
 	&:not(.has-placeholder):not(.is-selected),
 	&:not(.has-placeholder):not(.has-child-selected) {
@@ -107,7 +117,8 @@
 	}
 }
 
-.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone {
+.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
 	&:not(.has-placeholder):not(.is-selected),
 	&:not(.has-placeholder):not(.has-child-selected) {

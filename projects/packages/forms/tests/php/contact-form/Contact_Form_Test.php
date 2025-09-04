@@ -1195,7 +1195,26 @@ class Contact_Form_Test extends BaseTestCase {
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
-		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+		$this->assertValidPhoneField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	/**
+	 * Test for telephone field_renders with showcountryselector false
+	 */
+	public function test_make_sure_telephone_field_renders_as_expected_with_showcountryselector() {
+		$attributes = array(
+			'label'               => 'fun',
+			'type'                => 'telephone',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-telephone',
+			'class'               => 'lalala',
+			'default'             => '', // phone field doesn't expect a default value
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
+			'showcountryselector' => true,
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
+		$this->assertValidPhoneField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
 	/**
@@ -1663,6 +1682,56 @@ class Contact_Form_Test extends BaseTestCase {
 				'input class attribute doesn\'t match'
 			);
 		}
+	}
+
+	/**
+	 * Tests whether a field is valid.
+	 *
+	 * @param string $html The html string.
+	 * @param array  $attributes An associative array containing the field's attributes.
+	 */
+	public function assertValidPhoneField( $html, $attributes ) {
+
+		if ( ! isset( $attributes['showcountryselector'] ) || ! $attributes['showcountryselector'] ) {
+			return $this->assertValidField( $html, $attributes );
+		}
+
+		$wrapper_div = $this->getCommonDiv( $html );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
+
+		// Get label.
+		$label = $this->getFirstElement( $wrapper_div, 'label' );
+
+		// Inputs.
+		$visible_input = $this->getFirstElement( $wrapper_div, 'input', 0 );
+		$input         = $this->getFirstElement( $wrapper_div, 'input', 1 );
+
+		// Label matches for matches input ID.
+		$this->assertEquals(
+			$label->getAttribute( 'for' ),
+			$visible_input->getAttribute( 'id' ),
+			'label for does not equal input ID!'
+		);
+
+		// Label matches for matches input name.
+		$this->assertEquals(
+			$label->getAttribute( 'for' ),
+			$visible_input->getAttribute( 'name' ),
+			'label for doesn\'t match the input name'
+		);
+
+		$this->assertEquals( $visible_input->getAttribute( 'placeholder' ), $attributes['placeholder'], 'Placeholder doesn\'t match' );
+		$this->assertEquals( $visible_input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
+
+		$this->assertEquals( 'hidden', $input->getAttribute( 'type' ), 'Type doesn\'t match' );
+		$this->assertEquals( $input->getAttribute( 'value' ), $attributes['default'], 'value and default doesn\'t match' );
+
+		$this->assertEquals(
+			$visible_input->getAttribute( 'class' ),
+			"{$attributes['type']} {$attributes['class']} grunion-field",
+			'input class attribute doesn\'t match'
+		);
 	}
 
 	/**

@@ -1,11 +1,22 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 // grunion-field-wrap is a backwards compat class,
 //need to remove this generic classes
 // *-wrap classes are helpers added by backend
+.wp-block-jetpack-field-telephone.wp-block-jetpack-input-wrap.grunion-field-wrap,
 .wp-block-jetpack-field-phone.wp-block-jetpack-input-wrap.grunion-field-wrap {
 
 	.jetpack-field__input-phone-wrapper {
 		display: flex;
 		gap: 8px;
+		background-color: var(--jetpack--contact-form--input-background);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-radius: var(--jetpack--contact-form--border-radius);
+		font-family: var(--jetpack--contact-form--font-family);
+		font-size: var(--jetpack--contact-form--font-size);
+		padding: var(--jetpack--contact-form--input-padding);
+		line-height: var(--jetpack--contact-form--line-height);
 
 		&:has(.jetpack-field__input-element:focus) {
 			outline-width: 2px;
@@ -16,14 +27,20 @@
 
 		.jetpack-field__input-prefix:not([hidden]) {
 			display: flex;
-			max-width: 40%;
+			width: 40%;
 
 			.jetpack-field__input-element {
-				max-width: 100%;
+
+				@media (max-width: #{ (gb.$break-mobile) }) {
+
+					max-width: calc(gb.$break-mobile / 3);
+				}
+				width: 100%;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
 		}
+
 
 		.jetpack-field__input-element {
 			border: 0;
@@ -37,6 +54,12 @@
 			resize: none;
 			padding: 0;
 			min-width: unset;
+			min-height: unset;
+			height: var(--jetpack--contact-form--input-height, unset);
+
+			&:not(.jetpack-field__input-prefix .jetpack-field__input-element) {
+				letter-spacing: inherit;
+			}
 		}
 
 		.jetpack-field__input-element::before,

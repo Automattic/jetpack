@@ -69,6 +69,7 @@ that needs to mimic the input element styles */
 	font: inherit;
 	border: 1px solid #8c8f94;
 	border-radius: 0;
+	background-color: var(--jetpack--contact-form--background-color);
 }
 
 :where(.contact-form textarea) {
