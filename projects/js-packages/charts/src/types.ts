@@ -1,4 +1,7 @@
-import type { AnnotationStyles } from './components/line-chart';
+import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
+import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
+import type { LabelProps } from '@visx/annotation/lib/components/Label';
+import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
@@ -10,6 +13,16 @@ type ValueOf< T > = T[ keyof T ];
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
 export type OrientationType = ValueOf< typeof Orientation >;
+
+export type AnnotationStyles = {
+	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
+	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
+	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' >;
+	label?: Omit< LabelProps, 'title' | 'subtitle' | 'x' | 'y' > & {
+		x?: number | 'start' | 'end';
+		y?: number | 'start' | 'end';
+	};
+};
 
 export type DataPoint = {
 	label: string;
