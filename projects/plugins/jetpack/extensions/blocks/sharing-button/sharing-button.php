@@ -335,7 +335,7 @@ function add_default_services_to_block( $parsed_hooked_block, $hooked_block_type
 
 	// Wrap inner blocks in our sharing buttons markup.
 	$parsed_hooked_block['innerContent'] = array(
-		'<ul class="wp-block-jetpack-sharing-buttons has-normal-icon-size jetpack-sharing-buttons__services-list" id="jetpack-sharing-serivces-list">',
+		'<ul class="wp-block-jetpack-sharing-buttons has-normal-icon-size jetpack-sharing-buttons__services-list" id="jetpack-sharing-services-list">',
 		null,
 		null,
 		null,

@@ -6,11 +6,11 @@
 
 import { Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { useAvailableSerivces } from './use-available-services';
+import { useAvailableServices } from './use-available-services';
 import './panel.scss';
 
 const SocialPreviewsPanel = ( { openModal } ) => {
-	const availableServices = useAvailableSerivces();
+	const availableServices = useAvailableServices();
 
 	return (
 		<div className="jetpack-social-previews__panel">
