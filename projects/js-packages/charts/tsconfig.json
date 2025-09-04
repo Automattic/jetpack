@@ -4,7 +4,6 @@
 		"outDir": "dist",
 		"rootDir": "src"
 	},
-	"files": [],
 	"include": [ "src" ],
 	"exclude": [ "tests", "**/*.test.*", "stories", "**/*.stories.*" ]
 }
