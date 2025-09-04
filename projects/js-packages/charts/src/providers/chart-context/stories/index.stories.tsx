@@ -7,6 +7,7 @@ import {
 	BarListChart,
 	DataPointPercentage,
 	SeriesData,
+	LeaderboardChart,
 } from '../../../.';
 import { simpleChartDecorator, ChartStoryArgs } from '../../../stories/chart-decorator';
 import {
@@ -14,6 +15,7 @@ import {
 	marketingChannelsByCountry,
 	globalMarketComparisonByCountry,
 	osUsageData,
+	trafficSourcesData,
 } from '../../../stories/sample-data';
 import { themeArgTypes } from '../../../stories/theme-config';
 
@@ -200,6 +202,8 @@ const ChartGrid = ( { args }: { args: StoryArgs } ) => {
 				withTooltips={ true }
 				showLegend={ true }
 			/>
+
+			<LeaderboardChart data={ trafficSourcesData } withComparison />
 		</div>
 	);
 };
@@ -259,6 +263,8 @@ const ChartGridWithColorOverrides = ( { args }: { args: StoryArgs } ) => {
 				withTooltips={ true }
 				showLegend={ true }
 			/>
+
+			<LeaderboardChart data={ trafficSourcesData } withComparison secondaryColor="#e74c3c" />
 		</div>
 	);
 };

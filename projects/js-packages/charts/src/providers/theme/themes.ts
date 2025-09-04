@@ -38,9 +38,9 @@ const defaultTheme: ChartTheme = {
 		rowGap: 12,
 		columnGap: 4,
 		labelSpacing: 1.5,
-		primaryColor: '#3858E9',
-		secondaryColor: '#80C8FF',
-		deltaColors: [ '#D63638', '#757575', '#008A20' ], // [negative, neutral, positive]
+		primaryColor: '#006DAB',
+		secondaryColor: '#98C8DF',
+		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
 		primaryColor: '#3858E9',
@@ -123,7 +123,13 @@ const wooTheme: ChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
 	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
-	colors: [ '#80C8FF', '#B999FF', '#3858E9' ],
+	colors: [
+		'#3858E9', // WooCommerce brand blue
+		'#66BDFF', // Light blue
+		'#873EFF', // Purple
+		'#7B90FF', // Periwinkle blue
+		'#EB6594', // Pink/rose
+	],
 	gridStyles: {
 		stroke: '#787C82',
 		strokeWidth: 1,

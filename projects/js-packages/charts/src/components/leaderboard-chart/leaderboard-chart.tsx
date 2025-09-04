@@ -6,9 +6,15 @@ import {
 } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
-import { type FC } from 'react';
-import { useGlobalChartsTheme } from '../../providers/chart-context';
-import { formatMetricValue } from '../../utils';
+import { ComponentType, useContext, type FC } from 'react';
+import {
+	GlobalChartsContext,
+	GlobalChartsProvider,
+	useGlobalChartsContext,
+} from '../../providers/chart-context';
+import { attachSubComponents, formatMetricValue } from '../../utils';
+import { Legend } from '../legend';
+import { ResponsiveConfig, withResponsive } from '../private/with-responsive';
 import styles from './leaderboard-chart.module.scss';
 
 /**
@@ -18,10 +24,9 @@ const DEFAULT_LEADERBOARD_SETTINGS = {
 	labelSpacing: 1.5,
 	rowGap: 12,
 	columnGap: 4,
-	primaryColor: '#3858E9',
-	secondaryColor: '#66BDFF',
 	deltaColors: [ '#D63638', '#757575', '#008A20' ] as [ string, string, string ],
 } as const;
+
 export interface LeaderboardEntry {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
@@ -114,11 +119,18 @@ export interface LeaderboardChartProps {
 	 * Custom styling for the chart container
 	 */
 	style?: React.CSSProperties & {
-		'--bar-border'?: string;
-		'--primary-color'?: string;
-		'--secondary-color'?: string;
+		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
 }
+
+// Composition API types
+interface LeaderboardChartSubComponents {
+	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
+}
+
+type LeaderboardChartComponent = FC< LeaderboardChartProps > & LeaderboardChartSubComponents;
+type LeaderboardChartResponsiveComponent = FC< LeaderboardChartProps & ResponsiveConfig > &
+	LeaderboardChartSubComponents;
 
 /**
  * Default value formatter using formatMetricValue
@@ -154,10 +166,14 @@ const BarWithLabel = ( {
 	entry,
 	withComparison,
 	withOverlayLabel,
+	primaryColor,
+	secondaryColor,
 }: {
 	entry: LeaderboardEntry;
 	withComparison?: boolean;
 	withOverlayLabel?: boolean;
+	primaryColor: string;
+	secondaryColor: string;
 } ) => (
 	<div
 		className={ clsx( styles.barWithLabelContainer, {
@@ -167,14 +183,20 @@ const BarWithLabel = ( {
 		<BarLabel label={ entry.label } />
 
 		<div
-			className={ clsx( styles.bar, styles.primaryBar ) }
-			style={ { width: entry.currentShare + '%' } }
+			className={ styles.bar }
+			style={ {
+				width: entry.currentShare + '%',
+				backgroundColor: primaryColor,
+			} }
 		></div>
 
 		{ withComparison && ! withOverlayLabel && (
 			<div
-				className={ clsx( styles.bar, styles.secondaryBar ) }
-				style={ { width: entry.previousShare + '%' } }
+				className={ styles.bar }
+				style={ {
+					width: entry.previousShare + '%',
+					backgroundColor: secondaryColor,
+				} }
 			></div>
 		) }
 	</div>
@@ -197,7 +219,7 @@ const BarWithLabel = ( {
  * @param props.style            - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
  */
-export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
+const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	data,
 	withComparison = false,
 	withOverlayLabel = false,
@@ -209,7 +231,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	className,
 	style,
 } ) => {
-	const theme = useGlobalChartsTheme();
+	const { resolveGroupColor, theme } = useGlobalChartsContext();
 
 	// Get component settings from theme with fallbacks
 	const leaderboardSettings = theme.leaderboardChart;
@@ -219,28 +241,24 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	const columnGap = leaderboardSettings?.columnGap ?? DEFAULT_LEADERBOARD_SETTINGS.columnGap;
 
 	// Use theme colors with prop overrides, fallback to defaults
-	const finalPrimaryColor =
-		primaryColor || leaderboardSettings?.primaryColor || DEFAULT_LEADERBOARD_SETTINGS.primaryColor;
-	const finalSecondaryColor =
-		secondaryColor ||
-		leaderboardSettings?.secondaryColor ||
-		DEFAULT_LEADERBOARD_SETTINGS.secondaryColor;
+	const resolvedPrimaryColor = resolveGroupColor( {
+		index: 0,
+		overrideColor: primaryColor || leaderboardSettings?.primaryColor,
+	} );
+	const resolvedSecondaryColor = resolveGroupColor( {
+		index: 1,
+		overrideColor: secondaryColor || leaderboardSettings?.secondaryColor,
+	} );
 
 	// Delta sign colors: negative, neutral, positive
 	const signColors = leaderboardSettings?.deltaColors ?? DEFAULT_LEADERBOARD_SETTINGS.deltaColors;
-
-	const chartStyle = {
-		'--primary-color': finalPrimaryColor,
-		'--secondary-color': finalSecondaryColor,
-		...style,
-	};
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
 			<div
 				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-				style={ chartStyle }
+				style={ style }
 			>
 				<div className={ styles.emptyState }>{ loading ? 'Loading...' : 'No data available' }</div>
 			</div>
@@ -253,7 +271,7 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 			templateColumns="minmax(0, 1fr) auto"
 			rowGap={ rowGap }
 			columnGap={ columnGap }
-			style={ chartStyle }
+			style={ style }
 		>
 			{ data.map( entry => {
 				const colorIndex = Math.sign( entry.delta ) + 1;
@@ -266,6 +284,8 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 								entry={ entry }
 								withComparison={ withComparison }
 								withOverlayLabel={ withOverlayLabel }
+								primaryColor={ resolvedPrimaryColor }
+								secondaryColor={ resolvedSecondaryColor }
 							/>
 						</VStack>
 
@@ -287,4 +307,35 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	);
 };
 
-export default LeaderboardChart;
+const LeaderboardChartWithProvider: FC< LeaderboardChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, don't create a new one
+	if ( existingContext ) {
+		return <LeaderboardChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<LeaderboardChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
+
+LeaderboardChartWithProvider.displayName = 'LeaderboardChart';
+
+// Create LeaderboardChart with composition API
+const LeaderboardChart = attachSubComponents( LeaderboardChartWithProvider, {
+	Legend: Legend,
+} ) as LeaderboardChartComponent;
+
+// Create responsive LeaderboardChart with composition API
+const LeaderboardChartResponsive = attachSubComponents(
+	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider ),
+	{
+		Legend: Legend,
+	}
+) as LeaderboardChartResponsiveComponent;
+
+export { LeaderboardChartResponsive as default, LeaderboardChart as LeaderboardChartUnresponsive };
