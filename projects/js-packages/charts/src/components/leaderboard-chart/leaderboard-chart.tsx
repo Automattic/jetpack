@@ -6,15 +6,13 @@ import {
 } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
-import { ComponentType, useContext, type FC } from 'react';
+import { useContext, type FC } from 'react';
 import {
 	GlobalChartsContext,
 	GlobalChartsProvider,
 	useGlobalChartsContext,
 } from '../../providers/chart-context';
-import { attachSubComponents, formatMetricValue } from '../../utils';
-import { Legend } from '../legend';
-import { ResponsiveConfig, withResponsive } from '../private/with-responsive';
+import { formatMetricValue } from '../../utils';
 import styles from './leaderboard-chart.module.scss';
 
 /**
@@ -122,15 +120,6 @@ export interface LeaderboardChartProps {
 		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
 }
-
-// Composition API types
-interface LeaderboardChartSubComponents {
-	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
-}
-
-type LeaderboardChartComponent = FC< LeaderboardChartProps > & LeaderboardChartSubComponents;
-type LeaderboardChartResponsiveComponent = FC< LeaderboardChartProps & ResponsiveConfig > &
-	LeaderboardChartSubComponents;
 
 /**
  * Default value formatter using formatMetricValue
@@ -307,7 +296,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 };
 
-const LeaderboardChartWithProvider: FC< LeaderboardChartProps > = props => {
+const LeaderboardChart: FC< LeaderboardChartProps > = props => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	// If we're already in a GlobalChartsProvider context, don't create a new one
@@ -323,19 +312,4 @@ const LeaderboardChartWithProvider: FC< LeaderboardChartProps > = props => {
 	);
 };
 
-LeaderboardChartWithProvider.displayName = 'LeaderboardChart';
-
-// Create LeaderboardChart with composition API
-const LeaderboardChart = attachSubComponents( LeaderboardChartWithProvider, {
-	Legend: Legend,
-} ) as LeaderboardChartComponent;
-
-// Create responsive LeaderboardChart with composition API
-const LeaderboardChartResponsive = attachSubComponents(
-	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider ),
-	{
-		Legend: Legend,
-	}
-) as LeaderboardChartResponsiveComponent;
-
-export { LeaderboardChartResponsive as default, LeaderboardChart as LeaderboardChartUnresponsive };
+export { LeaderboardChart as default };
