@@ -33,10 +33,8 @@ export const legendArgTypes = {
 		description: 'Show glyphs in legend (Line charts only)',
 	},
 	legendValueDisplay: {
-		control: {
-			type: 'select' as const,
-			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
-		},
+		control: { type: 'select' as const },
+		options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
 		table: { category: 'Legend' },
 		description:
 			'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
