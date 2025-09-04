@@ -216,18 +216,18 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		labelSpacing,
 		rowGap,
 		columnGap,
-		primaryColor: themePrimaryColor,
-		secondaryColor: themeSecondaryColor,
+		primaryColor: settingsPrimaryColor,
+		secondaryColor: settingsSecondaryColor,
 		deltaColors,
 	} = leaderboardChartSettings;
 	const { resolveGroupColor } = useGlobalChartsContext();
 	const resolvedPrimaryColor = resolveGroupColor( {
 		index: 0,
-		overrideColor: primaryColor || themePrimaryColor,
+		overrideColor: primaryColor || settingsPrimaryColor,
 	} );
 	const resolvedSecondaryColor = resolveGroupColor( {
 		index: 1,
-		overrideColor: secondaryColor || themeSecondaryColor,
+		overrideColor: secondaryColor || settingsSecondaryColor,
 	} );
 
 	// Handle empty or undefined data
