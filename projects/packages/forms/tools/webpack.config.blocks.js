@@ -5,6 +5,8 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
+const BundleAnalyzerPlugin = require( 'webpack-bundle-analyzer' ).BundleAnalyzerPlugin;
+const Visualizer = require( 'webpack-visualizer-plugin' );
 
 /**
  * Internal variables
@@ -32,7 +34,11 @@ const sharedWebpackConfig = {
 		...jetpackWebpackConfig.resolve,
 	},
 	node: {},
-	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins(),
+		new BundleAnalyzerPlugin(),
+		new Visualizer(),
+	],
 	externals: {
 		...jetpackWebpackConfig.externals,
 		jetpackConfig: JSON.stringify( {

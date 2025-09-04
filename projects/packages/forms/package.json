@@ -104,7 +104,9 @@
 		"postcss-loader": "8.1.1",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
-		"typescript": "5.8.3"
+		"typescript": "5.8.3",
+		"webpack-bundle-analyzer": "4.10.2",
+		"webpack-visualizer-plugin": "0.1.11"
 	},
 	"optionalDependencies": {
 		"react": "18.3.1",
