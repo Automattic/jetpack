@@ -186,7 +186,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'salesforceData'         => null,
 			'hiddenFields'           => null,
 			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
-			'saveResponses'          => true,
+			'saveResponses'          => 'yes',
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );

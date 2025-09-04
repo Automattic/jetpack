@@ -815,7 +815,7 @@ class Feedback {
 		// Check if responses should be saved to the database
 		if ( $this->form && method_exists( $this->form, 'get_attribute' ) ) {
 			$save_responses = $this->form->get_attribute( 'saveResponses' );
-			if ( '' === $save_responses ) {
+			if ( 'no' === $save_responses ) {
 				return 0; // Don't save the response
 			}
 		}
