@@ -95,7 +95,7 @@ export type DataPointPercentage = {
 };
 
 /**
- * Theme configuration for chart components
+ * Base theme configuration for chart components with optional properties
  */
 export type ChartTheme = {
 	/** Background color for chart components */
@@ -157,6 +157,18 @@ export type ChartTheme = {
 	};
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
+	};
+};
+
+/**
+ * Theme configuration with all properties guaranteed to be defined.
+ * Useful for merged themes where defaults are provided for all optional properties.
+ */
+export type CompleteChartTheme = Required< ChartTheme > & {
+	leaderboardChart: Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >;
+	conversionFunnelChart: Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >;
+	lineChart: {
+		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
 };
 

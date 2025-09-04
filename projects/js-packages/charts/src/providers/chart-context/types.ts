@@ -1,5 +1,5 @@
 import type { BaseLegendItem } from '../../components/legend';
-import type { ChartTheme } from '../../types';
+import type { CompleteChartTheme } from '../../types';
 
 export interface ChartRegistration {
 	legendItems: BaseLegendItem[];
@@ -13,7 +13,7 @@ export interface GlobalChartsContextValue {
 	unregisterChart: ( id: string ) => void;
 	getChartData: ( id: string ) => ChartRegistration | undefined;
 	/** Theme provided by the GlobalChartsProvider (merged with defaults) */
-	theme: ChartTheme;
+	theme: CompleteChartTheme;
 	/**
 	 * Resolve a stable color for a series.
 	 * - If an override color is passed, it wins.

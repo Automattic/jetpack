@@ -1,9 +1,9 @@
-import type { ChartTheme } from '../../types';
+import type { ChartTheme, CompleteChartTheme } from '../../types';
 
 /**
  * Default theme configuration
  */
-const defaultTheme: ChartTheme = {
+const defaultTheme: CompleteChartTheme = {
 	backgroundColor: '#FFFFFF', // chart background color
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
 	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
@@ -20,6 +20,10 @@ const defaultTheme: ChartTheme = {
 	legendLabelStyles: {
 		color: 'var(--jp-gray-80, #2c3338)',
 	},
+	legendContainerStyles: {},
+	seriesLineStyles: [],
+	legendShapeStyles: [],
+	glyphs: [],
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
