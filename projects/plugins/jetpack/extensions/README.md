@@ -27,6 +27,7 @@ Extensions in the `extensions/` folder loosely follow this structure:
 .
 ├── blocks/
 │   └── block-name/
+│		├── admin. js                ← script loaded only in admin screens
 │		├── editor.js                ← script loaded only in the editor
 │		├── editor.scss              ← styles loaded only in the editor
 │		├── view.js                  ← script loaded on the frontend

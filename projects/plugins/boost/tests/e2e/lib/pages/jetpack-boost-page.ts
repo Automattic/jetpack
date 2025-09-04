@@ -28,11 +28,19 @@ export default class JetpackBoostPage {
 	 * Select the free plan from getting started page.
 	 */
 	async chooseFreePlan() {
-		const button = this.page.locator( 'text=Start for free' );
-		await button.click();
+		const button = this.page.getByRole( 'button', { name: 'Start for free' } );
 
-		// We should wait a longer time to ensure the connection/plan is complete/established.
-		await this.expectScoreToBeLoading();
+		const connectionResponse = this.page.waitForResponse(
+			response => response.url().includes( '/jetpack-boost/v1/connection' ),
+			{ timeout: 60 * 1000 }
+		);
+		await button.click();
+		await connectionResponse;
+
+		await expect(
+			this.page.getByRole( 'button', { name: 'Refresh' } ),
+			'Refresh button should be visible after connection'
+		).toBeVisible();
 	}
 
 	/**

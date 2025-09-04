@@ -5,13 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.19] - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
 ## [4.2.18] - 2025-08-25
 ### Changed
 - Update dependencies. [#44934]
 
 ## [4.2.17] - 2025-08-18
 ### Added
-- Add type-check script to ensure that the TypeScript files are type-checked. [#44795]
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
 
 ## [4.2.16] - 2025-08-14
 ### Changed
@@ -931,6 +935,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.19]: https://github.com/Automattic/jetpack-backup/compare/v4.2.18...v4.2.19
 [4.2.18]: https://github.com/Automattic/jetpack-backup/compare/v4.2.17...v4.2.18
 [4.2.17]: https://github.com/Automattic/jetpack-backup/compare/v4.2.16...v4.2.17
 [4.2.16]: https://github.com/Automattic/jetpack-backup/compare/v4.2.15...v4.2.16

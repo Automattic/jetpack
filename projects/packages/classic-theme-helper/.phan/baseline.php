@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgumentInternal : 10+ occurrences
     // PhanUndeclaredClassMethod : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 8 occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 6 occurrences
@@ -22,7 +21,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        '_inc/lib/tonesque.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
+        '_inc/lib/tonesque.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-featured-content.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypePossiblyInvalidDimOffset'],
         'src/class-social-links.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
         'src/content-options/featured-images-fallback.php' => ['PhanTypePossiblyInvalidDimOffset'],

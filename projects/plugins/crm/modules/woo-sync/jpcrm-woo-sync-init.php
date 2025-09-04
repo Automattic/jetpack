@@ -64,10 +64,10 @@ function jpcrm_load_woo_sync() {
 add_action( 'jpcrm_load_modules', 'jpcrm_load_woo_sync' );
 
 
-/* 
-* Where WooSync is installed as an extension, deactivate it
-*/
-function jpcrm_intercept_old_woosync( ){
+/**
+ * Where WooSync is installed as an extension, deactivate it
+ */
+function jpcrm_intercept_old_woosync() {
 
 	// here we check if the old extension exists by its name function
 	// ... if this didn't catch all situations, use zeroBSCRM_installedProExt

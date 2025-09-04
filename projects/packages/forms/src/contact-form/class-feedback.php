@@ -767,8 +767,8 @@ class Feedback {
 				'post_title'     => $this->legacy_feedback_title,
 				'post_date'      => $this->feedback_time,
 				'post_name'      => $this->legacy_feedback_id,
-				'post_content'   => $this->serialize(),
-				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
+				'post_content'   => $this->serialize(), // In V3 we started to addslashes.
+				'post_mime_type' => 'v3', // a way to help us identify what version of the data this is.
 				'post_parent'    => $this->source->get_id(),
 			)
 		);
@@ -813,6 +813,9 @@ class Feedback {
 	 * @return array Parsed fields.
 	 */
 	private function parse_content( $post_content = '', $version = null ) {
+		if ( $version === 'v3' ) {
+			return $this->parse_content_v3( $post_content );
+		}
 		if ( $version === 'v2' ) {
 			return $this->parse_content_v2( $post_content );
 		}
@@ -821,6 +824,8 @@ class Feedback {
 
 	/**
 	 * Parse the content in the v2 format.
+	 *
+	 * V2 Format was a short lived format that accidently contains slash escaped unicode characters.
 	 *
 	 * @param string $post_content The post content to parse.
 	 *
@@ -834,6 +839,37 @@ class Feedback {
 			$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
 		}
 
+		if ( $decoded_content === null ) {
+			return array();
+		}
+		$fields = array();
+		foreach ( $decoded_content['fields'] as $field ) {
+			$feedback_field = Feedback_Field::from_serialized_v2( $field );
+			if ( $feedback_field instanceof Feedback_Field ) {
+				$fields[ $feedback_field->get_key() ] = $feedback_field;
+				if ( ! $this->has_file && $feedback_field->has_file() ) {
+					$this->has_file = true;
+				}
+			}
+		}
+		$decoded_content['fields'] = $fields;
+		return $decoded_content;
+	}
+
+	/**
+	 * Parse the content in the v3 format.
+	 *
+	 * @param string $post_content The post content to parse.
+	 *
+	 * @return array Parsed fields.
+	 */
+	private function parse_content_v3( $post_content = '' ) {
+		$decoded_content = json_decode( $post_content, true );
+		if ( $decoded_content === null ) {
+			// If JSON decoding fails, try to decode the second try with stripslashes and trim.
+			// This is a workaround for some cases where the JSON data is not properly formatted.
+			$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
+		}
 		if ( $decoded_content === null ) {
 			return array();
 		}

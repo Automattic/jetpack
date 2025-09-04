@@ -855,8 +855,8 @@ importers:
   projects/js-packages/eslint-changed:
     dependencies:
       chalk:
-        specifier: 5.4.1
-        version: 5.4.1
+        specifier: 5.6.0
+        version: 5.6.0
       commander:
         specifier: 13.0.0
         version: 13.0.0
@@ -2376,6 +2376,9 @@ importers:
       '@wordpress/element':
         specifier: 6.28.0
         version: 6.28.0
+      '@wordpress/hooks':
+        specifier: 4.28.0
+        version: 4.28.0
       '@wordpress/i18n':
         specifier: 6.1.0
         version: 6.1.0
@@ -2537,6 +2540,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/request-external-access':
+        specifier: 1.0.1
+        version: 1.0.1
       '@automattic/ui':
         specifier: 1.0.2
         version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5496,8 +5502,8 @@ importers:
         specifier: 21.1.1
         version: 21.1.1
       chalk:
-        specifier: 5.4.1
-        version: 5.4.1
+        specifier: 5.6.0
+        version: 5.6.0
       chokidar:
         specifier: 4.0.3
         version: 4.0.3
@@ -5593,8 +5599,8 @@ importers:
         specifier: 1.11.0
         version: 1.11.0
       chalk:
-        specifier: 5.4.1
-        version: 5.4.1
+        specifier: 5.6.0
+        version: 5.6.0
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -5671,8 +5677,8 @@ importers:
         specifier: 30.0.0
         version: 30.0.0(@babel/core@7.28.0)
       chalk:
-        specifier: 5.4.1
-        version: 5.4.1
+        specifier: 5.6.0
+        version: 5.6.0
       debug:
         specifier: 4.4.1
         version: 4.4.1
@@ -10371,8 +10377,8 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
-  chalk@5.4.1:
-    resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
+  chalk@5.6.0:
+    resolution: {integrity: sha512-46QrSQFyVSEyYAgQ22hQ+zDa60YHA4fBstHmtSApj1Y5vKtG27fWowW03jCk5KcbXEWPZUIR894aARCA/G1kfQ==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   change-case@4.1.2:
@@ -18722,7 +18728,7 @@ snapshots:
       '@jest/schemas': 30.0.5
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.17.1
+      '@types/node': 20.19.10
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -24156,7 +24162,7 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
-  chalk@5.4.1: {}
+  chalk@5.6.0: {}
 
   change-case@4.1.2:
     dependencies:
@@ -27136,7 +27142,7 @@ snapshots:
   jest-mock@30.0.5:
     dependencies:
       '@jest/types': 30.0.5
-      '@types/node': 22.17.1
+      '@types/node': 20.19.10
       jest-util: 30.0.5
 
   jest-playwright-preset@4.0.0(jest-circus@30.0.5)(jest-environment-node@30.0.5)(jest-runner@30.0.5)(jest@30.0.4):
@@ -27406,7 +27412,7 @@ snapshots:
   jest-util@30.0.5:
     dependencies:
       '@jest/types': 30.0.5
-      '@types/node': 22.17.1
+      '@types/node': 20.19.10
       chalk: 4.1.2
       ci-info: 4.3.0
       graceful-fs: 4.2.11
@@ -27433,7 +27439,7 @@ snapshots:
   jest-watch-typeahead@3.0.1(jest@30.0.4):
     dependencies:
       ansi-escapes: 7.0.0
-      chalk: 5.4.1
+      chalk: 5.6.0
       jest: 30.0.4
       jest-regex-util: 30.0.1
       jest-watcher: 30.0.5
@@ -29727,7 +29733,7 @@ snapshots:
   rejoinder@2.0.2:
     dependencies:
       '@-xun/debug': 2.0.1
-      chalk: 5.4.1
+      chalk: 5.6.0
       core-js: 3.45.0
 
   relateurl@0.2.7: {}

@@ -1,0 +1,11 @@
+.jetpack-mailchimp-settings {
+	margin-top: 8px;
+
+	select {
+		margin-left: 8px;
+
+		@media (max-width: 782px) {
+			margin-left: 0;
+		}
+	}
+}

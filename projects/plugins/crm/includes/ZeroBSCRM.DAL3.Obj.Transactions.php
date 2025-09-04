@@ -2444,7 +2444,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
      *
      * @param int id transaction ID
      *
-     * @return str transaction status string
+     * @return string transaction status string
      */
     public function getTransactionStatus($id=-1){
 
@@ -2495,8 +2495,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
      * that should be included in "total value" fields
      * admin.php?page=zerobscrm-plugin-settings&tab=transactions
      *
-     * @param str $table_alias_sql - if using a table alias pass that here, e.g. `transactions.`
-     * @return array 
+     * @param string $table_alias_sql - if using a table alias pass that here, e.g. `transactions`.
+     * @return array
      */
     function getTransactionStatusesToIncludeQuery( $table_alias_sql = '' ){
 

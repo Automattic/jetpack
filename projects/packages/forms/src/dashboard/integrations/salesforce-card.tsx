@@ -67,7 +67,7 @@ const SalesforceDashboardCard = ( {
 					onClick={ handleCreateSalesforceForm }
 					className="jp-forms__create-form-button--large-green"
 				>
-					{ __( 'Create Salesforce Lead Form', 'jetpack-forms' ) }
+					{ __( 'Create Salesforce lead form', 'jetpack-forms' ) }
 				</Button>
 			</div>
 		</IntegrationCard>

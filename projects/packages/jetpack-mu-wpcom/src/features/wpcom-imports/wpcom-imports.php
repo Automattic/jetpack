@@ -83,3 +83,57 @@ add_action(
 		exit();
 	}
 );
+
+/**
+ * Update the WordPress importer URL to point to the Calypso Stepper importer.
+ *
+ * @param string $url the Importer URL.
+ * @param string $importer_type The type of the importer (e.g. WordPress).
+ *
+ * @return string
+ */
+function wpcom_import_update_wordpress_url_on_simple( $url, $importer_type ) {
+	// @phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+	if ( 'wordpress' !== $importer_type ) {
+		return $url;
+	}
+
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	return 'https://wordpress.com/setup/site-setup/importerWordpress?ref=wp-admin-importers-list-direct-importer&siteSlug=' . $domain;
+}
+
+/**
+ * Although the hook is prefixed with wp_*, it's actually a custom WPCOM one that's only executed on Simple Sites.
+ */
+add_action( 'wp_import_run_import_url_filter', 'wpcom_import_update_wordpress_url_on_simple', 11, 2 );
+
+/**
+ * Enqueue the wpcom importer entry script.
+ */
+function wpcom_imports_enqueue_script() {
+	wp_enqueue_script(
+		'wpcom-importer-entry',
+		plugins_url( 'wpcom-importer-entry.js', __FILE__ ),
+		array( 'wp-i18n', 'wp-dom-ready' ),
+		'1.0.0',
+		true
+	);
+
+	$domain  = wp_parse_url( home_url(), PHP_URL_HOST );
+	$site_id = get_wpcom_blog_id();
+
+	$url = 'https://wordpress.com/setup/site-migration/site-migration-identify?hide_importer_link=true&siteSlug=' . $domain . '&siteId=' . $site_id;
+
+	wp_add_inline_script(
+		'wpcom-importer-entry',
+		'const wpcomImporterData = ' . wp_json_encode(
+			array(
+				'wpcomImporterUrl' => $url,
+			)
+		) . ';',
+		'before'
+	);
+}
+
+add_action( 'admin_print_styles-import.php', 'wpcom_imports_enqueue_script' );

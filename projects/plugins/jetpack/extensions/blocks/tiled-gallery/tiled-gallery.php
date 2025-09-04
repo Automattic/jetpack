@@ -217,7 +217,7 @@ class Tiled_Gallery {
 	/**
 	 * Render tiled gallery block for email.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 *
 	 * @param string $block_content     The original block HTML content.
 	 * @param array  $parsed_block      The parsed block data including attributes.
@@ -875,7 +875,7 @@ class Tiled_Gallery {
 	 * Get the href for an image based on link settings (used for email rendering).
 	 * Excludes custom links which email clients will replace with the image.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.0
 	 *
 	 * @param array  $image Image data array.
 	 * @param array  $attr Block attributes.

@@ -82,6 +82,55 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( array( 'meta_key' => 'meta_value' ), $unserialized->get_meta() );
 	}
 
+	public function test_Feedback_Field_serialization_v2() {
+		$field        = new Feedback_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ) );
+		$serialized   = $field->serialize();
+		$unserialized = Feedback_Field::from_serialized_v2( $serialized );
+
+		$this->assertInstanceOf( Feedback_Field::class, $unserialized );
+
+		$this->assertEquals( $serialized, $unserialized->serialize() );
+		$this->assertEquals( 'test_key', $unserialized->get_key() );
+		$this->assertEquals( 'test_label', $unserialized->get_label() );
+		$this->assertEquals( 'test_value', $unserialized->get_value() );
+		$this->assertEquals( 'text', $unserialized->get_type() );
+		$this->assertEquals( array( 'meta_key' => 'meta_value' ), $unserialized->get_meta() );
+	}
+
+	public function test_Feedback_Field_serialization_v2_special() {
+		$field        = new Feedback_Field( 'test_key', 'test_label 🙈', 'test_value 🙈', 'text', array( 'meta_key' => 'meta_value' ), 'id' );
+		$serialized   = $field->serialize();
+		$unserialized = Feedback_Field::from_serialized_v2( $serialized );
+
+		$this->assertInstanceOf( Feedback_Field::class, $unserialized );
+
+		$this->assertEquals( $serialized, $unserialized->serialize() );
+		$this->assertEquals( 'test_key', $unserialized->get_key() );
+		$this->assertEquals( 'test_label 🙈', $unserialized->get_label() );
+		$this->assertEquals( 'test_value 🙈', $unserialized->get_value() );
+		$this->assertEquals( 'text', $unserialized->get_type() );
+		$this->assertEquals( 'id', $unserialized->get_form_field_id() );
+		$this->assertEquals( array( 'meta_key' => 'meta_value' ), $unserialized->get_meta() );
+	}
+
+	public function test_Feedback_Field_serialization_v2_special_plain() {
+
+		$serialized   = array(
+			'key'           => 'test_key',
+			'label'         => 'test_label ud83dude48',
+			'value'         => 'test_value ud83dude48',
+			'type'          => 'text',
+			'meta'          => array( 'meta_key' => 'meta_value' ),
+			'form_field_id' => 'id',
+		);
+		$unserialized = Feedback_Field::from_serialized_v2( $serialized );
+
+		$this->assertInstanceOf( Feedback_Field::class, $unserialized );
+
+		$this->assertEquals( 'test_label 🙈', $unserialized->get_label() );
+		$this->assertEquals( 'test_value 🙈', $unserialized->get_value() );
+	}
+
 	/**
 	 * Test that the Feedback_Field can serialize and unserialize correctly.
 	 */
@@ -137,6 +186,41 @@ class Feedback_Field_Test extends BaseTestCase {
 			array( 'files' => array( $file ) ),
 			$field->get_value()
 		);
+	}
+
+	public function test_get_render_value_submit() {
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
+		$this->assertEquals( 'test_value', $field->get_render_value( 'submit' ) );
+
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
+		$this->assertEquals( array( 'value1', 'value2' ), $field->get_render_value( 'submit' ) );
+
+		// EMPTY FILE FIELD
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file', array(), 'id' );
+		$this->assertEquals(
+			array(
+				'field_id' => 'id',
+				'files'    => array(),
+			),
+			$field->get_render_value( 'submit' )
+		);
+		$this->assertFalse( $field->has_file() );
+
+		$file  = array(
+			'file_id' => 123,
+			'name'    => 'file1.jpg',
+			'size'    => 123456789,
+			'type'    => 'image/jpeg',
+		);
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( $file ) ), 'file', array(), 'id' );
+		$this->assertSame(
+			array(
+				'field_id' => 'id',
+				'files'    => array( $file ),
+			),
+			$field->get_render_value( 'submit' )
+		);
+		$this->assertTrue( $field->has_file() );
 	}
 
 	public function test_render_file_field() {
@@ -267,6 +351,31 @@ class Feedback_Field_Test extends BaseTestCase {
 		$field = new Feedback_Field( 'test_key', 'á&#044; ç&#044; ü&#044; ń&#044; ğ', 'test_value' );
 		$this->assertSame( 'á, ç, ü, ń, ğ', $field->get_label() );
 	}
+
+	public function test_normalize_unicode() {
+		$input    = 'hello world \ud83d\ude48';
+		$expected = 'hello world 🙈';
+		$this->assertEquals( $expected, Feedback_Field::normalize_unicode( $input ) );
+	}
+
+	public function test_normalize_unicode_non_escaped() {
+		$input    = 'á, ç, ü, ń, ğ hello world ud83dude48';
+		$expected = 'á, ç, ü, ń, ğ hello world 🙈';
+		$this->assertEquals( $expected, Feedback_Field::normalize_unicode( $input ) );
+	}
+
+	public function test_normalize_unicode_non_escaped_test_string() {
+		$input    = 'test_label ud83dude48';
+		$expected = 'test_label 🙈';
+		$this->assertEquals( $expected, Feedback_Field::normalize_unicode( $input ) );
+	}
+
+	public function test_normalize_unicode_plain() {
+		$input    = 'hello world';
+		$expected = 'hello world';
+		$this->assertEquals( $expected, Feedback_Field::normalize_unicode( $input ) );
+	}
+
 	/**
 	 * Helper function to return a URL for the file.
 	 *

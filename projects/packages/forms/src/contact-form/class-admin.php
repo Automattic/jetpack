@@ -261,9 +261,7 @@ class Admin {
 			return;
 		}
 
-		$user_id = (int) get_current_user_id();
-
-		$has_valid_connection = Google_Drive::has_valid_connection( $user_id );
+		$has_valid_connection = Google_Drive::has_valid_connection();
 
 		if ( $has_valid_connection ) {
 			$button_html = $this->get_gdrive_export_button_markup();
@@ -328,7 +326,7 @@ class Admin {
 			return;
 		}
 
-		$has_valid_connection = Google_Drive::has_valid_connection( $user_id );
+		$has_valid_connection = Google_Drive::has_valid_connection();
 
 		$replacement_html = $has_valid_connection
 			? $this->get_gdrive_export_button_markup()
@@ -889,7 +887,7 @@ class Admin {
 			$actions['untrash'] = sprintf(
 				'<a title="%s" href="%s">%s</a>',
 				esc_attr__( 'Restore this item from the Trash', 'jetpack-forms' ),
-				esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&action=untrash', rawurlencode( $post->ID ) ) ) ), 'untrash-' . $post->post_type . '_' . $post->ID ),
+				esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&action=untrash', rawurlencode( (string) $post->ID ) ) ) ), 'untrash-' . $post->post_type . '_' . $post->ID ),
 				esc_html__( 'Restore', 'jetpack-forms' )
 			);
 			$actions['delete']  = sprintf(
@@ -902,7 +900,7 @@ class Admin {
 			$actions['spam']  = sprintf(
 				'<a title="%s" href="%s">%s</a>',
 				esc_html__( 'Mark this message as spam', 'jetpack-forms' ),
-				esc_url( wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . rawurlencode( $post->ID ) . '&action=spam' ) ), 'spam-feedback_' . $post->ID ),
+				esc_url( wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . rawurlencode( (string) $post->ID ) . '&action=spam' ) ), 'spam-feedback_' . $post->ID ),
 				esc_html__( 'Spam', 'jetpack-forms' )
 			);
 			$actions['trash'] = sprintf(

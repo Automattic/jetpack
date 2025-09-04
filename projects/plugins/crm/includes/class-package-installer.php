@@ -21,10 +21,12 @@ class Package_Installer {
 	*/
 	private $packages = array();
 
-	/*
-	* Package install directory
-	*/
-	private $package_dir = false;
+	/**
+	 * Package install directory
+	 *
+	 * @var string
+	 */
+	private $package_dir;
 
 
 	/*

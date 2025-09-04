@@ -935,9 +935,9 @@ function zeroBSCRM_permsCustomers() {
 /**
  * Checks whether a WP user has permissions to view an object
  * 
- * @param   obj $wp_user        WP user object
- * @param   int $obj_id
- * @param   int $obj_type_id
+ * @param \WP_User $wp_user - WP user object.
+ * @param int      $obj_id - Object ID.
+ * @param int      $obj_type_id - Object type ID.
  * 
  * @return	bool indicating whether the WP user can view the current object
  */
@@ -1055,8 +1055,7 @@ function jpcrm_can_access_portal_via_hash( $obj_type_id ) {
  * 
  * @param   int $obj_type_id
  * 
- * @return  str
- * @return  bool false if no match
+ * @return  string|bool request name or false if no match
  */
 function jpcrm_get_easy_access_security_request_name_by_obj_type( $obj_type_id ) {
 

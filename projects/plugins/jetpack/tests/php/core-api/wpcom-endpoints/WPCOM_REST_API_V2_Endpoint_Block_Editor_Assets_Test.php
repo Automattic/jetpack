@@ -141,7 +141,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertNotEmpty( $jetpack_blocks );
 
 		// Test specific known blocks are present
-		$this->assertContains( 'jetpack/contact-form', $data['allowed_block_types'] );
+		$this->assertContains( 'jetpack/tiled-gallery', $data['allowed_block_types'] );
 		$this->assertContains( 'jetpack/subscriptions', $data['allowed_block_types'] );
 	}
 

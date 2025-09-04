@@ -1,17 +1,25 @@
 import { GlyphDiamond, GlyphStar } from '@visx/glyph';
 import merge from 'deepmerge';
 import { createElement } from 'react';
-import { jetpackTheme, wooTheme, ThemeProvider } from '../../../providers/theme';
+import { jetpackTheme } from '../../../providers/theme/themes';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+} from '../../../stories/chart-decorator';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { temperatureData as sampleData } from '../../../stories/sample-data';
-import { DefaultGlyph } from '../../shared/default-glyph';
+import { themeArgTypes } from '../../../stories/theme-config';
+import { DefaultGlyph } from '../../private/default-glyph';
 import LineChart from '../line-chart';
 import type { Meta } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
-const customStorybookTheme = merge( jetpackTheme, {
+/**
+ * Custom storybook theme with glyphs
+ */
+export const glyphTheme = merge( jetpackTheme, {
 	glyphs: [
 		props => createElement( DefaultGlyph, { ...props, key: props.key } ),
 		props =>
@@ -38,69 +46,17 @@ const customStorybookTheme = merge( jetpackTheme, {
 	},
 } );
 
-const THEME_MAP = {
-	default: undefined,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
-	customStorybook: customStorybookTheme,
-};
-
 export const lineChartMetaArgs: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Line Chart',
 	component: LineChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		( Story, { args }: { args: StoryArgs } ) => {
-			const theme = THEME_MAP[ args.themeName ];
-
-			return (
-				<ThemeProvider theme={ theme }>
-					<div
-						style={ {
-							resize: 'both',
-							overflow: 'auto',
-							padding: '2rem',
-							width: '800px',
-							maxWidth: '1200px',
-							border: '1px dashed #ccc',
-							display: 'inline-block',
-						} }
-					>
-						<Story />
-					</div>
-				</ThemeProvider>
-			);
-		},
-	],
+	decorators: [ chartDecorator ],
 	argTypes: {
-		themeName: {
-			control: { type: 'select' as const },
-			options: [ 'default', 'jetpack', 'woo', 'customStorybook' ],
-			defaultValue: 'default',
-		},
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
+		...legendArgTypes,
+		...themeArgTypes,
+		...sharedChartArgTypes,
 	},
 };
 

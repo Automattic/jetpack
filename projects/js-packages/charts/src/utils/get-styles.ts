@@ -1,7 +1,7 @@
-import { LineStyles } from '@visx/xychart';
-import { CSSProperties } from 'react';
-import { ChartTheme, SeriesData } from '../types';
+import type { ChartTheme, SeriesData } from '../types';
 import type { LegendShape } from '@visx/legend/lib/types';
+import type { LineStyles } from '@visx/xychart';
+import type { CSSProperties } from 'react';
 
 /**
  * Utility function to get consolidated line styles for a series
@@ -44,25 +44,6 @@ export function getSeriesStroke(
 	themeColors: string[]
 ): string {
 	return seriesData.options?.stroke ?? themeColors[ index % themeColors.length ];
-}
-
-/**
- * Combined utility that returns both stroke and line styles
- *
- * @param {SeriesData} seriesData    - The series data containing styling options
- * @param {number}     index         - The index of the series in the data array
- * @param {ChartTheme} providerTheme - The chart theme configuration
- * @return {object} Object containing stroke color and line styles
- */
-export function getSeriesStyles(
-	seriesData: SeriesData,
-	index: number,
-	providerTheme: ChartTheme
-): { stroke: string; lineStyles: LineStyles } {
-	const stroke = getSeriesStroke( seriesData, index, providerTheme.colors );
-	const lineStyles = getSeriesLineStyles( seriesData, index, providerTheme );
-
-	return { stroke, lineStyles };
 }
 
 /**

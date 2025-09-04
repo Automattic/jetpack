@@ -31,7 +31,7 @@ store( NAMESPACE, {
 			const percent = ( ( value - min ) * 100 ) / ( max - min );
 
 			// Magic numbers: 8px base offset, 0.15px per percent
-			return `calc(${ percent }% + (${ 8 - percent * 0.15 }px))`;
+			return `calc(${ percent }% + (${ 16 - percent * 0.32 }px))`;
 		},
 	},
 	actions: {

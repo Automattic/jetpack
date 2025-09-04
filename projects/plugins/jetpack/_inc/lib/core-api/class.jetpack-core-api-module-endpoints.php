@@ -13,6 +13,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  */
@@ -752,7 +756,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					// If we got one of Protect keys, consider it done.
-					if ( preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
+					if ( is_string( $result ) && preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
 						$response[ $option ] = $result;
 						$updated             = true;
 					}

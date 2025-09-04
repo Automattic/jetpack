@@ -1,4 +1,4 @@
-import type { AnnotationStyles } from './components/line-chart/line-chart-annotation';
+import type { AnnotationStyles } from './components/line-chart';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
@@ -75,6 +75,10 @@ export type DataPointPercentage = {
 	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
 	 */
 	color?: string;
+	/**
+	 * Group for the data point, used to match color with groups on other charts
+	 */
+	group?: string;
 };
 
 /**
@@ -85,6 +89,8 @@ export type ChartTheme = {
 	backgroundColor: string;
 	/** Background color for labels */
 	labelBackgroundColor?: string;
+	/** Text color for labels */
+	labelTextColor?: string;
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */
@@ -335,5 +341,3 @@ export interface ToggleEvent extends Event {
 	newState: 'open' | 'closed';
 	oldState: 'open' | 'closed';
 }
-// ConversionFunnelChart types
-export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';

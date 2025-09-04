@@ -1,17 +1,16 @@
-import { jetpackTheme, wooTheme } from '../../../providers/theme';
-import { sharedDecorator } from '../../../stories/decorator-config';
-import { legendArgTypes } from '../../../stories/legend-config';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	legendArgTypes,
+	themeArgTypes,
+} from '../../../stories';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
 import { PieChart } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof PieChart > & {
-	containerWidth?: string;
-	containerHeight?: string;
-	resize?: string;
-	theme?: string | object;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
 
 const data = [
 	{
@@ -34,8 +33,10 @@ const meta: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: sharedDecorator,
+	decorators: [ chartDecorator ],
 	argTypes: {
+		...sharedChartArgTypes,
+		...themeArgTypes,
 		...legendArgTypes,
 		size: {
 			control: {
@@ -70,37 +71,6 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
-		theme: {
-			control: { type: 'select' as const },
-			options: [ 'default', 'jetpack', 'woo' ],
-			mapping: {
-				default: undefined,
-				jetpack: jetpackTheme,
-				woo: wooTheme,
-			},
-			defaultValue: 'default',
-		},
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -119,7 +89,6 @@ export const Default: Story = {
 		cornerScale: 0.03,
 		withTooltips: true,
 		data,
-		theme: 'default',
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
@@ -137,13 +106,6 @@ export const WithoutCenter: Story = {
 	args: {
 		...Default.args,
 		children: undefined,
-	},
-};
-
-export const CustomTheme: Story = {
-	args: {
-		...Default.args,
-		theme: wooTheme,
 	},
 };
 

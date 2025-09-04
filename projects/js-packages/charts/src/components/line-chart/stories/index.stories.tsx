@@ -1,24 +1,20 @@
-import { useGlobalChartTheme } from '../../../hooks';
-import { legendArgTypes } from '../../../stories/legend-config';
 import {
+	ChartStoryArgs,
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
-} from '../../../stories/sample-data';
+} from '../../../stories';
 import LineChart from '../line-chart';
-import { lineChartStoryArgs, lineChartMetaArgs } from './config';
+import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
-		...legendArgTypes,
 	},
 };
 
@@ -381,42 +377,34 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 	},
 };
 
-export const Comparison: StoryObj< typeof LineChart > = {
-	args: {
-		...lineChartStoryArgs,
-		showLegend: true,
-		smoothing: false,
-		data: [
-			{
-				...sampleData[ 0 ],
-				label: 'This Year',
-				options: {},
+export const Comparison: StoryObj< typeof LineChart > = Template.bind( {} );
+Comparison.args = {
+	showLegend: true,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'New York',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'New York last year',
+			group: 'new-york',
+			options: {
+				type: 'comparison' as const,
 			},
-			{
-				...sampleData[ 2 ],
-				label: 'Last Year',
-				options: {
-					type: 'comparison' as const,
-				},
+		},
+		{
+			...sampleData[ 2 ],
+			label: 'Tokyo',
+		},
+		{
+			...sampleData[ 3 ],
+			label: 'Tokyo last year',
+			group: 'tokyo',
+			options: {
+				type: 'comparison' as const,
 			},
-		],
-	},
-	render: args => {
-		const ComparisonChart = () => {
-			const theme = useGlobalChartTheme();
-			const primaryColor = theme.colors[ 2 ];
-
-			const data = args.data.map( series => ( {
-				...series,
-				options: {
-					...series.options,
-					stroke: primaryColor,
-				},
-			} ) );
-
-			return <LineChart { ...args } data={ data } />;
-		};
-
-		return <ComparisonChart />;
-	},
+		},
+	],
 };

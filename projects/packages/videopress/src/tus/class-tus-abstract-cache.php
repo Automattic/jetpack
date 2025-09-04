@@ -89,7 +89,7 @@ abstract class Tus_Abstract_Cache {
 	 *
 	 * @param string $keys_prefix The key prefix.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
 	abstract public function cache_keys( $keys_prefix );
 
@@ -173,12 +173,15 @@ abstract class Tus_Abstract_Cache {
 	/**
 	 * Get cache keys.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
 	public function keys() {
 		// TODO: This needs more thought.
 		$keys_entry = $this->cache_keys( 'videopress_cache_keys_blog_' . $this->blog_id );
-		return json_decode( $keys_entry );
+		if ( is_string( $keys_entry ) ) {
+			return json_decode( $keys_entry );
+		}
+		return $keys_entry;
 	}
 
 	/**

@@ -2,28 +2,29 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import { useChartMouseHandler, useGlobalChartTheme } from '../../hooks';
+import { useChartMouseHandler, useElementHeight } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
 } from '../../providers/chart-context';
 import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { ChartSVG, ChartHTML, useChartChildren } from '../shared/chart-composition';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
+import { attachSubComponents } from '../../utils';
+import { getStringWidth } from '../../visx/text';
+import { Legend, useChartLegendItems } from '../legend';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
-import type { ChartComponentWithComposition } from '../shared/chart-composition';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
-interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
+export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
@@ -52,6 +53,11 @@ interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * A value between 0 and 1, where 0 means no corner radius.
 	 */
 	cornerScale?: number;
+
+	/**
+	 * Whether to show labels on pie segments. Defaults to true.
+	 */
+	showLabels?: boolean;
 
 	/**
 	 * Use the children prop to render additional elements on the chart.
@@ -115,9 +121,10 @@ const PieChartInternal = ( {
 	padding = 20,
 	gapScale = 0,
 	cornerScale = 0,
+	showLabels = true,
 	children = null,
 }: PieChartProps ) => {
-	const providerTheme = useGlobalChartTheme();
+	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -129,7 +136,7 @@ const PieChartInternal = ( {
 	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, legendOptions );
+	const legendItems = useChartLegendItems( data, legendOptions );
 
 	const { isValid, message } = validateData( data );
 
@@ -154,6 +161,8 @@ const PieChartInternal = ( {
 		isDataValid: isValid,
 		metadata: chartMetadata,
 	} );
+
+	const { resolveGroupColor } = useGlobalChartsContext();
 
 	if ( ! isValid ) {
 		return (
@@ -192,8 +201,8 @@ const PieChartInternal = ( {
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( d: DataPointPercentage & { index: number } ) =>
-			d?.color || providerTheme.colors[ d.index ],
+		fill: ( { group, index, color: overrideColor }: DataPointPercentage & { index: number } ) =>
+			resolveGroupColor( { group, index, overrideColor } ),
 	};
 
 	return (
@@ -243,21 +252,42 @@ const PieChartInternal = ( {
 										pathProps.onMouseLeave = onMouseLeave;
 									}
 
+									// Estimate text width more accurately for background sizing
+									const fontSize = 12;
+									const estimatedTextWidth = getStringWidth( arc.data.label, { fontSize } );
+									const labelPadding = 6;
+									const backgroundWidth = estimatedTextWidth + labelPadding * 2;
+									const backgroundHeight = fontSize + labelPadding * 2;
+
 									return (
 										<g key={ `arc-${ index }` }>
 											<path { ...pathProps } />
-											{ hasSpaceForLabel && (
-												<text
-													x={ centroidX }
-													y={ centroidY }
-													dy=".33em"
-													fill={ providerTheme.labelBackgroundColor || '#333' }
-													fontSize={ 12 }
-													textAnchor="middle"
-													pointerEvents="none"
-												>
-													{ arc.data.label }
-												</text>
+											{ showLabels && hasSpaceForLabel && (
+												<g>
+													{ providerTheme.labelBackgroundColor && (
+														<rect
+															x={ centroidX - backgroundWidth / 2 }
+															y={ centroidY - backgroundHeight / 2 }
+															width={ backgroundWidth }
+															height={ backgroundHeight }
+															fill={ providerTheme.labelBackgroundColor }
+															rx={ 4 }
+															ry={ 4 }
+															pointerEvents="none"
+														/>
+													) }
+													<text
+														x={ centroidX }
+														y={ centroidY }
+														dy=".33em"
+														fill={ providerTheme.labelTextColor || '#333' }
+														fontSize={ fontSize }
+														textAnchor="middle"
+														pointerEvents="none"
+													>
+														{ arc.data.label }
+													</text>
+												</g>
 											) }
 										</g>
 									);
@@ -272,7 +302,6 @@ const PieChartInternal = ( {
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }
