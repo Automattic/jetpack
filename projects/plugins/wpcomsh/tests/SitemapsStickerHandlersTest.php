@@ -1,14 +1,11 @@
 <?php
 /**
- * Test class for sitemaps sticker handlers
+ * Test class for WPCOMSH_Sitemap_Sticker_Handlers
  *
  * @package wpcomsh
  */
 
 use PHPUnit\Framework\Attributes\Group;
-
-// Load mock sticker functions
-require_once __DIR__ . '/lib/mocks/sticker-functions.php';
 
 /**
  * Class SitemapsStickerHandlersTest.
@@ -22,12 +19,11 @@ class SitemapsStickerHandlersTest extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// Remove all existing filters to start fresh
-		remove_all_filters( 'jetpack_sitemap_use_xmlwriter' );
-		remove_all_filters( 'jetpack_sitemap_suspend_cache_addition' );
+		// Load mock functions
+		require_once __DIR__ . '/lib/mocks/sticker-functions.php';
 
-		// Load the sitemaps sticker handlers file to register the filters
-		$handlers_file = dirname( __DIR__ ) . '/sitemaps/class-sitemaps-sticker-handlers.php';
+		// Load the class
+		$handlers_file = dirname( __DIR__ ) . '/sitemaps/class-wpcomsh-sitemap-sticker-handlers.php';
 		if ( file_exists( $handlers_file ) ) {
 			require_once $handlers_file;
 		}
@@ -37,10 +33,7 @@ class SitemapsStickerHandlersTest extends WP_UnitTestCase {
 	 * Clean up after each test
 	 */
 	public function tear_down() {
-		// Remove any filters we may have added
-		remove_all_filters( 'jetpack_options' );
-
-		// Reset global test variables
+		// Clean up global variables
 		unset( $GLOBALS['test_has_blog_sticker_return'] );
 		unset( $GLOBALS['test_has_blog_sticker_args'] );
 
@@ -48,12 +41,12 @@ class SitemapsStickerHandlersTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests jetpack_sitemap_use_xmlwriter filter when has_blog_sticker function exists and returns true.
+	 * Tests handle_xmlwriter_usage when has_blog_sticker returns true.
 	 *
 	 * @group jetpack-sitemap
 	 */
 	#[Group( 'jetpack-sitemap' )]
-	public function test_jetpack_sitemap_use_xmlwriter_has_blog_sticker_returns_true() {
+	public function test_handle_xmlwriter_usage_has_blog_sticker_returns_true() {
 		$blog_id = 12345;
 
 		// Mock Jetpack_Options::get_option to return the blog ID
@@ -69,34 +62,32 @@ class SitemapsStickerHandlersTest extends WP_UnitTestCase {
 			2
 		);
 
-		// Set up mock has_blog_sticker to return true for our test sticker
+		// Set up mock has_blog_sticker to return true
 		$GLOBALS['test_has_blog_sticker_args'] = array(
 			'sticker' => 'jetpack-sitemaps-use-xmlwriter',
 			'blog_id' => $blog_id,
 		);
 
-		// Test with false input - should return true regardless
-		$result = apply_filters( 'jetpack_sitemap_use_xmlwriter', false );
+		// Test the method directly - no duplication!
+		$result = WPCOMSH_Sitemap_Sticker_Handlers::handle_xmlwriter_usage( false );
 		$this->assertTrue( $result );
 
-		// Test with true input - should still return true
-		$result = apply_filters( 'jetpack_sitemap_use_xmlwriter', true );
+		$result = WPCOMSH_Sitemap_Sticker_Handlers::handle_xmlwriter_usage( true );
 		$this->assertTrue( $result );
 
-		// Test with null input - should return true
-		$result = apply_filters( 'jetpack_sitemap_use_xmlwriter', null );
+		$result = WPCOMSH_Sitemap_Sticker_Handlers::handle_xmlwriter_usage( null );
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Tests jetpack_sitemap_use_xmlwriter filter when has_blog_sticker exists but returns false.
+	 * Tests handle_xmlwriter_usage when has_blog_sticker exists but returns false.
 	 * Since wpcomsh_is_site_sticker_active is a real function that depends on Atomic_Persistent_Data
 	 * (which doesn't exist in test environment), it will return false, so the original value is preserved.
 	 *
 	 * @group jetpack-sitemap
 	 */
 	#[Group( 'jetpack-sitemap' )]
-	public function test_jetpack_sitemap_use_xmlwriter_has_blog_sticker_false_wpcomsh_real_function() {
+	public function test_handle_xmlwriter_usage_has_blog_sticker_false() {
 		$blog_id = 12345;
 
 		// Mock Jetpack_Options::get_option to return the blog ID
@@ -115,15 +106,11 @@ class SitemapsStickerHandlersTest extends WP_UnitTestCase {
 		// Set up mock has_blog_sticker to return false
 		$GLOBALS['test_has_blog_sticker_return'] = false;
 
-		// wpcomsh_is_site_sticker_active will return false since \Atomic_Persistent_Data doesn't exist
-		// So the filter should return the original value
-
-		// Test with false input - should return false (original value)
-		$result = apply_filters( 'jetpack_sitemap_use_xmlwriter', false );
+		// Test the method directly - original value preserved
+		$result = WPCOMSH_Sitemap_Sticker_Handlers::handle_xmlwriter_usage( false );
 		$this->assertFalse( $result );
 
-		// Test with true input - should return true (original value)
-		$result = apply_filters( 'jetpack_sitemap_use_xmlwriter', true );
+		$result = WPCOMSH_Sitemap_Sticker_Handlers::handle_xmlwriter_usage( true );
 		$this->assertTrue( $result );
 	}
 

@@ -19,7 +19,11 @@ if ( ! function_exists( 'has_blog_sticker' ) ) {
 		global $test_has_blog_sticker_args;
 
 		if ( isset( $test_has_blog_sticker_args ) && is_array( $test_has_blog_sticker_args ) ) {
-			return $test_has_blog_sticker_args['sticker'] === $sticker && $test_has_blog_sticker_args['blog_id'] === $blog_id;
+			$sticker_match = $test_has_blog_sticker_args['sticker'] === $sticker;
+			// Convert both values to string for comparison to handle type differences
+			$blog_id_match = (string) $test_has_blog_sticker_args['blog_id'] === (string) $blog_id;
+
+			return $sticker_match && $blog_id_match;
 		}
 
 		return isset( $test_has_blog_sticker_return ) ? $test_has_blog_sticker_return : false;
