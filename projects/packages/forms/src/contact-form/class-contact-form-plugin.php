@@ -3701,7 +3701,11 @@ class Contact_Form_Plugin {
 			 * Put all the fields in `$current_row` array.
 			 */
 			foreach ( $fields as $single_field_name ) {
-				$current_row[] = $export_data[ $single_field_name ][ $i ];
+				if ( isset( $export_data[ $single_field_name ][ $i ] ) ) {
+					$current_row[] = $export_data[ $single_field_name ][ $i ];
+				} else {
+					$current_row[] = '';
+				}
 			}
 
 			$sheet_data[] = $current_row;

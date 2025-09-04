@@ -17,9 +17,9 @@ use Jetpack_Tracks_Client;
 /**
  * Class Admin
  *
- * @deprecated $$next-version$$
- *
  * Singleton for Grunion admin area support.
+ *
+ * This class will be removed in a future version.
  */
 class Admin {
 	/**
@@ -39,9 +39,12 @@ class Admin {
 	/**
 	 * Instantiates this singleton class
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return Admin The Admin class instance.
 	 */
 	public static function init() {
+		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
 		static $instance = false;
 
 		if ( ! $instance ) {
