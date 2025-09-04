@@ -37,6 +37,52 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests default value of 'jetpack_sitemap_location' filter.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 4.7.0
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_sitemap_manager_filter_sitemap_location_sets_option_default() {
+		// Start with an empty option.
+		delete_option( 'jetpack_sitemap_location' );
+
+		// Check default value.
+		$this->manager->callback_action_filter_sitemap_location();
+		$location = get_option( 'jetpack_sitemap_location' );
+		$this->assertSame( '', $location );
+
+		// Clean up.
+		delete_option( 'jetpack_sitemap_location' );
+	}
+
+	/**
+	 * Tests value of 'jetpack_sitemap_location' when a filter is added.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 4.7.0
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_sitemap_manager_filter_sitemap_location_sets_option_add() {
+		// Start with an empty option.
+		delete_option( 'jetpack_sitemap_location' );
+
+		// Set the location.
+		function add_location( $string ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction,Squiz.Commenting.FunctionComment.WrongStyle
+			$string .= '/blah';
+			return $string;
+		}
+		add_filter( 'jetpack_sitemap_location', 'add_location' );
+
+		$this->manager->callback_action_filter_sitemap_location();
+		$location = get_option( 'jetpack_sitemap_location' );
+		$this->assertEquals( '/blah', $location );
+
+		// Clean up.
+		delete_option( 'jetpack_sitemap_location' );
+	}
+
+	/**
 	 * Tests that the sitemap cron schedule is added correctly.
 	 *
 	 * @group jetpack-sitemap
