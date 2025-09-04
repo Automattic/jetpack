@@ -24,5 +24,6 @@ export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 // Types
 export type * from './types';
 export type * from './visx/types';
+export type { PieChartProps } from './components/pie-chart';
 
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
