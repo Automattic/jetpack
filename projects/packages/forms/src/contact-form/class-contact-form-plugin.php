@@ -1667,12 +1667,12 @@ class Contact_Form_Plugin {
 		$submission_result = self::process_form_submission();
 
 		if ( ! $submission_result ) {
-			header( 'HTTP/1.1 500 Server Error', 500, true );
+			header( 'HTTP/1.1 500 Server Error', true, 500 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
 		} elseif ( is_wp_error( $submission_result ) ) {
-			header( 'HTTP/1.1 400 Bad Request', 403, true );
+			header( 'HTTP/1.1 400 Bad Request', true, 403 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';

@@ -862,7 +862,7 @@ class VideoPress_Player {
 
 		$embed = array(
 			'id'     => $this->video_id,
-			'src'    => esc_url_raw( $this->video->players->swf->url . '&' . http_build_query( $this->get_flash_variables(), null, '&' ), array( 'http', 'https' ) ),
+			'src'    => esc_url_raw( $this->video->players->swf->url . '&' . http_build_query( $this->get_flash_variables(), '', '&' ), array( 'http', 'https' ) ),
 			'type'   => 'application/x-shockwave-flash',
 			'width'  => $this->video->calculated_width,
 			'height' => $this->video->calculated_height,
@@ -898,7 +898,7 @@ class VideoPress_Player {
 			$thumbnail_html .= esc_attr( $this->video->title );
 		}
 		$thumbnail_html .= '" src="' . esc_url( $this->video->poster_frame_uri, array( 'http', 'https' ) ) . '" width="' . $this->video->calculated_width . '" height="' . $this->video->calculated_height . '" />';
-		$flash_vars      = esc_attr( http_build_query( $this->get_flash_variables(), null, '&' ) );
+		$flash_vars      = esc_attr( http_build_query( $this->get_flash_variables(), '', '&' ) );
 		$flash_params    = '';
 		foreach ( $this->get_flash_parameters() as $attribute => $value ) {
 			$flash_params .= '<param name="' . esc_attr( $attribute ) . '" value="' . esc_attr( $value ) . '" />';

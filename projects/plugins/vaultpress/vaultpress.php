@@ -2547,9 +2547,9 @@ JS;
 			if ( !isset( $_GET['re'] ) )
 				die( $response );
 			else if ( '1' === $_GET['re'] )
-				die( base64_encode( $response ) );
+				die( base64_encode( (string) $response ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 			else if ( '2' === $_GET['re'] )
-				die( str_rot13( $response ) );
+				die( str_rot13( (string) $response ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_str_rot13
 			else
 				die( $response );
 		}
