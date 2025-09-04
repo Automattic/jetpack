@@ -1,6 +1,6 @@
 import { store, getContext } from '@wordpress/interactivity';
 import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
-import { countries } from '../../blocks/field-phone/country-list';
+import { countries } from '../../blocks/field-telephone/country-list';
 import { isEmptyValue } from '../../contact-form/js/validate-helper';
 const NAMESPACE = 'jetpack/form';
 
@@ -11,6 +11,7 @@ const { actions } = store( NAMESPACE, {
 		validators: {
 			phone: ( value, isRequired ) => {
 				const context = getContext();
+
 				if ( isEmptyValue( context.phoneNumber ) && isRequired ) {
 					// this is not triggering any error, but then no other input does either
 					return 'is_required';
@@ -65,19 +66,22 @@ const { actions } = store( NAMESPACE, {
 				context.phoneCountryCode = asYouTypes[ fieldId ].getCountry();
 				context.phoneNumber = asYouTypes[ fieldId ].getNationalNumber();
 				asYouTypes[ fieldId ] = new AsYouType( context.phoneCountryCode );
+				context.countryPrefix = countries.find(
+					item => item.code === context.phoneCountryCode
+				)?.value;
 			} else {
 				context.phoneNumber = value;
 			}
-			context.countryPrefix = countries.find(
-				item => item.code === context.phoneCountryCode
-			)?.value;
 			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
 			actions.updateField( fieldId, value );
 		},
 		onPhoneCountryChange( event ) {
 			const context = getContext();
-			context.countryPrefix = countries.find( item => item.code === event?.target?.value )?.value;
 			context.phoneCountryCode = event?.target?.value || context.defaultCountry;
+			context.countryPrefix = countries.find(
+				item => item.code === context.phoneCountryCode
+			)?.value;
+			asYouTypes[ context.fieldId ] = new AsYouType( context.phoneCountryCode );
 			context.fullPhoneNumber = context.countryPrefix + ' ' + context.phoneNumber;
 		},
 	},
