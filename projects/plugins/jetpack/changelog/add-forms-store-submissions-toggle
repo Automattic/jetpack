@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: added new block toggle to skip saving form submisions on wp-admin
