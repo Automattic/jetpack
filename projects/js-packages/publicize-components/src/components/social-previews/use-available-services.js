@@ -16,7 +16,7 @@ import Twitter from './twitter';
  *
  * @return {Array<{title: string, icon: import('react').Component, name: string, preview: import('react').Component}>} The list of available services.
  */
-export function useAvailableServices() {
+export function useAvailableSerivces() {
 	return useMemo(
 		() =>
 			[
