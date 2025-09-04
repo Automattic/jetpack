@@ -46,6 +46,9 @@
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
 	"types": "./dist/types/index.d.ts",
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build:prod",
 		"build:prod": "tsc --build ./tsconfig.json ./tsconfig.cjs.json && node ./bin/copy-assets.js",
