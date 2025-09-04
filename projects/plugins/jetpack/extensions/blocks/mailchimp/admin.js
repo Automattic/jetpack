@@ -8,11 +8,13 @@ import './admin.scss';
 const MailchimpSettings = ( { isConnected } ) => {
 	const [ audiences, setAudiences ] = useState( [ { id: 'none', name: __( 'None', 'jetpack' ) } ] );
 	const [ selectedAudience, setSelectedAudience ] = useState( 'none' );
+	const [ isLoading, setIsLoading ] = useState( false );
 
 	useEffect( () => {
 		if ( ! isConnected ) {
 			return;
 		}
+		setIsLoading( true );
 		apiFetch( { path: '/wpcom/v2/mailchimp/settings', method: 'GET' } ).then( response => {
 			if ( ! response.audiences ) {
 				return;
@@ -25,6 +27,8 @@ const MailchimpSettings = ( { isConnected } ) => {
 			) {
 				setSelectedAudience( response.follower_list_id );
 			}
+
+			setIsLoading( false );
 		} );
 		// Don't include audiences in the dependency array to avoid loop.
 	}, [ isConnected ] );
@@ -42,6 +46,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 					name="jetpack-mailchimp-audience"
 					onChange={ e => setSelectedAudience( e.target.value ) }
 					value={ selectedAudience }
+					disabled={ isLoading }
 				>
 					{ audiences.map( audience => (
 						<option key={ audience.id } value={ audience.id }>
