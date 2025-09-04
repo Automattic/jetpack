@@ -230,7 +230,6 @@ class Contact_Form_Plugin {
 			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
 			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
-			add_action( 'wp_ajax_grunion_gdrive_connection', array( $this, 'test_gdrive_connection' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
@@ -3728,42 +3727,6 @@ class Contact_Form_Plugin {
 			array(
 				'success' => ! is_wp_error( $sheet ),
 				'data'    => $sheet,
-			)
-		);
-	}
-
-	/**
-	 * Ajax handler. Sends a payload with connection status and html to replace
-	 * the Connect button with the Export button using get_gdrive_export_button
-	 */
-	public function test_gdrive_connection() {
-		$post_data = wp_unslash( $_POST );
-		$user_id   = (int) get_current_user_id();
-
-		if (
-			! $user_id ||
-			! current_user_can( 'export' ) ||
-			empty( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ) ) ||
-			! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
-		) {
-			wp_send_json_error(
-				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
-				403
-			);
-
-			return;
-		}
-
-		$has_valid_connection = Google_Drive::has_valid_connection();
-
-		$replacement_html = $has_valid_connection
-			? $this->get_gdrive_export_button_markup()
-			: '';
-
-		wp_send_json(
-			array(
-				'connection' => $has_valid_connection,
-				'html'       => $replacement_html,
 			)
 		);
 	}
