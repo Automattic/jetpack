@@ -121,6 +121,13 @@ class Feedback {
 	protected $source;
 
 	/**
+	 * The Contact_Form object that this feedback was submitted from.
+	 *
+	 * @var Contact_Form|null
+	 */
+	protected $form;
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -204,6 +211,7 @@ class Feedback {
 	 */
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
+		$this->form   = $form;
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
@@ -804,6 +812,14 @@ class Feedback {
 	 * @return int
 	 */
 	public function save() {
+		// Check if responses should be saved to the database
+		if ( $this->form && method_exists( $this->form, 'get_attribute' ) ) {
+			$save_responses = $this->form->get_attribute( 'saveResponses' );
+			if ( '' === $save_responses ) {
+				return 0; // Don't save the response
+			}
+		}
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => self::POST_TYPE,

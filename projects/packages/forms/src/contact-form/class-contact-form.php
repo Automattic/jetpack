@@ -186,6 +186,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'salesforceData'         => null,
 			'hiddenFields'           => null,
 			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
+			'saveResponses'          => true,
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -1885,15 +1886,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
-		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
-
-		if ( 'publish' === $feedback_status ) {
-			// Increase count of unread feedback.
-			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
-			update_option( 'feedback_unread_count', $unread );
-		}
-
-		if ( defined( 'AKISMET_VERSION' ) ) {
+		if ( defined( 'AKISMET_VERSION' ) && $post_id ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		}
 
@@ -1957,15 +1950,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$status = $is_spam ? 'spam' : 'inbox';
 
 		// Build the dashboard URL with the status and the feedback's post id
-		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
+		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true );
+		if ( $post_id ) {
+			$dashboard_url .= '&r=' . $post_id;
+		}
 
 		$mark_as_spam_url = $dashboard_url . '&mark_as_spam';
 
-		$footer_mark_as_spam_url = sprintf(
+		$footer_mark_as_spam_url = $post_id ? sprintf(
 			'<a href="%1$s">%2$s</a>',
 			esc_url( $mark_as_spam_url ),
 			__( 'Mark as spam', 'jetpack-forms' )
-		);
+		) : '';
 
 		$footer = implode(
 			'',
@@ -1980,14 +1976,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 */
 			apply_filters(
 				'jetpack_forms_response_email_footer',
-				array(
-					'<span style="font-size: 12px">',
-					$footer_time . '<br />',
-					$footer_ip ? $footer_ip . '<br />' : null,
-					$footer_url . '<br /><br />',
-					$footer_mark_as_spam_url . '<br />',
-					$sent_by_text,
-					'</span>',
+				array_filter(
+					array(
+						'<span style="font-size: 12px">',
+						$footer_time . '<br />',
+						$footer_ip ? $footer_ip . '<br />' : null,
+						$footer_url . '<br /><br />',
+						$footer_mark_as_spam_url ? $footer_mark_as_spam_url . '<br />' : null,
+						$sent_by_text,
+						'</span>',
+					)
 				)
 			)
 		);

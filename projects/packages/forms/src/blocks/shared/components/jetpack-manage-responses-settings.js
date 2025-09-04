@@ -1,11 +1,23 @@
-import { Button } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
 import InspectorHint from './inspector-hint';
 
-const JetpackManageResponsesSettings = () => {
+const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
+	const { saveResponses = true } = attributes;
+
 	return (
 		<>
+			<ToggleControl
+				label={ __( 'Save responses', 'jetpack-forms' ) }
+				help={ __(
+					'Store form submissions in your WordPress admin for review and export.',
+					'jetpack-forms'
+				) }
+				checked={ saveResponses }
+				onChange={ value => setAttributes( { saveResponses: value } ) }
+				__nextHasNoMarginBottom={ true }
+			/>
 			<InspectorHint>
 				{ __( 'Manage and export your form responses in WPAdmin:', 'jetpack-forms' ) }
 			</InspectorHint>

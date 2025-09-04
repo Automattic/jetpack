@@ -686,7 +686,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						className="jetpack-contact-form__manage-responses-panel"
 						initialOpen={ false }
 					>
-						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
+						<JetpackManageResponsesSettings
+							attributes={ attributes }
+							setAttributes={ setAttributes }
+						/>
 					</PanelBody>
 					<PanelBody title={ __( 'Action after submit', 'jetpack-forms' ) } initialOpen={ false }>
 						<InspectorHint>
