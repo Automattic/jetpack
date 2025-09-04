@@ -17,54 +17,54 @@
 		"*.css",
 		"*.scss"
 	],
+	"type": "module",
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
-			"import": "./dist/esm/index.js",
-			"require": "./dist/cjs/index.js",
-			"types": {
-				"import": "./dist/esm/index.d.ts",
-				"require": "./dist/cjs/index.d.ts"
-			}
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
 		},
-		"./*": {
-			"jetpack:src": "./src/components/*",
-			"import": "./dist/esm/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.js",
-			"types": {
-				"import": "./dist/esm/components/*/index.d.ts",
-				"require": "./dist/cjs/components/*/index.d.ts"
-			}
+		"./components": {
+			"jetpack:src": "./src/components/index.ts",
+			"import": "./dist/components/index.js",
+			"require": "./dist/components/index.cjs"
 		},
-		"./providers/*": {
-			"jetpack:src": "./src/providers/*",
-			"import": "./dist/esm/providers/*/index.js",
-			"require": "./dist/cjs/providers/*/index.js",
-			"types": {
-				"import": "./dist/esm/providers/*/index.d.ts",
-				"require": "./dist/cjs/providers/*/index.d.ts"
-			}
+		"./hooks": {
+			"jetpack:src": "./src/hooks/index.ts",
+			"import": "./dist/hooks/index.js",
+			"require": "./dist/hooks/index.cjs"
 		},
-		"./visx/*": {
-			"jetpack:src": "./src/visx/*",
-			"import": "./dist/esm/visx/*/index.js",
-			"require": "./dist/cjs/visx/*/index.js",
-			"types": {
-				"import": "./dist/esm/visx/*/index.d.ts",
-				"require": "./dist/cjs/visx/*/index.d.ts"
-			}
+		"./providers": {
+			"jetpack:src": "./src/providers/index.ts",
+			"import": "./dist/providers/index.js",
+			"require": "./dist/providers/index.cjs"
+		},
+		"./visx": {
+			"jetpack:src": "./src/visx/index.ts",
+			"import": "./dist/visx/index.js",
+			"require": "./dist/visx/index.cjs"
 		}
 	},
-	"main": "./dist/cjs/index.js",
-	"module": "./dist/esm/index.js",
-	"types": "./dist/cjs/index.d.ts",
-	"files": [
-		"dist"
-	],
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"typesVersions": {
+		"*": {
+			"components": [
+				"./dist/components/index.d.cts"
+			],
+			"hooks": [
+				"./dist/hooks/index.d.cts"
+			],
+			"providers": [
+				"./dist/providers/index.d.cts"
+			],
+			"visx": [
+				"./dist/visx/index.d.cts"
+			]
+		}
+	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build:prod",
-		"build:prod": "tsc --build ./tsconfig.json ./tsconfig.cjs.json && node ./bin/copy-assets.js",
-		"clean": "tsc --build ./tsconfig.json ./tsconfig.cjs.json --clean && rm -rf dist",
+		"build": "tsup",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
@@ -134,6 +134,7 @@
 		"sass-embedded": "1.87.0",
 		"sass-loader": "^16.0.0",
 		"storybook": "9.0.15",
+		"tsup": "8.5.0",
 		"typescript": "5.8.3",
 		"webpack": "^5.88.0",
 		"webpack-cli": "^6.0.0"
