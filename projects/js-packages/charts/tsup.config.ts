@@ -1,23 +1,11 @@
 import { defineConfig } from 'tsup';
+import pkg from './package.json';
+
+// Extract entries from package exports
+const entry = Object.values( pkg.exports ).map( ( { 'jetpack:src': src } ) => src );
 
 export default defineConfig( {
-	entry: [
-		'src/index.ts',
-		'src/components/bar-chart/index.ts',
-		'src/components/line-chart/index.ts',
-		'src/components/pie-chart/index.ts',
-		'src/components/pie-semi-circle-chart/index.ts',
-		'src/components/bar-list-chart/index.ts',
-		'src/components/leaderboard-chart/index.ts',
-		'src/components/conversion-funnel-chart/index.ts',
-		'src/components/tooltip/index.ts',
-		'src/components/legend/index.ts',
-		'src/hooks/index.ts',
-		'src/providers/index.ts',
-		'src/visx/text/index.ts',
-		'src/visx/legend/index.ts',
-		'src/visx/group/index.ts',
-	],
+	entry,
 	clean: true,
 	splitting: true,
 	sourcemap: true,
