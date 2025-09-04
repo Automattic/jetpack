@@ -10,12 +10,16 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Jetpack_AI_Helper;
 use Jetpack_Options;
 use WP_Block;
 use WP_Block_Patterns_Registry;
@@ -3396,50 +3400,34 @@ class Contact_Form_Plugin {
 			$data = array();
 		}
 
-		$forms = isset( $data['forms'] ) && is_array( $data['forms'] ) ? $data['forms'] : array();
+		$forms                 = isset( $data['forms'] ) && is_array( $data['forms'] ) ? $data['forms'] : array();
+		$dashboard_view_switch = new Dashboard_View_Switch();
+		$ai_feature            = Jetpack_AI_Helper::get_ai_assistance_feature();
+		$has_ai                = ! is_wp_error( $ai_feature ) ? $ai_feature['has-feature'] : false;
 
-		// Capabilities relevant to Forms UIs.
-		$forms['capabilities'] = array(
-			'install_plugins'  => current_user_can( 'install_plugins' ),
-			'activate_plugins' => current_user_can( 'activate_plugins' ),
-		);
+		// From jpFormsBlocks in class-contact-form-block.php.
+		$forms['formsResponsesUrl'] = $dashboard_view_switch->get_forms_admin_url();
+		$forms['preferredView']     = $dashboard_view_switch->get_preferred_view();
+		$forms['isMailPoetEnabled'] = Jetpack_Forms::is_mailpoet_enabled();
+		// From config in class-dashboard.php.
+		$forms['blogId']                  = get_current_blog_id();
+		$forms['gdriveConnectSupportURL'] = esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) );
+		$forms['pluginAssetsURL']         = Jetpack_Forms::assets_url();
+		$forms['siteURL']                 = ( new Status() )->get_site_suffix();
+		$forms['hasFeedback']             = ( new Forms_Dashboard() )->has_feedback();
+		$forms['hasAI']                   = $has_ai;
+		$forms['enableIntegrationsTab']   = apply_filters( 'jetpack_forms_enable_integrations_tab', true );
+		$forms['renderMigrationPage']     = $dashboard_view_switch->is_jetpack_forms_announcing_new_menu();
+		$forms['dashboardURL']            = add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $dashboard_view_switch->get_forms_admin_url() );
+		// New data.
+		$forms['canInstallPlugins']  = current_user_can( 'install_plugins' );
+		$forms['canActivatePlugins'] = current_user_can( 'activate_plugins' );
 
-		// Editor defaults formerly passed via window.jpFormsBlocks.defaults.
-		$dashboard_view_switch = new \Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch();
-		$forms['defaults']     = array(
-			'formsResponsesUrl'    => $dashboard_view_switch->get_forms_admin_url(),
-			'akismetActiveWithKey' => \Jetpack::is_akismet_active(),
-			'akismetUrl'           => admin_url( 'admin.php?page=akismet-key-config' ),
-			'assetsUrl'            => \Automattic\Jetpack\Forms\Jetpack_Forms::assets_url(),
-			'preferredView'        => $dashboard_view_switch->get_preferred_view(),
-			'isMailPoetEnabled'    => \Automattic\Jetpack\Forms\Jetpack_Forms::is_mailpoet_enabled(),
-		);
-
-		// Dashboard-specific data formerly passed via the dashboard config and inline apiRoot.
-		$forms['dashboard'] = array(
-			'blogId'                  => get_current_blog_id(),
-			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
-			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
-			'checkForSpamNonce'       => wp_create_nonce( 'grunion_recheck_queue' ),
-			'gdriveConnectSupportURL' => esc_url( \Automattic\Jetpack\Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
-			'pluginAssetsURL'         => \Automattic\Jetpack\Forms\Jetpack_Forms::assets_url(),
-			'siteURL'                 => ( new \Automattic\Jetpack\Status() )->get_site_suffix(),
-			'enableIntegrationsTab'   => apply_filters( 'jetpack_forms_enable_integrations_tab', true ),
-			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $dashboard_view_switch->get_forms_admin_url() ),
-			'isMailpoetEnabled'       => \Automattic\Jetpack\Forms\Jetpack_Forms::is_mailpoet_enabled(),
-			'apiRoot'                 => ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-				? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) )
-				: '/wp-json/wpcom/v2/',
-		);
-
-		// Optionally include AI flag mirroring the dashboard behavior.
-		$forms['dashboard']['hasAI'] = ( function () {
-			if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-			}
-			$feature = \Jetpack_AI_Helper::get_ai_assistance_feature();
-			return ! is_wp_error( $feature ) ? ( $feature['has-feature'] ?? false ) : false;
-		} )();
+		// Include nonces only on the Forms dashboard screen to avoid leaking tokens elsewhere.
+		if ( is_admin() && isset( $_GET['page'] ) && 'jetpack-forms-admin' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only context
+			$forms['exportNonce']  = wp_create_nonce( 'feedback_export' );
+			$forms['newFormNonce'] = wp_create_nonce( 'create_new_form' );
+		}
 
 		$data['forms'] = $forms;
 		return $data;

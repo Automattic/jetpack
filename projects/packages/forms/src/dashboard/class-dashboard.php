@@ -111,16 +111,6 @@ class Dashboard {
 
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
-
-		$api_root = defined( 'IS_WPCOM' ) && IS_WPCOM
-			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) )
-			: '/wp-json/wpcom/v2/';
-
-		wp_add_inline_script(
-			self::SCRIPT_HANDLE,
-			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
-			'before'
-		);
 	}
 
 	/**
@@ -230,7 +220,7 @@ class Dashboard {
 			'enableIntegrationsTab'   => self::$show_integrations,
 			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
 			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $this->switch->get_forms_admin_url() ),
-			'isMailpoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
+			'isMailPoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
 		);
 
 		if ( ! empty( $extra_config ) ) {
@@ -246,7 +236,7 @@ class Dashboard {
 	 *
 	 * @return boolean
 	 */
-	private function has_feedback() {
+	public function has_feedback() {
 		$posts = new \WP_Query(
 			array(
 				'post_type'   => 'feedback',

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { Modal, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -20,7 +21,7 @@ import './style.scss';
  */
 import type { Integration } from '../../../../types';
 
-const isMailPoetEnabled: boolean = !! window?.jpFormsBlocks?.defaults?.isMailPoetEnabled;
+const isMailPoetEnabled = Boolean( getScriptData()?.forms?.isMailPoetEnabled );
 
 const IntegrationsModal = ( {
 	isOpen,

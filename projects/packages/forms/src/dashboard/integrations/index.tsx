@@ -2,13 +2,13 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import { useIntegrationsStatus } from '../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integrations-status';
-import { config } from '../index';
 import AkismetDashboardCard from './akismet-card';
 import CreativeMailDashboardCard from './creative-mail-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
@@ -32,7 +32,7 @@ const Integrations = () => {
 		mailpoet: false,
 	} );
 
-	const isMailpoetEnabled = config( 'isMailpoetEnabled' );
+	const isMailpoetEnabled = Boolean( getScriptData()?.forms?.isMailPoetEnabled );
 
 	const toggleCard = useCallback( ( cardId: keyof typeof expandedCards ) => {
 		setExpandedCards( prev => {
