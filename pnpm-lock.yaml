@@ -2376,6 +2376,9 @@ importers:
       '@wordpress/element':
         specifier: 6.28.0
         version: 6.28.0
+      '@wordpress/hooks':
+        specifier: 4.28.0
+        version: 4.28.0
       '@wordpress/i18n':
         specifier: 6.1.0
         version: 6.1.0
