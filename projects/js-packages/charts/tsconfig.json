@@ -1,13 +1,10 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
 		"outDir": "dist",
-		"rootDir": "src",
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"target": "es2024"
+		"rootDir": "src"
 	},
 	"files": [],
-	"include": [ "./src" ],
+	"include": [ "src" ],
 	"exclude": [ "tests", "**/*.test.*", "stories", "**/*.stories.*" ]
 }
