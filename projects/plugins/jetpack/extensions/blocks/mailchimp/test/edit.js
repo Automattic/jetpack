@@ -1,5 +1,6 @@
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen, act, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
 import { settings } from '../../button';
 import MailchimpSubscribeEdit from '../edit';
@@ -9,43 +10,32 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
 
+jest.mock( '@wordpress/api-fetch' );
+
 registerBlocks( [ { name: 'jetpack/button', settings } ] );
 
-const originalFetch = window.fetch;
-
-/**
- * Mock return value for a successful fetch JSON return value.
- *
- * @return {Promise} Mock return value.
- */
-const NOT_CONNECTED_RESOLVED_FETCH_PROMISE = Promise.resolve( {
-	connected: undefined,
+// Mock values for API responses
+const NOT_CONNECTED_API_RESPONSE = {
+	code: 'not_connected',
 	connect_url: undefined,
-} );
+};
 
-const DEFAULT_FETCH_MOCK_RETURN = Promise.resolve( {
-	status: 200,
-	json: () => NOT_CONNECTED_RESOLVED_FETCH_PROMISE,
-} );
+const CONNECTED_API_RESPONSE = {
+	code: 'connected',
+	connect_url: 'https://mailchimp.com',
+};
 
-const CONNECTED_FETCH_MOCK_RETURN = Promise.resolve( {
-	status: 200,
-	json: () =>
-		Promise.resolve( {
-			connected: true,
-			connect_url: 'https://mailchimp.com',
-		} ),
-} );
+const USER_CONNECTION_URL_RESPONSE = 'https://wordpress.com/jetpack/connect';
 
 describe( 'Mailchimp block edit component', () => {
 	beforeEach( () => {
-		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
-		window.fetch = jest.fn();
-		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
+		apiFetch.mockClear();
+		// Default mock for connected user checking mailchimp status
+		apiFetch.mockResolvedValue( NOT_CONNECTED_API_RESPONSE );
 	} );
 
-	afterAll( () => {
-		window.fetch = originalFetch;
+	afterEach( () => {
+		jest.clearAllMocks();
 	} );
 
 	const setAttributes = jest.fn();
@@ -78,6 +68,9 @@ describe( 'Mailchimp block edit component', () => {
 				is_current_user_connected: false,
 			},
 		};
+		// Mock the connection URL API response for non-connected users
+		apiFetch.mockResolvedValue( USER_CONNECTION_URL_RESPONSE );
+
 		const { container } = render( <MailchimpSubscribeEdit { ...defaultProps } /> );
 
 		// Wait for API call to "finish".
@@ -88,9 +81,12 @@ describe( 'Mailchimp block edit component', () => {
 			).not.toBeInTheDocument();
 		} );
 
-		expect( window.fetch ).toHaveBeenCalledWith(
-			expect.stringContaining( '/jetpack/v4/connection/url?from=jetpack-block-editor&redirect=' ),
-			expect.anything()
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: expect.stringContaining(
+					'/jetpack/v4/connection/url?from=jetpack-block-editor&redirect='
+				),
+			} )
 		);
 	} );
 
@@ -105,9 +101,11 @@ describe( 'Mailchimp block edit component', () => {
 			).not.toBeInTheDocument();
 		} );
 
-		expect( window.fetch ).toHaveBeenCalledWith(
-			'/wpcom/v2/mailchimp?_locale=user',
-			expect.anything()
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/wpcom/v2/mailchimp',
+				method: 'GET',
+			} )
 		);
 	} );
 
@@ -118,7 +116,7 @@ describe( 'Mailchimp block edit component', () => {
 	} );
 
 	test( 'shows enter your email message if connected', async () => {
-		window.fetch.mockReturnValue( CONNECTED_FETCH_MOCK_RETURN );
+		apiFetch.mockResolvedValue( CONNECTED_API_RESPONSE );
 		const connectedProps = { ...defaultProps, attributes: { ...attributes, preview: true } };
 		render( <MailchimpSubscribeEdit { ...connectedProps } /> );
 		await expect( screen.findByLabelText( 'Enter your email' ) ).resolves.toBeInTheDocument();
