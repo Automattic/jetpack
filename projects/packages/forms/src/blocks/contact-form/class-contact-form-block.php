@@ -262,7 +262,7 @@ class Contact_Form_Block {
 			)
 		);
 
-		if ( Blocks::get_variation() === 'experimental' ) {
+		if ( Blocks::get_variation() === 'experimental' || Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/input-rating',
 				array(
@@ -454,7 +454,7 @@ class Contact_Form_Block {
 			);
 		}
 
-		if ( Blocks::get_variation() === 'experimental' ) {
+		if ( Blocks::get_variation() === 'experimental' || Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-rating',
 				array(
