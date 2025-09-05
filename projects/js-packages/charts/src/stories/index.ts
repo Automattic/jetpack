@@ -6,9 +6,6 @@ export type { ChartStoryArgs } from './chart-decorator';
 // Theme configuration
 export { themeArgTypes, CHART_THEME_MAP } from './theme-config';
 
-// Legacy decorators (for backward compatibility)
-export { sharedDecorator } from './decorator-config';
-
 // Legend configuration
 export { legendArgTypes } from './legend-config';
 
