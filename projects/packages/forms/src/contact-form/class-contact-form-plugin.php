@@ -1680,7 +1680,7 @@ class Contact_Form_Plugin {
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
-			$this->record_tracks_event( 'forms_submission_has_errors', array( 'errors' => 'is false' ) );
+			$this->record_tracks_event( 'forms_submission_has_errors', array( 'errors' => 'submission_failed' ) );
 		} elseif ( is_wp_error( $submission_result ) ) {
 			header( 'HTTP/1.1 400 Bad Request', true, 403 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
