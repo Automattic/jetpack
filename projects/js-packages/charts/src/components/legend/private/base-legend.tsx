@@ -34,6 +34,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			orientation = 'horizontal',
 			position = 'bottom',
 			alignment = 'center',
+			maxWidth,
 			shape = 'rect',
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
@@ -111,12 +112,17 @@ export const BaseLegend: ForwardRefExoticComponent<
 					>
 						{ labels.map( ( label, i ) => (
 							<LegendItem
-								className={ styles[ 'legend-item' ] }
+								className={ clsx( 'visx-legend-item', styles[ 'legend-item' ] ) }
 								data-testid="legend-item"
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }
 								flexDirection={
 									orientation === 'vertical' && alignment === 'end' ? 'row-reverse' : itemDirection
+								}
+								style={
+									maxWidth
+										? { maxWidth: typeof maxWidth === 'number' ? `${ maxWidth }px` : maxWidth }
+										: undefined
 								}
 								{ ...legendItemProps }
 							>
@@ -153,6 +159,11 @@ export const BaseLegend: ForwardRefExoticComponent<
 									/>
 								) }
 								<LegendLabel
+									className={ clsx(
+										'visx-legend-label',
+										styles[ 'legend-item-label' ],
+										maxWidth && styles[ 'legend-item-label--wrapped' ]
+									) }
 									style={ {
 										justifyContent: labelAlign,
 										flex: labelFlex,
