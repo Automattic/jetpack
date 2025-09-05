@@ -464,6 +464,136 @@ export const AlignmentOptions: Story = {
 	},
 };
 
+// Story showing text wrapping with long labels
+export const TextWrapping: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return (
+			<div style={ { width: '600px', border: '1px solid #ddd', padding: '20px' } }>
+				<h4 style={ { marginBottom: '10px' } }>Legend with Text Wrapping</h4>
+				<Legend { ...legendProps } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{
+				label: 'Very Long Legend Item Label That Should Wrap Naturally Within the Width Constraint',
+				value: '25%',
+				color: '#3858E9',
+			},
+			{
+				label: 'Another Extremely Long Label for Testing Natural Text Wrapping Behavior',
+				value: '35%',
+				color: '#80C8FF',
+			},
+			{ label: 'Short Label', value: '15%', color: '#44B556' },
+			{ label: 'Medium Length Label Text', value: '25%', color: '#FFC107' },
+		],
+		orientation: 'horizontal',
+		maxWidth: 200,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `
+## Text Wrapping in Legends
+
+This story demonstrates how legend labels wrap naturally when they exceed the maximum width.
+
+### Configuration
+
+- **maxWidth**: Sets a maximum width for each legend item (number in pixels or string with unit)
+
+### Behavior
+
+When \`maxWidth\` is set:
+- Legend items are constrained to the specified width
+- Text wraps naturally to the next line when it exceeds the width
+- No truncation or ellipsis - all text remains visible
+- Clean and simple implementation with just one prop
+`,
+			},
+		},
+	},
+};
+
+// Story showing text wrapping in vertical legends
+export const VerticalTextWrapping: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return (
+			<div style={ { width: '300px', border: '1px solid #ddd', padding: '20px' } }>
+				<h4 style={ { marginBottom: '10px' } }>Vertical Legend with Text Wrapping</h4>
+				<Legend { ...legendProps } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{ label: 'Desktop Users from North America Region', value: '2,543', color: '#3858E9' },
+			{ label: 'Mobile Users from European Union Countries', value: '1,892', color: '#80C8FF' },
+			{ label: 'Tablet Users from Asia Pacific', value: '892', color: '#44B556' },
+			{ label: 'Other Devices', value: '234', color: '#FFC107' },
+		],
+		orientation: 'vertical',
+		maxWidth: 200,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Vertical legend with constrained width showing natural text wrapping behavior.',
+			},
+		},
+	},
+};
+
+// Story showing with and without maxWidth
+export const MaxWidthComparison: Story = {
+	render: () => {
+		const items = [
+			{
+				label: 'Very Long Legend Item That Demonstrates Text Wrapping',
+				value: '45%',
+				color: '#3858E9',
+			},
+			{ label: 'Another Long Label That Shows Natural Text Flow', value: '30%', color: '#80C8FF' },
+			{ label: 'Short Label', value: '25%', color: '#44B556' },
+		];
+
+		return (
+			<div style={ { display: 'flex', gap: '40px', flexWrap: 'wrap' } }>
+				<div style={ { width: '350px', border: '1px solid #ddd', padding: '20px' } }>
+					<h4 style={ { marginBottom: '10px' } }>Without maxWidth</h4>
+					<Legend items={ items } orientation="horizontal" />
+				</div>
+				<div style={ { width: '350px', border: '1px solid #ddd', padding: '20px' } }>
+					<h4 style={ { marginBottom: '10px' } }>With maxWidth: 150px</h4>
+					<Legend items={ items } orientation="horizontal" maxWidth={ 150 } />
+				</div>
+			</div>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `
+## MaxWidth Comparison
+
+This story shows the difference between legends with and without the maxWidth constraint:
+
+- **Without maxWidth**: Legend items expand to their natural width
+- **With maxWidth**: Text wraps naturally when it exceeds the specified width
+
+The maxWidth prop provides a simple, elegant solution for handling long legend labels without truncation or complex configuration.
+`,
+			},
+		},
+	},
+};
+
 // Story showing the legend with custom shapes
 export const CustomShape: Story = {
 	args: {
