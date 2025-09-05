@@ -2,6 +2,12 @@
 .jetpack-custom-combobox {
 	position: relative;
 	letter-spacing: normal; // don't let input attributes rule over this
+	background-color: inherit;
+
+	// keyboardShortcuts adds a wrapping div, so we need to style it
+	> div {
+		background-color: inherit;
+	}
 
 	.jetpack-combobox-trigger {
 		width: 100%;
@@ -54,19 +60,20 @@
 
 	.jetpack-combobox-dropdown {
 		position: absolute;
-		top: 100%;
+		top: calc(var(--jetpack--contact-form--line-height, 100%) * 1.5);
 		left: 0;
 		right: 0;
 
-		background-color: var(--jetpack--contact-form--input-background-fallback, #fff);
+		background-color: inherit;
 		border: 1px solid #ddd;
 		border-top: none;
 		border-radius: 0 0 4px 4px;
-		max-height: 200px;
+		max-height: calc(var(--jetpack--contact-form--line-height, 25px) * 8);
 		z-index: 1000;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		width: 250px;
+		width: max-content;
 		overflow: hidden;
+		max-width: 80vw;
 
 		&.jetpack-combobox-open {
 			display: block;
@@ -92,7 +99,7 @@
 		}
 
 		.jetpack-combobox-options {
-			max-height: 150px;
+			max-height: calc(var(--jetpack--contact-form--line-height, 25px) * 7);
 			overflow-y: auto;
 		}
 
@@ -115,11 +122,11 @@
 			}
 
 			&.jetpack-combobox-option-selected {
-				background-color: #e6f3ff;
+				background-color: #f5f5f5;
 				font-weight: 600;
 
 				&:hover {
-					background-color: #e6f3ff;
+					background-color: #f5f5f5;
 				}
 
 				&.is-focused {
