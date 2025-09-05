@@ -186,8 +186,13 @@ const SearchableCombobox = ( {
 				return;
 			}
 			event.preventDefault();
+			let focusedOption = null;
 			if ( focusedOptionIndex >= 0 && focusedOptionIndex < filteredOptions.length ) {
-				const focusedOption = filteredOptions[ focusedOptionIndex ];
+				focusedOption = filteredOptions[ focusedOptionIndex ];
+			} else if ( filteredOptions.length > 0 && searchTerm ) {
+				focusedOption = filteredOptions[ 0 ];
+			}
+			if ( focusedOption ) {
 				const mockEvent = {
 					target: { value: focusedOption.code },
 					currentTarget: { value: focusedOption.code },
@@ -198,7 +203,7 @@ const SearchableCombobox = ( {
 				setIsOpen( false );
 			}
 		},
-		[ isOpen, focusedOptionIndex, filteredOptions, onOptionChange, setIsOpen ]
+		[ isOpen, focusedOptionIndex, filteredOptions, onOptionChange, setIsOpen, searchTerm ]
 	);
 
 	const handleEscape = useCallback(
