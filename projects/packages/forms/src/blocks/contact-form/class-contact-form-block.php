@@ -796,6 +796,15 @@ class Contact_Form_Block {
 			),
 		);
 
+		// Preload the Forms config endpoint in the editor so apiFetch resolves synchronously.
+		add_filter(
+			'block_editor_rest_api_preload_paths',
+			static function ( $paths ) {
+				$paths[] = array( '/wp/v2/feedback/config', 'GET' );
+				return $paths;
+			}
+		);
+
 		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data ) . ';', 'before' );
 	}
 

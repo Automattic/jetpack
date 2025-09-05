@@ -195,3 +195,39 @@ export type BlockEditorStoreSelect = {
 	getBlockIndex: ( clientId: string ) => number;
 	getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
 };
+
+/**
+ * Forms script data exposed via JetpackScriptData.forms
+ */
+export interface FormsConfigData {
+	/** Whether MailPoet integration is enabled across contexts. */
+	isMailPoetEnabled?: boolean;
+	/** Whether the current user can install plugins (install_plugins). */
+	canInstallPlugins?: boolean;
+	/** Whether the current user can activate plugins (activate_plugins). */
+	canActivatePlugins?: boolean;
+	/** Whether to show the Integrations tab in the dashboard UI. */
+	enableIntegrationsTab?: boolean;
+	/** Whether to render the migration/announcement page instead of the main dashboard. */
+	renderMigrationPage?: boolean;
+	/** Whether there are any feedback (form response) posts on the site. */
+	hasFeedback?: boolean;
+	/** Whether AI Assist features are available for the site/user. */
+	hasAI?: boolean;
+	/** The URL of the Forms responses list in wp-admin. */
+	formsResponsesUrl?: string;
+	/** Current site blog ID. */
+	blogId?: number;
+	/** Support URL for Google Drive connect guidance. */
+	gdriveConnectSupportURL?: string;
+	/** Base URL to static/assets for the Forms package. */
+	pluginAssetsURL?: string;
+	/** The site suffix/fragment for building admin links. */
+	siteURL?: string;
+	/** The dashboard URL with migration acknowledgement parameter. */
+	dashboardURL?: string;
+	/** Nonce for exporting feedback responses (dashboard-only). */
+	exportNonce?: string;
+	/** Nonce for creating a new form (dashboard-only). */
+	newFormNonce?: string;
+}
