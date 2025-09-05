@@ -10,7 +10,7 @@ const settings = {
 	...defaultSettings,
 	title: __( 'Hidden field', 'jetpack-forms' ),
 	description: __(
-		'Invisible to users, this field lets you store extra data with each form submission.',
+		'Invisible to site visitors. Allows you to store extra values with each form submission.',
 		'jetpack-forms'
 	),
 	icon: {
