@@ -21,6 +21,7 @@ import useFieldSelected from '../shared/hooks/use-field-selected';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { countries } from './country-list';
+import { getTranslatedCountryName } from './country-names-translated';
 
 const EMPTY_ARRAY = [];
 
@@ -61,8 +62,8 @@ export default function PhoneFieldEdit( props ) {
 
 	const countryPairs = useMemo( () => {
 		return countries.map( country => ( {
-			label: country.label,
-			value: country.code,
+			...country,
+			country: getTranslatedCountryName( country.code ),
 		} ) );
 	}, [] );
 
