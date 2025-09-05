@@ -995,6 +995,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$this->enqueue_phone_field_assets();
 
+		// $class is ill-formed, so we need to fix it
+		// Strip 'class=' and quotes to get just the class names
+		$class_names = preg_replace( "/^class=['\"]([^'\"]*)['\"].*$/", '$1', $class );
+
 		$link_label_id = $id . '-number';
 
 		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
@@ -1012,7 +1016,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		wp_interactivity_config( 'jetpack/field-phone', $global_config );
 		ob_start();
 		?>
-		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
+		<div
+			class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?> <?php echo esc_attr( $class_names ); ?>"
 			style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
 			data-wp-on--jetpack-form-reset='actions.phoneResetHandler'
 			data-wp-init="callbacks.initializePhoneField"
@@ -1089,8 +1094,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					</div>
 				</div>
 				<input
+					class="jetpack-field__input-element"
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- both are escaped in calling function ?>
-					<?php echo $class; ?> <?php echo $placeholder; ?>
+					<?php echo $placeholder; ?>
 					type="tel"
 					<?php if ( $required ) { ?>
 						required="true"
