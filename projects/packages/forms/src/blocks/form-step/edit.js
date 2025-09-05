@@ -34,6 +34,7 @@ const ALLOWED_BLOCKS = [
 	'jetpack/field-rating',
 	'jetpack/field-slider',
 	'jetpack/field-image-select',
+	'jetpack/field-hidden',
 	'jetpack/form-step-navigation',
 	'jetpack/form-step-divider',
 	...CORE_BLOCKS,

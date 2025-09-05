@@ -1269,6 +1269,20 @@ class Contact_Form_Plugin {
 
 		return $content;
 	}
+	/**
+	 * Render the hidden field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the hidden field.
+	 */
+	public static function gutenblock_render_field_hidden( $atts, $content ) {
+		// Convert block attributes to shortcode attributes.
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'hidden' );
+		// Parse the contact field.
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
 
 	/**
 	 * Render the number field.

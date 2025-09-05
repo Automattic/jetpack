@@ -1500,6 +1500,32 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Render a hidden field.
+	 *
+	 * @param string $id - the field ID.
+	 * @param string $label - the field label.
+	 * @param string $value - the value of the field.
+	 *
+	 * @return string HTML for the hidden field.
+	 */
+	private function render_hidden_field( $id, $label, $value ) {
+		/**
+		 *
+		 * Filter the value of the hidden field.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $value The value of the hidden field.
+		 * @param string $label The label of the hidden field.
+		 * @param string $id The ID of the hidden field.
+		 *
+		 * @return string The modified value of the hidden field.
+		 */
+		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
+		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' />\n";
+	}
+
+	/**
 	 * Enqueues scripts and styles needed for the file field.
 	 *
 	 * @since 0.45.0
@@ -2256,6 +2282,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '';
 		}
 
+		if ( $type === 'hidden' ) {
+			// For hidden fields, we don't need to render the label or any other HTML.
+			return $this->render_hidden_field( $id, $label, $value );
+		}
+
 		$trimmed_type = trim( esc_attr( $type ) );
 		$class       .= ' grunion-field';
 
@@ -2308,6 +2339,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		);
 
 		$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
 			$field_width       = $this->get_attribute( 'width' );

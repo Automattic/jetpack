@@ -445,6 +445,15 @@ class Contact_Form_Block {
 			)
 		);
 
+		if ( Blocks::get_variation() === 'beta' ) {
+			Blocks::jetpack_register_block(
+				'jetpack/field-hidden',
+				array(
+					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_hidden' ),
+				)
+			);
+		}
+
 		if ( Blocks::get_variation() === 'experimental' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-rating',
