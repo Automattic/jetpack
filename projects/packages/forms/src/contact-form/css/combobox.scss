@@ -74,7 +74,7 @@
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		width: max-content;
 		overflow: hidden;
-		max-width: 80vw;
+		max-width: 75vw;
 
 		&.jetpack-combobox-open {
 			display: block;
@@ -109,7 +109,7 @@
 			padding: 8px 12px;
 			cursor: pointer;
 			display: flex;
-			align-items: center;
+			align-items: flex-start;
 			font-size: 14px;
 			transition: background-color 0.1s;
 			gap: 8px;
