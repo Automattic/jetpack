@@ -117,7 +117,7 @@ class Jetpack_Recipes {
 			return;
 		}
 
-		jetpack_shortcode_enqueue_dependencies();
+		jetpack_shortcode_register_dependencies();
 
 		wp_enqueue_script(
 			'jetpack-recipes-js',

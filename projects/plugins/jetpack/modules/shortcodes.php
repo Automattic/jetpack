@@ -95,7 +95,7 @@ function jetpack_load_shortcodes() {
  *
  * @return void
  */
-function jetpack_shortcode_enqueue_dependencies() {
+function jetpack_shortcode_register_dependencies() {
 	if ( wp_script_is( 'jetpack-shortcode-deps', 'registered' ) ) {
 		return;
 	}
