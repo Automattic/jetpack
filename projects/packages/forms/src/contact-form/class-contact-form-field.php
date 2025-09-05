@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
-use DOMDocument;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -1964,16 +1963,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$image_src            = '';
 
 				if ( ! empty( $rendered_image_block ) ) {
-					// Use DOMDocument to parse the HTML and extract src reliably
-					$dom = new DOMDocument();
-					libxml_use_internal_errors( true ); // Suppress HTML parsing warnings
-					$dom->loadHTML( '<?xml encoding="utf-8" ?>' . $rendered_image_block );
-					libxml_clear_errors();
+					if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $rendered_image_block, $matches ) ) {
+						$extracted_src = $matches[1];
 
-					$images = $dom->getElementsByTagName( 'img' );
-
-					if ( $images->length > 0 ) {
-						$image_src = $images->item( 0 )->getAttribute( 'src' );
+						if ( filter_var( $extracted_src, FILTER_VALIDATE_URL ) || str_starts_with( $extracted_src, 'data:' ) ) {
+							$image_src = $extracted_src;
+						}
 					}
 				} else {
 					$rendered_image_block = '<figure class="wp-block-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
