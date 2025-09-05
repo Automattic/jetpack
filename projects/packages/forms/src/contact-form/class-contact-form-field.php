@@ -1045,6 +1045,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-init="callbacks.initializePhoneFieldCustomComboBox"
 					data-wp-on-document--click="actions.phoneComboboxDocumentClickHandler">
 					<div class="jetpack-custom-combobox">
+						
 						<button 
 							class="jetpack-combobox-trigger"
 							type="button"
