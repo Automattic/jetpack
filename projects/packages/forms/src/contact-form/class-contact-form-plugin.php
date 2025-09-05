@@ -1678,6 +1678,13 @@ class Contact_Form_Plugin {
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
 
+			/**
+			 * Action when we want to log a jetpack_forms event.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param string $log_message The log message.
+			 */
 			do_action( 'jetpack_forms_log', 'submission_failed' );
 		} elseif ( is_wp_error( $submission_result ) ) {
 			header( 'HTTP/1.1 400 Bad Request', true, 403 );
