@@ -1138,12 +1138,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @param int          $feedback_id - the feedback ID.
 	 * @param Contact_Form $form - the form.
+	 * @param Feedback     $response - the response.
 	 *
 	 * @return array $lines
 	 */
-	public static function get_compiled_form_for_email( $feedback_id, $form ) {
+	public static function get_compiled_form_for_email( $feedback_id, $form, $response = null ) {
 		$compiled_form = array();
-		$response      = Feedback::get( $feedback_id );
+		if ( ! $response ) {
+			$response = Feedback::get( $feedback_id );
+		}
 
 		if ( $response instanceof Feedback ) {
 			// If the response is an instance of Feedback, we can use its method to get compiled fields.
@@ -1914,7 +1917,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string the title of the email
 		 */
 		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
-		$message = self::get_compiled_form_for_email( $post_id, $this );
+		$message = self::get_compiled_form_for_email( $post_id, $this, $response );
 
 		if ( is_user_logged_in() ) {
 			$sent_by_text = sprintf(
@@ -1949,19 +1952,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Get the status of the feedback
 		$status = $is_spam ? 'spam' : 'inbox';
 
-		// Build the dashboard URL with the status and the feedback's post id
-		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true );
+		// Build the dashboard URL with the status and the feedback's post id if we have a post id
+		$dashboard_url           = '';
+		$footer_mark_as_spam_url = '';
 		if ( $post_id ) {
-			$dashboard_url .= '&r=' . $post_id;
+			$dashboard_url           = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
+			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
+			$footer_mark_as_spam_url = sprintf(
+				'<a href="%1$s">%2$s</a>',
+				esc_url( $mark_as_spam_url ),
+				__( 'Mark as spam', 'jetpack-forms' )
+			);
 		}
-
-		$mark_as_spam_url = $dashboard_url . '&mark_as_spam';
-
-		$footer_mark_as_spam_url = $post_id ? sprintf(
-			'<a href="%1$s">%2$s</a>',
-			esc_url( $mark_as_spam_url ),
-			__( 'Mark as spam', 'jetpack-forms' )
-		) : '';
 
 		$footer = implode(
 			'',
@@ -1990,25 +1992,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
-		$actions = sprintf(
-			'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
-				<tr>
-					<td class="pad" align="center">
-						<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
-							<!--[if mso]>
-							<i style="mso-text-raise: 30pt;">&nbsp;</i>
-							<![endif]-->
-							<span>%2$s</span>
-							<!--[if mso]>
-							<i>&nbsp;</i>
-							<![endif]-->
-						</a>
-					</td>
-				</tr>
-			</table>',
-			esc_url( $dashboard_url ),
-			__( 'View in dashboard', 'jetpack-forms' )
-		);
+		// Build the actions url if we have a dashboard url
+		$actions = '';
+		if ( $dashboard_url ) {
+			$actions = sprintf(
+				'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
+					<tr>
+						<td class="pad" align="center">
+							<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
+								<!--[if mso]>
+								<i style="mso-text-raise: 30pt;">&nbsp;</i>
+								<![endif]-->
+								<span>%2$s</span>
+								<!--[if mso]>
+								<i>&nbsp;</i>
+								<![endif]-->
+							</a>
+						</td>
+					</tr>
+				</table>',
+				esc_url( $dashboard_url ),
+				__( 'View in dashboard', 'jetpack-forms' )
+			);
+		}
 
 		/**
 		 * Filters the message sent via email after a successful form submission.
@@ -2025,7 +2031,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// This is called after `contact_form_message`, in order to preserve back-compat
 		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
 
-		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
+		if ( $post_id ) {
+			update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
+		}
 
 		/**
 		 * Fires right before the contact form message is sent via email to
@@ -2098,15 +2106,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'contact-form-id'   => $id,
 			'contact-form-sent' => $post_id,
 			'contact-form-hash' => $this->hash,
-			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
+			'_wpnonce'          => $post_id ? wp_create_nonce( "contact-form-sent-{$post_id}" ) : '', // wp_nonce_url HTMLencodes :( .
 		);
 
 		// If the request accepts JSON, return a JSON response instead of redirecting
 		$accepts_json = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
 		if ( $this->is_response_without_reload_enabled && $accepts_json ) {
-			$data     = array();
-			$response = Feedback::get( $post_id );
+			$data = array();
 			if ( $response instanceof Feedback ) {
 				$data = $response->get_compiled_fields( 'ajax', 'label|value' );
 			}
