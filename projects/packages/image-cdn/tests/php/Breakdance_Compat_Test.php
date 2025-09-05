@@ -17,11 +17,11 @@ require __DIR__ . '/../../src/compatibility/breakdance.php';
 #[CoversFunction( '\\Automattic\\Jetpack\\Image_CDN\\Compatibility\\load_breakdance_compat' )]
 class Breakdance_Compat_Test extends BaseTestCase {
 	/**
-	 * Test that we do not disable CDN for Breakdance requests by default.
+	 * Test that CDN is enabled for Breakdance content by default.
 	 */
 	public function test_load_breakdance_compat_default() {
 		\Automattic\Jetpack\Image_CDN\Compatibility\load_breakdance_compat();
-		// By default we should not hook into the Breakdance filters.
-		$this->assertFalse( has_action( 'breakdance_singular_content' ) );
+		// By default we should hook into the Breakdance filters.
+		$this->assertTrue( has_filter( 'breakdance_singular_content' ) );
 	}
 }
