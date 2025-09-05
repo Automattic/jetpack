@@ -1,30 +1,17 @@
-import { useContext, useMemo } from 'react';
-import { mergeThemes } from '../../../utils';
-import { useChartTheme } from '../../theme';
-import { defaultTheme } from '../../theme/themes';
+import { useContext } from 'react';
 import { GlobalChartsContext } from '../global-charts-provider';
+import { defaultTheme } from '../themes';
 import type { CompleteChartTheme } from '../../../types';
 
 /**
- * Hook to get the effective chart theme, merging global and local themes.
+ * Hook to get the global chart theme from GlobalChartsProvider
  *
- * This hook combines the global theme from GlobalChartsProvider with the local theme
- * from ThemeProvider. The global theme provides the base, while the local theme
- * can override specific properties for fine-grained customization.
- *
- * @return The effective chart theme to use
+ * @return The global chart theme
  */
 export const useGlobalChartsTheme = (): CompleteChartTheme => {
 	// Get context but don't throw if it doesn't exist (for testing or standalone usage)
 	const context = useContext( GlobalChartsContext );
 	const globalTheme = context?.theme;
-	const localTheme = useChartTheme();
 
-	// Memoize the theme to prevent unnecessary re-renders
-	const effectiveTheme = useMemo(
-		() => mergeThemes( globalTheme ?? defaultTheme, localTheme ),
-		[ globalTheme, localTheme ]
-	);
-
-	return effectiveTheme;
+	return globalTheme ?? defaultTheme;
 };

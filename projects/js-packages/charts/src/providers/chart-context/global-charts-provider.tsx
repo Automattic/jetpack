@@ -1,6 +1,6 @@
 import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { mergeThemes } from '../../utils';
-import { defaultTheme } from '../theme/themes';
+import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
 import type { FC, ReactNode } from 'react';
