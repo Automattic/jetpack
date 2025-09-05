@@ -84,6 +84,26 @@ class Dashboard {
 			'stats-callout',
 			array( $this, 'render_callout' )
 		);
+
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		}
+	}
+
+	/**
+	 * Add the render callout function. We need to pass the location.hash to the stats moved page.
+	 *
+	 * This code is temporary and will be removed after a month.
+	 *
+	 * @return void
+	 */
+	public function render_callout() {
+		?>
+		<script>
+			location.hash = '#!/stats/moved?page=stats-callout';
+		</script>
+		<?php
+		$this->render();
 	}
 
 	/**
@@ -130,9 +150,6 @@ class Dashboard {
 			});
 		</script>
 		<?php
-	}
-
-	public function render_callout() {
 	}
 
 	/**
