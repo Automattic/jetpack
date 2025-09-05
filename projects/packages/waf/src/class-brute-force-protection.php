@@ -547,7 +547,9 @@ class Brute_Force_Protection {
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
 			$transient = $this->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-			--$transient;
+			if ( $transient ) {
+				--$transient;
+			}
 
 			if ( ! $transient || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );

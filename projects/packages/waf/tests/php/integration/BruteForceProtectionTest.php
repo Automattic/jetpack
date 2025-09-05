@@ -101,4 +101,29 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 		$this->assertIsString( $result );
 		$this->assertNotEmpty( $result );
 	}
+
+	/**
+	 * Verifies that the transient value is not acted upon (decremented) if the transient value was indeed not set.
+	 *
+	 * @backupGlobals enabled
+	 */
+	#[BackupGlobals( true )]
+	public function test_log_failed_attempt_does_not_emit_warning_when_transient_not_set() {
+		$error = new WP_Error( 'incorrect_password', 'Incorrect password' );
+
+		$this->instance = $this->getMockBuilder( Brute_Force_Protection::class )
+			->disableOriginalConstructor()
+			->onlyMethods( array( 'protect_call', 'get_transient' ) )
+			->getMock();
+
+		$this->instance->method( 'protect_call' )->willReturn( array() );
+		$this->instance->method( 'get_transient' )->willReturn( false );
+
+		$this->instance->expects( $this->once() )
+			->method( 'protect_call' )
+			->with( 'failed_attempt' );
+
+		$_COOKIE['jpp_math_pass'] = 1;
+		$this->instance->log_failed_attempt( 'username', $error );
+	}
 }
