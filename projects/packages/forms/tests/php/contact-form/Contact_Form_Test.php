@@ -2591,6 +2591,7 @@ EOT;
 		$expected_attributes['block_template']      = '';
 		$expected_attributes['block_template_part'] = '';
 		$expected_attributes['id']                  = 'widget-string';
+		$expected_attributes['saveResponses']       = 'yes';
 
 		$form = new Contact_Form(
 			$attributes,
