@@ -1663,23 +1663,6 @@ class Contact_Form_Plugin {
 		// Process the form
 		return $form->process_submission();
 	}
-	/**
-	 * Get the keys from $_POST that have non-empty values.
-	 *
-	 * @return array The keys from $_POST that have non-empty values.
-	 */
-	private function non_empty_post_data_keys() {
-		$post_data = isset( $_POST ) ? wp_unslash( $_POST ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		unset( $post_data['contact-form-hash'], $post_data['action'], $post_data['_wpnonce'], $post_data['jetpack_contact_form_jwt'] );
-
-		$log_non_empty_post_data_keys = array();
-		foreach ( $post_data as $key => $value ) {
-			if ( ! empty( $value ) ) {
-				$log_non_empty_post_data_keys[] = $key;
-			}
-		}
-		return $log_non_empty_post_data_keys;
-	}
 
 	/**
 	 * Handle the ajax request.
@@ -1695,26 +1678,14 @@ class Contact_Form_Plugin {
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
 
-			$this->log_to_logstash(
-				'forms_submission_has_errors',
-				array(
-					'errors' => 'submission_failed',
-					'post'   => $this->non_empty_post_data_keys(),
-				)
-			);
+			do_action( 'jetpack_forms_log', 'submission_failed' );
 		} elseif ( is_wp_error( $submission_result ) ) {
 			header( 'HTTP/1.1 400 Bad Request', true, 403 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 
-			$this->log_to_logstash(
-				'forms_submission_has_errors',
-				array(
-					'errors' => $submission_result->get_error_message(),
-					'post'   => $this->non_empty_post_data_keys(),
-				)
-			);
+			do_action( 'jetpack_forms_log', $submission_result->get_error_message() );
 		} else {
 			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
 				$submission_result,
@@ -2914,28 +2885,6 @@ class Contact_Form_Plugin {
 
 			$tracking = new Tracking();
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
-		}
-	}
-
-	/**
-	 * Send an event to Logstash
-	 *
-	 * @param string $message - the message to log.
-	 * @param array  $data - data to send.
-	 *
-	 * @return null|void
-	 */
-	public function log_to_logstash( $message, $data = array() ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-			log2logstash(
-				array(
-					'blog_id' => get_current_blog_id(),
-					'feature' => 'jetpack-forms',
-					'message' => $message,
-					'extra'   => wp_json_encode( $data ),
-				)
-			);
 		}
 	}
 
