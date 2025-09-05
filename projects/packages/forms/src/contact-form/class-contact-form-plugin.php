@@ -1663,6 +1663,23 @@ class Contact_Form_Plugin {
 		// Process the form
 		return $form->process_submission();
 	}
+	/**
+	 * Get the keys from $_POST that have non-empty values.
+	 *
+	 * @return array The keys from $_POST that have non-empty values.
+	 */
+	private function non_empty_post_data_keys() {
+		$post_data = isset( $_POST ) ? wp_unslash( $_POST ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		unset( $post_data['contact-form-hash'], $post_data['action'], $post_data['_wpnonce'], $post_data['jetpack_contact_form_jwt'] );
+
+		$log_non_empty_post_data_keys = array();
+		foreach ( $post_data as $key => $value ) {
+			if ( ! empty( $value ) ) {
+				$log_non_empty_post_data_keys[] = $key;
+			}
+		}
+		return $log_non_empty_post_data_keys;
+	}
 
 	/**
 	 * Handle the ajax request.
@@ -1672,15 +1689,19 @@ class Contact_Form_Plugin {
 	public function ajax_request() {
 		$submission_result = self::process_form_submission();
 
-		$post_data = isset( $_POST ) ? wp_unslash( $_POST ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		unset( $post_data['contact-form-hash'], $post_data['action'], $post_data['_wpnonce'], $post_data['jetpack_contact_form_jwt'] );
-
 		if ( ! $submission_result ) {
 			header( 'HTTP/1.1 500 Server Error', true, 500 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
-			$this->log_to_logstash( 'forms_submission_has_errors', array( 'errors' => 'submission_failed' ) );
+
+			$this->log_to_logstash(
+				'forms_submission_has_errors',
+				array(
+					'errors' => 'submission_failed',
+					'post'   => $this->non_empty_post_data_keys(),
+				)
+			);
 		} elseif ( is_wp_error( $submission_result ) ) {
 			header( 'HTTP/1.1 400 Bad Request', true, 403 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
@@ -1691,7 +1712,7 @@ class Contact_Form_Plugin {
 				'forms_submission_has_errors',
 				array(
 					'errors' => $submission_result->get_error_message(),
-					'post'   => $post_data,
+					'post'   => $this->non_empty_post_data_keys(),
 				)
 			);
 		} else {
