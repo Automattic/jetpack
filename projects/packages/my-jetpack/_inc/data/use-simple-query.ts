@@ -22,14 +22,14 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
  */
 type QueryParams< T > = {
 	name: string;
-	query: APIFetchOptions;
+	query: APIFetchOptions< true >;
 	options?: Pick< UseQueryOptions< T, WP_Error >, 'enabled' | 'gcTime' | 'refetchOnMount' >;
 	errorMessage?: string;
 };
 const useSimpleQuery = < T >( { name, query, options, errorMessage }: QueryParams< T > ) => {
 	const queryResult = useQuery< T, WP_Error >( {
 		queryKey: [ name, query ],
-		queryFn: () => apiFetch< T >( { ...query, parse: true } ),
+		queryFn: () => apiFetch< T >( query ),
 		refetchOnWindowFocus: false,
 		refetchIntervalInBackground: false,
 		...options,

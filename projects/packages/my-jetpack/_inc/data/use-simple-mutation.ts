@@ -33,7 +33,7 @@ export type MutateCallback = UseMutateFunction<
 
 type QueryParams< T, E, V > = {
 	name: string;
-	query: APIFetchOptions;
+	query: APIFetchOptions< true >;
 	options?: Pick< UseMutationOptions< T, E, V >, 'onSuccess' >;
 	errorMessage?: string;
 };
@@ -62,7 +62,7 @@ const useSimpleMutation = <
 				delete variables.queryParams;
 			}
 
-			return apiFetch< T >( { ...finalQuery, ...variables, parse: true } );
+			return apiFetch< T >( { ...finalQuery, ...variables } );
 		},
 		...options,
 	} );
