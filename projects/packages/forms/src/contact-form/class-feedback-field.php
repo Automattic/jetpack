@@ -329,6 +329,78 @@ class Feedback_Field {
 	}
 
 	/**
+	 * Normalize Unicode characters in a string.
+	 *
+	 * This is only used for V2 version of the feedback. Since we didn't escape special characters
+	 *
+	 * @param string $string The string to normalize.
+	 *
+	 * @return string
+	 */
+	public static function normalize_unicode( $string ) {
+		// Case 1: JSON-style escapes, e.g. "\u003cstrong\u003e" or "\ud83d\ude48"
+		if ( strpos( $string, '\u' ) !== false ) {
+			$decoded = json_decode( '"' . $string . '"' );
+			if ( self::is_valid_json_decode( $decoded ) ) {
+				return $decoded;
+			}
+		}
+
+		// Case 2: Raw surrogate dumps, e.g. "ud83dude48" or "u003cstrongu003e"
+		if ( preg_match( '/u[0-9a-fA-F]{4}/', $string ) ) {
+			// Add missing backslashes before each uXXXX
+			$json_ready = preg_replace( '/u([0-9a-fA-F]{4})/', '\\\\u$1', $string );
+			$decoded    = json_decode( '"' . $json_ready . '"' );
+			if ( self::is_valid_json_decode( $decoded ) ) {
+				return $decoded;
+			}
+		}
+
+		// Fallback: return unchanged
+		return $string;
+	}
+
+	/**
+	 * Check if the decoded JSON is valid.
+	 *
+	 * @param mixed $decoded The decoded JSON data.
+	 * @return bool True if there are no errors, false otherwise.
+	 */
+	private static function is_valid_json_decode( $decoded ) {
+		return $decoded !== null && json_last_error() === JSON_ERROR_NONE;
+	}
+
+	/**
+	 * Create a Feedback_Field object from serialized data.
+	 *
+	 * @param array $data The serialized data.
+	 *
+	 * @return Feedback_Field|null Returns a Feedback_Field object or null if the data is invalid.
+	 */
+	public static function from_serialized_v2( $data ) {
+		if ( ! is_array( $data ) || ! isset( $data['key'] ) || ! isset( $data['value'] ) || ! isset( $data['label'] ) ) {
+			return null;
+		}
+
+		if ( is_string( $data['value'] ) ) { // just normalize plain string for now.
+			$data['value'] = self::normalize_unicode( $data['value'] );
+		}
+
+		if ( is_string( $data['label'] ) ) { // just normalize plain string for now.
+			$data['label'] = self::normalize_unicode( $data['label'] );
+		}
+
+		return new self(
+			$data['key'],
+			$data['label'],
+			$data['value'],
+			$data['type'] ?? 'basic',
+			$data['meta'] ?? array(),
+			$data['form_field_id'] ?? ''
+		);
+	}
+
+	/**
 	 * Check if the field has a file
 	 *
 	 * @return bool

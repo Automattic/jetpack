@@ -174,7 +174,7 @@ function AiPostExcerpt() {
 		const messageContext: ContentLensMessageContextProps = {
 			type: 'ai-content-lens',
 			contentType: 'post-excerpt',
-			postId,
+			postId: Number( postId ),
 			words: excerptWordsNumber,
 			language,
 			tone,

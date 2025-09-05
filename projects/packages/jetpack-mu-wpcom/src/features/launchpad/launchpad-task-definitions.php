@@ -120,7 +120,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 				if ( is_int( $latest_draft_id ) ) {
 					// There is a draft post, redirect the user to the draft instead of making a fresh post.
-					return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
+					return admin_url( 'post.php?action=edit&post=' . rawurlencode( (string) $latest_draft_id ) );
 				}
 
 				return admin_url( 'post-new.php' );
@@ -2613,8 +2613,8 @@ add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_w
  * Mark the WooCommerce setup task as complete the setup task list is in
  * the completed list or in the hidden list.
  *
- * @param string $old_value The old value of the option.
- * @param string $value The new value of the option.
+ * @param array $old_value The old value of the option.
+ * @param array $value The new value of the option.
  *
  * @return void
  */

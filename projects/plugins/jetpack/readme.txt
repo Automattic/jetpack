@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.0-beta - 2025-09-01
+### 15.0 - 2025-09-04
 #### Enhancements
 - Add LaTeX block (Beta) to render mathematical formula.
 - Blocks: Update JavaScript to be non-render blocking.
@@ -354,17 +354,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Bug fixes
 - Carousel: Improve image size processing to return higher quality images in additional situations.
+- Crowdsignal: Improve escaping.
 - Forms: Fix default checkboxes styles, and allow for "browser" styles as a choice.
 - Forms: Fix error wrapper when placing button inside a group block.
 - Forms: Fix phone validation for responses.
 - Forms: Improve checkbox validation for older checkboxes.
 - Forms: Show the form variation picker if you only have the submit button.
 - Image CDN: Prevent errors attempting to filter null.
+- Improve escaping for recurring payment buttons.
 - Infinite Scroll: Prevent PHP warnings in various edge cases.
 - My Jetpack: Fix multisite availability check for restricted products and modules.
 - Prevent PHP fatals when handling unexpected data types.
 - Search: Ensure images are loaded efficiently when on https sites.
 - SEO settings: Update the default Open Graph image tag to match the one in use on the site.
+- Shortcodes: Improve embed detection.
 - Sitemaps: Fix PHP warning during generation if there are no posts or pages on the website.
 - Social: Allow default image to be cleared.
 - Social: Fix image generator token reset on save resulting in font not being saved.

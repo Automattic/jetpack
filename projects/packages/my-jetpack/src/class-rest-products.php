@@ -32,7 +32,7 @@ class REST_Products {
 					'permission_callback' => __CLASS__ . '::view_products_permissions_callback',
 					'args'                => array(
 						'products' => array(
-							'description'       => __( 'Comma seperated list of product slugs that should be retrieved.', 'jetpack-my-jetpack' ),
+							'description'       => __( 'Comma-separated list of product slugs that should be retrieved.', 'jetpack-my-jetpack' ),
 							'type'              => 'string',
 							'required'          => false,
 							'validate_callback' => __CLASS__ . '::check_products_string',
@@ -113,24 +113,7 @@ class REST_Products {
 						),
 					),
 				),
-				'schema' => array(
-					'$schema'    => 'http://json-schema.org/draft-04/schema#',
-					'title'      => 'Products interstitials',
-					'type'       => 'object',
-					'properties' => array(
-						'products' => array(
-							'type'        => 'object',
-							'description' => __( 'Key-value pairs of product slugs and their interstitial states.', 'jetpack-my-jetpack' ),
-							'properties'  => array_fill_keys(
-								Products::get_products_slugs(),
-								array(
-									'description' => __( 'Interstitial state for the product. True means that the user has seen the interstitial for the product.', 'jetpack-my-jetpack' ),
-									'type'        => 'boolean',
-								)
-							),
-						),
-					),
-				),
+				'schema' => array( self::class, 'get_interstitials_schema' ),
 			)
 		);
 
@@ -173,6 +156,32 @@ class REST_Products {
 			'title'      => 'products',
 			'type'       => 'object',
 			'properties' => Products::get_product_data_schema(),
+		);
+	}
+
+	/**
+	 * Get the schema for the interstitials endpoint
+	 *
+	 * @return array
+	 */
+	public static function get_interstitials_schema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'Products interstitials',
+			'type'       => 'object',
+			'properties' => array(
+				'products' => array(
+					'type'        => 'object',
+					'description' => __( 'Key-value pairs of product slugs and their interstitial states.', 'jetpack-my-jetpack' ),
+					'properties'  => array_fill_keys(
+						Products::get_products_slugs(),
+						array(
+							'description' => __( 'Interstitial state for the product. True means that the user has seen the interstitial for the product.', 'jetpack-my-jetpack' ),
+							'type'        => 'boolean',
+						)
+					),
+				),
+			),
 		);
 	}
 

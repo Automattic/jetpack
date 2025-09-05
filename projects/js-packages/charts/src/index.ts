@@ -11,14 +11,12 @@ export { ConversionFunnelChart } from './components/conversion-funnel-chart';
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 
-// Visx components
-export { Text, getStringWidth, useText } from './visx/text';
-export { Group } from './visx/group';
-export { LineShape, CircleShape, RectShape } from './visx/legend';
-
 // Themes
 export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
+
+// Global context
+export { GlobalChartsProvider } from './providers/chart-context';
 
 // Types
 export type * from './types';

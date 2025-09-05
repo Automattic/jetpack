@@ -60,7 +60,7 @@ final class Image_CDN {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, self::class ) ) {
+		if ( ! self::$instance instanceof self ) {
 			self::$instance = new self();
 			self::$instance->setup();
 			self::$is_enabled = true;

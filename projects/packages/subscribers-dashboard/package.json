@@ -36,11 +36,11 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
-		"@wordpress/data": "10.28.0",
-		"@wordpress/dataviews": "5.0.0",
-		"@wordpress/element": "6.28.0",
-		"@wordpress/i18n": "6.1.0",
-		"@wordpress/url": "4.28.0"
+		"@wordpress/data": "10.30.0",
+		"@wordpress/dataviews": "7.0.0",
+		"@wordpress/element": "6.30.0",
+		"@wordpress/i18n": "6.3.0",
+		"@wordpress/url": "4.30.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",

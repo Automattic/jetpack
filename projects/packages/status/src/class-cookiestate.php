@@ -49,6 +49,7 @@ class CookieState {
 				if ( strlen( $v ) ) {
 					$state[ $k ] = $v;
 				}
+				// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- Setting cookie to false is valid and documented for deletion.
 				setcookie( "jetpackState[$k]", false, 0, $path, $domain, is_ssl(), true );
 			}
 		}

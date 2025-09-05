@@ -1658,8 +1658,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Initialize all these "standard" fields to null
 		$comment_author_email = $response->get_author_email();
 		$comment_author       = $response->get_author();
-		$comment_author_url   = $response->get_author_url();
-		$comment_content      = $response->get_comment_content();
 
 		$contact_form_subject = $response->get_subject();
 
@@ -1784,11 +1782,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
-		// Build feedback reference
-		$feedback_time  = $response->get_time();
-		$feedback_title = $response->get_title();
-		$feedback_id    = $response->get_feedback_id();
-
 		$entry_values = $response->get_entry_values();
 
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
@@ -1859,20 +1852,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$comment_author_ip = null;
 		}
 
-		$comment_ip_text = $comment_author_ip ? "IP: {$comment_author_ip}\n" : null;
-
-		$post_id = wp_insert_post(
-			array(
-				'post_date'    => addslashes( $feedback_time ),
-				'post_type'    => 'feedback',
-				'post_status'  => addslashes( $feedback_status ),
-				'post_parent'  => $this->current_post ? (int) self::get_post_property( $this->current_post, 'ID' ) : 0,
-				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\n{$comment_ip_text}JSON_DATA\n" . @wp_json_encode( $all_values, true ), array() ) ), // so that search will pick up this data
-				'post_name'    => $feedback_id,
-			)
-		);
+		$post_id       = 0;
+		$feedback_post = $response->save();
+		if ( $feedback_post instanceof WP_Post ) {
+			$post_id = $feedback_post->ID;
+		}
 
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );

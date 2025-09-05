@@ -124,12 +124,11 @@ class Jetpack_Boost {
 		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
+		add_action( 'init', array( $this, 'setup_cron_schedules' ) );
 
 		add_action( 'jetpack_boost_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
-
-		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -197,6 +196,13 @@ class Jetpack_Boost {
 			// Schedule the cronjob to preload the cache for Cornerstone Pages.
 			( new Cache_Preload() )->schedule_cornerstone_cronjob();
 		}
+	}
+
+	/**
+	 * Adds the custom cron intervals to the schedules list.
+	 */
+	public function setup_cron_schedules() {
+		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
 	}
 
 	/**

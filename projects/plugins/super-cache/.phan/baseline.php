@@ -11,20 +11,20 @@ return [
     // # Issue statistics:
     // PhanPluginSimplifyExpressionBool : 80+ occurrences
     // PhanUndeclaredGlobalVariable : 45+ occurrences
-    // PhanTypeMismatchArgumentInternal : 30+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 25+ occurrences
     // PhanPossiblyUndeclaredVariable : 20+ occurrences
     // PhanUndeclaredVariable : 20+ occurrences
+    // PhanTypeMismatchArgumentInternal : 15+ occurrences
     // PhanTypeMismatchArgument : 10+ occurrences
     // PhanTypeNonVarPassByRef : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 10+ occurrences
     // PhanTypeSuspiciousStringExpression : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
-    // PhanTypeInvalidDimOffset : 8 occurrences
     // PhanUndeclaredFunction : 8 occurrences
     // PhanTypeArraySuspiciousNull : 7 occurrences
     // PhanTypeArraySuspiciousNullable : 7 occurrences
     // PhanSuspiciousValueComparison : 6 occurrences
+    // PhanTypeInvalidDimOffset : 6 occurrences
     // PhanUndeclaredVariableDim : 6 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 4 occurrences
@@ -40,10 +40,10 @@ return [
     // PhanPluginNeverReturnFunction : 2 occurrences
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 2 occurrences
+    // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
     // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanPluginDuplicateIfCondition : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeConversionFromArray : 1 occurrence
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 1 occurrence
@@ -56,7 +56,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'advanced-cache.php' => ['PhanPluginSimplifyExpressionBool'],
-        'inc/delete-cache-button.php' => ['PhanPluginNeverReturnFunction', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
+        'inc/delete-cache-button.php' => ['PhanPluginNeverReturnFunction', 'PhanTypeMismatchArgument'],
         'ossdl-cdn.php' => ['PhanUndeclaredClassMethod'],
         'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/debug.php' => ['PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],

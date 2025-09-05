@@ -328,6 +328,11 @@ class Jetpack_Gutenberg {
 		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
 		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
+		// Avoid errors if option data is not as expected.
+		if ( ! is_array( $exclusions ) ) {
+			$exclusions = array();
+		}
+
 		return array_diff( $allowed_extensions, $exclusions );
 	}
 

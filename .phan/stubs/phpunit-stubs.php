@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.6
+ * Stubs automatically generated from PHPUnit 12.3.8
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -19170,6 +19170,9 @@ final class HookMethods
     public function hookMethods(string $className): array
     {
     }
+    public function isHookMethod(\ReflectionMethod $method): bool
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -27844,9 +27847,6 @@ final readonly class Test
     public static function isTestMethod(\ReflectionMethod $method): bool
     {
     }
-    public static function isHookMethod(\ReflectionMethod $method): bool
-    {
-    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -28189,6 +28189,12 @@ namespace SebastianBergmann\CodeCoverage;
 final class CodeCoverage
 {
     public function __construct(\SebastianBergmann\CodeCoverage\Driver\Driver $driver, \SebastianBergmann\CodeCoverage\Filter $filter)
+    {
+    }
+    /**
+     * @return non-empty-list<non-empty-string>
+     */
+    public function __sleep(): array
     {
     }
     /**
