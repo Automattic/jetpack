@@ -1024,6 +1024,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
 			data-wp-on--jetpack-form-reset='actions.phoneResetHandler'
 			data-wp-init="callbacks.initializePhoneField"
+			data-wp-class--is-combobox-open="context.comboboxOpen"
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- function is supposed to work this way
 			echo wp_interactivity_data_wp_context(
@@ -1111,7 +1112,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-on--focus='actions.phoneNumberFocusHandler'
-					data-wp-class--has-value='state.hasFieldValue'
+					data-wp-class--has-value='context.phoneNumber'
 					/>
 				<input type="hidden"
 					id="<?php echo esc_attr( $id ); ?>"
