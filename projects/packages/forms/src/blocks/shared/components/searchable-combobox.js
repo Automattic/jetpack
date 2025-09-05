@@ -9,15 +9,17 @@ import clsx from 'clsx';
  * A reusable combobox component for selecting options with search functionality.
  * Handles its own state management for open/closed state, filtering, and selection.
  * Uses WordPress KeyboardShortcuts component for proper block editor keyboard event handling.
+ * Automatically scrolls to the selected option when the combobox opens.
  *
  * @param {object}   props                    - The component props
- * @param {Array}    props.options            - Array of country objects with code, country, flag, and value properties
- * @param {string}   props.selectedOptionCode - The currently selected country code
- * @param {Function} props.onOptionChange     - Callback function called when a country is selected
+ * @param {Array}    props.options            - Array of options objects with code, country, flag, and value properties
+ * @param {string}   props.selectedOptionCode - The currently selected option code
+ * @param {Function} props.onOptionChange     - Callback function called when an option is selected
  * @param {boolean}  props.isOpen             - External control for combobox open state
  * @param {Function} props.onOpenChange       - Callback function for open state changes
  * @param {string}   props.className          - Additional CSS class names
  * @param {boolean}  props.disabled           - Whether the combobox is disabled
+ * @param {string}   props.placeholder        - The placeholder text for the search input
  * @return {Element|null} The SearchableCombobox component or null if no options/selectedOption
  */
 const SearchableCombobox = ( {
@@ -28,6 +30,7 @@ const SearchableCombobox = ( {
 	onOpenChange,
 	className = '',
 	disabled = false,
+	placeholder = __( 'Search…', 'jetpack-forms' ),
 } ) => {
 	const [ internalIsOpen, setInternalIsOpen ] = useState( false );
 	const [ filteredOptions, setFilteredOptions ] = useState( [] );
@@ -46,15 +49,15 @@ const SearchableCombobox = ( {
 		setFilteredOptions( options );
 	}, [ options ] );
 
-	// Update selected country when selectedOptionCode or options change
+	// Update selected option when selectedOptionCode or options change
 	useEffect( () => {
 		if ( ! selectedOptionCode || ! options.length ) {
 			setSelectedOption( null );
 			return;
 		}
 
-		const country = options.find( option => option.code === selectedOptionCode );
-		setSelectedOption( country || null );
+		const option = options.find( opt => opt.code === selectedOptionCode );
+		setSelectedOption( option || null );
 	}, [ selectedOptionCode, options ] );
 
 	// Filter options based on search term
@@ -65,10 +68,10 @@ const SearchableCombobox = ( {
 		}
 
 		const filtered = options.filter(
-			country =>
-				country.country.toLowerCase().includes( searchTerm.toLowerCase() ) ||
-				country.value.toLowerCase().includes( searchTerm.toLowerCase() ) ||
-				country.code.toLowerCase().includes( searchTerm.toLowerCase() )
+			option =>
+				option.country.toLowerCase().includes( searchTerm.toLowerCase() ) ||
+				option.value.toLowerCase().includes( searchTerm.toLowerCase() ) ||
+				option.code.toLowerCase().includes( searchTerm.toLowerCase() )
 		);
 		setFilteredOptions( filtered );
 	}, [ searchTerm, options ] );
@@ -105,6 +108,28 @@ const SearchableCombobox = ( {
 		}
 	}, [ focusedOptionIndex ] );
 
+	// Scroll to selected option when combobox opens
+	useEffect( () => {
+		if ( isOpen && selectedOption && filteredOptions.length > 0 ) {
+			// Find the index of the selected option in the filtered options
+			const selectedIndex = filteredOptions.findIndex(
+				option => option.code === selectedOption.code
+			);
+
+			// Scroll to the selected option if found
+			if ( selectedIndex >= 0 && optionsRef.current[ selectedIndex ] ) {
+				// Use setTimeout to ensure the DOM has been rendered
+				setTimeout( () => {
+					optionsRef.current[ selectedIndex ].scrollIntoView( {
+						block: 'nearest',
+						container: 'nearest',
+						behavior: 'instant',
+					} );
+				}, 0 );
+			}
+		}
+	}, [ isOpen, selectedOption, filteredOptions ] );
+
 	const handleToggle = useCallback( () => {
 		if ( disabled ) {
 			return;
@@ -112,7 +137,7 @@ const SearchableCombobox = ( {
 		setIsOpen( ! isOpen );
 	}, [ isOpen, setIsOpen, disabled ] );
 
-	const handleCountrySelect = useCallback(
+	const handleOptionSelect = useCallback(
 		event => {
 			if ( onOptionChange ) {
 				onOptionChange( event );
@@ -162,10 +187,10 @@ const SearchableCombobox = ( {
 			}
 			event.preventDefault();
 			if ( focusedOptionIndex >= 0 && focusedOptionIndex < filteredOptions.length ) {
-				const selectedCountryOption = filteredOptions[ focusedOptionIndex ];
+				const focusedOption = filteredOptions[ focusedOptionIndex ];
 				const mockEvent = {
-					target: { value: selectedCountryOption.code },
-					currentTarget: { value: selectedCountryOption.code },
+					target: { value: focusedOption.code },
+					currentTarget: { value: focusedOption.code },
 				};
 				if ( onOptionChange ) {
 					onOptionChange( mockEvent );
@@ -195,7 +220,7 @@ const SearchableCombobox = ( {
 		esc: handleEscape,
 	};
 
-	// Don't render if no options or no selected country
+	// Don't render if no options or no selected option
 	if ( ! options.length || ! selectedOption ) {
 		return null;
 	}
@@ -238,7 +263,7 @@ const SearchableCombobox = ( {
 							ref={ searchInputRef }
 							className="jetpack-combobox-search"
 							type="text"
-							placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
+							placeholder={ placeholder }
 							value={ searchTerm }
 							onChange={ handleSearchChange }
 							role="combobox"
@@ -246,7 +271,7 @@ const SearchableCombobox = ( {
 							aria-autocomplete="list"
 							aria-activedescendant={
 								focusedOptionIndex >= 0
-									? `country-option-${ filteredOptions[ focusedOptionIndex ]?.code }`
+									? `option-${ filteredOptions[ focusedOptionIndex ]?.code }`
 									: undefined
 							}
 						/>
@@ -261,14 +286,13 @@ const SearchableCombobox = ( {
 										ref={ el => {
 											optionsRef.current[ index ] = el;
 										} }
-										id={ `country-option-${ code }` }
+										id={ `option-${ code }` }
 										className={ clsx( 'jetpack-combobox-option', {
 											'is-focused': isFocused,
 											'jetpack-combobox-option-selected': isSelected,
 										} ) }
 										value={ code }
-										onClick={ handleCountrySelect }
-										onMouseEnter={ () => setFocusedOptionIndex( index ) }
+										onClick={ handleOptionSelect }
 										role="option"
 										aria-selected={ isSelected }
 										tabIndex={ -1 }
