@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { useCallback, useRef, useState, useEffect, useMemo } from '@wordpress/element';
-import CountryCombobox from '../shared/components/country-combobox';
+import SearchableCombobox from '../shared/components/searchable-combobox';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
@@ -84,10 +84,10 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 			<div { ...blockProps }>
 				{ showCountrySelector && countries.length > 1 && defaultPrefix && (
 					<div className="jetpack-field__input-prefix">
-						<CountryCombobox
-							countries={ countries }
-							selectedCountryCode={ defaultPrefix }
-							onCountryChange={ handleChangeDefaultPrefix }
+						<SearchableCombobox
+							options={ countries }
+							selectedOptionCode={ defaultPrefix }
+							onOptionChange={ handleChangeDefaultPrefix }
 							isOpen={ comboboxOpen }
 							onOpenChange={ setComboboxOpen }
 						/>
