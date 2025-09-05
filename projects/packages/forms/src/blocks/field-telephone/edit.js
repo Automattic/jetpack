@@ -5,13 +5,7 @@ import {
 	BlockContextProvider,
 	BlockControls,
 } from '@wordpress/block-editor';
-import {
-	PanelBody,
-	ToggleControl,
-	ToolbarButton,
-	ToolbarGroup,
-	SelectControl,
-} from '@wordpress/components';
+import { PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
@@ -45,16 +39,11 @@ export default function PhoneFieldEdit( props ) {
 	const { isInnerBlockSelected, hasPlaceholder } = useFieldSelected( clientId );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
-		className: clsx(
-			'jetpack-field',
-			'jetpack-field-phone',
-			'jetpack-field-telephone',
-			width ? ` jetpack-field__width-${ width }` : '',
-			{
-				'is-selected': isSelected || isInnerBlockSelected,
-				'has-placeholder': hasPlaceholder,
-			}
-		),
+		className: clsx( 'jetpack-field', 'jetpack-field-phone', 'jetpack-field-telephone', {
+			[ `jetpack-field__width-${ width }` ]: width,
+			'is-selected': isSelected || isInnerBlockSelected,
+			'has-placeholder': hasPlaceholder,
+		} ),
 		style: blockStyle,
 	} );
 
@@ -64,13 +53,6 @@ export default function PhoneFieldEdit( props ) {
 		return countries.map( country => ( {
 			...country,
 			country: getTranslatedCountryName( country.code ),
-		} ) );
-	}, [] );
-
-	const countryPairsWithNames = useMemo( () => {
-		return countries.map( country => ( {
-			label: country.country + ' ' + country.label,
-			value: country.code,
 		} ) );
 	}, [] );
 
@@ -113,9 +95,7 @@ export default function PhoneFieldEdit( props ) {
 	// Handler is provided as context from edit as index.js can't pass it as a prop.
 	const onChangeDefaultCountry = useCallback(
 		event => {
-			// if event is an array, we're using the select control
-			const value = Array.isArray( event ) ? event[ 0 ] : event.target.value;
-			setAttributes( { default: value } );
+			setAttributes( { default: event.target.value } );
 		},
 		[ setAttributes ]
 	);
@@ -150,17 +130,6 @@ export default function PhoneFieldEdit( props ) {
 						onChange={ onChangeShowCountrySelector }
 						__nextHasNoMarginBottom={ true }
 					/>
-					{ showCountrySelector && (
-						<SelectControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Default country', 'jetpack-forms' ) }
-							multiple
-							onChange={ onChangeDefaultCountry }
-							options={ countryPairsWithNames }
-							value={ [ defaultCountry ] }
-						/>
-					) }
 				</PanelBody>
 			</InspectorControls>
 
