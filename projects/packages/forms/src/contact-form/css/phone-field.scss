@@ -9,7 +9,7 @@
 		display: flex;
 		gap: 8px;
 		background-color: var(--jetpack--contact-form--input-background);
-		border-color: currentColor;
+		border-color: var(--jetpack--contact-form--border-color, currentColor);
 		border-width: var(--jetpack--contact-form--border-size);
 		border-style: var(--jetpack--contact-form--border-style);
 		border-radius: var(--jetpack--contact-form--border-radius);
@@ -82,7 +82,7 @@
 				outline: unset;
 			}
 
-			&:not(:has(*:focus, *:active)) {
+			&:not(:has(*:focus, *:active)):not(.is-combobox-open) {
 
 				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
 					pointer-events: none;
@@ -111,7 +111,7 @@
 				outline: unset;
 			}
 
-			&:not(:has(*:focus, *:active)) {
+			&:not(:has(*:focus, *:active)):not(.is-combobox-open) {
 
 				// notched label is game of superpositions with z-index,
 				// while no input element is selected, force transparent so label is visible

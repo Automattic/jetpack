@@ -39,11 +39,11 @@
 				position: absolute;
 				left: 1px;
 				top: 0;
-				transform: translateY(75%) rotate(45deg);
+				transform: translateY(100%) rotate(45deg);
 				width: 7px;
 				height: 7px;
-				border-right: 1px solid currentColor;
-				border-bottom: 1px solid currentColor;
+				border-right: 1.5px solid currentColor;
+				border-bottom: 1.5px solid currentColor;
 			}
 
 			&.is-open {
@@ -84,10 +84,6 @@
 			color: inherit;
 			background-color: inherit;
 			z-index: 1;
-
-			&:focus {
-				border-bottom-color: #007cba;
-			}
 		}
 
 		.jetpack-combobox-options {
