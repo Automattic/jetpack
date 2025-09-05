@@ -962,9 +962,9 @@ class Contact_Form_Plugin {
 				<?php if ( $is_dots_style ) : ?>
 					<?php for ( $i = 0; $i < $max_steps; $i++ ) : ?>
 						<?php $step_context = array( 'stepIndex' => $i ); ?>
-						<div class="jetpack-form-progress-indicator-step" 
-							data-wp-class--is-active="state.isStepActive" 
-							data-wp-class--is-completed="state.isStepCompleted" 
+						<div class="jetpack-form-progress-indicator-step"
+							data-wp-class--is-active="state.isStepActive"
+							data-wp-class--is-completed="state.isStepCompleted"
 							data-wp-context='<?php echo wp_json_encode( $step_context ); ?>'>
 							<div class="jetpack-form-progress-indicator-line"></div>
 							<div class="jetpack-form-progress-indicator-dot">
@@ -980,7 +980,7 @@ class Contact_Form_Plugin {
 						</div>
 					<?php endfor; ?>
 				<?php endif; ?>
-				<div class="jetpack-form-progress-indicator-progress" 
+				<div class="jetpack-form-progress-indicator-progress"
 					data-wp-style--width="<?php echo esc_attr( $progress_state ); ?>"></div>
 			</div>
 		</div>
@@ -1672,17 +1672,28 @@ class Contact_Form_Plugin {
 	public function ajax_request() {
 		$submission_result = self::process_form_submission();
 
+		$post_data = isset( $_POST ) ? wp_unslash( $_POST ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		unset( $post_data['contact-form-hash'], $post_data['action'], $post_data['_wpnonce'], $post_data['jetpack_contact_form_jwt'] );
+
 		if ( ! $submission_result ) {
 			header( 'HTTP/1.1 500 Server Error', true, 500 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
+			$this->record_tracks_event( 'forms_submission_has_errors', array( 'errors' => 'is false' ) );
 		} elseif ( is_wp_error( $submission_result ) ) {
 			header( 'HTTP/1.1 400 Bad Request', true, 403 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
-			$this->record_tracks_event( 'forms_submission_has_errors', array( 'errors' => $submission_result->get_error_message() ) );
+
+			$this->record_tracks_event(
+				'forms_submission_has_errors',
+				array(
+					'errors' => $submission_result->get_error_message(),
+					'post'   => $post_data,
+				)
+			);
 		} else {
 			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
 				$submission_result,
