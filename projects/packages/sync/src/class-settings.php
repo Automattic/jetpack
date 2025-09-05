@@ -425,8 +425,17 @@ class Settings {
 	public static function get_allowed_post_meta_structured() {
 		return array(
 			'meta_key' => array(
-				'operator' => 'IN',
-				'values'   => array_map( 'esc_sql', static::get_setting( 'post_meta_whitelist' ) ),
+				'group_operator' => 'OR',
+				'filters'        => array(
+					array(
+						'operator' => 'IN',
+						'values'   => array_map( 'esc_sql', static::get_setting( 'post_meta_whitelist' ) ),
+					),
+					array(
+						'operator' => 'LIKE',
+						'values'   => array_map( 'esc_sql', Defaults::get_post_meta_prefix_whitelist() ),
+					),
+				),
 			),
 		);
 	}

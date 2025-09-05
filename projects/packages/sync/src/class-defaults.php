@@ -812,6 +812,33 @@ class Defaults {
 	}
 
 	/**
+	 * Array of post meta key prefixes whitelisted (wildcard match).
+	 *
+	 * @var array Post meta prefix whitelist.
+	 */
+	public static $post_meta_prefix_whitelist = array(
+		'_wpas_skip_',
+	);
+
+	/**
+	 * Get the post meta key prefix whitelist (wildcard match).
+	 *
+	 * @return array Post meta prefix whitelist.
+	 */
+	public static function get_post_meta_prefix_whitelist() {
+		/**
+		 * Filter the list of post meta key prefixes (wildcards) that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since $$next_version
+		 *
+		 * @param array The default list of meta key prefixes.
+		 */
+		return apply_filters( 'jetpack_sync_post_meta_prefix_whitelist', self::$post_meta_prefix_whitelist );
+	}
+
+	/**
 	 * Comment meta whitelist.
 	 *
 	 * @var array Comment meta whitelist.

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -397,11 +398,23 @@ class Posts extends Module {
 	 * Whether a post meta key is whitelisted.
 	 *
 	 * @param string $meta_key Meta key.
-	 * @return boolean Whether the post meta key is whitelisted.
+	 * @return bool Whether the post meta key is whitelisted.
 	 */
 	public function is_whitelisted_post_meta( $meta_key ) {
-		// The _wpas_skip_ meta key is used by Publicize.
-		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || str_starts_with( $meta_key, '_wpas_skip_' );
+		$whitelist        = Settings::get_setting( 'post_meta_whitelist' );
+		$prefix_whitelist = Defaults::get_post_meta_prefix_whitelist();
+
+		if ( in_array( $meta_key, $whitelist, true ) ) {
+			return true;
+		}
+
+		foreach ( $prefix_whitelist as $prefix ) {
+			if ( str_starts_with( $meta_key, $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -843,7 +856,7 @@ class Posts extends Module {
 		list( $post_ids, $previous_interval_end ) = $args;
 
 		$posts              = $this->expand_posts( $post_ids );
-		$posts_metadata     = $this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) );
+		$posts_metadata     = $this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ), Defaults::get_post_meta_prefix_whitelist() );
 		$term_relationships = $this->get_term_relationships( $post_ids );
 
 		return array(
@@ -898,7 +911,7 @@ class Posts extends Module {
 		}
 		// Get the post IDs from the posts that were fetched.
 		$fetched_post_ids = wp_list_pluck( $posts, 'ID' );
-		$metadata         = $this->get_metadata( $fetched_post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) );
+		$metadata         = $this->get_metadata( $fetched_post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ), Defaults::get_post_meta_prefix_whitelist() );
 
 		// Filter the posts and metadata based on the maximum size constraints.
 		list( $filtered_post_ids, $filtered_posts, $filtered_posts_metadata ) = $this->filter_objects_and_metadata_by_size(

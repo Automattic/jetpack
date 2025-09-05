@@ -471,10 +471,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @param array  $ids List of order IDs.
 	 * @param string $meta_type Meta type.
 	 * @param array  $meta_key_whitelist List of allowed meta keys.
+	 * @param array  $meta_key_prefix_filters Optional. Prefixes of meta keys to allow.
 	 *
 	 * @return array Filtered order metadata.
 	 */
-	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- returning empty meta is intentional.
+	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist, $meta_key_prefix_filters = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- returning empty meta is intentional.
 		return array(); // don't sync metadata, all allow-listed core data is available in the order object.
 	}
 

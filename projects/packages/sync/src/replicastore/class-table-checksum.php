@@ -521,21 +521,42 @@ class Table_Checksum {
 
 		$result = array();
 
-		foreach ( $filter_values as $field => $filter ) {
+		foreach ( $filter_values as $field => $filters ) {
 			$key = ( ! empty( $table_prefix ) ? $table_prefix : $this->table ) . '.' . $field;
 
-			switch ( $filter['operator'] ) {
-				case 'IN':
-				case 'NOT IN':
-					$filter_values_count = is_countable( $filter['values'] ) ? count( $filter['values'] ) : 0;
-					$values_placeholders = implode( ',', array_fill( 0, $filter_values_count, '%s' ) );
-					$statement           = "{$key} {$filter['operator']} ( $values_placeholders )";
+			$group_operator = $filters['group_operator'] ?? 'AND'; // Default to AND if not specified.
+			// If filters is explicitly provided, separate it out
+			if ( isset( $filters['filters'] ) ) {
+				$filters = $filters['filters'];
+			} else {
+				$filters = array( $filters );
+			}
 
-					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-					$prepared_statement = $wpdb->prepare( $statement, $filter['values'] );
+			$group_clauses = array();
 
-					$result[] = $prepared_statement;
-					break;
+			foreach ( $filters as $filter ) {
+				switch ( $filter['operator'] ) {
+					case 'IN':
+					case 'NOT IN':
+						$filter_values_count = is_countable( $filter['values'] ) ? count( $filter['values'] ) : 0;
+						$values_placeholders = implode( ',', array_fill( 0, $filter_values_count, '%s' ) );
+						$statement           = "{$key} {$filter['operator']} ( $values_placeholders )";
+
+						// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+						$group_clauses[] = $wpdb->prepare( $statement, $filter['values'] );
+						break;
+
+					case 'LIKE':
+						foreach ( $filter['values'] as $wildcard ) {
+							// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+							$group_clauses[] = $wpdb->prepare( "{$key} LIKE %s", $wildcard . '%' );
+						}
+						break;
+				}
+			}
+
+			if ( ! empty( $group_clauses ) ) {
+				$result[] = '( ' . implode( " {$group_operator} ", $group_clauses ) . ' )';
 			}
 		}
 

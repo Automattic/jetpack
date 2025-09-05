@@ -584,12 +584,13 @@ abstract class Module {
 	 *
 	 * @todo Refactor to use $wpdb->prepare() on the SQL query.
 	 *
-	 * @param array  $ids                Object IDs.
-	 * @param string $meta_type          Meta type.
-	 * @param array  $meta_key_whitelist Meta key whitelist.
+	 * @param array  $ids                     Object IDs.
+	 * @param string $meta_type               Meta type.
+	 * @param array  $meta_key_whitelist      Exact meta keys to allow.
+	 * @param array  $meta_key_prefix_filters Optional. Prefixes of meta keys to allow.
 	 * @return array Unserialized meta values.
 	 */
-	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) {
+	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist, $meta_key_prefix_filters = array() ) {
 		global $wpdb;
 		$table = _get_meta_table( $meta_type );
 		$id    = $meta_type . '_id';
@@ -597,18 +598,33 @@ abstract class Module {
 			return array();
 		}
 
-		$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_key_whitelist ) ) . "'";
+		$meta_key_conditions = array();
 
-		return array_map(
-			array( $this, 'unserialize_meta' ),
-			$wpdb->get_results(
-				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-				"SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )' .
-				" AND meta_key IN ( $private_meta_whitelist_sql ) ",
-				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-				OBJECT
-			)
+		if ( ! empty( $meta_key_whitelist ) ) {
+			$escaped_keys          = implode( "','", array_map( 'esc_sql', $meta_key_whitelist ) );
+			$meta_key_conditions[] = "meta_key IN ( '$escaped_keys' )";
+		}
+
+		foreach ( $meta_key_prefix_filters as $prefix ) {
+			$meta_key_conditions[] = $wpdb->prepare( 'meta_key LIKE %s', esc_sql( $prefix ) . '%' );
+		}
+
+		if ( empty( $meta_key_conditions ) ) {
+			return array(); // No whitelist or wildcard = deny all
+		}
+
+		$ids_sql   = implode( ',', wp_parse_id_list( $ids ) );
+		$where_sql = implode( ' OR ', $meta_key_conditions );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$results = $wpdb->get_results(
+			"SELECT $id, meta_key, meta_value, meta_id
+			FROM $table
+			WHERE $id IN ( $ids_sql )
+			AND ( $where_sql )",
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			OBJECT
 		);
+		return array_map( array( $this, 'unserialize_meta' ), $results );
 	}
 
 	/**
