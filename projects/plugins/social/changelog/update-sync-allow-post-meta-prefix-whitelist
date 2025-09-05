@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Allowing post meta prefix whitelist that works for Full Sync and Checksums.
