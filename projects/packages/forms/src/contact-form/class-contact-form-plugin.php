@@ -3472,7 +3472,6 @@ class Contact_Form_Plugin {
 				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
-
 			return;
 		}
 
@@ -3494,8 +3493,6 @@ class Contact_Form_Plugin {
 			foreach ( $fields as $single_field_name ) {
 				if ( isset( $export_data[ $single_field_name ][ $i ] ) ) {
 					$current_row[] = $export_data[ $single_field_name ][ $i ];
-				} else {
-					$current_row[] = '';
 				}
 			}
 
