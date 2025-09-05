@@ -50,6 +50,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_mcp_abilities' ) );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -321,7 +322,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/stats/stats.php';
-		require_once __DIR__ . '/features/mcp-abilities/index.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
@@ -637,6 +637,44 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
+	}
+
+	/**
+	 * Check if the current request is for an MCP endpoint.
+	 *
+	 * @return bool
+	 */
+	public static function is_mcp_endpoint(): bool {
+		// Only check for REST API requests.
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
+			return false;
+		}
+
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+
+		// Check for global MCP endpoint.
+		if ( str_contains( $request_uri, '/wpcom/v2/mcp/v1' ) ) {
+			return true;
+		}
+
+		// Check for site-specific MCP endpoints
+		// Pattern: /wp/v2/sites/{site_id}/mcp/v1.
+		if ( preg_match( '#/wp/v2/sites/\d+/mcp/v1#', $request_uri ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Load MCP Abilities - Only load for MCP endpoints.
+	 */
+	public static function load_mcp_abilities() {
+		if ( ! self::is_mcp_endpoint() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/mcp-abilities/index.php';
 	}
 
 	/**
