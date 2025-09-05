@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: handle legend overflow when not enough space
