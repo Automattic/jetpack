@@ -1889,6 +1889,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
+		if ( $post_id ) {
+			update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+		}
+
+		if ( 'publish' === $feedback_status && $post_id ) {
+			// Increase count of unread feedback.
+			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
+			update_option( 'feedback_unread_count', $unread );
+		}
+
 		if ( defined( 'AKISMET_VERSION' ) && $post_id ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		}
