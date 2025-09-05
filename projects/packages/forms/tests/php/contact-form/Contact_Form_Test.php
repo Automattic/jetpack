@@ -1728,8 +1728,8 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertEquals( $input->getAttribute( 'value' ), $attributes['default'], 'value and default doesn\'t match' );
 
 		$this->assertEquals(
+			'jetpack-field__input-element',
 			$visible_input->getAttribute( 'class' ),
-			"{$attributes['type']} {$attributes['class']} grunion-field",
 			'input class attribute doesn\'t match'
 		);
 	}
