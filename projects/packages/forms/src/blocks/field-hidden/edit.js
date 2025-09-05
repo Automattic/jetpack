@@ -4,15 +4,12 @@ import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
+import './editor.scss';
 
 export default function HiddenFieldEdit( props ) {
 	const { attributes, setAttributes, clientId } = props;
-
-	const icon = unseen;
-	const label = __( 'Hidden field', 'jetpack-forms' );
-
-	useFormWrapper( props );
 	const blockProps = useBlockProps();
+	useFormWrapper( props );
 
 	const handleLabelChange = textValue => {
 		setAttributes( { label: textValue } );
@@ -21,12 +18,13 @@ export default function HiddenFieldEdit( props ) {
 	const handleValueChange = textValue => {
 		setAttributes( { default: textValue } );
 	};
+
 	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId, true );
 
 	return (
 		<div { ...blockProps }>
-			<Placeholder icon={ icon } label={ label } isColumnLayout={ true }>
-				<HStack alignment="top">
+			<Placeholder icon={ unseen } label={ __( 'Hidden field', 'jetpack-forms' ) }>
+				<HStack alignment="top" className="jetpack-form-hidden-field-inputs">
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
