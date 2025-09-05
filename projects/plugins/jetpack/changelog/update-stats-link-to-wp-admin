@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Change the location of the Jetpack -> Stats submenu item to a new top-level admin menu item called "Stats"
