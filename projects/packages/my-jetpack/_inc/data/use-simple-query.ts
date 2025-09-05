@@ -22,7 +22,7 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
  */
 type QueryParams< T > = {
 	name: string;
-	query: APIFetchOptions;
+	query: APIFetchOptions< true >;
 	options?: Pick< UseQueryOptions< T, WP_Error >, 'enabled' | 'gcTime' | 'refetchOnMount' >;
 	errorMessage?: string;
 };
