@@ -1,5 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { useCallback, useRef, useState, useEffect, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import SearchableCombobox from '../shared/components/searchable-combobox';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
@@ -90,6 +91,7 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 							onOptionChange={ handleChangeDefaultPrefix }
 							isOpen={ comboboxOpen }
 							onOpenChange={ setComboboxOpen }
+							placeholer={ __( 'Search countries…', 'jetpack-forms' ) }
 						/>
 					</div>
 				) }
