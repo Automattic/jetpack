@@ -148,10 +148,33 @@ class Feedback_Field {
 				return $this->get_render_email_value();
 			case 'ajax':
 				return $this->get_render_web_value(); // For now, we use the same value for ajax and web.
+			case 'csv':
+				return $this->get_render_csv_value();
 			case 'default':
 			default:
 				return $this->get_render_default_value();
 		}
+	}
+
+	/**
+	 * Get the value of the field for rendering the CSV.
+	 *
+	 * @return string
+	 */
+	private function get_render_csv_value() {
+		if ( $this->is_of_type( 'image-select' ) ) {
+			return implode(
+				', ',
+				array_map(
+					function ( $choice ) {
+						return $choice['selected'];
+					},
+					$this->value['choices']
+				)
+			);
+		}
+
+		return $this->get_render_default_value();
 	}
 
 	/**
