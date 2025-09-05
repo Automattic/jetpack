@@ -1682,6 +1682,7 @@ class Contact_Form_Plugin {
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
+			$this->record_tracks_event( 'forms_submission_has_errors', array( 'errors' => $submission_result->get_error_message() ) );
 		} else {
 			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
 				$submission_result,
