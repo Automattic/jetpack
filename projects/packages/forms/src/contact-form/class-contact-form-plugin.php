@@ -1680,14 +1680,14 @@ class Contact_Form_Plugin {
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
-			$this->record_tracks_event( 'forms_submission_has_errors', array( 'errors' => 'submission_failed' ) );
+			$this->log_to_logstash( 'forms_submission_has_errors', array( 'errors' => 'submission_failed' ) );
 		} elseif ( is_wp_error( $submission_result ) ) {
 			header( 'HTTP/1.1 400 Bad Request', true, 403 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 
-			$this->record_tracks_event(
+			$this->log_to_logstash(
 				'forms_submission_has_errors',
 				array(
 					'errors' => $submission_result->get_error_message(),
@@ -2893,6 +2893,28 @@ class Contact_Form_Plugin {
 
 			$tracking = new Tracking();
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
+		}
+	}
+
+	/**
+	 * Send an event to Logstash
+	 *
+	 * @param string $message - the message to log.
+	 * @param array  $data - data to send.
+	 *
+	 * @return null|void
+	 */
+	public function log_to_logstash( $message, $data = array() ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+			log2logstash(
+				array(
+					'blog_id' => get_current_blog_id(),
+					'feature' => 'jetpack-forms',
+					'message' => $message,
+					'extra'   => wp_json_encode( $data ),
+				)
+			);
 		}
 	}
 
