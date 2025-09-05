@@ -1522,7 +1522,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * @return string The modified value of the hidden field.
 		 */
 		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
-		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . " />\n";
+		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' />\n";
 	}
 
 	/**
