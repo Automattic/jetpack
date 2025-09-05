@@ -843,7 +843,7 @@ class Jetpack_Widget_Conditions {
 				}
 			}
 
-			if ( ! is_string( $content ) || '' === $content || ! has_blocks( $content ) ) {
+			if ( empty( $content ) || ! is_string( $content ) || ! has_blocks( $content ) ) {
 				// No visibility found.
 				return $instance;
 			}
