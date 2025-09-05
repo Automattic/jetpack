@@ -9,8 +9,10 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
+	CHART_THEME_MAP,
 } from '../../../stories';
 import { formatMetricValue } from '../../../utils';
+import { hexToRgba } from '../../../utils/color-utils';
 import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -452,10 +454,18 @@ export const OverlayLabelWithImage: Story = {
 		withComparison: true,
 		withOverlayLabel: true,
 		loading: false,
-		primaryColor: '#ddd',
 		style: {
 			'--a8c--charts--leaderboard--bar--border-radius': '4px',
 			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
+	},
+	render: args => {
+		const themeName = args.themeName || 'default';
+		const theme = CHART_THEME_MAP[ themeName ];
+		const primaryColor =
+			theme?.leaderboardChart?.primaryColor || defaultTheme.leaderboardChart.primaryColor;
+		const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
+
+		return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
 	},
 };
