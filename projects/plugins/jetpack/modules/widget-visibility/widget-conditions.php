@@ -826,24 +826,25 @@ class Jetpack_Widget_Conditions {
 				return $instance;
 			}
 			return false;
-		} elseif ( ! empty( $instance['content'] ) && has_blocks( $instance['content'] ) ) {
+		} elseif ( ! empty( $instance['content'] ) ) {
 			$content = $instance['content'];
+
+			// Normalize content to a string before checking for blocks.
 			if ( is_array( $content ) ) {
-				// Handle case where $instance['content'] might be an array instead of string
+				// Content may be provided as an array shape.
 				if ( isset( $content['content'] ) && is_string( $content['content'] ) ) {
-					// Content is nested in array structure
 					$content = $content['content'];
-				} elseif ( ! empty( $content ) ) {
-					// Try to convert array of blocks back to string using serialize_blocks
+				} elseif ( ! empty( $content ) && isset( $content[0] ) && is_array( $content[0] ) && isset( $content[0]['blockName'] ) ) {
+					// Looks like a parsed blocks array.
 					$content = serialize_blocks( $content );
 				} else {
-					// Empty or invalid array, treat as no blocks
+					// Unknown array shape: treat as no visibility rules.
 					return $instance;
 				}
 			}
 
-			// Ensure content is still a string after processing
-			if ( ! is_string( $content ) || empty( $content ) ) {
+			if ( ! is_string( $content ) || '' === $content || ! has_blocks( $content ) ) {
+				// No visibility found.
 				return $instance;
 			}
 
