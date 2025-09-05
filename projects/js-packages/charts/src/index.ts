@@ -12,17 +12,16 @@ export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export type { LegendValueDisplay } from './components/legend';
 
-// Themes
-export { ThemeProvider } from './providers/theme';
-export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
-
 // Global context
 export {
 	GlobalChartsProvider,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 	GlobalChartsContext,
-} from './providers/chart-context';
+	defaultTheme,
+	jetpackTheme,
+	wooTheme,
+} from './providers';
 
 // Types
 export type * from './types';

@@ -15,8 +15,8 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-} from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
+	GlobalChartsContext,
+} from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { SingleChartContext } from '../private/single-chart-context';

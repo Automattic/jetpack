@@ -12,7 +12,7 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 	GlobalChartsContext,
-} from '../../providers/chart-context';
+} from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
