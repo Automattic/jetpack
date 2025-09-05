@@ -14,8 +14,10 @@ require __DIR__ . '/../../src/compatibility/breakdance.php';
 
 /**
  * @covers ::\Automattic\Jetpack\Image_CDN\Compatibility\load_breakdance_compat
+ * @covers ::\Automattic\Jetpack\Image_CDN\Compatibility\use_image_cdn
  */
 #[CoversFunction( '\\Automattic\\Jetpack\\Image_CDN\\Compatibility\\load_breakdance_compat' )]
+#[CoversFunction( '\\Automattic\\Jetpack\\Image_CDN\\Compatibility\\use_image_cdn' )]
 class Breakdance_Compat_Test extends BaseTestCase {
 	/**
 	 * Test that CDN is enabled for Breakdance content by default.
@@ -27,11 +29,14 @@ class Breakdance_Compat_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the plugins_loaded action is properly hooked.
+	 * Test that the plugins_loaded action hook is properly registered.
 	 */
-	public function test_plugins_loaded_action_is_hooked() {
-		// Verify that the action is registered
-		$this->assertTrue( has_action( 'plugins_loaded' ) );
+	public function test_plugins_loaded_action_registered() {
+		// The action should be registered when the file is loaded
+		$this->assertNotFalse(
+			has_action( 'plugins_loaded', 'Automattic\\Jetpack\\Image_CDN\\Compatibility\\load_breakdance_compat' ),
+			'The plugins_loaded action should be registered'
+		);
 	}
 
 	/**
