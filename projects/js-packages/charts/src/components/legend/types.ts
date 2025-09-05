@@ -13,6 +13,11 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 */
 	position?: 'top' | 'bottom';
 	alignment?: 'start' | 'center' | 'end';
+	/**
+	 * Maximum width for legend items. When set, text will wrap naturally within this constraint.
+	 * Can be a number (pixels) or string (e.g. '200px', '50%')
+	 */
+	maxWidth?: number | string;
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {
