@@ -866,7 +866,7 @@ class Feedback_Test extends BaseTestCase {
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' required='1'/]"
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' consenttype='explicit' required='1'/]"
 		);
 
 		$response         = Feedback::from_submission( $_post_data, $form );
@@ -874,6 +874,70 @@ class Feedback_Test extends BaseTestCase {
 		$saved_response   = Feedback::get( $feedback_post_id );
 		$this->assertFalse( $response->has_consent(), 'Has consent should match the form submission' );
 		$this->assertFalse( $saved_response->has_consent(), 'Has consent should match the saved form submission' );
+	}
+
+	public function test_implicit_consent_submits_yes() {
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission with implicit consent field
+		// Since implicit consent renders as hidden input with value="Yes",
+		// a real form submission would always post "Yes"
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@example.com',
+				'consent' => 'Yes', // This is what the hidden input would submit
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' consenttype='implicit' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Implicit consent should be granted when "Yes" is posted
+		$this->assertTrue( $response->has_consent(), 'Implicit consent should be granted' );
+		$this->assertTrue( $saved_response->has_consent(), 'Saved implicit consent should be granted' );
+
+		// Check that the field value is 'Yes'
+		$this->assertEquals( 'Yes', $response->get_field_value_by_label( 'Consent' ), 'Implicit consent field value should be Yes' );
+		$this->assertEquals( 'Yes', $saved_response->get_field_value_by_label( 'Consent' ), 'Saved implicit consent field value should be Yes' );
+	}
+
+	public function test_explicit_consent_respects_posted_value() {
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission with explicit consent field, posting empty value
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@example.com',
+				'consent' => '', // Empty value should result in no consent for explicit consent
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' consenttype='explicit' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// With explicit consent, should respect the posted value
+		$this->assertFalse( $response->has_consent(), 'Explicit consent should not be granted when empty value is posted' );
+		$this->assertFalse( $saved_response->has_consent(), 'Saved explicit consent should not be granted when empty value is posted' );
 	}
 
 	public function test_compute_entry_ID_legacy() {
