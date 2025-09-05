@@ -18,7 +18,8 @@
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
 		"scssphp/scssphp": "1.13.0",
-		"automattic/jetpack-subscribers-dashboard": "@dev"
+		"automattic/jetpack-subscribers-dashboard": "@dev",
+		"wordpress/mcp-adapter": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
@@ -59,6 +60,10 @@
 			"options": {
 				"monorepo": true
 			}
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/WordPress/mcp-adapter"
 		}
 	],
 	"minimum-stability": "dev",
