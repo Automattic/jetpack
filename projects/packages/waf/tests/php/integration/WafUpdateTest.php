@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Waf\Waf_Initializer;
 
+if ( ! class_exists( 'WP_Upgrader' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+}
+
 /**
  * Integration tests for the firewall update process.
  */
@@ -21,7 +25,7 @@ final class WafUpdateTest extends WorDBless\BaseTestCase {
 		$broken_value = 'something-broken';
 		update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, $broken_value );
 
-		Waf_Initializer::update_waf_after_plugin_upgrade( new stdClass(), null );
+		Waf_Initializer::update_waf_after_plugin_upgrade( $this->createMock( 'WP_Upgrader' ), array() );
 		$this->assertSame( $broken_value, get_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, null ), 'The update need option should still be the broken value.' );
 	}
 }
