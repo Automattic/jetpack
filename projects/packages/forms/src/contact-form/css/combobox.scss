@@ -6,6 +6,7 @@
 
 	// keyboardShortcuts adds a wrapping div, so we need to style it
 	> div {
+		color: currentColor;
 		background-color: inherit;
 	}
 
@@ -101,6 +102,7 @@
 		.jetpack-combobox-options {
 			max-height: calc(var(--jetpack--contact-form--line-height, 25px) * 7);
 			overflow-y: auto;
+			color: currentColor;
 		}
 
 		.jetpack-combobox-option {
@@ -115,6 +117,7 @@
 			background-color: transparent;
 			border: none;
 			line-height: inherit;
+			color: currentColor;
 
 			&:hover,
 			&.is-focused {
@@ -139,16 +142,17 @@
 
 
 .jetpack-combobox-option-icon {
-	// margin-right: 8px;
+	color: currentColor;
 	pointer-events: none;
 }
 
 .jetpack-combobox-option-value {
 	font-weight: 500;
 	pointer-events: none;
+	color: currentColor;
 }
 
 .jetpack-combobox-option-description {
-	color: #666;
 	pointer-events: none;
+	color: currentColor;
 }
