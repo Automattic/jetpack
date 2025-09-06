@@ -262,43 +262,41 @@ class Contact_Form_Block {
 			)
 		);
 
-		if ( Blocks::get_variation() === 'experimental' || Blocks::get_variation() === 'beta' ) {
-			Blocks::jetpack_register_block(
-				'jetpack/input-rating',
-				array(
-					'supports' => array(
-						'color'      => array(
-							'text'       => true,
-							'background' => false,
-						),
-						'typography' => array(
-							'fontSize' => true,
-						),
+		Blocks::jetpack_register_block(
+			'jetpack/input-rating',
+			array(
+				'supports' => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
 					),
-				)
-			);
+					'typography' => array(
+						'fontSize' => true,
+					),
+				),
+			)
+		);
 
-			Blocks::jetpack_register_block(
-				'jetpack/input-range',
-				array(
-					'supports' => array(
-						'color'      => array(
-							'text'       => true,
-							'background' => false,
-						),
-						'typography' => array(
-							'fontSize'                     => true,
-							'__experimentalFontFamily'     => true,
-							'__experimentalFontWeight'     => true,
-							'__experimentalFontStyle'      => true,
-							'__experimentalTextTransform'  => true,
-							'__experimentalTextDecoration' => true,
-							'__experimentalLetterSpacing'  => true,
-						),
+		Blocks::jetpack_register_block(
+			'jetpack/input-range',
+			array(
+				'supports' => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
 					),
-				)
-			);
-		}
+					'typography' => array(
+						'fontSize'                     => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+			)
+		);
 
 		// Field render methods.
 		Blocks::jetpack_register_block(
