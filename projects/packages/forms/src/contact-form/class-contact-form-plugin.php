@@ -1713,20 +1713,7 @@ class Contact_Form_Plugin {
 			die();
 		}
 
-		// Success
-		$accepts_json && wp_send_json_success(
-			array(
-				'data' => '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
-					$submission_result,
-					array(
-						'br'         => array(),
-						'blockquote' => array( 'class' => array() ),
-						'p'          => array(),
-					)
-				),
-			)
-		);
-
+		// Success case.
 		echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
 			$submission_result,
 			array(
