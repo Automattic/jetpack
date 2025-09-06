@@ -20,13 +20,16 @@ const settings = {
 	edit,
 	save,
 	attributes: {
-		label: { type: 'string', default: '' },
 		default: { type: 'string', default: '' },
+		label: { type: 'string', default: '' },
+		urlParameter: { type: 'string', default: '' },
+		valueSource: { type: 'string', default: 'manual' },
 	},
 	example: {
 		attributes: {
 			label: __( 'Company_ID', 'jetpack-forms' ),
 			default: __( 'ACME Inc.', 'jetpack-forms' ),
+			valueSource: 'manual',
 		},
 	},
 };
