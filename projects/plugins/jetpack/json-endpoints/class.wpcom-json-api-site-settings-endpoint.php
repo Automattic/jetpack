@@ -628,7 +628,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	private function get_all_site_mcp_abilities(): array {
 		$all_abilities         = array();
-		$ability_registry_file = WP_CONTENT_DIR . '/mu-plugins/wpcom-mcp/includes/AbilitiesRegistry/Registry/AbilityRegistry.php';
+		$ability_registry_file = JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/features/mcp-abilities/AbilitiesRegistry/Registry/AbilityRegistry.php';
 		if ( file_exists( $ability_registry_file ) ) {
 			require_once $ability_registry_file;
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
@@ -651,7 +651,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	private function get_mcp_abilities_metadata( string $ability_name ): array {
 		$ability_meta          = array();
-		$ability_registry_file = WP_CONTENT_DIR . '/mu-plugins/wpcom-mcp/includes/AbilitiesRegistry/Registry/AbilityRegistry.php';
+		$ability_registry_file = JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/features/mcp-abilities/AbilitiesRegistry/Registry/AbilityRegistry.php';
 		if ( file_exists( $ability_registry_file ) ) {
 			require_once $ability_registry_file;
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
