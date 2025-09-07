@@ -631,6 +631,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$ability_registry_file = JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-mu-wpcom/src/features/mcp-abilities/AbilitiesRegistry/Registry/AbilityRegistry.php';
 		if ( file_exists( $ability_registry_file ) ) {
 			require_once $ability_registry_file;
+			error_log( 'Ability registry file found: ' . $ability_registry_file );
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$abilities_resources = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_resources_for_server( 'site-level' );
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
@@ -638,7 +639,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$abilities_prompts = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_prompts_for_server( 'site-level' );
 			$all_abilities     = array_merge( $abilities_resources, $abilities_tools, $abilities_prompts );
+		} else {
+			error_log( 'Ability registry file not found: ' . $ability_registry_file );
 		}
+		error_log( 'All abilities: ' . print_r( $all_abilities, true ) );
 		return apply_filters( 'jetpack_site_mcp_abilities', $all_abilities );
 	}
 
@@ -653,10 +657,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$ability_meta          = array();
 		$ability_registry_file = JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-mu-wpcom/src/features/mcp-abilities/AbilitiesRegistry/Registry/AbilityRegistry.php';
 		if ( file_exists( $ability_registry_file ) ) {
+			error_log( 'Ability registry file found: ' . $ability_registry_file );
 			require_once $ability_registry_file;
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$ability_meta = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_metadata( $ability_name );
+		} else {
+			error_log( 'Ability registry file not found: ' . $ability_registry_file );
 		}
+		error_log( 'Ability meta: ' . print_r( $ability_meta, true ) );
 		return apply_filters( 'jetpack_site_mcp_ability_meta', $ability_meta, $ability_name );
 	}
 
