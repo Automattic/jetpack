@@ -29,6 +29,7 @@ function init_jetpack_mcp_abilities(): void {
 	// Prevent multiple executions.
 	static $loaded = false;
 	if ( $loaded ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'init_jetpack_mcp_abilities already loaded' );
 		return;
 	}
@@ -36,6 +37,7 @@ function init_jetpack_mcp_abilities(): void {
 
 	// Only load for Automatticians.
 	if ( ! is_automattician() ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'init_jetpack_mcp_abilities not automattician' );
 		return;
 	}
@@ -46,6 +48,7 @@ function init_jetpack_mcp_abilities(): void {
 	// Check if MCP adapter is available (loaded by Jetpack autoloader)
 	if ( ! class_exists( McpAdapter::class ) ) {
 		// MCP adapter not available - may not be installed or autoloader not working
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( 'init_jetpack_mcp_abilities mcp adapter not available' );
 		return;
 	}
@@ -63,6 +66,7 @@ function init_jetpack_mcp_abilities(): void {
 		function () {
 			// Load abilities dynamically from configuration - NO hardcoded names!
 			$all_abilities = AbilityRegistry::get_all_names();
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'init_jetpack_mcp_abilities all abilities: ' . print_r( $all_abilities, true ) );
 			foreach ( $all_abilities as $ability_name ) {
 				$ability_class = AbilityRegistry::get_ability_class( $ability_name );
@@ -77,6 +81,7 @@ function init_jetpack_mcp_abilities(): void {
 	// Load servers.
 	require_once __DIR__ . '/Servers/DefaultServer.php';
 	require_once __DIR__ . '/Servers/SiteLevelMcpServer.php';
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	error_log( 'init_jetpack_mcp_abilities servers loaded' );
 }
 
