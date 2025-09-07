@@ -1,4 +1,4 @@
-import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
+import { defaultTheme } from '../../../providers/theme';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -9,9 +9,11 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
+	CHART_THEME_MAP,
 } from '../../../stories';
 import { formatMetricValue } from '../../../utils';
-import { LeaderboardChart } from '../leaderboard-chart';
+import { hexToRgba } from '../../../utils/color-utils';
+import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > >;
@@ -139,13 +141,11 @@ Since the LeaderboardChart expects pre-processed data, you'll need to handle dat
 
 ## Styling
 
-The component uses CSS Modules for styling. You can customize colors using CSS custom properties:
+The component uses CSS Modules for styling. You can customize the border radius using CSS custom properties:
 
 \`\`\`css
 .myCustomChart {
-  --primary-color: #ff6b6b;
-  --secondary-color: #4ecdc4;
-	--bar-border: 1px solid 8px;
+	--a8c--charts--leaderboard--bar--border-radius: 8px;
 }
 \`\`\`
 
@@ -207,14 +207,14 @@ const trafficData = [
 			control: 'color',
 			description: 'Primary color for current period bars',
 			table: {
-				defaultValue: { summary: '#3858E9' },
+				defaultValue: { summary: defaultTheme.leaderboardChart.primaryColor },
 			},
 		},
 		secondaryColor: {
 			control: 'color',
 			description: 'Secondary color for comparison period bars',
 			table: {
-				defaultValue: { summary: '#66BDFF' },
+				defaultValue: { summary: defaultTheme.leaderboardChart.secondaryColor },
 			},
 		},
 		valueFormatter: {
@@ -257,6 +257,11 @@ const trafficData = [
 		...sharedChartArgTypes,
 		...themeArgTypes,
 	},
+	args: {
+		primaryColor: undefined,
+		secondaryColor: undefined,
+		themeName: 'default',
+	},
 	decorators: [ chartDecorator ],
 };
 
@@ -268,8 +273,6 @@ export const Default: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -278,8 +281,6 @@ export const WithoutComparison: Story = {
 		data: sampleData,
 		withComparison: false,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -287,7 +288,6 @@ export const WithOverlayLabel: Story = {
 	args: {
 		data: sampleData,
 		withOverlayLabel: true,
-		primaryColor: '#66BDFF',
 	},
 };
 
@@ -296,8 +296,6 @@ export const Loading: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: true,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -306,8 +304,8 @@ export const CustomColors: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#FF6B6B',
-		secondaryColor: '#4ECDC4',
+		primaryColor: 'red',
+		secondaryColor: 'green',
 	},
 };
 
@@ -316,8 +314,6 @@ export const SmallDataset: Story = {
 		data: smallDataset,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -326,8 +322,6 @@ export const EmptyData: Story = {
 		data: [],
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -336,8 +330,6 @@ export const LargeValues: Story = {
 		data: largeValues,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -346,8 +338,6 @@ export const NegativeGrowth: Story = {
 		data: negativeGrowth,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -356,8 +346,7 @@ export const CurrencyFormatting: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
+
 		valueFormatter: ( value: number ) =>
 			formatMetricValue( value, 'currency', {
 				useMultipliers: true,
@@ -375,8 +364,7 @@ export const NumberFormatting: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#FF6B6B',
-		secondaryColor: '#4ECDC4',
+
 		valueFormatter: ( value: number ) =>
 			formatMetricValue( value, 'number', {
 				useMultipliers: false,
@@ -430,8 +418,7 @@ export const AdvancedFormatting: Story = {
 		data: largeValues,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#8B5CF6',
-		secondaryColor: '#06B6D4',
+
 		valueFormatter: ( value: number ) => {
 			if ( value >= 1000000 ) {
 				return formatMetricValue( value, 'currency', {
@@ -452,41 +439,6 @@ export const AdvancedFormatting: Story = {
 	},
 };
 
-// Themed stories
-export const JetpackTheme: Story = {
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: false,
-	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ jetpackTheme }>
-				<div style={ { width: '400px', padding: '20px' } }>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
-};
-
-export const WooCommerceTheme: Story = {
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: false,
-	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ wooTheme }>
-				<div style={ { width: '400px', padding: '20px' } }>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
-};
-
 export const OverlayLabelWithImage: Story = {
 	args: {
 		data: dataWithImageColor.map( entry => ( {
@@ -499,13 +451,21 @@ export const OverlayLabelWithImage: Story = {
 				/>
 			),
 		} ) ),
-		primaryColor: '#C8CFF6',
 		withComparison: true,
 		withOverlayLabel: true,
 		loading: false,
 		style: {
-			'--bar-border': '4px',
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
 			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
+	},
+	render: args => {
+		const themeName = args.themeName || 'default';
+		const theme = CHART_THEME_MAP[ themeName ];
+		const primaryColor =
+			theme?.leaderboardChart?.primaryColor || defaultTheme.leaderboardChart.primaryColor;
+		const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
+
+		return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
 	},
 };

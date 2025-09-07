@@ -3,7 +3,7 @@ import { mergeThemes } from '../../../utils';
 import { useChartTheme } from '../../theme';
 import { defaultTheme } from '../../theme/themes';
 import { GlobalChartsContext } from '../global-charts-provider';
-import type { ChartTheme } from '../../../types';
+import type { CompleteChartTheme } from '../../../types';
 
 /**
  * Hook to get the effective chart theme, merging global and local themes.
@@ -14,7 +14,7 @@ import type { ChartTheme } from '../../../types';
  *
  * @return The effective chart theme to use
  */
-export const useGlobalChartsTheme = (): ChartTheme => {
+export const useGlobalChartsTheme = (): CompleteChartTheme => {
 	// Get context but don't throw if it doesn't exist (for testing or standalone usage)
 	const context = useContext( GlobalChartsContext );
 	const globalTheme = context?.theme;

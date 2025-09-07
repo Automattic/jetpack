@@ -22,6 +22,10 @@ export const customTheme: ChartTheme = {
 		stroke: '#ffe3e3',
 		strokeWidth: 2,
 	},
+	leaderboardChart: {
+		primaryColor: '#073B3A',
+		secondaryColor: '#0B6E4F',
+	},
 } as ChartTheme;
 
 /**
