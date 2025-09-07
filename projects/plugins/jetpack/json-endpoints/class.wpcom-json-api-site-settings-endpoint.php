@@ -628,22 +628,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	private function get_all_site_mcp_abilities(): array {
 		$all_abilities         = array();
-		// Try to find the jetpack-mu-wpcom plugin directory
-		$mu_wpcom_plugin_dir = '';
-		if ( defined( 'JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH' ) ) {
-			$mu_wpcom_plugin_dir = JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH;
-		} else {
-			// Fallback: look for jetpack-mu-wpcom-plugin in plugins directory
-			$plugins_dir = WP_PLUGIN_DIR;
-			$mu_wpcom_plugin_dir = $plugins_dir . '/jetpack-mu-wpcom-plugin-dev';
-			if ( ! file_exists( $mu_wpcom_plugin_dir ) ) {
-				$mu_wpcom_plugin_dir = $plugins_dir . '/jetpack-mu-wpcom-plugin';
-			}
-		}
+		$mu_wpcom_plugin_dir   = defined( 'JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH' ) ? JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH : WP_PLUGIN_DIR . '/jetpack-mu-wpcom-plugin-dev';
 		$ability_registry_file = $mu_wpcom_plugin_dir . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/features/mcp-abilities/AbilitiesRegistry/Registry/AbilityRegistry.php';
 		if ( file_exists( $ability_registry_file ) ) {
 			require_once $ability_registry_file;
-			error_log( 'Ability registry file found: ' . $ability_registry_file );
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$abilities_resources = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_resources_for_server( 'site-level' );
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
@@ -651,10 +639,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$abilities_prompts = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_prompts_for_server( 'site-level' );
 			$all_abilities     = array_merge( $abilities_resources, $abilities_tools, $abilities_prompts );
-		} else {
-			error_log( 'Ability registry file not found: ' . $ability_registry_file );
 		}
-		error_log( 'All abilities: ' . print_r( $all_abilities, true ) );
 		return apply_filters( 'jetpack_site_mcp_abilities', $all_abilities );
 	}
 
@@ -667,28 +652,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	private function get_mcp_abilities_metadata( string $ability_name ): array {
 		$ability_meta          = array();
-		// Try to find the jetpack-mu-wpcom plugin directory
-		$mu_wpcom_plugin_dir = '';
-		if ( defined( 'JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH' ) ) {
-			$mu_wpcom_plugin_dir = JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH;
-		} else {
-			// Fallback: look for jetpack-mu-wpcom-plugin in plugins directory
-			$plugins_dir = WP_PLUGIN_DIR;
-			$mu_wpcom_plugin_dir = $plugins_dir . '/jetpack-mu-wpcom-plugin-dev';
-			if ( ! file_exists( $mu_wpcom_plugin_dir ) ) {
-				$mu_wpcom_plugin_dir = $plugins_dir . '/jetpack-mu-wpcom-plugin';
-			}
-		}
+		$mu_wpcom_plugin_dir   = defined( 'JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH' ) ? JETPACK_MU_WPCOM_PLUGIN_LOADER_PATH : WP_PLUGIN_DIR . '/jetpack-mu-wpcom-plugin-dev';
 		$ability_registry_file = $mu_wpcom_plugin_dir . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/features/mcp-abilities/AbilitiesRegistry/Registry/AbilityRegistry.php';
 		if ( file_exists( $ability_registry_file ) ) {
-			error_log( 'Ability registry file found: ' . $ability_registry_file );
 			require_once $ability_registry_file;
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$ability_meta = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_metadata( $ability_name );
-		} else {
-			error_log( 'Ability registry file not found: ' . $ability_registry_file );
 		}
-		error_log( 'Ability meta: ' . print_r( $ability_meta, true ) );
 		return apply_filters( 'jetpack_site_mcp_ability_meta', $ability_meta, $ability_name );
 	}
 
