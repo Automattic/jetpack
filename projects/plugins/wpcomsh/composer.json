@@ -100,6 +100,10 @@
 			"url": "https://github.com/Automattic/wc-calypso-bridge.git"
 		},
 		{
+			"type": "vcs",
+			"url": "https://github.com/WordPress/mcp-adapter"
+		},
+		{
 			"type": "package",
 			"package": {
 				"name": "wordpress/classic-editor-plugin",

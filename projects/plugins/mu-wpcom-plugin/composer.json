@@ -36,6 +36,10 @@
 			"options": {
 				"monorepo": true
 			}
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/WordPress/mcp-adapter"
 		}
 	],
 	"minimum-stability": "dev",
