@@ -4,6 +4,7 @@
  *
  * @package automattic/jetpack-mu-wpcom
  */
+
 declare( strict_types=1 );
 
 use Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry;
