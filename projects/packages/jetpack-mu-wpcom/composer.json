@@ -19,7 +19,7 @@
 		"automattic/jetpack-google-analytics": "@dev",
 		"scssphp/scssphp": "1.13.0",
 		"automattic/jetpack-subscribers-dashboard": "@dev",
-		"wordpress/mcp-adapter": "dev-trunk"
+		"wordpress/mcp-adapter": "^0.1.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
