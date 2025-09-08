@@ -20,3 +20,7 @@
 		width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
 	}
 }
+
+div.wp-block.jetpack-input-image-option.jetpack-field {
+	margin: 0;
+}

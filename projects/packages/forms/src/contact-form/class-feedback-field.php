@@ -142,10 +142,72 @@ class Feedback_Field {
 				return $this->get_render_submit_value();
 			case 'api':
 				return $this->get_render_api_value();
+			case 'web': // For the post-submission page screen.
+				return $this->get_render_web_value();
+			case 'email':
+				return $this->get_render_email_value();
+			case 'ajax':
+				return $this->get_render_web_value(); // For now, we use the same value for ajax and web.
+			case 'csv':
+				return $this->get_render_csv_value();
 			case 'default':
 			default:
 				return $this->get_render_default_value();
 		}
+	}
+
+	/**
+	 * Get the value of the field for rendering the CSV.
+	 *
+	 * @return string
+	 */
+	private function get_render_csv_value() {
+		if ( $this->is_of_type( 'image-select' ) ) {
+			return implode(
+				', ',
+				array_map(
+					function ( $choice ) {
+						return $choice['selected'];
+					},
+					$this->value['choices']
+				)
+			);
+		}
+
+		return $this->get_render_default_value();
+	}
+
+	/**
+	 * Get the value of the field for rendering the post-submission page.
+	 *
+	 * @return string
+	 */
+	private function get_render_web_value() {
+		if ( $this->is_of_type( 'image-select' ) ) {
+			return $this->value;
+		}
+
+		return $this->get_render_default_value();
+	}
+
+	/**
+	 * Get the value of the field for rendering the email.
+	 *
+	 * @return string
+	 */
+	private function get_render_email_value() {
+		if ( $this->is_of_type( 'image-select' ) ) {
+			$choices = array();
+
+			foreach ( $this->value['choices'] as $choice ) {
+				// On the email, we want to show the actual selected value, not the perceived value, as the options can be shuffled.
+				$choices[] = $choice['selected'];
+			}
+
+			return implode( ', ', $choices );
+		}
+
+		return $this->get_render_default_value();
 	}
 
 	/**
@@ -168,6 +230,11 @@ class Feedback_Field {
 			return implode( ', ', $files );
 		}
 
+		if ( $this->is_of_type( 'image-select' ) ) {
+			// Return the array as is.
+			return $this->value;
+		}
+
 		if ( is_array( $this->value ) ) {
 			return implode( ', ', $this->value );
 		}
@@ -181,7 +248,6 @@ class Feedback_Field {
 	 * @return string
 	 */
 	private function get_render_api_value() {
-
 		if ( $this->is_of_type( 'file' ) ) {
 			$files = array();
 			foreach ( $this->value['files'] as &$file ) {
@@ -197,6 +263,11 @@ class Feedback_Field {
 				$files[]                = $file;
 			}
 			$this->value['files'] = $files;
+			return $this->value;
+		}
+
+		if ( $this->is_of_type( 'image-select' ) ) {
+			// Return the array as is.
 			return $this->value;
 		}
 

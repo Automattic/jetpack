@@ -234,6 +234,15 @@ class Feedback {
 			}
 			return array( 'files' => array() );
 		}
+
+		if ( $type === 'image-select' ) {
+			if ( isset( $post_data[ $key ] ) ) {
+				return self::process_image_select_field_value( $post_data[ $key ] );
+			}
+
+			return array( 'choices' => array() );
+		}
+
 		if ( isset( $post_data[ $key ] ) ) {
 			if ( is_array( $post_data[ $key ] ) ) {
 				return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
@@ -275,6 +284,34 @@ class Feedback {
 		return array(
 			'files' => $file_data_array,
 		);
+	}
+
+	/**
+	 * Process the image select field value.
+	 *
+	 * @param array $raw_data The raw post data from the image select field.
+	 *
+	 * @return array The processed image select data.
+	 */
+	public static function process_image_select_field_value( $raw_data ) {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(),
+		);
+
+		$selection_data_array = is_array( $raw_data )
+			? array_map(
+				function ( $json_str ) {
+					return json_decode( stripslashes( $json_str ), true );
+				},
+				$raw_data
+			) : array( json_decode( stripslashes( $raw_data ), true ) );
+
+		if ( ! empty( $selection_data_array ) ) {
+			$value['choices'] = $selection_data_array;
+		}
+
+		return $value;
 	}
 
 	/**
@@ -555,7 +592,7 @@ class Feedback {
 
 			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
 			// from a spam-filtering point of view.
-			if ( in_array( $field->get_type(), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
+			if ( in_array( $field->get_type(), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file', 'image-select' ), true ) ) {
 				continue;
 			}
 

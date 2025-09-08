@@ -112,13 +112,12 @@ class Dashboard {
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 
-		$api_root = defined( 'IS_WPCOM' ) && IS_WPCOM
-			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) )
-			: '/wp-json/wpcom/v2/';
-
+		// Preload Forms config endpoint for dashboard context.
+		$preload_paths = array( '/wp/v2/feedback/config' );
+		$preload_data  = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
+			'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( ' . wp_json_encode( $preload_data ) . ' ) );',
 			'before'
 		);
 	}
@@ -246,7 +245,7 @@ class Dashboard {
 	 *
 	 * @return boolean
 	 */
-	private function has_feedback() {
+	public function has_feedback() {
 		$posts = new \WP_Query(
 			array(
 				'post_type'   => 'feedback',
