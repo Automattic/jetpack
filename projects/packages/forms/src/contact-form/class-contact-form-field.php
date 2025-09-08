@@ -1069,7 +1069,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								data-wp-text="context.selectedCountry.flag"></span>
 							<span 
 								class="jetpack-combobox-trigger-arrow"
-								data-wp-class--is-open="context.comboboxOpen">&nbsp;</span>
+								data-wp-class--is-open="context.comboboxOpen">
+								<svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+							</span>
 							<span 
 								class="jetpack-combobox-selected"
 								data-wp-text="context.selectedCountry.value"></span>

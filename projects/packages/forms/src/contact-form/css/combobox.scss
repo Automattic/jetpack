@@ -22,7 +22,7 @@
 		line-height: inherit;
 		padding-block: 0;
 		padding-inline: 0;
-		gap: 0.5em;
+		gap: 0.4em;
 		color: inherit;
 
 		&:focus {
@@ -37,19 +37,16 @@
 
 		.jetpack-combobox-trigger-arrow {
 			transition: transform 0.2s;
-			position: relative;
-			width: 9px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 0.6em;
+			margin-left: 4px;
 
-			&::after {
-				content: "";
-				position: absolute;
-				left: 1px;
-				top: calc(50% - 5.5px);
-				transform: rotate(45deg);
-				width: 7px;
-				height: 7px;
-				border-right: 1.5px solid currentColor;
-				border-bottom: 1.5px solid currentColor;
+			svg {
+				width: 100%;
+				height: 100%;
+				color: inherit;
 			}
 
 			&.is-open {
