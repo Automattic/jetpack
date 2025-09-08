@@ -1834,6 +1834,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$feedback_status = 'trash';
 		} elseif ( $is_spam ) {
 			$feedback_status = 'spam';
+		} elseif ( 'no' === $this->get_attribute( 'saveResponses' ) ) {
+			$feedback_status = 'temp';
 		} else {
 			$feedback_status = 'publish';
 		}

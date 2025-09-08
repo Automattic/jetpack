@@ -279,6 +279,21 @@ class Contact_Form_Plugin {
 			)
 		);
 
+		// Add "temp" as a post status for temporary storage when saveResponses is 'no'
+		register_post_status(
+			'temp',
+			array(
+				'label'                  => 'Temporary',
+				'public'                 => false,
+				'exclude_from_search'    => true,
+				'show_in_admin_all_list' => false,
+				// translators: The temporary count.
+				'label_count'            => _n_noop( 'Temporary <span class="count">(%s)</span>', 'Temporary <span class="count">(%s)</span>', 'jetpack-forms' ),
+				'protected'              => true,
+				'_builtin'               => false,
+			)
+		);
+
 		// POST handler
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) )

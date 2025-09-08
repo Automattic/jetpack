@@ -85,7 +85,7 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that form submissions are NOT stored in database when saveResponses is 'no'
+	 * Test that form submissions are stored with 'temp' status when saveResponses is 'no'
 	 */
 	public function test_process_submission_does_not_store_feedback_when_save_responses_no() {
 		// Fill field values
@@ -115,10 +115,16 @@ class Contact_Form_Test extends BaseTestCase {
 		// Processing should still be successful (email should still be sent)
 		$this->assertTrue( is_string( $result ), 'Form submission should be successful even when not saving responses' );
 
-		// Check that NO new feedback post was created
+		// Check that a new feedback post was created
 		$final_posts = Posts::init()->posts;
 		$final_count = count( $final_posts );
-		$this->assertEquals( $initial_count, $final_count, 'No new feedback post should be created when saveResponses is no' );
+		$this->assertEquals( $initial_count + 1, $final_count, 'A new feedback post should be created when saveResponses is no' );
+
+		// Get the newly created post
+		$new_post = end( $final_posts );
+		$this->assertInstanceOf( 'stdClass', $new_post, 'The new post should be a stdClass instance' );
+		$this->assertEquals( 'feedback', $new_post->post_type, 'The new post should be of type feedback' );
+		$this->assertEquals( 'temp', $new_post->post_status, 'The new post should have temp status when saveResponses is no' );
 
 		// Verify the form attribute is correctly set
 		$this->assertEquals( 'no', $form->get_attribute( 'saveResponses' ), 'Form should have saveResponses set to no' );
