@@ -25,6 +25,7 @@ define( 'WPCOM_MCP_URL', plugin_dir_url( __FILE__ ) );
  * Initialize the WordPress MCP plugin.
  */
 function init_jetpack_mcp_abilities(): void {
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	error_log( 'init_jetpack_mcp_abilities' );
 	// Prevent multiple executions.
 	static $loaded = false;
@@ -66,7 +67,7 @@ function init_jetpack_mcp_abilities(): void {
 		function () {
 			// Load abilities dynamically from configuration - NO hardcoded names!
 			$all_abilities = AbilityRegistry::get_all_names();
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log,WordPress.PHP.DevelopmentFunctions.error_log_print_r
 			error_log( 'init_jetpack_mcp_abilities all abilities: ' . print_r( $all_abilities, true ) );
 			foreach ( $all_abilities as $ability_name ) {
 				$ability_class = AbilityRegistry::get_ability_class( $ability_name );

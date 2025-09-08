@@ -26,3 +26,6 @@ tsconfig.json       production-exclude
 phpunit.xml.dist    production-exclude
 phpunit.*.xml.dist  production-exclude
 **/CLAUDE.md         production-exclude
+
+# Include MCP adapter in production builds
+/vendor/wordpress/mcp-adapter/**    production-include
