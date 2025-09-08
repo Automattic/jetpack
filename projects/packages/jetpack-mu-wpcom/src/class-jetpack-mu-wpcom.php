@@ -647,6 +647,8 @@ class Jetpack_Mu_Wpcom {
 	public static function is_mcp_endpoint(): bool {
 		// Only check for REST API requests.
 		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'is_mcp_endpoint - not a REST API request' );
 			return false;
 		}
 
@@ -662,6 +664,8 @@ class Jetpack_Mu_Wpcom {
 		if ( preg_match( '#/wp/v2/sites/\d+/mcp/v1#', $request_uri ) ) {
 			return true;
 		}
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( 'is_mcp_endpoint - not a global or site-specific MCP endpoint: ' . $request_uri );
 
 		return false;
 	}
@@ -671,9 +675,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_mcp_abilities() {
 		if ( ! self::is_mcp_endpoint() ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'load_mcp_abilities - not an MCP endpoint' );
 			return;
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( 'load_mcp_abilities - loading MCP abilities' );
 		require_once __DIR__ . '/features/mcp-abilities/index.php';
 	}
 

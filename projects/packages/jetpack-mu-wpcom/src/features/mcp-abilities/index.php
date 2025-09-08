@@ -11,6 +11,9 @@ use Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry;
 use Automattic\WpcomMcp\WpcomMcp;
 use WP\MCP\Core\McpAdapter;
 
+// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+error_log( 'init_jetpack_mcp_abilities - file loaded' );
+
 // Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
