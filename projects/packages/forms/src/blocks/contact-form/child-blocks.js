@@ -49,6 +49,7 @@ export const childBlocks = [
 	JetpackConsentField,
 	JetpackDateField,
 	JetpackDropdownField,
+	JetpackHiddenField,
 	JetpackEmailField,
 	JetpackMultipleChoiceField,
 	JetpackNameField,
@@ -67,7 +68,6 @@ export const childBlocks = [
 	...( getJetpackBlocksVariation() === 'beta'
 		? [
 				JetpackTimeField,
-				JetpackHiddenField,
 				JetpackImageSelectField,
 				JetpackImageOptionsFieldset,
 				JetpackImageOptionInput,
