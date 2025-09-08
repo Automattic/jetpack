@@ -4,7 +4,7 @@ import pkg from './package.json';
 
 // Extract entries from package exports
 const entry = Object.values( pkg.exports )
-	.map( $export => ( typeof $export === 'object' ? $export[ 'jetpack:src' ] : null ) )
+	.map( $export => ( typeof $export === 'object' ? $export[ 'jetpack:src' ] : '' ) )
 	.filter( ( path ): path is string => Boolean( path ) );
 
 export default defineConfig( {
