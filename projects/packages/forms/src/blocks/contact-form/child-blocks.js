@@ -60,9 +60,10 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
-	...( [ 'experimental', 'beta' ].includes( getJetpackBlocksVariation() )
-		? [ JetpackRatingField, JetpackRatingInput, JetpackFieldSlider, JetpackSliderInput ]
-		: [] ),
+	JetpackRatingField,
+	JetpackRatingInput,
+	JetpackFieldSlider,
+	JetpackSliderInput,
 	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackTimeField, JetpackHiddenField ] : [] ),
 
 	// The following are required for these blocks to be parsed correctly in block
