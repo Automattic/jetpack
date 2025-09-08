@@ -19,7 +19,7 @@
 		"automattic/jetpack-google-analytics": "@dev",
 		"scssphp/scssphp": "1.13.0",
 		"automattic/jetpack-subscribers-dashboard": "@dev",
-		"automattic/jetpack-autoloader": "^5.0",
+		"automattic/jetpack-autoloader": "@dev",
 		"wordpress/mcp-adapter": "^0.1.0"
 	},
 	"require-dev": {
