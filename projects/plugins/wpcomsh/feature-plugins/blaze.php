@@ -108,6 +108,8 @@ add_action(
 
 /**
  * On Atomic sites the Promote with Blaze option is enabled.
+ *
+ * @phan-suppress PhanUndeclaredFunctionInCallable -- jetpack_blaze_post_row_actions_disable is part of jetpack.
  */
 add_action(
 	'jetpack_modules_loaded',
