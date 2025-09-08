@@ -74,6 +74,7 @@
 			"import": "./dist/providers/index.js",
 			"require": "./dist/providers/index.cjs"
 		},
+		"./styles.css": "./dist/index.css",
 		"./tooltip": {
 			"jetpack:src": "./src/components/tooltip/index.ts",
 			"import": "./dist/components/tooltip/index.js",
