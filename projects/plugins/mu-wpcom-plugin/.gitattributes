@@ -9,6 +9,7 @@ package.json      export-ignore
 vendor/autoload.php        production-include
 vendor/composer/**         production-include
 vendor/automattic/**       production-include
+vendor/wordpress/**        production-include
 vendor/scssphp/scssphp/**  production-include
 /jetpack_vendor/**         production-include
 
