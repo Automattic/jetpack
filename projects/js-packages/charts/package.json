@@ -21,134 +21,140 @@
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.js"
 		},
 		"./bar-chart": {
 			"jetpack:src": "./src/components/bar-chart/index.ts",
-			"import": "./dist/components/bar-chart/index.js",
-			"require": "./dist/components/bar-chart/index.cjs"
+			"import": "./dist/esm/components/bar-chart/index.js",
+			"require": "./dist/cjs/components/bar-chart/index.js"
 		},
 		"./bar-list-chart": {
 			"jetpack:src": "./src/components/bar-list-chart/index.ts",
-			"import": "./dist/components/bar-list-chart/index.js",
-			"require": "./dist/components/bar-list-chart/index.cjs"
+			"import": "./dist/esm/components/bar-list-chart/index.js",
+			"require": "./dist/cjs/components/bar-list-chart/index.js"
 		},
 		"./conversion-funnel-chart": {
 			"jetpack:src": "./src/components/conversion-funnel-chart/index.ts",
-			"import": "./dist/components/conversion-funnel-chart/index.js",
-			"require": "./dist/components/conversion-funnel-chart/index.cjs"
+			"import": "./dist/esm/components/conversion-funnel-chart/index.js",
+			"require": "./dist/cjs/components/conversion-funnel-chart/index.js"
 		},
 		"./hooks": {
 			"jetpack:src": "./src/hooks/index.ts",
-			"import": "./dist/hooks/index.js",
-			"require": "./dist/hooks/index.cjs"
+			"import": "./dist/esm/hooks/index.js",
+			"require": "./dist/cjs/hooks/index.js"
 		},
 		"./leaderboard-chart": {
 			"jetpack:src": "./src/components/leaderboard-chart/index.ts",
-			"import": "./dist/components/leaderboard-chart/index.js",
-			"require": "./dist/components/leaderboard-chart/index.cjs"
+			"import": "./dist/esm/components/leaderboard-chart/index.js",
+			"require": "./dist/cjs/components/leaderboard-chart/index.js"
 		},
 		"./legend": {
 			"jetpack:src": "./src/components/legend/index.ts",
-			"import": "./dist/components/legend/index.js",
-			"require": "./dist/components/legend/index.cjs"
+			"import": "./dist/esm/components/legend/index.js",
+			"require": "./dist/cjs/components/legend/index.js"
 		},
 		"./line-chart": {
 			"jetpack:src": "./src/components/line-chart/index.ts",
-			"import": "./dist/components/line-chart/index.js",
-			"require": "./dist/components/line-chart/index.cjs"
+			"import": "./dist/esm/components/line-chart/index.js",
+			"require": "./dist/cjs/components/line-chart/index.js"
 		},
 		"./pie-chart": {
 			"jetpack:src": "./src/components/pie-chart/index.ts",
-			"import": "./dist/components/pie-chart/index.js",
-			"require": "./dist/components/pie-chart/index.cjs"
+			"import": "./dist/esm/components/pie-chart/index.js",
+			"require": "./dist/cjs/components/pie-chart/index.js"
 		},
 		"./pie-semi-circle-chart": {
 			"jetpack:src": "./src/components/pie-semi-circle-chart/index.ts",
-			"import": "./dist/components/pie-semi-circle-chart/index.js",
-			"require": "./dist/components/pie-semi-circle-chart/index.cjs"
+			"import": "./dist/esm/components/pie-semi-circle-chart/index.js",
+			"require": "./dist/cjs/components/pie-semi-circle-chart/index.js"
 		},
 		"./providers": {
 			"jetpack:src": "./src/providers/index.ts",
-			"import": "./dist/providers/index.js",
-			"require": "./dist/providers/index.cjs"
+			"import": "./dist/esm/providers/index.js",
+			"require": "./dist/cjs/providers/index.js"
 		},
 		"./tooltip": {
 			"jetpack:src": "./src/components/tooltip/index.ts",
-			"import": "./dist/components/tooltip/index.js",
-			"require": "./dist/components/tooltip/index.cjs"
+			"import": "./dist/esm/components/tooltip/index.js",
+			"require": "./dist/cjs/components/tooltip/index.js"
 		},
 		"./visx/group": {
 			"jetpack:src": "./src/visx/group/index.ts",
-			"import": "./dist/visx/group/index.js",
-			"require": "./dist/visx/group/index.cjs"
+			"import": "./dist/esm/visx/group/index.js",
+			"require": "./dist/cjs/visx/group/index.js"
 		},
 		"./visx/legend": {
 			"jetpack:src": "./src/visx/legend/index.ts",
-			"import": "./dist/visx/legend/index.js",
-			"require": "./dist/visx/legend/index.cjs"
+			"import": "./dist/esm/visx/legend/index.js",
+			"require": "./dist/cjs/visx/legend/index.js"
 		},
 		"./visx/text": {
 			"jetpack:src": "./src/visx/text/index.ts",
-			"import": "./dist/visx/text/index.js",
-			"require": "./dist/visx/text/index.cjs"
+			"import": "./dist/esm/visx/text/index.js",
+			"require": "./dist/cjs/visx/text/index.js"
 		}
 	},
-	"main": "dist/index.cjs",
-	"module": "dist/index.js",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
 	"typesVersions": {
 		"*": {
 			".": [
-				"./dist/index.d.ts"
+				"./dist/types/index.d.ts"
 			],
 			"line-chart": [
-				"./dist/components/line-chart/index.d.ts"
+				"./dist/types/components/line-chart/index.d.ts"
 			],
 			"bar-chart": [
-				"./dist/components/bar-chart/index.d.ts"
+				"./dist/types/components/bar-chart/index.d.ts"
 			],
 			"pie-chart": [
-				"./dist/components/pie-chart/index.d.ts"
+				"./dist/types/components/pie-chart/index.d.ts"
 			],
 			"pie-semi-circle-chart": [
-				"./dist/components/pie-semi-circle-chart/index.d.ts"
+				"./dist/types/components/pie-semi-circle-chart/index.d.ts"
 			],
 			"bar-list-chart": [
-				"./dist/components/bar-list-chart/index.d.ts"
+				"./dist/types/components/bar-list-chart/index.d.ts"
 			],
 			"leaderboard-chart": [
-				"./dist/components/leaderboard-chart/index.d.ts"
+				"./dist/types/components/leaderboard-chart/index.d.ts"
 			],
 			"conversion-funnel-chart": [
-				"./dist/components/conversion-funnel-chart/index.d.ts"
+				"./dist/types/components/conversion-funnel-chart/index.d.ts"
 			],
 			"tooltip": [
-				"./dist/components/tooltip/index.d.ts"
+				"./dist/types/components/tooltip/index.d.ts"
 			],
 			"legend": [
-				"./dist/components/legend/index.d.ts"
+				"./dist/types/components/legend/index.d.ts"
 			],
 			"hooks": [
-				"./dist/hooks/index.d.ts"
+				"./dist/types/hooks/index.d.ts"
 			],
 			"providers": [
-				"./dist/providers/index.d.ts"
+				"./dist/types/providers/index.d.ts"
 			],
 			"visx/group": [
-				"./dist/visx/group/index.d.ts"
+				"./dist/types/visx/group/index.d.ts"
 			],
 			"visx/legend": [
-				"./dist/visx/legend/index.d.ts"
+				"./dist/types/visx/legend/index.d.ts"
 			],
 			"visx/text": [
-				"./dist/visx/text/index.d.ts"
+				"./dist/types/visx/text/index.d.ts"
 			]
 		}
 	},
 	"scripts": {
 		"build": "pnpm run build:prod",
-		"build:prod": "tsup",
+		"build:dev": "rollup -c --environment NODE_ENV:development",
+		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
+		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types",
+		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && pnpm run build:types",
+		"clean": "rm -rf dist",
+		"clean-build": "rm -rf dist/",
+		"compile-ts": "tsc --pretty",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
@@ -182,6 +188,7 @@
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
+		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.0",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
@@ -189,6 +196,12 @@
 		"@babel/preset-env": "7.28.0",
 		"@babel/preset-react": "7.27.1",
 		"@babel/preset-typescript": "7.27.1",
+		"@rollup/plugin-babel": "6.0.4",
+		"@rollup/plugin-commonjs": "26.0.1",
+		"@rollup/plugin-json": "6.1.0",
+		"@rollup/plugin-node-resolve": "15.3.0",
+		"@rollup/plugin-terser": "0.4.3",
+		"@rollup/plugin-typescript": "12.1.0",
 		"@storybook/addon-docs": "9.0.15",
 		"@storybook/react": "9.0.15",
 		"@testing-library/dom": "^10.0.0",
@@ -199,11 +212,12 @@
 		"@types/react": "18.3.23",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
-		"@wordpress/components": "30.3.0",
-		"@wordpress/element": "6.30.0",
+		"@wordpress/components": "30.1.0",
+		"@wordpress/element": "6.28.0",
 		"babel-jest": "30.0.0",
 		"babel-loader": "9.1.2",
 		"css-loader": "^6.7.0",
+		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
 		"jest-extended": "5.0.3",
@@ -213,12 +227,15 @@
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"recursive-copy": "2.0.14",
+		"rollup": "3.29.5",
+		"rollup-plugin-dts": "6.1.1",
+		"rollup-plugin-peer-deps-external": "2.2.4",
+		"rollup-plugin-postcss": "4.0.2",
 		"sass": "npm:sass-embedded@1.87.0",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "^16.0.0",
 		"storybook": "9.0.15",
-		"tsup": "8.5.0",
+		"tsconfig-paths-webpack-plugin": "4.2.0",
 		"typescript": "5.8.3",
 		"webpack": "^5.88.0",
 		"webpack-cli": "^6.0.0"

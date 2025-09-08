@@ -1,8 +1,7 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
-		"outDir": "dist",
-		"rootDir": "src"
+		"typeRoots": [ "./node_modules/@types/", "src/*" ]
 	},
 	"include": [ "src" ]
 }
