@@ -100,7 +100,6 @@ export const WithCompositionLegend: Story = {
 					showLegend={ true }
 					legendPosition="bottom"
 					legendOrientation="horizontal"
-					legendValueDisplay={ args.legendValueDisplay }
 				/>
 			</div>
 			<div>
@@ -110,7 +109,6 @@ export const WithCompositionLegend: Story = {
 					data={ args.data }
 					label="Performance Metrics"
 					note="Q4 2023 Results"
-					legendValueDisplay={ args.legendValueDisplay }
 				>
 					<PieSemiCircleChart.Legend
 						position="bottom"
@@ -264,7 +262,6 @@ export const CompositionAPI: Story = {
 						label="OS Usage"
 						note="Q4 2023"
 						withTooltips={ true }
-						legendValueDisplay={ args.legendValueDisplay }
 					>
 						<PieSemiCircleChart.SVG>
 							<Group>
@@ -303,7 +300,6 @@ export const CompositionAPI: Story = {
 						data={ args.data }
 						label="Performance"
 						note="Latest Results"
-						legendValueDisplay={ args.legendValueDisplay }
 					>
 						<PieSemiCircleChart.HTML>
 							<div
@@ -358,7 +354,6 @@ export const CompositionAPI: Story = {
 					data={ args.data }
 					label="Legacy Mode"
 					note="Still works!"
-					legendValueDisplay={ args.legendValueDisplay }
 				>
 					<Group>
 						<Text x={ 0 } y={ -70 } textAnchor="middle" fontSize={ 12 } fill="#999">
