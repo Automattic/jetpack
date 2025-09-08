@@ -1031,13 +1031,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			// New data.
 			'canInstallPlugins'       => current_user_can( 'install_plugins' ),
 			'canActivatePlugins'      => current_user_can( 'activate_plugins' ),
+			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
+			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
 		);
-
-		// Include dashboard-only nonces when in admin Forms page context.
-		if ( is_admin() && isset( $_GET['page'] ) && 'jetpack-forms-admin' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$config['exportNonce']  = wp_create_nonce( 'feedback_export' );
-			$config['newFormNonce'] = wp_create_nonce( 'create_new_form' );
-		}
 
 		return rest_ensure_response( $config );
 	}
