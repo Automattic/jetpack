@@ -49,7 +49,7 @@ debug_log "TUNNEL_CLI_COMMAND: $TUNNEL_CLI_COMMAND"
 
 function health_check() {
 	local url="$1"
-	local max_attempts=3
+	local max_attempts=20
 	local attempt=1
 	local dns_wait_time=5
 	local retry_interval=3
@@ -125,7 +125,7 @@ function up() {
 		
 		# Check exit code first - fail immediately if non-zero
 		if [ $tunnel_exit_code -ne 0 ]; then
-			log "Tunnel command failed with exit code $tunnel_exit_code"
+			log "Tunnel start command failed with exit code $tunnel_exit_code"
 		else
 			# Extract tunnel URL from the "Tunnel URL: " line
 			local tunnel_url
