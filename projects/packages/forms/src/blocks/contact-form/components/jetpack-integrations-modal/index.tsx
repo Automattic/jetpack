@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import useFormsConfig from '../../../../hooks/use-forms-config';
 import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import GoogleSheetsCard from './google-sheets-card';
@@ -19,8 +20,6 @@ import './style.scss';
  * Types
  */
 import type { Integration } from '../../../../types';
-
-const isMailPoetEnabled: boolean = !! window?.jpFormsBlocks?.defaults?.isMailPoetEnabled;
 
 const IntegrationsModal = ( {
 	isOpen,
@@ -39,9 +38,13 @@ const IntegrationsModal = ( {
 		mailpoet: false,
 	} );
 
+	const config = useFormsConfig();
+
 	if ( ! isOpen ) {
 		return null;
 	}
+
+	const isMailPoetEnabled = Boolean( config?.isMailPoetEnabled );
 
 	const toggleCard = ( cardId: string ) => {
 		setExpandedCards( prev => {
