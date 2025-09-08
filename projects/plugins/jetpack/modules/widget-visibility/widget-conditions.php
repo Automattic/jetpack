@@ -826,57 +826,59 @@ class Jetpack_Widget_Conditions {
 				return $instance;
 			}
 			return false;
-		} elseif ( ! empty( $instance['content'] ) ) {
-			$content = $instance['content'];
+		}
 
-			// Normalize content to a string before checking for blocks.
-			if ( is_array( $content ) ) {
-				// Content may be provided as an array shape.
-				if ( isset( $content['content'] ) && is_string( $content['content'] ) ) {
-					$content = $content['content'];
-				} elseif ( ! empty( $content ) && isset( $content[0] ) && is_array( $content[0] ) && isset( $content[0]['blockName'] ) ) {
-					// Looks like a parsed blocks array.
-					$content = serialize_blocks( $content );
-				} else {
-					// Unknown array shape: treat as no visibility rules.
-					return $instance;
-				}
-			}
+		if ( empty( $instance['content'] ) ) {
+			return $instance;
+		}
+		$content = $instance['content'];
 
-			if ( empty( $content ) || ! is_string( $content ) || ! has_blocks( $content ) ) {
-				// No visibility found.
+		// Normalize content to a string before checking for blocks.
+		if ( is_array( $content ) ) {
+			// Content may be provided as an array shape.
+			if ( isset( $content['content'] ) && is_string( $content['content'] ) ) {
+				$content = $content['content'];
+			} elseif ( ! empty( $content ) && isset( $content[0] ) && is_array( $content[0] ) && isset( $content[0]['blockName'] ) ) {
+				// Looks like a parsed blocks array.
+				$content = serialize_blocks( $content );
+			} else {
+				// Unknown array shape: treat as no visibility rules.
 				return $instance;
 			}
+		}
 
-			$scanner = Block_Scanner::create( $content );
-			if ( ! $scanner ) {
+		if ( empty( $content ) || ! is_string( $content ) || ! has_blocks( $content ) ) {
+			// No visibility found.
+			return $instance;
+		}
+
+		$scanner = Block_Scanner::create( $content );
+		if ( ! $scanner ) {
+			// No Rules: Display widget.
+			return $instance;
+		}
+
+		// Find the first block that opens
+		while ( $scanner->next_delimiter() ) {
+			if ( ! $scanner->opens_block() ) {
+				continue;
+			}
+
+			$attributes = $scanner->allocate_and_return_parsed_attributes();
+
+			if ( ! is_array( $attributes ) || empty( $attributes['conditions']['rules'] ) ) {
 				// No Rules: Display widget.
 				return $instance;
 			}
 
-			// Find the first block that opens
-			while ( $scanner->next_delimiter() ) {
-				if ( ! $scanner->opens_block() ) {
-					continue;
-				}
-
-				$attributes = $scanner->allocate_and_return_parsed_attributes();
-
-				if ( ! is_array( $attributes ) || empty( $attributes['conditions']['rules'] ) ) {
-					// No Rules: Display widget.
-					return $instance;
-				}
-
-				if ( self::filter_widget_check_conditions( $attributes['conditions'] ) ) {
-					// Rules passed checks: Display widget.
-					return $instance;
-				}
-
-				// Rules failed checks: Hide widget.
-				return false;
+			if ( self::filter_widget_check_conditions( $attributes['conditions'] ) ) {
+				// Rules passed checks: Display widget.
+				return $instance;
 			}
-		}
 
+			// Rules failed checks: Hide widget.
+			return false;
+		}
 		// No visibility found.
 		return $instance;
 	}
