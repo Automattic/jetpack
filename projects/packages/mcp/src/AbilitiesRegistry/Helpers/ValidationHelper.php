@@ -1,6 +1,6 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Helpers;
+namespace Automattic\Jetpack\AbilitiesRegistry\Helpers;
 
 use WP_Error;
 
@@ -50,7 +50,7 @@ class ValidationHelper {
 	 * @param string $email The email to validate.
 	 * @return string|WP_Error The validated email or error.
 	 */
-	public static function validate_email( string $email ): string|WP_Error {
+	public static function validate_email( string $email ) {
 		if ( ! is_email( $email ) ) {
 			return new WP_Error( 'invalid_email', 'Invalid email address format' );
 		}
@@ -63,7 +63,7 @@ class ValidationHelper {
 	 * @param string $url The URL to validate.
 	 * @return string|WP_Error The validated URL or error.
 	 */
-	public static function validate_url( string $url ): string|WP_Error {
+	public static function validate_url( string $url ) {
 		$sanitized = esc_url_raw( $url );
 		if ( empty( $sanitized ) ) {
 			return new WP_Error( 'invalid_url', 'Invalid URL format' );
@@ -79,7 +79,7 @@ class ValidationHelper {
 	 * @param int    $max_length Maximum allowed length.
 	 * @return string|WP_Error The validated string or error.
 	 */
-	public static function validate_string( string $value, string $field_name = 'field', int $max_length = 255 ): string|WP_Error {
+	public static function validate_string( string $value, string $field_name = 'field', int $max_length = 255 ) {
 		$sanitized = sanitize_text_field( $value );
 
 		if ( strlen( $sanitized ) > $max_length ) {
@@ -98,7 +98,7 @@ class ValidationHelper {
 	 * @param mixed $site_id The site ID to validate.
 	 * @return int|WP_Error The validated site ID or error.
 	 */
-	public static function validate_site_id( $site_id ): int|WP_Error {
+	public static function validate_site_id( $site_id ) {
 		if ( empty( $site_id ) ) {
 			return new WP_Error( 'missing_site_id', 'Site ID is required' );
 		}

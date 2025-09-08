@@ -48,7 +48,9 @@ final class AbilityRegistry {
 
 		return array_filter(
 			$config,
-			fn( $metadata ) => $metadata['type'] === $type
+			function ( $metadata ) use ( $type ) {
+				return $metadata['type'] === $type;
+			}
 		);
 	}
 
@@ -99,7 +101,14 @@ final class AbilityRegistry {
 	public static function get_tools_for_server( string $server_name ): array {
 		$abilities = self::get_abilities_by_server( $server_name );
 
-		return array_keys( array_filter( $abilities, fn( $metadata ) => 'tool' === $metadata['type'] ) );
+		return array_keys(
+			array_filter(
+				$abilities,
+				function ( $metadata ) {
+					return 'tool' === $metadata['type'];
+				}
+			)
+		);
 	}
 
 	/**
@@ -111,7 +120,14 @@ final class AbilityRegistry {
 	public static function get_resources_for_server( string $server_name ): array {
 		$abilities = self::get_abilities_by_server( $server_name );
 
-		return array_keys( array_filter( $abilities, fn( $metadata ) => 'resource' === $metadata['type'] ) );
+		return array_keys(
+			array_filter(
+				$abilities,
+				function ( $metadata ) {
+					return 'resource' === $metadata['type'];
+				}
+			)
+		);
 	}
 
 	/**
@@ -123,7 +139,14 @@ final class AbilityRegistry {
 	public static function get_prompts_for_server( string $server_name ): array {
 		$abilities = self::get_abilities_by_server( $server_name );
 
-		return array_keys( array_filter( $abilities, fn( $metadata ) => 'prompt' === $metadata['type'] ) );
+		return array_keys(
+			array_filter(
+				$abilities,
+				function ( $metadata ) {
+					return 'prompt' === $metadata['type'];
+				}
+			)
+		);
 	}
 
 	/**

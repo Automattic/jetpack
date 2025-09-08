@@ -49,7 +49,7 @@ trait AbilityTrait {
 	 *
 	 * @return \WP_Error|array The execution result or error.
 	 */
-	public function execute( array $input = array() ): \WP_Error|array {
+	public function execute( array $input = array() ) {
 		$executor = $this->get_executor();
 
 		if ( is_wp_error( $executor ) ) {
@@ -82,7 +82,7 @@ trait AbilityTrait {
 	 *
 	 * @return ExecutorInterface|\WP_Error The executor instance or error.
 	 */
-	private function get_executor(): ExecutorInterface|\WP_Error {
+	private function get_executor() {
 		$ability_name = $this->get_ability_name();
 		$executor     = ExecutorFactory::instance()->create_executor( $ability_name );
 

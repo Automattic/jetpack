@@ -1,6 +1,6 @@
 <?php //phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Abilities;
+namespace Automattic\Jetpack\AbilitiesRegistry\Abilities;
 
 use Exception;
 use WP_Error;
@@ -63,7 +63,7 @@ class ExamplePromptAbility {
 	 *
 	 * @return array|WP_Error The prompt result or error.
 	 */
-	public function execute( array $input = array()  {
+	public function execute( array $input = array() ) {
 		try {
 			// For prompt abilities, we typically return the prompt configuration
 			// rather than executing business logic, as the actual execution
