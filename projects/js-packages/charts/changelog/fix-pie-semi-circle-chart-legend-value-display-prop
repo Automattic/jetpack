@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: fix Type error with legendValueDisplay
