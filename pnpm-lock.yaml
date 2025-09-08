@@ -3041,6 +3041,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
 
+  projects/packages/mcp: {}
+
   projects/packages/my-jetpack:
     dependencies:
       '@automattic/babel-plugin-replace-textdomain':
