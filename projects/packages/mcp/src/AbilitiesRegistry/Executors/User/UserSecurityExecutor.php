@@ -238,7 +238,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 * @param int $limit Number of passwords to return.
 	 * @return WP_Error|array Application passwords or error.
 	 */
-	private function list_application_passwords( int $limit  {
+	private function list_application_passwords( int $limit ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -279,7 +279,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 * @param int $limit Number of entries to return.
 	 * @return WP_Error|array Login history or error.
 	 */
-	private function get_login_history( int $days, int $limit  {
+	private function get_login_history( int $days, int $limit ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

@@ -177,7 +177,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Test results or error.
 	 */
-	private function test_notification_delivery( array $input  {
+	private function test_notification_delivery( array $input ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

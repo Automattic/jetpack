@@ -127,7 +127,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 * @param int $subscription_id Subscription ID.
 	 * @return WP_Error|array Subscription details or error.
 	 */
-	private function get_subscription_details( int $subscription_id  {
+	private function get_subscription_details( int $subscription_id ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -165,7 +165,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 * @param int $limit Number of transactions to return.
 	 * @return WP_Error|array Billing history or error.
 	 */
-	private function get_billing_history( int $limit  {
+	private function get_billing_history( int $limit ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
