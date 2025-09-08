@@ -22,7 +22,8 @@
 		&:has(.jetpack-field__input-element:focus) {
 			outline-width: 2px;
 			outline-style: solid;
-			// mimics default focus outline color, need to fix this
+			// mimics default focus outline color, this is something we cannot
+			// fully control as the probe would fail to capture :focus styles
 			outline-color: rgb(0, 95, 204);
 		}
 
