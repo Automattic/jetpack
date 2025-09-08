@@ -107,6 +107,8 @@ function up() {
 	
 	while [ $retry_count -le $max_retries ]; do
 		if [ $retry_count -gt 0 ]; then
+			log "Waiting 30 seconds before retry..."
+			sleep 30
 			log "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
 		fi
 
