@@ -17,16 +17,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define constants.
-define( 'WPCOM_MCP_VERSION', '1.0.0' );
-define( 'WPCOM_MCP_PATH', plugin_dir_path( __FILE__ ) );
-define( 'WPCOM_MCP_URL', plugin_dir_url( __FILE__ ) );
+if ( ! defined( 'WPCOM_MCP_VERSION' ) ) {
+	define( 'WPCOM_MCP_VERSION', '1.0.0' );
+}
+if ( ! defined( 'WPCOM_MCP_PATH' ) ) {
+	define( 'WPCOM_MCP_PATH', plugin_dir_path( __FILE__ ) );
+}
+if ( ! defined( 'WPCOM_MCP_URL' ) ) {
+	define( 'WPCOM_MCP_URL', plugin_dir_url( __FILE__ ) );
+}
 
 /**
  * Initialize the WordPress MCP plugin.
  */
 function init_jetpack_mcp_abilities(): void {
 	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-	error_log( 'init_jetpack_mcp_abilities' );
+	error_log( 'init_jetpack_mcp_abilities - function called' );
 	// Prevent multiple executions.
 	static $loaded = false;
 	if ( $loaded ) {
@@ -37,9 +43,12 @@ function init_jetpack_mcp_abilities(): void {
 	$loaded = true;
 
 	// Only load for Automatticians.
-	if ( ! is_automattician() ) {
+	$is_automattician = is_automattician();
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	error_log( 'init_jetpack_mcp_abilities is_automattician: ' . ( $is_automattician ? 'true' : 'false' ) );
+	if ( ! $is_automattician ) {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( 'init_jetpack_mcp_abilities not automattician' );
+		error_log( 'init_jetpack_mcp_abilities not automattician - exiting early' );
 		return;
 	}
 
@@ -88,3 +97,5 @@ function init_jetpack_mcp_abilities(): void {
 
 // Initialize the plugin after all plugins are loaded.
 add_action( 'plugins_loaded', 'init_jetpack_mcp_abilities' );
+// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+error_log( 'init_jetpack_mcp_abilities - action hook registered' );
