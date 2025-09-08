@@ -95,6 +95,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_deleted'                  => '(bool) If the site flagged as deleted.',
 		'is_a4a_client'               => '(bool) If the site is an A4A client site.',
 		'is_a4a_dev_site'             => '(bool) If the site is an A4A dev site.',
+		'is_garden'                   => '(bool) If the site is a Garden site.',
+		'garden_name'                 => '(string) The name of the Garden site.',
+		'garden_partner'              => '(string) The partner of the Garden site.',
 	);
 
 	/**
@@ -247,6 +250,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_hosting_trial',
 		'was_upgraded_from_trial',
 		'is_a4a_dev_site',
+		'is_garden',
+		'garden_name',
+		'garden_partner',
 	);
 
 	/**
@@ -632,6 +638,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'is_a4a_dev_site':
 				$response[ $key ] = $this->site->is_a4a_dev_site();
+				break;
+			case 'is_garden':
+				$response[ $key ] = $this->site->is_garden();
+				break;
+			case 'garden_name':
+				$response[ $key ] = $this->site->garden_name();
+				break;
+			case 'garden_partner':
+				$response[ $key ] = $this->site->garden_partner();
 				break;
 		}
 
