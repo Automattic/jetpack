@@ -88,6 +88,7 @@
 			"import": "./dist/components/tooltip/index.js",
 			"require": "./dist/components/tooltip/index.cjs"
 		},
+		"./tooltip/style.css": "./dist/components/tooltip/index.css",
 		"./visx/group": {
 			"jetpack:src": "./src/visx/group/index.ts",
 			"import": "./dist/visx/group/index.js",
