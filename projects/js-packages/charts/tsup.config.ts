@@ -24,7 +24,9 @@ export default defineConfig( {
 		sassPlugin( {
 			filter: /\.module\.(css|scss)$/,
 			embedded: true,
-			transform: postcssModules( {} ),
+			transform: postcssModules( {
+				generateScopedName: 'a8ccharts-[contenthash:base64:6]',
+			} ),
 		} ),
 	],
 } );
