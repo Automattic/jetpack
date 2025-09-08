@@ -11,9 +11,6 @@ use Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry;
 use Automattic\WpcomMcp\WpcomMcp;
 use WP\MCP\Core\McpAdapter;
 
-// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-error_log( 'init_jetpack_mcp_abilities - file loaded' );
-
 // Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -98,7 +95,5 @@ function init_jetpack_mcp_abilities(): void {
 	error_log( 'init_jetpack_mcp_abilities servers loaded' );
 }
 
-// Initialize the plugin after all plugins are loaded.
-add_action( 'plugins_loaded', 'init_jetpack_mcp_abilities' );
-// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-error_log( 'init_jetpack_mcp_abilities - action hook registered' );
+// We can call this directly as this is loaded via Jetpack_Mu_Wpcom::load_mcp_abilities() which is called on the plugins_loaded hook.
+init_jetpack_mcp_abilities();
