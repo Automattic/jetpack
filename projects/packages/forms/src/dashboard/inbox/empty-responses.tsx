@@ -6,16 +6,22 @@ type EmptyResponsesProps = {
 };
 
 const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
+	const isSearchMessage = __( 'No responses found', 'jetpack-forms' );
 	if ( isSearch ) {
-		return __( 'No responses found', 'jetpack-forms' );
+		return isSearchMessage;
 	}
 
+	const noTrashMessage = __( 'Trash is empty', 'jetpack-forms' );
 	if ( status === 'trash' ) {
-		return __( 'Trash is empty', 'jetpack-forms' );
+		return noTrashMessage;
 	}
 
+	const noSpamMessage = __(
+		'Spam responses are automatically trashed after 15 days.',
+		'jetpack-forms'
+	);
 	if ( status === 'spam' ) {
-		return __( 'Spam responses are automatically trashed after 15 days.', 'jetpack-forms' );
+		return noSpamMessage;
 	}
 
 	return __( 'No responses', 'jetpack-forms' );
