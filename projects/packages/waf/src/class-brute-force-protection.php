@@ -551,7 +551,7 @@ class Brute_Force_Protection {
 				--$transient;
 			}
 
-			if ( ! $transient || ! is_int( $transient ) || $transient < 1 ) {
+			if ( ! is_int( $transient ) || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
 				// This is a cop out for the tests on some PHP versions
 				if ( ! headers_sent() ) {
