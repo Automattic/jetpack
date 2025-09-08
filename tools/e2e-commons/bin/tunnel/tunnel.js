@@ -79,6 +79,10 @@ export class TunnelManager {
 
 		try {
 			await this.start();
+			const storedUrl = this.getUrl();
+			if ( storedUrl ) {
+				console.log( `Tunnel URL: ${ storedUrl }` );
+			}
 			process.send?.( 'ok' );
 		} catch ( error ) {
 			console.error( `Failed to start tunnel: ${ error.message }` );

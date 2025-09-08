@@ -49,7 +49,7 @@ debug_log "TUNNEL_CLI_COMMAND: $TUNNEL_CLI_COMMAND"
 
 function health_check() {
 	local url="$1"
-	local max_attempts=20
+	local max_attempts=3
 	local attempt=1
 	local dns_wait_time=5
 	local retry_interval=3
@@ -119,9 +119,9 @@ function up() {
 		tunnel_output=$($TUNNEL_CLI_COMMAND on "$@" 2>&1)
 		echo "$tunnel_output"
 		
-		# Extract tunnel URL from the startup output
+		# Extract tunnel URL from the "Tunnel URL: " line
 		local tunnel_url
-		tunnel_url=$(echo "$tunnel_output" | grep -oE "https?://[^'\"[:space:]]+" | tail -1)
+		tunnel_url=$(echo "$tunnel_output" | grep "^.*Tunnel URL: " | sed 's/.*Tunnel URL: //' | head -1)
 		
 		if [[ -n "$tunnel_url" ]]; then
 			if health_check "$tunnel_url"; then
