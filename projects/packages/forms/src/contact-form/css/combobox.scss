@@ -65,7 +65,7 @@
 		background-color: inherit;
 		border-color: var(--jetpack--contact-form--border-color, currentColor);
 		border-width: var(--jetpack--contact-form--border-size, 1px);
-		border-radius: 0 0 4px 4px;
+		border-radius: var(--jetpack--contact-form--border-radius, 4px);
 		// some line-heights are too small,
 		//use max() to ensure a minimum height of 8 * 25px
 		max-height: max(calc(var(--jetpack--contact-form--line-height, 25px) * 8), 200px);
