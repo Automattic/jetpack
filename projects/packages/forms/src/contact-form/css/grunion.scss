@@ -247,6 +247,23 @@ that needs to mimic the input element styles */
 	font-weight: 200;
 }
 
+.contact-form-submission .field-images {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin-bottom: 20px;
+
+	&[hidden] {
+		display: none;
+	}
+
+	.field-image {
+		width: 200px;
+		aspect-ratio: 1/1;
+		object-fit: cover;
+	}
+}
+
 .contact-form-submission .field-value {
 	margin-bottom: 20px;
 	font-weight: 600;
