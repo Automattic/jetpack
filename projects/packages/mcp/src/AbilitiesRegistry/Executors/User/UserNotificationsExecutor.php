@@ -23,7 +23,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input The input parameters.
 	 * @return WP_Error|array The notifications data or error.
 	 */
-	public function execute( array $input = array()  {
+	public function execute( array $input = array() ) {
 		try {
 			$action = ValidationHelper::validate_action(
 				$input['action'] ?? 'list',
@@ -116,7 +116,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Settings or error.
 	 */
-	private function get_notification_settings( array $input  {
+	private function get_notification_settings( array $input ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

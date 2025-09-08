@@ -1,8 +1,8 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Executors\User;
+namespace Automattic\Jetpack\AbilitiesRegistry\Executors\User;
 
-use Automattic\WpcomMcp\AbilitiesRegistry\Interfaces\ExecutorInterface;
+use Automattic\Jetpack\AbilitiesRegistry\Interfaces\ExecutorInterface;
 use WP_Error;
 
 /**
@@ -19,7 +19,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array The achievements data or error.
 	 */
-	public function execute( array $input = array()  {
+	public function execute( array $input = array() ) {
 		try {
 			$action = $this->validate_action(
 				$input['action'] ?? 'list',
@@ -60,7 +60,9 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return bool True if permission is granted, false otherwise.
 	 */
-	public function check_permission( array $input = array() ): bool { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $input is required for interface compatibility
+	public function check_permission( array $input = array() ): bool {
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		unset( $input );
 		return $this->check_user_permission();
 	}
 
@@ -71,7 +73,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Achievements list or error.
 	 */
-	private function list_achievements( array $input  {
+	private function list_achievements( array $input ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -194,7 +196,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Feats data or error.
 	 */
-	private function get_user_feats( array $input  {
+	private function get_user_feats( array $input ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -357,7 +359,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return array Recent activity.
 	 */
-	private function get_recent_achievement_activity( int $user_id ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user_id will be used in future implementation
+	private function get_recent_achievement_activity( int $user_id ): array {
 		// This would typically query the achievements table for recent entries
 		// For now, return placeholder data.
 		return array(
@@ -378,7 +380,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return string|WP_Error Validated action or error.
 	 */
-	private function validate_action( string $action, array $allowed_actions ): string|WP_Error {
+	private function validate_action( string $action, array $allowed_actions ) {
 		if ( ! in_array( $action, $allowed_actions, true ) ) {
 			return $this->create_error(
 				'invalid_action',

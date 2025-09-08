@@ -23,7 +23,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array The connections data or error.
 	 */
-	public function execute( array $input = array()  {
+	public function execute( array $input = array() ) {
 		try {
 			$action = ValidationHelper::validate_action(
 				$input['action'] ?? 'list',

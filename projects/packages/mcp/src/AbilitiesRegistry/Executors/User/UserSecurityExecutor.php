@@ -22,7 +22,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 * @param array $input The input parameters.
 	 * @return WP_Error|array The security data or error.
 	 */
-	public function execute( array $input = array()  {
+	public function execute( array $input = array() ) {
 		try {
 			$action = ValidationHelper::validate_action(
 				$input['action'] ?? 'get_status',
@@ -206,7 +206,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 * @param int $limit Number of sessions to return.
 	 * @return WP_Error|array Sessions list or error.
 	 */
-	private function list_active_sessions( int $limit  {
+	private function list_active_sessions( int $limit ) {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

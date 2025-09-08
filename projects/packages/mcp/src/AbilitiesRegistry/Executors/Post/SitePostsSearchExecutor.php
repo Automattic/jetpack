@@ -23,22 +23,22 @@ class SitePostsSearchExecutor implements ExecutorInterface {
 	 *
 	 * @return array|WP_Error The search results or error.
 	 */
-	public function execute( array $input = array()  {
+	public function execute( array $input = array() ) {
 		try {
-			// Execute post query using helper (no site switching needed).
-			$query_results = PostQueryHelper::query_posts( $input );
-			$site_info     = PostQueryHelper::get_current_site_info();
+		// Execute post query using helper (no site switching needed).
+		$query_results = PostQueryHelper::query_posts( $input );
+		$site_info     = PostQueryHelper::get_current_site_info();
 
-			// Return structured response.
-			return array_merge( $query_results, array( 'site_info' => $site_info ) );
+		// Return structured response.
+		return array_merge( $query_results, array( 'site_info' => $site_info ) );
 
-		} catch ( Exception $e ) {
-			// Log the error.
-			return new WP_Error(
-				'search_error',
-				'An error occurred while searching posts: ' . $e->getMessage(),
-				array( 'status' => 500 )
-			);
+	} catch ( Exception $e ) {
+		// Log the error.
+		return new WP_Error(
+			'search_error',
+			'An error occurred while searching posts: ' . $e->getMessage(),
+			array( 'status' => 500 )
+		);
 		}
 	}
 

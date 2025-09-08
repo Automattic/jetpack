@@ -165,7 +165,7 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 	 *
 	 * @return array|WP_Error Validated input or error.
 	 */
-	private function validate_input( array $input  {
+	private function validate_input( array $input ) {
 		$validated = array(
 			'wpcom_site'          => $input['wpcom_site'] ?? '',
 			'period'              => $input['period'] ?? 'day',
@@ -210,7 +210,7 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 	 *
 	 * @return array|WP_Error Array with blog_id and switched flag, or error.
 	 */
-	private function resolve_and_switch_site( string $site_identifier  {
+	private function resolve_and_switch_site( string $site_identifier ) {
 		$target_blog_id = null;
 
 		// Determine if it's a blog ID or URL.
