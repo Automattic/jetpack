@@ -4,7 +4,7 @@
 	.jetpack-field__input,
 	.jetpack-field__textarea {
 		box-sizing: border-box;
-		border-color: currentColor;
+		border-color: var(--jetpack--contact-form--border-color, currentColor);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		border-width: var(--jetpack--contact-form--border-size);
 		font-size: var(--jetpack--contact-form--font-size);
