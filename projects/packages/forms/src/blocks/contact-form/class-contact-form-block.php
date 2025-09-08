@@ -795,8 +795,6 @@ class Contact_Form_Block {
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
 				'preferredView'        => $preferred_view,
 				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
-				'canInstallPlugins'    => current_user_can( 'install_plugins' ),
-				'canActivatePlugins'   => current_user_can( 'activate_plugins' ),
 			),
 		);
 

@@ -6,9 +6,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { config as dashboardConfig } from '../../../../../dashboard';
+import useFormsConfig from '../../../../../hooks/use-forms-config';
 import { usePluginInstallation } from '../hooks/use-plugin-installation';
-import type { JPFormsBlocksDefaults } from '../../../../../types';
 
 type PluginActionButtonProps = {
 	slug: string;
@@ -32,14 +31,10 @@ const PluginActionButton = ( {
 		trackEventName
 	);
 
-	// Permissions checks. We need to check both the editor-provided jpFormsBlocks
-	// and the dashboard config since this component loads in both places.
-	// In a future PR, we should consolidate this to a single source of truth.
-	const jpDefaults: JPFormsBlocksDefaults | undefined = window.jpFormsBlocks?.defaults;
-	const canUserInstallPlugins =
-		Boolean( jpDefaults?.canInstallPlugins ) || Boolean( dashboardConfig( 'canInstallPlugins' ) );
-	const canUserActivatePlugins =
-		Boolean( jpDefaults?.canActivatePlugins ) || Boolean( dashboardConfig( 'canActivatePlugins' ) );
+	// Permissions from consolidated Forms config (shared across editor and dashboard)
+	const config = useFormsConfig();
+	const canUserInstallPlugins = Boolean( config?.canInstallPlugins );
+	const canUserActivatePlugins = Boolean( config?.canActivatePlugins );
 
 	const canPerformAction = isInstalled ? canUserActivatePlugins : canUserInstallPlugins;
 	const isDisabled = isInstalling || ! canPerformAction;

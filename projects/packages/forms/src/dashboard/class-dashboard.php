@@ -230,8 +230,6 @@ class Dashboard {
 			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
 			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $this->switch->get_forms_admin_url() ),
 			'isMailpoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
-			'canInstallPlugins'       => current_user_can( 'install_plugins' ),
-			'canActivatePlugins'      => current_user_can( 'activate_plugins' ),
 		);
 
 		if ( ! empty( $extra_config ) ) {
