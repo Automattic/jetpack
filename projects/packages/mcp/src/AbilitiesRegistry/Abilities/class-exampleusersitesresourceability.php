@@ -52,7 +52,7 @@ class ExampleUserSitesResourceAbility {
 	 *
 	 * @return array|WP_Error The sites list or error.
 	 */
-	public function execute(): WP_Error|array {
+	public function execute() {
 		try {
 			$current_user_id = get_current_user_id();
 

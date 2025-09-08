@@ -22,7 +22,7 @@ class PostsSearchExecutor implements ExecutorInterface {
 	 *
 	 * @return array|WP_Error The search results or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		$original_blog_id = get_current_blog_id();
 		$switched         = false;
 

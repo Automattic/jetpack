@@ -19,7 +19,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array The achievements data or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		try {
 			$action = $this->validate_action(
 				$input['action'] ?? 'list',
@@ -71,7 +71,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Achievements list or error.
 	 */
-	private function list_achievements( array $input ): WP_Error|array {
+	private function list_achievements( array $input  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -116,7 +116,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Progress data or error.
 	 */
-	private function get_achievement_progress(): WP_Error|array {
+	private function get_achievement_progress() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -137,7 +137,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Stats data or error.
 	 */
-	private function get_achievement_stats(): WP_Error|array {
+	private function get_achievement_stats() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -165,7 +165,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Trophy case data or error.
 	 */
-	private function get_trophy_case(): WP_Error|array {
+	private function get_trophy_case() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -194,7 +194,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Feats data or error.
 	 */
-	private function get_user_feats( array $input ): WP_Error|array {
+	private function get_user_feats( array $input  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

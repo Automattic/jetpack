@@ -16,7 +16,7 @@ class ValidationHelper {
 	 * @param array  $allowed_actions Array of allowed actions.
 	 * @return string|WP_Error The validated action or error.
 	 */
-	public static function validate_action( string $action, array $allowed_actions ): string|WP_Error {
+	public static function validate_action( string $action, array $allowed_actions ) {
 		if ( empty( $action ) ) {
 			return new WP_Error( 'missing_action', 'Action parameter is required' );
 		}

@@ -46,7 +46,7 @@ interface AbilityInterface {
 	 *
 	 * @return array|WP_Error The execution result or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array;
+	public function execute( array $input = array() );
 
 	/**
 	 * Check if the current user has permission to execute this ability.

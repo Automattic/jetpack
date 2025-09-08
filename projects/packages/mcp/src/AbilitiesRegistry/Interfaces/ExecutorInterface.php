@@ -16,7 +16,7 @@ interface ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array The result data or error
 	 */
-	public function execute( array $input = array() ): WP_Error|array;
+	public function execute( array $input = array() );
 
 	/**
 	 * Check if the current user has permission to execute this ability

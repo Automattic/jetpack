@@ -21,7 +21,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param array $input The input parameters.
 	 * @return WP_Error|array The profile data or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		// Validate user is logged in.
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {

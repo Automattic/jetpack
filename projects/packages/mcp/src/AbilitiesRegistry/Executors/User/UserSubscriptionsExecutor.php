@@ -22,7 +22,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 * @param array $input The input parameters.
 	 * @return WP_Error|array The subscription data or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		try {
 			$action = ValidationHelper::validate_action(
 				$input['action'] ?? 'list',
@@ -80,7 +80,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Subscriptions list or error.
 	 */
-	private function list_subscriptions( array $input ): WP_Error|array {
+	private function list_subscriptions( array $input  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -127,7 +127,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 * @param int $subscription_id Subscription ID.
 	 * @return WP_Error|array Subscription details or error.
 	 */
-	private function get_subscription_details( int $subscription_id ): WP_Error|array {
+	private function get_subscription_details( int $subscription_id  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -165,7 +165,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 * @param int $limit Number of transactions to return.
 	 * @return WP_Error|array Billing history or error.
 	 */
-	private function get_billing_history( int $limit ): WP_Error|array {
+	private function get_billing_history( int $limit  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -200,7 +200,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Usage data or error.
 	 */
-	private function get_usage_data(): WP_Error|array {
+	private function get_usage_data() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -241,7 +241,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Payment methods or error.
 	 */
-	private function get_payment_methods(): WP_Error|array {
+	private function get_payment_methods() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

@@ -24,7 +24,7 @@ class UserSitesExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array The result data or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array() ) {
 		try {
 			// Validate pagination.
 			$pagination = ValidationHelper::validate_pagination( $input );
@@ -79,7 +79,7 @@ class UserSitesExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array The sites data or error.
 	 */
-	private function get_user_sites(): WP_Error|array {
+	private function get_user_sites() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

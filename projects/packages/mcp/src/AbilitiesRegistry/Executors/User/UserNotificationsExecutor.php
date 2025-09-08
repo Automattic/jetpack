@@ -23,7 +23,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input The input parameters.
 	 * @return WP_Error|array The notifications data or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		try {
 			$action = ValidationHelper::validate_action(
 				$input['action'] ?? 'list',
@@ -69,7 +69,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Settings list or error.
 	 */
-	private function list_notification_settings( array $input ): WP_Error|array {
+	private function list_notification_settings( array $input  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -116,7 +116,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Settings or error.
 	 */
-	private function get_notification_settings( array $input ): WP_Error|array {
+	private function get_notification_settings( array $input  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -155,7 +155,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Devices list or error.
 	 */
-	private function get_push_devices(): WP_Error|array {
+	private function get_push_devices() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -177,7 +177,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Test results or error.
 	 */
-	private function test_notification_delivery( array $input ): WP_Error|array {
+	private function test_notification_delivery( array $input  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

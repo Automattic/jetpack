@@ -23,7 +23,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array The connections data or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		try {
 			$action = ValidationHelper::validate_action(
 				$input['action'] ?? 'list',
@@ -70,7 +70,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Connections list or error.
 	 */
-	private function list_connections( array $params ): WP_Error|array {
+	private function list_connections( array $params  {
 		// In a real WordPress.com environment, this would use the connections API
 		// For now, we'll simulate the response with placeholder data.
 		$connections = $this->get_user_connections_data();
@@ -97,7 +97,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Connection data or error.
 	 */
-	private function get_connection( int $connection_id ): WP_Error|array {
+	private function get_connection( int $connection_id  {
 		$validated_id = $this->validate_connection_id( $connection_id );
 		if ( is_wp_error( $validated_id ) ) {
 			return $validated_id;
@@ -128,7 +128,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Test results or error.
 	 */
-	private function test_connection( int $connection_id ): WP_Error|array {
+	private function test_connection( int $connection_id  {
 		$validated_id = $this->validate_connection_id( $connection_id );
 		if ( is_wp_error( $validated_id ) ) {
 			return $validated_id;
@@ -159,7 +159,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Connections data or error.
 	 */
-	private function get_user_connections_data(): WP_Error|array {
+	private function get_user_connections_data() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

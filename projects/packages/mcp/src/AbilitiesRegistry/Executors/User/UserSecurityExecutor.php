@@ -22,7 +22,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 * @param array $input The input parameters.
 	 * @return WP_Error|array The security data or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		try {
 			$action = ValidationHelper::validate_action(
 				$input['action'] ?? 'get_status',
@@ -74,7 +74,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array Security status or error.
 	 */
-	private function get_security_status(): WP_Error|array {
+	private function get_security_status() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -135,7 +135,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 *
 	 * @return WP_Error|array 2FA methods or error.
 	 */
-	private function get_two_factor_methods(): WP_Error|array {
+	private function get_two_factor_methods() {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -206,7 +206,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 * @param int $limit Number of sessions to return.
 	 * @return WP_Error|array Sessions list or error.
 	 */
-	private function list_active_sessions( int $limit ): WP_Error|array {
+	private function list_active_sessions( int $limit  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -238,7 +238,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 * @param int $limit Number of passwords to return.
 	 * @return WP_Error|array Application passwords or error.
 	 */
-	private function list_application_passwords( int $limit ): WP_Error|array {
+	private function list_application_passwords( int $limit  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -279,7 +279,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 	 * @param int $limit Number of entries to return.
 	 * @return WP_Error|array Login history or error.
 	 */
-	private function get_login_history( int $days, int $limit ): WP_Error|array {
+	private function get_login_history( int $days, int $limit  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

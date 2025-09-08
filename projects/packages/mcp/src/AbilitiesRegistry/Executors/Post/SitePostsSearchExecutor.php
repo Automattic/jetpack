@@ -23,7 +23,7 @@ class SitePostsSearchExecutor implements ExecutorInterface {
 	 *
 	 * @return array|WP_Error The search results or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		try {
 			// Execute post query using helper (no site switching needed).
 			$query_results = PostQueryHelper::query_posts( $input );

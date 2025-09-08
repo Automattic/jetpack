@@ -26,7 +26,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @param array $input The input parameters.
 	 * @return WP_Error|array The notifications data or error.
 	 */
-	public function execute( array $input = array() ): WP_Error|array {
+	public function execute( array $input = array()  {
 		try {
 			$action = ValidationHelper::validate_action(
 				$input['action'] ?? 'list',
@@ -70,7 +70,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Notifications list or error.
 	 */
-	private function list_notifications( array $input ): WP_Error|array {
+	private function list_notifications( array $input  {
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -166,7 +166,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Summary data or error.
 	 */
-	private function get_notifications_summary( array $input = array() ): WP_Error|array {
+	private function get_notifications_summary( array $input = array()  {
 		// Suppress unused variable warning - parameter required by interface.
 		unset( $input );
 
