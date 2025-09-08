@@ -1009,9 +1009,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$switch  = new Dashboard_View_Switch();
-		$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
-		$has_ai  = ! is_wp_error( $feature ) ? ( $feature['has-feature'] ?? false ) : false;
+		$switch = new Dashboard_View_Switch();
+		$has_ai = false;
+		if ( class_exists( 'Jetpack_AI_Helper' ) ) {
+			$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
+			$has_ai  = ! is_wp_error( $feature ) ? ( $feature['has-feature'] ?? false ) : false;
+		}
 
 		$config = array(
 			// From jpFormsBlocks in class-contact-form-block.php.
