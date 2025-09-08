@@ -13,10 +13,10 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers/chart-context';
-import { LeaderboardEntry } from '../../types';
 import { formatMetricValue } from '../../utils';
 import styles from './leaderboard-chart.module.scss';
-import { LeaderboardChartProps } from './types';
+import type { LeaderboardChartProps } from './types';
+import type { LeaderboardEntry } from '../../types';
 
 /**
  * Default value formatter using formatMetricValue
