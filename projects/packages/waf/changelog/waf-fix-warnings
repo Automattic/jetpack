@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WAF: Fix emitting PHP warnings when the BFP transient is not set, or when the hook data for the WAF update flag is not as expected.
