@@ -568,7 +568,7 @@ class Share_Facebook_Block extends Sharing_Source_Block {
 	 */
 	public function process_request( $post, array $post_data ) {
 		$post_id = $post instanceof WP_Post ? $post->ID : 0;
-		$fb_url  = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post_id ) ) . '&t=' . rawurlencode( $this->get_share_title( $post_id ) );
+		$fb_url  = 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $this->get_share_url( $post_id ) ) . '&t=' . rawurlencode( $this->get_share_title( $post_id ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
