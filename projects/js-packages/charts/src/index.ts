@@ -12,6 +12,11 @@ export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export type { LegendValueDisplay } from './components/legend';
 
+// Visx components
+export { Text, getStringWidth, useText } from './visx/text';
+export { Group } from './visx/group';
+export { LineShape, CircleShape, RectShape } from './visx/legend';
+
 // Themes
 export { ThemeProvider } from './providers/theme';
 export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';

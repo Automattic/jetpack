@@ -16,12 +16,13 @@ import { getStringWidth } from '../../visx/text';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
-import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
+import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { LegendValueDisplay } from '../legend';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {

@@ -1,6 +1,6 @@
 export { default as LineChart } from './line-chart';
-export type { AnnotationStyles } from '../../types';
 export type {
+	AnnotationStyles,
 	LineChartAnnotationProps,
 	RenderLineStartGlyphProps,
 	LineChartProps,
