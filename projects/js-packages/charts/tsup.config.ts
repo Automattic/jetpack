@@ -3,7 +3,9 @@ import { defineConfig } from 'tsup';
 import pkg from './package.json';
 
 // Extract entries from package exports
-const entry = Object.values( pkg.exports ).map( ( { 'jetpack:src': src } ) => src );
+const entry = Object.values( pkg.exports )
+	.map( $export => ( typeof $export === 'object' ? $export[ 'jetpack:src' ] : null ) )
+	.filter( ( path ): path is string => Boolean( path ) );
 
 export default defineConfig( {
 	entry,
