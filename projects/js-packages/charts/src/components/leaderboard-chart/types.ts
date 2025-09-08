@@ -1,6 +1,7 @@
 import { BaseChartProps, LeaderboardEntry } from '../../types';
 
-export interface LeaderboardChartProps extends BaseChartProps< LeaderboardEntry > {
+export interface LeaderboardChartProps
+	extends Pick< BaseChartProps< LeaderboardEntry >, 'className' | 'data' > {
 	/**
 	 * Whether to show comparison data
 	 */
