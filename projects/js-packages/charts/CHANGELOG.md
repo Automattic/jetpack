@@ -5,12 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.0] - 2025-09-08
+### Changed
+- Leaderboard Chart: Extend BaseChartProps [#45100]
+
+### Fixed
+- Fix SASS and CSS Modules processing. [#45098]
+
 ## [0.33.0] - 2025-09-08
 ### Added
 - Add ability to control percentage vs. value display. [#45052]
 
 ### Changed
-- LeaderboardChart: Use GlobalContextProvider theme for colors. [#45067]
+- Leaderboard Chart: Use GlobalContextProvider theme for colors. [#45067]
 - Update package dependencies. [#45027] [#45097]
 - Use `tsup` for builds. [#45051]
 
@@ -430,6 +437,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.34.0]: https://github.com/Automattic/charts/compare/v0.33.0...v0.34.0
 [0.33.0]: https://github.com/Automattic/charts/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/Automattic/charts/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/Automattic/charts/compare/v0.30.0...v0.31.0
