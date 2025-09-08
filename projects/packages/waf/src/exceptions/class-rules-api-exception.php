@@ -9,6 +9,10 @@
 
 namespace Automattic\Jetpack\Waf;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Custom exception for WAF rules API errors.
  */
