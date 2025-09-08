@@ -1,3 +1,4 @@
+import { sassPlugin } from 'esbuild-sass-plugin';
 import { defineConfig } from 'tsup';
 import pkg from './package.json';
 
@@ -16,8 +17,13 @@ export default defineConfig( {
 	loader: {
 		'.jpg': 'file',
 		'.gif': 'file',
-		'.scss': 'file',
 		'.svg': 'file',
 		'.png': 'file',
 	},
+	esbuildPlugins: [
+		sassPlugin( {
+			filter: /\.module\.(css|scss)$/,
+			embedded: true,
+		} ),
+	],
 } );

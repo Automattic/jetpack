@@ -204,6 +204,8 @@
 		"babel-jest": "30.0.0",
 		"babel-loader": "9.1.2",
 		"css-loader": "^6.7.0",
+		"esbuild": "0.25.9",
+		"esbuild-sass-plugin": "^3.1.0",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
 		"jest-extended": "5.0.3",
