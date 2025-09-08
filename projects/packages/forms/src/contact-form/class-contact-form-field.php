@@ -1075,7 +1075,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								data-wp-text="context.selectedCountry.value"></span>
 						</button>
 						<div 
-							class="jetpack-combobox-dropdown"
+							class="jetpack-combobox-dropdown <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
+							style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
 							data-wp-bind--hidden="!context.comboboxOpen">
 							<input
 								class="jetpack-combobox-search" 
