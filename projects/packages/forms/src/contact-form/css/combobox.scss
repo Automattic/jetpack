@@ -1,6 +1,5 @@
 // Custom Combobox Styles for Country Selector
 .jetpack-custom-combobox {
-	position: relative;
 	letter-spacing: normal; // don't let input attributes rule over this
 	background-color: inherit;
 
@@ -61,9 +60,10 @@
 
 	.jetpack-combobox-dropdown {
 		position: absolute;
-		top: calc(var(--jetpack--contact-form--line-height, 100%) * 1.5);
-		left: 0;
-		right: 0;
+		left: -1px;
+		top: 100%;
+		width: -webkit-fill-available;
+		min-width: 60%;
 
 		background-color: inherit;
 		border: 1px solid #ddd;
@@ -72,9 +72,7 @@
 		max-height: calc(var(--jetpack--contact-form--line-height, 25px) * 8);
 		z-index: 1000;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		width: max-content;
 		overflow: hidden;
-		max-width: 75vw;
 
 		&.jetpack-combobox-open {
 			display: block;
@@ -113,7 +111,6 @@
 			font-size: 14px;
 			transition: background-color 0.1s;
 			gap: 8px;
-			width: 100%;
 			background-color: transparent;
 			border: none;
 			line-height: inherit;
