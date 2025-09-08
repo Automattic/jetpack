@@ -40,7 +40,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function tearDown(): void {
+	protected function tearDown(): void {
 		if ( file_exists( $this->tmp_db_path ) ) {
 			// Delete the database.
 			wp_delete_file( $this->tmp_db_path );

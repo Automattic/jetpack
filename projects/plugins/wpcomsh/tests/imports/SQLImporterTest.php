@@ -32,7 +32,7 @@ class SQLImporterTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function tearDown(): void {
+	protected function tearDown(): void {
 		if ( $this->tmp_sql_path !== null && file_exists( $this->tmp_sql_path ) ) {
 			fclose( $this->tmp_sql_file );
 		}

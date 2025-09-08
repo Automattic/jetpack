@@ -23,7 +23,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	/**
 	 * Setup values for each test.
 	 */
-	public function setUp(): void {
+	protected function setUp(): void {
 		parent::setup();
 
 		$this->generator = new SQL_Generator();
@@ -34,7 +34,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function tearDown(): void {
+	protected function tearDown(): void {
 		if ( $this->generator ) {
 			unset( $this->generator );
 		}

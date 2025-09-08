@@ -35,7 +35,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	/**
 	 * Clean up after each test.
 	 */
-	public function tearDown(): void {
+	protected function tearDown(): void {
 		delete_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION );
 		delete_option( 'jetpack_connection_xmlrpc_verified_errors' );
 

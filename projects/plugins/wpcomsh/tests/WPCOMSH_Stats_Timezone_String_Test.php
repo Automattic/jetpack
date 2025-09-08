@@ -14,14 +14,14 @@ class WPCOMSH_Stats_Timezone_String_Test extends WP_UnitTestCase {
 	private $original_timezone_string;
 	private $original_gmt_offset;
 
-	public function setUp(): void {
+	protected function setUp(): void {
 		parent::setUp();
 		// Backup original options
 		$this->original_timezone_string = get_option( 'timezone_string' );
 		$this->original_gmt_offset      = get_option( 'gmt_offset' );
 	}
 
-	public function tearDown(): void {
+	protected function tearDown(): void {
 		// Restore original options
 		update_option( 'timezone_string', $this->original_timezone_string );
 		update_option( 'gmt_offset', $this->original_gmt_offset );
