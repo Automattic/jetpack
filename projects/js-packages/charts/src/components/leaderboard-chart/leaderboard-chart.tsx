@@ -13,57 +13,11 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers/chart-context';
+import { BaseChartProps, LeaderboardEntry } from '../../types';
 import { formatMetricValue } from '../../utils';
 import styles from './leaderboard-chart.module.scss';
 
-export interface LeaderboardEntry {
-	/**
-	 * Unique internal key (e.g., 'key-direct')
-	 */
-	id: string;
-
-	/**
-	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
-	 */
-	label: string | JSX.Element;
-
-	/**
-	 * Value of the entry
-	 */
-	currentValue: number;
-
-	/**
-	 * Value of the entry in the previous period
-	 */
-	previousValue: number;
-
-	/**
-	 * Width of current bar, as % of the current value
-	 */
-	currentShare: number;
-
-	/**
-	 * Width of previous bar, as % of the current value
-	 */
-	previousShare: number;
-
-	/**
-	 * Delta of the entry
-	 */
-	delta: number;
-
-	/**
-	 * Optional color for the entry's image/icon
-	 */
-	imageColor?: string;
-}
-
-export interface LeaderboardChartProps {
-	/**
-	 * Array of leaderboard entries to display
-	 */
-	data: LeaderboardEntry[];
-
+export interface LeaderboardChartProps extends BaseChartProps< LeaderboardEntry[] > {
 	/**
 	 * Whether to show comparison data
 	 */
@@ -98,11 +52,6 @@ export interface LeaderboardChartProps {
 	 * Whether the chart is in loading state
 	 */
 	loading?: boolean;
-
-	/**
-	 * Additional CSS class name for the chart container
-	 */
-	className?: string;
 
 	/**
 	 * Custom styling for the chart container
