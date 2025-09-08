@@ -201,7 +201,7 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: () => (
+	render: args => (
 		<div
 			style={ {
 				display: 'grid',
@@ -214,11 +214,12 @@ export const WithCompositionLegend: Story = {
 				<h3>Traditional Props-based</h3>
 				<PieChart
 					size={ 300 }
-					data={ data }
+					data={ args.data }
 					thickness={ 0.5 }
 					showLegend={ true }
 					legendPosition="bottom"
 					legendOrientation="horizontal"
+					legendValueDisplay={ args.legendValueDisplay }
 				>
 					<Group>
 						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
@@ -232,7 +233,12 @@ export const WithCompositionLegend: Story = {
 			</div>
 			<div>
 				<h3>Composition API</h3>
-				<PieChart size={ 300 } data={ data } thickness={ 0.5 }>
+				<PieChart
+					size={ 300 }
+					data={ args.data }
+					thickness={ 0.5 }
+					legendValueDisplay={ args.legendValueDisplay }
+				>
 					<Group>
 						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
 							User Stats
@@ -246,6 +252,10 @@ export const WithCompositionLegend: Story = {
 			</div>
 		</div>
 	),
+	args: {
+		data,
+		thickness: 0.5,
+	},
 	parameters: {
 		docs: {
 			description: {

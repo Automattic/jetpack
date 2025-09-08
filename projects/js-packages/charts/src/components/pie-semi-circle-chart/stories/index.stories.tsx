@@ -81,7 +81,7 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: () => (
+	render: args => (
 		<div
 			style={ {
 				display: 'grid',
@@ -94,21 +94,23 @@ export const WithCompositionLegend: Story = {
 				<h3>Traditional Props-based Legend</h3>
 				<PieSemiCircleChart
 					width={ 400 }
-					data={ data }
+					data={ args.data }
 					label="Performance Metrics"
 					note="Q4 2023 Results"
 					showLegend={ true }
 					legendPosition="bottom"
 					legendOrientation="horizontal"
+					legendValueDisplay={ args.legendValueDisplay }
 				/>
 			</div>
 			<div>
 				<h3>Composition API with Legend Component</h3>
 				<PieSemiCircleChart
 					width={ 400 }
-					data={ data }
+					data={ args.data }
 					label="Performance Metrics"
 					note="Q4 2023 Results"
+					legendValueDisplay={ args.legendValueDisplay }
 				>
 					<PieSemiCircleChart.Legend
 						position="bottom"
@@ -119,6 +121,9 @@ export const WithCompositionLegend: Story = {
 			</div>
 		</div>
 	),
+	args: {
+		data,
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -238,7 +243,7 @@ export const ErrorStates: Story = {
 };
 
 export const CompositionAPI: Story = {
-	render: () => (
+	render: args => (
 		<div style={ { padding: '2rem' } }>
 			<h2>PieSemiCircleChart Composition API</h2>
 			<p>Demonstrates the flexible composition API with SVG and HTML compound components.</p>
@@ -255,10 +260,11 @@ export const CompositionAPI: Story = {
 					<h3>With Custom SVG Elements</h3>
 					<PieSemiCircleChart
 						width={ 400 }
-						data={ data }
+						data={ args.data }
 						label="OS Usage"
 						note="Q4 2023"
 						withTooltips={ true }
+						legendValueDisplay={ args.legendValueDisplay }
 					>
 						<PieSemiCircleChart.SVG>
 							<Group>
@@ -292,7 +298,13 @@ export const CompositionAPI: Story = {
 
 				<div>
 					<h3>With Custom Legend and HTML Content</h3>
-					<PieSemiCircleChart width={ 400 } data={ data } label="Performance" note="Latest Results">
+					<PieSemiCircleChart
+						width={ 400 }
+						data={ args.data }
+						label="Performance"
+						note="Latest Results"
+						legendValueDisplay={ args.legendValueDisplay }
+					>
 						<PieSemiCircleChart.HTML>
 							<div
 								style={ {
@@ -341,7 +353,13 @@ export const CompositionAPI: Story = {
 				<p style={ { fontSize: '14px', color: '#666', marginBottom: '1rem' } }>
 					For backward compatibility, Group components are still supported directly:
 				</p>
-				<PieSemiCircleChart width={ 400 } data={ data } label="Legacy Mode" note="Still works!">
+				<PieSemiCircleChart
+					width={ 400 }
+					data={ args.data }
+					label="Legacy Mode"
+					note="Still works!"
+					legendValueDisplay={ args.legendValueDisplay }
+				>
 					<Group>
 						<Text x={ 0 } y={ -70 } textAnchor="middle" fontSize={ 12 } fill="#999">
 							Direct Group usage
@@ -352,6 +370,9 @@ export const CompositionAPI: Story = {
 			</div>
 		</div>
 	),
+	args: {
+		data,
+	},
 	parameters: {
 		layout: 'fullscreen',
 		docs: {

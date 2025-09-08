@@ -10,6 +10,7 @@ export { ConversionFunnelChart } from './components/conversion-funnel-chart';
 // Chart components
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
+export type { LegendValueDisplay } from './components/legend';
 
 // Themes
 export { ThemeProvider } from './providers/theme';
@@ -26,5 +27,6 @@ export {
 // Types
 export type * from './types';
 export type * from './visx/types';
+export type { PieChartProps } from './components/pie-chart';
 
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
