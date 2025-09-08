@@ -2289,6 +2289,54 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'message' ), 'Message field value should match' );
 	}
 
+	public function test_escape_legacy_special_characters_handeling_strip_new_lines() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'special' => 'こんにちは世界',
+				'message' => '🙈',
+			),
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			'publish',
+			true // strip new lines.
+		);
+
+		$response = Feedback::get( $post_id );
+
+		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'special' ), 'Special field value should match' );
+		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'message' ), 'Message field value should match' );
+	}
+
+	public function test_bad_feedback_data_does_not_produce_warnings() {
+		$post_id  = wp_insert_post(
+			array(
+				'post_type'    => Feedback::POST_TYPE,
+				'post_title'   => 'Bad Feedback',
+				'post_content' => 'junk data',
+				'post_status'  => 'publish',
+			)
+		);
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+	}
+
+	public function test_bad_feedback_data_does_not_produce_warnings_bad_data() {
+		$post_id  = wp_insert_post(
+			array(
+				'post_type'    => Feedback::POST_TYPE,
+				'post_title'   => 'Bad Feedback JSON_DATA Bad Feedback',
+				'post_content' => 'junk data',
+				'post_status'  => 'publish',
+			)
+		);
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+	}
+
 	public function test_escape_legacy_v2_special_characters_handeling() {
 		$post_id = Utility::create_legacy_feedback_v2(
 			array(

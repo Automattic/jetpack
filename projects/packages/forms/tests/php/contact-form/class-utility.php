@@ -11,14 +11,15 @@ class Utility {
 	 *
 	 * This function creates a mock feedback post in the legacy format used by Jetpack Contact Form.
 	 *
-	 * @param array       $all_values               An associative array of field values.
-	 * @param string|null $comment_content          The content of the comment.
-	 * @param string|null $comment_author           The name of the comment author.
-	 * @param string|null $comment_author_email     The email of the comment author.
-	 * @param string|null $comment_author_url       The URL of the comment author.
-	 * @param string|null $comment_ip_text          The IP address of the comment author.
-	 * @param string|null $subject                  The subject of the feedback.
-	 * @param string|null $status                   The status of the post (default is 'publish').
+	 * @param array        $all_values               An associative array of field values.
+	 * @param string|null  $comment_content          The content of the comment.
+	 * @param string|null  $comment_author           The name of the comment author.
+	 * @param string|null  $comment_author_email     The email of the comment author.
+	 * @param string|null  $comment_author_url       The URL of the comment author.
+	 * @param string|null  $comment_ip_text          The IP address of the comment author.
+	 * @param string|null  $subject                  The subject of the feedback.
+	 * @param string|null  $status                   The status of the post (default is 'publish').
+	 * @param boolean|null $strip_new_lines          Whether to strip new lines from the content (default is false).
 	 *
 	 * @return int|\WP_Error The ID of the created post on success, or a WP_Error object on failure.
 	 */
@@ -30,7 +31,8 @@ class Utility {
 		$comment_author_url = 'http://example.com',
 		$comment_ip_text = 'https://127.0.0.1',
 		$subject = 'Test Subject',
-		$status = 'publish'
+		$status = 'publish',
+		$strip_new_lines = false
 	) {
 		global $post;
 		$feedback_time  = current_time( 'mysql' );
@@ -65,7 +67,9 @@ class Utility {
 		);
 
 		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
-
+		if ( $strip_new_lines ) {
+			$content = str_replace( array( "\n", "\r" ), ' ', $content );
+		}
 		// Create a mock post with JSON_DATA format
 		return wp_insert_post(
 			array(
