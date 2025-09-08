@@ -29,27 +29,30 @@ const extractHostedButtonId = codeBody => {
 	// Try to extract from hostedButtonId property first (stacked buttons)
 	const hostedButtonMatch = codeBody.match( /hostedButtonId:\s*["']([^"']+)["']/ );
 	if ( hostedButtonMatch ) {
-		return hostedButtonMatch[ 1 ];
+		return hostedButtonMatch[ 1 ].trim();
 	}
 
 	// Try to extract from container ID (stacked buttons)
 	const containerMatch = codeBody.match( /paypal-container-([^"']+)/ );
 	if ( containerMatch ) {
-		return containerMatch[ 1 ];
+		return containerMatch[ 1 ].trim();
 	}
 
 	// Try to extract from form action URL (single buttons)
+	// Updated to handle query parameters and international domains
+	// Supports paypal.com, paypal.co.uk, paypal.de, etc.
 	const actionMatch = codeBody.match(
-		/action=["']https:\/\/www\.paypal\.com\/ncp\/payment\/([^"']+)["']/
+		/action\s*=\s*["'](?:https?:)?\/\/(?:www\.)?(?:sandbox\.)?paypal\.(?:com|co\.[a-z]{2}|[a-z]{2})\/ncp\/payment\/([A-Za-z0-9_-]+)\s*(?:\?[^"']*)?["']/i
 	);
 	if ( actionMatch ) {
-		return actionMatch[ 1 ];
+		return actionMatch[ 1 ].trim();
 	}
 
 	// Try to extract from CSS class (single buttons)
-	const cssMatch = codeBody.match( /\.pp-([A-Z0-9]+)/ );
+	// Now supports lowercase, uppercase, hyphens, and underscores
+	const cssMatch = codeBody.match( /\.pp-([A-Za-z0-9_-]+)/ );
 	if ( cssMatch ) {
-		return cssMatch[ 1 ];
+		return cssMatch[ 1 ].trim();
 	}
 
 	return '';
@@ -57,8 +60,17 @@ const extractHostedButtonId = codeBody => {
 
 const extractButtonText = codeBody => {
 	// Extract button text from input value attribute (single buttons)
-	const inputMatch = codeBody.match( /<input[^>]*value=["']([^"']+)["'][^>]*\/>/ );
-	return inputMatch ? inputMatch[ 1 ] : '';
+	// Updated to handle both self-terminating (/>) and non-self-terminating (>) tags
+	// Also handles spaces around = and mixed quotes
+	const inputMatch = codeBody.match( /<input[^>]*value\s*=\s*["']([^"']+)["'][^>]*\/?>/ );
+	if ( inputMatch ) {
+		// Decode HTML entities
+		const text = inputMatch[ 1 ].trim();
+		const textarea = document.createElement( 'textarea' );
+		textarea.innerHTML = text;
+		return textarea.value;
+	}
+	return '';
 };
 
 const generateHeadCode = scriptSrc => {
@@ -91,9 +103,11 @@ const generateBodyCode = ( hostedButtonId, buttonType = 'stacked', buttonText = 
 };
 
 const validScriptSrc = scriptSrc =>
-	/^https:\/\/(www\.)?(sandbox\.)?paypal\.com\/sdk\/js\?client-id=/.test( scriptSrc );
+	/^https:\/\/(www\.)?(sandbox\.)?paypal\.(com|co\.[a-z]{2}|[a-z]{2})\/sdk\/js\?client-id=/i.test(
+		scriptSrc
+	);
 
-const validHostedButtonId = hostedButtonId => /^[A-Z0-9]+$/.test( hostedButtonId );
+const validHostedButtonId = hostedButtonId => /^[A-Za-z0-9_-]+$/.test( hostedButtonId );
 
 const validButtonText = buttonText =>
 	buttonText && buttonText.trim().length > 0 && buttonText.length <= 50;
