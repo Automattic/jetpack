@@ -61,6 +61,7 @@ describe( 'useGlobalChartsTheme', () => {
 			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
 			expect( result.current ).toEqual( defaultTheme );
+			expect( result.current.colors ).toBe( defaultTheme.colors );
 		} );
 	} );
 
@@ -82,8 +83,7 @@ describe( 'useGlobalChartsTheme', () => {
 
 	describe( 'edge cases', () => {
 		it( 'should handle null/undefined theme values gracefully', () => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const customTheme = { colors: undefined as any };
+			const customTheme = { colors: undefined };
 			const wrapper = createWrapper( customTheme );
 
 			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
