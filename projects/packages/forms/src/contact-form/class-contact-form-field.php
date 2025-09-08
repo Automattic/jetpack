@@ -1513,7 +1513,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 *
 		 * Filter the value of the hidden field.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.3.0
 		 *
 		 * @param string $value The value of the hidden field.
 		 * @param string $label The label of the hidden field.

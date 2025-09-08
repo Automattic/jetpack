@@ -1883,7 +1883,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/subscribers-dashboard",
-                "reference": "79f01c5177095986566e9deb5832dfceb0b9aa14"
+                "reference": "81690137b50542f41b9ee5eb00841156118021e2"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1908,7 +1908,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-subscribers-dashboard",
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-subscribers-dashboard",
                 "version-constants": {
