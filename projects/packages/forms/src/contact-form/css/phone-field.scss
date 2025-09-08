@@ -8,7 +8,7 @@
 	.jetpack-field__input-phone-wrapper {
 		display: flex;
 		gap: 8px;
-		background-color: var(--jetpack--contact-form--input-background);
+		background-color: var(--jetpack--contact-form--input-background-fallback);
 		border-color: var(--jetpack--contact-form--border-color, currentColor);
 		border-width: var(--jetpack--contact-form--border-size);
 		border-style: var(--jetpack--contact-form--border-style);
