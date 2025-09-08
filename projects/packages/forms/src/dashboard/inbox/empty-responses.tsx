@@ -6,9 +6,9 @@ type EmptyResponsesProps = {
 };
 
 const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
-	const isSearchMessage = __( 'No responses found', 'jetpack-forms' );
+	const searchMessage = __( 'No responses found', 'jetpack-forms' );
 	if ( isSearch ) {
-		return isSearchMessage;
+		return searchMessage;
 	}
 
 	const noTrashMessage = __( 'Trash is empty', 'jetpack-forms' );
