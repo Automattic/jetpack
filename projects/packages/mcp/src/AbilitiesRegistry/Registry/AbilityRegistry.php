@@ -39,6 +39,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get abilities by type (tool, resource, prompt)
+	 *
+	 * @param string $type The ability type to filter by.
+	 * @return array Filtered abilities.
 	 */
 	public static function get_abilities_by_type( string $type ): array {
 		$config = self::load_config();
@@ -51,6 +54,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get abilities by server group
+	 *
+	 * @param string $server_name The server name to filter by.
+	 * @return array Filtered abilities.
 	 */
 	public static function get_abilities_by_server( string $server_name ): array {
 		$config    = self::load_config();
@@ -76,6 +82,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get ability names for server
+	 *
+	 * @param string $server_name The server name to filter by.
+	 * @return array Array of ability names.
 	 */
 	public static function get_names_for_server( string $server_name ): array {
 		return array_keys( self::get_abilities_by_server( $server_name ) );
@@ -83,6 +92,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get tools for server
+	 *
+	 * @param string $server_name The server name to filter by.
+	 * @return array Array of tool ability names.
 	 */
 	public static function get_tools_for_server( string $server_name ): array {
 		$abilities = self::get_abilities_by_server( $server_name );
@@ -92,6 +104,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get resources for server
+	 *
+	 * @param string $server_name The server name to filter by.
+	 * @return array Array of resource ability names.
 	 */
 	public static function get_resources_for_server( string $server_name ): array {
 		$abilities = self::get_abilities_by_server( $server_name );
@@ -101,6 +116,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get prompts for server
+	 *
+	 * @param string $server_name The server name to filter by.
+	 * @return array Array of prompt ability names.
 	 */
 	public static function get_prompts_for_server( string $server_name ): array {
 		$abilities = self::get_abilities_by_server( $server_name );
@@ -110,6 +128,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get ability metadata
+	 *
+	 * @param string $ability_name The ability name to get metadata for.
+	 * @return array|null The ability metadata or null if not found.
 	 */
 	public static function get_metadata( string $ability_name ): ?array {
 		$config = self::load_config();
@@ -119,6 +140,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get executor class for ability
+	 *
+	 * @param string $ability_name The ability name to get executor for.
+	 * @return string|null The executor class name or null if not found.
 	 */
 	public static function get_executor_class( string $ability_name ): ?string {
 		$metadata = self::get_metadata( $ability_name );
@@ -128,6 +152,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get ability class for ability name
+	 *
+	 * @param string $ability_name The ability name to get class for.
+	 * @return string|null The ability class name or null if not found.
 	 */
 	public static function get_ability_class( string $ability_name ): ?string {
 		$metadata = self::get_metadata( $ability_name );
@@ -137,6 +164,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Check if ability exists
+	 *
+	 * @param string $ability_name The ability name to check.
+	 * @return bool True if ability exists, false otherwise.
 	 */
 	public static function has_ability( string $ability_name ): bool {
 		$config = self::load_config();
@@ -155,6 +185,9 @@ final class AbilityRegistry {
 	 * Get ability name constant for a class
 	 *
 	 * This allows abilities to self-identify their name without hardcoding
+	 *
+	 * @param string $class_name The class name to look up.
+	 * @return string|null The ability name or null if not found.
 	 */
 	public static function get_name_for_class( string $class_name ): ?string {
 		$config = self::load_config();

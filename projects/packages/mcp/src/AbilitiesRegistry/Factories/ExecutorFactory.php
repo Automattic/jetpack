@@ -26,6 +26,11 @@ class ExecutorFactory {
 	 */
 	private $executor_cache = array();
 
+	/**
+	 * Get singleton instance
+	 *
+	 * @return ExecutorFactory The factory instance.
+	 */
 	public static function instance(): ExecutorFactory {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -34,6 +39,12 @@ class ExecutorFactory {
 		return self::$instance;
 	}
 
+	/**
+	 * Create executor instance for ability
+	 *
+	 * @param string $ability_name The ability name to create executor for.
+	 * @return ExecutorInterface|null The executor instance or null if not found.
+	 */
 	public function create_executor( string $ability_name ): ?ExecutorInterface {
 		// Return cached instance if available
 		if ( isset( $this->executor_cache[ $ability_name ] ) ) {
@@ -63,6 +74,12 @@ class ExecutorFactory {
 		return null;
 	}
 
+	/**
+	 * Check if executor exists for ability
+	 *
+	 * @param string $ability_name The ability name to check.
+	 * @return bool True if executor exists, false otherwise.
+	 */
 	public function has_executor( string $ability_name ): bool {
 		return null !== AbilityRegistry::get_executor_class( $ability_name );
 	}

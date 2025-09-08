@@ -1,6 +1,11 @@
 <?php
+/**
+ * Example User Sites Resource Ability
+ *
+ * @package automattic/jetpack-mcp
+ */
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Abilities;
+namespace Automattic\Jetpack\AbilitiesRegistry\Abilities;
 
 use Exception;
 use WP_Error;
@@ -100,6 +105,7 @@ class ExampleUserSitesResourceAbility {
 	 * @return bool True if permission is granted, false otherwise.
 	 */
 	public function check_permission( array $input = array() ): bool {
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$current_user = wp_get_current_user();
 
 		// User must be logged in to access their sites.

@@ -26,6 +26,7 @@ trait AbilityTrait {
 	 * Get the ability name for this class
 	 *
 	 * @return string The ability name.
+	 * @throws \RuntimeException If ability name is not found in config.
 	 */
 	public function get_ability_name(): string {
 		if ( null === $this->ability_name_cache ) {
