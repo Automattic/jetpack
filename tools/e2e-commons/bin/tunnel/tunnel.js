@@ -67,7 +67,12 @@ export class TunnelManager {
 				const message = args.join( ' ' );
 				const prefixedMessage = `[${ providerName } manager] ${ message }`;
 				func( prefixedMessage );
-				process.send?.( prefixedMessage );
+				try {
+					process.send?.( prefixedMessage );
+					// eslint-disable-next-line no-unused-vars
+				} catch ( e ) {
+					// Ignore IPC errors, console output should still work
+				}
 			};
 		console.log = wrap( originalConsoleLog );
 		console.error = wrap( originalConsoleError );
