@@ -1671,13 +1671,9 @@ class Contact_Form_Plugin {
 	 */
 	public function ajax_request() {
 		$submission_result = self::process_form_submission();
+		$accepts_json      = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
 		if ( ! $submission_result ) {
-			header( 'HTTP/1.1 500 Server Error', true, 500 );
-			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
-			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
-			echo '</li></ul></div>';
-
 			/**
 			 * Action when we want to log a jetpack_forms event.
 			 *
@@ -1686,25 +1682,47 @@ class Contact_Form_Plugin {
 			 * @param string $log_message The log message.
 			 */
 			do_action( 'jetpack_forms_log', 'submission_failed' );
+			$accepts_json && wp_send_json_error(
+				array(
+					'error' => __( 'An error occurred. Please try again later.', 'jetpack-forms' ),
+				),
+				500
+			);
+
+			// Non-JSON request, output the error message directly.
+			header( 'HTTP/1.1 500 Server Error', true, 500 );
+			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
+			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
+			echo '</li></ul></div>';
+			die();
+
 		} elseif ( is_wp_error( $submission_result ) ) {
+			do_action( 'jetpack_forms_log', $submission_result->get_error_message() );
+			$accepts_json && wp_send_json_error(
+				array(
+					'error' => $submission_result->get_error_message(),
+				),
+				400
+			);
+
+			// Non-JSON request, output the error message directly.
 			header( 'HTTP/1.1 400 Bad Request', true, 403 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
-
-			do_action( 'jetpack_forms_log', $submission_result->get_error_message() );
-		} else {
-			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
-				$submission_result,
-				array(
-					'br'         => array(),
-					'blockquote' => array( 'class' => array() ),
-					'p'          => array(),
-				)
-			);
+			die();
 		}
 
-		die( 0 );
+		// Success case.
+		echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
+			$submission_result,
+			array(
+				'br'         => array(),
+				'blockquote' => array( 'class' => array() ),
+				'p'          => array(),
+			)
+		);
+		die();
 	}
 
 	/**
