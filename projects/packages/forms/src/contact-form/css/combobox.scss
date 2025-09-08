@@ -28,6 +28,7 @@
 		&:focus {
 			outline: 0;
 			text-decoration: none;
+			box-shadow: none;
 		}
 
 		&:hover {
@@ -35,17 +36,16 @@
 		}
 
 		.jetpack-combobox-trigger-arrow {
-			font-size: 10px;
 			transition: transform 0.2s;
 			position: relative;
-			width: 8px;
+			width: 9px;
 
 			&::after {
 				content: "";
 				position: absolute;
 				left: 1px;
-				top: 0;
-				transform: translateY(100%) rotate(45deg);
+				top: calc(50% - 5.5px);
+				transform: rotate(45deg);
 				width: 7px;
 				height: 7px;
 				border-right: 1.5px solid currentColor;
@@ -66,10 +66,12 @@
 		min-width: 60%;
 
 		background-color: inherit;
-		border: 1px solid #ddd;
-		border-top: none;
+		border-color: var(--jetpack--contact-form--border-color, currentColor);
+		border-width: var(--jetpack--contact-form--border-size, 1px);
 		border-radius: 0 0 4px 4px;
-		max-height: calc(var(--jetpack--contact-form--line-height, 25px) * 8);
+		// some line-heights are too small,
+		//use max() to ensure a minimum height of 8 * 25px
+		max-height: max(calc(var(--jetpack--contact-form--line-height, 25px) * 8), 200px);
 		z-index: 1000;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		overflow: hidden;
@@ -90,11 +92,18 @@
 			color: inherit;
 			background-color: inherit;
 			z-index: 1;
+			border-bottom-left-radius: 0;
+			border-bottom-right-radius: 0;
 
 			&:focus {
 				outline: none;
 				box-shadow: none;
 			}
+
+		}
+		// for styles on search input, themes keep finding ways of messing with this
+		input[type="text"].jetpack-combobox-search {
+			background-color: inherit !important;
 		}
 
 		.jetpack-combobox-options {
@@ -118,19 +127,17 @@
 
 			&:hover,
 			&.is-focused {
-				background-color: #f5f5f5;
+				background-color: var(--wp--preset--color--secondary, #f5f5f5);
+				color: var(--wp--preset--color--background, #000);
 			}
 
 			&.jetpack-combobox-option-selected {
-				background-color: #f5f5f5;
+				background-color: var(--wp--preset--color--secondary, #f5f5f5);
 				font-weight: 600;
+				color: var(--wp--preset--color--background, #000);
 
 				&:hover {
-					background-color: #f5f5f5;
-				}
-
-				&.is-focused {
-					background-color: #cce7ff;
+					background-color: var(--wp--preset--color--secondary, #f5f5f5);
 				}
 			}
 		}
