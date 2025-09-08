@@ -85,7 +85,8 @@
 	},
 	"config": {
 		"allow-plugins": {
-			"roots/wordpress-core-installer": true
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true
 		}
 	}
 }
