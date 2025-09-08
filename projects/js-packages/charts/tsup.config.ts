@@ -1,4 +1,4 @@
-import { sassPlugin } from 'esbuild-sass-plugin';
+import { sassPlugin, postcssModules } from 'esbuild-sass-plugin';
 import { defineConfig } from 'tsup';
 import pkg from './package.json';
 
@@ -24,6 +24,7 @@ export default defineConfig( {
 		sassPlugin( {
 			filter: /\.module\.(css|scss)$/,
 			embedded: true,
+			transform: postcssModules( {} ),
 		} ),
 	],
 } );
