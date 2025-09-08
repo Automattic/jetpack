@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanAccessMethodProtected : 25+ occurrences
     // PhanPluginMixedKeyNoKey : 20+ occurrences
     // PhanUndeclaredStaticMethod : 15+ occurrences
     // PhanTypeMismatchArgument : 6 occurrences
@@ -30,6 +29,7 @@ return [
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
+    // PhanUndeclaredFunctionInCallable : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -40,7 +40,7 @@ return [
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
         'feature-plugins/autosave-revision.php' => ['PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentNullable'],
         'feature-plugins/coblocks-mods.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
-        'feature-plugins/managed-plugins.php' => ['PhanUndeclaredClassMethod'],
+        'feature-plugins/managed-plugins.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'feature-plugins/sensei-pro-mods.php' => ['PhanUndeclaredClassMethod'],
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],
         'functions.php' => ['PhanUndeclaredClassStaticProperty'],
@@ -49,21 +49,13 @@ return [
         'private-site/access-denied-preview-login-template.php' => ['PhanTypeSuspiciousEcho'],
         'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
         'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
-        'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanAccessMethodProtected', 'PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
+        'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/BlogTokenResilienceTest.php' => ['PhanUndeclaredStaticMethod'],
-        'tests/FeaturedImageInEmailTest.php' => ['PhanAccessMethodProtected'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
-        'tests/PlanNoticesTest.php' => ['PhanAccessMethodProtected', 'PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
-        'tests/PrivateSiteTest.php' => ['PhanAccessMethodProtected'],
-        'tests/PrivateSiteXmlrpcTest.php' => ['PhanAccessMethodProtected'],
-        'tests/ProtectedOwnerErrorHandlerTest.php' => ['PhanAccessMethodProtected'],
-        'tests/WPCOMSH_Stats_Timezone_String_Test.php' => ['PhanAccessMethodProtected'],
+        'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
         'tests/feature-manager/FeatureHookTest.php' => ['PhanUndeclaredStaticMethod'],
-        'tests/imports/PlaygroundDBImporterTest.php' => ['PhanAccessMethodProtected'],
-        'tests/imports/PlaygroundPostprocessTest.php' => ['PhanAccessMethodProtected'],
-        'tests/imports/SQLGeneratorTest.php' => ['PhanAccessMethodProtected', 'PhanTypeObjectUnsetDeclaredProperty'],
-        'tests/imports/SQLImporterTest.php' => ['PhanAccessMethodProtected'],
+        'tests/imports/SQLGeneratorTest.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
         'widgets/class-jetpack-posts-i-like-widget.php' => ['PhanRedundantCondition'],
         'widgets/class-pd-top-rated.php' => ['PhanRedundantCondition'],
         'widgets/class-widget-top-clicks.php' => ['PhanDeprecatedFunction'],
