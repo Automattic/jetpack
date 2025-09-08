@@ -77,8 +77,13 @@ export class TunnelManager {
 		console.log = wrap( originalConsoleLog );
 		console.error = wrap( originalConsoleError );
 
-		await this.start();
-		process.send?.( 'ok' );
+		try {
+			await this.start();
+			process.send?.( 'ok' );
+		} catch ( error ) {
+			console.error( `Failed to start tunnel: ${ error.message }` );
+			process.exit( 1 );
+		}
 	}
 
 	/**
