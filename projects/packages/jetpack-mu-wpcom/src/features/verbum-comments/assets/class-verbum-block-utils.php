@@ -26,7 +26,7 @@ class Verbum_Block_Utils {
 		// The block attributes come slashed and `parse_blocks` won't be able to parse them.
 		$unslashed_content = wp_unslash( $content );
 
-		if ( ! self::has_disallowed_blocks_fast( $unslashed_content ) ) {
+		if ( ! self::has_disallowed_blocks( $unslashed_content ) ) {
 			return $unslashed_content;
 		}
 
@@ -34,7 +34,7 @@ class Verbum_Block_Utils {
 	}
 
 	/**
-	 * Fast check using Block_Scanner to detect if content contains disallowed blocks
+	 * Quick verification using Block_Scanner to detect if content contains disallowed blocks
 	 *
 	 * This method provides significant performance benefits by avoiding expensive
 	 * parse_blocks() processing when all blocks are allowed (the common case).
@@ -42,7 +42,7 @@ class Verbum_Block_Utils {
 	 * @param string $content Unslashed content to scan.
 	 * @return bool True if disallowed blocks found, false if all blocks are allowed.
 	 */
-	private static function has_disallowed_blocks_fast( $content ) {
+	private static function has_disallowed_blocks( $content ) {
 		if ( ! class_exists( '\\Automattic\\Block_Scanner' ) ) {
 			return true;
 		}
