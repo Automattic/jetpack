@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: remove legacy menu item by defaulting the filter to true
