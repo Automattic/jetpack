@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.3] - 2025-09-08
+### Fixed
+- WAF: Prevent PHP warnings when the BFP transient is not set or when the hook data for the WAF update flag is not as expected. [#45088]
+
 ## [0.27.2] - 2025-08-11
 ### Changed
 - Internal updates.
@@ -481,6 +485,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.27.3]: https://github.com/Automattic/jetpack-waf/compare/v0.27.2...v0.27.3
 [0.27.2]: https://github.com/Automattic/jetpack-waf/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/Automattic/jetpack-waf/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/Automattic/jetpack-waf/compare/v0.26.0...v0.27.0

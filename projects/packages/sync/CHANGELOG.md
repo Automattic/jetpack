@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.21.2] - 2025-09-08
+### Changed
+- Internal updates.
+
 ## [4.21.1] - 2025-09-02
 ### Changed
 - Remove unnecessary filter for deleted WooCommerce products in the WooCommerce_Products module. [#45011]
@@ -1544,6 +1548,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.21.2]: https://github.com/Automattic/jetpack-sync/compare/v4.21.1...v4.21.2
 [4.21.1]: https://github.com/Automattic/jetpack-sync/compare/v4.21.0...v4.21.1
 [4.21.0]: https://github.com/Automattic/jetpack-sync/compare/v4.20.0...v4.21.0
 [4.20.0]: https://github.com/Automattic/jetpack-sync/compare/v4.19.0...v4.20.0

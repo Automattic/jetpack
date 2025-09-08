@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Connection;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '6.18.5';
+	const PACKAGE_VERSION = '6.18.6';
 
 	const PACKAGE_SLUG = 'connection';
 

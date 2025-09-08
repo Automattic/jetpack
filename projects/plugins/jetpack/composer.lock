@@ -1490,7 +1490,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "03ee958f5cc90a442282d02c3511898fc4968220"
+                "reference": "ac0b17e0da1e19bb0bd8c11d63cae97df9fe7d97"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1523,7 +1523,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.2.x-dev"
+                    "dev-trunk": "6.3.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -2087,7 +2087,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "93884e455e86cc56a1abfc94e65c3c91ec4d3c9b"
+                "reference": "764d81091fa984bbb752efd23b39081c16b4a666"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2126,7 +2126,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.25.x-dev"
+                    "dev-trunk": "5.26.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -3114,7 +3114,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/subscribers-dashboard",
-                "reference": "79f01c5177095986566e9deb5832dfceb0b9aa14"
+                "reference": "81690137b50542f41b9ee5eb00841156118021e2"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -3139,7 +3139,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-subscribers-dashboard",
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-subscribers-dashboard",
                 "version-constants": {

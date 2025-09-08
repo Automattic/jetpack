@@ -275,7 +275,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 	 * This test verifies that malicious URLs embedded in HTML attributes are not processed
 	 * by the crowdsignal_link function, preventing potential XSS vulnerabilities.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.1
 	 */
 	public function test_crowdsignal_link_xss_prevention() {
 		// Use the reporter's payload format with URLs on separate lines to trigger the regex
