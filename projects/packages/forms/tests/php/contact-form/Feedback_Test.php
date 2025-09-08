@@ -2307,6 +2307,8 @@ class Feedback_Test extends BaseTestCase {
 
 		$response = Feedback::get( $post_id );
 
+		$this->assertStringNotContainsString( "\nJSON_DATA", get_post( $post_id )->post_content );
+
 		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'special' ), 'Special field value should match' );
 		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'message' ), 'Message field value should match' );
 	}
