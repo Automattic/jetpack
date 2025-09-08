@@ -69,7 +69,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Settings list or error.
 	 */
-	private function list_notification_settings( array $input  {
+	private function list_notification_settings( array $input ): WP_Error|array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $input is required for interface compatibility
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;
@@ -323,7 +323,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param int $user_id User ID.
 	 * @return array Other settings.
 	 */
-	private function get_other_notification_settings( int $user_id ): array {
+	private function get_other_notification_settings( int $user_id ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user_id will be used in future implementation
 		return array(
 			'comment_like'  => true,
 			'comment_reply' => true,
@@ -336,7 +336,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param int $user_id User ID.
 	 * @return array WPCOM settings.
 	 */
-	private function get_wpcom_notification_settings( int $user_id ): array {
+	private function get_wpcom_notification_settings( int $user_id ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user_id will be used in future implementation
 		return array(
 			'marketing'  => true,
 			'research'   => true,

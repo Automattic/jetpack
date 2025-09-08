@@ -171,7 +171,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 			return $user_error;
 		}
 
-		$current_user_id = $this->get_current_user_id();
+		$current_user_id = $this->get_current_user_id(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $current_user_id will be used in future implementation
 
 		// This would typically use billing history functions
 		// For now, return placeholder data.
@@ -217,7 +217,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 		$storage_limit = 3000; // Default 3GB limit.
 
 		if ( $user_sites ) {
-			foreach ( $user_sites as $site ) {
+			foreach ( $user_sites as $site ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $site will be used in future implementation
 				// This would typically query actual storage usage.
 				$storage_used += 100; // Placeholder: 100MB per site.
 			}
@@ -399,7 +399,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 * @param int $subscription_id Subscription ID.
 	 * @return array Placeholder subscription details.
 	 */
-	private function get_placeholder_subscription_details( int $subscription_id ): array {
+	private function get_placeholder_subscription_details( int $subscription_id ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $subscription_id will be used in future implementation
 		$subscriptions = $this->get_placeholder_subscriptions();
 		return $subscriptions[0] ?? array();
 	}

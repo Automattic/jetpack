@@ -49,7 +49,7 @@ class SitePostsSearchExecutor implements ExecutorInterface {
 	 *
 	 * @return bool True if permission is granted, false otherwise.
 	 */
-	public function check_permission( array $input = array() ): bool {
+	public function check_permission( array $input = array() ): bool { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $input is required for interface compatibility
 		$current_user = wp_get_current_user();
 
 		// If no user is logged in, deny access.

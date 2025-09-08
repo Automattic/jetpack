@@ -416,7 +416,7 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 
 			if ( $top_posts && is_array( $top_posts ) ) {
 				$post_count = 0;
-				foreach ( $top_posts as $day => $day_posts ) {
+				foreach ( $top_posts as $day => $day_posts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $day will be used in future implementation
 					if ( is_array( $day_posts ) ) {
 						foreach ( $day_posts as $post_id => $post_views ) {
 							if ( $post_count >= $max_items ) {
@@ -582,13 +582,13 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 	 *
 	 * @return array Device data.
 	 */
-	private function get_device_data( int $blog_id, array $date_range, int $max_items ): array {
+	private function get_device_data( int $blog_id, array $date_range, int $max_items ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $max_items will be used in future implementation
 		$device_data = array(
 			'device_types' => array(),
 			'browsers'     => array(),
 		);
 
-		$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
+		$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $num_days will be used in future implementation
 
 		// Note: Device and browser breakdown functions may not be available in all WordPress.com environments.
 		// These typically require premium stats features or specific WordPress.com configurations.

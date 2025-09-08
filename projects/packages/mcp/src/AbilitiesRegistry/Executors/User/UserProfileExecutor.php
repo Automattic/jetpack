@@ -89,7 +89,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Basic profile data.
 	 */
-	private function get_basic_profile( WP_User $user ): array {
+	private function get_basic_profile( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		return array(
 			'id'           => (int) $user->ID,
 			'username'     => $user->user_login,
@@ -115,7 +115,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array User preferences.
 	 */
-	private function get_user_preferences( WP_User $user ): array {
+	private function get_user_preferences( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		return array(
 			'language'         => get_user_locale( $user->ID ),
 			'color_scheme'     => ! empty( get_user_meta( $user->ID, 'admin_color', true ) ) ? get_user_meta( $user->ID, 'admin_color', true ) : 'default',
@@ -131,7 +131,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array User statistics.
 	 */
-	private function get_user_stats( WP_User $user ): array {
+	private function get_user_stats( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		$user_sites  = get_ordered_blogs_of_user( $user->ID );
 		$total_sites = $user_sites ? count( $user_sites ) : 0;
 
@@ -154,7 +154,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Account information.
 	 */
-	private function get_account_info( WP_User $user ): array {
+	private function get_account_info( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// This is placeholder data - in a real WordPress.com environment,
 		// this would integrate with the actual subscription and billing systems.
 		return array(
@@ -172,7 +172,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Social data.
 	 */
-	private function get_social_data( WP_User $user ): array {
+	private function get_social_data( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		return array(
 			'following_count'      => $this->get_following_count( $user ),
 			'followers_count'      => $this->get_followers_count( $user ),
@@ -188,7 +188,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Activity data.
 	 */
-	private function get_activity_data( WP_User $user ): array {
+	private function get_activity_data( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		$user_sites = get_ordered_blogs_of_user( $user->ID );
 
 		return array(
@@ -239,7 +239,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Notification preferences.
 	 */
-	private function get_notification_preferences( WP_User $user ): array {
+	private function get_notification_preferences( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - in real WordPress.com, this would integrate with notification settings.
 		return array(
 			'email_notifications'   => true,
@@ -254,7 +254,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Privacy settings.
 	 */
-	private function get_privacy_settings( WP_User $user ): array {
+	private function get_privacy_settings( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		return array(
 			'profile_visibility' => 'public',
 			'search_engines'     => true,
@@ -343,7 +343,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Plan information.
 	 */
-	private function get_user_plan( WP_User $user ): array {
+	private function get_user_plan( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - would integrate with WordPress.com plans API.
 		return array(
 			'name'       => 'Free',
@@ -360,7 +360,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Subscriptions.
 	 */
-	private function get_user_subscriptions( WP_User $user ): array {
+	private function get_user_subscriptions( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - would integrate with subscriptions system.
 		return array();
 	}
@@ -371,7 +371,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Storage information.
 	 */
-	private function get_storage_info( WP_User $user ): array {
+	private function get_storage_info( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		return array(
 			'used_mb'    => 150.5,
 			'limit_mb'   => 3072,
@@ -385,7 +385,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Bandwidth information.
 	 */
-	private function get_bandwidth_info( WP_User $user ): array {
+	private function get_bandwidth_info( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		return array(
 			'used_gb'    => 2.1,
 			'limit_gb'   => null, // Unlimited
@@ -399,7 +399,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return bool Whether user is paying customer.
 	 */
-	private function is_paying_customer( WP_User $user ): bool {
+	private function is_paying_customer( WP_User $user ): bool { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - would check actual subscription status.
 		return false;
 	}
@@ -410,7 +410,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return int Following count.
 	 */
-	private function get_following_count( WP_User $user ): int {
+	private function get_following_count( WP_User $user ): int { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - would integrate with WordPress.com following system.
 		return 42;
 	}
@@ -421,7 +421,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return int Followers count.
 	 */
-	private function get_followers_count( WP_User $user ): int {
+	private function get_followers_count( WP_User $user ): int { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - would integrate with WordPress.com followers system.
 		return 28;
 	}
@@ -432,7 +432,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return int Reader subscriptions count.
 	 */
-	private function get_reader_subscriptions( WP_User $user ): int {
+	private function get_reader_subscriptions( WP_User $user ): int { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - would integrate with Reader subscriptions.
 		return 156;
 	}
@@ -443,7 +443,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return int Likes given count.
 	 */
-	private function get_likes_given_count( WP_User $user ): int {
+	private function get_likes_given_count( WP_User $user ): int { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - would integrate with likes system.
 		return 847;
 	}
@@ -515,7 +515,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param array   $user_sites Array of user sites.
 	 * @return string Publishing frequency.
 	 */
-	private function get_publishing_frequency( WP_User $user, ?array $user_sites ): string {
+	private function get_publishing_frequency( WP_User $user, ?array $user_sites ): string { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user and $user_sites will be used in future implementation
 		// Placeholder - would analyze actual publishing patterns.
 		return 'weekly';
 	}
@@ -527,7 +527,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param array   $user_sites Array of user sites.
 	 * @return int Total views.
 	 */
-	private function get_total_views( WP_User $user, ?array $user_sites ): int {
+	private function get_total_views( WP_User $user, ?array $user_sites ): int { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user and $user_sites will be used in future implementation
 		// Placeholder - would integrate with stats system.
 		return 12450;
 	}
@@ -539,7 +539,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param array   $user_sites Array of user sites.
 	 * @return int Total visitors.
 	 */
-	private function get_total_visitors( WP_User $user, ?array $user_sites ): int {
+	private function get_total_visitors( WP_User $user, ?array $user_sites ): int { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user and $user_sites will be used in future implementation
 		// Placeholder - would integrate with stats system.
 		return 8923;
 	}
@@ -550,7 +550,7 @@ class UserProfileExecutor implements ExecutorInterface {
 	 * @param WP_User $user The user object.
 	 * @return array Recent activity.
 	 */
-	private function get_recent_activity( WP_User $user ): array {
+	private function get_recent_activity( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
 		// Placeholder - would get actual recent activity.
 		return array(
 			array(

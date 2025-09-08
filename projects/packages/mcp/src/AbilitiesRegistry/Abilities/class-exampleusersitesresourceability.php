@@ -104,8 +104,7 @@ class ExampleUserSitesResourceAbility {
 	 *
 	 * @return bool True if permission is granted, false otherwise.
 	 */
-	public function check_permission( array $input = array() ): bool {
-		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function check_permission( array $input = array() ): bool { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $input is required for interface compatibility
 		$current_user = wp_get_current_user();
 
 		// User must be logged in to access their sites.

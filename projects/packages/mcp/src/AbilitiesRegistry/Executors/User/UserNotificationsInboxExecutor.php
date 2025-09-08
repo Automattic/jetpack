@@ -698,7 +698,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @return string Liker name.
 	 */
 	private function get_liker_name( object $note ): string {
-		if ( ! isset( $note->args['blog_id'], $note->args['post_id'] ) ) {
+		if ( ! isset( $note->args['blog_id'] ) || ! isset( $note->args['post_id'] ) ) {
 			return '';
 		}
 
@@ -763,7 +763,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @return string Commenter name.
 	 */
 	private function get_commenter_name( object $note ): string {
-		if ( ! isset( $note->args['comment_id'], $note->args['blog_id'] ) ) {
+		if ( ! isset( $note->args['comment_id'] ) || ! isset( $note->args['blog_id'] ) ) {
 			return '';
 		}
 
@@ -794,7 +794,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @return string Reblogger name.
 	 */
 	private function get_reblogger_name( object $note ): string {
-		if ( ! isset( $note->args['blog_id'], $note->args['post_id'] ) ) {
+		if ( ! isset( $note->args['blog_id'] ) || ! isset( $note->args['post_id'] ) ) {
 			return '';
 		}
 
@@ -828,7 +828,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @return string Post author name.
 	 */
 	private function get_post_author_name( object $note ): string {
-		if ( ! isset( $note->args['blog_id'], $note->args['post_id'] ) ) {
+		if ( ! isset( $note->args['blog_id'] ) || ! isset( $note->args['post_id'] ) ) {
 			return '';
 		}
 

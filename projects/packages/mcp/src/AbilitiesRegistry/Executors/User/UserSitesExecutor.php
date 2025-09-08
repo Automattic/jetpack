@@ -70,7 +70,7 @@ class UserSitesExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return bool True if permission is granted, false otherwise.
 	 */
-	public function check_permission( array $input = array() ): bool {
+	public function check_permission( array $input = array() ): bool { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $input is required for interface compatibility
 		return $this->check_user_permission();
 	}
 

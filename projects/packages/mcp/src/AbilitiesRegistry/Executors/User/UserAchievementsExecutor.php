@@ -60,7 +60,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return bool True if permission is granted, false otherwise.
 	 */
-	public function check_permission( array $input = array() ): bool {
+	public function check_permission( array $input = array() ): bool { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $input is required for interface compatibility
 		return $this->check_user_permission();
 	}
 
@@ -357,7 +357,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 *
 	 * @return array Recent activity.
 	 */
-	private function get_recent_achievement_activity( int $user_id ): array {
+	private function get_recent_achievement_activity( int $user_id ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user_id will be used in future implementation
 		// This would typically query the achievements table for recent entries
 		// For now, return placeholder data.
 		return array(

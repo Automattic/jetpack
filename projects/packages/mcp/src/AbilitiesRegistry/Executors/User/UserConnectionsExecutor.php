@@ -165,7 +165,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 			return $user_error;
 		}
 
-		$current_user_id = $this->get_current_user_id();
+		$current_user_id = $this->get_current_user_id(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $current_user_id will be used in future implementation
 
 		// This is placeholder data - in a real implementation, this would come from the WordPress.com API.
 		$connections = array(
