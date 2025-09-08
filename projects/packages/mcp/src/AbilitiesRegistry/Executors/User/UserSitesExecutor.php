@@ -18,6 +18,12 @@ use WP_Error;
 class UserSitesExecutor implements ExecutorInterface {
 	use UserContextTrait;
 
+	/**
+	 * Execute the user sites ability
+	 *
+	 * @param array $input Input parameters.
+	 * @return WP_Error|array The result data or error.
+	 */
 	public function execute( array $input = array() ): WP_Error|array {
 		try {
 			// Validate pagination.
@@ -58,6 +64,12 @@ class UserSitesExecutor implements ExecutorInterface {
 		}
 	}
 
+	/**
+	 * Check permission for the user sites ability
+	 *
+	 * @param array $input Input parameters.
+	 * @return bool True if permission is granted, false otherwise.
+	 */
 	public function check_permission( array $input = array() ): bool {
 		return $this->check_user_permission();
 	}

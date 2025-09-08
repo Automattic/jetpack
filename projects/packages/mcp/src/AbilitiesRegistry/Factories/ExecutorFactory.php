@@ -18,7 +18,7 @@ class ExecutorFactory {
 	 * @var ExecutorFactory|null
 	 */
 	private static $instance = null;
-	
+
 	/**
 	 * Executor cache
 	 *

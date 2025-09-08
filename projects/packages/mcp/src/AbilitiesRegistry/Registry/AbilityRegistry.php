@@ -176,6 +176,9 @@ final class AbilityRegistry {
 
 	/**
 	 * Get resource URI for ability
+	 *
+	 * @param string $ability_name The ability name to get URI for.
+	 * @return string The resource URI.
 	 */
 	public static function get_resource_uri( string $ability_name ): string {
 		return 'WordPress://' . $ability_name;
