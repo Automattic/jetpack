@@ -1,8 +1,21 @@
-import { KeyboardShortcuts } from '@wordpress/components';
+import { KeyboardShortcuts, SVG, Path } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 
+const downArrowIcon = () => {
+	return (
+		<SVG width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<Path
+				d="M1 1L5 5L9 1"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</SVG>
+	);
+};
 /**
  * Combobox Component
  *
@@ -20,6 +33,7 @@ import clsx from 'clsx';
  * @param {string}   props.className          - Additional CSS class names
  * @param {boolean}  props.disabled           - Whether the combobox is disabled
  * @param {string}   props.placeholder        - The placeholder text for the search input
+ * @param {object}   props.parentStyle        - The parent style
  * @return {Element|null} The SearchableCombobox component or null if no options/selectedOption
  */
 const SearchableCombobox = ( {
@@ -31,6 +45,7 @@ const SearchableCombobox = ( {
 	className = '',
 	disabled = false,
 	placeholder = __( 'Search…', 'jetpack-forms' ),
+	parentStyle = {},
 } ) => {
 	const [ internalIsOpen, setInternalIsOpen ] = useState( false );
 	const [ filteredOptions, setFilteredOptions ] = useState( [] );
@@ -257,13 +272,13 @@ const SearchableCombobox = ( {
 				aria-haspopup="listbox"
 			>
 				<span className="jetpack-combobox-selected">{ selectedOption.flag }</span>
-				<span className={ triggerArrowClass }>&nbsp;</span>
+				<span className={ triggerArrowClass }>{ downArrowIcon() }</span>
 				<span className="jetpack-combobox-selected">{ selectedOption.value }</span>
 			</button>
 
 			{ isOpen && (
 				<KeyboardShortcuts bindGlobal={ true } shortcuts={ shortcuts }>
-					<div className="jetpack-combobox-dropdown jetpack-combobox-open">
+					<div className="jetpack-combobox-dropdown jetpack-combobox-open" style={ parentStyle }>
 						<input
 							ref={ searchInputRef }
 							className="jetpack-combobox-search"

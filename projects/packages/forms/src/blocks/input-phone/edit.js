@@ -92,6 +92,7 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 							isOpen={ comboboxOpen }
 							onOpenChange={ setComboboxOpen }
 							placeholer={ __( 'Search countries…', 'jetpack-forms' ) }
+							parentStyle={ blockProps?.style }
 						/>
 					</div>
 				) }
