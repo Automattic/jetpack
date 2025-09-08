@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed sass / css modules processing
