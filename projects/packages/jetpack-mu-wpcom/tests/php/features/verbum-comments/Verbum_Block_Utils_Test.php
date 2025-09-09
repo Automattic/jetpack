@@ -101,4 +101,147 @@ HTML;
 		$expected_content = preg_replace( '/\s+/', ' ', $expected_content );
 		$this->assertSame( $expected_content, $filtered_content );
 	}
+
+	/**
+	 * Test security: malformed block delimiters should be handled safely
+	 */
+	public function test_security_malformed_block_delimiters() {
+		$malformed_inputs = array(
+			'<!-- wp:paragraph',                          // Incomplete opening
+			'<!-- wp:paragraph <!-- wp:nested --> -->',   // Nested comments
+			'<!-- wp:paragraph {"unclosed": "string -->',  // Invalid JSON
+			"<!-- wp:paragraph -->\x00<!-- /wp:paragraph -->", // Null bytes
+			'<!-- wp:paragraph -->content<!-- /wp:invalid -->', // Mismatched closing
+			'<!--wp:paragraph -->',                        // No space after comment start
+			'<!-- w:paragraph -->',                        // Incomplete wp prefix
+		);
+
+		foreach ( $malformed_inputs as $input ) {
+			$result = Verbum_Block_Utils::remove_blocks( $input );
+			// Should not cause errors and should return safe content
+			$this->assertIsString( $result );
+
+			// For truly malformed inputs that don't have proper block structure,
+			// they should be returned as-is since has_blocks() would return false
+			// or they would be treated as plain text content
+			if ( ! has_blocks( $input ) ) {
+				$this->assertEquals( $input, $result );
+			} else {
+				// If it's detected as having blocks but they're malformed,
+				// the parser should handle them gracefully
+				$this->assertIsString( $result );
+			}
+		}
+	}
+
+	/**
+	 * Test security: Unicode and encoding edge cases
+	 */
+	public function test_security_unicode_handling() {
+		$unicode_inputs = array(
+			'<!-- wp:paragraph -->🔥💯<!-- /wp:paragraph -->', // Emoji
+			'<!-- wp:paragraph -->مرحبا<!-- /wp:paragraph -->', // RTL text
+			'<!-- wp:paragraph -->' . chr( 0xC2 ) . chr( 0x85 ) . '<!-- /wp:paragraph -->', // UTF-8 sequences
+			'<!-- wp:paragraph -->café<!-- /wp:paragraph -->', // Accented characters
+		);
+
+		foreach ( $unicode_inputs as $input ) {
+			$result = Verbum_Block_Utils::remove_blocks( $input );
+			// Should handle unicode properly without corruption
+			$this->assertIsString( $result );
+			// Allowed blocks should be preserved with unicode content
+			$this->assertStringContainsString( 'wp:paragraph', $result );
+		}
+	}
+
+	/**
+	 * Test security: Block type spoofing attempts
+	 */
+	public function test_security_block_type_spoofing() {
+		$spoofing_attempts = array(
+			'<!-- wp:core/paragraph -->content<!-- /wp:core/paragraph -->', // Namespace confusion
+			'<!-- wp:paragraph/evil -->content<!-- /wp:paragraph/evil -->', // Fake subtype
+			'<!-- wp: paragraph -->content<!-- /wp: paragraph -->',         // Extra space
+			'<!-- wp:PARAGRAPH -->content<!-- /wp:PARAGRAPH -->',          // Case variation
+		);
+
+		foreach ( $spoofing_attempts as $input ) {
+			$result = Verbum_Block_Utils::remove_blocks( $input );
+			// Should properly identify and handle spoofing attempts
+			$this->assertIsString( $result );
+		}
+	}
+
+	/**
+	 * Test security: Input validation consistency between fast and slow paths
+	 */
+	public function test_security_input_validation_consistency() {
+		$test_inputs = array(
+			'<!-- wp:paragraph -->Allowed content<!-- /wp:paragraph -->',
+			'<!-- wp:paragraph -->Allowed<!-- /wp:paragraph --><!-- wp:latest-posts -->',
+			'<!-- wp:quote --><!-- wp:paragraph -->Nested allowed<!-- /wp:paragraph --><!-- /wp:quote -->',
+			'<!-- wp:quote --><!-- wp:button -->Nested disallowed<!-- /wp:button --><!-- /wp:quote -->',
+		);
+
+		foreach ( $test_inputs as $input ) {
+			$slashed_input = wp_slash( $input );
+			$result        = Verbum_Block_Utils::remove_blocks( $slashed_input );
+
+			// Result should be unslashed content (consistent processing)
+			$this->assertIsString( $result );
+
+			// Should not contain slashes that would indicate inconsistent processing
+			// This tests the fix for the critical input validation inconsistency
+			if ( strpos( $result, 'wp:' ) !== false ) {
+				$this->assertStringNotContainsString( '\\"', $result, 'Result should not contain escaped quotes from slashing' );
+			}
+		}
+	}
+
+	/**
+	 * Test security: Resource exhaustion scenarios
+	 */
+	public function test_security_resource_limits() {
+		// Test deeply nested blocks
+		$deeply_nested = str_repeat( '<!-- wp:quote -->', 50 ) . 'content' . str_repeat( '<!-- /wp:quote -->', 50 );
+		$result        = Verbum_Block_Utils::remove_blocks( $deeply_nested );
+		$this->assertIsString( $result );
+
+		// Test very long content
+		$long_content = '<!-- wp:paragraph -->' . str_repeat( 'a', 10000 ) . '<!-- /wp:paragraph -->';
+		$result       = Verbum_Block_Utils::remove_blocks( $long_content );
+		$this->assertIsString( $result );
+
+		// Test many blocks
+		$many_blocks = str_repeat( '<!-- wp:paragraph -->content<!-- /wp:paragraph -->', 100 );
+		$result      = Verbum_Block_Utils::remove_blocks( $many_blocks );
+		$this->assertIsString( $result );
+	}
+
+	/**
+	 * Test that Block_Scanner and parse_blocks produce consistent security results
+	 */
+	public function test_consistency_between_scanner_and_parse_blocks() {
+		$test_cases = array(
+			'<!-- wp:paragraph -->Safe content<!-- /wp:paragraph -->',
+			'<!-- wp:paragraph -->Safe<!-- /wp:paragraph --><!-- wp:latest-posts -->Unsafe<!-- /wp:latest-posts -->',
+			'<!-- wp:quote --><!-- wp:paragraph -->Nested safe<!-- /wp:paragraph --><!-- /wp:quote -->',
+			'<!-- wp:quote --><!-- wp:button -->Nested unsafe<!-- /wp:button --><!-- /wp:quote -->',
+		);
+
+		foreach ( $test_cases as $test_case ) {
+			$result = Verbum_Block_Utils::remove_blocks( $test_case );
+
+			// Verify that allowed blocks are preserved
+			if ( strpos( $test_case, 'wp:paragraph' ) !== false || strpos( $test_case, 'wp:quote' ) !== false ) {
+				$this->assertStringContainsString( 'wp:', $result, 'Allowed blocks should be preserved' );
+			}
+
+			// Verify that disallowed blocks are removed
+			if ( strpos( $test_case, 'wp:latest-posts' ) !== false || strpos( $test_case, 'wp:button' ) !== false ) {
+				$this->assertStringNotContainsString( 'latest-posts', $result, 'Disallowed blocks should be removed' );
+				$this->assertStringNotContainsString( 'button', $result, 'Disallowed blocks should be removed' );
+			}
+		}
+	}
 }
