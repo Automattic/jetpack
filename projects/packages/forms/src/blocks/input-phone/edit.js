@@ -1,12 +1,9 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { useCallback, useRef, useState, useEffect, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import SearchableCombobox from '../shared/components/searchable-combobox';
+import { useCallback } from '@wordpress/element';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import './editor.scss';
-import '../../contact-form/css/combobox.scss';
 
 const SYNCED_ATTRIBUTE_KEYS = [
 	'backgroundColor',
@@ -19,8 +16,6 @@ const SYNCED_ATTRIBUTE_KEYS = [
 
 const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes, context } ) => {
 	const { 'jetpack/field-share-attributes': isSynced } = context;
-	const [ comboboxOpen, setComboboxOpen ] = useState( false );
-	const inputRef = useRef( null );
 
 	useSyncedAttributes(
 		'jetpack/input',
@@ -50,58 +45,36 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 	);
 
 	// Prefix/Country selector
+	const prefixOptions = context?.[ 'jetpack/field-prefix-options' ] || [];
 	const defaultPrefix = context?.[ 'jetpack/field-prefix-default' ] || 'US';
+	const onChangeDefaultPrefix = context?.[ 'jetpack/field-prefix-onChange' ] || ( () => {} );
 	const showCountrySelector = context?.[ 'jetpack/field-phone-country-toggle' ] || false;
-
-	const handleChangeDefaultPrefix = useCallback(
-		event => {
-			const onChangeDefaultPrefix = context?.[ 'jetpack/field-prefix-onChange' ] || ( () => {} );
-			onChangeDefaultPrefix( event );
-			setComboboxOpen( false );
-			// Focus on the input element after closing the combobox
-			setTimeout( () => {
-				if ( inputRef.current ) {
-					inputRef.current.focus();
-				}
-			}, 0 );
-		},
-		[ context, setComboboxOpen ]
-	);
-
-	// ensure the combobox is closed when the block is not selected
-	useEffect( () => {
-		if ( isSelected ) {
-			return;
-		}
-		setComboboxOpen( isSelected );
-	}, [ isSelected ] );
-
-	const countries = useMemo( () => {
-		return context?.[ 'jetpack/field-prefix-options' ] || [];
-	}, [ context ] );
 
 	return (
 		<>
 			<div { ...blockProps }>
-				{ showCountrySelector && countries.length > 1 && defaultPrefix && (
+				{ showCountrySelector && prefixOptions.length === 1 && (
+					<div className="jetpack-field__input-prefix">{ prefixOptions[ 0 ].label }</div>
+				) }
+				{ showCountrySelector && prefixOptions.length > 1 && (
 					<div className="jetpack-field__input-prefix">
-						<SearchableCombobox
-							options={ countries }
-							selectedOptionCode={ defaultPrefix }
-							onOptionChange={ handleChangeDefaultPrefix }
-							isOpen={ comboboxOpen }
-							onOpenChange={ setComboboxOpen }
-							placeholer={ __( 'Search countries…', 'jetpack-forms' ) }
-							parentStyle={ blockProps?.style }
-						/>
+						<select
+							className="jetpack-field__input-element"
+							defaultValue={ defaultPrefix }
+							onChange={ onChangeDefaultPrefix }
+						>
+							{ prefixOptions.map( ( { label, value } ) => (
+								<option key={ value + label } value={ value }>
+									{ label }
+								</option>
+							) ) }
+						</select>
 					</div>
 				) }
 				<input
-					ref={ inputRef }
 					className="jetpack-field__input-element"
 					onChange={ onChange }
 					onKeyDown={ onKeyDown }
-					onClick={ () => setComboboxOpen( false ) }
 					type="text"
 					value={ isSelected ? placeholder : '' }
 					placeholder={ placeholder }
