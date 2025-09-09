@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Waf;
 use WP_CLI;
 use WP_CLI_Command;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Set up the WAF, change its mode, or generate its rules.
  */

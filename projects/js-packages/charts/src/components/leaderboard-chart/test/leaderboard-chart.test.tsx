@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import LeaderboardChart from '../leaderboard-chart';
-import type { LeaderboardEntry } from '../leaderboard-chart';
+import type { LeaderboardEntry } from '../../../types';
 
 const mockData: LeaderboardEntry[] = [
 	{

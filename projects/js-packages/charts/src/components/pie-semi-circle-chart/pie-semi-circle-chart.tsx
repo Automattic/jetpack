@@ -21,6 +21,7 @@ import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type { LegendValueDisplay } from '../legend';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
@@ -59,6 +60,15 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
+
+	/**
+	 * What type of value to display in the legend when showValues is true.
+	 * - 'percentage': Shows percentage values (e.g., "23%") [default]
+	 * - 'value': Shows raw numeric values (e.g., "30000")
+	 * - 'valueDisplay': Shows formatted values (e.g., "30K")
+	 * - 'none': Shows no values, only labels
+	 */
+	legendValueDisplay?: LegendValueDisplay;
 }
 
 // Base props type with optional responsive properties
@@ -109,6 +119,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendPosition = 'bottom',
 	legendAlignment = 'center',
 	legendShape = 'circle',
+	legendValueDisplay = 'percentage',
 	label,
 	note,
 	className,
@@ -164,7 +175,10 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 
 	// Memoize legend options to prevent unnecessary re-calculations
-	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+	const legendOptions = useMemo(
+		() => ( { showValues: true, legendValueDisplay } ),
+		[ legendValueDisplay ]
+	);
 
 	// Create legend items using the reusable hook
 	const legendItems = useChartLegendItems( data, legendOptions );

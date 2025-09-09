@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Replace `import React from 'react'` and the like with named imports. Should be no change to functionality.
-
-

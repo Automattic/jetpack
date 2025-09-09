@@ -32,7 +32,7 @@
 		"@automattic/i18n-utils": "1.2.3",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@automattic/launchpad": "1.1.0",
+		"@automattic/launchpad": "1.1.5",
 		"@automattic/typography": "1.0.0",
 		"@codemirror/autocomplete": "6.18.6",
 		"@codemirror/commands": "6.8.1",

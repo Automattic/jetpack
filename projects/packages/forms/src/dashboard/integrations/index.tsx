@@ -8,7 +8,7 @@ import { useState, useCallback } from 'react';
  * Internal dependencies
  */
 import { useIntegrationsStatus } from '../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integrations-status';
-import { config } from '../index';
+import useFormsConfig from '../../hooks/use-forms-config';
 import AkismetDashboardCard from './akismet-card';
 import CreativeMailDashboardCard from './creative-mail-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
@@ -32,7 +32,8 @@ const Integrations = () => {
 		mailpoet: false,
 	} );
 
-	const isMailpoetEnabled = config( 'isMailpoetEnabled' );
+	const config = useFormsConfig();
+	const isMailpoetEnabled = Boolean( config?.isMailPoetEnabled );
 
 	const toggleCard = useCallback( ( cardId: keyof typeof expandedCards ) => {
 		setExpandedCards( prev => {

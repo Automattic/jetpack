@@ -47,6 +47,48 @@ export type DataPointDate = {
 	label?: string;
 };
 
+export type LeaderboardEntry = {
+	/**
+	 * Unique internal key (e.g., 'key-direct')
+	 */
+	id: string;
+
+	/**
+	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
+	 */
+	label: string | JSX.Element;
+
+	/**
+	 * Value of the entry
+	 */
+	currentValue: number;
+
+	/**
+	 * Value of the entry in the previous period
+	 */
+	previousValue: number;
+
+	/**
+	 * Width of current bar, as % of the current value
+	 */
+	currentShare: number;
+
+	/**
+	 * Width of previous bar, as % of the current value
+	 */
+	previousShare: number;
+
+	/**
+	 * Delta of the entry
+	 */
+	delta: number;
+
+	/**
+	 * Optional color for the entry's image/icon
+	 */
+	imageColor?: string;
+};
+
 export type SeriesDataOptions = {
 	gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
 	stroke?: string;
@@ -215,11 +257,11 @@ export type ScaleOptions = {
 /**
  * Base properties shared across all chart components
  */
-export type BaseChartProps< T = DataPoint | DataPointDate > = {
+export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {
 	/**
 	 * Array of data points to display in the chart
 	 */
-	data: T extends DataPoint | DataPointDate ? T[] : T;
+	data: T extends DataPoint | DataPointDate | LeaderboardEntry ? T[] : T;
 	/**
 	 * Optional unique identifier for the chart (auto-generated if not provided)
 	 */

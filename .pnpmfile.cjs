@@ -51,7 +51,10 @@ async function fixDeps( pkg ) {
 
 	// Currently v3 of @automattic/components has some issues:
 	// https://github.com/Automattic/wp-calypso/pull/103385
-	if ( pkg.name.startsWith( '@automattic/calypso-products' ) ) {
+	if (
+		pkg.name.startsWith( '@automattic/calypso-products' ) ||
+		pkg.name.startsWith( '@automattic/launchpad' )
+	) {
 		pkg.dependencies[ '@automattic/components' ] = '^2.2.0';
 	}
 

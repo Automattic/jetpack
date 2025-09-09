@@ -206,6 +206,9 @@ describe( 'validateField', () => {
 
 		test( 'invalidates incorrect url formats', () => {
 			expect( validateField( 'url', 'examplecom', true ) ).toBe( 'invalid_url' );
+			expect( validateField( 'url', 'example.com extra text', true ) ).toBe( 'invalid_url' );
+			expect( validateField( 'url', 'Visit example.com', true ) ).toBe( 'invalid_url' );
+			expect( validateField( 'url', 'example.com\nextra', true ) ).toBe( 'invalid_url' );
 		} );
 	} );
 

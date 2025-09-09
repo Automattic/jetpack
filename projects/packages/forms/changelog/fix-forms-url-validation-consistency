@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fix URL validation consistency between frontend and backend to prevent malformed URLs from passing validation
