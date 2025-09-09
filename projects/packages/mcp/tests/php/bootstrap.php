@@ -21,6 +21,7 @@ if ( ! function_exists( '__' ) ) {
 	 * @param string $domain Text domain.
 	 * @return string
 	 */
+	/** @phan-suppress-next-line PhanRedefineFunction */
 	function __( $text, $domain = 'default' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $domain is required for WordPress function signature
 		return $text;
 	}
@@ -38,6 +39,7 @@ if ( ! function_exists( 'apply_filters' ) ) {
 	 * @param mixed  ...$args Additional arguments.
 	 * @return mixed
 	 */
+	/** @phan-suppress-next-line PhanRedefineFunction */
 	function apply_filters( $tag, $value, ...$args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $args is required for WordPress function signature
 		return $value;
 	}

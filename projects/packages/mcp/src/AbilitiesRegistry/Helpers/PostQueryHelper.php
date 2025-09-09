@@ -111,11 +111,11 @@ class PostQueryHelper {
 		// Include posts that either don't have p2_confidential meta field OR it's not set to '1'.
 		$confidential_meta_query = array(
 			'relation' => 'OR',
-			array(
+			0          => array(
 				'key'     => 'p2_confidential',
 				'compare' => 'NOT EXISTS',
 			),
-			array(
+			1          => array(
 				'key'     => 'p2_confidential',
 				'value'   => '1',
 				'compare' => '!=',
@@ -126,8 +126,8 @@ class PostQueryHelper {
 		if ( ! empty( $input['meta_key'] ) && ! empty( $input['meta_value'] ) ) {
 			return array(
 				'relation' => 'AND',
-				$confidential_meta_query,
-				array(
+				0          => $confidential_meta_query,
+				1          => array(
 					'key'   => sanitize_text_field( $input['meta_key'] ),
 					'value' => sanitize_text_field( $input['meta_value'] ),
 				),
@@ -159,7 +159,7 @@ class PostQueryHelper {
 			'permalink'     => get_permalink(),
 			'author'        => array(
 				'ID'           => $author_id,
-				'display_name' => get_the_author_meta( 'display_name', $author_id ),
+				'display_name' => get_the_author_meta( 'display_name', (int) $author_id ),
 			),
 			'categories'    => wp_get_post_categories( $post_id, array( 'fields' => 'names' ) ),
 			'tags'          => wp_get_post_tags( $post_id, array( 'fields' => 'names' ) ),
@@ -273,7 +273,7 @@ class PostQueryHelper {
 			'permalink'     => get_permalink( $post->ID ),
 			'author'        => array(
 				'ID'           => (int) $author_id,
-				'display_name' => get_the_author_meta( 'display_name', $author_id ),
+				'display_name' => get_the_author_meta( 'display_name', (int) $author_id ),
 			),
 			'categories'    => wp_get_post_categories( $post->ID, array( 'fields' => 'names' ) ),
 			'tags'          => wp_get_post_tags( $post->ID, array( 'fields' => 'names' ) ),
