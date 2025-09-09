@@ -100,7 +100,7 @@ class Dashboard {
 	public function render_callout() {
 		?>
 		<script>
-			location.hash = '#!/stats/moved?page=stats-callout';
+			location.hash = '#!/callout-stats/moved?page=stats-callout';
 		</script>
 		<?php
 		$this->render();
