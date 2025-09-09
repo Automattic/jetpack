@@ -34,7 +34,7 @@
 - Forms: Save feedback entries in a new format. [#44821]
 - Forms: Show trash action alongside view action in inbox. [#44882]
 - Related Posts block: Update placeholder text for the site editor, and update the demo date. [#44937]
-- Remove CRM installation nudge for Complete plan users [#45026]
+- Remove CRM installation nudge for Complete plan users. [#45026]
 - Shortcodes: Update embed reversal code to only run when content is inserted in the admin. [#44741]
 - Site Accelerator: Ignore images from openlibrary.org. [#44627]
 - Sitemaps: Add filter to allow suspending object cache addition during generation. [#44732]
