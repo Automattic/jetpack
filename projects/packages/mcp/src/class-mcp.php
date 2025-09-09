@@ -34,24 +34,22 @@ class Mcp {
 		}
 
 		// Load the abilities API.
-		if ( function_exists( 'wp_abilities_api_init' ) ) {
-			add_action(
-				'abilities_api_init',
-				function () {
-					// Load abilities dynamically from configuration - NO hardcoded names!
-					$all_abilities = AbilityRegistry::get_all_names();
+		add_action(
+			'abilities_api_init',
+			function () {
+				// Load abilities dynamically from configuration - NO hardcoded names!
+				$all_abilities = AbilityRegistry::get_all_names();
 
-					foreach ( $all_abilities as $ability_name ) {
-						$ability_class = AbilityRegistry::get_ability_class( $ability_name );
+				foreach ( $all_abilities as $ability_name ) {
+					$ability_class = AbilityRegistry::get_ability_class( $ability_name );
 
-						if ( $ability_class && class_exists( $ability_class ) ) {
-							// @phan-suppress-next-line PhanNoopNew
-							new $ability_class();
-						}
+					if ( $ability_class && class_exists( $ability_class ) ) {
+						// @phan-suppress-next-line PhanNoopNew
+						new $ability_class();
 					}
 				}
-			);
-		}
+			}
+		);
 	}
 }
 
