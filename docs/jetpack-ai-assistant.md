@@ -314,30 +314,54 @@ export const settings = {
 
 ##### **WordPress.com API Endpoints** (LLM Gateway)
 
-**Core AI Endpoint**: `/wpcom/v2/jetpack-ai-query`
+The WordPress.com platform provides multiple AI endpoints serving different use cases:
+
+**Core AI Endpoint**: `/wpcom/v2/jetpack-ai-query` (Advanced AI Gateway)
 - **Purpose**: Main AI completion API with advanced message processing
 - **Location**: [`wpcom/wp-content/rest-api-plugins/endpoints/jetpack-ai-query.php`](https://github.a8c.com/Automattic/wpcom/blob/trunk/wp-content/rest-api-plugins/endpoints/jetpack-ai-query.php)
 - **Methods**: GET, POST
 - **Authentication**: JWT Bearer token
-- **Features**:
-  - Message preprocessing and validation
-  - Feature-specific model selection (GPT-4o, GPT-4o-mini)
-  - Usage quota enforcement
-  - Content moderation
-  - Streaming and non-streaming responses
-  - Function/tool calling support
-  - JSON response format support
+- **Advanced Features**:
+  - **Intelligent Message Processing**: Sophisticated preprocessing pipeline that transforms Jetpack-specific message formats into OpenAI-compatible requests
+  - **Feature-Aware Model Selection**: Automatically selects optimal models (GPT-4o vs GPT-4o-mini) based on feature requirements
+  - **Context-Aware Parameters**: Dynamic `max_tokens`, `temperature`, and `response_format` based on use case
+  - **Comprehensive Quota Management**: Multi-tier usage tracking with plan-specific limits
+  - **Content Safety**: Integrated OpenAI moderation with feature-specific handling
+  - **Streaming and non-streaming responses**
+  - **Function/tool calling support**
+  - **JSON response format support**
 
-**Text Completion Endpoint**: `/wpcom/v2/text-completion`
+**Text Completion Endpoint**: `/wpcom/v2/text-completion` (Simple Completion API)
 - **Purpose**: Simpler text completion API for basic use cases
 - **Location**: [`wpcom/wp-content/rest-api-plugins/endpoints/ai-text-completion.php`](https://github.a8c.com/Automattic/wpcom/blob/trunk/wp-content/rest-api-plugins/endpoints/ai-text-completion.php)
 - **Methods**: POST
 - **Authentication**: JWT token
-- **Features**:
-  - Basic prompt completion
-  - Streaming support via `/text-completion/stream`
-  - Function calling support
-  - Temperature and seed control
+- **Simple Features**:
+  - **Basic Prompt Completion**: Direct text-in, text-out interface
+  - **Streaming Support**: Real-time response streaming via `/text-completion/stream`
+  - **Function Calling**: Support for OpenAI function/tool definitions
+  - **Parameter Control**: Direct control over `temperature`, `seed`, `model`
+- **Use Cases**: Simple text completion tasks, third-party integrations, legacy compatibility, testing and development
+
+##### **Public API Endpoints** (External Access)
+
+**Completions REST Endpoint**:
+- **URL**: `https://public-api.wordpress.com/wpcom/v2/sites/jetpack-ai/completions`
+- **Purpose**: Text completion based on OpenAI's chat completion API
+- **Authentication**: Cookie-based
+- **Method**: POST
+
+**Image Generation REST Endpoint**:
+- **URL**: `https://public-api.wordpress.com/wpcom/v2/jetpack-ai/images/generations`
+- **Purpose**: Generate images from text prompts using DALL·E
+- **Authentication**: Cookie-based
+- **Method**: POST
+
+**JWT Token Acquisition**:
+- **URL**: `/wpcom/v2/sites/{siteSuffix}/jetpack-openai-query/jwt`
+- **Purpose**: Acquire JWT tokens for streaming completions
+- **Authentication**: Cookie-based
+- **Method**: POST
 
 #### **Feature-Specific Model Configuration**
 
@@ -373,6 +397,75 @@ switch ($feature) {
         $model = 'gpt-4o-mini';
         break;
 }
+```
+
+#### **Message Format Specifications**
+
+**Advanced Endpoint Message Format** (jetpack-ai-query):
+```typescript
+interface JetpackAIMessage {
+    role: 'jetpack-ai' | 'user' | 'assistant';
+    content?: string;
+    context?: {
+        type: string;                    // Feature identifier
+        subject?: 'title' | 'content';   // What to operate on
+        tone?: string;                   // Desired tone
+        language?: string;               // Target language
+        request?: string;                // User prompt
+    };
+}
+```
+
+**Simple Endpoint Message Format** (text-completion):
+```typescript
+interface SimpleMessage {
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+}
+```
+
+#### **Request Routing Logic**
+
+The Jetpack AI Client primarily uses the advanced `jetpack-ai-query` endpoint because:
+
+1. **Jetpack-Specific Processing**: Handles the complex prompt structures built by the prompt system
+2. **Feature Integration**: Provides feature-specific optimizations and model selection
+3. **Usage Tracking**: Properly attributes usage to specific Jetpack AI features
+4. **Plan Enforcement**: Integrates with My Jetpack plan management
+
+#### **WordPress.com Processing Pipeline**
+
+Both endpoints follow this processing flow:
+
+```mermaid
+sequenceDiagram
+    participant Client as Jetpack Frontend
+    participant WPCOM as WordPress.com API
+    participant Proc as Message Processor
+    participant Mod as Content Moderator
+    participant Usage as Usage Controller
+    participant AI as OpenAI Service
+    
+    Client->>WPCOM: AI Request + JWT
+    WPCOM->>WPCOM: Validate JWT & Switch Blog Context
+    
+    alt jetpack-ai-query
+        WPCOM->>Proc: Apply Message Filtering
+        Proc->>WPCOM: Transformed Messages
+        WPCOM->>WPCOM: Select Model & Parameters
+    else text-completion
+        WPCOM->>WPCOM: Basic Validation
+    end
+    
+    WPCOM->>Mod: Content Moderation Check
+    Mod->>WPCOM: Moderation Result
+    
+    WPCOM->>Usage: Check Quota & Limits
+    Usage->>WPCOM: Usage Permission
+    
+    WPCOM->>AI: Forward to OpenAI
+    AI-->>WPCOM: Stream/Return Response
+    WPCOM-->>Client: Relay Response
 ```
 
 #### **Message Processing Pipeline**
@@ -454,7 +547,179 @@ if ($site_requires_upgrade && !$open_ai->override_usage_check()) {
 - Graceful degradation for service failures
 - Detailed logging for debugging and monitoring
 
-### 6. My Jetpack Integration
+### 6. Public API Endpoints
+
+The Jetpack AI infrastructure provides several public API endpoints for different use cases:
+
+#### **Completions REST Endpoint**
+
+**URL**: `https://public-api.wordpress.com/wpcom/v2/sites/jetpack-ai/completions`
+- **Purpose**: Text completion based on OpenAI's chat completion API
+- **Authentication**: Cookie-based
+- **Method**: POST
+
+```javascript
+const data = await apiFetch({
+    path: '/wpcom/v2/jetpack-ai/completions',
+    method: 'POST',
+    data: data,
+});
+```
+
+#### **Image Generation REST Endpoint**
+
+**URL**: `https://public-api.wordpress.com/wpcom/v2/jetpack-ai/images/generations`
+- **Purpose**: Generate images from text prompts using DALL·E
+- **Authentication**: Cookie-based
+- **Method**: POST
+
+```javascript
+const data = await apiFetch({
+    path: '/wpcom/v2/jetpack-ai/images/generations',
+    method: 'POST',
+    data: {
+        prompt,
+        post_id: postId,
+    },
+});
+
+const images = data.map(image => {
+    return 'data:image/png;base64,' + image.b64_json;
+});
+```
+
+#### **Streaming Completions Endpoint**
+
+**URL**: `https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query`
+- **Purpose**: Real-time streaming completions using Server-Sent Events
+- **Authentication**: JWT token (2-minute lifespan)
+- **Method**: GET/POST
+
+```javascript
+const url = new URL(`https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query`);
+let fullMessage = '';
+
+const token = await getJetpackCompletionsToken();
+
+url.searchParams.append('question', prompt);
+url.searchParams.append('token', token);
+
+const source = new EventSource(url.toString());
+
+source.addEventListener('message', e => {
+    if (e.data === '[DONE]') {
+        source.close();
+        console.log('Done. Full message: ' + fullMessage);
+        return;
+    }
+
+    const data = JSON.parse(e.data);
+    const chunk = data.choices[0].delta.content;
+    if (chunk) {
+        fullMessage += chunk;
+        console.log(fullMessage);
+    }
+});
+```
+
+#### **JWT Token Acquisition**
+
+**URL**: `/wpcom/v2/sites/{siteSuffix}/jetpack-openai-query/jwt`
+- **Purpose**: Acquire JWT tokens for streaming completions
+- **Authentication**: Cookie-based
+- **Method**: POST
+
+```javascript
+async function getJetpackCompletionsToken(siteSuffix) {
+    const { token } = await apiFetch({
+        path: '/wpcom/v2/sites/' + siteSuffix + '/jetpack-openai-query/jwt',
+        method: 'POST',
+    });
+    return token;
+}
+```
+
+**Note**: The deprecated site-specific endpoint `/sites/:blogId/jetpack-openai-query` is being phased out in favor of the site-independent endpoint documented above.
+
+### 7. Usage Tracking and Analytics
+
+#### **Monitoring Infrastructure**
+
+**Grafana Dashboard**: Real-time monitoring of OpenAI API usage, costs, and performance metrics
+**Kibana Dashboard**: Detailed log analysis and debugging capabilities
+
+#### **Logstash Data Structure**
+
+All API usage is logged with the following structure:
+- **Plugin**: `openai`
+- **Feature Filter**: `feature:openai` for Jetpack AI specific usage
+- **Site Types**: `tags:jetpack` (self-hosted), `atomic`, `wpcom`, `vip`
+- **Cost Tracking**: `properties.cost` (manually calculated)
+- **User Prompts**: `properties.prompt` (for analysis and debugging)
+
+#### **Error Classification**
+
+- **`severity:warning`**: OpenAI API response errors (external)
+- **`severity:error`**: Internal code errors
+- **`severity:debug`**: General debugging information
+
+#### **Usage Analytics Dashboards**
+
+**Scorecard**: High-level usage metrics and KPIs
+**Looker**: Advanced analytics and reporting
+**MC Stats**: Internal testing and purchase tracking
+- **Free Limit Tracking**: [https://mc.a8c.com/s/jetpack-ai-usage/](https://mc.a8c.com/s/jetpack-ai-usage/)
+- **Cost Monitoring**: [https://mc.a8c.com/jetpack-ai](https://mc.a8c.com/jetpack-ai)
+
+#### **Request Counting System**
+
+**Current Implementation**: Object cache using `wp_cache`
+- **Files**: `openai-request-count.php` and `openai-limit-usage.php`
+- **Status**: Temporary solution, considered fragile
+- **Future**: Planned migration to more robust counting system
+
+**Free Usage Limits**:
+- Sites reaching free limits trigger MC stats updates
+- Logstash entries for tracking and analysis
+- Object cache-based counting (temporary solution)
+
+### 8. Jetpack AI Assistant Block Features
+
+The Jetpack AI Assistant block is available for free on WordPress.com simple and Atomic sites as part of the soft launch strategy. It provides comprehensive AI-powered content creation capabilities:
+
+#### **Core Features**
+
+**AI-Generated Content**:
+- Blog posts, pages, lists, and tables from text prompts
+- Context-aware content generation
+- Professional-quality output
+
+**Content Enhancement**:
+- **Spelling & Grammar Correction**: Automated proofreading and error correction
+- **Tone Adjustment**: Modify content tone to match desired style (formal, casual, etc.)
+- **Title & Summary Generation**: AI-powered metadata creation
+
+**User Experience**:
+- **Conversational UI**: Interactive chat-like interface
+- **Real-time Generation**: Streaming content creation
+- **Visual Feedback**: Progress indicators and status updates
+
+#### **Technical Implementation**
+
+**Source Code**: [Jetpack AI Assistant Block](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/jetpack/extensions/blocks/ai-assistant)
+
+**Integration Points**:
+- Gutenberg block editor integration
+- WordPress.com and Atomic site compatibility
+- Jetpack plugin ecosystem integration
+
+**Content Types Supported**:
+- Text content (paragraphs, headings, lists)
+- Structured data (tables, lists)
+- Media integration (images, embeds)
+- Custom post types and blocks
+
+### 9. My Jetpack Integration
 
 **Location**: [`projects/packages/my-jetpack/src/products/class-jetpack-ai.php`](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/my-jetpack/src/products/class-jetpack-ai.php)
 
@@ -477,7 +742,7 @@ class Jetpack_Ai extends Product {
 - **Paid Tier**: Higher request limits with priority support
 - **Feature Gating**: Controls access to advanced AI features
 
-### 7. Feature Registration System
+### 9. Feature Registration System
 
 **Location**: [`projects/plugins/jetpack/extensions/index.json`](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/index.json)
 
@@ -498,126 +763,6 @@ The AI features are registered in the extension system:
     // ... more AI features
   ]
 }
-```
-
-### 7. WordPress.com API Endpoint Details
-
-#### **Core Differences Between AI Endpoints**
-
-The WordPress.com platform provides two distinct AI endpoints serving different use cases:
-
-##### **`/wpcom/v2/jetpack-ai-query` - Advanced AI Gateway**
-
-This is the **primary endpoint** for all Jetpack AI features, providing:
-
-**Advanced Features**:
-- **Intelligent Message Processing**: Sophisticated preprocessing pipeline that transforms Jetpack-specific message formats into OpenAI-compatible requests
-- **Feature-Aware Model Selection**: Automatically selects optimal models (GPT-4o vs GPT-4o-mini) based on feature requirements
-- **Context-Aware Parameters**: Dynamic `max_tokens`, `temperature`, and `response_format` based on use case
-- **Comprehensive Quota Management**: Multi-tier usage tracking with plan-specific limits
-- **Content Safety**: Integrated OpenAI moderation with feature-specific handling
-
-**Feature-Specific Optimizations**:
-```php
-// Example configurations from jetpack-ai-query.php
-'ai-assistant' => [
-    'model' => 'gpt-4o-mini',
-    'max_tokens' => 4096,
-    'stream' => true
-],
-'jetpack-ai-breve' => [
-    'model' => 'gpt-4o',           // More powerful model for complex analysis
-    'max_tokens' => 4000,
-    'stream' => false
-],
-'jetpack-seo-assistant' => [
-    'model' => 'gpt-4o-mini',
-    'max_tokens' => 4096,
-    'response_format' => 'json_object'  // Structured responses
-]
-```
-
-**Message Format**: Accepts complex message arrays with context objects:
-```typescript
-interface JetpackAIMessage {
-    role: 'jetpack-ai' | 'user' | 'assistant';
-    content?: string;
-    context?: {
-        type: string;                    // Feature identifier
-        subject?: 'title' | 'content';   // What to operate on
-        tone?: string;                   // Desired tone
-        language?: string;               // Target language
-        request?: string;                // User prompt
-    };
-}
-```
-
-##### **`/wpcom/v2/text-completion` - Simple Completion API**
-
-This is a **lightweight endpoint** for basic text completion needs:
-
-**Simple Features**:
-- **Basic Prompt Completion**: Direct text-in, text-out interface
-- **Streaming Support**: Real-time response streaming via `/text-completion/stream`
-- **Function Calling**: Support for OpenAI function/tool definitions
-- **Parameter Control**: Direct control over `temperature`, `seed`, `model`
-
-**Use Cases**:
-- Simple text completion tasks
-- Third-party integrations needing basic AI
-- Legacy compatibility
-- Testing and development
-
-**Message Format**: Simple prompt or standard OpenAI message format:
-```typescript
-interface SimpleMessage {
-    role: 'user' | 'assistant' | 'system';
-    content: string;
-}
-```
-
-#### **Request Routing Logic**
-
-The Jetpack AI Client primarily uses the advanced `jetpack-ai-query` endpoint because:
-
-1. **Jetpack-Specific Processing**: Handles the complex prompt structures built by the prompt system
-2. **Feature Integration**: Provides feature-specific optimizations and model selection
-3. **Usage Tracking**: Properly attributes usage to specific Jetpack AI features
-4. **Plan Enforcement**: Integrates with My Jetpack plan management
-
-#### **WordPress.com Processing Pipeline**
-
-Both endpoints follow this processing flow:
-
-```mermaid
-sequenceDiagram
-    participant Client as Jetpack Frontend
-    participant WPCOM as WordPress.com API
-    participant Proc as Message Processor
-    participant Mod as Content Moderator
-    participant Usage as Usage Controller
-    participant AI as OpenAI Service
-    
-    Client->>WPCOM: AI Request + JWT
-    WPCOM->>WPCOM: Validate JWT & Switch Blog Context
-    
-    alt jetpack-ai-query
-        WPCOM->>Proc: Apply Message Filtering
-        Proc->>WPCOM: Transformed Messages
-        WPCOM->>WPCOM: Select Model & Parameters
-    else text-completion
-        WPCOM->>WPCOM: Basic Validation
-    end
-    
-    WPCOM->>Mod: Content Moderation Check
-    Mod->>WPCOM: Moderation Result
-    
-    WPCOM->>Usage: Check Quota & Limits
-    Usage->>WPCOM: Usage Permission
-    
-    WPCOM->>AI: Forward to OpenAI
-    AI-->>WPCOM: Stream/Return Response
-    WPCOM-->>Client: Relay Response
 ```
 
 ## Data Flow and State Management
