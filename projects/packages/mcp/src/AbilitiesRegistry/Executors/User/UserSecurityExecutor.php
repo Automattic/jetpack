@@ -94,11 +94,9 @@ class UserSecurityExecutor implements ExecutorInterface {
 
 		if ( class_exists( 'TwoStepAuthenticator' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			$authenticator = \TwoStepAuthenticator::get_instance();
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$authenticator      = \TwoStepAuthenticator::get_instance();
 			$two_factor_enabled = $authenticator->is_enabled_for_user( $current_user_id );
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			$enhanced_security = $authenticator->is_enhanced_security_enabled( $current_user_id );
+			$enhanced_security  = $authenticator->is_enhanced_security_enabled( $current_user_id );
 
 			$app_passwords       = $authenticator->get_application_passwords( $current_user_id );
 			$app_passwords_count = is_array( $app_passwords ) ? count( $app_passwords ) : 0;
@@ -152,10 +150,8 @@ class UserSecurityExecutor implements ExecutorInterface {
 
 		if ( class_exists( 'TwoStepAuthenticator' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			$authenticator = \TwoStepAuthenticator::get_instance();
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			$enabled = $authenticator->is_enabled_for_user( $current_user_id );
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$authenticator     = \TwoStepAuthenticator::get_instance();
+			$enabled           = $authenticator->is_enabled_for_user( $current_user_id );
 			$enhanced_security = $authenticator->is_enhanced_security_enabled( $current_user_id );
 
 			if ( $enabled ) {
@@ -256,8 +252,7 @@ class UserSecurityExecutor implements ExecutorInterface {
 		if ( class_exists( 'TwoStepAuthenticator' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$authenticator = \TwoStepAuthenticator::get_instance();
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			$passwords = $authenticator->get_application_passwords( $current_user_id );
+			$passwords     = $authenticator->get_application_passwords( $current_user_id );
 
 			if ( is_array( $passwords ) ) {
 				foreach ( $passwords as $app_id => $password_data ) {

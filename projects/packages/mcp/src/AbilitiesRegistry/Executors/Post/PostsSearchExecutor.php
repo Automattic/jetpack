@@ -52,6 +52,7 @@ class PostsSearchExecutor implements ExecutorInterface {
 					$target_site = str_replace( '::', '/', $target_site );
 
 					if ( function_exists( 'wpcom_get_blog_details_for_url' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredFunction
 						$blog_details = wpcom_get_blog_details_for_url( $target_site );
 					} else {
 						return new WP_Error(
@@ -166,6 +167,7 @@ class PostsSearchExecutor implements ExecutorInterface {
 				$target_site = str_replace( '::', '/', $target_site );
 
 				if ( function_exists( 'wpcom_get_blog_details_for_url' ) ) {
+					// @phan-suppress-next-line PhanUndeclaredFunction
 					$blog_details = wpcom_get_blog_details_for_url( $target_site );
 				} else {
 					return false;
@@ -194,9 +196,10 @@ class PostsSearchExecutor implements ExecutorInterface {
 				}
 			}
 
-			// Method 1: Use WordPress.com's current_user_can_for_blog function if available.
-			if ( function_exists( 'current_user_can_for_blog' ) ) {
-				return current_user_can_for_blog( $target_blog_id, 'read' );
+			// Method 1: Use WordPress.com's current_user_can_for_site function if available.
+			if ( function_exists( 'current_user_can_for_site' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
+				return current_user_can_for_site( $target_blog_id, 'read' );
 			}
 		}
 

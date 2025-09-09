@@ -132,6 +132,7 @@ class UserProfileExecutor implements ExecutorInterface {
 		 * @return array User statistics.
 		 */
 	private function get_user_stats( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
+		// @phan-suppress-next-line PhanUndeclaredFunction
 		$user_sites  = get_ordered_blogs_of_user( $user->ID );
 		$total_sites = $user_sites ? count( $user_sites ) : 0;
 
@@ -189,6 +190,7 @@ class UserProfileExecutor implements ExecutorInterface {
 		 * @return array Activity data.
 		 */
 	private function get_activity_data( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
+		// @phan-suppress-next-line PhanUndeclaredFunction
 		$user_sites = get_ordered_blogs_of_user( $user->ID );
 
 		return array(
@@ -456,6 +458,7 @@ class UserProfileExecutor implements ExecutorInterface {
 		 */
 	private function get_comments_made_count( WP_User $user ): int {
 		// Get actual count of comments made by user across network.
+		// @phan-suppress-next-line PhanUndeclaredFunction
 		$user_sites     = get_ordered_blogs_of_user( $user->ID );
 		$total_comments = 0;
 
@@ -483,8 +486,8 @@ class UserProfileExecutor implements ExecutorInterface {
 		/**
 		 * Get most active site.
 		 *
-		 * @param WP_User $user The user object.
-		 * @param array   $user_sites Array of user sites.
+		 * @param WP_User    $user The user object.
+		 * @param array|null $user_sites Array of user sites.
 		 * @return array|null Most active site information.
 		 */
 	private function get_most_active_site( WP_User $user, ?array $user_sites ): ?array {

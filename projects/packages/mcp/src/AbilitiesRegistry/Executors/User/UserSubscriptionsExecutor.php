@@ -223,6 +223,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 
 		// Get user sites for usage calculation.
 		// @phan-suppress-next-line PhanUndeclaredFunction
+		// @phan-suppress-next-line PhanUndeclaredFunction
 		$user_sites  = get_ordered_blogs_of_user( $current_user_id );
 		$sites_count = is_array( $user_sites ) ? count( $user_sites ) : 0;
 

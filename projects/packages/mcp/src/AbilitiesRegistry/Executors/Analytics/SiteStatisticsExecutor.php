@@ -229,6 +229,7 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 			$site_url = str_replace( '::', '/', $site_url );
 
 			if ( function_exists( 'wpcom_get_blog_details_for_url' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
 				$blog_details = wpcom_get_blog_details_for_url( $site_url );
 			} else {
 				return $this->create_error( 'function_not_available', 'Site URL resolution not available', 500 );
@@ -270,8 +271,9 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		}
 
 		// Check if user has access to this site.
-		if ( function_exists( 'current_user_can_for_blog' ) ) {
-			return current_user_can_for_blog( $blog_id, 'read' );
+		if ( function_exists( 'current_user_can_for_site' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			return current_user_can_for_site( $blog_id, 'read' );
 		}
 
 		return current_user_can( 'read' );
@@ -347,7 +349,8 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 
 		// Try to get stats using WordPress.com stats functions.
 		if ( function_exists( 'stats_get_views' ) ) {
-			$num_days  = $this->get_num_days( $date_range['start'], $date_range['end'] );
+			$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$views_raw = stats_get_views( $blog_id, $date_range['end'], $num_days );
 
 			if ( $views_raw && is_array( $views_raw ) ) {
@@ -376,7 +379,8 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 
 		// Try to get visitor stats.
 		if ( function_exists( 'stats_get_visitors' ) ) {
-			$num_days     = $this->get_num_days( $date_range['start'], $date_range['end'] );
+			$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$visitors_raw = stats_get_visitors( $blog_id, $date_range['end'], 1, $num_days );
 
 			if ( $visitors_raw && is_array( $visitors_raw ) ) {
@@ -411,7 +415,8 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 
 		// Try to get top posts using WordPress.com stats functions.
 		if ( function_exists( 'stats_get_postviews' ) ) {
-			$num_days  = $this->get_num_days( $date_range['start'], $date_range['end'] );
+			$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$top_posts = stats_get_postviews( $blog_id, $date_range['end'], $num_days, ' AND post_id > 0', $max_items, false, true );
 
 			if ( $top_posts && is_array( $top_posts ) ) {
@@ -501,7 +506,8 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 
 		// Try to get referrers using WordPress.com stats functions.
 		if ( function_exists( 'stats_get_referrers_grouped' ) ) {
-			$num_days      = $this->get_num_days( $date_range['start'], $date_range['end'] );
+			$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$referrers_raw = stats_get_referrers_grouped( $blog_id, $date_range['end'], $num_days, 2000, true );
 
 			if ( $referrers_raw && is_array( $referrers_raw ) ) {
@@ -545,6 +551,7 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		// Note: Geographic stats functions may not be available in all WordPress.com environments.
 		// Try to get countries data using available functions.
 		if ( function_exists( 'stats_get_geoviews_summary' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$geo_raw = stats_get_geoviews_summary( $blog_id, $date_range['end'], $num_days );
 
 			if ( $geo_raw && is_array( $geo_raw ) ) {
@@ -660,8 +667,9 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		// Try to get all-time views using available WordPress.com functions.
 		if ( function_exists( 'stats_get_views' ) ) {
 			// Get a long period to approximate all-time views.
-			$long_period_days   = 365 * 3; // 3 years.
-			$end_date           = gmdate( 'Y-m-d' );
+			$long_period_days = 365 * 3; // 3 years.
+			$end_date         = gmdate( 'Y-m-d' );
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$all_time_views_raw = stats_get_views( $blog_id, $end_date, $long_period_days );
 
 			if ( $all_time_views_raw && is_array( $all_time_views_raw ) ) {
@@ -674,8 +682,9 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 
 		// Try to get all-time visitors.
 		if ( function_exists( 'stats_get_visitors' ) ) {
-			$long_period_days      = 365 * 3; // 3 years.
-			$end_date              = gmdate( 'Y-m-d' );
+			$long_period_days = 365 * 3; // 3 years.
+			$end_date         = gmdate( 'Y-m-d' );
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$all_time_visitors_raw = stats_get_visitors( $blog_id, $end_date, 1, $long_period_days );
 
 			if ( $all_time_visitors_raw && is_array( $all_time_visitors_raw ) ) {

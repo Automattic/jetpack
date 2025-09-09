@@ -66,6 +66,7 @@ class ExampleUserSitesResourceAbility {
 			}
 
 			// Get all sites for the user.
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$all_sites = get_ordered_blogs_of_user( $current_user_id, true, true, true );
 
 			if ( ! $all_sites || is_wp_error( $all_sites ) ) {
