@@ -800,6 +800,40 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Normalize widget `content` into a string suitable for block scanning.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $content The widget instance 'content' value.
+	 * @return string|false Normalized string content or false if none.
+	 */
+	private static function normalize_widget_content( $content ) {
+		if ( empty( $content ) ) {
+			return false;
+		}
+
+		if ( is_string( $content ) ) {
+			return $content;
+		}
+
+		if ( is_array( $content ) ) {
+			if ( isset( $content['content'] ) && is_string( $content['content'] ) ) {
+				return $content['content'];
+			}
+
+			if ( ! empty( $content ) && isset( $content[0] ) && is_array( $content[0] ) && isset( $content[0]['blockName'] ) ) {
+				// Looks like a parsed blocks array.
+				return serialize_blocks( $content );
+			}
+
+			// Unknown array shape: treat as no visibility rules.
+			return false;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Determine whether the widget should be displayed based on conditions set by the user.
 	 *
 	 * @param array $instance The widget settings.
@@ -831,23 +865,9 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $instance['content'] ) ) {
 			return $instance;
 		}
-		$content = $instance['content'];
+		$content = self::normalize_widget_content( isset( $instance['content'] ) ? $instance['content'] : null );
 
-		// Normalize content to a string before checking for blocks.
-		if ( is_array( $content ) ) {
-			// Content may be provided as an array shape.
-			if ( isset( $content['content'] ) && is_string( $content['content'] ) ) {
-				$content = $content['content'];
-			} elseif ( ! empty( $content ) && isset( $content[0] ) && is_array( $content[0] ) && isset( $content[0]['blockName'] ) ) {
-				// Looks like a parsed blocks array.
-				$content = serialize_blocks( $content );
-			} else {
-				// Unknown array shape: treat as no visibility rules.
-				return $instance;
-			}
-		}
-
-		if ( empty( $content ) || ! is_string( $content ) || ! has_blocks( $content ) ) {
+		if ( false === $content || ! has_blocks( $content ) ) {
 			// No visibility found.
 			return $instance;
 		}

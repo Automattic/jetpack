@@ -1,6 +1,5 @@
 <?php
 
-use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.php';
@@ -38,7 +37,7 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 		// Expect to see the same block. Clone it, just in case the function modifies its parameters.
 		$expected   = unserialize( serialize( $block ) );
 		$return_val = Jetpack_Widget_Conditions::filter_widget( $block );
-		Assert::assertSame( $expected, $return_val );
+		$this->assertSame( $expected, $return_val );
 
 		// Block with rule for "Display only when logged in" (Will fail during unit tests).
 		// Expect to see: False ("Not allowed to display").
@@ -48,7 +47,7 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 		$block         = array( 'content' => $block_content );
 		$expected      = false;
 		$return_val    = Jetpack_Widget_Conditions::filter_widget( $block );
-		Assert::assertSame( $expected, $return_val );
+		$this->assertSame( $expected, $return_val );
 
 		// Block with no rules:.
 		$block_content = '<!-- wp:paragraph -->'
@@ -58,7 +57,7 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 		// Expect to see the same block. Clone it, just in case the function modifies its parameters.
 		$expected   = unserialize( serialize( $block ) );
 		$return_val = Jetpack_Widget_Conditions::filter_widget( $block );
-		Assert::assertSame( $expected, $return_val );
+		$this->assertSame( $expected, $return_val );
 	}
 
 	/**
@@ -74,7 +73,7 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 		$block         = array( 'content' => $parsed_blocks );
 		$expected      = unserialize( serialize( $block ) );
 		$return_val    = Jetpack_Widget_Conditions::filter_widget( $block );
-		Assert::assertSame( $expected, $return_val );
+		$this->assertSame( $expected, $return_val );
 
 		// Block with rule for "Display only when logged in" (Will fail during unit tests).
 		$block_content = '<!-- wp:paragraph {"conditions":{"action":"show","rules":[{"major":"loggedin","minor":"loggedin"}],"match_all":0}} -->'
@@ -84,7 +83,7 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 		$block         = array( 'content' => $parsed_blocks );
 		$expected      = false;
 		$return_val    = Jetpack_Widget_Conditions::filter_widget( $block );
-		Assert::assertSame( $expected, $return_val );
+		$this->assertSame( $expected, $return_val );
 	}
 
 	/**
@@ -94,7 +93,7 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 	public function test_filter_widget_with_unknown_array_shape() {
 		$block    = array( 'content' => array( 'foo' => 'bar' ) );
 		$expected = unserialize( serialize( $block ) );
-		Assert::assertSame( $expected, Jetpack_Widget_Conditions::filter_widget( $block ) );
+		$this->assertSame( $expected, Jetpack_Widget_Conditions::filter_widget( $block ) );
 	}
 
 	/**
@@ -103,6 +102,6 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 	public function test_filter_widget_with_empty_array_content() {
 		$block    = array( 'content' => array() );
 		$expected = unserialize( serialize( $block ) );
-		Assert::assertSame( $expected, Jetpack_Widget_Conditions::filter_widget( $block ) );
+		$this->assertSame( $expected, Jetpack_Widget_Conditions::filter_widget( $block ) );
 	}
 }
