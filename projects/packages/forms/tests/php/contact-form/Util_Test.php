@@ -128,4 +128,98 @@ class Util_Test extends BaseTestCase {
 			'grunion_pre_message_sent action should be registered'
 		);
 	}
+
+	/**
+	 * Test that export_to_gdrive functionality has been moved from Admin to Contact_Form_Plugin.
+	 *
+	 * This test verifies that the export_to_gdrive method is available in Contact_Form_Plugin
+	 * and that the deprecated Admin method properly delegates to it.
+	 */
+	public function test_export_to_gdrive_moved_from_admin_to_plugin() {
+		// Verify that Contact_Form_Plugin has the export_to_gdrive method
+		$plugin_reflection = new \ReflectionClass( Contact_Form_Plugin::class );
+		$this->assertTrue(
+			$plugin_reflection->hasMethod( 'export_to_gdrive' ),
+			'Contact_Form_Plugin should have export_to_gdrive method'
+		);
+
+		// Verify that Admin still has the deprecated method
+		$admin_reflection = new \ReflectionClass( Admin::class );
+		$this->assertTrue(
+			$admin_reflection->hasMethod( 'export_to_gdrive' ),
+			'Admin should still have deprecated export_to_gdrive method for backward compatibility'
+		);
+
+		// Verify that Admin method is marked as deprecated
+		$admin_method = $admin_reflection->getMethod( 'export_to_gdrive' );
+		$doc_comment  = $admin_method->getDocComment();
+		$this->assertStringContainsString( '@deprecated', $doc_comment, 'Admin::export_to_gdrive() should be marked as deprecated' );
+	}
+
+	/**
+	 * Test export_to_gdrive method security and validation.
+	 *
+	 * This test verifies that the export_to_gdrive method properly validates
+	 * permissions and nonces before processing the export request.
+	 */
+	public function test_export_to_gdrive_security_validation() {
+		// Create a Contact_Form_Plugin instance
+		$plugin = Contact_Form_Plugin::init();
+
+		// Test without proper capabilities
+		$original_user = wp_get_current_user();
+		wp_set_current_user( 0 ); // Set to no user
+
+		// Mock $_POST data without proper nonce
+		$_POST = array(
+			'feedback_export_nonce_gdrive' => 'invalid_nonce',
+		);
+
+		// Capture output to check for JSON error response
+		ob_start();
+		$plugin->export_to_gdrive();
+		$output = ob_get_clean();
+
+		// Verify that an error response was sent
+		$this->assertStringContainsString( 'You aren\'t authorized to do that.', $output );
+
+		// Restore original user
+		wp_set_current_user( $original_user->ID );
+
+		// Clean up $_POST
+		unset( $_POST['feedback_export_nonce_gdrive'] );
+	}
+
+	/**
+	 * Test that deprecated Admin::export_to_gdrive properly delegates to Contact_Form_Plugin.
+	 *
+	 * This test ensures that calling the deprecated Admin method still works
+	 * by delegating to the new implementation in Contact_Form_Plugin.
+	 */
+	public function test_deprecated_admin_export_delegates_to_plugin() {
+		// Verify that the Admin method contains the proper delegation code
+		$reflection = new \ReflectionMethod( Admin::class, 'export_to_gdrive' );
+
+		// Get the method source code to verify it delegates to Contact_Form_Plugin
+		$filename   = $reflection->getFileName();
+		$start_line = $reflection->getStartLine();
+		$end_line   = $reflection->getEndLine();
+
+		$file_contents = file( $filename );
+		$method_source = implode( '', array_slice( $file_contents, $start_line - 1, $end_line - $start_line + 1 ) );
+
+		// Verify the method calls _deprecated_function with the correct replacement
+		$this->assertStringContainsString(
+			'Contact_Form_Plugin::init()->export_to_gdrive()',
+			$method_source,
+			'Admin::export_to_gdrive should reference Contact_Form_Plugin::init()->export_to_gdrive() in deprecation notice'
+		);
+
+		// Verify the method actually delegates to Contact_Form_Plugin
+		$this->assertStringContainsString(
+			'return Contact_Form_Plugin::init()->export_to_gdrive()',
+			$method_source,
+			'Admin::export_to_gdrive should delegate to Contact_Form_Plugin::init()->export_to_gdrive()'
+		);
+	}
 }
