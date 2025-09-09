@@ -1895,7 +1895,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 		}
 
-		if ( 'publish' === $feedback_status && $post_id ) {
+		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
 			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
 			update_option( 'feedback_unread_count', $unread );
@@ -1967,7 +1967,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Build the dashboard URL with the status and the feedback's post id if we have a post id
 		$dashboard_url           = '';
 		$footer_mark_as_spam_url = '';
-		if ( $post_id ) {
+		if ( $feedback_status !== 'temp' ) {
 			$dashboard_url           = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
 			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
 			$footer_mark_as_spam_url = sprintf(
