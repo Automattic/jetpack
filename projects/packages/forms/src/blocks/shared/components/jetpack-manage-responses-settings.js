@@ -4,7 +4,7 @@ import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view'
 import InspectorHint from './inspector-hint';
 
 const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
-	const { saveResponses = 'yes' } = attributes;
+	const { saveResponses = true } = attributes;
 
 	return (
 		<>
@@ -14,8 +14,8 @@ const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
 					'Store form submissions in your WordPress admin for review and export.',
 					'jetpack-forms'
 				) }
-				checked={ saveResponses === 'yes' }
-				onChange={ value => setAttributes( { saveResponses: value ? 'yes' : 'no' } ) }
+				checked={ saveResponses }
+				onChange={ value => setAttributes( { saveResponses: value } ) }
 				__nextHasNoMarginBottom={ true }
 			/>
 			<InspectorHint>

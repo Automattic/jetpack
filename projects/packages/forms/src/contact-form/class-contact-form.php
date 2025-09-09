@@ -191,6 +191,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
 
+		// Transform boolean saveResponses to string for backend compatibility
+		if ( isset( $attributes['saveResponses'] ) && is_bool( $attributes['saveResponses'] ) ) {
+			$attributes['saveResponses'] = $attributes['saveResponses'] ? 'yes' : 'no';
+		}
+
 		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = true;
 

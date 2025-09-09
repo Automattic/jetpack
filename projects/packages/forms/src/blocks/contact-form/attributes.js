@@ -53,7 +53,7 @@ export default {
 		},
 	},
 	saveResponses: {
-		type: 'string',
-		default: 'yes',
+		type: 'boolean',
+		default: true,
 	},
 };
