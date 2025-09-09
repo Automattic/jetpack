@@ -16,54 +16,10 @@ const settings = {
 		foreground: getIconColor(),
 		src: menu,
 	},
-	attributes: {
-		/*
-		style: {
-			type: 'object',
-			default: {
-				spacing: {
-					margin: { top: '10px' },
-				},
-			},
-		},
-		*/
-	},
 	supports: {
 		anchor: false,
 		reusable: false,
 		html: false,
-		/*
-		color: {
-			gradients: true,
-			heading: true,
-			button: true,
-			link: true,
-			__experimentalDefaultControls: {
-				background: true,
-				text: true,
-			},
-		},
-		spacing: {
-			margin: [ 'top' ],
-			padding: true,
-		},
-		dimensions: {
-			minHeight: true,
-			maxHeight: true, // Doesn't work :-(
-		},
-		__experimentalBorder: {
-			color: true,
-			radius: true,
-			style: true,
-			width: true,
-			__experimentalDefaultControls: {
-				color: true,
-				radius: true,
-				style: true,
-				width: true,
-			},
-		},
-		*/
 	},
 	edit,
 	save,
