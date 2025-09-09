@@ -360,6 +360,8 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	 * @return array Recent activity.
 	 */
 	private function get_recent_achievement_activity( int $user_id ): array {
+		// Suppress unused variable warning - parameter will be used in future implementation.
+		unset( $user_id );
 		// This would typically query the achievements table for recent entries
 		// For now, return placeholder data.
 		return array(
