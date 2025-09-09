@@ -241,13 +241,18 @@ class UserSitesExecutor implements ExecutorInterface {
 	 * @return mixed Sort value.
 	 */
 	private function get_sort_value( array $site, string $field ) {
-		return match ( $field ) {
-			'name' => $site['blogname'],
-			'url' => $site['site_url'],
-			'created' => $site['created_date'],
-			'updated' => $site['last_updated'],
-			default => '',
-		};
+		switch ( $field ) {
+			case 'name':
+				return $site['blogname'];
+			case 'url':
+				return $site['site_url'];
+			case 'created':
+				return $site['created_date'];
+			case 'updated':
+				return $site['last_updated'];
+			default:
+				return '';
+		}
 	}
 
 	/**
@@ -319,9 +324,9 @@ class UserSitesExecutor implements ExecutorInterface {
 	 */
 	private function generate_summary( array $sites ): array {
 		$total_sites    = count( $sites );
-		$active_sites   = count( array_filter( $sites, fn( $site ) => 'active' === $site['status'] ) );
-		$private_sites  = count( array_filter( $sites, fn( $site ) => $site['is_private'] ) );
-		$custom_domains = count( array_filter( $sites, fn( $site ) => $site['has_custom_domain'] ) );
+		$active_sites   = count( array_filter( $sites, array( $this, 'filter_active_sites' ) ) );
+		$private_sites  = count( array_filter( $sites, array( $this, 'filter_private_sites' ) ) );
+		$custom_domains = count( array_filter( $sites, array( $this, 'filter_custom_domains' ) ) );
 
 		return array(
 			'total_sites'    => $total_sites,
@@ -329,5 +334,35 @@ class UserSitesExecutor implements ExecutorInterface {
 			'private_sites'  => $private_sites,
 			'custom_domains' => $custom_domains,
 		);
+	}
+
+	/**
+	 * Filter function for active sites.
+	 *
+	 * @param array $site Site data.
+	 * @return bool True if site is active.
+	 */
+	private function filter_active_sites( array $site ): bool {
+		return 'active' === $site['status'];
+	}
+
+	/**
+	 * Filter function for private sites.
+	 *
+	 * @param array $site Site data.
+	 * @return bool True if site is private.
+	 */
+	private function filter_private_sites( array $site ): bool {
+		return $site['is_private'];
+	}
+
+	/**
+	 * Filter function for custom domains.
+	 *
+	 * @param array $site Site data.
+	 * @return bool True if site has custom domain.
+	 */
+	private function filter_custom_domains( array $site ): bool {
+		return $site['has_custom_domain'];
 	}
 }

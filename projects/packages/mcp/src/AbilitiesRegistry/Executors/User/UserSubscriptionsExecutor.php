@@ -33,14 +33,25 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 				return $action;
 			}
 
-			$result = match ( $action ) {
-				'list' => $this->list_subscriptions( $input ),
-				'get_details' => $this->get_subscription_details( $input['subscription_id'] ?? 0 ),
-				'get_billing_history' => $this->get_billing_history( $input['limit'] ?? 10 ),
-				'get_usage' => $this->get_usage_data(),
-				'get_payment_methods' => $this->get_payment_methods(),
-				default => $this->create_error( 'invalid_action', 'Invalid action specified' ),
-			};
+		switch ( $action ) {
+			case 'list':
+				$result = $this->list_subscriptions( $input );
+				break;
+			case 'get_details':
+				$result = $this->get_subscription_details( $input['subscription_id'] ?? 0 );
+				break;
+			case 'get_billing_history':
+				$result = $this->get_billing_history( $input['limit'] ?? 10 );
+				break;
+			case 'get_usage':
+				$result = $this->get_usage_data();
+				break;
+			case 'get_payment_methods':
+				$result = $this->get_payment_methods();
+				break;
+			default:
+				$result = $this->create_error( 'invalid_action', 'Invalid action specified' );
+		}
 
 			// Ensure we always return an array or WP_Error, never null.
 			if ( null === $result ) {
@@ -337,7 +348,12 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 	 */
 	private function generate_subscriptions_summary( array $subscriptions ): array {
 		$total_subscriptions  = count( $subscriptions );
-		$active_subscriptions = count( array_filter( $subscriptions, fn( $sub ) => 'active' === $sub['status'] ) );
+		$active_subscriptions = 0;
+		foreach ( $subscriptions as $sub ) {
+			if ( 'active' === $sub['status'] ) {
+				$active_subscriptions++;
+			}
+		}
 
 		$monthly_cost      = 0;
 		$yearly_cost       = 0;

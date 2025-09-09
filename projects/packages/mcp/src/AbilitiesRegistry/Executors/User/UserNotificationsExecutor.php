@@ -34,13 +34,18 @@ class UserNotificationsExecutor implements ExecutorInterface {
 				return $action;
 			}
 
-			return match ( $action ) {
-				'list' => $this->list_notification_settings( $input ),
-				'get_settings' => $this->get_notification_settings( $input ),
-				'get_devices' => $this->get_push_devices(),
-				'test_delivery' => $this->test_notification_delivery( $input ),
-				default => $this->create_error( 'invalid_action', 'Invalid action specified' ),
-			};
+		switch ( $action ) {
+			case 'list':
+				return $this->list_notification_settings( $input );
+			case 'get_settings':
+				return $this->get_notification_settings( $input );
+			case 'get_devices':
+				return $this->get_push_devices();
+			case 'test_delivery':
+				return $this->test_notification_delivery( $input );
+			default:
+				return $this->create_error( 'invalid_action', 'Invalid action specified' );
+		}
 		} catch ( Exception $e ) {
 			return $this->create_error(
 				'notifications_error',
@@ -69,7 +74,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 * @param array $input Input parameters.
 	 * @return WP_Error|array Settings list or error.
 	 */
-	private function list_notification_settings( array $input ): WP_Error|array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $input is required for interface compatibility
+	private function list_notification_settings( array $input ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $input is required for interface compatibility
 		$user_error = $this->validate_user_logged_in();
 		if ( $user_error ) {
 			return $user_error;

@@ -37,11 +37,14 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 				return $action;
 			}
 
-			return match ( $action ) {
-				'list' => $this->list_notifications( $input ),
-				'get_summary' => $this->get_notifications_summary( $input ),
-				default => $this->create_error( 'invalid_action', 'Invalid action specified' ),
-			};
+		switch ( $action ) {
+			case 'list':
+				return $this->list_notifications( $input );
+			case 'get_summary':
+				return $this->get_notifications_summary( $input );
+			default:
+				return $this->create_error( 'invalid_action', 'Invalid action specified' );
+		}
 		} catch ( Exception $e ) {
 			return $this->create_error(
 				'notifications_inbox_error',
@@ -576,7 +579,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @param mixed $note_subject The note subject data.
 	 * @return array Subject information.
 	 */
-	private function format_note_subject( mixed $note_subject ): array {
+	private function format_note_subject( $note_subject ): array {
 		$subject = array(
 			'text' => '',
 			'html' => '',
@@ -607,7 +610,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @param mixed $note_body The note body data.
 	 * @return array Body information.
 	 */
-	private function format_note_body( mixed $note_body ): array {
+	private function format_note_body( $note_body ): array {
 		$body = array(
 			'text' => '',
 			'html' => '',
@@ -894,7 +897,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 			if ( ! empty( $built_notes ) && is_array( $built_notes ) ) {
 				return $built_notes[0];
 			}
-		} catch ( Exception ) {
+		} catch ( Exception $e ) {
 			// Restore original user on error.
 			if ( isset( $current_user_id ) ) {
 				wp_set_current_user( $current_user_id );

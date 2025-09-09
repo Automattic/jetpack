@@ -34,12 +34,16 @@ class UserConnectionsExecutor implements ExecutorInterface {
 				return $action;
 			}
 
-			return match ( $action ) {
-				'list' => $this->list_connections( $input ),
-				'get' => $this->get_connection( $input['connection_id'] ?? 0 ),
-				'test' => $this->test_connection( $input['connection_id'] ?? 0 ),
-				default => $this->create_error( 'invalid_action', 'Invalid action specified' ),
-			};
+		switch ( $action ) {
+			case 'list':
+				return $this->list_connections( $input );
+			case 'get':
+				return $this->get_connection( $input['connection_id'] ?? 0 );
+			case 'test':
+				return $this->test_connection( $input['connection_id'] ?? 0 );
+			default:
+				return $this->create_error( 'invalid_action', 'Invalid action specified' );
+		}
 		} catch ( Exception $e ) {
 			return $this->create_error(
 				'connections_error',
@@ -109,7 +113,12 @@ class UserConnectionsExecutor implements ExecutorInterface {
 			return $connections;
 		}
 
-		$connection = array_filter( $connections, fn( $conn ) => $conn['id'] === $connection_id );
+		$connection = array();
+		foreach ( $connections as $conn ) {
+			if ( $conn['id'] === $connection_id ) {
+				$connection[] = $conn;
+			}
+		}
 
 		if ( empty( $connection ) ) {
 			return $this->create_error( 'connection_not_found', 'Connection not found', 404 );
@@ -236,18 +245,24 @@ class UserConnectionsExecutor implements ExecutorInterface {
 	private function apply_connection_filters( array $connections, array $params ): array {
 		// Filter by service.
 		if ( ! empty( $params['service'] ) ) {
-			$connections = array_filter(
-				$connections,
-				fn( $conn ) => $conn['service'] === $params['service']
-			);
+			$filtered = array();
+			foreach ( $connections as $conn ) {
+				if ( $conn['service'] === $params['service'] ) {
+					$filtered[] = $conn;
+				}
+			}
+			$connections = $filtered;
 		}
 
 		// Filter by status.
 		if ( ! empty( $params['status'] ) ) {
-			$connections = array_filter(
-				$connections,
-				fn( $conn ) => $conn['status'] === $params['status']
-			);
+			$filtered = array();
+			foreach ( $connections as $conn ) {
+				if ( $conn['status'] === $params['status'] ) {
+					$filtered[] = $conn;
+				}
+			}
+			$connections = $filtered;
 		}
 
 		return array_values( $connections );
@@ -262,7 +277,12 @@ class UserConnectionsExecutor implements ExecutorInterface {
 	 */
 	private function generate_connections_summary( array $connections ): array {
 		$total_connections  = count( $connections );
-		$active_connections = count( array_filter( $connections, fn( $conn ) => 'active' === $conn['status'] ) );
+		$active_connections = 0;
+		foreach ( $connections as $conn ) {
+			if ( 'active' === $conn['status'] ) {
+				$active_connections++;
+			}
+		}
 		$services_connected = array_unique( array_column( $connections, 'service' ) );
 
 		// Find most recent test date.
