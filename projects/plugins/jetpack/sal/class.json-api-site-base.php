@@ -1706,4 +1706,31 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	abstract public function is_pending_plan();
+
+	/**
+	 * Detect whether the site is a Garden site.
+	 *
+	 * @return bool
+	 */
+	public function is_garden() {
+		return false;
+	}
+
+	/**
+	 * Get the Garden name.
+	 *
+	 * @return string
+	 */
+	public function garden_name() {
+		return null;
+	}
+
+	/**
+	 * Get the Garden partner.
+	 *
+	 * @return string
+	 */
+	public function garden_partner() {
+		return null;
+	}
 }
