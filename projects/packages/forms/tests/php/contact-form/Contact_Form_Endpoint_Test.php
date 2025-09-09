@@ -424,7 +424,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			'siteURL',
 			'hasFeedback',
 			'hasAI',
-			'enableIntegrationsTab',
+			'isIntegrationsEnabled',
 			'renderMigrationPage',
 			'dashboardURL',
 			'canInstallPlugins',

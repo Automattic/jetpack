@@ -202,12 +202,12 @@ export type BlockEditorStoreSelect = {
 export interface FormsConfigData {
 	/** Whether MailPoet integration is enabled across contexts. */
 	isMailPoetEnabled?: boolean;
+	/** Whether integrations UI is enabled (feature-flagged). */
+	isIntegrationsEnabled?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */
 	canActivatePlugins?: boolean;
-	/** Whether to show the Integrations tab in the dashboard UI. */
-	enableIntegrationsTab?: boolean;
 	/** Whether to render the migration/announcement page instead of the main dashboard. */
 	renderMigrationPage?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */

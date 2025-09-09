@@ -1028,7 +1028,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'siteURL'                 => ( new Status() )->get_site_suffix(),
 			'hasFeedback'             => ( new Forms_Dashboard() )->has_feedback(),
 			'hasAI'                   => $has_ai,
-			'enableIntegrationsTab'   => apply_filters( 'jetpack_forms_enable_integrations_tab', true ),
+			'isIntegrationsEnabled'   => Jetpack_Forms::is_integrations_enabled(),
 			'renderMigrationPage'     => $switch->is_jetpack_forms_announcing_new_menu(),
 			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $switch->get_forms_admin_url() ),
 			// New data.

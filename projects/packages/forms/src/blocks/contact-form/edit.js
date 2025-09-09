@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useModuleStatus, hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -26,6 +26,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import useFormsConfig from '../../hooks/use-forms-config';
 import { store as singleStepStore } from '../../store/form-step-preview';
 import {
 	PREVIOUS_BUTTON_TEMPLATE,
@@ -98,7 +99,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		formTitle,
 		variationName,
 	} = attributes;
-	const showFormIntegrations = hasFeatureFlag( 'forms_integrations_enabled' );
+	const formsConfig = useFormsConfig();
+	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	const steps = useFormSteps( clientId );

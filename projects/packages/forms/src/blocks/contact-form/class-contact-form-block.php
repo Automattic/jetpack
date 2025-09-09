@@ -66,9 +66,6 @@ class Contact_Form_Block {
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 
-		// Whether to show integrations in the editor UI.
-		$features['forms_integrations_enabled'] = Jetpack_Forms::is_integrations_enabled();
-
 		return $features;
 	}
 

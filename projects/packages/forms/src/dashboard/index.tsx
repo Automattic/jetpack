@@ -49,14 +49,10 @@ window.addEventListener( 'load', () => {
 					path: 'responses',
 					element: <Inbox />,
 				},
-				...( config( 'enableIntegrationsTab' )
-					? [
-							{
-								path: 'integrations',
-								element: <Integrations />,
-							},
-					  ]
-					: [] ),
+				{
+					path: 'integrations',
+					element: <Integrations />,
+				},
 				{
 					path: 'about',
 					element: <About />,
