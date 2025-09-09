@@ -34,18 +34,18 @@ class UserNotificationsExecutor implements ExecutorInterface {
 				return $action;
 			}
 
-		switch ( $action ) {
-			case 'list':
-				return $this->list_notification_settings( $input );
-			case 'get_settings':
-				return $this->get_notification_settings( $input );
-			case 'get_devices':
-				return $this->get_push_devices();
-			case 'test_delivery':
-				return $this->test_notification_delivery( $input );
-			default:
-				return $this->create_error( 'invalid_action', 'Invalid action specified' );
-		}
+			switch ( $action ) {
+				case 'list':
+					return $this->list_notification_settings( $input );
+				case 'get_settings':
+					return $this->get_notification_settings( $input );
+				case 'get_devices':
+					return $this->get_push_devices();
+				case 'test_delivery':
+					return $this->test_notification_delivery( $input );
+				default:
+					return $this->create_error( 'invalid_action', 'Invalid action specified' );
+			}
 		} catch ( Exception $e ) {
 			return $this->create_error(
 				'notifications_error',

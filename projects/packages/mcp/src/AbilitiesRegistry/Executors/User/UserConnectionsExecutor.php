@@ -34,16 +34,16 @@ class UserConnectionsExecutor implements ExecutorInterface {
 				return $action;
 			}
 
-		switch ( $action ) {
-			case 'list':
-				return $this->list_connections( $input );
-			case 'get':
-				return $this->get_connection( $input['connection_id'] ?? 0 );
-			case 'test':
-				return $this->test_connection( $input['connection_id'] ?? 0 );
-			default:
-				return $this->create_error( 'invalid_action', 'Invalid action specified' );
-		}
+			switch ( $action ) {
+				case 'list':
+					return $this->list_connections( $input );
+				case 'get':
+					return $this->get_connection( $input['connection_id'] ?? 0 );
+				case 'test':
+					return $this->test_connection( $input['connection_id'] ?? 0 );
+				default:
+					return $this->create_error( 'invalid_action', 'Invalid action specified' );
+			}
 		} catch ( Exception $e ) {
 			return $this->create_error(
 				'connections_error',
@@ -280,7 +280,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 		$active_connections = 0;
 		foreach ( $connections as $conn ) {
 			if ( 'active' === $conn['status'] ) {
-				$active_connections++;
+				++$active_connections;
 			}
 		}
 		$services_connected = array_unique( array_column( $connections, 'service' ) );

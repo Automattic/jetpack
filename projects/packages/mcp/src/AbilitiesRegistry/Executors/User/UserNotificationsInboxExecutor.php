@@ -37,14 +37,14 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 				return $action;
 			}
 
-		switch ( $action ) {
-			case 'list':
-				return $this->list_notifications( $input );
-			case 'get_summary':
-				return $this->get_notifications_summary( $input );
-			default:
-				return $this->create_error( 'invalid_action', 'Invalid action specified' );
-		}
+			switch ( $action ) {
+				case 'list':
+					return $this->list_notifications( $input );
+				case 'get_summary':
+					return $this->get_notifications_summary( $input );
+				default:
+					return $this->create_error( 'invalid_action', 'Invalid action specified' );
+			}
 		} catch ( Exception $e ) {
 			return $this->create_error(
 				'notifications_inbox_error',

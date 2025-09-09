@@ -33,25 +33,25 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 				return $action;
 			}
 
-		switch ( $action ) {
-			case 'list':
-				$result = $this->list_subscriptions( $input );
-				break;
-			case 'get_details':
-				$result = $this->get_subscription_details( $input['subscription_id'] ?? 0 );
-				break;
-			case 'get_billing_history':
-				$result = $this->get_billing_history( $input['limit'] ?? 10 );
-				break;
-			case 'get_usage':
-				$result = $this->get_usage_data();
-				break;
-			case 'get_payment_methods':
-				$result = $this->get_payment_methods();
-				break;
-			default:
-				$result = $this->create_error( 'invalid_action', 'Invalid action specified' );
-		}
+			switch ( $action ) {
+				case 'list':
+					$result = $this->list_subscriptions( $input );
+					break;
+				case 'get_details':
+					$result = $this->get_subscription_details( $input['subscription_id'] ?? 0 );
+					break;
+				case 'get_billing_history':
+					$result = $this->get_billing_history( $input['limit'] ?? 10 );
+					break;
+				case 'get_usage':
+					$result = $this->get_usage_data();
+					break;
+				case 'get_payment_methods':
+					$result = $this->get_payment_methods();
+					break;
+				default:
+					$result = $this->create_error( 'invalid_action', 'Invalid action specified' );
+			}
 
 			// Ensure we always return an array or WP_Error, never null.
 			if ( null === $result ) {
@@ -351,7 +351,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 		$active_subscriptions = 0;
 		foreach ( $subscriptions as $sub ) {
 			if ( 'active' === $sub['status'] ) {
-				$active_subscriptions++;
+				++$active_subscriptions;
 			}
 		}
 
