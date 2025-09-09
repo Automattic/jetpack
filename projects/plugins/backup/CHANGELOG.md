@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - My Jetpack: Added analytics for empty product search results. [#44344]
 
 ### Changed
-- - Remove CRM installation nudge for Complete plan users. [#45026]
+- Remove CRM installation nudge for Complete plan users. [#45026]
 - My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
 - My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
 - My Jetpack: Unify the user connection flow with a unified screen. [#44469]

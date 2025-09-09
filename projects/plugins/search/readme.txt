@@ -122,32 +122,31 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 5.0.0 - 2025-06-10
+### 5.1.0 - 2025-09-09
 #### Added
-- Add more error logging.
-- Add My Jetpack tour.
-- Highlight search terms in returned search results.
+- Add archives endpoint support.
+- Add typecheck support for E2E tests.
+- My Jetpack: Add analytics for empty product search results.
 
 #### Changed
-- E2E Tests: Update config file encryption algorithm.
-- My Jetpack: Hide backup failure notice when backups are deactivated.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- My Jetpack: Update the onboarding UI, changing it to a single button.
+- Remove CRM installation nudge for Complete plan users.
+- E2E tests: Remove redundant logic in test fixture and convert the fixture to TypeScript.
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests.
+- My Jetpack: Enable access to My Jetpack on WP Multisite.
+- My Jetpack: Fix multisite availability check for restricted products and modules.
+- My Jetpack: Unify the user connection flow with a unified screen.
+- My Jetpack: Update Stats card to include a chart for better analytics.
+- Sync: Ignore the ActivityPub Outbox CPT.
 - Update package dependencies.
 
-#### Removed
-- Classic Themes: Replace the Core Search widget instead of adding a new widget to the main sidebar.
-- General: Update minimum WordPress version to 6.7.
-
 #### Fixed
-- Address `body_class` filter fatal in older versions of the Blaskan theme.
-- Block editor: Fix layout issues with the Media Library modal buttons.
-- Linting: Fix more Stylelint violations.
-- Mitigate bug with certain P2 themes.
-- My Jetpack: Fix Onboarding UI responsiveness at 600px.
-- My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Prevent social login from getting stuck when email input is not empty.
-- Protect against improper calls to `the_title()` filter.
+- Autoloader: Prevent double slash in autoloader path.
+- JITM: Fix ineffective caching due to expired plugin sync transient.
+- My Jetpack: Fix footer alignment for disconnected accounts.
+- My Jetpack: Prevent expiration alerts for products covered by active bundles.
+- My Jetpack: Restore plan purchase link.
+- Search: Ensure images are loaded efficiently when on https sites.
+- JITM: Remove jQuery dependency.
 
 == Testimonials ==
 

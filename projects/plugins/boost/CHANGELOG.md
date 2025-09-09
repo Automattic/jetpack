@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive. [#44633]
 - Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled. [#44445]
 - LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images [#44496]
-- My Jetpack: Fixing footer alignment for diconnected accounts. [#44468]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
 - My Jetpack: Prevent expiration alerts for products covered by active bundles [#44586]
 - My Jetpack: Restoring plan purchase link. [#44535]
 - Page Cache: Fix php warnings related to opcache calls when API is disabled. [#44629]
