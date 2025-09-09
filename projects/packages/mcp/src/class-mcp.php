@@ -28,6 +28,7 @@ class Mcp {
 		$loaded = true;
 
 		// Only load for Automatticians on WordPress.com.
+		// @phan-suppress-next-line PhanUndeclaredFunction
 		if ( ! function_exists( 'is_automattician' ) || ! is_automattician() ) {
 			return;
 		}
@@ -44,6 +45,7 @@ class Mcp {
 						$ability_class = AbilityRegistry::get_ability_class( $ability_name );
 
 						if ( $ability_class && class_exists( $ability_class ) ) {
+							// @phan-suppress-next-line PhanNoopNew
 							new $ability_class();
 						}
 					}
@@ -51,7 +53,6 @@ class Mcp {
 			);
 		}
 	}
-
 }
 
 // Initialize the package when Jetpack loads it.
