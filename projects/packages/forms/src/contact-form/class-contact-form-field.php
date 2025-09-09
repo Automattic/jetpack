@@ -3135,7 +3135,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Enqueues scripts and styles needed for the slider field.
 	 *
-	 * @since 5.1.0
+	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
