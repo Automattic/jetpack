@@ -233,6 +233,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 
 		foreach ( $achievements as $ach_id => $achievement_name ) {
 			if ( function_exists( 'user_achieved' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
 				$level = user_achieved( $ach_id, $user_id, $blog_id );
 				if ( $level > 0 ) {
 					$user_achievements[] = $this->format_achievement_data( $ach_id, $achievement_name, $level, $blog_id );
@@ -261,6 +262,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 
 		foreach ( $feats_list as $feat_id => $feat_name ) {
 			if ( function_exists( 'user_achieved_feat' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
 				$level = user_achieved_feat( $feat_id, $user_id, $blog_id );
 				if ( $level > 0 ) {
 					$user_feats[] = array(
@@ -291,6 +293,7 @@ class UserAchievementsExecutor implements ExecutorInterface {
 	private function format_achievement_data( int $ach_id, string $achievement_name, int $level, int $blog_id ): array {
 		$extras = array();
 		if ( function_exists( 'get_achievement_extras' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$extras = get_achievement_extras( $ach_id );
 		}
 

@@ -77,24 +77,31 @@ class PostsSearchExecutor implements ExecutorInterface {
 				// Only switch if it's a different site.
 				if ( $target_blog_id !== $original_blog_id ) {
 					// Check if site is restricted (using pattern from centralize.php).
-					if ( function_exists( 'is_suspended' ) && is_suspended( $target_blog_id ) ) {
-						return new WP_Error(
-							'site_suspended',
-							'This site has been suspended',
-							array( 'status' => 403 )
-						);
+					if ( function_exists( 'is_suspended' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredFunction
+						if ( is_suspended( $target_blog_id ) ) {
+							return new WP_Error(
+								'site_suspended',
+								'This site has been suspended',
+								array( 'status' => 403 )
+							);
+						}
 					}
 
 					// Check if site is confidential (A8C blogs only).
-					if ( function_exists( 'should_check_confidentiality' ) && should_check_confidentiality( $target_blog_id ) ) {
-						if ( function_exists( 'has_blog_sticker' ) ) {
-							$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
-							if ( ! $has_confidentiality_disabled ) {
-								return new WP_Error(
-									'site_confidential',
-									'This site is confidential and cannot be accessed',
-									array( 'status' => 403 )
-								);
+					if ( function_exists( 'should_check_confidentiality' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredFunction
+						if ( should_check_confidentiality( $target_blog_id ) ) {
+							if ( function_exists( 'has_blog_sticker' ) ) {
+								// @phan-suppress-next-line PhanUndeclaredFunction
+								$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
+								if ( ! $has_confidentiality_disabled ) {
+									return new WP_Error(
+										'site_confidential',
+										'This site is confidential and cannot be accessed',
+										array( 'status' => 403 )
+									);
+								}
 							}
 						}
 					}
@@ -182,23 +189,29 @@ class PostsSearchExecutor implements ExecutorInterface {
 			$target_blog_id = (int) $blog_details->blog_id;
 
 			// Check if the site is suspended or restricted.
-			if ( function_exists( 'is_suspended' ) && is_suspended( $target_blog_id ) ) {
-				return false;
+			if ( function_exists( 'is_suspended' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
+				if ( is_suspended( $target_blog_id ) ) {
+					return false;
+				}
 			}
 
 			// Check if site is confidential (A8C blogs only).
-			if ( function_exists( 'should_check_confidentiality' ) && should_check_confidentiality( $target_blog_id ) ) {
-				if ( function_exists( 'has_blog_sticker' ) ) {
-					$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
-					if ( ! $has_confidentiality_disabled ) {
-						return false;
+			if ( function_exists( 'should_check_confidentiality' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
+				if ( should_check_confidentiality( $target_blog_id ) ) {
+					if ( function_exists( 'has_blog_sticker' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredFunction
+						$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
+						if ( ! $has_confidentiality_disabled ) {
+							return false;
+						}
 					}
 				}
 			}
 
 			// Method 1: Use WordPress.com's current_user_can_for_site function if available.
 			if ( function_exists( 'current_user_can_for_site' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction
 				return current_user_can_for_site( $target_blog_id, 'read' );
 			}
 		}

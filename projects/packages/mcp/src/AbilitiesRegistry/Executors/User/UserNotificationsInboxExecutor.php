@@ -121,6 +121,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 		}
 
 		try {
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$raw_notes = notes_get( $notes_args );
 
 			if ( ! is_array( $raw_notes ) ) {
@@ -190,6 +191,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 
 		try {
 			// Get unread notifications.
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$unread_notes = notes_get(
 				array(
 					'user_id' => $current_user_id,
@@ -202,6 +204,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 			$unread_count = is_array( $unread_notes ) ? count( $unread_notes ) : 0;
 
 			// Get recent notifications for type breakdown.
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$recent_notes = notes_get(
 				array(
 					'user_id' => $current_user_id,
@@ -256,7 +259,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 	 * @return array|null Formatted notification or null if invalid.
 	 */
 	private function format_notification( object $note ): ?array {
-		if ( ! is_object( $note ) || ! isset( $note->id ) ) {
+		if ( ! isset( $note->id ) ) {
 			return null;
 		}
 
@@ -394,6 +397,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 		if ( 'gen_followed_note' === $note_callback && isset( $note->args['blog_id'] ) ) {
 			$blog_id = (int) $note->args['blog_id'];
 			if ( $blog_id > 0 && function_exists( 'wpcom_subs_get_wpcom_subscribers_of_blog' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
 				$followers = wpcom_subs_get_wpcom_subscribers_of_blog( array( 'blog_id' => $blog_id ) );
 				if ( ! empty( $followers ) && is_array( $followers ) ) {
 					// Return the most recent follower.

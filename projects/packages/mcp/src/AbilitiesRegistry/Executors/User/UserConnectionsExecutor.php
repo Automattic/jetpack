@@ -126,7 +126,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 
 		return array(
 			'success'    => true,
-			'connection' => array_values( $connection )[0],
+			'connection' => $connection[0],
 		);
 	}
 

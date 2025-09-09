@@ -93,15 +93,19 @@ class UserNotificationsExecutor implements ExecutorInterface {
 
 		// Initialize notification settings helper if available.
 		if ( class_exists( 'Notification_Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$notification_settings = new Notification_Settings();
 			$user_attributes       = array();
 
 			// Get all notification-related user attributes.
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$all_attributes = $notification_settings->get_user_attributes_for_notifications( $current_user_id );
 			foreach ( $all_attributes as $attr ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
 				$user_attributes[ $attr ] = get_user_attribute( $current_user_id, $attr );
 			}
 
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$settings = $notification_settings->get_settings( $user_sites, $devices, $user_attributes, null );
 		} else {
 			// Fallback to basic settings.
@@ -219,8 +223,10 @@ class UserNotificationsExecutor implements ExecutorInterface {
 	 */
 	private function get_user_push_devices( int $user_id ): array {
 		if ( class_exists( 'Notification_Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$notification_settings = new Notification_Settings();
-			$devices               = $notification_settings->get_mobile_push_tokens_of_user( $user_id );
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$devices = $notification_settings->get_mobile_push_tokens_of_user( $user_id );
 
 			return array_map(
 				function ( $device ) {

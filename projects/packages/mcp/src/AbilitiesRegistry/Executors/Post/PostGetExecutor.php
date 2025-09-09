@@ -256,7 +256,6 @@ class PostGetExecutor implements ExecutorInterface {
 
 			// Check permissions for the target site.
 			if ( function_exists( 'current_user_can_for_site' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction
 				return current_user_can_for_site( $target_blog_id, 'read' );
 			}
 		}
