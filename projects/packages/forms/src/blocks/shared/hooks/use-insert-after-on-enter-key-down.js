@@ -3,7 +3,7 @@ import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 
-export default function ( clientId, isParent = false, defaultBlockName ) {
+export default function ( clientId, isParent = false ) {
 	const { fieldParentId, parentIndex, formParentId } = useSelect(
 		select => {
 			const blockEditor = select( blockEditorStore );
@@ -40,12 +40,12 @@ export default function ( clientId, isParent = false, defaultBlockName ) {
 			) {
 				event.preventDefault();
 				insertBlock(
-					createBlock( defaultBlockName || getDefaultBlockName() ),
+					createBlock( getDefaultBlockName() ),
 					parentIndex + 1,
 					formParentId // Insert in the same context as the field block.
 				);
 			}
 		},
-		[ insertBlock, fieldParentId, formParentId, parentIndex, defaultBlockName ]
+		[ insertBlock, fieldParentId, formParentId, parentIndex ]
 	);
 }

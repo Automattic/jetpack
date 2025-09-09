@@ -1,12 +1,10 @@
 import {
-	InspectorControls,
 	store as blockEditorStore,
 	useBlockProps,
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
-import { PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useRef } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
@@ -37,7 +35,6 @@ export default function DropdownFieldEdit( props ) {
 		style: blockStyle,
 	} );
 
-	const optionsWrapper = useRef( undefined );
 	useFormWrapper( { attributes, clientId, name } );
 
 	const template = useMemo( () => {
@@ -59,14 +56,7 @@ export default function DropdownFieldEdit( props ) {
 			templateLock: 'all',
 		}
 	);
-	/*
-	const optionWrapperStyles = {
-		className: 'jetpack-field-dropdown__popover',
-	};
 
-	const changeFocus = ( index, cursorToEnd ) =>
-		setFocus( optionsWrapper.current, '[role=textbox]', index, cursorToEnd );
-*/
 	return (
 		<>
 			<div { ...blockProps }>
@@ -79,15 +69,6 @@ export default function DropdownFieldEdit( props ) {
 					width={ width }
 					type="dropdown"
 				/>
-				<InspectorControls>
-					<PanelBody title={ __( 'Options', 'jetpack-forms' ) }>
-						{ options.filter( opt => opt ).length && (
-							<ul>
-								{ options.map( ( option, index ) => ( option ? <li>{ option }</li> : null ) ) }
-							</ul>
-						) }
-					</PanelBody>
-				</InspectorControls>
 			</div>
 		</>
 	);
