@@ -69,6 +69,14 @@ const Integrations = () => {
 	const findIntegrationById = ( id: string ) =>
 		integrations?.find( ( integration: Integration ) => integration.id === id );
 
+	// Cache lookups per integration; cards render only when data exists
+	const akismetData = findIntegrationById( 'akismet' );
+	const googleDriveData = findIntegrationById( 'google-drive' );
+	const crmData = findIntegrationById( 'zero-bs-crm' );
+	const mailpoetData = findIntegrationById( 'mailpoet' );
+	const salesforceData = findIntegrationById( 'salesforce' );
+	const creativeMailData = findIntegrationById( 'creative-mail-by-constant-contact' );
+
 	return (
 		<div className="jp-forms__integrations">
 			<div className="jp-forms__integrations-wrapper">
@@ -84,45 +92,55 @@ const Integrations = () => {
 					</div>
 				</div>
 				<div className="jp-forms__integrations-body">
-					<AkismetDashboardCard
-						isExpanded={ expandedCards.akismet }
-						onToggle={ handleToggleAkismet }
-						data={ findIntegrationById( 'akismet' ) }
-						refreshStatus={ refreshIntegrations }
-					/>
-					<GoogleSheetsDashboardCard
-						isExpanded={ expandedCards.googleSheets }
-						onToggle={ handleToggleGoogleSheets }
-						data={ findIntegrationById( 'google-drive' ) }
-						refreshStatus={ refreshIntegrations }
-					/>
-					<JetpackCRMDashboardCard
-						isExpanded={ expandedCards.crm }
-						onToggle={ handleToggleCRM }
-						data={ findIntegrationById( 'zero-bs-crm' ) }
-						refreshStatus={ refreshIntegrations }
-					/>
-					{ isMailpoetEnabled && (
-						<MailPoetDashboardCard
-							isExpanded={ expandedCards.mailpoet }
-							onToggle={ handleToggleMailPoet }
-							data={ findIntegrationById( 'mailpoet' ) }
+					{ akismetData && (
+						<AkismetDashboardCard
+							isExpanded={ expandedCards.akismet }
+							onToggle={ handleToggleAkismet }
+							data={ akismetData }
 							refreshStatus={ refreshIntegrations }
 						/>
 					) }
-					<SalesforceDashboardCard
-						isExpanded={ expandedCards.salesforce }
-						onToggle={ handleToggleSalesforce }
-						data={ findIntegrationById( 'salesforce' ) }
-						refreshStatus={ refreshIntegrations }
-					/>
-					<CreativeMailDashboardCard
-						isExpanded={ expandedCards.creativemail }
-						onToggle={ handleToggleCreativeMail }
-						data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
-						refreshStatus={ refreshIntegrations }
-						borderBottom={ false }
-					/>
+					{ googleDriveData && (
+						<GoogleSheetsDashboardCard
+							isExpanded={ expandedCards.googleSheets }
+							onToggle={ handleToggleGoogleSheets }
+							data={ googleDriveData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ crmData && (
+						<JetpackCRMDashboardCard
+							isExpanded={ expandedCards.crm }
+							onToggle={ handleToggleCRM }
+							data={ crmData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ isMailpoetEnabled && mailpoetData && (
+						<MailPoetDashboardCard
+							isExpanded={ expandedCards.mailpoet }
+							onToggle={ handleToggleMailPoet }
+							data={ mailpoetData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ salesforceData && (
+						<SalesforceDashboardCard
+							isExpanded={ expandedCards.salesforce }
+							onToggle={ handleToggleSalesforce }
+							data={ salesforceData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ creativeMailData && (
+						<CreativeMailDashboardCard
+							isExpanded={ expandedCards.creativemail }
+							onToggle={ handleToggleCreativeMail }
+							data={ creativeMailData }
+							refreshStatus={ refreshIntegrations }
+							borderBottom={ false }
+						/>
+					) }
 				</div>
 			</div>
 		</div>

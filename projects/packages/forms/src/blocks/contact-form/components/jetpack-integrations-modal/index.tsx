@@ -46,6 +46,17 @@ const IntegrationsModal = ( {
 
 	const isMailPoetEnabled = Boolean( config?.isMailPoetEnabled );
 
+	const findIntegrationById = ( id: string ) =>
+		integrationsData?.find( ( integration: Integration ) => integration.id === id );
+
+	// Cache lookups for readability and to avoid repeated finds
+	const akismetData = findIntegrationById( 'akismet' );
+	const googleDriveData = findIntegrationById( 'google-drive' );
+	const crmData = findIntegrationById( 'zero-bs-crm' );
+	const mailpoetData = findIntegrationById( 'mailpoet' );
+	const salesforceData = findIntegrationById( 'salesforce' );
+	const creativeMailData = findIntegrationById( 'creative-mail-by-constant-contact' );
+
 	const toggleCard = ( cardId: string ) => {
 		setExpandedCards( prev => {
 			const isExpanding = ! prev[ cardId ];
@@ -64,8 +75,7 @@ const IntegrationsModal = ( {
 		} );
 	};
 
-	const findIntegrationById = ( id: string ) =>
-		integrationsData?.find( ( integration: Integration ) => integration.id === id );
+	// findIntegrationById defined above
 
 	return (
 		<Modal
@@ -75,51 +85,61 @@ const IntegrationsModal = ( {
 			className="jetpack-forms-integrations-modal"
 		>
 			<VStack spacing="4">
-				<AkismetCard
-					isExpanded={ expandedCards.akismet }
-					onToggle={ () => toggleCard( 'akismet' ) }
-					data={ findIntegrationById( 'akismet' ) }
-					refreshStatus={ refreshIntegrations }
-				/>
-				<GoogleSheetsCard
-					isExpanded={ expandedCards.googleSheets }
-					onToggle={ () => toggleCard( 'googleSheets' ) }
-					data={ findIntegrationById( 'google-drive' ) }
-					refreshStatus={ refreshIntegrations }
-				/>
-				<JetpackCRMCard
-					isExpanded={ expandedCards.crm }
-					onToggle={ () => toggleCard( 'crm' ) }
-					jetpackCRM={ attributes.jetpackCRM }
-					setAttributes={ setAttributes }
-					data={ findIntegrationById( 'zero-bs-crm' ) }
-					refreshStatus={ refreshIntegrations }
-				/>
-				{ isMailPoetEnabled && (
+				{ akismetData && (
+					<AkismetCard
+						isExpanded={ expandedCards.akismet }
+						onToggle={ () => toggleCard( 'akismet' ) }
+						data={ akismetData }
+						refreshStatus={ refreshIntegrations }
+					/>
+				) }
+				{ googleDriveData && (
+					<GoogleSheetsCard
+						isExpanded={ expandedCards.googleSheets }
+						onToggle={ () => toggleCard( 'googleSheets' ) }
+						data={ googleDriveData }
+						refreshStatus={ refreshIntegrations }
+					/>
+				) }
+				{ crmData && (
+					<JetpackCRMCard
+						isExpanded={ expandedCards.crm }
+						onToggle={ () => toggleCard( 'crm' ) }
+						jetpackCRM={ attributes.jetpackCRM }
+						setAttributes={ setAttributes }
+						data={ crmData }
+						refreshStatus={ refreshIntegrations }
+					/>
+				) }
+				{ isMailPoetEnabled && mailpoetData && (
 					<MailPoetCard
 						isExpanded={ expandedCards.mailpoet }
 						onToggle={ () => toggleCard( 'mailpoet' ) }
-						data={ findIntegrationById( 'mailpoet' ) }
+						data={ mailpoetData }
 						refreshStatus={ refreshIntegrations }
 						mailpoet={ attributes.mailpoet }
 						setAttributes={ setAttributes }
 					/>
 				) }
-				<SalesforceCard
-					isExpanded={ expandedCards.salesforce }
-					onToggle={ () => toggleCard( 'salesforce' ) }
-					data={ findIntegrationById( 'salesforce' ) }
-					refreshStatus={ refreshIntegrations }
-					salesforceData={ attributes.salesforceData }
-					setAttributes={ setAttributes }
-				/>
-				<CreativeMailCard
-					isExpanded={ expandedCards.creativemail }
-					onToggle={ () => toggleCard( 'creativemail' ) }
-					data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
-					refreshStatus={ refreshIntegrations }
-					borderBottom={ false }
-				/>
+				{ salesforceData && (
+					<SalesforceCard
+						isExpanded={ expandedCards.salesforce }
+						onToggle={ () => toggleCard( 'salesforce' ) }
+						data={ salesforceData }
+						refreshStatus={ refreshIntegrations }
+						salesforceData={ attributes.salesforceData }
+						setAttributes={ setAttributes }
+					/>
+				) }
+				{ creativeMailData && (
+					<CreativeMailCard
+						isExpanded={ expandedCards.creativemail }
+						onToggle={ () => toggleCard( 'creativemail' ) }
+						data={ creativeMailData }
+						refreshStatus={ refreshIntegrations }
+						borderBottom={ false }
+					/>
+				) }
 			</VStack>
 		</Modal>
 	);
