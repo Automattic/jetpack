@@ -37,6 +37,7 @@ class SiteMetricsHelper {
 		$storage_used_bytes  = 0;
 		$storage_limit_bytes = 0;
 		if ( function_exists( 'get_space_used_bytes' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$storage_used_bytes = get_space_used_bytes( $blog_id );
 		}
 		if ( function_exists( 'get_space_allowed' ) ) {
@@ -170,6 +171,7 @@ class SiteMetricsHelper {
 
 		// Try to get stats using WordPress.com stats functions
 		if ( function_exists( 'stats_get_new_history' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$views = stats_get_new_history( false, $blog_id, 'views', false, gmdate( 'Y-m-d' ), $days, '', 0, false, false, true );
 			if ( $views && ! is_wp_error( $views ) ) {
 				$stats['views']           = (int) $views;

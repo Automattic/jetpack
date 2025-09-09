@@ -488,7 +488,7 @@ class UserProfileExecutor implements ExecutorInterface {
 		 * @return array|null Most active site information.
 		 */
 	private function get_most_active_site( WP_User $user, ?array $user_sites ): ?array {
-		if ( ! $user_sites || empty( $user_sites ) ) {
+		if ( ! $user_sites ) {
 			return null;
 		}
 
@@ -511,8 +511,8 @@ class UserProfileExecutor implements ExecutorInterface {
 		/**
 		 * Get publishing frequency.
 		 *
-		 * @param WP_User $user The user object.
-		 * @param array   $user_sites Array of user sites.
+		 * @param WP_User    $user The user object.
+		 * @param array|null $user_sites Array of user sites.
 		 * @return string Publishing frequency.
 		 */
 	private function get_publishing_frequency( WP_User $user, ?array $user_sites ): string { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user and $user_sites will be used in future implementation
@@ -523,8 +523,8 @@ class UserProfileExecutor implements ExecutorInterface {
 		/**
 		 * Get total views across all sites.
 		 *
-		 * @param WP_User $user The user object.
-		 * @param array   $user_sites Array of user sites.
+		 * @param WP_User    $user The user object.
+		 * @param array|null $user_sites Array of user sites.
 		 * @return int Total views.
 		 */
 	private function get_total_views( WP_User $user, ?array $user_sites ): int { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user and $user_sites will be used in future implementation
@@ -535,8 +535,8 @@ class UserProfileExecutor implements ExecutorInterface {
 		/**
 		 * Get total visitors across all sites.
 		 *
-		 * @param WP_User $user The user object.
-		 * @param array   $user_sites Array of user sites.
+		 * @param WP_User    $user The user object.
+		 * @param array|null $user_sites Array of user sites.
 		 * @return int Total visitors.
 		 */
 	private function get_total_visitors( WP_User $user, ?array $user_sites ): int { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user and $user_sites will be used in future implementation

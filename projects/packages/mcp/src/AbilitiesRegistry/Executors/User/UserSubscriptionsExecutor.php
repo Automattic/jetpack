@@ -104,6 +104,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 		// Get subscriptions using WordPress.com Store functions if available.
 		$subscriptions = array();
 		if ( class_exists( 'WPCOM_Store' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$all_subscriptions = \WPCOM_Store::get_subscriptions( null, $current_user_id );
 
 			if ( is_array( $all_subscriptions ) ) {
@@ -152,6 +153,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 
 		// Get specific subscription.
 		if ( class_exists( 'WPCOM_Store' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$subscription = \WPCOM_Store::get_subscription( $subscription_id );
 
 			if ( ! $subscription || $subscription->get_user_id() !== $current_user_id ) {
