@@ -1,6 +1,6 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Interfaces;
+namespace Automattic\Jetpack\AbilitiesRegistry\Interfaces;
 
 use WP_Error;
 

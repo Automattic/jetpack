@@ -1,6 +1,6 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Helpers;
+namespace Automattic\Jetpack\AbilitiesRegistry\Helpers;
 
 /**
  * Helper class for retrieving site metrics and health data

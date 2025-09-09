@@ -87,6 +87,7 @@ class Ability_Registry_Test extends TestCase {
 		// Verify all returned tools are actually tools
 		foreach ( $tools as $tool_name ) {
 			$metadata = AbilityRegistry::get_metadata( $tool_name );
+			$this->assertNotNull( $metadata, "Metadata should not be null for tool: $tool_name" );
 			$this->assertEquals( 'tool', $metadata['type'] );
 			$this->assertContains( 'default', $metadata['servers'] );
 		}
@@ -103,6 +104,7 @@ class Ability_Registry_Test extends TestCase {
 		// Verify all returned resources are actually resources
 		foreach ( $resources as $resource_name ) {
 			$metadata = AbilityRegistry::get_metadata( $resource_name );
+			$this->assertNotNull( $metadata, "Metadata should not be null for resource: $resource_name" );
 			$this->assertEquals( 'resource', $metadata['type'] );
 			$this->assertContains( 'default', $metadata['servers'] );
 		}
@@ -119,6 +121,7 @@ class Ability_Registry_Test extends TestCase {
 		// Verify all returned prompts are actually prompts
 		foreach ( $prompts as $prompt_name ) {
 			$metadata = AbilityRegistry::get_metadata( $prompt_name );
+			$this->assertNotNull( $metadata, "Metadata should not be null for prompt: $prompt_name" );
 			$this->assertEquals( 'prompt', $metadata['type'] );
 			$this->assertContains( 'default', $metadata['servers'] );
 		}

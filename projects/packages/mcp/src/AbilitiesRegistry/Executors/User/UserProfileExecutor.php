@@ -1,9 +1,9 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Executors\User;
+namespace Automattic\Jetpack\AbilitiesRegistry\Executors\User;
 
-use Automattic\WpcomMcp\AbilitiesRegistry\Interfaces\ExecutorInterface;
-use Automattic\WpcomMcp\AbilitiesRegistry\Traits\UserContextTrait;
+use Automattic\Jetpack\AbilitiesRegistry\Interfaces\ExecutorInterface;
+use Automattic\Jetpack\AbilitiesRegistry\Traits\UserContextTrait;
 use WP_Error;
 use WP_User;
 

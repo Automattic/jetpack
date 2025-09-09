@@ -1,9 +1,9 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Executors\Post;
+namespace Automattic\Jetpack\AbilitiesRegistry\Executors\Post;
 
-use Automattic\WpcomMcp\AbilitiesRegistry\Helpers\PostQueryHelper;
-use Automattic\WpcomMcp\AbilitiesRegistry\Interfaces\ExecutorInterface;
+use Automattic\Jetpack\AbilitiesRegistry\Helpers\PostQueryHelper;
+use Automattic\Jetpack\AbilitiesRegistry\Interfaces\ExecutorInterface;
 use Exception;
 use WP_Error;
 

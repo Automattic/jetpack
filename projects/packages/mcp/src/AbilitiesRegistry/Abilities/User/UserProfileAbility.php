@@ -1,9 +1,9 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Abilities\User;
+namespace Automattic\Jetpack\AbilitiesRegistry\Abilities\User;
 
-use Automattic\WpcomMcp\AbilitiesRegistry\Interfaces\AbilityInterface;
-use Automattic\WpcomMcp\AbilitiesRegistry\Traits\AbilityTrait;
+use Automattic\Jetpack\AbilitiesRegistry\Interfaces\AbilityInterface;
+use Automattic\Jetpack\AbilitiesRegistry\Traits\AbilityTrait;
 
 /**
  * User Profile Ability Class

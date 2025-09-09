@@ -1,6 +1,6 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Helpers;
+namespace Automattic\Jetpack\AbilitiesRegistry\Helpers;
 
 use WP_Post;
 use WP_Query;

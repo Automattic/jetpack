@@ -1,9 +1,9 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Abilities\Analytics;
+namespace Automattic\Jetpack\AbilitiesRegistry\Abilities\Analytics;
 
-use Automattic\WpcomMcp\AbilitiesRegistry\Interfaces\AbilityInterface;
-use Automattic\WpcomMcp\AbilitiesRegistry\Traits\AbilityTrait;
+use Automattic\Jetpack\AbilitiesRegistry\Interfaces\AbilityInterface;
+use Automattic\Jetpack\AbilitiesRegistry\Traits\AbilityTrait;
 
 /**
  * Site Statistics Ability Class

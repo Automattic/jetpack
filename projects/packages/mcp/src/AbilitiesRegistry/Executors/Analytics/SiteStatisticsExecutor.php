@@ -1,10 +1,10 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Executors\Analytics;
+namespace Automattic\Jetpack\AbilitiesRegistry\Executors\Analytics;
 
-use Automattic\WpcomMcp\AbilitiesRegistry\Helpers\SiteMetricsHelper;
-use Automattic\WpcomMcp\AbilitiesRegistry\Interfaces\ExecutorInterface;
-use Automattic\WpcomMcp\AbilitiesRegistry\Traits\UserContextTrait;
+use Automattic\Jetpack\AbilitiesRegistry\Helpers\SiteMetricsHelper;
+use Automattic\Jetpack\AbilitiesRegistry\Interfaces\ExecutorInterface;
+use Automattic\Jetpack\AbilitiesRegistry\Traits\UserContextTrait;
 use Exception;
 use WP_Error;
 

@@ -1,9 +1,9 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Abilities\Post;
+namespace Automattic\Jetpack\AbilitiesRegistry\Abilities\Post;
 
-use Automattic\WpcomMcp\AbilitiesRegistry\Interfaces\AbilityInterface;
-use Automattic\WpcomMcp\AbilitiesRegistry\Traits\AbilityTrait;
+use Automattic\Jetpack\AbilitiesRegistry\Interfaces\AbilityInterface;
+use Automattic\Jetpack\AbilitiesRegistry\Traits\AbilityTrait;
 
 /**
  * Posts Search Ability Class

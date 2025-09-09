@@ -1,11 +1,11 @@
 <?php // phpcs:ignore
 
-namespace Automattic\WpcomMcp\AbilitiesRegistry\Executors\User;
+namespace Automattic\Jetpack\AbilitiesRegistry\Executors\User;
 
-use Automattic\WpcomMcp\AbilitiesRegistry\Helpers\SiteMetricsHelper;
-use Automattic\WpcomMcp\AbilitiesRegistry\Helpers\ValidationHelper;
-use Automattic\WpcomMcp\AbilitiesRegistry\Interfaces\ExecutorInterface;
-use Automattic\WpcomMcp\AbilitiesRegistry\Traits\UserContextTrait;
+use Automattic\Jetpack\AbilitiesRegistry\Helpers\SiteMetricsHelper;
+use Automattic\Jetpack\AbilitiesRegistry\Helpers\ValidationHelper;
+use Automattic\Jetpack\AbilitiesRegistry\Interfaces\ExecutorInterface;
+use Automattic\Jetpack\AbilitiesRegistry\Traits\UserContextTrait;
 use Exception;
 use WP_Error;
 
