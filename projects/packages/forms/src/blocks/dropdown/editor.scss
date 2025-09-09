@@ -1,6 +1,15 @@
 .wp-block-jetpack-dropdown {
+	display: none;
 
 	p {
-		margin-bottom: 10px
+		margin-bottom: 10px;
+	}
+}
+
+.is-selected,
+.has-child-selected {
+
+	.wp-block-jetpack-dropdown {
+		display: block;
 	}
 }
