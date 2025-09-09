@@ -52,13 +52,7 @@ class Mcp {
 		}
 	}
 
-	/**
-	 * Initialize the package when Jetpack loads it.
-	 */
-	public static function package_init(): void {
-		self::init();
-	}
 }
 
 // Initialize the package when Jetpack loads it.
-add_action( 'plugins_loaded', array( Mcp::class, 'package_init' ) );
+add_action( 'plugins_loaded', array( Mcp::class, 'init' ) );
