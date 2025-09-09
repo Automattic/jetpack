@@ -10,11 +10,13 @@ import save from './save';
 const name = 'field-select';
 const settings = {
 	...defaultSettings,
+	allowedBlocks: [ 'jetpack/label', 'jetpack/dropdown' ],
 	title: __( 'Dropdown field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Choose', 'jetpack-forms' ),
 		__( 'Dropdown', 'jetpack-forms' ),
 		__( 'Option', 'jetpack-forms' ),
+		__( 'Select', 'jetpack-forms' ),
 	],
 	description: __(
 		'Add a compact select box, that when expanded, allows visitors to choose one value from the list.',

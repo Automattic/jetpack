@@ -57,6 +57,9 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 		return (
 			<div { ...blockProps }>
 				<RichText
+					aria-label={ __( 'Dropdown text', 'jetpack-forms' ) }
+					disableLineBreaks
+					identifier="placeholder"
 					allowedFormats={ ALLOWED_FORMATS }
 					onChange={ value => setAttributes( { placeholder: value } ) }
 					value={ placeholder ? placeholder : __( 'Select one option', 'jetpack-forms' ) }
