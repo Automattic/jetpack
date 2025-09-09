@@ -21,6 +21,7 @@ import { useSearchParams } from 'react-router';
  */
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import useInboxData from '../../hooks/use-inbox-data';
+import EmptyResponses from '../empty-responses';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
@@ -328,6 +329,7 @@ export default function InboxView() {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 					header={ <InboxStatusToggle onChange={ resetPage } /> }
+					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
 				/>
 			</div>
 			<SingleResponse

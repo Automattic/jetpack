@@ -168,6 +168,22 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests the render output of gutenblock_render_field_hidden.
+	 */
+	public function test_gutenblock_render_field_hidden_shortcode() {
+		// Test with attributes passed directly to the method
+		$atts = array(
+			'name'  => 'hidden_field',
+			'value' => 'hidden_value',
+		);
+
+		$shortcode = Contact_Form_Plugin::gutenblock_render_field_hidden( $atts, '' );
+		$expected  = '[contact-field name="hidden_field" value="hidden_value" type="hidden"/]';
+
+		$this->assertEquals( $expected, $shortcode );
+	}
+
+	/**
 	 * Tests the render output of gutenblock_render_field_text.
 	 */
 	public function test_gutenblock_gutenblock_render_field_text_shortcode() {

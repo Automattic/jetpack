@@ -141,7 +141,7 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: () => (
+	render: args => (
 		<div
 			style={ {
 				display: 'grid',
@@ -154,20 +154,24 @@ export const WithCompositionLegend: Story = {
 				<h3>Traditional Props-based Legend</h3>
 				<PieChart
 					size={ 300 }
-					data={ data }
+					data={ args.data }
 					showLegend={ true }
 					legendPosition="bottom"
 					legendOrientation="horizontal"
+					legendValueDisplay={ args.legendValueDisplay }
 				/>
 			</div>
 			<div>
 				<h3>Composition API with Legend Component</h3>
-				<PieChart size={ 300 } data={ data }>
+				<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
 					<PieChart.Legend position="bottom" orientation="horizontal" alignment="center" />
 				</PieChart>
 			</div>
 		</div>
 	),
+	args: {
+		data,
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -239,8 +243,8 @@ export const Responsiveness: Story = {
 };
 
 export const CompositionAPI: Story = {
-	render: () => {
-		const chartData = [
+	render: args => {
+		const chartData = args.data || [
 			{ label: 'Desktop', value: 45, percentage: 45 },
 			{ label: 'Mobile', value: 30, percentage: 30 },
 			{ label: 'Tablet', value: 25, percentage: 25 },
@@ -253,6 +257,7 @@ export const CompositionAPI: Story = {
 					size={ 400 }
 					withTooltips={ true }
 					thickness={ 0.7 }
+					legendValueDisplay={ args.legendValueDisplay || 'value' }
 				>
 					<PieChartUnresponsive.HTML>
 						<h3 style={ { textAlign: 'center', marginBottom: '20px' } }>
@@ -303,6 +308,9 @@ export const CompositionAPI: Story = {
 				</PieChartUnresponsive>
 			</div>
 		);
+	},
+	args: {
+		data,
 	},
 	parameters: {
 		docs: {

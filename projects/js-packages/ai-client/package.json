@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-ai-client",
-	"version": "0.33.10",
+	"version": "0.33.11",
 	"private": false,
 	"description": "A JS client for consuming Jetpack AI services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
@@ -74,6 +74,6 @@
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
 		"storybook": "9.0.15",
-		"typescript": "5.8.3"
+		"typescript": "5.9.2"
 	}
 }

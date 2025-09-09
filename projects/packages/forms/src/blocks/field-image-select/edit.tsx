@@ -26,6 +26,8 @@ import './editor.scss';
  */
 import type { Block, BlockEditorStoreSelect } from '../../types';
 
+const showOtherOption = false;
+
 export default function ImageSelectFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes, name } = props;
 	const { id, required, width } = attributes;
@@ -151,7 +153,7 @@ export default function ImageSelectFieldEdit( props ) {
 							/>
 						),
 					},
-					{
+					showOtherOption && {
 						index: 5,
 						element: (
 							<ToggleControl

@@ -51,6 +51,7 @@ const setSubmissionData = ( data = [] ) => {
 	context.formattedSubmissionData = data.map( item => ( {
 		label: maybeAddColonToLabel( item.label ),
 		value: maybeTransformValue( item.value ),
+		images: getImages( item.value ),
 	} ) );
 };
 
@@ -103,12 +104,27 @@ const maybeAddColonToLabel = label => {
 };
 
 const maybeTransformValue = value => {
+	// For image select fields, we want to show the perceived values, as the choices can be shuffled.
+	if ( value?.type === 'image-select' ) {
+		return value.choices.map( choice => choice.perceived ).join( ', ' );
+	}
+
 	// For file upload fields, we want to show the file name and size
 	if ( value?.name && value?.size ) {
 		return value.name + ' (' + value.size + ')';
 	}
 
 	return value;
+};
+
+const getImages = value => {
+	if ( value?.type === 'image-select' ) {
+		return value.choices.map(
+			choice => choice.image?.src || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
+		);
+	}
+
+	return null;
 };
 
 const { state, actions } = store( NAMESPACE, {

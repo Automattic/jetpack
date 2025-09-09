@@ -139,6 +139,12 @@ class MailPoet_Integration {
 		foreach ( $form->fields as $field ) {
 			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
 			$label = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'label' ) ) );
+
+			// If value is not a string, we already know it's not a valid name or email.
+			if ( ! is_string( $field->value ) ) {
+				continue;
+			}
+
 			$value = trim( $field->value );
 
 			if ( ( $id === 'email' || $label === 'email' ) && ! empty( $value ) ) {

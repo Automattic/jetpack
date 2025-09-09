@@ -896,8 +896,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		foreach ( $data as $field_data ) {
 			$formatted_submission_data[] = array(
-				'label' => self::maybe_add_colon_to_label( $field_data['label'] ),
-				'value' => self::maybe_transform_value( $field_data['value'] ),
+				'label'  => self::maybe_add_colon_to_label( $field_data['label'] ),
+				'value'  => self::maybe_transform_value( $field_data['value'] ),
+				'images' => self::get_images( $field_data['value'] ),
 			);
 		}
 
@@ -969,6 +970,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				<div>
 					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
 					<div class="field-value" data-wp-text="context.submission.value"></div>
+					<div class="field-images" data-wp-bind--hidden="!context.submission.images">
+						<template data-wp-each--image="context.submission.images">
+							<img class="field-image" data-wp-bind--src="context.image" />
+						</template>
+					</div>
 				</div>
 			</template>';
 
@@ -977,7 +983,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$html .= '<div data-wp-each-child>
 					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . $submission['label'] . '</div>
 					<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
-				</div>';
+					<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
+
+				if ( $submission['images'] ) {
+					foreach ( $submission['images'] ?? array() as $image ) {
+						$html .= '<img data-wp-each-child class="field-image" data-wp-bind--src="context.image" src="' . $image . '" />';
+					}
+				} else {
+					$html .= '<template data-wp-each--image="context.submission.images"></template>';
+				}
+
+				$html .= '</div></div>';
 			}
 		}
 
@@ -1466,6 +1482,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 				break;
 			case 'time':
 				$str = __( 'Time', 'jetpack-forms' );
+				break;
+			case 'image-select':
+				$str = __( 'Select an image', 'jetpack-forms' );
 				break;
 			default:
 				$str = null;
@@ -2454,6 +2473,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return mixed The transformed value.
 	 */
 	private static function maybe_transform_value( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
+			return implode(
+				', ',
+				array_map(
+					function ( $choice ) {
+						return $choice['perceived'];
+					},
+					$value['choices']
+				)
+			);
+		}
+
 		// For file upload fields, we want to show the file name and size
 		if ( is_array( $value ) && isset( $value['name'] ) && isset( $value['size'] ) ) {
 			$file_name = $value['name'];
@@ -2462,6 +2493,27 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Helper method to get the images from an image select field.
+	 *
+	 * @param array $value The value to get the images from.
+	 * @return array The images.
+	 */
+	private static function get_images( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
+			return array_map(
+				function ( $choice ) {
+					$src = $choice['image']['src'] ?? '';
+
+					return empty( $src ) ? 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' : $src;
+				},
+				$value['choices']
+			);
+		}
+
+		return null;
 	}
 
 	/**

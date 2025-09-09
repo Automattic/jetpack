@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '6.2.0';
+	const PACKAGE_VERSION = '6.3.0';
 
 	/**
 	 * Load the contact form module.
@@ -77,21 +77,7 @@ class Jetpack_Forms {
 	 * @return boolean
 	 */
 	public static function is_legacy_menu_item_retired() {
-		$default                      = false; // Don't retire the legacy menu item by default.
-		$largest_legacy_connection_id = 245807300; // The connection ID after which the legacy menu item is retired.
-
-		$connection_id = defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : intval( \Jetpack_Options::get_option( 'id' ) );
-
-		if ( $connection_id > $largest_legacy_connection_id ) {
-			$default = true; // Retire the legacy menu item for connections after the specified ID.
-		}
-
-		// If the user has seen the migration announcement, also default to true.
-		if ( ! $default && get_user_option( 'jetpack_forms_migration_announcement_seen' ) ) {
-			$default = true;
-		}
-
-		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', $default );
+		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', true );
 	}
 
 	/**

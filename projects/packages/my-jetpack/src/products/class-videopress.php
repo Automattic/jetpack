@@ -13,6 +13,10 @@ use Automattic\Jetpack\VideoPress\Stats as VideoPress_Stats;
 use WP_Error;
 use WP_REST_Response;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the VideoPress product
  */

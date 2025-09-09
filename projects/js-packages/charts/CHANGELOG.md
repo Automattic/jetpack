@@ -5,18 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.32.0] - 2025-09-02
-### Added
-- Charts: adds controls for label visibility [#45040]
+## [0.34.1] - 2025-09-08
+### Fixed
+- Charts: fix Type error with legendValueDisplay [#45099]
 
+## [0.34.0] - 2025-09-08
 ### Changed
-- Charts: format percentage values to be prettier [#45032]
-- Charts: Use a global context provider for theme configuration in all stories [#45028]
-- Charts: use getStringWidth for label size calculations [#45030]
-- Fix the conversion-funnel-chart component exportation [#45033]
+- Leaderboard Chart: Extend BaseChartProps [#45100]
 
 ### Fixed
-- All charts were affected due to z-index. [#45043]
+- Fix SASS and CSS Modules processing. [#45098]
+
+## [0.33.0] - 2025-09-08
+### Added
+- Add ability to control percentage vs. value display. [#45052]
+
+### Changed
+- Leaderboard Chart: Use GlobalContextProvider theme for colors. [#45067]
+- Update package dependencies. [#45027] [#45097]
+- Use `tsup` for builds. [#45051]
+
+### Fixed
+- Allow type-checking of tests and stories. [#45082]
+
+## [0.32.0] - 2025-09-02
+### Added
+- Add controls for label visibility. [#45040]
+
+### Changed
+- Fix the conversion-funnel-chart component export. [#45033]
+- Format percentage values to be prettier. [#45032]
+- Use a global context provider for theme configuration in all stories. [#45028]
+- Use `getStringWidth` for label size calculations. [#45030]
+
+### Fixed
+- Prevent z-index issue across all charts. [#45043]
 
 ## [0.31.0] - 2025-09-01
 ### Added
@@ -418,6 +441,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.34.1]: https://github.com/Automattic/charts/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/Automattic/charts/compare/v0.33.0...v0.34.0
+[0.33.0]: https://github.com/Automattic/charts/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/Automattic/charts/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/Automattic/charts/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/Automattic/charts/compare/v0.29.0...v0.30.0

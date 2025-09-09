@@ -259,7 +259,21 @@
 		flex-direction: row;
 		gap: 12px;
 	}
+}
 
+.jp-forms__inbox-response-data-value .image-select-field {
+
+	.image-select-field-images {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 16px;
+	}
+
+	.image-select-field-image {
+		width: 200px;
+		aspect-ratio: 1/1;
+		object-fit: cover;
+	}
 }
 
 .jp-forms__header-subtext {
