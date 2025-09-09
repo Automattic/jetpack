@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.5] - 2025-09-08
+### Added
+- My Jetpack: Added analytics for empty product search results. [#44344]
+
+### Changed
+- - Remove CRM installation nudge for Complete plan users. [#45026]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update package dependencies. [#44206] [#44725] [#45096]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient/ [#44117]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link. [#44535]
+- JITM: Remove jQuery dependency. [#43783]
+
 ## [3.4] - 2025-06-27
 ### Changed
 - Internal updates.
@@ -307,6 +327,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[3.5]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.4...3.5
 [3.4]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.3...3.4
 [3.3]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.2...3.3
 [3.2]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.1...3.2
