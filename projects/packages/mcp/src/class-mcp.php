@@ -56,4 +56,9 @@ class Mcp {
 }
 
 // Initialize the package when Jetpack loads it.
-add_action( 'plugins_loaded', array( Mcp::class, 'init' ) );
+add_action(
+	'plugins_loaded',
+	function () {
+		Mcp::init();
+	}
+);
