@@ -97,30 +97,37 @@ class PostGetExecutor implements ExecutorInterface {
 				// Only switch if it's a different site.
 				if ( $target_blog_id !== $original_blog_id ) {
 					// Check if site is restricted.
-					if ( function_exists( 'is_suspended' ) && is_suspended( $target_blog_id ) ) {
-						return array(
-							'success' => false,
-							'error'   => array(
-								'code'    => 'site_suspended',
-								'message' => 'This site has been suspended',
-								'status'  => 403,
-							),
-						);
+					if ( function_exists( 'is_suspended' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredFunction
+						if ( is_suspended( $target_blog_id ) ) {
+							return array(
+								'success' => false,
+								'error'   => array(
+									'code'    => 'site_suspended',
+									'message' => 'This site has been suspended',
+									'status'  => 403,
+								),
+							);
+						}
 					}
 
 					// Check if site is confidential.
-					if ( function_exists( 'should_check_confidentiality' ) && should_check_confidentiality( $target_blog_id ) ) {
-						if ( function_exists( 'has_blog_sticker' ) ) {
-							$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
-							if ( ! $has_confidentiality_disabled ) {
-								return array(
-									'success' => false,
-									'error'   => array(
-										'code'    => 'site_confidential',
-										'message' => 'This site is confidential and cannot be accessed',
-										'status'  => 403,
-									),
-								);
+					if ( function_exists( 'should_check_confidentiality' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredFunction
+						if ( should_check_confidentiality( $target_blog_id ) ) {
+							if ( function_exists( 'has_blog_sticker' ) ) {
+								// @phan-suppress-next-line PhanUndeclaredFunction
+								$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
+								if ( ! $has_confidentiality_disabled ) {
+									return array(
+										'success' => false,
+										'error'   => array(
+											'code'    => 'site_confidential',
+											'message' => 'This site is confidential and cannot be accessed',
+											'status'  => 403,
+										),
+									);
+								}
 							}
 						}
 					}
@@ -226,16 +233,23 @@ class PostGetExecutor implements ExecutorInterface {
 			$target_blog_id = (int) $blog_details->blog_id;
 
 			// Check if the site is suspended or restricted.
-			if ( function_exists( 'is_suspended' ) && is_suspended( $target_blog_id ) ) {
-				return false;
+			if ( function_exists( 'is_suspended' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
+				if ( is_suspended( $target_blog_id ) ) {
+					return false;
+				}
 			}
 
 			// Check if site is confidential.
-			if ( function_exists( 'should_check_confidentiality' ) && should_check_confidentiality( $target_blog_id ) ) {
-				if ( function_exists( 'has_blog_sticker' ) ) {
-					$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
-					if ( ! $has_confidentiality_disabled ) {
-						return false;
+			if ( function_exists( 'should_check_confidentiality' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
+				if ( should_check_confidentiality( $target_blog_id ) ) {
+					if ( function_exists( 'has_blog_sticker' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredFunction
+						$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
+						if ( ! $has_confidentiality_disabled ) {
+							return false;
+						}
 					}
 				}
 			}

@@ -549,6 +549,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 
 		// Map callback to readable type using the helper function.
 		if ( class_exists( 'Notification_Helpers_v1_1' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$type = Notification_Helpers_v1_1::map_callback_to_type( $callback_or_type );
 			if ( $type ) {
 				return $type;
@@ -713,6 +714,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 		}
 
 		// Get the most recent liker.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
 		$likers = Likes::user_ids_for_post(
 			$blog_id,
 			$post_id,
@@ -746,6 +748,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 		$blog_id = (int) $note->args['blog_id'];
 
 		if ( function_exists( 'wpcom_subs_get_wpcom_subscribers_of_blog' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			$followers = wpcom_subs_get_wpcom_subscribers_of_blog( array( 'blog_id' => $blog_id ) );
 			if ( ! empty( $followers ) && is_array( $followers ) ) {
 				$user = get_user_by( 'ID', $followers[0]->user_id );
@@ -805,6 +808,7 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 		$post_id = (int) $note->args['post_id'];
 
 		if ( class_exists( 'WPCOM_Reblogging' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$rebloggers = WPCOM_Reblogging::get_reblog_user_ids_for_post(
 				array(
 					'blog_id'       => $blog_id,
@@ -883,12 +887,14 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 		}
 
 		try {
+			// @phan-suppress-next-line PhanUndeclaredFunction
 			require_lib( 'notes/class.notification-builders-v1-1' );
 
 			// Set the current user to the note recipient for proper building.
 			$current_user_id = get_current_user_id();
 			wp_set_current_user( $note->user_id );
 
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$built_notes = Notification_Builders_v1_1::build_notes_by_ids( $note->id );
 
 			// Restore original user.

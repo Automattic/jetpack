@@ -267,8 +267,8 @@ class UserProfileExecutor implements ExecutorInterface {
 		/**
 		 * Get content statistics across user's sites.
 		 *
-		 * @param int   $user_id The user ID.
-		 * @param array $user_sites Array of user sites.
+		 * @param int        $user_id The user ID.
+		 * @param array|null $user_sites Array of user sites.
 		 * @return array Content statistics.
 		 */
 	private function get_content_statistics( int $user_id, ?array $user_sites ): array {

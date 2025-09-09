@@ -272,7 +272,6 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 
 		// Check if user has access to this site.
 		if ( function_exists( 'current_user_can_for_site' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction
 			return current_user_can_for_site( $blog_id, 'read' );
 		}
 
