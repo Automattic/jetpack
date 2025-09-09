@@ -12,6 +12,9 @@ export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export type { LegendValueDisplay } from './components/legend';
 
+// Themes
+export { GlobalChartsProvider as ThemeProvider } from './providers';
+
 // Global context
 export {
 	GlobalChartsProvider,
