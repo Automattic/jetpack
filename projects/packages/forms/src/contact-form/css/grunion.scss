@@ -69,7 +69,7 @@ that needs to mimic the input element styles */
 	font: inherit;
 	border: 1px solid #8c8f94;
 	border-radius: 0;
-	background-color: var(--jetpack--contact-form--background-color);
+	background-color: var(--jetpack--contact-form--input-background);
 }
 
 :where(.contact-form textarea) {
@@ -1212,7 +1212,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	align-items: baseline;
 }
 
-.contact-form :is([type="submit"],button:not([type="reset"])) {
+.contact-form :is([type="submit"]) {
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;

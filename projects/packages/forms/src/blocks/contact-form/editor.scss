@@ -955,7 +955,7 @@
 			.jetpack-field__input,
 			.jetpack-field__textarea,
 			.jetpack-field-dropdown__toggle {
-				padding-top: 1.4em;
+				padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
 				padding-left: var(--jetpack--contact-form--animated-left-offset);
 			}
 
