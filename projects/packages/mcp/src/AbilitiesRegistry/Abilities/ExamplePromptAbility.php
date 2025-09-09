@@ -17,7 +17,6 @@ class ExamplePromptAbility {
 	 */
 	public function __construct() {
 		// @phan-suppress-next-line PhanUndeclaredFunction
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		wp_register_ability(
 			'wpcom-mcp/sample-prompt',
 			$this->get_config()

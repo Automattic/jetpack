@@ -19,7 +19,6 @@ class SiteStatisticsAbility implements AbilityInterface {
 	 */
 	public function __construct() {
 		// @phan-suppress-next-line PhanUndeclaredFunction
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		wp_register_ability(
 			$this->get_ability_name(),
 			$this->get_config()
