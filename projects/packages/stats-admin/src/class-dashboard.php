@@ -81,7 +81,7 @@ class Dashboard {
 			__( 'Stats', 'jetpack-stats-admin' ),
 			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
 			'view_stats',
-			'stats-callout',
+			'callout-stats',
 			array( $this, 'render_callout' )
 		);
 
@@ -100,7 +100,7 @@ class Dashboard {
 	public function render_callout() {
 		?>
 		<script>
-			location.hash = '#!/callout-stats/moved?page=stats-callout';
+			location.hash = '#!/stats/moved?page=callout-stats';
 		</script>
 		<?php
 		$this->render();
