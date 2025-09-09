@@ -735,34 +735,4 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function is_pending_plan() {
 		return false;
 	}
-
-	/**
-	 * This function is used to detect whether the site is a Garden site on WPCOM side.
-	 *
-	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php
-	 * @return false
-	 */
-	public function is_garden() {
-		return false;
-	}
-
-	/**
-	 * This function is used to get the name of the Garden site on WPCOM side.
-	 *
-	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php
-	 * @return null
-	 */
-	public function garden_name() {
-		return null;
-	}
-
-	/**
-	 * This function is used to get the partner of the Garden site on WPCOM side.
-	 *
-	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php
-	 * @return null
-	 */
-	public function garden_partner() {
-		return null;
-	}
 }
