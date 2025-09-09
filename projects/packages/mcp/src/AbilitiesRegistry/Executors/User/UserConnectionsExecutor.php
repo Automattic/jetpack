@@ -114,6 +114,7 @@ class UserConnectionsExecutor implements ExecutorInterface {
 		}
 
 		$connection = array();
+		// @phan-suppress-next-line PhanTypeSuspiciousNonTraversableForeach
 		foreach ( $connections as $conn ) {
 			if ( $conn['id'] === $connection_id ) {
 				$connection[] = $conn;
