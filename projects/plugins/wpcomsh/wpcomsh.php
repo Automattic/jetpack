@@ -29,6 +29,9 @@ require_once __DIR__ . '/lib/require-lib.php';
 // Protected Owner functionality for Jetpack Connection
 require_once __DIR__ . '/connection/protected-owner-handlers.php';
 
+// Sitemaps sticker functionality for Jetpack Sitemaps
+require_once __DIR__ . '/sitemaps/class-wpcomsh-sitemap-sticker-handlers.php';
+
 require_once __DIR__ . '/plugin-hotfixes.php';
 
 require_once __DIR__ . '/footer-credit/footer-credit.php';
