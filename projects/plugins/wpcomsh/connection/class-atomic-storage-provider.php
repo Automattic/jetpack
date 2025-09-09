@@ -3,7 +3,6 @@
  * Atomic Persistent Data storage provider for Jetpack Connection data.
  *
  * @package wpcomsh
- * @phan-file-suppress PhanUndeclaredInterface Interface is conditionally available from Jetpack Connection package
  */
 
 // Only define the class if the interface is available
