@@ -285,10 +285,10 @@ class Contact_Form_Plugin {
 			array(
 				'label'                  => 'Temporary',
 				'public'                 => false,
+				'internal'               => true,
 				'exclude_from_search'    => true,
 				'show_in_admin_all_list' => false,
 				// translators: The temporary count.
-				'label_count'            => _n_noop( 'Temporary <span class="count">(%s)</span>', 'Temporary <span class="count">(%s)</span>', 'jetpack-forms' ),
 				'protected'              => true,
 				'_builtin'               => false,
 			)
