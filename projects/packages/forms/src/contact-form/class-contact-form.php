@@ -1840,7 +1840,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} elseif ( $is_spam ) {
 			$feedback_status = 'spam';
 		} elseif ( 'no' === $this->get_attribute( 'saveResponses' ) ) {
-			$feedback_status = 'temp';
+			$feedback_status = 'jetpack-temp-feedback';
 		} else {
 			$feedback_status = 'publish';
 		}
@@ -1970,7 +1970,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Build the dashboard URL with the status and the feedback's post id if we have a post id
 		$dashboard_url           = '';
 		$footer_mark_as_spam_url = '';
-		if ( $feedback_status !== 'temp' ) {
+		if ( $feedback_status !== 'jetpack-temp-feedback' ) {
 			$dashboard_url           = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
 			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
 			$footer_mark_as_spam_url = sprintf(

@@ -281,7 +281,7 @@ class Contact_Form_Plugin {
 
 		// Add "temp" as a post status for temporary storage when saveResponses is 'no'
 		register_post_status(
-			'temp',
+			'jetpack-temp-feedback',
 			array(
 				'label'                  => 'Temporary',
 				'public'                 => false,
