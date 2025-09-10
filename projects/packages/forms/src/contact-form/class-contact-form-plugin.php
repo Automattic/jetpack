@@ -1900,7 +1900,7 @@ class Contact_Form_Plugin {
 		if ( empty( $this->current_widget_id ) || empty( $this->current_sidebar_id ) ) {
 			return '';
 		}
-		return $this->current_widget_id . '-' . $this->current_sidebar_id;
+		return $this->current_widget_id . '||' . $this->current_sidebar_id;
 	}
 
 	/**
