@@ -14,7 +14,7 @@ A flexible and accessible leaderboard chart component for displaying ranked data
 The Leaderboard Chart component provides a clean, responsive visualization for displaying ranked data with optional comparison values. Built with WordPress components, it supports customizable colors, flexible formatting, and comprehensive accessibility features:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { LeaderboardChart } from '@automattic/charts';
 
 	<LeaderboardChart
@@ -34,7 +34,7 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 <Canvas of={ LeaderboardChartStories.WithoutComparison } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={[
 			{
@@ -89,7 +89,7 @@ Display both current and previous period data with delta indicators:
 <Canvas of={ LeaderboardChartStories.Default } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={data}
 		withComparison={true}
@@ -109,7 +109,7 @@ The chart automatically handles negative growth with appropriate color coding:
 <Canvas of={ LeaderboardChartStories.NegativeGrowth } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// Data with negative deltas will show in warning colors
 	const dataWithDeclines = [
 		{
@@ -133,7 +133,7 @@ Customize how values are displayed using the `valueFormatter` prop:
 <Canvas of={ LeaderboardChartStories.CurrencyFormatting } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={data}
 		withComparison={true}
@@ -158,7 +158,7 @@ For non-currency values, use number formatting:
 <Canvas of={ LeaderboardChartStories.NumberFormatting } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={data}
 		valueFormatter={(value) =>
@@ -177,7 +177,7 @@ Handle different value ranges with conditional formatting:
 <Canvas of={ LeaderboardChartStories.AdvancedFormatting } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={largeValues}
 		valueFormatter={(value) => {
@@ -210,7 +210,7 @@ Override default theme colors with custom primary and secondary colors:
 <Canvas of={ LeaderboardChartStories.CustomColors } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={data}
 		withComparison={true}
@@ -226,7 +226,7 @@ Use React components as labels for rich content display:
 <Canvas of={ LeaderboardChartStories.CustomLabel } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `const CustomLabelComponent = ({ label, imageColor }) => (
 		<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 			<img
@@ -253,7 +253,7 @@ Position labels on top of bars for a more compact display:
 <Canvas of={ LeaderboardChartStories.WithOverlayLabel } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={data}
 		withOverlayLabel={true}
@@ -267,7 +267,7 @@ Combine overlay labels with custom styling and transparent colors:
 <Canvas of={ LeaderboardChartStories.OverlayLabelWithImage } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={richLabelData}
 		withComparison={true}
@@ -289,7 +289,7 @@ Display loading indicator while data is being fetched:
 <Canvas of={ LeaderboardChartStories.Loading } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={data}
 		loading={true}
@@ -303,7 +303,7 @@ Gracefully handle empty data arrays:
 <Canvas of={ LeaderboardChartStories.EmptyData } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={[]}
 		withComparison={true}
@@ -329,7 +329,7 @@ Automatically format large numeric values:
 The LeaderboardChart expects pre-processed data. You'll need to transform your raw data into the required format:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// Transform your raw data into LeaderboardEntry format
 	function transformRawData(rawData) {
 		const maxValue = Math.max(...rawData.map(item => item.current_period.value));
@@ -362,7 +362,7 @@ The LeaderboardChart expects pre-processed data. You'll need to transform your r
 Calculate the `currentShare` and `previousShare` values to determine bar widths:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// For relative scaling (bars relative to max value)
 	const maxCurrentValue = Math.max(...data.map(item => item.currentValue));
 	const maxPreviousValue = Math.max(...data.map(item => item.previousValue));
@@ -392,7 +392,7 @@ Calculate the `currentShare` and `previousShare` values to determine bar widths:
 The component supports CSS custom properties for advanced styling:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<LeaderboardChart
 		data={data}
 		style={{
@@ -415,7 +415,7 @@ The component supports CSS custom properties for advanced styling:
 The chart integrates with the global charts theming system:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
 
 	<GlobalChartsProvider theme={jetpackTheme}>
@@ -468,49 +468,50 @@ Main chart component for displaying ranked data with optional comparison values.
 
 ### LeaderboardEntry Type
 
-```typescript
-interface LeaderboardEntry {
-	id: string;              // Unique identifier
-	label: string | JSX.Element; // Display name or React component
-	currentValue: number;    // Current period value
-	previousValue: number;   // Previous period value
-	currentShare: number;    // Current bar width (0-100)
-	previousShare: number;   // Previous bar width (0-100)
-	delta: number;           // Percentage change
-}
-```
+<Source language="tsx" code={ `
+	interface LeaderboardEntry {
+		id: string;                  // Unique identifier
+		label: string | JSX.Element; // Display name or React component
+		currentValue: number;        // Current period value
+		previousValue: number;       // Previous period value
+		currentShare: number;        // Current bar width (0-100)
+		previousShare: number;       // Previous bar width (0-100)
+		delta: number;               // Percentage change
+		imageColor?: string;         // Optional color for the entry's image/icon
+	}
+` } />
 
 ### Custom Style Properties
 
-```typescript
-type CustomProperties = {
-	'--a8c--charts--leaderboard--bar--border-radius'?: string;
-};
-```
+<Source language="tsx" code={ `
+	type CustomProperties = {
+		'--a8c--charts--leaderboard--bar--border-radius'?: string;
+	};
+` } />
 
 ## Examples
 
 ### E-commerce Sales Channels
 
-```typescript
-const salesData = [
-	{ id: 'organic', label: 'Organic Search', currentValue: 45000, previousValue: 38000, currentShare: 100, previousShare: 84, delta: 18 },
-	{ id: 'paid', label: 'Paid Advertising', currentValue: 32000, previousValue: 35000, currentShare: 71, previousShare: 78, delta: -9 },
-	{ id: 'social', label: 'Social Media', currentValue: 18000, previousValue: 15000, currentShare: 40, previousShare: 33, delta: 20 },
-	{ id: 'email', label: 'Email Marketing', currentValue: 12000, previousValue: 11000, currentShare: 27, previousShare: 24, delta: 9 },
-];
+<Source language="tsx" code={ `
+	const salesData = [
+		{ id: 'organic', label: 'Organic Search', currentValue: 45000, previousValue: 38000, currentShare: 100, previousShare: 84, delta: 18 },
+		{ id: 'paid', label: 'Paid Advertising', currentValue: 32000, previousValue: 35000, currentShare: 71, previousShare: 78, delta: -9 },
+		{ id: 'social', label: 'Social Media', currentValue: 18000, previousValue: 15000, currentShare: 40, previousShare: 33, delta: 20 },
+		{ id: 'email', label: 'Email Marketing', currentValue: 12000, previousValue: 11000, currentShare: 27, previousShare: 24, delta: 9 },
+	];
 
-<LeaderboardChart data={salesData} withComparison={true} />
-```
+	<LeaderboardChart data={salesData} withComparison={true} />
+` } />
 
 ### Traffic Sources
 
-```typescript
-const trafficData = [
-	{ id: 'direct', label: 'Direct', currentValue: 15420, previousValue: 13200, currentShare: 100, previousShare: 86, delta: 17 },
-	{ id: 'search', label: 'Search Engines', currentValue: 12350, previousValue: 11800, currentShare: 80, previousShare: 77, delta: 5 },
-	{ id: 'social', label: 'Social Networks', currentValue: 8760, previousValue: 9200, currentShare: 57, previousShare: 60, delta: -5 },
-];
+<Source language="tsx" code={ `
+	const trafficData = [
+		{ id: 'direct', label: 'Direct', currentValue: 15420, previousValue: 13200, currentShare: 100, previousShare: 86, delta: 17 },
+		{ id: 'search', label: 'Search Engines', currentValue: 12350, previousValue: 11800, currentShare: 80, previousShare: 77, delta: 5 },
+		{ id: 'social', label: 'Social Networks', currentValue: 8760, previousValue: 9200, currentShare: 57, previousShare: 60, delta: -5 },
+	];
 
-<LeaderboardChart data={trafficData} withComparison={true} />
-```
+	<LeaderboardChart data={trafficData} withComparison={true} />
+` } />
