@@ -6,14 +6,18 @@ import {
 } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import clsx from 'clsx';
-import { useContext, type FC } from 'react';
+import { useContext, useMemo, type FC } from 'react';
 import {
 	GlobalChartsContext,
 	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
 import { formatMetricValue } from '../../utils';
+import { Legend } from '../legend';
+import { useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
@@ -92,21 +96,28 @@ const BarWithLabel = ( {
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
  *
- * @param props                  - Component props
- * @param props.data             - Array of leaderboard entries to display
- * @param props.withComparison   - Whether to show comparison data
- * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
- * @param props.primaryColor     - Primary color for current period bars
- * @param props.secondaryColor   - Secondary color for comparison period bars
- * @param props.valueFormatter   - Custom formatter for values
- * @param props.deltaFormatter   - Custom formatter for delta values
- * @param props.loading          - Whether the chart is in loading state
- * @param props.className        - Additional CSS class name
- * @param props.style            - Custom styling for the chart container
+ * @param props                   - Component props
+ * @param props.data              - Array of leaderboard entries to display
+ * @param props.chartId           - Optional unique identifier for the chart
+ * @param props.withComparison    - Whether to show comparison data
+ * @param props.withOverlayLabel  - Whether to overlay the label on top of the bar
+ * @param props.primaryColor      - Primary color for current period bars
+ * @param props.secondaryColor    - Secondary color for comparison period bars
+ * @param props.valueFormatter    - Custom formatter for values
+ * @param props.deltaFormatter    - Custom formatter for delta values
+ * @param props.loading           - Whether the chart is in loading state
+ * @param props.showLegend        - Whether to show legend
+ * @param props.legendOrientation - Legend orientation
+ * @param props.legendPosition    - Legend position
+ * @param props.legendAlignment   - Legend alignment
+ * @param props.legendShape       - Legend shape
+ * @param props.className         - Additional CSS class name
+ * @param props.style             - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
  */
 const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	withComparison = false,
 	withOverlayLabel = false,
 	primaryColor,
@@ -114,9 +125,15 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	valueFormatter = defaultValueFormatter,
 	deltaFormatter = defaultDeltaFormatter,
 	loading = false,
+	showLegend = false,
+	legendOrientation = 'horizontal',
+	legendPosition = 'bottom',
+	legendAlignment = 'center',
+	legendShape = 'rect',
 	className,
 	style,
 } ) => {
+	const chartId = useChartId( providedChartId );
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
 	const {
 		labelSpacing,
@@ -136,6 +153,35 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		overrideColor: secondaryColor || settingsSecondaryColor,
 	} );
 
+	// Create legend items using the custom hook
+	const legendItems = useLeaderboardLegendItems(
+		data || [],
+		primaryColor,
+		secondaryColor,
+		withComparison
+	);
+
+	// Validate data
+	const isDataValid = Boolean( data && data.length > 0 );
+
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			withComparison,
+			withOverlayLabel,
+		} ),
+		[ withComparison, withOverlayLabel ]
+	);
+
+	// Register chart with context
+	useChartRegistration( {
+		chartId,
+		legendItems,
+		chartType: 'leaderboard',
+		isDataValid,
+		metadata: chartMetadata,
+	} );
+
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
@@ -149,44 +195,66 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	}
 
 	return (
-		<Grid
+		<div
 			className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-			templateColumns="minmax(0, 1fr) auto"
-			rowGap={ rowGap }
-			columnGap={ columnGap }
-			style={ style }
+			style={ {
+				...style,
+				display: 'flex',
+				flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
+				gap: showLegend ? '16px' : '0',
+			} }
 		>
-			{ data.map( entry => {
-				const colorIndex = Math.sign( entry.delta ) + 1;
-				const deltaColor = deltaColors[ colorIndex ];
+			<Grid
+				className={ styles.leaderboardGrid }
+				templateColumns="minmax(0, 1fr) auto"
+				rowGap={ rowGap }
+				columnGap={ columnGap }
+				style={ {
+					flex: 1,
+				} }
+			>
+				{ data.map( entry => {
+					const colorIndex = Math.sign( entry.delta ) + 1;
+					const deltaColor = deltaColors[ colorIndex ];
 
-				return (
-					<Fragment key={ entry.id }>
-						<VStack spacing={ labelSpacing }>
-							<BarWithLabel
-								entry={ entry }
-								withComparison={ withComparison }
-								withOverlayLabel={ withOverlayLabel }
-								primaryColor={ resolvedPrimaryColor }
-								secondaryColor={ resolvedSecondaryColor }
-							/>
-						</VStack>
+					return (
+						<Fragment key={ entry.id }>
+							<VStack spacing={ labelSpacing }>
+								<BarWithLabel
+									entry={ entry }
+									withComparison={ withComparison }
+									withOverlayLabel={ withOverlayLabel }
+									primaryColor={ resolvedPrimaryColor }
+									secondaryColor={ resolvedSecondaryColor }
+								/>
+							</VStack>
 
-						<div
-							className={ clsx( styles.valueContainer, {
-								[ styles.overlayLabel ]: withOverlayLabel,
-							} ) }
-						>
-							<Text>{ valueFormatter( entry.currentValue ) }</Text>
+							<div
+								className={ clsx( styles.valueContainer, {
+									[ styles.overlayLabel ]: withOverlayLabel,
+								} ) }
+							>
+								<Text>{ valueFormatter( entry.currentValue ) }</Text>
 
-							{ withComparison && (
-								<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
-							) }
-						</div>
-					</Fragment>
-				);
-			} ) }
-		</Grid>
+								{ withComparison && (
+									<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
+								) }
+							</div>
+						</Fragment>
+					);
+				} ) }
+			</Grid>
+
+			{ showLegend && (
+				<Legend
+					orientation={ legendOrientation }
+					position={ legendPosition }
+					alignment={ legendAlignment }
+					shape={ legendShape }
+					chartId={ chartId }
+				/>
+			) }
+		</div>
 	);
 };
 
@@ -205,5 +273,7 @@ const LeaderboardChart: FC< LeaderboardChartProps > = props => {
 		</GlobalChartsProvider>
 	);
 };
+
+LeaderboardChart.displayName = 'LeaderboardChart';
 
 export default LeaderboardChart;

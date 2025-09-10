@@ -1,7 +1,17 @@
 import { BaseChartProps, LeaderboardEntry } from '../../types';
 
 export interface LeaderboardChartProps
-	extends Pick< BaseChartProps< LeaderboardEntry >, 'className' | 'data' > {
+	extends Pick<
+		BaseChartProps< LeaderboardEntry >,
+		| 'className'
+		| 'data'
+		| 'showLegend'
+		| 'legendOrientation'
+		| 'legendPosition'
+		| 'legendAlignment'
+		| 'legendShape'
+		| 'chartId'
+	> {
 	/**
 	 * Whether to show comparison data
 	 */

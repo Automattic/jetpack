@@ -11,6 +11,7 @@ import {
 	themeArgTypes,
 	CHART_THEME_MAP,
 } from '../../../stories';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { formatMetricValue } from '../../../utils';
 import { hexToRgba } from '../../../utils/color-utils';
 import LeaderboardChart from '../leaderboard-chart';
@@ -92,12 +93,19 @@ const meta: Meta< StoryArgs > = {
 			},
 		},
 		...sharedChartArgTypes,
+		...legendArgTypes,
 		...themeArgTypes,
 	},
 	args: {
 		primaryColor: undefined,
 		secondaryColor: undefined,
 		themeName: 'default',
+		showLegend: false,
+		legendPosition: 'bottom',
+		legendAlignment: 'center',
+		legendOrientation: 'horizontal',
+		legendShape: 'circle',
+		withOverlayLabel: false,
 	},
 	decorators: [ chartDecorator ],
 };
@@ -133,6 +141,15 @@ export const Loading: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: true,
+	},
+};
+
+export const WithLegend: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
 	},
 };
 
