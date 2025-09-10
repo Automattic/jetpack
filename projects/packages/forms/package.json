@@ -101,7 +101,7 @@
 		"jest-environment-jsdom": "30.0.4",
 		"jquery": "3.7.1",
 		"postcss": "8.4.47",
-		"postcss-loader": "8.1.1",
+		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
 		"typescript": "5.9.2"

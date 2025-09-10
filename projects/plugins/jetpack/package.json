@@ -166,7 +166,7 @@
 		"jquery": "3.7.1",
 		"lodash": "4.17.21",
 		"postcss": "8.4.47",
-		"postcss-loader": "8.1.1",
+		"postcss-loader": "8.2.0",
 		"regenerator-runtime": "0.13.9",
 		"sass-loader": "16.0.5",
 		"typescript": "5.9.2"
