@@ -816,20 +816,20 @@ class Jetpack_Widget_Conditions {
 			return $content;
 		}
 
-		if ( is_array( $content ) ) {
-			if ( isset( $content['content'] ) && is_string( $content['content'] ) ) {
-				return $content['content'];
-			}
-
-			if ( ! empty( $content ) && isset( $content[0] ) && is_array( $content[0] ) && isset( $content[0]['blockName'] ) ) {
-				// Looks like a parsed blocks array.
-				return serialize_blocks( $content );
-			}
-
-			// Unknown array shape: treat as no visibility rules.
+		if ( ! is_array( $content ) ) {
 			return false;
 		}
 
+		if ( isset( $content['content'] ) && is_string( $content['content'] ) ) {
+			return $content['content'];
+		}
+
+		if ( isset( $content[0] ) && is_array( $content[0] ) && isset( $content[0]['blockName'] ) ) {
+			// Looks like a parsed blocks array.
+			return serialize_blocks( $content );
+		}
+
+		// Unknown array shape: treat as no visibility rules.
 		return false;
 	}
 
