@@ -2046,9 +2046,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// This is called after `contact_form_message`, in order to preserve back-compat
 		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
 
-		if ( $post_id ) {
-			update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
-		}
+		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
 		/**
 		 * Fires right before the contact form message is sent via email to
@@ -2121,7 +2119,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'contact-form-id'   => $id,
 			'contact-form-sent' => $post_id,
 			'contact-form-hash' => $this->hash,
-			'_wpnonce'          => $post_id ? wp_create_nonce( "contact-form-sent-{$post_id}" ) : '', // wp_nonce_url HTMLencodes :( .
+			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
 		);
 
 		// If the request accepts JSON, return a JSON response instead of redirecting
