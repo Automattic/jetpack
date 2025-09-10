@@ -1,2 +1,2 @@
-export { default as BarChart } from './bar-chart';
+export { default as BarChart, BarChartUnresponsive } from './bar-chart';
 export type { BarChartProps } from './bar-chart';
