@@ -612,12 +612,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Initial data used to render the success message when the page is reloaded after a successful submission
 		// Don't show the feedback details unless the nonce matches
 		$submission_data = null;
+
 		if ( $is_reload_after_success && $is_reload_nonce_valid ) {
 			$response = Feedback::get( (int) $_GET['contact-form-sent'] );
+
 			if ( $response ) {
 				$submission_data = $response->get_compiled_fields( 'web', 'label|value' );
 			}
 		}
+
 		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
 		$has_custom_redirect       = $form->has_custom_redirect();
@@ -936,9 +939,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private static function render_ajax_success_wrapper( $form, $submission_success = false, $formatted_submission_data = array() ) {
 		$classes = 'contact-form-submission contact-form-ajax-submission';
+
 		if ( $submission_success ) {
 			$classes .= ' submission-success';
 		}
+
 		$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
 
 		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
@@ -2478,7 +2483,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 				', ',
 				array_map(
 					function ( $choice ) {
-						return $choice['perceived'];
+						$value = $choice['perceived'];
+
+						if ( $choice['showLabels'] && ! empty( $choice['label'] ) ) {
+							$value .= ' - ' . $choice['label'];
+						}
+
+						return $value;
 					},
 					$value['choices']
 				)

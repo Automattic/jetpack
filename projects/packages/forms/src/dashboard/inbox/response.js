@@ -216,7 +216,17 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 					{ ( value.choices?.length ?? 0 ) > 0 && (
 						<>
 							<div className="image-select-field-choices">
-								{ value.choices.map( choice => choice.selected ).join( ', ' ) }
+								{ value.choices
+									.map( choice => {
+										let transformedValue = choice.selected;
+
+										if ( choice.label != null && choice.label !== '' ) {
+											transformedValue += ' - ' + choice.label;
+										}
+
+										return transformedValue;
+									} )
+									.join( ', ' ) }
 							</div>
 							<div className="image-select-field-images">
 								{ value.choices.map( choice => {
@@ -238,6 +248,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 				</div>
 			);
 		}
+
 		if ( isFileUploadField( value ) ) {
 			return (
 				<div className="file-field">
