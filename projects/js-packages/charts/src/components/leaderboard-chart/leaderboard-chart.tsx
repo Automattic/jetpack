@@ -5,6 +5,7 @@ import {
 	__experimentalText as Text,
 } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC } from 'react';
 import {
@@ -212,7 +213,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					style={ style }
 				>
 					<div className={ styles.emptyState }>
-						{ loading ? 'Loading...' : 'No data available' }
+						{ loading
+							? __( 'Loading…', 'jetpack-charts' )
+							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
 					{ /* Render children from composition API */ }
 					{ otherChildren }
