@@ -515,10 +515,6 @@ class Contact_Form_Plugin {
 						unset( $atts['default'] );
 					}
 
-					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
-						unset( $atts['default'] );
-					}
-
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses']  = 'wp-block-jetpack-input jetpack-field__input-element';
 					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';

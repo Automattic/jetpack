@@ -9,7 +9,7 @@
 		display: flex;
 		gap: 8px;
 		background-color: var(--jetpack--contact-form--input-background);
-		border-color: var(--jetpack--contact-form--border-color, currentColor);
+		border-color: var(--jetpack--contact-form--border-color);
 		border-width: var(--jetpack--contact-form--border-size);
 		border-style: var(--jetpack--contact-form--border-style);
 		border-radius: var(--jetpack--contact-form--border-radius);
@@ -17,28 +17,27 @@
 		font-size: var(--jetpack--contact-form--font-size);
 		padding: var(--jetpack--contact-form--input-padding);
 		line-height: var(--jetpack--contact-form--line-height);
-		align-items: center;
 
 		&:has(.jetpack-field__input-element:focus) {
 			outline-width: 2px;
 			outline-style: solid;
-			// mimics default focus outline color, this is something we cannot
-			// fully control as the probe would fail to capture :focus styles
+			// mimics default focus outline color, need to fix this
 			outline-color: rgb(0, 95, 204);
 		}
 
 		.jetpack-field__input-prefix:not([hidden]) {
-			background-color: inherit;
+			display: flex;
+			width: 40%;
 
 			.jetpack-field__input-element {
-				width: 100%;
-				text-overflow: ellipsis;
-				white-space: nowrap;
 
 				@media (max-width: #{ (gb.$break-mobile) }) {
 
 					max-width: calc(gb.$break-mobile / 3);
 				}
+				width: 100%;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 			}
 		}
 
@@ -76,15 +75,11 @@
 	.is-style-animated & {
 
 		.jetpack-field__input-phone-wrapper {
-			padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
+			padding-top: 1.4em;
 			padding-left: var(--jetpack--contact-form--animated-left-offset);
 			padding-right: var(--jetpack--contact-form--animated-right-offset);
 
-			&:has(.jetpack-field__input-element:focus) {
-				outline: unset;
-			}
-
-			&:not(:has(*:focus, *:active)):not(.is-combobox-open) {
+			&:not(:has(*:focus, *:active)) {
 
 				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
 					pointer-events: none;
@@ -93,34 +88,23 @@
 			}
 		}
 
-		.animated-label__label {
+		.animated-label__label:has(~* .jetpack-field__input-element:focus),
+		.animated-label__label:has(~* .jetpack-field__input-element.has-value),
+		.animated-label__label:has(~* .jetpack-field__input-element.has-placeholder) {
+			transform: translateY(0);
+			top: calc(2px + var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size, 1px)));
 
-			&:has(~.jetpack-field__input-phone-wrapper.is-combobox-open),
-			&:has(~.jetpack-field__input-phone-wrapper:focus-within),
-			&:has(~* .jetpack-field__input-element:focus),
-			&:has(~* .jetpack-field__input-element.has-value),
-			&:has(~* .jetpack-field__input-element.has-placeholder) {
-				transform: translateY(0);
-				top: calc(2px + var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size, 1px)));
-
-				.grunion-label-text {
-					font-size: 0.75em;
-				}
+			.grunion-label-text {
+				font-size: 0.75em;
 			}
 		}
-
 	}
 
 	.is-style-outlined & {
 
 		.jetpack-field__input-phone-wrapper {
-			z-index: unset;
 
-			&:has(.jetpack-field__input-element:focus) {
-				outline: unset;
-			}
-
-			&:not(:has(*:focus, *:active)):not(.is-combobox-open) {
+			&:not(:has(*:focus, *:active)) {
 
 				// notched label is game of superpositions with z-index,
 				// while no input element is selected, force transparent so label is visible
@@ -135,18 +119,13 @@
 			}
 		}
 
-		.notched-label {
+		.notched-label:has(~* .jetpack-field__input-element:focus) .notched-label__label,
+		.notched-label:has(~* .jetpack-field__input-element.has-value) .notched-label__label,
+		.notched-label:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__label {
+			top: calc(var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1);
 
-			&:has(~.jetpack-field__input-phone-wrapper.is-combobox-open) .notched-label__label,
-			&:has(~.jetpack-field__input-phone-wrapper:focus-within) .notched-label__label,
-			&:has(~* .jetpack-field__input-element:focus) .notched-label__label,
-			&:has(~* .jetpack-field__input-element.has-value) .notched-label__label,
-			&:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__label {
-				top: calc(var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1);
-
-				.grunion-label-text {
-					font-size: 0.8em;
-				}
+			.grunion-label-text {
+				font-size: 0.8em;
 			}
 		}
 

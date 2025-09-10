@@ -260,7 +260,6 @@ class Contact_Form_Block {
 					'jetpack/field-prefix-options',
 					'jetpack/field-prefix-default',
 					'jetpack/field-prefix-onChange',
-					'jetpack/field-phone-country-toggle',
 				),
 			)
 		);
