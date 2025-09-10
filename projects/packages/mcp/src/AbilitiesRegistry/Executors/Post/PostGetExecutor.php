@@ -112,24 +112,16 @@ class PostGetExecutor implements ExecutorInterface {
 					}
 
 					// Check if site is confidential.
-					if ( function_exists( 'should_check_confidentiality' ) ) {
-						// @phan-suppress-next-line PhanUndeclaredFunction
-						if ( should_check_confidentiality( $target_blog_id ) ) {
-							if ( function_exists( 'has_blog_sticker' ) ) {
-								// @phan-suppress-next-line PhanUndeclaredFunction
-								$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
-								if ( ! $has_confidentiality_disabled ) {
-									return array(
-										'success' => false,
-										'error'   => array(
-											'code'    => 'site_confidential',
-											'message' => 'This site is confidential and cannot be accessed',
-											'status'  => 403,
-										),
-									);
-								}
-							}
-						}
+					$is_ai_access_allowed = apply_filters( 'jetpack_site_ai_access_allowed', false, $target_blog_id );
+					if ( ! $is_ai_access_allowed ) {
+						return array(
+							'success' => false,
+							'error'   => array(
+								'code'    => 'site_confidential',
+								'message' => 'This site is confidential and cannot be accessed',
+								'status'  => 403,
+							),
+						);
 					}
 
 					switch_to_blog( $target_blog_id );
