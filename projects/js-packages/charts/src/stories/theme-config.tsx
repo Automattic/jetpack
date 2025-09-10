@@ -1,4 +1,4 @@
-import { defaultTheme, jetpackTheme, wooTheme } from '../providers/theme/themes';
+import { defaultTheme, jetpackTheme, wooTheme } from '../providers';
 import type { ChartTheme } from '../types';
 
 /**

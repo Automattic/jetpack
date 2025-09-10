@@ -18,7 +18,7 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
-} from '../../providers/chart-context';
+} from '../../providers';
 import { attachSubComponents, getSeriesLineStyles } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { DefaultGlyph } from '../private/default-glyph';

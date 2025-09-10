@@ -1,4 +1,4 @@
-import { defaultTheme } from '../../../providers/theme';
+import { defaultTheme } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,

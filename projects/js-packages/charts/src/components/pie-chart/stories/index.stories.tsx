@@ -1,4 +1,4 @@
-import { ThemeProvider } from '../../../providers/theme';
+import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -86,14 +86,14 @@ const meta: Meta< StoryArgs > = {
 
 		if ( labelTextColor || labelBackgroundColor ) {
 			return (
-				<ThemeProvider
+				<GlobalChartsProvider
 					theme={ {
 						labelTextColor,
 						labelBackgroundColor,
 					} }
 				>
 					{ ChartComponent }
-				</ThemeProvider>
+				</GlobalChartsProvider>
 			);
 		}
 

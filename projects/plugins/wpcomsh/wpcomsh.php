@@ -26,9 +26,6 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
 
-// Protected Owner functionality for Jetpack Connection
-require_once __DIR__ . '/connection/protected-owner-handlers.php';
-
 // Sitemaps sticker functionality for Jetpack Sitemaps
 require_once __DIR__ . '/sitemaps/class-wpcomsh-sitemap-sticker-handlers.php';
 
@@ -159,8 +156,8 @@ require_once __DIR__ . '/support-session.php';
 // Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
 require_once __DIR__ . '/share-post/share-post.php';
 
-// Jetpack Token Resilience.
-require_once __DIR__ . '/jetpack-token-resilience/class-wpcomsh-blog-token-resilience.php';
+// Jetpack Connection Handlers (external storage and protected owner).
+require_once __DIR__ . '/connection/connection-handlers.php';
 
 // Require a Jetpack Connection Owner.
 require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-connection-owner.php';

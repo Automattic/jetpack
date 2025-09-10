@@ -12,7 +12,7 @@ import {
 	GlobalChartsProvider,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
-} from '../../providers/chart-context';
+} from '../../providers';
 import { formatMetricValue } from '../../utils';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';

@@ -247,17 +247,17 @@ The Pie Chart supports customizable label colors through the theme system:
 
 <Source
 	language="jsx"
-	code={ `import { ThemeProvider } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider } from '@automattic/charts';
 
 const customTheme = {
 	...defaultTheme,
-	labelTextColor: '#FFFFFF', // White text for labels  
+	labelTextColor: '#FFFFFF', // White text for labels
 	labelBackgroundColor: 'rgba(0, 0, 0, 0.8)', // Enable dark background (transparent by default)
 };
 
-<ThemeProvider theme={ customTheme }>
+<GlobalChartsProvider theme={ customTheme }>
 	<PieChart data={ data } />
-</ThemeProvider>` }
+</GlobalChartsProvider>` }
 />
 
 **Label Color Properties:**
@@ -274,15 +274,15 @@ const customTheme = {
 
 ### Theme Integration
 
-Pie Charts automatically integrate with the chart theme system, inheriting colors, typography, and styling from the active theme. Custom themes can be applied using the `ThemeProvider`:
+Pie Charts automatically integrate with the chart theme system, inheriting colors, typography, and styling from the active theme. Custom themes can be applied using the `GlobalChartsProvider`:
 
 <Source
 	language="jsx"
-	code={ `import { ThemeProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
 
-    <ThemeProvider theme={ jetpackTheme }>
+    <GlobalChartsProvider theme={ jetpackTheme }>
     	<PieChart data={ data } />
-    </ThemeProvider>` }
+    </GlobalChartsProvider>` }
 
 />
 

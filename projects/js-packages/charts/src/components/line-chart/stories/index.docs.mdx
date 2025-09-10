@@ -656,11 +656,11 @@ Line Charts integrate seamlessly with the chart theming system:
 
 <Source
 	language="jsx"
-	code={ `import { ThemeProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
 
-	<ThemeProvider theme={jetpackTheme}>
+	<GlobalChartsProvider theme={jetpackTheme}>
 		<LineChart data={data} />
-	</ThemeProvider>` }
+	</GlobalChartsProvider>` }
 />
 
 **Available themes:**

@@ -1,4 +1,4 @@
-import { GlobalChartsProvider } from '../providers/chart-context/global-charts-provider';
+import { GlobalChartsProvider } from '../providers';
 import { CHART_THEME_MAP } from './theme-config';
 import type { Decorator } from '@storybook/react';
 

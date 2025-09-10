@@ -9,8 +9,8 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
-} from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
+	GlobalChartsContext,
+} from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Legend, useChartLegendItems } from '../legend';

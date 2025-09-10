@@ -1,6 +1,5 @@
 import { GlyphStar } from '@visx/glyph';
-import { useGlobalChartsTheme } from '../../../providers/chart-context';
-import { GlobalChartsProvider } from '../../../providers/chart-context/global-charts-provider';
+import { useGlobalChartsTheme, GlobalChartsProvider } from '../../../providers';
 import { ChartStoryArgs, CHART_THEME_MAP, themeArgTypes } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs, glyphTheme } from './config';

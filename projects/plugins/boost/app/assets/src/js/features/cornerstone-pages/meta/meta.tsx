@@ -444,9 +444,9 @@ const List: FC< ListProps > = ( {
 				);
 			}
 
-			// Fixed multisite homepage detection
+			// Only consider it homepage if it has no query parameters
 			const resolvedPath = getResolvedPath( pathname, siteUrl );
-			if ( resolvedPath === siteUrl.pathname ) {
+			if ( resolvedPath === siteUrl.pathname && ! url?.search ) {
 				throw new Error(
 					__(
 						'The homepage does not need to be added to the list, as it is automatically included.',

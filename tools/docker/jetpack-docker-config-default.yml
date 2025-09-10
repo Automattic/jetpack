@@ -22,24 +22,24 @@ dev:
         links:
           - db:mysql
         ports:
-          - 8181:80
+          - '${PORT_PHPMY:-8181}:80'
         environment:
           MYSQL_USERNAME: '${MYSQL_USER:-wordpress}'
           MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD:-wordpress}'
 
       ## SMTP Server + Web Interface for viewing and testing emails during development.
-      ## http://maildev.github.io/maildev/
-      maildev:
-        image: maildev/maildev
+      ## https://mailpit.axllent.org/
+      mailpit:
+        image: axllent/mailpit
+        container_name: mailpit
         ports:
-          - '${PORT_MAILDEV:-1080}:80'
-          - '${PORT_SMTP:-25}:25'
+          - '${PORT_INBOX:-1080}:8025'
+          - '${PORT_SMTP:-25}:1025'
         environment:
-          # It runs in its own container, it may as well use the standard ports instead of 1080 and 1025 so we don't have to reconfigure everything trying to send mail to it.
-          MAILDEV_WEB_PORT: 80
-          MAILDEV_SMTP_PORT: 25
+          MP_SMTP_AUTH_ACCEPT_ANY: 1
+          MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
-      ## SFTP server running at localhost:1022
+      ## SFTP server running at localhost:1022 by default
       sftp:
         image: jmcombs/sftp:alpine
         volumes:
