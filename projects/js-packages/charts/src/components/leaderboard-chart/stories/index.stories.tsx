@@ -180,15 +180,6 @@ export const Loading: Story = {
 	},
 };
 
-export const WithLegend: Story = {
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: false,
-		showLegend: true,
-	},
-};
-
 export const CustomColors: Story = {
 	args: {
 		data: sampleData,
@@ -357,6 +348,15 @@ export const OverlayLabelWithImage: Story = {
 		const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
 
 		return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
+	},
+};
+
+export const WithLegend: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
 	},
 };
 
