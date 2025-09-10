@@ -167,7 +167,13 @@ class Feedback_Field {
 				', ',
 				array_map(
 					function ( $choice ) {
-						return $choice['selected'];
+						$value = $choice['selected'];
+
+						if ( ! empty( $choice['label'] ) ) {
+							$value .= ' - ' . $choice['label'];
+						}
+
+						return $value;
 					},
 					$this->value['choices']
 				)
@@ -201,7 +207,13 @@ class Feedback_Field {
 
 			foreach ( $this->value['choices'] as $choice ) {
 				// On the email, we want to show the actual selected value, not the perceived value, as the options can be shuffled.
-				$choices[] = $choice['selected'];
+				$value = $choice['selected'];
+
+				if ( ! empty( $choice['label'] ) ) {
+					$value .= ' - ' . $choice['label'];
+
+				}
+				$choices[] = $value;
 			}
 
 			return implode( ', ', $choices );

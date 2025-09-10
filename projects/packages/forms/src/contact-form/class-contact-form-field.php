@@ -2033,9 +2033,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 				$option_value                = wp_json_encode(
 					array(
-						'perceived' => $perceived_letters[ $option_index ],
-						'selected'  => $option_letter,
-						'image'     => array(
+						'perceived'  => $perceived_letters[ $option_index ],
+						'selected'   => $option_letter,
+						'label'      => $option_label,
+						'showLabels' => $show_labels,
+						'image'      => array(
 							'id'  => $image_block['attrs']['id'] ?? null,
 							'src' => $image_src ?? null,
 						),

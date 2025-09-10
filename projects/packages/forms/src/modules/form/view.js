@@ -106,7 +106,17 @@ const maybeAddColonToLabel = label => {
 const maybeTransformValue = value => {
 	// For image select fields, we want to show the perceived values, as the choices can be shuffled.
 	if ( value?.type === 'image-select' ) {
-		return value.choices.map( choice => choice.perceived ).join( ', ' );
+		return value.choices
+			.map( choice => {
+				let transformedValue = choice.perceived;
+
+				if ( choice.showLabels && choice.label != null && choice.label !== '' ) {
+					transformedValue += ' - ' + choice.label;
+				}
+
+				return transformedValue;
+			} )
+			.join( ', ' );
 	}
 
 	// For file upload fields, we want to show the file name and size
