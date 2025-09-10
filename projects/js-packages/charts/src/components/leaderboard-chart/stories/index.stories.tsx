@@ -117,6 +117,15 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: '8' },
 			},
 		},
+		legendLabels: {
+			control: 'object',
+			description: 'Custom labels for legend items',
+			table: {
+				category: 'Legend',
+				type: { summary: '{ current?: string; previous?: string }' },
+				defaultValue: { summary: 'undefined' },
+			},
+		},
 		...sharedChartArgTypes,
 		...legendArgTypes,
 		...themeArgTypes,
@@ -348,5 +357,18 @@ export const OverlayLabelWithImage: Story = {
 		const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
 
 		return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
+	},
+};
+
+export const CustomLegendLabels: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+		legendLabels: {
+			current: 'Aug 11-Sep 9, 2025',
+			previous: 'Jul 11-Aug 11, 2025',
+		},
 	},
 };

@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { useGlobalChartsTheme, useGlobalChartsContext } from '../../../providers';
 import type { LeaderboardEntry } from '../../../types';
@@ -5,17 +6,24 @@ import type { BaseLegendItem } from '../../legend';
 
 /**
  * Hook to create legend items from leaderboard data
- * @param data           - Array of leaderboard entries
- * @param primaryColor   - Primary color override
- * @param secondaryColor - Secondary color override
- * @param withComparison - Whether comparison data is shown
+ * @param data                  - Array of leaderboard entries
+ * @param primaryColor          - Primary color override
+ * @param secondaryColor        - Secondary color override
+ * @param withComparison        - Whether comparison data is shown
+ * @param legendLabels          - Custom labels for legend items
+ * @param legendLabels.current  - Label for current period data
+ * @param legendLabels.previous - Label for previous period data
  * @return Array of legend items for the leaderboard chart
  */
 export function useLeaderboardLegendItems(
 	data: LeaderboardEntry[],
 	primaryColor?: string,
 	secondaryColor?: string,
-	withComparison: boolean = false
+	withComparison: boolean = false,
+	legendLabels?: {
+		current?: string;
+		previous?: string;
+	}
 ): BaseLegendItem[] {
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
 	const { resolveGroupColor } = useGlobalChartsContext();
@@ -34,7 +42,7 @@ export function useLeaderboardLegendItems(
 		} );
 
 		items.push( {
-			label: withComparison ? 'Current Period' : 'Values',
+			label: legendLabels?.current || __( 'Current period', 'jetpack-charts' ),
 			value: '',
 			color: resolvedPrimaryColor,
 			index: 0,
@@ -49,7 +57,7 @@ export function useLeaderboardLegendItems(
 			} );
 
 			items.push( {
-				label: 'Previous Period',
+				label: legendLabels?.previous || __( 'Previous period', 'jetpack-charts' ),
 				value: '',
 				color: resolvedSecondaryColor,
 				index: 1,
@@ -63,6 +71,7 @@ export function useLeaderboardLegendItems(
 		primaryColor,
 		secondaryColor,
 		withComparison,
+		legendLabels,
 		leaderboardChartSettings,
 		resolveGroupColor,
 	] );

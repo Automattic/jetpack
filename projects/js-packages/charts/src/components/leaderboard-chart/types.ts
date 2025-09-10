@@ -63,4 +63,18 @@ export interface LeaderboardChartProps
 	 * Height of legend shapes in pixels
 	 */
 	legendShapeHeight?: number;
+
+	/**
+	 * Custom labels for legend items
+	 */
+	legendLabels?: {
+		/**
+		 * Label for current period data
+		 */
+		current?: string;
+		/**
+		 * Label for previous period data (only used when withComparison is true)
+		 */
+		previous?: string;
+	};
 }
