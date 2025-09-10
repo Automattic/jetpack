@@ -67,13 +67,27 @@ export class TunnelManager {
 				const message = args.join( ' ' );
 				const prefixedMessage = `[${ providerName } manager] ${ message }`;
 				func( prefixedMessage );
-				process.send?.( prefixedMessage );
+				try {
+					process.send?.( prefixedMessage );
+					// eslint-disable-next-line no-unused-vars
+				} catch ( e ) {
+					// Ignore IPC errors, console output should still work
+				}
 			};
 		console.log = wrap( originalConsoleLog );
 		console.error = wrap( originalConsoleError );
 
-		await this.start();
-		process.send?.( 'ok' );
+		try {
+			await this.start();
+			const storedUrl = this.getUrl();
+			if ( storedUrl ) {
+				console.log( `Tunnel URL: ${ storedUrl }` );
+			}
+			process.send?.( 'ok' );
+		} catch ( error ) {
+			console.error( `Failed to start tunnel: ${ error.message }` );
+			process.exit( 1 );
+		}
 	}
 
 	/**

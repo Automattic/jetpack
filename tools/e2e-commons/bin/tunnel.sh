@@ -107,6 +107,8 @@ function up() {
 	
 	while [ $retry_count -le $max_retries ]; do
 		if [ $retry_count -gt 0 ]; then
+			log "Waiting 30 seconds before retry..."
+			sleep 30
 			log "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
 		fi
 
@@ -115,21 +117,30 @@ function up() {
 
 		log "Opening new tunnel..."
 		debug_log "Executing: $TUNNEL_CLI_COMMAND on $*"
-		local tunnel_output
+		local tunnel_output tunnel_exit_code
+		# Temporarily disable exit on error to capture the exit code
+		set +e
 		tunnel_output=$($TUNNEL_CLI_COMMAND on "$@" 2>&1)
+		tunnel_exit_code=$?
+		set -e
 		echo "$tunnel_output"
 		
-		# Extract tunnel URL from the startup output
-		local tunnel_url
-		tunnel_url=$(echo "$tunnel_output" | grep -oE "https?://[^'\"[:space:]]+" | tail -1)
-		
-		if [[ -n "$tunnel_url" ]]; then
-			if health_check "$tunnel_url"; then
-				log "Tunnel setup successful"
-				return 0
-			fi
+		# Check exit code first - fail immediately if non-zero
+		if [ $tunnel_exit_code -ne 0 ]; then
+			log "Tunnel start command failed with exit code $tunnel_exit_code"
 		else
-			log "Warning: Could not extract tunnel URL from output for health check"
+			# Extract tunnel URL from the "Tunnel URL: " line
+			local tunnel_url
+			tunnel_url=$(echo "$tunnel_output" | grep "^.*Tunnel URL: " | sed 's/.*Tunnel URL: //' | head -1)
+			
+			if [[ -n "$tunnel_url" ]]; then
+				if health_check "$tunnel_url"; then
+					log "Tunnel setup successful"
+					return 0
+				fi
+			else
+				log "Warning: Could not extract tunnel URL from output for health check"
+			fi
 		fi
 		
 		retry_count=$((retry_count + 1))
