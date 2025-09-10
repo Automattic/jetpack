@@ -518,6 +518,28 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the feedback source based on attributes.
+	 *
+	 * @param array $attributes The form attributes.
+	 * @return Feedback_Source The feedback source instance.
+	 */
+	public function get_feedback_source( $attributes ) {
+		if ( isset( $attributes['widget'] ) && ! empty( $attributes['widget'] ) ) {
+			return Feedback_Source::from_widget( $attributes['widget'] );
+		}
+
+		if ( isset( $attributes['block_template'] ) && ! empty( $attributes['block_template'] ) ) {
+			return Feedback_Source::from_block_template();
+		}
+
+		if ( isset( $attributes['block_template_part'] ) && ! empty( $attributes['block_template_part'] ) ) {
+			return Feedback_Source::from_block_template_part( $attributes['block_template_part'] );
+		}
+		global $page;
+		return new Feedback_Source( \get_the_ID(), \get_the_title(), $page, 'single', \get_the_ID() );
+	}
+
+	/**
 	 * The contact-form shortcode processor
 	 *
 	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
@@ -745,6 +767,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $has_submit_button_block ) {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
+
+			$feedback_source = $form->get_feedback_source( $attributes );
+
+			$r .= '<a href="' . $feedback_source->get_editor_url() . '">EDIT FORM</a> | ';
+			$r .= '<a href="' . $feedback_source->get_permalink() . '">View FORM</a>';
 
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='" . $element_id . "'
