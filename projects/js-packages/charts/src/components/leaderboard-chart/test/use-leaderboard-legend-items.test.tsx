@@ -74,7 +74,7 @@ describe( 'useLeaderboardLegendItems', () => {
 
 			expect( result.current ).toHaveLength( 1 );
 			expect( result.current[ 0 ] ).toEqual( {
-				label: 'Values',
+				label: 'Current period',
 				value: '',
 				color: expect.any( String ),
 				index: 0,
@@ -93,7 +93,7 @@ describe( 'useLeaderboardLegendItems', () => {
 
 			// Current period item
 			expect( result.current[ 0 ] ).toEqual( {
-				label: 'Current Period',
+				label: 'Current period',
 				value: '',
 				color: expect.any( String ),
 				index: 0,
@@ -102,7 +102,7 @@ describe( 'useLeaderboardLegendItems', () => {
 
 			// Previous period item
 			expect( result.current[ 1 ] ).toEqual( {
-				label: 'Previous Period',
+				label: 'Previous period',
 				value: '',
 				color: expect.any( String ),
 				index: 1,
@@ -172,25 +172,25 @@ describe( 'useLeaderboardLegendItems', () => {
 	} );
 
 	describe( 'Label behavior', () => {
-		it( 'should use "Values" label when comparison is disabled', () => {
+		it( 'should use "Current period" label when comparison is disabled', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() => useLeaderboardLegendItems( mockData, undefined, undefined, false ),
 				{ wrapper }
 			);
 
-			expect( result.current[ 0 ].label ).toBe( 'Values' );
+			expect( result.current[ 0 ].label ).toBe( 'Current period' );
 		} );
 
-		it( 'should use "Current Period" label when comparison is enabled', () => {
+		it( 'should use "Current period" label when comparison is enabled', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() => useLeaderboardLegendItems( mockData, undefined, undefined, true ),
 				{ wrapper }
 			);
 
-			expect( result.current[ 0 ].label ).toBe( 'Current Period' );
-			expect( result.current[ 1 ].label ).toBe( 'Previous Period' );
+			expect( result.current[ 0 ].label ).toBe( 'Current period' );
+			expect( result.current[ 1 ].label ).toBe( 'Previous period' );
 		} );
 
 		it( 'should use custom current label when provided', () => {
@@ -233,7 +233,7 @@ describe( 'useLeaderboardLegendItems', () => {
 			);
 
 			expect( result.current[ 0 ].label ).toBe( 'Custom Current' );
-			expect( result.current[ 1 ].label ).toBe( 'Previous Period' );
+			expect( result.current[ 1 ].label ).toBe( 'Previous period' );
 		} );
 
 		it( 'should override default labels even when custom provided without comparison', () => {
