@@ -90,26 +90,6 @@ function jetpack_load_shortcodes() {
 }
 
 /**
- * Registering shortcode dependencies.
- * They are few and only needed for very few shortcodes, so we load them on-demand.
- *
- * @return void
- */
-function jetpack_shortcode_register_dependencies() {
-	if ( wp_script_is( 'jetpack-shortcode-deps', 'registered' ) ) {
-		return;
-	}
-
-	wp_register_script(
-		'jetpack-shortcode-deps',
-		plugins_url( '_inc/build/shortcodes/js/dependencies.min.js', JETPACK__PLUGIN_FILE ),
-		array( 'jquery' ),
-		'20250905',
-		true
-	);
-}
-
-/**
  * Runs preg_replace so that replacements don't happen within open tags.
  * Parameters are the same as preg_replace, with an added optional search param for improved performance
  *
