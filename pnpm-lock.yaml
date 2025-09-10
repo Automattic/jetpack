@@ -4793,6 +4793,9 @@ importers:
       postcss-custom-properties:
         specifier: 12.1.11
         version: 12.1.11(postcss@8.4.47)
+      print-this:
+        specifier: 1.9.0
+        version: 1.9.0
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -13132,6 +13135,10 @@ packages:
   jquery-modal@0.9.2:
     resolution: {integrity: sha512-Bx6jTBuiUbdywriWd0UAZK9v7FKEDCOD5uRh47qd4coGvx+dG4w8cOGe4TG2OoR1dNrXn6Aqaeu8MAA+Oz7vOw==}
 
+  jquery@1.11.3:
+    resolution: {integrity: sha512-pHM/XLofp0FJc0/0AsRm8q/5ob+a1kno+vfclXGozaMBPv3qD7Xq19loECVcBB4MOLdygnyneQMPTsH5QiVNBQ==}
+    deprecated: This version is deprecated. Please upgrade to the latest version or find support at https://www.herodevs.com/support/jquery-nes.
+
   jquery@3.7.1:
     resolution: {integrity: sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==}
 
@@ -14700,6 +14707,9 @@ packages:
   pretty-format@30.0.5:
     resolution: {integrity: sha512-D1tKtYvByrBkFLe2wHJl2bwMJIiT8rW+XA+TiataH79/FszLQMrpGEvzUVkzPau7OCO0Qnrhpe87PqtOAIB8Yw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
+
+  print-this@1.9.0:
+    resolution: {integrity: sha512-XmFQbASfdd+vXvuSIxiux1dHEU6rXnCYFXzU8NEsf8IgV7p20guyzhcOlR1EjprWvNLP6nCRfvj1WV8ivq01Vg==}
 
   process-on-spawn@1.1.0:
     resolution: {integrity: sha512-JOnOPQ/8TZgjs1JIH/m9ni7FfimjNa/PRx7y/Wb5qdItsnhO0jE4AT7fC0HjC28DUQWDr50dwSYZLdRMlqDq3Q==}
@@ -27887,6 +27897,8 @@ snapshots:
 
   jquery-modal@0.9.2: {}
 
+  jquery@1.11.3: {}
+
   jquery@3.7.1: {}
 
   js-base64@3.7.8: {}
@@ -29692,6 +29704,10 @@ snapshots:
       '@jest/schemas': 30.0.5
       ansi-styles: 5.2.0
       react-is: 18.3.1
+
+  print-this@1.9.0:
+    dependencies:
+      jquery: 1.11.3
 
   process-on-spawn@1.1.0:
     dependencies:
