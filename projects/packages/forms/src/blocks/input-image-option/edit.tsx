@@ -66,7 +66,6 @@ export default function ImageOptionInputEdit( props ) {
 
 	const {
 		'jetpack/field-image-select-is-supersized': isSupersized,
-		'jetpack/field-image-select-show-labels': showLabels,
 		'jetpack/field-image-options-type': selectionType = 'radio',
 	} = context || {};
 
@@ -82,12 +81,6 @@ export default function ImageOptionInputEdit( props ) {
 		} ),
 		style: blockStyle,
 	} );
-
-	const labelClassName = useMemo( () => {
-		return clsx( 'jetpack-input-image-option__label', {
-			'visually-hidden': ! showLabels,
-		} );
-	}, [ showLabels ] );
 
 	const template = useMemo( () => {
 		return [
@@ -117,7 +110,7 @@ export default function ImageOptionInputEdit( props ) {
 				<div className="jetpack-input-image-option__label-code">{ positionLetter }</div>
 				<RichText
 					tagName="span"
-					className={ labelClassName }
+					className="jetpack-input-image-option__label"
 					value={ label }
 					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
 					__unstableDisableFormats
