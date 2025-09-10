@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import { BaseChartProps, LeaderboardEntry } from '../../types';
 
 export interface LeaderboardChartProps
@@ -11,6 +12,9 @@ export interface LeaderboardChartProps
 		| 'legendAlignment'
 		| 'legendShape'
 		| 'chartId'
+		| 'width'
+		| 'height'
+		| 'size'
 	> {
 	/**
 	 * Whether to show comparison data
@@ -77,4 +81,9 @@ export interface LeaderboardChartProps
 		 */
 		previous?: string;
 	};
+
+	/**
+	 * Child components for composition API
+	 */
+	children?: ReactNode;
 }

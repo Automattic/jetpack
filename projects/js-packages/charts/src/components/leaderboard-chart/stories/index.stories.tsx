@@ -372,3 +372,51 @@ export const CustomLegendLabels: Story = {
 		},
 	},
 };
+
+export const WithCompositionLegend: Story = {
+	render: args => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'start',
+			} }
+		>
+			<div>
+				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>Traditional Props-based Legend</h3>
+				<LeaderboardChart { ...args } showLegend={ true } />
+			</div>
+			<div>
+				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>
+					Composition API with Legend Component
+				</h3>
+				<LeaderboardChart { ...args }>
+					<LeaderboardChart.Legend
+						shape="circle"
+						shapeWidth={ 8 }
+						shapeHeight={ 8 }
+						style={ { marginTop: '16px' } }
+					/>
+				</LeaderboardChart>
+			</div>
+		</div>
+	),
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		legendLabels: {
+			current: 'Aug 11-Sep 9, 2025',
+			previous: 'Jul 11-Aug 11, 2025',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control over legend positioning and styling.',
+			},
+		},
+	},
+};

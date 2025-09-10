@@ -15,8 +15,11 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { formatMetricValue } from '../../utils';
+import { formatMetricValue, attachSubComponents } from '../../utils';
 import { Legend } from '../legend';
+import { useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
@@ -114,6 +117,7 @@ const BarWithLabel = ( {
  * @param props.legendShapeWidth  - Width of legend shapes in pixels
  * @param props.legendShapeHeight - Height of legend shapes in pixels
  * @param props.legendLabels      - Custom labels for legend items
+ * @param props.children          - Child components for composition API
  * @param props.className         - Additional CSS class name
  * @param props.style             - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
@@ -138,9 +142,13 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	legendLabels,
 	className,
 	style,
+	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
+
+	// Process children to extract compound components
+	const { otherChildren } = useChartChildren( children, 'LeaderboardChart' );
 	const {
 		labelSpacing,
 		rowGap,
@@ -192,82 +200,105 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
-			<div
-				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-				style={ style }
+			<SingleChartContext.Provider
+				value={ {
+					chartId,
+					chartWidth: 0, // LeaderboardChart doesn't need specific dimensions
+					chartHeight: 0,
+				} }
 			>
-				<div className={ styles.emptyState }>{ loading ? 'Loading...' : 'No data available' }</div>
-			</div>
+				<div
+					className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+					style={ style }
+				>
+					<div className={ styles.emptyState }>
+						{ loading ? 'Loading...' : 'No data available' }
+					</div>
+					{ /* Render children from composition API */ }
+					{ otherChildren }
+				</div>
+			</SingleChartContext.Provider>
 		);
 	}
 
 	return (
-		<div
-			className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-			style={ {
-				...style,
-				display: 'flex',
-				flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-				gap: showLegend ? '16px' : '0',
+		<SingleChartContext.Provider
+			value={ {
+				chartId,
+				chartWidth: 0, // LeaderboardChart doesn't need specific dimensions
+				chartHeight: 0,
 			} }
 		>
-			<Grid
-				className={ styles.leaderboardGrid }
-				templateColumns="minmax(0, 1fr) auto"
-				rowGap={ rowGap }
-				columnGap={ columnGap }
+			<div
+				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
 				style={ {
-					flex: 1,
+					...style,
+					display: 'flex',
+					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
+					gap: showLegend ? '16px' : '0',
 				} }
 			>
-				{ data.map( entry => {
-					const colorIndex = Math.sign( entry.delta ) + 1;
-					const deltaColor = deltaColors[ colorIndex ];
+				<Grid
+					className={ styles.leaderboardGrid }
+					templateColumns="minmax(0, 1fr) auto"
+					rowGap={ rowGap }
+					columnGap={ columnGap }
+					style={ {
+						flex: 1,
+					} }
+				>
+					{ data.map( entry => {
+						const colorIndex = Math.sign( entry.delta ) + 1;
+						const deltaColor = deltaColors[ colorIndex ];
 
-					return (
-						<Fragment key={ entry.id }>
-							<VStack spacing={ labelSpacing }>
-								<BarWithLabel
-									entry={ entry }
-									withComparison={ withComparison }
-									withOverlayLabel={ withOverlayLabel }
-									primaryColor={ resolvedPrimaryColor }
-									secondaryColor={ resolvedSecondaryColor }
-								/>
-							</VStack>
+						return (
+							<Fragment key={ entry.id }>
+								<VStack spacing={ labelSpacing }>
+									<BarWithLabel
+										entry={ entry }
+										withComparison={ withComparison }
+										withOverlayLabel={ withOverlayLabel }
+										primaryColor={ resolvedPrimaryColor }
+										secondaryColor={ resolvedSecondaryColor }
+									/>
+								</VStack>
 
-							<div
-								className={ clsx( styles.valueContainer, {
-									[ styles.overlayLabel ]: withOverlayLabel,
-								} ) }
-							>
-								<Text>{ valueFormatter( entry.currentValue ) }</Text>
+								<div
+									className={ clsx( styles.valueContainer, {
+										[ styles.overlayLabel ]: withOverlayLabel,
+									} ) }
+								>
+									<Text>{ valueFormatter( entry.currentValue ) }</Text>
 
-								{ withComparison && (
-									<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
-								) }
-							</div>
-						</Fragment>
-					);
-				} ) }
-			</Grid>
+									{ withComparison && (
+										<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
+									) }
+								</div>
+							</Fragment>
+						);
+					} ) }
+				</Grid>
 
-			{ showLegend && (
-				<Legend
-					orientation={ legendOrientation }
-					position={ legendPosition }
-					alignment={ legendAlignment }
-					shape={ legendShape }
-					shapeWidth={ legendShapeWidth }
-					shapeHeight={ legendShapeHeight }
-					chartId={ chartId }
-				/>
-			) }
-		</div>
+				{ showLegend && (
+					<Legend
+						orientation={ legendOrientation }
+						position={ legendPosition }
+						alignment={ legendAlignment }
+						shape={ legendShape }
+						shapeWidth={ legendShapeWidth }
+						shapeHeight={ legendShapeHeight }
+						chartId={ chartId }
+					/>
+				) }
+
+				{ /* Render children from composition API */ }
+				{ otherChildren }
+			</div>
+		</SingleChartContext.Provider>
 	);
 };
 
-const LeaderboardChart: FC< LeaderboardChartProps > = props => {
+const LeaderboardChartWithProvider: FC< LeaderboardChartProps > = props => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	// If we're already in a GlobalChartsProvider context, don't create a new one
@@ -283,6 +314,19 @@ const LeaderboardChart: FC< LeaderboardChartProps > = props => {
 	);
 };
 
-LeaderboardChart.displayName = 'LeaderboardChart';
+LeaderboardChartWithProvider.displayName = 'LeaderboardChart';
 
-export default LeaderboardChart;
+// Create LeaderboardChart with composition API
+const LeaderboardChart = attachSubComponents( LeaderboardChartWithProvider, {
+	Legend: Legend,
+} );
+
+// Create responsive LeaderboardChart with composition API
+const LeaderboardChartResponsive = attachSubComponents(
+	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider ),
+	{
+		Legend: Legend,
+	}
+);
+
+export { LeaderboardChartResponsive as default, LeaderboardChart as LeaderboardChartUnresponsive };
