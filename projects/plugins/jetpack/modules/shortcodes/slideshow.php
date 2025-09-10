@@ -264,7 +264,13 @@ class Jetpack_Slideshow_Shortcode {
 	 */
 	public function enqueue_scripts() {
 
-		jetpack_shortcode_register_dependencies();
+		wp_register_script(
+			'jetpack-shortcode-deps',
+			plugins_url( '_inc/build/shortcodes/js/dependencies.min.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery' ),
+			'20250905',
+			true
+		);
 
 		wp_enqueue_script(
 			'jetpack-slideshow',
