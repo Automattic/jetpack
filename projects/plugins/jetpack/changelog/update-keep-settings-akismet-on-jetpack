@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Akismet: allow Akismet to register its own menu even if Jetpack is installed
