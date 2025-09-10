@@ -362,7 +362,7 @@ class Users extends Module {
 	 * @param \WP_User $user       The user object.
 	 */
 	public function wp_login_handler( $user_login, $user = null ) {
-		if ( ! $user instanceof \WP_User ) {
+		if ( ! $user instanceof \WP_User || empty( $user->ID ) ) {
 			return;
 		}
 
