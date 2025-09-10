@@ -111,6 +111,8 @@ const BarWithLabel = ( {
  * @param props.legendPosition    - Legend position
  * @param props.legendAlignment   - Legend alignment
  * @param props.legendShape       - Legend shape
+ * @param props.legendShapeWidth  - Width of legend shapes in pixels
+ * @param props.legendShapeHeight - Height of legend shapes in pixels
  * @param props.className         - Additional CSS class name
  * @param props.style             - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
@@ -129,7 +131,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
 	legendAlignment = 'center',
-	legendShape = 'rect',
+	legendShape = 'circle',
+	legendShapeWidth = 8,
+	legendShapeHeight = 8,
 	className,
 	style,
 } ) => {
@@ -251,6 +255,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					position={ legendPosition }
 					alignment={ legendAlignment }
 					shape={ legendShape }
+					shapeWidth={ legendShapeWidth }
+					shapeHeight={ legendShapeHeight }
 					chartId={ chartId }
 				/>
 			) }

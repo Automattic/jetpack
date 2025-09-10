@@ -92,6 +92,31 @@ const meta: Meta< StoryArgs > = {
 				type: { summary: 'React.CSSProperties' },
 			},
 		},
+		withOverlayLabel: {
+			control: 'boolean',
+			description: 'Whether to overlay the label on top of the bar',
+			table: {
+				defaultValue: { summary: 'false' },
+			},
+		},
+		legendShapeWidth: {
+			control: 'number',
+			description: 'Width of legend shapes in pixels',
+			table: {
+				category: 'Legend',
+				type: { summary: 'number' },
+				defaultValue: { summary: '8' },
+			},
+		},
+		legendShapeHeight: {
+			control: 'number',
+			description: 'Height of legend shapes in pixels',
+			table: {
+				category: 'Legend',
+				type: { summary: 'number' },
+				defaultValue: { summary: '8' },
+			},
+		},
 		...sharedChartArgTypes,
 		...legendArgTypes,
 		...themeArgTypes,
@@ -105,6 +130,8 @@ const meta: Meta< StoryArgs > = {
 		legendAlignment: 'center',
 		legendOrientation: 'horizontal',
 		legendShape: 'circle',
+		legendShapeWidth: 8,
+		legendShapeHeight: 8,
 		withOverlayLabel: false,
 	},
 	decorators: [ chartDecorator ],

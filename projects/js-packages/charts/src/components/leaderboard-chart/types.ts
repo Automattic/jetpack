@@ -53,4 +53,14 @@ export interface LeaderboardChartProps
 	style?: React.CSSProperties & {
 		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
+
+	/**
+	 * Width of legend shapes in pixels
+	 */
+	legendShapeWidth?: number;
+
+	/**
+	 * Height of legend shapes in pixels
+	 */
+	legendShapeHeight?: number;
 }
