@@ -152,7 +152,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--input-height': inputHeight,
 		'--jetpack--contact-form--font-size': fontSize,
 		'--jetpack--contact-form--font-family': fontFamily,
-		'--jetpack--contact-form--line-height': lineHeight,
+		'--jetpack--contact-form--line-height': lineHeight === 'normal' ? '1.2em' : lineHeight,
 		'--jetpack--contact-form--button-primary--color': buttonPrimaryColor,
 		'--jetpack--contact-form--button-primary--background-color': buttonPrimaryBackgroundColor,
 		'--jetpack--contact-form--button-primary--border': buttonPrimaryBorder,

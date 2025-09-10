@@ -4,7 +4,7 @@
 	.jetpack-field__input,
 	.jetpack-field__textarea {
 		box-sizing: border-box;
-		border-color: var(--jetpack--contact-form--border-color);
+		border-color: var(--jetpack--contact-form--border-color, currentColor);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		border-width: var(--jetpack--contact-form--border-size);
 		font-size: var(--jetpack--contact-form--font-size);
@@ -68,6 +68,8 @@
 			color: inherit;
 			display: flex;
 			max-width: 40%;
+			background-color: inherit;
+			align-items: center;
 
 			// these class is used to style select elements
 			.jetpack-field__input-element {
@@ -86,7 +88,7 @@
 				&:where(select) {
 					// compensate spacing for downarrow
 					// TODO: misbehaves with :focus, fixed on next version of Gutenberg
-					padding-right: 24px;
+					padding-right: 20px;
 				}
 
 				&:focus {
@@ -99,6 +101,10 @@
 
 .is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone,
 .is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
+
+	.jetpack-field__input {
+		padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
+	}
 
 	&:not(.has-placeholder):not(.is-selected),
 	&:not(.has-placeholder):not(.has-child-selected) {
@@ -119,6 +125,13 @@
 
 .is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone,
 .is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
+
+	.jetpack-field__input {
+
+		&.is-selected {
+			box-shadow: unset;
+		}
+	}
 
 	&:not(.has-placeholder):not(.is-selected),
 	&:not(.has-placeholder):not(.has-child-selected) {

@@ -995,6 +995,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$this->enqueue_phone_field_assets();
 
+		// $class is ill-formed, so we need to fix it
+		// Strip 'class=' and quotes to get just the class names
+		$class_names = preg_replace( "/^class=['\"]([^'\"]*)['\"].*$/", '$1', $class );
+
 		$link_label_id = $id . '-number';
 
 		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
@@ -1003,11 +1007,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$value = '';
 		}
 
+		$translated_countries = $this->get_translatable_countries();
+		$global_config        = array(
+			'i18n' => array(
+				'countryNames' => $translated_countries,
+			),
+		);
+		wp_interactivity_config( 'jetpack/field-phone', $global_config );
 		ob_start();
 		?>
-		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
+		<div
+			class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?> <?php echo esc_attr( $class_names ); ?>"
 			style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
 			data-wp-on--jetpack-form-reset='actions.phoneResetHandler'
+			data-wp-init="callbacks.initializePhoneField"
+			data-wp-class--is-combobox-open="context.comboboxOpen"
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- function is supposed to work this way
 			echo wp_interactivity_data_wp_context(
@@ -1018,34 +1032,76 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					// dynamic
 					'phoneNumber'         => '',
 					'phoneCountryCode'    => $default_country,
-					'countryList'         => array(),
 					'fullPhoneNumber'     => '',
 					'countryPrefix'       => '',
+					// combobox state
+					'useCombobox'         => true,
+					'comboboxOpen'        => false,
+					'searchTerm'          => '',
+					'allCountries'        => array(),
+					'filteredCountries'   => array(),
+					'selectedCountry'     => array(),
 				)
 			);
 			?>
 			>
-				<div class="jetpack-field__input-prefix" data-wp-bind--hidden="!context.showCountrySelector">
-					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
-					<select <?php echo $class; ?>
-						data-wp-bind--disabled='state.isSubmitting'
-						data-wp-init="callbacks.initializeCountrySelector"
-						data-wp-on--change="actions.onPhoneCountryChange"
-						data-wp-bind--value="context.phoneCountryCode"
-						data-wp-on--blur='actions.onFieldBlur'>
-						<template
-							data-wp-each--country="context.countryList"
-							data-wp-each-key="context.country.code">
-							<option
-								data-wp-bind--value="context.country.value"
-								data-wp-bind--selected="context.country.selected"
-								data-wp-text="context.country.label"></option>
-						</template>
-					</select>
+				<div class="jetpack-field__input-prefix"
+					data-wp-bind--hidden="!context.showCountrySelector"
+					data-wp-init="callbacks.initializePhoneFieldCustomComboBox"
+					data-wp-on-document--click="actions.phoneComboboxDocumentClickHandler">
+					<div class="jetpack-custom-combobox">
+						
+						<button 
+							class="jetpack-combobox-trigger"
+							type="button"
+							data-wp-on--click="actions.phoneComboboxToggle"
+							data-wp-bind--aria-expanded="context.comboboxOpen">
+							<span 
+								class="jetpack-combobox-selected"
+								data-wp-text="context.selectedCountry.flag"></span>
+							<span 
+								class="jetpack-combobox-trigger-arrow"
+								data-wp-class--is-open="context.comboboxOpen">
+								<svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+							</span>
+							<span 
+								class="jetpack-combobox-selected"
+								data-wp-text="context.selectedCountry.value"></span>
+						</button>
+						<div 
+							class="jetpack-combobox-dropdown <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
+							style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
+							data-wp-bind--hidden="!context.comboboxOpen">
+							<input
+								class="jetpack-combobox-search" 
+								type="text" 
+								placeholder="<?php echo esc_attr__( 'Search countries...', 'jetpack-forms' ); ?>"
+								data-wp-on--input="actions.phoneComboboxInputHandler"
+								data-wp-on--keydown="actions.phoneComboboxKeydownHandler">
+							<div class="jetpack-combobox-options">
+								<template
+									data-wp-each--filtered="context.filteredCountries"
+									data-wp-each-key="context.filtered.code">
+									<div 
+										class="jetpack-combobox-option"
+										data-wp-key="context.filtered.code"
+										data-wp-class--jetpack-combobox-option-selected="context.filtered.selected"
+										data-wp-on--click="actions.phoneCountryChangeHandler">
+										<span class="jetpack-combobox-option-icon" data-wp-text="context.filtered.flag"></span>
+										<span class="jetpack-combobox-option-value" data-wp-text="context.filtered.value"></span>
+										<span class="jetpack-combobox-option-description" data-wp-text="context.filtered.country"></span>
+									</div>
+								</template>
+							</div>
+						</div>
+					</div>
 				</div>
 				<input
+					class="jetpack-field__input-element"
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- both are escaped in calling function ?>
-					<?php echo $class; ?> <?php echo $placeholder; ?>
+					<?php echo $placeholder; ?>
 					type="tel"
 					<?php if ( $required ) { ?>
 						required="true"
@@ -1057,9 +1113,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--aria-invalid='state.fieldHasErrors'
 					data-wp-bind--value='context.phoneNumber'
 					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
-					data-wp-on--input='actions.onPhoneNumberChange'
+					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
-					data-wp-class--has-value='state.hasFieldValue'
+					data-wp-on--focus='actions.phoneNumberFocusHandler'
+					data-wp-class--has-value='context.phoneNumber'
 					/>
 				<input type="hidden"
 					id="<?php echo esc_attr( $id ); ?>"
@@ -1069,7 +1126,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php
 		$input = ob_get_clean();
 
-		$field = $label . $input . $this->get_error_div( $id, 'phone' );
+		$field = $label . $input . $this->get_error_div( $id, 'telephone' );
 		return $field;
 	}
 
@@ -2759,14 +2816,273 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Gets an array of translatable country names indexed by their two-letter country codes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Array of country names with two-letter country codes as keys.
+	 */
+	public function get_translatable_countries() {
+		return array(
+			'AF' => __( 'Afghanistan', 'jetpack-forms' ),
+			'AL' => __( 'Albania', 'jetpack-forms' ),
+			'DZ' => __( 'Algeria', 'jetpack-forms' ),
+			'AS' => __( 'American Samoa', 'jetpack-forms' ),
+			'AD' => __( 'Andorra', 'jetpack-forms' ),
+			'AO' => __( 'Angola', 'jetpack-forms' ),
+			'AI' => __( 'Anguilla', 'jetpack-forms' ),
+			'AG' => __( 'Antigua and Barbuda', 'jetpack-forms' ),
+			'AR' => __( 'Argentina', 'jetpack-forms' ),
+			'AM' => __( 'Armenia', 'jetpack-forms' ),
+			'AW' => __( 'Aruba', 'jetpack-forms' ),
+			'AU' => __( 'Australia', 'jetpack-forms' ),
+			'AT' => __( 'Austria', 'jetpack-forms' ),
+			'AZ' => __( 'Azerbaijan', 'jetpack-forms' ),
+			'BS' => __( 'Bahamas', 'jetpack-forms' ),
+			'BH' => __( 'Bahrain', 'jetpack-forms' ),
+			'BD' => __( 'Bangladesh', 'jetpack-forms' ),
+			'BB' => __( 'Barbados', 'jetpack-forms' ),
+			'BY' => __( 'Belarus', 'jetpack-forms' ),
+			'BE' => __( 'Belgium', 'jetpack-forms' ),
+			'BZ' => __( 'Belize', 'jetpack-forms' ),
+			'BJ' => __( 'Benin', 'jetpack-forms' ),
+			'BM' => __( 'Bermuda', 'jetpack-forms' ),
+			'BT' => __( 'Bhutan', 'jetpack-forms' ),
+			'BO' => __( 'Bolivia', 'jetpack-forms' ),
+			'BA' => __( 'Bosnia and Herzegovina', 'jetpack-forms' ),
+			'BW' => __( 'Botswana', 'jetpack-forms' ),
+			'BR' => __( 'Brazil', 'jetpack-forms' ),
+			'IO' => __( 'British Indian Ocean Territory', 'jetpack-forms' ),
+			'VG' => __( 'British Virgin Islands', 'jetpack-forms' ),
+			'BN' => __( 'Brunei', 'jetpack-forms' ),
+			'BG' => __( 'Bulgaria', 'jetpack-forms' ),
+			'BF' => __( 'Burkina Faso', 'jetpack-forms' ),
+			'BI' => __( 'Burundi', 'jetpack-forms' ),
+			'KH' => __( 'Cambodia', 'jetpack-forms' ),
+			'CM' => __( 'Cameroon', 'jetpack-forms' ),
+			'CA' => __( 'Canada', 'jetpack-forms' ),
+			'CV' => __( 'Cape Verde', 'jetpack-forms' ),
+			'KY' => __( 'Cayman Islands', 'jetpack-forms' ),
+			'CF' => __( 'Central African Republic', 'jetpack-forms' ),
+			'TD' => __( 'Chad', 'jetpack-forms' ),
+			'CL' => __( 'Chile', 'jetpack-forms' ),
+			'CN' => __( 'China', 'jetpack-forms' ),
+			'CX' => __( 'Christmas Island', 'jetpack-forms' ),
+			'CC' => __( 'Cocos (Keeling) Islands', 'jetpack-forms' ),
+			'CO' => __( 'Colombia', 'jetpack-forms' ),
+			'KM' => __( 'Comoros', 'jetpack-forms' ),
+			'CG' => __( 'Congo - Brazzaville', 'jetpack-forms' ),
+			'CD' => __( 'Congo - Kinshasa', 'jetpack-forms' ),
+			'CK' => __( 'Cook Islands', 'jetpack-forms' ),
+			'CR' => __( 'Costa Rica', 'jetpack-forms' ),
+			'HR' => __( 'Croatia', 'jetpack-forms' ),
+			'CU' => __( 'Cuba', 'jetpack-forms' ),
+			'CY' => __( 'Cyprus', 'jetpack-forms' ),
+			'CZ' => __( 'Czech Republic', 'jetpack-forms' ),
+			'CI' => __( "Côte d'Ivoire", 'jetpack-forms' ),
+			'DK' => __( 'Denmark', 'jetpack-forms' ),
+			'DJ' => __( 'Djibouti', 'jetpack-forms' ),
+			'DM' => __( 'Dominica', 'jetpack-forms' ),
+			'DO' => __( 'Dominican Republic', 'jetpack-forms' ),
+			'EC' => __( 'Ecuador', 'jetpack-forms' ),
+			'EG' => __( 'Egypt', 'jetpack-forms' ),
+			'SV' => __( 'El Salvador', 'jetpack-forms' ),
+			'GQ' => __( 'Equatorial Guinea', 'jetpack-forms' ),
+			'ER' => __( 'Eritrea', 'jetpack-forms' ),
+			'EE' => __( 'Estonia', 'jetpack-forms' ),
+			'SZ' => __( 'Eswatini', 'jetpack-forms' ),
+			'ET' => __( 'Ethiopia', 'jetpack-forms' ),
+			'FK' => __( 'Falkland Islands', 'jetpack-forms' ),
+			'FO' => __( 'Faroe Islands', 'jetpack-forms' ),
+			'FJ' => __( 'Fiji', 'jetpack-forms' ),
+			'FI' => __( 'Finland', 'jetpack-forms' ),
+			'FR' => __( 'France', 'jetpack-forms' ),
+			'GF' => __( 'French Guiana', 'jetpack-forms' ),
+			'PF' => __( 'French Polynesia', 'jetpack-forms' ),
+			'GA' => __( 'Gabon', 'jetpack-forms' ),
+			'GM' => __( 'Gambia', 'jetpack-forms' ),
+			'GE' => __( 'Georgia', 'jetpack-forms' ),
+			'DE' => __( 'Germany', 'jetpack-forms' ),
+			'GH' => __( 'Ghana', 'jetpack-forms' ),
+			'GI' => __( 'Gibraltar', 'jetpack-forms' ),
+			'GR' => __( 'Greece', 'jetpack-forms' ),
+			'GL' => __( 'Greenland', 'jetpack-forms' ),
+			'GD' => __( 'Grenada', 'jetpack-forms' ),
+			'GP' => __( 'Guadeloupe', 'jetpack-forms' ),
+			'GU' => __( 'Guam', 'jetpack-forms' ),
+			'GT' => __( 'Guatemala', 'jetpack-forms' ),
+			'GG' => __( 'Guernsey', 'jetpack-forms' ),
+			'GN' => __( 'Guinea', 'jetpack-forms' ),
+			'GW' => __( 'Guinea-Bissau', 'jetpack-forms' ),
+			'GY' => __( 'Guyana', 'jetpack-forms' ),
+			'HT' => __( 'Haiti', 'jetpack-forms' ),
+			'HN' => __( 'Honduras', 'jetpack-forms' ),
+			'HK' => __( 'Hong Kong', 'jetpack-forms' ),
+			'HU' => __( 'Hungary', 'jetpack-forms' ),
+			'IS' => __( 'Iceland', 'jetpack-forms' ),
+			'IN' => __( 'India', 'jetpack-forms' ),
+			'ID' => __( 'Indonesia', 'jetpack-forms' ),
+			'IR' => __( 'Iran', 'jetpack-forms' ),
+			'IQ' => __( 'Iraq', 'jetpack-forms' ),
+			'IE' => __( 'Ireland', 'jetpack-forms' ),
+			'IM' => __( 'Isle of Man', 'jetpack-forms' ),
+			'IL' => __( 'Israel', 'jetpack-forms' ),
+			'IT' => __( 'Italy', 'jetpack-forms' ),
+			'JM' => __( 'Jamaica', 'jetpack-forms' ),
+			'JP' => __( 'Japan', 'jetpack-forms' ),
+			'JE' => __( 'Jersey', 'jetpack-forms' ),
+			'JO' => __( 'Jordan', 'jetpack-forms' ),
+			'KZ' => __( 'Kazakhstan', 'jetpack-forms' ),
+			'KE' => __( 'Kenya', 'jetpack-forms' ),
+			'KI' => __( 'Kiribati', 'jetpack-forms' ),
+			'XK' => __( 'Kosovo', 'jetpack-forms' ),
+			'KW' => __( 'Kuwait', 'jetpack-forms' ),
+			'KG' => __( 'Kyrgyzstan', 'jetpack-forms' ),
+			'LA' => __( 'Laos', 'jetpack-forms' ),
+			'LV' => __( 'Latvia', 'jetpack-forms' ),
+			'LB' => __( 'Lebanon', 'jetpack-forms' ),
+			'LS' => __( 'Lesotho', 'jetpack-forms' ),
+			'LR' => __( 'Liberia', 'jetpack-forms' ),
+			'LY' => __( 'Libya', 'jetpack-forms' ),
+			'LI' => __( 'Liechtenstein', 'jetpack-forms' ),
+			'LT' => __( 'Lithuania', 'jetpack-forms' ),
+			'LU' => __( 'Luxembourg', 'jetpack-forms' ),
+			'MO' => __( 'Macao', 'jetpack-forms' ),
+			'MG' => __( 'Madagascar', 'jetpack-forms' ),
+			'MW' => __( 'Malawi', 'jetpack-forms' ),
+			'MY' => __( 'Malaysia', 'jetpack-forms' ),
+			'MV' => __( 'Maldives', 'jetpack-forms' ),
+			'ML' => __( 'Mali', 'jetpack-forms' ),
+			'MT' => __( 'Malta', 'jetpack-forms' ),
+			'MH' => __( 'Marshall Islands', 'jetpack-forms' ),
+			'MQ' => __( 'Martinique', 'jetpack-forms' ),
+			'MR' => __( 'Mauritania', 'jetpack-forms' ),
+			'MU' => __( 'Mauritius', 'jetpack-forms' ),
+			'YT' => __( 'Mayotte', 'jetpack-forms' ),
+			'MX' => __( 'Mexico', 'jetpack-forms' ),
+			'FM' => __( 'Micronesia', 'jetpack-forms' ),
+			'MD' => __( 'Moldova', 'jetpack-forms' ),
+			'MC' => __( 'Monaco', 'jetpack-forms' ),
+			'MN' => __( 'Mongolia', 'jetpack-forms' ),
+			'ME' => __( 'Montenegro', 'jetpack-forms' ),
+			'MS' => __( 'Montserrat', 'jetpack-forms' ),
+			'MA' => __( 'Morocco', 'jetpack-forms' ),
+			'MZ' => __( 'Mozambique', 'jetpack-forms' ),
+			'MM' => __( 'Myanmar', 'jetpack-forms' ),
+			'NA' => __( 'Namibia', 'jetpack-forms' ),
+			'NR' => __( 'Nauru', 'jetpack-forms' ),
+			'NP' => __( 'Nepal', 'jetpack-forms' ),
+			'NL' => __( 'Netherlands', 'jetpack-forms' ),
+			'NC' => __( 'New Caledonia', 'jetpack-forms' ),
+			'NZ' => __( 'New Zealand', 'jetpack-forms' ),
+			'NI' => __( 'Nicaragua', 'jetpack-forms' ),
+			'NE' => __( 'Niger', 'jetpack-forms' ),
+			'NG' => __( 'Nigeria', 'jetpack-forms' ),
+			'NU' => __( 'Niue', 'jetpack-forms' ),
+			'NF' => __( 'Norfolk Island', 'jetpack-forms' ),
+			'KP' => __( 'North Korea', 'jetpack-forms' ),
+			'MK' => __( 'North Macedonia', 'jetpack-forms' ),
+			'MP' => __( 'Northern Mariana Islands', 'jetpack-forms' ),
+			'NO' => __( 'Norway', 'jetpack-forms' ),
+			'OM' => __( 'Oman', 'jetpack-forms' ),
+			'PK' => __( 'Pakistan', 'jetpack-forms' ),
+			'PW' => __( 'Palau', 'jetpack-forms' ),
+			'PS' => __( 'Palestine', 'jetpack-forms' ),
+			'PA' => __( 'Panama', 'jetpack-forms' ),
+			'PG' => __( 'Papua New Guinea', 'jetpack-forms' ),
+			'PY' => __( 'Paraguay', 'jetpack-forms' ),
+			'PE' => __( 'Peru', 'jetpack-forms' ),
+			'PH' => __( 'Philippines', 'jetpack-forms' ),
+			'PN' => __( 'Pitcairn Islands', 'jetpack-forms' ),
+			'PL' => __( 'Poland', 'jetpack-forms' ),
+			'PT' => __( 'Portugal', 'jetpack-forms' ),
+			'PR' => __( 'Puerto Rico', 'jetpack-forms' ),
+			'QA' => __( 'Qatar', 'jetpack-forms' ),
+			'RO' => __( 'Romania', 'jetpack-forms' ),
+			'RU' => __( 'Russia', 'jetpack-forms' ),
+			'RW' => __( 'Rwanda', 'jetpack-forms' ),
+			'RE' => __( 'Réunion', 'jetpack-forms' ),
+			'BL' => __( 'Saint Barthélemy', 'jetpack-forms' ),
+			'SH' => __( 'Saint Helena', 'jetpack-forms' ),
+			'KN' => __( 'Saint Kitts and Nevis', 'jetpack-forms' ),
+			'LC' => __( 'Saint Lucia', 'jetpack-forms' ),
+			'MF' => __( 'Saint Martin', 'jetpack-forms' ),
+			'PM' => __( 'Saint Pierre and Miquelon', 'jetpack-forms' ),
+			'VC' => __( 'Saint Vincent and the Grenadines', 'jetpack-forms' ),
+			'WS' => __( 'Samoa', 'jetpack-forms' ),
+			'SM' => __( 'San Marino', 'jetpack-forms' ),
+			'SA' => __( 'Saudi Arabia', 'jetpack-forms' ),
+			'SN' => __( 'Senegal', 'jetpack-forms' ),
+			'RS' => __( 'Serbia', 'jetpack-forms' ),
+			'SC' => __( 'Seychelles', 'jetpack-forms' ),
+			'SL' => __( 'Sierra Leone', 'jetpack-forms' ),
+			'SG' => __( 'Singapore', 'jetpack-forms' ),
+			'SK' => __( 'Slovakia', 'jetpack-forms' ),
+			'SI' => __( 'Slovenia', 'jetpack-forms' ),
+			'SB' => __( 'Solomon Islands', 'jetpack-forms' ),
+			'SO' => __( 'Somalia', 'jetpack-forms' ),
+			'ZA' => __( 'South Africa', 'jetpack-forms' ),
+			'GS' => __( 'South Georgia and the South Sandwich Islands', 'jetpack-forms' ),
+			'KR' => __( 'South Korea', 'jetpack-forms' ),
+			'ES' => __( 'Spain', 'jetpack-forms' ),
+			'LK' => __( 'Sri Lanka', 'jetpack-forms' ),
+			'SD' => __( 'Sudan', 'jetpack-forms' ),
+			'SR' => __( 'Suriname', 'jetpack-forms' ),
+			'SJ' => __( 'Svalbard and Jan Mayen', 'jetpack-forms' ),
+			'SE' => __( 'Sweden', 'jetpack-forms' ),
+			'CH' => __( 'Switzerland', 'jetpack-forms' ),
+			'SY' => __( 'Syria', 'jetpack-forms' ),
+			'ST' => __( 'São Tomé and Príncipe', 'jetpack-forms' ),
+			'TW' => __( 'Taiwan', 'jetpack-forms' ),
+			'TJ' => __( 'Tajikistan', 'jetpack-forms' ),
+			'TZ' => __( 'Tanzania', 'jetpack-forms' ),
+			'TH' => __( 'Thailand', 'jetpack-forms' ),
+			'TL' => __( 'Timor-Leste', 'jetpack-forms' ),
+			'TG' => __( 'Togo', 'jetpack-forms' ),
+			'TK' => __( 'Tokelau', 'jetpack-forms' ),
+			'TO' => __( 'Tonga', 'jetpack-forms' ),
+			'TT' => __( 'Trinidad and Tobago', 'jetpack-forms' ),
+			'TN' => __( 'Tunisia', 'jetpack-forms' ),
+			'TR' => __( 'Turkey', 'jetpack-forms' ),
+			'TM' => __( 'Turkmenistan', 'jetpack-forms' ),
+			'TC' => __( 'Turks and Caicos Islands', 'jetpack-forms' ),
+			'TV' => __( 'Tuvalu', 'jetpack-forms' ),
+			'VI' => __( 'U.S. Virgin Islands', 'jetpack-forms' ),
+			'UG' => __( 'Uganda', 'jetpack-forms' ),
+			'UA' => __( 'Ukraine', 'jetpack-forms' ),
+			'AE' => __( 'United Arab Emirates', 'jetpack-forms' ),
+			'GB' => __( 'United Kingdom', 'jetpack-forms' ),
+			'US' => __( 'United States', 'jetpack-forms' ),
+			'UY' => __( 'Uruguay', 'jetpack-forms' ),
+			'UZ' => __( 'Uzbekistan', 'jetpack-forms' ),
+			'VU' => __( 'Vanuatu', 'jetpack-forms' ),
+			'VA' => __( 'Vatican City', 'jetpack-forms' ),
+			'VE' => __( 'Venezuela', 'jetpack-forms' ),
+			'VN' => __( 'Vietnam', 'jetpack-forms' ),
+			'WF' => __( 'Wallis and Futuna', 'jetpack-forms' ),
+			'YE' => __( 'Yemen', 'jetpack-forms' ),
+			'ZM' => __( 'Zambia', 'jetpack-forms' ),
+			'ZW' => __( 'Zimbabwe', 'jetpack-forms' ),
+		);
+	}
+
+	/**
 	 * Enqueues scripts and styles needed for the slider field.
 	 *
-	 * @since 5.1.0
+	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
 	private function enqueue_phone_field_assets() {
 		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		// combobox styles
+		\wp_enqueue_style(
+			'jetpack-form-combobox',
+			plugins_url( '../../dist/contact-form/css/combobox.css', __FILE__ ),
+			array(),
+			$version
+		);
 
 		\wp_enqueue_style(
 			'jetpack-form-phone-field',
