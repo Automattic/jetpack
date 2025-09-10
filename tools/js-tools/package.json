@@ -58,7 +58,7 @@
 		"libsodium-wrappers": "0.7.10",
 		"listr": "0.14.3",
 		"parse-diff": "0.8.1",
-		"postcss": "8.4.47",
+		"postcss": "8.5.6",
 		"prettier": "npm:wp-prettier@3.0.3",
 		"prettier-plugin-svelte": "3.3.2",
 		"semver": "7.7.1",
