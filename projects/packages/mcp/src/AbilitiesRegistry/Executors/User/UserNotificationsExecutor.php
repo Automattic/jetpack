@@ -134,7 +134,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 
 		$current_user_id = $this->get_current_user_id();
 		$setting_type    = $input['setting_type'] ?? 'all';
-		$blog_id         = $input['blog_id'] ?? null;
+		$blog_id         = isset( $input['blog_id'] ) ? (int) $input['blog_id'] : null;
 
 		$settings = array();
 

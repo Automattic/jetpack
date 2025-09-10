@@ -38,9 +38,9 @@ class UserConnectionsExecutor implements ExecutorInterface {
 				case 'list':
 					return $this->list_connections( $input );
 				case 'get':
-					return $this->get_connection( $input['connection_id'] ?? 0 );
+					return $this->get_connection( (int) ( $input['connection_id'] ?? 0 ) );
 				case 'test':
-					return $this->test_connection( $input['connection_id'] ?? 0 );
+					return $this->test_connection( (int) ( $input['connection_id'] ?? 0 ) );
 				default:
 					return $this->create_error( 'invalid_action', 'Invalid action specified' );
 			}

@@ -108,7 +108,7 @@ class PostGetExecutor implements ExecutorInterface {
 					}
 
 					// Check if site is confidential.
-					$is_ai_access_allowed = apply_filters( 'jetpack_site_ai_access_allowed', false, $target_blog_id );
+					$is_ai_access_allowed = apply_filters( 'jetpack_mcp_site_ai_access_allowed', false, $target_blog_id );
 					if ( ! $is_ai_access_allowed ) {
 						return array(
 							'success' => false,
@@ -124,9 +124,7 @@ class PostGetExecutor implements ExecutorInterface {
 					$switched = true;
 
 					// Trigger action for any additional setup needed.
-					if ( has_action( 'rest_api_switched_to_blog' ) ) {
-						do_action( 'rest_api_switched_to_blog' );
-					}
+					do_action( 'rest_api_switched_to_blog' );
 				}
 			}
 
@@ -146,13 +144,13 @@ class PostGetExecutor implements ExecutorInterface {
 
 			// Check AI access for the current site (when not switching)
 			$current_blog_id      = get_current_blog_id();
-			$is_ai_access_allowed = apply_filters( 'jetpack_site_ai_access_allowed', false, $current_blog_id );
+			$is_ai_access_allowed = apply_filters( 'jetpack_mcp_post_ai_access_allowed', false, $current_blog_id, $post_data['ID'] );
 			if ( ! $is_ai_access_allowed ) {
 				return array(
 					'success' => false,
 					'error'   => array(
-						'code'    => 'site_confidential',
-						'message' => 'This site is confidential and cannot be accessed',
+						'code'    => 'post_confidential',
+						'message' => 'This post is confidential and cannot be accessed',
 						'status'  => 403,
 					),
 				);

@@ -169,14 +169,14 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		$validated = array(
 			'wpcom_site'          => $input['wpcom_site'] ?? '',
 			'period'              => $input['period'] ?? 'day',
-			'num_periods'         => $input['num_periods'] ?? 30,
+			'num_periods'         => (int) ( $input['num_periods'] ?? 30 ),
 			'include_views'       => $input['include_views'] ?? true,
 			'include_top_content' => $input['include_top_content'] ?? true,
 			'include_referrers'   => $input['include_referrers'] ?? false,
 			'include_geographic'  => $input['include_geographic'] ?? false,
 			'include_devices'     => $input['include_devices'] ?? false,
 			'include_all_time'    => $input['include_all_time'] ?? false,
-			'max_items'           => $input['max_items'] ?? 10,
+			'max_items'           => (int) ( $input['max_items'] ?? 10 ),
 		);
 
 		// Validate period.

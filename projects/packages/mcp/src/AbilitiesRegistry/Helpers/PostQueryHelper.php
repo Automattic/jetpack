@@ -54,8 +54,8 @@ class PostQueryHelper {
 	private static function build_query_args( array $input ): array {
 		$args = array(
 			'post_type'      => $input['post_type'] ?? 'post',
-			'posts_per_page' => min( $input['posts_per_page'] ?? 10, 50 ),
-			'paged'          => $input['paged'] ?? 1,
+			'posts_per_page' => min( (int) ( $input['posts_per_page'] ?? 10 ), 50 ),
+			'paged'          => (int) ( $input['paged'] ?? 1 ),
 			'order'          => $input['order'] ?? 'DESC',
 			'orderby'        => $input['orderby'] ?? 'date',
 			'post_status'    => $input['post_status'] ?? 'publish',
@@ -86,7 +86,7 @@ class PostQueryHelper {
 
 		// Add author filter.
 		if ( ! empty( $input['author'] ) ) {
-			$args['author'] = intval( $input['author'] );
+			$args['author'] = (int) $input['author'];
 		}
 
 		// Add meta query handling.
@@ -229,7 +229,7 @@ class PostQueryHelper {
 		$target_post = null;
 
 		if ( ! empty( $input['post_id'] ) ) {
-			$target_post = get_post( intval( $input['post_id'] ) );
+			$target_post = get_post( (int) $input['post_id'] );
 		} elseif ( ! empty( $input['post_url'] ) ) {
 			$post_id = url_to_postid( esc_url_raw( $input['post_url'] ) );
 			if ( $post_id ) {

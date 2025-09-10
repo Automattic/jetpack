@@ -38,10 +38,10 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 					$result = $this->list_subscriptions( $input );
 					break;
 				case 'get_details':
-					$result = $this->get_subscription_details( $input['subscription_id'] ?? 0 );
+					$result = $this->get_subscription_details( (int) ( $input['subscription_id'] ?? 0 ) );
 					break;
 				case 'get_billing_history':
-					$result = $this->get_billing_history( $input['limit'] ?? 10 );
+					$result = $this->get_billing_history( (int) ( $input['limit'] ?? 10 ) );
 					break;
 				case 'get_usage':
 					$result = $this->get_usage_data();
@@ -99,7 +99,7 @@ class UserSubscriptionsExecutor implements ExecutorInterface {
 
 		$current_user_id = $this->get_current_user_id();
 		$status_filter   = $input['status'] ?? 'active';
-		$limit           = $input['limit'] ?? 10;
+		$limit           = (int) ( $input['limit'] ?? 10 );
 
 		// Get subscriptions using WordPress.com Store functions if available.
 		$subscriptions = array();

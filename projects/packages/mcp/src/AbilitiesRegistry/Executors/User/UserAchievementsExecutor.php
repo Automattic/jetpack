@@ -81,8 +81,8 @@ class UserAchievementsExecutor implements ExecutorInterface {
 
 		$current_user_id  = $this->get_current_user_id();
 		$achievement_type = $input['achievement_type'] ?? 'all';
-		$limit            = $input['limit'] ?? 20;
-		$blog_id          = $input['blog_id'] ?? 0;
+		$limit            = (int) ( $input['limit'] ?? 20 );
+		$blog_id          = (int) ( $input['blog_id'] ?? 0 );
 
 		$user_achievements_list = array();
 		$feats                  = array();
@@ -203,8 +203,8 @@ class UserAchievementsExecutor implements ExecutorInterface {
 		}
 
 		$current_user_id = $this->get_current_user_id();
-		$blog_id         = $input['blog_id'] ?? 0;
-		$limit           = $input['limit'] ?? 20;
+		$blog_id         = (int) ( $input['blog_id'] ?? 0 );
+		$limit           = (int) ( $input['limit'] ?? 20 );
 
 		$feats = $this->get_user_feats_data( $current_user_id, $blog_id );
 
