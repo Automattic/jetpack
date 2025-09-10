@@ -89,7 +89,8 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 		$before      = isset( $input['before'] ) ? (int) $input['before'] : null;
 
 		// Check if notes_get function is available.
-		if ( ! function_exists( 'notes_get' ) ) {
+		$notes_available = apply_filters( 'jetpack_mcp_notes_available', false );
+		if ( ! $notes_available ) {
 			return $this->create_error(
 				'notes_unavailable',
 				'Notifications system is not available',
@@ -181,7 +182,8 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 
 		$current_user_id = $this->get_current_user_id();
 
-		if ( ! function_exists( 'notes_get' ) ) {
+		$notes_available = apply_filters( 'jetpack_mcp_notes_available', false );
+		if ( ! $notes_available ) {
 			return $this->create_error(
 				'notes_unavailable',
 				'Notifications system is not available',
@@ -396,9 +398,8 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 		$note_callback = $note->callback ?? '';
 		if ( 'gen_followed_note' === $note_callback && isset( $note->args['blog_id'] ) ) {
 			$blog_id = (int) $note->args['blog_id'];
-			if ( $blog_id > 0 && function_exists( 'wpcom_subs_get_wpcom_subscribers_of_blog' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction
-				$followers = wpcom_subs_get_wpcom_subscribers_of_blog( array( 'blog_id' => $blog_id ) );
+			if ( $blog_id > 0 ) {
+				$followers = apply_filters( 'jetpack_mcp_get_wpcom_subscribers_of_blog', null, array( 'blog_id' => $blog_id ) );
 				if ( ! empty( $followers ) && is_array( $followers ) ) {
 					// Return the most recent follower.
 					return (int) $followers[0]->user_id;
@@ -660,12 +661,10 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 
 			// Try to get blog information.
 			if ( $meta['blog_id'] > 0 ) {
-				if ( function_exists( 'get_blog_details' ) ) {
-					$blog_details = get_blog_details( $meta['blog_id'] );
-					if ( $blog_details ) {
-						$meta['blog_name'] = $blog_details->blogname ?? '';
-						$meta['blog_url']  = $blog_details->siteurl ?? '';
-					}
+				$blog_details = apply_filters( 'jetpack_mcp_get_blog_details', null, $meta['blog_id'] );
+				if ( $blog_details ) {
+					$meta['blog_name'] = $blog_details->blogname ?? '';
+					$meta['blog_url']  = $blog_details->siteurl ?? '';
 				}
 				// Fallback to args if available.
 				if ( empty( $meta['blog_name'] ) ) {
@@ -678,12 +677,10 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 
 			// Try to get post information.
 			if ( $meta['post_id'] > 0 && $meta['blog_id'] > 0 ) {
-				if ( function_exists( 'get_blog_post' ) ) {
-					$post = get_blog_post( $meta['blog_id'], $meta['post_id'] );
-					if ( $post ) {
-						$meta['post_title'] = $post->post_title ?? '';
-						$meta['post_url']   = get_blog_permalink( $meta['blog_id'], $meta['post_id'] ) ?? '';
-					}
+				$post = apply_filters( 'jetpack_mcp_get_blog_post', null, $meta['blog_id'], $meta['post_id'] );
+				if ( $post ) {
+					$meta['post_title'] = $post->post_title ?? '';
+					$meta['post_url']   = get_blog_permalink( $meta['blog_id'], $meta['post_id'] ) ?? '';
 				}
 				// Fallback to args if available.
 				if ( empty( $meta['post_title'] ) ) {
@@ -751,14 +748,11 @@ class UserNotificationsInboxExecutor implements ExecutorInterface {
 
 		$blog_id = (int) $note->args['blog_id'];
 
-		if ( function_exists( 'wpcom_subs_get_wpcom_subscribers_of_blog' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction
-			$followers = wpcom_subs_get_wpcom_subscribers_of_blog( array( 'blog_id' => $blog_id ) );
-			if ( ! empty( $followers ) && is_array( $followers ) ) {
-				$user = get_user_by( 'ID', $followers[0]->user_id );
-				if ( $user ) {
-					return ! empty( $user->display_name ) ? $user->display_name : $user->user_login;
-				}
+		$followers = apply_filters( 'jetpack_mcp_get_wpcom_subscribers_of_blog', null, array( 'blog_id' => $blog_id ) );
+		if ( ! empty( $followers ) && is_array( $followers ) ) {
+			$user = get_user_by( 'ID', $followers[0]->user_id );
+			if ( $user ) {
+				return ! empty( $user->display_name ) ? $user->display_name : $user->user_login;
 			}
 		}
 

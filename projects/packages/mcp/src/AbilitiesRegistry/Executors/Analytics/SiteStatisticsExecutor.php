@@ -228,11 +228,9 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 			$site_url = urldecode( $site_identifier );
 			$site_url = str_replace( '::', '/', $site_url );
 
-			if ( function_exists( 'wpcom_get_blog_details_for_url' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction
-				$blog_details = wpcom_get_blog_details_for_url( $site_url );
-			} else {
-				return $this->create_error( 'function_not_available', 'Site URL resolution not available', 500 );
+			$blog_details = apply_filters( 'jetpack_mcp_get_blog_details_for_url', null, $site_url );
+			if ( ! $blog_details ) {
+				return $this->create_error( 'site_not_found', 'Site not found or inaccessible', 404 );
 			}
 		}
 
@@ -271,11 +269,7 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		}
 
 		// Check if user has access to this site.
-		if ( function_exists( 'current_user_can_for_site' ) ) {
-			return current_user_can_for_site( $blog_id, 'read' );
-		}
-
-		return current_user_can( 'read' );
+		return apply_filters( 'jetpack_mcp_user_can_access_site', false, $blog_id, 'read' );
 	}
 
 	/**
@@ -347,51 +341,44 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		);
 
 		// Try to get stats using WordPress.com stats functions.
-		if ( function_exists( 'stats_get_views' ) ) {
-			$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
-			// @phan-suppress-next-line PhanUndeclaredFunction
-			$views_raw = stats_get_views( $blog_id, $date_range['end'], $num_days );
+		$num_days  = $this->get_num_days( $date_range['start'], $date_range['end'] );
+		$views_raw = apply_filters( 'jetpack_mcp_stats_get_views', null, $blog_id, $date_range['end'], $num_days );
 
-			if ( $views_raw && is_array( $views_raw ) ) {
-				$total_views = 0;
-				$daily_data  = array();
+		if ( $views_raw && is_array( $views_raw ) ) {
+			$total_views = 0;
+			$daily_data  = array();
 
-				foreach ( $views_raw as $day_data ) {
-					$views        = (int) ( $day_data['views'] ?? 0 );
-					$total_views += $views;
+			foreach ( $views_raw as $day_data ) {
+				$views        = (int) ( $day_data['views'] ?? 0 );
+				$total_views += $views;
 
-					$daily_data[] = array(
-						'date'     => $day_data['date'] ?? '',
-						'views'    => $views,
-						'visitors' => (int) ( $day_data['visitors'] ?? 0 ),
-					);
-				}
-
-				$views_data['total_views']   = $total_views;
-				$views_data['daily_average'] = 0 < $num_days ? round( $total_views / $num_days, 2 ) : 0;
-				$views_data['daily_data']    = $daily_data;
-
-				// Calculate trend.
-				$views_data['trend'] = $this->calculate_trend( $daily_data );
+				$daily_data[] = array(
+					'date'     => $day_data['date'] ?? '',
+					'views'    => $views,
+					'visitors' => (int) ( $day_data['visitors'] ?? 0 ),
+				);
 			}
+
+			$views_data['total_views']   = $total_views;
+			$views_data['daily_average'] = 0 < $num_days ? round( $total_views / $num_days, 2 ) : 0;
+			$views_data['daily_data']    = $daily_data;
+
+			// Calculate trend.
+			$views_data['trend'] = $this->calculate_trend( $daily_data );
 		}
 
 		// Try to get visitor stats.
-		if ( function_exists( 'stats_get_visitors' ) ) {
-			$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
-			// @phan-suppress-next-line PhanUndeclaredFunction
-			$visitors_raw = stats_get_visitors( $blog_id, $date_range['end'], 1, $num_days );
+		$visitors_raw = apply_filters( 'jetpack_mcp_stats_get_visitors', null, $blog_id, $date_range['end'], $num_days );
 
-			if ( $visitors_raw && is_array( $visitors_raw ) ) {
-				$total_visitors = 0;
-				// Update daily data with visitor information.
-				foreach ( $views_data['daily_data'] as &$day_data ) {
-					$day_visitors         = (int) ( $visitors_raw[ $day_data['date'] ] ?? 0 );
-					$day_data['visitors'] = $day_visitors;
-					$total_visitors      += $day_visitors;
-				}
-				$views_data['total_visitors'] = $total_visitors;
+		if ( $visitors_raw && is_array( $visitors_raw ) ) {
+			$total_visitors = 0;
+			// Update daily data with visitor information.
+			foreach ( $views_data['daily_data'] as &$day_data ) {
+				$day_visitors         = (int) ( $visitors_raw[ $day_data['date'] ] ?? 0 );
+				$day_data['visitors'] = $day_visitors;
+				$total_visitors      += $day_visitors;
 			}
+			$views_data['total_visitors'] = $total_visitors;
 		}
 
 		return $views_data;
@@ -413,31 +400,28 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		);
 
 		// Try to get top posts using WordPress.com stats functions.
-		if ( function_exists( 'stats_get_postviews' ) ) {
-			$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
-			// @phan-suppress-next-line PhanUndeclaredFunction
-			$top_posts = stats_get_postviews( $blog_id, $date_range['end'], $num_days, ' AND post_id > 0', $max_items, false, true );
+		$num_days  = $this->get_num_days( $date_range['start'], $date_range['end'] );
+		$top_posts = apply_filters( 'jetpack_mcp_stats_get_postviews', null, $blog_id, $date_range['end'], $num_days );
 
-			if ( $top_posts && is_array( $top_posts ) ) {
-				$post_count = 0;
-				foreach ( $top_posts as $day => $day_posts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $day will be used in future implementation
-					if ( is_array( $day_posts ) ) {
-						foreach ( $day_posts as $post_id => $post_views ) {
-							if ( $post_count >= $max_items ) {
-								break 2;
-							}
+		if ( $top_posts && is_array( $top_posts ) ) {
+			$post_count = 0;
+			foreach ( $top_posts as $day => $day_posts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $day will be used in future implementation
+				if ( is_array( $day_posts ) ) {
+					foreach ( $day_posts as $post_id => $post_views ) {
+						if ( $post_count >= $max_items ) {
+							break 2;
+						}
 
-							// Get post details.
-							$post = get_post( $post_id );
-							if ( $post && 'publish' === $post->post_status ) {
-								$content_data['top_posts'][] = array(
-									'title'   => $post->post_title,
-									'url'     => get_permalink( $post->ID ),
-									'views'   => (int) $post_views,
-									'post_id' => (int) $post_id,
-								);
-								++$post_count;
-							}
+						// Get post details.
+						$post = get_post( $post_id );
+						if ( $post && 'publish' === $post->post_status ) {
+							$content_data['top_posts'][] = array(
+								'title'   => $post->post_title,
+								'url'     => get_permalink( $post->ID ),
+								'views'   => (int) $post_views,
+								'post_id' => (int) $post_id,
+							);
+							++$post_count;
 						}
 					}
 				}
@@ -504,25 +488,22 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		$referrers = array();
 
 		// Try to get referrers using WordPress.com stats functions.
-		if ( function_exists( 'stats_get_referrers_grouped' ) ) {
-			$num_days = $this->get_num_days( $date_range['start'], $date_range['end'] );
-			// @phan-suppress-next-line PhanUndeclaredFunction
-			$referrers_raw = stats_get_referrers_grouped( $blog_id, $date_range['end'], $num_days, 2000, true );
+		$num_days      = $this->get_num_days( $date_range['start'], $date_range['end'] );
+		$referrers_raw = apply_filters( 'jetpack_mcp_stats_get_referrers_grouped', null, $blog_id, $date_range['end'], $num_days );
 
-			if ( $referrers_raw && is_array( $referrers_raw ) ) {
-				$referrer_count = 0;
-				foreach ( $referrers_raw as $referrer_url => $referrer_views ) {
-					if ( $referrer_count >= $max_items ) {
-						break;
-					}
+		if ( $referrers_raw && is_array( $referrers_raw ) ) {
+			$referrer_count = 0;
+			foreach ( $referrers_raw as $referrer_url => $referrer_views ) {
+				if ( $referrer_count >= $max_items ) {
+					break;
+				}
 
-					if ( ! empty( $referrer_url ) && $referrer_views > 0 ) {
-						$referrers[] = array(
-							'referrer' => $referrer_url,
-							'views'    => (int) $referrer_views,
-						);
-						++$referrer_count;
-					}
+				if ( ! empty( $referrer_url ) && $referrer_views > 0 ) {
+					$referrers[] = array(
+						'referrer' => $referrer_url,
+						'views'    => (int) $referrer_views,
+					);
+					++$referrer_count;
 				}
 			}
 		}
@@ -549,26 +530,23 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 
 		// Note: Geographic stats functions may not be available in all WordPress.com environments.
 		// Try to get countries data using available functions.
-		if ( function_exists( 'stats_get_geoviews_summary' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction
-			$geo_raw = stats_get_geoviews_summary( $blog_id, $date_range['end'], $num_days );
+		$geo_raw = apply_filters( 'jetpack_mcp_stats_get_geoviews_summary', null, $blog_id, $date_range['end'], $num_days );
 
-			if ( $geo_raw && is_array( $geo_raw ) ) {
-				$country_count = 0;
-				foreach ( $geo_raw as $country_code => $views ) {
-					if ( $country_count >= $max_items ) {
-						break;
-					}
+		if ( $geo_raw && is_array( $geo_raw ) ) {
+			$country_count = 0;
+			foreach ( $geo_raw as $country_code => $views ) {
+				if ( $country_count >= $max_items ) {
+					break;
+				}
 
-					if ( ! empty( $country_code ) && $views > 0 ) {
-						// Convert country code to readable name if possible.
-						$country_name                       = $this->get_country_name( $country_code );
-						$geographic_data['top_countries'][] = array(
-							'country' => $country_name,
-							'views'   => (int) $views,
-						);
-						++$country_count;
-					}
+				if ( ! empty( $country_code ) && $views > 0 ) {
+					// Convert country code to readable name if possible.
+					$country_name                       = $this->get_country_name( $country_code );
+					$geographic_data['top_countries'][] = array(
+						'country' => $country_name,
+						'views'   => (int) $views,
+					);
+					++$country_count;
 				}
 			}
 		}
@@ -664,33 +642,27 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		$all_time_stats['total_comments'] = $metrics['content']['total_comments'];
 
 		// Try to get all-time views using available WordPress.com functions.
-		if ( function_exists( 'stats_get_views' ) ) {
-			// Get a long period to approximate all-time views.
-			$long_period_days = 365 * 3; // 3 years.
-			$end_date         = gmdate( 'Y-m-d' );
-			// @phan-suppress-next-line PhanUndeclaredFunction
-			$all_time_views_raw = stats_get_views( $blog_id, $end_date, $long_period_days );
+		// Get a long period to approximate all-time views.
+		$long_period_days   = 365 * 3; // 3 years.
+		$end_date           = gmdate( 'Y-m-d' );
+		$all_time_views_raw = apply_filters( 'jetpack_mcp_stats_get_views', null, $blog_id, $end_date, $long_period_days );
 
-			if ( $all_time_views_raw && is_array( $all_time_views_raw ) ) {
-				$total_views = array_sum( array_column( $all_time_views_raw, 'views' ) );
-				if ( $total_views > 0 ) {
-					$all_time_stats['total_views'] = $total_views;
-				}
+		if ( $all_time_views_raw && is_array( $all_time_views_raw ) ) {
+			$total_views = array_sum( array_column( $all_time_views_raw, 'views' ) );
+			if ( $total_views > 0 ) {
+				$all_time_stats['total_views'] = $total_views;
 			}
 		}
 
 		// Try to get all-time visitors.
-		if ( function_exists( 'stats_get_visitors' ) ) {
-			$long_period_days = 365 * 3; // 3 years.
-			$end_date         = gmdate( 'Y-m-d' );
-			// @phan-suppress-next-line PhanUndeclaredFunction
-			$all_time_visitors_raw = stats_get_visitors( $blog_id, $end_date, 1, $long_period_days );
+		$long_period_days      = 365 * 3; // 3 years.
+		$end_date              = gmdate( 'Y-m-d' );
+		$all_time_visitors_raw = apply_filters( 'jetpack_mcp_stats_get_visitors', null, $blog_id, $end_date, $long_period_days );
 
-			if ( $all_time_visitors_raw && is_array( $all_time_visitors_raw ) ) {
-				$total_visitors = array_sum( $all_time_visitors_raw );
-				if ( $total_visitors > 0 ) {
-					$all_time_stats['total_visitors'] = $total_visitors;
-				}
+		if ( $all_time_visitors_raw && is_array( $all_time_visitors_raw ) ) {
+			$total_visitors = array_sum( $all_time_visitors_raw );
+			if ( $total_visitors > 0 ) {
+				$all_time_stats['total_visitors'] = $total_visitors;
 			}
 		}
 

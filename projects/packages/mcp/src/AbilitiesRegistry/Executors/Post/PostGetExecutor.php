@@ -65,16 +65,14 @@ class PostGetExecutor implements ExecutorInterface {
 					$target_site = urldecode( $target_site );
 					$target_site = str_replace( '::', '/', $target_site );
 
-					if ( function_exists( 'wpcom_get_blog_details_for_url' ) ) {
-						// @phan-suppress-next-line PhanUndeclaredFunction
-						$blog_details = wpcom_get_blog_details_for_url( $target_site );
-					} else {
+					$blog_details = apply_filters( 'jetpack_mcp_get_blog_details_for_url', null, $target_site );
+					if ( ! $blog_details ) {
 						return array(
 							'success' => false,
 							'error'   => array(
-								'code'    => 'function_not_available',
-								'message' => 'Site URL resolution not available',
-								'status'  => 500,
+								'code'    => 'site_not_found',
+								'message' => 'Site not found or inaccessible',
+								'status'  => 404,
 							),
 						);
 					}
@@ -97,18 +95,16 @@ class PostGetExecutor implements ExecutorInterface {
 				// Only switch if it's a different site.
 				if ( $target_blog_id !== $original_blog_id ) {
 					// Check if site is restricted.
-					if ( function_exists( 'is_suspended' ) ) {
-						// @phan-suppress-next-line PhanUndeclaredFunction
-						if ( is_suspended( $target_blog_id ) ) {
-							return array(
-								'success' => false,
-								'error'   => array(
-									'code'    => 'site_suspended',
-									'message' => 'This site has been suspended',
-									'status'  => 403,
-								),
-							);
-						}
+					$is_suspended = apply_filters( 'jetpack_mcp_is_site_suspended', false, $target_blog_id );
+					if ( $is_suspended ) {
+						return array(
+							'success' => false,
+							'error'   => array(
+								'code'    => 'site_suspended',
+								'message' => 'This site has been suspended',
+								'status'  => 403,
+							),
+						);
 					}
 
 					// Check if site is confidential.
@@ -144,6 +140,18 @@ class PostGetExecutor implements ExecutorInterface {
 						'code'    => 'post_not_found',
 						'message' => 'Post not found or inaccessible',
 						'status'  => 404,
+					),
+				);
+			}
+
+			$is_ai_access_allowed = apply_filters( 'jetpack_site_ai_access_allowed', false, $target_blog_id );
+			if ( ! $is_ai_access_allowed ) {
+				return array(
+					'success' => false,
+					'error'   => array(
+						'code'    => 'site_confidential',
+						'message' => 'This site is confidential and cannot be accessed',
+						'status'  => 403,
 					),
 				);
 			}
@@ -209,10 +217,8 @@ class PostGetExecutor implements ExecutorInterface {
 				$target_site = urldecode( $target_site );
 				$target_site = str_replace( '::', '/', $target_site );
 
-				if ( function_exists( 'wpcom_get_blog_details_for_url' ) ) {
-					// @phan-suppress-next-line PhanUndeclaredFunction
-					$blog_details = wpcom_get_blog_details_for_url( $target_site );
-				} else {
+				$blog_details = apply_filters( 'jetpack_mcp_get_blog_details_for_url', null, $target_site );
+				if ( ! $blog_details ) {
 					return false;
 				}
 			}
@@ -225,31 +231,19 @@ class PostGetExecutor implements ExecutorInterface {
 			$target_blog_id = (int) $blog_details->blog_id;
 
 			// Check if the site is suspended or restricted.
-			if ( function_exists( 'is_suspended' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction
-				if ( is_suspended( $target_blog_id ) ) {
-					return false;
-				}
+			$is_suspended = apply_filters( 'jetpack_mcp_is_site_suspended', false, $target_blog_id );
+			if ( $is_suspended ) {
+				return false;
 			}
 
 			// Check if site is confidential.
-			if ( function_exists( 'should_check_confidentiality' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction
-				if ( should_check_confidentiality( $target_blog_id ) ) {
-					if ( function_exists( 'has_blog_sticker' ) ) {
-						// @phan-suppress-next-line PhanUndeclaredFunction
-						$has_confidentiality_disabled = has_blog_sticker( 'p2_confidentiality_disabled', $target_blog_id );
-						if ( ! $has_confidentiality_disabled ) {
-							return false;
-						}
-					}
-				}
+			$ai_access_allowed = apply_filters( 'jetpack_mcp_site_ai_access_allowed', false, $target_blog_id );
+			if ( ! $ai_access_allowed ) {
+				return false;
 			}
 
 			// Check permissions for the target site.
-			if ( function_exists( 'current_user_can_for_site' ) ) {
-				return current_user_can_for_site( $target_blog_id, 'read' );
-			}
+			return apply_filters( 'jetpack_mcp_user_can_access_site', false, $target_blog_id, 'read' );
 		}
 
 		// For the current site, check if user can read posts.
