@@ -631,9 +631,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		// Use Jetpack MCP package
 		if ( class_exists( 'Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry' ) ) {
-			$abilities_resources = \Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry::get_resources_for_server( 'site-level' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
-			$abilities_tools     = \Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry::get_tools_for_server( 'site-level' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
-			$abilities_prompts   = \Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry::get_prompts_for_server( 'site-level' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
+			$abilities_resources = \Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry::get_resources_for_server( 'site-level' );
+			$abilities_tools     = \Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry::get_tools_for_server( 'site-level' );
+			$abilities_prompts   = \Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry::get_prompts_for_server( 'site-level' );
 			$all_abilities       = array_merge( $abilities_resources, $abilities_tools, $abilities_prompts );
 		}
 
@@ -652,7 +652,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		// Use Jetpack MCP package
 		if ( class_exists( 'Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry' ) ) {
-			$ability_meta = \Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry::get_metadata( $ability_name ) ?? array(); // @phan-suppress-current-line PhanUndeclaredClassMethod
+			$ability_meta = \Automattic\Jetpack\AbilitiesRegistry\Registry\AbilityRegistry::get_metadata( $ability_name ) ?? array();
 		}
 
 		return apply_filters( 'jetpack_site_mcp_ability_meta', $ability_meta, $ability_name );
