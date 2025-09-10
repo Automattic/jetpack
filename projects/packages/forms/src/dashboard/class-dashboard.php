@@ -43,13 +43,6 @@ class Dashboard {
 	const MENU_PRIORITY = 999;
 
 	/**
-	 * Whether the integrations tab is enabled.
-	 *
-	 * @var bool
-	 */
-	public static $show_integrations = false;
-
-	/**
 	 * Dashboard_View_Switch instance
 	 *
 	 * @var Dashboard_View_Switch
@@ -63,9 +56,6 @@ class Dashboard {
 	 */
 	public function __construct( ?Dashboard_View_Switch $switch = null ) {
 		$this->switch = $switch ?? new Dashboard_View_Switch();
-
-		// Set the integrations tab feature flag
-		self::$show_integrations = apply_filters( 'jetpack_forms_enable_integrations_tab', true );
 	}
 
 	/**
@@ -226,7 +216,6 @@ class Dashboard {
 			'siteURL'                 => ( new Status() )->get_site_suffix(),
 			'hasFeedback'             => $this->has_feedback(),
 			'hasAI'                   => $has_ai,
-			'enableIntegrationsTab'   => self::$show_integrations,
 			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
 			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $this->switch->get_forms_admin_url() ),
 			'isMailpoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),

@@ -11,6 +11,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
+import useFormsConfig from '../../../hooks/use-forms-config';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import ExportResponsesButton from '../../inbox/export-responses';
@@ -26,8 +27,9 @@ const Layout = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const formsConfig = useFormsConfig();
 
-	const enableIntegrationsTab = config( 'enableIntegrationsTab' );
+	const enableIntegrationsTab = Boolean( formsConfig?.isIntegrationsEnabled );
 
 	const { currentStatus } = useSelect(
 		select => ( {
