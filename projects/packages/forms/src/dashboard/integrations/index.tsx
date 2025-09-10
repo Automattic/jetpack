@@ -8,7 +8,6 @@ import { useState, useCallback } from 'react';
  * Internal dependencies
  */
 import { useIntegrationsStatus } from '../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integrations-status';
-import useFormsConfig from '../../hooks/use-forms-config';
 import AkismetDashboardCard from './akismet-card';
 import CreativeMailDashboardCard from './creative-mail-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
@@ -31,9 +30,6 @@ const Integrations = () => {
 		salesforce: false,
 		mailpoet: false,
 	} );
-
-	const config = useFormsConfig();
-	const isMailpoetEnabled = Boolean( config?.isMailPoetEnabled );
 
 	const toggleCard = useCallback( ( cardId: keyof typeof expandedCards ) => {
 		setExpandedCards( prev => {
@@ -69,7 +65,7 @@ const Integrations = () => {
 	const findIntegrationById = ( id: string ) =>
 		integrations?.find( ( integration: Integration ) => integration.id === id );
 
-	// Cache lookups per integration; cards render only when data exists
+	// Only supported integrations will be returned from endpoint.
 	const akismetData = findIntegrationById( 'akismet' );
 	const googleDriveData = findIntegrationById( 'google-drive' );
 	const crmData = findIntegrationById( 'zero-bs-crm' );
@@ -116,7 +112,7 @@ const Integrations = () => {
 							refreshStatus={ refreshIntegrations }
 						/>
 					) }
-					{ isMailpoetEnabled && mailpoetData && (
+					{ mailpoetData && (
 						<MailPoetDashboardCard
 							isExpanded={ expandedCards.mailpoet }
 							onToggle={ handleToggleMailPoet }

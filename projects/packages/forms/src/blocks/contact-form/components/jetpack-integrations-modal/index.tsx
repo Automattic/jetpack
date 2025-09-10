@@ -8,7 +8,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useFormsConfig from '../../../../hooks/use-forms-config';
 import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import GoogleSheetsCard from './google-sheets-card';
@@ -38,18 +37,14 @@ const IntegrationsModal = ( {
 		mailpoet: false,
 	} );
 
-	const config = useFormsConfig();
-
 	if ( ! isOpen ) {
 		return null;
 	}
 
-	const isMailPoetEnabled = Boolean( config?.isMailPoetEnabled );
-
 	const findIntegrationById = ( id: string ) =>
 		integrationsData?.find( ( integration: Integration ) => integration.id === id );
 
-	// Cache lookups for readability and to avoid repeated finds
+	// Only supported integrations will be returned from endpoint.
 	const akismetData = findIntegrationById( 'akismet' );
 	const googleDriveData = findIntegrationById( 'google-drive' );
 	const crmData = findIntegrationById( 'zero-bs-crm' );
@@ -74,8 +69,6 @@ const IntegrationsModal = ( {
 			};
 		} );
 	};
-
-	// findIntegrationById defined above
 
 	return (
 		<Modal
@@ -111,7 +104,7 @@ const IntegrationsModal = ( {
 						refreshStatus={ refreshIntegrations }
 					/>
 				) }
-				{ isMailPoetEnabled && mailpoetData && (
+				{ mailpoetData && (
 					<MailPoetCard
 						isExpanded={ expandedCards.mailpoet }
 						onToggle={ () => toggleCard( 'mailpoet' ) }
