@@ -11,12 +11,21 @@ use WP_Error;
  */
 trait UserContextTrait {
 	/**
+	 * Get current user ID
+	 *
+	 * @return int User ID.
+	 */
+	protected function get_current_user_id(): int {
+		return get_current_user_id();
+	}
+
+	/**
 	 * Check if user is logged in and return error if not
 	 *
 	 * @return WP_Error|null Returns WP_Error if no user, null if user exists.
 	 */
 	protected function validate_user_logged_in(): ?WP_Error {
-		$user_id = get_current_user_id();
+		$user_id = $this->get_current_user_id();
 
 		if ( 0 === $user_id ) {
 			return $this->create_error( 'no_user', 'No user is currently logged in', 401 );
@@ -31,7 +40,7 @@ trait UserContextTrait {
 	 * @return WP_Error|\WP_User Returns WP_Error on failure, WP_User on success.
 	 */
 	protected function get_current_user() {
-		$user_id = get_current_user_id();
+		$user_id = $this->get_current_user_id();
 
 		if ( 0 === $user_id ) {
 			return $this->create_error( 'no_user', 'No user is currently logged in', 401 );
@@ -65,7 +74,7 @@ trait UserContextTrait {
 	 * @return bool True if permission granted, false otherwise.
 	 */
 	protected function check_user_permission(): bool {
-		return get_current_user_id() > 0;
+		return $this->get_current_user_id() > 0;
 	}
 
 	/**
