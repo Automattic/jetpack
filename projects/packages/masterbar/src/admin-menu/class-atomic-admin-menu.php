@@ -304,19 +304,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Settings menu.
-	 */
-	public function add_options_menu() {
-		parent::add_options_menu();
-
-		// Hide Settings > Performance when the interface is set to wp-admin.
-		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
-		if ( $this->use_wp_admin_interface() ) {
-			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
-		}
-	}
-
-	/**
 	 * Override the global submenu_file for theme-install.php page so the WP Admin menu item gets highlighted correctly.
 	 *
 	 * @param string $submenu_file The current pages $submenu_file global variable value.

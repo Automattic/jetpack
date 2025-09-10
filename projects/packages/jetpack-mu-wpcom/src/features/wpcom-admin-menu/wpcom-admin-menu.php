@@ -172,18 +172,6 @@ function wpcom_add_hosting_menu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
-	// Temporary "Hosting > Marketing" menu for existing users that shows a callout informing that the screen has moved to "Tools > Marketing".
-	if ( get_current_user_id() < 269750000 ) {
-		add_submenu_page(
-			$parent_slug,
-			esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
-			esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			esc_url( "https://wordpress.com/marketing/tools-marketing/$domain" ),
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-		);
-	}
-
 	// By default, WordPress adds a submenu item for the parent menu item, which we don't want.
 	remove_submenu_page(
 		$parent_slug,

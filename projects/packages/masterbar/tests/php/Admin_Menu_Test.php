@@ -315,17 +315,6 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_options_menu
-	 */
-	public function test_add_options_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_options_menu();
-
-		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, $submenu['options-general.php'][0][2] );
-	}
-
-	/**
 	 * Check if the hidden menus are at the end of the submenu.
 	 */
 	public function test_if_the_hidden_menus_are_at_the_end_of_submenu() {

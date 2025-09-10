@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Blaze;
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
@@ -263,42 +262,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 		// Remove the submenu auto-created by Core.
 		$this->hide_submenu_page( 'tools.php', 'tools.php' );
-	}
-
-	/**
-	 * Adds Settings menu.
-	 */
-	public function add_options_menu() {
-		$slug = 'https://wordpress.com/settings/general/' . $this->domain;
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( esc_attr__( 'Settings', 'jetpack-masterbar' ), __( 'Settings', 'jetpack-masterbar' ), 'manage_options', $slug, null, 'dashicons-admin-settings', 80 );
-		add_submenu_page( $slug, esc_attr__( 'General', 'jetpack-masterbar' ), __( 'General', 'jetpack-masterbar' ), 'manage_options', $slug );
-		add_submenu_page( $slug, esc_attr__( 'Security', 'jetpack-masterbar' ), __( 'Security', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Performance', 'jetpack-masterbar' ), __( 'Performance', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack-masterbar' ), __( 'Writing', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Reading', 'jetpack-masterbar' ), __( 'Reading', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/reading/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack-masterbar' ), __( 'Discussion', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain );
-
-		$plan_supports_scan = Jetpack_Plan::supports( 'scan' );
-		$products           = Jetpack_Plan::get_products();
-		$has_scan_product   = false;
-
-		if ( is_array( $products ) ) {
-			foreach ( $products as $product ) {
-				if ( strpos( $product['product_slug'], 'jetpack_scan' ) === 0 ) {
-					$has_scan_product = true;
-					break;
-				}
-			}
-		}
-
-		$has_scan     = $plan_supports_scan || $has_scan_product;
-		$rewind_state = get_transient( 'jetpack_rewind_state' );
-		$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
-		if ( $has_scan || $has_backup ) {
-			add_submenu_page( $slug, esc_attr__( 'Jetpack', 'jetpack-masterbar' ), __( 'Jetpack', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain );
-		}
 	}
 
 	/**
