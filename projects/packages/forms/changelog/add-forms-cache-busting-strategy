@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Forms: add extra layer of cache busting for interactivity API files (view.js) with hash suffix
