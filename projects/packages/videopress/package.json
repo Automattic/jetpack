@@ -85,7 +85,7 @@
 		"copy-webpack-plugin": "13.0.0",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
-		"postcss": "8.4.47",
+		"postcss": "8.5.6",
 		"postcss-custom-properties": "12.1.11",
 		"postcss-loader": "8.2.0",
 		"require-from-string": "2.0.2",
