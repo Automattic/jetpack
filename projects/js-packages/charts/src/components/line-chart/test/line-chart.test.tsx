@@ -7,7 +7,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
-import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
+import { GlobalChartsProvider, jetpackTheme, wooTheme } from '../../../providers';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { SingleChartRef } from '../../private/single-chart-context';
 
@@ -56,10 +56,10 @@ describe( 'LineChart', () => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
-			<ThemeProvider theme={ theme }>
+			<GlobalChartsProvider theme={ theme }>
 				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<LineChart { ...defaultProps } { ...props } />
-			</ThemeProvider>
+			</GlobalChartsProvider>
 		);
 	};
 
@@ -67,10 +67,10 @@ describe( 'LineChart', () => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
-			<ThemeProvider theme={ theme }>
+			<GlobalChartsProvider theme={ theme }>
 				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<LineChartUnresponsive { ...defaultProps } { ...props } ref={ ref } />
-			</ThemeProvider>
+			</GlobalChartsProvider>
 		);
 	};
 
@@ -397,12 +397,12 @@ describe( 'LineChart', () => {
 			const theme = THEME_MAP[ themeName ];
 
 			return render(
-				<ThemeProvider theme={ theme }>
+				<GlobalChartsProvider theme={ theme }>
 					{ /* @ts-expect-error TODO Fix the missing props */ }
 					<LineChart { ...defaultProps } { ...props }>
 						{ children }
 					</LineChart>
-				</ThemeProvider>
+				</GlobalChartsProvider>
 			);
 		};
 

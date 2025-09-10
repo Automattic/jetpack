@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Charts: Deprecate ThemeProvider in favor of GlobalChartsProvider

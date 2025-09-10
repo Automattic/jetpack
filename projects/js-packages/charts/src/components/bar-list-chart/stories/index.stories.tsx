@@ -1,7 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useGlobalChartsTheme } from '../../../providers/chart-context';
+import { useGlobalChartsTheme } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,

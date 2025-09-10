@@ -3,7 +3,7 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { ThemeProvider } from '../../../providers/theme';
+import { GlobalChartsProvider } from '../../../providers';
 import PieChart from '../pie-chart';
 
 describe( 'PieChart', () => {
@@ -17,9 +17,9 @@ describe( 'PieChart', () => {
 
 	const renderWithTheme = ( props = {} ) => {
 		return render(
-			<ThemeProvider>
+			<GlobalChartsProvider>
 				<PieChart { ...defaultProps } { ...props } />
-			</ThemeProvider>
+			</GlobalChartsProvider>
 		);
 	};
 
@@ -148,9 +148,9 @@ describe( 'PieChart', () => {
 		test( 'shows labels for backward compatibility when prop not specified', () => {
 			// Render without showLabels prop to test backward compatibility
 			render(
-				<ThemeProvider>
+				<GlobalChartsProvider>
 					<PieChart size={ 500 } data={ defaultProps.data } />
-				</ThemeProvider>
+				</GlobalChartsProvider>
 			);
 
 			// Should find label text using Testing Library queries

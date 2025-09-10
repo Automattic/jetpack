@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useGlobalChartsTheme } from '../../../providers/chart-context';
+import { useGlobalChartsTheme } from '../../../providers';
 import { getItemShapeStyles, getSeriesStroke, formatPercentage } from '../../../utils';
 import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../../types';
 import type { BaseLegendItem } from '../types';

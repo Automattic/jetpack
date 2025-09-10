@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react';
-import { ThemeProvider } from '../../../providers/theme';
+import { GlobalChartsProvider } from '../../../providers';
 import PieSemiCircleChart from '../pie-semi-circle-chart';
 
 // Mock data for testing
@@ -23,9 +23,9 @@ const mockData = [
 // Helper function to render component with providers
 const renderPieChart = props =>
 	render(
-		<ThemeProvider>
+		<GlobalChartsProvider>
 			<PieSemiCircleChart { ...props } />
-		</ThemeProvider>
+		</GlobalChartsProvider>
 	);
 
 describe( 'PieSemiCircleChart', () => {
@@ -120,9 +120,9 @@ describe( 'PieSemiCircleChart', () => {
 		const thinPathD = thinSegment.getAttribute( 'd' );
 
 		rerender(
-			<ThemeProvider>
+			<GlobalChartsProvider>
 				<PieSemiCircleChart data={ mockData } thickness={ 0.8 } width={ 400 } />
-			</ThemeProvider>
+			</GlobalChartsProvider>
 		);
 		const thickSegment = screen.getAllByTestId( 'pie-segment' )[ 0 ];
 		const thickPathD = thickSegment.getAttribute( 'd' );

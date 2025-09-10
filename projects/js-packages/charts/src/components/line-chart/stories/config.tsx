@@ -1,7 +1,7 @@
 import { GlyphDiamond, GlyphStar } from '@visx/glyph';
 import merge from 'deepmerge';
 import { createElement } from 'react';
-import { jetpackTheme } from '../../../providers/theme/themes';
+import { jetpackTheme } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,

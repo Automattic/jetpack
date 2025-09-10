@@ -10,7 +10,7 @@ import {
 	useMemo,
 	useContext,
 } from 'react';
-import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers/chart-context';
+import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
