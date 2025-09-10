@@ -144,7 +144,9 @@ class PostGetExecutor implements ExecutorInterface {
 				);
 			}
 
-			$is_ai_access_allowed = apply_filters( 'jetpack_site_ai_access_allowed', false, $target_blog_id );
+			// Check AI access for the current site (when not switching)
+			$current_blog_id      = get_current_blog_id();
+			$is_ai_access_allowed = apply_filters( 'jetpack_site_ai_access_allowed', false, $current_blog_id );
 			if ( ! $is_ai_access_allowed ) {
 				return array(
 					'success' => false,

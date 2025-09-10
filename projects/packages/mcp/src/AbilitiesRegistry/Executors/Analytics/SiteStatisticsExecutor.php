@@ -655,8 +655,6 @@ class SiteStatisticsExecutor implements ExecutorInterface {
 		}
 
 		// Try to get all-time visitors.
-		$long_period_days      = 365 * 3; // 3 years.
-		$end_date              = gmdate( 'Y-m-d' );
 		$all_time_visitors_raw = apply_filters( 'jetpack_mcp_stats_get_visitors', null, $blog_id, $end_date, $long_period_days );
 
 		if ( $all_time_visitors_raw && is_array( $all_time_visitors_raw ) ) {
