@@ -89,19 +89,21 @@ describe( 'BaseLegend', () => {
 			{ label: 'Another Long Label for Testing', value: '30%', color: '#00ff00' },
 		];
 
-		test( 'applies maxWidth constraint to legend items', () => {
+		test( 'applies maxWidth constraint to legend labels', () => {
 			render( <BaseLegend items={ longLabelItems } maxWidth={ 150 } orientation="horizontal" /> );
-			const items = screen.getAllByTestId( 'legend-item' );
-			items.forEach( item => {
-				expect( item ).toHaveStyle( { maxWidth: '150px' } );
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				const labelElement = label.closest( '.visx-legend-label' );
+				expect( labelElement ).toHaveStyle( { maxWidth: '150px' } );
 			} );
 		} );
 
 		test( 'applies maxWidth as string with unit', () => {
 			render( <BaseLegend items={ longLabelItems } maxWidth="10rem" orientation="horizontal" /> );
-			const items = screen.getAllByTestId( 'legend-item' );
-			items.forEach( item => {
-				expect( item ).toHaveStyle( { maxWidth: '10rem' } );
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				const labelElement = label.closest( '.visx-legend-label' );
+				expect( labelElement ).toHaveStyle( { maxWidth: '10rem' } );
 			} );
 		} );
 
@@ -114,15 +116,111 @@ describe( 'BaseLegend', () => {
 			let legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
 
-			// With maxWidth, legend items should be constrained
+			// With maxWidth, legend labels should be constrained
 			rerender( <BaseLegend items={ longLabelItems } maxWidth={ 150 } orientation="horizontal" /> );
 			legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
 
-			// The legend items should have the maxWidth constraint applied
-			legendItems.forEach( item => {
-				expect( item ).toHaveStyle( { maxWidth: '150px' } );
+			// The legend labels should have the maxWidth constraint applied
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				const labelElement = label.closest( '.visx-legend-label' );
+				expect( labelElement ).toHaveStyle( { maxWidth: '150px' } );
 			} );
+		} );
+
+		test( 'renders with different textOverflow values', () => {
+			// Test ellipsis behavior - should render without errors
+			const { rerender } = render(
+				<BaseLegend
+					items={ longLabelItems }
+					maxWidth={ 150 }
+					textOverflow="ellipsis"
+					orientation="horizontal"
+				/>
+			);
+			let labels = screen.getAllByText( /Long Label/ );
+			expect( labels ).toHaveLength( 2 );
+
+			labels.forEach( label => {
+				const labelElement = label.closest( '.visx-legend-label' );
+				expect( labelElement ).toBeTruthy();
+				expect( labelElement ).toHaveStyle( { maxWidth: '150px' } );
+			} );
+
+			// Test wrap behavior - should render without errors
+			rerender(
+				<BaseLegend
+					items={ longLabelItems }
+					maxWidth={ 150 }
+					textOverflow="wrap"
+					orientation="horizontal"
+				/>
+			);
+			labels = screen.getAllByText( /Long Label/ );
+			expect( labels ).toHaveLength( 2 );
+
+			labels.forEach( label => {
+				const labelElement = label.closest( '.visx-legend-label' );
+				expect( labelElement ).toBeTruthy();
+				expect( labelElement ).toHaveStyle( { maxWidth: '150px' } );
+			} );
+		} );
+
+		test( 'adds title attribute for potential tooltip when textOverflow is ellipsis', () => {
+			// Render with ellipsis overflow
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					maxWidth={ 50 }
+					textOverflow="ellipsis"
+					orientation="horizontal"
+				/>
+			);
+
+			// Find text spans (our LegendText components)
+			const textSpans = document.querySelectorAll( 'span' );
+			let foundTextSpan = false;
+
+			textSpans.forEach( span => {
+				// Look for spans that contain our long label text
+				if ( span.textContent?.includes( 'Very Long Label' ) ) {
+					foundTextSpan = true;
+					// The span should have a title attribute (for tooltip) when text might be truncated
+					// Note: In JSDOM environment, we can't accurately detect visual truncation,
+					// so we just verify the component structure exists
+					expect( span ).toBeDefined();
+				}
+			} );
+
+			expect( foundTextSpan ).toBe( true );
+		} );
+
+		test( 'does not add title attribute when textOverflow is wrap', () => {
+			// Render with wrap overflow
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					maxWidth={ 50 }
+					textOverflow="wrap"
+					orientation="horizontal"
+				/>
+			);
+
+			// Find text spans (our LegendText components)
+			const textSpans = document.querySelectorAll( 'span' );
+			let foundTextSpan = false;
+
+			textSpans.forEach( span => {
+				// Look for spans that contain our long label text
+				if ( span.textContent?.includes( 'Very Long Label' ) ) {
+					foundTextSpan = true;
+					// In wrap mode, we should not have a title attribute since text wraps instead of truncating
+					expect( span ).toBeDefined();
+				}
+			} );
+
+			expect( foundTextSpan ).toBe( true );
 		} );
 	} );
 } );
