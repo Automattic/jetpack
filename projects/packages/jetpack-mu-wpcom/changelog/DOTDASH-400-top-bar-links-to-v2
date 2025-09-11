@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin bar links to Hosting Dashboard, if that is the user's preference.
