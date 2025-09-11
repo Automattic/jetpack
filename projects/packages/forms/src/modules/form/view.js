@@ -129,9 +129,7 @@ const maybeTransformValue = value => {
 
 const getImages = value => {
 	if ( value?.type === 'image-select' ) {
-		return value.choices.map(
-			choice => choice.image?.src || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
-		);
+		return value.choices.filter( choice => choice.image?.src ).map( choice => choice.image?.src );
 	}
 
 	return null;
