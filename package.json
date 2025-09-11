@@ -49,6 +49,7 @@
 			"@swc/core",
 			"core-js",
 			"esbuild",
+			"print-this",
 			"svelte-preprocess",
 			"swiper",
 			"unrs-resolver"
