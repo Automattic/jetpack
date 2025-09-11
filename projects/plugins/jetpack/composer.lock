@@ -2087,10 +2087,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/mcp",
-                "reference": "13d876f45a7a8c89304a4ee39e075413ed1ac466"
+                "reference": "74cab75497ad3fda6dd7b1a4b110653daf9ee247"
             },
             "require": {
-                "php": ">=7.4",
+                "php": ">=7.2",
                 "wordpress/abilities-api": "^0.1.1"
             },
             "require-dev": {
