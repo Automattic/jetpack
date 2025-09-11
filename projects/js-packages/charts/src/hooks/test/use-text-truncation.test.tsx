@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { useTextTruncation } from '../use-text-truncation';
 
 // Mock ResizeObserver
