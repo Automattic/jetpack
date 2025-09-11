@@ -30,23 +30,25 @@ class Mcp {
 		// Load the abilities API.
 		self::load_abilities_api();
 
-		// Load the abilities API.
-		add_action(
-			'abilities_api_init',
-			function () {
-				// Load abilities dynamically from configuration - NO hardcoded names!
-				$all_abilities = AbilityRegistry::get_all_names();
+		// Only register abilities if the abilities API is available.
+		if ( self::is_abilities_api_available() ) {
+			add_action(
+				'abilities_api_init',
+				function () {
+					// Load abilities dynamically from configuration - NO hardcoded names!
+					$all_abilities = AbilityRegistry::get_all_names();
 
-				foreach ( $all_abilities as $ability_name ) {
-					$ability_class = AbilityRegistry::get_ability_class( $ability_name );
+					foreach ( $all_abilities as $ability_name ) {
+						$ability_class = AbilityRegistry::get_ability_class( $ability_name );
 
-					if ( $ability_class && class_exists( $ability_class ) ) {
-						// @phan-suppress-next-line PhanNoopNew
-						new $ability_class();
+						if ( $ability_class && class_exists( $ability_class ) ) {
+							// @phan-suppress-next-line PhanNoopNew
+							new $ability_class();
+						}
 					}
 				}
-			}
-		);
+			);
+		}
 	}
 
 	/**

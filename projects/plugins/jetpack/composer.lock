@@ -3727,7 +3727,23 @@
                     "includes/bootstrap.php"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "format": [
+                    "phpcbf"
+                ],
+                "lint": [
+                    "phpcs"
+                ],
+                "phpstan": [
+                    "phpstan analyse --memory-limit=1G"
+                ],
+                "test": [
+                    "phpunit --strict-coverage"
+                ],
+                "test-multisite": [
+                    "WP_MULTISITE=1 phpunit --exclude-group=ms-excluded"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
