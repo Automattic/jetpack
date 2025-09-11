@@ -20,8 +20,8 @@ class FeaturedImageInEmailTest extends WP_UnitTestCase {
 	/**
 	 * Set up before each test.
 	 */
-	public function setUp(): void {
-		parent::setUp();
+	public function set_up(): void {
+		parent::set_up();
 
 		// Remove any existing jetpack_options to start fresh
 		delete_option( 'jetpack_options' );

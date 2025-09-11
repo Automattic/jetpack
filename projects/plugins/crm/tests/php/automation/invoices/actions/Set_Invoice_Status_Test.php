@@ -30,8 +30,8 @@ class Set_Invoice_Status_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function setUp(): void {
-		parent::setUp();
+	public function set_up(): void {
+		parent::set_up();
 		$this->automation_faker = Automation_Faker::instance();
 		$this->automation_faker->reset_all();
 	}

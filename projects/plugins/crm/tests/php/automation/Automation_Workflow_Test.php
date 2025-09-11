@@ -31,8 +31,8 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
 
-	public function setUp(): void {
-		parent::setUp();
+	public function set_up(): void {
+		parent::set_up();
 		$this->automation_faker = Automation_Faker::instance();
 		$this->automation_faker->reset_all();
 	}

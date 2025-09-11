@@ -21,8 +21,8 @@ class WP_User_Trigger_Test extends JPCRM_Base_Integration_TestCase {
 	/** @var Automation_Faker */
 	private $automation_faker;
 
-	public function setUp(): void {
-		parent::setUp();
+	public function set_up(): void {
+		parent::set_up();
 		$this->automation_faker = Automation_Faker::instance();
 	}
 
