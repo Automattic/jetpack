@@ -21,7 +21,6 @@ class ExampleUserSitesResourceAbility {
 	 * Constructor - registers the ability.
 	 */
 	public function __construct() {
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		wp_register_ability(
 			'wpcom-mcp/user-sites-resource',
 			$this->get_config()

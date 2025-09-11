@@ -17,7 +17,6 @@ class UserSubscriptionsAbility implements AbilityInterface {
 	 * Constructor - registers the ability.
 	 */
 	public function __construct() {
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		wp_register_ability(
 			$this->get_ability_name(),
 			$this->get_config()
