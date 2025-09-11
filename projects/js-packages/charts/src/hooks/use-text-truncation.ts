@@ -4,8 +4,21 @@ import { useCallback, useRef, useState } from 'react';
  * Hook to detect if text content is truncated within its container.
  * Uses ResizeObserver to dynamically track changes in element size.
  *
- * @param enabled - Whether truncation detection should be active
- * @return Tuple of [refCallback, isTruncated] where refCallback should be attached to the text element
+ * @param enabled - Whether truncation detection should be active. Defaults to true.
+ * @return A tuple containing:
+ * - [0] refCallback: Function to attach to the text element as a ref
+ * - [1] isTruncated: Boolean indicating if the text is currently truncated
+ *
+ * @example
+ * ```tsx
+ * const [textRef, isTruncated] = useTextTruncation(true);
+ *
+ * return (
+ *   <span ref={textRef} title={isTruncated ? fullText : undefined}>
+ *     {text}
+ *   </span>
+ * );
+ * ```
  */
 export function useTextTruncation(
 	enabled: boolean = true
