@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix a fatal in fetching a non-existing menu in JSON API.
