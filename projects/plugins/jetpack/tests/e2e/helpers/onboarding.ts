@@ -1,10 +1,6 @@
 import logger from '_jetpack-e2e-commons/logger';
 import type { Page } from '@playwright/test';
 
-type RedirectToWpcomOptions = {
-	wpcomLoggedIn?: boolean;
-};
-
 // Onboarding API calls and redirects can take a while to complete, so we increase the timeout.
 const DEFAULT_TIMEOUT = 60000;
 
@@ -49,16 +45,10 @@ export class Onboarding {
 	/**
 	 * Wait for the redirect to the wp.com connect page.
 	 *
-	 * @param {StartOnboardingOptions} options - Options.
-	 *
 	 * @return A promise that resolves when the redirect to the wp.com connect page is completed.
 	 */
-	async waitForRedirectToWpcom( options?: RedirectToWpcomOptions ) {
-		const opts = { wpcomLoggedIn: true, ...options };
-
-		const wpcomUrl = opts.wpcomLoggedIn
-			? 'https://wordpress.com/jetpack/connect/authorize**'
-			: 'https://wordpress.com/log-in/jetpack**';
+	async waitForRedirectToWpcom() {
+		const wpcomUrl = 'https://wordpress.com/log-in/jetpack**';
 
 		return await this.page.waitForURL( wpcomUrl, { timeout: DEFAULT_TIMEOUT } );
 	}
