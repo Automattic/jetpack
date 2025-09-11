@@ -4,8 +4,14 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.4",
+		"php": ">=7.2",
+		"automattic/jetpack-autoloader": "^2.0",
 		"wordpress/abilities-api": "^0.1.1"
+	},
+	"config": {
+		"platform": {
+			"php": "7.4.0"
+		}
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
