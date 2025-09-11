@@ -28192,9 +28192,18 @@ final class CodeCoverage
     {
     }
     /**
-     * @return non-empty-list<non-empty-string>
+     * @return array{
+     *     cacheDirectory: ?string,
+     *     checkForUnintentionallyCoveredCode: bool,
+     *     includeUncoveredFiles: bool,
+     *     ignoreDeprecatedCode: bool,
+     *     parentClassesExcludedFromUnintentionallyCoveredCodeCheck: list<class-string>,
+     *     filter: Filter,
+     *     data: Data\ProcessedCodeCoverageData,
+     *     tests: array<string, TestType>
+     * }
      */
-    public function __sleep(): array
+    public function __serialize(): array
     {
     }
     /**
