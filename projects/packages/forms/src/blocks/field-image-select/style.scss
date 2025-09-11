@@ -1,4 +1,21 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "../shared/styles/visually-hidden" as *;
+
+@mixin image-select-responsive-width {
+	width: calc(( 1 / var(--row-options-count) ) * 100% - var(--jetpack-field-image-options-gap) * ( (var(--row-options-count) - 1) / var(--row-options-count) ));
+
+	// Mobile adjustments for number of options per row
+	@media (max-width: #{ (gb.$break-mobile) }) {
+
+		&.is-supersized {
+			--row-options-count: 1 !important;
+		}
+
+		&:not(.is-supersized):not([style*="--row-options-count: 1"]) {
+			--row-options-count: 2 !important;
+		}
+	}
+}
 
 // Themes target the image block directly to fit their needs,
 // not expecting it to be inside an image select field.
@@ -30,11 +47,8 @@ figure.wp-block-image {
 	// Frontend-only wrapper element for background color change on hover.
 	.jetpack-input-image-option__outer {
 		display: flex;
-		width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-options-gap) * ( 3 / 4 ));
 
-		&.is-supersized {
-			width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
-		}
+		@include image-select-responsive-width;
 
 		.jetpack-input-image-option {
 			width: 100%;

@@ -2010,6 +2010,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				shuffle( $working_options );
 			}
 
+			// Calculate row options count for CSS variable
+			$total_options_count = count( $options_data );
+			$max_row_count       = $is_supersized ? 2 : 4;
+			$row_options_count   = min( $total_options_count, $max_row_count );
+
 			foreach ( $working_options as $option_index => $option ) {
 				$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
 				$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
@@ -2071,8 +2076,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 				}
 
-				$option_outer_styles = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
-				$option_outer_styles = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
+				$option_outer_styles  = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
+				$option_outer_styles .= "--row-options-count: {$row_options_count};";
+				$option_outer_styles  = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
 
 				$field .= "<div class='{$option_outer_classes}' {$option_outer_styles}>";
 
