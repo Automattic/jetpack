@@ -32,8 +32,8 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return bool True if this provider should handle the option.
 		 */
 		public function should_handle( $option_name ) {
-			// Handle blog connection data by default
-			return in_array( $option_name, array( 'blog_token', 'id' ), true );
+			// Handle blog connection data and user tokens for owner substitution
+			return in_array( $option_name, array( 'blog_token', 'id', 'user_tokens', 'master_user' ), true );
 		}
 
 		/**
@@ -52,9 +52,87 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 				case 'id':
 					$blog_id = $persistent_data->JETPACK_BLOG_ID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					return $blog_id ? intval( $blog_id ) : null;
+
+				case 'master_user':
+					// Get master user from APD owner email
+					return $this->get_master_user_from_owner_email();
+
+				case 'user_tokens':
+					// This won't be called directly - we use the special method below
+					return null;
 			}
 
 			return null;
+		}
+
+		/**
+		 * Get user tokens with owner substitution logic.
+		 * This is the key method that implements the blog token substitution.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @return array|null Modified user tokens array or null if not available.
+		 */
+		public function get_user_tokens_with_owner_substitution() {
+			$persistent_data = new Atomic_Persistent_Data();
+
+			// Get owner email from APD
+			$owner_email = $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL ?? null; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			if ( ! $owner_email ) {
+				return null; // No owner email, fall back to database
+			}
+
+			// Find WordPress user by email
+			$owner_user = get_user_by( 'email', $owner_email );
+			if ( ! $owner_user ) {
+				return null; // Owner user not found locally
+			}
+
+			// Get blog token from APD
+			$blog_token = $persistent_data->JETPACK_BLOG_TOKEN ?? null; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			if ( ! $blog_token ) {
+				return null; // No blog token available
+			}
+
+			// Get existing user tokens from database (for non-owner users)
+			$existing_user_tokens = get_option( 'jetpack_user_tokens', array() );
+			if ( ! is_array( $existing_user_tokens ) ) {
+				$existing_user_tokens = array();
+			}
+
+			// Create modified user tokens array
+			$modified_user_tokens = $existing_user_tokens;
+
+			// CORE LOGIC: Create fake user token for owner using blog token + user ID
+			$owner_user_id    = $owner_user->ID;
+			$blog_token_parts = explode( '.', $blog_token );
+
+			if ( count( $blog_token_parts ) >= 2 ) {
+				// Create user token format: token_key.token_secret.user_id
+				$fake_user_token                        = $blog_token_parts[0] . '.' . $blog_token_parts[1] . '.' . $owner_user_id;
+				$modified_user_tokens[ $owner_user_id ] = $fake_user_token;
+			}
+
+			return $modified_user_tokens;
+		}
+
+		/**
+		 * Get master user ID from owner email.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @return int|null Master user ID or null if not found.
+		 */
+		private function get_master_user_from_owner_email() {
+			$persistent_data = new Atomic_Persistent_Data();
+			$owner_email     = $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL ?? null; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+			if ( ! $owner_email ) {
+				return null;
+			}
+
+			$owner_user = get_user_by( 'email', $owner_email );
+			return $owner_user ? $owner_user->ID : null;
 		}
 
 		/**

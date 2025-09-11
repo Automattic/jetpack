@@ -71,4 +71,19 @@ interface Storage_Provider_Interface {
 	 * @return string The environment identifier.
 	 */
 	public function get_environment_id();
+
+	/**
+	 * OPTIONAL: Get user tokens with owner substitution logic.
+	 *
+	 * This method is optional and will only be called if it exists on the provider.
+	 * It allows providers to implement special logic for user token handling,
+	 * such as substituting blog tokens for connection owners.
+	 *
+	 * If this method is not implemented, the standard get() method will be used
+	 * for retrieving user_tokens.
+	 *
+	 * Method signature: get_user_tokens_with_owner_substitution() : array|null
+	 *
+	 * @since $$next-version$$
+	 */
 }
