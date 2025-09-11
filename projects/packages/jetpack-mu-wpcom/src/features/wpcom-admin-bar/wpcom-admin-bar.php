@@ -145,6 +145,13 @@ add_action( 'admin_bar_menu', 'wpcom_always_use_user_locale', -1 );
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
+	$user_id     = get_current_user_id();
+	$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
+	if ( empty( $preferences ) ) {
+		$preferences = array();
+	}
+	$hosting_dashboard = ! empty( $preferences['hosting-dashboard-opt-in'] ) && $preferences['hosting-dashboard-opt-in']['value'] === 'opt-in';
+
 	$about_node      = $wp_admin_bar->get_node( 'about' );
 	$contribute_node = $wp_admin_bar->get_node( 'contribute' );
 
@@ -161,7 +168,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						__( 'All Sites', 'jetpack-mu-wpcom' ) .
 						'</span>',
-			'href'  => maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ),
+			'href'  => maybe_add_origin_site_id_to_url( $hosting_dashboard ? 'https://wordpress.com/v2/sites' : 'https://wordpress.com/sites' ),
 			'meta'  => array(
 				'menu_title' => __( 'All Sites', 'jetpack-mu-wpcom' ),
 			),
@@ -173,7 +180,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wpcom-logo',
 			'id'     => 'wpcom-sites',
 			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ),
+			'href'   => maybe_add_origin_site_id_to_url( $hosting_dashboard ? 'https://wordpress.com/v2/sites' : 'https://wordpress.com/sites' ),
 		)
 	);
 
@@ -182,7 +189,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wpcom-logo',
 			'id'     => 'wpcom-domains',
 			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/domains/manage' ),
+			'href'   => maybe_add_origin_site_id_to_url( $hosting_dashboard ? 'https://wordpress.com/v2/domains' : 'https://wordpress.com/domains/manage' ),
 		)
 	);
 
