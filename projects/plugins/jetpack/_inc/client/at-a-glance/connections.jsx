@@ -51,7 +51,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'Your site is in Offline Mode, so it can not be connected to WordPress.com.',
+							'Your site is in Offline Mode, so it cannot be connected to WordPress.com.',
 							'jetpack'
 						) }
 					</div>
@@ -139,7 +139,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'The site is in Offline Mode, so you can not connect to WordPress.com.',
+							'The site is in Offline Mode, so you cannot connect to WordPress.com.',
 							'jetpack'
 						) }
 					</div>

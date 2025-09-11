@@ -620,7 +620,7 @@ class VaultPress {
 			$this->update_option( 'connection_error_code', 'error_localhost' );
 			$this->update_option(
 				'connection_error_message',
-				esc_html__( 'Hostnames such as localhost or 127.0.0.1 can not be reached by vaultpress.com and will not work with the service. Sites must be publicly accessible in order to work with VaultPress.', 'vaultpress' )
+				esc_html__( 'Hostnames such as localhost or 127.0.0.1 cannot be reached by vaultpress.com and will not work with the service. Sites must be publicly accessible in order to work with VaultPress.', 'vaultpress' )
 			);
 			$this->error_notice();
 			return array( 'ui' => ob_get_clean(), 'dashboard_link' => false );

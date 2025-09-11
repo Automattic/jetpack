@@ -1488,7 +1488,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				// translators: %s is the formatted maximum file size.
 				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
 				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
-				'maxFiles'           => __( 'You have exeeded the number of files that you can upload.', 'jetpack-forms' ),
+				'maxFiles'           => __( 'You have exceeded the number of files that you can upload.', 'jetpack-forms' ),
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
 			'endpoint'      => $this->get_unauth_endpoint_url(),

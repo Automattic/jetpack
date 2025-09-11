@@ -1193,7 +1193,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error(
 				new WP_Error(
 					'site_in_safe_mode',
-					esc_html__( 'Can not cancel a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+					esc_html__( 'Cannot cancel a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
 				)
 			);
 		}

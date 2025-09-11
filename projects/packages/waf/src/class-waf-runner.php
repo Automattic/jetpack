@@ -344,7 +344,7 @@ class Waf_Runner {
 
 		global $wp_filesystem;
 		if ( ! $wp_filesystem ) {
-			throw new File_System_Exception( 'Can not work without the file system being initialized.' );
+			throw new File_System_Exception( 'Cannot work without the file system being initialized.' );
 		}
 
 		if ( ! $wp_filesystem->is_dir( JETPACK_WAF_DIR ) ) {
