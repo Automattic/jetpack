@@ -84,7 +84,9 @@ export default function ImageOptionsFieldsetEdit( props ) {
 
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton onClick={ addOption }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
+					<ToolbarButton onClick={ addOption }>
+						{ __( 'Add choice', 'jetpack-forms' ) }
+					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
 		</div>
