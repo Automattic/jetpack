@@ -42,8 +42,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_enqueues_sync_start_action() {
-		$post = self::factory()->post->create();
-		self::factory()->comment->create_post_comments( $post, 11 );
+		$post = static::factory()->post->create();
+		static::factory()->comment->create_post_comments( $post, 11 );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -85,8 +85,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		$this->full_sync->reset_data();
 
-		$post = self::factory()->post->create();
-		self::factory()->comment->create_post_comments( $post, 1 );
+		$post = static::factory()->post->create();
+		static::factory()->comment->create_post_comments( $post, 1 );
 
 		$this->full_sync->start();
 		$this->full_sync->start();
@@ -100,7 +100,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 	/** This only applies to the test replicastore - in production we overlay data */
 	public function test_sync_start_resets_storage() {
-		self::factory()->post->create();
+		static::factory()->post->create();
 		$this->sender->do_sync();
 
 		$this->assertSame( 1, $this->server_replica_storage->post_count() );
@@ -117,7 +117,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
-		self::factory()->post->create();
+		static::factory()->post->create();
 		$this->full_sync->start();
 
 		$initial_full_sync_queue_size = $this->sender->get_full_sync_queue()->size();
@@ -159,7 +159,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	public function test_full_sync_can_select_modules() {
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
-		self::factory()->post->create();
+		static::factory()->post->create();
 
 		$this->full_sync->start( array( 'options' => true ) );
 
@@ -190,7 +190,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_sync_post_filtered_content_was_filtered_when_syncing_all() {
-		$post_id = self::factory()->post->create();
+		$post_id = static::factory()->post->create();
 		$post    = get_post( $post_id );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$post->post_content = '[foo]';
@@ -213,8 +213,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_sends_all_comments() {
-		$post = self::factory()->post->create();
-		self::factory()->comment->create_post_comments( $post, 11 );
+		$post = static::factory()->post->create();
+		static::factory()->comment->create_post_comments( $post, 11 );
 
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
@@ -303,7 +303,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		global $wpdb;
 		$this->sender->reset_data();
 
-		$post_ids = self::factory()->post->create_many( 20 );
+		$post_ids = static::factory()->post->create_many( 20 );
 
 		foreach ( $post_ids as $post_id ) {
 			wp_set_object_terms( $post_id, array( 'cat1', 'cat2', 'cat3' ), 'category', true );
@@ -342,7 +342,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 			)
 		);
 
-		$post_ids = self::factory()->post->create_many( 4 );
+		$post_ids = static::factory()->post->create_many( 4 );
 
 		foreach ( $post_ids as $post_id ) {
 			wp_set_object_terms( $post_id, array( 'cat1', 'cat2', 'cat3' ), 'category', true );
@@ -387,7 +387,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
-		$post_id = self::factory()->post->create();
+		$post_id = static::factory()->post->create();
 
 		$terms = array();
 		for ( $i = 0; $i < 25; $i++ ) {
@@ -465,10 +465,10 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_sends_all_users() {
-		self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		$first_user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		static::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$first_user_id = static::factory()->user->create( array( 'role' => 'contributor' ) );
 		for ( $i = 0; $i < 9; $i++ ) {
-			$user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+			$user_id = static::factory()->user->create( array( 'role' => 'contributor' ) );
 		}
 
 		update_user_meta( $user_id, 'locale', 'en_GB' );
@@ -500,7 +500,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		);
 
 		for ( $i = 0; $i < 45; $i++ ) {
-			self::factory()->user->create( array( 'role' => 'contributor' ) );
+			static::factory()->user->create( array( 'role' => 'contributor' ) );
 		}
 
 		// The first event is for full sync start.
@@ -553,7 +553,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		$original_blog_id = get_current_blog_id();
 
-		$user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$user_id = static::factory()->user->create( array( 'role' => 'contributor' ) );
 
 		// NOTE this is necessary because WPMU causes certain assumptions about transients
 		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
@@ -565,8 +565,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		// let's create some users on the other blog
 		switch_to_blog( $other_blog_id );
-		$mu_blog_user_id       = self::factory()->user->create( array( 'role' => 'contributor' ) );
-		$added_mu_blog_user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$mu_blog_user_id       = static::factory()->user->create( array( 'role' => 'contributor' ) );
+		$added_mu_blog_user_id = static::factory()->user->create( array( 'role' => 'contributor' ) );
 		restore_current_blog();
 
 		// add one of the users to our current blog
@@ -783,7 +783,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_sends_all_post_meta() {
-		$post_id = self::factory()->post->create();
+		$post_id = static::factory()->post->create();
 
 		Settings::update_settings( array( 'post_meta_whitelist' => array( 'test_meta_key', 'test_meta_array' ) ) );
 
@@ -809,7 +809,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_doesnt_sends_forbiden_private_or_public_post_meta() {
-		$post_id = self::factory()->post->create();
+		$post_id = static::factory()->post->create();
 
 		Modules::get_module( 'meta' );
 		Settings::update_settings( array( 'post_meta_whitelist' => array( 'a_public_meta' ) ) );
@@ -849,7 +849,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_sends_all_post_terms() {
-		$post_id = self::factory()->post->create();
+		$post_id = static::factory()->post->create();
 		wp_set_object_terms( $post_id, 'tag', 'post_tag' );
 
 		$this->sender->do_sync();
@@ -867,8 +867,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_sends_all_comment_meta() {
-		$post_id     = self::factory()->post->create();
-		$comment_ids = self::factory()->comment->create_post_comments( $post_id );
+		$post_id     = static::factory()->post->create();
+		$comment_ids = static::factory()->comment->create_post_comments( $post_id );
 		$comment_id  = $comment_ids[0];
 
 		Settings::update_settings( array( 'comment_meta_whitelist' => array( 'test_meta_key' ) ) );
@@ -1073,7 +1073,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_start_sends_configuration() {
-		$post_ids = self::factory()->post->create_many( 3 );
+		$post_ids = static::factory()->post->create_many( 3 );
 
 		// this is so that on WPCOM we can tell what has been synchronized in the past
 		add_action( 'jetpack_full_sync_start', array( $this, 'record_full_sync_start_config' ), 10, 1 );
@@ -1158,10 +1158,10 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	public function create_dummy_data_and_empty_the_queue() {
 		// lets create a bunch of posts
 		for ( $i = 0; $i < $this->test_posts_count; $i++ ) {
-			$post = self::factory()->post->create();
+			$post = static::factory()->post->create();
 		}
 		// lets create a bunch of comments
-		self::factory()->comment->create_post_comments( $post, $this->test_comments_count );
+		static::factory()->comment->create_post_comments( $post, $this->test_comments_count );
 
 		// reset the data before the full sync
 		$this->sender->reset_data();
@@ -1284,8 +1284,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
 
-		$post_id = self::factory()->post->create();
-		self::factory()->comment->create_post_comments( $post_id, 3 );
+		$post_id = static::factory()->post->create();
+		static::factory()->comment->create_post_comments( $post_id, 3 );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -1323,9 +1323,9 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_can_sync_individual_posts() {
-		$sync_post_id    = self::factory()->post->create();
-		$sync_post_id_2  = self::factory()->post->create();
-		$no_sync_post_id = self::factory()->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$sync_post_id    = static::factory()->post->create();
+		$sync_post_id_2  = static::factory()->post->create();
+		$no_sync_post_id = static::factory()->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->full_sync->start( array( 'posts' => array( $sync_post_id, $sync_post_id_2 ) ) );
 		$this->sender->do_full_sync();
@@ -1343,8 +1343,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_can_sync_individual_comments() {
-		$post_id = self::factory()->post->create();
-		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = self::factory()->comment->create_post_comments( $post_id, 3 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$post_id = static::factory()->post->create();
+		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = static::factory()->comment->create_post_comments( $post_id, 3 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->full_sync->start( array( 'comments' => array( $sync_comment_id, $sync_comment_id_2 ) ) );
 		$this->sender->do_full_sync();
@@ -1364,9 +1364,9 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_full_sync_can_sync_individual_users() {
-		$sync_user_id   = self::factory()->user->create( array( 'role' => 'editor' ) );
-		$sync_user_id_2 = self::factory()->user->create( array( 'role' => 'editor' ) );
-		self::factory()->user->create( array( 'role' => 'editor' ) );
+		$sync_user_id   = static::factory()->user->create( array( 'role' => 'editor' ) );
+		$sync_user_id_2 = static::factory()->user->create( array( 'role' => 'editor' ) );
+		static::factory()->user->create( array( 'role' => 'editor' ) );
 
 		$this->full_sync->start( array( 'users' => array( $sync_user_id, $sync_user_id_2 ) ) );
 		$this->sender->do_full_sync();
@@ -1388,8 +1388,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
-		$keep_post_id   = self::factory()->post->create();
-		$delete_post_id = self::factory()->post->create();
+		$keep_post_id   = static::factory()->post->create();
+		$delete_post_id = static::factory()->post->create();
 
 		$this->full_sync->start();
 
@@ -1408,8 +1408,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
-		$post_id                                     = self::factory()->post->create();
-		list( $keep_comment_id, $delete_comment_id ) = self::factory()->comment->create_post_comments( $post_id, 2 );
+		$post_id                                     = static::factory()->post->create();
+		list( $keep_comment_id, $delete_comment_id ) = static::factory()->comment->create_post_comments( $post_id, 2 );
 
 		$this->full_sync->start();
 
@@ -1431,8 +1431,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
-		$keep_user_id   = self::factory()->user->create( array( 'role' => 'contributor' ) );
-		$delete_user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$keep_user_id   = static::factory()->user->create( array( 'role' => 'contributor' ) );
+		$delete_user_id = static::factory()->user->create( array( 'role' => 'contributor' ) );
 
 		$this->full_sync->start();
 
@@ -1457,7 +1457,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'dont_sync_users' ) );
 
 		for ( $i = 1; $i <= 3; $i++ ) {
-			self::factory()->user->create();
+			static::factory()->user->create();
 		}
 
 		$this->full_sync->start( array( 'users' => true ) );
@@ -1555,9 +1555,9 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		// make some stuff
 		for ( $i = 0; $i <= 25; $i++ ) {
-			$post_id = self::factory()->post->create();
-			self::factory()->user->create();
-			self::factory()->comment->create_post_comments( $post_id, 2 );
+			$post_id = static::factory()->post->create();
+			static::factory()->user->create();
+			static::factory()->comment->create_post_comments( $post_id, 2 );
 		}
 
 		foreach ( Modules::get_modules() as $module ) {
@@ -1579,20 +1579,20 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_initial_sync_doesnt_sync_subscribers() {
-		self::factory()->user->create(
+		static::factory()->user->create(
 			array(
 				'user_login' => 'theauthor',
 				'role'       => 'author',
 			)
 		);
-		self::factory()->user->create(
+		static::factory()->user->create(
 			array(
 				'user_login' => 'theadmin',
 				'role'       => 'administrator',
 			)
 		);
 		for ( $i = 1; $i <= 10; $i++ ) {
-			self::factory()->user->create( array( 'role' => 'subscriber' ) );
+			static::factory()->user->create( array( 'role' => 'subscriber' ) );
 		}
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -1629,7 +1629,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		Settings::update_settings( array( 'max_enqueue_full_sync' => 2 ) );
 
 		// enough posts for three queue items
-		$synced_post_ids = self::factory()->post->create_many( 25 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$synced_post_ids = static::factory()->post->create_many( 25 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->full_sync->start( array( 'posts' => true ) );
 
@@ -1669,7 +1669,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		);
 
 		// this should become three items
-		$synced_post_ids = self::factory()->post->create_many( 25 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$synced_post_ids = static::factory()->post->create_many( 25 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->full_sync->start( array( 'posts' => true ) );
 
@@ -1710,7 +1710,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 			)
 		);
 
-		self::factory()->post->create_many( 25 );
+		static::factory()->post->create_many( 25 );
 
 		// The first event is for full sync start.
 		$this->full_sync->start( array( 'posts' => true ) );
@@ -1755,9 +1755,9 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 				'max_enqueue_full_sync'    => 10,
 			)
 		);
-		$post_id = self::factory()->post->create();
+		$post_id = static::factory()->post->create();
 		for ( $i = 0; $i < 25; $i++ ) {
-			self::factory()->comment->create_post_comments( $post_id );
+			static::factory()->comment->create_post_comments( $post_id );
 		}
 		// The first event is for full sync start.
 		$this->full_sync->start( array( 'comments' => true ) );
@@ -1791,7 +1791,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_disable_sending_full_sync() {
-		self::factory()->post->create_many( 2 );
+		static::factory()->post->create_many( 2 );
 
 		$this->sender->reset_data();
 		$this->server_event_storage->reset();
@@ -1806,7 +1806,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_enable_sending_full_sync() {
-		self::factory()->post->create_many( 2 );
+		static::factory()->post->create_many( 2 );
 
 		$this->sender->reset_data();
 		$this->server_event_storage->reset();

@@ -90,8 +90,8 @@ class Jetpack_Sync_Module_Stats_Test extends Jetpack_Sync_TestBase {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		$user_id         = self::factory()->user->create();
-		$mu_blog_user_id = self::factory()->user->create();
+		$user_id         = static::factory()->user->create();
+		$mu_blog_user_id = static::factory()->user->create();
 
 		// Create a different blog.
 		$suppress      = $wpdb->suppress_errors();

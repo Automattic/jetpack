@@ -143,8 +143,8 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_approving_a_review_is_synced() {
-		$post_id    = self::factory()->post->create();
-		$review_ids = self::factory()->comment->create_post_comments(
+		$post_id    = static::factory()->post->create();
+		$review_ids = static::factory()->comment->create_post_comments(
 			$post_id,
 			1,
 			array(
@@ -187,8 +187,8 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_unapproving_a_review_is_synced() {
-		$post_id    = self::factory()->post->create();
-		$review_ids = self::factory()->comment->create_post_comments( $post_id, 1, array( 'comment_type' => 'review' ) );
+		$post_id    = static::factory()->post->create();
+		$review_ids = static::factory()->comment->create_post_comments( $post_id, 1, array( 'comment_type' => 'review' ) );
 		$review     = get_comment( $review_ids[0] );
 
 		$this->sender->do_sync();

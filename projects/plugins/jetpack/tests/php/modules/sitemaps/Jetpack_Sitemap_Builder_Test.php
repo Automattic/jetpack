@@ -71,7 +71,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_index_generation() {
 		// Create enough posts to generate multiple sitemaps
-		self::factory()->post->create_many(
+		static::factory()->post->create_many(
 			2000,
 			array(
 				'post_type'   => 'post',
@@ -100,7 +100,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		$this->markTestSkipped( 'Skipping master sitemap generation test since it assumed XMLWriter usage.' );
 		// Create content of different types
 		// @phan-suppress-next-line PhanPluginUnreachableCode -- Disabling until OOM issues are better understood/corrected.
-		self::factory()->post->create_many(
+		static::factory()->post->create_many(
 			5,
 			array(
 				'post_type'   => 'post',
@@ -112,7 +112,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		$filename = dirname( __DIR__, 3 ) . '/jetpack-icon.jpg';
 
 		// Create an attachment with proper image metadata
-		$attachment_id = self::factory()->attachment->create_object(
+		$attachment_id = static::factory()->attachment->create_object(
 			array(
 				'file'           => $filename,
 				'post_parent'    => 0,
@@ -236,7 +236,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		);
 
 		// Create some custom post type content
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_type'   => 'test_cpt',
 				'post_status' => 'publish',
@@ -313,7 +313,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	#[Group( 'jetpack-sitemap' )]
 	public function test_cache_suspension_state_restored() {
 		// Create test content
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_type'   => 'post',
 				'post_status' => 'publish',

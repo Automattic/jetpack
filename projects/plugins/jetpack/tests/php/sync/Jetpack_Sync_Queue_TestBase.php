@@ -328,7 +328,7 @@ abstract class Jetpack_Sync_Queue_TestBase extends Jetpack_Sync_TestBase {
 		for ( $i = 0; $i < $iterations; $i++ ) {
 			$start_create_post_time = microtime( true );
 
-			$post_id = self::factory()->post->create();
+			$post_id = static::factory()->post->create();
 
 			$start_add_queue_time = microtime( true );
 

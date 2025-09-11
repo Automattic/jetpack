@@ -36,7 +36,7 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 		}
 
 		// Otherwise, create the two images we're going to be using ourselves!
-		$a1 = self::factory()->attachment->create_object(
+		$a1 = static::factory()->attachment->create_object(
 			'image1.jpg',
 			0,
 			array(
@@ -46,7 +46,7 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 			)
 		);
 
-		$a2 = self::factory()->attachment->create_object(
+		$a2 = static::factory()->attachment->create_object(
 			'image1.jpg',
 			0,
 			array(

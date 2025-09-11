@@ -18,7 +18,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		// Create a user and set it up as current.
-		$user_id = self::factory()->user->create_and_get(
+		$user_id = static::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)

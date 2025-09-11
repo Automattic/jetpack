@@ -59,7 +59,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test the permissions check for users who can edit posts.
 	 */
 	public function test_get_items_permissions_check_with_edit_posts_capability() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'contributor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'contributor' ) ) );
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->assertTrue( $this->instance->get_items_permissions_check( $request ) );
 	}
@@ -68,7 +68,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test the permissions check for users who cannot edit posts.
 	 */
 	public function test_get_items_permissions_check_without_edit_posts_capability() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'subscriber' ) ) );
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$result  = $this->instance->get_items_permissions_check( $request );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -94,7 +94,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that get_items returns the expected structure.
 	 */
 	public function test_get_items() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
@@ -112,7 +112,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that get_items returns the expected block types.
 	 */
 	public function test_get_items_returns_allowed_block_types() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
@@ -149,7 +149,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that allowed plugins assets are included.
 	 */
 	public function test_get_items_returns_allowed_plugin_assets() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_allowed_plugin_assets' ) );
 
@@ -181,7 +181,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that disallowed plugin assets are filtered out.
 	 */
 	public function test_disallowed_plugin_assets_are_filtered() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_disallowed_plugin_assets' ) );
 
@@ -211,7 +211,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that protected core handles are preserved.
 	 */
 	public function test_protected_handles_are_preserved() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
@@ -225,7 +225,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that WPCOM-specific Gutenberg assets are preserved.
 	 */
 	public function test_wpcom_gutenberg_assets_are_preserved() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_wpcom_gutenberg_assets' ) );
 
@@ -257,7 +257,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that required WordPress actions are triggered.
 	 */
 	public function test_required_wordpress_actions_are_triggered() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		$wp_loaded_triggered           = false;
 		$block_assets_triggered        = false;
@@ -316,7 +316,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 			)
 		);
 
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'custom_editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'custom_editor' ) ) );
 
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->assertTrue( $this->instance->get_items_permissions_check( $request ) );
@@ -330,7 +330,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that plugin scripts registered before endpoint execution are preserved.
 	 */
 	public function test_plugin_scripts_registered_during_init_are_preserved() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		// Directly register scripts to simulate what happens during init
 		wp_register_script( 'jetpack-init-test-script', 'http://example.org/jetpack-init.js', array(), '1.0', true );
@@ -374,7 +374,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that plugin styles registered before endpoint execution are preserved.
 	 */
 	public function test_plugin_styles_registered_during_init_are_preserved() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		// Directly register styles to simulate what happens during init
 		wp_register_style( 'jetpack-init-test-style', 'http://example.org/jetpack-init.css', array(), '1.0' );
@@ -418,7 +418,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that preserved scripts maintain their properties and dependencies.
 	 */
 	public function test_preserved_scripts_maintain_properties() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		// Register a complex script with dependencies
 		wp_register_script(

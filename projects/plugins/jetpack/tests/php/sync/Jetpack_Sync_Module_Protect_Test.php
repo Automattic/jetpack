@@ -18,7 +18,7 @@ class Jetpack_Sync_Module_Protect_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_sends_failed_login_message() {
-		$user_id = self::factory()->user->create();
+		$user_id = static::factory()->user->create();
 
 		$user = get_userdata( $user_id );
 
@@ -37,7 +37,7 @@ class Jetpack_Sync_Module_Protect_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_do_not_send_failed_login_message() {
-		$user_id = self::factory()->user->create();
+		$user_id = static::factory()->user->create();
 
 		$user = get_userdata( $user_id );
 		Constants::set_constant( 'XMLRPC_REQUEST', true ); // fake xmlrpc request

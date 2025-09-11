@@ -55,7 +55,7 @@ class Jetpack_Shortcodes_Facebook_Test extends WP_UnitTestCase {
 
 		$fb_video_id = '546877659119730';
 		$url         = 'https://www.facebook.com/video.php?v=' . $fb_video_id;
-		$post        = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post        = static::factory()->post->create_and_get( array( 'post_content' => $url ) );
 
 		setup_postdata( $post );
 
@@ -82,7 +82,7 @@ class Jetpack_Shortcodes_Facebook_Test extends WP_UnitTestCase {
 
 		$fb_video_id = '546877659119730';
 		$url         = 'https://www.facebook.com/watch/?v=' . $fb_video_id;
-		$post        = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post        = static::factory()->post->create_and_get( array( 'post_content' => $url ) );
 
 		setup_postdata( $post );
 
@@ -109,7 +109,7 @@ class Jetpack_Shortcodes_Facebook_Test extends WP_UnitTestCase {
 
 		$fb_video_id = '546877659119730';
 		$url         = 'https://www.facebook.com/AutomatticInc/videos/' . $fb_video_id;
-		$post        = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post        = static::factory()->post->create_and_get( array( 'post_content' => $url ) );
 
 		setup_postdata( $post );
 

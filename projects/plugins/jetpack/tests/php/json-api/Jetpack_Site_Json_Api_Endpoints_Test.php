@@ -51,7 +51,7 @@ class Jetpack_Site_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 		global $blog_id;
 
 		// Fetch as admin so that options is also present in the response.
-		$admin = self::factory()->user->create_and_get(
+		$admin = static::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)
@@ -81,7 +81,7 @@ class Jetpack_Site_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 		// Current trials.
 		$trials = array_keys( WPCOM_JSON_API_GET_Site_Endpoint::$jetpack_enabled_trials );
 
-		$admin = self::factory()->user->create_and_get(
+		$admin = static::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)

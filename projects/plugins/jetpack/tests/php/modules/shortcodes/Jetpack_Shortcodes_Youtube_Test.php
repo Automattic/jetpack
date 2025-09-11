@@ -114,7 +114,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 
 		$youtube_id = 'JaNH56Vpg-A';
 		$url        = 'http://www.youtube.com/watch?v=' . $youtube_id;
-		$post       = self::factory()->post->create_and_get( array( 'post_content' => "[youtube $url]" ) );
+		$post       = static::factory()->post->create_and_get( array( 'post_content' => "[youtube $url]" ) );
 
 		setup_postdata( $post );
 		ob_start();

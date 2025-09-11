@@ -23,7 +23,7 @@ class Likes_Test extends WP_UnitTestCase {
 	 * @since 8.4.0
 	 */
 	public function test_action_init_likes_visible() {
-		$this->go_to( get_permalink( self::factory()->post->create() ) );
+		$this->go_to( get_permalink( static::factory()->post->create() ) );
 		add_filter( 'wpl_is_enabled_sitewide', '__return_true' );
 		add_filter( 'wpl_is_single_post_disabled', '__return_true' );
 		$instance = new Jetpack_Likes();
@@ -49,7 +49,7 @@ class Likes_Test extends WP_UnitTestCase {
 		$this->assertEquals( 'Some content.', Jetpack_Likes::init()->post_likes( $content ) );
 
 		// Create and set a global post
-		$post_id = self::factory()->post->create( array() );
+		$post_id = static::factory()->post->create( array() );
 		global $post;
 		$post = get_post( $post_id );
 
@@ -69,7 +69,7 @@ class Likes_Test extends WP_UnitTestCase {
 	 * @since 4.6.0
 	 */
 	public function test_is_likes_visible() {
-		$post_id = self::factory()->post->create( array( 'post_content' => 'Some content.' ) );
+		$post_id = static::factory()->post->create( array( 'post_content' => 'Some content.' ) );
 		$this->go_to( get_permalink( $post_id ) );
 
 		// Are we on a single post?

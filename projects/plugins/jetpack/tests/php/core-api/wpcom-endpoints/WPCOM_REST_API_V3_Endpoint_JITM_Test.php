@@ -174,7 +174,7 @@ class WPCOM_REST_API_V3_Endpoint_JITM_Test extends Jetpack_REST_TestCase {
 		);
 
 		// Test with logged in user (should succeed)
-		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$subscriber_id = static::factory()->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $subscriber_id );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status(), 'Logged in users should be able to get JITMs' );
@@ -202,7 +202,7 @@ class WPCOM_REST_API_V3_Endpoint_JITM_Test extends Jetpack_REST_TestCase {
 		);
 
 		// Test with  (should succeed)
-		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$subscriber_id = static::factory()->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $subscriber_id );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status(), 'Subscribers should be able to dismiss JITMs' );

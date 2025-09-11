@@ -28,10 +28,10 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$user_id = self::factory()->user->create();
+		$user_id = static::factory()->user->create();
 
 		// create a post
-		$this->post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+		$this->post_id = static::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->post    = get_post( $this->post_id );
 
 		$this->sender->do_sync();
@@ -95,8 +95,8 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		Constants::set_constant( 'DOING_AUTOSAVE', true );
 
 		// Performing sync here (even though set_up() does it) to sync REQUEST_URI.
-		$user_id = self::factory()->user->create();
-		self::factory()->post->create( array( 'post_author' => $user_id ) );
+		$user_id = static::factory()->user->create();
+		static::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
@@ -523,7 +523,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	public function test_sync_post_filter_restores_global_post() {
 		global $post;
 
-		$post_id = self::factory()->post->create();
+		$post_id = static::factory()->post->create();
 		$post    = get_post( $post_id );
 
 		$post_sync_module = Modules::get_module( 'posts' );
@@ -594,8 +594,8 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
-		$post_id       = self::factory()->post->create();
-		$attachment_id = self::factory()->post->create(
+		$post_id       = static::factory()->post->create();
+		$attachment_id = static::factory()->post->create(
 			array(
 				'post_type'      => 'attachment',
 				'post_mime_type' => 'image/png',
@@ -629,7 +629,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
-		$post_id = self::factory()->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$post_id = static::factory()->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->sender->do_sync();
 
@@ -650,7 +650,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		register_post_type( 'unregister_post_type', $args );
 
 		add_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
-		$post_id = self::factory()->post->create( array( 'post_type' => 'unregister_post_type' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'unregister_post_type' ) );
 		remove_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 
 		$this->sender->do_sync();
@@ -663,7 +663,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( 'unregister_post_type', $synced_post->post_type );
 
 		// Also works for post type that was never registed
-		$post_id = self::factory()->post->create( array( 'post_type' => 'does_not_exist' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'does_not_exist' ) );
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
@@ -687,7 +687,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		);
 		register_post_type( 'testing_sync', $args );
 
-		$post_id = self::factory()->post->create( array( 'post_type' => 'testing_sync' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'testing_sync' ) );
 
 		unregister_post_type( 'testing_sync' );
 
@@ -748,7 +748,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		register_post_type( 'snitch', $args );
 		$this->server_event_storage->reset();
 
-		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'snitch' ) );
 
 		$this->sender->do_sync();
 
@@ -771,7 +771,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		register_post_type( 'snitch', $args );
 		$this->server_event_storage->reset();
 
-		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'snitch' ) );
 
 		$this->sender->do_sync();
 
@@ -794,7 +794,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		register_post_type( 'snitch', $args );
 		$this->server_event_storage->reset();
 
-		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'snitch' ) );
 		wp_delete_post( $post_id, true );
 
 		$this->sender->do_sync();
@@ -813,7 +813,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		);
 		register_post_type( 'snitch', $args );
 
-		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'snitch' ) );
 		add_post_meta( $post_id, 'hello', 123 );
 
 		$this->sender->do_sync();
@@ -834,7 +834,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 				'label'  => 'Filter Me',
 			)
 		);
-		$post_id = self::factory()->post->create( array( 'post_type' => 'filter_me' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'filter_me' ) );
 		$this->sender->do_sync();
 		unregister_post_type( 'filter_me' );
 
@@ -850,7 +850,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 				'label'  => 'Filter Me',
 			)
 		);
-		$post_id = self::factory()->post->create( array( 'post_type' => 'filter_me' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'filter_me' ) );
 		$this->sender->do_sync();
 		unregister_post_type( 'filter_me' );
 
@@ -874,7 +874,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 				'label'  => 'Filter Me',
 			)
 		);
-		$post_id = self::factory()->post->create( array( 'post_type' => 'dont_publicize_me' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'dont_publicize_me' ) );
 
 		// Clean up.
 		unregister_post_type( 'dont_publicize_me' );
@@ -885,7 +885,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 
 		$this->assertFalse( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
-		$good_post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
+		$good_post_id = static::factory()->post->create( array( 'post_type' => 'post' ) );
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $good_post_id ) ) );
 	}
@@ -893,7 +893,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	public function test_returns_post_object_by_id() {
 		$post_sync_module = Modules::get_module( 'posts' );
 
-		$post_id = self::factory()->post->create();
+		$post_id = static::factory()->post->create();
 
 		$this->sender->do_sync();
 
@@ -1088,8 +1088,8 @@ POST_CONTENT;
 		);
 
 		// create a post.
-		$user_id = self::factory()->user->create();
-		self::factory()->post->create(
+		$user_id = static::factory()->user->create();
+		static::factory()->post->create(
 			array(
 				'post_author'  => $user_id,
 				'post_type'    => 'customize_changeset',
@@ -1150,7 +1150,7 @@ POST_CONTENT;
 		);
 		register_post_type( 'non_public', $args );
 
-		$post_id = self::factory()->post->create( array( 'post_type' => 'non_public' ) );
+		$post_id = static::factory()->post->create( array( 'post_type' => 'non_public' ) );
 		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
 		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 		$this->sender->do_sync();
@@ -1241,8 +1241,8 @@ That was a cool video.';
 	}
 
 	public function test_sync_jetpack_published_post_raw() {
-		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
-		$user_id = self::factory()->user->create();
+		$post_id = static::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$user_id = static::factory()->user->create();
 
 		$post              = get_post( $post_id );
 		$post->post_author = $user_id;
@@ -1296,7 +1296,7 @@ That was a cool video.';
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
 		new Jetpack_Subscriptions(); // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
 
-		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$post_id = static::factory()->post->create( array( 'post_status' => 'draft' ) );
 
 		update_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', 1 );
 
@@ -1368,7 +1368,7 @@ That was a cool video.';
 		$this->server_event_storage->reset();
 		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		self::factory()->post->create( array( 'post_type' => 'post' ) );
+		static::factory()->post->create( array( 'post_type' => 'post' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
@@ -1500,7 +1500,7 @@ That was a cool video.';
 	public function add_a_hello_post_type() {
 		if ( ! $this->test_already ) {
 			$this->test_already = true;
-			self::factory()->post->create( array( 'post_type' => 'hello' ) );
+			static::factory()->post->create( array( 'post_type' => 'hello' ) );
 			return;
 		}
 	}
@@ -1556,7 +1556,7 @@ That was a cool video.';
 	 */
 	public function test_filter_objects_and_metadata_by_size_returns_all_posts_and_metadata() {
 
-		$post_ids  = self::factory()->post->create_many( 3 );
+		$post_ids  = static::factory()->post->create_many( 3 );
 		$post_id_1 = $post_ids[0];
 		$post_id_2 = $post_ids[1];
 		$post_id_3 = $post_ids[2];
@@ -1621,8 +1621,8 @@ That was a cool video.';
 	 */
 	public function test_filter_objects_and_metadata_by_size_returns_only_one_post() {
 
-		$post_id_1 = self::factory()->post->create();
-		$post_id_2 = self::factory()->post->create();
+		$post_id_1 = static::factory()->post->create();
+		$post_id_2 = static::factory()->post->create();
 
 		$post_1 = get_post( $post_id_1 );
 		$post_2 = get_post( $post_id_2 );
@@ -1678,8 +1678,8 @@ That was a cool video.';
 
 	public function test_filter_objects_and_metadata_by_size_returns_only_one_post_with_many_meta_value_empty() {
 
-		$post_id_1 = self::factory()->post->create();
-		$post_id_2 = self::factory()->post->create();
+		$post_id_1 = static::factory()->post->create();
+		$post_id_2 = static::factory()->post->create();
 
 		$post_1 = get_post( $post_id_1 );
 		$post_2 = get_post( $post_id_2 );

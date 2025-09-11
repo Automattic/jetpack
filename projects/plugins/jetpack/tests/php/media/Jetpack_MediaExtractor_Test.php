@@ -16,7 +16,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_empty_array() {
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => '',
 			)
@@ -35,7 +35,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 	public function test_mediaextractor_extract_image() {
 		$img_title = 'alt_title.jpg';
 
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => "<img src='$img_title' width='250' height='200'>",
 			)
@@ -55,7 +55,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 	public function test_mediaextractor_extract_image_with_alttext() {
 		$img_title = 'title.jpg';
 
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => "<img alt='alt text' src='$img_title' width='250' height='200'>",
 			)
@@ -82,7 +82,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 		$shortcode = 'test_mediaextractor_shortcode';
 		add_shortcode( $shortcode, array( $this, 'shortcode_nop' ) );
 
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => "[$shortcode]",
 			)
@@ -104,7 +104,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 		$url_link = WP_TESTS_DOMAIN;
 		$url      = "<a href='http://$url_link'>";
 
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => "$url",
 			)
@@ -124,7 +124,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 	public function test_mediaextractor_extract_mention() {
 		$mention = 'user';
 
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => "@$mention",
 			)
@@ -145,7 +145,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 		$embed_link = 'wordpress.tv/embed';
 		$embed      = "\nhttp://$embed_link\n";
 
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => "$embed",
 			)
@@ -252,7 +252,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 	}
 
 	private function add_test_post() {
-		$post_id        = self::factory()->post->create();
+		$post_id        = static::factory()->post->create();
 		$img_name       = 'image1.jpg';
 		$alt_text       = 'one image';
 		$img_dimensions = array(
@@ -260,7 +260,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 			'height' => 250,
 		);
 
-		$attachment_id_1 = self::factory()->attachment->create_object(
+		$attachment_id_1 = static::factory()->attachment->create_object(
 			$img_name,
 			$post_id,
 			array(
@@ -277,7 +277,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 			'height' => 240,
 		);
 
-		$attachment_id_2 = self::factory()->attachment->create_object(
+		$attachment_id_2 = static::factory()->attachment->create_object(
 			$img_name,
 			$post_id,
 			array(
@@ -639,7 +639,7 @@ EOT;
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_exclude_video_links() {
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_author'           => '23314024',
 				'post_date'             => '2013-10-25 16:43:34',
@@ -692,7 +692,7 @@ EOT;
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_alt_text() {
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => 'Sed dapibus ut mauris imperdiet volutpat. <img src="https://example.org/assets/test.jpg" alt="red green" /> yellow <img src="https://example.org/assets/test2.jpg" />Nullam in dolor vel nulla pulvinar accumsan facilisis quis lorem.',
 			)
@@ -739,7 +739,7 @@ EOT;
 	 * Verify that audio shortcode URL is extracted.
 	 */
 	public function test_audio_shortcode() {
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => 'Sed dapibus ut mauris imperdiet volutpat. [audio http://example.com/files/2011/02/audio-post.mp3|titles=Audio Post] Nullam [audio https://example.com/place/test/filename.flac] in dolor vel nulla pulvinar accumsan facilisis quis lorem. [audio="http://example.com/file.wav"]',
 			)
@@ -769,7 +769,7 @@ EOT;
 	 * Verify that video shortcode URL is extracted.
 	 */
 	public function test_video_shortcode() {
-		$post_id = self::factory()->post->create(
+		$post_id = static::factory()->post->create(
 			array(
 				'post_content' => 'Lorem ipsum. [video wmv="http://example.com/video.wmv"][/video] Sed dapibus ut mauris imperdiet volutpat. [video width="1920" height="1080" mp4="https://example.files.wordpress.com/dir1/dir2/file.mp4"][/video] Nullam [video url="https://example.com/promo.mp4"] in dolor vel nulla pulvinar accumsan facilisis quis lorem. [video src="https://example.com/promo.m4v"] ',
 			)

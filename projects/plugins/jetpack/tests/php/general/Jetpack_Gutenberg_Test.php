@@ -30,7 +30,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 		// Create a user and set it up as current.
-		$this->master_user_id = self::factory()->user->create( array( 'user_login' => 'current_master' ) );
+		$this->master_user_id = static::factory()->user->create( array( 'user_login' => 'current_master' ) );
 		// Mock a connection
 		Jetpack_Options::update_option( 'master_user', $this->master_user_id );
 		Jetpack_Options::update_option( 'id', 1234 );

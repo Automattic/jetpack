@@ -50,7 +50,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field_Test extends Jetpack_REST_Te
 		// Mock a Jetpack connection by providing a fake site ID.
 		Jetpack_Options::update_option( 'id', 1234 );
 
-		$attachment_id = self::factory()->attachment->create_upload_object( dirname( __DIR__, 2 ) . '/jetpack-icon.jpg', 0 );
+		$attachment_id = static::factory()->attachment->create_upload_object( dirname( __DIR__, 2 ) . '/jetpack-icon.jpg', 0 );
 		$object        = array(
 			'id' => $attachment_id,
 		);

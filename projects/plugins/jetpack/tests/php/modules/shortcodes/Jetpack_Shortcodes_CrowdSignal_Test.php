@@ -225,7 +225,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 
 		$id      = 8755352;
 		$content = '[polldaddy rating=' . $id . ']';
-		$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
+		$post    = static::factory()->post->create_and_get( array( 'post_content' => $content ) );
 
 		setup_postdata( $post );
 		ob_start();
@@ -252,7 +252,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 
 		$id      = 8755352;
 		$content = '[crowdsignal rating=' . $id . ']';
-		$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
+		$post    = static::factory()->post->create_and_get( array( 'post_content' => $content ) );
 
 		setup_postdata( $post );
 		ob_start();

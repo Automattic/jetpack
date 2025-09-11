@@ -198,7 +198,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 
 		global $post;
 
-		$post = self::factory()->post->create_and_get( array( 'post_content' => "[vimeo $url]" ) );
+		$post = static::factory()->post->create_and_get( array( 'post_content' => "[vimeo $url]" ) );
 
 		// Set this so `_wp_cron()` doesn't trigger a warning.
 		$_SERVER['REQUEST_URI'] = '';

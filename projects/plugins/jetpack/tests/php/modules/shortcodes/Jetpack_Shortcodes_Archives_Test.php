@@ -85,7 +85,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );
 		}
 
-		$post     = self::factory()->post->create_and_get();
+		$post     = static::factory()->post->create_and_get();
 		$expected = str_replace(
 			array( '{{permalink}}', '{{title}}' ),
 			array( get_permalink( $post ), $post->post_title ),
@@ -103,7 +103,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_format_html() {
-		self::factory()->post->create( array() );
+		static::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
 		);
@@ -118,7 +118,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_yearly() {
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_date' => '2014-01-01 01:00:00',
 			)
@@ -137,7 +137,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_monthly() {
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_date' => '2014-01-01 01:00:00',
 			)
@@ -156,7 +156,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_weekly() {
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_date' => '2014-01-01 01:00:00',
 			)
@@ -175,7 +175,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_daily() {
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_date' => '2014-01-01 01:00:00',
 			)
@@ -194,8 +194,8 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_one() {
-		self::factory()->post->create( array() );
-		self::factory()->post->create( array() );
+		static::factory()->post->create( array() );
+		static::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
 			'limit'  => '1',
@@ -211,8 +211,8 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_zero_is_all() {
-		self::factory()->post->create( array() );
-		self::factory()->post->create( array() );
+		static::factory()->post->create( array() );
+		static::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
 			'limit'  => '0',
@@ -228,12 +228,12 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_showcount() {
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_date' => '2014-01-01 01:00:00',
 			)
 		);
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_date' => '2014-01-01 01:00:00',
 			)
@@ -255,7 +255,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	public function test_shortcodes_archives_before() {
 		$content = 'test_string';
 
-		self::factory()->post->create( array() );
+		static::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
 			'before' => $content,
@@ -273,7 +273,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	public function test_shortcodes_archives_after() {
 		$content = 'test_string';
 
-		self::factory()->post->create( array() );
+		static::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
 			'after'  => $content,
@@ -289,13 +289,13 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_asc() {
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_title' => 'first',
 				'post_date'  => '2014-01-01 01:00:00',
 			)
 		);
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_title' => 'last',
 				'post_date'  => '2014-01-01 02:00:00',
@@ -315,13 +315,13 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_desc() {
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_title' => 'first',
 				'post_date'  => '2014-01-01 01:00:00',
 			)
 		);
-		self::factory()->post->create(
+		static::factory()->post->create(
 			array(
 				'post_title' => 'last',
 				'post_date'  => '2014-01-01 02:00:00',

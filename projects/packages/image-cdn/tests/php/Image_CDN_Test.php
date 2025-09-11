@@ -1308,7 +1308,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		register_post_type( $post_type, array( 'public' => true ) );
 		Jetpack_AMP_Support::init();
-		$post = self::factory()->post->create_and_get( compact( 'post_type' ) );
+		$post = static::factory()->post->create_and_get( compact( 'post_type' ) );
 		$this->go_to( get_permalink( $post ) );
 		$this->assertTrue( is_singular( $post_type ) );
 

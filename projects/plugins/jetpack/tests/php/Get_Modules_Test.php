@@ -200,7 +200,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 		}
 		remove_filter( 'jetpack_no_user_testing_mode', '__return_true' );
 		// Mock a user connection.
-		$user = self::factory()->user->create_and_get(
+		$user = static::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)
