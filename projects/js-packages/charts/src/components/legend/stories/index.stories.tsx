@@ -464,27 +464,41 @@ export const AlignmentOptions: Story = {
 	},
 };
 
-// Story showing text wrapping with long labels
-export const TextWrapping: Story = {
+// Comprehensive story showing all text overflow and wrapping features
+export const TextOverflow: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, ...legendProps } = args;
+		const { themeName, maxWidth, ...restProps } = args;
+		const containerStyle =
+			args.orientation === 'horizontal'
+				? { width: '600px', border: '1px solid #ddd', padding: '20px' }
+				: { width: '350px', border: '1px solid #ddd', padding: '20px' };
+
+		// Convert maxWidth of 0 to undefined to disable the constraint
+		const adjustedMaxWidth = maxWidth === 0 ? undefined : maxWidth;
+
+		const titleText = adjustedMaxWidth
+			? `Legend with ${
+					args.textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
+			  } (maxWidth: ${ adjustedMaxWidth }px)`
+			: 'Legend without maxWidth constraint';
+
 		return (
-			<div style={ { width: '600px', border: '1px solid #ddd', padding: '20px' } }>
-				<h4 style={ { marginBottom: '10px' } }>Legend with Text Wrapping</h4>
-				<Legend { ...legendProps } />
+			<div style={ containerStyle }>
+				<h4 style={ { marginBottom: '10px' } }>{ titleText }</h4>
+				<Legend { ...restProps } maxWidth={ adjustedMaxWidth } />
 			</div>
 		);
 	},
 	args: {
 		items: [
 			{
-				label: 'Very Long Legend Item Label That Should Wrap Naturally Within the Width Constraint',
+				label: 'Very Long Legend Item Label That Demonstrates Text Overflow Behavior',
 				value: '25%',
 				color: '#3858E9',
 			},
 			{
-				label: 'Another Extremely Long Label for Testing Natural Text Wrapping Behavior',
+				label: 'Another Extremely Long Label for Testing Different Display Options',
 				value: '35%',
 				color: '#80C8FF',
 			},
@@ -492,102 +506,69 @@ export const TextWrapping: Story = {
 			{ label: 'Medium Length Label Text', value: '25%', color: '#FFC107' },
 		],
 		orientation: 'horizontal',
-		maxWidth: 200,
+		maxWidth: 150,
+		textOverflow: 'wrap',
+		position: 'bottom',
+		alignment: 'center',
+	},
+	argTypes: {
+		orientation: {
+			control: { type: 'radio' },
+			options: [ 'horizontal', 'vertical' ],
+			description: 'Legend orientation',
+		},
+		maxWidth: {
+			control: { type: 'range', min: 0, max: 300, step: 10 },
+			description: 'Maximum width for legend items (pixels). Set to 0 to disable.',
+			table: {
+				type: { summary: 'number | string | undefined' },
+				defaultValue: { summary: 'undefined' },
+			},
+		},
+		textOverflow: {
+			control: { type: 'radio' },
+			options: [ 'wrap', 'ellipsis' ],
+			description: 'Text overflow behavior when maxWidth is set',
+		},
+		position: {
+			control: { type: 'radio' },
+			options: [ 'top', 'bottom' ],
+			description: 'Vertical position of the legend',
+		},
+		alignment: {
+			control: { type: 'radio' },
+			options: [ 'start', 'center', 'end' ],
+			description: 'Horizontal alignment of the legend',
+		},
 	},
 	parameters: {
 		docs: {
 			description: {
 				story: `
-## Text Wrapping in Legends
+## Text Overflow and Wrapping
 
-This story demonstrates how legend labels wrap naturally when they exceed the maximum width.
+This interactive story demonstrates all the text overflow and wrapping features of the Legend component.
 
-### Configuration
+### Features
 
-- **maxWidth**: Sets a maximum width for each legend item (number in pixels or string with unit)
+- **Text Overflow Modes**:
+  - **Wrap** (default): Text wraps naturally to multiple lines when it exceeds maxWidth
+  - **Ellipsis**: Truncates text with ellipsis (...) and shows tooltip on hover
+  
+- **Orientation**: Switch between horizontal and vertical layouts
+- **Max Width**: Adjust the maximum width constraint with the slider (50-300px)
+- **Position & Alignment**: Control legend placement
 
-### Behavior
+### Use Cases
 
-When \`maxWidth\` is set:
-- Legend items are constrained to the specified width
-- Text wraps naturally to the next line when it exceeds the width
-- No truncation or ellipsis - all text remains visible
-- Clean and simple implementation with just one prop
-`,
-			},
-		},
-	},
-};
+- **Widgets/Dashboards**: Use ellipsis mode with small maxWidth values
+- **Full Displays**: Use wrap mode with larger maxWidth values
+- **Mobile**: Use vertical orientation with appropriate maxWidth
 
-// Story showing text wrapping in vertical legends
-export const VerticalTextWrapping: Story = {
-	render: args => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, ...legendProps } = args;
-		return (
-			<div style={ { width: '300px', border: '1px solid #ddd', padding: '20px' } }>
-				<h4 style={ { marginBottom: '10px' } }>Vertical Legend with Text Wrapping</h4>
-				<Legend { ...legendProps } />
-			</div>
-		);
-	},
-	args: {
-		items: [
-			{ label: 'Desktop Users from North America Region', value: '2,543', color: '#3858E9' },
-			{ label: 'Mobile Users from European Union Countries', value: '1,892', color: '#80C8FF' },
-			{ label: 'Tablet Users from Asia Pacific', value: '892', color: '#44B556' },
-			{ label: 'Other Devices', value: '234', color: '#FFC107' },
-		],
-		orientation: 'vertical',
-		maxWidth: 200,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Vertical legend with constrained width showing natural text wrapping behavior.',
-			},
-		},
-	},
-};
+### Accessibility
+When using ellipsis mode, truncated text automatically includes a \`title\` attribute for screen readers and displays a native tooltip on hover showing the complete text.
 
-// Story showing with and without maxWidth
-export const MaxWidthComparison: Story = {
-	render: () => {
-		const items = [
-			{
-				label: 'Very Long Legend Item That Demonstrates Text Wrapping',
-				value: '45%',
-				color: '#3858E9',
-			},
-			{ label: 'Another Long Label That Shows Natural Text Flow', value: '30%', color: '#80C8FF' },
-			{ label: 'Short Label', value: '25%', color: '#44B556' },
-		];
-
-		return (
-			<div style={ { display: 'flex', gap: '40px', flexWrap: 'wrap' } }>
-				<div style={ { width: '350px', border: '1px solid #ddd', padding: '20px' } }>
-					<h4 style={ { marginBottom: '10px' } }>Without maxWidth</h4>
-					<Legend items={ items } orientation="horizontal" />
-				</div>
-				<div style={ { width: '350px', border: '1px solid #ddd', padding: '20px' } }>
-					<h4 style={ { marginBottom: '10px' } }>With maxWidth: 150px</h4>
-					<Legend items={ items } orientation="horizontal" maxWidth={ 150 } />
-				</div>
-			</div>
-		);
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: `
-## MaxWidth Comparison
-
-This story shows the difference between legends with and without the maxWidth constraint:
-
-- **Without maxWidth**: Legend items expand to their natural width
-- **With maxWidth**: Text wraps naturally when it exceeds the specified width
-
-The maxWidth prop provides a simple, elegant solution for handling long legend labels without truncation or complex configuration.
+Try different combinations using the controls above to see how the legend adapts to various constraints!
 `,
 			},
 		},
