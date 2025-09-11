@@ -174,8 +174,8 @@ describe( 'LeaderboardChart', () => {
 					withComparison={ true }
 					showLegend={ true }
 					legendLabels={ {
-						current: 'This Period',
-						previous: 'Last Period',
+						primary: 'This Period',
+						comparison: 'Last Period',
 					} }
 				/>
 			);

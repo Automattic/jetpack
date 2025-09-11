@@ -310,8 +310,8 @@ Customize legend labels with specific date ranges or descriptive text:
 		withComparison={true}
 		showLegend={true}
 		legendLabels={{
-			current: 'Aug 11-Sep 9, 2025',
-			previous: 'Jul 11-Aug 11, 2025',
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
 		}}
 	/>` }
 />
@@ -324,7 +324,7 @@ Customize legend labels with specific date ranges or descriptive text:
 - **`legendShape`**: Shape of legend markers - `'rect'`, `'circle'`, `'square'`, etc. (default: `'circle'`)
 - **`legendShapeWidth`**: Width of legend shapes in pixels (default: `8`)
 - **`legendShapeHeight`**: Height of legend shapes in pixels (default: `8`)
-- **`legendLabels`**: Custom labels for legend items - `{ current?: string; previous?: string }`
+- **`legendLabels`**: Custom labels for legend items - `{ primary?: string; comparison?: string }`
 
 ## Data States
 
@@ -516,7 +516,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | `legendShape` | `LegendShape` | `'circle'` | Shape of legend markers |
 | `legendShapeWidth` | `number` | `8` | Width of legend shapes in pixels |
 | `legendShapeHeight` | `number` | `8` | Height of legend shapes in pixels |
-| `legendLabels` | `{ current?: string; previous?: string }` | `undefined` | Custom labels for legend items |
+| `legendLabels` | `{ primary?: string; comparison?: string }` | `undefined` | Custom labels for legend items |
 | `className` | `string` | `undefined` | Additional CSS class name for the chart container |
 | `style` | `React.CSSProperties & CustomProperties` | `undefined` | Custom styling for the chart container |
 

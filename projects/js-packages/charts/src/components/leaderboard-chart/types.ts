@@ -73,13 +73,13 @@ export interface LeaderboardChartProps
 	 */
 	legendLabels?: {
 		/**
-		 * Label for current period data
+		 * Label for primary period data
 		 */
-		current?: string;
+		primary?: string;
 		/**
-		 * Label for previous period data (only used when withComparison is true)
+		 * Label for comparison period data (only used when withComparison is true)
 		 */
-		previous?: string;
+		comparison?: string;
 	};
 
 	/**

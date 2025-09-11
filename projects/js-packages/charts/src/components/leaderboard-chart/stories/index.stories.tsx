@@ -122,7 +122,7 @@ const meta: Meta< StoryArgs > = {
 			description: 'Custom labels for legend items',
 			table: {
 				category: 'Legend',
-				type: { summary: '{ current?: string; previous?: string }' },
+				type: { summary: '{ primary?: string; comparison?: string }' },
 				defaultValue: { summary: 'undefined' },
 			},
 		},
@@ -367,8 +367,8 @@ export const CustomLegendLabels: Story = {
 		loading: false,
 		showLegend: true,
 		legendLabels: {
-			current: 'Aug 11-Sep 9, 2025',
-			previous: 'Jul 11-Aug 11, 2025',
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
 		},
 	},
 };
@@ -407,8 +407,8 @@ export const WithCompositionLegend: Story = {
 		withComparison: true,
 		loading: false,
 		legendLabels: {
-			current: 'Aug 11-Sep 9, 2025',
-			previous: 'Jul 11-Aug 11, 2025',
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
 		},
 	},
 	parameters: {

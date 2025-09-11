@@ -198,7 +198,7 @@ describe( 'useLeaderboardLegendItems', () => {
 			const { result } = renderHook(
 				() =>
 					useLeaderboardLegendItems( mockData, undefined, undefined, false, {
-						current: 'Aug 11-Sep 9, 2025',
+						primary: 'Aug 11-Sep 9, 2025',
 					} ),
 				{ wrapper }
 			);
@@ -211,8 +211,8 @@ describe( 'useLeaderboardLegendItems', () => {
 			const { result } = renderHook(
 				() =>
 					useLeaderboardLegendItems( mockData, undefined, undefined, true, {
-						current: 'Aug 11-Sep 9, 2025',
-						previous: 'Jul 11-Aug 11, 2025',
+						primary: 'Aug 11-Sep 9, 2025',
+						comparison: 'Jul 11-Aug 11, 2025',
 					} ),
 				{ wrapper }
 			);
@@ -226,8 +226,8 @@ describe( 'useLeaderboardLegendItems', () => {
 			const { result } = renderHook(
 				() =>
 					useLeaderboardLegendItems( mockData, undefined, undefined, true, {
-						current: 'Custom Current',
-						// previous not provided
+						primary: 'Custom Current',
+						// comparison not provided
 					} ),
 				{ wrapper }
 			);
@@ -241,7 +241,7 @@ describe( 'useLeaderboardLegendItems', () => {
 			const { result } = renderHook(
 				() =>
 					useLeaderboardLegendItems( mockData, undefined, undefined, false, {
-						current: 'Single Period Data',
+						primary: 'Single Period Data',
 					} ),
 				{ wrapper }
 			);
@@ -253,7 +253,7 @@ describe( 'useLeaderboardLegendItems', () => {
 	describe( 'Memoization', () => {
 		it( 'should return same reference when inputs unchanged', () => {
 			const wrapper = createWrapper();
-			const stableLabels = { current: 'Current', previous: 'Previous' };
+			const stableLabels = { primary: 'Current', comparison: 'Previous' };
 			const { result, rerender } = renderHook(
 				( {
 					data,
@@ -266,7 +266,7 @@ describe( 'useLeaderboardLegendItems', () => {
 					primary?: string;
 					secondary?: string;
 					comparison: boolean;
-					labels?: { current?: string; previous?: string };
+					labels?: { primary?: string; comparison?: string };
 				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
 				{
 					wrapper,
@@ -296,7 +296,7 @@ describe( 'useLeaderboardLegendItems', () => {
 
 		it( 'should return new reference when data changes', () => {
 			const wrapper = createWrapper();
-			const stableLabels = { current: 'Current', previous: 'Previous' };
+			const stableLabels = { primary: 'Current', comparison: 'Previous' };
 			const { result, rerender } = renderHook(
 				( {
 					data,
@@ -309,7 +309,7 @@ describe( 'useLeaderboardLegendItems', () => {
 					primary?: string;
 					secondary?: string;
 					comparison: boolean;
-					labels?: { current?: string; previous?: string };
+					labels?: { primary?: string; comparison?: string };
 				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
 				{
 					wrapper,
@@ -339,7 +339,7 @@ describe( 'useLeaderboardLegendItems', () => {
 
 		it( 'should return new reference when comparison flag changes', () => {
 			const wrapper = createWrapper();
-			const stableLabels = { current: 'Current' };
+			const stableLabels = { primary: 'Current' };
 			const { result, rerender } = renderHook(
 				( {
 					data,
@@ -352,7 +352,7 @@ describe( 'useLeaderboardLegendItems', () => {
 					primary?: string;
 					secondary?: string;
 					comparison: boolean;
-					labels?: { current?: string; previous?: string };
+					labels?: { primary?: string; comparison?: string };
 				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
 				{
 					wrapper,
@@ -384,7 +384,7 @@ describe( 'useLeaderboardLegendItems', () => {
 
 		it( 'should return new reference when colors change', () => {
 			const wrapper = createWrapper();
-			const stableLabels = { current: 'Current', previous: 'Previous' };
+			const stableLabels = { primary: 'Current', comparison: 'Previous' };
 			const { result, rerender } = renderHook(
 				( {
 					data,
@@ -397,7 +397,7 @@ describe( 'useLeaderboardLegendItems', () => {
 					primary?: string;
 					secondary?: string;
 					comparison: boolean;
-					labels?: { current?: string; previous?: string };
+					labels?: { primary?: string; comparison?: string };
 				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
 				{
 					wrapper,
@@ -439,7 +439,7 @@ describe( 'useLeaderboardLegendItems', () => {
 					primary?: string;
 					secondary?: string;
 					comparison: boolean;
-					labels?: { current?: string; previous?: string };
+					labels?: { primary?: string; comparison?: string };
 				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
 				{
 					wrapper,
@@ -448,7 +448,7 @@ describe( 'useLeaderboardLegendItems', () => {
 						primary: '#FF0000',
 						secondary: '#00FF00',
 						comparison: true,
-						labels: { current: 'Aug 11-Sep 9, 2025', previous: 'Jul 11-Aug 11, 2025' },
+						labels: { primary: 'Aug 11-Sep 9, 2025', comparison: 'Jul 11-Aug 11, 2025' },
 					},
 				}
 			);
@@ -461,7 +461,7 @@ describe( 'useLeaderboardLegendItems', () => {
 				primary: '#FF0000',
 				secondary: '#00FF00',
 				comparison: true,
-				labels: { current: 'This Period', previous: 'Last Period' },
+				labels: { primary: 'This Period', comparison: 'Last Period' },
 			} );
 
 			expect( result.current ).not.toBe( firstResult );

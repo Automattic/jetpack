@@ -6,13 +6,13 @@ import type { BaseLegendItem } from '../../legend';
 
 /**
  * Hook to create legend items from leaderboard data
- * @param data                  - Array of leaderboard entries
- * @param primaryColor          - Primary color override
- * @param secondaryColor        - Secondary color override
- * @param withComparison        - Whether comparison data is shown
- * @param legendLabels          - Custom labels for legend items
- * @param legendLabels.current  - Label for current period data
- * @param legendLabels.previous - Label for previous period data
+ * @param data                    - Array of leaderboard entries
+ * @param primaryColor            - Primary color override
+ * @param secondaryColor          - Secondary color override
+ * @param withComparison          - Whether comparison data is shown
+ * @param legendLabels            - Custom labels for legend items
+ * @param legendLabels.primary    - Label for primary period data
+ * @param legendLabels.comparison - Label for comparison period data
  * @return Array of legend items for the leaderboard chart
  */
 export function useLeaderboardLegendItems(
@@ -21,8 +21,8 @@ export function useLeaderboardLegendItems(
 	secondaryColor?: string,
 	withComparison: boolean = false,
 	legendLabels?: {
-		current?: string;
-		previous?: string;
+		primary?: string;
+		comparison?: string;
 	}
 ): BaseLegendItem[] {
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
@@ -42,7 +42,7 @@ export function useLeaderboardLegendItems(
 		} );
 
 		items.push( {
-			label: legendLabels?.current || __( 'Current period', 'jetpack-charts' ),
+			label: legendLabels?.primary || __( 'Current period', 'jetpack-charts' ),
 			value: '',
 			color: resolvedPrimaryColor,
 			index: 0,
@@ -57,7 +57,7 @@ export function useLeaderboardLegendItems(
 			} );
 
 			items.push( {
-				label: legendLabels?.previous || __( 'Previous period', 'jetpack-charts' ),
+				label: legendLabels?.comparison || __( 'Previous period', 'jetpack-charts' ),
 				value: '',
 				color: resolvedSecondaryColor,
 				index: 1,
