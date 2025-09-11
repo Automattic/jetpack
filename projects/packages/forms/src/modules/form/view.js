@@ -573,5 +573,21 @@ const { state, actions } = store( NAMESPACE, {
 				context.hasClickedBack = false;
 			}
 		},
+
+		setImageOptionCheckColor() {
+			const context = getContext();
+
+			const { inputId } = context;
+			const input = document.getElementById( inputId );
+
+			if ( ! input ) {
+				return;
+			}
+
+			const color = window.getComputedStyle( input ).color;
+			const inverseColor = window.jetpackForms.getInverseReadableColor( color );
+
+			input.setAttribute( 'style', `--jetpack-input-image-option--check-color: ${ inverseColor }` );
+		},
 	},
 } );

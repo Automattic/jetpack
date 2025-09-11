@@ -101,7 +101,7 @@ figure.wp-block-image {
 					border: solid currentColor;
 					border-width: 0 2px 2px 0;
 					transform: translate(-50%, -60%) rotate(40deg);
-					filter: invert(1) contrast(2) brightness(1.5);
+					color: var(--jetpack-input-image-option--check-color, #000);
 				}
 			}
 

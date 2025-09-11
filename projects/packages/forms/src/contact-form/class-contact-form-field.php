@@ -2089,13 +2089,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 				$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick'>";
 
+				$input_id = esc_attr( $option_id );
+
+				$context             = array(
+					'inputId' => $input_id,
+				);
+				$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
 				$field .= "<div class='jetpack-input-image-option__wrapper'>";
 				$field .= "<input
-				id='" . esc_attr( $option_id ) . "'
+				id='" . $input_id . "'
 				class='jetpack-input-image-option__input'
 				type='" . esc_attr( $input_type ) . "'
 				name='" . esc_attr( $input_name ) . "'
 				value='" . esc_attr( $option_value ) . "'
+				" . $interactivity_attrs . "
+				data-wp-init='callbacks.setImageOptionCheckColor'
 				data-wp-on--keydown='actions.onKeyDownImageOption'
 				data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
 				. $class
