@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { useTextTruncation } from '../use-text-truncation';
 
 // Mock ResizeObserver
-jest.spyOn( global, 'ResizeObserver' ).mockImplementation( () => ( {
+jest.spyOn( globalThis, 'ResizeObserver' ).mockImplementation( () => ( {
 	observe: jest.fn(),
 	unobserve: jest.fn(),
 	disconnect: jest.fn(),
@@ -48,19 +48,19 @@ describe( 'useTextTruncation', () => {
 	test( 'sets up ResizeObserver when enabled', () => {
 		render( <TestComponent enabled={ true } /> );
 
-		expect( global.ResizeObserver ).toHaveBeenCalled();
+		expect( globalThis.ResizeObserver ).toHaveBeenCalled();
 	} );
 
 	test( 'does not set up ResizeObserver when disabled', () => {
 		render( <TestComponent enabled={ false } /> );
 
 		// ResizeObserver should not be called when disabled
-		expect( global.ResizeObserver ).not.toHaveBeenCalled();
+		expect( globalThis.ResizeObserver ).not.toHaveBeenCalled();
 	} );
 
 	test( 'cleans up ResizeObserver on unmount', () => {
 		const mockDisconnect = jest.fn();
-		( global.ResizeObserver as jest.Mock ).mockImplementation( () => ( {
+		( globalThis.ResizeObserver as jest.Mock ).mockImplementation( () => ( {
 			observe: jest.fn(),
 			unobserve: jest.fn(),
 			disconnect: mockDisconnect,
