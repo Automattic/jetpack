@@ -120,4 +120,175 @@ describe( 'LeaderboardChart', () => {
 
 		expect( screen.queryByText( 'Direct' ) ).not.toBeInTheDocument();
 	} );
+
+	describe( 'Legend functionality', () => {
+		it( 'renders built-in legend when showLegend is true', () => {
+			render( <LeaderboardChart data={ mockData } withComparison={ true } showLegend={ true } /> );
+
+			// Built-in legend should render
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Previous period' ) ).toBeInTheDocument();
+		} );
+
+		it( 'does not render built-in legend when showLegend is false', () => {
+			render( <LeaderboardChart data={ mockData } withComparison={ true } showLegend={ false } /> );
+
+			// Built-in legend should not render
+			expect( screen.queryByTestId( 'legend-item' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'legend-horizontal' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'does not render built-in legend by default when showLegend is not specified', () => {
+			render( <LeaderboardChart data={ mockData } withComparison={ true } /> );
+
+			// Built-in legend should not render by default
+			expect( screen.queryByTestId( 'legend-item' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'legend-horizontal' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders built-in legend with custom shape and size', () => {
+			render(
+				<LeaderboardChart
+					data={ mockData }
+					withComparison={ true }
+					showLegend={ true }
+					legendShape="rect"
+					legendShapeWidth={ 10 }
+					legendShapeHeight={ 6 }
+				/>
+			);
+
+			// Built-in legend should render
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+
+			// Check that custom dimensions are applied (the legend items should exist)
+			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Previous period' ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders built-in legend with custom labels', () => {
+			render(
+				<LeaderboardChart
+					data={ mockData }
+					withComparison={ true }
+					showLegend={ true }
+					legendLabels={ {
+						primary: 'This Period',
+						comparison: 'Last Period',
+					} }
+				/>
+			);
+
+			// Built-in legend should render with custom labels
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'This Period' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Last Period' ) ).toBeInTheDocument();
+
+			// Default labels should not be present
+			expect( screen.queryByText( 'Current period' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Previous period' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders only current period legend when withComparison is false', () => {
+			render( <LeaderboardChart data={ mockData } withComparison={ false } showLegend={ true } /> );
+
+			// Only one legend item should render for current period
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 1 );
+			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Previous period' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Composition API', () => {
+		it( 'renders LeaderboardChart.Legend as child component', () => {
+			render(
+				<LeaderboardChart data={ mockData } withComparison={ true }>
+					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+				</LeaderboardChart>
+			);
+
+			// Chart content should render
+			expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Social Media' ) ).toBeInTheDocument();
+
+			// Composition legend should render - each legend item gets its own element
+			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Previous period' ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders composition legend regardless of showLegend value', () => {
+			render(
+				<LeaderboardChart data={ mockData } withComparison={ true } showLegend={ false }>
+					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+				</LeaderboardChart>
+			);
+
+			// No built-in legend should be rendered when showLegend is false
+			expect( screen.queryByTestId( 'legend-item' ) ).not.toBeInTheDocument();
+
+			// Composition legend should still render regardless of showLegend value
+			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Previous period' ) ).toBeInTheDocument();
+		} );
+
+		it( 'supports both built-in and composition legends simultaneously', () => {
+			render(
+				<LeaderboardChart data={ mockData } withComparison={ true } showLegend={ true }>
+					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+				</LeaderboardChart>
+			);
+
+			// Built-in legend should render (with legend-item test IDs)
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+
+			// Composition legend should also render
+			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+
+			// Should have legend items from both legends
+			const currentPeriodItems = screen.getAllByText( 'Current period' );
+			const previousPeriodItems = screen.getAllByText( 'Previous period' );
+			expect( currentPeriodItems ).toHaveLength( 2 ); // One from each legend
+			expect( previousPeriodItems ).toHaveLength( 2 ); // One from each legend
+		} );
+
+		it( 'passes props correctly to composition legend', () => {
+			render(
+				<LeaderboardChart data={ mockData } withComparison={ true }>
+					<LeaderboardChart.Legend
+						data-testid="composition-legend-item"
+						shape="circle"
+						shapeWidth={ 12 }
+						shapeHeight={ 12 }
+						style={ { marginTop: '20px' } }
+					/>
+				</LeaderboardChart>
+			);
+
+			const legendItems = screen.getAllByTestId( 'composition-legend-item' );
+			expect( legendItems ).toHaveLength( 2 );
+			// Check that each legend item has the custom style applied
+			legendItems.forEach( item => {
+				expect( item ).toHaveStyle( { marginTop: '20px' } );
+			} );
+		} );
+
+		it( 'renders chart content when using composition API', () => {
+			render(
+				<LeaderboardChart data={ mockData } withComparison={ true }>
+					<LeaderboardChart.Legend />
+				</LeaderboardChart>
+			);
+
+			// Chart bars should render
+			expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Social Media' ) ).toBeInTheDocument();
+			expect( screen.getByText( '12.5K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '8.8K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
+			expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		} );
+	} );
 } );

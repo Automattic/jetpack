@@ -1,7 +1,21 @@
+import { type ReactNode } from 'react';
 import { BaseChartProps, LeaderboardEntry } from '../../types';
 
 export interface LeaderboardChartProps
-	extends Pick< BaseChartProps< LeaderboardEntry >, 'className' | 'data' > {
+	extends Pick<
+		BaseChartProps< LeaderboardEntry >,
+		| 'className'
+		| 'data'
+		| 'showLegend'
+		| 'legendOrientation'
+		| 'legendPosition'
+		| 'legendAlignment'
+		| 'legendShape'
+		| 'chartId'
+		| 'width'
+		| 'height'
+		| 'size'
+	> {
 	/**
 	 * Whether to show comparison data
 	 */
@@ -43,4 +57,33 @@ export interface LeaderboardChartProps
 	style?: React.CSSProperties & {
 		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
+
+	/**
+	 * Width of legend shapes in pixels
+	 */
+	legendShapeWidth?: number;
+
+	/**
+	 * Height of legend shapes in pixels
+	 */
+	legendShapeHeight?: number;
+
+	/**
+	 * Custom labels for legend items
+	 */
+	legendLabels?: {
+		/**
+		 * Label for primary period data
+		 */
+		primary?: string;
+		/**
+		 * Label for comparison period data (only used when withComparison is true)
+		 */
+		comparison?: string;
+	};
+
+	/**
+	 * Child components for composition API
+	 */
+	children?: ReactNode;
 }

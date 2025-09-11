@@ -11,6 +11,7 @@ import {
 	themeArgTypes,
 	CHART_THEME_MAP,
 } from '../../../stories';
+import { legendArgTypes } from '../../../stories/legend-config';
 import { formatMetricValue } from '../../../utils';
 import { hexToRgba } from '../../../utils/color-utils';
 import LeaderboardChart from '../leaderboard-chart';
@@ -91,13 +92,56 @@ const meta: Meta< StoryArgs > = {
 				type: { summary: 'React.CSSProperties' },
 			},
 		},
+		withOverlayLabel: {
+			control: 'boolean',
+			description: 'Whether to overlay the label on top of the bar',
+			table: {
+				defaultValue: { summary: 'false' },
+			},
+		},
+		legendShapeWidth: {
+			control: 'number',
+			description: 'Width of legend shapes in pixels',
+			table: {
+				category: 'Legend',
+				type: { summary: 'number' },
+				defaultValue: { summary: '8' },
+			},
+		},
+		legendShapeHeight: {
+			control: 'number',
+			description: 'Height of legend shapes in pixels',
+			table: {
+				category: 'Legend',
+				type: { summary: 'number' },
+				defaultValue: { summary: '8' },
+			},
+		},
+		legendLabels: {
+			control: 'object',
+			description: 'Custom labels for legend items',
+			table: {
+				category: 'Legend',
+				type: { summary: '{ primary?: string; comparison?: string }' },
+				defaultValue: { summary: 'undefined' },
+			},
+		},
 		...sharedChartArgTypes,
+		...legendArgTypes,
 		...themeArgTypes,
 	},
 	args: {
 		primaryColor: undefined,
 		secondaryColor: undefined,
 		themeName: 'default',
+		showLegend: false,
+		legendPosition: 'bottom',
+		legendAlignment: 'center',
+		legendOrientation: 'horizontal',
+		legendShape: 'circle',
+		legendShapeWidth: 8,
+		legendShapeHeight: 8,
+		withOverlayLabel: false,
 	},
 	decorators: [ chartDecorator ],
 };
@@ -304,5 +348,75 @@ export const OverlayLabelWithImage: Story = {
 		const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
 
 		return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
+	},
+};
+
+export const WithLegend: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+	},
+};
+
+export const CustomLegendLabels: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+		legendLabels: {
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
+		},
+	},
+};
+
+export const WithCompositionLegend: Story = {
+	render: args => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'start',
+			} }
+		>
+			<div>
+				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>Traditional Props-based Legend</h3>
+				<LeaderboardChart { ...args } showLegend={ true } />
+			</div>
+			<div>
+				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>
+					Composition API with Legend Component
+				</h3>
+				<LeaderboardChart { ...args }>
+					<LeaderboardChart.Legend
+						shape="circle"
+						shapeWidth={ 8 }
+						shapeHeight={ 8 }
+						style={ { marginTop: '16px' } }
+					/>
+				</LeaderboardChart>
+			</div>
+		</div>
+	),
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		legendLabels: {
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control over legend positioning and styling.',
+			},
+		},
 	},
 };

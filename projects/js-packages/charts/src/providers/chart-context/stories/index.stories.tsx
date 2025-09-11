@@ -203,7 +203,7 @@ const ChartGrid = ( { args }: { args: StoryArgs } ) => {
 				showLegend={ true }
 			/>
 
-			<LeaderboardChart data={ trafficSourcesData } withComparison />
+			<LeaderboardChart data={ trafficSourcesData } withComparison showLegend />
 		</div>
 	);
 };
@@ -264,7 +264,12 @@ const ChartGridWithColorOverrides = ( { args }: { args: StoryArgs } ) => {
 				showLegend={ true }
 			/>
 
-			<LeaderboardChart data={ trafficSourcesData } withComparison secondaryColor="#e74c3c" />
+			<LeaderboardChart
+				data={ trafficSourcesData }
+				withComparison
+				showLegend
+				secondaryColor="#e74c3c"
+			/>
 		</div>
 	);
 };
