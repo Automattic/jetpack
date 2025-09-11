@@ -4,7 +4,8 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2"
+		"php": ">=7.2",
+		"wordpress/abilities-api": "dev-trunk"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
@@ -30,6 +31,10 @@
 		]
 	},
 	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/WordPress/abilities-api"
+		},
 		{
 			"type": "path",
 			"url": "../../packages/*",
