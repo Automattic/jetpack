@@ -50,7 +50,10 @@ export class Onboarding {
 	async waitForRedirectToWpcom() {
 		const wpcomUrl = 'https://wordpress.com/log-in/jetpack**';
 
-		return await this.page.waitForURL( wpcomUrl, { timeout: DEFAULT_TIMEOUT } );
+		return await this.page.waitForURL( wpcomUrl, {
+			timeout: DEFAULT_TIMEOUT,
+			waitUntil: 'domcontentloaded',
+		} );
 	}
 
 	/**
@@ -72,7 +75,10 @@ export class Onboarding {
 					url.searchParams.get( 'page' ) === 'my-jetpack'
 				);
 			},
-			{ timeout: DEFAULT_TIMEOUT }
+			{
+				timeout: DEFAULT_TIMEOUT,
+				waitUntil: 'domcontentloaded',
+			}
 		);
 
 		logger.info( 'Click on "Connect account" button and wait for redirect to My Jetpack' );
