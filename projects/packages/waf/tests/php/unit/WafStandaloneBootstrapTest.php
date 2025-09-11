@@ -68,7 +68,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$mock_builder->onlyMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
-		$this->expectExceptionMessage( 'Can not work without the file system being initialized.' );
+		$this->expectExceptionMessage( 'Cannot work without the file system being initialized.' );
 		$sut->generate();
 	}
 

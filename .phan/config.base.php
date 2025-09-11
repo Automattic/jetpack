@@ -131,7 +131,7 @@ function make_phan_config( $dir, $options = array() ) {
 	foreach ( $options['php_extensions_needed'] as $stub ) {
 		$stub_file_path = "$root/vendor/phan/phan/.phan/internal_stubs/$stub.phan_php";
 		if ( ! file_exists( $stub_file_path ) ) {
-			throw new InvalidArgumentException( "Can not load internal stubs for '$stub': file $stub_file_path does not exist." );
+			throw new InvalidArgumentException( "Cannot load internal stubs for '$stub': file $stub_file_path does not exist." );
 		}
 		$internal_stubs[ $stub ] = $stub_file_path;
 	}

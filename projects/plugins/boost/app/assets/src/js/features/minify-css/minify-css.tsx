@@ -26,7 +26,7 @@ const MinifyCss = () => {
 			<MinifyMeta
 				datasyncKey="minify_css_excludes"
 				buttonText={ __( 'Exclude CSS handles', 'jetpack-boost' ) }
-				placeholder={ __( 'Comma separated list of CSS handles to exclude', 'jetpack-boost' ) }
+				placeholder={ __( 'Comma-separated list of CSS handles to exclude', 'jetpack-boost' ) }
 			/>
 			{
 				// If the JS module is not active, show the legacy notice under the CSS notice

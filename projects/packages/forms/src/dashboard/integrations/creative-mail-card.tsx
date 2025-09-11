@@ -50,7 +50,7 @@ const CreativeMailDashboardCard = ( {
 		>
 			<div>
 				<p className="integration-card__description">
-					{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }
+					{ __( "You're all set up for email marketing with Creative Mail.", 'jetpack-forms' ) }
 				</p>
 				<Button
 					variant="link"

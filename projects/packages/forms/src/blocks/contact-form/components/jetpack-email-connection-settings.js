@@ -48,7 +48,7 @@ const JetpackEmailConnectionSettings = ( {
 			if ( emailErrors.length === 2 ) {
 				return sprintf(
 					/* translators: %1$s, %2$s: email addresses. */
-					__( '%1$s and %2$s are not a valid email address.', 'jetpack-forms' ),
+					__( '%1$s and %2$s are not valid email addresses.', 'jetpack-forms' ),
 					emailErrors[ 0 ].email,
 					emailErrors[ 1 ].email
 				);
@@ -58,7 +58,7 @@ const JetpackEmailConnectionSettings = ( {
 
 			return sprintf(
 				/* translators: %s: a list of email addresses. */
-				__( '%s are not a valid email address.', 'jetpack-forms' ),
+				__( '%s are not valid email addresses.', 'jetpack-forms' ),
 				inValidEmails.join( ', ' )
 			);
 		}

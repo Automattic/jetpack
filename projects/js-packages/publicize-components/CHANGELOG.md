@@ -1170,7 +1170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.16.0] - 2023-02-15
 ### Changed
-- Refactored media picker into seperate componetn [#28773]
+- Refactor media picker into separate components. [#28773]
 - Update to React 18. [#28710]
 
 ## [0.15.2] - 2023-02-08

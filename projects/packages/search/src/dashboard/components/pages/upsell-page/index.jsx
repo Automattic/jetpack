@@ -454,7 +454,7 @@ const newPricingArgs = {
 						rel="external noopener noreferrer nofollow"
 						target="_blank"
 					>
-						{ __( 'See all supported languanges', 'jetpack-search-pkg' ) }
+						{ __( 'See all supported languages', 'jetpack-search-pkg' ) }
 					</a>
 				</>
 			),

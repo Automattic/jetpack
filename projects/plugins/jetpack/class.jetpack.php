@@ -2832,7 +2832,7 @@ p {
 	}
 
 	/**
-	 * Happens after a successfull disconnection.
+	 * Happens after a successful disconnection.
 	 *
 	 * @static
 	 */

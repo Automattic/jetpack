@@ -69,7 +69,7 @@ class Waf_Standalone_Bootstrap {
 	/**
 	 * Finds the path to the autoloader, which can then be used to require the autoloader in the generated boostrap file.
 	 *
-	 * @throws Waf_Exception In case the autoloader file can not be found.
+	 * @throws Waf_Exception In case the autoloader file cannot be found.
 	 *
 	 * @return string|null
 	 */
@@ -107,7 +107,7 @@ class Waf_Standalone_Bootstrap {
 
 		// Check that the determined file actually exists.
 		if ( ! file_exists( $autoload_file ) ) {
-			throw new Waf_Exception( 'Can not find autoloader, and the WAF standalone boostrap will not work without it.' );
+			throw new Waf_Exception( 'Cannot find autoloader, and the WAF standalone boostrap will not work without it.' );
 		}
 
 		return $autoload_file;
@@ -135,8 +135,8 @@ class Waf_Standalone_Bootstrap {
 	 * Generates the bootstrap file.
 	 *
 	 * @throws File_System_Exception If the filesystem is not available.
-	 * @throws File_System_Exception If the WAF directory can not be created.
-	 * @throws File_System_Exception If the bootstrap file can not be created.
+	 * @throws File_System_Exception If the WAF directory cannot be created.
+	 * @throws File_System_Exception If the bootstrap file cannot be created.
 	 *
 	 * @return string Absolute path to the bootstrap file.
 	 */
@@ -146,7 +146,7 @@ class Waf_Standalone_Bootstrap {
 
 		global $wp_filesystem;
 		if ( ! $wp_filesystem ) {
-			throw new File_System_Exception( 'Can not work without the file system being initialized.' );
+			throw new File_System_Exception( 'Cannot work without the file system being initialized.' );
 		}
 
 		$autoloader_file = $this->locate_autoloader_file();

@@ -216,13 +216,13 @@ class Share_Post_Controller_Test extends TestCase {
 	 */
 	public static function rest_missing_callback_params() {
 		return array(
-			'message can not be null.' => array(
+			'message cannot be null.' => array(
 				array(
 					'message'             => null,
 					'skipped_connections' => array(),
 				),
 			),
-			'message is required.'     => array(
+			'message is required.'    => array(
 				array(
 					'skipped_connections' => array(),
 				),
@@ -237,25 +237,25 @@ class Share_Post_Controller_Test extends TestCase {
 	 */
 	public static function rest_invalid_params() {
 		return array(
-			'message can not be an int.'               => array(
+			'message cannot be an int.'               => array(
 				array(
 					'message'             => 123,
 					'skipped_connections' => array(),
 				),
 			),
-			'message can not be an array.'             => array(
+			'message cannot be an array.'             => array(
 				array(
 					'message'             => array(),
 					'skipped_connections' => array(),
 				),
 			),
-			'skipped_connections can not be an int.'   => array(
+			'skipped_connections cannot be an int.'   => array(
 				array(
 					'message'             => 'string',
 					'skipped_connections' => 123,
 				),
 			),
-			'skipped_connections can not be a string.' => array(
+			'skipped_connections cannot be a string.' => array(
 				array(
 					'message'             => 'string',
 					'skipped_connections' => 'string',

@@ -53,7 +53,7 @@ class Jetpack_Provision {
 		if ( Identity_Crisis::validate_sync_error_idc_option() ) {
 			return new WP_Error(
 				'site_in_safe_mode',
-				__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+				__( 'Cannot provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
 			);
 		}
 

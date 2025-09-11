@@ -54,7 +54,7 @@ class Protect extends Module {
 			return $brute_force_protection->has_login_ability();
 		}
 
-		// If the login ability can not be determined, the feature is not active,
+		// If the login ability cannot be determined, the feature is not active,
 		// or something is wrong, default to not syncing failed login attempts.
 		return false;
 	}

@@ -119,7 +119,7 @@ class CLI extends WP_CLI_Command {
 			);
 		}
 
-		return WP_CLI::success( __( 'Jetpack WAF has successfully been setup.', 'jetpack-waf' ) );
+		return WP_CLI::success( __( 'Jetpack WAF has successfully been set up.', 'jetpack-waf' ) );
 	}
 
 	/**
