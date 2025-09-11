@@ -6,25 +6,35 @@ import type { BaseLegendItem } from '../../legend';
 
 /**
  * Hook to create legend items from leaderboard data
- * @param data                    - Array of leaderboard entries
- * @param primaryColor            - Primary color override
- * @param secondaryColor          - Secondary color override
- * @param withComparison          - Whether comparison data is shown
- * @param legendLabels            - Custom labels for legend items
- * @param legendLabels.primary    - Label for primary period data
- * @param legendLabels.comparison - Label for comparison period data
+ * @param root0                         - Configuration object
+ * @param root0.data                    - Array of leaderboard entries
+ * @param root0.primaryColor            - Primary color override
+ * @param root0.secondaryColor          - Secondary color override
+ * @param root0.withComparison          - Whether comparison data is shown
+ * @param root0.withOverlayLabel        - Whether to overlay the label on top of the bar
+ * @param root0.legendLabels            - Custom labels for legend items
+ * @param root0.legendLabels.primary    - Label for primary period data
+ * @param root0.legendLabels.comparison - Label for comparison period data
  * @return Array of legend items for the leaderboard chart
  */
-export function useLeaderboardLegendItems(
-	data: LeaderboardEntry[],
-	primaryColor?: string,
-	secondaryColor?: string,
-	withComparison: boolean = false,
+export function useLeaderboardLegendItems( {
+	data,
+	primaryColor,
+	secondaryColor,
+	withComparison = false,
+	withOverlayLabel = false,
+	legendLabels,
+}: {
+	data: LeaderboardEntry[];
+	primaryColor?: string;
+	secondaryColor?: string;
+	withComparison: boolean;
+	withOverlayLabel: boolean;
 	legendLabels?: {
 		primary?: string;
 		comparison?: string;
-	}
-): BaseLegendItem[] {
+	};
+} ): BaseLegendItem[] {
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
 	const { resolveGroupColor } = useGlobalChartsContext();
 
@@ -49,8 +59,8 @@ export function useLeaderboardLegendItems(
 			overrideColor: primaryColor,
 		} );
 
-		// Add comparison period legend item if comparison is enabled
-		if ( withComparison ) {
+		// Add comparison period legend item if comparison is enabled and overlay label is not enabled
+		if ( withComparison && ! withOverlayLabel ) {
 			const resolvedSecondaryColor = resolveGroupColor( {
 				index: 1,
 				overrideColor: secondaryColor || leaderboardChartSettings.secondaryColor,
@@ -74,5 +84,6 @@ export function useLeaderboardLegendItems(
 		legendLabels,
 		leaderboardChartSettings,
 		resolveGroupColor,
+		withOverlayLabel,
 	] );
 }

@@ -169,13 +169,14 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	} );
 
 	// Create legend items using the custom hook
-	const legendItems = useLeaderboardLegendItems(
-		data || [],
+	const legendItems = useLeaderboardLegendItems( {
+		data: data || [],
 		primaryColor,
 		secondaryColor,
 		withComparison,
-		legendLabels
-	);
+		withOverlayLabel,
+		legendLabels,
+	} );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );

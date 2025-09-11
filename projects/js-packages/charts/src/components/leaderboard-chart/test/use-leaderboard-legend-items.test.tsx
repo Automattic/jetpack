@@ -42,7 +42,8 @@ describe( 'useLeaderboardLegendItems', () => {
 		it( 'should return empty array for empty data', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( [], undefined, undefined, false ),
+				() =>
+					useLeaderboardLegendItems( { data: [], withComparison: false, withOverlayLabel: false } ),
 				{ wrapper }
 			);
 
@@ -53,12 +54,11 @@ describe( 'useLeaderboardLegendItems', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() =>
-					useLeaderboardLegendItems(
-						null as unknown as LeaderboardEntry[],
-						undefined,
-						undefined,
-						false
-					),
+					useLeaderboardLegendItems( {
+						data: null as unknown as LeaderboardEntry[],
+						withComparison: false,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -68,7 +68,12 @@ describe( 'useLeaderboardLegendItems', () => {
 		it( 'should generate single legend item without comparison', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, undefined, undefined, false ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: false,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -85,7 +90,12 @@ describe( 'useLeaderboardLegendItems', () => {
 		it( 'should generate two legend items with comparison enabled', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, undefined, undefined, true ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: true,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -121,7 +131,12 @@ describe( 'useLeaderboardLegendItems', () => {
 			};
 			const wrapper = createWrapper( customTheme );
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, undefined, undefined, true ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: true,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -136,7 +151,13 @@ describe( 'useLeaderboardLegendItems', () => {
 			const wrapper = createWrapper();
 			const customPrimary = '#CUSTOM1';
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, customPrimary, undefined, false ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						primaryColor: customPrimary,
+						withComparison: false,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -148,7 +169,14 @@ describe( 'useLeaderboardLegendItems', () => {
 			const customPrimary = '#CUSTOM1';
 			const customSecondary = '#CUSTOM2';
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, customPrimary, customSecondary, true ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						primaryColor: customPrimary,
+						secondaryColor: customSecondary,
+						withComparison: true,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -161,7 +189,14 @@ describe( 'useLeaderboardLegendItems', () => {
 			const customPrimary = '#FF5555';
 			const customSecondary = '#55FF55';
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, customPrimary, customSecondary, true ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						primaryColor: customPrimary,
+						secondaryColor: customSecondary,
+						withComparison: true,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -175,7 +210,12 @@ describe( 'useLeaderboardLegendItems', () => {
 		it( 'should use "Current period" label when comparison is disabled', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, undefined, undefined, false ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: false,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -185,7 +225,12 @@ describe( 'useLeaderboardLegendItems', () => {
 		it( 'should use "Current period" label when comparison is enabled', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, undefined, undefined, true ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: true,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -197,8 +242,13 @@ describe( 'useLeaderboardLegendItems', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() =>
-					useLeaderboardLegendItems( mockData, undefined, undefined, false, {
-						primary: 'Aug 11-Sep 9, 2025',
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: false,
+						withOverlayLabel: false,
+						legendLabels: {
+							primary: 'Aug 11-Sep 9, 2025',
+						},
 					} ),
 				{ wrapper }
 			);
@@ -210,9 +260,14 @@ describe( 'useLeaderboardLegendItems', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() =>
-					useLeaderboardLegendItems( mockData, undefined, undefined, true, {
-						primary: 'Aug 11-Sep 9, 2025',
-						comparison: 'Jul 11-Aug 11, 2025',
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: true,
+						withOverlayLabel: false,
+						legendLabels: {
+							primary: 'Aug 11-Sep 9, 2025',
+							comparison: 'Jul 11-Aug 11, 2025',
+						},
 					} ),
 				{ wrapper }
 			);
@@ -225,9 +280,14 @@ describe( 'useLeaderboardLegendItems', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() =>
-					useLeaderboardLegendItems( mockData, undefined, undefined, true, {
-						primary: 'Custom Current',
-						// comparison not provided
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: true,
+						withOverlayLabel: false,
+						legendLabels: {
+							primary: 'Custom Current',
+							// comparison not provided
+						},
 					} ),
 				{ wrapper }
 			);
@@ -240,8 +300,13 @@ describe( 'useLeaderboardLegendItems', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() =>
-					useLeaderboardLegendItems( mockData, undefined, undefined, false, {
-						primary: 'Single Period Data',
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: false,
+						withOverlayLabel: false,
+						legendLabels: {
+							primary: 'Single Period Data',
+						},
 					} ),
 				{ wrapper }
 			);
@@ -267,7 +332,15 @@ describe( 'useLeaderboardLegendItems', () => {
 					secondary?: string;
 					comparison: boolean;
 					labels?: { primary?: string; comparison?: string };
-				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
+				} ) =>
+					useLeaderboardLegendItems( {
+						data,
+						primaryColor: primary,
+						secondaryColor: secondary,
+						withComparison: comparison,
+						withOverlayLabel: false,
+						legendLabels: labels,
+					} ),
 				{
 					wrapper,
 					initialProps: {
@@ -310,7 +383,15 @@ describe( 'useLeaderboardLegendItems', () => {
 					secondary?: string;
 					comparison: boolean;
 					labels?: { primary?: string; comparison?: string };
-				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
+				} ) =>
+					useLeaderboardLegendItems( {
+						data,
+						primaryColor: primary,
+						secondaryColor: secondary,
+						withComparison: comparison,
+						withOverlayLabel: false,
+						legendLabels: labels,
+					} ),
 				{
 					wrapper,
 					initialProps: {
@@ -353,7 +434,15 @@ describe( 'useLeaderboardLegendItems', () => {
 					secondary?: string;
 					comparison: boolean;
 					labels?: { primary?: string; comparison?: string };
-				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
+				} ) =>
+					useLeaderboardLegendItems( {
+						data,
+						primaryColor: primary,
+						secondaryColor: secondary,
+						withComparison: comparison,
+						withOverlayLabel: false,
+						legendLabels: labels,
+					} ),
 				{
 					wrapper,
 					initialProps: {
@@ -398,7 +487,15 @@ describe( 'useLeaderboardLegendItems', () => {
 					secondary?: string;
 					comparison: boolean;
 					labels?: { primary?: string; comparison?: string };
-				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
+				} ) =>
+					useLeaderboardLegendItems( {
+						data,
+						primaryColor: primary,
+						secondaryColor: secondary,
+						withComparison: comparison,
+						withOverlayLabel: false,
+						legendLabels: labels,
+					} ),
 				{
 					wrapper,
 					initialProps: {
@@ -440,7 +537,15 @@ describe( 'useLeaderboardLegendItems', () => {
 					secondary?: string;
 					comparison: boolean;
 					labels?: { primary?: string; comparison?: string };
-				} ) => useLeaderboardLegendItems( data, primary, secondary, comparison, labels ),
+				} ) =>
+					useLeaderboardLegendItems( {
+						data,
+						primaryColor: primary,
+						secondaryColor: secondary,
+						withComparison: comparison,
+						withOverlayLabel: false,
+						legendLabels: labels,
+					} ),
 				{
 					wrapper,
 					initialProps: {
@@ -474,7 +579,12 @@ describe( 'useLeaderboardLegendItems', () => {
 		it( 'should have correct indices for items', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, undefined, undefined, true ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: true,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -485,7 +595,12 @@ describe( 'useLeaderboardLegendItems', () => {
 		it( 'should have empty value strings for all items', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, undefined, undefined, true ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: true,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
@@ -497,7 +612,12 @@ describe( 'useLeaderboardLegendItems', () => {
 		it( 'should have valid color strings', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
-				() => useLeaderboardLegendItems( mockData, undefined, undefined, true ),
+				() =>
+					useLeaderboardLegendItems( {
+						data: mockData,
+						withComparison: true,
+						withOverlayLabel: false,
+					} ),
 				{ wrapper }
 			);
 
