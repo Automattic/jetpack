@@ -80,7 +80,7 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	/**
 	 * Restore old prefix, should not happens.
 	 */
-	protected function tearDown(): void {
+	public function tear_down(): void {
 		global $wpdb;
 
 		// Restore the old prefix, should not happens.
@@ -88,7 +88,7 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 			$wpdb->set_prefix( $this->old_prefix );
 		}
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
