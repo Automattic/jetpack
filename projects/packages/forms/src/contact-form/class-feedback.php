@@ -886,7 +886,7 @@ class Feedback {
 		if ( $decoded_content === null ) {
 			// Final fallback: attempt to fix malformed JSON with unescaped quotes
 			// Apply stripslashes first, then fix remaining issues
-			$stripped_content = stripslashes( $post_content );
+			$stripped_content = stripslashes( trim( $post_content ) );
 			$fixed_content    = self::fix_malformed_json( $stripped_content );
 			$decoded_content  = json_decode( $fixed_content, true );
 		}
@@ -993,10 +993,6 @@ class Feedback {
 
 		$find[]    = '\\\"';
 		$replace[] = '\"';
-
-		// Key-value separator (with space)
-		$find[]    = '\":\"';
-		$replace[] = '":"';
 
 		$find[]    = '\":[\"';
 		$replace[] = '":["';
