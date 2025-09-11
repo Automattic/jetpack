@@ -133,8 +133,10 @@ const JetpackCRMDashboardCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
-			description={ __( 'Store contact form submissions in your CRM', 'jetpack-forms' ) }
+			title={ data?.title ?? __( 'Jetpack CRM', 'jetpack-forms' ) }
+			description={
+				data?.subtitle ?? __( 'Store contact form submissions in your CRM', 'jetpack-forms' )
+			}
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

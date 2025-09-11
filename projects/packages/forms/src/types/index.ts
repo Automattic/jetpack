@@ -11,6 +11,10 @@ export interface Integration {
 	slug: string;
 	/** The unique identifier for the integration. */
 	id: string;
+	/** Default title for displaying the integration (server-provided, filterable). */
+	title?: string;
+	/** Default subtitle/description for the integration (server-provided, filterable). */
+	subtitle?: string;
 	/** The plugin file path, if applicable. */
 	pluginFile?: string | null;
 	/** Whether the integration is installed. */
