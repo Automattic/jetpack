@@ -333,7 +333,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
             <h3 class="welcomeh3"><?php esc_html_e("Choose your style for the form you wish to embed (click to choose)","zero-bs-crm");?></h3>
             <p class="zbs_msg"><?php esc_html_e('Make sure to save the form before using the shortcode',"zero-bs-crm");?>.</p>
             <div class="zbs_shortcode_message">
-            <p><?php esc_html_e('You can embed this form on this website using the shortcode below (choose your style first). To embed the form on a seperate website use the embed code in the "Embed Code" box below.',"zero-bs-crm");?></p>
+			<p><?php esc_html_e( 'You can embed this form on this website using the shortcode below (choose your style first). To embed the form on a separate website use the embed code in the "Embed Code" box below.', 'zero-bs-crm' ); ?></p>
             <p class="shorty"><?php if ($formID > 0){
 
                 ?>[jetpackcrm_form id="<?php echo esc_attr( $formID ); ?>" style="<?php  echo esc_attr( $zbsfs ); ?>"]<?php 
@@ -455,7 +455,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                 jQuery(function(){
 
 
-                    //can move to a seperate script at some point....
+			//can move to a separate script at some point....
                     jQuery('.choice').off("click").on("click",function(e){
 
 

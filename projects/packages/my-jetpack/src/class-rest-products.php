@@ -207,7 +207,7 @@ class REST_Products {
 	}
 
 	/**
-	 * Check Products string (comma separated string).
+	 * Check Products string (comma-separated string).
 	 *
 	 * @access public
 	 * @static

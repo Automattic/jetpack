@@ -140,7 +140,7 @@ describe( 'DashItem', () => {
 	} );
 
 	describe( 'when site is connected, not a PRO module, user cannot toggle', () => {
-		it( 'if user can not toggle, it does not display a toggle', () => {
+		it( 'if user cannot toggle, it does not display a toggle', () => {
 			render( <DashItem { ...testProps } pro={ false } userCanToggle={ false } />, {
 				initialState: buildInitialState(),
 			} );

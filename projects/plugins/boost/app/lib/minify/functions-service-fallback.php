@@ -307,7 +307,7 @@ function jetpack_boost_page_optimize_get_file_paths( $args ) {
 			$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
 		}
 
-		// It's an unencoded comma separated list of file paths.
+		// It's an unencoded comma-separated list of file paths.
 		// /foo/bar.css,/foo1/bar/baz.css?m=293847g
 		$version_string_pos = strpos( $args, '?' );
 		if ( false !== $version_string_pos ) {

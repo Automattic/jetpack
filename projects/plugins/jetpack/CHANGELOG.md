@@ -2132,7 +2132,7 @@
 - Jetpack AI: Add transcription post-processing example to Voice-to-Content block. [#35734]
 - Jetpack AI: include audio transcription usage example to Voice-to-Content block. [#35691]
 - Jetpack AI Voice to content: Update to modal UI [#35698]
-- Move user customization to seperate file [#35277]
+- Move user customization to separate file [#35277]
 - Persist user-new.php custom message form field after submission with errors [#35277]
 - Related Posts: remove duplicated HTML attributes [#35686]
 - Rename status column to sso status and add tooltip [#35277]
@@ -8191,7 +8191,7 @@
 - Related Posts: improve HTML markup for related posts, with emphasis on accessibility.
 - Search: add an easy way to see the raw Jetpack Search query results in the search page's source code.
 - Shortcodes: allow links in Quiz shortcode explanations.
-- Widgets: improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
+- Widgets: improve the text for the Blog Stats widget when stats data cannot be retrieved from WordPress.com.
 
 ### Improved compatibility
 - General: require WordPress 5.0! To celebrate, we cleaned out some compatibility code that supported older versions. We know how to party.

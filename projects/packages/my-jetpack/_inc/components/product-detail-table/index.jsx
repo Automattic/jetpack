@@ -306,7 +306,7 @@ const ProductDetailTable = ( {
 	const tiersPricingForUi = detail?.pricingForUi || {};
 	const mockTiersArray = [ ...Array( 3 ).keys() ];
 
-	// If the plugin can not be installed automatically, the user will have to take extra steps.
+	// If the plugin cannot be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
 	const cantInstallPluginNotice = cantInstallPlugin && (
 		<Notice

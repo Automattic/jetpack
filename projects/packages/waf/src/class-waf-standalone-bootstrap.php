@@ -69,7 +69,7 @@ class Waf_Standalone_Bootstrap {
 	/**
 	 * Finds the path to the autoloader, which can then be used to require the autoloader in the generated boostrap file.
 	 *
-	 * @throws Waf_Exception In case the autoloader file can not be found.
+	 * @throws Waf_Exception In case the autoloader file cannot be found.
 	 *
 	 * @return string|null
 	 */
@@ -135,8 +135,8 @@ class Waf_Standalone_Bootstrap {
 	 * Generates the bootstrap file.
 	 *
 	 * @throws File_System_Exception If the filesystem is not available.
-	 * @throws File_System_Exception If the WAF directory can not be created.
-	 * @throws File_System_Exception If the bootstrap file can not be created.
+	 * @throws File_System_Exception If the WAF directory cannot be created.
+	 * @throws File_System_Exception If the bootstrap file cannot be created.
 	 *
 	 * @return string Absolute path to the bootstrap file.
 	 */

@@ -1287,7 +1287,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - WPCOM Block Editor: Update meta key name
 - Resolve PHP Warning with array_filter usage in sync of action_links.
-- Sync: Seperate theme data ( name, version, slug and uri) from theme support data
+- Sync: Separate theme data ( name, version, slug and uri) from theme support data
 - Replaced intval() with (int) as part of issue #17432.
 - Replaced strval() with type casting (string) as part of issue #17432.
 - Replaced floatval() with type cast (float) as part of issue #17432.
