@@ -70,10 +70,7 @@
 	align-items: center;
 	gap: 0.5rem;
 
-	&--wrap {
-		flex-direction: column;
-		align-items: flex-start;
-	}
+	/* Text wrapping is handled at the text level, not the label container */
 }
 
 .legend-item-text {

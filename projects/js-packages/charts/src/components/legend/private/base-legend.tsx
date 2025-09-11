@@ -183,11 +183,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 									/>
 								) }
 								<LegendLabel
-									className={ clsx(
-										'visx-legend-label',
-										styles[ 'legend-item-label' ],
-										maxWidth != null && styles[ `legend-item-label--${ textOverflow }` ]
-									) }
+									className={ clsx( 'visx-legend-label', styles[ 'legend-item-label' ] ) }
 									style={ {
 										justifyContent: labelAlign,
 										flex: labelFlex,
