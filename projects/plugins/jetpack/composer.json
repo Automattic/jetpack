@@ -39,7 +39,6 @@
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
-		"automattic/jetpack-mcp": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-paypal-payments": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
@@ -64,6 +63,9 @@
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0"
+	},
+	"suggest": {
+		"automattic/jetpack-mcp": "MCP (Model Context Protocol) support for AI abilities. Requires PHP 7.4+"
 	},
 	"scripts": {
 		"build-production": [
