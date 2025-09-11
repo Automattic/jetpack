@@ -132,8 +132,7 @@ class UserProfileExecutor implements ExecutorInterface {
 		 * @return array User statistics.
 		 */
 	private function get_user_stats( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
-		// @phan-suppress-next-line PhanUndeclaredFunction
-		$user_sites  = get_ordered_blogs_of_user( $user->ID );
+		$user_sites  = apply_filters( 'jetpack_mcp_get_ordered_blogs_of_user', array(), $user->ID, true, true, true );
 		$total_sites = $user_sites ? count( $user_sites ) : 0;
 
 		// Get content statistics across all user's sites.
@@ -190,8 +189,7 @@ class UserProfileExecutor implements ExecutorInterface {
 		 * @return array Activity data.
 		 */
 	private function get_activity_data( WP_User $user ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $user will be used in future implementation
-		// @phan-suppress-next-line PhanUndeclaredFunction
-		$user_sites = get_ordered_blogs_of_user( $user->ID );
+		$user_sites = apply_filters( 'jetpack_mcp_get_ordered_blogs_of_user', array(), $user->ID, true, true, true );
 
 		return array(
 			'most_active_site'     => $this->get_most_active_site( $user, $user_sites ),

@@ -82,8 +82,7 @@ class UserNotificationsExecutor implements ExecutorInterface {
 
 		$current_user_id = $this->get_current_user_id();
 		// Get user sites for blog-specific settings.
-		// @phan-suppress-next-line PhanUndeclaredFunction
-		$user_sites = get_ordered_blogs_of_user( $current_user_id );
+		$user_sites = apply_filters( 'jetpack_mcp_get_ordered_blogs_of_user', array(), $current_user_id, true, true, true );
 		if ( ! $user_sites ) {
 			$user_sites = array();
 		}
