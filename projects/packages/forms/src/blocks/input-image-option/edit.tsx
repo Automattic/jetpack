@@ -62,8 +62,9 @@ export default function ImageOptionInputEdit( props ) {
 
 			// Compute the number of options per row to set the element width
 			const totalOptionsCount = parentBlock.innerBlocks.length;
-			const maxRowCount = isSupersized ? 2 : 4;
-			const rowSiblingCount = Math.min( totalOptionsCount, maxRowCount );
+			// Those values are halved on mobile via CSS media query
+			const maxImagesPerRow = isSupersized ? 2 : 4;
+			const rowSiblingCount = Math.min( totalOptionsCount, maxImagesPerRow );
 
 			return {
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),

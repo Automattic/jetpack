@@ -2012,8 +2012,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			// Calculate row options count for CSS variable
 			$total_options_count = count( $options_data );
-			$max_row_count       = $is_supersized ? 2 : 4;
-			$row_options_count   = min( $total_options_count, $max_row_count );
+			// Those values are halved on mobile via CSS media query
+			$max_images_per_row = $is_supersized ? 2 : 4;
+			$row_options_count  = min( $total_options_count, $max_images_per_row );
 
 			foreach ( $working_options as $option_index => $option ) {
 				$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
