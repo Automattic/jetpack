@@ -102,8 +102,11 @@ class Dashboard {
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 
-		// Preload Forms config endpoint for dashboard context.
-		$preload_paths = array( '/wp/v2/feedback/config' );
+		// Preload Forms endpoints needed in dashboard context.
+		$preload_paths = array(
+			'/wp/v2/feedback/config',
+			'/wp/v2/feedback/integrations?version=2',
+		);
 		$preload_data  = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,

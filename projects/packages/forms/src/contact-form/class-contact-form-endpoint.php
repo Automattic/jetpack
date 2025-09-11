@@ -92,6 +92,23 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return array Filtered list of supported integrations
 	 */
 	private function get_supported_integrations() {
+		/**
+		 * Filters the list of supported integrations available in Jetpack Forms.
+		 *
+		 * Use this filter to add, modify, or remove integrations. Removing an
+		 * integration here will prevent it from being returned by the REST
+		 * integrations endpoints and from being displayed in the UI.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $supported_integrations Associative array of integration
+		 *                                     configurations keyed by slug. Each
+		 *                                     configuration supports the following keys:
+		 *                                     - type (string)                  : 'plugin' or 'service'.
+		 *                                     - file (string|null)             : Plugin file path for plugins; null for services.
+		 *                                     - settings_url (string|null)     : Relative admin URL for settings, or null.
+		 *                                     - marketing_redirect_slug (string|null) : Redirect slug for marketing links, or null.
+		 */
 		return apply_filters( 'jetpack_forms_supported_integrations', $this->supported_integrations );
 	}
 

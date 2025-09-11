@@ -810,6 +810,7 @@ class Contact_Form_Block {
 	 */
 	public static function preload_endpoints( $paths ) {
 		$paths[] = array( '/wp/v2/feedback/config', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/integrations?version=2', 'GET' );
 		return $paths;
 	}
 
