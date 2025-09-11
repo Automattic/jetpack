@@ -4,13 +4,10 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"wordpress/abilities-api": "^0.1.1"
 	},
 	"config": {
-		"platform": {
-			"php": "7.4.0"
-		},
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}

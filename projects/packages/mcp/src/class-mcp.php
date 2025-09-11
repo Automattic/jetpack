@@ -27,6 +27,11 @@ class Mcp {
 		}
 		$loaded = true;
 
+		// Check PHP version - MCP requires PHP 7.4+
+		if ( version_compare( PHP_VERSION, '7.4.0', '<' ) ) {
+			return;
+		}
+
 		// Load the abilities API.
 		self::load_abilities_api();
 
