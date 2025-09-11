@@ -62,9 +62,14 @@ figure.wp-block-image {
 		overflow: hidden;
 
 		&:not(.wp-block):hover,
+		&:not(.wp-block):focus-within,
 		&.is-checked {
 			backdrop-filter: contrast(0.9) saturate(1.2);
 			cursor: pointer;
+		}
+
+		&:not(.wp-block):focus-within {
+			outline: 2px solid var(--wp--preset--color--primary, var(--jetpack--contact-form--button-outline--background-color));
 		}
 
 		.jetpack-input-image-option__wrapper {

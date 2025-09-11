@@ -135,6 +135,34 @@ const getImages = value => {
 	return null;
 };
 
+const toggleImageOptionInput = ( input, optionElement ) => {
+	if ( input ) {
+		input.focus();
+
+		if ( input.type === 'checkbox' ) {
+			input.checked = ! input.checked;
+			optionElement.classList.toggle( 'is-checked', input.checked );
+		} else if ( input.type === 'radio' ) {
+			input.checked = true;
+
+			// Find all image options in the same fieldset and toggle the checked class
+			const fieldset = optionElement.closest( '.jetpack-fieldset-image-options__wrapper' );
+
+			if ( fieldset ) {
+				const imageOptions = fieldset.querySelectorAll( '.jetpack-input-image-option' );
+
+				imageOptions.forEach( imageOption => {
+					const imageOptionInput = imageOption.querySelector( 'input' );
+					imageOption.classList.toggle( 'is-checked', imageOptionInput.id === input.id );
+				} );
+			}
+		}
+
+		// Dispatch change event to trigger any change handlers
+		input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+	}
+};
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		validators: {},
@@ -328,6 +356,32 @@ const { state, actions } = store( NAMESPACE, {
 			actions.updateField( fieldId, newValues );
 		},
 
+		onKeyDownImageOption: event => {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				actions.onImageOptionClick( event );
+			}
+
+			// If the key is any letter from a to z, we toggle that image option
+			if ( /^[a-z]$/i.test( event.key ) ) {
+				const fieldset = event.target.closest( '.jetpack-fieldset-image-options__wrapper' );
+				const labelCode = document.evaluate(
+					`.//div[contains(@class, "jetpack-input-image-option__label-code") and contains(text(), "${ event.key.toUpperCase() }")]`,
+					fieldset,
+					null,
+					XPathResult.FIRST_ORDERED_NODE_TYPE,
+					null
+				).singleNodeValue;
+
+				if ( labelCode ) {
+					const optionElement = labelCode.closest( '.jetpack-input-image-option' );
+					const input = optionElement.querySelector( '.jetpack-input-image-option__input' );
+
+					toggleImageOptionInput( input, optionElement );
+				}
+			}
+		},
+
 		onImageOptionClick: event => {
 			// Find the block container
 			let target = event.target;
@@ -340,29 +394,7 @@ const { state, actions } = store( NAMESPACE, {
 				// Find the input inside this container
 				const input = target.querySelector( '.jetpack-input-image-option__input' );
 
-				if ( input ) {
-					if ( input.type === 'checkbox' ) {
-						input.checked = ! input.checked;
-						target.classList.toggle( 'is-checked', input.checked );
-					} else if ( input.type === 'radio' ) {
-						input.checked = true;
-
-						// Find all image options in the same fieldset and toggle the checked class
-						const fieldset = target.closest( '.jetpack-fieldset-image-options__wrapper' );
-
-						if ( fieldset ) {
-							const imageOptions = fieldset.querySelectorAll( '.jetpack-input-image-option' );
-
-							imageOptions.forEach( imageOption => {
-								const imageOptionInput = imageOption.querySelector( 'input' );
-								imageOption.classList.toggle( 'is-checked', imageOptionInput.id === input.id );
-							} );
-						}
-					}
-
-					// Dispatch change event to trigger any change handlers
-					input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
-				}
+				toggleImageOptionInput( input, target );
 			}
 		},
 

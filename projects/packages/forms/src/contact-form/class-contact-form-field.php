@@ -2096,6 +2096,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				type='" . esc_attr( $input_type ) . "'
 				name='" . esc_attr( $input_name ) . "'
 				value='" . esc_attr( $option_value ) . "'
+				data-wp-on--keydown='actions.onKeyDownImageOption'
 				data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
 				. $class
 				. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '
