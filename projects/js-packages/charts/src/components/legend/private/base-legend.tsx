@@ -22,6 +22,7 @@ const orientationToFlexDirection = {
 };
 
 // Component for legend text with truncation detection
+// Moved outside BaseLegend to prevent recreation on every render
 const LegendText = ( {
 	text,
 	textOverflow,
