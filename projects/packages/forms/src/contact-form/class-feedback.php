@@ -997,6 +997,12 @@ class Feedback {
 		$find[]    = '\":[\"';
 		$replace[] = '":["';
 
+		$find[]    = '\"],';
+		$replace[] = '"],';
+
+		$find[]    = ',[\"';
+		$replace[] = ',["';
+
 		$find[]    = '\",\"';
 		$replace[] = '","';
 
@@ -1011,9 +1017,6 @@ class Feedback {
 
 		$find[]    = '\"],"';
 		$replace[] = '"],"';
-
-		$find[]    = '\":[],\"';
-		$replace[] = '":[],"';
 
 		$find[]    = '\":[]';
 		$replace[] = '":[]';
@@ -1037,9 +1040,21 @@ class Feedback {
 		$replace[] = '":null';
 
 		for ( $i = 0; $i <= 9; $i++ ) {
-			$find[]    = '\":' . $i . ',';
-			$replace[] = '":' . $i . ',';
+			$find[]    = '\":' . $i;
+			$replace[] = '":' . $i;
+
+			$find[]    = '\",' . $i;
+			$replace[] = '",' . $i;
 		}
+
+		$find[]    = '\",true';
+		$replace[] = '",true';
+
+		$find[]    = '\",false';
+		$replace[] = '",false';
+
+		$find[]    = '\",null';
+		$replace[] = '",null';
 
 		$find[]    = "\'";
 		$replace[] = "'";
