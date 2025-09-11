@@ -193,12 +193,14 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 		return;
 	}
 
+	$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
 	$ordered_submenu = array();
 
 	// Re-add submenu items in the desired order.
 	foreach ( $desired_order as $submenu_slug ) {
 		foreach ( $submenu[ $menu_slug ] as $item ) {
-			if ( str_contains( $item[2], $submenu_slug ) ) {
+			$clean_url = str_replace( $domain, '', $item[2] );
+			if ( str_contains( $clean_url, $submenu_slug ) ) {
 				$ordered_submenu[] = $item;
 			}
 		}
