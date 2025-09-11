@@ -9,6 +9,8 @@ import {
 	useCallback,
 	useMemo,
 	useContext,
+	useEffect,
+	useRef,
 } from 'react';
 import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
@@ -18,6 +20,52 @@ import type { BaseLegendProps } from '../types';
 const orientationToFlexDirection = {
 	horizontal: 'row' as const,
 	vertical: 'column' as const,
+};
+
+// Hook to detect if text is truncated
+const useTextTruncation = ( text: string, isEllipsis: boolean ) => {
+	const textRef = useRef< HTMLSpanElement >( null );
+	const isTruncatedRef = useRef( false );
+
+	useEffect( () => {
+		if ( ! isEllipsis || ! textRef.current ) {
+			isTruncatedRef.current = false;
+			return;
+		}
+
+		const element = textRef.current;
+		// Check if the content is wider than the container (indicates truncation)
+		isTruncatedRef.current = element.scrollWidth > element.clientWidth;
+	}, [ text, isEllipsis ] );
+
+	return { textRef, isTruncated: isTruncatedRef.current };
+};
+
+// Component for legend text with truncation detection
+const LegendText = ( {
+	text,
+	textOverflow,
+	maxWidth,
+}: {
+	text: string;
+	textOverflow: 'ellipsis' | 'wrap';
+	maxWidth?: number | string;
+} ) => {
+	const isEllipsis = maxWidth && textOverflow === 'ellipsis';
+	const { textRef, isTruncated } = useTextTruncation( text, Boolean( isEllipsis ) );
+
+	return (
+		<span
+			ref={ textRef }
+			className={ clsx(
+				styles[ 'legend-item-text' ],
+				maxWidth && styles[ `legend-item-text--${ textOverflow }` ]
+			) }
+			title={ isEllipsis && isTruncated ? text : undefined }
+		>
+			{ text }
+		</span>
+	);
 };
 
 /*
@@ -35,6 +83,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			position = 'bottom',
 			alignment = 'center',
 			maxWidth,
+			textOverflow = 'wrap',
 			shape = 'rect',
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
@@ -119,11 +168,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 								flexDirection={
 									orientation === 'vertical' && alignment === 'end' ? 'row-reverse' : itemDirection
 								}
-								style={
-									maxWidth
-										? { maxWidth: typeof maxWidth === 'number' ? `${ maxWidth }px` : maxWidth }
-										: undefined
-								}
 								{ ...legendItemProps }
 							>
 								{ items[ i ]?.renderGlyph ? (
@@ -162,17 +206,25 @@ export const BaseLegend: ForwardRefExoticComponent<
 									className={ clsx(
 										'visx-legend-label',
 										styles[ 'legend-item-label' ],
-										maxWidth && styles[ 'legend-item-label--wrapped' ]
+										maxWidth && styles[ `legend-item-label--${ textOverflow }` ]
 									) }
 									style={ {
 										justifyContent: labelAlign,
 										flex: labelFlex,
 										margin: labelMargin,
+										...( maxWidth && {
+											maxWidth: typeof maxWidth === 'number' ? `${ maxWidth }px` : maxWidth,
+											minWidth: 0,
+										} ),
 										...theme.legendLabelStyles,
 									} }
 									{ ...legendLabelProps }
 								>
-									{ label.text }
+									<LegendText
+										text={ label.text }
+										textOverflow={ textOverflow }
+										maxWidth={ maxWidth }
+									/>
 									{ items.find( item => item.label === label.text )?.value && (
 										<span className={ styles[ 'legend-item-value' ] }>
 											{ '\u00A0' }
