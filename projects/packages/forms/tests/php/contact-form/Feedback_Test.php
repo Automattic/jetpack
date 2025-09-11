@@ -2228,8 +2228,6 @@ class Feedback_Test extends BaseTestCase {
 			array(
 				'key'  => array(),
 				'key1' => array( 'h "ell"o', "th'er'e " ),
-				'key2' => array( 'simplevalue' => 'si "mplev " alue' ),
-				'key3' => array(),
 				'key4' => array(
 					'howdy' => array( 'h "ell"o', "th'er'e " ),
 					1,
@@ -2246,7 +2244,10 @@ class Feedback_Test extends BaseTestCase {
 			array(
 				'key'  => array(),
 				'key1' => array( 'h "ell"o', "th'er'e " ),
-				'key2' => array( 'simplevalue' => 'simplevalue' ),
+			),
+			array(
+				'key1' => array( 'simplevalue' => 'si "mplev " alue' ),
+				'key2' => array( 'simplevalue' => 'simpl" eval ": ue' ),
 			),
 		);
 		foreach ( $test_cases_data as $case ) {
