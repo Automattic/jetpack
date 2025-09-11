@@ -39,4 +39,17 @@ export const legendArgTypes = {
 		description:
 			'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
 	},
+	legendMaxWidth: {
+		control: { type: 'range' as const, min: 0, max: 300, step: 10 },
+		table: { category: 'Legend' },
+		description:
+			'Maximum width for legend items in pixels. When set, text overflow behavior is controlled by legendTextOverflow. Set to 0 to see extreme truncation.',
+	},
+	legendTextOverflow: {
+		control: { type: 'select' as const },
+		options: [ 'wrap', 'ellipsis' ],
+		table: { category: 'Legend' },
+		description:
+			'Controls how text behaves when it exceeds legendMaxWidth. "ellipsis" truncates with ... (ideal for widgets), "wrap" allows text to wrap to multiple lines.',
+	},
 };

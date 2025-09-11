@@ -9,9 +9,8 @@ import {
 	useCallback,
 	useMemo,
 	useContext,
-	useEffect,
-	useRef,
 } from 'react';
+import { useTextTruncation } from '../../../hooks';
 import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
@@ -20,25 +19,6 @@ import type { BaseLegendProps } from '../types';
 const orientationToFlexDirection = {
 	horizontal: 'row' as const,
 	vertical: 'column' as const,
-};
-
-// Hook to detect if text is truncated
-const useTextTruncation = ( text: string, isEllipsis: boolean ) => {
-	const textRef = useRef< HTMLSpanElement >( null );
-	const isTruncatedRef = useRef( false );
-
-	useEffect( () => {
-		if ( ! isEllipsis || ! textRef.current ) {
-			isTruncatedRef.current = false;
-			return;
-		}
-
-		const element = textRef.current;
-		// Check if the content is wider than the container (indicates truncation)
-		isTruncatedRef.current = element.scrollWidth > element.clientWidth;
-	}, [ text, isEllipsis ] );
-
-	return { textRef, isTruncated: isTruncatedRef.current };
 };
 
 // Component for legend text with truncation detection
@@ -51,15 +31,15 @@ const LegendText = ( {
 	textOverflow: 'ellipsis' | 'wrap';
 	maxWidth?: number | string;
 } ) => {
-	const isEllipsis = maxWidth && textOverflow === 'ellipsis';
-	const { textRef, isTruncated } = useTextTruncation( text, Boolean( isEllipsis ) );
+	const isEllipsis = maxWidth != null && textOverflow === 'ellipsis';
+	const [ textRef, isTruncated ] = useTextTruncation( Boolean( isEllipsis ) );
 
 	return (
 		<span
 			ref={ textRef }
 			className={ clsx(
 				styles[ 'legend-item-text' ],
-				maxWidth && styles[ `legend-item-text--${ textOverflow }` ]
+				maxWidth != null && styles[ `legend-item-text--${ textOverflow }` ]
 			) }
 			title={ isEllipsis && isTruncated ? text : undefined }
 		>
@@ -206,13 +186,13 @@ export const BaseLegend: ForwardRefExoticComponent<
 									className={ clsx(
 										'visx-legend-label',
 										styles[ 'legend-item-label' ],
-										maxWidth && styles[ `legend-item-label--${ textOverflow }` ]
+										maxWidth != null && styles[ `legend-item-label--${ textOverflow }` ]
 									) }
 									style={ {
 										justifyContent: labelAlign,
 										flex: labelFlex,
 										margin: labelMargin,
-										...( maxWidth && {
+										...( maxWidth != null && {
 											maxWidth: typeof maxWidth === 'number' ? `${ maxWidth }px` : maxWidth,
 											minWidth: 0,
 										} ),

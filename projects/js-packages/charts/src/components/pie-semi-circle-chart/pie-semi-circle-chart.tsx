@@ -118,6 +118,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
 	legendAlignment = 'center',
+	legendMaxWidth,
+	legendTextOverflow = 'wrap',
 	legendShape = 'circle',
 	legendValueDisplay = 'percentage',
 	label,
@@ -332,6 +334,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }
+						maxWidth={ legendMaxWidth }
+						textOverflow={ legendTextOverflow }
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }

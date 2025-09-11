@@ -156,15 +156,24 @@ export const WithCompositionLegend: Story = {
 					size={ 300 }
 					data={ args.data }
 					showLegend={ true }
-					legendPosition="bottom"
-					legendOrientation="horizontal"
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+					legendMaxWidth={ args.legendMaxWidth }
+					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
 					legendValueDisplay={ args.legendValueDisplay }
 				/>
 			</div>
 			<div>
 				<h3>Composition API with Legend Component</h3>
 				<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
-					<PieChart.Legend position="bottom" orientation="horizontal" alignment="center" />
+					<PieChart.Legend
+						position={ args.legendPosition || 'bottom' }
+						orientation={ args.legendOrientation || 'horizontal' }
+						alignment={ args.legendAlignment || 'center' }
+						maxWidth={ args.legendMaxWidth }
+						textOverflow={ args.legendTextOverflow || 'wrap' }
+					/>
 				</PieChart>
 			</div>
 		</div>

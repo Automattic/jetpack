@@ -98,8 +98,11 @@ export const WithCompositionLegend: Story = {
 					label="Performance Metrics"
 					note="Q4 2023 Results"
 					showLegend={ true }
-					legendPosition="bottom"
-					legendOrientation="horizontal"
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+					legendMaxWidth={ args.legendMaxWidth }
+					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
 				/>
 			</div>
 			<div>
@@ -111,9 +114,11 @@ export const WithCompositionLegend: Story = {
 					note="Q4 2023 Results"
 				>
 					<PieSemiCircleChart.Legend
-						position="bottom"
-						orientation="horizontal"
-						alignment="center"
+						position={ args.legendPosition || 'bottom' }
+						orientation={ args.legendOrientation || 'horizontal' }
+						alignment={ args.legendAlignment || 'center' }
+						maxWidth={ args.legendMaxWidth }
+						textOverflow={ args.legendTextOverflow || 'wrap' }
 					/>
 				</PieSemiCircleChart>
 			</div>

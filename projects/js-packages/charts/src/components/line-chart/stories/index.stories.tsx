@@ -62,16 +62,22 @@ CustomLegendPositioning.parameters = {
 
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
-	render: () => (
+	render: args => (
 		<div style={ { width: '600px', height: '400px' } }>
 			<LineChart
-				data={ webTrafficData }
+				data={ args.data || webTrafficData }
 				width={ 600 }
 				height={ 300 }
 				withGradientFill={ false }
 				withLegendGlyph={ false }
 			>
-				<LineChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+				<LineChart.Legend
+					orientation={ args.legendOrientation || 'horizontal' }
+					alignment={ args.legendAlignment || 'center' }
+					position={ args.legendPosition || 'bottom' }
+					maxWidth={ args.legendMaxWidth }
+					textOverflow={ args.legendTextOverflow || 'wrap' }
+				/>
 			</LineChart>
 		</div>
 	),
