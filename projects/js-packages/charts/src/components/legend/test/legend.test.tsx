@@ -90,7 +90,7 @@ describe( 'BaseLegend', () => {
 		];
 
 		test( 'renders with maxWidth constraint', () => {
-			render( <BaseLegend items={ longLabelItems } maxWidth={ 150 } orientation="horizontal" /> );
+			render( <BaseLegend items={ longLabelItems } maxWidth="150px" orientation="horizontal" /> );
 			const legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
 			// Note: maxWidth is applied to LegendLabel via inline styles,
@@ -114,7 +114,7 @@ describe( 'BaseLegend', () => {
 			expect( legendItems ).toHaveLength( 2 );
 
 			// With maxWidth, legend items should still render
-			rerender( <BaseLegend items={ longLabelItems } maxWidth={ 150 } orientation="horizontal" /> );
+			rerender( <BaseLegend items={ longLabelItems } maxWidth="150px" orientation="horizontal" /> );
 			legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
 		} );
@@ -124,7 +124,7 @@ describe( 'BaseLegend', () => {
 			const { rerender } = render(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth={ 150 }
+					maxWidth="150px"
 					textOverflow="ellipsis"
 					orientation="horizontal"
 				/>
@@ -136,7 +136,7 @@ describe( 'BaseLegend', () => {
 			rerender(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth={ 150 }
+					maxWidth="150px"
 					textOverflow="wrap"
 					orientation="horizontal"
 				/>
@@ -150,7 +150,7 @@ describe( 'BaseLegend', () => {
 			render(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth={ 50 }
+					maxWidth="50px"
 					textOverflow="ellipsis"
 					orientation="horizontal"
 				/>
@@ -166,7 +166,7 @@ describe( 'BaseLegend', () => {
 			render(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth={ 50 }
+					maxWidth="50px"
 					textOverflow="wrap"
 					orientation="horizontal"
 				/>
@@ -182,7 +182,7 @@ describe( 'BaseLegend', () => {
 			render(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth={ 0 }
+					maxWidth="0px"
 					textOverflow="ellipsis"
 					orientation="horizontal"
 				/>
