@@ -42,6 +42,12 @@ const LegendText = ( {
 				styles[ 'legend-item-text' ],
 				maxWidth != null && styles[ `legend-item-text--${ textOverflow }` ]
 			) }
+			style={ {
+				...( maxWidth != null && {
+					maxWidth,
+					minWidth: 0,
+				} ),
+			} }
 			title={ isEllipsis && isTruncated ? text : undefined }
 		>
 			{ text }
@@ -189,10 +195,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 										justifyContent: labelAlign,
 										flex: labelFlex,
 										margin: labelMargin,
-										...( maxWidth != null && {
-											maxWidth,
-											minWidth: 0,
-										} ),
 										...theme.legendLabelStyles,
 									} }
 									{ ...legendLabelProps }
