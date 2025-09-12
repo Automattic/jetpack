@@ -2209,6 +2209,74 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertInstanceOf( Feedback::class, $response );
 	}
 
+	public function test_fix_malformed_json() {
+		$test_cases_data = array(
+			array(
+				'key' => 'va"lu"e',
+			),
+			array(
+				'key' => 'va"lu"e',
+			),
+			array(
+				'key'  => array( 'hello', 'there ' ),
+				'key1' => array( 'h "ell"o', "th'er'e " ),
+			),
+			array(
+				'key'  => array( 'hello', 'there ' ),
+				'key1' => array( 'h "ell"o', "th'er'e " ),
+			),
+			array(
+				'key'  => array(),
+				'key1' => array( 'h "ell"o', "th'er'e " ),
+				'key5' => '',
+				'key6' => 0,
+				'key7' => null,
+				'key8' => false,
+				'key9' => true,
+			),
+			array(
+				'key'  => array(),
+				'key1' => array( 'h "ell"o', "th'er'e " ),
+			),
+			array(
+				'key1' => array( 'simplevalue' => 'si "mplev " alue' ),
+				'key2' => array( 'simplevalue' => 'simpl" eval ": ue' ),
+			),
+			array(
+				'key1' => array(
+					1,
+					'asdasd',
+					" asd'sad",
+				),
+				'key2' => array(
+					'key2.1' => array( 'h "ell"o', "th'er'e " ),
+					'key2.2' => array( 'h "ell"o', "th'er'e ", "hell'o", 123, null, true, false, array( 'how " dy' ), array( 'key' => 'va"lu"e' ) ),
+				),
+			),
+		);
+		foreach ( $test_cases_data as $case ) {
+			$this->assertEquals( wp_json_encode( $case ), Feedback::fix_malformed_json( stripslashes( wp_json_encode( $case ) ) ) );
+		}
+	}
+
+	public function test_edgecase_feedback_v2_missing_field_value_bad_json() {
+		// Post data with missing field value.
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => Feedback::POST_TYPE,
+				'post_title'     => 'Edgecase Feedback',
+				'post_content'   => '{"subject":"[WR8DAR] "Contact" us!","entry_title":"Contact us!","entry_page":1,"fields":[{"key":"1_key label","label":"key label","value":["Nov 25", "2pm "Save Our Stories" with Sandy Simmelink"],"type":"checkbox-multiple","meta":[],"form_field_id":"g124-keylabel"},{"key":"2_Awesome","label":"Awesome","type":"email","meta":[],"form_field_id":"g124-awesome"}]}',
+				'post_status'    => 'publish',
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+		$this->assertSame( '[WR8DAR] "Contact" us!', $response->get_subject() );
+		$this->assertSame( 'Nov 25, 2pm "Save Our Stories" with Sandy Simmelink', $response->get_field_value_by_label( 'key label' ) );
+	}
+
 	/**
 	 * Test that new lines are not stripped from the field value.
 	 */

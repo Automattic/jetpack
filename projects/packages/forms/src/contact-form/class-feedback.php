@@ -884,6 +884,14 @@ class Feedback {
 		}
 
 		if ( $decoded_content === null ) {
+			// Final fallback: attempt to fix malformed JSON with unescaped quotes
+			// Apply stripslashes first, then fix remaining issues
+			$stripped_content = stripslashes( trim( $post_content ) );
+			$fixed_content    = self::fix_malformed_json( $stripped_content );
+			$decoded_content  = json_decode( $fixed_content, true );
+		}
+
+		if ( $decoded_content === null ) {
 			return array();
 		}
 		$fields = array();
@@ -959,6 +967,104 @@ class Feedback {
 		$this->add_comment_content_field( $comment_content, $decoded_fields );
 
 		return $decoded_fields;
+	}
+
+	/**
+	 * Attempt to fix malformed JSON by escaping unescaped quotes in string values.
+	 *
+	 * This method handles cases where JSON contains unescaped quotes within string values,
+	 * which causes json_decode to fail.
+	 *
+	 * @param string $json malformed JSON string.
+	 * @return string The JSON string with escaped quotes.
+	 */
+	public static function fix_malformed_json( $json ) {
+
+		$find    = array();
+		$replace = array();
+
+		// Start of JSON object
+		$find[]    = '{\"';
+		$replace[] = '{"';
+
+		// Key-value separator
+		$find[]    = '\":\"';
+		$replace[] = '":"';
+
+		$find[]    = '\\\"';
+		$replace[] = '\"';
+
+		$find[]    = '\":[\"';
+		$replace[] = '":["';
+
+		$find[]    = '\"],';
+		$replace[] = '"],';
+
+		$find[]    = ',[\"';
+		$replace[] = ',["';
+
+		$find[]    = '\",\"';
+		$replace[] = '","';
+
+		$find[]    = ',\"';
+		$replace[] = ',"';
+
+		$find[]    = '\", \"';
+		$replace[] = '", "';
+
+		$find[]    = '\"],\"';
+		$replace[] = '"],"';
+
+		$find[]    = '\"],"';
+		$replace[] = '"],"';
+
+		$find[]    = '\":[]';
+		$replace[] = '":[]';
+
+		$find[]    = '\"]}';
+		$replace[] = '"]}';
+
+		$find[]    = '\":[';
+		$replace[] = '":[';
+
+		$find[]    = '\":{';
+		$replace[] = '":{';
+
+		$find[]    = '\":true';
+		$replace[] = '":true';
+
+		$find[]    = '\":false';
+		$replace[] = '":false';
+
+		$find[]    = '\":null';
+		$replace[] = '":null';
+
+		for ( $i = 0; $i <= 9; $i++ ) {
+			$find[]    = '\":' . $i;
+			$replace[] = '":' . $i;
+
+			$find[]    = '\",' . $i;
+			$replace[] = '",' . $i;
+		}
+
+		$find[]    = '\",true';
+		$replace[] = '",true';
+
+		$find[]    = '\",false';
+		$replace[] = '",false';
+
+		$find[]    = '\",null';
+		$replace[] = '",null';
+
+		$find[]    = "\'";
+		$replace[] = "'";
+
+		// End of Json object
+		$find[]    = '\"}';
+		$replace[] = '"}';
+
+		// Remove any slashes that are there to start a new string.
+		return str_replace( $find, $replace, addslashes( $json ) );
 	}
 
 	/**
