@@ -208,7 +208,7 @@ class JetpackPhpcsFilterTest extends TestCase {
 		$files          = new FileList( $config, $ruleset );
 
 		$actual = array();
-		// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- Phan is confused; resolved in Phan >5.5.1.
+		// @phan-suppress-next-line PhanTypeSuspiciousNonTraversableForeach -- Phan is confused; resolved in Phan >5.5.1.
 		foreach ( $files as $file ) {
 			if ( $file->ignored ) {
 				continue;
