@@ -5354,8 +5354,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
       axios:
-        specifier: 1.11.0
-        version: 1.11.0
+        specifier: 1.12.0
+        version: 1.12.0
       cheerio:
         specifier: 1.1.2
         version: 1.1.2
@@ -5581,8 +5581,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       axios:
-        specifier: 1.11.0
-        version: 1.11.0
+        specifier: 1.12.0
+        version: 1.12.0
       chalk:
         specifier: 5.6.0
         version: 5.6.0
@@ -10182,8 +10182,8 @@ packages:
     resolution: {integrity: sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==}
     engines: {node: '>=4'}
 
-  axios@1.11.0:
-    resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
+  axios@1.12.0:
+    resolution: {integrity: sha512-oXTDccv8PcfjZmPGlWsPSwtOJCZ/b6W5jAMCNcfwJbCzDckwG0jrYJFaWH1yvivfCXjVzV/SPDEhMB3Q+DSurg==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -20376,7 +20376,7 @@ snapshots:
       '@slack/types': 2.16.0
       '@types/node': 20.19.13
       '@types/retry': 0.12.0
-      axios: 1.11.0
+      axios: 1.12.0
       eventemitter3: 5.0.1
       form-data: 4.0.4
       is-electron: 2.2.2
@@ -24071,7 +24071,7 @@ snapshots:
 
   axe-core@4.10.3: {}
 
-  axios@1.11.0:
+  axios@1.12.0:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.4
@@ -24079,7 +24079,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  axios@1.11.0(debug@4.4.1):
+  axios@1.12.0(debug@4.4.1):
     dependencies:
       follow-redirects: 1.15.11(debug@4.4.1)
       form-data: 4.0.4
@@ -28177,7 +28177,7 @@ snapshots:
 
   localtunnel@2.0.2:
     dependencies:
-      axios: 1.11.0(debug@4.4.1)
+      axios: 1.12.0(debug@4.4.1)
       debug: 4.4.1
       openurl: 1.1.1
       yargs: 17.7.2
@@ -31860,7 +31860,7 @@ snapshots:
 
   wait-on@7.2.0:
     dependencies:
-      axios: 1.11.0
+      axios: 1.12.0
       joi: 17.13.3
       lodash: 4.17.21
       minimist: 1.2.8
