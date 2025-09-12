@@ -13,6 +13,17 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 */
 	position?: 'top' | 'bottom';
 	alignment?: 'start' | 'center' | 'end';
+	/**
+	 * Maximum width for legend items. When set, text overflow behavior is controlled by textOverflow prop.
+	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
+	 */
+	maxWidth?: string;
+	/**
+	 * Controls how text behaves when it exceeds maxWidth.
+	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
+	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
+	 */
+	textOverflow?: 'ellipsis' | 'wrap';
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {

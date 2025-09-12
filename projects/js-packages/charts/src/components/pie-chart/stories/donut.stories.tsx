@@ -217,8 +217,11 @@ export const WithCompositionLegend: Story = {
 					data={ args.data }
 					thickness={ 0.5 }
 					showLegend={ true }
-					legendPosition="bottom"
-					legendOrientation="horizontal"
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+					legendMaxWidth={ args.legendMaxWidth }
+					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
 					legendValueDisplay={ args.legendValueDisplay }
 				>
 					<Group>
@@ -247,7 +250,13 @@ export const WithCompositionLegend: Story = {
 							100K Total
 						</Text>
 					</Group>
-					<PieChart.Legend position="bottom" orientation="horizontal" alignment="center" />
+					<PieChart.Legend
+						position={ args.legendPosition || 'bottom' }
+						orientation={ args.legendOrientation || 'horizontal' }
+						alignment={ args.legendAlignment || 'center' }
+						maxWidth={ args.legendMaxWidth }
+						textOverflow={ args.legendTextOverflow || 'wrap' }
+					/>
 				</PieChart>
 			</div>
 		</div>

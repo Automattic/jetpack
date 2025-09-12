@@ -333,6 +333,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	legendAlignment?: 'start' | 'center' | 'end';
 	/**
+	 * Maximum width for legend items. When set, text overflow behavior is controlled by legendTextOverflow.
+	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
+	 */
+	legendMaxWidth?: string;
+	/**
+	 * Controls how text behaves when it exceeds legendMaxWidth.
+	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
+	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
+	 */
+	legendTextOverflow?: 'ellipsis' | 'wrap';
+	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';

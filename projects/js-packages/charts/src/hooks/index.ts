@@ -4,4 +4,5 @@ export { useXYChartTheme } from './use-xychart-theme';
 export { useChartDataTransform } from './use-chart-data-transform';
 export { useChartMargin } from './use-chart-margin';
 export { useElementHeight } from './use-element-height';
+export { useTextTruncation } from './use-text-truncation';
 export { useZeroValueDisplay } from './use-zero-value-display';

@@ -208,16 +208,22 @@ export const WithLegend: Story = {
 
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
-	render: () => (
+	render: args => (
 		<div style={ { width: '800px' } }>
 			<BarChart
-				data={ [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
 				withTooltips={ true }
 				gridVisibility="x"
 				maxWidth={ 1200 }
 				aspectRatio={ 0.5 }
 			>
-				<BarChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+				<BarChart.Legend
+					orientation={ args.legendOrientation || 'horizontal' }
+					alignment={ args.legendAlignment || 'center' }
+					position={ args.legendPosition || 'bottom' }
+					maxWidth={ args.legendMaxWidth }
+					textOverflow={ args.legendTextOverflow || 'wrap' }
+				/>
 			</BarChart>
 		</div>
 	),

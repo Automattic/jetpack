@@ -464,6 +464,114 @@ export const AlignmentOptions: Story = {
 	},
 };
 
+// Comprehensive story showing all text overflow and wrapping features
+export const TextOverflow: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, maxWidth, ...restProps } = args;
+		const containerStyle =
+			args.orientation === 'horizontal'
+				? { width: '600px', border: '1px solid #ddd', padding: '20px' }
+				: { width: '350px', border: '1px solid #ddd', padding: '20px' };
+
+		const titleText = maxWidth
+			? `Legend with ${
+					args.textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
+			  } (maxWidth: ${ maxWidth })`
+			: 'Legend without maxWidth constraint';
+
+		return (
+			<div style={ containerStyle }>
+				<h4 style={ { marginBottom: '10px' } }>{ titleText }</h4>
+				<Legend { ...restProps } maxWidth={ maxWidth } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{
+				label: 'Very Long Legend Item Label That Demonstrates Text Overflow Behavior',
+				value: '25%',
+				color: '#3858E9',
+			},
+			{
+				label: 'Another Extremely Long Label for Testing Different Display Options',
+				value: '35%',
+				color: '#80C8FF',
+			},
+			{ label: 'Short Label', value: '15%', color: '#44B556' },
+			{ label: 'Medium Length Label Text', value: '25%', color: '#FFC107' },
+		],
+		orientation: 'horizontal',
+		maxWidth: 150,
+		textOverflow: 'wrap',
+		position: 'bottom',
+		alignment: 'center',
+	},
+	argTypes: {
+		orientation: {
+			control: { type: 'radio' },
+			options: [ 'horizontal', 'vertical' ],
+			description: 'Legend orientation',
+		},
+		maxWidth: {
+			control: { type: 'range', min: 0, max: 300, step: 10 },
+			description: 'Maximum width for legend items (pixels). Set to 0 to disable.',
+			table: {
+				type: { summary: 'number | string | undefined' },
+				defaultValue: { summary: 'undefined' },
+			},
+		},
+		textOverflow: {
+			control: { type: 'radio' },
+			options: [ 'wrap', 'ellipsis' ],
+			description: 'Text overflow behavior when maxWidth is set',
+		},
+		position: {
+			control: { type: 'radio' },
+			options: [ 'top', 'bottom' ],
+			description: 'Vertical position of the legend',
+		},
+		alignment: {
+			control: { type: 'radio' },
+			options: [ 'start', 'center', 'end' ],
+			description: 'Horizontal alignment of the legend',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `
+## Text Overflow and Wrapping
+
+This interactive story demonstrates all the text overflow and wrapping features of the Legend component.
+
+### Features
+
+- **Text Overflow Modes**:
+  - **Wrap** (default): Text wraps naturally to multiple lines when it exceeds maxWidth
+  - **Ellipsis**: Truncates text with ellipsis (...) and shows tooltip on hover
+  
+- **Orientation**: Switch between horizontal and vertical layouts
+- **Max Width**: Adjust the maximum width constraint with the slider (50-300px)
+- **Position & Alignment**: Control legend placement
+
+### Use Cases
+
+- **Widgets/Dashboards**: Use ellipsis mode with small maxWidth values
+- **Full Displays**: Use wrap mode with larger maxWidth values
+- **Mobile**: Use vertical orientation with appropriate maxWidth
+
+### Accessibility
+When using ellipsis mode, truncated text automatically includes a \`title\` attribute for screen readers and displays a native tooltip on hover showing the complete text.
+
+Try different combinations using the controls above to see how the legend adapts to various constraints!
+`,
+			},
+		},
+	},
+};
+
 // Story showing the legend with custom shapes
 export const CustomShape: Story = {
 	args: {

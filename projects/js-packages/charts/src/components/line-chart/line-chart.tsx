@@ -211,6 +211,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			legendOrientation = 'horizontal',
 			legendAlignment = 'center',
 			legendPosition = 'bottom',
+			legendMaxWidth,
+			legendTextOverflow = 'wrap',
 			renderGlyph = defaultRenderGlyph,
 			glyphStyle = {},
 			legendShape = 'line',
@@ -507,6 +509,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							orientation={ legendOrientation }
 							alignment={ legendAlignment }
 							position={ legendPosition }
+							maxWidth={ legendMaxWidth }
+							textOverflow={ legendTextOverflow }
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }

@@ -10,6 +10,7 @@ import {
 	useMemo,
 	useContext,
 } from 'react';
+import { useTextTruncation } from '../../../hooks';
 import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
@@ -18,6 +19,40 @@ import type { BaseLegendProps } from '../types';
 const orientationToFlexDirection = {
 	horizontal: 'row' as const,
 	vertical: 'column' as const,
+};
+
+// Component for legend text with truncation detection
+// Moved outside BaseLegend to prevent recreation on every render
+const LegendText = ( {
+	text,
+	textOverflow,
+	maxWidth,
+}: {
+	text: string;
+	textOverflow: 'ellipsis' | 'wrap';
+	maxWidth?: string;
+} ) => {
+	const isEllipsis = maxWidth != null && textOverflow === 'ellipsis';
+	const [ textRef, isTruncated ] = useTextTruncation( Boolean( isEllipsis ) );
+
+	return (
+		<span
+			ref={ textRef }
+			className={ clsx(
+				styles[ 'legend-item-text' ],
+				maxWidth != null && styles[ `legend-item-text--${ textOverflow }` ]
+			) }
+			style={ {
+				...( maxWidth != null && {
+					maxWidth,
+					minWidth: 0,
+				} ),
+			} }
+			title={ isEllipsis && isTruncated ? text : undefined }
+		>
+			{ text }
+		</span>
+	);
 };
 
 /*
@@ -34,6 +69,8 @@ export const BaseLegend: ForwardRefExoticComponent<
 			orientation = 'horizontal',
 			position = 'bottom',
 			alignment = 'center',
+			maxWidth,
+			textOverflow = 'wrap',
 			shape = 'rect',
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
@@ -111,7 +148,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 					>
 						{ labels.map( ( label, i ) => (
 							<LegendItem
-								className={ styles[ 'legend-item' ] }
+								className={ clsx( 'visx-legend-item', styles[ 'legend-item' ] ) }
 								data-testid="legend-item"
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }
@@ -153,6 +190,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 									/>
 								) }
 								<LegendLabel
+									className={ clsx( 'visx-legend-label', styles[ 'legend-item-label' ] ) }
 									style={ {
 										justifyContent: labelAlign,
 										flex: labelFlex,
@@ -161,7 +199,11 @@ export const BaseLegend: ForwardRefExoticComponent<
 									} }
 									{ ...legendLabelProps }
 								>
-									{ label.text }
+									<LegendText
+										text={ label.text }
+										textOverflow={ textOverflow }
+										maxWidth={ maxWidth }
+									/>
 									{ items.find( item => item.label === label.text )?.value && (
 										<span className={ styles[ 'legend-item-value' ] }>
 											{ '\u00A0' }
