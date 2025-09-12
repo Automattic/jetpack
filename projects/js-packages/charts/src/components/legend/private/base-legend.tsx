@@ -30,7 +30,7 @@ const LegendText = ( {
 }: {
 	text: string;
 	textOverflow: 'ellipsis' | 'wrap';
-	maxWidth?: number | string;
+	maxWidth?: string;
 } ) => {
 	const isEllipsis = maxWidth != null && textOverflow === 'ellipsis';
 	const [ textRef, isTruncated ] = useTextTruncation( Boolean( isEllipsis ) );
@@ -190,7 +190,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 										flex: labelFlex,
 										margin: labelMargin,
 										...( maxWidth != null && {
-											maxWidth: typeof maxWidth === 'number' ? `${ maxWidth }px` : maxWidth,
+											maxWidth,
 											minWidth: 0,
 										} ),
 										...theme.legendLabelStyles,
