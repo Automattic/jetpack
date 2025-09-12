@@ -2010,6 +2010,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				shuffle( $working_options );
 			}
 
+			// Calculate row options count for CSS variable
+			$total_options_count = count( $options_data );
+			// Those values are halved on mobile via CSS media query
+			$max_images_per_row = $is_supersized ? 2 : 4;
+			$row_options_count  = min( $total_options_count, $max_images_per_row );
+
 			foreach ( $working_options as $option_index => $option ) {
 				$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
 				$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
@@ -2071,8 +2077,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 				}
 
-				$option_outer_styles = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
-				$option_outer_styles = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
+				$option_outer_styles  = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
+				$option_outer_styles .= "--row-options-count: {$row_options_count};";
+				$option_outer_styles  = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
 
 				$field .= "<div class='{$option_outer_classes}' {$option_outer_styles}>";
 
@@ -2082,13 +2089,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 				$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick'>";
 
+				$input_id = esc_attr( $option_id );
+
+				$context             = array(
+					'inputId' => $input_id,
+				);
+				$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
 				$field .= "<div class='jetpack-input-image-option__wrapper'>";
 				$field .= "<input
-				id='" . esc_attr( $option_id ) . "'
+				id='" . $input_id . "'
 				class='jetpack-input-image-option__input'
 				type='" . esc_attr( $input_type ) . "'
 				name='" . esc_attr( $input_name ) . "'
 				value='" . esc_attr( $option_value ) . "'
+				" . $interactivity_attrs . "
+				data-wp-init='callbacks.setImageOptionCheckColor'
+				data-wp-on--keydown='actions.onKeyDownImageOption'
 				data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
 				. $class
 				. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '

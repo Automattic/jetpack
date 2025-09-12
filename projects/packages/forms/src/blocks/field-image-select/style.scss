@@ -1,4 +1,21 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "../shared/styles/visually-hidden" as *;
+
+@mixin image-select-responsive-width {
+	width: calc(( 1 / var(--row-options-count) ) * 100% - var(--jetpack-field-image-options-gap) * ( (var(--row-options-count) - 1) / var(--row-options-count) ));
+
+	// Mobile adjustments for number of options per row
+	@media (max-width: #{ (gb.$break-mobile) }) {
+
+		&.is-supersized {
+			--row-options-count: 1 !important;
+		}
+
+		&:not(.is-supersized):not([style*="--row-options-count: 1"]) {
+			--row-options-count: 2 !important;
+		}
+	}
+}
 
 // Themes target the image block directly to fit their needs,
 // not expecting it to be inside an image select field.
@@ -30,11 +47,8 @@ figure.wp-block-image {
 	// Frontend-only wrapper element for background color change on hover.
 	.jetpack-input-image-option__outer {
 		display: flex;
-		width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-options-gap) * ( 3 / 4 ));
 
-		&.is-supersized {
-			width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
-		}
+		@include image-select-responsive-width;
 
 		.jetpack-input-image-option {
 			width: 100%;
@@ -48,9 +62,14 @@ figure.wp-block-image {
 		overflow: hidden;
 
 		&:not(.wp-block):hover,
+		&:not(.wp-block):focus-within,
 		&.is-checked {
 			backdrop-filter: contrast(0.9) saturate(1.2);
 			cursor: pointer;
+		}
+
+		&:not(.wp-block):focus-within {
+			outline: 2px solid var(--wp--preset--color--primary, var(--jetpack--contact-form--button-outline--background-color));
 		}
 
 		.jetpack-input-image-option__wrapper {
@@ -82,7 +101,7 @@ figure.wp-block-image {
 					border: solid currentColor;
 					border-width: 0 2px 2px 0;
 					transform: translate(-50%, -60%) rotate(40deg);
-					filter: invert(1) contrast(2) brightness(1.5);
+					color: var(--jetpack-input-image-option--check-color, #000);
 				}
 			}
 

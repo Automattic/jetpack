@@ -1,3 +1,5 @@
+@use "style" as *;
+
 // Editor-only styles.
 
 // There is a high specificity flex rule for form fields
@@ -14,11 +16,8 @@
 // the styles directly to the input image option.
 .jetpack-input-image-option {
 	display: flex;
-	width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-options-gap) * ( 3 / 4 ));
 
-	&.is-supersized {
-		width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
-	}
+	@include image-select-responsive-width;
 }
 
 div.wp-block.jetpack-input-image-option.jetpack-field {

@@ -977,7 +977,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					<div class="field-value" data-wp-text="context.submission.value"></div>
 					<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 						<template data-wp-each--image="context.submission.images">
-							<img class="field-image" data-wp-bind--src="context.image" />
+							<img class="field-image" data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image"/>
 						</template>
 					</div>
 				</div>
@@ -990,9 +990,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
 					<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
 
-				if ( $submission['images'] ) {
-					foreach ( $submission['images'] ?? array() as $image ) {
-						$html .= '<img data-wp-each-child class="field-image" data-wp-bind--src="context.image" src="' . $image . '" />';
+				if ( ! empty( $submission['images'] ) ) {
+					foreach ( $submission['images'] as $image ) {
+						$html .= '<img data-wp-each-child class="field-image" data-wp-bind--src="context.image" src="' . $image . '" data-wp-bind--hidden="!context.image" ' . ( empty( $image ) ? 'hidden' : '' ) . ' />';
 					}
 				} else {
 					$html .= '<template data-wp-each--image="context.submission.images"></template>';
@@ -2516,9 +2516,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
 			return array_map(
 				function ( $choice ) {
-					$src = $choice['image']['src'] ?? '';
-
-					return empty( $src ) ? 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' : $src;
+					return $choice['image']['src'] ?? '';
 				},
 				$value['choices']
 			);
