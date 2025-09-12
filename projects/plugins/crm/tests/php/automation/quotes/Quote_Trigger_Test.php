@@ -34,8 +34,8 @@ class Quote_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
 
-	public function set_up(): void {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		$this->automation_faker = Automation_Faker::instance();
 	}
 

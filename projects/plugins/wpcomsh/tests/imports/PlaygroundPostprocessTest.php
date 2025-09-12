@@ -68,8 +68,8 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	/**
 	 * Save old prefix.
 	 */
-	public function set_up(): void {
-		parent::set_up();
+	protected function setUp(): void {
+		parent::setUp();
 
 		global $wpdb;
 

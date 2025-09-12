@@ -23,8 +23,8 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	/**
 	 * Set up test environment before each test.
 	 */
-	public function set_up(): void {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		$this->handler = Protected_Owner_Error_Handler::get_instance();
 
 		// Clean up any existing error data

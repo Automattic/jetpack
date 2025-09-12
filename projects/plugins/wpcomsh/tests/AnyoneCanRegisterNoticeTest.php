@@ -16,8 +16,8 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	/**
 	 * Run setup steps before each test.
 	 */
-	public function set_up(): void {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Test only runs on single site.' );
 		}

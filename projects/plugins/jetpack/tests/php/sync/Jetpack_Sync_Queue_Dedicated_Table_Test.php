@@ -79,7 +79,7 @@ class Jetpack_Sync_Queue_Dedicated_Table_Test extends Jetpack_Sync_Queue_TestBas
 	}
 
 	public function test_migration_to_dedicated_table() {
-		parent::set_up();
+		parent::setUp();
 
 		$test_queue_id = 'mytestqueue';
 
@@ -134,7 +134,7 @@ class Jetpack_Sync_Queue_Dedicated_Table_Test extends Jetpack_Sync_Queue_TestBas
 	}
 
 	public function test_migration_to_options_table() {
-		parent::set_up();
+		parent::setUp();
 
 		$test_queue_id = 'mytestqueue';
 

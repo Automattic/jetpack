@@ -14,8 +14,8 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	/**
 	 * Set up test environment before each test.
 	 */
-	public function set_up(): void {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 
 		// Mock the AT_PRIVACY_MODEL constant to simulate private site
 		if ( ! defined( 'AT_PRIVACY_MODEL' ) ) {
