@@ -85,7 +85,7 @@ class Application extends SingleCommandApplication {
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		$output->getFormatter()->setStyle( 'warning', new OutputFormatterStyle( 'black', 'yellow' ) );
-		// @phan-suppress-next-line PhanUndeclaredMethod,PhanUndeclaredMethodInCallable -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
+		// @phan-suppress-next-line PhanUndeclaredMethod -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
 		$errout = is_callable( array( $output, 'getErrorOutput' ) ) ? $output->getErrorOutput() : $output;
 
 		$definition = $this->loadDefinition( $input, $errout );

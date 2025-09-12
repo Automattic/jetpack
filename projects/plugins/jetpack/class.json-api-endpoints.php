@@ -81,7 +81,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Maximum version of the api for which to serve this endpoint
 	 *
 	 * @var string
-	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -103,7 +102,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Version of the endpoint this endpoint is deprecated in favor of.
 	 *
 	 * @var string
-	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	protected $new_version = WPCOM_JSON_API__CURRENT_VERSION;
 

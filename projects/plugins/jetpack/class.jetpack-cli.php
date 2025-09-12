@@ -24,7 +24,6 @@ if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
 }
 
-// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**

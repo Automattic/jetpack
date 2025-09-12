@@ -724,7 +724,6 @@ function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
  * Avoid proxied v2 banner
  *
  * @return void
- * @phan-suppress PhanUndeclaredFunctionInCallable -- No point in stubbing `atomic_proxy_bar` just for remove_action().
  */
 function wpcomsh_avoid_proxied_v2_banner() {
 	$priority = has_action( 'wp_footer', 'atomic_proxy_bar' );
