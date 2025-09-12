@@ -43,7 +43,7 @@ const extractHostedButtonId = codeBody => {
 	// Extract ID before any query parameters or spaces
 	if ( ! buttonId ) {
 		const actionMatch = codeBody.match(
-			/action\s*=\s*["'](?:https?:)?\/\/(?:www\.)?paypal\.[a-z.]+\/ncp\/payment\/([A-Za-z0-9_-]+)\s*(?:\?[^"']*)?["']/i
+			/action\s*=\s*["'](?:https?:)?\/\/(?:www\.)?(?:sandbox\.)?paypal\.[a-z.]+\/ncp\/payment\/([A-Za-z0-9_-]+)\s*(?:\?[^"']*)?["']/i
 		);
 		if ( actionMatch ) {
 			buttonId = actionMatch[ 1 ];
