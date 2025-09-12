@@ -1134,7 +1134,17 @@ class Feedback {
 	 * @return array Parsed JSON data.
 	 */
 	private function parse_json_data( $field_content ) {
-		$chunks    = explode( "\nJSON_DATA", $field_content );
+		$chunks = explode( "\nJSON_DATA", $field_content );
+
+		if ( ! isset( $chunks[1] ) ) {
+			// Try with 'JSON_DATA' without the newline as a fallback.
+			$chunks = explode( 'JSON_DATA', $field_content );
+			if ( ! isset( $chunks[1] ) ) {
+				// If JSON_DATA is still not found, return an empty array.
+				return array();
+			}
+		}
+
 		$json_data = $chunks[1];
 
 		$all_values = json_decode( $json_data, true );
