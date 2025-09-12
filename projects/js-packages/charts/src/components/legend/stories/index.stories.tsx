@@ -474,19 +474,16 @@ export const TextOverflow: Story = {
 				? { width: '600px', border: '1px solid #ddd', padding: '20px' }
 				: { width: '350px', border: '1px solid #ddd', padding: '20px' };
 
-		// Convert maxWidth of 0 to undefined to disable the constraint
-		const adjustedMaxWidth = maxWidth === 0 ? undefined : maxWidth;
-
-		const titleText = adjustedMaxWidth
+		const titleText = maxWidth
 			? `Legend with ${
 					args.textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
-			  } (maxWidth: ${ adjustedMaxWidth }px)`
+			  } (maxWidth: ${ maxWidth })`
 			: 'Legend without maxWidth constraint';
 
 		return (
 			<div style={ containerStyle }>
 				<h4 style={ { marginBottom: '10px' } }>{ titleText }</h4>
-				<Legend { ...restProps } maxWidth={ adjustedMaxWidth } />
+				<Legend { ...restProps } maxWidth={ maxWidth } />
 			</div>
 		);
 	},
