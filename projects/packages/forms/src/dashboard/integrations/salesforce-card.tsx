@@ -49,7 +49,7 @@ const SalesforceDashboardCard = ( {
 	return (
 		<IntegrationCard
 			title={ data?.title }
-			description={ data?.title }
+			description={ data?.subtitle }
 			icon={ <SalesforceIcon width={ 32 } height={ 32 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
