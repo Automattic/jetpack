@@ -841,7 +841,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	private function get_integration( $slug ) {
 		$config = $this->get_supported_integrations()[ $slug ];
-		$type   = isset( $config['type'] ) ? $config['type'] : null;
+		$type   = $config['type'] ?? null;
 
 		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
 
