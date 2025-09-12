@@ -334,9 +334,9 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	legendAlignment?: 'start' | 'center' | 'end';
 	/**
 	 * Maximum width for legend items. When set, text overflow behavior is controlled by legendTextOverflow.
-	 * Can be a number (pixels) or string (e.g. '200px', '50%')
+	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
 	 */
-	legendMaxWidth?: number | string;
+	legendMaxWidth?: string;
 	/**
 	 * Controls how text behaves when it exceeds legendMaxWidth.
 	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
