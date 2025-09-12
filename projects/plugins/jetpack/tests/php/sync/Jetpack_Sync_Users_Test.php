@@ -473,6 +473,17 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
 	}
 
+	public function test_does_not_sync_user_authentication_attempts_with_empty_user() {
+		add_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_bruteprotect_api' ), 10, 3 );
+		do_action( 'wp_login', '', new WP_User() );
+		remove_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_bruteprotect_api' ) );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_wp_login' );
+		$this->assertFalse( $event );
+	}
+
 	public function test_syncs_user_logout_event() {
 		$user_id = self::factory()->user->create( array( 'user_login' => 'foobar' ) );
 
