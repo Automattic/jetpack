@@ -10,14 +10,14 @@ require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 class Jetpack_Sync_Integration_Test extends Jetpack_Sync_TestBase {
 
 	public function test_sending_empties_queue() {
-		static::factory()->post->create();
+		self::factory()->post->create();
 		$this->assertNotEmpty( $this->sender->get_sync_queue()->get_all() );
 		$this->sender->do_sync();
 		$this->assertEmpty( $this->sender->get_sync_queue()->get_all() );
 	}
 
 	public function test_sends_publish_post_action() {
-		$post_id = static::factory()->post->create();
+		$post_id = self::factory()->post->create();
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertEquals( 'jetpack_published_post', $event->action );
@@ -189,7 +189,7 @@ class Jetpack_Sync_Integration_Test extends Jetpack_Sync_TestBase {
 
 		$this->server_event_storage->reset();
 
-		static::factory()->post->create_many( 2 );
+		self::factory()->post->create_many( 2 );
 		$this->sender->do_sync();
 
 		$this->assertEmpty( $this->server_event_storage->get_all_events() );
@@ -203,7 +203,7 @@ class Jetpack_Sync_Integration_Test extends Jetpack_Sync_TestBase {
 
 		$this->server_event_storage->reset();
 
-		static::factory()->post->create_many( 2 );
+		self::factory()->post->create_many( 2 );
 		$this->sender->do_sync();
 
 		$this->assertNotEmpty( $this->server_event_storage->get_all_events() );

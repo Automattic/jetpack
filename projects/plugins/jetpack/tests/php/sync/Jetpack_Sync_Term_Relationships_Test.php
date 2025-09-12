@@ -29,7 +29,7 @@ class Jetpack_Sync_Term_Relationships_Test extends Jetpack_Sync_TestBase {
 		$this->sender->reset_data();
 
 		$this->taxonomy    = 'category';
-		$this->post_id     = static::factory()->post->create();
+		$this->post_id     = self::factory()->post->create();
 		$term              = wp_insert_term( 'dog', $this->taxonomy );
 		$this->term_object = get_term_by( 'id', $term['term_id'], $this->taxonomy );
 

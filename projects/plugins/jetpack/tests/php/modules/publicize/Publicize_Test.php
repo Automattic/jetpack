@@ -80,10 +80,10 @@ class Publicize_Test extends WP_UnitTestCase {
 		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
-		$post_id    = static::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$post_id    = self::factory()->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
-		$this->user_id = static::factory()->user->create();
+		$this->user_id = self::factory()->user->create();
 		wp_set_current_user( $this->user_id );
 
 		$social_connections = array(

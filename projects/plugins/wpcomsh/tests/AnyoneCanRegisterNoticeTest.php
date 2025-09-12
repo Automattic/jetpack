@@ -39,7 +39,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	#[DataProvider( 'role_provider_show' )]
 	public function test_anyone_register_warning_added_for_administrator( $role ) {
 		add_role( 'shop_manager', 'Shop Manager' ); // adding here because it's not a default role; added by WooCommerce generally
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		update_option( 'users_can_register', true );
 		update_option( 'default_role', $role );
 		$output = get_echo( 'wpcomsh_anyone_register_warning' );
@@ -68,7 +68,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'role_provider_hide' )]
 	public function test_anyone_register_warning_displays_for_specific_roles( $role ) {
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		update_option( 'users_can_register', true );
 		update_option( 'default_role', $role );
 		$output = get_echo( 'wpcomsh_anyone_register_warning' );
@@ -92,7 +92,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * Test do not show warning for administrators when users_can_register option is inactive.
 	 */
 	public function test_anyone_register_warning_not_added_for_administrator_when_option_inactive() {
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		update_option( 'users_can_register', false );
 		$output = get_echo( 'wpcomsh_anyone_register_warning' );
 		$this->assertEmpty( $output );
@@ -102,7 +102,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * Test do not show warning for administrators when users_can_register option is active and WPCOMSH_ACR_DISMISSED_METADATA exists.
 	 */
 	public function test_anyone_register_warning_not_added_for_administrator_when_metadata_exists() {
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		update_option( 'users_can_register', true );
 		update_user_meta( get_current_user_id(), WPCOMSH_ACR_DISMISSED_METADATA, '1' );
 		$output = get_echo( 'wpcomsh_anyone_register_warning' );
@@ -113,7 +113,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * Test do not show warning for non-administrators when users_can_register is active
 	 */
 	public function test_anyone_register_warning_not_added_for_non_administrator_when_option_active() {
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		update_option( 'users_can_register', true );
 		$output = get_echo( 'wpcomsh_anyone_register_warning' );
 		$this->assertEmpty( $output );
@@ -123,7 +123,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * Test if metadata is added when dismissal action occurs.
 	 */
 	public function test_ajax_dismiss_notice() {
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		// Simulate the AJAX request
 		$_SERVER['REQUEST_METHOD'] = 'POST';
 		$_POST['action']           = 'anyone_can_register_dismiss_notice';
@@ -140,7 +140,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * Test if the dismissal fails when there's an invalid nonce.
 	 */
 	public function test_ajax_dismiss_notice_invalid_nonce() {
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		// Simulate the AJAX request with an invalid nonce
 		$_SERVER['REQUEST_METHOD'] = 'POST';
 		$_POST['action']           = 'anyone_can_register_dismiss_notice';
@@ -157,7 +157,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * Test if the metadata is cleared when users_can_register option is disabled.
 	 */
 	public function test_metadata_cleared_when_option_disabled() {
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		update_option( 'users_can_register', true );
 		update_user_meta( get_current_user_id(), WPCOMSH_ACR_DISMISSED_METADATA, '1' );
 		update_option( 'users_can_register', false );
@@ -171,7 +171,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 		global $wpdb;
 		$metakey = WPCOMSH_ACR_DISMISSED_METADATA;
 		update_option( 'users_can_register', true );
-		static::factory()->user->create_many( 2, array( 'role' => 'administrator' ) );
+		self::factory()->user->create_many( 2, array( 'role' => 'administrator' ) );
 		$admin_ids = get_users(
 			array(
 				'role'   => 'administrator',
@@ -192,7 +192,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 		global $wpdb;
 		$metakey = WPCOMSH_ACR_DISMISSED_METADATA;
 		update_option( 'users_can_register', true );
-		static::factory()->user->create_many( 25, array( 'role' => 'administrator' ) );
+		self::factory()->user->create_many( 25, array( 'role' => 'administrator' ) );
 		$admin_ids = get_users(
 			array(
 				'role'   => 'administrator',
@@ -210,7 +210,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * Test if dismissal metadata for other notices is changed when users_can_register option is disabled.
 	 */
 	public function test_metadata_cleared_when_option_disabled_other_notices() {
-		wp_set_current_user( static::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		update_option( 'users_can_register', true );
 		update_user_meta( get_current_user_id(), 'wpcomsh_expired_plan_dismissed_notice', '1' );
 		update_option( 'users_can_register', false );

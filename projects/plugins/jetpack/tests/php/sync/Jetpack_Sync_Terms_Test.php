@@ -36,7 +36,7 @@ class Jetpack_Sync_Terms_Test extends Jetpack_Sync_TestBase {
 		);
 
 		// create a post
-		$this->post_id     = static::factory()->post->create();
+		$this->post_id     = self::factory()->post->create();
 		$this->term_object = wp_insert_term( 'dog', $this->taxonomy );
 
 		$this->sender->do_sync();
@@ -165,7 +165,7 @@ class Jetpack_Sync_Terms_Test extends Jetpack_Sync_TestBase {
 	public function test_filters_out_blacklisted_taxonomies() {
 		register_taxonomy( 'bloginfo_rss', 'post' );
 
-		$term_id = static::factory()->term->create( array( 'taxonomy' => 'bloginfo_rss' ) );
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'bloginfo_rss' ) );
 
 		$this->sender->do_sync();
 
@@ -175,7 +175,7 @@ class Jetpack_Sync_Terms_Test extends Jetpack_Sync_TestBase {
 	public function test_taxonomies_blacklist_can_be_appended_in_settings() {
 		register_taxonomy( 'filter_me', 'post' );
 
-		$term_id = static::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
 
 		$this->sender->do_sync();
 
@@ -184,7 +184,7 @@ class Jetpack_Sync_Terms_Test extends Jetpack_Sync_TestBase {
 
 		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
 
-		$term_id = static::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
 
 		$this->sender->do_sync();
 
@@ -233,7 +233,7 @@ class Jetpack_Sync_Terms_Test extends Jetpack_Sync_TestBase {
 
 		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
 
-		$term_id = static::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
 
 		$this->assertFalse( $term_sync_module->get_object_by_id( 'term', $term_id ) );
 	}
@@ -255,7 +255,7 @@ class Jetpack_Sync_Terms_Test extends Jetpack_Sync_TestBase {
 
 		register_taxonomy( 'filter_me', 'post' );
 
-		$term_id = static::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
 
 		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
 

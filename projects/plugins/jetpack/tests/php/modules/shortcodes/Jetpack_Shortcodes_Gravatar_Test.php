@@ -53,7 +53,7 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 	public function test_shortcodes_gravatar_profile() {
 		$email   = 'user@example.org';
 		$content = "[gravatar_profile who='$email']";
-		$user    = static::factory()->user->create_and_get(
+		$user    = self::factory()->user->create_and_get(
 			array(
 				'user_email' => $email,
 			)
@@ -94,7 +94,7 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_gravatar_user_id() {
 		$email   = 'user@example.org';
-		$user    = static::factory()->user->create_and_get( array( 'user_email' => 'user@example.org' ) );
+		$user    = self::factory()->user->create_and_get( array( 'user_email' => 'user@example.org' ) );
 		$content = "[gravatar_profile who='$user->ID']";
 		wp_set_current_user( $user->ID );
 
@@ -124,7 +124,7 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_gravatar_no_profile() {
-		$user    = static::factory()->user->create_and_get( array( 'user_email' => 'user@example.org' ) );
+		$user    = self::factory()->user->create_and_get( array( 'user_email' => 'user@example.org' ) );
 		$content = "[gravatar_profile who='$user->ID']";
 		wp_set_current_user( $user->ID );
 

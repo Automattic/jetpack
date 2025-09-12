@@ -21,7 +21,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		parent::set_up();
 
 		// create a user
-		$this->user_id = static::factory()->user->create();
+		$this->user_id = self::factory()->user->create();
 		$this->sender->do_sync();
 	}
 
@@ -177,7 +177,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_delete_user_reassign_is_synced() {
-		$reassign = static::factory()->user->create();
+		$reassign = self::factory()->user->create();
 		wp_delete_user( $this->user_id, $reassign );
 		$this->sender->do_sync();
 
@@ -392,7 +392,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', $this->user_id );
 		$wpdb->suppress_errors( $suppress );
 
-		$other_blog_user_id = static::factory()->user->create();
+		$other_blog_user_id = self::factory()->user->create();
 		add_user_to_blog( $other_blog_id, $other_blog_user_id, 'administrator' );
 		remove_user_from_blog( $other_blog_user_id, $original_blog_id );
 
@@ -417,7 +417,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		// create a user from within that blog (won't be synced)
 		switch_to_blog( $other_blog_id );
-		$mu_blog_user_id = static::factory()->user->create();
+		$mu_blog_user_id = self::factory()->user->create();
 		restore_current_blog();
 
 		$this->sender->do_sync();
@@ -455,7 +455,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_syncs_user_authentication_attempts() {
-		$user_id = static::factory()->user->create( array( 'user_login' => 'foobar' ) );
+		$user_id = self::factory()->user->create( array( 'user_login' => 'foobar' ) );
 
 		// TODO: ideally we would do wp_signon to trigger this event, but it tries to send headers and
 		// causes an error.
@@ -485,7 +485,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_syncs_user_logout_event() {
-		$user_id = static::factory()->user->create( array( 'user_login' => 'foobar' ) );
+		$user_id = self::factory()->user->create( array( 'user_login' => 'foobar' ) );
 
 		// TODO: ideally we would do wp_logout to trigger this event, but it tries to send headers and
 		// causes an error.
@@ -528,8 +528,8 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 	public function test_maybe_demote_master_user_method() {
 		// set up
-		$current_master_id = static::factory()->user->create( array( 'user_login' => 'current_master' ) );
-		$new_master_id     = static::factory()->user->create( array( 'user_login' => 'new_master' ) );
+		$current_master_id = self::factory()->user->create( array( 'user_login' => 'current_master' ) );
+		$new_master_id     = self::factory()->user->create( array( 'user_login' => 'new_master' ) );
 
 		$current_master = get_user_by( 'id', $current_master_id );
 		$current_master->set_role( 'author' );
@@ -696,7 +696,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		add_user_to_blog( $blog_id, $this->user_id, 'administrator' );
 
-		$other_user_id = static::factory()->user->create();
+		$other_user_id = self::factory()->user->create();
 		add_user_to_blog( $blog_id, $other_user_id, 'administrator' );
 
 		$this->server_event_storage->reset();
@@ -730,7 +730,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 	public function test_no_save_user_sync_action_when_creating_user() {
 		$this->server_event_storage->reset();
-		static::factory()->user->create();
+		self::factory()->user->create();
 
 		$this->sender->do_sync();
 

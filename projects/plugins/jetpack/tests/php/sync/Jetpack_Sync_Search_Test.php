@@ -66,7 +66,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 		parent::set_up();
 
 		// create a post.
-		$this->post_id = static::factory()->post->create();
+		$this->post_id = self::factory()->post->create();
 		$this->sender->do_sync();
 	}
 

@@ -52,13 +52,13 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test extends Jetpack_REST_Te
 	public function set_up() {
 		parent::set_up();
 
-		static::$user_id_editor     = static::factory()->user->create( array( 'role' => 'editor' ) );
-		static::$user_id_subscriber = static::factory()->user->create( array( 'role' => 'subscriber' ) );
+		static::$user_id_editor     = self::factory()->user->create( array( 'role' => 'editor' ) );
+		static::$user_id_subscriber = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 
 		static::$path = '/wpcom/v2/send-email-preview';
 
 		wp_set_current_user( static::$user_id_editor );
-		static::$post_id = static::factory()->post->create(
+		static::$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'published',
 				'post_author' => (string) static::$user_id_editor,

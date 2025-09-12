@@ -216,11 +216,11 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 			'height' => 250,
 		);
 
-		$post_id = static::factory()->post->create();
+		$post_id = self::factory()->post->create();
 
 		$image_urls = array();
 		for ( $i = 1; $i <= $number_of_images; $i++ ) {
-			$attachment_id = static::factory()->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				'image' . $i . '.jpg',
 				$post_id,
 				array(
@@ -242,7 +242,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 			);
 		}
 
-		$second_post_id = static::factory()->post->create(
+		$second_post_id = self::factory()->post->create(
 			array( 'post_content' => $post_html )
 		);
 

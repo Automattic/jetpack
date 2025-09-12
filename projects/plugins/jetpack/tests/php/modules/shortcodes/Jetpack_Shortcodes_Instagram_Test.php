@@ -211,7 +211,7 @@ BODY;
 	public function test_instagram_oembed_fetch_url( $original, $expected ) {
 		global $post;
 
-		$post = static::factory()->post->create_and_get( array( 'post_content' => $original ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => $original ) );
 
 		setup_postdata( $post );
 		ob_start();

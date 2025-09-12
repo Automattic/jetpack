@@ -26,8 +26,8 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->post_id     = static::factory()->post->create();
-		$this->comment_ids = static::factory()->comment->create_post_comments( $this->post_id );
+		$this->post_id     = self::factory()->post->create();
+		$this->comment_ids = self::factory()->comment->create_post_comments( $this->post_id );
 		$this->comment     = get_comment( $this->comment_ids[0] );
 
 		$this->sender->do_sync();
@@ -616,8 +616,8 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 		);
 		register_post_type( 'snitch', $args );
 
-		$post_id = static::factory()->post->create( array( 'post_type' => 'snitch' ) );
-		static::factory()->comment->create_post_comments( $post_id );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
+		self::factory()->comment->create_post_comments( $post_id );
 
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
@@ -685,7 +685,7 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function test_filter_objects_and_metadata_by_size_returns_all_comments_and_metadata() {
 
-		$comment_ids  = static::factory()->comment->create_many( 3, array( 'comment_post_ID' => $this->post_id ) );
+		$comment_ids  = self::factory()->comment->create_many( 3, array( 'comment_post_ID' => $this->post_id ) );
 		$comment_id_1 = $comment_ids[0];
 		$comment_id_2 = $comment_ids[1];
 		$comment_id_3 = $comment_ids[2];
@@ -749,8 +749,8 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function test_filter_objects_and_metadata_by_size_returns_only_one_comment() {
 
-		$comment_id_1 = static::factory()->comment->create( array( 'comment_post_ID' => $this->post_id ) );
-		$comment_id_2 = static::factory()->comment->create( array( 'comment_post_ID' => $this->post_id ) );
+		$comment_id_1 = self::factory()->comment->create( array( 'comment_post_ID' => $this->post_id ) );
+		$comment_id_2 = self::factory()->comment->create( array( 'comment_post_ID' => $this->post_id ) );
 
 		$comment_1 = get_comment( $comment_id_1 );
 		$comment_2 = get_comment( $comment_id_2 );

@@ -86,7 +86,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 * @return WP_User
 	 */
 	protected function create_and_get_user( $role = '' ) {
-		return static::factory()->user->create_and_get(
+		return self::factory()->user->create_and_get(
 			array(
 				'role' => empty( $role ) ? 'subscriber' : $role,
 			)

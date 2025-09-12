@@ -226,10 +226,10 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$this->allowed_tables = $table_configurations;
 		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'set_allowed_tables' ) );
 
-		$user_id = static::factory()->user->create();
+		$user_id = self::factory()->user->create();
 
 		// create a post.
-		$post_id = static::factory()->post->create( array( 'post_author' => $user_id ) );
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 		get_post( $post_id );
 
 		// Perform Checksum.
@@ -325,10 +325,10 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$this->allowed_tables = $table_configurations;
 		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'set_allowed_tables' ) );
 
-		$user_id = static::factory()->user->create();
+		$user_id = self::factory()->user->create();
 
 		// create a post, needed to allow for field checks.
-		$post_id = static::factory()->post->create( array( 'post_author' => $user_id ) );
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 		get_post( $post_id );
 
 		// Calculate checksum.
@@ -410,14 +410,14 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	public function test_get_range_edges_posts( $num_posts, $disallow_index, $expected_count ) {
 
 		// Generate Test Content.
-		$user_id            = static::factory()->user->create();
+		$user_id            = self::factory()->user->create();
 		$min_range_expected = null;
 		$max_range_expected = null;
 
 		for ( $i = 1; $i <= $num_posts; $i++ ) {
 			if ( $disallow_index === $i ) {
 				// create a disallowed post_type post.
-				$post_id = static::factory()->post->create(
+				$post_id = self::factory()->post->create(
 					array(
 						'post_author' => $user_id,
 						'post_type'   => 'snitch',
@@ -425,7 +425,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 				);
 			} else {
 				// create an allowed post_type post.
-				$post_id = static::factory()->post->create( array( 'post_author' => $user_id ) );
+				$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 				if ( $min_range_expected === null ) {
 					$min_range_expected = $post_id; // set initial post_id.
 				}
@@ -544,12 +544,12 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	public function test_get_range_edges_posts_args( $num_posts, $expected_item_count, $range_from_offset, $range_to_offset, $limit ) {
 
 		// Generate Test Content.
-		$user_id            = static::factory()->user->create();
+		$user_id            = self::factory()->user->create();
 		$min_range_expected = null;
 		$max_range_expected = null;
 
 		for ( $i = 1; $i <= $num_posts; $i++ ) {
-			$post_id = static::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 			if ( $min_range_expected === null ) {
 				$min_range_expected = $post_id; // set initial post_id.
 			}
@@ -587,13 +587,13 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	public function test_calculate_checksum() {
 
 		// Generate Test Content.
-		$user_id            = static::factory()->user->create();
+		$user_id            = self::factory()->user->create();
 		$min_range_expected = null;
 		$max_range_expected = null;
 
 		for ( $i = 1; $i <= 10; $i++ ) {
 			// create an allowed post_type post.
-			$post_id = static::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 			if ( $min_range_expected === null ) {
 				$min_range_expected = $post_id; // set initial post_id.
 			}
