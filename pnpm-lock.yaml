@@ -243,10 +243,11 @@ importers:
         version: 5.9.2
 
   projects/js-packages/analytics:
-    devDependencies:
+    dependencies:
       debug:
         specifier: 4.4.1
         version: 4.4.1
+    devDependencies:
       jest:
         specifier: 30.0.4
         version: 30.0.4
