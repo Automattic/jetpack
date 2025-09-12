@@ -21,8 +21,10 @@
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage"
 	},
+	"dependencies": {
+		"debug": "4.4.1"
+	},
 	"devDependencies": {
-		"debug": "4.4.1",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4"
 	}
