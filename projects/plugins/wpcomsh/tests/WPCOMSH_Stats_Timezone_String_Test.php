@@ -21,11 +21,11 @@ class WPCOMSH_Stats_Timezone_String_Test extends WP_UnitTestCase {
 		$this->original_gmt_offset      = get_option( 'gmt_offset' );
 	}
 
-	public function tear_down(): void {
+	public function tearDown(): void {
 		// Restore original options
 		update_option( 'timezone_string', $this->original_timezone_string );
 		update_option( 'gmt_offset', $this->original_gmt_offset );
-		parent::tear_down();
+		parent::tearDown();
 	}
 
 	/** Test with a named timezone (e.g., "America/New_York") */

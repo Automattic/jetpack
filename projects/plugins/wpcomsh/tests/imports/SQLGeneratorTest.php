@@ -34,12 +34,12 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function tear_down(): void {
+	public function tearDown(): void {
 		if ( $this->generator ) {
 			unset( $this->generator );
 		}
 
-		parent::tear_down();
+		parent::tearDown();
 	}
 
 	/**

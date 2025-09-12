@@ -40,7 +40,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function tear_down(): void {
+	public function tearDown(): void {
 		if ( file_exists( $this->tmp_db_path ) ) {
 			// Delete the database.
 			wp_delete_file( $this->tmp_db_path );
@@ -48,7 +48,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			$this->tmp_db_path = '';
 		}
 
-		parent::tear_down();
+		parent::tearDown();
 	}
 
 	/**
