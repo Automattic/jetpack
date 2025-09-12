@@ -38,7 +38,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action(
 			'admin_menu',
 			function () {
-				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Not worth bringing in a stub just for a callback in a remove_action call.
 				remove_action( 'admin_menu', 'gutenberg_menu', 9 );
 			},
 			0
