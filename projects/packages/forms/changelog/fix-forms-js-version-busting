@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: update the version number every time we build the package
