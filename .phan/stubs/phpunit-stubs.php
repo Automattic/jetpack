@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.8
+ * Stubs automatically generated from PHPUnit 12.3.10
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -10062,7 +10062,7 @@ class Exception extends \RuntimeException implements \PHPUnit\Exception
     public function __construct(string $message = '', int|string $code = 0, ?\Throwable $previous = null)
     {
     }
-    public function __sleep(): array
+    public function __serialize(): array
     {
     }
     /**
@@ -11053,7 +11053,7 @@ final readonly class ChildProcessResultProcessor
  */
 interface IsolatedTestRunner
 {
-    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void;
+    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void;
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -11062,7 +11062,7 @@ interface IsolatedTestRunner
  */
 final class IsolatedTestRunnerRegistry
 {
-    public static function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void
+    public static function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
     {
     }
     public static function set(\PHPUnit\Framework\IsolatedTestRunner $runner): void
@@ -11084,7 +11084,7 @@ final class SeparateProcessTestRunner implements \PHPUnit\Framework\IsolatedTest
      * @throws \PHPUnit\Event\NoPreviousThrowableException
      * @throws ProcessIsolationException
      */
-    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void
+    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
     {
     }
 }
@@ -19213,6 +19213,9 @@ final readonly class Requirements
     public function requirementsNotSatisfiedFor(string $className, string $methodName): array
     {
     }
+    public function requiresXdebug(string $className, string $methodName): bool
+    {
+    }
 }
 namespace PHPUnit\Metadata\Parser;
 
@@ -19441,10 +19444,10 @@ final class ErrorHandler
     /**
      * @throws \PHPUnit\Event\Code\NoTestCaseObjectOnCallStackException
      */
-    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): false
     {
     }
-    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): true
     {
     }
     public function registerDeprecationHandler(): void
@@ -27970,7 +27973,7 @@ final readonly class Job
      * @param list<non-empty-string> $arguments
      * @param ?non-empty-string      $input
      */
-    public function __construct(string $code, array $phpSettings = [], array $environmentVariables = [], array $arguments = [], ?string $input = null, bool $redirectErrors = false)
+    public function __construct(string $code, array $phpSettings = [], array $environmentVariables = [], array $arguments = [], ?string $input = null, bool $redirectErrors = false, bool $requiresXdebug = false)
     {
     }
     /**
@@ -28024,6 +28027,9 @@ final readonly class Job
     {
     }
     public function redirectErrors(): bool
+    {
+    }
+    public function requiresXdebug(): bool
     {
     }
 }
