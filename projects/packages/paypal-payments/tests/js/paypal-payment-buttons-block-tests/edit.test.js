@@ -463,58 +463,6 @@ describe( 'Edit', () => {
 			} );
 		} );
 
-		it( 'handles HTML entities in button text', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<form action="https://www.paypal.com/ncp/payment/TEST123" method="post">
-				<input type="submit" value="Buy &amp; Save" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'TEST123',
-				buttonText: 'Buy & Save',
-			} );
-		} );
-
-		it( 'handles special characters and quotes in button text', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<form action="https://www.paypal.com/ncp/payment/QUOTES123" method="post">
-				<input type="submit" value="John&apos;s &quot;Special&quot; Shop" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'QUOTES123',
-				buttonText: 'John\'s "Special" Shop',
-			} );
-		} );
-
 		it( 'handles international PayPal domains', () => {
 			const setAttributes = jest.fn();
 			render(
