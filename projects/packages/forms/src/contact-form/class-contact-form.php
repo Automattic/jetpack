@@ -324,7 +324,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private static function get_secret() {
 		$token          = ( new Tokens() )->get_access_token();
-		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION );
+		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), Util::get_version() );
 		if ( ! isset( $token->secret ) ) {
 			return $default_secret;
 		}
@@ -576,7 +576,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'jp-forms-view',
 			plugins_url( 'dist/modules/form/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
-			\JETPACK__VERSION
+			Util::get_version()
 		);
 
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
@@ -2303,7 +2303,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$event = new Jetpack_Tracks_Event(
 			(object) array(
 				'_en' => 'jetpack_forms_email_open',
-				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
+				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), Util::get_version() ),
 				'_ut' => 'anon',
 			)
 		);

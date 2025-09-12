@@ -36,7 +36,7 @@ class Form_View {
 			__FILE__,
 			array(
 				'dependencies' => array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-draggable' ),
-				'version'      => \JETPACK__VERSION,
+				'version'      => Util::get_version(),
 			)
 		);
 

@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -1058,33 +1057,33 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-init="callbacks.initializePhoneFieldCustomComboBox"
 					data-wp-on-document--click="actions.phoneComboboxDocumentClickHandler">
 					<div class="jetpack-custom-combobox">
-						
-						<button 
+
+						<button
 							class="jetpack-combobox-trigger"
 							type="button"
 							data-wp-on--click="actions.phoneComboboxToggle"
 							data-wp-bind--aria-expanded="context.comboboxOpen">
-							<span 
+							<span
 								class="jetpack-combobox-selected"
 								data-wp-text="context.selectedCountry.flag"></span>
-							<span 
+							<span
 								class="jetpack-combobox-trigger-arrow"
 								data-wp-class--is-open="context.comboboxOpen">
 								<svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 								</svg>
 							</span>
-							<span 
+							<span
 								class="jetpack-combobox-selected"
 								data-wp-text="context.selectedCountry.value"></span>
 						</button>
-						<div 
+						<div
 							class="jetpack-combobox-dropdown <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
 							style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
 							data-wp-bind--hidden="!context.comboboxOpen">
 							<input
-								class="jetpack-combobox-search" 
-								type="text" 
+								class="jetpack-combobox-search"
+								type="text"
 								placeholder="<?php echo esc_attr__( 'Search countries...', 'jetpack-forms' ); ?>"
 								data-wp-on--input="actions.phoneComboboxInputHandler"
 								data-wp-on--keydown="actions.phoneComboboxKeydownHandler">
@@ -1092,7 +1091,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								<template
 									data-wp-each--filtered="context.filteredCountries"
 									data-wp-each-key="context.filtered.code">
-									<div 
+									<div
 										class="jetpack-combobox-option"
 										data-wp-key="context.filtered.code"
 										data-wp-class--jetpack-combobox-option-selected="context.filtered.selected"
@@ -1598,7 +1597,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_file_field_assets() {
-		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		$version = Util::get_version();
 
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
@@ -1868,7 +1867,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			array(
 				'enqueue'      => true,
 				'dependencies' => array(),
-				'version'      => Constants::get_constant( 'JETPACK__VERSION' ),
+				'version'      => Util::get_version(),
 			)
 		);
 
@@ -1965,7 +1964,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		wp_enqueue_style( 'jetpack-form-field-image-select-style', plugins_url( '../../dist/blocks/field-image-select/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+		wp_enqueue_style( 'jetpack-form-field-image-select-style', plugins_url( '../../dist/blocks/field-image-select/style.css', __FILE__ ), array(), Util::get_version() );
 
 		$is_multiple       = $this->get_attribute( 'ismultiple' );
 		$show_labels       = $this->get_attribute( 'showlabels' );
@@ -2668,7 +2667,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		// Enqueue stylesheet for rating field.
-		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Util::get_version() );
 
 		// Read block attributes needed for rendering.
 		$max_attr   = $this->get_attribute( 'max' );
@@ -2883,7 +2882,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_slider_field_assets() {
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		$version = Util::get_version();
 
 		\wp_enqueue_style(
 			'jetpack-form-slider-field',
@@ -3159,11 +3158,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_phone_field_assets() {
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
-
-		// TODO: remove this manual cache busting
-		// SEE: p1757517146878719-slack-C01U2KGS2PQ
-		$version .= '-jetpack-combobox-v1';
+		$version = Util::get_version();
 
 		// combobox styles
 		\wp_enqueue_style(

@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\Dashboard;
 
+use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
-use JETPACK__VERSION;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -88,7 +88,7 @@ class Dashboard_View_Switch {
 			'jetpack-forms-dashboard-switch',
 			false,
 			array(),
-			JETPACK__VERSION
+			Util::get_version()
 		);
 		wp_enqueue_style( 'jetpack-forms-dashboard-switch' );
 

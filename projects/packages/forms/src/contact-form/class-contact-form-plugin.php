@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
@@ -298,7 +297,7 @@ class Contact_Form_Plugin {
 		 *  }
 		 *  add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
+		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), Util::get_version() );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
@@ -756,16 +755,11 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_form_step( $atts, $content ) {
 		self::$step_count = 1 + self::$step_count;
 
-		$version = Constants::get_constant( 'JETPACK__VERSION' );
-		if ( empty( $version ) ) {
-			$version = '0.1';
-		}
-
 		\wp_enqueue_script_module(
 			'jetpack-form-step',
 			plugins_url( '../../dist/modules/form-step/view.js', __FILE__ ),
 			array( '@wordpress/interactivity' ),
-			$version
+			Util::get_version()
 		);
 
 		// Process content for marker classes and add interactivity
@@ -811,11 +805,8 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the number field.
 	 */
 	public static function gutenblock_render_form_step_navigation( $atts, $content ) {
+		$version = Util::get_version();
 
-		$version = Constants::get_constant( 'JETPACK__VERSION' );
-		if ( empty( $version ) ) {
-			$version = '0.1';
-		}
 		\wp_enqueue_script_module(
 			'jetpack-form-step-navigation',
 			plugins_url( '../../dist/modules/form-step-navigation/view.js', __FILE__ ),
@@ -893,17 +884,13 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the progress indicator.
 	 */
 	public static function gutenblock_render_form_progress_indicator( $attributes ) {
-		$version = Constants::get_constant( 'JETPACK__VERSION' );
-		if ( empty( $version ) ) {
-			$version = '0.1';
-		}
 
 		// Get step count from Contact_Form_Block
 		$max_steps = Contact_Form_Block::get_form_step_count();
 
 		$style_handle = 'jetpack-form-progress-indicator-style';
 		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
-			wp_enqueue_style( $style_handle, plugins_url( 'dist/blocks/form-progress-indicator/style.css', dirname( __DIR__ ) ), array(), $version );
+			wp_enqueue_style( $style_handle, plugins_url( 'dist/blocks/form-progress-indicator/style.css', dirname( __DIR__ ) ), array(), Util::get_version() );
 		}
 
 		$script_handle = 'jetpack-form-progress-indicator';
@@ -911,7 +898,7 @@ class Contact_Form_Plugin {
 			$script_handle,
 			plugins_url( 'dist/modules/form-progress-indicator/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
-			$version
+			Util::get_version()
 		);
 
 		$variant       = isset( $attributes['variant'] ) ? $attributes['variant'] : 'line';

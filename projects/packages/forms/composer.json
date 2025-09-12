@@ -42,10 +42,15 @@
 		"test-js": [
 			"pnpm run test"
 		],
+		"update-version": [
+			"@php tools/update-version.php"
+		],
 		"build-production": [
+			"@update-version",
 			"pnpm run build-production"
 		],
 		"build-development": [
+			"@update-version",
 			"pnpm run build"
 		],
 		"watch": [

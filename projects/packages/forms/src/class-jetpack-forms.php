@@ -16,6 +16,8 @@ class Jetpack_Forms {
 
 	const PACKAGE_VERSION = '6.3.0';
 
+	const PACKAGE_VERSION_AND_TIMESTAMP = '6.3.0-1757721161';
+
 	/**
 	 * Load the contact form module.
 	 */

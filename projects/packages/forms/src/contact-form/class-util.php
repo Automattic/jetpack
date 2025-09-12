@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Jetpack_Forms;
+
 /**
  * This class serves as a container for what previously were standalone grunion functions.
  * In the long term we should aim to move things to other classes and gradually get rid of this rather than adding more.
@@ -36,6 +38,15 @@ class Util {
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init', 9 );
 		add_action( 'grunion_scheduled_delete', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' );
 		add_action( 'grunion_pre_message_sent', '\Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
+	}
+
+	/**
+	 * Returns the version of the contact form.
+	 *
+	 * @return string The version of the contact form.
+	 */
+	public static function get_version() {
+		return Jetpack_Forms::PACKAGE_VERSION_AND_TIMESTAMP;
 	}
 
 	/**
