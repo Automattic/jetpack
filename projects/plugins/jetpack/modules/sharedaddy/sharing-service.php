@@ -1111,7 +1111,7 @@ function sharing_display( $text = '', $echo = false ) {
 			$dir = get_option( 'text_direction' );
 
 			// Wrapper.
-			$sharing_content .= '<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-' . $global['button_style'] . ' sd-sharing">';
+			$sharing_content .= '<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-' . ( $global['button_style'] ?? 'icon-text' ) . ' sd-sharing">';
 			if ( '' !== $global['sharing_label'] ) {
 				$sharing_content .= sprintf(
 					/**
