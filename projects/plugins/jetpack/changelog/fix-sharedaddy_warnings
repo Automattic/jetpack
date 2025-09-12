@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sharing: Prevent PHP warnings when dealing with unexpected data. 
