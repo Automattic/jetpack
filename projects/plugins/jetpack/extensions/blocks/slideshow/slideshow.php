@@ -51,6 +51,19 @@ function load_assets( $attr, $content ) {
 		enqueue_swiper_library();
 	}
 
+	// Fix for lazy loading conflict with slideshow images.
+	if ( ! is_admin() ) {
+		add_filter(
+			'wp_content_img_tag',
+			function ( $image ) {
+				if ( str_contains( $image, 'loading="lazy"' ) && str_contains( $image, 'wp-block-jetpack-slideshow_image' ) ) {
+					$image = str_replace( 'sizes="auto, ', 'sizes="', $image );
+				}
+				return $image;
+			}
+		);
+	}
+
 	return $content;
 }
 
