@@ -1143,15 +1143,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @param int          $feedback_id - the feedback ID.
 	 * @param Contact_Form $form - the form.
-	 * @param Feedback     $response - the response.
 	 *
 	 * @return array $lines
 	 */
-	public static function get_compiled_form_for_email( $feedback_id, $form, $response = null ) {
+	public static function get_compiled_form_for_email( $feedback_id, $form ) {
 		$compiled_form = array();
-		if ( ! $response ) {
-			$response = Feedback::get( $feedback_id );
-		}
+		$response      = Feedback::get( $feedback_id );
 
 		if ( $response instanceof Feedback ) {
 			// If the response is an instance of Feedback, we can use its method to get compiled fields.
@@ -1840,7 +1837,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} elseif ( $is_spam ) {
 			$feedback_status = 'spam';
 		} elseif ( 'no' === $this->get_attribute( 'saveResponses' ) ) {
-			$feedback_status = 'jetpack-temp-feedback';
+			$feedback_status = 'jp-temp-feedback';
 		} else {
 			$feedback_status = 'publish';
 		}
@@ -1932,7 +1929,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string the title of the email
 		 */
 		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
-		$message = self::get_compiled_form_for_email( $post_id, $this, $response );
+		$message = self::get_compiled_form_for_email( $post_id, $this );
 
 		if ( is_user_logged_in() ) {
 			$sent_by_text = sprintf(
@@ -1970,7 +1967,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Build the dashboard URL with the status and the feedback's post id if we have a post id
 		$dashboard_url           = '';
 		$footer_mark_as_spam_url = '';
-		if ( $feedback_status !== 'jetpack-temp-feedback' ) {
+		if ( $feedback_status !== 'jp-temp-feedback' ) {
 			$dashboard_url           = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
 			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
 			$footer_mark_as_spam_url = sprintf(

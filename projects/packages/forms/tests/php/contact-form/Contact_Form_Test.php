@@ -85,7 +85,7 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that form submissions are stored with 'jetpack-temp-feedback' status when saveResponses is 'no'
+	 * Test that form submissions are stored with 'jp-temp-feedback' status when saveResponses is 'no'
 	 */
 	public function test_process_submission_does_not_store_feedback_when_save_responses_no() {
 		// Fill field values
@@ -124,7 +124,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$new_post = end( $final_posts );
 		$this->assertInstanceOf( 'stdClass', $new_post, 'The new post should be a stdClass instance' );
 		$this->assertEquals( 'feedback', $new_post->post_type, 'The new post should be of type feedback' );
-		$this->assertEquals( 'jetpack-temp-feedback', $new_post->post_status, 'The new post should have jetpack-temp-feedback status when saveResponses is no' );
+		$this->assertEquals( 'jp-temp-feedback', $new_post->post_status, 'The new post should have jp-temp-feedback status when saveResponses is no' );
 
 		// Verify the form attribute is correctly set
 		$this->assertEquals( 'no', $form->get_attribute( 'saveResponses' ), 'Form should have saveResponses set to no' );

@@ -279,16 +279,17 @@ class Contact_Form_Plugin {
 			)
 		);
 
-		// Add "temp" as a post status for temporary storage when saveResponses is 'no'
+		// Add "jp-temp-feedback" as a post status for temporary storage when saveResponses is 'no'.
+		// We want these responses skip the inbox but we still need to keep them in the database so that
+		// filters and integrations continue to work.
 		register_post_status(
-			'jetpack-temp-feedback',
+			'jp-temp-feedback',
 			array(
-				'label'                  => 'Temporary',
+				'label'                  => 'Temporary Feedback Status',
 				'public'                 => false,
 				'internal'               => true,
 				'exclude_from_search'    => true,
 				'show_in_admin_all_list' => false,
-				// translators: The temporary count.
 				'protected'              => true,
 				'_builtin'               => false,
 			)
