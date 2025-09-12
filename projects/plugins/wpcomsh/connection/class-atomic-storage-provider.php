@@ -32,8 +32,8 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return bool True if this provider should handle the option.
 		 */
 		public function should_handle( $option_name ) {
-			// Handle blog connection data and user tokens for owner substitution
-			return in_array( $option_name, array( 'blog_token', 'id', 'user_tokens', 'master_user' ), true );
+			// Handle blog connection data, master_user, and user_tokens
+			return in_array( $option_name, array( 'blog_token', 'id', 'master_user', 'user_tokens' ), true );
 		}
 
 		/**
@@ -58,8 +58,8 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 					return $this->get_master_user_from_owner_email();
 
 				case 'user_tokens':
-					// This won't be called directly - we use the special method below
-					return null;
+					// Use our special owner substitution logic
+					return $this->get_user_tokens_with_owner_substitution();
 			}
 
 			return null;

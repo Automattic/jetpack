@@ -94,21 +94,6 @@ class External_Storage {
 			return null;
 		}
 
-		// Special handling for user tokens - check if we need owner substitution
-		if ( 'user_tokens' === $key && method_exists( $provider, 'get_user_tokens_with_owner_substitution' ) ) {
-			try {
-				// Use call_user_func to avoid undefined method linting error
-				$value = call_user_func( array( $provider, 'get_user_tokens_with_owner_substitution' ) );
-				if ( null !== $value && false !== $value && '' !== $value ) {
-					return $value;
-				}
-				self::log_event( 'empty', $key, 'Owner substitution returned empty', $environment );
-			} catch ( \Exception $e ) {
-				self::log_event( 'error', $key, $e->getMessage(), $environment );
-			}
-			return null;
-		}
-
 		// Try to get value from the provider
 		try {
 			$value = $provider->get( $key );
