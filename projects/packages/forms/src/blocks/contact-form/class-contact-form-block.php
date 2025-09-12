@@ -60,9 +60,6 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function register_feature( $features ) {
-		// Features under development.
-		$features['image-select-field'] = apply_filters( 'forms_alpha', false );
-
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 
@@ -538,8 +535,7 @@ class Contact_Form_Block {
 			'jetpack/form-step-container'
 		);
 
-		// Block under development.
-		if ( apply_filters( 'forms_alpha', false ) ) {
+		if ( Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-image-select',
 				array(
